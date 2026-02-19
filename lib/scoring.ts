@@ -1,0 +1,42 @@
+export type ScoreInput = {
+  answers: Record<string, number> | null | undefined
+  scaleMin: number
+  scaleMax: number
+}
+
+export type ScoreResult = {
+  scaleMin: number
+  scaleMax: number
+score: number
+  weightedAvg: number | null
+  totalWeight: number
+  answeredCount: number
+
+}
+
+export function computeScore(input: ScoreInput): ScoreResult {
+  const { answers, scaleMin, scaleMax } = input
+
+  // normalize answers so Object.values never crashes
+  const safeAnswers: Record<string, number> =
+    answers && typeof answers === "object" ? (answers as Record<string, number>) : {}
+
+  const values = Object.values(safeAnswers)
+    .map((v) => Number(v))
+    .filter((v) => Number.isFinite(v))
+
+  const answeredCount = values.length
+  if (answeredCount === 0) {
+    return { score: 0, weightedAvg: null, totalWeight: 0, answeredCount: 0, scaleMin, scaleMax }
+  }
+
+  // v1: equal weights
+  const totalWeight = answeredCount
+  const sum = values.reduce((a, b) => a + b, 0)
+  const weightedAvg = sum / totalWeight
+
+  const denom = scaleMax - scaleMin
+  const score = denom === 0 ? 0 : Math.round(((weightedAvg - scaleMin) / denom) * 100)
+
+  return { score, weightedAvg, totalWeight, answeredCount, scaleMin, scaleMax }
+}

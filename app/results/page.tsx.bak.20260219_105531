@@ -1,0 +1,118 @@
+import prisma from "@/lib/prisma";
+import { computeScore } from "@/lib/scoring";
+
+export const dynamic = "force-dynamic";
+
+export default async function ResultsPage() {
+  const latest = await prisma.surveySubmission.findFirst({
+    orderBy: { createdAt: "desc" },
+    include: {
+      company: { select: { id: true, name: true } },
+      module: { select: { id: true, key: true, title: true } },
+    },
+  });
+
+  const count = await prisma.surveySubmission.count();
+
+  const answersObj =
+    latest?.answers && typeof latest.answers === "object"
+      ? (latest.answers as Record<string, any>)
+      : {};
+
+  const questions = latest?.moduleId
+    ? await prisma.surveyQuestion.findMany({
+        where: { moduleId: latest.moduleId },
+        orderBy: { order: "asc" },
+        select: { id: true, key: true, prompt: true, order: true, weight: true },
+      })
+    : [];
+
+  const breakdown = computeScore(questions, answersObj, {
+    scaleMin: 1,
+    scaleMax: 5,
+  });
+
+  return (
+    <main className="min-h-screen py-24 text-black">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-5xl font-extrabold mb-6">Results</h1>
+
+        <div className="text-lg text-black/70 mb-10">
+          <div>
+            Total submissions:{" "}
+            <span className="font-semibold text-black">{count}</span>
+          </div>
+        </div>
+
+        {!latest ? (
+          <p className="text-black/70">No submissions yet.</p>
+        ) : (
+          <>
+            <div className="text-lg font-semibold mb-3">Latest submission</div>
+
+            <div className="p-6 rounded-2xl bg-black/5">
+              <div className="text-sm text-black/60">Alignment Score</div>
+              <div className="text-4xl font-bold">
+                {breakdown.percent ?? "—"}%
+              </div>
+              <div className="text-sm text-black/60 mt-1">
+                Weighted average:{" "}
+                {breakdown.weightedAverage != null
+                  ? breakdown.weightedAverage.toFixed(2)
+                  : "—"}
+              </div>
+
+              <div className="text-sm text-black/60 mt-4">
+                Company: {latest.company?.name ?? "—"} · Module:{" "}
+                {latest.module?.title ?? latest.module?.key ?? "—"} · Answered:{" "}
+                {breakdown.answeredCount}/{breakdown.totalCount}
+              </div>
+            </div>
+
+            <div className="space-y-4 mt-8">
+              {breakdown.lines.map((l) => (
+                <div
+                  key={l.id}
+                  className="p-4 rounded-xl border border-black/10 bg-white"
+                >
+                  <div className="text-sm font-medium">{l.prompt}</div>
+
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="text-lg font-semibold">
+                      {l.value ?? "—"}
+                    </div>
+
+                    <div className="text-sm text-black/50">
+                      weight {l.weight ?? 1}
+                    </div>
+                  </div>
+
+                  <div className="mt-3 h-2 bg-black/10 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-black"
+                      style={{
+                        width: `${
+                          l.value != null
+                            ? ((l.value - breakdown.scaleMin) /
+                                (breakdown.scaleMax - breakdown.scaleMin)) *
+                              100
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        <div className="mt-10">
+          <a href="/survey" className="underline">
+            Back to Survey
+          </a>
+        </div>
+      </div>
+    </main>
+  );
+}

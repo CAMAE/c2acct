@@ -1,0 +1,76 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+
+export async function GET() {
+  return NextResponse.json({ status: "AAE route live" });
+}
+
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const engagementId = params.id;
+
+  try {
+    const body = await req.json();
+
+    const clamp01 = (n: unknown) => {
+      const x = Number(n);
+      if (!Number.isFinite(x)) return 0;
+      return Math.max(0, Math.min(1, x));
+    };
+
+    const revenueVolatility = clamp01(body.revenueVolatility);
+    const clientResponsiveness = clamp01(body.clientResponsiveness);
+    const techStackFragmentation = clamp01(body.techStackFragmentation);
+    const scopeCreep = clamp01(body.scopeCreep);
+
+    const riskScore = Number((revenueVolatility * 0.4 + scopeCreep * 0.6).toFixed(2));
+    const stabilityScore = Number(
+      (clientResponsiveness * 0.7 + (1 - revenueVolatility) * 0.3).toFixed(2)
+    );
+    const complexityScore = Number((techStackFragmentation * 0.8 + scopeCreep * 0.2).toFixed(2));
+    const driftScore = Number((scopeCreep * 0.5 + techStackFragmentation * 0.5).toFixed(2));
+
+    const notes = [
+      `Inputs: revenueVolatility=${revenueVolatility}, clientResponsiveness=${clientResponsiveness}, techStackFragmentation=${techStackFragmentation}, scopeCreep=${scopeCreep}`,
+      `riskScore: 0.4*revenueVolatility + 0.6*scopeCreep`,
+      `stabilityScore: 0.7*clientResponsiveness + 0.3*(1-revenueVolatility)`,
+      `complexityScore: 0.8*techStackFragmentation + 0.2*scopeCreep`,
+      `driftScore: 0.5*scopeCreep + 0.5*techStackFragmentation`,
+    ].join("\n");
+
+    const engagement = await prisma.engagement.findUnique({
+      where: { id: engagementId },
+      select: { id: true },
+    });
+
+    if (!engagement) {
+      return NextResponse.json(
+        { success: false, error: "Engagement not found" },
+        { status: 404 }
+      );
+    }
+
+    const profile = await prisma.alignmentProfile.upsert({
+      where: { engagementId },
+      update: { riskScore, stabilityScore, complexityScore, driftScore, notes },
+      create: {
+        engagementId,
+        riskScore,
+        stabilityScore,
+        complexityScore,
+        driftScore,
+        notes,
+      },
+    });
+
+    return NextResponse.json({ success: true, profile });
+  } catch (err) {
+    console.error("Scoring failed:", err);
+    return NextResponse.json(
+      { success: false, error: "Scoring failed" },
+      { status: 500 }
+    );
+  }
+}

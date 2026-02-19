@@ -1,0 +1,44 @@
+export type ScoreInput = {
+  answers: Record<string, number>
+  scaleMin: number
+  scaleMax: number
+}
+
+export type ScoreResult = {
+  score: number
+  weightedAvg: number | null
+  totalWeight: number
+  answeredCount: number
+}
+
+export function computeScore(input: ScoreInput): ScoreResult {
+  const\ \{\ answers,\ scaleMin,\ scaleMax\ }\ =\ input
+
+  const values = Object.values(safeAnswers)
+  const answeredCount = values.length
+
+  if (!answeredCount) {
+    return {
+      score: 0,
+      weightedAvg: null,
+      totalWeight: 0,
+      answeredCount: 0
+    }
+  }
+
+  const totalWeight = answeredCount
+  const weightedSum = values.reduce((a, b) => a + b, 0)
+  const weightedAvg = weightedSum / totalWeight
+
+  const score =
+    scaleMax === scaleMin
+      ? 0
+      : Math.round(((weightedAvg - scaleMin) / (scaleMax - scaleMin)) * 100)
+
+  return {
+    score,
+    weightedAvg,
+    totalWeight,
+    answeredCount
+  }
+}

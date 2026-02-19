@@ -1,0 +1,271 @@
+﻿generator client {
+  provider   = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id            String           @id @default(cuid())
+  name          String
+  type          OrganizationType
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  firmProfile   FirmProfile?
+  subscription  Subscription?
+  users         User[]
+  vendorProfile VendorProfile?
+}
+
+model User {
+  id             String       @id @default(cuid())
+  email          String       @unique
+  name           String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organizationId String
+  role           UserRole     @default(MEMBER)
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  companyId      String?
+  company        Company?     @relation(fields: [companyId], references: [id])
+}
+
+model FirmProfile {
+  id             String       @id @default(cuid())
+  organizationId String       @unique
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  industry       String?
+  size           Int?
+  clients        Client[]
+  organization   Organization @relation(fields: [organizationId], references: [id])
+}
+
+model Client {
+  id          String       @id @default(cuid())
+  firmId      String
+  name        String
+  industry    String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  firm        FirmProfile  @relation(fields: [firmId], references: [id])
+  engagements Engagement[]
+}
+
+model Engagement {
+  id               String            @id @default(cuid())
+  clientId         String
+  type             EngagementType
+  name             String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  alignmentProfile AlignmentProfile?
+  client           Client            @relation(fields: [clientId], references: [id])
+}
+
+model AlignmentProfile {
+  id              String     @id @default(cuid())
+  engagementId    String     @unique
+  riskScore       Float?
+  stabilityScore  Float?
+  notes           String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  complexityScore Float?
+  driftScore      Float?
+  engagement      Engagement @relation(fields: [engagementId], references: [id])
+}
+
+model VendorProfile {
+  id             String       @id @default(cuid())
+  organizationId String       @unique
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  products       Product[]
+  organization   Organization @relation(fields: [organizationId], references: [id])
+}
+
+model Product {
+  id          String        @id @default(cuid())
+  vendorId    String
+  name        String
+  category    String?
+  apiEndpoint String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  vendor      VendorProfile @relation(fields: [vendorId], references: [id])
+
+  companyId   String?
+  company     Company?      @relation(fields: [companyId], references: [id])
+
+  surveySubmissions SurveySubmission[]
+}
+
+model Subscription {
+  id             String             @id @default(cuid())
+  organizationId String             @unique
+  tier           SubscriptionTier
+  status         SubscriptionStatus @default(ACTIVE)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  organization   Organization       @relation(fields: [organizationId], references: [id])
+}
+
+enum OrganizationType {
+  FIRM
+  VENDOR
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum EngagementType {
+  BOOKKEEPING
+  TAX
+  AUDIT
+  CFO
+  ADVISORY
+}
+
+enum SubscriptionTier {
+  FREE
+  PRO
+  ELITE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+}
+
+//
+// ========= Modular Intelligence Collection =========
+//
+
+enum ModuleScope {
+  FIRM
+  VENDOR
+  PRODUCT
+  ENTERPRISE
+}
+
+enum QuestionInputType {
+  TEXT
+  TEXTAREA
+  NUMBER
+  BOOLEAN
+  SELECT
+  MULTISELECT
+  SLIDER
+}
+
+model SurveyModule {
+  id          String      @id @default(cuid())
+  key         String      @unique
+  title       String
+  description String?
+  scope       ModuleScope
+  version     Int         @default(1)
+  weight      Float       @default(1.0)
+  active      Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  questions        SurveyQuestion[]
+  badgeRules       BadgeRule[]
+  surveySubmissions SurveySubmission[]
+}
+
+model SurveyQuestion {
+  id        String            @id @default(cuid())
+  moduleId  String
+  key       String
+  prompt    String
+  inputType QuestionInputType
+  config    Json?
+  weight    Float             @default(1.0)
+  order     Int
+  createdAt DateTime          @default(now())
+
+  module SurveyModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([moduleId, key])
+}
+
+//
+// ========= Badge Rules =========
+//
+
+model BadgeRule {
+  id       String  @id @default(cuid())
+  badgeId  String
+  moduleId String
+  minScore Float?
+  required Boolean @default(true)
+
+  badge  Badge        @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  module SurveyModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([badgeId, moduleId])
+}
+
+///////////////////////////////////////////////////////
+// === AAE Core Multi-Tenant Foundation Models =======
+///////////////////////////////////////////////////////
+
+model Company {
+  id        String      @id @default(cuid())
+  name      String
+  type      CompanyType
+  createdAt DateTime    @default(now())
+
+  users            User[]
+  surveys          SurveySubmission[]
+  products         Product[]
+}
+
+enum CompanyType {
+  FIRM
+  VENDOR
+}
+
+model Badge {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  rules BadgeRule[]
+}
+
+///////////////////////////////////////////////////////
+// === Survey Responses (Company + optional Product) ==
+///////////////////////////////////////////////////////
+
+model SurveySubmission {
+  id        String   @id @default(cuid())
+  version   Int
+  answers   Json
+  score     Float?
+  createdAt DateTime @default(now())
+
+  moduleId  String
+  companyId String
+  productId String?
+
+  module  SurveyModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  company Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  product Product?     @relation(fields: [productId], references: [id])
+
+  @@index([companyId])
+  @@index([productId])
+  @@index([moduleId])
+}

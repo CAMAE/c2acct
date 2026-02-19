@@ -1,0 +1,81 @@
+﻿import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { computeScoreBreakdown } from "@/lib/scoring";
+
+export const dynamic = "force-dynamic";
+
+export async function POST(req: NextRequest) {
+  try {
+    const raw = await req.text();
+    let body: any;
+    try {
+      body = JSON.parse(raw);
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid JSON body", raw: raw?.slice?.(0, 200) ?? String(raw) },
+        { status: 400 }
+      );
+    }
+
+    const companyId = body?.companyId;
+    const moduleKey = body?.moduleKey;
+    const answers = body?.answers;
+
+    if (!companyId || !moduleKey || !answers || typeof answers !== "object") {
+      return NextResponse.json(
+        { error: "Missing/invalid fields", expected: { companyId: "string", moduleKey: "string", answers: "object" } },
+        { status: 400 }
+      );
+    }
+
+    const module = await prisma.surveyModule.findUnique({
+      where: { key: moduleKey },
+      select: { id: true, version: true, key: true, title: true },
+    });
+
+    if (!module) {
+      return NextResponse.json({ error: "Module not found", moduleKey }, { status: 404 });
+    }
+
+    const questions = await prisma.surveyQuestion.findMany({
+      where: { moduleId: module.id },
+      orderBy: { order: "asc" },
+      select: { id: true, key: true, prompt: true, weight: true },
+    });
+
+    const breakdown = computeScoreBreakdown(questions, answers, { scaleMin: 1, scaleMax: 5 });
+    const score = breakdown.percent; // normalized 0–100
+  const companyExists = await prisma.company.findUnique({ where: { id: companyId }, select: { id: true } });
+  if (!companyExists) {
+    return NextResponse.json({ error: "Invalid companyId" }, { status: 400 });
+  }
+    const submission = await prisma.surveySubmission.create({
+      data: {
+        company: { connect: { id: companyId } },
+        module: { connect: { id: module.id } },
+        version: module.version,
+        answers,
+        score,
+      },
+      select: {
+        id: true,
+        createdAt: true,
+        companyId: true,
+        moduleId: true,
+        version: true,
+        score: true,
+      },
+    });
+
+    return NextResponse.json({ submission, breakdown });
+  } catch (error: any) {
+    console.error("SUBMIT_ROUTE_ERROR:", error);
+    return NextResponse.json(
+      { error: "Submission failed", message: error?.message ?? String(error), name: error?.name },
+      { status: 500 }
+    );
+  }
+}
+
+
+

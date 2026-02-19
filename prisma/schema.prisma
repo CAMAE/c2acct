@@ -1,0 +1,173 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+///////////////////////////////////////////////////////
+// === AAE Core Multi-Tenant Foundation Models =======
+///////////////////////////////////////////////////////
+
+enum CompanyType {
+  FIRM
+  VENDOR
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model Company {
+  id        String      @id @default(cuid())
+  name      String
+  type      CompanyType
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  users             User[]
+  products          Product[]
+  surveySubmissions SurveySubmission[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      UserRole @default(MEMBER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+
+  @@index([companyId])
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  companyId   String
+  name        String
+  category    String?
+  apiEndpoint String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+}
+
+///////////////////////////////////////////////////////
+// ========= Modular Intelligence Collection =========
+///////////////////////////////////////////////////////
+
+enum ModuleScope {
+  FIRM
+  VENDOR
+  PRODUCT
+  ENTERPRISE
+}
+
+enum QuestionInputType {
+  SLIDER
+  SELECT
+  MULTISELECT
+  BOOLEAN
+  NUMBER
+  TEXT
+}
+
+model SurveyModule {
+  id          String      @id @default(cuid())
+  key         String      @unique
+  title       String
+  description String?
+  scope       ModuleScope
+  version     Int         @default(1)
+  weight      Float       @default(1.0)
+  active      Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  questions   SurveyQuestion[]
+  badgeRules  BadgeRule[]
+  submissions SurveySubmission[]
+}
+
+model SurveyQuestion {
+  id        String            @id @default(cuid())
+  moduleId  String
+  key       String
+  prompt    String
+  inputType QuestionInputType
+  weight    Float             @default(1.0)
+  order     Int
+  required  Boolean           @default(true)
+
+  createdAt DateTime     @default(now())
+  meta      Json?
+  updatedAt DateTime     @updatedAt
+  module    SurveyModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([moduleId, key])
+  @@index([moduleId])
+}
+
+///////////////////////////////////////////////////////
+// === Survey Responses (Company + optional Product) ==
+///////////////////////////////////////////////////////
+
+model SurveySubmission {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  companyId     String
+  moduleId      String
+  version       Int          @default(1)
+  answers       Json
+  score         Int          @default(0)
+  weightedAvg   Float?
+  scoreVersion  Int          @default(1)
+  scaleMin      Int          @default(0)
+  scaleMax      Int          @default(100)
+  totalWeight   Float        @default(0)
+  answeredCount Int          @default(0)
+  company       Company      @relation(fields: [companyId], references: [id])
+  module        SurveyModule @relation(fields: [moduleId], references: [id])
+
+  @@index([companyId, moduleId, createdAt])
+}
+
+///////////////////////////////////////////////////////
+// ========= Badge Rules (Modules -> Badges) =========
+///////////////////////////////////////////////////////
+
+model Badge {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  rules BadgeRule[]
+}
+
+model BadgeRule {
+  id       String  @id @default(cuid())
+  badgeId  String
+  moduleId String
+  minScore Float?
+  required Boolean @default(true)
+
+  badge  Badge        @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  module SurveyModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([badgeId, moduleId])
+  @@index([moduleId])
+  @@index([badgeId])
+}

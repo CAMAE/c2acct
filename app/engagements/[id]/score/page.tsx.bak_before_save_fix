@@ -1,0 +1,264 @@
+﻿"use client";
+
+import { useEffect, useMemo, useState } from "react";
+
+type ScorePayload = {
+  revenueVolatility: number;
+  clientResponsiveness: number;
+  techStackFragmentation: number;
+  scopeCreep: number;
+};
+
+type ApiOk = {
+  success: true;
+  profile: any;
+};
+
+type ApiErr = {
+  success: false;
+  error: string;
+  detail?: string;
+  issues?: unknown;
+};
+
+type ApiResp = ApiOk | ApiErr;
+
+function clamp01(n: number) {
+  if (Number.isNaN(n)) return 0;
+  return Math.max(0, Math.min(1, n));
+}
+
+export default function EngagementScorePage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const engagementId = params.id;
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [resp, setResp] = useState<ApiResp | null>(null);
+
+  const [form, setForm] = useState<ScorePayload>({
+    revenueVolatility: 0.2,
+    clientResponsiveness: 0.8,
+    techStackFragmentation: 0.4,
+    scopeCreep: 0.3,
+  });
+
+  const apiUrl = useMemo(
+    () => `/api/engagements/${encodeURIComponent(engagementId)}/score`,
+    [engagementId]
+  );
+
+  async function load() {
+    setLoading(true);
+    try {
+      const r = await fetch(apiUrl, { method: "GET" });
+      const j = (await r.json()) as ApiResp;
+
+      setResp(j);
+
+      if (j.success && j.profile) {
+        const p = j.profile as any;
+
+        const next: Partial<ScorePayload> = {};
+
+        if (typeof p.revenueVolatility === "number")
+          next.revenueVolatility = clamp01(p.revenueVolatility);
+        if (typeof p.clientResponsiveness === "number")
+          next.clientResponsiveness = clamp01(p.clientResponsiveness);
+        if (typeof p.techStackFragmentation === "number")
+          next.techStackFragmentation = clamp01(p.techStackFragmentation);
+        if (typeof p.scopeCreep === "number") next.scopeCreep = clamp01(p.scopeCreep);
+
+        if (Object.keys(next).length) setForm((prev) => ({ ...prev, ...next }));
+      }
+    } catch (e: any) {
+      setResp({
+        success: false,
+        error: "Failed to load",
+        detail: String(e?.message ?? e),
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function save() {
+    setSaving(true);
+    try {
+      const r = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const j = (await r.json()) as ApiResp;
+      setResp(j);
+    } catch (e: any) {
+      setResp({
+        success: false,
+        error: "Failed to save",
+        detail: String(e?.message ?? e),
+      });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiUrl]);
+
+  const computed = useMemo(() => {
+    const riskScore = 0.5 * form.scopeCreep + 0.5 * form.techStackFragmentation;
+    const stabilityScore =
+      0.8 * form.clientResponsiveness + 0.2 * (1 - form.revenueVolatility);
+
+    return {
+      riskScore: Number(riskScore.toFixed(3)),
+      stabilityScore: Number(stabilityScore.toFixed(3)),
+    };
+  }, [form]);
+
+  function Slider({
+    label,
+    keyName,
+    value,
+  }: {
+    label: string;
+    keyName: keyof ScorePayload;
+    value: number;
+  }) {
+    return (
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <strong>{label}</strong>
+          <span style={{ fontFamily: "monospace" }}>{value.toFixed(2)}</span>
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={1}
+          step={0.01}
+          value={value}
+          onChange={(e) => {
+            const v = clamp01(parseFloat(e.target.value));
+            setForm((prev) => ({ ...prev, [keyName]: v }));
+          }}
+          style={{ width: "100%" }}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ maxWidth: 720, margin: "40px auto", padding: "0 16px" }}>
+      <h1 style={{ marginBottom: 8 }}>Engagement Score</h1>
+      <div style={{ marginBottom: 20, fontFamily: "monospace", opacity: 0.8 }}>
+        {engagementId}
+      </div>
+
+      <div
+        style={{
+          border: "1px solid #ddd",
+          borderRadius: 12,
+          padding: 16,
+          marginBottom: 16,
+        }}
+      >
+        <Slider
+          label="Revenue Volatility"
+          keyName="revenueVolatility"
+          value={form.revenueVolatility}
+        />
+        <Slider
+          label="Client Responsiveness"
+          keyName="clientResponsiveness"
+          value={form.clientResponsiveness}
+        />
+        <Slider
+          label="Tech Stack Fragmentation"
+          keyName="techStackFragmentation"
+          value={form.techStackFragmentation}
+        />
+        <Slider label="Scope Creep" keyName="scopeCreep" value={form.scopeCreep} />
+
+        <div style={{ display: "flex", gap: 12 }}>
+          <button
+            onClick={save}
+            disabled={saving}
+            style={{
+              padding: "10px 14px",
+              borderRadius: 10,
+              border: "1px solid #111",
+              cursor: saving ? "not-allowed" : "pointer",
+            }}
+          >
+            {saving ? "Saving..." : "Save score"}
+          </button>
+
+          <button
+            onClick={load}
+            disabled={loading}
+            style={{
+              padding: "10px 14px",
+              borderRadius: 10,
+              border: "1px solid #ddd",
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
+          >
+            {loading ? "Loading..." : "Reload from DB"}
+          </button>
+        </div>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+          marginBottom: 16,
+          fontFamily: "monospace",
+        }}
+      >
+        <div
+          style={{
+            flex: 1,
+            border: "1px solid #ddd",
+            borderRadius: 12,
+            padding: 12,
+          }}
+        >
+          <div style={{ opacity: 0.7 }}>Preview riskScore</div>
+          <div style={{ fontSize: 22 }}>{computed.riskScore}</div>
+        </div>
+        <div
+          style={{
+            flex: 1,
+            border: "1px solid #ddd",
+            borderRadius: 12,
+            padding: 12,
+          }}
+        >
+          <div style={{ opacity: 0.7 }}>Preview stabilityScore</div>
+          <div style={{ fontSize: 22 }}>{computed.stabilityScore}</div>
+        </div>
+      </div>
+
+      <h3 style={{ marginBottom: 8 }}>API response</h3>
+      <pre
+        style={{
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-word",
+          border: "1px solid #ddd",
+          borderRadius: 12,
+          padding: 12,
+          background: "#fafafa",
+        }}
+      >
+        {resp ? JSON.stringify(resp, null, 2) : "(no response yet)"}
+      </pre>
+    </div>
+  );
+}

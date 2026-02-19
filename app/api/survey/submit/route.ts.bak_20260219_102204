@@ -1,0 +1,76 @@
+﻿import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+export async function GET() {
+  return NextResponse.json({ ok: true, route: "/api/survey/submit", methods: ["POST"] });
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json().catch(() => null);
+
+    const companyId = body?.companyId;
+    const moduleKey = body?.moduleKey;
+    const answers = body?.answers;
+
+    if (!companyId || typeof companyId !== "string") {
+      return NextResponse.json({ error: "Missing/invalid fields", expected: { companyId: "string", moduleKey: "string", answers: "object" } }, { status: 400 });
+    }
+    if (!moduleKey || typeof moduleKey !== "string") {
+      return NextResponse.json({ error: "Missing/invalid fields", expected: { companyId: "string", moduleKey: "string", answers: "object" } }, { status: 400 });
+    }
+    if (!answers || typeof answers !== "object" || Array.isArray(answers)) {
+      return NextResponse.json({ error: "Missing/invalid fields", expected: { companyId: "string", moduleKey: "string", answers: "object" } }, { status: 400 });
+    }
+
+    const company = await prisma.company.findUnique({ where: { id: companyId }, select: { id: true } });
+    if (!company) return NextResponse.json({ error: "Invalid companyId" }, { status: 400 });
+
+    const module = await prisma.surveyModule.findUnique({ where: { key: moduleKey }, select: { id: true, version: true } });
+    if (!module) return NextResponse.json({ error: "Invalid moduleKey" }, { status: 400 });
+
+    const answeredCount = Object.keys(answers).length;
+
+    const created = await prisma.surveySubmission.create({
+      data: {
+        company: { connect: { id: companyId } },
+        module: { connect: { id: module.id } },
+
+        // required fields
+        version: module.version ?? 1,
+        answers,
+
+        // scoring fields (no nulls)
+        score: 0,
+        weightedAvg: null,
+        scoreVersion: 1,
+
+        // scoring contract fields
+        scaleMin: 0,
+        scaleMax: 100,
+        totalWeight: 0,
+        answeredCount,
+      },
+      select: {
+        id: true,
+        createdAt: true,
+        companyId: true,
+        moduleId: true,
+        version: true,
+        score: true,
+        weightedAvg: true,
+        scoreVersion: true,
+        scaleMin: true,
+        scaleMax: true,
+        totalWeight: true,
+        answeredCount: true,
+      },
+    });
+
+    return NextResponse.json({ ok: true, submission: created });
+  } catch (e: any) {
+    return NextResponse.json({ error: "Submission failed", message: String(e?.message ?? e) }, { status: 500 });
+  }
+}

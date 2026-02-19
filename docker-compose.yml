@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16
+    container_name: c2acct-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: c2acct
+    ports:
+      - "5433:5432"
+    volumes:
+      - c2acct_pgdata:/var/lib/postgresql/data
+
+volumes:
+  c2acct_pgdata:
