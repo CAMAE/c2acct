@@ -8,7 +8,7 @@ export default async function ResultsPage() {
   const latest = await prisma.surveySubmission.findFirst({
     orderBy: { createdAt: "desc" },
     include: {
-      company: { select: { name: true } },
+      Company: { select: { name: true } },
       module: { select: { key: true, version: true } },
     },
   });
