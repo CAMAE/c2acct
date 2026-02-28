@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { computeScore } from "@/lib/scoring";
+import { randomUUID } from "crypto";
 
 const SCORING_VERSION = 1;
 
