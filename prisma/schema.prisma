@@ -7,65 +7,377 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-///////////////////////////////////////////////////////
-// === AAE Core Multi-Tenant Foundation Models =======
-///////////////////////////////////////////////////////
-
-enum CompanyType {
-  FIRM
-  VENDOR
+model Badge {
+  id           String         @id
+  name         String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  BadgeRule    BadgeRule[]
+  CompanyBadge CompanyBadge[]
 }
 
-enum UserRole {
-  OWNER
-  ADMIN
-  MEMBER
+model BadgeRule {
+  id           String       @id
+  badgeId      String
+  moduleId     String
+  minScore     Float?
+  required     Boolean      @default(true)
+  Badge        Badge        @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  SurveyModule SurveyModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([badgeId, moduleId])
+  @@index([badgeId])
+  @@index([moduleId])
+}
+
+model BenchmarkCohort {
+  id                     String                   @id
+  key                    String                   @unique
+  title                  String
+  companyType            CompanyType
+  createdAt              DateTime                 @default(now())
+  updatedAt    DateTime       @updatedAt
+  BenchmarkRun           BenchmarkRun[]
+  CompanyBenchmark       CompanyBenchmark[]
+  CompanyBenchmarkCohort CompanyBenchmarkCohort[]
+}
+
+model BenchmarkRun {
+  id              String          @id
+  cohortId        String
+  metricKey       String
+  version         Int             @default(1)
+  n               Int             @default(0)
+  mean            Float           @default(0)
+  stdev           Float?
+  p10             Float?
+  p25             Float?
+  p50             Float?
+  p75             Float?
+  p90             Float?
+  computedAt      DateTime        @default(now())
+  BenchmarkCohort BenchmarkCohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+
+  @@unique([cohortId, metricKey, version])
+  @@index([cohortId])
+  @@index([metricKey])
+}
+
+model CapabilityEdge {
+  id                                                   String         @id
+  fromId                                               String
+  toId                                                 String
+  type                                                 String?
+  weight                                               Float          @default(1.0)
+  createdAt                                            DateTime       @default(now())
+  CapabilityNode_CapabilityEdge_fromIdToCapabilityNode CapabilityNode @relation("CapabilityEdge_fromIdToCapabilityNode", fields: [fromId], references: [id], onDelete: Cascade)
+  CapabilityNode_CapabilityEdge_toIdToCapabilityNode   CapabilityNode @relation("CapabilityEdge_toIdToCapabilityNode", fields: [toId], references: [id], onDelete: Cascade)
+
+  @@unique([fromId, toId])
+  @@index([fromId])
+  @@index([toId])
+}
+
+model CapabilityNode {
+  id                                                   String                     @id
+  key                                                  String                     @unique
+  title                                                String
+  description                                          String?
+  scope                                                CapabilityScope
+  level                                                CapabilityLevel            @default(TIER1)
+  weight                                               Float                      @default(1.0)
+  active                                               Boolean                    @default(true)
+  createdAt                                            DateTime                   @default(now())
+  updatedAt                                            DateTime
+  CapabilityEdge_CapabilityEdge_fromIdToCapabilityNode CapabilityEdge[]           @relation("CapabilityEdge_fromIdToCapabilityNode")
+  CapabilityEdge_CapabilityEdge_toIdToCapabilityNode   CapabilityEdge[]           @relation("CapabilityEdge_toIdToCapabilityNode")
+  CompanyCapabilityScore                               CompanyCapabilityScore[]
+  InsightCapabilityRule                                InsightCapabilityRule[]
+  ModuleCapability                                     ModuleCapability[]
+  SurveyQuestionCapability                             SurveyQuestionCapability[]
 }
 
 model Company {
-  id        String      @id @default(cuid())
-  name      String
-  type      CompanyType
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-
-  users             User[]
-  products          Product[]
-  surveySubmissions SurveySubmission[]
+  id                     String                   @id
+  name                   String
+  type                   CompanyType
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime
+  CompanyBadge           CompanyBadge[]
+  CompanyBenchmark       CompanyBenchmark[]
+  CompanyBenchmarkCohort CompanyBenchmarkCohort[]
+  CompanyCapabilityScore CompanyCapabilityScore[]
+  FirmMaturityIndex      FirmMaturityIndex[]
+  FirmMaturityMomentum   FirmMaturityMomentum[]
+  FirmMaturitySnapshot   FirmMaturitySnapshot[]
+  Product                Product[]
+  SurveySubmission       SurveySubmission[]
+  User                   User[]
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  role      UserRole @default(MEMBER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model CompanyBadge {
+  id        String   @id
+  companyId String
+  badgeId   String
+  moduleId  String
+  awardedAt DateTime @default(now())
+  Badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  Company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  companyId String?
-  company   Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
-
+  @@unique([companyId, badgeId, moduleId])
+  @@index([badgeId])
   @@index([companyId])
 }
 
+model CompanyBenchmark {
+  id              String          @id
+  companyId       String
+  cohortId        String
+  metricKey       String
+  version         Int             @default(1)
+  score           Float           @default(0)
+  percentile      Float           @default(0)
+  computedAt      DateTime        @default(now())
+  BenchmarkCohort BenchmarkCohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  Company         Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, cohortId, metricKey, version])
+  @@index([cohortId])
+  @@index([companyId])
+}
+
+model CompanyBenchmarkCohort {
+  id              String          @id
+  companyId       String
+  cohortId        String
+  createdAt       DateTime        @default(now())
+  BenchmarkCohort BenchmarkCohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  Company         Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, cohortId])
+  @@index([cohortId])
+  @@index([companyId])
+}
+
+model CompanyCapabilityScore {
+  id             String         @id
+  companyId      String
+  nodeId         String
+  score          Float
+  scoreVersion   Int            @default(1)
+  computedAt     DateTime       @default(now())
+  Company        Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  CapabilityNode CapabilityNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, nodeId, scoreVersion])
+  @@index([companyId])
+  @@index([nodeId])
+}
+
+model FirmMaturityIndex {
+  id         String   @id
+  companyId  String
+  score      Float
+  version    Int      @default(1)
+  computedAt DateTime @default(now())
+  bandMax    Float    @default(25)
+  bandMin    Float    @default(0)
+  tier       String   @default("FOUNDATIONAL")
+  Company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, version])
+  @@index([companyId])
+}
+
+model FirmMaturityMomentum {
+  id         String   @id
+  companyId  String
+  version    Int      @default(1)
+  windowN    Int      @default(3)
+  delta1     Float    @default(0)
+  delta2     Float    @default(0)
+  accel      Float    @default(0)
+  avgDelta   Float    @default(0)
+  volatility Float    @default(0)
+  trend      String   @default("FLAT")
+  velocity   String   @default("STABLE")
+  stability  String   @default("STABLE")
+  computedAt DateTime @default(now())
+  Company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, version])
+  @@index([companyId])
+}
+
+model FirmMaturitySnapshot {
+  id         String   @id
+  companyId  String
+  score      Float
+  tier       String
+  bandMin    Float
+  bandMax    Float
+  version    Int      @default(1)
+  computedAt DateTime @default(now())
+  Company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, computedAt])
+  @@index([companyId, version])
+}
+
+model Insight {
+  id                    String                  @id
+  key                   String                  @unique
+  title                 String
+  body                  String
+  tier                  Int                     @default(1)
+  active                Boolean                 @default(true)
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime
+  InsightCapabilityRule InsightCapabilityRule[]
+}
+
+model InsightCapabilityRule {
+  id             String         @id
+  insightId      String
+  nodeId         String
+  minScore       Float
+  required       Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime
+  Insight        Insight        @relation(fields: [insightId], references: [id], onDelete: Cascade)
+  CapabilityNode CapabilityNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+
+  @@unique([insightId, nodeId])
+  @@index([insightId])
+  @@index([nodeId])
+}
+
+model ModuleCapability {
+  id             String         @id
+  moduleId       String
+  nodeId         String
+  weight         Float          @default(1.0)
+  createdAt      DateTime       @default(now())
+  SurveyModule   SurveyModule   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  CapabilityNode CapabilityNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+
+  @@unique([moduleId, nodeId])
+  @@index([moduleId])
+  @@index([nodeId])
+}
+
 model Product {
-  id          String   @id @default(cuid())
+  id          String   @id
   companyId   String
   name        String
   category    String?
   apiEndpoint String?
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  updatedAt   DateTime
+  Company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@index([companyId])
 }
 
-///////////////////////////////////////////////////////
-// ========= Modular Intelligence Collection =========
-///////////////////////////////////////////////////////
+model SurveyModule {
+  id               String             @id
+  key              String             @unique
+  title            String
+  description      String?
+  scope            ModuleScope
+  version          Int                @default(1)
+  weight           Float              @default(1.0)
+  active           Boolean            @default(true)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime
+  BadgeRule        BadgeRule[]
+  ModuleCapability ModuleCapability[]
+  SurveyQuestion   SurveyQuestion[]
+  SurveySubmission SurveySubmission[]
+}
+
+model SurveyQuestion {
+  id                       String                     @id
+  moduleId                 String
+  key                      String
+  prompt                   String
+  inputType                QuestionInputType
+  weight                   Float                      @default(1.0)
+  order                    Int
+  required                 Boolean                    @default(true)
+  createdAt                DateTime                   @default(now())
+  meta                     Json?
+  updatedAt                DateTime
+  SurveyModule             SurveyModule               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  SurveyQuestionCapability SurveyQuestionCapability[]
+}
+
+model SurveyQuestionCapability {
+  id             String         @id
+  questionId     String
+  nodeId         String
+  weight         Float          @default(1.0)
+  createdAt      DateTime       @default(now())
+  CapabilityNode CapabilityNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  SurveyQuestion SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, nodeId])
+  @@index([nodeId])
+  @@index([questionId])
+}
+
+model SurveySubmission {
+  id            String       @id
+  version       Int          @default(1)
+  answers       Json
+  score         Int          @default(0)
+  signalIntegrityScore Float @default(1.0)
+  integrityFlags Json?
+  createdAt     DateTime     @default(now())
+  moduleId      String
+  companyId     String
+  scoreVersion  Int          @default(1)
+  weightedAvg   Float?
+  answeredCount Int          @default(0)
+  scaleMax      Int          @default(100)
+  scaleMin      Int          @default(0)
+  totalWeight   Float        @default(0)
+  Company       Company      @relation(fields: [companyId], references: [id])
+  SurveyModule  SurveyModule @relation(fields: [moduleId], references: [id])
+
+  @@index([companyId, moduleId, createdAt])
+}
+
+model User {
+  id        String   @id
+  email     String   @unique
+  name      String?
+  role      UserRole @default(MEMBER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  companyId String?
+  Company   Company? @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
+}
+
+enum CapabilityLevel {
+  TIER1
+  TIER2
+  TIER3
+}
+
+enum CapabilityScope {
+  FIRM
+  VENDOR
+  PRODUCT
+  ENTERPRISE
+}
+
+enum CompanyType {
+  FIRM
+  VENDOR
+}
 
 enum ModuleScope {
   FIRM
@@ -83,91 +395,16 @@ enum QuestionInputType {
   TEXT
 }
 
-model SurveyModule {
-  id          String      @id @default(cuid())
-  key         String      @unique
-  title       String
-  description String?
-  scope       ModuleScope
-  version     Int         @default(1)
-  weight      Float       @default(1.0)
-  active      Boolean     @default(true)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-
-  questions   SurveyQuestion[]
-  badgeRules  BadgeRule[]
-  submissions SurveySubmission[]
+enum UserRole {
+  OWNER
+  ADMIN
+  MEMBER
 }
 
-model SurveyQuestion {
-  id        String            @id @default(cuid())
-  moduleId  String
-  key       String
-  prompt    String
-  inputType QuestionInputType
-  weight    Float             @default(1.0)
-  order     Int
-  required  Boolean           @default(true)
 
-  createdAt DateTime     @default(now())
-  meta      Json?
-  updatedAt DateTime     @updatedAt
-  module    SurveyModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-
-  @@unique([moduleId, key])
-  @@index([moduleId])
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "../docs/erd.svg"
 }
 
-///////////////////////////////////////////////////////
-// === Survey Responses (Company + optional Product) ==
-///////////////////////////////////////////////////////
 
-model SurveySubmission {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-
-  companyId     String
-  moduleId      String
-  version       Int          @default(1)
-  answers       Json
-  score         Int          @default(0)
-  weightedAvg   Float?
-  scoreVersion  Int          @default(1)
-  scaleMin      Int          @default(0)
-  scaleMax      Int          @default(100)
-  totalWeight   Float        @default(0)
-  answeredCount Int          @default(0)
-  company       Company      @relation(fields: [companyId], references: [id])
-  module        SurveyModule @relation(fields: [moduleId], references: [id])
-
-  @@index([companyId, moduleId, createdAt])
-}
-
-///////////////////////////////////////////////////////
-// ========= Badge Rules (Modules -> Badges) =========
-///////////////////////////////////////////////////////
-
-model Badge {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  rules BadgeRule[]
-}
-
-model BadgeRule {
-  id       String  @id @default(cuid())
-  badgeId  String
-  moduleId String
-  minScore Float?
-  required Boolean @default(true)
-
-  badge  Badge        @relation(fields: [badgeId], references: [id], onDelete: Cascade)
-  module SurveyModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-
-  @@unique([badgeId, moduleId])
-  @@index([moduleId])
-  @@index([badgeId])
-}
