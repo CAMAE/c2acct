@@ -9,7 +9,7 @@ export default async function ResultsPage() {
     orderBy: { createdAt: "desc" },
     include: {
       Company: { select: { name: true } },
-      Module: { select: { key: true, version: true } },
+      SurveyModule: { select: { key: true, version: true } },
     },
   });
 
@@ -60,7 +60,7 @@ export default async function ResultsPage() {
               </div>
 
               <div className="opacity-60 text-sm mt-2">
-                Company: {latest.Company?.name ?? "--"} - Module: {latest.Module?.key ?? "--"} v{latest.Module?.version ?? "--"} - Answered: {answeredCount}/{questionCount ?? "--"}
+                Company: {latest.Company?.name ?? "--"} - SurveyModule: {latest.SurveyModule?.key ?? "--"} v{latest.SurveyModule?.version ?? "--"} - Answered: {answeredCount}/{questionCount ?? "--"}
               </div>
             </div>
           )}
