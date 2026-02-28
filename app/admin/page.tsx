@@ -1,56 +1,35 @@
 ﻿import { prisma } from "@/lib/prisma"
-import { OrganizationType } from "@prisma/client"
 
 export default async function AdminPage() {
 
-  async function createOrganization(formData: FormData) {
-    "use server"
+async function createOrganization(formData: FormData) {
+  'use server'
 
-    const name = formData.get("name") as string
-    const type = formData.get("type") as OrganizationType
+  const name = formData.get("name") as string
+  const type = formData.get("type") as "FIRM" | "VENDOR"
 
-    if (!name || !type) return
+  if (!name || !type) return
 
-    await prisma.$transaction(async (tx) => {
-      const org = await tx.organization.create({
-        data: {
-          name,
-          type
-        }
-      })
-
-      if (type === "FIRM") {
-        await tx.firmProfile.create({
-          data: {
-            organizationId: org.id
-          }
-        })
-      }
-
-      if (type === "VENDOR") {
-        await tx.vendorProfile.create({
-          data: {
-            organizationId: org.id
-          }
-        })
-      }
-    })
-  }
-
-  const orgs = await prisma.organization.findMany({
-    include: {
-      firmProfile: true,
-      vendorProfile: true
-    }
+  await prisma.company.create({
+    data: {
+      id: crypto.randomUUID(),
+      name,
+      type,
+      updatedAt: new Date(),
+    },
   })
+}
+
+  const orgs = await prisma.company.findMany()
 
   return (
+
     <div style={{ padding: "40px" }}>
       <h1>Admin Panel</h1>
 
-      <h2>Create Organization</h2>
+      <h2>Create Company</h2>
       <form action={createOrganization}>
-        <input name="name" placeholder="Organization Name" required />
+        <input name="name" placeholder="Company Name" required />
         <select name="type">
           <option value="FIRM">FIRM</option>
           <option value="VENDOR">VENDOR</option>
@@ -72,11 +51,25 @@ export default async function AdminPage() {
         >
           <strong>{org.name}</strong>
           <div>Type: {org.type}</div>
-          <div>Firm Profile: {org.firmProfile ? "Yes" : "No"}</div>
-          <div>Vendor Profile: {org.vendorProfile ? "Yes" : "No"}</div>
+
         </div>
       ))}
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
