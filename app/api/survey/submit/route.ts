@@ -40,6 +40,7 @@ export async function POST(req: Request) {
 
   const submission = await prisma.surveySubmission.create({
     data: {
+      id: randomUUID(),
       companyId,
       moduleId: module.id,
       version: module.version ?? 1,
