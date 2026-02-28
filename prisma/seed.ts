@@ -6,9 +6,9 @@ async function main() {
   const org = await prisma.organization.create({
     data: {
       name: "Demo Firm LLC",
-      type: FIRM,
+      type: "FIRM",
       subscription: {
-        create: { tier: PRO },
+        create: { tier: "PRO" },
       },
       firmProfile: {
         create: {
@@ -20,7 +20,7 @@ async function main() {
         create: {
           email: "owner@demofirm.com",
           name: "Demo Owner",
-          role: OWNER,
+          role: "OWNER",
         },
       },
     },
@@ -41,7 +41,7 @@ async function main() {
   await prisma.engagement.create({
     data: {
       clientId: client.id,
-      type: CFO,
+      type: "CFO",
       name: "Fractional CFO - 2026",
       alignmentProfile: {
         create: {
