@@ -1,4 +1,4 @@
-﻿import { PrismaClient, OrganizationType, UserRole, EngagementType, SubscriptionTier } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -6,9 +6,9 @@ async function main() {
   const org = await prisma.organization.create({
     data: {
       name: "Demo Firm LLC",
-      type: OrganizationType.FIRM,
+      type: FIRM,
       subscription: {
-        create: { tier: SubscriptionTier.PRO },
+        create: { tier: PRO },
       },
       firmProfile: {
         create: {
@@ -20,7 +20,7 @@ async function main() {
         create: {
           email: "owner@demofirm.com",
           name: "Demo Owner",
-          role: UserRole.OWNER,
+          role: OWNER,
         },
       },
     },
@@ -41,7 +41,7 @@ async function main() {
   await prisma.engagement.create({
     data: {
       clientId: client.id,
-      type: EngagementType.CFO,
+      type: CFO,
       name: "Fractional CFO - 2026",
       alignmentProfile: {
         create: {
@@ -55,7 +55,7 @@ async function main() {
     },
   });
 
-  console.log("✅ Seed complete:", {
+  console.log("? Seed complete:", {
     organizationId: org.id,
     firmProfileId,
     clientId: client.id
