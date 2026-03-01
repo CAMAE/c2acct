@@ -70,10 +70,7 @@ export async function POST(req: Request) {
       if (rule.minScore == null || createdSubmission.score >= rule.minScore) {
         await (tx.companyBadge as any).upsert({
           where: {
-            companyId_badgeId: {
-              companyId,
-              badgeId: rule.badgeId,
-            },
+            companyId_badgeId_moduleId: { companyId, badgeId: rule.badgeId, moduleId: module.id },
           },
           update: {
             moduleId: module.id,
@@ -95,4 +92,4 @@ export async function POST(req: Request) {
   });
 
   return NextResponse.json({ ok: true, submission, awardedBadgeIds, milestoneReached }, { status: 200 });
-}
+  }\r
