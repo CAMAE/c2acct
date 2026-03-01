@@ -92,4 +92,4 @@ export async function POST(req: Request) {
   });
 
   return NextResponse.json({ ok: true, submission, awardedBadgeIds, milestoneReached }, { status: 200 });
-  }\r
+  }
