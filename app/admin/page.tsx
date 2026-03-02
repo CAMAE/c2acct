@@ -39,7 +39,7 @@ async function createOrganization(formData: FormData) {
 
       <h2 style={{ marginTop: "40px" }}>Organizations</h2>
 
-      {orgs.map((org: { id: string; name?: string | null }) => (
+      {orgs.map((org: { id: string; name?: string | null; type?: string | null }) => (
         <div
           key={org.id}
           style={{
@@ -57,6 +57,7 @@ async function createOrganization(formData: FormData) {
     </div>
   )
 }
+
 
 
 

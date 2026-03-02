@@ -1,65 +1,94 @@
 ﻿import { headers } from "next/headers";
 
-export default async function Outputs({
+type RuleStatus = {
+  nodeId: string;
+  nodeKey: string | null;
+  nodeTitle: string | null;
+  minScore: number;
+  score: number;
+  pass: boolean;
+};
+
+type InsightDto = {
+  id: string;
+  key: string;
+  title: string;
+  body: string;
+  tier: number;
+  unlocked: boolean;
+  lockedReason: string | null;
+  ruleStatus?: RuleStatus[] | null;
+};
+
+type UnlockedJson = { ok: boolean; companyId: string; insights: InsightDto[] };
+
+export default async function OutputsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ companyId?: string }>;
+  searchParams?: { companyId?: string } | Promise<{ companyId?: string }>;
 }) {
-  const params = await searchParams;
-  const companyId = params?.companyId;
-
-  if (!companyId) {
-    return (
-      <section className="p-10">
-        <h1 className="text-2xl font-semibold">Outputs</h1>
-        <p className="mt-4 text-red-500">companyId missing in query string</p>
-      </section>
-    );
-  }
+  const sp = searchParams ? await searchParams : {};
+  const companyId = sp.companyId ?? "demo_company";
 
   const h = await headers();
-  const host = h.get("host") ?? "localhost:3000";
-  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
-  const baseUrl = `${protocol}://${host}`;
+  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+  const proto = h.get("x-forwarded-proto") ?? "http";
 
-  const unlockedRes = await fetch(
-    `${baseUrl}/api/insights/unlocked?companyId=${companyId}`,
-    { cache: "no-store" }
-  );
+  const url = `${proto}://${host}/api/insights/unlocked?companyId=${encodeURIComponent(companyId)}`;
+  const res = await fetch(url, { cache: "no-store" });
 
-  const unlockedJson = await unlockedRes.json();
-  const insights = unlockedJson.insights ?? [];
+  let insights: InsightDto[] = [];
+  if (res.ok) {
+    const json = (await res.json()) as UnlockedJson;
+    insights = Array.isArray(json.insights) ? json.insights : [];
+  }
+
+  const tier1 = insights.filter((i) => i.tier === 1);
 
   return (
-    <section className="p-10">
-      <h1 className="text-3xl font-semibold mb-8">Tier 1 Outputs</h1>
+    <div className="mx-auto max-w-5xl p-6">
+      <div className="text-xl font-semibold">Tier 1 Outputs</div>
+      <div className="text-sm opacity-70 mt-1">companyId: {companyId}</div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {insights.map((insight: { id: string; key: string; title: string; body: string; tier: number; unlocked: boolean }) => (
-          <div
-            key={insight.id}
-            className={`rounded-2xl border p-6 transition ${
-              insight.unlocked
-                ? "bg-white border-black"
-                : "bg-gray-100 border-gray-300 opacity-60"
-            }`}
-          >
-            <h2 className="text-lg font-medium">{insight.title}</h2>
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        {tier1.map((insight) => {
+          const locked = !insight.unlocked;
+          const tip = locked ? insight.lockedReason ?? "Complete more assessments to unlock" : "";
 
-            {!insight.unlocked && (
-              <p className="text-sm mt-2 text-gray-500">
-                🔒 Complete required assessments to unlock
-              </p>
-            )}
-          </div>
-        ))}
+          return (
+            <div
+              key={insight.id}
+              title={tip}
+              className={[
+                "rounded-2xl border p-4 shadow-sm transition",
+                locked ? "opacity-50 grayscale cursor-not-allowed" : "hover:shadow-md",
+              ].join(" ")}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-sm font-semibold">{insight.title}</div>
+                <span className="text-xs font-medium px-2 py-1 rounded-full border">
+                  {locked ? "Locked" : "Unlocked"}
+                </span>
+              </div>
+
+              <div className="mt-2 text-sm whitespace-pre-wrap">{insight.body}</div>
+
+              {Array.isArray(insight.ruleStatus) && insight.ruleStatus.length > 0 ? (
+                <div className="mt-3 text-xs opacity-80 space-y-1">
+                  {insight.ruleStatus.map((r) => (
+                    <div key={r.nodeId} className="flex justify-between gap-3">
+                      <span>{r.nodeTitle ?? r.nodeKey ?? r.nodeId}</span>
+                      <span>
+                        {r.score.toFixed(2)} / {r.minScore.toFixed(2)} {r.pass ? "✓" : "✗"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
       </div>
-    </section>
+    </div>
   );
 }
-
-
-
-
-
-

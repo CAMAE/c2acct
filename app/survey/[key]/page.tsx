@@ -24,6 +24,10 @@ type ModulePayload = {
   questions: Question[];
 };
 
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return !!v && typeof v === "object" && !Array.isArray(v);
+}
+
 export default function Page() {
   const params = useParams<{ key: string }>();
   const moduleKey = useMemo(() => (params?.key ? String(params.key) : ""), [params]);
@@ -49,7 +53,7 @@ export default function Page() {
 
         if (!cancelled) setData(body as ModulePayload);
       } catch (e: unknown) {
-        if (!cancelled) setErr(e?.message ?? String(e));
+        if (!cancelled) setErr((isRecord(e) && "message" in e) ? String(e["message"]) : String(e));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -120,4 +124,5 @@ export default function Page() {
     </div>
   );
 }
+
 

@@ -59,8 +59,29 @@ export default function EngagementScorePage() {
   const [apiResponse, setApiResponse] = useState<unknown>(null);
   const [statusLine, setStatusLine] = useState<string>("");
   const [busy, setBusy] = useState<boolean>(false);
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return !!v && typeof v === "object" && !Array.isArray(v);
+}
 
-  async function callApi(method: "GET" | "POST") {
+
+type SliderInputs = {
+  revenueVolatility: number;
+  clientResponsiveness: number;
+  techStackFragmentation: number;
+  scopeCreep: number;
+};
+
+function isSliderInputs(v: unknown): v is SliderInputs {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return false;
+  const r = v as Record<string, unknown>;
+  return (
+    typeof r.revenueVolatility === "number" &&
+    typeof r.clientResponsiveness === "number" &&
+    typeof r.techStackFragmentation === "number" &&
+    typeof r.scopeCreep === "number"
+  );
+}
+async function callApi(method: "GET" | "POST") {
     if (!engagementId) {
       setStatusLine("Missing engagement id in URL");
       return;
@@ -99,9 +120,9 @@ export default function EngagementScorePage() {
       if (res.ok) {
         setStatusLine(`${method} OK (${res.status})`);
         // If GET returned a profile, hydrate sliders to DB values when available
-        const p = data?.profile;
-        const inp = p?.inputs ?? null;
-        if (method === "GET" && inp) {
+        const p = isRecord(data) && "profile" in data ? (data["profile"] as unknown) : null;
+        const inp = isRecord(p) && "inputs" in p ? (p["inputs"] as unknown) : null;
+        if (method === "GET" && isSliderInputs(inp)) {
           setInput({
             revenueVolatility: clamp01(inp.revenueVolatility),
             clientResponsiveness: clamp01(inp.clientResponsiveness),
@@ -110,11 +131,11 @@ export default function EngagementScorePage() {
           });
         }
       } else {
-        setStatusLine(`HTTP ${res.status} — ${data?.error ?? "Request failed"}`);
+        setStatusLine(`HTTP ${res.status} — ${(isRecord(data) && "error" in data) ? String((data as Record<string, unknown>)["error"]) : "Request failed"}`);
       }
     } catch (err: unknown) {
-      setApiResponse({ success: false, error: "Request threw", detail: String(err?.message ?? err) });
-      setStatusLine(`Request threw: ${String(err?.message ?? err)}`);
+      setApiResponse({ success: false, error: "Request threw", detail: String((isRecord(err) && "message" in err) ? (err as Record<string, unknown>)["message"] : err) });
+      setStatusLine(`Request threw: ${String((isRecord(err) && "message" in err) ? (err as Record<string, unknown>)["message"] : err)}`);
     } finally {
       setBusy(false);
     }
@@ -285,10 +306,10 @@ export default function EngagementScorePage() {
 
           <pre style={styles.pre}>{JSON.stringify(apiResponse, null, 2)}</pre>
 
-          {apiResponse?.success === false ? (
+          {(isRecord(apiResponse) && apiResponse["success"] === false) ? (
             <div style={styles.error}>
-              {apiResponse?.error ? <div style={{ fontWeight: 700 }}>{String(apiResponse.error)}</div> : null}
-              {apiResponse?.detail ? <div style={{ marginTop: 6, fontFamily: "monospace" }}>{String(apiResponse.detail)}</div> : null}
+              {(isRecord(apiResponse) && "error" in apiResponse ? apiResponse["error"] : null) ? <div style={{ fontWeight: 700 }}>{String((isRecord(apiResponse) ? apiResponse["error"] : undefined))}</div> : null}
+              {(isRecord(apiResponse) && "detail" in apiResponse ? apiResponse["detail"] : null) ? <div style={{ marginTop: 6, fontFamily: "monospace" }}>{String((isRecord(apiResponse) ? apiResponse["detail"] : undefined))}</div> : null}
             </div>
           ) : null}
         </div>
@@ -296,4 +317,9 @@ export default function EngagementScorePage() {
     </div>
   );
 }
+
+
+
+
+
 
