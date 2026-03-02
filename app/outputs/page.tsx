@@ -1,28 +1,7 @@
 ﻿import Link from "next/link";
-import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
-
-type RuleStatus = {
-  nodeId: string;
-  nodeKey: string | null;
-  nodeTitle: string | null;
-  minScore: number;
-  score: number;
-  pass: boolean;
-};
-
-type InsightDto = {
-  id: string;
-  key: string;
-  title: string;
-  body: string;
-  tier: number;
-  unlocked: boolean;
-  lockedReason: string | null;
-  ruleStatus?: RuleStatus[] | null;
-};
-
-type UnlockedJson = { ok: boolean; companyId: string; insights: InsightDto[] };
+import { evaluateUnlockedInsights } from "@/lib/insights/evaluateUnlocked";
+import type { InsightDto, RuleStatus } from "@/lib/insights/evaluateUnlocked";
 
 export default async function OutputsPage({
   searchParams,
@@ -33,7 +12,6 @@ export default async function OutputsPage({
   const companyId = sp.companyId ?? "demo_company";
   const requiredKey = "firm_alignment_v1";
 
-  // GATING via DB (server-side, no extra fetch)
   const requiredModule = await prisma.surveyModule.findUnique({
     where: { key: requiredKey },
     select: { id: true, key: true, title: true },
@@ -117,20 +95,7 @@ export default async function OutputsPage({
     );
   }
 
-  // Insights fetch using host/proto (works in prod + local, no env needed)
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
-  const proto = h.get("x-forwarded-proto") ?? "http";
-  const url = `${proto}://${host}/api/insights/unlocked?companyId=${encodeURIComponent(companyId)}`;
-
-  const res = await fetch(url, { cache: "no-store" });
-
-  let insights: InsightDto[] = [];
-  if (res.ok) {
-    const json = (await res.json()) as UnlockedJson;
-    insights = Array.isArray(json.insights) ? json.insights : [];
-  }
-
+  const insights = (await evaluateUnlockedInsights(companyId)) as InsightDto[];
   const tier1 = insights.filter((i) => i.tier === 1);
 
   return (
@@ -163,7 +128,7 @@ export default async function OutputsPage({
 
               {Array.isArray(insight.ruleStatus) && insight.ruleStatus.length > 0 ? (
                 <div className="mt-3 text-xs opacity-80 space-y-1">
-                  {insight.ruleStatus.map((r) => (
+                  {(insight.ruleStatus as RuleStatus[]).map((r) => (
                     <div key={r.nodeId} className="flex justify-between gap-3">
                       <span>{r.nodeTitle ?? r.nodeKey ?? r.nodeId}</span>
                       <span>
