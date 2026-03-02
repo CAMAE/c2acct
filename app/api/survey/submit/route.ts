@@ -14,22 +14,12 @@ function clamp01(n: number) {
 export async function POST(req: Request) {
   const body: unknown = await req.json();
 
-  if (
-    !body ||
-    typeof body !== "object" ||
-    !("companyId" in body) ||
-    !("moduleKey" in body) ||
-    !("answers" in body)
-  ) {
+  if (!body || typeof body !== "object" || !("companyId" in body) || !("moduleKey" in body) || !("answers" in body)) {
     return new NextResponse("Invalid payload", { status: 400 });
   }
 
   const { companyId, moduleKey, answers: rawAnswers } =
-    body as {
-      companyId: unknown;
-      moduleKey: unknown;
-      answers: unknown;
-    };
+    body as { companyId: unknown; moduleKey: unknown; answers: unknown };
 
   if (
     typeof companyId !== "string" ||
@@ -49,33 +39,26 @@ export async function POST(req: Request) {
     return new NextResponse("No valid answers", { status: 400 });
   }
 
-  const surveyModule = await prisma.surveyModule.findUnique({
-    where: { key: moduleKey },
-  });
-  if (!surveyModule) {
-    return new NextResponse("Module not found", { status: 404 });
-  }
+  const surveyModule = await prisma.surveyModule.findUnique({ where: { key: moduleKey } });
+  if (!surveyModule) return new NextResponse("Module not found", { status: 404 });
 
   const company = await prisma.company.findUnique({ where: { id: companyId } });
-  if (!company) {
-    return new NextResponse("Company not found", { status: 404 });
-  }
+  if (!company) return new NextResponse("Company not found", { status: 404 });
 
+  // Pull questions + capability links
   const qs = await prisma.surveyQuestion.findMany({
     where: { moduleId: surveyModule.id },
     select: {
       id: true,
       key: true,
       weight: true,
+      order: true,
       SurveyQuestionCapability: { select: { nodeId: true, weight: true } },
     },
     orderBy: { order: "asc" },
   });
 
-  const questionsForMeasurement = qs.map((q) => ({
-    key: q.key,
-    weight: q.weight ?? 1,
-  }));
+  const questionsForMeasurement = qs.map((q) => ({ key: q.key, weight: q.weight ?? 1 }));
 
   const measurement = computeModuleMeasurement({
     answers,
@@ -91,8 +74,16 @@ export async function POST(req: Request) {
   const scaleMax = 5;
   const denomScale = scaleMax - scaleMin;
 
+  // Module -> node weighting (ModuleCapability)
+  const mc = await prisma.moduleCapability.findMany({
+    where: { moduleId: surveyModule.id },
+    select: { nodeId: true, weight: true },
+  });
+  const moduleNodeWeight: Record<string, number> = {};
+  for (const row of mc) moduleNodeWeight[row.nodeId] = row.weight ?? 1;
+
   // Compute capability node scores using SurveyQuestionCapability weights.
-  // nodeScore = weighted avg of normalized answers across linked questions.
+  // baseNodeScore = weighted avg of normalized answers across linked questions.
   const nodeAgg: Record<string, { num: number; den: number }> = {};
 
   for (const q of qs) {
@@ -131,26 +122,18 @@ export async function POST(req: Request) {
     });
 
     const upserts = Object.entries(nodeAgg).map(([nodeId, agg]) => {
-      const nodeScore = agg.den > 0 ? agg.num / agg.den : 0;
+      const baseNodeScore = agg.den > 0 ? agg.num / agg.den : 0;
+      const wMod = moduleNodeWeight[nodeId] ?? 1;
+      const nodeScore = clamp01(baseNodeScore * wMod);
 
       return tx.companyCapabilityScore.upsert({
-        where: {
-          companyId_nodeId_scoreVersion: { companyId, nodeId, scoreVersion: 1 },
-        },
+        where: { companyId_nodeId_scoreVersion: { companyId, nodeId, scoreVersion: 1 } },
         update: { score: nodeScore, computedAt },
-        create: {
-          id: randomUUID(),
-          companyId,
-          nodeId,
-          score: nodeScore,
-          scoreVersion: 1,
-          computedAt,
-        },
+        create: { id: randomUUID(), companyId, nodeId, score: nodeScore, scoreVersion: 1, computedAt },
       });
     });
 
     if (upserts.length > 0) await Promise.all(upserts);
-
     return created;
   });
 
