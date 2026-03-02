@@ -28,13 +28,17 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: "companyId required" }, { status: 400 });
   }
 
-  const scoreRows = (await prisma.companyCapabilityScore.findMany({
-    where: { companyId, scoreVersion: 1 },
-    select: { nodeId: true, score: true },
-  })) as unknown as ScoreRow[];
+  // Latest score per node for company (regardless of scoreVersion)
+  const latestRows = await prisma.companyCapabilityScore.findMany({
+    where: { companyId },
+    orderBy: [{ computedAt: "desc" }],
+    select: { nodeId: true, score: true, computedAt: true },
+  });
 
   const capabilityScores: Record<string, number> = {};
-  for (const r of scoreRows) capabilityScores[r.nodeId] = r.score;
+  for (const r of latestRows as unknown as ScoreRow[]) {
+    if (!(r.nodeId in capabilityScores)) capabilityScores[r.nodeId] = r.score;
+  }
 
   const insights = (await prisma.insight.findMany({
     where: { active: true },
@@ -52,6 +56,7 @@ export async function GET(req: Request) {
 
     let unlocked = true;
     let lockedReason: string | null = null;
+
     const ruleStatus = requiredRules.map((r) => {
       const nodeId = r.nodeId;
       const minScore = r.minScore ?? 0;
