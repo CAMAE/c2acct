@@ -20,3 +20,8 @@
 *.gif binary
 *.ico binary
 *.pdf binary
+# JSON + JS: enforce LF + no BOM via normalization
+*.json  text eol=lf
+*.mjs   text eol=lf
+*.ts    text eol=lf
+*.tsx   text eol=lf
