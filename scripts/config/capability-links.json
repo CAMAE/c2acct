@@ -1,0 +1,63 @@
+﻿{
+  "modules": [
+    {
+      "moduleKey": "firm_alignment_v1",
+      "nodeDefs": [
+        { "key": "cap_alignment_basics", "title": "Alignment Basics", "scope": "FIRM", "level": "TIER1" },
+        { "key": "cap_alignment_advanced", "title": "Alignment Advanced", "scope": "FIRM", "level": "TIER1" }
+      ],
+      "moduleNodeWeights": [
+        { "nodeKey": "cap_alignment_basics", "weight": 1.0 },
+        { "nodeKey": "cap_alignment_advanced", "weight": 0.8 }
+      ],
+      "questionNodeLinks": [
+        { "questionKey": "leadership_vision_alignment", "nodeKey": "cap_alignment_basics", "weight": 1.0 },
+        { "questionKey": "strategy_execution_clarity", "nodeKey": "cap_alignment_basics", "weight": 1.0 },
+        { "questionKey": "decision_rights_defined", "nodeKey": "cap_alignment_basics", "weight": 1.0 },
+        { "questionKey": "kpi_alignment", "nodeKey": "cap_alignment_advanced", "weight": 1.0 },
+        { "questionKey": "operating_rhythm", "nodeKey": "cap_alignment_advanced", "weight": 1.0 }
+      ]
+    },
+
+    {
+      "moduleKey": "automation_v1",
+      "nodeDefs": [
+        { "key": "cap_automation_core", "title": "Automation Core", "scope": "FIRM", "level": "TIER1" }
+      ],
+      "moduleNodeWeights": [
+        { "nodeKey": "cap_automation_core", "weight": 1.0 }
+      ],
+      "allQuestionsToNode": { "nodeKey": "cap_automation_core", "weight": 1.0 }
+    },
+    {
+      "moduleKey": "profitability_v1",
+      "nodeDefs": [
+        { "key": "cap_profitability_core", "title": "Profitability Core", "scope": "FIRM", "level": "TIER1" }
+      ],
+      "moduleNodeWeights": [
+        { "nodeKey": "cap_profitability_core", "weight": 1.0 }
+      ],
+      "allQuestionsToNode": { "nodeKey": "cap_profitability_core", "weight": 1.0 }
+    },
+    {
+      "moduleKey": "alignment_core_v1",
+      "nodeDefs": [
+        { "key": "cap_alignment_core", "title": "Alignment Core", "scope": "FIRM", "level": "TIER1" }
+      ],
+      "moduleNodeWeights": [
+        { "nodeKey": "cap_alignment_core", "weight": 1.0 }
+      ],
+      "allQuestionsToNode": { "nodeKey": "cap_alignment_core", "weight": 1.0 }
+    },
+    {
+      "moduleKey": "fmi_v1",
+      "nodeDefs": [
+        { "key": "cap_fmi_inputs", "title": "FMI Inputs", "scope": "FIRM", "level": "TIER1" }
+      ],
+      "moduleNodeWeights": [
+        { "nodeKey": "cap_fmi_inputs", "weight": 1.0 }
+      ],
+      "allQuestionsToNode": { "nodeKey": "cap_fmi_inputs", "weight": 1.0 }
+    }
+  ]
+}
