@@ -7,7 +7,12 @@ const prisma = new PrismaClient();
 
 function readJson(p) {
   const abs = path.resolve(p);
-  return JSON.parse(fs.readFileSync(abs, "utf8"));
+  const buf = fs.readFileSync(abs);
+  // strip UTF-8 BOM if present
+  const s = (buf.length >= 3 && buf[0] === 0xEF && buf[1] === 0xBB && buf[2] === 0xBF)
+    ? buf.slice(3).toString("utf8")
+    : buf.toString("utf8");
+  return JSON.parse(s);
 }
 
 async function ensureNode(def) {
@@ -84,13 +89,11 @@ async function main() {
 
     const nodeKeyToId = {};
 
-    // ensure nodes
     for (const nd of (m.nodeDefs ?? [])) {
       const id = await ensureNode(nd);
       nodeKeyToId[nd.key] = id;
     }
 
-    // module node weights
     let mcCreated = 0, mcUpdated = 0;
     for (const w of (m.moduleNodeWeights ?? [])) {
       const nodeId = nodeKeyToId[w.nodeKey] ?? (await prisma.capabilityNode.findUnique({ where: { key: w.nodeKey }, select: { id: true } }))?.id;
@@ -99,7 +102,6 @@ async function main() {
       if (r.created) mcCreated++; else mcUpdated++;
     }
 
-    // questions
     const qs = await prisma.surveyQuestion.findMany({
       where: { moduleId: mod.id },
       orderBy: { order: "asc" },
