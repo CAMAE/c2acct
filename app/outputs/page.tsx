@@ -1,94 +1,97 @@
-﻿import { headers } from "next/headers";
+﻿import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 
-type RuleStatus = {
-  nodeId: string;
-  nodeKey: string | null;
-  nodeTitle: string | null;
-  minScore: number;
-  score: number;
-  pass: boolean;
-};
+export default async function OutputsPage() {
+  const companyId = "demo_company"; // TODO: replace with auth/session company
+  const requiredKey = "firm_alignment_v1";
 
-type InsightDto = {
-  id: string;
-  key: string;
-  title: string;
-  body: string;
-  tier: number;
-  unlocked: boolean;
-  lockedReason: string | null;
-  ruleStatus?: RuleStatus[] | null;
-};
+  const mods = await prisma.surveyModule.findMany({
+    where: { active: true },
+    orderBy: { key: "asc" },
+    select: { id: true, key: true, title: true },
+  });
 
-type UnlockedJson = { ok: boolean; companyId: string; insights: InsightDto[] };
+  const submissions = await prisma.surveySubmission.findMany({
+    where: { companyId },
+    orderBy: { createdAt: "desc" },
+    select: { moduleId: true, createdAt: true },
+  });
 
-export default async function OutputsPage({
-  searchParams,
-}: {
-  searchParams?: { companyId?: string } | Promise<{ companyId?: string }>;
-}) {
-  const sp = searchParams ? await searchParams : {};
-  const companyId = sp.companyId ?? "demo_company";
-
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
-  const proto = h.get("x-forwarded-proto") ?? "http";
-
-  const url = `${proto}://${host}/api/insights/unlocked?companyId=${encodeURIComponent(companyId)}`;
-  const res = await fetch(url, { cache: "no-store" });
-
-  let insights: InsightDto[] = [];
-  if (res.ok) {
-    const json = (await res.json()) as UnlockedJson;
-    insights = Array.isArray(json.insights) ? json.insights : [];
+  const latestByModule: Record<string, string> = {};
+  for (const s of submissions) {
+    if (!latestByModule[s.moduleId]) latestByModule[s.moduleId] = s.createdAt.toISOString();
   }
 
-  const tier1 = insights.filter((i) => i.tier === 1);
+  const modules = mods.map((m) => ({
+    key: m.key,
+    title: m.title,
+    submitted: !!latestByModule[m.id],
+    lastSubmittedAt: latestByModule[m.id] ?? null,
+  }));
+
+  const requiredTier1Complete = modules.some((m) => m.key === requiredKey && m.submitted);
+
+  if (!requiredTier1Complete) {
+    const required = modules.find((m) => m.key === requiredKey);
+    return (
+      <main className="p-6 space-y-4">
+        <h1 className="text-2xl font-semibold">Outputs</h1>
+
+        <div className="rounded-2xl border p-5 space-y-3">
+          <div className="text-lg font-medium">Unlock Tier 1 Insights</div>
+          <div className="text-sm text-muted-foreground">
+            Complete the required assessment to unlock your first insights.
+          </div>
+
+          <div className="flex gap-3 items-center">
+            <Link
+              href={`/survey/${requiredKey}`}
+              className="inline-flex items-center rounded-xl bg-black text-white px-4 py-2 text-sm"
+            >
+              Start: {required?.title ?? "Required Assessment"}
+            </Link>
+
+            <Link
+              href="/survey"
+              className="inline-flex items-center rounded-xl border px-4 py-2 text-sm"
+            >
+              View all assessments
+            </Link>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border p-5">
+          <div className="text-sm font-medium mb-2">Assessment progress</div>
+          <ul className="text-sm space-y-1">
+            {modules.map((m) => (
+              <li key={m.key} className="flex justify-between gap-3">
+                <span>{m.title}</span>
+                <span className={m.submitted ? "text-green-700" : "text-muted-foreground"}>
+                  {m.submitted ? "Completed" : "Not started"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </main>
+    );
+  }
+
+  // If gate passed, keep existing behavior (fetch unlocked insights via internal API)
+  const unlockedRes = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3001"}/api/insights/unlocked?companyId=${companyId}`,
+    { cache: "no-store" }
+  );
+  const unlockedJson = await unlockedRes.json();
 
   return (
-    <div className="mx-auto max-w-5xl p-6">
-      <div className="text-xl font-semibold">Tier 1 Outputs</div>
-      <div className="text-sm opacity-70 mt-1">companyId: {companyId}</div>
+    <main className="p-6 space-y-4">
+      <h1 className="text-2xl font-semibold">Outputs</h1>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        {tier1.map((insight) => {
-          const locked = !insight.unlocked;
-          const tip = locked ? insight.lockedReason ?? "Complete more assessments to unlock" : "";
-
-          return (
-            <div
-              key={insight.id}
-              title={tip}
-              className={[
-                "rounded-2xl border p-4 shadow-sm transition",
-                locked ? "opacity-50 grayscale cursor-not-allowed" : "hover:shadow-md",
-              ].join(" ")}
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div className="text-sm font-semibold">{insight.title}</div>
-                <span className="text-xs font-medium px-2 py-1 rounded-full border">
-                  {locked ? "Locked" : "Unlocked"}
-                </span>
-              </div>
-
-              <div className="mt-2 text-sm whitespace-pre-wrap">{insight.body}</div>
-
-              {Array.isArray(insight.ruleStatus) && insight.ruleStatus.length > 0 ? (
-                <div className="mt-3 text-xs opacity-80 space-y-1">
-                  {insight.ruleStatus.map((r) => (
-                    <div key={r.nodeId} className="flex justify-between gap-3">
-                      <span>{r.nodeTitle ?? r.nodeKey ?? r.nodeId}</span>
-                      <span>
-                        {r.score.toFixed(2)} / {r.minScore.toFixed(2)} {r.pass ? "✓" : "✗"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-          );
-        })}
+      <div className="rounded-2xl border p-5">
+        <div className="text-sm font-medium mb-2">Tier 1 Insights</div>
+        <pre className="text-xs overflow-auto">{JSON.stringify(unlockedJson, null, 2)}</pre>
       </div>
-    </div>
+    </main>
   );
 }
