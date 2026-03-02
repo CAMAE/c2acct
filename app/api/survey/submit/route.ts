@@ -1,95 +1,99 @@
-import { NextResponse } from "next/server";
-import { z } from "zod";
-import prisma from "@/lib/prisma";
-import { computeScore } from "@/lib/scoring";
+﻿import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
-
-const SCORING_VERSION = 1;
-
-const SubmitSchema = z.object({
-  companyId: z.string().min(1),
-  moduleKey: z.string().min(1),
-  answers: z.record(z.string(), z.coerce.number()),
-});
+import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
+import { computeModuleMeasurement } from "@/lib/scoring/measurement";
 
 export async function POST(req: Request) {
-  let raw: unknown;
+  const body: unknown = await req.json();
 
-  try {
-    raw = await req.json();
-  } catch {
-    return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
+  if (
+    !body ||
+    typeof body !== "object" ||
+    !("companyId" in body) ||
+    !("moduleKey" in body) ||
+    !("answers" in body)
+  ) {
+    return new NextResponse("Invalid payload", { status: 400 });
   }
 
-  const parsed = SubmitSchema.safeParse(raw);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { ok: false, error: "Invalid payload", issues: parsed.error.flatten() },
-      { status: 400 }
-    );
+  const { companyId, moduleKey, answers: rawAnswers } =
+    body as {
+      companyId: unknown;
+      moduleKey: unknown;
+      answers: unknown;
+    };
+
+  if (
+    typeof companyId !== "string" ||
+    typeof moduleKey !== "string" ||
+    !rawAnswers ||
+    typeof rawAnswers !== "object" ||
+    Array.isArray(rawAnswers)
+  ) {
+    return new NextResponse("Invalid payload shape", { status: 400 });
   }
 
-  const { companyId, moduleKey, answers } = parsed.data;
-
-  const module = await prisma.surveyModule.findFirst({ where: { key: moduleKey } });
-  if (!module) {
-    return NextResponse.json({ ok: false, error: "Module not found" }, { status: 404 });
+  const answers: Record<string, number> = {};
+  for (const [k, v] of Object.entries(rawAnswers as Record<string, unknown>)) {
+    if (typeof v === "number") answers[k] = v;
+  }
+  if (Object.keys(answers).length === 0) {
+    return new NextResponse("No valid answers", { status: 400 });
   }
 
-  const scoring = computeScore({ answers, scaleMin: 0, scaleMax: 5 });
-  const milestoneReached = false;
-
-  const { submission, awardedBadgeIds } = await prisma.$transaction(async (tx) => {
-    const createdSubmission = await tx.surveySubmission.create({
-      data: {
-        id: randomUUID(),
-        companyId,
-        moduleId: module.id,
-        version: module.version ?? 1,
-        answers,
-        score: scoring.score,
-        weightedAvg: scoring.weightedAvg,
-        scoreVersion: SCORING_VERSION,
-        scaleMin: scoring.scaleMin,
-        scaleMax: scoring.scaleMax,
-        totalWeight: scoring.totalWeight,
-        answeredCount: scoring.answeredCount,
-      },
-    });
-
-    const rules = await tx.badgeRule.findMany({
-      where: {
-        moduleId: module.id,
-        required: true,
-      },
-    });
-
-    const awardedBadgeIds: string[] = [];
-
-    for (const rule of rules) {
-      if (rule.minScore == null || createdSubmission.score >= rule.minScore) {
-        await (tx.companyBadge as any).upsert({
-          where: {
-            companyId_badgeId_moduleId: { companyId, badgeId: rule.badgeId, moduleId: module.id },
-          },
-          update: {
-            moduleId: module.id,
-            awardedAt: new Date(),
-          },
-          create: {
-            id: randomUUID(),
-            companyId,
-            badgeId: rule.badgeId,
-            moduleId: module.id,
-            awardedAt: new Date(),
-          },
-        });
-        awardedBadgeIds.push(rule.badgeId);
-      }
-    }
-
-    return { submission: createdSubmission, awardedBadgeIds };
+  const surveyModule = await prisma.surveyModule.findUnique({
+    where: { key: moduleKey },
   });
 
-  return NextResponse.json({ ok: true, submission, awardedBadgeIds, milestoneReached }, { status: 200 });
+  if (!surveyModule) {
+    return new NextResponse("Module not found", { status: 404 });
   }
+
+  const qs = await prisma.surveyQuestion.findMany({
+    where: { moduleId: surveyModule.id },
+    select: { key: true, weight: true },
+  });
+
+  const questions = qs.map((q) => ({
+    key: q.key,
+    weight: q.weight ?? 1,
+  }));
+
+  const measurement = computeModuleMeasurement({
+    answers,
+    questions,
+    scaleMin: 0,
+    scaleMax: 5,
+  });
+
+  // keep legacy field names expected elsewhere
+  const score = Math.round(measurement.moduleScoreNormalized * 100);
+
+  const submission = await prisma.surveySubmission.create({
+    data: {
+      id: randomUUID(),companyId,
+      moduleId: surveyModule.id,
+      answers: answers as unknown as Prisma.InputJsonValue,
+      score,
+      weightedAvg: measurement.weightedAvg,
+      answeredCount: measurement.answeredCount,
+      scaleMin: measurement.scaleMin,
+      scaleMax: measurement.scaleMax,
+      totalWeight: measurement.totalWeight,
+      scoreVersion: 1,
+    },
+  });
+
+  return NextResponse.json({ ok: true, submission });
+}
+
+
+
+
+
+
+
+
+
+

@@ -1,39 +1,65 @@
-﻿export default function Outputs() {
-  return (
-    <section>
-      <div className="mb-10">
-        <h1 className="text-5xl font-semibold tracking-tight">Top Seven Outputs</h1>
-        <p className="mt-3 max-w-2xl text-white/70">
-          The seven institutional deliverables that define high-alignment firms.
-        </p>
-      </div>
+﻿import { headers } from "next/headers";
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {[
-          { title: "Institutional Profile", desc: "Capability scoring + operational alignment snapshot." },
-          { title: "Alignment Baseline", desc: "Where the firm is now â€” quantified." },
-          { title: "Operating System Map", desc: "How work actually moves through the firm." },
-          { title: "Automation Readiness", desc: "What can be delegated, what must stay human." },
-          { title: "Risk & Control Posture", desc: "Controls, exposure, and governance maturity." },
-          { title: "Implementation Roadmap", desc: "Sequenced steps to reach high alignment." },
-          { title: "Executive Brief", desc: "Board-ready summary and next actions." },
-        ].map((x) => (
+export default async function Outputs({
+  searchParams,
+}: {
+  searchParams: Promise<{ companyId?: string }>;
+}) {
+  const params = await searchParams;
+  const companyId = params?.companyId;
+
+  if (!companyId) {
+    return (
+      <section className="p-10">
+        <h1 className="text-2xl font-semibold">Outputs</h1>
+        <p className="mt-4 text-red-500">companyId missing in query string</p>
+      </section>
+    );
+  }
+
+  const h = await headers();
+  const host = h.get("host") ?? "localhost:3000";
+  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+  const baseUrl = `${protocol}://${host}`;
+
+  const unlockedRes = await fetch(
+    `${baseUrl}/api/insights/unlocked?companyId=${companyId}`,
+    { cache: "no-store" }
+  );
+
+  const unlockedJson = await unlockedRes.json();
+  const insights = unlockedJson.insights ?? [];
+
+  return (
+    <section className="p-10">
+      <h1 className="text-3xl font-semibold mb-8">Tier 1 Outputs</h1>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {insights.map((insight: { id: string; key: string; title: string; body: string; tier: number; unlocked: boolean }) => (
           <div
-            key={x.title}
-            className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]"
+            key={insight.id}
+            className={`rounded-2xl border p-6 transition ${
+              insight.unlocked
+                ? "bg-white border-black"
+                : "bg-gray-100 border-gray-300 opacity-60"
+            }`}
           >
-            <div className="text-lg font-medium">{x.title}</div>
-            <div className="mt-2 text-sm text-white/70">{x.desc}</div>
+            <h2 className="text-lg font-medium">{insight.title}</h2>
+
+            {!insight.unlocked && (
+              <p className="text-sm mt-2 text-gray-500">
+                🔒 Complete required assessments to unlock
+              </p>
+            )}
           </div>
         ))}
-      </div>
-
-      <div className="mt-10 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-        <p className="text-sm text-white/70">
-          Output framework interface coming next.
-        </p>
       </div>
     </section>
   );
 }
+
+
+
+
+
 

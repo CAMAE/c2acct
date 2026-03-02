@@ -11,7 +11,7 @@ type Question = {
   weight: number;
   order: number;
   required?: boolean;
-  meta?: any;
+  meta?: unknown;
 };
 
 type ModulePayload = {
@@ -32,7 +32,7 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
-  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [answers, setAnswers] = useState<Record<string, unknown>>({});
 
   useEffect(() => {
     if (!moduleKey) return;
@@ -48,7 +48,7 @@ export default function Page() {
         if (!res.ok) throw new Error(body?.detail || body?.error || `HTTP ${res.status}`);
 
         if (!cancelled) setData(body as ModulePayload);
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (!cancelled) setErr(e?.message ?? String(e));
       } finally {
         if (!cancelled) setLoading(false);
@@ -60,7 +60,7 @@ export default function Page() {
     };
   }, [moduleKey]);
 
-  function setAnswer(qid: string, value: any) {
+  function setAnswer(qid: string, value: unknown) {
     setAnswers((prev) => ({ ...prev, [qid]: value }));
   }
 
@@ -120,3 +120,4 @@ export default function Page() {
     </div>
   );
 }
+

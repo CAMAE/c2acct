@@ -56,7 +56,7 @@ export default function EngagementScorePage() {
     };
   }, [input]);
 
-  const [apiResponse, setApiResponse] = useState<any>(null);
+  const [apiResponse, setApiResponse] = useState<unknown>(null);
   const [statusLine, setStatusLine] = useState<string>("");
   const [busy, setBusy] = useState<boolean>(false);
 
@@ -86,7 +86,7 @@ export default function EngagementScorePage() {
               }),
             });
 
-      let data: any = null;
+      let data: unknown = null;
       const text = await res.text();
       try {
         data = text ? JSON.parse(text) : null;
@@ -112,7 +112,7 @@ export default function EngagementScorePage() {
       } else {
         setStatusLine(`HTTP ${res.status} — ${data?.error ?? "Request failed"}`);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setApiResponse({ success: false, error: "Request threw", detail: String(err?.message ?? err) });
       setStatusLine(`Request threw: ${String(err?.message ?? err)}`);
     } finally {
@@ -296,3 +296,4 @@ export default function EngagementScorePage() {
     </div>
   );
 }
+

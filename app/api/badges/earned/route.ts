@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -35,8 +35,8 @@ export async function GET(req: Request) {
       return {
         id: a.id,
         badgeId: a.badgeId,
-        badgeKey: (a as any).Badge?.key ?? null,
-        name: (a as any).Badge?.name ?? null,
+        badgeKey: (a as { Badge?: { key?: string | null } | null }).Badge?.key ?? null,
+        name: (a as { Badge?: { name?: string | null } | null }).Badge?.name ?? null,
         moduleId: a.moduleId,
         moduleKey: m?.key ?? null,
         moduleVersion: m?.version ?? null,
