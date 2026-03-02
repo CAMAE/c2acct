@@ -45,7 +45,6 @@ export async function POST(req: Request) {
   const company = await prisma.company.findUnique({ where: { id: companyId } });
   if (!company) return new NextResponse("Company not found", { status: 404 });
 
-  // Pull questions + capability links
   const qs = await prisma.surveyQuestion.findMany({
     where: { moduleId: surveyModule.id },
     select: {
@@ -67,14 +66,12 @@ export async function POST(req: Request) {
     scaleMax: 5,
   });
 
-  // keep legacy field names expected elsewhere
   const score = Math.round(measurement.moduleScoreNormalized * 100);
 
   const scaleMin = 0;
   const scaleMax = 5;
   const denomScale = scaleMax - scaleMin;
 
-  // Module -> node weighting (ModuleCapability)
   const mc = await prisma.moduleCapability.findMany({
     where: { moduleId: surveyModule.id },
     select: { nodeId: true, weight: true },
@@ -82,8 +79,6 @@ export async function POST(req: Request) {
   const moduleNodeWeight: Record<string, number> = {};
   for (const row of mc) moduleNodeWeight[row.nodeId] = row.weight ?? 1;
 
-  // Compute capability node scores using SurveyQuestionCapability weights.
-  // baseNodeScore = weighted avg of normalized answers across linked questions.
   const nodeAgg: Record<string, { num: number; den: number }> = {};
 
   for (const q of qs) {
@@ -124,7 +119,9 @@ export async function POST(req: Request) {
     const upserts = Object.entries(nodeAgg).map(([nodeId, agg]) => {
       const baseNodeScore = agg.den > 0 ? agg.num / agg.den : 0;
       const wMod = moduleNodeWeight[nodeId] ?? 1;
-      const nodeScore = clamp01(baseNodeScore * wMod);
+
+      // clamp base only; allow module weighting to boost or reduce without hard cap
+      const nodeScore = clamp01(baseNodeScore) * wMod;
 
       return tx.companyCapabilityScore.upsert({
         where: { companyId_nodeId_scoreVersion: { companyId, nodeId, scoreVersion: 1 } },
