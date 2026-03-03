@@ -1,0 +1,20 @@
+﻿title = "AAE Gitleaks Config"
+
+[allowlist]
+description = "Allow known non-secret identifiers (module keys) and junk artifacts"
+paths = [
+  '''scripts/config/capability-links\.json''',
+  '''scripts/ensure-placeholder-nodes\.mjs''',
+  '''scripts/seed-unlock-demo\.mjs''',
+  '''app/api/modules/progress/route\.ts''',
+  '''app/outputs/page\.tsx''',
+  '''payload\.json''',
+  '''.*\.bak_.*'''
+]
+
+regexes = [
+  '''"moduleKey"\s*:\s*"[a-z0-9_]+"''',
+  '''\bmoduleKey\s*=\s*"[a-z0-9_]+"''',
+  '''\brequiredKey\s*=\s*"[a-z0-9_]+"''',
+  '''\bwhere:\s*\{\s*key:\s*["''][a-z0-9_]+["'']\s*\}'''
+]
