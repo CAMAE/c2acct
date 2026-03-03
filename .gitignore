@@ -48,3 +48,5 @@ payload.json
 
 # Agent workspace (NOT committed)
 agent-work/
+
+.env.local
