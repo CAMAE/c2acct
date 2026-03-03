@@ -1,4 +1,4 @@
-﻿title = "AAE Gitleaks Config"
+title = "AAE Gitleaks Config"
 
 [allowlist]
 description = "Allow known non-secret identifiers (module keys) and junk artifacts"
