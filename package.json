@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "prisma:migrate:deploy": "node scripts/prisma-safe.js migrate deploy",
+    "prisma:db:push": "node scripts/prisma-safe.js db push"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
