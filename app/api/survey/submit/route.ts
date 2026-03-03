@@ -1,4 +1,5 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { computeScore } from "@/lib/scoring";
@@ -40,6 +41,7 @@ export async function POST(req: Request) {
 
   const submission = await prisma.surveySubmission.create({
     data: {
+      id: randomUUID(),
       companyId,
       moduleId: module.id,
       version: module.version ?? 1,
@@ -56,3 +58,4 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ ok: true, submission, milestoneReached }, { status: 200 });
 }
+

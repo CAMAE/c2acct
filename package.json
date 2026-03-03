@@ -26,6 +26,7 @@
     "eslint-config-next": "16.1.6",
     "json": "^11.0.0",
     "prisma": "^5.22.0",
+    "prisma-erd-generator": "^2.4.2",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5"

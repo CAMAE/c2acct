@@ -8,8 +8,8 @@ export default async function ResultsPage() {
   const latest = await prisma.surveySubmission.findFirst({
     orderBy: { createdAt: "desc" },
     include: {
-      company: { select: { name: true } },
-      module: { select: { key: true, version: true } },
+      Company: { select: { name: true } },
+      SurveyModule: { select: { key: true, version: true } },
     },
   });
 
@@ -60,7 +60,7 @@ export default async function ResultsPage() {
               </div>
 
               <div className="opacity-60 text-sm mt-2">
-                Company: {latest.company?.name ?? "--"} - Module: {latest.module?.key ?? "--"} v{latest.module?.version ?? "--"} - Answered: {answeredCount}/{questionCount ?? "--"}
+                Company: {latest.Company?.name ?? "--"} - Module: {latest.SurveyModule?.key ?? "--"} v{latest.SurveyModule?.version ?? "--"} - Answered: {answeredCount}/{questionCount ?? "--"}
               </div>
             </div>
           )}
@@ -75,3 +75,8 @@ export default async function ResultsPage() {
     </div>
   );
 }
+
+
+
+
+
