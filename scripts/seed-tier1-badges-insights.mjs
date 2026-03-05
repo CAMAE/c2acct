@@ -17,51 +17,50 @@ async function main() {
   const mod = await prisma.surveyModule.findFirst({ where: { key: moduleKey }, select: { id: true, key: true } });
   if (!mod) throw new Error(`Missing SurveyModule key=${moduleKey}. Run scripts/seed-firm-alignment.mjs first.`);
 
-  // ---- Badge ----
-  const badgeKey = "badge_tier1_alignment_unlocked";
-  const badgeName = "Tier 1 Unlocked"; // REQUIRED by your schema
-  const badgeTitle = "Tier 1 Unlocked";
+  // Badge schema: id, name (required), createdAt default, updatedAt required. No `key`.
+  const badgeName = "Tier 1 Unlocked";
   const badgeDesc = "Unlocked Tier 1 outputs for firm alignment.";
 
-  // Optional enum (if present in client)
   const badgeScope =
     pickEnumValue(client.BadgeScope, ["FIRM", "COMPANY", "ORG", "VENDOR", "INDIVIDUAL"]) ??
     undefined;
 
-  let badge = await prisma.badge.findFirst({ where: { key: badgeKey } });
+  let badge = await prisma.badge.findFirst({ where: { name: badgeName } });
 
   if (!badge) {
     const createData = {
       id: randomUUID(),
-      key: badgeKey,
       name: badgeName,
-      title: badgeTitle,
-      description: badgeDesc,
       updatedAt: now,
       ...(badgeScope ? { scope: badgeScope } : {}),
     };
+
+    // If your Badge model also has optional description, try to set it.
+    // If it doesn't exist, Prisma will throw; we want that loudly.
+    if ("description" in (await prisma.badge.findFirst({ select: { name: true } }).catch(()=>({})))) {
+      createData.description = badgeDesc;
+    }
 
     badge = await prisma.badge.create({ data: createData });
   } else {
     const updateData = {
-      name: badgeName,
-      title: badgeTitle,
-      description: badgeDesc,
       updatedAt: now,
       ...(badgeScope ? { scope: badgeScope } : {}),
     };
 
+    // try description update if field exists
+    try { updateData.description = badgeDesc; } catch {}
+
     badge = await prisma.badge.update({ where: { id: badge.id }, data: updateData });
   }
 
-  // ---- BadgeRule (gate badge by module completion) ----
+  // BadgeRule: tie badge to module
   const existingRule = await prisma.badgeRule.findFirst({
     where: { badgeId: badge.id, moduleId: mod.id },
     select: { id: true },
   });
 
   if (!existingRule) {
-    // Try minimal create; if schema requires extra fields, Prisma will tell us (we'll fail loudly)
     await prisma.badgeRule.create({
       data: {
         id: randomUUID(),
@@ -74,7 +73,7 @@ async function main() {
     await prisma.badgeRule.update({ where: { id: existingRule.id }, data: { updatedAt: now } });
   }
 
-  // ---- Tier1 Insights + Unlock rules ----
+  // Tier1 Insights + Unlock rules (gate by badge)
   const tier1 = [
     { key: "tier1_alignment_baseline", title: "Alignment Baseline", content: "Where the firm is now, in practical terms." },
     { key: "tier1_operating_system_map", title: "Operating System Map", content: "A map of how work actually flows today." },
@@ -121,7 +120,7 @@ async function main() {
     }
   }
 
-  console.log("OK SEEDED TIER1", { moduleKey: mod.key, moduleId: mod.id, badgeKey });
+  console.log("OK SEEDED TIER1", { moduleKey: mod.key, moduleId: mod.id, badgeName });
 }
 
 main()
