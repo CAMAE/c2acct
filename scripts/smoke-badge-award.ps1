@@ -17,8 +17,7 @@ if ($health -ne "200") {
   $baseLog = Join-Path $logDir ("smoke-dev-" + (Get-Date -Format "yyyyMMdd_HHmmss"))
 $outLog  = $baseLog + ".out.log"
 $errLog  = $baseLog + ".err.log"
-
-$p = Start-Process -FilePath "pnpm" -ArgumentList @("dev") -PassThru -WindowStyle Hidden -RedirectStandardOutput $outLog -RedirectStandardError $errLog  $env:SMOKE_DEV_PID = $p.Id
+$p = Start-Process -FilePath "cmd.exe" -ArgumentList @("/c", "pnpm dev 1>`"$outLog`" 2>`"$errLog`"") -PassThru -WindowStyle Hidden
 
   $deadline = (Get-Date).AddSeconds(45)
   do {
@@ -74,6 +73,7 @@ docker cp .\tmp-award-verify-smoke.sql c2acct-db:/tmp/tmp-award-verify-smoke.sql
 docker exec c2acct-db psql -U postgres -d c2acct -f /tmp/tmp-award-verify-smoke.sql | Out-Host
 
 curl.exe -s "$BaseUrl/api/badges/earned?companyId=$CompanyId" | Out-Host
+
 
 
 
