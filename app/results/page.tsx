@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -66,15 +67,17 @@ export default async function ResultsPage() {
           )}
 
           <div className="mt-8">
-            <a className="underline" href="/survey">
+            <Link className="underline" href="/survey">
               Back to Survey
-            </a>
+            </Link>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+
 
 
 

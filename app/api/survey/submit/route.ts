@@ -29,9 +29,8 @@ return NextResponse.json(
   }
 
   const { companyId, moduleKey, answers } = parsed.data;
-
-  const module = await prisma.surveyModule.findFirst({ where: { key: moduleKey } });
-  if (!module) {
+const mod = await prisma.surveyModule.findFirst({ where: { key: moduleKey } });
+  if (!mod) {
 return NextResponse.json({ ok: false, error: "Module not found" }, { status: 404 });
   }
 
@@ -42,8 +41,8 @@ return NextResponse.json({ ok: false, error: "Module not found" }, { status: 404
     data: {
       id: nodeCrypto.randomUUID(),
       companyId,
-      moduleId: module.id,
-      version: module.version ?? 1,
+      moduleId: mod.id,
+      version: mod.version ?? 1,
       answers,
       score: scoring.score,
       weightedAvg: scoring.weightedAvg,
@@ -86,6 +85,7 @@ return NextResponse.json({ ok: false, error: "Module not found" }, { status: 404
 
 return NextResponse.json({ ok: true, submission, milestoneReached }, { status: 200 });
 }
+
 
 
 

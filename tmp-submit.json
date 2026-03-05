@@ -1,0 +1,11 @@
+﻿{
+    "answers":  {
+                    "leadership_vision_alignment":  3,
+                    "kpi_alignment":  3,
+                    "operating_rhythm":  3,
+                    "decision_rights_defined":  3,
+                    "strategy_execution_clarity":  3
+                },
+    "moduleKey":  "firm_alignment_v1",
+    "companyId":  "746b2c20-4487-4da7-a76d-cc60cb546c9c"
+}

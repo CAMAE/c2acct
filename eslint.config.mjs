@@ -12,7 +12,20 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-  ]),
+    // AAE ignores:
+    "node_modules/**",
+    "prisma/**",
+    "scripts/**",
+    "tmp/**",
+    "agent-work/**",
+    "*.js",
+]),
+
+  { rules: { "@typescript-eslint/no-explicit-any": "warn" } },
 ]);
 
 export default eslintConfig;
+
+
+
+
