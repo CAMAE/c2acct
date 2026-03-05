@@ -1,4 +1,4 @@
-param(
+﻿param(
   [string]$CompanyId = "746b2c20-4487-4da7-a76d-cc60cb546c9c",
   [string]$ModuleKey = "firm_alignment_v1",
   [string]$BaseUrl   = "http://localhost:3000"
@@ -7,30 +7,27 @@ param(
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
-# --- ensure dev server is up (auto) ---
-$healthUrl = "$BaseUrl/api/health/db"
-$health = (curl.exe -s -o NUL -w "%{http_code}" $healthUrl) 2>$null
-if ($health -ne "200") {
-  Write-Host "Dev server not healthy ($health). Starting pnpm dev..." -ForegroundColor Yellow
-  $logDir = Join-Path (Get-Location) "tmp"
-  New-Item -ItemType Directory -Force $logDir | Out-Null
-  $baseLog = Join-Path $logDir ("smoke-dev-" + (Get-Date -Format "yyyyMMdd_HHmmss"))
-$outLog  = $baseLog + ".out.log"
-$errLog  = $baseLog + ".err.log"
-$p = Start-Process -FilePath "cmd.exe" -ArgumentList @("/c", "pnpm dev 1>`"$outLog`" 2>`"$errLog`"") -PassThru -WindowStyle Hidden
+# --- ensure dev server is healthy (probe ports) ---
+$ports = @(
+  ([uri]$BaseUrl).Port,
+  3000, 3001, 3002
+) | Select-Object -Unique
 
-  $deadline = (Get-Date).AddSeconds(45)
-  do {
-    Start-Sleep -Milliseconds 400
-    $health = (curl.exe -s -o NUL -w "%{http_code}" $healthUrl) 2>$null
-  } while ($health -ne "200" -and (Get-Date) -lt $deadline)
+$chosen = $null
+foreach ($p in $ports) {
+  $u = "http://localhost:$p/api/health/db"
+  $code = (& curl.exe -s -o NUL -w "%{http_code}" $u) 2>$null
+  if ($code -eq "200") { $chosen = "http://localhost:$p"; break }
+}
 
-  if ($health -ne "200") {
-    Write-Host "Dev server failed to become healthy. Logs: $outLog ; $errLog" -ForegroundColor Red
-    if ($env:SMOKE_DEV_PID) { Stop-Process -Id $env:SMOKE_DEV_PID -Force -ErrorAction SilentlyContinue }
-    throw "Dev server not reachable at $healthUrl (HTTP $health)"
-  }
-  Write-Host "Dev server healthy." -ForegroundColor Green
+if (-not $chosen) {
+  Write-Host "Dev server not healthy on ports $($ports -join ', '). Make sure 'pnpm dev' is running." -ForegroundColor Red
+  throw "No healthy dev server found (expected /api/health/db = 200)."
+}
+
+if ($BaseUrl -ne $chosen) {
+  Write-Host "Using dev BaseUrl: $chosen (requested $BaseUrl)" -ForegroundColor Yellow
+  $BaseUrl = $chosen
 }
 # --- end ensure dev server ---
 $payload = @{
@@ -73,6 +70,7 @@ docker cp .\tmp-award-verify-smoke.sql c2acct-db:/tmp/tmp-award-verify-smoke.sql
 docker exec c2acct-db psql -U postgres -d c2acct -f /tmp/tmp-award-verify-smoke.sql | Out-Host
 
 curl.exe -s "$BaseUrl/api/badges/earned?companyId=$CompanyId" | Out-Host
+
 
 
 
