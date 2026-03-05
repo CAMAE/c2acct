@@ -1,18 +1,29 @@
 ﻿import { NextResponse } from "next/server";
-import { evaluateUnlocked } from "@/lib/insights/evaluateUnlocked";
+import prisma from "@/lib/prisma";
 
 export async function GET(req: Request) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const companyId = searchParams.get("companyId");
+  const { searchParams } = new URL(req.url);
+  const companyId = searchParams.get("companyId");
 
-    if (!companyId) {
-      return NextResponse.json({ ok: false, error: "companyId required" }, { status: 400 });
-    }
-
-    const unlocked = await evaluateUnlocked(companyId);
-    return NextResponse.json({ ok: true, unlocked });
-  } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e?.message ?? "Unknown error" }, { status: 500 });
+  if (!companyId) {
+    return NextResponse.json({ ok: false, error: "companyId required" }, { status: 400 });
   }
+
+  // Tier1 gating: if Tier1 badge earned, return Tier1 insights (stub unlock)
+  const tier1 = await prisma.companyBadge.findFirst({
+    where: { companyId, name: "Tier 1 Unlocked" },
+    select: { id: true },
+  });
+
+  if (!tier1) {
+    return NextResponse.json({ ok: true, unlocked: [] });
+  }
+
+  const insights = await prisma.insight.findMany({
+    where: { tier: 1, active: true },
+    orderBy: { key: "asc" },
+    select: { id: true, key: true, title: true, body: true, tier: true },
+  });
+
+  return NextResponse.json({ ok: true, unlocked: insights });
 }
