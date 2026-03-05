@@ -65,7 +65,7 @@ WriteSection "Nightly Logs (latest 10 files)" {
       Select-Object -First 10 Name, LastWriteTime, Length |
       Format-Table -AutoSize | Out-String
   } else {
-    "NO_NIGHTLY_LOGS_FOLDER"
+    'NO_NIGHTLY_LOGS_FOLDER'
   }
 }
 
@@ -73,5 +73,6 @@ Add-Content -Path $OutFile -Value '`n## Summary`n- Build: [fill]`n- Lint: [fill]
 Add-Content -Path $OutFile -Value '`n## Action Items`n- [ ]`n- [ ]`n'
 
 exit 0
+
 
 
