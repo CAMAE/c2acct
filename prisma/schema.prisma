@@ -400,11 +400,3 @@ enum UserRole {
   ADMIN
   MEMBER
 }
-
-
-generator erd {
-  provider = "prisma-erd-generator"
-  output   = "../docs/erd.svg"
-}
-
-
