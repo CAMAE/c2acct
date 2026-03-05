@@ -10,10 +10,9 @@ $sessionOut = "docs/audit/session_$ts.md"
 if (-not (Test-Path "docs/audit/run_audit.ps1")) { throw "Missing docs/audit/run_audit.ps1" }
 if (-not (Test-Path $PlanPath)) { throw "Missing plan file: $PlanPath" }
 
-# Run audit (must succeed; otherwise stop)
 powershell -NoProfile -ExecutionPolicy Bypass -File docs/audit/run_audit.ps1 -OutFile $auditOut
+if ($LASTEXITCODE -ne 0) { throw "Audit failed (exit $LASTEXITCODE). Not committing session." }
 
-# Write session log
 $log = git log -n 25 --date=local --pretty=format:"%h %ad %s"
 $status = git status -sb
 $diffstat = git diff --stat
