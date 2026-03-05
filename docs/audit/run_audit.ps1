@@ -1,9 +1,11 @@
-﻿param([Parameter(Mandatory=$true)][string]$OutFile)
+﻿[CmdletBinding()]
+param([Parameter(Mandatory=$true)][string]$OutFile)
 
 $ErrorActionPreference="Stop"
 New-Item -ItemType Directory -Force (Split-Path $OutFile) | Out-Null
 
 function Add-Section {
+  [CmdletBinding()]
   param(
     [Parameter(Mandatory=$true)][string]$Title,
     [Parameter(Mandatory=$true)][scriptblock]$Cmd
@@ -14,11 +16,16 @@ function Add-Section {
   Add-Content -Path $OutFile -Value ""
   Add-Content -Path $OutFile -Value "```"
 
-  $output = ""
-  try { $output = (& $Cmd 2>&1 | Out-String) } catch { $output = ("ERROR: " + $_.Exception.Message) }
-  if ([string]::IsNullOrWhiteSpace($output)) { $output = "NO_OUTPUT" }
+  $output = $null
+  try {
+    $output = (& $Cmd 2>&1 | Out-String)
+  } catch {
+    $output = ("AUDIT_COMMAND_EXCEPTION: " + $_.Exception.Message)
+  }
 
+  if ([string]::IsNullOrWhiteSpace($output)) { $output = "NO_OUTPUT" }
   Add-Content -Path $OutFile -Value ($output.TrimEnd())
+
   Add-Content -Path $OutFile -Value "```"
 }
 
@@ -34,6 +41,7 @@ Add-Section -Title "Environment" -Cmd {
 
 Add-Section -Title "Git Status" -Cmd { git status -sb }
 Add-Section -Title "Recent Commits" -Cmd { git log -n 20 --oneline }
+
 Add-Section -Title "Install (pnpm i)" -Cmd { pnpm i }
 Add-Section -Title "Build" -Cmd { pnpm run build }
 
