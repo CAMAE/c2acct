@@ -53,3 +53,7 @@
 - Data pollution risk until auth+RBAC ships
 - Score semantics drift if UI scale and server scoring diverge again
 - Hidden time sinks from outdated scripts/seed paths
+
+## Session Log Entry (2026-03-05 15:08)
+- Audit: docs/audit/audit_2026-03-05_1508.md
+- Session log: docs/audit/session_2026-03-05_1508.md
