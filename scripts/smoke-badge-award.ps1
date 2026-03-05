@@ -1,4 +1,4 @@
-﻿param(
+param(
   [string]$CompanyId = "746b2c20-4487-4da7-a76d-cc60cb546c9c",
   [string]$ModuleKey = "firm_alignment_v1",
   [string]$BaseUrl   = "http://localhost:3000"
@@ -21,7 +21,7 @@ foreach ($p in $ports) {
 }
 
 if (-not $chosen) {
-  Write-Host "Dev server not healthy on ports $($ports -join ', '). Make sure 'pnpm dev' is running." -ForegroundColor Red
+  Write-Host "Dev server not healthy on ports $($ports -join ', '). Start it manually: pnpm dev" -ForegroundColor Red
   throw "No healthy dev server found (expected /api/health/db = 200)."
 }
 
@@ -30,6 +30,9 @@ if ($BaseUrl -ne $chosen) {
   $BaseUrl = $chosen
 }
 # --- end ensure dev server ---
+# --- best-effort clear stale next dev lock ---
+Remove-Item -Force -ErrorAction SilentlyContinue .\.next\dev\lock
+# --- end lock clear ---
 $payload = @{
   companyId = $CompanyId
   moduleKey = $ModuleKey
@@ -70,6 +73,7 @@ docker cp .\tmp-award-verify-smoke.sql c2acct-db:/tmp/tmp-award-verify-smoke.sql
 docker exec c2acct-db psql -U postgres -d c2acct -f /tmp/tmp-award-verify-smoke.sql | Out-Host
 
 curl.exe -s "$BaseUrl/api/badges/earned?companyId=$CompanyId" | Out-Host
+
 
 
 
