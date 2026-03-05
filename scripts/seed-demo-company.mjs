@@ -1,7 +1,14 @@
-﻿import { PrismaClient } from "@prisma/client";
+﻿import { PrismaClient, CompanyType } from "@prisma/client";
 import { randomUUID } from "crypto";
 
 const prisma = new PrismaClient();
+
+function pickEnumValue(enumObj, preferredKeys = []) {
+  if (!enumObj || typeof enumObj !== "object") return null;
+  for (const k of preferredKeys) if (k in enumObj) return enumObj[k];
+  const vals = Object.values(enumObj);
+  return vals.length ? vals[0] : null;
+}
 
 async function main() {
   const name = "Demo Company";
@@ -11,13 +18,17 @@ async function main() {
     return;
   }
 
+  const type = pickEnumValue(CompanyType, ["FIRM", "VENDOR"]);
+  if (!type) throw new Error("CompanyType enum has no values (cannot seed).");
+
   const created = await prisma.company.create({
     data: {
       id: randomUUID(),
       name,
+      type,
       updatedAt: new Date(),
     },
-    select: { id: true, name: true },
+    select: { id: true, name: true, type: true },
   });
 
   console.log("OK COMPANY", created);
