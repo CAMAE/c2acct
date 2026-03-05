@@ -1,4 +1,4 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param([Parameter(Mandatory=$true)][string]$OutFile)
 
 $ErrorActionPreference = 'Stop'
@@ -50,11 +50,11 @@ Section 'Tests (if present)' {
 }
 
 Section 'Prisma Validate' {
-  if (Test-Path 'prisma/schema.prisma') { npx prisma validate } else { 'NO_PRISMA_SCHEMA' }
+  if (Test-Path 'prisma/schema.prisma') { pnpm exec prisma validate } else { 'NO_PRISMA_SCHEMA' }
 }
 
 Section 'Prisma Migrate Status' {
-  if (Test-Path 'prisma/schema.prisma') { npx prisma migrate status } else { 'NO_PRISMA_SCHEMA' }
+  if (Test-Path 'prisma/schema.prisma') { pnpm exec prisma migrate status } else { 'NO_PRISMA_SCHEMA' }
 }
 
 Section 'Nightly Logs (latest 10 files)' {
