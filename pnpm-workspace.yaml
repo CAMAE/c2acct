@@ -1,2 +1,13 @@
-﻿packages:
-  - "."
+packages:
+  - .
+
+ignoredBuiltDependencies:
+  - puppeteer
+  - unrs-resolver
+
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - esbuild
+  - prisma
+  - sharp
