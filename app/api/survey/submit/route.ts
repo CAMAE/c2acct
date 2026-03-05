@@ -33,8 +33,8 @@ const mod = await prisma.surveyModule.findFirst({ where: { key: moduleKey } });
   if (!mod) {
 return NextResponse.json({ ok: false, error: "Module not found" }, { status: 404 });
   }
-
-  const scoring = computeScore( // TODO: derive scaleMin/scaleMax from module/question config (do not hardcode)`r`n  { answers, scaleMin: 1, scaleMax: 5 });
+  // TODO: derive scaleMin/scaleMax from module/question config (do not hardcode)
+  const scoring = computeScore({ answers, scaleMin: 1, scaleMax: 5 });
   const milestoneReached = false;
 
   const submission = await prisma.surveySubmission.create({
