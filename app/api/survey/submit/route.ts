@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { computeScore } from "@/lib/scoring";
@@ -34,7 +34,7 @@ const mod = await prisma.surveyModule.findFirst({ where: { key: moduleKey } });
 return NextResponse.json({ ok: false, error: "Module not found" }, { status: 404 });
   }
 
-  const scoring = computeScore({ answers, scaleMin: 0, scaleMax: 5 });
+  const scoring = computeScore({ answers, scaleMin: 1, scaleMax: 5 });
   const milestoneReached = false;
 
   const submission = await prisma.surveySubmission.create({
