@@ -10,15 +10,22 @@ $sessionOut = "docs/audit/session_$ts.md"
 if (-not (Test-Path "docs/audit/run_audit.ps1")) { throw "Missing docs/audit/run_audit.ps1" }
 if (-not (Test-Path $PlanPath)) { throw "Missing plan file: $PlanPath" }
 
+# Always run audit
 powershell -NoProfile -ExecutionPolicy Bypass -File docs/audit/run_audit.ps1 -OutFile $auditOut
-if ($LASTEXITCODE -ne 0) { throw "Audit failed (exit $LASTEXITCODE). Not committing session." }
+$auditExit = $LASTEXITCODE
+$auditStatus = $(if ($auditExit -eq 0) { "PASS" } else { "FAIL" })
 
+# Session log (always written)
 $log = git log -n 25 --date=local --pretty=format:"%h %ad %s"
 $status = git status -sb
 $diffstat = git diff --stat
 
 @"
 # AAE Session Log ($ts)
+
+## Audit status
+- $auditStatus (exit $auditExit)
+- Artifact: $auditOut
 
 ## Latest commits (last 25)
 $log
@@ -29,20 +36,20 @@ $status
 ## Uncommitted diffstat
 $diffstat
 
-## Audit artifact
-- $auditOut
-
 ## Plan artifact
 - $PlanPath
 "@ | Set-Content -Encoding UTF8 $sessionOut
 
+# Append pointers into plan (always)
 Add-Content -Path $PlanPath -Value ""
 Add-Content -Path $PlanPath -Value ("## Session Log Entry (" + (Get-Date -Format "yyyy-MM-dd HH:mm") + ")")
-Add-Content -Path $PlanPath -Value ("- Audit: " + $auditOut)
+Add-Content -Path $PlanPath -Value ("- Audit (" + $auditStatus + "): " + $auditOut)
 Add-Content -Path $PlanPath -Value ("- Session log: " + $sessionOut)
 
+# Commit regardless (this is the "STOP ME" guarantee)
 git add $auditOut $sessionOut $PlanPath
-git commit -m ("chore(session): end-of-session audit+log " + $ts)
+git commit -m ("chore(session): end-of-session " + $auditStatus + " " + $ts)
 
-Write-Host "OK => $auditOut"
+Write-Host "OK => $auditStatus => $auditOut"
 Write-Host "OK => $sessionOut"
+exit $auditExit
