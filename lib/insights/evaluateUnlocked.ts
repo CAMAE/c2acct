@@ -1,4 +1,4 @@
-﻿import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 export async function evaluateUnlocked(companyId: string) {
   const rows = await prisma.companyBadge.findMany({
@@ -15,3 +15,4 @@ export async function evaluateUnlocked(companyId: string) {
     awardedAt: r.awardedAt,
   }));
 }
+
