@@ -1,15 +1,36 @@
 ﻿import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 
-export async function resolveCompanyId(searchParams?: URLSearchParams) {
-  const fromQuery = searchParams?.get("companyId");
+export type SearchParamsLike =
+  | URLSearchParams
+  | Record<string, string | string[] | undefined>
+  | undefined;
+
+function getQueryCompanyId(searchParams: SearchParamsLike): string | null {
+  if (!searchParams) return null;
+
+  if (searchParams instanceof URLSearchParams) {
+    const v = searchParams.get("companyId");
+    return v ? v : null;
+  }
+
+  const v = searchParams.companyId;
+  if (typeof v === "string") return v;
+  if (Array.isArray(v) && typeof v[0] === "string") return v[0];
+  return null;
+}
+
+export async function resolveCompanyId(searchParams?: SearchParamsLike) {
+  const fromQuery = getQueryCompanyId(searchParams);
   if (fromQuery) return fromQuery;
 
-  const c = cookies();
-  const fromCookie = c.get("aae_companyId")?.value;
+  const cookieStore = await cookies();
+  const fromCookie = cookieStore.get("aae_companyId")?.value;
   if (fromCookie) return fromCookie;
 
   // DEV fallback: first company
   const first = await prisma.company.findFirst({ select: { id: true } });
   return first?.id ?? null;
 }
+
+
