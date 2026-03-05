@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 export async function GET(req: Request) {
@@ -9,16 +9,26 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: "companyId required" }, { status: 400 });
   }
 
-  // Tier1 gating: if Tier1 badge earned, return Tier1 insights (stub unlock)
-  const tier1 = await prisma.companyBadge.findFirst({
-    where: { companyId, name: "Tier 1 Unlocked" },
+  // Tier1 gating: badge name is in Badge table; CompanyBadge stores badgeId
+  const badge = await prisma.badge.findFirst({
+    where: { name: "Tier 1 Unlocked" },
     select: { id: true },
   });
 
-  if (!tier1) {
+  if (!badge) {
     return NextResponse.json({ ok: true, unlocked: [] });
   }
 
+  const earned = await prisma.companyBadge.findFirst({
+    where: { companyId, badgeId: badge.id },
+    select: { id: true },
+  });
+
+  if (!earned) {
+    return NextResponse.json({ ok: true, unlocked: [] });
+  }
+
+  // Stub unlock: return all Tier 1 active insights once Tier 1 badge is earned
   const insights = await prisma.insight.findMany({
     where: { tier: 1, active: true },
     orderBy: { key: "asc" },
