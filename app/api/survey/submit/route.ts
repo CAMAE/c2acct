@@ -1,9 +1,8 @@
-import { NextResponse } from "next/server";
-import { randomUUID } from "crypto";
+﻿import { NextResponse } from "next/server";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { computeScore } from "@/lib/scoring";
-
+import * as nodeCrypto from "crypto";
 const SCORING_VERSION = 1;
 
 const SubmitSchema = z.object({
@@ -18,12 +17,12 @@ export async function POST(req: Request) {
   try {
     raw = await req.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
+return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
   }
 
   const parsed = SubmitSchema.safeParse(raw);
   if (!parsed.success) {
-    return NextResponse.json(
+return NextResponse.json(
       { ok: false, error: "Invalid payload", issues: parsed.error.flatten() },
       { status: 400 }
     );
@@ -33,7 +32,7 @@ export async function POST(req: Request) {
 
   const module = await prisma.surveyModule.findFirst({ where: { key: moduleKey } });
   if (!module) {
-    return NextResponse.json({ ok: false, error: "Module not found" }, { status: 404 });
+return NextResponse.json({ ok: false, error: "Module not found" }, { status: 404 });
   }
 
   const scoring = computeScore({ answers, scaleMin: 0, scaleMax: 5 });
@@ -41,7 +40,7 @@ export async function POST(req: Request) {
 
   const submission = await prisma.surveySubmission.create({
     data: {
-      id: randomUUID(),
+      id: nodeCrypto.randomUUID(),
       companyId,
       moduleId: module.id,
       version: module.version ?? 1,
@@ -55,7 +54,48 @@ export async function POST(req: Request) {
       answeredCount: scoring.answeredCount,
     },
   });
+    /*** BADGE AWARD (auto) ***/
+    const rules = await prisma.badgeRule.findMany({
+      where: { moduleId: submission.moduleId },
+    });
 
-  return NextResponse.json({ ok: true, submission, milestoneReached }, { status: 200 });
+    for (const r of rules) {
+      const minScore = r.minScore ?? 0;
+      if ((submission.score ?? 0) < minScore) continue;
+
+      await prisma.companyBadge.upsert({
+        where: {
+          companyId_badgeId_moduleId: {
+            companyId: submission.companyId,
+            badgeId: r.badgeId,
+            moduleId: submission.moduleId,
+          },
+        },
+        create: {
+          id: nodeCrypto.randomUUID(),
+          companyId: submission.companyId,
+          badgeId: r.badgeId,
+          moduleId: submission.moduleId,
+          awardedAt: new Date(),
+        },
+        update: {},
+      });
+    }
+    /*** END BADGE AWARD ***/
+
+
+return NextResponse.json({ ok: true, submission, milestoneReached }, { status: 200 });
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
