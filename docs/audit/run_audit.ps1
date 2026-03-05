@@ -69,7 +69,9 @@ WriteSection "Nightly Logs (latest 10 files)" {
   }
 }
 
-Add-Content -Path $OutFile -Value "`n## Summary`n- Build: [fill]`n- Lint: [fill]`n- Prisma: [fill]`n- Nightly: [fill]`n"
-Add-Content -Path $OutFile -Value "`n## Action Items`n- [ ]`n- [ ]`n"
+Add-Content -Path $OutFile -Value '`n## Summary`n- Build: [fill]`n- Lint: [fill]`n- Prisma: [fill]`n- Nightly: [fill]`n'
+Add-Content -Path $OutFile -Value '`n## Action Items`n- [ ]`n- [ ]`n'
 
 exit 0
+
+
