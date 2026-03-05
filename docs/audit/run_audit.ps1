@@ -2,6 +2,10 @@
 param([Parameter(Mandatory=$true)][string]$OutFile)
 
 $ErrorActionPreference = 'Stop'
+# ensure DB URL exists for audit/prisma (only set if missing)
+if (-not $env:DATABASE_URL -or [string]::IsNullOrWhiteSpace($env:DATABASE_URL)) {
+  $env:DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/aae?schema=public"
+}
 New-Item -ItemType Directory -Force (Split-Path $OutFile) | Out-Null
 
 function Section([string]$Title, [scriptblock]$Body) {
