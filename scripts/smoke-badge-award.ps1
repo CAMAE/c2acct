@@ -40,11 +40,12 @@ where "companyId" = '$CompanyId';
 select "id","badgeId","moduleId","awardedAt"
 from public."CompanyBadge"
 where "companyId" = '$CompanyId'
-order by ""awardedAt"" desc;
+order by "awardedAt" desc;
 "@ | Set-Content -Encoding UTF8 .\tmp-award-verify-smoke.sql
 
 docker cp .\tmp-award-verify-smoke.sql c2acct-db:/tmp/tmp-award-verify-smoke.sql | Out-Null
 docker exec c2acct-db psql -U postgres -d c2acct -f /tmp/tmp-award-verify-smoke.sql | Out-Host
 
 curl.exe -s "$BaseUrl/api/badges/earned?companyId=$CompanyId" | Out-Host
+
 
