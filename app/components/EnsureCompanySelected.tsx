@@ -9,6 +9,12 @@ export default function EnsureCompanySelected() {
     let cancelled = false;
 
     async function run() {
+        try {
+          // client short-circuit: if cookie exists, do nothing
+          if (typeof document !== "undefined" && document.cookie.includes("aae_companyId=")) {
+            if (!cancelled) setDone(true);
+            return;
+          }
       try {
         // ask server for default company id (dev fallback already exists in resolveCompanyId,
         // but we need an ID to set the cookie for browser navigation)
@@ -44,3 +50,4 @@ export default function EnsureCompanySelected() {
     </div>
   );
 }
+
