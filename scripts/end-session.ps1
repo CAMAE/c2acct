@@ -1,9 +1,9 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param([string]$PlanPath = "docs/plan/two-week-plan_pre-mac-mini_2026-03-05.md")
 
 $ErrorActionPreference="Stop"
 
-$ts = Get-Date -Format "yyyy-MM-dd_HHmm"
+$ts = Get-Date -Format "yyyy-MM-dd_HHmmss"
 $auditOut = "docs/audit/audit_$ts.md"
 $sessionOut = "docs/audit/session_$ts.md"
 
