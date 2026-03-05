@@ -22,7 +22,7 @@ $payload = @{
 $payload | Out-File -Encoding utf8 -NoNewline .\tmp-submit.json
 
 @"
-delete from public.""CompanyBadge"" where ""companyId"" = '$CompanyId';
+delete from public."CompanyBadge" where "companyId" = '$CompanyId';
 "@ | Set-Content -Encoding UTF8 .\tmp-award-delete-smoke.sql
 
 docker cp .\tmp-award-delete-smoke.sql c2acct-db:/tmp/tmp-award-delete-smoke.sql | Out-Null
@@ -34,12 +34,12 @@ curl.exe -s -o NUL -w "SUBMIT2 HTTP %{http_code}`n" -X POST "$BaseUrl/api/survey
 
 @"
 select count(*)::int as n
-from public.""CompanyBadge""
-where ""companyId"" = '$CompanyId';
+from public."CompanyBadge"
+where "companyId" = '$CompanyId';
 
-select ""id"",""badgeId"",""moduleId"",""awardedAt""
-from public.""CompanyBadge""
-where ""companyId"" = '$CompanyId'
+select "id","badgeId","moduleId","awardedAt"
+from public."CompanyBadge"
+where "companyId" = '$CompanyId'
 order by ""awardedAt"" desc;
 "@ | Set-Content -Encoding UTF8 .\tmp-award-verify-smoke.sql
 
@@ -47,3 +47,4 @@ docker cp .\tmp-award-verify-smoke.sql c2acct-db:/tmp/tmp-award-verify-smoke.sql
 docker exec c2acct-db psql -U postgres -d c2acct -f /tmp/tmp-award-verify-smoke.sql | Out-Host
 
 curl.exe -s "$BaseUrl/api/badges/earned?companyId=$CompanyId" | Out-Host
+
