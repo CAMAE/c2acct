@@ -1,4 +1,4 @@
-﻿param(
+param(
   [string]$CompanyId = "746b2c20-4487-4da7-a76d-cc60cb546c9c",
   [string]$ModuleKey = "firm_alignment_v1",
   [string]$BaseUrl   = "http://localhost:3000"
@@ -7,6 +7,32 @@
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
+# --- ensure dev server is up (auto) ---
+$healthUrl = "$BaseUrl/api/health/db"
+$health = (curl.exe -s -o NUL -w "%{http_code}" $healthUrl) 2>$null
+if ($health -ne "200") {
+  Write-Host "Dev server not healthy ($health). Starting pnpm dev..." -ForegroundColor Yellow
+  $logDir = Join-Path (Get-Location) "tmp"
+  New-Item -ItemType Directory -Force $logDir | Out-Null
+  $log = Join-Path $logDir ("smoke-dev-" + (Get-Date -Format "yyyyMMdd_HHmmss") + ".log")
+
+  $p = Start-Process -FilePath "pnpm" -ArgumentList @("dev") -PassThru -WindowStyle Hidden -RedirectStandardOutput $log -RedirectStandardError $log
+  $env:SMOKE_DEV_PID = $p.Id
+
+  $deadline = (Get-Date).AddSeconds(45)
+  do {
+    Start-Sleep -Milliseconds 400
+    $health = (curl.exe -s -o NUL -w "%{http_code}" $healthUrl) 2>$null
+  } while ($health -ne "200" -and (Get-Date) -lt $deadline)
+
+  if ($health -ne "200") {
+    Write-Host "Dev server failed to become healthy. Log: $log" -ForegroundColor Red
+    if ($env:SMOKE_DEV_PID) { Stop-Process -Id $env:SMOKE_DEV_PID -Force -ErrorAction SilentlyContinue }
+    throw "Dev server not reachable at $healthUrl (HTTP $health)"
+  }
+  Write-Host "Dev server healthy." -ForegroundColor Green
+}
+# --- end ensure dev server ---
 $payload = @{
   companyId = $CompanyId
   moduleKey = $ModuleKey
@@ -47,5 +73,6 @@ docker cp .\tmp-award-verify-smoke.sql c2acct-db:/tmp/tmp-award-verify-smoke.sql
 docker exec c2acct-db psql -U postgres -d c2acct -f /tmp/tmp-award-verify-smoke.sql | Out-Host
 
 curl.exe -s "$BaseUrl/api/badges/earned?companyId=$CompanyId" | Out-Host
+
 
 
