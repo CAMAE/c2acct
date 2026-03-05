@@ -7,7 +7,7 @@ export async function evaluateUnlocked(companyId: string) {
     include: { Badge: true },
   });
 
-  return rows.map((r) => ({
+  return rows.map((r: any) => ({
     id: r.badgeId,
     title: r.Badge?.name ?? "Unlocked",
     badgeId: r.badgeId,
@@ -15,4 +15,5 @@ export async function evaluateUnlocked(companyId: string) {
     awardedAt: r.awardedAt,
   }));
 }
+
 
