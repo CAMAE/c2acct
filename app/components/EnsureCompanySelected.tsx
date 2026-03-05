@@ -9,27 +9,26 @@ export default function EnsureCompanySelected() {
     let cancelled = false;
 
     async function run() {
-        try {
-          // client short-circuit: if cookie exists, do nothing
-          if (typeof document !== "undefined" && document.cookie.includes("aae_companyId=")) {
-            if (!cancelled) setDone(true);
-            return;
-          }
       try {
-        // ask server for default company id (dev fallback already exists in resolveCompanyId,
-        // but we need an ID to set the cookie for browser navigation)
         const r = await fetch("/api/company/default", { cache: "no-store" });
-        const j = await r.json().catch(() => ({}));
-        const companyId = String(j?.companyId ?? "").trim();
+        const j: any = await r.json().catch(() => ({}));
+
+        // If already selected (server read httpOnly cookie) or no companies exist, do nothing
+        if (j?.alreadySelected === true || !j?.companyId) {
+          if (!cancelled) setDone(true);
+          return;
+        }
+
+        const companyId = String(j.companyId).trim();
         if (!companyId) {
           if (!cancelled) setDone(true);
           return;
         }
 
-        // set cookie (query param, most reliable)
-        await fetch(`/api/company/select?companyId=${encodeURIComponent(companyId)}`, { method: "POST" });
+        await fetch(`/api/company/select?companyId=${encodeURIComponent(companyId)}`, {
+          method: "POST",
+        });
 
-        // refresh so server components re-render with cookie context
         if (!cancelled) window.location.reload();
       } catch {
         if (!cancelled) setDone(true);
@@ -37,6 +36,7 @@ export default function EnsureCompanySelected() {
     }
 
     run();
+
     return () => {
       cancelled = true;
     };
@@ -50,4 +50,3 @@ export default function EnsureCompanySelected() {
     </div>
   );
 }
-
