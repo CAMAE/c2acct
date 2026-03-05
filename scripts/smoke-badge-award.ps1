@@ -14,10 +14,11 @@ if ($health -ne "200") {
   Write-Host "Dev server not healthy ($health). Starting pnpm dev..." -ForegroundColor Yellow
   $logDir = Join-Path (Get-Location) "tmp"
   New-Item -ItemType Directory -Force $logDir | Out-Null
-  $log = Join-Path $logDir ("smoke-dev-" + (Get-Date -Format "yyyyMMdd_HHmmss") + ".log")
+  $baseLog = Join-Path $logDir ("smoke-dev-" + (Get-Date -Format "yyyyMMdd_HHmmss"))
+$outLog  = $baseLog + ".out.log"
+$errLog  = $baseLog + ".err.log"
 
-  $p = Start-Process -FilePath "pnpm" -ArgumentList @("dev") -PassThru -WindowStyle Hidden -RedirectStandardOutput $log -RedirectStandardError $log
-  $env:SMOKE_DEV_PID = $p.Id
+$p = Start-Process -FilePath "pnpm" -ArgumentList @("dev") -PassThru -WindowStyle Hidden -RedirectStandardOutput $outLog -RedirectStandardError $errLog  $env:SMOKE_DEV_PID = $p.Id
 
   $deadline = (Get-Date).AddSeconds(45)
   do {
@@ -26,7 +27,7 @@ if ($health -ne "200") {
   } while ($health -ne "200" -and (Get-Date) -lt $deadline)
 
   if ($health -ne "200") {
-    Write-Host "Dev server failed to become healthy. Log: $log" -ForegroundColor Red
+    Write-Host "Dev server failed to become healthy. Logs: $outLog ; $errLog" -ForegroundColor Red
     if ($env:SMOKE_DEV_PID) { Stop-Process -Id $env:SMOKE_DEV_PID -Force -ErrorAction SilentlyContinue }
     throw "Dev server not reachable at $healthUrl (HTTP $health)"
   }
@@ -73,6 +74,7 @@ docker cp .\tmp-award-verify-smoke.sql c2acct-db:/tmp/tmp-award-verify-smoke.sql
 docker exec c2acct-db psql -U postgres -d c2acct -f /tmp/tmp-award-verify-smoke.sql | Out-Host
 
 curl.exe -s "$BaseUrl/api/badges/earned?companyId=$CompanyId" | Out-Host
+
 
 
 
