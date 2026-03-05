@@ -1,6 +1,7 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-type Row = Awaited<ReturnType<typeof prisma.companyBadge.findMany>>[number];
+import type { Prisma } from "@prisma/client";
+type Row = Prisma.CompanyBadgeGetPayload<{ include: { Badge: true } }>
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -20,7 +21,6 @@ export async function GET(req: Request) {
       moduleId: r.moduleId,
       awardedAt: r.awardedAt,
       name: r.Badge?.name ?? null,
-      key: r.Badge?.key ?? null,
     }));
 
     return NextResponse.json({ ok: true, earned });
@@ -28,6 +28,8 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: e?.message ?? "Unknown error" }, { status: 500 });
   }
 }
+
+
 
 
 
