@@ -8,13 +8,13 @@ export async function GET(req: Request) {
     if (!companyId) {
       return NextResponse.json({ ok: false, error: "companyId required" }, { status: 400 });
     }
-    const rows: CompanyBadge[] = await prisma.companyBadge.findMany({
+    const rows: Row[] = await prisma.companyBadge.findMany({
       where: { companyId },
       orderBy: { awardedAt: "asc" },
       include: { Badge: true },
     });
 
-    const earned = rows.map((r: CompanyBadge) => ({
+    const earned = rows.map((r: Row) => ({
       id: r.badgeId,
       badgeId: r.badgeId,
       moduleId: r.moduleId,
@@ -28,5 +28,6 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: e?.message ?? "Unknown error" }, { status: 500 });
   }
 }
+
 
 
