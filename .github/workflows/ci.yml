@@ -1,4 +1,4 @@
-﻿name: CI
+name: CI
 
 on:
   pull_request:
@@ -38,6 +38,6 @@ jobs:
 
       - name: Prisma generate
 
-        run: pnpm exec prisma generate
-      - run: pnpm build
+        run: pnpm exec prisma generate --generator client- run: pnpm build
+
 
