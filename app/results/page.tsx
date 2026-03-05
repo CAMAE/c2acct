@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -8,8 +9,8 @@ export default async function ResultsPage() {
   const latest = await prisma.surveySubmission.findFirst({
     orderBy: { createdAt: "desc" },
     include: {
-      company: { select: { name: true } },
-      module: { select: { key: true, version: true } },
+      Company: { select: { name: true } },
+      SurveyModule: { select: { key: true, version: true } },
     },
   });
 
@@ -60,18 +61,25 @@ export default async function ResultsPage() {
               </div>
 
               <div className="opacity-60 text-sm mt-2">
-                Company: {latest.company?.name ?? "--"} - Module: {latest.module?.key ?? "--"} v{latest.module?.version ?? "--"} - Answered: {answeredCount}/{questionCount ?? "--"}
+                Company: {latest.Company?.name ?? "--"} - Module: {latest.SurveyModule?.key ?? "--"} v{latest.SurveyModule?.version ?? "--"} - Answered: {answeredCount}/{questionCount ?? "--"}
               </div>
             </div>
           )}
 
           <div className="mt-8">
-            <a className="underline" href="/survey">
+            <Link className="underline" href="/survey">
               Back to Survey
-            </a>
+            </Link>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+
+
+
+
+
+

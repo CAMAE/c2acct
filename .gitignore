@@ -48,3 +48,17 @@ payload.json
 
 # Agent workspace (NOT committed)
 agent-work/
+
+.env.local
+
+# temp/runtime
+tmp/
+tmp-*.sql
+tmp-*.json
+
+# logs
+*.log
+
+# accidental backups
+*.bak_*
+*.pre_*_backup

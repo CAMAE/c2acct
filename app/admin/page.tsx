@@ -1,4 +1,6 @@
-﻿import { prisma } from "@/lib/prisma"
+﻿export const dynamic = "force-dynamic";
+
+import { prisma } from "@/lib/prisma"
 
 export default async function AdminPage() {
 
@@ -39,7 +41,7 @@ async function createOrganization(formData: FormData) {
 
       <h2 style={{ marginTop: "40px" }}>Organizations</h2>
 
-      {orgs.map(org => (
+      {orgs.map((org: any) => (
         <div
           key={org.id}
           style={{
@@ -57,6 +59,8 @@ async function createOrganization(formData: FormData) {
     </div>
   )
 }
+
+
 
 
 
