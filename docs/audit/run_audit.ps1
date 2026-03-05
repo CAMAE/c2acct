@@ -4,34 +4,30 @@ param([Parameter(Mandatory=$true)][string]$OutFile)
 $ErrorActionPreference="Stop"
 New-Item -ItemType Directory -Force (Split-Path $OutFile) | Out-Null
 
-function Add-Section {
+function AddAuditSection {
   [CmdletBinding()]
   param(
-    [Parameter(Mandatory=$true)][string]$Title,
-    [Parameter(Mandatory=$true)][scriptblock]$Cmd
+    [Parameter(Mandatory=$true)][string]$SectionTitle,
+    [Parameter(Mandatory=$true)][scriptblock]$SectionCmd
   )
 
   Add-Content -Path $OutFile -Value ""
-  Add-Content -Path $OutFile -Value ("## " + $Title)
+  Add-Content -Path $OutFile -Value ("## " + $SectionTitle)
   Add-Content -Path $OutFile -Value ""
   Add-Content -Path $OutFile -Value "```"
 
-  $output = $null
-  try {
-    $output = (& $Cmd 2>&1 | Out-String)
-  } catch {
-    $output = ("AUDIT_COMMAND_EXCEPTION: " + $_.Exception.Message)
-  }
+  $out = $null
+  try { $out = (& $SectionCmd 2>&1 | Out-String) }
+  catch { $out = ("AUDIT_EXCEPTION " + $_.Exception.Message) }
 
-  if ([string]::IsNullOrWhiteSpace($output)) { $output = "NO_OUTPUT" }
-  Add-Content -Path $OutFile -Value ($output.TrimEnd())
-
+  if ([string]::IsNullOrWhiteSpace($out)) { $out = "NO_OUTPUT" }
+  Add-Content -Path $OutFile -Value ($out.TrimEnd())
   Add-Content -Path $OutFile -Value "```"
 }
 
 Set-Content -Path $OutFile -Value ("# AAE Audit Report (" + (Get-Date -Format "yyyy-MM-dd HH:mm") + ")`n")
 
-Add-Section -Title "Environment" -Cmd {
+AddAuditSection "Environment" {
   "pwd: $(Get-Location)"
   "node: $(node -v)"
   "pnpm: $(pnpm -v)"
@@ -39,31 +35,30 @@ Add-Section -Title "Environment" -Cmd {
   "os: $([System.Environment]::OSVersion.VersionString)"
 }
 
-Add-Section -Title "Git Status" -Cmd { git status -sb }
-Add-Section -Title "Recent Commits" -Cmd { git log -n 20 --oneline }
+AddAuditSection "Git Status" { git status -sb }
+AddAuditSection "Recent Commits" { git log -n 20 --oneline }
+AddAuditSection "Install (pnpm i)" { pnpm i }
+AddAuditSection "Build" { pnpm run build }
 
-Add-Section -Title "Install (pnpm i)" -Cmd { pnpm i }
-Add-Section -Title "Build" -Cmd { pnpm run build }
-
-Add-Section -Title "Lint (if present)" -Cmd {
+AddAuditSection "Lint (if present)" {
   $pkg = Get-Content package.json -Raw
   if ($pkg -match '"lint"\s*:') { pnpm run lint } else { "NO_LINT_SCRIPT" }
 }
 
-Add-Section -Title "Tests (if present)" -Cmd {
+AddAuditSection "Tests (if present)" {
   $pkg = Get-Content package.json -Raw
   if ($pkg -match '"test"\s*:') { pnpm test } else { "NO_TEST_SCRIPT" }
 }
 
-Add-Section -Title "Prisma Validate" -Cmd {
+AddAuditSection "Prisma Validate" {
   if (Test-Path "prisma/schema.prisma") { npx prisma validate } else { "NO_PRISMA_SCHEMA" }
 }
 
-Add-Section -Title "Prisma Migrate Status" -Cmd {
+AddAuditSection "Prisma Migrate Status" {
   if (Test-Path "prisma/schema.prisma") { npx prisma migrate status } else { "NO_PRISMA_SCHEMA" }
 }
 
-Add-Section -Title "Nightly Logs (latest 10 files)" -Cmd {
+AddAuditSection "Nightly Logs (latest 10 files)" {
   if (Test-Path "nightly-logs") {
     Get-ChildItem nightly-logs -File |
       Sort-Object LastWriteTime -Descending |
