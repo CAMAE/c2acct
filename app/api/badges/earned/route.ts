@@ -13,7 +13,7 @@ export async function GET(req: Request) {
       include: { Badge: true },
     });
 
-    const earned = rows.map((r) => ({
+    const earned = rows.map((r: any) => ({
       id: r.badgeId,
       badgeId: r.badgeId,
       moduleId: r.moduleId,
@@ -26,6 +26,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: e?.message ?? "Unknown error" }, { status: 500 });
   }
 }
+
 
 
 
