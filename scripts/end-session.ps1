@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param([string]$PlanPath = "docs/plan/two-week-plan_pre-mac-mini_2026-03-05.md")
 
 $ErrorActionPreference="Stop"
@@ -53,3 +53,4 @@ git commit -m ("chore(session): end-of-session " + $auditStatus + " " + $ts)
 Write-Host "OK => $auditStatus => $auditOut"
 Write-Host "OK => $sessionOut"
 exit $auditExit
+
