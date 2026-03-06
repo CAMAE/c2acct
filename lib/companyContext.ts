@@ -1,5 +1,4 @@
 ﻿import { cookies } from "next/headers";
-import prisma from "@/lib/prisma";
 
 export type SearchParamsLike =
   | URLSearchParams
@@ -28,9 +27,7 @@ export async function resolveCompanyId(searchParams?: SearchParamsLike) {
   const fromCookie = cookieStore.get("aae_companyId")?.value;
   if (fromCookie) return fromCookie;
 
-  // DEV fallback: first company
-  const first = await prisma.company.findFirst({ select: { id: true } });
-  return first?.id ?? null;
+  return null;
 }
 
 

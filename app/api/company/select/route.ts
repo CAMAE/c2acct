@@ -1,6 +1,22 @@
 ﻿import { NextResponse } from "next/server";
+import { getSessionUser } from "@/lib/auth/session";
+import {
+  canAccessCompany,
+  forbiddenResponse,
+  hasCompany,
+  unauthorizedResponse,
+} from "@/lib/authz";
 
 export async function POST(req: Request) {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) {
+    return unauthorizedResponse();
+  }
+
+  if (!hasCompany(sessionUser)) {
+    return forbiddenResponse("No company assigned");
+  }
+
   const { searchParams } = new URL(req.url);
 
   // 1) Prefer query param (makes curl testing trivial)
@@ -19,8 +35,13 @@ export async function POST(req: Request) {
     }
   }
 
+  // Keep UX stable: if no hint provided, default to session company.
   if (!companyId) {
-    return NextResponse.json({ ok: false, error: "companyId required" }, { status: 400 });
+    companyId = sessionUser.companyId ?? "";
+  }
+
+  if (!canAccessCompany(sessionUser, companyId)) {
+    return forbiddenResponse();
   }
 
   const res = NextResponse.json({ ok: true, companyId });

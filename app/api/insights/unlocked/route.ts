@@ -1,13 +1,17 @@
 ﻿import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { resolveCompanyId } from "@/lib/companyContext";
+import { getSessionUser } from "@/lib/auth/session";
+import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const companyId = await resolveCompanyId(searchParams);
+export async function GET() {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) {
+    return unauthorizedResponse();
+  }
 
+  const companyId = sessionUser.companyId;
   if (!companyId) {
-    return NextResponse.json({ ok: false, error: "companyId required" }, { status: 400 });
+    return forbiddenResponse("No company assigned");
   }
 
   const badge = await prisma.badge.findFirst({
