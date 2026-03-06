@@ -1,40 +1,68 @@
-﻿import prisma from "@/lib/prisma";
-import Link from "next/link";
+﻿import Link from "next/link";
 import EnsureCompanySelected from "@/app/components/EnsureCompanySelected";
+import { cookies, headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-export default async function ResultsPage() {
-  const total = await prisma.surveySubmission.count();
+async function getApiBaseUrl() {
+  const headerStore = await headers();
+  const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
+  const proto = headerStore.get("x-forwarded-proto") ?? "http";
 
-  const latest = await prisma.surveySubmission.findFirst({
-    orderBy: { createdAt: "desc" },
-    include: {
-      Company: { select: { name: true } },
-      SurveyModule: { select: { key: true, version: true } },
-    },
-  });
-
-  let questionCount: number | null = null;
-  if (latest?.moduleId) {
-    questionCount = await prisma.surveyQuestion.count({
-      where: { moduleId: latest.moduleId },
-    });
+  if (host) {
+    return `${proto}://${host}`;
   }
 
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.APP_URL ?? process.env.VERCEL_URL;
+  if (!envUrl) {
+    return `${proto}://localhost:3000`;
+  }
+
+  return envUrl.startsWith("http") ? envUrl : `https://${envUrl}`;
+}
+
+export default async function ResultsPage() {
+  const apiBaseUrl = await getApiBaseUrl();
+  const cookieHeader = (await cookies()).toString();
+  const resultsRes = await fetch(`${apiBaseUrl}/api/results`, {
+    cache: "no-store",
+    headers: cookieHeader ? { cookie: cookieHeader } : undefined,
+  });
+
+  if (resultsRes.status === 401) {
+    redirect("/login?callbackUrl=%2Fresults");
+  }
+
+  const resultsJson = await resultsRes.json().catch(() => ({}));
+  const result = resultsJson?.result as
+    | {
+        score?: number | null;
+        weightedAvg?: number | null;
+        answeredCount?: number | null;
+        moduleId?: string | null;
+      }
+    | null;
+
+  const forbidden = resultsRes.status === 403;
+  const apiError =
+    !resultsRes.ok && !forbidden
+      ? String(resultsJson?.error ?? resultsJson?.detail ?? `HTTP ${resultsRes.status}`)
+      : null;
+
   const score =
-    typeof latest?.score === "number" && Number.isFinite(latest.score)
-      ? Math.round(latest.score)
+    typeof result?.score === "number" && Number.isFinite(result.score)
+      ? Math.round(result.score)
       : null;
 
   const weightedAvg =
-    typeof latest?.weightedAvg === "number" && Number.isFinite(latest.weightedAvg)
-      ? latest.weightedAvg
+    typeof result?.weightedAvg === "number" && Number.isFinite(result.weightedAvg)
+      ? result.weightedAvg
       : null;
 
   const answeredCount =
-    typeof latest?.answeredCount === "number" && Number.isFinite(latest.answeredCount)
-      ? latest.answeredCount
+    typeof result?.answeredCount === "number" && Number.isFinite(result.answeredCount)
+      ? result.answeredCount
       : 0;
 
   return (
@@ -43,12 +71,22 @@ export default async function ResultsPage() {
       <div className="min-h-screen px-6 py-16">
         <div className="mx-auto max-w-3xl">
           <h1 className="text-5xl font-bold text-center">Results</h1>
-          <p className="text-center mt-4 opacity-70">Total submissions: {total}</p>
+          <p className="text-center mt-4 opacity-70">Session-scoped latest submission</p>
 
           <div className="mt-10">
             <h2 className="font-semibold mb-3">Latest submission</h2>
 
-            {!latest ? (
+            {forbidden ? (
+              <div className="rounded-xl border border-black/10 bg-white p-6">
+                <div className="opacity-70">
+                  Signed in, but your account is not authorized for company-scoped results.
+                </div>
+              </div>
+            ) : apiError ? (
+              <div className="rounded-xl border border-black/10 bg-white p-6">
+                <div className="opacity-70">Unable to load results: {apiError}</div>
+              </div>
+            ) : !result ? (
               <div className="rounded-xl border border-black/10 bg-white p-6">
                 <div className="opacity-70">No submissions yet.</div>
               </div>
@@ -64,7 +102,7 @@ export default async function ResultsPage() {
                 </div>
 
                 <div className="opacity-60 text-sm mt-2">
-                  Company: {latest.Company?.name ?? "--"} - Module: {latest.SurveyModule?.key ?? "--"} v{latest.SurveyModule?.version ?? "--"} - Answered: {answeredCount}/{questionCount ?? "--"}
+                  Module ID: {result.moduleId ?? "--"} - Answered: {answeredCount}
                 </div>
               </div>
             )}

@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 type Question = {
   id: string;
@@ -25,6 +25,7 @@ type ModulePayload = {
 };
 
 export default function Page() {
+  const router = useRouter();
   const params = useParams<{ key: string }>();
   const moduleKey = useMemo(() => (params?.key ? String(params.key) : ""), [params]);
 
@@ -33,6 +34,8 @@ export default function Page() {
   const [err, setErr] = useState<string | null>(null);
 
   const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!moduleKey) return;
@@ -62,6 +65,59 @@ export default function Page() {
 
   function setAnswer(qid: string, value: any) {
     setAnswers((prev) => ({ ...prev, [qid]: value }));
+  }
+
+  async function submitSurvey() {
+    if (!data || submitStatus === "submitting") return;
+
+    setSubmitStatus("submitting");
+    setSubmitError(null);
+
+    try {
+      const payload = {
+        moduleKey: data.key,
+        answers,
+      };
+
+      const res = await fetch("/api/survey/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.status === 401) {
+        const callbackUrl =
+          typeof window !== "undefined"
+            ? `${window.location.pathname}${window.location.search}`
+            : `/survey/${data.key}`;
+        window.location.assign(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+        return;
+      }
+
+      const body = await res.json().catch(() => ({}));
+
+      if (res.status === 403) {
+        throw new Error("Signed in, but your account is not authorized to submit for a company.");
+      }
+
+      if (res.status === 400 || res.status === 404) {
+        throw new Error(body?.error || body?.detail || `HTTP ${res.status}`);
+      }
+
+      if (!res.ok || body?.ok !== true) {
+        throw new Error(body?.error || body?.detail || `HTTP ${res.status}`);
+      }
+
+      // Preserve expected success contract read: { ok, submission, milestoneReached }
+      void body?.submission;
+      void body?.milestoneReached;
+
+      setSubmitStatus("success");
+      router.push("/results");
+    } catch (e: any) {
+      setSubmitStatus("error");
+      setSubmitError(e?.message ?? "Submit failed.");
+    }
   }
 
   if (loading) return <div style={{ padding: 24 }}>Loading…</div>;
@@ -117,6 +173,30 @@ export default function Page() {
       <pre style={{ marginTop: 20, padding: 12, background: "#00000008", borderRadius: 10, overflowX: "auto" }}>
         {JSON.stringify(answers, null, 2)}
       </pre>
+
+      <div style={{ marginTop: 16, display: "grid", gap: 10 }}>
+        <button
+          type="button"
+          onClick={submitSurvey}
+          disabled={loading || submitStatus === "submitting"}
+          style={{
+            border: "1px solid #00000022",
+            borderRadius: 10,
+            padding: "10px 14px",
+            fontWeight: 600,
+            cursor: loading || submitStatus === "submitting" ? "not-allowed" : "pointer",
+            opacity: loading || submitStatus === "submitting" ? 0.6 : 1,
+          }}
+        >
+          {submitStatus === "submitting" ? "Submitting..." : "Submit Survey"}
+        </button>
+
+        {submitStatus === "submitting" ? (
+          <div style={{ opacity: 0.75 }}>Sending your responses...</div>
+        ) : null}
+
+        {submitError ? <div style={{ color: "crimson" }}>Submit error: {submitError}</div> : null}
+      </div>
     </div>
   );
 }
