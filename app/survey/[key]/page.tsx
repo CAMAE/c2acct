@@ -63,6 +63,24 @@ export default function Page() {
     };
   }, [moduleKey]);
 
+  useEffect(() => {
+    if (!data) return;
+
+    setAnswers((prev) => {
+      const next = { ...prev };
+      let changed = false;
+
+      for (const q of data.questions) {
+        if (q.inputType === "SLIDER" && typeof next[q.id] !== "number") {
+          next[q.id] = 3;
+          changed = true;
+        }
+      }
+
+      return changed ? next : prev;
+    });
+  }, [data]);
+
   function setAnswer(qid: string, value: any) {
     setAnswers((prev) => ({ ...prev, [qid]: value }));
   }

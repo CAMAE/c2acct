@@ -1,8 +1,30 @@
-﻿import EnsureCompanySelected from "@/app/components/EnsureCompanySelected";
+import EnsureCompanySelected from "@/app/components/EnsureCompanySelected";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
+
+type ApiCallResult = {
+  ok: boolean;
+  status: number;
+  body: any;
+};
+
+type UnlockedInsight = {
+  id: string;
+  key: string;
+  title: string;
+  body: string;
+  tier: number;
+};
+
+type EarnedBadge = {
+  id: string;
+  badgeId: string;
+  moduleId: string | null;
+  awardedAt: string;
+  name: string;
+};
 
 async function getApiBaseUrl() {
   const headerStore = await headers();
@@ -13,11 +35,7 @@ async function getApiBaseUrl() {
     return `${proto}://${host}`;
   }
 
-  const envUrl =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.APP_URL ??
-    process.env.VERCEL_URL;
-
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.APP_URL ?? process.env.VERCEL_URL;
   if (!envUrl) {
     return `${proto}://localhost:3000`;
   }
@@ -25,106 +43,111 @@ async function getApiBaseUrl() {
   return envUrl.startsWith("http") ? envUrl : `https://${envUrl}`;
 }
 
-type ResultPayload = {
-  score?: number | null;
-  weightedAvg?: number | null;
-  answeredCount?: number | null;
-  moduleId?: string | null;
-} | null;
-
-type InsightPayload = {
-  id: string;
-  key: string;
-  title: string;
-  body: string;
-  tier: number;
-};
-
-type BadgePayload = {
-  id: string;
-  badgeId: string;
-  moduleId: string;
-  awardedAt: string;
-  name: string;
-};
-
 export default async function OutputsPage() {
   const apiBaseUrl = await getApiBaseUrl();
-  const cookieHeader = (await cookies()).toString();
-  const authHeaders = cookieHeader ? { cookie: cookieHeader } : undefined;
   const loginRedirect = "/login?callbackUrl=%2Foutputs";
+  const cookieHeader = (await cookies()).toString();
+  const requestHeaders = cookieHeader ? { cookie: cookieHeader } : undefined;
 
-  const [resultsRes, insightsRes, badgesRes] = await Promise.all([
-    fetch(`${apiBaseUrl}/api/results`, {
-      cache: "no-store",
-      headers: authHeaders,
-    }),
-    fetch(`${apiBaseUrl}/api/insights/unlocked`, {
-      cache: "no-store",
-      headers: authHeaders,
-    }),
-    fetch(`${apiBaseUrl}/api/badges/earned`, {
-      cache: "no-store",
-      headers: authHeaders,
-    }),
+  async function safeApiGet(path: string): Promise<ApiCallResult> {
+    try {
+      const response = await fetch(`${apiBaseUrl}${path}`, {
+        cache: "no-store",
+        headers: requestHeaders,
+      });
+      const body = await response.json().catch(() => ({}));
+      return { ok: response.ok, status: response.status, body };
+    } catch {
+      return {
+        ok: false,
+        status: 503,
+        body: { error: "Protected API request failed" },
+      };
+    }
+  }
+
+  const [resultsCall, unlockedCall, earnedCall] = await Promise.all([
+    safeApiGet("/api/results"),
+    safeApiGet("/api/insights/unlocked"),
+    safeApiGet("/api/badges/earned"),
   ]);
 
-  if (
-    resultsRes.status === 401 ||
-    insightsRes.status === 401 ||
-    badgesRes.status === 401
-  ) {
+  if (resultsCall.status === 401 || unlockedCall.status === 401 || earnedCall.status === 401) {
     redirect(loginRedirect);
   }
 
-  const [resultsJson, insightsJson, badgesJson] = await Promise.all([
-    resultsRes.json().catch(() => ({})),
-    insightsRes.json().catch(() => ({})),
-    badgesRes.json().catch(() => ({})),
-  ]);
+  const resultsJson = resultsCall.body;
+  const unlockedJson = unlockedCall.body;
+  const earnedJson = earnedCall.body;
 
   const forbidden =
-    resultsRes.status === 403 ||
-    insightsRes.status === 403 ||
-    badgesRes.status === 403;
-
-  const apiError = !forbidden
-    ? [resultsRes, insightsRes, badgesRes]
-        .map((res, i) => {
-          if (res.ok) return null;
-          const body = [resultsJson, insightsJson, badgesJson][i] as any;
-          return String(body?.error ?? body?.detail ?? `HTTP ${res.status}`);
-        })
-        .find(Boolean) ?? null
-    : null;
-
-  const result = (resultsJson as any)?.result as ResultPayload;
-  const unlocked = Array.isArray((insightsJson as any)?.unlocked)
-    ? ((insightsJson as any).unlocked as InsightPayload[])
-    : [];
-  const earned = Array.isArray((badgesJson as any)?.earned)
-    ? ((badgesJson as any).earned as BadgePayload[])
-    : [];
-
-  const score =
-    typeof result?.score === "number" && Number.isFinite(result.score)
-      ? Math.round(result.score)
+    resultsCall.status === 403 || unlockedCall.status === 403 || earnedCall.status === 403;
+  const firstErrorStatus = !resultsCall.ok
+    ? resultsCall.status
+    : !unlockedCall.ok
+      ? unlockedCall.status
+      : !earnedCall.ok
+        ? earnedCall.status
+        : null;
+  const apiError =
+    !forbidden && firstErrorStatus !== null
+      ? String(
+          resultsJson?.error ??
+            resultsJson?.detail ??
+            unlockedJson?.error ??
+            unlockedJson?.detail ??
+            earnedJson?.error ??
+            earnedJson?.detail ??
+            `HTTP ${firstErrorStatus}`
+        )
       : null;
 
-  const weightedAvg =
-    typeof result?.weightedAvg === "number" && Number.isFinite(result.weightedAvg)
-      ? result.weightedAvg
+  const latest = resultsJson?.result as
+    | {
+        score?: number | null;
+        weightedAvg?: number | null;
+        signalIntegrityScore?: number | null;
+      }
+    | null;
+  const latestScore = latest?.score;
+  const latestWeightedAvg = latest?.weightedAvg;
+  const rawScore =
+    typeof latestScore === "number" && Number.isFinite(latestScore) ? Math.round(latestScore) : null;
+  const rawWeightedAvg =
+    typeof latestWeightedAvg === "number" && Number.isFinite(latestWeightedAvg)
+      ? latestWeightedAvg
       : null;
+  const integrityRaw = Number(latest?.signalIntegrityScore);
+  const signalIntegrityScore =
+    Number.isFinite(integrityRaw) && integrityRaw > 0 ? integrityRaw : 1;
+  const effectiveScore = rawScore === null ? null : Math.round(rawScore * signalIntegrityScore);
+  const effectiveWeightedAvg =
+    rawWeightedAvg === null ? null : Math.round(rawWeightedAvg * signalIntegrityScore * 100) / 100;
 
-  const answeredCount =
-    typeof result?.answeredCount === "number" && Number.isFinite(result.answeredCount)
-      ? result.answeredCount
-      : 0;
+  const unlockedInsights: UnlockedInsight[] = Array.isArray(unlockedJson?.unlocked)
+    ? (unlockedJson.unlocked as UnlockedInsight[])
+    : [];
+  const earnedBadges: EarnedBadge[] = Array.isArray(earnedJson?.earned)
+    ? (earnedJson.earned as EarnedBadge[])
+    : [];
+  const unlockedKeys = new Set(unlockedInsights.map((insight) => insight.key));
 
   const outputCards = [
-    { title: "Institutional Profile", desc: "Capability scoring + operational alignment snapshot." },
-    { title: "Alignment Baseline", desc: "Where the firm is now — quantified." },
-    { title: "Operating System Map", desc: "How work actually moves through the firm." },
+    {
+      title: "Institutional Profile",
+      desc: "Capability scoring + operational alignment snapshot.",
+      insightKey: "tier1_fmi",
+    },
+    {
+      title: "Alignment Baseline",
+      desc: "Where the firm is now — quantified.",
+      insightKey: "tier1_automation",
+    },
+    {
+      title: "Operating System Map",
+      desc: "How work actually moves through the firm.",
+      insightKey: "tier1_profit",
+    },
     { title: "Automation Readiness", desc: "What can be delegated, what must stay human." },
     { title: "Risk & Control Posture", desc: "Controls, exposure, and governance maturity." },
     { title: "Implementation Roadmap", desc: "Sequenced steps to reach high alignment." },
@@ -132,85 +155,86 @@ export default async function OutputsPage() {
   ];
 
   return (
-    <>
-      <EnsureCompanySelected />
-      <section>
-        <div className="mb-10">
-          <h1 className="text-5xl font-semibold tracking-tight">Top Seven Outputs</h1>
-          <p className="mt-3 max-w-2xl text-white/70">
-            The seven institutional deliverables that define high-alignment firms.
-          </p>
+    <section className="text-slate-900">
+      <div className="mb-10">
+        <EnsureCompanySelected />
+        <h1 className="text-5xl font-semibold tracking-tight text-slate-900">Top Seven Outputs</h1>
+        <p className="mt-3 max-w-2xl text-slate-700">
+          The seven institutional deliverables that define high-alignment firms.
+        </p>
+      </div>
+
+      {forbidden ? (
+        <div className="mb-6 rounded-2xl border border-black/10 bg-white/80 p-4 text-sm text-slate-800 shadow-sm">
+          Signed in, but your account is not authorized for company-scoped outputs yet.
         </div>
+      ) : null}
 
-        {forbidden ? (
-          <div className="mb-8 rounded-2xl border border-white/10 bg-white/[0.04] p-6">
-            <p className="text-sm text-white/70">
-              Signed in, but your account is not authorized for company-scoped outputs.
-            </p>
-          </div>
-        ) : apiError ? (
-          <div className="mb-8 rounded-2xl border border-white/10 bg-white/[0.04] p-6">
-            <p className="text-sm text-white/70">Unable to load outputs: {apiError}</p>
-          </div>
-        ) : (
-          <div className="mb-8 grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
-              <div className="text-sm text-white/60">Alignment score</div>
-              <div className="mt-2 text-3xl font-semibold">
-                {score === null ? "--" : `${score}%`}
-              </div>
-              <div className="mt-2 text-sm text-white/60">
-                Weighted avg: {weightedAvg === null ? "--" : weightedAvg.toFixed(2)}
-              </div>
-            </div>
+      {apiError ? (
+        <div className="mb-6 rounded-2xl border border-black/10 bg-white/80 p-4 text-sm text-slate-800 shadow-sm">
+          Unable to load outputs right now: {apiError}
+        </div>
+      ) : null}
 
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
-              <div className="text-sm text-white/60">Unlocked insights</div>
-              <div className="mt-2 text-3xl font-semibold">{unlocked.length}</div>
-              <div className="mt-2 text-sm text-white/60">
-                Answered count: {answeredCount}
-              </div>
-            </div>
+      <div className="mb-6 rounded-2xl border border-black/10 bg-white/85 p-4 shadow-sm">
+        <div className="text-sm font-semibold text-slate-900">
+          Latest alignment score: {rawScore === null ? "--" : `${rawScore}%`}
+        </div>
+        <div className="mt-2 text-xs text-slate-700">
+          Unlocked insights: {unlockedInsights.length} • Earned badges: {earnedBadges.length}
+        </div>
+      </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
-              <div className="text-sm text-white/60">Earned badges</div>
-              <div className="mt-2 text-3xl font-semibold">{earned.length}</div>
-              <div className="mt-2 text-sm text-white/60">
-                Module ID: {result?.moduleId ?? "--"}
-              </div>
-            </div>
-          </div>
-        )}
+      <div className="mb-6 rounded-2xl border border-black/10 bg-white/85 p-4 text-sm text-slate-800 shadow-sm">
+        <div className="font-semibold text-slate-900">Signal integrity</div>
+        <div className="mt-1 text-slate-800">{signalIntegrityScore.toFixed(2)}</div>
+        <div className="mt-3 font-semibold text-slate-900">Raw</div>
+        <div className="mt-1 text-slate-700">
+          Score: {rawScore === null ? "--" : `${rawScore}%`} • Weighted average: {rawWeightedAvg === null ? "--" : rawWeightedAvg.toFixed(2)}
+        </div>
+        <div className="mt-3 font-semibold text-slate-900">Integrity-adjusted</div>
+        <div className="mt-1 text-slate-700">
+          Score: {effectiveScore === null ? "--" : `${effectiveScore}%`} • Weighted average: {effectiveWeightedAvg === null ? "--" : effectiveWeightedAvg.toFixed(2)}
+        </div>
+      </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          {outputCards.map((x) => {
-            const unlockedState = unlocked.length > 0;
+      <div className="grid gap-4 md:grid-cols-2">
+        {outputCards.map((x) => {
+          const unlocked = x.insightKey ? unlockedKeys.has(x.insightKey) : true;
+          const lockHint = unlocked
+            ? "Unlocked"
+            : "Locked until the corresponding insight is unlocked";
 
-            return (
-              <div
-                key={x.title}
-                className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="text-lg font-medium">{x.title}</div>
-                  <div className="text-xs text-white/50">
-                    {unlockedState ? "Available" : "Locked"}
-                  </div>
+          return (
+          <div
+            key={x.title}
+            title={x.insightKey ? lockHint : undefined}
+            className={`rounded-2xl border border-black/10 bg-white/85 p-6 shadow-sm ${
+              !unlocked ? "opacity-70 grayscale" : ""
+            }`}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-lg font-semibold text-slate-900">{x.title}</div>
+              {x.insightKey ? (
+                <div className="rounded-full border border-slate-300 bg-slate-50 px-2 py-1 text-[10px] font-semibold tracking-wide text-slate-700">
+                  {unlocked ? "UNLOCKED" : "LOCKED"}
                 </div>
-                <div className="mt-2 text-sm text-white/70">{x.desc}</div>
+              ) : null}
+            </div>
+            <div className="mt-2 text-sm text-slate-700">{x.desc}</div>
+            {x.insightKey ? (
+              <div className="mt-4 text-xs text-slate-600">
+                {unlocked ? "Insight available in this company session" : "Insight not yet available in this company session"}
               </div>
-            );
-          })}
-        </div>
+            ) : null}
+          </div>
+          );
+        })}
+      </div>
 
-        <div className="mt-10 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-          <p className="text-sm text-white/70">
-            {unlocked.length > 0
-              ? "Protected outputs loaded with current session-scoped data."
-              : "No unlocked output payloads yet for this company session."}
-          </p>
-        </div>
-      </section>
-    </>
+      <div className="mt-10 rounded-2xl border border-black/10 bg-white/80 p-6 shadow-sm">
+        <p className="text-sm text-slate-700">Output framework interface coming next.</p>
+      </div>
+    </section>
   );
 }
