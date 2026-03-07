@@ -70,45 +70,45 @@ export default async function ResultsPage() {
       <EnsureCompanySelected />
       <div className="min-h-screen px-6 py-16">
         <div className="mx-auto max-w-3xl">
-          <h1 className="text-5xl font-bold text-center">Results</h1>
-          <p className="text-center mt-4 opacity-70">Session-scoped latest submission</p>
+          <h1 className="text-center text-5xl font-bold text-slate-900">Results</h1>
+          <p className="mt-4 text-center text-slate-700">Session-scoped latest submission</p>
 
           <div className="mt-10">
-            <h2 className="font-semibold mb-3">Latest submission</h2>
+            <h2 className="mb-3 font-semibold text-slate-900">Latest submission</h2>
 
             {forbidden ? (
-              <div className="rounded-xl border border-black/10 bg-white p-6">
-                <div className="opacity-70">
+              <div className="rounded-xl border border-black/10 bg-white p-6 text-slate-800 shadow-sm">
+                <div className="text-slate-700">
                   Signed in, but your account is not authorized for company-scoped results.
                 </div>
               </div>
             ) : apiError ? (
-              <div className="rounded-xl border border-black/10 bg-white p-6">
-                <div className="opacity-70">Unable to load results: {apiError}</div>
+              <div className="rounded-xl border border-black/10 bg-white p-6 text-slate-800 shadow-sm">
+                <div className="text-slate-700">Unable to load results: {apiError}</div>
               </div>
             ) : !result ? (
-              <div className="rounded-xl border border-black/10 bg-white p-6">
-                <div className="opacity-70">No submissions yet.</div>
+              <div className="rounded-xl border border-black/10 bg-white p-6 text-slate-800 shadow-sm">
+                <div className="text-slate-700">No submissions yet.</div>
               </div>
             ) : (
-              <div className="rounded-xl border border-black/10 bg-white p-6">
-                <div className="opacity-60 text-sm">Alignment Score</div>
-                <div className="text-5xl font-bold mt-1">
+              <div className="rounded-xl border border-black/10 bg-white p-6 text-slate-900 shadow-sm">
+                <div className="text-sm font-medium text-slate-600">Alignment Score</div>
+                <div className="mt-1 text-5xl font-bold tracking-tight text-slate-900">
                   {score === null ? "--" : `${score}%`}
                 </div>
 
-                <div className="opacity-60 text-sm mt-2">
+                <div className="mt-3 text-sm text-slate-700">
                   Weighted average: {weightedAvg === null ? "--" : weightedAvg.toFixed(2)}
                 </div>
 
-                <div className="opacity-60 text-sm mt-2">
+                <div className="mt-2 text-sm text-slate-700">
                   Module ID: {result.moduleId ?? "--"} - Answered: {answeredCount}
                 </div>
               </div>
             )}
 
             <div className="mt-8">
-              <Link className="underline" href="/survey">
+              <Link className="font-medium text-slate-800 underline decoration-slate-400 underline-offset-4 hover:text-slate-950" href="/survey">
                 Back to Survey
               </Link>
             </div>
