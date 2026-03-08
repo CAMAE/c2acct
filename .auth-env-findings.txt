@@ -1,0 +1,5 @@
+﻿AUTH / ENV FINDINGS
+- .env.example is missing NEXTAUTH_SECRET even though .env.local contains it.
+- auth.config.ts / auth.ts are using AUTH_* naming, so NEXTAUTH_SECRET is likely legacy unless another path still reads it.
+- Immediate security action: rotate AUTH_GITHUB_SECRET now because it was exposed in terminal output.
+- Also rotate AUTH_SECRET. After rotation, remove NEXTAUTH_SECRET unless grep proves it is still used.
