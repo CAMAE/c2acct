@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import EnsureCompanySelected from "@/app/components/EnsureCompanySelected";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -41,6 +41,7 @@ export default async function ResultsPage() {
         weightedAvg?: number | null;
         answeredCount?: number | null;
         moduleId?: string | null;
+        signalIntegrityScore?: number | null;
       }
     | null;
 
@@ -64,6 +65,14 @@ export default async function ResultsPage() {
     typeof result?.answeredCount === "number" && Number.isFinite(result.answeredCount)
       ? result.answeredCount
       : 0;
+
+  const integrityRaw = Number(result?.signalIntegrityScore);
+  const signalIntegrityScore =
+    Number.isFinite(integrityRaw) && integrityRaw > 0 ? integrityRaw : 1;
+
+  const effectiveScore = score === null ? null : Math.round(score * signalIntegrityScore);
+  const effectiveWeightedAvg =
+    weightedAvg === null ? null : Math.round(weightedAvg * signalIntegrityScore * 100) / 100;
 
   return (
     <>
@@ -98,7 +107,19 @@ export default async function ResultsPage() {
                 </div>
 
                 <div className="mt-3 text-sm text-slate-700">
-                  Weighted average: {weightedAvg === null ? "--" : weightedAvg.toFixed(2)}
+                  Raw weighted average: {weightedAvg === null ? "--" : weightedAvg.toFixed(2)}
+                </div>
+
+                <div className="mt-2 text-sm text-slate-700">
+                  Signal integrity: {signalIntegrityScore.toFixed(2)}
+                </div>
+
+                <div className="mt-2 text-sm text-slate-700">
+                  Integrity-adjusted score: {effectiveScore === null ? "--" : `${effectiveScore}%`}
+                </div>
+
+                <div className="mt-2 text-sm text-slate-700">
+                  Integrity-adjusted weighted average: {effectiveWeightedAvg === null ? "--" : effectiveWeightedAvg.toFixed(2)}
                 </div>
 
                 <div className="mt-2 text-sm text-slate-700">
