@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("cwd:", process.cwd());
   console.log("DATABASE_URL_set:", !!process.env.DATABASE_URL);
-  console.log("DATABASE_URL_preview:", (process.env.DATABASE_URL || "").slice(0, 35) + "...");
+  console.log("DATABASE_URL_present:", !!process.env.DATABASE_URL);
 
   const row = await prisma.$queryRaw`
     select

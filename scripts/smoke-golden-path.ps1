@@ -3,7 +3,7 @@ param([string]$Base="http://localhost:3000")
 
 $ErrorActionPreference="Stop"
 Set-Location C:\dev\AAE\c2acct
-$env:DATABASE_URL="postgresql://postgres:postgres@localhost:5432/aae?schema=public"
+$env:DATABASE_URL="postgresql://postgres:postgres@localhost:5433/c2acct?schema=public"
 
 node .\scripts\seed-firm-alignment.mjs | Out-Host
 node .\scripts\seed-demo-company.mjs   | Out-Host
