@@ -1,0 +1,7 @@
+﻿AUTH / CONFIG AUDIT NOTES
+- OAuth env keys in use: AUTH_GITHUB_ID, AUTH_GITHUB_SECRET
+- Immediate action still pending: rotate GitHub OAuth client secret and update .env.local / deployment secrets
+- Session model: JWT only, access gated by DB-backed email lookup in auth.ts
+- Company boundary: company cookie setter is protected by session + canAccessCompany()
+- Minor cleanup candidate: replace console.error in module route with safer structured server logging later
+- Verify next: .env.example completeness versus actual runtime vars used by auth/results/outputs
