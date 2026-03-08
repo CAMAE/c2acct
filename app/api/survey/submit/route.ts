@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { computeScore } from "@/lib/scoring";
+import { evaluateSignalIntegrity } from "@/lib/signalIntegrity";
 import { randomUUID } from "crypto";
 import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
@@ -149,6 +150,11 @@ export async function POST(req: Request) {
 
   // Canonical v1 mapping: answers are strictly validated to 1..5, then normalized once in computeScore.
   const scoring = computeScore({ answers, scaleMin: SCORE_SCALE_MIN, scaleMax: SCORE_SCALE_MAX });
+  const integrity = evaluateSignalIntegrity(answers, {
+    expectedQuestionCount: questions.length,
+    scaleMin: SCORE_SCALE_MIN,
+    scaleMax: SCORE_SCALE_MAX,
+  });
 
   const invalidScoreSnapshot =
     !Number.isFinite(scoring.score) ||
@@ -176,6 +182,8 @@ export async function POST(req: Request) {
         scaleMax: scoring.scaleMax,
         totalWeight: scoring.totalWeight,
         answeredCount: scoring.answeredCount,
+        signalIntegrityScore: integrity.score,
+        integrityFlags: integrity.flags,
       },
     });
 
