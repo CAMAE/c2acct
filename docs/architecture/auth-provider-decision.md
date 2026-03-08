@@ -27,17 +27,13 @@ Choose **GitHub OAuth** as the single Auth.js provider path for Phase 1.
 - Contradicts hardening-first intent from the audit because it creates avoidable auth debt.
 
 ## 4. Required env vars
-Required:
-- `AUTH_SECRET`
-- `AUTH_URL`
-- `AUTH_GITHUB_ID`
-- `AUTH_GITHUB_SECRET`
+Required runtime auth/env variables are defined in:
+- `docs/architecture/auth-env-contract.md`
 
-Still required for existing app behavior:
-- `DATABASE_URL`
-
-Repo note:
-- There is currently no `.env.example` in repo (`rg --files -g ".env*"` returned none).
+Use that file as the single source of truth for:
+- `AUTH_SECRET` vs `AUTH_GITHUB_SECRET` semantics
+- local `.env.local` usage
+- rotation guidance boundaries
 
 ## 5. Required external setup
 - Create one GitHub OAuth App for this environment.

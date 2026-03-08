@@ -10,14 +10,9 @@ Completed:
 
 Current audit truth:
 - Remaining console.error hits are in scripts/dev utilities and prisma seed paths, not active app runtime routes
-- Active app runtime env contract is:
-  - AUTH_SECRET
-  - AUTH_URL
-  - AUTH_GITHUB_ID
-  - AUTH_GITHUB_SECRET
-  - DATABASE_URL
+- Active app runtime env contract is defined in `docs/architecture/auth-env-contract.md`.
 
 Next highest-value actions:
-1. Rotate AUTH_SECRET and AUTH_GITHUB_SECRET
+1. Follow secret rotation and local env usage guidance in `docs/architecture/auth-env-contract.md`
 2. Create a scripts hygiene pass later (standardize script logging and error output)
 3. Continue production-safety hardening without reopening stable outputs flow
