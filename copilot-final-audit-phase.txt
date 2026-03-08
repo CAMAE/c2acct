@@ -1,0 +1,124 @@
+You are working in the AAE repo on Windows/PowerShell. Finish the remaining two-week code audit repair plan WITHOUT reopening already-stable /outputs work.
+
+GOAL
+Raise the hardening lane from ~78% to materially complete by implementing the remaining production-safety and audit-closure tasks.
+
+CONSTRAINTS
+
+Do not churn /outputs unless required for compile/runtime safety.
+
+Keep the protected golden path intact: login -> survey -> submit -> results -> outputs.
+
+Prefer small, safe edits.
+
+Preserve existing auth/company-boundary protections.
+
+Avoid schema churn unless absolutely necessary.
+
+Make code/build changes directly; do not ask questions.
+
+PRIORITY ORDER
+
+LOCK BADGE THRESHOLD + SCORING SEMANTICS
+
+Find the badge award logic and scoring contract in submit flow and related docs/comments.
+
+Codify clearly in code comments and one short repo doc:
+
+badge threshold currently uses RAW submission score
+
+signalIntegrityScore is persisted/displayed for transparency
+
+signalIntegrityScore does NOT currently affect badge award gating
+
+score scale contract must be explicit and consistent across UI/server
+
+Add a focused markdown doc under docs/ such as docs/scoring-and-badge-threshold-semantics.md.
+
+Add concise inline comments only where ambiguity previously existed.
+
+PRODUCTION-SAFETY SWEEP
+
+Remove or harden any remaining debug/detail leakage:
+
+stack traces
+
+raw error objects returned to clients
+
+verbose env logging
+
+accidental secret exposure
+
+Ensure protected API responses use safe generic messages in production-facing paths.
+
+Search for console logging, TODO/FIXME/HACK markers, and obvious dev-only bypasses in app/, lib/, and middleware/auth files.
+
+Remove dead debug code when safe.
+
+ROUTE / HANDLER HYGIENE
+
+Find any empty, placeholder, or stale routes/handlers and either remove them or make them explicitly safe with a 404/501-style response and no leakage.
+
+Remove stale references to old models/types/imports if any remain.
+
+Verify no public mutation endpoints remain unintentionally exposed.
+
+SCRIPT + BACKUP + REPO HYGIENE
+
+Continue the script cleanup already started:
+
+archive or remove stale one-off scripts
+
+identify duplicate scripts
+
+keep only scripts that are still part of the active operating path
+
+Search for backup files, duplicate route copies, temp files, .old/.bak/.tmp variants, and in-repo artifacts that should not ship.
+
+Tighten .gitignore if needed.
+
+CACHE / RESPONSE SAFETY
+
+For authenticated user-specific endpoints and sensitive result endpoints, ensure responses are not accidentally cached where they should not be.
+
+Apply conservative no-store behavior where appropriate for personalized/protected responses.
+
+BASIC SUBMIT ABUSE HARDENING
+
+If submit route lacks lightweight protection, add a minimal safe rate-limit/throttle approach appropriate for the current app architecture.
+
+Keep it simple and local; do not introduce heavy infra.
+
+Do not break the working survey submit flow.
+
+BUILD / TYPE / LINT / SMOKE VERIFICATION
+
+Run the repos existing validation/build commands.
+
+Fix any compile/type issues caused by the hardening work.
+
+Verify the protected golden path assumptions are still represented in code.
+
+Confirm results/outputs still build and protected APIs still line up with current contracts.
+
+OUTPUT FORMAT
+
+Make the changes directly.
+
+Then provide:
+
+concise summary of files changed
+
+remaining risks, if any
+
+exact validation commands run
+
+recommended commit message
+
+IMPORTANT
+
+Favor finishing the audit/hardening lane over feature work.
+
+Do not redesign architecture.
+
+Do not touch stable outputs presentation except for safety/build compatibility.

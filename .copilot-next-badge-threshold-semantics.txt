@@ -1,0 +1,35 @@
+﻿NEXT STEP:
+Audit and decide badge-award threshold semantics for Tier 1:
+should award use raw score, or integrity-adjusted score?
+
+CURRENT VERIFIED BEHAVIOR:
+- latest g2 submission:
+  - raw score = 75
+  - weightedAvg = 4.00
+  - signalIntegrityScore = 0.9
+  - integrity-adjusted score shown in UI = 68
+- Tier 1 badge rule:
+  - minScore = 60
+  - required = true
+- badge WAS awarded on submit
+
+QUESTION TO ANSWER IN CODE:
+Should Tier 1 award be based on:
+1. raw score (current apparent behavior), or
+2. integrity-adjusted score?
+
+GOAL:
+- inspect app/api/survey/submit/route.ts
+- find exact badge-award comparison
+- determine whether it uses raw score or adjusted score
+- if raw is intentional, add a short architecture note/doc comment
+- if adjusted is intended, patch submit logic minimally and keep build green
+
+FILES:
+- app/api/survey/submit/route.ts
+- optionally docs/architecture/score-contract-decision.md
+
+AFTER:
+pnpm run build
+git diff -- app\api\survey\submit\route.ts docs\architecture\score-contract-decision.md
+git status --short

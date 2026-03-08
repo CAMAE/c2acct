@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
 
+const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
+
 export async function GET() {
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
@@ -14,19 +16,26 @@ export async function GET() {
     return forbiddenResponse("No company assigned");
   }
 
-  const rows = await prisma.companyBadge.findMany({
-    where: { companyId },
-    orderBy: { awardedAt: "desc" },
-    include: { Badge: { select: { name: true } } },
-  });
+  try {
+    const rows = await prisma.companyBadge.findMany({
+      where: { companyId },
+      orderBy: { awardedAt: "desc" },
+      include: { Badge: { select: { name: true } } },
+    });
 
-  const earned = rows.map((r) => ({
-    id: r.id,
-    badgeId: r.badgeId,
-    moduleId: r.moduleId,
-    awardedAt: r.awardedAt,
-    name: r.Badge?.name ?? "",
-  }));
+    const earned = rows.map((r) => ({
+      id: r.id,
+      badgeId: r.badgeId,
+      moduleId: r.moduleId,
+      awardedAt: r.awardedAt,
+      name: r.Badge?.name ?? "",
+    }));
 
-  return NextResponse.json({ ok: true, earned });
+    return NextResponse.json({ ok: true, earned }, { headers: NO_STORE_HEADERS });
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "Unable to load earned badges" },
+      { status: 503, headers: NO_STORE_HEADERS }
+    );
+  }
 }
