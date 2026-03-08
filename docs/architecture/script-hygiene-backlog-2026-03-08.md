@@ -28,3 +28,14 @@ Rule:
 - Prefer /scripts as canonical location for executable utilities.
 - Keep repo root limited to app/runtime/build config files unless a root script is intentionally user-facing.
 
+## 2026-03-08 Duplicate Review Notes
+Observed differences:
+- get-company.js returns raw first company object including type
+- scripts/get-company-id.js prints labeled id/name fields
+- seed-question.js creates TEXT question tech_stack_maturity
+- scripts/seedQuestion.js creates SCALE question vision_clarity
+
+Decision:
+- These are not true duplicates yet; they are overlapping one-off utilities.
+- Keep for now, but mark both root-level files as migration candidates into /scripts or /archive/scripts once a canonical seeded-question workflow is chosen.
+
