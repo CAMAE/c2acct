@@ -7,6 +7,8 @@ import {
   unauthorizedResponse,
 } from "@/lib/authz";
 
+const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
+
 export async function POST(req: Request) {
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
@@ -30,7 +32,10 @@ export async function POST(req: Request) {
         const body = JSON.parse(raw);
         companyId = String(body?.companyId ?? "").trim();
       } catch {
-        // ignore
+        return NextResponse.json(
+          { ok: false, error: "Invalid payload" },
+          { status: 400, headers: NO_STORE_HEADERS }
+        );
       }
     }
   }
@@ -45,6 +50,7 @@ export async function POST(req: Request) {
   }
 
   const res = NextResponse.json({ ok: true, companyId });
+  res.headers.set("Cache-Control", "no-store");
   res.cookies.set("aae_companyId", companyId, {
     path: "/",
     httpOnly: true,

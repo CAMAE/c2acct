@@ -1,6 +1,8 @@
 import type { UserRole } from "@prisma/client";
 import { NextResponse } from "next/server";
 
+const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
+
 type AuthzUser = {
   role: UserRole;
   companyId: string | null;
@@ -23,9 +25,9 @@ export function canAccessCompany(
 }
 
 export function unauthorizedResponse(error = "Unauthorized") {
-  return NextResponse.json({ ok: false, error }, { status: 401 });
+  return NextResponse.json({ ok: false, error }, { status: 401, headers: NO_STORE_HEADERS });
 }
 
 export function forbiddenResponse(error = "Forbidden") {
-  return NextResponse.json({ ok: false, error }, { status: 403 });
+  return NextResponse.json({ ok: false, error }, { status: 403, headers: NO_STORE_HEADERS });
 }

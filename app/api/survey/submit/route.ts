@@ -10,6 +10,22 @@ import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
 const SCORING_VERSION = 1;
 const SCORE_SCALE_MIN = 1;
 const SCORE_SCALE_MAX = 5;
+const SUBMIT_WINDOW_MS = 60_000;
+const SUBMIT_MAX_REQUESTS_PER_WINDOW = 20;
+const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
+
+type SubmitRateLimitState = {
+  count: number;
+  resetAt: number;
+};
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __submitRateLimitStore: Map<string, SubmitRateLimitState> | undefined;
+}
+
+const submitRateLimitStore = globalThis.__submitRateLimitStore ?? new Map<string, SubmitRateLimitState>();
+globalThis.__submitRateLimitStore = submitRateLimitStore;
 
 const SubmitSchema = z
   .object({
@@ -20,6 +36,32 @@ const SubmitSchema = z
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function consumeSubmitQuota(key: string, now = Date.now()): boolean {
+  // Opportunistic cleanup to prevent unbounded growth in long-lived dev processes.
+  for (const [entryKey, state] of submitRateLimitStore.entries()) {
+    if (state.resetAt <= now) {
+      submitRateLimitStore.delete(entryKey);
+    }
+  }
+
+  const current = submitRateLimitStore.get(key);
+  if (!current || current.resetAt <= now) {
+    submitRateLimitStore.set(key, {
+      count: 1,
+      resetAt: now + SUBMIT_WINDOW_MS,
+    });
+    return true;
+  }
+
+  if (current.count >= SUBMIT_MAX_REQUESTS_PER_WINDOW) {
+    return false;
+  }
+
+  current.count += 1;
+  submitRateLimitStore.set(key, current);
+  return true;
 }
 
 export async function POST(req: Request) {
@@ -33,16 +75,24 @@ export async function POST(req: Request) {
     return forbiddenResponse("No company assigned");
   }
 
+  const submitRateLimitKey = `${sessionUser.id}:${effectiveCompanyId}`;
+  if (!consumeSubmitQuota(submitRateLimitKey)) {
+    return NextResponse.json(
+      { ok: false, error: "Too many requests" },
+      { status: 429, headers: NO_STORE_HEADERS }
+    );
+  }
+
   let raw: unknown;
 
   try {
     raw = await req.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400, headers: NO_STORE_HEADERS });
   }
 
   if (!isRecord(raw)) {
-    return NextResponse.json({ ok: false, error: "Invalid payload" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Invalid payload" }, { status: 400, headers: NO_STORE_HEADERS });
   }
 
   // Company authority is session-derived. Client-provided companyId is ignored if it matches;
@@ -55,7 +105,7 @@ export async function POST(req: Request) {
     if (typeof requestCompanyId !== "string") {
       return NextResponse.json(
         { ok: false, error: "Invalid payload", detail: "companyId must be a string when provided" },
-        { status: 400 }
+        { status: 400, headers: NO_STORE_HEADERS }
       );
     }
 
@@ -71,28 +121,31 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json(
       { ok: false, error: "Invalid payload", issues: parsed.error.flatten() },
-      { status: 400 }
+      { status: 400, headers: NO_STORE_HEADERS }
     );
   }
 
   const { moduleKey, answers: rawAnswers } = parsed.data;
 
-  const module = await prisma.surveyModule.findUnique({
+  const surveyModule = await prisma.surveyModule.findUnique({
     where: { key: moduleKey },
     select: { id: true, version: true, active: true },
   });
 
-  if (!module || !module.active) {
-    return NextResponse.json({ ok: false, error: "Module not found" }, { status: 404 });
+  if (!surveyModule || !surveyModule.active) {
+    return NextResponse.json({ ok: false, error: "Module not found" }, { status: 404, headers: NO_STORE_HEADERS });
   }
 
   const questions = await prisma.surveyQuestion.findMany({
-    where: { moduleId: module.id },
+    where: { moduleId: surveyModule.id },
     select: { id: true, required: true },
   });
 
   if (questions.length === 0) {
-    return NextResponse.json({ ok: false, error: "Module has no questions" }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "Module has no questions" },
+      { status: 400, headers: NO_STORE_HEADERS }
+    );
   }
 
   const allowedQuestionIds = new Set(questions.map((q) => q.id));
@@ -107,7 +160,7 @@ export async function POST(req: Request) {
         detail: "answers include question ids not in module",
         invalidQuestionIds: unknownAnswerIds,
       },
-      { status: 400 }
+      { status: 400, headers: NO_STORE_HEADERS }
     );
   }
 
@@ -121,7 +174,7 @@ export async function POST(req: Request) {
         detail: "Missing required answers",
         missingQuestionIds: missingRequired,
       },
-      { status: 400 }
+      { status: 400, headers: NO_STORE_HEADERS }
     );
   }
 
@@ -141,7 +194,7 @@ export async function POST(req: Request) {
           error: "Invalid payload",
           detail: `Invalid answer value for question ${questionId}; expected integer ${SCORE_SCALE_MIN}-${SCORE_SCALE_MAX}`,
         },
-        { status: 400 }
+        { status: 400, headers: NO_STORE_HEADERS }
       );
     }
 
@@ -164,7 +217,10 @@ export async function POST(req: Request) {
     (scoring.weightedAvg !== null && !Number.isFinite(scoring.weightedAvg));
 
   if (invalidScoreSnapshot) {
-    return NextResponse.json({ ok: false, error: "Invalid score output" }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "Invalid score output" },
+      { status: 400, headers: NO_STORE_HEADERS }
+    );
   }
 
   const { submission, milestoneReached } = await prisma.$transaction(async (tx) => {
@@ -172,8 +228,8 @@ export async function POST(req: Request) {
       data: {
         id: randomUUID(),
         companyId: effectiveCompanyId,
-        moduleId: module.id,
-        version: module.version ?? 1,
+        moduleId: surveyModule.id,
+        version: surveyModule.version ?? 1,
         answers,
         score: scoring.score,
         weightedAvg: scoring.weightedAvg,
@@ -189,7 +245,7 @@ export async function POST(req: Request) {
 
     let reached = false;
     const badgeRules = await tx.badgeRule.findMany({
-      where: { moduleId: module.id },
+      where: { moduleId: surveyModule.id },
       select: { badgeId: true, minScore: true, required: true },
     });
 
@@ -211,7 +267,7 @@ export async function POST(req: Request) {
           companyId_badgeId_moduleId: {
             companyId: effectiveCompanyId,
             badgeId: badgeRule.badgeId,
-            moduleId: module.id,
+            moduleId: surveyModule.id,
           },
         },
         update: {},
@@ -219,7 +275,7 @@ export async function POST(req: Request) {
           id: randomUUID(),
           companyId: effectiveCompanyId,
           badgeId: badgeRule.badgeId,
-          moduleId: module.id,
+          moduleId: surveyModule.id,
         },
       });
       reached = true;
@@ -228,5 +284,8 @@ export async function POST(req: Request) {
     return { submission: createdSubmission, milestoneReached: reached };
   });
 
-  return NextResponse.json({ ok: true, submission, milestoneReached }, { status: 200 });
+  return NextResponse.json(
+    { ok: true, submission, milestoneReached },
+    { status: 200, headers: NO_STORE_HEADERS }
+  );
 }
