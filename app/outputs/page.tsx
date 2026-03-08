@@ -29,10 +29,13 @@ type EarnedBadge = {
 type OutputCard = {
   title: string;
   desc: string;
-  badgeName?: string;
-  badgeId?: string | null;
+  badgeName: string;
+  badgeId: string;
   insightKey?: string;
 };
+
+const TIER1_BADGE_ID = "49d380c5-b1d0-493b-b9c3-f2391fa3430b";
+const TIER1_BADGE_NAME = "Tier 1 Alignment Unlocked";
 
 async function getApiBaseUrl() {
   const headerStore = await headers();
@@ -151,51 +154,55 @@ export default async function OutputsPage() {
     }
   }
 
+  const hasTier1Badge =
+    badgeKeys.has(`id:${TIER1_BADGE_ID.toLowerCase()}`) ||
+    badgeKeys.has(`name:${normalizeBadgeName(TIER1_BADGE_NAME)}`);
+
   const outputCards: OutputCard[] = [
     {
       title: "Institutional Profile",
       desc: "Capability scoring + operational alignment snapshot.",
-      badgeName: "Institutional Profile",
-      badgeId: null,
+      badgeName: TIER1_BADGE_NAME,
+      badgeId: TIER1_BADGE_ID,
       insightKey: "tier1_fmi",
     },
     {
       title: "Alignment Baseline",
       desc: "Where the firm is now — quantified.",
-      badgeName: "Alignment Baseline",
-      badgeId: null,
+      badgeName: TIER1_BADGE_NAME,
+      badgeId: TIER1_BADGE_ID,
       insightKey: "tier1_automation",
     },
     {
       title: "Operating System Map",
       desc: "How work actually moves through the firm.",
-      badgeName: "Operating System Map",
-      badgeId: null,
+      badgeName: TIER1_BADGE_NAME,
+      badgeId: TIER1_BADGE_ID,
       insightKey: "tier1_profit",
     },
     {
       title: "Automation Readiness",
       desc: "What can be delegated, what must stay human.",
-      badgeName: "Automation Readiness",
-      badgeId: null,
+      badgeName: TIER1_BADGE_NAME,
+      badgeId: TIER1_BADGE_ID,
     },
     {
       title: "Risk & Control Posture",
       desc: "Controls, exposure, and governance maturity.",
-      badgeName: "Risk & Control Posture",
-      badgeId: null,
+      badgeName: TIER1_BADGE_NAME,
+      badgeId: TIER1_BADGE_ID,
     },
     {
       title: "Implementation Roadmap",
       desc: "Sequenced steps to reach high alignment.",
-      badgeName: "Implementation Roadmap",
-      badgeId: null,
+      badgeName: TIER1_BADGE_NAME,
+      badgeId: TIER1_BADGE_ID,
     },
     {
       title: "Executive Brief",
       desc: "Board-ready summary and next actions.",
-      badgeName: "Executive Brief",
-      badgeId: null,
+      badgeName: TIER1_BADGE_NAME,
+      badgeId: TIER1_BADGE_ID,
     },
   ];
 
