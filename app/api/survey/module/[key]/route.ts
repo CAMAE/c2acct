@@ -1,12 +1,13 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ key: string }> }
 ) {
   try {
     const { key } = await params;
-const mod = await prisma.surveyModule.findUnique({
+    const mod = await prisma.surveyModule.findUnique({
       where: { key },
       select: {
         id: true,
@@ -36,12 +37,7 @@ const mod = await prisma.surveyModule.findUnique({
     });
 
     return NextResponse.json({ ...mod, questions });
-  } catch (e: any) {
-    console.error(e);
-    return NextResponse.json(
-      { error: "Server error", detail: e?.message ?? String(e) },
-      { status: 500 }
-    );
+  } catch {
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
-
