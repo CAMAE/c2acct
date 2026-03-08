@@ -1,0 +1,9 @@
+﻿NEXT RESUME POINT
+- Threshold semantics locked and pushed.
+- Commit: f2dcdc1
+- Tag: checkpoint-2026-03-08-threshold-semantics
+
+NEXT HIGH-VALUE STEP
+1. Rotate GitHub OAuth client secret.
+2. Continue focused hardening/polish, not /outputs churn.
+3. Start by auditing auth/config/env handling and documenting any remaining production-safety gaps.
