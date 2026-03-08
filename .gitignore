@@ -66,6 +66,9 @@ tmp-*.json
 # local scratch
 save_the_world.py
 docs/audit/audit_2026-03-05_1421.md
+.copilot-*.txt
+copilot-*.txt
+*_copilot*.txt
 
 
 # backups / debris
