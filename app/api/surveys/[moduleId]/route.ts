@@ -5,8 +5,9 @@ export async function GET(
   { params }: { params: Promise<{ moduleId: string }> }
 ) {
   await params;
+  // Intentionally unavailable in the current build.
   return NextResponse.json(
-    { ok: false, error: "Not implemented" },
-    { status: 501, headers: { "Cache-Control": "no-store" } }
+    { ok: false, error: "Not found" },
+    { status: 404, headers: { "Cache-Control": "no-store" } }
   );
 }
