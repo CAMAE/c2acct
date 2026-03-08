@@ -26,6 +26,14 @@ type EarnedBadge = {
   name: string;
 };
 
+type OutputCard = {
+  title: string;
+  desc: string;
+  badgeName?: string;
+  badgeId?: string | null;
+  insightKey?: string;
+};
+
 async function getApiBaseUrl() {
   const headerStore = await headers();
   const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
@@ -132,27 +140,92 @@ export default async function OutputsPage() {
     : [];
   const unlockedKeys = new Set(unlockedInsights.map((insight) => insight.key));
 
-  const outputCards = [
+  const normalizeBadgeName = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
+  const badgeKeys = new Set<string>();
+  for (const badge of earnedBadges) {
+    if (typeof badge.badgeId === "string" && badge.badgeId.trim()) {
+      badgeKeys.add(`id:${badge.badgeId.trim().toLowerCase()}`);
+    }
+    if (typeof badge.name === "string" && badge.name.trim()) {
+      badgeKeys.add(`name:${normalizeBadgeName(badge.name)}`);
+    }
+  }
+
+  const outputCards: OutputCard[] = [
     {
       title: "Institutional Profile",
       desc: "Capability scoring + operational alignment snapshot.",
+      badgeName: "Institutional Profile",
+      badgeId: null,
       insightKey: "tier1_fmi",
     },
     {
       title: "Alignment Baseline",
       desc: "Where the firm is now — quantified.",
+      badgeName: "Alignment Baseline",
+      badgeId: null,
       insightKey: "tier1_automation",
     },
     {
       title: "Operating System Map",
       desc: "How work actually moves through the firm.",
+      badgeName: "Operating System Map",
+      badgeId: null,
       insightKey: "tier1_profit",
     },
-    { title: "Automation Readiness", desc: "What can be delegated, what must stay human." },
-    { title: "Risk & Control Posture", desc: "Controls, exposure, and governance maturity." },
-    { title: "Implementation Roadmap", desc: "Sequenced steps to reach high alignment." },
-    { title: "Executive Brief", desc: "Board-ready summary and next actions." },
+    {
+      title: "Automation Readiness",
+      desc: "What can be delegated, what must stay human.",
+      badgeName: "Automation Readiness",
+      badgeId: null,
+    },
+    {
+      title: "Risk & Control Posture",
+      desc: "Controls, exposure, and governance maturity.",
+      badgeName: "Risk & Control Posture",
+      badgeId: null,
+    },
+    {
+      title: "Implementation Roadmap",
+      desc: "Sequenced steps to reach high alignment.",
+      badgeName: "Implementation Roadmap",
+      badgeId: null,
+    },
+    {
+      title: "Executive Brief",
+      desc: "Board-ready summary and next actions.",
+      badgeName: "Executive Brief",
+      badgeId: null,
+    },
   ];
+
+  function isCardUnlocked(card: OutputCard): boolean {
+    const hasBadgeMeta = Boolean(card.badgeName?.trim()) || Boolean(card.badgeId?.trim());
+    const hasInsightMeta = Boolean(card.insightKey);
+    const isGated = hasBadgeMeta || hasInsightMeta;
+
+    if (!isGated) {
+      return true;
+    }
+
+    if (hasBadgeMeta) {
+      const badgeNameKey = card.badgeName?.trim()
+        ? `name:${normalizeBadgeName(card.badgeName)}`
+        : null;
+      const badgeIdKey = card.badgeId?.trim() ? `id:${card.badgeId.trim().toLowerCase()}` : null;
+      if ((badgeNameKey && badgeKeys.has(badgeNameKey)) || (badgeIdKey && badgeKeys.has(badgeIdKey))) {
+        return true;
+      }
+    }
+
+    if (hasInsightMeta && card.insightKey && unlockedKeys.has(card.insightKey)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  const unlockedOutputCount = outputCards.filter((card) => isCardUnlocked(card)).length;
 
   return (
     <section className="text-slate-900">
@@ -180,9 +253,26 @@ export default async function OutputsPage() {
         <div className="text-sm font-semibold text-slate-900">
           Latest alignment score: {rawScore === null ? "--" : `${rawScore}%`}
         </div>
-        <div className="mt-2 text-xs text-slate-700">
-          Unlocked insights: {unlockedInsights.length} • Earned badges: {earnedBadges.length}
-        </div>
+        <div className="mt-2 text-xs text-slate-700">Unlocked outputs: {unlockedOutputCount} / 7</div>
+        <div className="mt-1 text-xs text-slate-700">Earned badges: {earnedBadges.length}</div>
+      </div>
+
+      <div className="mb-6 rounded-2xl border border-black/10 bg-white/85 p-4 text-sm text-slate-800 shadow-sm">
+        <div className="font-semibold text-slate-900">Earned badges</div>
+        {earnedBadges.length === 0 ? (
+          <div className="mt-2 text-slate-700">No badges earned yet.</div>
+        ) : (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {earnedBadges.map((badge) => (
+              <span
+                key={badge.id}
+                className="rounded-full border border-slate-300 bg-slate-50 px-2 py-1 text-[11px] font-semibold text-slate-700"
+              >
+                {badge.name}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="mb-6 rounded-2xl border border-black/10 bg-white/85 p-4 text-sm text-slate-800 shadow-sm">
@@ -200,31 +290,34 @@ export default async function OutputsPage() {
 
       <div className="grid gap-4 md:grid-cols-2">
         {outputCards.map((x) => {
-          const unlocked = x.insightKey ? unlockedKeys.has(x.insightKey) : true;
-          const lockHint = unlocked
-            ? "Unlocked"
-            : "Locked until the corresponding insight is unlocked";
+          const unlocked = isCardUnlocked(x);
+          const hasBadgeMeta = Boolean(x.badgeName?.trim()) || Boolean(x.badgeId?.trim());
+          const hasInsightMeta = Boolean(x.insightKey);
+          const isGated = hasBadgeMeta || hasInsightMeta;
+          const lockHint = unlocked ? "Unlocked" : "Locked until corresponding unlock criteria are met";
 
           return (
           <div
             key={x.title}
-            title={x.insightKey ? lockHint : undefined}
+            title={isGated ? lockHint : undefined}
             className={`rounded-2xl border border-black/10 bg-white/85 p-6 shadow-sm ${
               !unlocked ? "opacity-70 grayscale" : ""
             }`}
           >
             <div className="flex items-center justify-between gap-3">
               <div className="text-lg font-semibold text-slate-900">{x.title}</div>
-              {x.insightKey ? (
+              {isGated ? (
                 <div className="rounded-full border border-slate-300 bg-slate-50 px-2 py-1 text-[10px] font-semibold tracking-wide text-slate-700">
                   {unlocked ? "UNLOCKED" : "LOCKED"}
                 </div>
               ) : null}
             </div>
             <div className="mt-2 text-sm text-slate-700">{x.desc}</div>
-            {x.insightKey ? (
+            {isGated ? (
               <div className="mt-4 text-xs text-slate-600">
-                {unlocked ? "Insight available in this company session" : "Insight not yet available in this company session"}
+                {unlocked
+                  ? "Available based on earned badge or unlocked insight"
+                  : "Not yet available in this company session"}
               </div>
             ) : null}
           </div>
