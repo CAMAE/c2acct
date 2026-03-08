@@ -142,6 +142,7 @@ export default async function OutputsPage() {
     ? (earnedJson.earned as EarnedBadge[])
     : [];
   const unlockedKeys = new Set(unlockedInsights.map((insight) => insight.key));
+  const unlockedByKey = new Map(unlockedInsights.map((insight) => [insight.key, insight]));
 
   const normalizeBadgeName = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
   const badgeKeys = new Set<string>();
@@ -298,10 +299,14 @@ export default async function OutputsPage() {
       <div className="grid gap-4 md:grid-cols-2">
         {outputCards.map((x) => {
           const unlocked = isCardUnlocked(x);
+          const unlockedInsight = x.insightKey ? unlockedByKey.get(x.insightKey) : null;
           const hasBadgeMeta = Boolean(x.badgeName?.trim()) || Boolean(x.badgeId?.trim());
           const hasInsightMeta = Boolean(x.insightKey);
           const isGated = hasBadgeMeta || hasInsightMeta;
           const lockHint = unlocked ? "Unlocked" : "Locked until corresponding unlock criteria are met";
+          const showInsightContent = Boolean(unlocked && unlockedInsight);
+          const cardHeading = showInsightContent ? unlockedInsight?.title : x.title;
+          const cardBody = showInsightContent ? unlockedInsight?.body : x.desc;
 
           return (
           <div
@@ -312,14 +317,19 @@ export default async function OutputsPage() {
             }`}
           >
             <div className="flex items-center justify-between gap-3">
-              <div className="text-lg font-semibold text-slate-900">{x.title}</div>
+              <div>
+                {showInsightContent ? (
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{x.title}</div>
+                ) : null}
+                <div className="text-lg font-semibold text-slate-900">{cardHeading}</div>
+              </div>
               {isGated ? (
                 <div className="rounded-full border border-slate-300 bg-slate-50 px-2 py-1 text-[10px] font-semibold tracking-wide text-slate-700">
                   {unlocked ? "UNLOCKED" : "LOCKED"}
                 </div>
               ) : null}
             </div>
-            <div className="mt-2 text-sm text-slate-700">{x.desc}</div>
+            <div className="mt-2 text-sm text-slate-700 whitespace-pre-line">{cardBody}</div>
             {isGated ? (
               <div className="mt-4 text-xs text-slate-600">
                 {unlocked
