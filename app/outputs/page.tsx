@@ -1,5 +1,6 @@
 import EnsureCompanySelected from "@/app/components/EnsureCompanySelected";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
+import { getRequestOrigin } from "@/lib/request-origin";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -37,25 +38,9 @@ type OutputCard = {
 const TIER1_BADGE_ID = "49d380c5-b1d0-493b-b9c3-f2391fa3430b";
 const TIER1_BADGE_NAME = "Tier 1 Alignment Unlocked";
 
-async function getApiBaseUrl() {
-  const headerStore = await headers();
-  const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
-  const proto = headerStore.get("x-forwarded-proto") ?? "http";
-
-  if (host) {
-    return `${proto}://${host}`;
-  }
-
-  const envUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.APP_URL ?? process.env.VERCEL_URL;
-  if (!envUrl) {
-    return `${proto}://localhost:3000`;
-  }
-
-  return envUrl.startsWith("http") ? envUrl : `https://${envUrl}`;
-}
 
 export default async function OutputsPage() {
-  const apiBaseUrl = await getApiBaseUrl();
+  const apiBaseUrl = await getRequestOrigin();
   const loginRedirect = "/login?callbackUrl=%2Foutputs";
   const cookieHeader = (await cookies()).toString();
   const requestHeaders = cookieHeader ? { cookie: cookieHeader } : undefined;

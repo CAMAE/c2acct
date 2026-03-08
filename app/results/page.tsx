@@ -1,29 +1,14 @@
 import Link from "next/link";
 import EnsureCompanySelected from "@/app/components/EnsureCompanySelected";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
+import { getRequestOrigin } from "@/lib/request-origin";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-async function getApiBaseUrl() {
-  const headerStore = await headers();
-  const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
-  const proto = headerStore.get("x-forwarded-proto") ?? "http";
-
-  if (host) {
-    return `${proto}://${host}`;
-  }
-
-  const envUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.APP_URL ?? process.env.VERCEL_URL;
-  if (!envUrl) {
-    return `${proto}://localhost:3000`;
-  }
-
-  return envUrl.startsWith("http") ? envUrl : `https://${envUrl}`;
-}
 
 export default async function ResultsPage() {
-  const apiBaseUrl = await getApiBaseUrl();
+  const apiBaseUrl = await getRequestOrigin();
   const cookieHeader = (await cookies()).toString();
   const resultsRes = await fetch(`${apiBaseUrl}/api/results`, {
     cache: "no-store",
