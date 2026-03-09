@@ -1,23 +1,36 @@
-﻿const fetch = require("node-fetch");
+require("dotenv").config({ path: ".env.local" });
+const { PrismaClient } = require("@prisma/client");
+
+const prisma = new PrismaClient();
 
 (async () => {
-  const res = await fetch("http://localhost:3000/api/survey/submit", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      moduleId: "cmlrkls5q0000tkmxf2ayr55x",
-      companyId: "cmlrmcg350000yxggnfdbpx3p",
-      answers: {
-        cmlrlmeth00011uwrzre2qy14: 3,
-        cmlrlmeu700031uwrohnbvf22: 3,
-        cmlrlmeui00051uwr2l1121og: 3
-      }
-    })
+  const moduleKey = process.env.MODULE_KEY || "firm_alignment_v1";
+
+  const mod = await prisma.surveyModule.findUnique({
+    where: { key: moduleKey },
+    select: { id: true, key: true }
   });
+  if (!mod) throw new Error(`Module not found for key=${moduleKey}`);
 
-  const text = await res.text();
-  console.log("STATUS:", res.status);
-  console.log("RAW:", text);
+  const questions = await prisma.surveyQuestion.findMany({
+    where: { moduleId: mod.id },
+    orderBy: { order: "asc" },
+    select: { id: true }
+  });
+  if (!questions.length) throw new Error(`No questions found for module ${moduleKey}`);
 
-  try { console.log("JSON:", JSON.parse(text)); } catch {}
-})();
+  const answers = {};
+  for (const q of questions) answers[q.id] = 3;
+
+  console.log(JSON.stringify({
+    moduleKey: mod.key,
+    answers
+  }, null, 2));
+})()
+  .catch((e) => {
+    console.error("POST_TEST_ERROR", e?.message ?? e);
+    process.exitCode = 1;
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
