@@ -2,6 +2,7 @@
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
+import { resolveAssessmentReadContextFromSessionUser } from "@/lib/assessmentTarget";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
@@ -11,10 +12,11 @@ export async function GET() {
     return unauthorizedResponse();
   }
 
-  const companyId = sessionUser.companyId;
-  if (!companyId) {
+  const assessmentContext = resolveAssessmentReadContextFromSessionUser(sessionUser);
+  if (!assessmentContext) {
     return forbiddenResponse("No company assigned");
   }
+  const companyId = assessmentContext.companyId;
 
   try {
     const result = await prisma.surveySubmission.findFirst({

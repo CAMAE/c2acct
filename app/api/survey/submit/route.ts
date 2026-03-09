@@ -6,6 +6,7 @@ import { evaluateSignalIntegrity } from "@/lib/signalIntegrity";
 import { randomUUID } from "crypto";
 import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
+import { resolveAssessmentSubmitContextFromSessionUser } from "@/lib/assessmentTarget";
 
 const SCORING_VERSION = 1;
 const SCORE_SCALE_MIN = 1;
@@ -70,10 +71,11 @@ export async function POST(req: Request) {
     return unauthorizedResponse();
   }
 
-  const effectiveCompanyId = sessionUser.companyId;
-  if (!effectiveCompanyId) {
+  const assessmentContext = resolveAssessmentSubmitContextFromSessionUser(sessionUser);
+  if (!assessmentContext) {
     return forbiddenResponse("No company assigned");
   }
+  const effectiveCompanyId = assessmentContext.companyId;
 
   const submitRateLimitKey = `${sessionUser.id}:${effectiveCompanyId}`;
   if (!consumeSubmitQuota(submitRateLimitKey)) {
