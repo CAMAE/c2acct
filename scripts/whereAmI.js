@@ -1,4 +1,4 @@
-﻿require("dotenv").config({ path: require("path").join(process.cwd(), ".env") });
+require("dotenv").config({ path: ".env.local" });
 
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();

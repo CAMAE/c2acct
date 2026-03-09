@@ -1,5 +1,7 @@
-﻿const { PrismaClient } = require("@prisma/client");
+require("dotenv").config({ path: ".env.local" });
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+
 (async () => {
   const c = await prisma.company.findFirst({ select: { id: true, name: true } });
   console.log("company_id:", c?.id);

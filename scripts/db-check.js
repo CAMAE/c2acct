@@ -1,4 +1,4 @@
-﻿require("dotenv").config();
+require("dotenv").config({ path: ".env.local" });
 const { PrismaClient } = require("@prisma/client");
 const p = new PrismaClient();
 
@@ -7,6 +7,8 @@ const p = new PrismaClient();
     where: { key: "firm_alignment_v1" },
     select: { id: true, key: true, version: true }
   });
+
+  if (!module) throw new Error("Module firm_alignment_v1 not found");
 
   const qCount = await p.surveyQuestion.count({ where: { moduleId: module.id } });
   const sCount = await p.surveySubmission.count({ where: { moduleId: module.id } });
