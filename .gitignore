@@ -77,3 +77,5 @@ copilot-*.txt
 *_bak/
 **/_bak/**
 
+
+audit/

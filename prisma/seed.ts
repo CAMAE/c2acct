@@ -1,70 +1,64 @@
-﻿import { PrismaClient, OrganizationType, UserRole, EngagementType, SubscriptionTier } from "@prisma/client";
+import { PrismaClient, CompanyType, UserRole } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+const DEMO_COMPANY_ID = "demo-firm-company";
+const DEMO_OWNER_ID = "demo-firm-owner";
+
 async function main() {
-  const org = await prisma.organization.create({
-    data: {
+  const company = await prisma.company.upsert({
+    where: { id: DEMO_COMPANY_ID },
+    update: {
       name: "Demo Firm LLC",
-      type: OrganizationType.FIRM,
-      subscription: {
-        create: { tier: SubscriptionTier.PRO },
-      },
-      firmProfile: {
-        create: {
-          industry: "Accounting",
-          size: 5,
-        },
-      },
-      users: {
-        create: {
-          email: "owner@demofirm.com",
-          name: "Demo Owner",
-          role: UserRole.OWNER,
-        },
-      },
+      type: CompanyType.FIRM,
+      updatedAt: new Date(),
     },
-    include: { firmProfile: true },
-  });
-
-  const firmProfileId = org.firmProfile?.id;
-  if (!firmProfileId) throw new Error("FirmProfile not created");
-
-  const client = await prisma.client.create({
-    data: {
-      firmId: firmProfileId,
-      name: "Acme Construction",
-      industry: "Construction",
+    create: {
+      id: DEMO_COMPANY_ID,
+      name: "Demo Firm LLC",
+      type: CompanyType.FIRM,
+      updatedAt: new Date(),
+    },
+    select: {
+      id: true,
+      name: true,
+      type: true,
     },
   });
 
-  await prisma.engagement.create({
-    data: {
-      clientId: client.id,
-      type: EngagementType.CFO,
-      name: "Fractional CFO - 2026",
-      alignmentProfile: {
-        create: {
-          riskScore: 0.35,
-          stabilityScore: 0.72,
-          complexityScore: 0.58,
-          driftScore: 0.22,
-          notes: "Seed profile to validate relationships.",
-        },
-      },
+  const owner = await prisma.user.upsert({
+    where: { email: "owner@demofirm.com" },
+    update: {
+      name: "Demo Owner",
+      role: UserRole.OWNER,
+      companyId: company.id,
+      updatedAt: new Date(),
+    },
+    create: {
+      id: DEMO_OWNER_ID,
+      email: "owner@demofirm.com",
+      name: "Demo Owner",
+      role: UserRole.OWNER,
+      companyId: company.id,
+      updatedAt: new Date(),
+    },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      companyId: true,
     },
   });
 
-  console.log("✅ Seed complete:", {
-    organizationId: org.id,
-    firmProfileId,
-    clientId: client.id
+  console.log("SEED_OK", {
+    company,
+    owner,
   });
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error("SEED_ERROR", e);
     process.exit(1);
   })
   .finally(async () => {
