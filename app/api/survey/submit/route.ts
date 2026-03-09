@@ -155,8 +155,7 @@ export async function POST(req: Request) {
     );
   }
 
-  // Submission persistence remains company-root in this batch.
-  void submitAssessmentContext.context.targetProductId;
+  const persistedProductId = submitAssessmentContext.context.targetProductId;
 
   const questions = await prisma.surveyQuestion.findMany({
     where: { moduleId: surveyModule.id },
@@ -250,6 +249,7 @@ export async function POST(req: Request) {
       data: {
         id: randomUUID(),
         companyId: effectiveCompanyId,
+        productId: persistedProductId,
         moduleId: surveyModule.id,
         version: surveyModule.version ?? 1,
         answers,

@@ -9,7 +9,8 @@
   - targetProductId: 97272c7a-9442-4e93-9e88-4654ddafb1c1
 - pnpm build is green.
 - Results path remains company-root.
-- No schema persistence change yet for targetProductId.
+- SurveySubmission now persists nullable productId for PRODUCT-scoped submissions.
+- Results reads remain company-root in this batch.
 
 ## Current code state
 - lib/assessmentTarget.ts resolves PRODUCT-scoped submit authority.

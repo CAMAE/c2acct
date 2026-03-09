@@ -302,6 +302,7 @@ model Product {
   ParentProduct       Product?              @relation("ProductHierarchy", fields: [parentProductId], references: [id], onDelete: SetNull)
   ChildProducts       Product[]             @relation("ProductHierarchy")
   ExternalProfileLink ExternalProfileLink[]
+  SurveySubmission    SurveySubmission[]
 
   @@unique([companyId, slug])
   @@index([companyId])
@@ -405,6 +406,7 @@ model SurveySubmission {
   createdAt            DateTime     @default(now())
   moduleId             String
   companyId            String
+  productId            String?
   scoreVersion         Int          @default(1)
   weightedAvg          Float?
   answeredCount        Int          @default(0)
@@ -412,9 +414,11 @@ model SurveySubmission {
   scaleMin             Int          @default(0)
   totalWeight          Float        @default(0)
   Company              Company      @relation(fields: [companyId], references: [id])
+  Product              Product?     @relation(fields: [productId], references: [id])
   SurveyModule         SurveyModule @relation(fields: [moduleId], references: [id])
 
   @@index([companyId, moduleId, createdAt])
+  @@index([companyId, productId, moduleId, createdAt])
 }
 
 model User {
