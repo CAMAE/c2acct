@@ -1,48 +1,44 @@
-﻿export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
-import { prisma } from "@/lib/prisma"
-import { getSessionUser } from "@/lib/auth/session"
-import { isAdminRole } from "@/lib/authz"
-import { redirect } from "next/navigation"
+import type { CompanyType } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+import { getSessionUser } from "@/lib/auth/session";
+import { isAdminRole } from "@/lib/authz";
+import { redirect } from "next/navigation";
 
-type SearchParams = Record<string, string | string[] | undefined>
+type SearchParams = Record<string, string | string[] | undefined>;
+
+type CompanyListItem = {
+  id: string;
+  name: string;
+  type: CompanyType;
+};
 
 function getSingleParam(value: string | string[] | undefined) {
-  if (typeof value === "string") return value
-  if (Array.isArray(value) && typeof value[0] === "string") return value[0]
-  return null
+  if (typeof value === "string") return value;
+  if (Array.isArray(value) && typeof value[0] === "string") return value[0];
+  return null;
 }
 
-export default async function AdminPage({
-  searchParams,
-}: {
-  searchParams?: Promise<SearchParams>
-}) {
-  const sessionUser = await getSessionUser()
-  if (!sessionUser) {
-    redirect("/login?callbackUrl=%2Fadmin")
-  }
+async function createCompany(formData: FormData) {
+  "use server";
 
-  const isAdmin = isAdminRole(sessionUser.role)
-  const resolvedSearchParams = searchParams ? await searchParams : undefined
-  const actionError = getSingleParam(resolvedSearchParams?.error)
-
-async function createOrganization(formData: FormData) {
-  'use server'
-
-  const actor = await getSessionUser()
+  const actor = await getSessionUser();
   if (!actor) {
-    redirect("/login?callbackUrl=%2Fadmin")
+    redirect("/login?callbackUrl=%2Fadmin");
   }
 
   if (!isAdminRole(actor.role)) {
-    redirect("/admin?error=forbidden_action")
+    redirect("/admin?error=forbidden_action");
   }
 
-  const name = formData.get("name") as string
-  const type = formData.get("type") as "FIRM" | "VENDOR"
+  const rawName = formData.get("name");
+  const rawType = formData.get("type");
 
-  if (!name || !type) return
+  const name = typeof rawName === "string" ? rawName.trim() : "";
+  const type = rawType === "FIRM" || rawType === "VENDOR" ? rawType : null;
+
+  if (!name || !type) return;
 
   await prisma.company.create({
     data: {
@@ -51,8 +47,22 @@ async function createOrganization(formData: FormData) {
       type,
       updatedAt: new Date(),
     },
-  })
+  });
 }
+
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams?: Promise<SearchParams>;
+}) {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) {
+    redirect("/login?callbackUrl=%2Fadmin");
+  }
+
+  const isAdmin = isAdminRole(sessionUser.role);
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const actionError = getSingleParam(resolvedSearchParams?.error);
 
   if (!isAdmin) {
     return (
@@ -62,13 +72,15 @@ async function createOrganization(formData: FormData) {
           Access denied. Admin or owner role required.
         </div>
       </div>
-    )
+    );
   }
 
-  const orgs = await prisma.company.findMany()
+  const orgs: CompanyListItem[] = await prisma.company.findMany({
+    select: { id: true, name: true, type: true },
+    orderBy: { name: "asc" },
+  });
 
   return (
-
     <div style={{ padding: "40px" }}>
       <h1>Admin Panel</h1>
 
@@ -79,9 +91,9 @@ async function createOrganization(formData: FormData) {
       ) : null}
 
       <h2>Create Company</h2>
-      <form action={createOrganization}>
+      <form action={createCompany}>
         <input name="name" placeholder="Company Name" required />
-        <select name="type">
+        <select name="type" defaultValue="FIRM">
           <option value="FIRM">FIRM</option>
           <option value="VENDOR">VENDOR</option>
         </select>
@@ -90,39 +102,20 @@ async function createOrganization(formData: FormData) {
 
       <h2 style={{ marginTop: "40px" }}>Organizations</h2>
 
-      {orgs.map((org: any) => (
+      {orgs.map((org) => (
         <div
           key={org.id}
           style={{
             border: "1px solid #ccc",
             padding: "16px",
             marginBottom: "12px",
-            borderRadius: "8px"
+            borderRadius: "8px",
           }}
         >
           <strong>{org.name}</strong>
           <div>Type: {org.type}</div>
-
         </div>
       ))}
     </div>
-  )
+  );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,6 +1,11 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
+
+type DefaultCompanyResponse = {
+  alreadySelected?: boolean;
+  companyId?: string | null;
+};
 
 export default function EnsureCompanySelected() {
   const [done, setDone] = useState(false);
@@ -32,10 +37,11 @@ export default function EnsureCompanySelected() {
           return;
         }
 
-        const j: any = await r.json().catch(() => ({}));
+        const j: DefaultCompanyResponse = await r.json().catch(
+          (): DefaultCompanyResponse => ({})
+        );
 
-        // If already selected (server read httpOnly cookie) or no companies exist, do nothing
-        if (j?.alreadySelected === true || !j?.companyId) {
+        if (j.alreadySelected === true || !j.companyId) {
           if (!cancelled) setDone(true);
           return;
         }
@@ -46,9 +52,10 @@ export default function EnsureCompanySelected() {
           return;
         }
 
-        const selectRes = await fetch(`/api/company/select?companyId=${encodeURIComponent(companyId)}`, {
-          method: "POST",
-        });
+        const selectRes = await fetch(
+          `/api/company/select?companyId=${encodeURIComponent(companyId)}`,
+          { method: "POST" }
+        );
 
         if (selectRes.status === 401) {
           if (!cancelled) {
@@ -97,7 +104,7 @@ export default function EnsureCompanySelected() {
 
   return (
     <div className="fixed bottom-4 right-4 rounded-xl border border-white/10 bg-black/70 px-4 py-2 text-sm text-white/80">
-      Selecting company…
+      Selecting company...
     </div>
   );
 }
