@@ -22,6 +22,17 @@ export async function GET() {
     const result = await prisma.surveySubmission.findFirst({
       where: { companyId },
       orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        createdAt: true,
+        moduleId: true,
+        companyId: true,
+        productId: true,
+        score: true,
+        weightedAvg: true,
+        answeredCount: true,
+        signalIntegrityScore: true,
+      },
     });
 
     return NextResponse.json({ ok: true, result }, { headers: NO_STORE_HEADERS });

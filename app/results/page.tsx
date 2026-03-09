@@ -22,6 +22,7 @@ export default async function ResultsPage() {
   const resultsJson = await resultsRes.json().catch(() => ({}));
   const result = resultsJson?.result as
     | {
+      productId?: string | null;
         score?: number | null;
         weightedAvg?: number | null;
         answeredCount?: number | null;
@@ -109,6 +110,10 @@ export default async function ResultsPage() {
 
                 <div className="mt-2 text-sm text-slate-700">
                   Module ID: {result.moduleId ?? "--"} - Answered: {answeredCount}
+                </div>
+
+                <div className="mt-2 text-sm text-slate-700">
+                  Product ID: {result.productId ?? "--"}
                 </div>
               </div>
             )}

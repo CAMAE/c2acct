@@ -10,7 +10,7 @@
 - pnpm build is green.
 - Results path remains company-root.
 - SurveySubmission now persists nullable productId for PRODUCT-scoped submissions.
-- Results reads remain company-root in this batch.
+- Results reads now surface persisted productId while latest-selection remains company-root.
 
 ## Current code state
 - lib/assessmentTarget.ts resolves PRODUCT-scoped submit authority.
