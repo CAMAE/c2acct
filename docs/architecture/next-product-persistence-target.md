@@ -17,3 +17,12 @@
 - prisma/schema.prisma
 - app/api/survey/submit/route.ts
 - optional: app/api/results/route.ts only if selecting/returning productId is desired later, not required in first pass
+
+## Update
+- `/api/results` now accepts optional `productId` and returns latest by `{ companyId, productId }` when provided.
+- Default latest selection remains company-root by `companyId` when `productId` is absent.
+- Insights and badges read paths remain company-root for now.
+
+## Next smallest safe downstream-read step
+- Keep current results behavior as-is unless product-filter usage indicates additional UI affordances are needed.
+- Do not introduce product-aware insights/badges reads until product-scoped unlock policy is defined.

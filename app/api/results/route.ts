@@ -6,7 +6,7 @@ import { resolveAssessmentReadContextFromSessionUser } from "@/lib/assessmentTar
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
-export async function GET() {
+export async function GET(req: Request) {
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
     return unauthorizedResponse();
@@ -17,10 +17,13 @@ export async function GET() {
     return forbiddenResponse("No company assigned");
   }
   const companyId = assessmentContext.companyId;
+  const requestUrl = new URL(req.url);
+  const requestedProductId = requestUrl.searchParams.get("productId")?.trim() ?? "";
+  const productId = requestedProductId.length > 0 ? requestedProductId : null;
 
   try {
     const result = await prisma.surveySubmission.findFirst({
-      where: { companyId },
+      where: productId ? { companyId, productId } : { companyId },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,

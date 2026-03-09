@@ -7,10 +7,25 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 
-export default async function ResultsPage() {
+export default async function ResultsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ productId?: string | string[] | undefined }>;
+}) {
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const productIdParamRaw = resolvedSearchParams.productId;
+  const productIdParam = Array.isArray(productIdParamRaw)
+    ? productIdParamRaw[0]
+    : productIdParamRaw;
+  const requestedProductId = typeof productIdParam === "string" ? productIdParam.trim() : "";
+  const productIdFilter = requestedProductId.length > 0 ? requestedProductId : null;
+
   const apiBaseUrl = await getRequestOrigin();
   const cookieHeader = (await cookies()).toString();
-  const resultsRes = await fetch(`${apiBaseUrl}/api/results`, {
+  const resultsPath = productIdFilter
+    ? `/api/results?productId=${encodeURIComponent(productIdFilter)}`
+    : "/api/results";
+  const resultsRes = await fetch(`${apiBaseUrl}${resultsPath}`, {
     cache: "no-store",
     headers: cookieHeader ? { cookie: cookieHeader } : undefined,
   });
@@ -114,6 +129,10 @@ export default async function ResultsPage() {
 
                 <div className="mt-2 text-sm text-slate-700">
                   Product ID: {result.productId ?? "--"}
+                </div>
+
+                <div className="mt-2 text-sm text-slate-700">
+                  View mode: {productIdFilter ? `Filtered by productId (${productIdFilter})` : "Company-root latest"}
                 </div>
               </div>
             )}
