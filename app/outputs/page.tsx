@@ -220,9 +220,9 @@ export default async function OutputsPage() {
     <section className="text-slate-900">
       <div className="mb-10">
         <EnsureCompanySelected />
-        <h1 className="text-5xl font-semibold tracking-tight text-slate-900">Top Seven Outputs</h1>
+        <h1 className="text-5xl font-semibold tracking-tight text-slate-900">Firm Intelligence</h1>
         <p className="mt-3 max-w-2xl text-slate-700">
-          The seven institutional deliverables that define high-alignment firms.
+          Unlocked intelligence and institutional insights for high-alignment firms.
         </p>
       </div>
 
