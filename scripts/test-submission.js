@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
   const mod = await prisma.surveyModule.findUnique({
     where: { key: moduleKey },
-    select: { id: true, key: true, version: true }
+    select: { id: true, key: true, version: true, scope: true }
   });
   if (!mod) throw new Error(`Module not found for key=${moduleKey}`);
 
@@ -20,6 +20,28 @@ const prisma = new PrismaClient();
 
   if (!company) {
     throw new Error("No Company found. Create one first or set COMPANY_ID.");
+  }
+
+  const targetProductIdRaw = process.env.TARGET_PRODUCT_ID;
+  const targetProductId = typeof targetProductIdRaw === "string" ? targetProductIdRaw.trim() : "";
+
+  if (mod.scope === "PRODUCT") {
+    if (!targetProductId) {
+      throw new Error("TARGET_PRODUCT_ID is required when MODULE_KEY resolves to a PRODUCT-scoped module.");
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { id: targetProductId },
+      select: { id: true, companyId: true },
+    });
+
+    if (!product) {
+      throw new Error(`TARGET_PRODUCT_ID not found: ${targetProductId}`);
+    }
+
+    if (product.companyId !== company.id) {
+      throw new Error(`TARGET_PRODUCT_ID company mismatch: product.companyId=${product.companyId}, company.id=${company.id}`);
+    }
   }
 
   const questions = await prisma.surveyQuestion.findMany({
@@ -58,7 +80,11 @@ const prisma = new PrismaClient();
     }
   });
 
-  console.log("TEST_SUBMISSION_OK", submission);
+  console.log("TEST_SUBMISSION_OK", {
+    ...submission,
+    moduleScope: mod.scope,
+    targetProductId: mod.scope === "PRODUCT" ? targetProductId : null,
+  });
 })()
   .catch((e) => {
     console.error("TEST_SUBMISSION_ERROR", e?.message ?? e);

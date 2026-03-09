@@ -6,7 +6,10 @@ import { evaluateSignalIntegrity } from "@/lib/signalIntegrity";
 import { randomUUID } from "crypto";
 import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
-import { resolveAssessmentSubmitContextFromSessionUser } from "@/lib/assessmentTarget";
+import {
+  resolveAssessmentContextFromSessionUser,
+  resolveAssessmentSubmitContextFromSessionUser,
+} from "@/lib/assessmentTarget";
 
 const SCORING_VERSION = 1;
 const SCORE_SCALE_MIN = 1;
@@ -32,6 +35,7 @@ const SubmitSchema = z
   .object({
     moduleKey: z.string().min(1),
     answers: z.record(z.string(), z.unknown()),
+    targetProductId: z.string().trim().min(1).nullable().optional(),
   })
   .strict();
 
@@ -71,11 +75,11 @@ export async function POST(req: Request) {
     return unauthorizedResponse();
   }
 
-  const assessmentContext = resolveAssessmentSubmitContextFromSessionUser(sessionUser);
-  if (!assessmentContext) {
+  const readAssessmentContext = resolveAssessmentContextFromSessionUser(sessionUser);
+  if (!readAssessmentContext) {
     return forbiddenResponse("No company assigned");
   }
-  const effectiveCompanyId = assessmentContext.companyId;
+  const effectiveCompanyId = readAssessmentContext.companyId;
 
   const submitRateLimitKey = `${sessionUser.id}:${effectiveCompanyId}`;
   if (!consumeSubmitQuota(submitRateLimitKey)) {
@@ -127,16 +131,32 @@ export async function POST(req: Request) {
     );
   }
 
-  const { moduleKey, answers: rawAnswers } = parsed.data;
+  const { moduleKey, answers: rawAnswers, targetProductId = null } = parsed.data;
 
   const surveyModule = await prisma.surveyModule.findUnique({
     where: { key: moduleKey },
-    select: { id: true, version: true, active: true },
+    select: { id: true, version: true, active: true, scope: true },
   });
 
   if (!surveyModule || !surveyModule.active) {
     return NextResponse.json({ ok: false, error: "Module not found" }, { status: 404, headers: NO_STORE_HEADERS });
   }
+
+  const submitAssessmentContext = await resolveAssessmentSubmitContextFromSessionUser({
+    sessionUser,
+    moduleScope: surveyModule.scope,
+    targetProductId,
+  });
+
+  if (!submitAssessmentContext.ok) {
+    return NextResponse.json(
+      { ok: false, error: submitAssessmentContext.error },
+      { status: submitAssessmentContext.status, headers: NO_STORE_HEADERS }
+    );
+  }
+
+  // Submission persistence remains company-root in this batch.
+  void submitAssessmentContext.context.targetProductId;
 
   const questions = await prisma.surveyQuestion.findMany({
     where: { moduleId: surveyModule.id },

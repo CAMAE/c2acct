@@ -34,6 +34,7 @@ export default function Page() {
   const [err, setErr] = useState<string | null>(null);
 
   const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [targetProductId, setTargetProductId] = useState<string | null>(null);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -92,10 +93,18 @@ export default function Page() {
     setSubmitError(null);
 
     try {
-      const payload = {
+      const payload: {
+        moduleKey: string;
+        answers: Record<string, any>;
+        targetProductId?: string | null;
+      } = {
         moduleKey: data.key,
         answers,
       };
+
+      if (data.scope === "PRODUCT") {
+        payload.targetProductId = targetProductId;
+      }
 
       const res = await fetch("/api/survey/submit", {
         method: "POST",
@@ -148,6 +157,29 @@ export default function Page() {
       <div style={{ opacity: 0.7, marginTop: 6 }}>
         {data.scope} · v{data.version} · {data.key}
       </div>
+
+      {data.scope === "PRODUCT" ? (
+        <div style={{ marginTop: 14, display: "grid", gap: 6 }}>
+          <label htmlFor="targetProductId" style={{ fontWeight: 600 }}>
+            Target Product ID
+          </label>
+          <input
+            id="targetProductId"
+            type="text"
+            value={targetProductId ?? ""}
+            onChange={(e) => {
+              const next = e.target.value.trim();
+              setTargetProductId(next.length > 0 ? next : null);
+            }}
+            placeholder="Enter product id"
+            style={{
+              border: "1px solid #00000022",
+              borderRadius: 10,
+              padding: "10px 12px",
+            }}
+          />
+        </div>
+      ) : null}
 
       <div style={{ marginTop: 22, display: "grid", gap: 16 }}>
         {data.questions.map((q) => {
