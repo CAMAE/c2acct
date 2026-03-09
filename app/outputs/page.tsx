@@ -36,8 +36,7 @@ type OutputCard = {
 };
 
 const TIER1_BADGE_ID = "49d380c5-b1d0-493b-b9c3-f2391fa3430b";
-const TIER1_BADGE_NAME = "Tier 1 Alignment Unlocked";
-
+const TIER1_BADGE_NAME = "Tier 1 Unlocked";
 
 export default async function OutputsPage() {
   const apiBaseUrl = await getRequestOrigin();
@@ -140,47 +139,44 @@ export default async function OutputsPage() {
     }
   }
 
-  const hasTier1Badge =
-    badgeKeys.has(`id:${TIER1_BADGE_ID.toLowerCase()}`) ||
-    badgeKeys.has(`name:${normalizeBadgeName(TIER1_BADGE_NAME)}`);
-
   const outputCards: OutputCard[] = [
     {
-      title: "Institutional Profile",
-      desc: "Capability scoring + operational alignment snapshot.",
-      badgeName: TIER1_BADGE_NAME,
-      badgeId: TIER1_BADGE_ID,
-      insightKey: "tier1_fmi",
-    },
-    {
       title: "Alignment Baseline",
-      desc: "Where the firm is now — quantified.",
+      desc: "Where the firm is now, quantified.",
       badgeName: TIER1_BADGE_NAME,
       badgeId: TIER1_BADGE_ID,
-      insightKey: "tier1_automation",
+      insightKey: "tier1_alignment_baseline",
     },
     {
       title: "Operating System Map",
       desc: "How work actually moves through the firm.",
       badgeName: TIER1_BADGE_NAME,
       badgeId: TIER1_BADGE_ID,
-      insightKey: "tier1_profit",
-    },
-    {
-      title: "Automation Readiness",
-      desc: "What can be delegated, what must stay human.",
-      badgeName: TIER1_BADGE_NAME,
-      badgeId: TIER1_BADGE_ID,
+      insightKey: "tier1_operating_system_map",
     },
     {
       title: "Risk & Control Posture",
       desc: "Controls, exposure, and governance maturity.",
       badgeName: TIER1_BADGE_NAME,
       badgeId: TIER1_BADGE_ID,
+      insightKey: "tier1_risk_control_posture",
     },
     {
       title: "Implementation Roadmap",
       desc: "Sequenced steps to reach high alignment.",
+      badgeName: TIER1_BADGE_NAME,
+      badgeId: TIER1_BADGE_ID,
+      insightKey: "tier1_implementation_roadmap",
+    },
+    {
+      title: "Institutional Profile",
+      desc: "Capability scoring and operational alignment snapshot.",
+      badgeName: TIER1_BADGE_NAME,
+      badgeId: TIER1_BADGE_ID,
+    },
+    {
+      title: "Automation Readiness",
+      desc: "What can be delegated, what must stay human.",
       badgeName: TIER1_BADGE_NAME,
       badgeId: TIER1_BADGE_ID,
     },
@@ -273,11 +269,11 @@ export default async function OutputsPage() {
         <div className="mt-1 text-slate-800">{signalIntegrityScore.toFixed(2)}</div>
         <div className="mt-3 font-semibold text-slate-900">Raw</div>
         <div className="mt-1 text-slate-700">
-          Score: {rawScore === null ? "--" : `${rawScore}%`} • Weighted average: {rawWeightedAvg === null ? "--" : rawWeightedAvg.toFixed(2)}
+          Score: {rawScore === null ? "--" : `${rawScore}%`} | Weighted average: {rawWeightedAvg === null ? "--" : rawWeightedAvg.toFixed(2)}
         </div>
         <div className="mt-3 font-semibold text-slate-900">Integrity-adjusted</div>
         <div className="mt-1 text-slate-700">
-          Score: {effectiveScore === null ? "--" : `${effectiveScore}%`} • Weighted average: {effectiveWeightedAvg === null ? "--" : effectiveWeightedAvg.toFixed(2)}
+          Score: {effectiveScore === null ? "--" : `${effectiveScore}%`} | Weighted average: {effectiveWeightedAvg === null ? "--" : effectiveWeightedAvg.toFixed(2)}
         </div>
       </div>
 
@@ -294,35 +290,35 @@ export default async function OutputsPage() {
           const cardBody = showInsightContent ? unlockedInsight?.body : x.desc;
 
           return (
-          <div
-            key={x.title}
-            title={isGated ? lockHint : undefined}
-            className={`rounded-2xl border border-black/10 bg-white/85 p-6 shadow-sm ${
-              !unlocked ? "opacity-70 grayscale" : ""
-            }`}
-          >
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                {showInsightContent ? (
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{x.title}</div>
+            <div
+              key={x.title}
+              title={isGated ? lockHint : undefined}
+              className={`rounded-2xl border border-black/10 bg-white/85 p-6 shadow-sm ${
+                !unlocked ? "opacity-70 grayscale" : ""
+              }`}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  {showInsightContent ? (
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{x.title}</div>
+                  ) : null}
+                  <div className="text-lg font-semibold text-slate-900">{cardHeading}</div>
+                </div>
+                {isGated ? (
+                  <div className="rounded-full border border-slate-300 bg-slate-50 px-2 py-1 text-[10px] font-semibold tracking-wide text-slate-700">
+                    {unlocked ? "UNLOCKED" : "LOCKED"}
+                  </div>
                 ) : null}
-                <div className="text-lg font-semibold text-slate-900">{cardHeading}</div>
               </div>
+              <div className="mt-2 whitespace-pre-line text-sm text-slate-700">{cardBody}</div>
               {isGated ? (
-                <div className="rounded-full border border-slate-300 bg-slate-50 px-2 py-1 text-[10px] font-semibold tracking-wide text-slate-700">
-                  {unlocked ? "UNLOCKED" : "LOCKED"}
+                <div className="mt-4 text-xs text-slate-600">
+                  {unlocked
+                    ? "Available based on earned badge or unlocked insight"
+                    : "Not yet available in this company session"}
                 </div>
               ) : null}
             </div>
-            <div className="mt-2 text-sm text-slate-700 whitespace-pre-line">{cardBody}</div>
-            {isGated ? (
-              <div className="mt-4 text-xs text-slate-600">
-                {unlocked
-                  ? "Available based on earned badge or unlocked insight"
-                  : "Not yet available in this company session"}
-              </div>
-            ) : null}
-          </div>
           );
         })}
       </div>
