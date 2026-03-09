@@ -131,15 +131,19 @@ model Company {
 model CompanyBadge {
   id        String   @id
   companyId String
+  productId String?
   badgeId   String
   moduleId  String
   awardedAt DateTime @default(now())
   Badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
   Company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  Product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@unique([companyId, badgeId, moduleId])
+  @@unique([companyId, productId, badgeId, moduleId])
   @@index([badgeId])
   @@index([companyId])
+  @@index([companyId, productId, badgeId])
+  @@index([companyId, productId, awardedAt])
 }
 
 model CompanyBenchmark {
@@ -302,6 +306,7 @@ model Product {
   ParentProduct       Product?              @relation("ProductHierarchy", fields: [parentProductId], references: [id], onDelete: SetNull)
   ChildProducts       Product[]             @relation("ProductHierarchy")
   ExternalProfileLink ExternalProfileLink[]
+  CompanyBadge        CompanyBadge[]
   SurveySubmission    SurveySubmission[]
 
   @@unique([companyId, slug])

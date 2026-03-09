@@ -284,22 +284,28 @@ export async function POST(req: Request) {
         continue;
       }
 
-      await tx.companyBadge.upsert({
+      const existingAward = await tx.companyBadge.findFirst({
         where: {
-          companyId_badgeId_moduleId: {
-            companyId: effectiveCompanyId,
-            badgeId: badgeRule.badgeId,
-            moduleId: surveyModule.id,
-          },
-        },
-        update: {},
-        create: {
-          id: randomUUID(),
           companyId: effectiveCompanyId,
+          productId: persistedProductId,
           badgeId: badgeRule.badgeId,
           moduleId: surveyModule.id,
         },
+        select: { id: true },
       });
+
+      if (!existingAward) {
+        await tx.companyBadge.create({
+          data: {
+            id: randomUUID(),
+            companyId: effectiveCompanyId,
+            productId: persistedProductId,
+            badgeId: badgeRule.badgeId,
+            moduleId: surveyModule.id,
+          },
+        });
+      }
+
       reached = true;
     }
 

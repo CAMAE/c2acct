@@ -16,7 +16,23 @@ export type AssessmentSubmitResolutionInput = {
   targetProductId?: string | null;
 };
 
+export type AssessmentReadResolutionInput = {
+  sessionUser: Pick<SessionUser, "companyId"> | null | undefined;
+  requestedProductId?: string | null;
+};
+
 export type AssessmentSubmitResolutionResult =
+  | {
+      ok: true;
+      context: AssessmentContext;
+    }
+  | {
+      ok: false;
+      status: 400 | 403;
+      error: string;
+    };
+
+export type AssessmentReadResolutionResult =
   | {
       ok: true;
       context: AssessmentContext;
@@ -43,6 +59,59 @@ export function resolveAssessmentContextFromSessionUser(
 }
 
 export const resolveAssessmentReadContextFromSessionUser = resolveAssessmentContextFromSessionUser;
+
+export async function resolveAssessmentReadContextFromSessionUserWithOptionalProduct({
+  sessionUser,
+  requestedProductId,
+}: AssessmentReadResolutionInput): Promise<AssessmentReadResolutionResult> {
+  const baseContext = resolveAssessmentContextFromSessionUser(sessionUser);
+  if (!baseContext) {
+    return {
+      ok: false,
+      status: 403,
+      error: "No company assigned",
+    };
+  }
+
+  const normalizedProductId =
+    typeof requestedProductId === "string" ? requestedProductId.trim() : "";
+
+  if (!normalizedProductId) {
+    return {
+      ok: true,
+      context: baseContext,
+    };
+  }
+
+  const targetProduct = await prisma.product.findUnique({
+    where: { id: normalizedProductId },
+    select: { id: true, companyId: true },
+  });
+
+  if (!targetProduct) {
+    return {
+      ok: false,
+      status: 400,
+      error: "Invalid productId",
+    };
+  }
+
+  if (targetProduct.companyId !== baseContext.companyId) {
+    return {
+      ok: false,
+      status: 403,
+      error: "Product does not belong to your company",
+    };
+  }
+
+  return {
+    ok: true,
+    context: {
+      ...baseContext,
+      targetProductId: targetProduct.id,
+    },
+  };
+}
 
 export async function resolveAssessmentSubmitContextFromSessionUser({
   sessionUser,

@@ -8,9 +8,9 @@
 - Auth/company cookie selection logic remains company-root and must not change in this policy batch.
 
 ## Decision
-- Keep badges company-root for now.
-- Keep unlocked insights company-root for now.
-- Do not introduce product-aware unlock semantics in the immediate next implementation batch.
+- Keep company-root behavior as default when no product context is provided.
+- Enable optional product-aware badge and unlock reads only when explicit product context is present.
+- Preserve results product-aware support already implemented.
 
 ## Rationale
 - This is the smallest safe rollout with the least churn and lowest regression risk.
@@ -25,22 +25,21 @@
 4. Optional unlocked-insights adaptation only after badge semantics are finalized and validated.
 
 ## Required schema/API changes for the chosen policy
-- First implementation pass: none.
-- If policy later shifts to product-aware badges/insights, expected changes would likely include:
-  - schema extension for product-scoped award state (new table or widened uniqueness strategy),
-  - badge award read/write API updates,
-  - unlocked insights read logic that can resolve company-root vs product-filtered unlock context.
+- First implementation pass:
+  - extend `CompanyBadge` with nullable `productId` and `Product` relation,
+  - persist badge awards with `productId` when submit context includes a product,
+  - keep company-root badge awards at `productId = null`,
+  - add optional `productId` reads in badges/insights routes with default company-root behavior.
 
-## Routes/files likely touched in the first implementation batch
-- Docs only in first pass (no runtime route changes).
-- If and only if product-aware unlock policy is approved later, likely first runtime targets:
-  - `app/api/badges/earned/route.ts`
-  - `app/api/insights/unlocked/route.ts`
-  - policy docs under `docs/architecture/`
+## Routes/files touched in the first implementation batch
+- `prisma/schema.prisma`
+- `app/api/survey/submit/route.ts`
+- `app/api/badges/earned/route.ts`
+- `app/api/insights/unlocked/route.ts`
+- `lib/assessmentTarget.ts`
+- `docs/architecture/product-aware-unlock-policy.md`
 
 ## Explicit non-goals
-- No changes to `prisma/schema.prisma` in this pass.
-- No changes to `app/api/insights/unlocked/route.ts` in this pass.
-- No changes to `app/api/badges/earned/route.ts` in this pass.
 - No outputs UI changes.
 - No auth/company selection logic changes.
+- No cookie/session widening.
