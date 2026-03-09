@@ -7,6 +7,7 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model Badge {
   id           String         @id
   name         String
@@ -36,7 +37,7 @@ model BenchmarkCohort {
   title                  String
   companyType            CompanyType
   createdAt              DateTime                 @default(now())
-  updatedAt    DateTime       @updatedAt
+  updatedAt              DateTime                 @updatedAt
   BenchmarkRun           BenchmarkRun[]
   CompanyBenchmark       CompanyBenchmark[]
   CompanyBenchmarkCohort CompanyBenchmarkCohort[]
@@ -100,7 +101,17 @@ model CapabilityNode {
 model Company {
   id                     String                   @id
   name                   String
+  slug                   String?                  @unique
   type                   CompanyType
+  websiteUrl             String?
+  logoUrl                String?
+  shortDescription       String?
+  longDescription        String?
+  hqCountry              String?
+  primaryMarket          String?
+  verticalKey            String                   @default("ACCOUNTING")
+  externalStatus         String?
+  profileStatus          String?
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime
   CompanyBadge           CompanyBadge[]
@@ -110,6 +121,8 @@ model Company {
   FirmMaturityIndex      FirmMaturityIndex[]
   FirmMaturityMomentum   FirmMaturityMomentum[]
   FirmMaturitySnapshot   FirmMaturitySnapshot[]
+  OrganizationContact    OrganizationContact[]
+  ExternalProfileLink    ExternalProfileLink[]
   Product                Product[]
   SurveySubmission       SurveySubmission[]
   User                   User[]
@@ -267,16 +280,72 @@ model ModuleCapability {
 }
 
 model Product {
+  id                  String                @id
+  companyId           String
+  parentProductId     String?
+  name                String
+  slug                String?
+  category            String?
+  productKind         ProductKind           @default(POINT_SOLUTION)
+  websiteUrl          String?
+  logoUrl             String?
+  shortDescription    String?
+  longDescription     String?
+  apiEndpoint         String?
+  primaryMarket       String?
+  verticalKey         String                @default("ACCOUNTING")
+  externalStatus      String?
+  profileStatus       String?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime
+  Company             Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  ParentProduct       Product?              @relation("ProductHierarchy", fields: [parentProductId], references: [id], onDelete: SetNull)
+  ChildProducts       Product[]             @relation("ProductHierarchy")
+  ExternalProfileLink ExternalProfileLink[]
+
+  @@unique([companyId, slug])
+  @@index([companyId])
+  @@index([parentProductId])
+}
+
+model OrganizationContact {
   id          String   @id
   companyId   String
   name        String
-  category    String?
-  apiEndpoint String?
+  title       String?
+  email       String?
+  contactRole String?
+  source      String?
+  isPrimary   Boolean  @default(false)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime
+  updatedAt   DateTime @updatedAt
   Company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@index([companyId])
+  @@index([email])
+}
+
+model ExternalProfileLink {
+  id                 String    @id
+  source             String
+  externalEntityType String
+  externalRecordId   String
+  externalSlug       String?
+  canonicalUrl       String?
+  companyId          String?
+  productId          String?
+  claimStatus        String?
+  syncMode           String?
+  lastSyncedAt       DateTime?
+  rawSnapshotJson    Json?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  Company            Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  Product            Product?  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([source, externalEntityType, externalRecordId])
+  @@index([companyId])
+  @@index([productId])
 }
 
 model SurveyModule {
@@ -327,23 +396,23 @@ model SurveyQuestionCapability {
 }
 
 model SurveySubmission {
-  id            String       @id
-  version       Int          @default(1)
-  answers       Json
-  score         Int          @default(0)
-  signalIntegrityScore Float @default(1.0)
-  integrityFlags Json?
-  createdAt     DateTime     @default(now())
-  moduleId      String
-  companyId     String
-  scoreVersion  Int          @default(1)
-  weightedAvg   Float?
-  answeredCount Int          @default(0)
-  scaleMax      Int          @default(100)
-  scaleMin      Int          @default(0)
-  totalWeight   Float        @default(0)
-  Company       Company      @relation(fields: [companyId], references: [id])
-  SurveyModule  SurveyModule @relation(fields: [moduleId], references: [id])
+  id                   String       @id
+  version              Int          @default(1)
+  answers              Json
+  score                Int          @default(0)
+  signalIntegrityScore Float        @default(1.0)
+  integrityFlags       Json?
+  createdAt            DateTime     @default(now())
+  moduleId             String
+  companyId            String
+  scoreVersion         Int          @default(1)
+  weightedAvg          Float?
+  answeredCount        Int          @default(0)
+  scaleMax             Int          @default(100)
+  scaleMin             Int          @default(0)
+  totalWeight          Float        @default(0)
+  Company              Company      @relation(fields: [companyId], references: [id])
+  SurveyModule         SurveyModule @relation(fields: [moduleId], references: [id])
 
   @@index([companyId, moduleId, createdAt])
 }
@@ -393,6 +462,14 @@ enum QuestionInputType {
   BOOLEAN
   NUMBER
   TEXT
+}
+
+enum ProductKind {
+  PLATFORM
+  SUITE
+  MODULE
+  POINT_SOLUTION
+  SERVICE
 }
 
 enum UserRole {
