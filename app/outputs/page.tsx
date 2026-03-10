@@ -37,6 +37,109 @@ type OutputCard = {
 
 const TIER1_BADGE_ID = "49d380c5-b1d0-493b-b9c3-f2391fa3430b";
 const TIER1_BADGE_NAME = "Tier 1 Unlocked";
+const PRODUCT_BADGE_ID = "3a53d563-c4f9-45dc-9aa5-a8f8c018c006";
+const PRODUCT_BADGE_NAME = "Product GTM Unlocked";
+
+const FIRM_OUTPUT_CARDS: OutputCard[] = [
+  {
+    title: "Alignment Baseline",
+    desc: "Where the firm is now, quantified.",
+    badgeName: TIER1_BADGE_NAME,
+    badgeId: TIER1_BADGE_ID,
+    insightKey: "tier1_alignment_baseline",
+  },
+  {
+    title: "Operating System Map",
+    desc: "How work actually moves through the firm.",
+    badgeName: TIER1_BADGE_NAME,
+    badgeId: TIER1_BADGE_ID,
+    insightKey: "tier1_operating_system_map",
+  },
+  {
+    title: "Risk & Control Posture",
+    desc: "Controls, exposure, and governance maturity.",
+    badgeName: TIER1_BADGE_NAME,
+    badgeId: TIER1_BADGE_ID,
+    insightKey: "tier1_risk_control_posture",
+  },
+  {
+    title: "Implementation Roadmap",
+    desc: "Sequenced steps to reach high alignment.",
+    badgeName: TIER1_BADGE_NAME,
+    badgeId: TIER1_BADGE_ID,
+    insightKey: "tier1_implementation_roadmap",
+  },
+  {
+    title: "Institutional Profile",
+    desc: "Capability scoring and operational alignment snapshot.",
+    badgeName: TIER1_BADGE_NAME,
+    badgeId: TIER1_BADGE_ID,
+  },
+  {
+    title: "Automation Readiness",
+    desc: "What can be delegated, what must stay human.",
+    badgeName: TIER1_BADGE_NAME,
+    badgeId: TIER1_BADGE_ID,
+  },
+  {
+    title: "Executive Brief",
+    desc: "Board-ready summary and next actions.",
+    badgeName: TIER1_BADGE_NAME,
+    badgeId: TIER1_BADGE_ID,
+  },
+];
+
+const PRODUCT_OUTPUT_CARDS: OutputCard[] = [
+  {
+    title: "Product Positioning Clarity",
+    desc: "How clearly the product value proposition lands for buyer priorities.",
+    badgeName: PRODUCT_BADGE_NAME,
+    badgeId: PRODUCT_BADGE_ID,
+    insightKey: "product_positioning_clarity",
+  },
+  {
+    title: "Workflow Fit Snapshot",
+    desc: "Where the product fits naturally into day-to-day accounting workflows.",
+    badgeName: PRODUCT_BADGE_NAME,
+    badgeId: PRODUCT_BADGE_ID,
+    insightKey: "product_workflow_fit_snapshot",
+  },
+  {
+    title: "Integration Readiness",
+    desc: "Current readiness of integrations required for scale adoption.",
+    badgeName: PRODUCT_BADGE_NAME,
+    badgeId: PRODUCT_BADGE_ID,
+    insightKey: "product_integration_readiness",
+  },
+  {
+    title: "Onboarding Friction Estimate",
+    desc: "Likely friction points from purchase to first operational value.",
+    badgeName: PRODUCT_BADGE_NAME,
+    badgeId: PRODUCT_BADGE_ID,
+    insightKey: "product_onboarding_friction_estimate",
+  },
+  {
+    title: "Support Confidence Signal",
+    desc: "Trust signal based on expected quality and consistency of support.",
+    badgeName: PRODUCT_BADGE_NAME,
+    badgeId: PRODUCT_BADGE_ID,
+    insightKey: "product_support_confidence_signal",
+  },
+  {
+    title: "Product GTM Readiness Summary",
+    desc: "A concise readiness view for rollout and customer-facing launch motions.",
+    badgeName: PRODUCT_BADGE_NAME,
+    badgeId: PRODUCT_BADGE_ID,
+    insightKey: "product_gtm_readiness_summary",
+  },
+  {
+    title: "Product Improvement Priorities",
+    desc: "Sequenced product-level priorities most likely to improve fit and retention.",
+    badgeName: PRODUCT_BADGE_NAME,
+    badgeId: PRODUCT_BADGE_ID,
+    insightKey: "product_improvement_priorities",
+  },
+];
 
 export default async function OutputsPage({
   searchParams,
@@ -170,54 +273,8 @@ export default async function OutputsPage({
     }
   }
 
-  const outputCards: OutputCard[] = [
-    {
-      title: "Alignment Baseline",
-      desc: "Where the firm is now, quantified.",
-      badgeName: TIER1_BADGE_NAME,
-      badgeId: TIER1_BADGE_ID,
-      insightKey: "tier1_alignment_baseline",
-    },
-    {
-      title: "Operating System Map",
-      desc: "How work actually moves through the firm.",
-      badgeName: TIER1_BADGE_NAME,
-      badgeId: TIER1_BADGE_ID,
-      insightKey: "tier1_operating_system_map",
-    },
-    {
-      title: "Risk & Control Posture",
-      desc: "Controls, exposure, and governance maturity.",
-      badgeName: TIER1_BADGE_NAME,
-      badgeId: TIER1_BADGE_ID,
-      insightKey: "tier1_risk_control_posture",
-    },
-    {
-      title: "Implementation Roadmap",
-      desc: "Sequenced steps to reach high alignment.",
-      badgeName: TIER1_BADGE_NAME,
-      badgeId: TIER1_BADGE_ID,
-      insightKey: "tier1_implementation_roadmap",
-    },
-    {
-      title: "Institutional Profile",
-      desc: "Capability scoring and operational alignment snapshot.",
-      badgeName: TIER1_BADGE_NAME,
-      badgeId: TIER1_BADGE_ID,
-    },
-    {
-      title: "Automation Readiness",
-      desc: "What can be delegated, what must stay human.",
-      badgeName: TIER1_BADGE_NAME,
-      badgeId: TIER1_BADGE_ID,
-    },
-    {
-      title: "Executive Brief",
-      desc: "Board-ready summary and next actions.",
-      badgeName: TIER1_BADGE_NAME,
-      badgeId: TIER1_BADGE_ID,
-    },
-  ];
+  const isProductContext = Boolean(productIdFilter);
+  const outputCards = isProductContext ? PRODUCT_OUTPUT_CARDS : FIRM_OUTPUT_CARDS;
 
   function isCardUnlocked(card: OutputCard): boolean {
     const hasBadgeMeta = Boolean(card.badgeName?.trim()) || Boolean(card.badgeId?.trim());
@@ -253,7 +310,9 @@ export default async function OutputsPage({
         <EnsureCompanySelected />
         <h1 className="text-5xl font-semibold tracking-tight text-slate-900">Firm Intelligence</h1>
         <p className="mt-3 max-w-2xl text-slate-700">
-          Unlocked intelligence and institutional insights for high-alignment firms.
+          {isProductContext
+            ? "Product-specific intelligence for the selected vendor product context."
+            : "Unlocked intelligence and institutional insights for high-alignment firms."}
         </p>
 
         {enableProductSelection ? (
@@ -302,7 +361,7 @@ export default async function OutputsPage({
         <div className="text-sm font-semibold text-slate-900">
           Latest alignment score: {rawScore === null ? "--" : `${rawScore}%`}
         </div>
-        <div className="mt-2 text-xs text-slate-700">Unlocked outputs: {unlockedOutputCount} / 7</div>
+        <div className="mt-2 text-xs text-slate-700">Unlocked outputs: {unlockedOutputCount} / {outputCards.length}</div>
         <div className="mt-1 text-xs text-slate-700">Earned badges: {earnedBadges.length}</div>
       </div>
 
@@ -375,7 +434,9 @@ export default async function OutputsPage({
                 <div className="mt-4 text-xs text-slate-600">
                   {unlocked
                     ? "Available based on earned badge or unlocked insight"
-                    : "Not yet available in this company session"}
+                    : isProductContext
+                      ? "Not yet available in this product context"
+                      : "Not yet available in this company session"}
                 </div>
               ) : null}
             </div>

@@ -7,6 +7,7 @@ const prisma = new PrismaClient();
 (async () => {
   const moduleKey = (process.env.MODULE_KEY || "firm_alignment_v1").trim();
   const companyId = (process.env.COMPANY_ID || "").trim();
+  const awardBadges = (process.env.AWARD_BADGES || "").trim().toLowerCase() === "true";
 
   const mod = await prisma.surveyModule.findUnique({
     where: { key: moduleKey },
@@ -86,6 +87,46 @@ const prisma = new PrismaClient();
     }
   });
 
+  let awardedBadgeIds = [];
+
+  if (awardBadges) {
+    const badgeRules = await prisma.badgeRule.findMany({
+      where: { moduleId: mod.id, required: true },
+      select: { badgeId: true, minScore: true },
+    });
+
+    for (const badgeRule of badgeRules) {
+      const minScore = badgeRule.minScore ?? 0;
+      if (submission.score < minScore) {
+        continue;
+      }
+
+      const existingAward = await prisma.companyBadge.findFirst({
+        where: {
+          companyId: company.id,
+          productId: mod.scope === "PRODUCT" ? targetProductId : null,
+          badgeId: badgeRule.badgeId,
+          moduleId: mod.id,
+        },
+        select: { id: true },
+      });
+
+      if (!existingAward) {
+        await prisma.companyBadge.create({
+          data: {
+            id: randomUUID(),
+            companyId: company.id,
+            productId: mod.scope === "PRODUCT" ? targetProductId : null,
+            badgeId: badgeRule.badgeId,
+            moduleId: mod.id,
+          },
+        });
+      }
+
+      awardedBadgeIds.push(badgeRule.badgeId);
+    }
+  }
+
   console.log("TEST_SUBMISSION_OK", {
     ...submission,
     moduleKey: mod.key,
@@ -96,6 +137,8 @@ const prisma = new PrismaClient();
       slug: company.slug,
       type: company.type,
     },
+    awardBadges,
+    awardedBadgeIds,
     targetProductId: mod.scope === "PRODUCT" ? targetProductId : null,
   });
 })()

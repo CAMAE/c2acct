@@ -7,6 +7,17 @@ import {
 } from "@/lib/assessmentTarget";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
+const TIER1_BADGE_NAME = "Tier 1 Unlocked";
+const PRODUCT_BADGE_NAME = "Product GTM Unlocked";
+const PRODUCT_INSIGHT_KEYS = [
+  "product_positioning_clarity",
+  "product_workflow_fit_snapshot",
+  "product_integration_readiness",
+  "product_onboarding_friction_estimate",
+  "product_support_confidence_signal",
+  "product_gtm_readiness_summary",
+  "product_improvement_priorities",
+];
 
 export async function GET(req: Request) {
   const sessionUser = await getSessionUser();
@@ -33,8 +44,9 @@ export async function GET(req: Request) {
   const targetProductId = readContextResolution.context.productId;
 
   try {
+    const badgeName = targetProductId ? PRODUCT_BADGE_NAME : TIER1_BADGE_NAME;
     const badge = await prisma.badge.findFirst({
-      where: { name: "Tier 1 Unlocked" },
+      where: { name: badgeName },
       select: { id: true },
     });
 
@@ -47,8 +59,12 @@ export async function GET(req: Request) {
 
     if (!earned) return NextResponse.json({ ok: true, unlocked: [] }, { headers: NO_STORE_HEADERS });
 
+    const insightWhere = targetProductId
+      ? { key: { in: PRODUCT_INSIGHT_KEYS }, active: true }
+      : { tier: 1, active: true };
+
     const insights = await prisma.insight.findMany({
-      where: { tier: 1, active: true },
+      where: insightWhere,
       orderBy: { key: "asc" },
       select: { id: true, key: true, title: true, body: true, tier: true },
     });
