@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 import { PrismaClient, CompanyType, ProductKind } from "@prisma/client";
 import { randomUUID } from "crypto";
 

@@ -5,7 +5,8 @@ const { randomUUID } = require("crypto");
 const prisma = new PrismaClient();
 
 (async () => {
-  const moduleKey = process.env.MODULE_KEY || "firm_alignment_v1";
+  const moduleKey = (process.env.MODULE_KEY || "firm_alignment_v1").trim();
+  const companyId = (process.env.COMPANY_ID || "").trim();
 
   const mod = await prisma.surveyModule.findUnique({
     where: { key: moduleKey },
@@ -13,13 +14,17 @@ const prisma = new PrismaClient();
   });
   if (!mod) throw new Error(`Module not found for key=${moduleKey}`);
 
-  const companyId = process.env.COMPANY_ID || process.env.AAE_COMPANY_ID;
-  const company =
-    (companyId ? await prisma.company.findUnique({ where: { id: companyId } }) : null) ||
-    (await prisma.company.findFirst({ select: { id: true, name: true } }));
+  if (!companyId) {
+    throw new Error("COMPANY_ID is required.");
+  }
+
+  const company = await prisma.company.findUnique({
+    where: { id: companyId },
+    select: { id: true, name: true, slug: true, type: true },
+  });
 
   if (!company) {
-    throw new Error("No Company found. Create one first or set COMPANY_ID.");
+    throw new Error(`COMPANY_ID not found: ${companyId}`);
   }
 
   const targetProductIdRaw = process.env.TARGET_PRODUCT_ID;
@@ -59,6 +64,7 @@ const prisma = new PrismaClient();
       id: randomUUID(),
       moduleId: mod.id,
       companyId: company.id,
+      productId: mod.scope === "PRODUCT" ? targetProductId : null,
       version: mod.version ?? 1,
       answers,
       score: 50,
@@ -82,7 +88,14 @@ const prisma = new PrismaClient();
 
   console.log("TEST_SUBMISSION_OK", {
     ...submission,
+    moduleKey: mod.key,
     moduleScope: mod.scope,
+    company: {
+      id: company.id,
+      name: company.name,
+      slug: company.slug,
+      type: company.type,
+    },
     targetProductId: mod.scope === "PRODUCT" ? targetProductId : null,
   });
 })()

@@ -5,6 +5,9 @@ import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
+const FIRM_MODULE_KEY = "firm_alignment_v1";
+const PRODUCT_MODULE_KEY = "vendor_product_fit_v1";
+
 export default async function SurveyPage({
   searchParams,
 }: {
@@ -37,7 +40,7 @@ export default async function SurveyPage({
   const enableProductSelection = !contextError && contextJson?.enableProductSelection === true;
 
   if (!enableProductSelection) {
-    redirect("/survey/firm_alignment_v1");
+    redirect(`/survey/${FIRM_MODULE_KEY}`);
   }
 
   const products: Array<{ id: string; name: string }> = Array.isArray(contextJson?.products)
@@ -49,12 +52,12 @@ export default async function SurveyPage({
       <EnsureCompanySelected />
       <div className="mx-auto max-w-2xl">
         <h1 className="text-4xl font-semibold tracking-tight">Survey Context</h1>
-        <p className="mt-3 text-slate-700">Choose company-root or a product context before opening the survey.</p>
+        <p className="mt-3 text-slate-700">Choose a company-root or product-scoped survey entry point.</p>
 
         <div className="mt-6 rounded-xl border border-black/10 bg-white p-4 shadow-sm">
-          <form method="GET" action="/survey/firm_alignment_v1" className="flex flex-wrap items-center gap-3">
+          <form method="GET" action={`/survey/${FIRM_MODULE_KEY}`} className="flex flex-wrap items-center gap-3">
             <label htmlFor="productId" className="text-sm font-medium text-slate-800">
-              Context
+              Company Context
             </label>
             <select
               id="productId"
@@ -73,7 +76,39 @@ export default async function SurveyPage({
               type="submit"
               className="rounded-md border border-black/15 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-100"
             >
-              Open Survey
+              Open Company Survey
+            </button>
+          </form>
+
+          <form
+            method="GET"
+            action={`/survey/${PRODUCT_MODULE_KEY}`}
+            className="mt-4 flex flex-wrap items-center gap-3 border-t border-black/10 pt-4"
+          >
+            <label htmlFor="productScopeId" className="text-sm font-medium text-slate-800">
+              Product Context
+            </label>
+            <select
+              id="productScopeId"
+              name="productId"
+              defaultValue={productIdFilter ?? ""}
+              required
+              className="rounded-md border border-black/15 bg-white px-3 py-2 text-sm text-slate-800"
+            >
+              <option value="" disabled>
+                Select product
+              </option>
+              {products.map((product) => (
+                <option key={product.id} value={product.id}>
+                  {product.name}
+                </option>
+              ))}
+            </select>
+            <button
+              type="submit"
+              className="rounded-md border border-black/15 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-100"
+            >
+              Open Product Survey
             </button>
           </form>
         </div>
