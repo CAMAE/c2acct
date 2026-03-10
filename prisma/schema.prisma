@@ -359,6 +359,7 @@ model SurveyModule {
   key              String             @unique
   title            String
   description      String?
+  axis             ModuleAxis         @default(SELF)
   scope            ModuleScope
   version          Int                @default(1)
   weight           Float              @default(1.0)
@@ -462,6 +463,11 @@ enum ModuleScope {
   VENDOR
   PRODUCT
   ENTERPRISE
+}
+
+enum ModuleAxis {
+  SELF
+  EXTERNAL_REVIEW
 }
 
 enum QuestionInputType {
