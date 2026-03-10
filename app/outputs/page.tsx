@@ -38,11 +38,42 @@ type OutputCard = {
 const TIER1_BADGE_ID = "49d380c5-b1d0-493b-b9c3-f2391fa3430b";
 const TIER1_BADGE_NAME = "Tier 1 Unlocked";
 
-export default async function OutputsPage() {
+export default async function OutputsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ productId?: string | string[] | undefined }>;
+}) {
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const productIdParamRaw = resolvedSearchParams.productId;
+  const productIdParam = Array.isArray(productIdParamRaw)
+    ? productIdParamRaw[0]
+    : productIdParamRaw;
+  const requestedProductId = typeof productIdParam === "string" ? productIdParam.trim() : "";
+  const productIdFilter = requestedProductId.length > 0 ? requestedProductId : null;
+
   const apiBaseUrl = await getRequestOrigin();
   const loginRedirect = "/login?callbackUrl=%2Foutputs";
   const cookieHeader = (await cookies()).toString();
   const requestHeaders = cookieHeader ? { cookie: cookieHeader } : undefined;
+
+  const contextRes = await fetch(`${apiBaseUrl}/api/products/context`, {
+    cache: "no-store",
+    headers: requestHeaders,
+  });
+
+  if (contextRes.status === 401) {
+    redirect(loginRedirect);
+  }
+
+  const contextJson = await contextRes.json().catch(() => ({}));
+  const contextForbidden = contextRes.status === 403;
+  const contextError = !contextRes.ok && !contextForbidden;
+  const enableProductSelection = !contextError && contextJson?.enableProductSelection === true;
+  const products: Array<{ id: string; name: string }> = Array.isArray(contextJson?.products)
+    ? contextJson.products
+    : [];
+
+  const productQuery = productIdFilter ? `?productId=${encodeURIComponent(productIdFilter)}` : "";
 
   async function safeApiGet(path: string): Promise<ApiCallResult> {
     try {
@@ -62,9 +93,9 @@ export default async function OutputsPage() {
   }
 
   const [resultsCall, unlockedCall, earnedCall] = await Promise.all([
-    safeApiGet("/api/results"),
-    safeApiGet("/api/insights/unlocked"),
-    safeApiGet("/api/badges/earned"),
+    safeApiGet(`/api/results${productQuery}`),
+    safeApiGet(`/api/insights/unlocked${productQuery}`),
+    safeApiGet(`/api/badges/earned${productQuery}`),
   ]);
 
   if (resultsCall.status === 401 || unlockedCall.status === 401 || earnedCall.status === 401) {
@@ -224,6 +255,35 @@ export default async function OutputsPage() {
         <p className="mt-3 max-w-2xl text-slate-700">
           Unlocked intelligence and institutional insights for high-alignment firms.
         </p>
+
+        {enableProductSelection ? (
+          <div className="mt-6 rounded-xl border border-black/10 bg-white p-4 shadow-sm">
+            <form method="GET" className="flex flex-wrap items-center gap-3">
+              <label htmlFor="productId" className="text-sm font-medium text-slate-800">
+                Context
+              </label>
+              <select
+                id="productId"
+                name="productId"
+                defaultValue={productIdFilter ?? ""}
+                className="rounded-md border border-black/15 bg-white px-3 py-2 text-sm text-slate-800"
+              >
+                <option value="">Company-root outputs</option>
+                {products.map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {product.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="submit"
+                className="rounded-md border border-black/15 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-100"
+              >
+                Apply
+              </button>
+            </form>
+          </div>
+        ) : null}
       </div>
 
       {forbidden ? (
