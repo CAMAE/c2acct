@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 type Question = {
   id: string;
@@ -30,6 +30,12 @@ export default function Page() {
   const moduleKey = useMemo(() => (params?.key ? String(params.key) : ""), [params]);
 
   const [data, setData] = useState<ModulePayload | null>(null);
+  const searchParams = useSearchParams();
+  const requestedProductId = useMemo(() => {
+    const raw = searchParams?.get("productId") ?? "";
+    const normalized = raw.trim();
+    return normalized.length > 0 ? normalized : null;
+  }, [searchParams]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
@@ -80,7 +86,11 @@ export default function Page() {
 
       return changed ? next : prev;
     });
-  }, [data]);
+
+    if (requestedProductId && data.scope === "PRODUCT") {
+      setTargetProductId((prev) => (prev === requestedProductId ? prev : requestedProductId));
+    }
+  }, [data, requestedProductId]);
 
   function setAnswer(qid: string, value: any) {
     setAnswers((prev) => ({ ...prev, [qid]: value }));
@@ -140,7 +150,10 @@ export default function Page() {
       void body?.milestoneReached;
 
       setSubmitStatus("success");
-      router.push("/results");
+      const resultsPath = targetProductId
+        ? `/results?productId=${encodeURIComponent(targetProductId)}`
+        : "/results";
+      router.push(resultsPath);
     } catch (e: any) {
       setSubmitStatus("error");
       setSubmitError(e?.message ?? "Submit failed.");
