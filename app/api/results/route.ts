@@ -1,8 +1,8 @@
 ﻿import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
-import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
-import { resolveAssessmentReadContextFromSessionUser } from "@/lib/assessmentTarget";
+import { unauthorizedResponse } from "@/lib/authz";
+import { resolveAssessmentTargetFromSessionUserWithOptionalProduct } from "@/lib/assessmentTarget";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
@@ -12,14 +12,23 @@ export async function GET(req: Request) {
     return unauthorizedResponse();
   }
 
-  const assessmentContext = resolveAssessmentReadContextFromSessionUser(sessionUser);
-  if (!assessmentContext) {
-    return forbiddenResponse("No company assigned");
-  }
-  const companyId = assessmentContext.companyId;
   const requestUrl = new URL(req.url);
   const requestedProductId = requestUrl.searchParams.get("productId")?.trim() ?? "";
-  const productId = requestedProductId.length > 0 ? requestedProductId : null;
+
+  const readContextResolution = await resolveAssessmentTargetFromSessionUserWithOptionalProduct({
+    sessionUser,
+    requestedProductId,
+  });
+
+  if (!readContextResolution.ok) {
+    return NextResponse.json(
+      { ok: false, error: readContextResolution.error },
+      { status: readContextResolution.status, headers: NO_STORE_HEADERS }
+    );
+  }
+
+  const companyId = readContextResolution.context.companyId;
+  const productId = readContextResolution.context.productId;
 
   try {
     const result = await prisma.surveySubmission.findFirst({

@@ -4,10 +4,12 @@ import prisma from "@/lib/prisma";
 
 export type AssessmentAuthorityType = "COMPANY";
 
-export type AssessmentContext = {
-  authorityType: AssessmentAuthorityType;
+export type AssessmentTargetMode = "COMPANY" | "PRODUCT";
+
+export type AssessmentTargetContext = {
   companyId: string;
-  targetProductId: string | null;
+  productId: string | null;
+  mode: AssessmentTargetMode;
 };
 
 export type AssessmentSubmitResolutionInput = {
@@ -21,10 +23,18 @@ export type AssessmentReadResolutionInput = {
   requestedProductId?: string | null;
 };
 
+type AssessmentTargetResolutionInput = {
+  sessionUser: Pick<SessionUser, "companyId"> | null | undefined;
+  requestedProductId?: string | null;
+  requireProductId?: boolean;
+  missingProductIdError?: string;
+  invalidProductIdError?: string;
+};
+
 export type AssessmentSubmitResolutionResult =
   | {
       ok: true;
-      context: AssessmentContext;
+      context: AssessmentTargetContext;
     }
   | {
       ok: false;
@@ -35,7 +45,7 @@ export type AssessmentSubmitResolutionResult =
 export type AssessmentReadResolutionResult =
   | {
       ok: true;
-      context: AssessmentContext;
+      context: AssessmentTargetContext;
     }
   | {
       ok: false;
@@ -45,25 +55,28 @@ export type AssessmentReadResolutionResult =
 
 export function resolveAssessmentContextFromSessionUser(
   sessionUser: Pick<SessionUser, "companyId"> | null | undefined
-): AssessmentContext | null {
+): AssessmentTargetContext | null {
   const companyId = typeof sessionUser?.companyId === "string" ? sessionUser.companyId.trim() : "";
   if (!companyId) {
     return null;
   }
 
   return {
-    authorityType: "COMPANY",
     companyId,
-    targetProductId: null,
+    productId: null,
+    mode: "COMPANY",
   };
 }
 
 export const resolveAssessmentReadContextFromSessionUser = resolveAssessmentContextFromSessionUser;
 
-export async function resolveAssessmentReadContextFromSessionUserWithOptionalProduct({
+async function resolveAssessmentTargetContext({
   sessionUser,
   requestedProductId,
-}: AssessmentReadResolutionInput): Promise<AssessmentReadResolutionResult> {
+  requireProductId = false,
+  missingProductIdError = "productId is required",
+  invalidProductIdError = "Invalid productId",
+}: AssessmentTargetResolutionInput): Promise<AssessmentReadResolutionResult> {
   const baseContext = resolveAssessmentContextFromSessionUser(sessionUser);
   if (!baseContext) {
     return {
@@ -77,6 +90,14 @@ export async function resolveAssessmentReadContextFromSessionUserWithOptionalPro
     typeof requestedProductId === "string" ? requestedProductId.trim() : "";
 
   if (!normalizedProductId) {
+    if (requireProductId) {
+      return {
+        ok: false,
+        status: 400,
+        error: missingProductIdError,
+      };
+    }
+
     return {
       ok: true,
       context: baseContext,
@@ -92,7 +113,7 @@ export async function resolveAssessmentReadContextFromSessionUserWithOptionalPro
     return {
       ok: false,
       status: 400,
-      error: "Invalid productId",
+      error: invalidProductIdError,
     };
   }
 
@@ -107,10 +128,22 @@ export async function resolveAssessmentReadContextFromSessionUserWithOptionalPro
   return {
     ok: true,
     context: {
-      ...baseContext,
-      targetProductId: targetProduct.id,
+      companyId: baseContext.companyId,
+      productId: targetProduct.id,
+      mode: "PRODUCT",
     },
   };
+}
+
+export async function resolveAssessmentTargetFromSessionUserWithOptionalProduct({
+  sessionUser,
+  requestedProductId,
+}: AssessmentReadResolutionInput): Promise<AssessmentReadResolutionResult> {
+  return resolveAssessmentTargetContext({
+    sessionUser,
+    requestedProductId,
+    invalidProductIdError: "Invalid productId",
+  });
 }
 
 export async function resolveAssessmentSubmitContextFromSessionUser({
@@ -118,59 +151,37 @@ export async function resolveAssessmentSubmitContextFromSessionUser({
   moduleScope,
   targetProductId,
 }: AssessmentSubmitResolutionInput): Promise<AssessmentSubmitResolutionResult> {
-  const baseContext = resolveAssessmentContextFromSessionUser(sessionUser);
-  if (!baseContext) {
-    return {
-      ok: false,
-      status: 403,
-      error: "No company assigned",
-    };
-  }
-
   if (moduleScope !== "PRODUCT") {
-    return {
-      ok: true,
-      context: baseContext,
-    };
+    return resolveAssessmentTargetContext({ sessionUser });
   }
 
-  const normalizedTargetProductId =
-    typeof targetProductId === "string" ? targetProductId.trim() : "";
-
-  if (!normalizedTargetProductId) {
-    return {
-      ok: false,
-      status: 400,
-      error: "targetProductId is required for PRODUCT modules",
-    };
-  }
-
-  const targetProduct = await prisma.product.findUnique({
-    where: { id: normalizedTargetProductId },
-    select: { id: true, companyId: true },
+  return resolveAssessmentTargetContext({
+    sessionUser,
+    requestedProductId: targetProductId,
+    requireProductId: true,
+    missingProductIdError: "targetProductId is required for PRODUCT modules",
+    invalidProductIdError: "Invalid targetProductId",
   });
+}
 
-  if (!targetProduct) {
-    return {
-      ok: false,
-      status: 400,
-      error: "Invalid targetProductId",
-    };
-  }
+export const resolveAssessmentReadContextFromSessionUserWithOptionalProduct =
+  resolveAssessmentTargetFromSessionUserWithOptionalProduct;
 
-  if (targetProduct.companyId !== baseContext.companyId) {
-    return {
-      ok: false,
-      status: 403,
-      error: "Product does not belong to your company",
-    };
-  }
+export async function resolveAssessmentSubmitTargetFromSessionUser(
+  input: AssessmentSubmitResolutionInput
+): Promise<AssessmentSubmitResolutionResult> {
+  return resolveAssessmentSubmitContextFromSessionUser(input);
+}
 
+export function toAssessmentAuthorityType(_target: AssessmentTargetContext): AssessmentAuthorityType {
+  return "COMPANY";
+}
+
+export function toLegacyAssessmentContext(target: AssessmentTargetContext) {
   return {
-    ok: true,
-    context: {
-      ...baseContext,
-      targetProductId: targetProduct.id,
-    },
+    authorityType: toAssessmentAuthorityType(target),
+    companyId: target.companyId,
+    targetProductId: target.productId,
+    mode: target.mode,
   };
 }

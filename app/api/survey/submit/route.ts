@@ -8,7 +8,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
 import {
   resolveAssessmentContextFromSessionUser,
-  resolveAssessmentSubmitContextFromSessionUser,
+  resolveAssessmentSubmitTargetFromSessionUser,
 } from "@/lib/assessmentTarget";
 
 const SCORING_VERSION = 1;
@@ -142,7 +142,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Module not found" }, { status: 404, headers: NO_STORE_HEADERS });
   }
 
-  const submitAssessmentContext = await resolveAssessmentSubmitContextFromSessionUser({
+  const submitAssessmentContext = await resolveAssessmentSubmitTargetFromSessionUser({
     sessionUser,
     moduleScope: surveyModule.scope,
     targetProductId,
@@ -155,7 +155,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const persistedProductId = submitAssessmentContext.context.targetProductId;
+  const persistedProductId = submitAssessmentContext.context.productId;
 
   const questions = await prisma.surveyQuestion.findMany({
     where: { moduleId: surveyModule.id },

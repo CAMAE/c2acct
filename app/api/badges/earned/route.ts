@@ -1,10 +1,9 @@
 ﻿import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
-import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
+import { unauthorizedResponse } from "@/lib/authz";
 import {
-  resolveAssessmentReadContextFromSessionUser,
-  resolveAssessmentReadContextFromSessionUserWithOptionalProduct,
+  resolveAssessmentTargetFromSessionUserWithOptionalProduct,
 } from "@/lib/assessmentTarget";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
@@ -15,14 +14,10 @@ export async function GET(req: Request) {
     return unauthorizedResponse();
   }
 
-  const assessmentContext = resolveAssessmentReadContextFromSessionUser(sessionUser);
-  if (!assessmentContext) {
-    return forbiddenResponse("No company assigned");
-  }
   const requestUrl = new URL(req.url);
   const requestedProductId = requestUrl.searchParams.get("productId")?.trim() ?? "";
 
-  const readContextResolution = await resolveAssessmentReadContextFromSessionUserWithOptionalProduct({
+  const readContextResolution = await resolveAssessmentTargetFromSessionUserWithOptionalProduct({
     sessionUser,
     requestedProductId,
   });
@@ -35,7 +30,7 @@ export async function GET(req: Request) {
   }
 
   const companyId = readContextResolution.context.companyId;
-  const targetProductId = readContextResolution.context.targetProductId;
+  const targetProductId = readContextResolution.context.productId;
 
   try {
     const rows = await prisma.companyBadge.findMany({
