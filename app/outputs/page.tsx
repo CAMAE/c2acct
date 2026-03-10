@@ -35,6 +35,27 @@ type OutputCard = {
   insightKey?: string;
 };
 
+type ProductDimensionScores = {
+  positioningClarity: number | null;
+  workflowFit: number | null;
+  integrationReadiness: number | null;
+  supportConfidence: number | null;
+};
+
+const PRODUCT_DIMENSION_LABELS: Record<keyof ProductDimensionScores, string> = {
+  positioningClarity: "Positioning Clarity",
+  workflowFit: "Workflow Fit",
+  integrationReadiness: "Integration Readiness",
+  supportConfidence: "Support Confidence",
+};
+
+const PRODUCT_DIMENSION_BY_INSIGHT_KEY: Record<string, keyof ProductDimensionScores> = {
+  product_positioning_clarity: "positioningClarity",
+  product_workflow_fit_snapshot: "workflowFit",
+  product_integration_readiness: "integrationReadiness",
+  product_support_confidence_signal: "supportConfidence",
+};
+
 const TIER1_BADGE_ID = "49d380c5-b1d0-493b-b9c3-f2391fa3430b";
 const TIER1_BADGE_NAME = "Tier 1 Unlocked";
 const PRODUCT_BADGE_ID = "3a53d563-c4f9-45dc-9aa5-a8f8c018c006";
@@ -200,8 +221,17 @@ export default async function OutputsPage({
     safeApiGet(`/api/insights/unlocked${productQuery}`),
     safeApiGet(`/api/badges/earned${productQuery}`),
   ]);
+  const isProductContext = Boolean(productIdFilter);
+  const productDimensionsCall = isProductContext
+    ? await safeApiGet(`/api/outputs/product-dimensions${productQuery}`)
+    : null;
 
-  if (resultsCall.status === 401 || unlockedCall.status === 401 || earnedCall.status === 401) {
+  if (
+    resultsCall.status === 401 ||
+    unlockedCall.status === 401 ||
+    earnedCall.status === 401 ||
+    productDimensionsCall?.status === 401
+  ) {
     redirect(loginRedirect);
   }
 
@@ -210,13 +240,18 @@ export default async function OutputsPage({
   const earnedJson = earnedCall.body;
 
   const forbidden =
-    resultsCall.status === 403 || unlockedCall.status === 403 || earnedCall.status === 403;
+    resultsCall.status === 403 ||
+    unlockedCall.status === 403 ||
+    earnedCall.status === 403 ||
+    productDimensionsCall?.status === 403;
   const firstErrorStatus = !resultsCall.ok
     ? resultsCall.status
     : !unlockedCall.ok
       ? unlockedCall.status
       : !earnedCall.ok
         ? earnedCall.status
+        : productDimensionsCall && !productDimensionsCall.ok
+          ? productDimensionsCall.status
         : null;
   const apiError =
     !forbidden && firstErrorStatus !== null
@@ -227,6 +262,8 @@ export default async function OutputsPage({
             unlockedJson?.detail ??
             earnedJson?.error ??
             earnedJson?.detail ??
+            productDimensionsCall?.body?.error ??
+            productDimensionsCall?.body?.detail ??
             `HTTP ${firstErrorStatus}`
         )
       : null;
@@ -273,8 +310,25 @@ export default async function OutputsPage({
     }
   }
 
-  const isProductContext = Boolean(productIdFilter);
   const outputCards = isProductContext ? PRODUCT_OUTPUT_CARDS : FIRM_OUTPUT_CARDS;
+  const dimensionScores: ProductDimensionScores | null =
+    productDimensionsCall && productDimensionsCall.ok && productDimensionsCall.body?.dimensions
+      ? (productDimensionsCall.body.dimensions as ProductDimensionScores)
+      : null;
+
+  const dimensionEntries = Object.entries(PRODUCT_DIMENSION_LABELS).map(([key, label]) => {
+    const dimensionKey = key as keyof ProductDimensionScores;
+    const value = dimensionScores?.[dimensionKey] ?? null;
+    return { key: dimensionKey, label, value };
+  });
+
+  const scoredDimensionValues = dimensionEntries
+    .map((entry) => entry.value)
+    .filter((value): value is number => typeof value === "number");
+  const productDimensionAverage =
+    scoredDimensionValues.length > 0
+      ? Math.round(scoredDimensionValues.reduce((sum, value) => sum + value, 0) / scoredDimensionValues.length)
+      : null;
 
   function isCardUnlocked(card: OutputCard): boolean {
     const hasBadgeMeta = Boolean(card.badgeName?.trim()) || Boolean(card.badgeId?.trim());
@@ -396,6 +450,27 @@ export default async function OutputsPage({
         </div>
       </div>
 
+      {isProductContext ? (
+        <div className="mb-6 rounded-2xl border border-black/10 bg-white/85 p-4 text-sm text-slate-800 shadow-sm">
+          <div className="font-semibold text-slate-900">Product dimension scores (0-100)</div>
+          <div className="mt-1 text-xs text-slate-700">
+            {productDimensionAverage === null
+              ? "Awaiting product-scoped submission data"
+              : `Dimension average: ${productDimensionAverage}`}
+          </div>
+          <div className="mt-3 grid gap-2 md:grid-cols-2">
+            {dimensionEntries.map((entry) => (
+              <div key={entry.key} className="rounded-md border border-black/10 bg-white px-3 py-2">
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{entry.label}</div>
+                <div className="text-sm font-semibold text-slate-900">
+                  {entry.value === null ? "--" : `${entry.value}`}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       <div className="grid gap-4 md:grid-cols-2">
         {outputCards.map((x) => {
           const unlocked = isCardUnlocked(x);
@@ -407,6 +482,8 @@ export default async function OutputsPage({
           const showInsightContent = Boolean(unlocked && unlockedInsight);
           const cardHeading = showInsightContent ? unlockedInsight?.title : x.title;
           const cardBody = showInsightContent ? unlockedInsight?.body : x.desc;
+          const dimensionKey = x.insightKey ? PRODUCT_DIMENSION_BY_INSIGHT_KEY[x.insightKey] : undefined;
+          const cardScore = dimensionKey ? dimensionScores?.[dimensionKey] ?? null : null;
 
           return (
             <div
@@ -430,6 +507,11 @@ export default async function OutputsPage({
                 ) : null}
               </div>
               <div className="mt-2 whitespace-pre-line text-sm text-slate-700">{cardBody}</div>
+              {isProductContext && dimensionKey ? (
+                <div className="mt-3 rounded-md border border-black/10 bg-white px-3 py-2 text-xs text-slate-700">
+                  {PRODUCT_DIMENSION_LABELS[dimensionKey]} score: {cardScore === null ? "--" : `${cardScore}/100`}
+                </div>
+              ) : null}
               {isGated ? (
                 <div className="mt-4 text-xs text-slate-600">
                   {unlocked
