@@ -55,12 +55,32 @@ const BACKUP_FILE = process.env.USER_COMPANY_BACKUP_FILE || path.join("scripts",
     select: { id: true, email: true, companyId: true },
   });
 
+  const browserVerification = {
+    reason:
+      "Auth.js JWT may still hold the old companyId until browser session is refreshed.",
+    steps: [
+      "Sign out in the browser session used for local verification.",
+      "Sign back in with the same TEST_USER_EMAIL account.",
+      "If unauthorized still appears, clear auth cookies for localhost and sign in again.",
+      "Then open /survey, choose Product Context, and submit vendor_product_fit_v1.",
+      "Verify /results?productId=<id> and /outputs?productId=<id>.",
+    ],
+    expectedUrls: firstProduct
+      ? {
+          survey: `/survey/vendor_product_fit_v1?productId=${firstProduct.id}`,
+          results: `/results?productId=${firstProduct.id}`,
+          outputs: `/outputs?productId=${firstProduct.id}`,
+        }
+      : null,
+  };
+
   console.log(JSON.stringify({
     ok: true,
     backupFile: BACKUP_FILE,
     user: updated,
     vendorCompany: company,
     firstVendorProduct: firstProduct,
+    browserVerification,
   }, null, 2));
 })()
   .catch((e) => {

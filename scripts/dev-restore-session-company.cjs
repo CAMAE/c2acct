@@ -31,10 +31,20 @@ const BACKUP_FILE = process.env.USER_COMPANY_BACKUP_FILE || path.join("scripts",
     select: { id: true, email: true, companyId: true },
   });
 
+  const browserRefreshNote = {
+    reason:
+      "JWT/session claims can still carry prior companyId after direct DB restore.",
+    steps: [
+      "Sign out and sign back in before testing non-vendor routes.",
+      "If claim mismatch persists, clear localhost auth cookies and sign in again.",
+    ],
+  };
+
   console.log(JSON.stringify({
     ok: true,
     backupFile: BACKUP_FILE,
     restoredUser: updated,
+    browserRefreshNote,
   }, null, 2));
 })()
   .catch((e) => {
