@@ -141,6 +141,7 @@ model CompanyBadge {
   Badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
   Company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   Product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  UnlockEvidence UnlockEvidence[]
 
   @@unique([companyId, productId, badgeId, moduleId])
   @@index([badgeId])
@@ -429,6 +430,7 @@ model SurveySubmission {
   Company              Company      @relation(fields: [companyId], references: [id])
   Product              Product?     @relation(fields: [productId], references: [id])
   SurveyModule         SurveyModule @relation(fields: [moduleId], references: [id])
+  UnlockEvidence       UnlockEvidence[]
 
   @@index([companyId, moduleId, createdAt])
   @@index([companyId, productId, moduleId, createdAt])
@@ -476,10 +478,29 @@ model ExternalObservedSignalRollup {
   surveyModule       SurveyModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   subjectCompany     Company      @relation("ExternalObservedSignal_subjectCompany", fields: [subjectCompanyId], references: [id], onDelete: Cascade)
   subjectProduct     Product?     @relation(fields: [subjectProductId], references: [id], onDelete: Cascade)
+  UnlockEvidence     UnlockEvidence[]
 
   @@unique([moduleId, subjectCompanyId, subjectProductId, rollupVersion])
   @@index([subjectCompanyId, subjectProductId])
   @@index([moduleId, latestReviewAt])
+}
+
+model UnlockEvidence {
+  id                            String                   @id
+  companyBadgeId                String
+  sourceType                    UnlockEvidenceSourceType
+  surveySubmissionId            String?
+  externalObservedSignalRollupId String?
+  ruleKey                       String
+  detailsJson                   Json?
+  createdAt                     DateTime                 @default(now())
+  companyBadge                  CompanyBadge             @relation(fields: [companyBadgeId], references: [id], onDelete: Cascade)
+  surveySubmission              SurveySubmission?        @relation(fields: [surveySubmissionId], references: [id], onDelete: Cascade)
+  externalObservedSignalRollup  ExternalObservedSignalRollup? @relation(fields: [externalObservedSignalRollupId], references: [id], onDelete: Cascade)
+
+  @@index([companyBadgeId, createdAt])
+  @@index([surveySubmissionId])
+  @@index([externalObservedSignalRollupId])
 }
 
 model User {
@@ -529,6 +550,11 @@ enum ExternalReviewStatus {
   SUBMITTED
   FINALIZED
   REJECTED
+}
+
+enum UnlockEvidenceSourceType {
+  SELF_SUBMISSION
+  EXTERNAL_REVIEW_ROLLUP
 }
 
 enum QuestionInputType {

@@ -295,13 +295,30 @@ export async function POST(req: Request) {
       });
 
       if (!existingAward) {
-        await tx.companyBadge.create({
+        const createdAward = await tx.companyBadge.create({
           data: {
             id: randomUUID(),
             companyId: effectiveCompanyId,
             productId: persistedProductId,
             badgeId: badgeRule.badgeId,
             moduleId: surveyModule.id,
+          },
+          select: { id: true },
+        });
+
+        await tx.unlockEvidence.create({
+          data: {
+            id: randomUUID(),
+            companyBadgeId: createdAward.id,
+            sourceType: "SELF_SUBMISSION",
+            surveySubmissionId: createdSubmission.id,
+            ruleKey: "badge_rule_min_score",
+            detailsJson: {
+              moduleId: surveyModule.id,
+              badgeId: badgeRule.badgeId,
+              requiredMinScore: minScore,
+              achievedScore: createdSubmission.score,
+            },
           },
         });
       }
