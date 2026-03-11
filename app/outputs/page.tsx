@@ -4,6 +4,7 @@ import { getRequestOrigin } from "@/lib/request-origin";
 import { redirect } from "next/navigation";
 import { getExternalObservedAnnotation } from "@/lib/reviews/getExternalObservedAnnotation";
 import { getExternalObservedUnlockDiagnostics } from "@/lib/reviews/getExternalObservedUnlockDiagnostics";
+import { getExternalObservedUnlockCandidates } from "@/lib/reviews/getExternalObservedUnlockCandidates";
 
 export const dynamic = "force-dynamic";
 
@@ -331,6 +332,13 @@ export default async function OutputsPage({
           subjectProductId: productIdFilter,
         })
       : null;
+  const externalObservedUnlockCandidates =
+    isProductContext && subjectCompanyId
+      ? await getExternalObservedUnlockCandidates({
+          subjectCompanyId,
+          subjectProductId: productIdFilter,
+        })
+      : null;
   const dimensionScores: ProductDimensionScores | null =
     productDimensionsCall && productDimensionsCall.ok && productDimensionsCall.body?.dimensions
       ? (productDimensionsCall.body.dimensions as ProductDimensionScores)
@@ -355,6 +363,9 @@ export default async function OutputsPage({
         externalObservedUnlockDiagnostics.global.annotationEligible ||
         externalObservedUnlockDiagnostics.global.unlockAt60 ||
         externalObservedUnlockDiagnostics.global.unlockAt75)
+  );
+  const candidateByCardId = new Map(
+    (externalObservedUnlockCandidates?.candidates ?? []).map((candidate) => [candidate.cardId, candidate])
   );
 
   function isCardUnlocked(card: OutputCard): boolean {
@@ -548,6 +559,8 @@ export default async function OutputsPage({
           const cardBody = showInsightContent ? unlockedInsight?.body : x.desc;
           const dimensionKey = x.insightKey ? PRODUCT_DIMENSION_BY_INSIGHT_KEY[x.insightKey] : undefined;
           const cardScore = dimensionKey ? dimensionScores?.[dimensionKey] ?? null : null;
+          const observedCandidate =
+            isProductContext && x.insightKey ? candidateByCardId.get(x.insightKey) ?? null : null;
 
           return (
             <div
@@ -574,6 +587,14 @@ export default async function OutputsPage({
               {isProductContext && dimensionKey ? (
                 <div className="mt-3 rounded-md border border-black/10 bg-white px-3 py-2 text-xs text-slate-700">
                   {PRODUCT_DIMENSION_LABELS[dimensionKey]} score: {cardScore === null ? "--" : `${cardScore}/100`}
+                </div>
+              ) : null}
+              {isProductContext && observedCandidate ? (
+                <div className="mt-3 rounded-md border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-[11px] text-slate-600">
+                  <div>Observed candidate: {observedCandidate.wouldQualify ? "yes" : "no"}</div>
+                  <div>Basis: external observed score</div>
+                  <div>Threshold: {observedCandidate.thresholdUsed}</div>
+                  <div>Reason: {observedCandidate.reason}</div>
                 </div>
               ) : null}
               {isGated ? (
