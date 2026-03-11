@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { getRequestOrigin } from "@/lib/request-origin";
 import { redirect } from "next/navigation";
 import { getExternalObservedAnnotation } from "@/lib/reviews/getExternalObservedAnnotation";
+import { getExternalObservedUnlockDiagnostics } from "@/lib/reviews/getExternalObservedUnlockDiagnostics";
 
 export const dynamic = "force-dynamic";
 
@@ -323,6 +324,13 @@ export default async function OutputsPage({
         subjectProductId: productIdFilter,
       })
     : null;
+  const externalObservedUnlockDiagnostics =
+    isProductContext && subjectCompanyId
+      ? await getExternalObservedUnlockDiagnostics({
+          subjectCompanyId,
+          subjectProductId: productIdFilter,
+        })
+      : null;
   const dimensionScores: ProductDimensionScores | null =
     productDimensionsCall && productDimensionsCall.ok && productDimensionsCall.body?.dimensions
       ? (productDimensionsCall.body.dimensions as ProductDimensionScores)
@@ -341,6 +349,13 @@ export default async function OutputsPage({
     scoredDimensionValues.length > 0
       ? Math.round(scoredDimensionValues.reduce((sum, value) => sum + value, 0) / scoredDimensionValues.length)
       : null;
+  const hasExternalObservedUnlockDiagnostics = Boolean(
+    externalObservedUnlockDiagnostics &&
+      (externalObservedUnlockDiagnostics.global.featureFlagEnabled ||
+        externalObservedUnlockDiagnostics.global.annotationEligible ||
+        externalObservedUnlockDiagnostics.global.unlockAt60 ||
+        externalObservedUnlockDiagnostics.global.unlockAt75)
+  );
 
   function isCardUnlocked(card: OutputCard): boolean {
     const hasBadgeMeta = Boolean(card.badgeName?.trim()) || Boolean(card.badgeId?.trim());
@@ -498,6 +513,24 @@ export default async function OutputsPage({
           </div>
           <div className="mt-1 text-slate-700">
             Latest review: {externalObservedAnnotation.annotation.latestReviewAt ? new Date(externalObservedAnnotation.annotation.latestReviewAt).toLocaleString() : "--"}
+          </div>
+        </div>
+      ) : null}
+
+      {isProductContext && hasExternalObservedUnlockDiagnostics ? (
+        <div className="mb-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 p-4 text-sm text-slate-800 shadow-sm">
+          <div className="font-semibold text-slate-900">External observed unlock diagnostics</div>
+          <div className="mt-2 text-slate-700">
+            Feature flag enabled: {externalObservedUnlockDiagnostics?.global.featureFlagEnabled ? "yes" : "no"}
+          </div>
+          <div className="mt-1 text-slate-700">
+            Annotation eligible: {externalObservedUnlockDiagnostics?.global.annotationEligible ? "yes" : "no"}
+          </div>
+          <div className="mt-1 text-slate-700">
+            Unlock at 60 reason: {externalObservedUnlockDiagnostics?.global.unlockAt60?.reason ?? "--"}
+          </div>
+          <div className="mt-1 text-slate-700">
+            Unlock at 75 reason: {externalObservedUnlockDiagnostics?.global.unlockAt75?.reason ?? "--"}
           </div>
         </div>
       ) : null}
