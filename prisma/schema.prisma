@@ -125,6 +125,7 @@ model Company {
   ExternalProfileLink    ExternalProfileLink[]
   ExternalReviewsAuthored ExternalReviewSubmission[] @relation("ExternalReview_reviewerCompany")
   ExternalReviewsReceived ExternalReviewSubmission[] @relation("ExternalReview_subjectCompany")
+  ExternalObservedSignalRollup ExternalObservedSignalRollup[] @relation("ExternalObservedSignal_subjectCompany")
   Product                Product[]
   SurveySubmission       SurveySubmission[]
   User                   User[]
@@ -309,6 +310,7 @@ model Product {
   ChildProducts       Product[]             @relation("ProductHierarchy")
   ExternalProfileLink ExternalProfileLink[]
   ExternalReviewSubmission ExternalReviewSubmission[]
+  ExternalObservedSignalRollup ExternalObservedSignalRollup[]
   CompanyBadge        CompanyBadge[]
   SurveySubmission    SurveySubmission[]
 
@@ -374,6 +376,7 @@ model SurveyModule {
   SurveyQuestion   SurveyQuestion[]
   SurveySubmission SurveySubmission[]
   ExternalReviewSubmission ExternalReviewSubmission[]
+  ExternalObservedSignalRollup ExternalObservedSignalRollup[]
 }
 
 model SurveyQuestion {
@@ -455,6 +458,28 @@ model ExternalReviewSubmission {
   @@index([reviewerCompanyId, createdAt])
   @@index([subjectCompanyId, subjectProductId, moduleId, createdAt])
   @@index([moduleId, reviewStatus, createdAt])
+}
+
+model ExternalObservedSignalRollup {
+  id                 String       @id
+  moduleId           String
+  subjectCompanyId   String
+  subjectProductId   String?
+  reviewCount        Int
+  scoreAvg           Float?
+  weightedAvgAvg     Float?
+  signalIntegrityAvg Float?
+  latestReviewAt     DateTime?
+  rollupVersion      Int          @default(1)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  surveyModule       SurveyModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  subjectCompany     Company      @relation("ExternalObservedSignal_subjectCompany", fields: [subjectCompanyId], references: [id], onDelete: Cascade)
+  subjectProduct     Product?     @relation(fields: [subjectProductId], references: [id], onDelete: Cascade)
+
+  @@unique([moduleId, subjectCompanyId, subjectProductId, rollupVersion])
+  @@index([subjectCompanyId, subjectProductId])
+  @@index([moduleId, latestReviewAt])
 }
 
 model User {

@@ -6,6 +6,7 @@ import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
 import { resolveReviewTarget } from "@/lib/reviews/resolveReviewTarget";
+import { recomputeObservedSignalRollup } from "@/lib/reviews/recomputeObservedSignalRollup";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
@@ -149,6 +150,12 @@ export async function POST(req: Request) {
       subjectProductId: true,
       reviewStatus: true,
     },
+  });
+
+  await recomputeObservedSignalRollup({
+    moduleId: created.moduleId,
+    subjectCompanyId: created.subjectCompanyId,
+    subjectProductId: created.subjectProductId,
   });
 
   return NextResponse.json({ ok: true, submission: created }, { status: 201, headers: NO_STORE_HEADERS });
