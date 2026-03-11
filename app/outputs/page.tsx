@@ -2,6 +2,7 @@ import EnsureCompanySelected from "@/app/components/EnsureCompanySelected";
 import { cookies } from "next/headers";
 import { getRequestOrigin } from "@/lib/request-origin";
 import { redirect } from "next/navigation";
+import { getExternalObservedAnnotation } from "@/lib/reviews/getExternalObservedAnnotation";
 
 export const dynamic = "force-dynamic";
 
@@ -311,6 +312,17 @@ export default async function OutputsPage({
   }
 
   const outputCards = isProductContext ? PRODUCT_OUTPUT_CARDS : FIRM_OUTPUT_CARDS;
+  const subjectCompanyId =
+    typeof contextJson?.companyId === "string" && contextJson.companyId.trim()
+      ? contextJson.companyId.trim()
+      : null;
+  const externalObservedAnnotation = subjectCompanyId
+    ? await getExternalObservedAnnotation({
+        moduleKey: "product_workflow_fit_review_v1",
+        subjectCompanyId,
+        subjectProductId: productIdFilter,
+      })
+    : null;
   const dimensionScores: ProductDimensionScores | null =
     productDimensionsCall && productDimensionsCall.ok && productDimensionsCall.body?.dimensions
       ? (productDimensionsCall.body.dimensions as ProductDimensionScores)
@@ -467,6 +479,25 @@ export default async function OutputsPage({
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      ) : null}
+
+      {externalObservedAnnotation?.eligible && externalObservedAnnotation.annotation ? (
+        <div className="mb-6 rounded-2xl border border-black/10 bg-white/85 p-4 text-sm text-slate-800 shadow-sm">
+          <div className="font-semibold text-slate-900">Observed market signal</div>
+          <div className="mt-2 text-slate-700">Review count: {externalObservedAnnotation.annotation.reviewCount}</div>
+          <div className="mt-1 text-slate-700">
+            Score average: {externalObservedAnnotation.annotation.scoreAvg === null ? "--" : externalObservedAnnotation.annotation.scoreAvg.toFixed(2)}
+          </div>
+          <div className="mt-1 text-slate-700">
+            Weighted average: {externalObservedAnnotation.annotation.weightedAvgAvg === null ? "--" : externalObservedAnnotation.annotation.weightedAvgAvg.toFixed(2)}
+          </div>
+          <div className="mt-1 text-slate-700">
+            Signal integrity average: {externalObservedAnnotation.annotation.signalIntegrityAvg === null ? "--" : externalObservedAnnotation.annotation.signalIntegrityAvg.toFixed(2)}
+          </div>
+          <div className="mt-1 text-slate-700">
+            Latest review: {externalObservedAnnotation.annotation.latestReviewAt ? new Date(externalObservedAnnotation.annotation.latestReviewAt).toLocaleString() : "--"}
           </div>
         </div>
       ) : null}
