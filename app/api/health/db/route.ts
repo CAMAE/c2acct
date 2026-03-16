@@ -1,14 +1,30 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth/session";
-import { unauthorizedResponse } from "@/lib/authz";
+import { forbiddenResponse, isPlatformAdmin, unauthorizedResponse } from "@/lib/authz";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
-export async function GET() {
+function hasInternalHealthAccess(req: Request) {
+  const configuredKey = process.env.INTERNAL_HEALTHCHECK_KEY?.trim() ?? "";
+  if (!configuredKey) {
+    return false;
+  }
+
+  const presentedKey = req.headers.get("x-aae-internal-health-key")?.trim() ?? "";
+  return presentedKey.length > 0 && presentedKey === configuredKey;
+}
+
+export async function GET(req: Request) {
   const sessionUser = await getSessionUser();
-  if (!sessionUser) {
+  const internalAccess = hasInternalHealthAccess(req);
+
+  if (!sessionUser && !internalAccess) {
     return unauthorizedResponse();
+  }
+
+  if (!internalAccess && !isPlatformAdmin(sessionUser)) {
+    return forbiddenResponse("Platform admin or internal health access required");
   }
 
   try {

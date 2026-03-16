@@ -2,11 +2,13 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
 import { unauthorizedResponse } from "@/lib/authz";
-import { resolveAssessmentTargetFromSessionUserWithOptionalProduct } from "@/lib/assessmentTarget";
+import { resolvePreferredViewerCompanyId } from "@/lib/viewerScopePreference";
+import { PRODUCT_BASELINE_MODULE_KEY } from "@/lib/intelligence/runtimeConfig";
 import { computeVendorProductDimensionScores } from "@/lib/productOutputScoring";
+import { resolveVisibleSubject } from "@/lib/visibility";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
-const PRODUCT_MODULE_KEY = "vendor_product_fit_v1";
+const PRODUCT_MODULE_KEY = PRODUCT_BASELINE_MODULE_KEY;
 
 export async function GET(req: Request) {
   const sessionUser = await getSessionUser();
@@ -15,22 +17,26 @@ export async function GET(req: Request) {
   }
 
   const requestUrl = new URL(req.url);
+  const requestedCompanyId = requestUrl.searchParams.get("companyId")?.trim() ?? "";
   const requestedProductId = requestUrl.searchParams.get("productId")?.trim() ?? "";
-
-  const readContextResolution = await resolveAssessmentTargetFromSessionUserWithOptionalProduct({
+  const preferredCompanyId = await resolvePreferredViewerCompanyId(requestUrl.searchParams);
+  const visibleSubject = await resolveVisibleSubject({
     sessionUser,
+    preferredCompanyId,
+    requestedCompanyId,
     requestedProductId,
+    includeSponsoredProducts: true,
   });
 
-  if (!readContextResolution.ok) {
+  if (!visibleSubject.ok) {
     return NextResponse.json(
-      { ok: false, error: readContextResolution.error },
-      { status: readContextResolution.status, headers: NO_STORE_HEADERS }
+      { ok: false, error: visibleSubject.error },
+      { status: visibleSubject.status, headers: NO_STORE_HEADERS }
     );
   }
 
-  const companyId = readContextResolution.context.companyId;
-  const productId = readContextResolution.context.productId;
+  const companyId = visibleSubject.subject.company.id;
+  const productId = visibleSubject.subject.product?.id ?? null;
 
   if (!productId) {
     return NextResponse.json({ ok: true, dimensions: null, submissionId: null }, { headers: NO_STORE_HEADERS });

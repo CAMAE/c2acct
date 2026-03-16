@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import type { UserRole } from "@prisma/client";
+import type { PlatformRole, UserRole } from "@prisma/client";
 import authConfig from "@/auth.config";
 import prisma from "@/lib/prisma";
 
@@ -7,6 +7,7 @@ type DbUserClaims = {
   id: string;
   email: string;
   role: UserRole;
+  platformRole: PlatformRole;
   companyId: string | null;
 };
 
@@ -19,7 +20,7 @@ function normalizeEmail(email: string | null | undefined) {
 async function findUserByEmail(email: string): Promise<DbUserClaims | null> {
   return prisma.user.findFirst({
     where: { email: { equals: email, mode: "insensitive" } },
-    select: { id: true, email: true, role: true, companyId: true },
+    select: { id: true, email: true, role: true, platformRole: true, companyId: true },
   });
 }
 
@@ -44,6 +45,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.sub = userWithClaims.dbUser.id;
         token.email = userWithClaims.dbUser.email;
         token.role = userWithClaims.dbUser.role;
+        token.platformRole = userWithClaims.dbUser.platformRole;
         token.companyId = userWithClaims.dbUser.companyId;
         return token;
       }
@@ -57,6 +59,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       token.sub = dbUser.id;
       token.email = dbUser.email;
       token.role = dbUser.role;
+      token.platformRole = dbUser.platformRole;
       token.companyId = dbUser.companyId;
       return token;
     },
@@ -68,12 +71,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const sessionUser = session.user as typeof session.user & {
         id?: string;
         role?: UserRole;
+        platformRole?: PlatformRole;
         companyId?: string | null;
       };
 
       sessionUser.id = typeof token.sub === "string" ? token.sub : "";
       sessionUser.email = typeof token.email === "string" ? token.email : "";
       sessionUser.role = (token.role as UserRole | undefined) ?? "MEMBER";
+      sessionUser.platformRole = (token.platformRole as PlatformRole | undefined) ?? "NONE";
       sessionUser.companyId =
         typeof token.companyId === "string" ? token.companyId : null;
 

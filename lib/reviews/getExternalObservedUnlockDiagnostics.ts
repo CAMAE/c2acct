@@ -1,5 +1,7 @@
 import { evaluateExternalObservedUnlock, type EvaluateExternalObservedUnlockResult } from "@/lib/reviews/evaluateExternalObservedUnlock";
+import { PRODUCT_OBSERVED_SIGNAL_CARD_THRESHOLDS } from "@/lib/reviews/externalObservedCardRules";
 import { getExternalObservedAnnotation } from "@/lib/reviews/getExternalObservedAnnotation";
+import { PRODUCT_EXTERNAL_REVIEW_MODULE_KEY } from "@/lib/assessment-module-catalog";
 
 type GetExternalObservedUnlockDiagnosticsInput = {
   subjectCompanyId: string;
@@ -31,18 +33,7 @@ export type ExternalObservedUnlockDiagnosticsResult = {
   cardDiagnostics: Record<string, ExternalObservedCardDiagnostics>;
 };
 
-const OBSERVED_MODULE_KEY = "product_workflow_fit_review_v1";
-
-// Temporary product-card mapping for diagnostics; all cards share the same observed result in this batch.
-const PRODUCT_OUTPUT_CARD_IDS = [
-  "product_positioning_clarity",
-  "product_workflow_fit_snapshot",
-  "product_integration_readiness",
-  "product_onboarding_friction_estimate",
-  "product_support_confidence_signal",
-  "product_gtm_readiness_summary",
-  "product_improvement_priorities",
-] as const;
+const OBSERVED_MODULE_KEY = PRODUCT_EXTERNAL_REVIEW_MODULE_KEY;
 
 function normalizeRequired(value: unknown): string {
   if (typeof value !== "string") return "";
@@ -60,7 +51,7 @@ function buildCardDiagnostics(
   unlockAt75: EvaluateExternalObservedUnlockResult | null
 ): Record<string, ExternalObservedCardDiagnostics> {
   return Object.fromEntries(
-    PRODUCT_OUTPUT_CARD_IDS.map((cardId) => [
+    PRODUCT_OBSERVED_SIGNAL_CARD_THRESHOLDS.map(({ cardId }) => [
       cardId,
       {
         unlockAt60,

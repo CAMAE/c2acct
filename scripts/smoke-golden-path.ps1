@@ -5,8 +5,18 @@ $ErrorActionPreference="Stop"
 Set-Location C:\dev\AAE\c2acct
 $env:DATABASE_URL="postgresql://postgres:postgres@localhost:5433/c2acct?schema=public"
 
-node .\scripts\seed-firm-alignment.mjs | Out-Host
-node .\scripts\seed-demo-company.mjs   | Out-Host
+if (-not (Test-NetConnection -ComputerName localhost -Port 5433 -WarningAction SilentlyContinue).TcpTestSucceeded) {
+  throw "Postgres is not reachable at localhost:5433. Start the local database or update DATABASE_URL before running the demo smoke path."
+}
+
+if ([string]::IsNullOrWhiteSpace($env:SEED_OWNER_EMAIL)) {
+  Write-Host "WARN: SEED_OWNER_EMAIL is not set. The launch seed will use owner@demofirm.com, which is not confirmed signable for live demo login."
+} else {
+  Write-Host "LAUNCH_OWNER_EMAIL=$($env:SEED_OWNER_EMAIL)"
+}
+
+npm run seed:launch | Out-Host
+npm run verify:launch | Out-Host
 
 $companyId = (node .\scripts\_get-demo-company-id.mjs | Out-String).Trim()
 if ([string]::IsNullOrWhiteSpace($companyId)) { throw "Demo Company not found" }

@@ -2,8 +2,11 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
+import { resolvePreferredViewerCompanyId } from "@/lib/viewerScopePreference";
 import { resolveReviewTarget } from "@/lib/reviews/resolveReviewTarget";
 import { evaluateExternalObservedEligibility } from "@/lib/reviews/evaluateExternalObservedEligibility";
+import { assertViewerCanAccessCompany, assertViewerCanAccessProduct } from "@/lib/visibility";
+import { resolveViewerContext } from "@/lib/viewerContext";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
@@ -14,13 +17,12 @@ function isEnabled(value: string | undefined): boolean {
 
 export async function GET(req: Request) {
   const sessionUser = await getSessionUser();
-  const sessionCompanyId = typeof sessionUser?.companyId === "string" ? sessionUser.companyId.trim() : "";
-
-  if (!sessionUser || !sessionCompanyId) {
+  if (!sessionUser) {
     return unauthorizedResponse("No authenticated company context");
   }
 
   const requestUrl = new URL(req.url);
+  const preferredCompanyId = await resolvePreferredViewerCompanyId(requestUrl.searchParams);
   const moduleKey = requestUrl.searchParams.get("moduleKey")?.trim() ?? "";
   const moduleId = requestUrl.searchParams.get("moduleId")?.trim() ?? "";
   const subjectCompanyIdParam = requestUrl.searchParams.get("subjectCompanyId")?.trim() ?? "";
@@ -76,17 +78,58 @@ export async function GET(req: Request) {
     );
   }
 
-  const subjectCompanyId = subjectCompanyIdParam || sessionCompanyId;
-  if (subjectCompanyId !== sessionCompanyId) {
-    return forbiddenResponse("Cross-company observed reads are not allowed");
+  const viewerContext = await resolveViewerContext({
+    sessionUser,
+    preferredCompanyId,
+  });
+  const subjectCompanyId = subjectCompanyIdParam || viewerContext?.currentCompanyId || "";
+  if (!subjectCompanyId) {
+    return forbiddenResponse("No subject company available");
   }
 
   const subjectProductId = subjectProductIdParam || null;
 
+  const companyAccess = await assertViewerCanAccessCompany({
+    sessionUser,
+    preferredCompanyId,
+    targetCompanyId: subjectCompanyId,
+  });
+
+  if (!companyAccess.ok) {
+    if (companyAccess.status === 401) {
+      return unauthorizedResponse(companyAccess.error);
+    }
+
+    if (companyAccess.status === 403) {
+      return forbiddenResponse(companyAccess.error);
+    }
+
+    return NextResponse.json({ ok: false, error: companyAccess.error }, { status: companyAccess.status, headers: NO_STORE_HEADERS });
+  }
+
   if (subjectProductId) {
+    const productAccess = await assertViewerCanAccessProduct({
+      sessionUser,
+      preferredCompanyId,
+      targetProductId: subjectProductId,
+      includeSponsoredProducts: true,
+    });
+
+    if (!productAccess.ok) {
+      if (productAccess.status === 401) {
+        return unauthorizedResponse(productAccess.error);
+      }
+
+      if (productAccess.status === 403) {
+        return forbiddenResponse(productAccess.error);
+      }
+
+      return NextResponse.json({ ok: false, error: productAccess.error }, { status: productAccess.status, headers: NO_STORE_HEADERS });
+    }
+
     const subjectResolution = await resolveReviewTarget({
       subjectCompanyId,
-      subjectProductId,
+      subjectProductId: productAccess.entity.id,
     });
 
     if (!subjectResolution.ok) {

@@ -6,6 +6,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path $PSScriptRoot -Parent)
+$internalHealthKey = $env:INTERNAL_HEALTHCHECK_KEY
 
 # --- ensure dev server is healthy (probe ports) ---
 $ports = @(
@@ -16,7 +17,12 @@ $ports = @(
 $chosen = $null
 foreach ($p in $ports) {
   $u = "http://localhost:$p/api/health/db"
-  $code = (& curl.exe -s -o NUL -w "%{http_code}" $u) 2>$null
+  $args = @("-s", "-o", "NUL", "-w", "%{http_code}")
+  if ($internalHealthKey) {
+    $args += @("-H", "x-aae-internal-health-key: $internalHealthKey")
+  }
+  $args += $u
+  $code = (& curl.exe @args) 2>$null
   if ($code -eq "200") { $chosen = "http://localhost:$p"; break }
 }
 

@@ -1,11 +1,7 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth/session";
-import {
-  canAccessCompany,
-  forbiddenResponse,
-  hasCompany,
-  unauthorizedResponse,
-} from "@/lib/authz";
+import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
+import { resolveViewerContext, viewerCanAccessCompany } from "@/lib/viewerContext";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
@@ -15,16 +11,15 @@ export async function POST(req: Request) {
     return unauthorizedResponse();
   }
 
-  if (!hasCompany(sessionUser)) {
+  const viewerContext = await resolveViewerContext({ sessionUser });
+  if (!viewerContext?.defaultCompanyId) {
     return forbiddenResponse("No company assigned");
   }
 
   const { searchParams } = new URL(req.url);
 
-  // 1) Prefer query param (makes curl testing trivial)
   let companyId = (searchParams.get("companyId") ?? "").trim();
 
-  // 2) Otherwise try JSON body (read as text once, parse ourselves)
   if (!companyId) {
     const raw = await req.text().catch(() => "");
     if (raw) {
@@ -40,23 +35,23 @@ export async function POST(req: Request) {
     }
   }
 
-  // Keep UX stable: if no hint provided, default to session company.
   if (!companyId) {
-    companyId = sessionUser.companyId ?? "";
+    companyId = viewerContext.defaultCompanyId ?? "";
   }
 
-  if (!canAccessCompany(sessionUser, companyId)) {
+  if (!viewerCanAccessCompany(viewerContext, companyId)) {
     return forbiddenResponse();
   }
 
   const res = NextResponse.json({ ok: true, companyId });
   res.headers.set("Cache-Control", "no-store");
+  // The cookie tracks preferred viewer scope only; memberships still decide authority.
   res.cookies.set("aae_companyId", companyId, {
     path: "/",
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 24 * 30, // 30d
+    maxAge: 60 * 60 * 24 * 30,
   });
   return res;
 }

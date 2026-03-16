@@ -1,0 +1,8 @@
+Do a read-only audit of this repo. Do not edit files, do not install packages, and do not run destructive commands.
+
+Focus only on:
+1. unresolved Tier 1 launch blockers
+2. hardcoded/brittle launch risks
+3. the single highest-value next fix
+
+Return concise bullets with file references where helpful.

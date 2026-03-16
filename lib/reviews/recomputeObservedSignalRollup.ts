@@ -1,6 +1,11 @@
 import { randomUUID } from "crypto";
-import { ExternalReviewStatus } from "@prisma/client";
 import prisma from "@/lib/prisma";
+import {
+  clearExternalObservedCapabilityScores,
+  persistExternalObservedCapabilityScores,
+} from "@/lib/engine/persistCapabilityScores";
+import { buildTargetScopeKey } from "@/lib/targetScopeKey";
+import { buildTrustedExternalReviewWhere } from "@/lib/reviews/trustedExternalReview";
 
 export type RecomputeObservedSignalRollupInput = {
   moduleId: string;
@@ -9,7 +14,7 @@ export type RecomputeObservedSignalRollupInput = {
 };
 
 const ROLLUP_VERSION = 1;
-const INCLUDED_REVIEW_STATUSES: ExternalReviewStatus[] = ["SUBMITTED", "FINALIZED"];
+const EXTERNAL_REVIEW_SCORE_VERSION = 1;
 
 function averageOrNull(values: number[]): number | null {
   if (values.length === 0) {
@@ -37,15 +42,32 @@ export async function recomputeObservedSignalRollup(input: RecomputeObservedSign
     throw new Error("subjectCompanyId is required");
   }
 
-  const where = {
-    moduleId,
-    subjectCompanyId,
-    subjectProductId,
-    reviewStatus: { in: INCLUDED_REVIEW_STATUSES },
-  };
+  const targetScopeKey = buildTargetScopeKey({
+    companyId: subjectCompanyId,
+    productId: subjectProductId,
+  });
+
+  const moduleRecord = await prisma.surveyModule.findUnique({
+    where: { id: moduleId },
+    select: { id: true, key: true },
+  });
+
+  if (!moduleRecord) {
+    throw new Error("SurveyModule not found");
+  }
 
   const reviews = await prisma.externalReviewSubmission.findMany({
-    where,
+    where: {
+      ...buildTrustedExternalReviewWhere({
+        moduleId,
+        subjectCompanyId,
+        subjectProductId,
+        scoreVersion: EXTERNAL_REVIEW_SCORE_VERSION,
+      }),
+      score: { not: null },
+      weightedAvg: { not: null },
+      signalIntegrityScore: { not: null },
+    },
     select: {
       id: true,
       score: true,
@@ -57,14 +79,19 @@ export async function recomputeObservedSignalRollup(input: RecomputeObservedSign
   });
 
   if (reviews.length === 0) {
-    // Delete is the cleanest behavior here: no qualifying reviews means no observed signal to store.
     await prisma.externalObservedSignalRollup.deleteMany({
       where: {
+        targetScopeKey,
         moduleId,
-        subjectCompanyId,
-        subjectProductId,
         rollupVersion: ROLLUP_VERSION,
       },
+    });
+
+    await clearExternalObservedCapabilityScores({
+      companyId: subjectCompanyId,
+      productId: subjectProductId,
+      moduleId,
+      scoreVersion: EXTERNAL_REVIEW_SCORE_VERSION,
     });
 
     return {
@@ -85,17 +112,6 @@ export async function recomputeObservedSignalRollup(input: RecomputeObservedSign
     .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
 
   const latestReviewAt = reviews[0]?.createdAt ?? null;
-
-  const existing = await prisma.externalObservedSignalRollup.findFirst({
-    where: {
-      moduleId,
-      subjectCompanyId,
-      subjectProductId,
-      rollupVersion: ROLLUP_VERSION,
-    },
-    select: { id: true },
-  });
-
   const updateData = {
     reviewCount: reviews.length,
     scoreAvg: averageOrNull(scoreValues),
@@ -104,48 +120,52 @@ export async function recomputeObservedSignalRollup(input: RecomputeObservedSign
     latestReviewAt,
   };
 
-  const upserted = existing
-    ? await prisma.externalObservedSignalRollup.update({
-        where: { id: existing.id },
-        data: updateData,
-        select: {
-          id: true,
-          moduleId: true,
-          subjectCompanyId: true,
-          subjectProductId: true,
-          reviewCount: true,
-          scoreAvg: true,
-          weightedAvgAvg: true,
-          signalIntegrityAvg: true,
-          latestReviewAt: true,
-          rollupVersion: true,
-        },
-      })
-    : await prisma.externalObservedSignalRollup.create({
-        data: {
-          id: randomUUID(),
-          moduleId,
-          subjectCompanyId,
-          subjectProductId,
-          rollupVersion: ROLLUP_VERSION,
-          ...updateData,
-        },
-        select: {
-          id: true,
-          moduleId: true,
-          subjectCompanyId: true,
-          subjectProductId: true,
-          reviewCount: true,
-          scoreAvg: true,
-          weightedAvgAvg: true,
-          signalIntegrityAvg: true,
-          latestReviewAt: true,
-          rollupVersion: true,
-        },
-      });
+  const upserted = await prisma.externalObservedSignalRollup.upsert({
+    where: {
+      targetScopeKey_moduleId_rollupVersion: {
+        targetScopeKey,
+        moduleId,
+        rollupVersion: ROLLUP_VERSION,
+      },
+    },
+    update: updateData,
+    create: {
+      id: randomUUID(),
+      moduleId,
+      subjectCompanyId,
+      subjectProductId,
+      targetScopeKey,
+      rollupVersion: ROLLUP_VERSION,
+      ...updateData,
+    },
+    select: {
+      id: true,
+      moduleId: true,
+      subjectCompanyId: true,
+      subjectProductId: true,
+      reviewCount: true,
+      scoreAvg: true,
+      weightedAvgAvg: true,
+      signalIntegrityAvg: true,
+      latestReviewAt: true,
+      rollupVersion: true,
+    },
+  });
+
+  const capabilityPersistence = await persistExternalObservedCapabilityScores({
+    companyId: subjectCompanyId,
+    productId: subjectProductId,
+    moduleId,
+    moduleKey: moduleRecord.key,
+    scoreVersion: EXTERNAL_REVIEW_SCORE_VERSION,
+    externalObservedSignalRollupId: upserted.id,
+    scoreAvg: upserted.scoreAvg,
+    weightedAvgAvg: upserted.weightedAvgAvg,
+  });
 
   return {
     deleted: false,
     rollup: upserted,
+    capabilityPersistence,
   };
 }

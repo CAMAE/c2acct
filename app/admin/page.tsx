@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import type { CompanyType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
-import { isAdminRole } from "@/lib/authz";
+import { isPlatformAdmin } from "@/lib/authz";
 import { redirect } from "next/navigation";
 
 type SearchParams = Record<string, string | string[] | undefined>;
@@ -28,7 +28,7 @@ async function createCompany(formData: FormData) {
     redirect("/login?callbackUrl=%2Fadmin");
   }
 
-  if (!isAdminRole(actor.role)) {
+  if (!isPlatformAdmin(actor)) {
     redirect("/admin?error=forbidden_action");
   }
 
@@ -60,19 +60,12 @@ export default async function AdminPage({
     redirect("/login?callbackUrl=%2Fadmin");
   }
 
-  const isAdmin = isAdminRole(sessionUser.role);
+  const isAdmin = isPlatformAdmin(sessionUser);
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const actionError = getSingleParam(resolvedSearchParams?.error);
 
   if (!isAdmin) {
-    return (
-      <div style={{ padding: "40px" }}>
-        <h1>Admin Panel</h1>
-        <div style={{ marginTop: "16px", opacity: 0.8 }}>
-          Access denied. Admin or owner role required.
-        </div>
-      </div>
-    );
+    redirect("/");
   }
 
   const orgs: CompanyListItem[] = await prisma.company.findMany({

@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { TRUSTED_EXTERNAL_REVIEW_MIN_REVIEW_COUNT } from "@/lib/reviews/trustedExternalReview";
 
 export type ExternalObservedEligibilityReason =
   | "FEATURE_DISABLED"
@@ -31,7 +32,7 @@ export type EvaluateExternalObservedEligibilityResult = {
 };
 
 const ROLLUP_VERSION = 1;
-const DEFAULT_MIN_REVIEW_COUNT = 3;
+const DEFAULT_MIN_REVIEW_COUNT = TRUSTED_EXTERNAL_REVIEW_MIN_REVIEW_COUNT;
 
 function normalizeRequired(value: unknown): string {
   if (typeof value !== "string") {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 type DefaultCompanyResponse = {
+  ok?: boolean;
   alreadySelected?: boolean;
   companyId?: string | null;
 };

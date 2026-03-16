@@ -9,6 +9,13 @@ export type ProductDimensionScores = Record<ProductDimensionKey, number | null>;
 const SCALE_MIN = 1;
 const SCALE_MAX = 5;
 
+export const PRODUCT_DIMENSION_LABELS: Record<ProductDimensionKey, string> = {
+  positioningClarity: "Positioning Clarity",
+  workflowFit: "Workflow Fit",
+  integrationReadiness: "Integration Readiness",
+  supportConfidence: "Support Confidence",
+};
+
 const DIMENSION_TO_QUESTION_KEY: Record<ProductDimensionKey, string> = {
   positioningClarity: "product_fit_q1",
   workflowFit: "product_fit_q2",

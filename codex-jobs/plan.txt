@@ -1,0 +1,5 @@
+Create the next implementation step for AAE based on the latest audit priorities. Keep the current self-signal lane canonical. Do not widen SurveySubmission. Do not propose Tier 2 work yet. Return:
+1. objective
+2. files likely involved
+3. acceptance criteria
+4. rollback risk

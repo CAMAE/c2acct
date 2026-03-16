@@ -22,13 +22,56 @@ export default function RootLayout({
 
         <header className="sticky top-0 z-50 border-b border-white/10 bg-[#070A10]/70 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-            <Link href="/" className="text-sm tracking-[0.25em] text-white/90">
+            <Link
+              href="/"
+              title="Return to the AAE home screen and view the current demo destinations. This link does not change any engine state or session data."
+              className="text-sm tracking-[0.25em] text-white/90"
+            >
               AAE
             </Link>
-            <nav className="flex items-center gap-6 text-sm text-white/70">
-              <Link className="hover:text-white" href="/profiles">Profiles</Link>
-              <Link className="hover:text-white" href="/outputs">Top Seven Outputs</Link>
-              <Link className="hover:text-white" href="/survey">Alignment Survey</Link>
+            <nav className="flex flex-wrap items-center gap-5 text-sm text-white/70">
+              <Link
+                className="hover:text-white"
+                href="/profiles"
+                title="Open the Profiles page and view the staged firm profile surface. This page is still a placeholder and does not change the current demo path."
+              >
+                Profiles
+              </Link>
+              <Link
+                className="hover:text-white"
+                href="/survey"
+                title="Open the Assessment entry experience and choose the current company or product path. This is the main starting point for the protected demo flow."
+              >
+                Assessment
+              </Link>
+              <Link
+                className="hover:text-white"
+                href="/results"
+                title="Open the Results page and review the latest submission snapshot for the current session context. This page summarizes the current state without changing any stored data."
+              >
+                Results
+              </Link>
+              <Link
+                className="hover:text-white"
+                href="/outputs"
+                title="Open the Insights page and review unlocked intelligence for the current context. This is the primary destination after results in the current demo flow."
+              >
+                Insights
+              </Link>
+              <Link
+                className="hover:text-white"
+                href="/admin"
+                title="Open the Admin page and inspect the currently built administrative surface. This route is useful for internal review, not for the main customer demo path."
+              >
+                Admin
+              </Link>
+              <Link
+                className="hover:text-white"
+                href="/login"
+                title="Open the Login page and start an authenticated session. This route returns you to the protected flow after sign-in when a callback is present."
+              >
+                Login
+              </Link>
             </nav>
           </div>
         </header>
@@ -37,7 +80,7 @@ export default function RootLayout({
 
         <footer className="border-t border-white/10 py-10">
           <div className="mx-auto max-w-6xl px-6 text-xs text-white/50">
-            Â© {new Date().getFullYear()} AAE â€” Autonomous Alignment Infrastructure
+            &copy; {new Date().getFullYear()} AAE | Autonomous Alignment Infrastructure
           </div>
         </footer>
       </body>

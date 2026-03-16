@@ -3,9 +3,13 @@ dotenv.config({ path: ".env.local" });
 
 import {
   CompanyType,
+  SponsorLaunchMode,
+  SponsorProductAccessMode,
+  SponsorRelationshipStatus,
   ModuleAxis,
   ModuleScope,
   PrismaClient,
+  QuestionInputType,
   ProductKind,
 } from "@prisma/client";
 import { randomUUID } from "crypto";
@@ -20,6 +24,7 @@ const REVIEWER_COMPANY_SLUG = "demo-reviewer-co";
 const SUBJECT_COMPANY_SLUG = "demo-subject-vendor-co";
 const SUBJECT_PRODUCT_SLUG = "demo-subject-vendor-product";
 const REVIEW_MODULE_KEY = "product_workflow_fit_review_v1";
+const REVIEW_QUESTION_KEYS = ["workflow_fit_score", "integration_clarity_score"];
 
 async function ensureReviewerCompany() {
   const existing = await prisma.company.findFirst({
@@ -154,20 +159,113 @@ async function ensureExternalReviewModule() {
   });
 }
 
+async function ensureSponsorRelationship(vendorCompanyId, firmCompanyId) {
+  return prisma.sponsorRelationship.upsert({
+    where: {
+      vendorCompanyId_firmCompanyId: {
+        vendorCompanyId,
+        firmCompanyId,
+      },
+    },
+    update: {
+      status: SponsorRelationshipStatus.ACTIVE,
+      launchMode: SponsorLaunchMode.PRIVATE_LAUNCH,
+      productAccessMode: SponsorProductAccessMode.ALL_PRODUCTS,
+    },
+    create: {
+      id: randomUUID(),
+      vendorCompanyId,
+      firmCompanyId,
+      status: SponsorRelationshipStatus.ACTIVE,
+      launchMode: SponsorLaunchMode.PRIVATE_LAUNCH,
+      productAccessMode: SponsorProductAccessMode.ALL_PRODUCTS,
+    },
+    select: { id: true },
+  });
+}
+
+async function ensureExternalReviewQuestions(moduleId) {
+  const desired = [
+    {
+      key: REVIEW_QUESTION_KEYS[0],
+      prompt: "How well does the product fit the target workflow?",
+      order: 1,
+    },
+    {
+      key: REVIEW_QUESTION_KEYS[1],
+      prompt: "How clear are the product integrations?",
+      order: 2,
+    },
+  ];
+
+  const existing = await prisma.surveyQuestion.findMany({
+    where: { moduleId, key: { in: REVIEW_QUESTION_KEYS } },
+    select: { id: true, key: true },
+  });
+
+  const existingByKey = new Map(existing.map((question) => [question.key, question]));
+
+  for (const question of desired) {
+    const existingQuestion = existingByKey.get(question.key);
+    if (existingQuestion) {
+      await prisma.surveyQuestion.update({
+        where: { id: existingQuestion.id },
+        data: {
+          prompt: question.prompt,
+          inputType: QuestionInputType.SLIDER,
+          order: question.order,
+          required: true,
+          weight: 1,
+          updatedAt: new Date(),
+        },
+      });
+      continue;
+    }
+
+    await prisma.surveyQuestion.create({
+      data: {
+        id: randomUUID(),
+        moduleId,
+        key: question.key,
+        prompt: question.prompt,
+        inputType: QuestionInputType.SLIDER,
+        order: question.order,
+        required: true,
+        weight: 1,
+        updatedAt: new Date(),
+      },
+    });
+  }
+
+  return prisma.surveyQuestion.findMany({
+    where: { moduleId, key: { in: REVIEW_QUESTION_KEYS } },
+    select: { id: true, key: true },
+    orderBy: { order: "asc" },
+  });
+}
+
 async function main() {
   const reviewerCompany = await ensureReviewerCompany();
   const subjectCompany = await ensureSubjectCompany();
   const subjectProduct = await ensureSubjectProduct(subjectCompany.id);
+  await ensureSponsorRelationship(subjectCompany.id, reviewerCompany.id);
   const moduleRecord = await ensureExternalReviewModule();
+  const questions = await ensureExternalReviewQuestions(moduleRecord.id);
+
+  const workflowFitQuestion = questions.find((question) => question.key === REVIEW_QUESTION_KEYS[0]);
+  const integrationQuestion = questions.find((question) => question.key === REVIEW_QUESTION_KEYS[1]);
+
+  if (!workflowFitQuestion || !integrationQuestion) {
+    throw new Error("Failed to seed external review questions");
+  }
 
   const payload = {
     moduleKey: moduleRecord.key,
     subjectCompanyId: subjectCompany.id,
     subjectProductId: subjectProduct.id,
     answers: {
-      workflow_fit_score: 4,
-      integration_clarity_score: 3,
-      notes: "HTTP smoke test external review submission.",
+      [workflowFitQuestion.id]: 4,
+      [integrationQuestion.id]: 3,
     },
   };
 

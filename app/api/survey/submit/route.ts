@@ -6,10 +6,20 @@ import { evaluateSignalIntegrity } from "@/lib/signalIntegrity";
 import { randomUUID } from "crypto";
 import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
+import { persistSelfSubmissionCapabilityScores } from "@/lib/engine/persistCapabilityScores";
+import { createSelfSubmissionUnlockEvidence } from "@/lib/engine/persistUnlockEvidence";
+import { resolvePreferredViewerCompanyId } from "@/lib/viewerScopePreference";
+import {
+  getAssessmentModuleCatalogEntry,
+  isRuntimeSurveyAvailableModule,
+} from "@/lib/assessment-module-catalog";
 import {
   resolveAssessmentContextFromSessionUser,
   resolveAssessmentSubmitTargetFromSessionUser,
 } from "@/lib/assessmentTarget";
+import { buildTargetScopeKey } from "@/lib/targetScopeKey";
+import { isSupportedSurveyRuntimeInputType } from "@/lib/surveyRuntimeContract";
+import { applyViewerCompanyScopeToSessionUser, resolveViewerContext } from "@/lib/viewerContext";
 
 const SCORING_VERSION = 1;
 const SCORE_SCALE_MIN = 1;
@@ -24,7 +34,6 @@ type SubmitRateLimitState = {
 };
 
 declare global {
-  // eslint-disable-next-line no-var
   var __submitRateLimitStore: Map<string, SubmitRateLimitState> | undefined;
 }
 
@@ -75,7 +84,17 @@ export async function POST(req: Request) {
     return unauthorizedResponse();
   }
 
-  const readAssessmentContext = resolveAssessmentContextFromSessionUser(sessionUser);
+  const preferredCompanyId = await resolvePreferredViewerCompanyId();
+  const viewerContext = await resolveViewerContext({
+    sessionUser,
+    preferredCompanyId,
+  });
+  if (!viewerContext?.currentCompanyId) {
+    return forbiddenResponse("No company assigned");
+  }
+
+  const viewerScopedSessionUser = applyViewerCompanyScopeToSessionUser(sessionUser, viewerContext);
+  const readAssessmentContext = resolveAssessmentContextFromSessionUser(viewerScopedSessionUser);
   if (!readAssessmentContext) {
     return forbiddenResponse("No company assigned");
   }
@@ -101,7 +120,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Invalid payload" }, { status: 400, headers: NO_STORE_HEADERS });
   }
 
-  // Company authority is session-derived. Client-provided companyId is ignored if it matches;
+  // Company authority is viewer-scope-derived. Client-provided companyId is ignored if it matches;
   // mismatches are rejected to surface cross-tenant tampering attempts.
   const requestCompanyId = Object.prototype.hasOwnProperty.call(raw, "companyId")
     ? raw.companyId
@@ -132,10 +151,14 @@ export async function POST(req: Request) {
   }
 
   const { moduleKey, answers: rawAnswers, targetProductId = null } = parsed.data;
+  const moduleEntry = getAssessmentModuleCatalogEntry(moduleKey);
+  if (!moduleEntry || !isRuntimeSurveyAvailableModule(moduleEntry)) {
+    return NextResponse.json({ ok: false, error: "Module not found" }, { status: 404, headers: NO_STORE_HEADERS });
+  }
 
   const surveyModule = await prisma.surveyModule.findUnique({
     where: { key: moduleKey },
-    select: { id: true, version: true, active: true, scope: true },
+    select: { id: true, key: true, version: true, active: true, scope: true },
   });
 
   if (!surveyModule || !surveyModule.active) {
@@ -143,7 +166,7 @@ export async function POST(req: Request) {
   }
 
   const submitAssessmentContext = await resolveAssessmentSubmitTargetFromSessionUser({
-    sessionUser,
+    sessionUser: viewerScopedSessionUser,
     moduleScope: surveyModule.scope,
     targetProductId,
   });
@@ -156,16 +179,34 @@ export async function POST(req: Request) {
   }
 
   const persistedProductId = submitAssessmentContext.context.productId;
+  const targetScopeKey = buildTargetScopeKey({
+    companyId: effectiveCompanyId,
+    productId: persistedProductId,
+  });
 
   const questions = await prisma.surveyQuestion.findMany({
     where: { moduleId: surveyModule.id },
-    select: { id: true, required: true },
+    select: { id: true, required: true, inputType: true },
   });
 
   if (questions.length === 0) {
     return NextResponse.json(
       { ok: false, error: "Module has no questions" },
       { status: 400, headers: NO_STORE_HEADERS }
+    );
+  }
+
+  const unsupportedQuestions = questions.filter(
+    (question) => !isSupportedSurveyRuntimeInputType(question.inputType)
+  );
+  if (unsupportedQuestions.length > 0) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Module uses unsupported runtime question types",
+        unsupportedQuestionIds: unsupportedQuestions.map((question) => question.id),
+      },
+      { status: 409, headers: NO_STORE_HEADERS }
     );
   }
 
@@ -265,6 +306,19 @@ export async function POST(req: Request) {
       },
     });
 
+    await persistSelfSubmissionCapabilityScores({
+      tx,
+      surveySubmissionId: createdSubmission.id,
+      moduleId: surveyModule.id,
+      moduleKey: surveyModule.key,
+      companyId: effectiveCompanyId,
+      productId: persistedProductId,
+      answers,
+      scoreVersion: SCORING_VERSION,
+      scaleMin: scoring.scaleMin,
+      scaleMax: scoring.scaleMax,
+    });
+
     let reached = false;
     const badgeRules = await tx.badgeRule.findMany({
       where: { moduleId: surveyModule.id },
@@ -284,42 +338,44 @@ export async function POST(req: Request) {
         continue;
       }
 
-      const existingAward = await tx.companyBadge.findFirst({
-        where: {
-          companyId: effectiveCompanyId,
-          productId: persistedProductId,
-          badgeId: badgeRule.badgeId,
-          moduleId: surveyModule.id,
-        },
-        select: { id: true },
-      });
-
-      if (!existingAward) {
-        const createdAward = await tx.companyBadge.create({
-          data: {
+      const awardWrite = await tx.companyBadge.createMany({
+        data: [
+          {
             id: randomUUID(),
             companyId: effectiveCompanyId,
             productId: persistedProductId,
+            targetScopeKey,
             badgeId: badgeRule.badgeId,
             moduleId: surveyModule.id,
+          },
+        ],
+        skipDuplicates: true,
+      });
+
+      if (awardWrite.count > 0) {
+        const createdAward = await tx.companyBadge.findUnique({
+          where: {
+            targetScopeKey_badgeId_moduleId: {
+              targetScopeKey,
+              badgeId: badgeRule.badgeId,
+              moduleId: surveyModule.id,
+            },
           },
           select: { id: true },
         });
 
-        await tx.unlockEvidence.create({
-          data: {
-            id: randomUUID(),
-            companyBadgeId: createdAward.id,
-            sourceType: "SELF_SUBMISSION",
-            surveySubmissionId: createdSubmission.id,
-            ruleKey: "badge_rule_min_score",
-            detailsJson: {
-              moduleId: surveyModule.id,
-              badgeId: badgeRule.badgeId,
-              requiredMinScore: minScore,
-              achievedScore: createdSubmission.score,
-            },
-          },
+        if (!createdAward) {
+          throw new Error("CompanyBadge upsert lookup failed");
+        }
+
+        await createSelfSubmissionUnlockEvidence({
+          tx,
+          companyBadgeId: createdAward.id,
+          surveySubmissionId: createdSubmission.id,
+          moduleId: surveyModule.id,
+          badgeId: badgeRule.badgeId,
+          requiredMinScore: minScore,
+          achievedScore: createdSubmission.score,
         });
       }
 

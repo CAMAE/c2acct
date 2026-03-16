@@ -5,10 +5,26 @@ import type { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
+import { resolvePreferredViewerCompanyId } from "@/lib/viewerScopePreference";
 import { resolveReviewTarget } from "@/lib/reviews/resolveReviewTarget";
 import { recomputeObservedSignalRollup } from "@/lib/reviews/recomputeObservedSignalRollup";
+import { computeScore } from "@/lib/scoring";
+import { evaluateSignalIntegrity } from "@/lib/signalIntegrity";
+import {
+  buildExternalReviewDuplicateWhere,
+  computeNormalizedExternalReviewDimensions,
+  getTrustedExternalReviewStatusForAcceptedSubmission,
+} from "@/lib/reviews/trustedExternalReview";
+import {
+  assertViewerCanAccessCompany,
+  assertViewerCanAccessProduct,
+  resolveVisibilityContext,
+} from "@/lib/visibility";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
+const SCORING_VERSION = 1;
+const REVIEW_SCALE_MIN = 1;
+const REVIEW_SCALE_MAX = 5;
 
 const SubmitExternalReviewSchema = z
   .object({
@@ -39,12 +55,30 @@ function toNormalizedOptionalId(value: string | null | undefined): string | null
   return normalized.length > 0 ? normalized : null;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 export async function POST(req: Request) {
   const sessionUser = await getSessionUser();
-  const reviewerCompanyId = typeof sessionUser?.companyId === "string" ? sessionUser.companyId.trim() : "";
-
-  if (!sessionUser || !reviewerCompanyId) {
+  if (!sessionUser) {
     return unauthorizedResponse("No authenticated reviewer company context");
+  }
+
+  const preferredCompanyId = await resolvePreferredViewerCompanyId();
+  const visibilityContext = await resolveVisibilityContext({
+    sessionUser,
+    preferredCompanyId,
+  });
+  const reviewerCompanyId = visibilityContext?.currentCompany?.id ?? "";
+  const reviewerCompanyType = visibilityContext?.currentCompany?.type ?? null;
+
+  if (!reviewerCompanyId) {
+    return unauthorizedResponse("No authenticated reviewer company context");
+  }
+
+  if (reviewerCompanyType !== "FIRM") {
+    return forbiddenResponse("Only firm companies can submit external reviews");
   }
 
   let raw: unknown;
@@ -52,6 +86,10 @@ export async function POST(req: Request) {
     raw = await req.json();
   } catch {
     return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400, headers: NO_STORE_HEADERS });
+  }
+
+  if (!isRecord(raw)) {
+    return NextResponse.json({ ok: false, error: "Invalid payload" }, { status: 400, headers: NO_STORE_HEADERS });
   }
 
   const parsed = SubmitExternalReviewSchema.safeParse(raw);
@@ -80,14 +118,14 @@ export async function POST(req: Request) {
   const moduleByKeyPromise = moduleKey
     ? prisma.surveyModule.findUnique({
         where: { key: moduleKey },
-        select: { id: true, key: true, axis: true, active: true },
+        select: { id: true, key: true, axis: true, active: true, scope: true },
       })
     : Promise.resolve(null);
 
   const moduleByIdPromise = moduleId
     ? prisma.surveyModule.findUnique({
         where: { id: moduleId },
-        select: { id: true, key: true, axis: true, active: true },
+        select: { id: true, key: true, axis: true, active: true, scope: true },
       })
     : Promise.resolve(null);
 
@@ -120,6 +158,56 @@ export async function POST(req: Request) {
     );
   }
 
+  if (moduleRecord.scope === "PRODUCT" && !normalizedSubjectProductId) {
+    return NextResponse.json(
+      { ok: false, error: "subjectProductId is required for PRODUCT review modules" },
+      { status: 400, headers: NO_STORE_HEADERS }
+    );
+  }
+
+  const companyAccess = await assertViewerCanAccessCompany({
+    sessionUser,
+    preferredCompanyId,
+    targetCompanyId: subjectCompanyId,
+  });
+
+  if (!companyAccess.ok) {
+    if (companyAccess.status === 401) {
+      return unauthorizedResponse(companyAccess.error);
+    }
+
+    if (companyAccess.status === 403) {
+      return forbiddenResponse(companyAccess.error);
+    }
+
+    return NextResponse.json({ ok: false, error: companyAccess.error }, { status: companyAccess.status, headers: NO_STORE_HEADERS });
+  }
+
+  if (companyAccess.entity.type !== "VENDOR") {
+    return forbiddenResponse("External reviews can only target vendor companies");
+  }
+
+  if (normalizedSubjectProductId) {
+    const productAccess = await assertViewerCanAccessProduct({
+      sessionUser,
+      preferredCompanyId,
+      targetProductId: normalizedSubjectProductId,
+      includeSponsoredProducts: true,
+    });
+
+    if (!productAccess.ok) {
+      if (productAccess.status === 401) {
+        return unauthorizedResponse(productAccess.error);
+      }
+
+      if (productAccess.status === 403) {
+        return forbiddenResponse(productAccess.error);
+      }
+
+      return NextResponse.json({ ok: false, error: productAccess.error }, { status: productAccess.status, headers: NO_STORE_HEADERS });
+    }
+  }
+
   const reviewTarget = await resolveReviewTarget({
     subjectCompanyId,
     subjectProductId: normalizedSubjectProductId,
@@ -132,24 +220,156 @@ export async function POST(req: Request) {
     );
   }
 
-  const created = await prisma.externalReviewSubmission.create({
-    data: {
-      id: randomUUID(),
-      moduleId: moduleRecord.id,
-      reviewerCompanyId,
-      subjectCompanyId: reviewTarget.target.subjectCompany.id,
-      subjectProductId: reviewTarget.target.subjectProduct?.id ?? null,
-      answers: answers as Prisma.InputJsonValue,
-      reviewStatus: "SUBMITTED",
-    },
-    select: {
-      id: true,
-      moduleId: true,
-      reviewerCompanyId: true,
-      subjectCompanyId: true,
-      subjectProductId: true,
-      reviewStatus: true,
-    },
+  if (reviewerCompanyId === reviewTarget.target.subjectCompany.id) {
+    return forbiddenResponse("Self-review is not allowed");
+  }
+
+  const questions = await prisma.surveyQuestion.findMany({
+    where: { moduleId: moduleRecord.id },
+    select: { id: true, key: true, required: true },
+  });
+
+  if (questions.length === 0) {
+    return NextResponse.json(
+      { ok: false, error: "Module has no questions" },
+      { status: 400, headers: NO_STORE_HEADERS }
+    );
+  }
+
+  const allowedQuestionIds = new Set(questions.map((question) => question.id));
+  const submittedQuestionIds = Object.keys(answers);
+  const unknownQuestionIds = submittedQuestionIds.filter((questionId) => !allowedQuestionIds.has(questionId));
+
+  if (unknownQuestionIds.length > 0) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Invalid payload",
+        detail: "answers include question ids not in module",
+        invalidQuestionIds: unknownQuestionIds,
+      },
+      { status: 400, headers: NO_STORE_HEADERS }
+    );
+  }
+
+  const missingRequiredQuestionIds = questions
+    .filter((question) => question.required)
+    .map((question) => question.id)
+    .filter((questionId) => !Object.hasOwn(answers, questionId));
+
+  if (missingRequiredQuestionIds.length > 0) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Invalid payload",
+        detail: "Missing required answers",
+        missingQuestionIds: missingRequiredQuestionIds,
+      },
+      { status: 400, headers: NO_STORE_HEADERS }
+    );
+  }
+
+  const normalizedAnswers: Record<string, number> = {};
+
+  for (const questionId of submittedQuestionIds) {
+    const rawValue = answers[questionId];
+
+    if (
+      typeof rawValue !== "number" ||
+      !Number.isFinite(rawValue) ||
+      !Number.isInteger(rawValue) ||
+      rawValue < REVIEW_SCALE_MIN ||
+      rawValue > REVIEW_SCALE_MAX
+    ) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Invalid payload",
+          detail: `Invalid answer value for question ${questionId}; expected integer ${REVIEW_SCALE_MIN}-${REVIEW_SCALE_MAX}`,
+        },
+        { status: 400, headers: NO_STORE_HEADERS }
+      );
+    }
+
+    normalizedAnswers[questionId] = rawValue;
+  }
+
+  const scoring = computeScore({
+    answers: normalizedAnswers,
+    scaleMin: REVIEW_SCALE_MIN,
+    scaleMax: REVIEW_SCALE_MAX,
+  });
+  const normalizedDimensions = computeNormalizedExternalReviewDimensions({
+    answers: normalizedAnswers,
+    questions,
+    scaleMin: REVIEW_SCALE_MIN,
+    scaleMax: REVIEW_SCALE_MAX,
+  });
+
+  const integrity = evaluateSignalIntegrity(normalizedAnswers, {
+    expectedQuestionCount: questions.length,
+    scaleMin: REVIEW_SCALE_MIN,
+    scaleMax: REVIEW_SCALE_MAX,
+  });
+
+  const created = await prisma.$transaction(async (tx) => {
+    const createdReview = await tx.externalReviewSubmission.create({
+      data: {
+        id: randomUUID(),
+        moduleId: moduleRecord.id,
+        reviewerCompanyId,
+        reviewerUserId: sessionUser.id,
+        subjectCompanyId: reviewTarget.target.subjectCompany.id,
+        subjectProductId: reviewTarget.target.subjectProduct?.id ?? null,
+        answers: normalizedAnswers as Prisma.InputJsonValue,
+        normalizedDimensions:
+          normalizedDimensions === null
+            ? undefined
+            : (normalizedDimensions as Prisma.InputJsonValue),
+        score: scoring.score,
+        weightedAvg: scoring.weightedAvg,
+        scoreVersion: SCORING_VERSION,
+        signalIntegrityScore: integrity.score,
+        integrityFlags: integrity.flags,
+        reviewStatus: getTrustedExternalReviewStatusForAcceptedSubmission(),
+      },
+      select: {
+        id: true,
+        moduleId: true,
+        reviewerCompanyId: true,
+        reviewerUserId: true,
+        subjectCompanyId: true,
+        subjectProductId: true,
+        normalizedDimensions: true,
+        score: true,
+        weightedAvg: true,
+        scoreVersion: true,
+        signalIntegrityScore: true,
+        integrityFlags: true,
+        reviewStatus: true,
+      },
+    });
+
+    await tx.externalReviewSubmission.updateMany({
+      where: {
+        ...buildExternalReviewDuplicateWhere({
+          reviewerCompanyId,
+          reviewerUserId: sessionUser.id,
+          subjectCompanyId: reviewTarget.target.subjectCompany.id,
+          subjectProductId: reviewTarget.target.subjectProduct?.id ?? null,
+          moduleId: moduleRecord.id,
+        }),
+        id: { not: createdReview.id },
+        reviewStatus: {
+          in: ["SUBMITTED", "FINALIZED"],
+        },
+      },
+      data: {
+        reviewStatus: "REJECTED",
+      },
+    });
+
+    return createdReview;
   });
 
   await recomputeObservedSignalRollup({

@@ -1,0 +1,39 @@
+import { cookies } from "next/headers";
+
+export type SearchParamsLike =
+  | URLSearchParams
+  | Record<string, string | string[] | undefined>
+  | undefined;
+
+function getQueryCompanyId(searchParams: SearchParamsLike): string | null {
+  if (!searchParams) return null;
+
+  if (searchParams instanceof URLSearchParams) {
+    const v = searchParams.get("companyId");
+    return v ? v : null;
+  }
+
+  const v = searchParams.companyId;
+  if (typeof v === "string") return v;
+  if (Array.isArray(v) && typeof v[0] === "string") return v[0];
+  return null;
+}
+
+function normalizeCompanyId(value: string | null | undefined): string | null {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
+// Query params and the selected-company cookie only hint the viewer's current scope.
+// They do not grant authority on their own.
+export async function resolvePreferredViewerCompanyId(searchParams?: SearchParamsLike) {
+  const fromQuery = normalizeCompanyId(getQueryCompanyId(searchParams));
+  if (fromQuery) return fromQuery;
+
+  const cookieStore = await cookies();
+  const fromCookie = normalizeCompanyId(cookieStore.get("aae_companyId")?.value);
+  if (fromCookie) return fromCookie;
+
+  return null;
+}

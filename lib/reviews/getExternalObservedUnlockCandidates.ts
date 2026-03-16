@@ -2,6 +2,7 @@ import {
   getExternalObservedUnlockDiagnostics,
   type ExternalObservedUnlockDiagnosticsResult,
 } from "@/lib/reviews/getExternalObservedUnlockDiagnostics";
+import { PRODUCT_OBSERVED_SIGNAL_CARD_THRESHOLDS } from "@/lib/reviews/externalObservedCardRules";
 
 type GetExternalObservedUnlockCandidatesInput = {
   subjectCompanyId: string;
@@ -29,16 +30,6 @@ export type ExternalObservedUnlockCandidatesResult = {
   candidates: ExternalObservedUnlockCandidate[];
 };
 
-const PRODUCT_OUTPUT_CARD_IDS = [
-  "product_positioning_clarity",
-  "product_workflow_fit_snapshot",
-  "product_integration_readiness",
-  "product_onboarding_friction_estimate",
-  "product_support_confidence_signal",
-  "product_gtm_readiness_summary",
-  "product_improvement_priorities",
-] as const;
-
 function normalizeRequired(value: unknown): string {
   if (typeof value !== "string") return "";
   return value.trim();
@@ -53,10 +44,7 @@ function normalizeOptional(value: unknown): string | null {
 function buildCandidates(
   diagnostics: ExternalObservedUnlockDiagnosticsResult
 ): ExternalObservedUnlockCandidate[] {
-  const splitIndex = Math.ceil(PRODUCT_OUTPUT_CARD_IDS.length / 2);
-
-  return PRODUCT_OUTPUT_CARD_IDS.map((cardId, index) => {
-    const thresholdUsed: 60 | 75 = index < splitIndex ? 60 : 75;
+  return PRODUCT_OBSERVED_SIGNAL_CARD_THRESHOLDS.map(({ cardId, thresholdUsed }) => {
     const unlockResult = thresholdUsed === 60 ? diagnostics.global.unlockAt60 : diagnostics.global.unlockAt75;
 
     return {

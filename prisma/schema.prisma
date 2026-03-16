@@ -126,15 +126,36 @@ model Company {
   ExternalReviewsAuthored ExternalReviewSubmission[] @relation("ExternalReview_reviewerCompany")
   ExternalReviewsReceived ExternalReviewSubmission[] @relation("ExternalReview_subjectCompany")
   ExternalObservedSignalRollup ExternalObservedSignalRollup[] @relation("ExternalObservedSignal_subjectCompany")
+  CompanyMembership      CompanyMembership[]
+  InviteCode             InviteCode[]
+  SponsoredFirmRelationships SponsorRelationship[] @relation("SponsorRelationship_vendorCompany")
+  SponsoredVendorRelationships SponsorRelationship[] @relation("SponsorRelationship_firmCompany")
   Product                Product[]
   SurveySubmission       SurveySubmission[]
   User                   User[]
+}
+
+model CompanyMembership {
+  id        String           @id
+  userId    String
+  companyId String
+  role      UserRole         @default(MEMBER)
+  status    MembershipStatus @default(ACTIVE)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  User      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Company   Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, companyId])
+  @@index([companyId, status])
+  @@index([userId, status])
 }
 
 model CompanyBadge {
   id        String   @id
   companyId String
   productId String?
+  targetScopeKey String
   badgeId   String
   moduleId  String
   awardedAt DateTime @default(now())
@@ -143,11 +164,12 @@ model CompanyBadge {
   Product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   UnlockEvidence UnlockEvidence[]
 
-  @@unique([companyId, productId, badgeId, moduleId])
+  @@unique([targetScopeKey, badgeId, moduleId])
   @@index([badgeId])
   @@index([companyId])
   @@index([companyId, productId, badgeId])
   @@index([companyId, productId, awardedAt])
+  @@index([targetScopeKey])
 }
 
 model CompanyBenchmark {
@@ -181,18 +203,33 @@ model CompanyBenchmarkCohort {
 }
 
 model CompanyCapabilityScore {
-  id             String         @id
-  companyId      String
-  nodeId         String
-  score          Float
-  scoreVersion   Int            @default(1)
-  computedAt     DateTime       @default(now())
-  Company        Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  CapabilityNode CapabilityNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  id                             String                   @id
+  companyId                      String
+  productId                      String?
+  targetScopeKey                 String
+  moduleId                       String
+  nodeId                         String
+  score                          Float
+  scoreVersion                   Int                      @default(1)
+  sourceType                     UnlockEvidenceSourceType
+  surveySubmissionId             String?
+  externalObservedSignalRollupId String?
+  computedAt                     DateTime                 @default(now())
+  Company                        Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  Product                        Product?                 @relation(fields: [productId], references: [id], onDelete: Cascade)
+  SurveyModule                   SurveyModule             @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  CapabilityNode                 CapabilityNode           @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  SurveySubmission               SurveySubmission?        @relation(fields: [surveySubmissionId], references: [id], onDelete: Cascade)
+  ExternalObservedSignalRollup   ExternalObservedSignalRollup? @relation(fields: [externalObservedSignalRollupId], references: [id], onDelete: Cascade)
 
-  @@unique([companyId, nodeId, scoreVersion])
+  @@unique([targetScopeKey, moduleId, nodeId, scoreVersion, sourceType])
   @@index([companyId])
+  @@index([companyId, productId])
+  @@index([moduleId])
   @@index([nodeId])
+  @@index([surveySubmissionId])
+  @@index([externalObservedSignalRollupId])
+  @@index([targetScopeKey])
 }
 
 model FirmMaturityIndex {
@@ -313,6 +350,7 @@ model Product {
   ExternalReviewSubmission ExternalReviewSubmission[]
   ExternalObservedSignalRollup ExternalObservedSignalRollup[]
   CompanyBadge        CompanyBadge[]
+  CompanyCapabilityScore CompanyCapabilityScore[]
   SurveySubmission    SurveySubmission[]
 
   @@unique([companyId, slug])
@@ -373,6 +411,7 @@ model SurveyModule {
   createdAt        DateTime           @default(now())
   updatedAt        DateTime
   BadgeRule        BadgeRule[]
+  CompanyCapabilityScore CompanyCapabilityScore[]
   ModuleCapability ModuleCapability[]
   SurveyQuestion   SurveyQuestion[]
   SurveySubmission SurveySubmission[]
@@ -428,6 +467,7 @@ model SurveySubmission {
   scaleMin             Int          @default(0)
   totalWeight          Float        @default(0)
   Company              Company      @relation(fields: [companyId], references: [id])
+  CompanyCapabilityScore CompanyCapabilityScore[]
   Product              Product?     @relation(fields: [productId], references: [id])
   SurveyModule         SurveyModule @relation(fields: [moduleId], references: [id])
   UnlockEvidence       UnlockEvidence[]
@@ -439,6 +479,7 @@ model SurveySubmission {
 model ExternalReviewSubmission {
   id                   String               @id
   reviewerCompanyId    String
+  reviewerUserId       String?
   subjectCompanyId     String
   subjectProductId     String?
   moduleId             String
@@ -453,11 +494,13 @@ model ExternalReviewSubmission {
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
   reviewerCompany      Company              @relation("ExternalReview_reviewerCompany", fields: [reviewerCompanyId], references: [id], onDelete: Cascade)
+  reviewerUser         User?                @relation("ExternalReview_reviewerUser", fields: [reviewerUserId], references: [id], onDelete: SetNull)
   subjectCompany       Company              @relation("ExternalReview_subjectCompany", fields: [subjectCompanyId], references: [id], onDelete: Cascade)
   subjectProduct       Product?             @relation(fields: [subjectProductId], references: [id], onDelete: Cascade)
   surveyModule         SurveyModule         @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
   @@index([reviewerCompanyId, createdAt])
+  @@index([reviewerUserId])
   @@index([subjectCompanyId, subjectProductId, moduleId, createdAt])
   @@index([moduleId, reviewStatus, createdAt])
 }
@@ -467,6 +510,7 @@ model ExternalObservedSignalRollup {
   moduleId           String
   subjectCompanyId   String
   subjectProductId   String?
+  targetScopeKey     String
   reviewCount        Int
   scoreAvg           Float?
   weightedAvgAvg     Float?
@@ -478,11 +522,53 @@ model ExternalObservedSignalRollup {
   surveyModule       SurveyModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   subjectCompany     Company      @relation("ExternalObservedSignal_subjectCompany", fields: [subjectCompanyId], references: [id], onDelete: Cascade)
   subjectProduct     Product?     @relation(fields: [subjectProductId], references: [id], onDelete: Cascade)
+  CompanyCapabilityScore CompanyCapabilityScore[]
   UnlockEvidence     UnlockEvidence[]
 
-  @@unique([moduleId, subjectCompanyId, subjectProductId, rollupVersion])
+  @@unique([targetScopeKey, moduleId, rollupVersion])
   @@index([subjectCompanyId, subjectProductId])
   @@index([moduleId, latestReviewAt])
+  @@index([targetScopeKey])
+}
+
+model SponsorRelationship {
+  id                String                    @id
+  vendorCompanyId   String
+  firmCompanyId     String
+  status            SponsorRelationshipStatus @default(ACTIVE)
+  launchMode        SponsorLaunchMode         @default(PRIVATE_LAUNCH)
+  productAccessMode SponsorProductAccessMode  @default(NONE)
+  createdByUserId   String?
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  vendorCompany     Company                   @relation("SponsorRelationship_vendorCompany", fields: [vendorCompanyId], references: [id], onDelete: Cascade)
+  firmCompany       Company                   @relation("SponsorRelationship_firmCompany", fields: [firmCompanyId], references: [id], onDelete: Cascade)
+  createdByUser     User?                     @relation("SponsorRelationship_createdByUser", fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  @@unique([vendorCompanyId, firmCompanyId])
+  @@index([vendorCompanyId, status])
+  @@index([firmCompanyId, status])
+  @@index([createdByUserId])
+}
+
+model InviteCode {
+  id                String                 @id
+  vendorCompanyId   String
+  codeHash          String                 @unique
+  status            InviteCodeStatus       @default(ACTIVE)
+  expiresAt         DateTime?
+  maxClaims         Int                    @default(1)
+  claimCount        Int                    @default(0)
+  launchMode        SponsorLaunchMode      @default(PRIVATE_LAUNCH)
+  productAccessMode SponsorProductAccessMode @default(ALL_PRODUCTS)
+  createdByUserId   String?
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  vendorCompany     Company                @relation(fields: [vendorCompanyId], references: [id], onDelete: Cascade)
+  createdByUser     User?                  @relation("InviteCode_createdByUser", fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  @@index([vendorCompanyId, status])
+  @@index([createdByUserId])
 }
 
 model UnlockEvidence {
@@ -508,10 +594,15 @@ model User {
   email     String   @unique
   name      String?
   role      UserRole @default(MEMBER)
+  platformRole PlatformRole @default(NONE)
   createdAt DateTime @default(now())
   updatedAt DateTime
   companyId String?
   Company   Company? @relation(fields: [companyId], references: [id])
+  CompanyMembership CompanyMembership[]
+  ExternalReviewSubmission ExternalReviewSubmission[] @relation("ExternalReview_reviewerUser")
+  SponsorRelationship SponsorRelationship[] @relation("SponsorRelationship_createdByUser")
+  InviteCode InviteCode[] @relation("InviteCode_createdByUser")
 
   @@index([companyId])
 }
@@ -572,6 +663,39 @@ enum ProductKind {
   MODULE
   POINT_SOLUTION
   SERVICE
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum PlatformRole {
+  NONE
+  PLATFORM_ADMIN
+  PLATFORM_OWNER
+}
+
+enum SponsorRelationshipStatus {
+  ACTIVE
+  PAUSED
+  REVOKED
+}
+
+enum SponsorLaunchMode {
+  PRIVATE_LAUNCH
+}
+
+enum SponsorProductAccessMode {
+  NONE
+  ALL_PRODUCTS
+}
+
+enum InviteCodeStatus {
+  ACTIVE
+  EXHAUSTED
+  EXPIRED
+  REVOKED
 }
 
 enum UserRole {

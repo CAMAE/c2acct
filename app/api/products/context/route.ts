@@ -1,30 +1,58 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
-import { resolveAssessmentContextFromSessionUser } from "@/lib/assessmentTarget";
+import { resolvePreferredViewerCompanyId } from "@/lib/viewerScopePreference";
+import { resolveVisibilityContext, listVisibleProducts } from "@/lib/visibility";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
-export async function GET() {
+function isEnabled(value: string | null | undefined): boolean {
+  if (!value) return false;
+  return /^(1|true|yes|on)$/i.test(value.trim());
+}
+
+export async function GET(req: Request) {
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
     return unauthorizedResponse();
   }
 
-  const assessmentContext = resolveAssessmentContextFromSessionUser(sessionUser);
-  if (!assessmentContext) {
-    return forbiddenResponse("No company assigned");
-  }
-
   try {
-    const company = await prisma.company.findUnique({
-      where: { id: assessmentContext.companyId },
-      select: { id: true, type: true },
+    const requestUrl = new URL(req.url);
+    const includeSponsoredProducts = isEnabled(requestUrl.searchParams.get("includeSponsored"));
+    const preferredCompanyId = await resolvePreferredViewerCompanyId(requestUrl.searchParams);
+    const visibilityContext = await resolveVisibilityContext({
+      sessionUser,
+      preferredCompanyId,
     });
 
-    if (!company) {
+    if (!visibilityContext?.currentCompany) {
       return forbiddenResponse("No company assigned");
+    }
+
+    const company = visibilityContext.currentCompany;
+    if (company.type === "FIRM" && includeSponsoredProducts) {
+      const products = await listVisibleProducts({
+        sessionUser,
+        preferredCompanyId,
+        includeSponsoredProducts: true,
+      });
+
+      return NextResponse.json(
+        {
+          ok: true,
+          companyId: company.id,
+          companyType: company.type,
+          enableProductSelection: products.length > 0,
+          products: products.map((product) => ({
+            id: product.id,
+            name: product.name,
+            companyId: product.companyId,
+            accessReason: product.accessReason,
+          })),
+        },
+        { headers: NO_STORE_HEADERS }
+      );
     }
 
     if (company.type !== "VENDOR") {
@@ -34,14 +62,25 @@ export async function GET() {
       );
     }
 
-    const products = await prisma.product.findMany({
-      where: { companyId: company.id },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true },
+    const products = await listVisibleProducts({
+      sessionUser,
+      preferredCompanyId,
+      includeSponsoredProducts: false,
     });
 
     return NextResponse.json(
-      { ok: true, companyId: company.id, companyType: company.type, enableProductSelection: true, products },
+      {
+        ok: true,
+        companyId: company.id,
+        companyType: company.type,
+        enableProductSelection: products.length > 0,
+        products: products.map((product) => ({
+          id: product.id,
+          name: product.name,
+          companyId: product.companyId,
+          accessReason: product.accessReason,
+        })),
+      },
       { headers: NO_STORE_HEADERS }
     );
   } catch {
