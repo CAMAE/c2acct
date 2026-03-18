@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, type SessionUser } from "@/lib/auth/session";
 import { isPlatformAdmin } from "@/lib/authz";
@@ -373,24 +374,46 @@ export async function getAdminExceptions(input?: { limit?: number; query?: strin
 
 export async function listAdminCompanies(input: { type: "FIRM" | "VENDOR"; query?: string | null }) {
   const query = normalizeQuery(input.query);
-  return prisma.company.findMany({
-    where: {
-      type: input.type,
-      ...(query ? { name: { contains: query, mode: "insensitive" } } : {}),
+  const pattern = query ? `%${query}%` : null;
+
+  const rows = await prisma.$queryRaw<
+    Array<{
+      id: string;
+      name: string;
+      membershipCount: number;
+      productCount: number;
+    }>
+  >(Prisma.sql`
+    SELECT
+      c."id",
+      c."name",
+      COALESCE(cm.membership_count, 0)::int AS "membershipCount",
+      COALESCE(p.product_count, 0)::int AS "productCount"
+    FROM "Company" c
+    LEFT JOIN (
+      SELECT "companyId", COUNT(*)::int AS membership_count
+      FROM "CompanyMembership"
+      GROUP BY "companyId"
+    ) cm ON cm."companyId" = c."id"
+    LEFT JOIN (
+      SELECT "companyId", COUNT(*)::int AS product_count
+      FROM "Product"
+      GROUP BY "companyId"
+    ) p ON p."companyId" = c."id"
+    WHERE c."type" = ${input.type}
+      ${pattern ? Prisma.sql`AND c."name" ILIKE ${pattern}` : Prisma.empty}
+    ORDER BY c."name" ASC
+    LIMIT 100
+  `);
+
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    _count: {
+      CompanyMembership: row.membershipCount,
+      Product: row.productCount,
     },
-    orderBy: { name: "asc" },
-    take: 100,
-      select: {
-        id: true,
-        name: true,
-        _count: {
-          select: {
-            CompanyMembership: true,
-            Product: true,
-          },
-        },
-      },
-  });
+  }));
 }
 
 export async function listAdminProducts(query?: string | null) {
