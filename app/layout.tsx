@@ -11,6 +11,31 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const primaryNav = [
+    ["Firm", "/firm"],
+    ["Vendor", "/vendor"],
+    ["User", "/user"],
+    ["Products", "/products"],
+    ["Assessment", "/survey"],
+    ["Reviews", "/reviews"],
+    ["Insights", "/outputs"],
+    ["Badges", "/badges"],
+    ["Executive Brief", "/briefs/executive"],
+  ] as const;
+
+  const secondaryNav = [
+    ["Firm insights", "/firm/insights"],
+    ["Vendor insights", "/vendor/insights"],
+    ["User insights", "/user/insights"],
+    ["Firm modules", "/firm/modules"],
+    ["Vendor modules", "/vendor/modules"],
+    ["User modules", "/user/modules"],
+    ["Learning", "/user/learning"],
+    ["Profiles", "/profiles"],
+    ["Admin", "/admin"],
+    ["Login", "/login"],
+  ] as const;
+
   return (
     <html lang="en">
       <body className="min-h-screen bg-[#070A10] text-white antialiased">
@@ -21,7 +46,8 @@ export default function RootLayout({
         </div>
 
         <header className="sticky top-0 z-50 border-b border-white/10 bg-[#070A10]/70 backdrop-blur">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          <div className="mx-auto grid max-w-6xl gap-3 px-6 py-4">
+            <div className="flex items-center justify-between gap-6">
             <Link
               href="/"
               title="Return to the AAE home screen and view the current demo destinations. This link does not change any engine state or session data."
@@ -29,49 +55,21 @@ export default function RootLayout({
             >
               AAE
             </Link>
-            <nav className="flex flex-wrap items-center gap-5 text-sm text-white/70">
-              <Link
-                className="hover:text-white"
-                href="/profiles"
-                title="Open the Profiles page and view the staged firm profile surface. This page is still a placeholder and does not change the current demo path."
-              >
-                Profiles
-              </Link>
-              <Link
-                className="hover:text-white"
-                href="/survey"
-                title="Open the Assessment entry experience and choose the current company or product path. This is the main starting point for the protected demo flow."
-              >
-                Assessment
-              </Link>
-              <Link
-                className="hover:text-white"
-                href="/results"
-                title="Open the Results page and review the latest submission snapshot for the current session context. This page summarizes the current state without changing any stored data."
-              >
-                Results
-              </Link>
-              <Link
-                className="hover:text-white"
-                href="/outputs"
-                title="Open the Insights page and review unlocked intelligence for the current context. This is the primary destination after results in the current demo flow."
-              >
-                Insights
-              </Link>
-              <Link
-                className="hover:text-white"
-                href="/admin"
-                title="Open the Admin page and inspect the currently built administrative surface. This route is useful for internal review, not for the main customer demo path."
-              >
-                Admin
-              </Link>
-              <Link
-                className="hover:text-white"
-                href="/login"
-                title="Open the Login page and start an authenticated session. This route returns you to the protected flow after sign-in when a callback is present."
-              >
-                Login
-              </Link>
+              <div className="text-xs uppercase tracking-[0.18em] text-white/35">Core surfaces</div>
+            </div>
+            <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/70">
+              {primaryNav.map(([label, href]) => (
+                <Link key={href} className="hover:text-white" href={href}>
+                  {label}
+                </Link>
+              ))}
+            </nav>
+            <nav className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs uppercase tracking-[0.16em] text-white/45">
+              {secondaryNav.map(([label, href]) => (
+                <Link key={href} className="hover:text-white" href={href}>
+                  {label}
+                </Link>
+              ))}
             </nav>
           </div>
         </header>

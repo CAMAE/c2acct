@@ -36,6 +36,18 @@ function main() {
   if (!outputRegistry.includes('id: "observed_market_signal_summary"') || !outputRegistry.includes('id: "observed_market_confidence"')) {
     fail("Observed market signal cards are missing from the canonical registry");
   }
+  if (outputRegistry.includes('insightKey: "product_gtm_readiness_summary"') && outputRegistry.includes('badge: {')) {
+    fail("Product GTM summary must not rely on shared badge-only gating");
+  }
+  if (outputRegistry.includes('insightKey: "product_improvement_priorities"') && outputRegistry.includes('badge: {')) {
+    fail("Product improvement priorities must not rely on shared badge-only gating");
+  }
+  if (!outputRegistry.includes('id: "institutional_profile"') || !outputRegistry.includes('id: "automation_readiness"') || !outputRegistry.includes('id: "executive_brief"')) {
+    fail("Firm registry summary cards are missing");
+  }
+  if (outputRegistry.includes('id: "institutional_profile"') && outputRegistry.includes('kind: "BADGE_ONLY"')) {
+    fail("Firm institutional profile must not release from a coarse badge-only gate");
+  }
 
   for (const relativePath of [
     "lib/intelligence/outputRegistry.ts",

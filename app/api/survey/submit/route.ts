@@ -20,6 +20,8 @@ import {
 import { buildTargetScopeKey } from "@/lib/targetScopeKey";
 import { isSupportedSurveyRuntimeInputType } from "@/lib/surveyRuntimeContract";
 import { applyViewerCompanyScopeToSessionUser, resolveViewerContext } from "@/lib/viewerContext";
+import { recordAuditEvent, toAuditDetailValue } from "@/lib/ops/auditEvents";
+import { consumeDbRateLimit, getRequestClientIp } from "@/lib/ops/rateLimit";
 
 const SCORING_VERSION = 1;
 const SCORE_SCALE_MIN = 1;
@@ -27,18 +29,6 @@ const SCORE_SCALE_MAX = 5;
 const SUBMIT_WINDOW_MS = 60_000;
 const SUBMIT_MAX_REQUESTS_PER_WINDOW = 20;
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
-
-type SubmitRateLimitState = {
-  count: number;
-  resetAt: number;
-};
-
-declare global {
-  var __submitRateLimitStore: Map<string, SubmitRateLimitState> | undefined;
-}
-
-const submitRateLimitStore = globalThis.__submitRateLimitStore ?? new Map<string, SubmitRateLimitState>();
-globalThis.__submitRateLimitStore = submitRateLimitStore;
 
 const SubmitSchema = z
   .object({
@@ -50,32 +40,6 @@ const SubmitSchema = z
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function consumeSubmitQuota(key: string, now = Date.now()): boolean {
-  // Opportunistic cleanup to prevent unbounded growth in long-lived dev processes.
-  for (const [entryKey, state] of submitRateLimitStore.entries()) {
-    if (state.resetAt <= now) {
-      submitRateLimitStore.delete(entryKey);
-    }
-  }
-
-  const current = submitRateLimitStore.get(key);
-  if (!current || current.resetAt <= now) {
-    submitRateLimitStore.set(key, {
-      count: 1,
-      resetAt: now + SUBMIT_WINDOW_MS,
-    });
-    return true;
-  }
-
-  if (current.count >= SUBMIT_MAX_REQUESTS_PER_WINDOW) {
-    return false;
-  }
-
-  current.count += 1;
-  submitRateLimitStore.set(key, current);
-  return true;
 }
 
 export async function POST(req: Request) {
@@ -100,11 +64,40 @@ export async function POST(req: Request) {
   }
   const effectiveCompanyId = readAssessmentContext.companyId;
 
-  const submitRateLimitKey = `${sessionUser.id}:${effectiveCompanyId}`;
-  if (!consumeSubmitQuota(submitRateLimitKey)) {
+  const clientIp = getRequestClientIp(req);
+  const submitRateLimitKey = `survey-submit:${sessionUser.id}:${effectiveCompanyId}:${clientIp}`;
+  const quota = await consumeDbRateLimit({
+    bucketKey: submitRateLimitKey,
+    limit: SUBMIT_MAX_REQUESTS_PER_WINDOW,
+    windowMs: SUBMIT_WINDOW_MS,
+  });
+  if (!quota.allowed) {
+    await recordAuditEvent({
+      eventKey: "survey.submit.rate_limited",
+      eventCategory: "RATE_LIMIT",
+      outcome: "BLOCKED",
+      severity: "WARN",
+      actorUserId: sessionUser.id,
+      actorCompanyId: effectiveCompanyId,
+      subjectCompanyId: effectiveCompanyId,
+      requestPath: "/api/survey/submit",
+      requestMethod: "POST",
+      details: toAuditDetailValue({
+        clientIp,
+        requestCount: quota.requestCount,
+        retryAfterSeconds: quota.retryAfterSeconds,
+        windowMs: SUBMIT_WINDOW_MS,
+      }),
+    });
     return NextResponse.json(
-      { ok: false, error: "Too many requests" },
-      { status: 429, headers: NO_STORE_HEADERS }
+      { ok: false, error: "Too many requests", retryAfterSeconds: quota.retryAfterSeconds },
+      {
+        status: 429,
+        headers: {
+          ...NO_STORE_HEADERS,
+          "Retry-After": String(quota.retryAfterSeconds),
+        },
+      }
     );
   }
 
@@ -385,8 +378,24 @@ export async function POST(req: Request) {
     return { submission: createdSubmission, milestoneReached: reached };
   });
 
-  return NextResponse.json(
-    { ok: true, submission, milestoneReached },
-    { status: 200, headers: NO_STORE_HEADERS }
-  );
+  await recordAuditEvent({
+    eventKey: "survey.submit.accepted",
+    eventCategory: "ASSESSMENT",
+    outcome: "ACCEPTED",
+    actorUserId: sessionUser.id,
+    actorCompanyId: effectiveCompanyId,
+    subjectCompanyId: effectiveCompanyId,
+    subjectProductId: persistedProductId,
+    requestPath: "/api/survey/submit",
+    requestMethod: "POST",
+    details: toAuditDetailValue({
+      moduleKey: surveyModule.key,
+      submissionId: submission.id,
+      milestoneReached,
+      score: submission.score,
+      answeredCount: submission.answeredCount,
+    }),
+  });
+
+  return NextResponse.json({ ok: true, submission, milestoneReached }, { status: 200, headers: NO_STORE_HEADERS });
 }

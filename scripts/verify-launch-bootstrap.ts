@@ -11,12 +11,45 @@ import {
 dotenv.config({ path: ".env.local" });
 
 const prisma = new PrismaClient();
+const REQUIRED_ENV_VARS = [
+  "DATABASE_URL",
+  "AUTH_SECRET",
+  "AUTH_URL",
+  "AUTH_GITHUB_ID",
+  "AUTH_GITHUB_SECRET",
+] as const;
 
 function fail(message: string): never {
   throw new Error(message);
 }
 
+function requireEnv(name: (typeof REQUIRED_ENV_VARS)[number]) {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    fail(`Missing required env var: ${name}`);
+  }
+  return value;
+}
+
+function validateEnvContract() {
+  const databaseUrl = requireEnv("DATABASE_URL");
+  const authUrl = requireEnv("AUTH_URL");
+  requireEnv("AUTH_SECRET");
+  requireEnv("AUTH_GITHUB_ID");
+  requireEnv("AUTH_GITHUB_SECRET");
+
+  if (!/^postgres(ql)?:\/\//i.test(databaseUrl)) {
+    fail("DATABASE_URL must start with postgres:// or postgresql://");
+  }
+
+  if (!/^https?:\/\//i.test(authUrl)) {
+    fail("AUTH_URL must be an absolute http(s) URL");
+  }
+}
+
 async function main() {
+  validateEnvContract();
+
   const company = await prisma.company.findUnique({
     where: { id: LAUNCH_COMPANY.id },
     select: { id: true, name: true },
@@ -105,7 +138,13 @@ main()
   })
   .catch(async (error) => {
     const message = error instanceof Error ? error.message : String(error);
-    if (message.includes("Can't reach database server")) {
+    if (message.includes("Missing required env var:")) {
+      console.error("VERIFY_LAUNCH_BOOTSTRAP_ERROR", message);
+    } else if (message.includes("DATABASE_URL must start")) {
+      console.error("VERIFY_LAUNCH_BOOTSTRAP_ERROR", message);
+    } else if (message.includes("AUTH_URL must be an absolute")) {
+      console.error("VERIFY_LAUNCH_BOOTSTRAP_ERROR", message);
+    } else if (message.includes("Can't reach database server")) {
       console.error(
         "VERIFY_LAUNCH_BOOTSTRAP_ERROR Launch verification could not reach the database. Check DATABASE_URL in .env.local and make sure Postgres is listening on localhost:5433."
       );

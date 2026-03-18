@@ -20,11 +20,15 @@ import {
   assertViewerCanAccessProduct,
   resolveVisibilityContext,
 } from "@/lib/visibility";
+import { recordAuditEvent, toAuditDetailValue } from "@/lib/ops/auditEvents";
+import { consumeDbRateLimit, getRequestClientIp } from "@/lib/ops/rateLimit";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 const SCORING_VERSION = 1;
 const REVIEW_SCALE_MIN = 1;
 const REVIEW_SCALE_MAX = 5;
+const REVIEW_SUBMIT_WINDOW_MS = 60_000;
+const REVIEW_SUBMIT_MAX_REQUESTS_PER_WINDOW = 12;
 
 const SubmitExternalReviewSchema = z
   .object({
@@ -75,6 +79,40 @@ export async function POST(req: Request) {
 
   if (!reviewerCompanyId) {
     return unauthorizedResponse("No authenticated reviewer company context");
+  }
+
+  const clientIp = getRequestClientIp(req);
+  const quota = await consumeDbRateLimit({
+    bucketKey: `external-review-submit:${sessionUser.id}:${reviewerCompanyId}:${clientIp}`,
+    limit: REVIEW_SUBMIT_MAX_REQUESTS_PER_WINDOW,
+    windowMs: REVIEW_SUBMIT_WINDOW_MS,
+  });
+  if (!quota.allowed) {
+    await recordAuditEvent({
+      eventKey: "external_review.submit.rate_limited",
+      eventCategory: "RATE_LIMIT",
+      outcome: "BLOCKED",
+      severity: "WARN",
+      actorUserId: sessionUser.id,
+      actorCompanyId: reviewerCompanyId,
+      requestPath: "/api/external-reviews/submit",
+      requestMethod: "POST",
+      details: toAuditDetailValue({
+        clientIp,
+        requestCount: quota.requestCount,
+        retryAfterSeconds: quota.retryAfterSeconds,
+      }),
+    });
+    return NextResponse.json(
+      { ok: false, error: "Too many requests", retryAfterSeconds: quota.retryAfterSeconds },
+      {
+        status: 429,
+        headers: {
+          ...NO_STORE_HEADERS,
+          "Retry-After": String(quota.retryAfterSeconds),
+        },
+      }
+    );
   }
 
   if (reviewerCompanyType !== "FIRM") {
@@ -312,70 +350,97 @@ export async function POST(req: Request) {
     scaleMax: REVIEW_SCALE_MAX,
   });
 
-  const created = await prisma.$transaction(async (tx) => {
-    const createdReview = await tx.externalReviewSubmission.create({
-      data: {
-        id: randomUUID(),
-        moduleId: moduleRecord.id,
-        reviewerCompanyId,
-        reviewerUserId: sessionUser.id,
-        subjectCompanyId: reviewTarget.target.subjectCompany.id,
-        subjectProductId: reviewTarget.target.subjectProduct?.id ?? null,
-        answers: normalizedAnswers as Prisma.InputJsonValue,
-        normalizedDimensions:
-          normalizedDimensions === null
-            ? undefined
-            : (normalizedDimensions as Prisma.InputJsonValue),
-        score: scoring.score,
-        weightedAvg: scoring.weightedAvg,
-        scoreVersion: SCORING_VERSION,
-        signalIntegrityScore: integrity.score,
-        integrityFlags: integrity.flags,
-        reviewStatus: getTrustedExternalReviewStatusForAcceptedSubmission(),
-      },
-      select: {
-        id: true,
-        moduleId: true,
-        reviewerCompanyId: true,
-        reviewerUserId: true,
-        subjectCompanyId: true,
-        subjectProductId: true,
-        normalizedDimensions: true,
-        score: true,
-        weightedAvg: true,
-        scoreVersion: true,
-        signalIntegrityScore: true,
-        integrityFlags: true,
-        reviewStatus: true,
-      },
-    });
+  let created;
+  try {
+    created = await prisma.$transaction(async (tx) => {
+      await tx.externalReviewSubmission.updateMany({
+        where: {
+          ...buildExternalReviewDuplicateWhere({
+            reviewerCompanyId,
+            reviewerUserId: sessionUser.id,
+            subjectCompanyId: reviewTarget.target.subjectCompany.id,
+            subjectProductId: reviewTarget.target.subjectProduct?.id ?? null,
+            moduleId: moduleRecord.id,
+          }),
+          reviewStatus: {
+            in: ["SUBMITTED", "FINALIZED"],
+          },
+        },
+        data: {
+          reviewStatus: "REJECTED",
+        },
+      });
 
-    await tx.externalReviewSubmission.updateMany({
-      where: {
-        ...buildExternalReviewDuplicateWhere({
+      return tx.externalReviewSubmission.create({
+        data: {
+          id: randomUUID(),
+          moduleId: moduleRecord.id,
           reviewerCompanyId,
           reviewerUserId: sessionUser.id,
           subjectCompanyId: reviewTarget.target.subjectCompany.id,
           subjectProductId: reviewTarget.target.subjectProduct?.id ?? null,
-          moduleId: moduleRecord.id,
-        }),
-        id: { not: createdReview.id },
-        reviewStatus: {
-          in: ["SUBMITTED", "FINALIZED"],
+          answers: normalizedAnswers as Prisma.InputJsonValue,
+          normalizedDimensions:
+            normalizedDimensions === null
+              ? undefined
+              : (normalizedDimensions as Prisma.InputJsonValue),
+          score: scoring.score,
+          weightedAvg: scoring.weightedAvg,
+          scoreVersion: SCORING_VERSION,
+          signalIntegrityScore: integrity.score,
+          integrityFlags: integrity.flags,
+          reviewStatus: getTrustedExternalReviewStatusForAcceptedSubmission(),
         },
-      },
-      data: {
-        reviewStatus: "REJECTED",
-      },
+        select: {
+          id: true,
+          moduleId: true,
+          reviewerCompanyId: true,
+          reviewerUserId: true,
+          subjectCompanyId: true,
+          subjectProductId: true,
+          normalizedDimensions: true,
+          score: true,
+          weightedAvg: true,
+          scoreVersion: true,
+          signalIntegrityScore: true,
+          integrityFlags: true,
+          reviewStatus: true,
+        },
+      });
     });
-
-    return createdReview;
-  });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes("ExternalReviewSubmission_single_finalized_identity_idx")) {
+      return NextResponse.json(
+        { ok: false, error: "Concurrent finalized review already accepted; retry with a fresh page state." },
+        { status: 409, headers: NO_STORE_HEADERS }
+      );
+    }
+    throw error;
+  }
 
   await recomputeObservedSignalRollup({
     moduleId: created.moduleId,
     subjectCompanyId: created.subjectCompanyId,
     subjectProductId: created.subjectProductId,
+  });
+
+  await recordAuditEvent({
+    eventKey: "external_review.submit.accepted",
+    eventCategory: "EXTERNAL_REVIEW",
+    outcome: "ACCEPTED",
+    actorUserId: sessionUser.id,
+    actorCompanyId: reviewerCompanyId,
+    subjectCompanyId: created.subjectCompanyId,
+    subjectProductId: created.subjectProductId,
+    requestPath: "/api/external-reviews/submit",
+    requestMethod: "POST",
+    details: toAuditDetailValue({
+      moduleId: created.moduleId,
+      submissionId: created.id,
+      reviewStatus: created.reviewStatus,
+      signalIntegrityScore: created.signalIntegrityScore,
+    }),
   });
 
   return NextResponse.json({ ok: true, submission: created }, { status: 201, headers: NO_STORE_HEADERS });

@@ -16,6 +16,8 @@ function main() {
   const pageData = read("lib/intelligence/getProductIntelligencePageData.ts");
   const reportProfiles = read("lib/report-profiles.ts");
   const moduleCatalog = read("lib/assessment-module-catalog.ts");
+  const productView = read("app/products/ProductIntelligenceView.tsx");
+  const chartSeries = read("lib/intelligence/chartSeries.ts");
 
   if (!productPage.includes("getProductIntelligencePageData")) {
     fail("Canonical product page no longer uses getProductIntelligencePageData");
@@ -29,6 +31,9 @@ function main() {
   if (!pageData.includes("getOutputSectionsForAssessmentTarget")) {
     fail("Shared viewer intelligence helper is not deriving sections from the registry");
   }
+  if (!pageData.includes("getInsightTrendSeries")) {
+    fail("Shared viewer intelligence helper is not deriving chart data from the chart series contract");
+  }
   if (!reportProfiles.includes('key: "product_intelligence_report"')) {
     fail("product_intelligence_report is missing");
   }
@@ -40,6 +45,18 @@ function main() {
   }
   if (!moduleCatalog.includes('PRODUCT_EXTERNAL_REVIEW_MODULE_KEY = "product_workflow_fit_review_v1"')) {
     fail("Product external review module key drifted");
+  }
+  if (!productView.includes("InsightTrendChart") || !productView.includes("InsightAdvancedChart")) {
+    fail("Canonical product intelligence view is not chart-capable");
+  }
+  if (!chartSeries.includes('granularity: "monthly"') && !chartSeries.includes('monthly: buildSeries("monthly"')) {
+    fail("Chart series contract must support monthly aggregation");
+  }
+  if (!chartSeries.includes('quarterly: buildSeries("quarterly"')) {
+    fail("Chart series contract must support quarterly aggregation");
+  }
+  if (!chartSeries.includes('yearly: buildSeries("yearly"')) {
+    fail("Chart series contract must support yearly aggregation");
   }
 
   console.log(

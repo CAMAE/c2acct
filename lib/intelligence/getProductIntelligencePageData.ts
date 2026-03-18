@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { PRODUCT_EXTERNAL_REVIEW_MODULE_KEY } from "@/lib/assessment-module-catalog";
-import { evaluateAndPersistUnlockedInsights } from "@/lib/engine/evaluateInsightUnlocks";
+import { evaluateUnlockedInsights } from "@/lib/engine/evaluateInsightUnlocks";
+import { getInsightTrendSeries, type InsightTrendSeriesSet } from "@/lib/intelligence/chartSeries";
 import { evaluateOutputGateRule } from "@/lib/intelligence/outputGates";
 import {
   getOutputSectionsForAssessmentTarget,
@@ -95,6 +96,7 @@ export type ViewerIntelligencePageData = {
   earnedBadges: Array<{ id: string; badgeId: string; moduleId: string; name: string }>;
   externalObservedAnnotation: Awaited<ReturnType<typeof getExternalObservedAnnotation>> | null;
   signalSummary: ProductIntelligenceSignalSummary;
+  chartSeries: InsightTrendSeriesSet;
 };
 
 export type ProductIntelligencePageData = ViewerIntelligencePageData & {
@@ -189,6 +191,7 @@ export async function getViewerIntelligencePageData(input?: {
     latestProductSubmission,
     externalObservedAnnotation,
     externalObservedUnlockCandidates,
+    chartSeries,
   ] = await Promise.all([
     prisma.surveySubmission.findFirst({
       where: {
@@ -211,7 +214,7 @@ export async function getViewerIntelligencePageData(input?: {
       orderBy: { awardedAt: "desc" },
       include: { Badge: { select: { name: true } } },
     }),
-    evaluateAndPersistUnlockedInsights({
+    evaluateUnlockedInsights({
       companyId: subjectCompanyId,
       productId: subjectProductId,
     }),
@@ -243,6 +246,10 @@ export async function getViewerIntelligencePageData(input?: {
           subjectProductId,
         })
       : Promise.resolve(null),
+    getInsightTrendSeries({
+      companyId: subjectCompanyId,
+      productId: subjectProductId,
+    }),
   ]);
 
   const questionKeyById =
@@ -379,6 +386,7 @@ export async function getViewerIntelligencePageData(input?: {
     dimensionEntries,
     earnedBadges,
     externalObservedAnnotation,
+    chartSeries,
     signalSummary: {
       self: {
         score: latestSubmission?.score ?? null,

@@ -55,6 +55,8 @@ export default function Page() {
   const [targetProductId, setTargetProductId] = useState<string | null>(null);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [pageIndex, setPageIndex] = useState(0);
+  const QUESTIONS_PER_PAGE = 5;
 
   useEffect(() => {
     if (!moduleKey) return;
@@ -200,6 +202,11 @@ export default function Page() {
 
   const isProductScope = data.scope === "PRODUCT";
   const isBetaModule = data.key !== "firm_alignment_v1" && data.scope === "FIRM";
+  const totalPages = Math.max(1, Math.ceil(data.questions.length / QUESTIONS_PER_PAGE));
+  const pagedQuestions = data.questions.slice(
+    pageIndex * QUESTIONS_PER_PAGE,
+    pageIndex * QUESTIONS_PER_PAGE + QUESTIONS_PER_PAGE
+  );
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.08),_transparent_24%),linear-gradient(180deg,_#f8fafc_0%,_#eef2f7_100%)] px-6 py-12 text-slate-900">
@@ -223,6 +230,7 @@ export default function Page() {
             <div className="min-w-[240px] rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-600">
               <div className="font-semibold text-slate-900">Question count</div>
               <div className="mt-2">{data.questions.length} active questions</div>
+              <div className="mt-1">Page {pageIndex + 1} of {totalPages}</div>
               <div className="mt-1 truncate" title={data.key}>
                 Module key: {data.key}
               </div>
@@ -251,7 +259,7 @@ export default function Page() {
           ) : null}
 
           <div className="mt-8 grid gap-4">
-            {data.questions.map((q) => {
+            {pagedQuestions.map((q) => {
               const val = answers[q.id];
               const domainLabel = getDomainLabel(q);
 
@@ -308,6 +316,28 @@ export default function Page() {
                 </div>
               );
             })}
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={() => setPageIndex((current) => Math.max(0, current - 1))}
+              disabled={pageIndex === 0}
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 disabled:opacity-50"
+            >
+              Previous 5
+            </button>
+            <div className="text-sm text-slate-500">
+              Showing questions {pageIndex * QUESTIONS_PER_PAGE + 1}-{Math.min((pageIndex + 1) * QUESTIONS_PER_PAGE, data.questions.length)} of {data.questions.length}
+            </div>
+            <button
+              type="button"
+              onClick={() => setPageIndex((current) => Math.min(totalPages - 1, current + 1))}
+              disabled={pageIndex >= totalPages - 1}
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 disabled:opacity-50"
+            >
+              Next 5
+            </button>
           </div>
 
           <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50/70 p-4">

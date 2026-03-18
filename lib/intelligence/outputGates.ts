@@ -106,3 +106,40 @@ export function evaluateOutputGateRule(
     ? rule.conditions.every((condition) => operandPasses(condition, context))
     : rule.conditions.some((condition) => operandPasses(condition, context));
 }
+
+function describeOperand(operand: OutputGateOperand) {
+  if (operand.type === "INSIGHT") {
+    return `insight:${operand.insightKey}`;
+  }
+
+  if (operand.type === "OBSERVED_SIGNAL") {
+    return `observed:${operand.cardId}`;
+  }
+
+  if (operand.badgeName?.trim()) {
+    return `badge:${operand.badgeName.trim()}`;
+  }
+
+  return `badge:${operand.badgeId ?? "unknown"}`;
+}
+
+export function summarizeOutputGateRule(rule: OutputGateRule | null | undefined) {
+  if (!rule) {
+    return "No gate";
+  }
+
+  if (rule.kind === "BADGE_ONLY") {
+    return `Requires ${describeOperand(rule.badge)}`;
+  }
+
+  if (rule.kind === "INSIGHT_ONLY") {
+    return `Requires ${describeOperand(rule.insight)}`;
+  }
+
+  if (rule.kind === "OBSERVED_SIGNAL_ONLY") {
+    return `Requires ${describeOperand(rule.observedSignal)}`;
+  }
+
+  const joined = rule.conditions.map((condition) => describeOperand(condition)).join(rule.kind === "ALL_OF" ? " + " : " or ");
+  return rule.kind === "ALL_OF" ? `Requires all of ${joined}` : `Requires any of ${joined}`;
+}

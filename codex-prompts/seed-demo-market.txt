@@ -1,0 +1,199 @@
+You are editing the repo CAMAE/c2acct.
+
+Goal:
+Create a WORKING demo-market seed slice for AAE that preserves and extends core AAE behavior instead of stripping it down.
+
+Critical correction:
+The previous attempt failed because TypeScript was pasted directly into PowerShell. Do NOT tell me to paste TypeScript into the shell. Instead, create real repo files and then run them.
+
+What to build:
+1) Create a new file:
+   scripts/seed-demo-market.ts
+
+2) Seed the current Prisma schema that already exists in this repo, including:
+   - Company
+   - Product
+   - CapabilityNode
+   - CompanyCapabilityScore
+   - BenchmarkCohort
+   - CompanyBenchmark
+   - CompanyBenchmarkCohort
+   - BenchmarkRun
+   - FirmMaturityIndex
+   - FirmMaturitySnapshot
+   - FirmMaturityMomentum
+   - SurveyModule
+   - SurveyQuestion
+   - SurveyQuestionCapability
+   - ModuleCapability
+   - Insight
+   - InsightCapabilityRule
+   - Badge
+   - BadgeRule
+   - CompanyBadge
+   - SurveySubmission
+
+3) Seed demo data with this exact target:
+   - 10 fake vendors
+   - 100 fake firms
+   - 3 to 5 fake products per vendor
+
+4) IMPORTANT:
+   Add back firm intelligence with insight unlocking attached to modular assessments.
+   Do NOT remove or bypass core AAE unlock behavior.
+   The seed must preserve the AAE shape:
+   modular assessments -> capability scores -> unlocked insights -> badge awards
+
+5) Since Product is currently minimal in schema, simulate product intelligence through:
+   - vendor/company benchmark metrics
+   - vendor/company capability scores
+   - insights and unlock rules
+   - product rows under each vendor for layout/demo surfaces
+   Do not invent unsupported Product columns unless you also add a migration, and only do that if clearly necessary. Prefer working within current schema.
+
+Required seeded structures:
+
+A. Capability nodes
+Create a realistic set of nodes across:
+- FIRM scope:
+  - firm_automation
+  - firm_data_discipline
+  - firm_client_experience
+  - firm_operating_rigor
+  - firm_growth_readiness
+- VENDOR scope:
+  - vendor_workflow_fit
+  - vendor_market_clarity
+  - vendor_operational_depth
+  - vendor_adoption_readiness
+- PRODUCT scope:
+  - product_fit_signal
+  - product_risk_signal
+
+B. Survey modules
+Create at minimum:
+- demo_firm_profile_v1 (scope FIRM)
+- demo_vendor_profile_v1 (scope VENDOR)
+
+C. Survey questions
+For each module, seed real SurveyQuestion rows with reasonable prompt text, order, weight, inputType, required=true, and meta where useful.
+Then map questions to capability nodes through SurveyQuestionCapability.
+Then map module-to-node weights through ModuleCapability.
+
+D. Insights
+Seed multiple Insight rows for firms and vendors.
+Seed InsightCapabilityRule rows so insights unlock from capability thresholds.
+Need enough coverage to visibly demonstrate unlocked vs locked cards.
+
+Examples of desired unlockable insight families:
+- firm automation maturity insight
+- firm operating rigor insight
+- firm client experience insight
+- vendor workflow fit insight
+- vendor market clarity insight
+- product fit signal insight
+- product risk signal insight
+
+E. Badges
+Seed badge-backed gating too.
+Create at least:
+- Tier 1 Alignment Unlocked for firm module
+- Vendor Intelligence Unlocked for vendor module
+Attach BadgeRule rows to the correct modules.
+Make badge awards persist through CompanyBadge.
+If awarding directly in the seed is simplest, do that.
+But keep the shape aligned with current AAE logic.
+
+F. Demo companies
+Seed:
+- 10 vendors with Company.type = VENDOR
+- 100 firms with Company.type = FIRM
+
+G. Products
+Seed 3-5 products per vendor using current Product schema:
+- id
+- companyId
+- name
+- category
+- apiEndpoint
+No fake unsupported columns.
+
+H. Benchmarks / intelligence
+Create benchmark cohorts for:
+- demo_firms_2026
+- demo_vendors_2026
+
+Seed CompanyBenchmark rows for realistic metrics such as:
+For firms:
+- alignment_score
+- automation_readiness
+- data_discipline
+- client_experience
+- operating_rigor
+- growth_readiness
+- fit_probability
+- risk_index
+
+For vendors:
+- workflow_fit
+- market_clarity
+- operational_depth
+- adoption_readiness
+- market_position
+- risk_index
+- fit_probability
+- alignment_score
+
+Then compute percentiles and create/update BenchmarkRun rows.
+
+I. Firm maturity
+For each firm, seed:
+- FirmMaturityIndex
+- FirmMaturitySnapshot
+- FirmMaturityMomentum
+
+J. Submissions
+Seed SurveySubmission rows for both firms and vendors using current module ids.
+The submissions should feel like they came from modular assessments and should support:
+- score
+- weightedAvg
+- answeredCount
+- scaleMin
+- scaleMax
+- totalWeight
+- scoreVersion
+- signalIntegrityScore
+- integrityFlags
+
+K. Company capability scores
+Seed CompanyCapabilityScore rows from the synthetic profiles so unlock rules have something real to evaluate.
+
+Implementation rules:
+- Make the script idempotent with upsert where practical.
+- Include optional reset support via:
+  process.env.AAE_DEMO_RESET === "1"
+- Keep IDs stable.
+- Use repo-compatible TypeScript.
+- Use current Prisma enum values from schema.
+- Use updatedAt fields everywhere required.
+- Do not remove or regress existing auth/results/outputs behavior.
+- Keep the seed additive and demo-safe.
+
+After creating the file:
+1) run typecheck/build only as needed
+2) run:
+   pnpm exec tsx scripts/seed-demo-market.ts
+3) fix any Prisma/schema/runtime errors
+4) rerun until successful
+
+Then report back with:
+- vendor count
+- firm count
+- product count
+- seeded module keys
+- seeded badge names
+- seeded insight keys
+- whether outputs/results can now display firm/vendor intelligence and unlocked states from this seeded data
+
+If the repo already has existing seed helpers worth reusing, reuse them.
+Prefer correctness over shortcuts.

@@ -12,8 +12,12 @@ import {
   getDefaultInviteExpiry,
   hashInviteCode,
 } from "@/lib/network/inviteCodes";
+import { recordAuditEvent, toAuditDetailValue } from "@/lib/ops/auditEvents";
+import { consumeDbRateLimit, getRequestClientIp } from "@/lib/ops/rateLimit";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
+const INVITE_CREATE_WINDOW_MS = 60_000;
+const INVITE_CREATE_MAX_REQUESTS_PER_WINDOW = 6;
 
 const CreateInviteCodeSchema = z
   .object({
@@ -88,6 +92,41 @@ export async function POST(req: Request) {
     return forbiddenResponse("Only vendor companies can create invite codes");
   }
 
+  const clientIp = getRequestClientIp(req);
+  const quota = await consumeDbRateLimit({
+    bucketKey: `invite-code-create:${sessionUser.id}:${currentCompany.id}:${clientIp}`,
+    limit: INVITE_CREATE_MAX_REQUESTS_PER_WINDOW,
+    windowMs: INVITE_CREATE_WINDOW_MS,
+  });
+  if (!quota.allowed) {
+    await recordAuditEvent({
+      eventKey: "invite_code.create.rate_limited",
+      eventCategory: "RATE_LIMIT",
+      outcome: "BLOCKED",
+      severity: "WARN",
+      actorUserId: sessionUser.id,
+      actorCompanyId: currentCompany.id,
+      subjectCompanyId: currentCompany.id,
+      requestPath: "/api/network/invite-codes",
+      requestMethod: "POST",
+      details: toAuditDetailValue({
+        clientIp,
+        requestCount: quota.requestCount,
+        retryAfterSeconds: quota.retryAfterSeconds,
+      }),
+    });
+    return NextResponse.json(
+      { ok: false, error: "Too many requests", retryAfterSeconds: quota.retryAfterSeconds },
+      {
+        status: 429,
+        headers: {
+          ...NO_STORE_HEADERS,
+          "Retry-After": String(quota.retryAfterSeconds),
+        },
+      }
+    );
+  }
+
   let raw: unknown = {};
   try {
     raw = await req.json();
@@ -128,6 +167,22 @@ export async function POST(req: Request) {
       productAccessMode: true,
       createdAt: true,
     },
+  });
+
+  await recordAuditEvent({
+    eventKey: "invite_code.create.accepted",
+    eventCategory: "NETWORK",
+    outcome: "ACCEPTED",
+    actorUserId: sessionUser.id,
+    actorCompanyId: currentCompany.id,
+    subjectCompanyId: currentCompany.id,
+    requestPath: "/api/network/invite-codes",
+    requestMethod: "POST",
+    details: toAuditDetailValue({
+      inviteCodeId: inviteCode.id,
+      maxClaims: inviteCode.maxClaims,
+      productAccessMode: inviteCode.productAccessMode,
+    }),
   });
 
   return NextResponse.json(

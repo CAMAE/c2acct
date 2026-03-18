@@ -51,6 +51,9 @@ export default async function SurveyPage({
               <p className="mt-3 text-sm leading-6 text-slate-600">
                 The baseline firm module stays as the default reporting path. Additional modules shown here are available only when they have been explicitly activated for controlled rollout in the Assessment experience.
               </p>
+              <p className="mt-2 text-xs uppercase tracking-[0.16em] text-slate-500">
+                Runtime pacing: 5 questions per page
+              </p>
             </div>
             <div className="min-w-[220px] rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-600">
                 <div className="font-semibold text-slate-900">Available now</div>
@@ -171,7 +174,7 @@ export default async function SurveyPage({
                 </form>
               ) : (
                 <div className="mt-5 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-600">
-                  Product selection is only available for vendor companies with product records.
+                  Product selection is only available for vendor companies with product records. Product-scoped assessment runtime also keeps the 5-question page rhythm.
                 </div>
               )}
             </section>

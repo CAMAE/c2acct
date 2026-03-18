@@ -1,5 +1,9 @@
 import Link from "next/link";
+import InsightAdvancedChart from "@/components/charts/InsightAdvancedChart";
+import InsightTrendChart from "@/components/charts/InsightTrendChart";
 import type { ProductIntelligencePageData } from "@/lib/intelligence/getProductIntelligencePageData";
+import { getOutputCardRouteKey } from "@/lib/intelligence/outputRegistry";
+import { summarizeOutputGateRule } from "@/lib/intelligence/outputGates";
 
 type ProductIntelligenceViewProps = {
   data: ProductIntelligencePageData;
@@ -167,6 +171,23 @@ export default function ProductIntelligenceView(props: ProductIntelligenceViewPr
               </div>
             ) : null}
 
+            <section className="grid gap-4">
+              <div className="rounded-3xl border border-slate-200 bg-white/85 p-5 shadow-sm">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Trend contract</div>
+                <div className="mt-2 text-sm text-slate-700">
+                  Monthly, quarterly, and yearly chart views are derived only from persisted self submissions and trusted observed reviews for this product. No synthetic history is introduced.
+                </div>
+              </div>
+              <div className="grid gap-4 xl:grid-cols-2">
+                <InsightTrendChart title="Tier 1 score trend" series={data.chartSeries.monthly} />
+                <InsightAdvancedChart title="Signal divergence and integrity" series={data.chartSeries.monthly} />
+                <InsightTrendChart title="Tier 1 score trend" series={data.chartSeries.quarterly} />
+                <InsightAdvancedChart title="Signal divergence and integrity" series={data.chartSeries.quarterly} />
+                <InsightTrendChart title="Tier 1 score trend" series={data.chartSeries.yearly} />
+                <InsightAdvancedChart title="Signal divergence and integrity" series={data.chartSeries.yearly} />
+              </div>
+            </section>
+
             {sections.map((section: ProductIntelligenceSection) => (
               <section key={section.id} className="rounded-3xl border border-slate-200 bg-white/85 p-5 shadow-sm">
                 <div className="flex items-center justify-between gap-3">
@@ -202,6 +223,9 @@ export default function ProductIntelligenceView(props: ProductIntelligenceViewPr
                       <div className="mt-2 whitespace-pre-line text-sm text-slate-700">
                         {card.unlocked && card.unlockedInsightBody ? card.unlockedInsightBody : card.desc}
                       </div>
+                      <div className="mt-3 text-[11px] uppercase tracking-[0.16em] text-slate-500">
+                        {summarizeOutputGateRule(card.gate)}
+                      </div>
                       <div className="mt-3 flex flex-wrap gap-2">
                         {card.evidenceSources.map((source) => (
                           <span
@@ -213,6 +237,14 @@ export default function ProductIntelligenceView(props: ProductIntelligenceViewPr
                         ))}
                       </div>
                       <div className="mt-2 text-xs text-slate-500">{card.evidenceSummary}</div>
+                      <div className="mt-3">
+                        <Link
+                          href={`/vendor/insights/${encodeURIComponent(getOutputCardRouteKey(card))}?productId=${encodeURIComponent(data.product.id)}`}
+                          className="text-sm font-medium text-slate-700 underline underline-offset-4"
+                        >
+                          Open detail page
+                        </Link>
+                      </div>
                       {card.unlockEvidence.length > 0 ? (
                         <div className="mt-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] text-slate-600">
                           {card.unlockEvidence.map((entry) => (

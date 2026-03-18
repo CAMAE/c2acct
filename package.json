@@ -26,6 +26,10 @@
     "verify:visibility-matrix": "node --experimental-strip-types scripts/verify-visibility-matrix.ts",
     "verify:invite-code-lifecycle": "node --experimental-strip-types scripts/verify-invite-code-lifecycle.ts",
     "verify:external-review-trust": "node --experimental-strip-types scripts/verify-external-review-trust.ts",
+    "verify:external-review-concurrency": "node --experimental-strip-types scripts/verify-external-review-concurrency.ts",
+    "verify:ops-hardening": "node --experimental-strip-types scripts/verify-ops-hardening.ts",
+    "verify:learning-content": "node scripts/verify-learning-content.mjs",
+    "content:generate-learning": "node scripts/generate-learning-content.mjs",
     "smoke:launch": "powershell -ExecutionPolicy Bypass -File .\\scripts\\smoke-golden-path.ps1",
     "prisma:migrate:deploy": "node scripts/prisma-safe.js migrate deploy",
     "prisma:db:push": "node scripts/prisma-safe.js db push"

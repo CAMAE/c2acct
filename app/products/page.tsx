@@ -45,6 +45,7 @@ export default async function ProductsPage({
             <p className="mt-3 text-sm leading-6 text-slate-600">
               Canonical route-based navigation for product intelligence. This surface is optimized for larger product catalogs while `/outputs` remains available as a bridge.
             </p>
+            <div className="mt-2 text-xs uppercase tracking-[0.16em] text-slate-500">Tier 1 live | Tier 2 coming soon</div>
           </div>
           <div className="min-w-[220px] rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-600">
             <div className="font-semibold text-slate-900">{currentCompany?.name ?? "No company"}</div>

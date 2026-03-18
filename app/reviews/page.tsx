@@ -22,6 +22,7 @@ export default async function ReviewsPage() {
         <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
           This pilot entry path is separate from self-assessment. It only exposes vendor products that are currently visible through an active sponsor relationship.
         </p>
+        <div className="mt-2 text-xs uppercase tracking-[0.16em] text-slate-500">Runtime pacing: 5 questions per page</div>
 
         {!data.canReview ? (
           <div className="mt-8 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-600">

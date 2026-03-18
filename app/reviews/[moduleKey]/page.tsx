@@ -55,6 +55,8 @@ export default function ReviewModulePage() {
   const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submissionId, setSubmissionId] = useState<string | null>(null);
+  const [pageIndex, setPageIndex] = useState(0);
+  const QUESTIONS_PER_PAGE = 5;
 
   useEffect(() => {
     if (!moduleKey) {
@@ -191,6 +193,12 @@ export default function ReviewModulePage() {
     return <div className="min-h-screen bg-slate-50 px-6 py-16 text-sm text-slate-500">No review module found.</div>;
   }
 
+  const totalPages = Math.max(1, Math.ceil(moduleData.questions.length / QUESTIONS_PER_PAGE));
+  const pagedQuestions = moduleData.questions.slice(
+    pageIndex * QUESTIONS_PER_PAGE,
+    pageIndex * QUESTIONS_PER_PAGE + QUESTIONS_PER_PAGE
+  );
+
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.08),_transparent_24%),linear-gradient(180deg,_#f8fafc_0%,_#eef2f7_100%)] px-6 py-12 text-slate-900">
       <div className="mx-auto max-w-4xl rounded-[28px] border border-white/80 bg-white/90 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur">
@@ -231,7 +239,7 @@ export default function ReviewModulePage() {
         </div>
 
         <div className="mt-8 grid gap-4">
-          {moduleData.questions.map((question) => (
+          {pagedQuestions.map((question) => (
             <div key={question.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Question {question.order}</div>
               <div className="mt-3 text-base font-semibold leading-7 text-slate-950">{question.prompt}</div>
@@ -255,6 +263,28 @@ export default function ReviewModulePage() {
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={() => setPageIndex((current) => Math.max(0, current - 1))}
+            disabled={pageIndex === 0}
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 disabled:opacity-50"
+          >
+            Previous 5
+          </button>
+          <div className="text-sm text-slate-500">
+            Page {pageIndex + 1} of {totalPages}
+          </div>
+          <button
+            type="button"
+            onClick={() => setPageIndex((current) => Math.min(totalPages - 1, current + 1))}
+            disabled={pageIndex >= totalPages - 1}
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 disabled:opacity-50"
+          >
+            Next 5
+          </button>
         </div>
 
         <div className="mt-8 grid gap-3">

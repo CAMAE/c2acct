@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import prisma from "@/lib/prisma";
 import { getDefaultReportProfileForAssessmentTarget } from "@/lib/report-profiles";
 import { INSIGHT_UNLOCK_CONFIG } from "@/lib/insight-unlock-config";
@@ -16,7 +15,7 @@ type EvaluatedInsightUnlock = {
   tier: number;
 };
 
-export async function evaluateAndPersistUnlockedInsights(
+export async function evaluateUnlockedInsights(
   input: EvaluateInsightUnlocksInput
 ) {
   const reportProfile = getDefaultReportProfileForAssessmentTarget({
@@ -77,16 +76,6 @@ export async function evaluateAndPersistUnlockedInsights(
     },
   });
 
-  const latestSubmission = await prisma.surveySubmission.findFirst({
-    where: {
-      companyId: input.companyId,
-      productId: input.productId,
-      moduleId: moduleRecord.id,
-    },
-    orderBy: { createdAt: "desc" },
-    select: { id: true },
-  });
-
   const capabilityScores = await prisma.companyCapabilityScore.findMany({
     where: {
       companyId: input.companyId,
@@ -122,8 +111,7 @@ export async function evaluateAndPersistUnlockedInsights(
       continue;
     }
 
-    const earnedBadge = earnedBadgeById.get(config.badgeId) ?? null;
-    if (!earnedBadge) {
+    if (!earnedBadgeById.has(config.badgeId)) {
       continue;
     }
 
@@ -148,56 +136,6 @@ export async function evaluateAndPersistUnlockedInsights(
       continue;
     }
 
-    const evidenceKey = `insight_unlock:${insight.key}`;
-    const representativeSource =
-      matchedRules
-        .map((rule) => scoreByCapabilityKey.get(rule.CapabilityNode.key)?.surveySubmissionId ?? null)
-        .find((value): value is string => typeof value === "string" && value.length > 0) ??
-      latestSubmission?.id ??
-      null;
-
-    const existingEvidence = await prisma.unlockEvidence.findFirst({
-      where: {
-        companyBadgeId: earnedBadge.id,
-        ruleKey: evidenceKey,
-      },
-      select: { id: true },
-    });
-
-    const detailsJson = {
-      insightKey: insight.key,
-      reportProfileKey: reportProfile.key,
-      moduleKey: moduleRecord.key,
-      badgeId: config.badgeId,
-      capabilityEvidence: matchedRules.map((rule) => ({
-        capabilityKey: rule.CapabilityNode.key,
-        minScore: rule.minScore,
-        score: scoreByCapabilityKey.get(rule.CapabilityNode.key)?.score ?? null,
-      })),
-    };
-
-    if (existingEvidence) {
-      await prisma.unlockEvidence.update({
-        where: { id: existingEvidence.id },
-        data: {
-          sourceType: config.sourceType,
-          surveySubmissionId: representativeSource,
-          detailsJson,
-        },
-      });
-    } else {
-      await prisma.unlockEvidence.create({
-        data: {
-          id: randomUUID(),
-          companyBadgeId: earnedBadge.id,
-          sourceType: config.sourceType,
-          surveySubmissionId: representativeSource,
-          ruleKey: evidenceKey,
-          detailsJson,
-        },
-      });
-    }
-
     unlocked.push({
       id: insight.id,
       key: insight.key,
@@ -209,3 +147,5 @@ export async function evaluateAndPersistUnlockedInsights(
 
   return { unlocked, reportProfileKey: reportProfile.key };
 }
+
+export const evaluateAndPersistUnlockedInsights = evaluateUnlockedInsights;

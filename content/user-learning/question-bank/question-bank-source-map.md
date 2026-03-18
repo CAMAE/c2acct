@@ -1,0 +1,127 @@
+# Question Bank Source Map
+
+- Q001: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q002: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q003: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q004: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q005: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q006: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q007: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q008: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q009: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q010: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q011: SRC02 | NASBA Fields of Study | https://www.nasbaregistry.org/resources/fields-of-study | Origin: bank
+- Q012: SRC02 | NASBA Fields of Study | https://www.nasbaregistry.org/resources/fields-of-study | Origin: bank
+- Q013: SRC02 | NASBA Fields of Study | https://www.nasbaregistry.org/resources/fields-of-study | Origin: bank
+- Q014: SRC02 | NASBA Fields of Study | https://www.nasbaregistry.org/resources/fields-of-study | Origin: bank
+- Q015: SRC02 | NASBA Fields of Study | https://www.nasbaregistry.org/resources/fields-of-study | Origin: bank
+- Q016: SRC04 | NYSED Mandatory Continuing Education Q&A | https://www.op.nysed.gov/professions/certified-public-accountants/mce-questions-answers | Origin: bank
+- Q017: SRC04 | NYSED Mandatory Continuing Education Q&A | https://www.op.nysed.gov/professions/certified-public-accountants/mce-questions-answers | Origin: bank
+- Q018: SRC04 | NYSED Mandatory Continuing Education Q&A | https://www.op.nysed.gov/professions/certified-public-accountants/mce-questions-answers | Origin: bank
+- Q019: SRC04 | NYSED Mandatory Continuing Education Q&A | https://www.op.nysed.gov/professions/certified-public-accountants/mce-questions-answers | Origin: bank
+- Q020: SRC04 | NYSED Mandatory Continuing Education Q&A | https://www.op.nysed.gov/professions/certified-public-accountants/mce-questions-answers | Origin: bank
+- Q021: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q022: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q023: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q024: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q025: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q026: SRC04 | NYSED Mandatory Continuing Education Q&A | https://www.op.nysed.gov/professions/certified-public-accountants/mce-questions-answers | Origin: bank
+- Q027: SRC04 | NYSED Mandatory Continuing Education Q&A | https://www.op.nysed.gov/professions/certified-public-accountants/mce-questions-answers | Origin: bank
+- Q028: SRC04 | NYSED Mandatory Continuing Education Q&A | https://www.op.nysed.gov/professions/certified-public-accountants/mce-questions-answers | Origin: bank
+- Q029: SRC04 | NYSED Mandatory Continuing Education Q&A | https://www.op.nysed.gov/professions/certified-public-accountants/mce-questions-answers | Origin: bank
+- Q030: SRC04 | NYSED Mandatory Continuing Education Q&A | https://www.op.nysed.gov/professions/certified-public-accountants/mce-questions-answers | Origin: bank
+- Q031: SRC05 | California Board CE Requirements | https://www.dca.ca.gov/cba/licensees/ce-requirements.shtml | Origin: bank
+- Q032: SRC05 | California Board CE Requirements | https://www.dca.ca.gov/cba/licensees/ce-requirements.shtml | Origin: bank
+- Q033: SRC05 | California Board CE Requirements | https://www.dca.ca.gov/cba/licensees/ce-requirements.shtml | Origin: bank
+- Q034: SRC05 | California Board CE Requirements | https://www.dca.ca.gov/cba/licensees/ce-requirements.shtml | Origin: bank
+- Q035: SRC05 | California Board CE Requirements | https://www.dca.ca.gov/cba/licensees/ce-requirements.shtml | Origin: bank
+- Q036: SRC06 | Virginia Board CPE Handout | https://boa.virginia.gov/wp-content/uploads/2025/07/CPE-Informational-Handout.pdf | Origin: bank
+- Q037: SRC06 | Virginia Board CPE Handout | https://boa.virginia.gov/wp-content/uploads/2025/07/CPE-Informational-Handout.pdf | Origin: bank
+- Q038: SRC06 | Virginia Board CPE Handout | https://boa.virginia.gov/wp-content/uploads/2025/07/CPE-Informational-Handout.pdf | Origin: bank
+- Q039: SRC06 | Virginia Board CPE Handout | https://boa.virginia.gov/wp-content/uploads/2025/07/CPE-Informational-Handout.pdf | Origin: bank
+- Q040: SRC06 | Virginia Board CPE Handout | https://boa.virginia.gov/wp-content/uploads/2025/07/CPE-Informational-Handout.pdf | Origin: bank
+- Q041: SRC07 | Illinois CPA CPE FAQs | https://idfpr.illinois.gov/content/dam/soi/en/web/idfpr/faq/dpr/cpa-cpe-faqs-6-28-18.pdf | Origin: bank
+- Q042: SRC07 | Illinois CPA CPE FAQs | https://idfpr.illinois.gov/content/dam/soi/en/web/idfpr/faq/dpr/cpa-cpe-faqs-6-28-18.pdf | Origin: bank
+- Q043: SRC07 | Illinois CPA CPE FAQs | https://idfpr.illinois.gov/content/dam/soi/en/web/idfpr/faq/dpr/cpa-cpe-faqs-6-28-18.pdf | Origin: bank
+- Q044: SRC07 | Illinois CPA CPE FAQs | https://idfpr.illinois.gov/content/dam/soi/en/web/idfpr/faq/dpr/cpa-cpe-faqs-6-28-18.pdf | Origin: bank
+- Q045: SRC07 | Illinois CPA CPE FAQs | https://idfpr.illinois.gov/content/dam/soi/en/web/idfpr/faq/dpr/cpa-cpe-faqs-6-28-18.pdf | Origin: bank
+- Q046: SRC08 | Texas CPE Guidelines | https://www.tsbpa.texas.gov/php/fpl/options/CPEGuidelines.html | Origin: bank
+- Q047: SRC08 | Texas CPE Guidelines | https://www.tsbpa.texas.gov/php/fpl/options/CPEGuidelines.html | Origin: bank
+- Q048: SRC08 | Texas CPE Guidelines | https://www.tsbpa.texas.gov/php/fpl/options/CPEGuidelines.html | Origin: bank
+- Q049: SRC08 | Texas CPE Guidelines | https://www.tsbpa.texas.gov/php/fpl/options/CPEGuidelines.html | Origin: bank
+- Q050: SRC08 | Texas CPE Guidelines | https://www.tsbpa.texas.gov/php/fpl/options/CPEGuidelines.html | Origin: bank
+- Q051: SRC03 | AACSB Business Accreditation Standards | https://www.aacsb.edu/accredited/standards/business | Origin: bank
+- Q052: SRC03 | AACSB Business Accreditation Standards | https://www.aacsb.edu/accredited/standards/business | Origin: bank
+- Q053: SRC03 | AACSB Business Accreditation Standards | https://www.aacsb.edu/accredited/standards/business | Origin: bank
+- Q054: SRC03 | AACSB Business Accreditation Standards | https://www.aacsb.edu/accredited/standards/business | Origin: bank
+- Q055: SRC03 | AACSB Business Accreditation Standards | https://www.aacsb.edu/accredited/standards/business | Origin: bank
+- Q056: SRC10 | Rutgers Accounting Learning Goals | https://myrbs.business.rutgers.edu/undergraduate-newark/accounting-minor | Origin: bank
+- Q057: SRC10 | Rutgers Accounting Learning Goals | https://myrbs.business.rutgers.edu/undergraduate-newark/accounting-minor | Origin: bank
+- Q058: SRC10 | Rutgers Accounting Learning Goals | https://myrbs.business.rutgers.edu/undergraduate-newark/accounting-minor | Origin: bank
+- Q059: SRC10 | Rutgers Accounting Learning Goals | https://myrbs.business.rutgers.edu/undergraduate-newark/accounting-minor | Origin: bank
+- Q060: SRC10 | Rutgers Accounting Learning Goals | https://myrbs.business.rutgers.edu/undergraduate-newark/accounting-minor | Origin: bank
+- Q061: SRC11 | Rutgers Stackable Program | https://www.business.rutgers.edu/stackable | Origin: bank
+- Q062: SRC11 | Rutgers Stackable Program | https://www.business.rutgers.edu/stackable | Origin: bank
+- Q063: SRC11 | Rutgers Stackable Program | https://www.business.rutgers.edu/stackable | Origin: bank
+- Q064: SRC11 | Rutgers Stackable Program | https://www.business.rutgers.edu/stackable | Origin: bank
+- Q065: SRC11 | Rutgers Stackable Program | https://www.business.rutgers.edu/stackable | Origin: bank
+- Q066: SRC12 | Kelley Accounting Assessment | https://kelley.iu.edu/about/directory/offices/instructional-consulting/assessment/accounting.html | Origin: bank
+- Q067: SRC12 | Kelley Accounting Assessment | https://kelley.iu.edu/about/directory/offices/instructional-consulting/assessment/accounting.html | Origin: bank
+- Q068: SRC12 | Kelley Accounting Assessment | https://kelley.iu.edu/about/directory/offices/instructional-consulting/assessment/accounting.html | Origin: bank
+- Q069: SRC12 | Kelley Accounting Assessment | https://kelley.iu.edu/about/directory/offices/instructional-consulting/assessment/accounting.html | Origin: bank
+- Q070: SRC12 | Kelley Accounting Assessment | https://kelley.iu.edu/about/directory/offices/instructional-consulting/assessment/accounting.html | Origin: bank
+- Q071: SRC03 | AACSB Business Accreditation Standards | https://www.aacsb.edu/accredited/standards/business | Origin: bank
+- Q072: SRC03 | AACSB Business Accreditation Standards | https://www.aacsb.edu/accredited/standards/business | Origin: bank
+- Q073: SRC03 | AACSB Business Accreditation Standards | https://www.aacsb.edu/accredited/standards/business | Origin: bank
+- Q074: SRC03 | AACSB Business Accreditation Standards | https://www.aacsb.edu/accredited/standards/business | Origin: bank
+- Q075: SRC03 | AACSB Business Accreditation Standards | https://www.aacsb.edu/accredited/standards/business | Origin: bank
+- Q076: SRC13 | GAO Green Book | https://www.gao.gov/greenbook | Origin: bank
+- Q077: SRC13 | GAO Green Book | https://www.gao.gov/greenbook | Origin: bank
+- Q078: SRC13 | GAO Green Book | https://www.gao.gov/greenbook | Origin: bank
+- Q079: SRC13 | GAO Green Book | https://www.gao.gov/greenbook | Origin: bank
+- Q080: SRC13 | GAO Green Book | https://www.gao.gov/greenbook | Origin: bank
+- Q081: SRC14 | NIST CSF 2.0 | https://www.nist.gov/publications/nist-cybersecurity-framework-csf-20 | Origin: bank
+- Q082: SRC14 | NIST CSF 2.0 | https://www.nist.gov/publications/nist-cybersecurity-framework-csf-20 | Origin: bank
+- Q083: SRC14 | NIST CSF 2.0 | https://www.nist.gov/publications/nist-cybersecurity-framework-csf-20 | Origin: bank
+- Q084: SRC14 | NIST CSF 2.0 | https://www.nist.gov/publications/nist-cybersecurity-framework-csf-20 | Origin: bank
+- Q085: SRC14 | NIST CSF 2.0 | https://www.nist.gov/publications/nist-cybersecurity-framework-csf-20 | Origin: bank
+- Q086: SRC15 | CISA SBOM Guidance | https://www.cisa.gov/sbom | Origin: bank
+- Q087: SRC15 | CISA SBOM Guidance | https://www.cisa.gov/sbom | Origin: bank
+- Q088: SRC15 | CISA SBOM Guidance | https://www.cisa.gov/sbom | Origin: bank
+- Q089: SRC15 | CISA SBOM Guidance | https://www.cisa.gov/sbom | Origin: bank
+- Q090: SRC15 | CISA SBOM Guidance | https://www.cisa.gov/sbom | Origin: bank
+- Q091: SRC16 | SEC Cybersecurity Compliance Guidance | https://www.sec.gov/corpfin/secg-cybersecurity | Origin: bank
+- Q092: SRC16 | SEC Cybersecurity Compliance Guidance | https://www.sec.gov/corpfin/secg-cybersecurity | Origin: bank
+- Q093: SRC16 | SEC Cybersecurity Compliance Guidance | https://www.sec.gov/corpfin/secg-cybersecurity | Origin: bank
+- Q094: SRC16 | SEC Cybersecurity Compliance Guidance | https://www.sec.gov/corpfin/secg-cybersecurity | Origin: bank
+- Q095: SRC16 | SEC Cybersecurity Compliance Guidance | https://www.sec.gov/corpfin/secg-cybersecurity | Origin: bank
+- Q096: SRC17 | PCAOB QC 1000 | https://pcaobus.org/oversight/standards/qc-standards/details/qc-1000--a-firms-system-of-quality-control | Origin: bank
+- Q097: SRC17 | PCAOB QC 1000 | https://pcaobus.org/oversight/standards/qc-standards/details/qc-1000--a-firms-system-of-quality-control | Origin: bank
+- Q098: SRC17 | PCAOB QC 1000 | https://pcaobus.org/oversight/standards/qc-standards/details/qc-1000--a-firms-system-of-quality-control | Origin: bank
+- Q099: SRC17 | PCAOB QC 1000 | https://pcaobus.org/oversight/standards/qc-standards/details/qc-1000--a-firms-system-of-quality-control | Origin: bank
+- Q100: SRC17 | PCAOB QC 1000 | https://pcaobus.org/oversight/standards/qc-standards/details/qc-1000--a-firms-system-of-quality-control | Origin: bank
+- Q101: SRC18 | Apple Creating Launchd Jobs | https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPSystemStartup/Chapters/CreatingLaunchdJobs.html | Origin: bank
+- Q102: SRC18 | Apple Creating Launchd Jobs | https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPSystemStartup/Chapters/CreatingLaunchdJobs.html | Origin: bank
+- Q103: SRC18 | Apple Creating Launchd Jobs | https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPSystemStartup/Chapters/CreatingLaunchdJobs.html | Origin: bank
+- Q104: SRC18 | Apple Creating Launchd Jobs | https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPSystemStartup/Chapters/CreatingLaunchdJobs.html | Origin: bank
+- Q105: SRC18 | Apple Creating Launchd Jobs | https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPSystemStartup/Chapters/CreatingLaunchdJobs.html | Origin: bank
+- Q106: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q107: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q108: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q109: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q110: SRC01 | NASBA / AICPA / QAS CPE Standards | https://www.nasbaregistry.org/sponsor/site/docs/CPEStandards.pdf | Origin: bank
+- Q111: SRC03 | AACSB Business Accreditation Standards | https://www.aacsb.edu/accredited/standards/business | Origin: bank
+- Q112: SRC03 | AACSB Business Accreditation Standards | https://www.aacsb.edu/accredited/standards/business | Origin: bank
+- Q113: SRC03 | AACSB Business Accreditation Standards | https://www.aacsb.edu/accredited/standards/business | Origin: bank
+- Q114: SRC03 | AACSB Business Accreditation Standards | https://www.aacsb.edu/accredited/standards/business | Origin: bank
+- Q115: SRC03 | AACSB Business Accreditation Standards | https://www.aacsb.edu/accredited/standards/business | Origin: bank
+- Q116: SRC19 | IRS Recordkeeping Guidance | https://www.irs.gov/businesses/small-businesses-self-employed/recordkeeping | Origin: bank
+- Q117: SRC19 | IRS Recordkeeping Guidance | https://www.irs.gov/businesses/small-businesses-self-employed/recordkeeping | Origin: bank
+- Q118: SRC19 | IRS Recordkeeping Guidance | https://www.irs.gov/businesses/small-businesses-self-employed/recordkeeping | Origin: bank
+- Q119: SRC19 | IRS Recordkeeping Guidance | https://www.irs.gov/businesses/small-businesses-self-employed/recordkeeping | Origin: bank
+- Q120: SRC19 | IRS Recordkeeping Guidance | https://www.irs.gov/businesses/small-businesses-self-employed/recordkeeping | Origin: bank
+- Q121: SRC13 | GAO Green Book | https://www.gao.gov/greenbook | Origin: bank
+- Q122: SRC13 | GAO Green Book | https://www.gao.gov/greenbook | Origin: bank
+- Q123: SRC13 | GAO Green Book | https://www.gao.gov/greenbook | Origin: bank
+- Q124: SRC13 | GAO Green Book | https://www.gao.gov/greenbook | Origin: bank
+- Q125: SRC13 | GAO Green Book | https://www.gao.gov/greenbook | Origin: bank

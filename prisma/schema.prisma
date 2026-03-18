@@ -571,6 +571,41 @@ model InviteCode {
   @@index([createdByUserId])
 }
 
+model ApiRateLimitBucket {
+  id          String   @id
+  bucketKey   String
+  windowStart DateTime
+  windowMs    Int
+  requestCount Int     @default(0)
+  lastRequestAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([bucketKey, windowStart, windowMs])
+  @@index([bucketKey, lastRequestAt])
+}
+
+model AuditEvent {
+  id               String   @id
+  eventKey         String
+  eventCategory    String
+  actorUserId      String?
+  actorCompanyId   String?
+  subjectCompanyId String?
+  subjectProductId String?
+  requestPath      String?
+  requestMethod    String?
+  outcome          String
+  severity         String   @default("INFO")
+  detailsJson      Json?
+  createdAt        DateTime @default(now())
+
+  @@index([eventCategory, createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([actorCompanyId, createdAt])
+  @@index([subjectCompanyId, createdAt])
+}
+
 model UnlockEvidence {
   id                            String                   @id
   companyBadgeId                String

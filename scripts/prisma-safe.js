@@ -8,6 +8,9 @@
  *   - If NODE_ENV=production, requires ALLOW_PROD_DB_MIGRATIONS=1
  *   - Prevents accidental prod schema changes from a runner
  */
+require("dotenv").config({ path: ".env.local" });
+require("dotenv").config();
+
 const { spawnSync } = require("child_process");
 
 function fail(msg) {

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { unauthorizedResponse } from "@/lib/authz";
 import { resolvePreferredViewerCompanyId } from "@/lib/viewerScopePreference";
-import { evaluateAndPersistUnlockedInsights } from "@/lib/engine/evaluateInsightUnlocks";
+import { evaluateUnlockedInsights } from "@/lib/engine/evaluateInsightUnlocks";
 import { resolveVisibleSubject } from "@/lib/visibility";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
@@ -36,7 +36,7 @@ export async function GET(req: Request) {
   const targetProductId = visibleSubject.subject.product?.id ?? null;
 
   try {
-    const evaluation = await evaluateAndPersistUnlockedInsights({
+    const evaluation = await evaluateUnlockedInsights({
       companyId,
       productId: targetProductId,
     });

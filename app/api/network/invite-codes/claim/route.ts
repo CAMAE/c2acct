@@ -11,8 +11,12 @@ import {
   hashInviteCode,
   isInviteClaimSatisfied,
 } from "@/lib/network/inviteCodes";
+import { recordAuditEvent, toAuditDetailValue } from "@/lib/ops/auditEvents";
+import { consumeDbRateLimit, getRequestClientIp } from "@/lib/ops/rateLimit";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
+const INVITE_CLAIM_WINDOW_MS = 60_000;
+const INVITE_CLAIM_MAX_REQUESTS_PER_WINDOW = 12;
 
 const ClaimInviteCodeSchema = z
   .object({
@@ -39,6 +43,41 @@ export async function POST(req: Request) {
 
   if (currentCompany.type !== "FIRM") {
     return forbiddenResponse("Only firm companies can claim sponsor invite codes");
+  }
+
+  const clientIp = getRequestClientIp(req);
+  const quota = await consumeDbRateLimit({
+    bucketKey: `invite-code-claim:${sessionUser.id}:${currentCompany.id}:${clientIp}`,
+    limit: INVITE_CLAIM_MAX_REQUESTS_PER_WINDOW,
+    windowMs: INVITE_CLAIM_WINDOW_MS,
+  });
+  if (!quota.allowed) {
+    await recordAuditEvent({
+      eventKey: "invite_code.claim.rate_limited",
+      eventCategory: "RATE_LIMIT",
+      outcome: "BLOCKED",
+      severity: "WARN",
+      actorUserId: sessionUser.id,
+      actorCompanyId: currentCompany.id,
+      subjectCompanyId: currentCompany.id,
+      requestPath: "/api/network/invite-codes/claim",
+      requestMethod: "POST",
+      details: toAuditDetailValue({
+        clientIp,
+        requestCount: quota.requestCount,
+        retryAfterSeconds: quota.retryAfterSeconds,
+      }),
+    });
+    return NextResponse.json(
+      { ok: false, error: "Too many requests", retryAfterSeconds: quota.retryAfterSeconds },
+      {
+        status: 429,
+        headers: {
+          ...NO_STORE_HEADERS,
+          "Retry-After": String(quota.retryAfterSeconds),
+        },
+      }
+    );
   }
 
   let raw: unknown;
@@ -269,6 +308,17 @@ export async function POST(req: Request) {
   });
 
   if (!claimResult.ok) {
+    await recordAuditEvent({
+      eventKey: "invite_code.claim.rejected",
+      eventCategory: "NETWORK",
+      outcome: claimResult.error,
+      severity: "WARN",
+      actorUserId: sessionUser.id,
+      actorCompanyId: currentCompany.id,
+      subjectCompanyId: currentCompany.id,
+      requestPath: "/api/network/invite-codes/claim",
+      requestMethod: "POST",
+    });
     return NextResponse.json(
       { ok: false, error: claimResult.error },
       { status: claimResult.status, headers: NO_STORE_HEADERS }
@@ -277,5 +327,21 @@ export async function POST(req: Request) {
 
   const { ok: _ok, ...claimPayload } = claimResult;
   void _ok;
+  await recordAuditEvent({
+    eventKey: "invite_code.claim.accepted",
+    eventCategory: "NETWORK",
+    outcome: "ACCEPTED",
+    actorUserId: sessionUser.id,
+    actorCompanyId: currentCompany.id,
+    subjectCompanyId: currentCompany.id,
+    requestPath: "/api/network/invite-codes/claim",
+    requestMethod: "POST",
+    details: toAuditDetailValue({
+      sponsorRelationshipId: claimPayload.sponsorRelationship.id,
+      vendorCompanyId: claimPayload.sponsorRelationship.vendorCompanyId,
+      consumedClaim: claimPayload.consumedClaim,
+      inviteCodeId: claimPayload.inviteCode.id,
+    }),
+  });
   return NextResponse.json({ ok: true, ...claimPayload }, { headers: NO_STORE_HEADERS });
 }
