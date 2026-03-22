@@ -19,15 +19,20 @@ function getQueryCompanyId(searchParams: SearchParamsLike): string | null {
   return null;
 }
 
+function normalizeCompanyId(value: string | null | undefined) {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
 export async function resolveCompanyId(searchParams?: SearchParamsLike) {
-  const fromQuery = getQueryCompanyId(searchParams);
+  const fromQuery = normalizeCompanyId(getQueryCompanyId(searchParams));
   if (fromQuery) return fromQuery;
 
   const cookieStore = await cookies();
-  const fromCookie = cookieStore.get("aae_companyId")?.value;
+  const fromCookie = normalizeCompanyId(cookieStore.get("aae_companyId")?.value);
   if (fromCookie) return fromCookie;
 
   return null;
 }
-
 

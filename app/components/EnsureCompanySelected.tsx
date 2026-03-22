@@ -2,6 +2,11 @@
 
 import { useEffect, useState } from "react";
 
+type CompanyDefaultResponse = {
+  alreadySelected?: boolean;
+  companyId?: string | null;
+};
+
 export default function EnsureCompanySelected() {
   const [done, setDone] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -32,7 +37,15 @@ export default function EnsureCompanySelected() {
           return;
         }
 
-        const j: any = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          if (!cancelled) {
+            setMessage("Unable to resolve your company selection right now.");
+            setDone(true);
+          }
+          return;
+        }
+
+        const j: CompanyDefaultResponse = await r.json().catch(() => ({} as CompanyDefaultResponse));
 
         // If already selected (server read httpOnly cookie) or no companies exist, do nothing
         if (j?.alreadySelected === true || !j?.companyId) {
@@ -64,6 +77,14 @@ export default function EnsureCompanySelected() {
         if (selectRes.status === 403) {
           if (!cancelled) {
             setMessage("Company selection is restricted for this account.");
+            setDone(true);
+          }
+          return;
+        }
+
+        if (!selectRes.ok) {
+          if (!cancelled) {
+            setMessage("Unable to persist company selection right now.");
             setDone(true);
           }
           return;

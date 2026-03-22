@@ -1,29 +1,36 @@
 ﻿import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
-import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
+import { resolveAuthorizedCompanyId } from "@/lib/authz";
+import { resolveCompanyId } from "@/lib/companyContext";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
+type BadgeRow = {
+  id: string;
+  badgeId: string;
+  moduleId: string;
+  awardedAt: Date;
+  Badge: {
+    name: string;
+  } | null;
+};
 
-export async function GET() {
+export async function GET(req: Request) {
   const sessionUser = await getSessionUser();
-  if (!sessionUser) {
-    return unauthorizedResponse();
-  }
-
-  const companyId = sessionUser.companyId;
-  if (!companyId) {
-    return forbiddenResponse("No company assigned");
+  const requestedCompanyId = await resolveCompanyId(new URL(req.url).searchParams);
+  const access = resolveAuthorizedCompanyId(sessionUser, requestedCompanyId);
+  if (!access.ok) {
+    return access.response;
   }
 
   try {
-    const rows = await prisma.companyBadge.findMany({
-      where: { companyId },
+    const rows: BadgeRow[] = await prisma.companyBadge.findMany({
+      where: { companyId: access.companyId },
       orderBy: { awardedAt: "desc" },
       include: { Badge: { select: { name: true } } },
     });
 
-    const earned = rows.map((r) => ({
+    const earned = rows.map((r: BadgeRow) => ({
       id: r.id,
       badgeId: r.badgeId,
       moduleId: r.moduleId,

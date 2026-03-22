@@ -1,12 +1,12 @@
 import NextAuth from "next-auth";
-import type { UserRole } from "@prisma/client";
 import authConfig from "@/auth.config";
 import prisma from "@/lib/prisma";
+import type { SessionUserRole } from "@/lib/auth/session";
 
 type DbUserClaims = {
   id: string;
   email: string;
-  role: UserRole;
+  role: SessionUserRole;
   companyId: string | null;
 };
 
@@ -65,15 +65,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return session;
       }
 
-      const sessionUser = session.user as typeof session.user & {
+        const sessionUser = session.user as typeof session.user & {
         id?: string;
-        role?: UserRole;
+        role?: SessionUserRole;
         companyId?: string | null;
       };
 
       sessionUser.id = typeof token.sub === "string" ? token.sub : "";
       sessionUser.email = typeof token.email === "string" ? token.email : "";
-      sessionUser.role = (token.role as UserRole | undefined) ?? "MEMBER";
+      sessionUser.role = (token.role as SessionUserRole | undefined) ?? "MEMBER";
       sessionUser.companyId =
         typeof token.companyId === "string" ? token.companyId : null;
 
