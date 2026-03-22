@@ -1,19 +1,17 @@
 ﻿import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
-import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
+import { resolveAuthorizedCompanyId } from "@/lib/authz";
+import { resolveCompanyId } from "@/lib/companyContext";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
-export async function GET() {
+export async function GET(req: Request) {
   const sessionUser = await getSessionUser();
-  if (!sessionUser) {
-    return unauthorizedResponse();
-  }
-
-  const companyId = sessionUser.companyId;
-  if (!companyId) {
-    return forbiddenResponse("No company assigned");
+  const requestedCompanyId = await resolveCompanyId(new URL(req.url).searchParams);
+  const access = resolveAuthorizedCompanyId(sessionUser, requestedCompanyId);
+  if (!access.ok) {
+    return access.response;
   }
 
   try {
@@ -25,7 +23,7 @@ export async function GET() {
     if (!badge) return NextResponse.json({ ok: true, unlocked: [] }, { headers: NO_STORE_HEADERS });
 
     const earned = await prisma.companyBadge.findFirst({
-      where: { companyId, badgeId: badge.id },
+      where: { companyId: access.companyId, badgeId: badge.id },
       select: { id: true },
     });
 

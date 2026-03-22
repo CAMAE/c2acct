@@ -13,6 +13,20 @@ const SCORE_SCALE_MAX = 5;
 const SUBMIT_WINDOW_MS = 60_000;
 const SUBMIT_MAX_REQUESTS_PER_WINDOW = 20;
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
+type SurveyModuleRecord = {
+  id: string;
+  version: number | null;
+  active: boolean;
+};
+type SurveyQuestionRecord = {
+  id: string;
+  required: boolean;
+};
+type BadgeRuleRecord = {
+  badgeId: string;
+  minScore: number | null;
+  required: boolean;
+};
 
 type SubmitRateLimitState = {
   count: number;
@@ -127,7 +141,7 @@ export async function POST(req: Request) {
 
   const { moduleKey, answers: rawAnswers } = parsed.data;
 
-  const surveyModule = await prisma.surveyModule.findUnique({
+  const surveyModule: SurveyModuleRecord | null = await prisma.surveyModule.findUnique({
     where: { key: moduleKey },
     select: { id: true, version: true, active: true },
   });
@@ -136,7 +150,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Module not found" }, { status: 404, headers: NO_STORE_HEADERS });
   }
 
-  const questions = await prisma.surveyQuestion.findMany({
+  const questions: SurveyQuestionRecord[] = await prisma.surveyQuestion.findMany({
     where: { moduleId: surveyModule.id },
     select: { id: true, required: true },
   });
@@ -148,7 +162,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const allowedQuestionIds = new Set(questions.map((q) => q.id));
+  const allowedQuestionIds = new Set(questions.map((q: SurveyQuestionRecord) => q.id));
   const submittedQuestionIds = Object.keys(rawAnswers);
 
   const unknownAnswerIds = submittedQuestionIds.filter((questionId) => !allowedQuestionIds.has(questionId));
@@ -164,7 +178,9 @@ export async function POST(req: Request) {
     );
   }
 
-  const requiredQuestionIds = questions.filter((q) => q.required).map((q) => q.id);
+  const requiredQuestionIds = questions
+    .filter((q: SurveyQuestionRecord) => q.required)
+    .map((q: SurveyQuestionRecord) => q.id);
   const missingRequired = requiredQuestionIds.filter((questionId) => !Object.hasOwn(rawAnswers, questionId));
   if (missingRequired.length > 0) {
     return NextResponse.json(
@@ -244,7 +260,7 @@ export async function POST(req: Request) {
     });
 
     let reached = false;
-    const badgeRules = await tx.badgeRule.findMany({
+    const badgeRules: BadgeRuleRecord[] = await tx.badgeRule.findMany({
       where: { moduleId: surveyModule.id },
       select: { badgeId: true, minScore: true, required: true },
     });
