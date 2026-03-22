@@ -3,12 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --webpack",
+    "dev:turbopack": "next dev --turbopack",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint --max-warnings=-1",
     "prisma:migrate:deploy": "node scripts/prisma-safe.js migrate deploy",
-    "prisma:db:push": "node scripts/prisma-safe.js db push"
+    "prisma:db:push": "node scripts/prisma-safe.js db push",
+    "ops:mac-mini:status": "bash scripts/mac-mini/status.sh",
+    "ops:mac-mini:health": "bash scripts/mac-mini/health-check.sh",
+    "ops:mac-mini:launchd:install": "bash scripts/mac-mini/launchd-install.sh",
+    "ops:mac-mini:launchd:check": "bash scripts/mac-mini/launchd-check.sh",
+    "ops:mac-mini:verify": "bash scripts/mac-mini/nightly-verify.sh"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

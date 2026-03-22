@@ -58,6 +58,10 @@ tmp-*.json
 
 # logs
 *.log
+artifacts/mac-mini/logs/
+artifacts/mac-mini/reports/
+artifacts/mac-mini/state/
+artifacts/mac-mini/launchd/
 
 # accidental backups
 *.bak_*
