@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "source": {
+    "key": "accounting-vendor-product-research-v1",
+    "title": "Accounting Vendor Product Research v1",
+    "sourceType": "SPREADSHEET",
+    "status": "STAGED",
+    "artifactPath": "data/research/accounting-vendor-product-research-template-v1.json",
+    "notes": "Template aligned to PAT ingestion structures. Replace placeholders only when grounded source material is present."
+  },
+  "taxonomyBuckets": [],
+  "bucketCapabilityMappings": [],
+  "vendors": [
+    {
+      "key": "example-vendor",
+      "displayName": "Example Vendor",
+      "website": null,
+      "status": "UNKNOWN",
+      "notes": "Replace with grounded research.",
+      "companyName": null
+    }
+  ],
+  "products": [
+    {
+      "key": "example-product",
+      "vendorKey": "example-vendor",
+      "name": "Example Product",
+      "slug": "example-product",
+      "website": null,
+      "summary": "Replace with grounded research.",
+      "deploymentModel": "CLOUD",
+      "notes": "Use PRIMARY, SECONDARY, and ADJACENT taxonomy fit values. Use UNKNOWN when confidence is not yet established.",
+      "taxonomy": [
+        {
+          "bucketKey": "function-workflow",
+          "fit": "PRIMARY",
+          "confidence": "UNKNOWN",
+          "notes": "Replace with grounded research."
+        }
+      ],
+      "capabilities": [
+        {
+          "capabilityKey": "workflow_orchestration",
+          "coverage": "CORE",
+          "confidence": "UNKNOWN",
+          "notes": "Replace with grounded research and reconcile against actual CapabilityNode.key values."
+        }
+      ],
+      "signals": [
+        {
+          "signalKey": "implementation_model",
+          "valueText": "unknown",
+          "valueNumber": null,
+          "confidence": "UNKNOWN",
+          "notes": "Replace with grounded research."
+        }
+      ]
+    }
+  ],
+  "vendorSignals": [
+    {
+      "vendorKey": "example-vendor",
+      "signalKey": "market_status",
+      "valueText": "unknown",
+      "valueNumber": null,
+      "confidence": "UNKNOWN",
+      "notes": "Replace with grounded research."
+    }
+  ]
+}
