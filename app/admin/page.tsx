@@ -121,10 +121,8 @@ export default async function AdminPage({
   if (!isAdmin) {
     return (
       <section className="mx-auto max-w-3xl">
-        <div className="rounded-[28px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8 shadow-[0_24px_60px_rgba(15,23,42,0.08)]">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--shell-muted)]">
-            Operator Console
-          </div>
+        <div className="pat-card p-8">
+          <div className="pat-label">Operator Console</div>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
             Operator access required
           </h1>
@@ -132,10 +130,10 @@ export default async function AdminPage({
             This surface is reserved for PAT operators managing organizations, access, and platform readiness. Your current account does not have operator privileges.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link className="rounded-full bg-[var(--shell-ink)] px-5 py-3 text-sm font-semibold text-white" href="/platform">
+            <Link className="pat-button-primary" href="/platform">
               Return to workspace
             </Link>
-            <Link className="rounded-full border border-[var(--shell-border)] px-5 py-3 text-sm font-semibold text-[var(--shell-ink)]" href="/">
+            <Link className="pat-button-secondary" href="/">
               Back to home
             </Link>
           </div>
@@ -299,19 +297,19 @@ export default async function AdminPage({
                 name="name"
                 placeholder="Organization name"
                 required
-                className="rounded-xl border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)]"
+                className="pat-input"
               />
               <select
                 name="type"
                 defaultValue="FIRM"
-                className="rounded-xl border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)]"
+                className="pat-select"
               >
                 <option value="FIRM">Firm</option>
                 <option value="VENDOR">Vendor</option>
               </select>
               <button
                 type="submit"
-                className="rounded-full bg-[var(--shell-ink)] px-5 py-3 text-sm font-semibold text-white"
+                className="pat-button-primary"
               >
                 Create organization
               </button>
@@ -327,7 +325,7 @@ export default async function AdminPage({
               <select
                 name="userId"
                 defaultValue=""
-                className="rounded-xl border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)]"
+                className="pat-select"
               >
                 <option value="" disabled>
                   Select user
@@ -341,7 +339,7 @@ export default async function AdminPage({
               <select
                 name="role"
                 defaultValue="MEMBER"
-                className="rounded-xl border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)]"
+                className="pat-select"
               >
                 <option value="OWNER">Owner</option>
                 <option value="ADMIN">Admin</option>
@@ -350,7 +348,7 @@ export default async function AdminPage({
               <select
                 name="companyId"
                 defaultValue="__none__"
-                className="rounded-xl border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)]"
+                className="pat-select"
               >
                 <option value="__none__">No company linked</option>
                 {organizations.map((organization) => (

@@ -110,10 +110,10 @@ export default async function ResultsPage({
             tone="accent"
           >
             <div className="flex flex-wrap gap-3 text-sm text-[var(--shell-muted)]">
-              <Link className="rounded-full bg-[var(--shell-ink)] px-5 py-3 font-semibold text-white" href="/outputs">
+              <Link className="pat-button-primary" href="/outputs">
                 Continue to outputs
               </Link>
-              <Link className="rounded-full border border-[var(--shell-border)] px-5 py-3 font-semibold text-[var(--shell-ink)]" href="/profiles">
+              <Link className="pat-button-secondary" href="/profiles">
                 Open profile shell
               </Link>
             </div>
@@ -137,7 +137,7 @@ export default async function ResultsPage({
           >
             <div className="flex flex-wrap items-center gap-4">
               <Link
-                className="rounded-full bg-[var(--shell-ink)] px-5 py-3 text-sm font-semibold text-white"
+                className="pat-button-primary"
                 href="/survey"
               >
                 Start assessment
@@ -244,13 +244,13 @@ export default async function ResultsPage({
               tone="muted"
             >
               <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--shell-muted)]">
-                <Link className="rounded-full border border-[var(--shell-border)] px-5 py-3 font-semibold text-[var(--shell-ink)]" href="/outputs">
+                <Link className="pat-button-secondary" href="/outputs">
                   View unlocked outputs
                 </Link>
-                <Link className="rounded-full border border-[var(--shell-border)] px-5 py-3 font-semibold text-[var(--shell-ink)]" href="/profiles">
+                <Link className="pat-button-secondary" href="/profiles">
                   Open profile shell
                 </Link>
-                <Link className="rounded-full border border-[var(--shell-border)] px-5 py-3 font-semibold text-[var(--shell-ink)]" href="/survey">
+                <Link className="pat-button-secondary" href="/survey">
                   Run another submission
                 </Link>
               </div>

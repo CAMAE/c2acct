@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { QuestionInputType } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import {
@@ -22,8 +22,8 @@ function renderQuestionInput(
 ) {
   if (question.status === "unsupported") {
     return (
-      <div style={{ color: "#7f1d1d", background: "#fff1f2", borderRadius: 12, padding: 12 }}>
-        This question type is configured without the metadata the PAT engine requires yet.
+      <div className="pat-banner pat-banner-danger">
+        This question type is configured without the metadata the PAT runtime requires yet.
       </div>
     );
   }
@@ -31,8 +31,9 @@ function renderQuestionInput(
   if (question.inputType === QuestionInputType.SLIDER && question.validation.slider) {
     const slider = question.validation.slider;
     const selectedValue = typeof value === "number" ? value : slider.min;
+
     return (
-      <div style={{ display: "grid", gap: 10 }}>
+      <div className="grid gap-4">
         <input
           type="range"
           min={slider.min}
@@ -40,10 +41,13 @@ function renderQuestionInput(
           step={slider.step}
           value={selectedValue}
           onChange={(event) => setAnswer(Number(event.target.value))}
+          className="accent-[var(--shell-accent-strong)]"
         />
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, color: "#475569", fontSize: 13 }}>
+        <div className="pat-sans flex items-center justify-between gap-3 text-xs text-[var(--shell-muted)]">
           <span>{slider.labels?.[String(slider.min)] ?? `Low (${slider.min})`}</span>
-          <strong style={{ color: "#0f172a" }}>{selectedValue}</strong>
+          <span className="rounded-full border border-[var(--shell-border)] bg-white px-3 py-1 text-sm font-semibold text-[var(--shell-ink)]">
+            {selectedValue}
+          </span>
           <span>{slider.labels?.[String(slider.max)] ?? `High (${slider.max})`}</span>
         </div>
       </div>
@@ -61,7 +65,7 @@ function renderQuestionInput(
           value={currentValue}
           placeholder={question.meta.placeholder ?? ""}
           onChange={(event) => setAnswer(event.target.value)}
-          style={inputStyle}
+          className="pat-input"
         />
       );
     }
@@ -72,15 +76,16 @@ function renderQuestionInput(
         placeholder={question.meta.placeholder ?? ""}
         onChange={(event) => setAnswer(event.target.value)}
         rows={4}
-        style={{ ...inputStyle, resize: "vertical", minHeight: 120 }}
+        className="pat-textarea min-h-[132px] resize-y"
       />
     );
   }
 
   if (question.inputType === QuestionInputType.BOOLEAN) {
     const currentValue = typeof value === "boolean" ? value : false;
+
     return (
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+      <div className="flex flex-wrap gap-3">
         {[
           { label: "Yes", nextValue: true },
           { label: "No", nextValue: false },
@@ -89,7 +94,8 @@ function renderQuestionInput(
             key={option.label}
             type="button"
             onClick={() => setAnswer(option.nextValue)}
-            style={choiceButtonStyle(currentValue === option.nextValue)}
+            data-active={currentValue === option.nextValue}
+            className="pat-question-choice-button"
           >
             {option.label}
           </button>
@@ -100,8 +106,13 @@ function renderQuestionInput(
 
   if (question.inputType === QuestionInputType.SELECT) {
     const currentValue = typeof value === "string" ? value : "";
+
     return (
-      <select value={currentValue} onChange={(event) => setAnswer(event.target.value)} style={inputStyle}>
+      <select
+        value={currentValue}
+        onChange={(event) => setAnswer(event.target.value)}
+        className="pat-select"
+      >
         <option value="">{question.meta.placeholder ?? "Select one"}</option>
         {(question.validation.options ?? []).map((option) => (
           <option key={option.value} value={option.value}>
@@ -114,26 +125,18 @@ function renderQuestionInput(
 
   if (question.inputType === QuestionInputType.MULTISELECT) {
     const selectedValues = Array.isArray(value) ? value : [];
+
     return (
-      <div style={{ display: "grid", gap: 10 }}>
+      <div className="grid gap-3">
         {(question.validation.options ?? []).map((option) => {
           const checked = selectedValues.includes(option.value);
+
           return (
-            <label
-              key={option.value}
-              style={{
-                display: "flex",
-                gap: 10,
-                alignItems: "flex-start",
-                padding: 12,
-                borderRadius: 12,
-                border: "1px solid #cbd5e1",
-                background: checked ? "#eff6ff" : "#ffffff",
-              }}
-            >
+            <label key={option.value} data-active={checked} className="pat-question-choice pat-sans">
               <input
                 type="checkbox"
                 checked={checked}
+                className="mt-1"
                 onChange={() => {
                   if (checked) {
                     setAnswer(selectedValues.filter((entry) => entry !== option.value));
@@ -143,9 +146,11 @@ function renderQuestionInput(
                   setAnswer([...selectedValues, option.value]);
                 }}
               />
-              <span>
-                <strong style={{ display: "block", color: "#0f172a" }}>{option.label}</strong>
-                {option.description ? <span style={{ color: "#475569" }}>{option.description}</span> : null}
+              <span className="grid gap-1">
+                <span className="font-semibold text-[var(--shell-ink)]">{option.label}</span>
+                {option.description ? (
+                  <span className="text-sm leading-6 text-[var(--shell-muted)]">{option.description}</span>
+                ) : null}
               </span>
             </label>
           );
@@ -156,6 +161,7 @@ function renderQuestionInput(
 
   if (question.inputType === QuestionInputType.NUMBER) {
     const currentValue = typeof value === "number" ? String(value) : "";
+
     return (
       <input
         type="number"
@@ -168,14 +174,14 @@ function renderQuestionInput(
           const nextValue = event.target.value;
           setAnswer(nextValue === "" ? null : Number(nextValue));
         }}
-        style={inputStyle}
+        className="pat-input"
       />
     );
   }
 
   return (
-    <div style={{ color: "#7f1d1d", background: "#fff1f2", borderRadius: 12, padding: 12 }}>
-      This question type is not yet enabled in the PAT engine.
+    <div className="pat-banner pat-banner-danger">
+      This question type is not enabled in the current PAT runtime.
     </div>
   );
 }
@@ -225,9 +231,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
   }, [moduleKey]);
 
   useEffect(() => {
-    if (!data) {
-      return;
-    }
+    if (!data) return;
 
     setAnswers((currentAnswers) => {
       const nextAnswers = { ...currentAnswers };
@@ -276,7 +280,11 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
 
     if (missingRequiredCount > 0) {
       setSubmitStatus("error");
-      setSubmitError(`Complete the remaining ${missingRequiredCount} required question${missingRequiredCount === 1 ? "" : "s"} before submitting.`);
+      setSubmitError(
+        `Complete the remaining ${missingRequiredCount} required question${
+          missingRequiredCount === 1 ? "" : "s"
+        } before submitting.`
+      );
       return;
     }
 
@@ -317,42 +325,44 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
 
   if (loading) {
     return (
-      <div style={pageContainerStyle}>
-        <div style={heroPanelStyle}>
-          <div style={eyebrowStyle}>PAT Assessment</div>
-          <h1 style={heroTitleStyle}>Loading the current module…</h1>
-          <p style={heroBodyStyle}>
+      <div className="mx-auto max-w-5xl py-8">
+        <section className="pat-card-strong p-8">
+          <div className="pat-label text-white/60">PAT Assessment</div>
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight">Loading the current module...</h1>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-white/74">
             PAT is preparing the assessment contract, sections, and question metadata for this workflow.
           </p>
-        </div>
+        </section>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div style={pageContainerStyle}>
-        <div style={cardPanelStyle}>
-          <div style={eyebrowStyle}>Assessment unavailable</div>
-          <h1 style={{ ...heroTitleStyle, color: "#7f1d1d", fontSize: "2rem" }}>The module could not be prepared.</h1>
-          <p style={{ ...heroBodyStyle, color: "#7f1d1d" }}>{error}</p>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 8 }}>
-            <button type="button" onClick={() => window.location.reload()} style={primaryButtonStyle(false)}>
+      <div className="mx-auto max-w-5xl py-8">
+        <section className="pat-card p-8">
+          <div className="pat-label">Assessment unavailable</div>
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-danger)]">
+            The module could not be prepared.
+          </h1>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-danger)]">{error}</p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <button type="button" onClick={() => window.location.reload()} className="pat-button-primary">
               Retry
             </button>
-            <button type="button" onClick={() => router.push("/survey")} style={secondaryButtonStyle}>
+            <button type="button" onClick={() => router.push("/survey")} className="pat-button-secondary">
               Back to readiness
             </button>
           </div>
-        </div>
+        </section>
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div style={pageContainerStyle}>
-        <div style={cardPanelStyle}>Assessment module is unavailable.</div>
+      <div className="mx-auto max-w-5xl py-8">
+        <section className="pat-card p-8">Assessment module is unavailable.</section>
       </div>
     );
   }
@@ -362,278 +372,149 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
     requiredQuestionIds.length === 0 ? 0 : Math.round((answeredRequiredCount / requiredQuestionIds.length) * 100);
 
   return (
-    <div style={pageContainerStyle}>
-      <header style={heroPanelStyle}>
-        <div style={eyebrowStyle}>PAT Assessment Module</div>
-        <h1 style={heroTitleStyle}>{data.title}</h1>
-        <div style={{ color: "#6b7280", fontSize: 14 }}>
+    <div className="mx-auto max-w-5xl space-y-6 py-8">
+      <header className="pat-card-strong p-8">
+        <div className="pat-label text-white/60">PAT Assessment Module</div>
+        <h1 className="mt-4 text-4xl font-semibold tracking-tight">{data.title}</h1>
+        <div className="pat-sans mt-2 text-sm text-white/62">
           {data.scope} module · v{data.version}
         </div>
-        {data.description ? <p style={heroBodyStyle}>{data.description}</p> : null}
+        {data.description ? (
+          <p className="mt-4 max-w-3xl text-base leading-7 text-white/74">{data.description}</p>
+        ) : null}
 
-        <div style={readinessGridStyle}>
-          <div style={readinessCardStyle}>
-            <div style={metricLabelStyle}>Progress</div>
-            <div style={metricValueStyle}>{completionPct}%</div>
-            <div style={metricBodyStyle}>
+        <div className="mt-7 grid gap-4 md:grid-cols-2">
+          <div className="rounded-[22px] border border-white/10 bg-white/7 p-5">
+            <div className="pat-label text-white/54">Progress</div>
+            <div className="pat-sans mt-3 text-4xl font-semibold tracking-tight">{completionPct}%</div>
+            <div className="mt-3 text-sm leading-6 text-white/70">
               {answeredRequiredCount} of {requiredQuestionIds.length} required questions completed
             </div>
           </div>
-          <div style={readinessCardStyle}>
-            <div style={metricLabelStyle}>Current path</div>
-            <div style={{ ...metricValueStyle, fontSize: "1.3rem" }}>Survey → Results → Outputs</div>
-            <div style={metricBodyStyle}>Submission moves directly into the protected PAT readout flow.</div>
+          <div className="rounded-[22px] border border-white/10 bg-white/7 p-5">
+            <div className="pat-label text-white/54">Current path</div>
+            <div className="pat-sans mt-3 text-xl font-semibold tracking-tight">
+              Assessment - Results - Outputs
+            </div>
+            <div className="mt-3 text-sm leading-6 text-white/70">
+              Submission moves directly into the protected PAT readout flow.
+            </div>
           </div>
         </div>
       </header>
 
-      {(data.stagedFeatures.branching || data.stagedFeatures.roleVariants) ? (
-        <div style={calloutStyle}>
-          {data.stagedFeatures.branching ? "Branching metadata is present and reserved for phase 2 runtime control. " : ""}
-          {data.stagedFeatures.roleVariants ? "Role variant metadata is present and reserved for phase 2 module resolution." : ""}
+      {data.stagedFeatures.branching || data.stagedFeatures.roleVariants ? (
+        <div className="pat-banner pat-banner-info">
+          {data.stagedFeatures.branching
+            ? "Branching metadata is present and reserved for phase 2 runtime control. "
+            : ""}
+          {data.stagedFeatures.roleVariants
+            ? "Role-variant metadata is present and reserved for phase 2 module resolution."
+            : ""}
         </div>
       ) : null}
 
       {unsupportedQuestions.length > 0 ? (
-        <div style={{ ...calloutStyle, background: "#fff7ed", borderColor: "#fdba74", color: "#9a3412" }}>
-          {unsupportedQuestions.length} question{unsupportedQuestions.length === 1 ? "" : "s"} need metadata repair before
-          they can render fully.
+        <div className="pat-banner pat-banner-warning">
+          {unsupportedQuestions.length} question{unsupportedQuestions.length === 1 ? "" : "s"} need metadata repair
+          before they can render fully.
         </div>
       ) : null}
 
-      <div style={{ display: "grid", gap: 18, marginTop: 28 }}>
+      <div className="grid gap-5">
         {data.sections.map((section, sectionIndex) => (
-          <section
-            key={section.key}
-            style={{
-              display: "grid",
-              gap: 16,
-              padding: 20,
-              borderRadius: 20,
-              border: "1px solid #dbe4ee",
-              background: "#ffffff",
-              boxShadow: "0 12px 36px rgba(15, 23, 42, 0.05)",
-            }}
-          >
-            <div style={{ display: "grid", gap: 6 }}>
-              <div style={{ fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "#64748b" }}>
-                Section {sectionIndex + 1}
-              </div>
-              <h2 style={{ margin: 0, color: "#0f172a" }}>{section.title}</h2>
-              {section.description ? <p style={{ margin: 0, color: "#475569" }}>{section.description}</p> : null}
+          <section key={section.key} className="pat-card overflow-hidden p-6">
+            <div className="grid gap-2">
+              <div className="pat-label">Section {sectionIndex + 1}</div>
+              <h2 className="text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">{section.title}</h2>
+              {section.description ? (
+                <p className="max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">{section.description}</p>
+              ) : null}
             </div>
 
-            {section.questionIds.map((questionId) => {
-              const question = questionsById.get(questionId);
-              if (!question) {
-                return null;
-              }
+            <div className="mt-6 grid gap-4">
+              {section.questionIds.map((questionId) => {
+                const question = questionsById.get(questionId);
+                if (!question) {
+                  return null;
+                }
 
-              const value = answers[question.id];
-              const hasAnswer = isAnswerPresent(value);
-              return (
-                <article
-                  key={question.id}
-                  style={{
-                    display: "grid",
-                    gap: 12,
-                    padding: 18,
-                    borderRadius: 16,
-                    border: "1px solid #e2e8f0",
-                    background: "#f8fafc",
-                  }}
-                >
-                  <div style={{ display: "grid", gap: 6 }}>
-                    <div style={{ fontSize: 12, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                      {question.required ? "Required" : "Optional"}
-                      {question.meta.groupKey ? ` · ${question.meta.groupKey}` : ""}
-                    </div>
-                    <div style={{ fontSize: 18, fontWeight: 600, color: "#0f172a" }}>{question.prompt}</div>
-                    {question.meta.helpText ? <div style={{ color: "#475569" }}>{question.meta.helpText}</div> : null}
-                    {question.meta.branching ? (
-                      <div style={{ fontSize: 13, color: "#64748b" }}>
-                        Branching rule staged for phase 2: {question.meta.branching.visibleWhen?.questionKey ?? "conditional"}
+                const value = answers[question.id];
+                const hasAnswer = isAnswerPresent(value);
+
+                return (
+                  <article key={question.id} className="pat-subpanel p-5">
+                    <div className="grid gap-3">
+                      <div className="pat-label">
+                        {question.required ? "Required" : "Optional"}
+                        {question.meta.groupKey ? ` · ${question.meta.groupKey}` : ""}
                       </div>
-                    ) : null}
-                  </div>
+                      <div className="text-xl font-semibold tracking-tight text-[var(--shell-ink)]">
+                        {question.prompt}
+                      </div>
+                      {question.meta.helpText ? (
+                        <div className="text-sm leading-6 text-[var(--shell-muted)]">
+                          {question.meta.helpText}
+                        </div>
+                      ) : null}
+                      {question.meta.branching ? (
+                        <div className="pat-banner pat-banner-info">
+                          Branching rule staged for phase 2:{" "}
+                          {question.meta.branching.visibleWhen?.questionKey ?? "conditional"}
+                        </div>
+                      ) : null}
+                    </div>
 
-                  {renderQuestionInput(question, value, (nextValue) => setAnswer(question.id, nextValue))}
+                    <div className="mt-4">
+                      {renderQuestionInput(question, value, (nextValue) => setAnswer(question.id, nextValue))}
+                    </div>
 
-                  <div style={{ fontSize: 13, color: hasAnswer ? "#166534" : "#64748b" }}>
-                    {hasAnswer ? "Response captured" : "Awaiting response"}
-                  </div>
-                </article>
-              );
-            })}
+                    <div
+                      className={`pat-sans mt-4 text-sm ${
+                        hasAnswer ? "text-[var(--shell-success)]" : "text-[var(--shell-muted)]"
+                      }`}
+                    >
+                      {hasAnswer ? "Response captured" : "Awaiting response"}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
           </section>
         ))}
       </div>
 
-      <div style={{ display: "grid", gap: 10, marginTop: 24 }}>
+      <div className="grid gap-3">
         {submitStatus === "success" ? (
-          <div style={{ ...calloutStyle, background: "#ecfdf5", borderColor: "#a7f3d0", color: "#166534" }}>
-            Submission accepted. Opening the current results view…
-          </div>
+          <div className="pat-banner pat-banner-success">Submission accepted. Opening the current results view...</div>
         ) : null}
 
         {missingRequiredCount > 0 ? (
-          <div style={{ ...calloutStyle, background: "#fffaf0", borderColor: "#f5d0a0", color: "#92400e" }}>
-            {missingRequiredCount} required question{missingRequiredCount === 1 ? "" : "s"} still need a response before PAT can accept this submission.
+          <div className="pat-banner pat-banner-warning">
+            {missingRequiredCount} required question{missingRequiredCount === 1 ? "" : "s"} still need a response
+            before PAT can accept this submission.
           </div>
         ) : null}
 
-        <button
-          type="button"
-          onClick={submitSurvey}
-          disabled={submitStatus === "submitting" || submitStatus === "success"}
-          style={primaryButtonStyle(submitStatus === "submitting" || submitStatus === "success")}
-        >
-          {submitStatus === "submitting" ? "Submitting assessment..." : "Submit assessment"}
-        </button>
-
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <button type="button" onClick={() => router.push("/survey")} style={secondaryButtonStyle}>
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={submitSurvey}
+            disabled={submitStatus === "submitting" || submitStatus === "success"}
+            className="pat-button-primary"
+          >
+            {submitStatus === "submitting" ? "Submitting assessment..." : "Submit assessment"}
+          </button>
+          <button type="button" onClick={() => router.push("/survey")} className="pat-button-secondary">
             Back to readiness
           </button>
-          <button type="button" onClick={() => router.push("/results")} style={secondaryButtonStyle}>
+          <button type="button" onClick={() => router.push("/results")} className="pat-button-secondary">
             Review current results
           </button>
         </div>
 
-        {submitError ? <div style={{ color: "#991b1b" }}>Submit error: {submitError}</div> : null}
+        {submitError ? <div className="pat-banner pat-banner-danger">Submit error: {submitError}</div> : null}
       </div>
     </div>
   );
-}
-
-const pageContainerStyle: CSSProperties = {
-  maxWidth: 960,
-  margin: "0 auto",
-  padding: "32px 20px 64px",
-};
-
-const heroPanelStyle: CSSProperties = {
-  display: "grid",
-  gap: 12,
-  padding: 24,
-  borderRadius: 28,
-  border: "1px solid rgba(15, 23, 42, 0.08)",
-  background: "linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248,250,252,0.9))",
-  boxShadow: "0 24px 70px rgba(15, 23, 42, 0.08)",
-};
-
-const cardPanelStyle: CSSProperties = {
-  display: "grid",
-  gap: 12,
-  padding: 24,
-  borderRadius: 24,
-  border: "1px solid rgba(15, 23, 42, 0.08)",
-  background: "rgba(255,255,255,0.92)",
-};
-
-const eyebrowStyle: CSSProperties = {
-  fontSize: 12,
-  letterSpacing: "0.12em",
-  textTransform: "uppercase",
-  color: "#6b7280",
-};
-
-const heroTitleStyle: CSSProperties = {
-  margin: 0,
-  fontSize: "clamp(2rem, 4vw, 3rem)",
-  color: "#0f172a",
-};
-
-const heroBodyStyle: CSSProperties = {
-  margin: 0,
-  color: "#334155",
-  maxWidth: 720,
-  lineHeight: 1.7,
-};
-
-const readinessGridStyle: CSSProperties = {
-  display: "grid",
-  gap: 14,
-  marginTop: 8,
-  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-};
-
-const readinessCardStyle: CSSProperties = {
-  borderRadius: 18,
-  border: "1px solid #e2e8f0",
-  background: "#ffffff",
-  padding: 16,
-  display: "grid",
-  gap: 6,
-};
-
-const metricLabelStyle: CSSProperties = {
-  fontSize: 11,
-  letterSpacing: "0.12em",
-  textTransform: "uppercase",
-  color: "#64748b",
-};
-
-const metricValueStyle: CSSProperties = {
-  fontSize: "1.8rem",
-  fontWeight: 700,
-  color: "#0f172a",
-};
-
-const metricBodyStyle: CSSProperties = {
-  color: "#475569",
-  fontSize: 14,
-  lineHeight: 1.5,
-};
-
-const calloutStyle: CSSProperties = {
-  marginTop: 20,
-  padding: 14,
-  borderRadius: 14,
-  border: "1px solid #bfdbfe",
-  background: "#eff6ff",
-  color: "#1d4ed8",
-};
-
-function primaryButtonStyle(disabled: boolean): CSSProperties {
-  return {
-    border: 0,
-    borderRadius: 999,
-    padding: "14px 18px",
-    fontWeight: 700,
-    color: "#ffffff",
-    background: disabled ? "#64748b" : "#0f172a",
-    cursor: disabled ? "not-allowed" : "pointer",
-  };
-}
-
-const secondaryButtonStyle: CSSProperties = {
-  borderRadius: 999,
-  padding: "12px 16px",
-  fontWeight: 600,
-  color: "#0f172a",
-  background: "#ffffff",
-  border: "1px solid #cbd5e1",
-  cursor: "pointer",
-};
-
-const inputStyle: CSSProperties = {
-  width: "100%",
-  padding: "12px 14px",
-  borderRadius: 12,
-  border: "1px solid #cbd5e1",
-  background: "#ffffff",
-  color: "#0f172a",
-};
-
-function choiceButtonStyle(selected: boolean): CSSProperties {
-  return {
-    borderRadius: 999,
-    border: selected ? "1px solid #1d4ed8" : "1px solid #cbd5e1",
-    background: selected ? "#dbeafe" : "#ffffff",
-    color: selected ? "#1d4ed8" : "#0f172a",
-    padding: "10px 16px",
-    fontWeight: 600,
-    cursor: "pointer",
-  };
 }

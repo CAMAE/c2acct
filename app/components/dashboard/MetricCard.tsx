@@ -6,7 +6,7 @@ type Props = {
 };
 
 const toneClasses: Record<NonNullable<Props["tone"]>, string> = {
-  default: "border-[var(--shell-border)] bg-white/70",
+  default: "border-[var(--shell-border)] bg-[var(--shell-panel-soft)]",
   slate: "border-slate-200 bg-slate-50/80",
   amber: "border-amber-200 bg-amber-50/80",
   emerald: "border-emerald-200 bg-emerald-50/80",

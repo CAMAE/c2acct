@@ -9,8 +9,8 @@ type Props = {
 
 const toneClassName: Record<NonNullable<Props["tone"]>, string> = {
   default: "bg-[var(--shell-panel)]",
-  muted: "bg-white/70",
-  accent: "bg-[linear-gradient(140deg,rgba(210,161,91,0.18),rgba(22,33,44,0.03))]",
+  muted: "bg-[var(--shell-panel-soft)]",
+  accent: "bg-[linear-gradient(140deg,rgba(210,161,91,0.16),rgba(22,33,44,0.03))]",
 };
 
 export default function DashboardPanel({ title, description, children, tone = "default" }: Props) {

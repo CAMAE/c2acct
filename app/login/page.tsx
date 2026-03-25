@@ -37,8 +37,8 @@ export default async function LoginPage({
   return (
     <section className="mx-auto max-w-4xl">
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]">
-        <div className="rounded-[30px] border border-[var(--shell-border)] bg-[linear-gradient(145deg,rgba(15,23,42,0.97),rgba(25,65,79,0.95))] p-8 text-white shadow-[0_30px_80px_rgba(15,23,42,0.16)]">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/58">
+        <div className="pat-card-strong p-8">
+          <div className="pat-label text-white/58">
             PAT Access
           </div>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight">
@@ -48,18 +48,18 @@ export default async function LoginPage({
             PAT uses callback-safe redirects so login remains quiet and predictable. After authentication, you will return directly to {destinationLabel}.
           </p>
           <div className="mt-8 rounded-[22px] border border-white/12 bg-white/6 p-5">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/58">
+            <div className="pat-label text-white/58">
               Redirect target
             </div>
-            <div className="mt-2 text-lg font-semibold text-white">{safeRedirect}</div>
+            <div className="pat-sans mt-2 text-lg font-semibold text-white">{safeRedirect}</div>
             <div className="mt-2 text-sm leading-6 text-white/68">
               Only relative in-product paths are honored. External redirect targets are discarded.
             </div>
           </div>
         </div>
 
-        <div className="rounded-[30px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--shell-muted)]">
+        <div className="pat-card p-8">
+          <div className="pat-label">
             Sign in
           </div>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
@@ -78,20 +78,17 @@ export default async function LoginPage({
           >
             <button
               type="submit"
-              className="w-full rounded-full bg-[var(--shell-ink)] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-92 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--shell-accent)]"
+              className="pat-button-primary w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--shell-accent)]"
             >
               Continue with GitHub
             </button>
           </form>
 
-          <div className="mt-6 rounded-[18px] border border-[var(--shell-border)] bg-white/80 p-4 text-sm leading-6 text-[var(--shell-muted)]">
+          <div className="pat-soft-panel mt-6 p-4 text-sm leading-6 text-[var(--shell-muted)]">
             Returning path: <span className="font-semibold text-[var(--shell-ink)]">{destinationLabel}</span>
           </div>
 
-          <Link
-            href="/"
-            className="mt-5 inline-flex text-sm font-semibold text-[var(--shell-ink)] underline decoration-[var(--shell-border)] underline-offset-4"
-          >
+          <Link href="/" className="pat-link mt-5 inline-flex">
             Back to home
           </Link>
         </div>

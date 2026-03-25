@@ -168,10 +168,10 @@ export default async function OutputsPage() {
                 tone="accent"
               >
                 <div className="flex flex-wrap gap-3 text-sm text-[var(--shell-muted)]">
-                  <Link className="rounded-full bg-[var(--shell-ink)] px-5 py-3 font-semibold text-white" href="/survey">
+                  <Link className="pat-button-primary" href="/survey">
                     Start assessment
                   </Link>
-                  <Link className="rounded-full border border-[var(--shell-border)] px-5 py-3 font-semibold text-[var(--shell-ink)]" href="/results">
+                  <Link className="pat-button-secondary" href="/results">
                     Review results state
                   </Link>
                 </div>

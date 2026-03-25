@@ -54,37 +54,37 @@ export default async function Home() {
   return (
     <div className="space-y-12">
       <section className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
-        <div className="rounded-[34px] border border-[var(--shell-border)] bg-[linear-gradient(145deg,rgba(15,23,42,0.97),rgba(25,65,79,0.95))] px-8 py-10 text-white shadow-[0_40px_100px_rgba(15,23,42,0.16)]">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/60">
-            PAT Golden Path
+        <div className="pat-card-strong px-8 py-10">
+          <div className="pat-label text-white/60">
+            C2Acct / PAT
           </div>
           <h1 className="mt-4 max-w-3xl text-5xl font-semibold tracking-tight">
-            One deliberate workflow from entry to institutional readout.
+            Performance Alignment Technology for institutional operators who need signal, not spin.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-white/74">
-            PAT now guides actors through a calm, company-safe workflow: sign in, confirm institutional context, complete the current assessment, and move directly into results, outputs, and profile surfaces that explain what value is actually unlocked.
+            C2Acct presents the platform. PAT delivers the workflow. The current product keeps one calm path from access through assessment into results, outputs, and profile interpretation without pretending the beta already does more than it can support.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
               href={nextAction.href}
-              className="rounded-full bg-[var(--shell-accent)] px-6 py-3 text-sm font-semibold text-[var(--shell-ink)] transition hover:brightness-105"
+              className="pat-button-accent"
             >
               {nextAction.label}
             </Link>
             <Link
               href="/platform"
-              className="rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white/82 transition hover:bg-white/5"
+              className="pat-button-secondary border-white/15 bg-white/0 text-white/88 hover:bg-white/8 hover:text-white"
             >
               Open PAT Workspace
             </Link>
           </div>
         </div>
 
-        <div className="rounded-[30px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--shell-muted)]">
+        <div className="pat-card p-8">
+          <div className="pat-label">
             Current State
           </div>
-          <div className="mt-4 rounded-[22px] border border-[var(--shell-border)] bg-white p-5">
+          <div className="pat-subpanel mt-4 p-5">
             <div className="text-lg font-semibold text-[var(--shell-ink)]">
               {!signedIn
                 ? "Not signed in"
@@ -100,23 +100,23 @@ export default async function Home() {
           <div className="mt-4 grid gap-3">
             {[
               {
-                title: "1. Access",
+                title: "Access",
                 desc: signedIn ? `Signed in as ${sessionUser?.email ?? "actor"}` : "Authenticate with an approved account.",
               },
               {
-                title: "2. Context",
+                title: "Context",
                 desc: companyReady
                   ? `Company-backed PAT scope is available${assessmentContext?.accessMode ? ` via ${assessmentContext.accessMode}` : ""}.`
                   : "PAT needs a company-backed subject before assessment and output access can activate.",
               },
               {
-                title: "3. Value realization",
+                title: "Value realization",
                 desc: hasSubmission
                   ? "Results, outputs, and profile surfaces are available from the latest submission."
                   : "The first submission unlocks the Tier 1 decision-support surfaces.",
               },
             ].map((item) => (
-              <div key={item.title} className="rounded-[18px] border border-[var(--shell-border)] bg-white/70 p-4">
+              <div key={item.title} className="pat-soft-panel p-4">
                 <div className="font-semibold text-[var(--shell-ink)]">{item.title}</div>
                 <div className="mt-1 text-sm text-[var(--shell-muted)]">{item.desc}</div>
               </div>
@@ -125,41 +125,41 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="rounded-[30px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--shell-muted)]">
-          Workflow
+      <section className="pat-card p-8">
+        <div className="pat-label">
+          Operating Flow
         </div>
         <div className="mt-4 grid gap-4 lg:grid-cols-4">
           {[
             {
-              title: "Sign in",
-              desc: "PAT preserves callback discipline so actors return to the exact protected step they intended to reach.",
+              title: "Enter",
+              desc: "C2Acct handles the corporate front door. PAT preserves callback discipline so actors return to the protected step they intended to reach.",
               href: "/login?callbackUrl=%2Fsurvey",
               label: "Review sign-in",
             },
             {
-              title: "Assessment readiness",
-              desc: "The survey entry page now confirms readiness, company context, and whether this is a first or returning submission.",
+              title: "Prepare",
+              desc: "Assessment readiness confirms company context, active subject scope, and whether this is a first or returning submission.",
               href: "/survey",
               label: "Open readiness",
             },
             {
-              title: "Results",
-              desc: "Current posture, confidence, submission history, and unlocked Tier 1 interpretation in one surface.",
+              title: "Read",
+              desc: "Results consolidate current posture, confidence, submission history, and unlocked Tier 1 interpretation in one decision surface.",
               href: "/results",
               label: "View results",
             },
             {
-              title: "Outputs",
-              desc: "Unlocked deliverables and pending output states with explicit evidence, not decorative locked tiles.",
+              title: "Act",
+              desc: "Outputs explain what is available now, what remains gated, and why, instead of showing decorative locked tiles.",
               href: "/outputs",
               label: "Open outputs",
             },
           ].map((step) => (
-            <div key={step.title} className="rounded-[24px] border border-[var(--shell-border)] bg-white p-6 shadow-[0_20px_50px_rgba(15,23,42,0.05)]">
+            <div key={step.title} className="pat-subpanel p-6">
               <div className="text-lg font-semibold text-[var(--shell-ink)]">{step.title}</div>
               <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{step.desc}</p>
-              <Link className="mt-5 inline-flex text-sm font-semibold text-[var(--shell-ink)] underline decoration-[var(--shell-border)] underline-offset-4" href={step.href}>
+              <Link className="pat-link mt-5 inline-flex" href={step.href}>
                 {step.label}
               </Link>
             </div>
