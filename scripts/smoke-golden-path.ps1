@@ -2,11 +2,16 @@
 param([string]$Base="http://localhost:3000")
 
 $ErrorActionPreference="Stop"
-Set-Location C:\dev\AAE\c2acct
-$env:DATABASE_URL="postgresql://postgres:postgres@localhost:5433/c2acct?schema=public"
+$repoRoot = Split-Path -Parent $PSScriptRoot
+Set-Location $repoRoot
+
+if (-not $env:DATABASE_URL) {
+  $env:DATABASE_URL="postgresql://postgres:postgres@localhost:5433/c2acct?schema=public"
+}
 
 node .\scripts\seed-firm-alignment.mjs | Out-Host
 node .\scripts\seed-demo-company.mjs   | Out-Host
+node .\scripts\seed-tier1-badges-insights.mjs | Out-Host
 
 $companyId = (node .\scripts\_get-demo-company-id.mjs | Out-String).Trim()
 if ([string]::IsNullOrWhiteSpace($companyId)) { throw "Demo Company not found" }

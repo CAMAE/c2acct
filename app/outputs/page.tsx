@@ -35,7 +35,7 @@ type OutputCard = {
   insightKey?: string;
 };
 
-const TIER1_BADGE_ID = "49d380c5-b1d0-493b-b9c3-f2391fa3430b";
+const TIER1_BADGE_ID = "tier1-alignment-unlocked";
 const TIER1_BADGE_NAME = "Tier 1 Alignment Unlocked";
 
 
@@ -140,31 +140,26 @@ export default async function OutputsPage() {
     }
   }
 
-  const hasTier1Badge =
-    badgeKeys.has(`id:${TIER1_BADGE_ID.toLowerCase()}`) ||
-    badgeKeys.has(`name:${normalizeBadgeName(TIER1_BADGE_NAME)}`);
-
   const outputCards: OutputCard[] = [
     {
       title: "Institutional Profile",
       desc: "Capability scoring + operational alignment snapshot.",
       badgeName: TIER1_BADGE_NAME,
       badgeId: TIER1_BADGE_ID,
-      insightKey: "tier1_fmi",
     },
     {
       title: "Alignment Baseline",
       desc: "Where the firm is now — quantified.",
       badgeName: TIER1_BADGE_NAME,
       badgeId: TIER1_BADGE_ID,
-      insightKey: "tier1_automation",
+      insightKey: "tier1_alignment_baseline",
     },
     {
       title: "Operating System Map",
       desc: "How work actually moves through the firm.",
       badgeName: TIER1_BADGE_NAME,
       badgeId: TIER1_BADGE_ID,
-      insightKey: "tier1_profit",
+      insightKey: "tier1_operating_system_map",
     },
     {
       title: "Automation Readiness",
@@ -177,12 +172,14 @@ export default async function OutputsPage() {
       desc: "Controls, exposure, and governance maturity.",
       badgeName: TIER1_BADGE_NAME,
       badgeId: TIER1_BADGE_ID,
+      insightKey: "tier1_risk_control_posture",
     },
     {
       title: "Implementation Roadmap",
       desc: "Sequenced steps to reach high alignment.",
       badgeName: TIER1_BADGE_NAME,
       badgeId: TIER1_BADGE_ID,
+      insightKey: "tier1_implementation_roadmap",
     },
     {
       title: "Executive Brief",

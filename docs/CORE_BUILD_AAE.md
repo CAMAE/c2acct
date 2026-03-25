@@ -1,13 +1,17 @@
-﻿# CORE BUILD AAE (Index)
+﻿# CORE BUILD AAE
 
 ## Current source-of-truth docs
-- Audit report: docs/audit/AAE_Codebase_Audit_and_Platform_Hardening_Report_2026-03-05.md
-- Two-week plan: docs/plan/two-week-plan_pre-mac-mini_2026-03-05.md
+- Repo entrypoint: `README.md`
+- Active repo map: `docs/active-repo-map.md`
+- Audit summary: `docs/audit/AAE_Codebase_Audit_and_Platform_Hardening_Report_2026-03-05.md`
+- Runtime hardening snapshot: `docs/architecture/runtime-hardening-status-2026-03-08.md`
+- Auth contract: `docs/architecture/auth-env-contract.md`
+- Mac mini operations: `ops/mac-mini/README.md`
 
-## End-of-session workflow
-- Run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/end-session.ps1
-- Output: docs/audit/audit_*.md + docs/audit/session_*.md
-- Plan auto-updated with pointers
+## Archived material
+- Generated audit/session logs from 2026-03-05 were moved to `docs/archive/audit-logs-2026-03-05/`.
+- One-off or obsolete scripts were moved under `scripts/archive/`.
 
-## CI / hardening milestone commit
-- CI hardening PR: 1ca6f26 (gitleaks + build checks + smoke hardening)
+## Operational note
+- `prisma/seed.ts` is the canonical baseline seed for the current product shape.
+- Keep placeholder 404 handlers explicit; do not revive them without a live product requirement.
