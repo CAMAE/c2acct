@@ -7,6 +7,7 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model Badge {
   id           String         @id
   name         String
@@ -36,7 +37,7 @@ model BenchmarkCohort {
   title                  String
   companyType            CompanyType
   createdAt              DateTime                 @default(now())
-  updatedAt    DateTime       @updatedAt
+  updatedAt              DateTime                 @updatedAt
   BenchmarkRun           BenchmarkRun[]
   CompanyBenchmark       CompanyBenchmark[]
   CompanyBenchmarkCohort CompanyBenchmarkCohort[]
@@ -111,6 +112,7 @@ model Company {
   FirmMaturityMomentum   FirmMaturityMomentum[]
   FirmMaturitySnapshot   FirmMaturitySnapshot[]
   Product                Product[]
+  Subject                Subject?
   SurveySubmission       SurveySubmission[]
   User                   User[]
 }
@@ -118,15 +120,18 @@ model Company {
 model CompanyBadge {
   id        String   @id
   companyId String
+  subjectId String?
   badgeId   String
   moduleId  String
   awardedAt DateTime @default(now())
   Badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
   Company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  Subject   Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
 
   @@unique([companyId, badgeId, moduleId])
   @@index([badgeId])
   @@index([companyId])
+  @@index([subjectId])
 }
 
 model CompanyBenchmark {
@@ -275,8 +280,52 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime
   Company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  Subject     Subject?
 
   @@index([companyId])
+}
+
+model Portal {
+  id          String       @id
+  key         String       @unique
+  title       String
+  subjectKind SubjectKind?
+  active      Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Subject {
+  id                String              @id
+  key               String              @unique
+  displayName       String
+  kind              SubjectKind
+  companyId         String?             @unique
+  productId         String?             @unique
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  Company           Company?            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  Product           Product?            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  CompanyBadge      CompanyBadge[]
+  SubjectMembership SubjectMembership[]
+  SurveySubmission  SurveySubmission[]
+}
+
+model SubjectMembership {
+  id             String                @id
+  subjectId      String
+  userId         String
+  membershipRole SubjectMembershipRole @default(MEMBER)
+  isPrimary      Boolean               @default(false)
+  active         Boolean               @default(true)
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  Subject        Subject               @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  User           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([subjectId, userId])
+  @@index([subjectId, active])
+  @@index([userId, active, isPrimary])
 }
 
 model SurveyModule {
@@ -327,36 +376,40 @@ model SurveyQuestionCapability {
 }
 
 model SurveySubmission {
-  id            String       @id
-  version       Int          @default(1)
-  answers       Json
-  score         Int          @default(0)
-  signalIntegrityScore Float @default(1.0)
-  integrityFlags Json?
-  createdAt     DateTime     @default(now())
-  moduleId      String
-  companyId     String
-  scoreVersion  Int          @default(1)
-  weightedAvg   Float?
-  answeredCount Int          @default(0)
-  scaleMax      Int          @default(100)
-  scaleMin      Int          @default(0)
-  totalWeight   Float        @default(0)
-  Company       Company      @relation(fields: [companyId], references: [id])
-  SurveyModule  SurveyModule @relation(fields: [moduleId], references: [id])
+  id                   String       @id
+  version              Int          @default(1)
+  answers              Json
+  score                Int          @default(0)
+  signalIntegrityScore Float        @default(1.0)
+  integrityFlags       Json?
+  createdAt            DateTime     @default(now())
+  moduleId             String
+  companyId            String
+  subjectId            String?
+  scoreVersion         Int          @default(1)
+  weightedAvg          Float?
+  answeredCount        Int          @default(0)
+  scaleMax             Int          @default(100)
+  scaleMin             Int          @default(0)
+  totalWeight          Float        @default(0)
+  Company              Company      @relation(fields: [companyId], references: [id])
+  Subject              Subject?     @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  SurveyModule         SurveyModule @relation(fields: [moduleId], references: [id])
 
   @@index([companyId, moduleId, createdAt])
+  @@index([subjectId, moduleId, createdAt])
 }
 
 model User {
-  id        String   @id
-  email     String   @unique
-  name      String?
-  role      UserRole @default(MEMBER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-  companyId String?
-  Company   Company? @relation(fields: [companyId], references: [id])
+  id                String              @id
+  email             String              @unique
+  name              String?
+  role              UserRole            @default(MEMBER)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  companyId         String?
+  Company           Company?            @relation(fields: [companyId], references: [id])
+  SubjectMembership SubjectMembership[]
 
   @@index([companyId])
 }
@@ -393,6 +446,20 @@ enum QuestionInputType {
   BOOLEAN
   NUMBER
   TEXT
+}
+
+enum SubjectKind {
+  ORGANIZATION
+  PRODUCT
+  PERSON
+  PORTAL
+}
+
+enum SubjectMembershipRole {
+  OWNER
+  ADMIN
+  MEMBER
+  REVIEWER
 }
 
 enum UserRole {

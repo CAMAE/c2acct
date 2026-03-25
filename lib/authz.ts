@@ -1,5 +1,6 @@
 import type { UserRole } from "@prisma/client";
 import { NextResponse } from "next/server";
+import type { AssessmentSubjectContext } from "@/lib/subjectContext";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
@@ -22,6 +23,18 @@ export function canAccessCompany(
 ) {
   if (!user?.companyId || !targetCompanyId) return false;
   return user.companyId === targetCompanyId;
+}
+
+export function hasAssessmentSubject(
+  context: AssessmentSubjectContext | null | undefined
+) {
+  return Boolean(context?.subjectId || context?.companyId);
+}
+
+export function hasCompanyBackedAssessmentSubject(
+  context: AssessmentSubjectContext | null | undefined
+) {
+  return Boolean(context?.companyId);
 }
 
 export function unauthorizedResponse(error = "Unauthorized") {

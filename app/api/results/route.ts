@@ -2,6 +2,10 @@
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
+import {
+  requiresCompanyBackedAssessment,
+  resolveAssessmentSubjectContext,
+} from "@/lib/subjectContext";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
@@ -11,18 +15,23 @@ export async function GET() {
     return unauthorizedResponse();
   }
 
-  const companyId = sessionUser.companyId;
-  if (!companyId) {
-    return forbiddenResponse("No company assigned");
+  const assessmentContext = await resolveAssessmentSubjectContext(sessionUser);
+  if (!requiresCompanyBackedAssessment(assessmentContext)) {
+    return forbiddenResponse("Current assessment flow requires a company-backed subject");
   }
 
   try {
     const result = await prisma.surveySubmission.findFirst({
-      where: { companyId },
+      where: assessmentContext.subjectId
+        ? { subjectId: assessmentContext.subjectId }
+        : { companyId: assessmentContext.companyId },
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json({ ok: true, result }, { headers: NO_STORE_HEADERS });
+    return NextResponse.json(
+      { ok: true, result, scope: assessmentContext },
+      { headers: NO_STORE_HEADERS }
+    );
   } catch {
     return NextResponse.json(
       { ok: false, error: "Unable to load results" },

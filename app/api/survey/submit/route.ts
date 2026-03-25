@@ -6,6 +6,10 @@ import { evaluateSignalIntegrity } from "@/lib/signalIntegrity";
 import { randomUUID } from "crypto";
 import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
+import {
+  requiresCompanyBackedAssessment,
+  resolveAssessmentSubjectContext,
+} from "@/lib/subjectContext";
 
 const SCORING_VERSION = 1;
 const SCORE_SCALE_MIN = 1;
@@ -20,7 +24,6 @@ type SubmitRateLimitState = {
 };
 
 declare global {
-  // eslint-disable-next-line no-var
   var __submitRateLimitStore: Map<string, SubmitRateLimitState> | undefined;
 }
 
@@ -70,12 +73,13 @@ export async function POST(req: Request) {
     return unauthorizedResponse();
   }
 
-  const effectiveCompanyId = sessionUser.companyId;
-  if (!effectiveCompanyId) {
-    return forbiddenResponse("No company assigned");
+  const assessmentContext = await resolveAssessmentSubjectContext(sessionUser);
+  if (!requiresCompanyBackedAssessment(assessmentContext)) {
+    return forbiddenResponse("Current assessment flow requires a company-backed subject");
   }
 
-  const submitRateLimitKey = `${sessionUser.id}:${effectiveCompanyId}`;
+  const effectiveCompanyId = assessmentContext.companyId;
+  const submitRateLimitKey = `${sessionUser.id}:${assessmentContext.subjectId ?? effectiveCompanyId}`;
   if (!consumeSubmitQuota(submitRateLimitKey)) {
     return NextResponse.json(
       { ok: false, error: "Too many requests" },
@@ -228,6 +232,7 @@ export async function POST(req: Request) {
       data: {
         id: randomUUID(),
         companyId: effectiveCompanyId,
+        subjectId: assessmentContext.subjectId,
         moduleId: surveyModule.id,
         version: surveyModule.version ?? 1,
         answers,
@@ -274,6 +279,7 @@ export async function POST(req: Request) {
         create: {
           id: randomUUID(),
           companyId: effectiveCompanyId,
+          subjectId: assessmentContext.subjectId,
           badgeId: badgeRule.badgeId,
           moduleId: surveyModule.id,
         },

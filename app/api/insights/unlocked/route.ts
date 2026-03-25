@@ -2,8 +2,13 @@
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
+import {
+  requiresCompanyBackedAssessment,
+  resolveAssessmentSubjectContext,
+} from "@/lib/subjectContext";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
+const TIER1_BADGE_NAMES = ["Tier 1 Alignment Unlocked", "Tier 1 Unlocked"];
 
 export async function GET() {
   const sessionUser = await getSessionUser();
@@ -11,21 +16,26 @@ export async function GET() {
     return unauthorizedResponse();
   }
 
-  const companyId = sessionUser.companyId;
-  if (!companyId) {
-    return forbiddenResponse("No company assigned");
+  const assessmentContext = await resolveAssessmentSubjectContext(sessionUser);
+  if (!requiresCompanyBackedAssessment(assessmentContext)) {
+    return forbiddenResponse("Current assessment flow requires a company-backed subject");
   }
 
   try {
-    const badge = await prisma.badge.findFirst({
-      where: { name: "Tier 1 Unlocked" },
+    const badges = await prisma.badge.findMany({
+      where: { name: { in: TIER1_BADGE_NAMES } },
       select: { id: true },
     });
 
-    if (!badge) return NextResponse.json({ ok: true, unlocked: [] }, { headers: NO_STORE_HEADERS });
+    if (badges.length === 0) return NextResponse.json({ ok: true, unlocked: [] }, { headers: NO_STORE_HEADERS });
 
     const earned = await prisma.companyBadge.findFirst({
-      where: { companyId, badgeId: badge.id },
+      where: {
+        badgeId: { in: badges.map((badge) => badge.id) },
+        ...(assessmentContext.subjectId
+          ? { subjectId: assessmentContext.subjectId }
+          : { companyId: assessmentContext.companyId }),
+      },
       select: { id: true },
     });
 
