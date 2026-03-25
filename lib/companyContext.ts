@@ -1,4 +1,5 @@
 ﻿import { cookies } from "next/headers";
+import { PAT_COOKIE_KEYS, readSelectedCompanyId } from "@/lib/platformRollout";
 
 export type SearchParamsLike =
   | URLSearchParams
@@ -42,8 +43,8 @@ export async function resolveSelectedScope(searchParams?: SearchParamsLike) {
   }
 
   const cookieStore = await cookies();
-  const fromSubjectCookie = cookieStore.get("pat_subjectId")?.value ?? null;
-  const fromCompanyCookie = cookieStore.get("aae_companyId")?.value ?? null;
+  const fromSubjectCookie = cookieStore.get(PAT_COOKIE_KEYS.subjectSelection)?.value ?? null;
+  const fromCompanyCookie = readSelectedCompanyId(cookieStore);
 
   return {
     subjectId: fromSubjectCookie,
@@ -55,4 +56,3 @@ export async function resolveCompanyId(searchParams?: SearchParamsLike) {
   const selection = await resolveSelectedScope(searchParams);
   return selection.companyId;
 }
-

@@ -1,5 +1,6 @@
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
 import { getSessionUser } from "@/lib/auth/session";
+import { getPatRollout } from "@/lib/platformRollout";
 import { resolvePortalExperience } from "@/lib/portalVisibility";
 
 export const dynamic = "force-dynamic";
@@ -7,6 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function PlatformPage() {
   const sessionUser = await getSessionUser();
   const experience = await resolvePortalExperience(sessionUser);
+  const rollout = getPatRollout();
 
   const operate = experience.surfaces.filter(
     (surface) => surface.section === "operate"
@@ -41,6 +43,37 @@ export default async function PlatformPage() {
             <span className="rounded-full border border-white/15 px-4 py-2">
               Assessment: {experience.hasCompanyBackedAssessment ? "Enabled" : "Scoped off"}
             </span>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+        <div className="pat-card p-6">
+          <div className="pat-label">Rollout discipline</div>
+          <h3 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">
+            Current stage: {experience.rolloutStage === "pat_phase1" ? "PAT phase 1" : "Protected beta"}
+          </h3>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">
+            This workspace is intentionally staged. Future portals stay queued until their data model,
+            access rules, and rollout flags exist together.
+          </p>
+          <div className="mt-5 grid gap-3">
+            {rollout.dangerousNow.map((item) => (
+              <div key={item} className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="pat-card p-6">
+          <div className="pat-label">Compatibility bridges</div>
+          <div className="mt-4 grid gap-3">
+            {experience.betaOnlyBoundaries.map((item) => (
+              <div key={item} className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+                {item}
+              </div>
+            ))}
           </div>
         </div>
       </section>

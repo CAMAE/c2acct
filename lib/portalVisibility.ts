@@ -3,6 +3,12 @@ import prisma from "@/lib/prisma";
 import type { SessionUser } from "@/lib/auth/session";
 import { isAdminRole } from "@/lib/authz";
 import {
+  getPatRollout,
+  getPortalSurfaceRolloutReason,
+  isPortalSurfaceEnabled,
+  type PortalSurfaceId,
+} from "@/lib/platformRollout";
+import {
   resolveAssessmentSubjectContext,
   type AssessmentSubjectAccessMode,
 } from "@/lib/subjectContext";
@@ -44,6 +50,8 @@ export type PortalExperience = {
   accessMode: AssessmentSubjectAccessMode | "none";
   hasCompanyBackedAssessment: boolean;
   isAdmin: boolean;
+  rolloutStage: ReturnType<typeof getPatRollout>["stage"];
+  betaOnlyBoundaries: string[];
   surfaces: PortalSurface[];
 };
 
@@ -216,7 +224,10 @@ function toSurface(
     return null;
   }
 
-  if (definition.state === "planned") {
+  const rolloutEnabled = isPortalSurfaceEnabled(definition.id as PortalSurfaceId);
+  const rolloutReason = getPortalSurfaceRolloutReason(definition.id as PortalSurfaceId);
+
+  if (definition.state === "planned" || !rolloutEnabled) {
     return {
       id: definition.id,
       title: definition.title,
@@ -224,7 +235,7 @@ function toSurface(
       audience: definition.audience,
       section: definition.section,
       availability: "planned",
-      reason: "Planned for a later PAT slice.",
+      reason: rolloutReason ?? "Planned for a later PAT slice.",
     };
   }
 
@@ -254,6 +265,8 @@ function toSurface(
 export async function resolvePortalExperience(
   sessionUser: SessionUser | null
 ): Promise<PortalExperience> {
+  const rollout = getPatRollout();
+
   if (!sessionUser) {
     const audience = "individual";
     return {
@@ -267,6 +280,8 @@ export async function resolvePortalExperience(
       accessMode: "none",
       hasCompanyBackedAssessment: false,
       isAdmin: false,
+      rolloutStage: rollout.stage,
+      betaOnlyBoundaries: rollout.betaOnlyBoundaries,
       surfaces: SURFACES.filter((surface) => surface.audience.includes(audience))
         .map((surface) =>
           toSurface(surface, { isAdmin: false, hasCompanyBackedAssessment: false })
@@ -298,6 +313,8 @@ export async function resolvePortalExperience(
     accessMode: assessmentContext?.accessMode ?? "none",
     hasCompanyBackedAssessment,
     isAdmin,
+    rolloutStage: rollout.stage,
+    betaOnlyBoundaries: rollout.betaOnlyBoundaries,
     surfaces: SURFACES.filter((surface) => surface.audience.includes(audience))
       .map((surface) =>
         toSurface(surface, { isAdmin, hasCompanyBackedAssessment })
