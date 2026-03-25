@@ -1,4 +1,4 @@
-import type { UserRole } from "@prisma/client";
+import type { CompanyType, UserRole } from "@prisma/client";
 import { auth } from "@/auth";
 
 export type SessionUser = {
@@ -6,6 +6,13 @@ export type SessionUser = {
   email: string;
   role: UserRole;
   companyId: string | null;
+};
+
+export type ActorContext = {
+  email: string;
+  role: UserRole;
+  companyId: string | null;
+  companyType: CompanyType | null;
 };
 
 type SessionUserShape = {

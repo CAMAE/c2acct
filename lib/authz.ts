@@ -37,6 +37,10 @@ export function hasCompanyBackedAssessmentSubject(
   return Boolean(context?.companyId);
 }
 
+export function canAccessPortalAdmin(user: Pick<AuthzUser, "role"> | null | undefined) {
+  return isAdminRole(user?.role);
+}
+
 export function unauthorizedResponse(error = "Unauthorized") {
   return NextResponse.json({ ok: false, error }, { status: 401, headers: NO_STORE_HEADERS });
 }
