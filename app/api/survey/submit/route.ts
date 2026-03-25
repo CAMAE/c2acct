@@ -261,8 +261,9 @@ export async function POST(req: Request) {
         moduleId: surveyModule.id,
         version: surveyModule.version ?? 1,
         answers,
-        score: scoring.score,
-        weightedAvg: scoring.weightedAvg,
+        // `score` remains the persisted raw normalized percent for threshold semantics.
+        score: scoring.rawScorePct,
+        weightedAvg: scoring.rawWeightedAvg,
         scoreVersion: SCORING_VERSION,
         scaleMin: scoring.scaleMin,
         scaleMax: scoring.scaleMax,
@@ -285,7 +286,7 @@ export async function POST(req: Request) {
       }
 
       const minScore = badgeRule.minScore ?? 0;
-      // Badge thresholds are evaluated on canonical raw submission score.
+      // Badge thresholds are evaluated on canonical raw score percent.
       // Signal integrity is persisted separately for transparency/UI adjustment,
       // not for award gating semantics.
       if (createdSubmission.score < minScore) {

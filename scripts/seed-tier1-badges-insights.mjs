@@ -67,7 +67,7 @@ async function main() {
   });
 
   for (const insight of tier1Insights) {
-    await prisma.insight.upsert({
+    const persistedInsight = await prisma.insight.upsert({
       where: { key: insight.key },
       update: {
         title: insight.title,
@@ -84,6 +84,24 @@ async function main() {
         tier: 1,
         active: true,
         updatedAt: now,
+      },
+    });
+
+    await prisma.insightUnlockRule.upsert({
+      where: {
+        insightId_badgeId: {
+          insightId: persistedInsight.id,
+          badgeId: badge.id,
+        },
+      },
+      update: {
+        required: true,
+      },
+      create: {
+        id: randomUUID(),
+        insightId: persistedInsight.id,
+        badgeId: badge.id,
+        required: true,
       },
     });
   }

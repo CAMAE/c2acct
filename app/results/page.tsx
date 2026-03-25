@@ -3,6 +3,7 @@ import EnsureCompanySelected from "@/app/components/EnsureCompanySelected";
 import { cookies } from "next/headers";
 import { getRequestOrigin } from "@/lib/request-origin";
 import { redirect } from "next/navigation";
+import { summarizeSubmissionScores } from "@/lib/scoring";
 
 export const dynamic = "force-dynamic";
 
@@ -36,28 +37,11 @@ export default async function ResultsPage() {
       ? String(resultsJson?.error ?? resultsJson?.detail ?? `HTTP ${resultsRes.status}`)
       : null;
 
-  const score =
-    typeof result?.score === "number" && Number.isFinite(result.score)
-      ? Math.round(result.score)
-      : null;
-
-  const weightedAvg =
-    typeof result?.weightedAvg === "number" && Number.isFinite(result.weightedAvg)
-      ? result.weightedAvg
-      : null;
-
   const answeredCount =
     typeof result?.answeredCount === "number" && Number.isFinite(result.answeredCount)
       ? result.answeredCount
       : 0;
-
-  const integrityRaw = Number(result?.signalIntegrityScore);
-  const signalIntegrityScore =
-    Number.isFinite(integrityRaw) && integrityRaw > 0 ? integrityRaw : 1;
-
-  const effectiveScore = score === null ? null : Math.round(score * signalIntegrityScore);
-  const effectiveWeightedAvg =
-    weightedAvg === null ? null : Math.round(weightedAvg * signalIntegrityScore * 100) / 100;
+  const scoreSummary = summarizeSubmissionScores(result);
 
   return (
     <>
@@ -86,29 +70,37 @@ export default async function ResultsPage() {
               </div>
             ) : (
               <div className="rounded-xl border border-black/10 bg-white p-6 text-slate-900 shadow-sm">
-                <div className="text-sm font-medium text-slate-600">Alignment Score</div>
+                <div className="text-sm font-medium text-slate-600">Canonical assessment score</div>
                 <div className="mt-1 text-5xl font-bold tracking-tight text-slate-900">
-                  {score === null ? "--" : `${score}%`}
+                  {scoreSummary.rawScorePct === null ? "--" : `${scoreSummary.rawScorePct}%`}
                 </div>
 
                 <div className="mt-3 text-sm text-slate-700">
-                  Raw weighted average: {weightedAvg === null ? "--" : weightedAvg.toFixed(2)}
+                  Raw weighted average: {scoreSummary.rawWeightedAvg === null ? "--" : scoreSummary.rawWeightedAvg.toFixed(2)}
                 </div>
 
                 <div className="mt-2 text-sm text-slate-700">
-                  Signal integrity: {signalIntegrityScore.toFixed(2)}
+                  Signal integrity: {scoreSummary.signalIntegrityScore.toFixed(2)}
                 </div>
 
                 <div className="mt-2 text-sm text-slate-700">
-                  Integrity-adjusted score: {effectiveScore === null ? "--" : `${effectiveScore}%`}
+                  Confidence-adjusted display score: {scoreSummary.confidenceAdjustedScorePct === null ? "--" : `${scoreSummary.confidenceAdjustedScorePct}%`}
                 </div>
 
                 <div className="mt-2 text-sm text-slate-700">
-                  Integrity-adjusted weighted average: {effectiveWeightedAvg === null ? "--" : effectiveWeightedAvg.toFixed(2)}
+                  Confidence-adjusted weighted average: {scoreSummary.confidenceAdjustedWeightedAvg === null ? "--" : scoreSummary.confidenceAdjustedWeightedAvg.toFixed(2)}
+                </div>
+
+                <div className="mt-2 text-sm text-slate-700">
+                  Unlock basis: {scoreSummary.unlockBasisScorePct === null ? "--" : `${scoreSummary.unlockBasisScorePct}%`} raw score
                 </div>
 
                 <div className="mt-2 text-sm text-slate-700">
                   Module ID: {result.moduleId ?? "--"} - Answered: {answeredCount}
+                </div>
+
+                <div className="mt-4 rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
+                  Unlocks and badge thresholds use the raw score. Confidence-adjusted values are reporting aids only.
                 </div>
               </div>
             )}

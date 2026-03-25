@@ -2,13 +2,36 @@ import EnsureCompanySelected from "@/app/components/EnsureCompanySelected";
 import { cookies } from "next/headers";
 import { getRequestOrigin } from "@/lib/request-origin";
 import { redirect } from "next/navigation";
+import { summarizeSubmissionScores } from "@/lib/scoring";
+import { TOP_OUTPUT_CARDS } from "@/lib/patUnlocks";
 
 export const dynamic = "force-dynamic";
 
 type ApiCallResult = {
   ok: boolean;
   status: number;
-  body: any;
+  body: unknown;
+};
+
+type ApiErrorBody = {
+  error?: string;
+  detail?: string;
+};
+
+type ResultsBody = ApiErrorBody & {
+  result?: {
+    score?: number | null;
+    weightedAvg?: number | null;
+    signalIntegrityScore?: number | null;
+  } | null;
+};
+
+type UnlockedInsightsBody = ApiErrorBody & {
+  unlocked?: UnlockedInsight[];
+};
+
+type EarnedBadgesBody = ApiErrorBody & {
+  earned?: EarnedBadge[];
 };
 
 type UnlockedInsight = {
@@ -17,6 +40,12 @@ type UnlockedInsight = {
   title: string;
   body: string;
   tier: number;
+  unlockReason: string;
+  evidence: {
+    requiredBadgeIds: string[];
+    earnedBadgeIds: string[];
+    missingBadgeIds: string[];
+  };
 };
 
 type EarnedBadge = {
@@ -26,18 +55,6 @@ type EarnedBadge = {
   awardedAt: string;
   name: string;
 };
-
-type OutputCard = {
-  title: string;
-  desc: string;
-  badgeName: string;
-  badgeId: string;
-  insightKey?: string;
-};
-
-const TIER1_BADGE_ID = "tier1-alignment-unlocked";
-const TIER1_BADGE_NAME = "Tier 1 Alignment Unlocked";
-
 
 export default async function OutputsPage() {
   const apiBaseUrl = await getRequestOrigin();
@@ -72,9 +89,9 @@ export default async function OutputsPage() {
     redirect(loginRedirect);
   }
 
-  const resultsJson = resultsCall.body;
-  const unlockedJson = unlockedCall.body;
-  const earnedJson = earnedCall.body;
+  const resultsJson = (resultsCall.body ?? {}) as ResultsBody;
+  const unlockedJson = (unlockedCall.body ?? {}) as UnlockedInsightsBody;
+  const earnedJson = (earnedCall.body ?? {}) as EarnedBadgesBody;
 
   const forbidden =
     resultsCall.status === 403 || unlockedCall.status === 403 || earnedCall.status === 403;
@@ -98,100 +115,22 @@ export default async function OutputsPage() {
         )
       : null;
 
-  const latest = resultsJson?.result as
-    | {
-        score?: number | null;
-        weightedAvg?: number | null;
-        signalIntegrityScore?: number | null;
-      }
-    | null;
-  const latestScore = latest?.score;
-  const latestWeightedAvg = latest?.weightedAvg;
-  const rawScore =
-    typeof latestScore === "number" && Number.isFinite(latestScore) ? Math.round(latestScore) : null;
-  const rawWeightedAvg =
-    typeof latestWeightedAvg === "number" && Number.isFinite(latestWeightedAvg)
-      ? latestWeightedAvg
-      : null;
-  const integrityRaw = Number(latest?.signalIntegrityScore);
-  const signalIntegrityScore =
-    Number.isFinite(integrityRaw) && integrityRaw > 0 ? integrityRaw : 1;
-  const effectiveScore = rawScore === null ? null : Math.round(rawScore * signalIntegrityScore);
-  const effectiveWeightedAvg =
-    rawWeightedAvg === null ? null : Math.round(rawWeightedAvg * signalIntegrityScore * 100) / 100;
+  const latest = resultsJson.result ?? null;
+  const scoreSummary = summarizeSubmissionScores(latest);
 
-  const unlockedInsights: UnlockedInsight[] = Array.isArray(unlockedJson?.unlocked)
-    ? (unlockedJson.unlocked as UnlockedInsight[])
+  const unlockedInsights: UnlockedInsight[] = Array.isArray(unlockedJson.unlocked)
+    ? unlockedJson.unlocked
     : [];
-  const earnedBadges: EarnedBadge[] = Array.isArray(earnedJson?.earned)
-    ? (earnedJson.earned as EarnedBadge[])
+  const earnedBadges: EarnedBadge[] = Array.isArray(earnedJson.earned)
+    ? earnedJson.earned
     : [];
   const unlockedKeys = new Set(unlockedInsights.map((insight) => insight.key));
   const unlockedByKey = new Map(unlockedInsights.map((insight) => [insight.key, insight]));
+  const earnedBadgeIds = new Set(earnedBadges.map((badge) => badge.badgeId));
 
-  const normalizeBadgeName = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
-  const badgeKeys = new Set<string>();
-  for (const badge of earnedBadges) {
-    if (typeof badge.badgeId === "string" && badge.badgeId.trim()) {
-      badgeKeys.add(`id:${badge.badgeId.trim().toLowerCase()}`);
-    }
-    if (typeof badge.name === "string" && badge.name.trim()) {
-      badgeKeys.add(`name:${normalizeBadgeName(badge.name)}`);
-    }
-  }
-
-  const outputCards: OutputCard[] = [
-    {
-      title: "Institutional Profile",
-      desc: "Capability scoring + operational alignment snapshot.",
-      badgeName: TIER1_BADGE_NAME,
-      badgeId: TIER1_BADGE_ID,
-    },
-    {
-      title: "Alignment Baseline",
-      desc: "Where the firm is now — quantified.",
-      badgeName: TIER1_BADGE_NAME,
-      badgeId: TIER1_BADGE_ID,
-      insightKey: "tier1_alignment_baseline",
-    },
-    {
-      title: "Operating System Map",
-      desc: "How work actually moves through the firm.",
-      badgeName: TIER1_BADGE_NAME,
-      badgeId: TIER1_BADGE_ID,
-      insightKey: "tier1_operating_system_map",
-    },
-    {
-      title: "Automation Readiness",
-      desc: "What can be delegated, what must stay human.",
-      badgeName: TIER1_BADGE_NAME,
-      badgeId: TIER1_BADGE_ID,
-    },
-    {
-      title: "Risk & Control Posture",
-      desc: "Controls, exposure, and governance maturity.",
-      badgeName: TIER1_BADGE_NAME,
-      badgeId: TIER1_BADGE_ID,
-      insightKey: "tier1_risk_control_posture",
-    },
-    {
-      title: "Implementation Roadmap",
-      desc: "Sequenced steps to reach high alignment.",
-      badgeName: TIER1_BADGE_NAME,
-      badgeId: TIER1_BADGE_ID,
-      insightKey: "tier1_implementation_roadmap",
-    },
-    {
-      title: "Executive Brief",
-      desc: "Board-ready summary and next actions.",
-      badgeName: TIER1_BADGE_NAME,
-      badgeId: TIER1_BADGE_ID,
-    },
-  ];
-
-  function isCardUnlocked(card: OutputCard): boolean {
-    const hasBadgeMeta = Boolean(card.badgeName?.trim()) || Boolean(card.badgeId?.trim());
-    const hasInsightMeta = Boolean(card.insightKey);
+  function isCardUnlocked(card: (typeof TOP_OUTPUT_CARDS)[number]): boolean {
+    const hasBadgeMeta = Boolean(card.requiredBadgeId?.trim());
+    const hasInsightMeta = Boolean(card.requiredInsightKey);
     const isGated = hasBadgeMeta || hasInsightMeta;
 
     if (!isGated) {
@@ -199,23 +138,19 @@ export default async function OutputsPage() {
     }
 
     if (hasBadgeMeta) {
-      const badgeNameKey = card.badgeName?.trim()
-        ? `name:${normalizeBadgeName(card.badgeName)}`
-        : null;
-      const badgeIdKey = card.badgeId?.trim() ? `id:${card.badgeId.trim().toLowerCase()}` : null;
-      if ((badgeNameKey && badgeKeys.has(badgeNameKey)) || (badgeIdKey && badgeKeys.has(badgeIdKey))) {
+      if (card.requiredBadgeId && earnedBadgeIds.has(card.requiredBadgeId)) {
         return true;
       }
     }
 
-    if (hasInsightMeta && card.insightKey && unlockedKeys.has(card.insightKey)) {
+    if (hasInsightMeta && card.requiredInsightKey && unlockedKeys.has(card.requiredInsightKey)) {
       return true;
     }
 
     return false;
   }
 
-  const unlockedOutputCount = outputCards.filter((card) => isCardUnlocked(card)).length;
+  const unlockedOutputCount = TOP_OUTPUT_CARDS.filter((card) => isCardUnlocked(card)).length;
 
   return (
     <section className="text-slate-900">
@@ -241,7 +176,7 @@ export default async function OutputsPage() {
 
       <div className="mb-6 rounded-2xl border border-black/10 bg-white/85 p-4 shadow-sm">
         <div className="text-sm font-semibold text-slate-900">
-          Latest alignment score: {rawScore === null ? "--" : `${rawScore}%`}
+          Latest canonical score: {scoreSummary.rawScorePct === null ? "--" : `${scoreSummary.rawScorePct}%`}
         </div>
         <div className="mt-2 text-xs text-slate-700">Unlocked outputs: {unlockedOutputCount} / 7</div>
         <div className="mt-1 text-xs text-slate-700">Earned badges: {earnedBadges.length}</div>
@@ -267,25 +202,28 @@ export default async function OutputsPage() {
 
       <div className="mb-6 rounded-2xl border border-black/10 bg-white/85 p-4 text-sm text-slate-800 shadow-sm">
         <div className="font-semibold text-slate-900">Signal integrity</div>
-        <div className="mt-1 text-slate-800">{signalIntegrityScore.toFixed(2)}</div>
-        <div className="mt-3 font-semibold text-slate-900">Raw</div>
+        <div className="mt-1 text-slate-800">{scoreSummary.signalIntegrityScore.toFixed(2)}</div>
+        <div className="mt-3 font-semibold text-slate-900">Canonical raw values</div>
         <div className="mt-1 text-slate-700">
-          Score: {rawScore === null ? "--" : `${rawScore}%`} • Weighted average: {rawWeightedAvg === null ? "--" : rawWeightedAvg.toFixed(2)}
+          Score: {scoreSummary.rawScorePct === null ? "--" : `${scoreSummary.rawScorePct}%`} • Weighted average: {scoreSummary.rawWeightedAvg === null ? "--" : scoreSummary.rawWeightedAvg.toFixed(2)}
         </div>
-        <div className="mt-3 font-semibold text-slate-900">Integrity-adjusted</div>
+        <div className="mt-3 font-semibold text-slate-900">Confidence-adjusted display values</div>
         <div className="mt-1 text-slate-700">
-          Score: {effectiveScore === null ? "--" : `${effectiveScore}%`} • Weighted average: {effectiveWeightedAvg === null ? "--" : effectiveWeightedAvg.toFixed(2)}
+          Score: {scoreSummary.confidenceAdjustedScorePct === null ? "--" : `${scoreSummary.confidenceAdjustedScorePct}%`} • Weighted average: {scoreSummary.confidenceAdjustedWeightedAvg === null ? "--" : scoreSummary.confidenceAdjustedWeightedAvg.toFixed(2)}
+        </div>
+        <div className="mt-3 text-xs text-slate-600">
+          Unlocks are driven by earned badges and explicit insight rules, not by the confidence-adjusted display values.
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        {outputCards.map((x) => {
+        {TOP_OUTPUT_CARDS.map((x) => {
           const unlocked = isCardUnlocked(x);
-          const unlockedInsight = x.insightKey ? unlockedByKey.get(x.insightKey) : null;
-          const hasBadgeMeta = Boolean(x.badgeName?.trim()) || Boolean(x.badgeId?.trim());
-          const hasInsightMeta = Boolean(x.insightKey);
+          const unlockedInsight = x.requiredInsightKey ? unlockedByKey.get(x.requiredInsightKey) : null;
+          const hasBadgeMeta = Boolean(x.requiredBadgeId?.trim());
+          const hasInsightMeta = Boolean(x.requiredInsightKey);
           const isGated = hasBadgeMeta || hasInsightMeta;
-          const lockHint = unlocked ? "Unlocked" : "Locked until corresponding unlock criteria are met";
+          const lockHint = unlocked ? "Unlocked" : "Locked until explicit badge or insight rules are satisfied";
           const showInsightContent = Boolean(unlocked && unlockedInsight);
           const cardHeading = showInsightContent ? unlockedInsight?.title : x.title;
           const cardBody = showInsightContent ? unlockedInsight?.body : x.desc;
@@ -315,8 +253,8 @@ export default async function OutputsPage() {
             {isGated ? (
               <div className="mt-4 text-xs text-slate-600">
                 {unlocked
-                  ? "Available based on earned badge or unlocked insight"
-                  : "Not yet available in this company session"}
+                  ? `Available through ${showInsightContent ? "insight unlock rules" : "earned badge state"}`
+                  : "Not yet available in this subject scope"}
               </div>
             ) : null}
           </div>

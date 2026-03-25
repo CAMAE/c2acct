@@ -5,12 +5,16 @@ import {
   importAccountingTaxonomy,
   loadAccountingTaxonomyArtifact,
 } from "../lib/research/accountingTaxonomy";
+import {
+  TIER1_ALIGNMENT_BADGE_ID,
+  TIER1_ALIGNMENT_BADGE_NAME,
+  TIER1_INSIGHTS,
+} from "../lib/patUnlocks";
 
 const prisma = new PrismaClient();
 
 const MODULE_KEY = "firm_alignment_v1";
 const MODULE_TITLE = "Firm Alignment Survey";
-const TIER1_BADGE_NAME = "Tier 1 Alignment Unlocked";
 const DEMO_COMPANY_NAME = "Demo Company";
 
 const questions = [
@@ -89,29 +93,6 @@ const questions = [
   },
 ];
 
-const tier1Insights = [
-  {
-    key: "tier1_alignment_baseline",
-    title: "Alignment Baseline",
-    body: "Where the firm is now, in practical operating terms.",
-  },
-  {
-    key: "tier1_operating_system_map",
-    title: "Operating System Map",
-    body: "How work moves through the firm today and where operating friction concentrates.",
-  },
-  {
-    key: "tier1_risk_control_posture",
-    title: "Risk & Control Posture",
-    body: "The control posture implied by the current operating discipline and score pattern.",
-  },
-  {
-    key: "tier1_implementation_roadmap",
-    title: "Implementation Roadmap",
-    body: "The next practical steps to move from baseline alignment to institutional repeatability.",
-  },
-];
-
 async function ensureSurveyModule() {
   const now = new Date();
 
@@ -187,14 +168,14 @@ async function ensureTier1Content(moduleId: string) {
   const now = new Date();
 
   const badge = await prisma.badge.upsert({
-    where: { id: "tier1-alignment-unlocked" },
+    where: { id: TIER1_ALIGNMENT_BADGE_ID },
     update: {
-      name: TIER1_BADGE_NAME,
+      name: TIER1_ALIGNMENT_BADGE_NAME,
       updatedAt: now,
     },
     create: {
-      id: "tier1-alignment-unlocked",
-      name: TIER1_BADGE_NAME,
+      id: TIER1_ALIGNMENT_BADGE_ID,
+      name: TIER1_ALIGNMENT_BADGE_NAME,
       updatedAt: now,
     },
   });
@@ -219,8 +200,8 @@ async function ensureTier1Content(moduleId: string) {
     },
   });
 
-  for (const insight of tier1Insights) {
-    await prisma.insight.upsert({
+  for (const insight of TIER1_INSIGHTS) {
+    const persistedInsight = await prisma.insight.upsert({
       where: { key: insight.key },
       update: {
         title: insight.title,
@@ -237,6 +218,24 @@ async function ensureTier1Content(moduleId: string) {
         tier: 1,
         active: true,
         updatedAt: now,
+      },
+    });
+
+    await prisma.insightUnlockRule.upsert({
+      where: {
+        insightId_badgeId: {
+          insightId: persistedInsight.id,
+          badgeId: badge.id,
+        },
+      },
+      update: {
+        required: true,
+      },
+      create: {
+        id: randomUUID(),
+        insightId: persistedInsight.id,
+        badgeId: badge.id,
+        required: true,
       },
     });
   }
