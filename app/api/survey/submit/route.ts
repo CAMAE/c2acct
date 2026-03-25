@@ -10,6 +10,12 @@ import {
   requiresCompanyBackedAssessment,
   resolveAssessmentSubjectContext,
 } from "@/lib/subjectContext";
+import {
+  extractNumericAnswers,
+  normalizeQuestionRuntime,
+  validateAnswer,
+  type NormalizedAnswer,
+} from "@/lib/assessmentRuntime";
 
 const SCORING_VERSION = 1;
 const SCORE_SCALE_MIN = 1;
@@ -140,18 +146,29 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Module not found" }, { status: 404, headers: NO_STORE_HEADERS });
   }
 
-  const questions = await prisma.surveyQuestion.findMany({
+  const questionRecords = await prisma.surveyQuestion.findMany({
     where: { moduleId: surveyModule.id },
-    select: { id: true, required: true },
+    orderBy: { order: "asc" },
+    select: {
+      id: true,
+      key: true,
+      prompt: true,
+      inputType: true,
+      weight: true,
+      order: true,
+      required: true,
+      meta: true,
+    },
   });
 
-  if (questions.length === 0) {
+  if (questionRecords.length === 0) {
     return NextResponse.json(
       { ok: false, error: "Module has no questions" },
       { status: 400, headers: NO_STORE_HEADERS }
     );
   }
 
+  const questions = questionRecords.map(normalizeQuestionRuntime);
   const allowedQuestionIds = new Set(questions.map((q) => q.id));
   const submittedQuestionIds = Object.keys(rawAnswers);
 
@@ -182,31 +199,39 @@ export async function POST(req: Request) {
     );
   }
 
-  const answers: Record<string, number> = {};
+  const answers: Record<string, NormalizedAnswer> = {};
   for (const questionId of submittedQuestionIds) {
-    const rawValue = rawAnswers[questionId];
-    if (
-      typeof rawValue !== "number" ||
-      !Number.isFinite(rawValue) ||
-      !Number.isInteger(rawValue) ||
-      rawValue < SCORE_SCALE_MIN ||
-      rawValue > SCORE_SCALE_MAX
-    ) {
+    const question = questions.find((entry) => entry.id === questionId);
+    if (!question) {
       return NextResponse.json(
         {
           ok: false,
           error: "Invalid payload",
-          detail: `Invalid answer value for question ${questionId}; expected integer ${SCORE_SCALE_MIN}-${SCORE_SCALE_MAX}`,
+          detail: `Question ${questionId} is not part of this module`,
         },
         { status: 400, headers: NO_STORE_HEADERS }
       );
     }
 
-    answers[questionId] = rawValue;
+    const validated = validateAnswer(question, rawAnswers[questionId]);
+    if (!validated.ok) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Invalid payload",
+          detail: `Invalid answer for question ${question.key}: ${validated.error}`,
+        },
+        { status: 400, headers: NO_STORE_HEADERS }
+      );
+    }
+
+    if (validated.value !== null) {
+      answers[questionId] = validated.value;
+    }
   }
 
-  // Canonical v1 mapping: answers are strictly validated to 1..5, then normalized once in computeScore.
-  const scoring = computeScore({ answers, scaleMin: SCORE_SCALE_MIN, scaleMax: SCORE_SCALE_MAX });
+  const numericAnswers = extractNumericAnswers(questions, answers);
+  const scoring = computeScore({ answers: numericAnswers, scaleMin: SCORE_SCALE_MIN, scaleMax: SCORE_SCALE_MAX });
   const integrity = evaluateSignalIntegrity(answers, {
     expectedQuestionCount: questions.length,
     scaleMin: SCORE_SCALE_MIN,

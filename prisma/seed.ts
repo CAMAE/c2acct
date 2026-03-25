@@ -18,16 +18,74 @@ const questions = [
     key: "alignment_q1",
     prompt: "How clearly is your operating model documented?",
     order: 1,
+    meta: {
+      section: {
+        key: "operating-model",
+        title: "Operating Model Discipline",
+        description: "Assess how clearly the firm defines and maintains its operating design.",
+      },
+      helpText: "Anchor your answer in current-state documentation, not the intended future state.",
+      slider: {
+        min: 1,
+        max: 5,
+        step: 1,
+        labels: {
+          "1": "Ad hoc",
+          "5": "Institutionalized",
+        },
+      },
+    },
   },
   {
     key: "alignment_q2",
     prompt: "How consistently do teams follow the documented process?",
     order: 2,
+    meta: {
+      section: {
+        key: "operating-model",
+        title: "Operating Model Discipline",
+        description: "Assess how clearly the firm defines and maintains its operating design.",
+      },
+      helpText: "Score the repeatability of execution across the firm, not the best-performing team.",
+      slider: {
+        min: 1,
+        max: 5,
+        step: 1,
+        labels: {
+          "1": "Inconsistent",
+          "5": "Consistent",
+        },
+      },
+    },
   },
   {
     key: "alignment_q3",
     prompt: "How effective is cross-functional communication?",
     order: 3,
+    meta: {
+      section: {
+        key: "coordination",
+        title: "Cross-Functional Coordination",
+        description: "Measure the quality of handoffs and visibility between teams.",
+      },
+      helpText: "Use actual handoff quality and issue resolution speed as the benchmark.",
+      slider: {
+        min: 1,
+        max: 5,
+        step: 1,
+        labels: {
+          "1": "Opaque",
+          "5": "Clear",
+        },
+      },
+      branching: {
+        mode: "phase_2",
+        visibleWhen: {
+          questionKey: "alignment_q2",
+          equals: 1,
+        },
+      },
+    },
   },
 ];
 
@@ -99,6 +157,7 @@ async function ensureSurveyModule() {
           weight: 1,
           order: question.order,
           required: true,
+          meta: question.meta,
           updatedAt: now,
         },
       });
@@ -115,6 +174,7 @@ async function ensureSurveyModule() {
         weight: 1,
         order: question.order,
         required: true,
+        meta: question.meta,
         updatedAt: now,
       },
     });

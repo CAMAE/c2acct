@@ -1,5 +1,6 @@
 ﻿import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { buildAssessmentModulePayload } from "@/lib/assessmentRuntime";
 
 export async function GET(
   _req: Request,
@@ -33,10 +34,12 @@ export async function GET(
         inputType: true,
         weight: true,
         order: true,
+        required: true,
+        meta: true,
       },
     });
 
-    return NextResponse.json({ ...mod, questions });
+    return NextResponse.json(buildAssessmentModulePayload(mod, questions));
   } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
