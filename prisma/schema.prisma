@@ -96,6 +96,8 @@ model CapabilityNode {
   InsightCapabilityRule                                InsightCapabilityRule[]
   ModuleCapability                                     ModuleCapability[]
   SurveyQuestionCapability                             SurveyQuestionCapability[]
+  TaxonomyBucketCapability                             TaxonomyBucketCapability[]
+  ProductCapabilityMap                                 ProductCapabilityMap[]
 }
 
 model Company {
@@ -115,6 +117,7 @@ model Company {
   Subject                Subject?
   SurveySubmission       SurveySubmission[]
   User                   User[]
+  VendorProfile          VendorProfile?
 }
 
 model CompanyBadge {
@@ -272,17 +275,28 @@ model ModuleCapability {
 }
 
 model Product {
-  id          String   @id
-  companyId   String
-  name        String
-  category    String?
-  apiEndpoint String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime
-  Company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  Subject     Subject?
+  id                        String                      @id
+  companyId                 String?
+  vendorId                  String?
+  name                      String
+  slug                      String?                     @unique
+  category                  String?
+  website                   String?
+  summary                   String?
+  apiEndpoint               String?
+  deploymentModel           ProductDeploymentModel?
+  active                    Boolean                     @default(true)
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime
+  Company                   Company?                    @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  Subject                   Subject?
+  Vendor                    VendorProfile?              @relation(fields: [vendorId], references: [id], onDelete: SetNull)
+  ProductCapabilityMap      ProductCapabilityMap[]
+  ProductSignal             ProductSignal[]
+  ProductTaxonomyAssignment ProductTaxonomyAssignment[]
 
   @@index([companyId])
+  @@index([vendorId])
 }
 
 model Portal {
@@ -309,6 +323,157 @@ model Subject {
   CompanyBadge      CompanyBadge[]
   SubjectMembership SubjectMembership[]
   SurveySubmission  SurveySubmission[]
+  VendorProfile     VendorProfile?
+}
+
+model VendorProfile {
+  id             String               @id
+  key            String               @unique
+  displayName    String
+  companyId      String?              @unique
+  subjectId      String?              @unique
+  website        String?
+  status         VendorStatus         @default(ACTIVE)
+  researchStatus ResearchSourceStatus @default(PENDING)
+  notes          String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  Company        Company?             @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  Subject        Subject?             @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  Product        Product[]
+  VendorSignal   VendorSignal[]
+}
+
+model ResearchSource {
+  id                        String                      @id
+  key                       String                      @unique
+  title                     String
+  sourceType                ResearchSourceType
+  status                    ResearchSourceStatus        @default(PENDING)
+  artifactPath              String?
+  notes                     String?
+  publishedAt               DateTime?
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
+  ProductCapabilityMap      ProductCapabilityMap[]
+  ProductSignal             ProductSignal[]
+  ProductTaxonomyAssignment ProductTaxonomyAssignment[]
+  TaxonomyBucketCapability  TaxonomyBucketCapability[]
+  VendorSignal              VendorSignal[]
+}
+
+model TaxonomyBucket {
+  id                        String                      @id
+  key                       String                      @unique
+  title                     String
+  description               String?
+  kind                      TaxonomyBucketKind
+  parentId                  String?
+  active                    Boolean                     @default(true)
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
+  Parent                    TaxonomyBucket?             @relation("TaxonomyBucketTree", fields: [parentId], references: [id], onDelete: SetNull)
+  Children                  TaxonomyBucket[]            @relation("TaxonomyBucketTree")
+  ProductTaxonomyAssignment ProductTaxonomyAssignment[]
+  TaxonomyBucketCapability  TaxonomyBucketCapability[]
+
+  @@index([kind])
+  @@index([parentId])
+}
+
+model ProductTaxonomyAssignment {
+  id         String             @id
+  productId  String
+  bucketId   String
+  fit        ProductTaxonomyFit @default(PRIMARY)
+  confidence ResearchConfidence @default(UNKNOWN)
+  sourceId   String?
+  notes      String?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  Product    Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  Bucket     TaxonomyBucket     @relation(fields: [bucketId], references: [id], onDelete: Cascade)
+  Source     ResearchSource?    @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@unique([productId, bucketId])
+  @@index([bucketId, fit])
+  @@index([sourceId])
+}
+
+model TaxonomyBucketCapability {
+  id             String                    @id
+  bucketId       String
+  nodeId         String?
+  capabilityKey  String
+  coverage       ProductCapabilityCoverage @default(SUPPORTING)
+  confidence     ResearchConfidence        @default(UNKNOWN)
+  sourceId       String?
+  notes          String?
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  Bucket         TaxonomyBucket            @relation(fields: [bucketId], references: [id], onDelete: Cascade)
+  CapabilityNode CapabilityNode?           @relation(fields: [nodeId], references: [id], onDelete: SetNull)
+  Source         ResearchSource?           @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@unique([bucketId, capabilityKey])
+  @@index([nodeId])
+  @@index([sourceId])
+}
+
+model ProductCapabilityMap {
+  id             String                    @id
+  productId      String
+  nodeId         String?
+  capabilityKey  String
+  coverage       ProductCapabilityCoverage @default(CORE)
+  confidence     ResearchConfidence        @default(UNKNOWN)
+  sourceId       String?
+  notes          String?
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  Product        Product                   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  CapabilityNode CapabilityNode?           @relation(fields: [nodeId], references: [id], onDelete: SetNull)
+  Source         ResearchSource?           @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@unique([productId, capabilityKey])
+  @@index([nodeId])
+  @@index([sourceId])
+}
+
+model VendorSignal {
+  id          String             @id
+  vendorId    String
+  signalKey   String
+  valueText   String?
+  valueNumber Float?
+  confidence  ResearchConfidence @default(UNKNOWN)
+  sourceId    String?
+  notes       String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  Vendor      VendorProfile      @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  Source      ResearchSource?    @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@unique([vendorId, signalKey])
+  @@index([sourceId])
+}
+
+model ProductSignal {
+  id          String             @id
+  productId   String
+  signalKey   String
+  valueText   String?
+  valueNumber Float?
+  confidence  ResearchConfidence @default(UNKNOWN)
+  sourceId    String?
+  notes       String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  Product     Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  Source      ResearchSource?    @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@unique([productId, signalKey])
+  @@index([sourceId])
 }
 
 model SubjectMembership {
@@ -448,6 +613,48 @@ enum QuestionInputType {
   TEXT
 }
 
+enum ProductDeploymentModel {
+  CLOUD
+  DESKTOP
+  HYBRID
+  MANAGED_SERVICE
+}
+
+enum ProductTaxonomyFit {
+  PRIMARY
+  SECONDARY
+  ADJACENT
+}
+
+enum ProductCapabilityCoverage {
+  CORE
+  SUPPORTING
+  ADJACENT
+}
+
+enum ResearchConfidence {
+  UNKNOWN
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum ResearchSourceType {
+  MANUAL_TAXONOMY
+  SPREADSHEET
+  CSV
+  INTERVIEW
+  WEB_RESEARCH
+}
+
+enum ResearchSourceStatus {
+  PENDING
+  STAGED
+  IMPORTED
+  SEEDED
+  REVIEW_REQUIRED
+}
+
 enum SubjectKind {
   ORGANIZATION
   PRODUCT
@@ -462,8 +669,22 @@ enum SubjectMembershipRole {
   REVIEWER
 }
 
+enum TaxonomyBucketKind {
+  FUNCTION
+  WORKFLOW_STAGE
+  COMPLIANCE_DOMAIN
+  DELIVERY_MODEL
+}
+
 enum UserRole {
   OWNER
   ADMIN
   MEMBER
+}
+
+enum VendorStatus {
+  ACTIVE
+  EMERGING
+  DISPLACED
+  UNKNOWN
 }

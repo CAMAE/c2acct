@@ -11,7 +11,9 @@
     "typecheck": "next typegen && tsc --noEmit",
     "prisma:migrate:deploy": "node scripts/prisma-safe.js migrate deploy",
     "prisma:db:push": "node scripts/prisma-safe.js db push",
-    "seed:baseline": "tsx prisma/seed.ts",
+    "seed:baseline": "node --import tsx prisma/seed.ts",
+    "seed:accounting-taxonomy": "node --import tsx scripts/import-accounting-taxonomy.ts --apply",
+    "seed:accounting-taxonomy:dry-run": "node --import tsx scripts/import-accounting-taxonomy.ts",
     "ops:mac-mini:status": "bash scripts/mac-mini/status.sh",
     "ops:mac-mini:health": "bash scripts/mac-mini/health-check.sh",
     "ops:mac-mini:launchd:install": "bash scripts/mac-mini/launchd-install.sh",
@@ -43,6 +45,6 @@
     "typescript": "^5"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "node --import tsx prisma/seed.ts"
   }
 }

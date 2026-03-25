@@ -1,5 +1,10 @@
 import { PrismaClient, CompanyType, ModuleScope, QuestionInputType, SubjectKind } from "@prisma/client";
 import { randomUUID } from "crypto";
+import path from "node:path";
+import {
+  importAccountingTaxonomy,
+  loadAccountingTaxonomyArtifact,
+} from "../lib/research/accountingTaxonomy";
 
 const prisma = new PrismaClient();
 
@@ -243,6 +248,14 @@ async function main() {
   const demoCompany = await ensureDemoCompany();
   const subject = await ensureCompanySubject(demoCompany.id, demoCompany.name);
   const portal = await ensureDefaultPortal();
+  const taxonomyArtifact = await loadAccountingTaxonomyArtifact(
+    path.join(process.cwd(), "data/research/accounting-software-taxonomy-v1.json")
+  );
+  const taxonomySummary = await importAccountingTaxonomy({
+    prisma,
+    artifact: taxonomyArtifact,
+    apply: true,
+  });
 
   const questionCount = await prisma.surveyQuestion.count({
     where: { moduleId: moduleRecord.id },
@@ -263,6 +276,8 @@ async function main() {
     demoCompanyName: demoCompany.name,
     subjectId: subject.id,
     portalKey: portal.key,
+    taxonomyBuckets: taxonomySummary.taxonomyBuckets,
+    taxonomyProducts: taxonomySummary.products,
   });
 }
 
