@@ -1,9 +1,14 @@
-import EnsureCompanySelected from "@/app/components/EnsureCompanySelected";
 import { cookies } from "next/headers";
-import { getRequestOrigin } from "@/lib/request-origin";
 import { redirect } from "next/navigation";
+import EnsureCompanySelected from "@/app/components/EnsureCompanySelected";
+import DashboardPanel from "@/app/components/dashboard/DashboardPanel";
+import InsightList from "@/app/components/dashboard/InsightList";
+import MetricCard from "@/app/components/dashboard/MetricCard";
+import OutputCatalog from "@/app/components/dashboard/OutputCatalog";
+import PatDashboardShell from "@/app/components/dashboard/PatDashboardShell";
+import { getRequestOrigin } from "@/lib/request-origin";
+import { buildOutputAvailability } from "@/lib/patDashboard";
 import { summarizeSubmissionScores } from "@/lib/scoring";
-import { TOP_OUTPUT_CARDS } from "@/lib/patUnlocks";
 
 export const dynamic = "force-dynamic";
 
@@ -24,14 +29,11 @@ type ResultsBody = ApiErrorBody & {
     weightedAvg?: number | null;
     signalIntegrityScore?: number | null;
   } | null;
-};
-
-type UnlockedInsightsBody = ApiErrorBody & {
-  unlocked?: UnlockedInsight[];
-};
-
-type EarnedBadgesBody = ApiErrorBody & {
-  earned?: EarnedBadge[];
+  summary?: {
+    submissionCount?: number;
+    badgeCount?: number;
+    unlockedInsightCount?: number;
+  };
 };
 
 type UnlockedInsight = {
@@ -41,11 +43,15 @@ type UnlockedInsight = {
   body: string;
   tier: number;
   unlockReason: string;
-  evidence: {
+  evidence?: {
     requiredBadgeIds: string[];
     earnedBadgeIds: string[];
     missingBadgeIds: string[];
   };
+};
+
+type UnlockedInsightsBody = ApiErrorBody & {
+  unlocked?: UnlockedInsight[];
 };
 
 type EarnedBadge = {
@@ -54,6 +60,10 @@ type EarnedBadge = {
   moduleId: string | null;
   awardedAt: string;
   name: string;
+};
+
+type EarnedBadgesBody = ApiErrorBody & {
+  earned?: EarnedBadge[];
 };
 
 export default async function OutputsPage() {
@@ -105,166 +115,136 @@ export default async function OutputsPage() {
   const apiError =
     !forbidden && firstErrorStatus !== null
       ? String(
-          resultsJson?.error ??
-            resultsJson?.detail ??
-            unlockedJson?.error ??
-            unlockedJson?.detail ??
-            earnedJson?.error ??
-            earnedJson?.detail ??
+          resultsJson.error ??
+            resultsJson.detail ??
+            unlockedJson.error ??
+            unlockedJson.detail ??
+            earnedJson.error ??
+            earnedJson.detail ??
             `HTTP ${firstErrorStatus}`
         )
       : null;
 
   const latest = resultsJson.result ?? null;
+  const summary = resultsJson.summary ?? {};
   const scoreSummary = summarizeSubmissionScores(latest);
+  const unlockedInsights = Array.isArray(unlockedJson.unlocked) ? unlockedJson.unlocked : [];
+  const earnedBadges = Array.isArray(earnedJson.earned) ? earnedJson.earned : [];
+  const outputAvailability = buildOutputAvailability({
+    earnedBadgeIds: earnedBadges.map((badge) => badge.badgeId),
+    unlockedInsightKeys: unlockedInsights.map((insight) => insight.key),
+  }).map((item) => ({
+    ...item,
+    content: unlockedInsights.find((insight) => insight.key === item.requiredInsightKey)?.body ?? null,
+  }));
 
-  const unlockedInsights: UnlockedInsight[] = Array.isArray(unlockedJson.unlocked)
-    ? unlockedJson.unlocked
-    : [];
-  const earnedBadges: EarnedBadge[] = Array.isArray(earnedJson.earned)
-    ? earnedJson.earned
-    : [];
-  const unlockedKeys = new Set(unlockedInsights.map((insight) => insight.key));
-  const unlockedByKey = new Map(unlockedInsights.map((insight) => [insight.key, insight]));
-  const earnedBadgeIds = new Set(earnedBadges.map((badge) => badge.badgeId));
-
-  function isCardUnlocked(card: (typeof TOP_OUTPUT_CARDS)[number]): boolean {
-    const hasBadgeMeta = Boolean(card.requiredBadgeId?.trim());
-    const hasInsightMeta = Boolean(card.requiredInsightKey);
-    const isGated = hasBadgeMeta || hasInsightMeta;
-
-    if (!isGated) {
-      return true;
-    }
-
-    if (hasBadgeMeta) {
-      if (card.requiredBadgeId && earnedBadgeIds.has(card.requiredBadgeId)) {
-        return true;
-      }
-    }
-
-    if (hasInsightMeta && card.requiredInsightKey && unlockedKeys.has(card.requiredInsightKey)) {
-      return true;
-    }
-
-    return false;
-  }
-
-  const unlockedOutputCount = TOP_OUTPUT_CARDS.filter((card) => isCardUnlocked(card)).length;
+  const unlockedOutputCount = outputAvailability.filter((item) => item.unlocked).length;
 
   return (
-    <section className="text-slate-900">
-      <div className="mb-10">
-        <EnsureCompanySelected />
-        <h1 className="text-5xl font-semibold tracking-tight text-slate-900">Top Seven Outputs</h1>
-        <p className="mt-3 max-w-2xl text-slate-700">
-          The seven institutional deliverables that define high-alignment firms.
-        </p>
-      </div>
-
-      {forbidden ? (
-        <div className="mb-6 rounded-2xl border border-black/10 bg-white/80 p-4 text-sm text-slate-800 shadow-sm">
-          Signed in, but your account is not authorized for company-scoped outputs yet.
-        </div>
-      ) : null}
-
-      {apiError ? (
-        <div className="mb-6 rounded-2xl border border-black/10 bg-white/80 p-4 text-sm text-slate-800 shadow-sm">
-          Unable to load outputs right now: {apiError}
-        </div>
-      ) : null}
-
-      <div className="mb-6 rounded-2xl border border-black/10 bg-white/85 p-4 shadow-sm">
-        <div className="text-sm font-semibold text-slate-900">
-          Latest canonical score: {scoreSummary.rawScorePct === null ? "--" : `${scoreSummary.rawScorePct}%`}
-        </div>
-        <div className="mt-2 text-xs text-slate-700">Unlocked outputs: {unlockedOutputCount} / 7</div>
-        <div className="mt-1 text-xs text-slate-700">Earned badges: {earnedBadges.length}</div>
-      </div>
-
-      <div className="mb-6 rounded-2xl border border-black/10 bg-white/85 p-4 text-sm text-slate-800 shadow-sm">
-        <div className="font-semibold text-slate-900">Earned badges</div>
-        {earnedBadges.length === 0 ? (
-          <div className="mt-2 text-slate-700">No badges earned yet.</div>
-        ) : (
-          <div className="mt-2 flex flex-wrap gap-2">
-            {earnedBadges.map((badge) => (
-              <span
-                key={badge.id}
-                className="rounded-full border border-slate-300 bg-slate-50 px-2 py-1 text-[11px] font-semibold text-slate-700"
-              >
-                {badge.name}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="mb-6 rounded-2xl border border-black/10 bg-white/85 p-4 text-sm text-slate-800 shadow-sm">
-        <div className="font-semibold text-slate-900">Signal integrity</div>
-        <div className="mt-1 text-slate-800">{scoreSummary.signalIntegrityScore.toFixed(2)}</div>
-        <div className="mt-3 font-semibold text-slate-900">Canonical raw values</div>
-        <div className="mt-1 text-slate-700">
-          Score: {scoreSummary.rawScorePct === null ? "--" : `${scoreSummary.rawScorePct}%`} • Weighted average: {scoreSummary.rawWeightedAvg === null ? "--" : scoreSummary.rawWeightedAvg.toFixed(2)}
-        </div>
-        <div className="mt-3 font-semibold text-slate-900">Confidence-adjusted display values</div>
-        <div className="mt-1 text-slate-700">
-          Score: {scoreSummary.confidenceAdjustedScorePct === null ? "--" : `${scoreSummary.confidenceAdjustedScorePct}%`} • Weighted average: {scoreSummary.confidenceAdjustedWeightedAvg === null ? "--" : scoreSummary.confidenceAdjustedWeightedAvg.toFixed(2)}
-        </div>
-        <div className="mt-3 text-xs text-slate-600">
-          Unlocks are driven by earned badges and explicit insight rules, not by the confidence-adjusted display values.
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        {TOP_OUTPUT_CARDS.map((x) => {
-          const unlocked = isCardUnlocked(x);
-          const unlockedInsight = x.requiredInsightKey ? unlockedByKey.get(x.requiredInsightKey) : null;
-          const hasBadgeMeta = Boolean(x.requiredBadgeId?.trim());
-          const hasInsightMeta = Boolean(x.requiredInsightKey);
-          const isGated = hasBadgeMeta || hasInsightMeta;
-          const lockHint = unlocked ? "Unlocked" : "Locked until explicit badge or insight rules are satisfied";
-          const showInsightContent = Boolean(unlocked && unlockedInsight);
-          const cardHeading = showInsightContent ? unlockedInsight?.title : x.title;
-          const cardBody = showInsightContent ? unlockedInsight?.body : x.desc;
-
-          return (
-          <div
-            key={x.title}
-            title={isGated ? lockHint : undefined}
-            className={`rounded-2xl border border-black/10 bg-white/85 p-6 shadow-sm ${
-              !unlocked ? "opacity-70 grayscale" : ""
-            }`}
-          >
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                {showInsightContent ? (
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{x.title}</div>
-                ) : null}
-                <div className="text-lg font-semibold text-slate-900">{cardHeading}</div>
-              </div>
-              {isGated ? (
-                <div className="rounded-full border border-slate-300 bg-slate-50 px-2 py-1 text-[10px] font-semibold tracking-wide text-slate-700">
-                  {unlocked ? "UNLOCKED" : "LOCKED"}
-                </div>
-              ) : null}
+    <>
+      <EnsureCompanySelected />
+      <PatDashboardShell
+        eyebrow="PAT Outputs Workspace"
+        title="Unlocked deliverables, current evidence, and staged next layers"
+        description="This workspace explains what PAT can deliver now from earned badges, unlocked insights, and the current submission record. It does not present synthetic Tier 2 deliverables where the model and data are not ready."
+      >
+        {forbidden ? (
+          <DashboardPanel title="Outputs unavailable">
+            <div className="text-sm text-[var(--shell-muted)]">
+              Signed in, but your account is not authorized for company-scoped outputs yet.
             </div>
-            <div className="mt-2 text-sm text-slate-700 whitespace-pre-line">{cardBody}</div>
-            {isGated ? (
-              <div className="mt-4 text-xs text-slate-600">
-                {unlocked
-                  ? `Available through ${showInsightContent ? "insight unlock rules" : "earned badge state"}`
-                  : "Not yet available in this subject scope"}
-              </div>
-            ) : null}
-          </div>
-          );
-        })}
-      </div>
+          </DashboardPanel>
+        ) : apiError ? (
+          <DashboardPanel title="Outputs unavailable">
+            <div className="text-sm text-[var(--shell-muted)]">Unable to load outputs right now: {apiError}</div>
+          </DashboardPanel>
+        ) : (
+          <>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <MetricCard
+                label="Unlocked outputs"
+                value={`${unlockedOutputCount} / ${outputAvailability.length}`}
+                detail="Outputs currently available in the active subject scope."
+              />
+              <MetricCard
+                label="Unlocked insights"
+                value={String(summary.unlockedInsightCount ?? unlockedInsights.length)}
+                detail="Tier 1 reflective content already activated."
+              />
+              <MetricCard
+                label="Earned badges"
+                value={String(summary.badgeCount ?? earnedBadges.length)}
+                detail="Current badge state driving output access."
+              />
+              <MetricCard
+                label="Canonical score"
+                value={scoreSummary.rawScorePct === null ? "--" : `${scoreSummary.rawScorePct}%`}
+                detail="Displayed for context only. Outputs still unlock through explicit rules."
+              />
+            </div>
 
-      <div className="mt-10 rounded-2xl border border-black/10 bg-white/80 p-6 shadow-sm">
-        <p className="text-sm text-slate-700">Output framework interface coming next.</p>
-      </div>
-    </section>
+            <DashboardPanel
+              title="What PAT can deliver now"
+              description="Unlocked outputs are shown with the actual content currently backed by badge and insight rules."
+            >
+              <OutputCatalog items={outputAvailability} />
+            </DashboardPanel>
+
+            <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+              <DashboardPanel
+                title="Tier 1 interpretation already available"
+                description="These are the reflective insights PAT has actually unlocked, not placeholder narratives."
+              >
+                <InsightList
+                  insights={unlockedInsights}
+                  emptyCopy="No unlocked insight bodies are available yet. The output workspace will expand automatically when the current unlock rules are met."
+                />
+              </DashboardPanel>
+
+              <DashboardPanel
+                title="Current output basis"
+                description="This is the evidence currently supporting the output layer."
+                tone="muted"
+              >
+                <div className="grid gap-4">
+                  <div className="rounded-[18px] border border-[var(--shell-border)] bg-white/65 p-4">
+                    <div className="text-sm font-semibold text-[var(--shell-ink)]">Badge state</div>
+                    {earnedBadges.length === 0 ? (
+                      <div className="mt-2 text-sm text-[var(--shell-muted)]">No badges earned yet in this scope.</div>
+                    ) : (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {earnedBadges.map((badge) => (
+                          <span
+                            key={badge.id}
+                            className="rounded-full border border-[var(--shell-border)] bg-[var(--shell-panel)] px-3 py-1 text-[11px] font-semibold text-[var(--shell-ink)]"
+                          >
+                            {badge.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="rounded-[18px] border border-[var(--shell-border)] bg-white/65 p-4">
+                    <div className="text-sm font-semibold text-[var(--shell-ink)]">Scoring context</div>
+                    <div className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+                      Raw score: {scoreSummary.rawScorePct === null ? "--" : `${scoreSummary.rawScorePct}%`}
+                      <br />
+                      Confidence-adjusted display: {scoreSummary.confidenceAdjustedScorePct === null ? "--" : `${scoreSummary.confidenceAdjustedScorePct}%`}
+                      <br />
+                      Signal integrity: {scoreSummary.signalIntegrityScore.toFixed(2)}
+                    </div>
+                  </div>
+
+                  <div className="rounded-[18px] border border-[var(--shell-border)] bg-white/65 p-4 text-sm leading-6 text-[var(--shell-muted)]">
+                    Tier 2 program dashboards, future-state projections, and benchmarking layers are intentionally staged until PAT has durable capability-score writes, benchmark cohorts, and more than thin submission history.
+                  </div>
+                </div>
+              </DashboardPanel>
+            </div>
+          </>
+        )}
+      </PatDashboardShell>
+    </>
   );
 }
