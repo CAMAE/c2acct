@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import EnsureCompanySelected from "@/app/components/EnsureCompanySelected";
@@ -160,6 +161,23 @@ export default async function OutputsPage() {
           </DashboardPanel>
         ) : (
           <>
+            {!latest ? (
+              <DashboardPanel
+                title="Outputs activate after the first submission"
+                description="PAT cannot unlock the output workspace until the current subject has at least one completed assessment."
+                tone="accent"
+              >
+                <div className="flex flex-wrap gap-3 text-sm text-[var(--shell-muted)]">
+                  <Link className="rounded-full bg-[var(--shell-ink)] px-5 py-3 font-semibold text-white" href="/survey">
+                    Start assessment
+                  </Link>
+                  <Link className="rounded-full border border-[var(--shell-border)] px-5 py-3 font-semibold text-[var(--shell-ink)]" href="/results">
+                    Review results state
+                  </Link>
+                </div>
+              </DashboardPanel>
+            ) : null}
+
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <MetricCard
                 label="Unlocked outputs"

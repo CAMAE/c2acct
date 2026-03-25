@@ -253,12 +253,30 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
     return new Map<string, AssessmentQuestionRuntime>(entries);
   }, [data]);
 
+  const requiredQuestionIds = useMemo(
+    () => data?.questions.filter((question) => question.required).map((question) => question.id) ?? [],
+    [data]
+  );
+
+  const answeredRequiredCount = useMemo(
+    () => requiredQuestionIds.filter((questionId) => isAnswerPresent(answers[questionId])).length,
+    [answers, requiredQuestionIds]
+  );
+
+  const missingRequiredCount = requiredQuestionIds.length - answeredRequiredCount;
+
   function setAnswer(questionId: string, value: NormalizedAnswer) {
     setAnswers((currentAnswers) => ({ ...currentAnswers, [questionId]: value }));
   }
 
   async function submitSurvey() {
     if (!data || submitStatus === "submitting") {
+      return;
+    }
+
+    if (missingRequiredCount > 0) {
+      setSubmitStatus("error");
+      setSubmitError(`Complete the remaining ${missingRequiredCount} required question${missingRequiredCount === 1 ? "" : "s"} before submitting.`);
       return;
     }
 
@@ -290,7 +308,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
       }
 
       setSubmitStatus("success");
-      router.push("/results");
+      router.push("/results?submitted=1");
     } catch (submitFailure) {
       setSubmitStatus("error");
       setSubmitError(submitFailure instanceof Error ? submitFailure.message : "Submit failed");
@@ -298,34 +316,75 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
   }
 
   if (loading) {
-    return <div style={pageContainerStyle}>Loading assessment module...</div>;
+    return (
+      <div style={pageContainerStyle}>
+        <div style={heroPanelStyle}>
+          <div style={eyebrowStyle}>PAT Assessment</div>
+          <h1 style={heroTitleStyle}>Loading the current module…</h1>
+          <p style={heroBodyStyle}>
+            PAT is preparing the assessment contract, sections, and question metadata for this workflow.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
     return (
       <div style={pageContainerStyle}>
-        <div style={{ color: "#991b1b" }}>Module load failed: {error}</div>
+        <div style={cardPanelStyle}>
+          <div style={eyebrowStyle}>Assessment unavailable</div>
+          <h1 style={{ ...heroTitleStyle, color: "#7f1d1d", fontSize: "2rem" }}>The module could not be prepared.</h1>
+          <p style={{ ...heroBodyStyle, color: "#7f1d1d" }}>{error}</p>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 8 }}>
+            <button type="button" onClick={() => window.location.reload()} style={primaryButtonStyle(false)}>
+              Retry
+            </button>
+            <button type="button" onClick={() => router.push("/survey")} style={secondaryButtonStyle}>
+              Back to readiness
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!data) {
-    return <div style={pageContainerStyle}>Assessment module is unavailable.</div>;
+    return (
+      <div style={pageContainerStyle}>
+        <div style={cardPanelStyle}>Assessment module is unavailable.</div>
+      </div>
+    );
   }
 
   const unsupportedQuestions = data.questions.filter((question) => question.status === "unsupported");
+  const completionPct =
+    requiredQuestionIds.length === 0 ? 0 : Math.round((answeredRequiredCount / requiredQuestionIds.length) * 100);
 
   return (
     <div style={pageContainerStyle}>
-      <header style={{ display: "grid", gap: 10 }}>
-        <div style={{ fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "#475569" }}>
-          PAT Assessment Module
-        </div>
-        <h1 style={{ margin: 0, fontSize: "clamp(2rem, 4vw, 3rem)", color: "#0f172a" }}>{data.title}</h1>
-        <div style={{ color: "#475569" }}>
+      <header style={heroPanelStyle}>
+        <div style={eyebrowStyle}>PAT Assessment Module</div>
+        <h1 style={heroTitleStyle}>{data.title}</h1>
+        <div style={{ color: "#6b7280", fontSize: 14 }}>
           {data.scope} module · v{data.version}
         </div>
-        {data.description ? <p style={{ margin: 0, color: "#334155", maxWidth: 720 }}>{data.description}</p> : null}
+        {data.description ? <p style={heroBodyStyle}>{data.description}</p> : null}
+
+        <div style={readinessGridStyle}>
+          <div style={readinessCardStyle}>
+            <div style={metricLabelStyle}>Progress</div>
+            <div style={metricValueStyle}>{completionPct}%</div>
+            <div style={metricBodyStyle}>
+              {answeredRequiredCount} of {requiredQuestionIds.length} required questions completed
+            </div>
+          </div>
+          <div style={readinessCardStyle}>
+            <div style={metricLabelStyle}>Current path</div>
+            <div style={{ ...metricValueStyle, fontSize: "1.3rem" }}>Survey → Results → Outputs</div>
+            <div style={metricBodyStyle}>Submission moves directly into the protected PAT readout flow.</div>
+          </div>
+        </div>
       </header>
 
       {(data.stagedFeatures.branching || data.stagedFeatures.roleVariants) ? (
@@ -411,22 +470,35 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
       </div>
 
       <div style={{ display: "grid", gap: 10, marginTop: 24 }}>
+        {submitStatus === "success" ? (
+          <div style={{ ...calloutStyle, background: "#ecfdf5", borderColor: "#a7f3d0", color: "#166534" }}>
+            Submission accepted. Opening the current results view…
+          </div>
+        ) : null}
+
+        {missingRequiredCount > 0 ? (
+          <div style={{ ...calloutStyle, background: "#fffaf0", borderColor: "#f5d0a0", color: "#92400e" }}>
+            {missingRequiredCount} required question{missingRequiredCount === 1 ? "" : "s"} still need a response before PAT can accept this submission.
+          </div>
+        ) : null}
+
         <button
           type="button"
           onClick={submitSurvey}
-          disabled={submitStatus === "submitting"}
-          style={{
-            border: 0,
-            borderRadius: 999,
-            padding: "14px 18px",
-            fontWeight: 700,
-            color: "#ffffff",
-            background: submitStatus === "submitting" ? "#64748b" : "#0f172a",
-            cursor: submitStatus === "submitting" ? "not-allowed" : "pointer",
-          }}
+          disabled={submitStatus === "submitting" || submitStatus === "success"}
+          style={primaryButtonStyle(submitStatus === "submitting" || submitStatus === "success")}
         >
           {submitStatus === "submitting" ? "Submitting assessment..." : "Submit assessment"}
         </button>
+
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <button type="button" onClick={() => router.push("/survey")} style={secondaryButtonStyle}>
+            Back to readiness
+          </button>
+          <button type="button" onClick={() => router.push("/results")} style={secondaryButtonStyle}>
+            Review current results
+          </button>
+        </div>
 
         {submitError ? <div style={{ color: "#991b1b" }}>Submit error: {submitError}</div> : null}
       </div>
@@ -440,6 +512,80 @@ const pageContainerStyle: CSSProperties = {
   padding: "32px 20px 64px",
 };
 
+const heroPanelStyle: CSSProperties = {
+  display: "grid",
+  gap: 12,
+  padding: 24,
+  borderRadius: 28,
+  border: "1px solid rgba(15, 23, 42, 0.08)",
+  background: "linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248,250,252,0.9))",
+  boxShadow: "0 24px 70px rgba(15, 23, 42, 0.08)",
+};
+
+const cardPanelStyle: CSSProperties = {
+  display: "grid",
+  gap: 12,
+  padding: 24,
+  borderRadius: 24,
+  border: "1px solid rgba(15, 23, 42, 0.08)",
+  background: "rgba(255,255,255,0.92)",
+};
+
+const eyebrowStyle: CSSProperties = {
+  fontSize: 12,
+  letterSpacing: "0.12em",
+  textTransform: "uppercase",
+  color: "#6b7280",
+};
+
+const heroTitleStyle: CSSProperties = {
+  margin: 0,
+  fontSize: "clamp(2rem, 4vw, 3rem)",
+  color: "#0f172a",
+};
+
+const heroBodyStyle: CSSProperties = {
+  margin: 0,
+  color: "#334155",
+  maxWidth: 720,
+  lineHeight: 1.7,
+};
+
+const readinessGridStyle: CSSProperties = {
+  display: "grid",
+  gap: 14,
+  marginTop: 8,
+  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+};
+
+const readinessCardStyle: CSSProperties = {
+  borderRadius: 18,
+  border: "1px solid #e2e8f0",
+  background: "#ffffff",
+  padding: 16,
+  display: "grid",
+  gap: 6,
+};
+
+const metricLabelStyle: CSSProperties = {
+  fontSize: 11,
+  letterSpacing: "0.12em",
+  textTransform: "uppercase",
+  color: "#64748b",
+};
+
+const metricValueStyle: CSSProperties = {
+  fontSize: "1.8rem",
+  fontWeight: 700,
+  color: "#0f172a",
+};
+
+const metricBodyStyle: CSSProperties = {
+  color: "#475569",
+  fontSize: 14,
+  lineHeight: 1.5,
+};
+
 const calloutStyle: CSSProperties = {
   marginTop: 20,
   padding: 14,
@@ -447,6 +593,28 @@ const calloutStyle: CSSProperties = {
   border: "1px solid #bfdbfe",
   background: "#eff6ff",
   color: "#1d4ed8",
+};
+
+function primaryButtonStyle(disabled: boolean): CSSProperties {
+  return {
+    border: 0,
+    borderRadius: 999,
+    padding: "14px 18px",
+    fontWeight: 700,
+    color: "#ffffff",
+    background: disabled ? "#64748b" : "#0f172a",
+    cursor: disabled ? "not-allowed" : "pointer",
+  };
+}
+
+const secondaryButtonStyle: CSSProperties = {
+  borderRadius: 999,
+  padding: "12px 16px",
+  fontWeight: 600,
+  color: "#0f172a",
+  background: "#ffffff",
+  border: "1px solid #cbd5e1",
+  cursor: "pointer",
 };
 
 const inputStyle: CSSProperties = {

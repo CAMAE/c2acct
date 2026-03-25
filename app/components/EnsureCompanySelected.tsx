@@ -2,18 +2,26 @@
 
 import { useEffect, useState } from "react";
 
+type StatusState = {
+  message: string;
+  tone: "info" | "warning";
+} | null;
+
 export default function EnsureCompanySelected() {
   const [done, setDone] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [status, setStatus] = useState<StatusState>({
+    message: "Preparing institutional context…",
+    tone: "info",
+  });
 
   useEffect(() => {
     let cancelled = false;
 
     async function run() {
       try {
-        const r = await fetch("/api/company/default", { cache: "no-store" });
+        const response = await fetch("/api/company/default", { cache: "no-store" });
 
-        if (r.status === 401) {
+        if (response.status === 401) {
           if (!cancelled) {
             const callbackUrl =
               typeof window !== "undefined"
@@ -24,33 +32,44 @@ export default function EnsureCompanySelected() {
           return;
         }
 
-        if (r.status === 403) {
+        if (response.status === 403) {
           if (!cancelled) {
-            setMessage("Signed in, but no company is assigned to your account yet.");
+            setStatus({
+              message: "Signed in, but PAT does not have a company assignment for this account yet.",
+              tone: "warning",
+            });
             setDone(true);
           }
           return;
         }
 
-        const j: any = await r.json().catch(() => ({}));
+        const payload = (await response.json().catch(() => ({}))) as {
+          alreadySelected?: boolean;
+          companyId?: string | null;
+        };
 
-        // If already selected (server read httpOnly cookie) or no companies exist, do nothing
-        if (j?.alreadySelected === true || !j?.companyId) {
-          if (!cancelled) setDone(true);
+        if (payload.alreadySelected === true || !payload.companyId) {
+          if (!cancelled) {
+            setDone(true);
+            setStatus(null);
+          }
           return;
         }
 
-        const companyId = String(j.companyId).trim();
+        const companyId = String(payload.companyId).trim();
         if (!companyId) {
-          if (!cancelled) setDone(true);
+          if (!cancelled) {
+            setDone(true);
+            setStatus(null);
+          }
           return;
         }
 
-        const selectRes = await fetch(`/api/company/select?companyId=${encodeURIComponent(companyId)}`, {
+        const selectResponse = await fetch(`/api/company/select?companyId=${encodeURIComponent(companyId)}`, {
           method: "POST",
         });
 
-        if (selectRes.status === 401) {
+        if (selectResponse.status === 401) {
           if (!cancelled) {
             const callbackUrl =
               typeof window !== "undefined"
@@ -61,43 +80,63 @@ export default function EnsureCompanySelected() {
           return;
         }
 
-        if (selectRes.status === 403) {
+        if (selectResponse.status === 403) {
           if (!cancelled) {
-            setMessage("Company selection is restricted for this account.");
+            setStatus({
+              message: "PAT could not activate company context for this account.",
+              tone: "warning",
+            });
             setDone(true);
           }
           return;
         }
 
-        if (!cancelled) window.location.reload();
+        if (!cancelled) {
+          setStatus({
+            message: "Institutional context ready. Refreshing workflow…",
+            tone: "info",
+          });
+          window.location.reload();
+        }
       } catch {
         if (!cancelled) {
-          setMessage("Unable to auto-select company right now.");
+          setStatus({
+            message: "PAT could not confirm company context right now.",
+            tone: "warning",
+          });
           setDone(true);
         }
       }
     }
 
-    run();
+    void run();
 
     return () => {
       cancelled = true;
     };
   }, []);
 
-  if (done) {
-    if (!message) return null;
-
-    return (
-      <div className="fixed bottom-4 right-4 rounded-xl border border-white/10 bg-black/70 px-4 py-2 text-sm text-white/80">
-        {message}
-      </div>
-    );
+  if (done && !status) {
+    return null;
   }
 
+  if (!status) {
+    return null;
+  }
+
+  const toneClasses =
+    status.tone === "warning"
+      ? "border-amber-200 bg-amber-50 text-amber-900"
+      : "border-[var(--shell-border)] bg-[var(--shell-panel)] text-[var(--shell-ink)]";
+
   return (
-    <div className="fixed bottom-4 right-4 rounded-xl border border-white/10 bg-black/70 px-4 py-2 text-sm text-white/80">
-      Selecting company…
+    <div className="pointer-events-none fixed bottom-5 right-5 z-50 max-w-sm">
+      <div className={`rounded-[18px] border px-4 py-3 shadow-[0_20px_50px_rgba(15,23,42,0.08)] ${toneClasses}`}>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] opacity-70">
+          PAT Context
+        </div>
+        <div className="mt-1 text-sm leading-6">{status.message}</div>
+      </div>
     </div>
   );
 }

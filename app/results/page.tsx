@@ -55,8 +55,14 @@ type ResultsBody = {
   }>;
 };
 
-export default async function ResultsPage() {
+export default async function ResultsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const apiBaseUrl = await getRequestOrigin();
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const justSubmitted = resolvedSearchParams?.submitted === "1";
   const cookieHeader = (await cookies()).toString();
   const resultsRes = await fetch(`${apiBaseUrl}/api/results`, {
     cache: "no-store",
@@ -97,6 +103,23 @@ export default async function ResultsPage() {
         title="Institutional results that turn a submission into an operating readout"
         description="This surface shows the current assessment posture, response confidence, unlock progress, and recent submission movement. It does not fabricate Tier 2 projections or benchmarks that the current data model does not yet support."
       >
+        {justSubmitted ? (
+          <DashboardPanel
+            title="Assessment received"
+            description="PAT recorded the submission and moved directly into the protected results layer."
+            tone="accent"
+          >
+            <div className="flex flex-wrap gap-3 text-sm text-[var(--shell-muted)]">
+              <Link className="rounded-full bg-[var(--shell-ink)] px-5 py-3 font-semibold text-white" href="/outputs">
+                Continue to outputs
+              </Link>
+              <Link className="rounded-full border border-[var(--shell-border)] px-5 py-3 font-semibold text-[var(--shell-ink)]" href="/profiles">
+                Open profile shell
+              </Link>
+            </div>
+          </DashboardPanel>
+        ) : null}
+
         {forbidden ? (
           <DashboardPanel title="Results unavailable">
             <div className="text-sm text-[var(--shell-muted)]">
