@@ -5,8 +5,10 @@ import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
 import {
   requiresCompanyBackedAssessment,
   resolveAssessmentSubjectContext,
+  withCompanyScopeFallback,
 } from "@/lib/subjectContext";
 import { evaluateUnlocked } from "@/lib/insights/evaluateUnlocked";
+import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
@@ -22,35 +24,46 @@ export async function GET() {
   }
 
   try {
-    const submissionWhere = assessmentContext.subjectId
-      ? { subjectId: assessmentContext.subjectId }
-      : { companyId: assessmentContext.companyId };
-
-    const [recentSubmissions, submissionCount, badgeCount, unlockedInsights] = await Promise.all([
-      prisma.surveySubmission.findMany({
-        where: submissionWhere,
-        orderBy: { createdAt: "desc" },
-        take: 6,
-        include: {
-          SurveyModule: {
-            select: {
-              key: true,
-              title: true,
+    const [recentSubmissionsResult, submissionCountResult, badgeCountResult, unlockedInsights] = await Promise.all([
+      withCompanyScopeFallback(assessmentContext, {
+        label: "results recent submissions",
+        run: (where) =>
+          prisma.surveySubmission.findMany({
+            where: getSurveyFinalWhere(where),
+            orderBy: { createdAt: "desc" },
+            take: 6,
+            include: {
+              SurveyModule: {
+                select: {
+                  key: true,
+                  title: true,
+                },
+              },
             },
-          },
-        },
+          }),
       }),
-      prisma.surveySubmission.count({
-        where: submissionWhere,
+      withCompanyScopeFallback(assessmentContext, {
+        label: "results submission count",
+        run: (where) =>
+          prisma.surveySubmission.count({
+            where: getSurveyFinalWhere(where),
+          }),
       }),
-      prisma.companyBadge.count({
-        where: submissionWhere,
+      withCompanyScopeFallback(assessmentContext, {
+        label: "results badge count",
+        run: (where) =>
+          prisma.companyBadge.count({
+            where,
+          }),
       }),
       evaluateUnlocked({
         companyId: assessmentContext.companyId,
         subjectId: assessmentContext.subjectId,
       }),
     ]);
+    const recentSubmissions = recentSubmissionsResult.value;
+    const submissionCount = submissionCountResult.value;
+    const badgeCount = badgeCountResult.value;
 
     const latestSubmission = recentSubmissions[0] ?? null;
     const result = latestSubmission

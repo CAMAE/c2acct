@@ -89,6 +89,8 @@ export function isPortalSurfaceEnabled(surfaceId: PortalSurfaceId) {
     case "outputs":
     case "profiles":
     case "admin":
+      // Results, outputs, and profiles remain enabled only because the routes
+      // are compatibility bridges into the canonical role-specific PAT surfaces.
       return true;
     case "ecosystem-map":
       return rollout.featureFlags.ecosystemMap;

@@ -12,6 +12,7 @@ import {
   resolveAssessmentSubjectContext,
   type AssessmentSubjectAccessMode,
 } from "@/lib/subjectContext";
+import { getCanonicalPatHref, type PatNavigationAudience } from "@/lib/patNavigation";
 
 export type PortalAudience =
   | "firm"
@@ -52,6 +53,7 @@ export type PortalExperience = {
   isAdmin: boolean;
   rolloutStage: ReturnType<typeof getPatRollout>["stage"];
   betaOnlyBoundaries: string[];
+  compatibilityNotes: string[];
   surfaces: PortalSurface[];
 };
 
@@ -60,6 +62,7 @@ type SurfaceDefinition = {
   title: string;
   description: string;
   href?: string;
+  hrefByAudience?: Partial<Record<PortalAudience, string>>;
   audience: PortalAudience[];
   section: "operate" | "network" | "intelligence";
   state: "live" | "planned";
@@ -73,7 +76,7 @@ const AUDIENCE_META: Record<
 > = {
   firm: {
     label: "Firm Portal",
-    description: "Institutional operating view for firm leaders, operators, and advisory teams.",
+    description: "Operating view for firm leaders, operators, and advisory teams.",
   },
   vendor: {
     label: "Vendor Portal",
@@ -89,7 +92,7 @@ const AUDIENCE_META: Record<
   },
   higher_ed: {
     label: "Higher Ed Portal",
-    description: "Program-to-practice visibility for institutional education partners.",
+    description: "Program-to-practice visibility for education partners.",
   },
   associations: {
     label: "Association Portal",
@@ -109,17 +112,25 @@ const SURFACES: SurfaceDefinition[] = [
   {
     id: "workspace",
     title: "PAT Workspace",
-    description: "Role-aware shell for the current institutional perspective.",
-    href: "/platform",
+    description: "Role-aware shell for the current PAT perspective.",
+    hrefByAudience: {
+      firm: getCanonicalPatHref("firm", "workspace"),
+      vendor: getCanonicalPatHref("vendor", "workspace"),
+      individual: getCanonicalPatHref("individual", "workspace"),
+    },
     audience: ["firm", "vendor", "individual"],
     section: "operate",
     state: "live",
   },
   {
     id: "assessment",
-    title: "Institutional Assessment",
-    description: "Run the current PAT-aligned survey flow against the active subject.",
-    href: "/survey",
+    title: "Assessment",
+    description: "Open the canonical role-specific PAT assessment route.",
+    hrefByAudience: {
+      firm: getCanonicalPatHref("firm", "assessment"),
+      vendor: getCanonicalPatHref("vendor", "assessment"),
+      individual: getCanonicalPatHref("individual", "assessment"),
+    },
     audience: ["firm", "vendor"],
     section: "operate",
     state: "live",
@@ -127,9 +138,13 @@ const SURFACES: SurfaceDefinition[] = [
   },
   {
     id: "results",
-    title: "Assessment Results",
-    description: "Review the latest scored submission and its integrity-adjusted result.",
-    href: "/results",
+    title: "Assessment Interpretation",
+    description: "Open the canonical role-specific PAT interpretation route.",
+    hrefByAudience: {
+      firm: getCanonicalPatHref("firm", "results"),
+      vendor: getCanonicalPatHref("vendor", "results"),
+      individual: getCanonicalPatHref("individual", "results"),
+    },
     audience: ["firm", "vendor"],
     section: "operate",
     state: "live",
@@ -137,9 +152,13 @@ const SURFACES: SurfaceDefinition[] = [
   },
   {
     id: "outputs",
-    title: "Institutional Outputs",
-    description: "Open unlocked outputs and the current post-submit deliverable layer.",
-    href: "/outputs",
+    title: "Insights",
+    description: "Open the canonical role-specific insight route.",
+    hrefByAudience: {
+      firm: getCanonicalPatHref("firm", "insights"),
+      vendor: getCanonicalPatHref("vendor", "insights"),
+      individual: getCanonicalPatHref("individual", "insights"),
+    },
     audience: ["firm", "vendor"],
     section: "operate",
     state: "live",
@@ -147,9 +166,13 @@ const SURFACES: SurfaceDefinition[] = [
   },
   {
     id: "profiles",
-    title: "Profile Surface",
-    description: "Current profile route for institution-facing visibility and score framing.",
-    href: "/profiles",
+    title: "Profile And Admin",
+    description: "Open the canonical role-specific profile or admin surface.",
+    hrefByAudience: {
+      firm: getCanonicalPatHref("firm", "profile"),
+      vendor: getCanonicalPatHref("vendor", "profile"),
+      individual: getCanonicalPatHref("individual", "profile"),
+    },
     audience: ["firm", "vendor"],
     section: "operate",
     state: "live",
@@ -167,7 +190,7 @@ const SURFACES: SurfaceDefinition[] = [
   {
     id: "ecosystem-map",
     title: "Filtered Ecosystem Map",
-    description: "View only the institutions and counterparties relevant to this portal perspective.",
+    description: "View only the counterparties and ecosystem relationships relevant to this portal perspective.",
     audience: ["firm", "vendor", "associations", "media"],
     section: "network",
     state: "planned",
@@ -218,7 +241,11 @@ function resolvePrimaryAudience(
 
 function toSurface(
   definition: SurfaceDefinition,
-  options: { isAdmin: boolean; hasCompanyBackedAssessment: boolean }
+  options: {
+    isAdmin: boolean;
+    hasCompanyBackedAssessment: boolean;
+    audience: PortalAudience;
+  }
 ): PortalSurface | null {
   if (definition.requiresAdmin && !options.isAdmin) {
     return null;
@@ -255,7 +282,10 @@ function toSurface(
     id: definition.id,
     title: definition.title,
     description: definition.description,
-    href: definition.href,
+    href:
+      definition.hrefByAudience?.[options.audience] ??
+      definition.hrefByAudience?.individual ??
+      definition.href,
     audience: definition.audience,
     section: definition.section,
     availability: "enabled",
@@ -282,9 +312,14 @@ export async function resolvePortalExperience(
       isAdmin: false,
       rolloutStage: rollout.stage,
       betaOnlyBoundaries: rollout.betaOnlyBoundaries,
+      compatibilityNotes: [],
       surfaces: SURFACES.filter((surface) => surface.audience.includes(audience))
         .map((surface) =>
-          toSurface(surface, { isAdmin: false, hasCompanyBackedAssessment: false })
+          toSurface(surface, {
+            isAdmin: false,
+            hasCompanyBackedAssessment: false,
+            audience,
+          })
         )
         .filter((surface): surface is PortalSurface => Boolean(surface)),
     };
@@ -300,7 +335,16 @@ export async function resolvePortalExperience(
 
   const hasCompanyBackedAssessment = Boolean(assessmentContext?.companyId);
   const audience = resolvePrimaryAudience(company?.type ?? null, hasCompanyBackedAssessment);
+  const navigationAudience: PatNavigationAudience =
+    audience === "firm" || audience === "vendor" ? audience : "individual";
   const isAdmin = isAdminRole(sessionUser.role);
+  const compatibilityNotes =
+    assessmentContext?.compatibilityMode === "legacy-fallback"
+      ? [
+          "Local DB compatibility mode is active. PAT is using the legacy company-backed path because subject-layer tables or columns are missing locally.",
+          "Apply local Prisma migrations to enable subject-aware routing: `npm run prisma:migrate:deploy`.",
+        ]
+      : [];
 
   return {
     actor: { email: sessionUser.email, role: sessionUser.role },
@@ -315,9 +359,14 @@ export async function resolvePortalExperience(
     isAdmin,
     rolloutStage: rollout.stage,
     betaOnlyBoundaries: rollout.betaOnlyBoundaries,
+    compatibilityNotes,
     surfaces: SURFACES.filter((surface) => surface.audience.includes(audience))
       .map((surface) =>
-        toSurface(surface, { isAdmin, hasCompanyBackedAssessment })
+        toSurface(surface, {
+          isAdmin,
+          hasCompanyBackedAssessment,
+          audience: navigationAudience,
+        })
       )
       .filter((surface): surface is PortalSurface => Boolean(surface)),
   };
@@ -328,11 +377,14 @@ export function getAudienceMeta(audience: PortalAudience) {
 }
 
 export function getAudiencePreview(audience: PortalAudience): PortalSurface[] {
+  const navigationAudience: PatNavigationAudience =
+    audience === "firm" || audience === "vendor" ? audience : "individual";
   return SURFACES.filter((surface) => surface.audience.includes(audience))
     .map((surface) =>
       toSurface(surface, {
         isAdmin: audience === "associations",
         hasCompanyBackedAssessment: audience === "firm" || audience === "vendor",
+        audience: navigationAudience,
       })
     )
     .filter((surface): surface is PortalSurface => Boolean(surface));

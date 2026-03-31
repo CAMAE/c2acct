@@ -2,17 +2,32 @@
 
 
 :root {
-  --shell-bg: #f4ede1;
-  --shell-ink: #16212c;
-  --shell-muted: #66707b;
-  --shell-border: rgba(22, 33, 44, 0.12);
-  --shell-panel: rgba(252, 249, 244, 0.9);
-  --shell-panel-strong: rgba(255, 252, 248, 0.96);
-  --shell-panel-soft: rgba(255, 255, 255, 0.72);
-  --shell-accent: #d2a15b;
-  --shell-accent-strong: #b98644;
-  --shell-deep: #0e1721;
-  --shell-teal: #204453;
+  --brand-c2-blue: #063674;
+  --brand-light-blue: #4fbfe2;
+  --brand-division-accent: #33e573;
+  --brand-orange: #fc4713;
+  --brand-charcoal: #202020;
+  --brand-cream: #f1f2ee;
+  --brand-white: #ffffff;
+  --shell-bg: #ffffff;
+  --shell-ink: var(--brand-charcoal);
+  --shell-muted: #5c6c80;
+  --shell-border: rgba(12, 33, 66, 0.12);
+  --shell-panel: #ffffff;
+  --shell-panel-strong: #ffffff;
+  --shell-panel-soft: rgba(244, 248, 252, 0.94);
+  --shell-accent: var(--brand-c2-blue);
+  --shell-accent-strong: #052a59;
+  --shell-deep: var(--brand-c2-blue);
+  --shell-teal: var(--brand-light-blue);
+  --pat-blue: var(--brand-c2-blue);
+  --pat-lime: var(--brand-division-accent);
+  --dark-surface-ink: rgba(255, 255, 255, 0.98);
+  --dark-surface-copy: rgba(248, 251, 255, 0.96);
+  --dark-surface-muted: rgba(235, 243, 255, 0.9);
+  --dark-surface-soft: rgba(255, 255, 255, 0.11);
+  --dark-surface-soft-strong: rgba(255, 255, 255, 0.16);
+  --dark-surface-border: rgba(255, 255, 255, 0.22);
   --shell-success: #166534;
   --shell-warning: #9a3412;
   --shell-danger: #7f1d1d;
@@ -24,19 +39,9 @@ body {
 }
 
 body {
-  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  font-family: var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   color: var(--shell-ink);
-  background: radial-gradient(
-      900px 500px at 20% 5%,
-      rgba(22, 33, 44, 0.05),
-      transparent 60%
-    ),
-    radial-gradient(
-      900px 500px at 80% 15%,
-      rgba(210, 161, 91, 0.06),
-      transparent 60%
-    ),
-    var(--shell-bg);
+  background: var(--shell-bg);
 }
 
 a,
@@ -57,7 +62,7 @@ textarea {
 }
 
 .pat-sans {
-  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
 .pat-shell {
@@ -72,21 +77,93 @@ textarea {
   color: var(--shell-muted);
 }
 
+.brand-c2-wordmark {
+  font-family: var(--font-barlow-display), var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--shell-ink);
+}
+
+.brand-c2-accounting {
+  font-family: var(--font-barlow-display), var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: -0.015em;
+  color: var(--pat-lime);
+}
+
+.brand-pat-wordmark {
+  font-family: var(--font-barlow-display), var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--shell-ink);
+}
+
+.brand-pat-submark {
+  margin-top: 0.22rem;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--shell-muted);
+}
+
 .pat-card {
   border: 1px solid var(--shell-border);
   border-radius: 28px;
   background: var(--shell-panel);
-  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.07);
+}
+
+.pat-card-interactive {
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.pat-card-interactive:hover {
+  border-color: rgba(6, 54, 116, 0.34);
 }
 
 .pat-card-strong {
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--dark-surface-border);
   border-radius: 30px;
-  background:
-    linear-gradient(145deg, rgba(14, 23, 33, 0.98), rgba(24, 66, 81, 0.95)),
-    radial-gradient(circle at top left, rgba(210, 161, 91, 0.18), transparent 42%);
-  box-shadow: 0 36px 90px rgba(15, 23, 42, 0.16);
-  color: white;
+  background: linear-gradient(180deg, rgba(6, 54, 116, 0.985), rgba(12, 83, 159, 0.965));
+  box-shadow: 0 28px 72px rgba(15, 23, 42, 0.14);
+  color: var(--dark-surface-ink);
+}
+
+.pat-card-strong .pat-label {
+  color: var(--dark-surface-muted);
+}
+
+.pat-card-strong h1,
+.pat-card-strong h2,
+.pat-card-strong h3,
+.pat-card-strong h4,
+.pat-card-strong strong {
+  color: var(--dark-surface-ink);
+}
+
+.pat-card-strong .brand-c2-wordmark,
+.pat-card-strong .brand-pat-wordmark {
+  color: var(--dark-surface-ink);
+}
+
+.pat-card-strong .brand-pat-submark {
+  color: var(--dark-surface-muted);
+}
+
+.pat-card-strong .pat-link {
+  color: var(--dark-surface-ink);
+  text-decoration-color: rgba(255, 255, 255, 0.28);
+}
+
+.pat-card-strong .pat-link:hover {
+  text-decoration-color: rgba(255, 255, 255, 0.52);
 }
 
 .pat-subpanel {
@@ -161,6 +238,29 @@ textarea {
   background: rgba(255, 255, 255, 0.92);
 }
 
+.pat-card-strong .pat-button-secondary {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--dark-surface-ink);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
+}
+
+.pat-card-strong .pat-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--dark-surface-ink);
+}
+
+.pat-card-strong .pat-button-accent {
+  background: var(--pat-lime);
+  color: var(--brand-c2-blue);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+}
+
+.pat-card-strong .pat-button-accent:hover {
+  background: #24d764;
+  color: var(--brand-c2-blue);
+}
+
 .pat-link {
   font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 0.92rem;
@@ -183,7 +283,7 @@ textarea {
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.96);
   padding: 0.9rem 1rem;
-  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   font-size: 0.95rem;
   color: var(--shell-ink);
 }
@@ -228,6 +328,33 @@ textarea {
   color: var(--shell-danger);
 }
 
+.pat-dark-copy {
+  color: var(--dark-surface-copy);
+}
+
+.pat-dark-copy-soft {
+  color: var(--dark-surface-muted);
+}
+
+.pat-dark-panel {
+  border: 1px solid var(--dark-surface-border);
+  border-radius: 22px;
+  background: var(--dark-surface-soft-strong);
+  color: var(--dark-surface-ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.pat-dark-panel .pat-label {
+  color: var(--dark-surface-muted);
+}
+
+.pat-dark-chip {
+  border: 1px solid var(--dark-surface-border);
+  border-radius: 999px;
+  background: var(--dark-surface-soft-strong);
+  color: var(--dark-surface-copy);
+}
+
 .pat-question-choice {
   display: flex;
   align-items: flex-start;
@@ -239,9 +366,9 @@ textarea {
 }
 
 .pat-question-choice[data-active="true"] {
-  border-color: rgba(185, 134, 68, 0.42);
-  background: rgba(250, 241, 226, 0.96);
-  box-shadow: 0 10px 24px rgba(210, 161, 91, 0.08);
+  border-color: rgba(11, 92, 255, 0.24);
+  background: rgba(240, 247, 255, 0.98);
+  box-shadow: 0 10px 24px rgba(11, 92, 255, 0.08);
 }
 
 .pat-question-choice-button {
@@ -257,9 +384,16 @@ textarea {
   font-size: 0.92rem;
   font-weight: 700;
   color: var(--shell-ink);
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.pat-question-choice-button:hover {
+  border-color: rgba(6, 54, 116, 0.34);
 }
 
 .pat-question-choice-button[data-active="true"] {
-  border-color: rgba(185, 134, 68, 0.42);
-  background: rgba(250, 241, 226, 0.96);
+  border-color: rgba(11, 92, 255, 0.24);
+  background: rgba(240, 247, 255, 0.98);
 }

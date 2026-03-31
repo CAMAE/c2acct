@@ -15,7 +15,8 @@ The protected golden path is:
 Current active runtime entrypoints:
 
 - `/login`
-- `/survey` -> redirects to `/survey/firm_alignment_v1`
+- `/survey` -> compatibility redirect to `/firm/alignment-assessment`
+- `/firm/alignment-assessment`
 - `/survey/[key]`
 - `/results`
 - `/outputs`
@@ -68,11 +69,12 @@ If you are bootstrapping a new environment, create the operator `User` row direc
 The repo previously contained multiple stale seed paths. The current source of truth is:
 
 - `prisma/seed.ts`
+- `scripts/seed-pat-runtime.ts`
 
 It seeds:
 
-- the active `firm_alignment_v1` survey module
-- the live survey questions
+- the canonical five-module PAT firm alignment system
+- 100 live PAT firm questions across those five modules
 - tier-1 badge rule and unlocked insight content
 - a `Demo Company`
 
@@ -90,7 +92,7 @@ pnpm exec prisma db seed
 
 Focused seed helpers remain available when you only need one slice:
 
-- `node scripts/seed-firm-alignment.mjs`
+- `node scripts/seed-firm-alignment.mjs` (`/firm` assessment compatibility wrapper around the canonical PAT runtime seed)
 - `node scripts/seed-tier1-badges-insights.mjs`
 - `node scripts/seed-demo-company.mjs`
 
@@ -112,6 +114,119 @@ pnpm lint
 pnpm typecheck
 pnpm build
 ```
+
+Deterministic local PAT validation against Docker Postgres on `localhost:5433`:
+
+```bash
+pnpm db:recreate
+pnpm validate:db
+```
+
+One-command launch verification from a clean local DB:
+
+```bash
+pnpm validate:launch
+```
+
+What `validate:db` covers:
+
+- local Docker Postgres availability
+- Prisma migrations
+- canonical baseline seed
+- PAT runtime seed
+- five PAT firm modules with 20 questions each
+- DB-backed module and question capability mappings
+- DB-backed company capability score writes
+- DB-backed firm insight unlock checks
+- vendor alignment engine smoke coverage
+
+If the DB is unavailable, the DB validation scripts fail with an explicit `db:up` and `db:wait` recovery path instead of ambiguous Prisma output.
+
+`validate:launch` now includes build, typecheck, unit tests, and Playwright local-review browser coverage after the DB-backed PAT runtime checks.
+
+## Local review auth
+
+GitHub remains the primary production auth provider.
+
+For deterministic local manual review, PAT can expose a development-only Auth.js Credentials path when all of the following are true:
+
+- `NODE_ENV !== "production"`
+- `PAT_ENABLE_LOCAL_REVIEW_AUTH=1`
+- `PAT_LOCAL_REVIEW_PASSWORD` is set
+- `AUTH_SECRET` or `NEXTAUTH_SECRET` is set so Auth.js can sign a real session
+
+Deterministic local review identities:
+
+- `review.vendor@pat.local`
+- `review.firm@pat.local`
+- `review.individual@pat.local`
+- `review.admin@pat.local`
+
+Seed with the flag enabled so those users exist in the local DB with canonical role/company bindings:
+
+```bash
+PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:baseline
+PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:pat-runtime
+```
+
+This local review path is never exposed in production and does not replace GitHub auth there.
+
+Exact local manual review sequence:
+
+```bash
+npm run db:recreate
+npm run prisma:migrate:local
+PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:baseline
+PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:pat-runtime
+PAT_ENABLE_LOCAL_REVIEW_AUTH=1 PAT_LOCAL_REVIEW_PASSWORD=pat-local-review AUTH_SECRET=pat-local-auth-secret npm run dev
+```
+
+Then review these browser paths with the seeded local review identities:
+
+1. `/sign-in?view=vendor`
+   Use `review.vendor@pat.local` and `pat-local-review`
+   Verify `/vendor`, `/vendor/membership`, `/vendor/product-assessment`, product creation, utility branching, final open-ended responses, submit, and `/vendor/product-insight/[productId]`
+2. `/sign-in?view=firm`
+   Use `review.firm@pat.local` and `pat-local-review`
+   Verify `/firm`, `/firm/admin`, and `/firm/membership`
+3. `/sign-in?view=individual`
+   Use `review.individual@pat.local` and `pat-local-review`
+   Verify `/user`, `/user/profile`, and `/user/membership`
+4. `/sign-in?view=admin`
+   Use `review.admin@pat.local` and `pat-local-review`
+   Verify `/admin`
+
+## Safe repo handoff
+
+Use the sanitized export script when handing off the codebase for review, launch prep, or external packaging.
+
+```bash
+npm run handoff:preflight
+npm run export:safe -- /tmp/c2acct-export
+```
+
+What it excludes by default:
+
+- `.env*`
+- `.next`
+- `node_modules`
+- `artifacts/mac-mini/*`
+- `logs`
+- `playwright-report`, `test-results`, `blob-report`, `coverage`
+- temporary files and local scratch state
+- archive files such as `.zip`, `.tar`, `.tgz`
+
+Operator rule: never hand off the repo by zipping the working tree directly. Do not export `.env`, `.env.local`, build output, Mac mini artifacts, or any other local secrets/runtime residue.
+
+Pre-handoff checklist:
+
+1. `npm run secrets:scan`
+2. `npm run build`
+3. `npm run typecheck`
+4. `npm run export:safe -- /tmp/c2acct-export`
+5. Confirm the export tree excludes `.env*`, `.next`, `node_modules`, `logs`, `artifacts/mac-mini`, and temp files before creating a zip
+
+If `gitleaks` is not installed locally, `npm run secrets:scan` falls back to Docker with the repo `.gitleaks.toml`.
 
 ## Repo map
 
@@ -155,3 +270,5 @@ pnpm install
 pnpm build
 pnpm ops:mac-mini:launchd:install
 ```
+
+For handoff or audit packaging, export from the sanitized script above rather than copying the live working tree or any ops artifact directory.

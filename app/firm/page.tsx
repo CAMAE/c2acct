@@ -1,0 +1,287 @@
+import { randomUUID } from "crypto";
+import { redirect } from "next/navigation";
+import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
+import MembershipCard from "@/app/components/membership/MembershipCard";
+import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
+import FirmAdminPanels from "@/app/components/firm/FirmAdminPanels";
+import {
+  FirmAdminInlineContent,
+  FirmHelpInlineContent,
+  FirmMeetPatContent,
+  firmWorkspaceCards,
+} from "@/app/components/firm/FirmPortalContent";
+import { getSessionUser } from "@/lib/auth/session";
+import { buildFirmExternalProfileContract, getFirmAssessmentProgress } from "@/lib/firmPat";
+import { getInviteeAccessContext } from "@/lib/invitee/access";
+import { resolveCurrentMembership } from "@/lib/membership";
+import { getRequestLocaleMessages } from "@/lib/requestLocale";
+import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/profileSettingsStore";
+import prisma from "@/lib/prisma";
+import { ensureUserPatScaffold, getFirmManagedUserRecords } from "@/lib/userPat";
+
+export const dynamic = "force-dynamic";
+
+export const metadata = {
+  title: "Firm | C2Acct",
+  description: "Firm PAT homepage and flow entry.",
+};
+
+type SearchParams = {
+  panel?: string;
+};
+
+function getPanelHref(panel: "workspace" | "pat" | "admin" | "help") {
+  return panel === "workspace" ? "/firm" : `/firm?panel=${panel}`;
+}
+
+export default async function FirmPage({
+  searchParams,
+}: {
+  searchParams?: Promise<SearchParams>;
+}) {
+  const params = searchParams ? await searchParams : undefined;
+  const messages = await getRequestLocaleMessages();
+  const activePanel =
+    params?.panel === "pat" || params?.panel === "admin" || params?.panel === "help" ? params.panel : "workspace";
+  const sessionUser = await getSessionUser();
+  const inviteeAccess = !sessionUser ? await getInviteeAccessContext() : null;
+  const companyId =
+    sessionUser?.companyId ?? (inviteeAccess?.audience === "firm" ? inviteeAccess.companyId : null);
+  const company = companyId
+    ? await prisma.company
+        .findUnique({
+          where: { id: companyId },
+          select: {
+            id: true,
+            name: true,
+            type: true,
+            User: activePanel === "admin"
+              ? {
+                  orderBy: { email: "asc" },
+                  select: { id: true, email: true, role: true, name: true },
+                }
+              : false,
+            Product: activePanel === "admin"
+              ? {
+                  orderBy: { name: "asc" },
+                  select: { id: true, name: true },
+                }
+              : false,
+          },
+        })
+        .catch(() => null)
+    : null;
+
+  const moduleProgress = company?.type === "FIRM" ? await getFirmAssessmentProgress(company.id) : [];
+  const completedModules = moduleProgress.filter((module) => module.latestSubmittedAt).length;
+  const panelOptions = [
+    { key: "workspace", label: messages.common.workspace, href: getPanelHref("workspace") },
+    { key: "pat", label: messages.nav.meet_pat, href: getPanelHref("pat") },
+    { key: "admin", label: messages.common.admin, href: getPanelHref("admin") },
+    { key: "help", label: messages.common.help, href: getPanelHref("help") },
+  ] as const;
+  const needsAdminContent = activePanel === "admin" && company?.type === "FIRM";
+  const adminCompany = company?.type === "FIRM" ? company : null;
+  const membershipState =
+    sessionUser && company?.type === "FIRM" ? await resolveCurrentMembership(sessionUser, "firm") : null;
+
+  async function saveFirmProfile(formData: FormData) {
+    "use server";
+
+    const actor = await getSessionUser();
+    if (!actor?.companyId) {
+      redirect("/sign-in/firm");
+    }
+
+    const liveCompany = await prisma.company.findUnique({
+      where: { id: actor.companyId },
+      select: { id: true, type: true },
+    }).catch(() => null);
+    if (!liveCompany || liveCompany.type !== "FIRM") {
+      redirect("/sign-in/firm");
+    }
+
+    const name = String(formData.get("companyName") ?? "").trim();
+    if (!name) {
+      redirect("/firm?panel=admin");
+    }
+
+    await prisma.company.update({
+      where: { id: liveCompany.id },
+      data: {
+        name,
+        updatedAt: new Date(),
+      },
+    });
+
+    await saveCompanyProfileSettings(`firm:${liveCompany.id}`, {
+      companyName: name,
+      contactName: String(formData.get("contactName") ?? "").trim(),
+      workEmail: String(formData.get("workEmail") ?? "").trim(),
+      phone: String(formData.get("phone") ?? "").trim(),
+      businessAddress: String(formData.get("businessAddress") ?? "").trim(),
+      paymentDetails: String(formData.get("paymentDetails") ?? "").trim(),
+      companyDescription: String(formData.get("companyDescription") ?? "").trim(),
+      website: String(formData.get("website") ?? "").trim(),
+    });
+
+    redirect("/firm?panel=admin");
+  }
+
+  async function inviteUser(formData: FormData) {
+    "use server";
+
+    const actor = await getSessionUser();
+    if (!actor?.companyId) {
+      redirect("/sign-in/firm");
+    }
+
+    const liveCompany = await prisma.company.findUnique({
+      where: { id: actor.companyId },
+      select: { id: true, type: true },
+    }).catch(() => null);
+    if (!liveCompany || liveCompany.type !== "FIRM") {
+      redirect("/sign-in/firm");
+    }
+
+    const email = String(formData.get("email") ?? "").trim().toLowerCase();
+    const role = String(formData.get("role") ?? "").trim();
+    if (!email || !["OWNER", "ADMIN", "MEMBER"].includes(role)) {
+      redirect("/firm?panel=admin");
+    }
+
+    await prisma.user.upsert({
+      where: { email },
+      update: {
+        companyId: liveCompany.id,
+        role: role as "OWNER" | "ADMIN" | "MEMBER",
+        updatedAt: new Date(),
+      },
+      create: {
+        id: randomUUID(),
+        email,
+        role: role as "OWNER" | "ADMIN" | "MEMBER",
+        companyId: liveCompany.id,
+        updatedAt: new Date(),
+      },
+    });
+
+    redirect("/firm?panel=admin");
+  }
+
+  if (needsAdminContent) {
+    await ensureUserPatScaffold();
+  }
+
+  const userInsight = needsAdminContent && adminCompany ? await getFirmManagedUserRecords(adminCompany.id, null) : [];
+  const profileSettings = needsAdminContent
+    && adminCompany
+    ? await getCompanyProfileSettings(`firm:${adminCompany.id}`, {
+        companyName: adminCompany.name,
+        contactName: "",
+        workEmail: sessionUser?.email ?? "",
+        phone: "",
+        businessAddress: "",
+        paymentDetails: "",
+        companyDescription: "",
+        website: "",
+      })
+    : null;
+  const contract = profileSettings
+    ? buildFirmExternalProfileContract({
+        companyName: profileSettings.companyName,
+        contactName: profileSettings.contactName || null,
+        workEmail: profileSettings.workEmail || null,
+        phone: profileSettings.phone || null,
+        businessAddress: profileSettings.businessAddress || null,
+        paymentDetails: profileSettings.paymentDetails || null,
+        companyDescription: profileSettings.companyDescription || null,
+        users: adminCompany ? adminCompany.User.map((user) => ({
+          email: user.email,
+          role: user.role,
+          status: user.name ? "active" : "invited",
+        })) : [],
+        productsUnderReview: adminCompany ? adminCompany.Product.map((product) => product.name) : [],
+      })
+    : null;
+
+  const localizedCards = firmWorkspaceCards.map((card) => ({
+    ...card,
+    title: messages.portal.cards.firm[card.id]?.title ?? card.title,
+    description: messages.portal.cards.firm[card.id]?.description ?? card.description,
+  }));
+
+  return (
+    <div className="space-y-8">
+      <section className="pat-card p-8">
+        <div className="pat-label">{messages.portal.firm.eyebrow}</div>
+        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
+          {messages.portal.firm.title}
+        </h1>
+        <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
+          {messages.portal.firm.body}
+        </p>
+        <div className="mt-6">
+          <PortalPanelSelector activeKey={activePanel} options={panelOptions} />
+        </div>
+      </section>
+
+      {activePanel === "pat" ? (
+        <FirmMeetPatContent />
+      ) : activePanel === "admin" ? (
+        <div className="space-y-6">
+          <FirmAdminInlineContent />
+          {membershipState ? (
+            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <MembershipCard
+                audienceLabel="firm"
+                href="/firm/membership"
+                plan={membershipState.membership.plan}
+                status={membershipState.membership.status}
+              />
+            </section>
+          ) : null}
+          {profileSettings && contract ? (
+            <FirmAdminPanels
+              contract={contract}
+              inviteUser={inviteUser}
+              profileSettings={profileSettings}
+              saveFirmProfile={saveFirmProfile}
+              userInsight={userInsight}
+            />
+          ) : null}
+        </div>
+      ) : activePanel === "help" ? (
+        <FirmHelpInlineContent />
+      ) : (
+        <>
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+              {messages.portal.firm.account}: <span className="font-semibold text-[var(--shell-ink)]">{company?.name ?? inviteeAccess?.companyName ?? messages.common.unbound}</span>
+            </div>
+            <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+              {messages.portal.firm.modulesCompleted}: <span className="font-semibold text-[var(--shell-ink)]">{completedModules} / 5</span>
+            </div>
+            <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+              {messages.portal.firm.productReviewLoop}: <span className="font-semibold text-[var(--shell-ink)]">{messages.portal.firm.live}</span>
+            </div>
+            {membershipState ? (
+              <MembershipCard
+                audienceLabel="firm"
+                href="/firm/membership"
+                plan={membershipState.membership.plan}
+                status={membershipState.membership.status}
+              />
+            ) : null}
+          </section>
+
+          <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {localizedCards.map((card) => (
+              <PortalSurfaceCard key={card.id} surface={card} />
+            ))}
+          </section>
+        </>
+      )}
+    </div>
+  );
+}

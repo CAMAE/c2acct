@@ -8,7 +8,7 @@ PAT now has the beginnings of a usable substrate, but not a complete institution
 
 Grounded repo facts:
 
-- the live assessment runtime is still one narrow module: `firm_alignment_v1`
+- the live firm assessment runtime is the five-module PAT system exposed from `/firm/alignment-assessment`
 - current module scope support in schema is `FIRM`, `VENDOR`, `PRODUCT`, `ENTERPRISE`
 - the taxonomy substrate exists and is structurally stronger than the old free-text `Product.category`
 - the referenced vendor/product breakdown, style guide assets, and platform briefing were **not** present in the workspace at execution time, so this package cannot truthfully claim source-backed vendor-by-vendor coverage

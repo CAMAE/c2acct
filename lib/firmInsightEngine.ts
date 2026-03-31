@@ -1,0 +1,481 @@
+import prisma from "@/lib/prisma";
+import { normalizeQuestionRuntime, type NormalizedAnswer } from "@/lib/assessmentRuntime";
+import {
+  FIRM_CAPABILITY_DEFINITIONS,
+  FIRM_TIER1_INSIGHT_CAPABILITY_RULES,
+} from "@/lib/firmCapabilities";
+import {
+  FIRM_MODULE_DEFINITIONS,
+  FIRM_TIER1_INSIGHT_DEFINITIONS,
+} from "@/lib/firmPat";
+import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
+
+type InsightKey = (typeof FIRM_TIER1_INSIGHT_DEFINITIONS)[number]["key"];
+
+type ModuleEvidence = {
+  key: string;
+  title: string;
+  score: number | null;
+  submittedAt: Date | null;
+  sectionKey: string;
+  sectionTitle: string;
+};
+
+type CapabilityEvidence = {
+  key: string;
+  title: string;
+  description: string | null;
+  score: number | null;
+  threshold: number;
+  meetsThreshold: boolean;
+};
+
+type ClusterEvidence = {
+  key: string;
+  title: string;
+  averageScore: number;
+  questionCount: number;
+  moduleTitles: string[];
+  sectionTitles: string[];
+  questionPrompts: string[];
+};
+
+export type FirmInsightReport = {
+  key: InsightKey;
+  title: string;
+  sampleSize: number;
+  latestUpdatedAt: Date | null;
+  confidenceBand: "no_signal" | "directional" | "emerging" | "grounded";
+  confidenceLabel: string;
+  confidenceSummary: string;
+  currentStateSummary: string;
+  what: string;
+  why: string;
+  how: string;
+  basisSummary: string;
+  contributingModules: ModuleEvidence[];
+  strongestModules: ModuleEvidence[];
+  weakestModules: ModuleEvidence[];
+  contributingCapabilities: CapabilityEvidence[];
+  notableQuestionClusters: ClusterEvidence[];
+  confidenceCaveats: string[];
+};
+
+function getConfidenceBand(sampleSize: number) {
+  if (sampleSize <= 0) {
+    return {
+      band: "no_signal" as const,
+      label: "No live signal",
+      summary: "PAT does not yet have enough completed firm evidence to support a grounded readout.",
+    };
+  }
+  if (sampleSize === 1) {
+    return {
+      band: "directional" as const,
+      label: "Directional only",
+      summary: "This readout is based on one completed module submission only and should be treated as directional.",
+    };
+  }
+  if (sampleSize < 4) {
+    return {
+      band: "directional" as const,
+      label: "Directional",
+      summary: `This readout is based on ${sampleSize} relevant module submissions and remains directional rather than strong signal.`,
+    };
+  }
+  if (sampleSize < 8) {
+    return {
+      band: "emerging" as const,
+      label: "Emerging signal",
+      summary: `This readout is based on ${sampleSize} relevant module submissions and is useful, but still not broad enough to read as strong signal.`,
+    };
+  }
+  return {
+    band: "grounded" as const,
+    label: "Grounded current-state signal",
+    summary: `This readout is based on ${sampleSize} relevant module submissions and is grounded for current-state interpretation only, not benchmarks or forecasts.`,
+  };
+}
+
+const INSIGHT_MODULE_MAP: Record<InsightKey, string[]> = {
+  firm_tier1_operating_baseline: FIRM_MODULE_DEFINITIONS.map((module) => module.key),
+  firm_tier1_automation_readiness: [
+    "firm_alignment_automation_ai_v1",
+    "firm_alignment_operating_model_v1",
+    "firm_alignment_data_flow_v1",
+    "firm_alignment_governance_v1",
+  ],
+  firm_tier1_data_and_controls: [
+    "firm_alignment_data_flow_v1",
+    "firm_alignment_governance_v1",
+    "firm_alignment_operating_model_v1",
+  ],
+  firm_tier1_change_alignment: [
+    "firm_alignment_strategy_v1",
+    "firm_alignment_operating_model_v1",
+    "firm_alignment_automation_ai_v1",
+  ],
+};
+
+function round1(value: number) {
+  return Math.round(value * 10) / 10;
+}
+
+function normalizeAnswerToPercent(question: ReturnType<typeof normalizeQuestionRuntime>, answer: unknown) {
+  if (typeof answer !== "number" || !Number.isFinite(answer)) {
+    return null;
+  }
+
+  if (question.inputType === "SLIDER" && question.validation.slider) {
+    const denominator = question.validation.slider.max - question.validation.slider.min;
+    if (denominator <= 0) {
+      return null;
+    }
+    return round1(((answer - question.validation.slider.min) / denominator) * 100);
+  }
+
+  if (
+    question.inputType === "NUMBER" &&
+    typeof question.validation.number?.min === "number" &&
+    typeof question.validation.number?.max === "number"
+  ) {
+    const denominator = question.validation.number.max - question.validation.number.min;
+    if (denominator <= 0) {
+      return null;
+    }
+    return round1(((answer - question.validation.number.min) / denominator) * 100);
+  }
+
+  return null;
+}
+
+function describeConfidenceCaveats(input: {
+  availableModuleCount: number;
+  expectedModuleCount: number;
+  availableCapabilityCount: number;
+  expectedCapabilityCount: number;
+  clusterCount: number;
+}) {
+  const caveats: string[] = [];
+
+  if (input.availableModuleCount < input.expectedModuleCount) {
+    caveats.push(
+      `Only ${input.availableModuleCount} of ${input.expectedModuleCount} relevant modules have final submissions, so this remains partial current-state evidence.`
+    );
+  }
+
+  if (input.availableCapabilityCount < input.expectedCapabilityCount) {
+    caveats.push(
+      `Only ${input.availableCapabilityCount} of ${input.expectedCapabilityCount} required capability scores are available, so the capability basis is not fully populated.`
+    );
+  }
+
+  if (input.clusterCount < 2) {
+    caveats.push(
+      "Question-cluster evidence is thin, so PAT should treat the current interpretation as directional rather than richly differentiated."
+    );
+  }
+
+  if (caveats.length === 0) {
+    caveats.push(
+      "This remains current-state PAT evidence only. No benchmark, peer-comparison, or forecast layer is being claimed here."
+    );
+  }
+
+  return caveats;
+}
+
+function buildNarrative(input: {
+  title: string;
+  modules: ModuleEvidence[];
+  strongestModules: ModuleEvidence[];
+  weakestModules: ModuleEvidence[];
+  capabilities: CapabilityEvidence[];
+  clusters: ClusterEvidence[];
+  caveats: string[];
+  confidenceSummary: string;
+}) {
+  const strongestNames = input.strongestModules.map((module) => module.title).join(" and ");
+  const weakestNames = input.weakestModules.map((module) => module.title).join(" and ");
+  const strongestCapability = input.capabilities
+    .filter((capability) => capability.score !== null)
+    .sort((left, right) => (right.score ?? 0) - (left.score ?? 0))[0];
+  const weakestCapability = input.capabilities
+    .filter((capability) => capability.score !== null)
+    .sort((left, right) => (left.score ?? 0) - (right.score ?? 0))[0];
+  const strongestCluster = input.clusters[0];
+  const weakestCluster = input.clusters.at(-1);
+  const availableModules = input.modules.filter((module) => typeof module.score === "number").length;
+
+  return {
+    currentStateSummary:
+      availableModules === 0
+        ? `${input.title} has no completed firm assessment evidence yet.`
+        : `${input.title} is currently based on ${availableModules} relevant module submission${
+            availableModules === 1 ? "" : "s"
+          }. ${input.confidenceSummary} The strongest current support comes from ${
+            strongestNames || "the current strongest module evidence"
+          }, while the weakest support sits in ${
+            weakestNames || "the current weakest module evidence"
+          }.`,
+    what:
+      availableModules === 0
+        ? "A firm PAT interpretation becomes available after the related module and capability evidence exists."
+        : `${input.title} is a current-state PAT interpretation built from the latest module scores, capability scores, and question-cluster patterns attached to this theme.`,
+    why:
+      strongestCapability && weakestCapability
+        ? `The visible spread between ${strongestCapability.title.toLowerCase()} and ${weakestCapability.title.toLowerCase()} shows where the firm is strongest and where the current operating constraint still sits.`
+        : "The value of this view is that it keeps the interpretation tied to actual operating evidence instead of generic completion status.",
+    how:
+      strongestCluster && weakestCluster
+        ? `Use the strongest cluster in ${strongestCluster.title.toLowerCase()} as the stable base, then prioritize the weakest cluster in ${weakestCluster.title.toLowerCase()} before claiming broader PAT maturity.`
+        : "Use the available evidence to decide what to reinforce first, and treat missing evidence as a signal that more assessment coverage is still needed.",
+    basisSummary:
+      availableModules === 0
+        ? "PAT does not have enough completed module evidence to describe a grounded basis yet."
+        : `Strongest modules: ${strongestNames || "--"}. Weakest modules: ${weakestNames || "--"}. ${
+            input.caveats[0] ?? ""
+          }`,
+  };
+}
+
+export async function getFirmInsightReports(companyId: string) {
+  const moduleKeys = FIRM_MODULE_DEFINITIONS.map((module) => module.key);
+  const capabilityKeySet = new Set(FIRM_CAPABILITY_DEFINITIONS.map((capability) => capability.key));
+
+  const [modules, submissions, capabilityScores] = await Promise.all([
+    prisma.surveyModule.findMany({
+      where: { key: { in: moduleKeys } },
+      select: {
+        id: true,
+        key: true,
+        title: true,
+        SurveyQuestion: {
+          orderBy: { order: "asc" },
+          select: {
+            id: true,
+            key: true,
+            prompt: true,
+            inputType: true,
+            weight: true,
+            order: true,
+            required: true,
+            meta: true,
+            SurveyQuestionCapability: {
+              select: {
+                nodeId: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+    prisma.surveySubmission.findMany({
+      where: getSurveyFinalWhere({
+        companyId,
+        SurveyModule: {
+          key: { in: moduleKeys },
+        },
+      }),
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        moduleId: true,
+        score: true,
+        answers: true,
+        createdAt: true,
+      },
+    }),
+    prisma.companyCapabilityScore.findMany({
+      where: {
+        companyId,
+      },
+      select: {
+        nodeId: true,
+        score: true,
+      },
+    }).catch(() => []),
+  ]);
+
+  const latestSubmissionByModuleId = new Map<string, (typeof submissions)[number]>();
+  for (const submission of submissions) {
+    if (!latestSubmissionByModuleId.has(submission.moduleId)) {
+      latestSubmissionByModuleId.set(submission.moduleId, submission);
+    }
+  }
+
+  const capabilityDefinitionByKey = new Map<string, (typeof FIRM_CAPABILITY_DEFINITIONS)[number]>(
+    FIRM_CAPABILITY_DEFINITIONS.map((capability) => [capability.key, capability])
+  );
+  const capabilityDefinitionByNodeId = new Map<string, (typeof FIRM_CAPABILITY_DEFINITIONS)[number]>();
+  const liveCapabilityNodes = await prisma.capabilityNode.findMany({
+    where: { key: { in: Array.from(capabilityKeySet) } },
+    select: { id: true, key: true },
+  }).catch(() => []);
+  for (const node of liveCapabilityNodes) {
+    const definition = capabilityDefinitionByKey.get(node.key);
+    if (definition) {
+      capabilityDefinitionByNodeId.set(node.id, definition);
+    }
+  }
+
+  const capabilityScoreByNodeId = new Map(capabilityScores.map((score) => [score.nodeId, score.score]));
+
+  const moduleEvidenceByKey = new Map<string, ModuleEvidence>();
+  const questionSignals = modules.flatMap((module) => {
+    const latestSubmission = latestSubmissionByModuleId.get(module.id) ?? null;
+    const runtimeQuestions = module.SurveyQuestion.map((question) => normalizeQuestionRuntime(question));
+    const moduleEvidence: ModuleEvidence = {
+      key: module.key,
+      title: module.title,
+      score: latestSubmission?.score ?? null,
+      submittedAt: latestSubmission?.createdAt ?? null,
+      sectionKey: runtimeQuestions[0]?.meta.section?.key ?? module.key,
+      sectionTitle: runtimeQuestions[0]?.meta.section?.title ?? module.title,
+    };
+
+    moduleEvidenceByKey.set(module.key, moduleEvidence);
+
+    const answers =
+      latestSubmission?.answers && typeof latestSubmission.answers === "object"
+        ? (latestSubmission.answers as Record<string, NormalizedAnswer>)
+        : {};
+
+    return runtimeQuestions.flatMap((question) => {
+      const normalizedScore = normalizeAnswerToPercent(question, answers[question.id]);
+      if (normalizedScore === null) {
+        return [];
+      }
+
+      return module.SurveyQuestion.find((entry) => entry.id === question.id)?.SurveyQuestionCapability.map((mapping) => ({
+        moduleKey: module.key,
+        moduleTitle: module.title,
+        questionKey: question.key,
+        questionPrompt: question.prompt,
+        sectionTitle: question.meta.section?.title ?? module.title,
+        capabilityNodeId: mapping.nodeId,
+        capabilityTitle: capabilityDefinitionByNodeId.get(mapping.nodeId)?.title ?? "Capability",
+        normalizedScore,
+      })) ?? [];
+    });
+  });
+
+  const reports = new Map<InsightKey, FirmInsightReport>();
+
+  for (const insight of FIRM_TIER1_INSIGHT_DEFINITIONS) {
+    const relevantModuleKeys = INSIGHT_MODULE_MAP[insight.key];
+    const relevantModules = relevantModuleKeys
+      .map((moduleKey) => moduleEvidenceByKey.get(moduleKey))
+      .filter((module): module is ModuleEvidence => Boolean(module));
+    const relevantCapabilityRules =
+      FIRM_TIER1_INSIGHT_CAPABILITY_RULES[
+        insight.key as keyof typeof FIRM_TIER1_INSIGHT_CAPABILITY_RULES
+      ];
+    const relevantCapabilities = relevantCapabilityRules.map((rule) => {
+      const liveNode = liveCapabilityNodes.find((node) => node.key === rule.key);
+      const definition = capabilityDefinitionByKey.get(rule.key);
+      return {
+        key: rule.key,
+        title: definition?.title ?? rule.key,
+        description: definition?.description ?? null,
+        score: liveNode ? capabilityScoreByNodeId.get(liveNode.id) ?? null : null,
+        threshold: rule.minScore,
+        meetsThreshold: liveNode ? (capabilityScoreByNodeId.get(liveNode.id) ?? -1) >= rule.minScore : false,
+      } satisfies CapabilityEvidence;
+    });
+
+    const relevantQuestionSignals = questionSignals.filter((signal) => relevantModuleKeys.includes(signal.moduleKey));
+    const clusterMap = new Map<string, ClusterEvidence>();
+    for (const signal of relevantQuestionSignals) {
+      const cluster = clusterMap.get(signal.capabilityTitle) ?? {
+        key: signal.capabilityNodeId,
+        title: signal.capabilityTitle,
+        averageScore: 0,
+        questionCount: 0,
+        moduleTitles: [],
+        sectionTitles: [],
+        questionPrompts: [],
+      };
+      cluster.averageScore += signal.normalizedScore;
+      cluster.questionCount += 1;
+      if (!cluster.moduleTitles.includes(signal.moduleTitle)) {
+        cluster.moduleTitles.push(signal.moduleTitle);
+      }
+      if (!cluster.sectionTitles.includes(signal.sectionTitle)) {
+        cluster.sectionTitles.push(signal.sectionTitle);
+      }
+      if (!cluster.questionPrompts.includes(signal.questionPrompt)) {
+        cluster.questionPrompts.push(signal.questionPrompt);
+      }
+      clusterMap.set(signal.capabilityTitle, cluster);
+    }
+
+    const notableQuestionClusters = Array.from(clusterMap.values())
+      .map((cluster) => ({
+        ...cluster,
+        averageScore: round1(cluster.averageScore / cluster.questionCount),
+        moduleTitles: cluster.moduleTitles.sort(),
+        sectionTitles: cluster.sectionTitles.sort(),
+        questionPrompts: cluster.questionPrompts.slice(0, 3),
+      }))
+      .sort((left, right) => right.averageScore - left.averageScore)
+      .slice(0, 4);
+
+    const scoredModules = relevantModules
+      .filter((module) => typeof module.score === "number")
+      .sort((left, right) => (right.score ?? 0) - (left.score ?? 0));
+
+    const strongestModules = scoredModules.slice(0, Math.min(2, scoredModules.length));
+    const weakestModules = [...scoredModules]
+      .reverse()
+      .slice(0, Math.min(2, scoredModules.length))
+      .sort((left, right) => (left.score ?? 0) - (right.score ?? 0));
+
+    const confidenceCaveats = describeConfidenceCaveats({
+      availableModuleCount: scoredModules.length,
+      expectedModuleCount: relevantModuleKeys.length,
+      availableCapabilityCount: relevantCapabilities.filter((capability) => capability.score !== null).length,
+      expectedCapabilityCount: relevantCapabilities.length,
+      clusterCount: notableQuestionClusters.length,
+    });
+    const latestUpdatedAt = relevantModules
+      .map((module) => module.submittedAt)
+      .filter((submittedAt): submittedAt is Date => submittedAt instanceof Date)
+      .sort((left, right) => right.getTime() - left.getTime())[0] ?? null;
+    const confidence = getConfidenceBand(scoredModules.length);
+
+    const narrative = buildNarrative({
+      title: insight.title,
+      modules: relevantModules,
+      strongestModules,
+      weakestModules,
+      capabilities: relevantCapabilities,
+      clusters: notableQuestionClusters,
+      caveats: confidenceCaveats,
+      confidenceSummary: confidence.summary,
+    });
+
+    reports.set(insight.key, {
+      key: insight.key,
+      title: insight.title,
+      sampleSize: scoredModules.length,
+      latestUpdatedAt,
+      confidenceBand: confidence.band,
+      confidenceLabel: confidence.label,
+      confidenceSummary: confidence.summary,
+      currentStateSummary: narrative.currentStateSummary,
+      what: narrative.what,
+      why: narrative.why,
+      how: narrative.how,
+      basisSummary: narrative.basisSummary,
+      contributingModules: relevantModules,
+      strongestModules,
+      weakestModules,
+      contributingCapabilities: relevantCapabilities,
+      notableQuestionClusters,
+      confidenceCaveats,
+    });
+  }
+
+  return reports;
+}

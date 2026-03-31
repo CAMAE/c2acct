@@ -11,6 +11,9 @@
 # testing / build
 /coverage
 /.next/
+/playwright-report/
+/test-results/
+/blob-report/
 /out/
 /build
 *.tsbuildinfo
@@ -18,14 +21,25 @@ next-env.d.ts
 
 # environment
 .env*
+.envrc
+.direnv/
 .vercel
 
 # generated runtime state
 /app/generated/prisma
 tmp/
+.tmp/
 tmp-*.sql
 tmp-*.json
 *.log
+logs/
+*.tmp
+*.temp
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+artifacts/mac-mini/*
 artifacts/mac-mini/logs/
 artifacts/mac-mini/reports/
 artifacts/mac-mini/state/

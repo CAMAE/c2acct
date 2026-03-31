@@ -1,12 +1,19 @@
 ﻿import "./globals.css";
-import Link from "next/link";
+import { cookies } from "next/headers";
+import AppHeader, { type HeaderNavItem } from "@/app/components/header/AppHeader";
+import { barlowFontClassName } from "@/app/fonts/barlow";
 import { getSessionUser } from "@/lib/auth/session";
+import {
+  APP_LOCALE_COOKIE,
+  getLocaleMessages,
+  resolveLocale,
+  type HeaderNavLabelKey,
+} from "@/lib/locale";
 import { resolvePortalExperience } from "@/lib/portalVisibility";
 
 export const metadata = {
-  title: "C2Acct | PAT Performance Alignment Technology",
-  description:
-    "C2Acct corporate surface for PAT, the Performance Alignment Technology workspace.",
+  title: "C2Acct | PAT",
+  description: "C2Acct corporate surface for the PAT platform workspace.",
 };
 
 export default async function RootLayout({
@@ -14,70 +21,56 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const locale = resolveLocale(cookieStore.get(APP_LOCALE_COOKIE)?.value);
+  const messages = getLocaleMessages(locale);
   const sessionUser = await getSessionUser();
   const experience = await resolvePortalExperience(sessionUser);
+  const enabledHrefs = new Set(
+    experience.surfaces
+      .filter((surface) => surface.availability === "enabled" && surface.href)
+      .map((surface) => surface.href!)
+  );
+  const navItems: Array<{ href: string; key: HeaderNavLabelKey }> = [
+    { href: "/", key: "home" },
+    { href: "/pat", key: "meet_pat" },
+    { href: "/sign-in", key: "sign_in" },
+    { href: "/vendor", key: "vendor" },
+    { href: "/firm", key: "firm" },
+    { href: "/user", key: "individual" },
+    ...(enabledHrefs.has("/admin") ? [{ href: "/admin", key: "c2core" as const }] : []),
+  ];
+  const translatedNavItems: HeaderNavItem[] = navItems.map((item) => ({
+    href: item.href,
+    label: messages.nav[item.key],
+  }));
+  const headerUiText = {
+    closeNavigationMenu: messages.chrome.close_navigation_menu,
+    homeAriaLabel: messages.chrome.home_aria,
+    language: messages.chrome.language,
+    navigation: messages.chrome.navigation,
+    openLanguageMenu: messages.chrome.open_language_menu,
+    openNavigationMenu: messages.chrome.open_navigation_menu,
+  };
 
   return (
-    <html lang="en">
-      <body className="pat-shell min-h-screen bg-[var(--shell-bg)] text-[var(--shell-ink)] antialiased">
-        <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-          <div className="absolute left-[8%] top-[-10%] h-[540px] w-[780px] rounded-full bg-[radial-gradient(circle_at_center,rgba(209,160,90,0.16),transparent_62%)] blur-3xl" />
-          <div className="absolute right-[-10%] top-[14%] h-[540px] w-[540px] rounded-full bg-[radial-gradient(circle_at_center,rgba(34,77,98,0.16),transparent_65%)] blur-3xl" />
-          <div className="absolute bottom-[-15%] left-[18%] h-[500px] w-[780px] rounded-full bg-[radial-gradient(circle_at_center,rgba(15,23,42,0.08),transparent_65%)] blur-3xl" />
-        </div>
+    <html lang={locale}>
+      <body
+        className={`${barlowFontClassName} pat-shell flex min-h-screen flex-col bg-[var(--shell-bg)] text-[var(--shell-ink)] antialiased`}
+      >
+        <AppHeader currentLocale={locale} navItems={translatedNavItems} uiText={headerUiText} />
 
-        <header className="sticky top-0 z-50 border-b border-[var(--shell-border)] bg-[rgba(249,246,239,0.82)] backdrop-blur-xl">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-            <div className="flex items-center gap-4">
-              <Link href="/" className="group">
-                <div className="pat-label text-[var(--shell-muted)]">C2Acct</div>
-                <div className="font-semibold tracking-tight text-[var(--shell-ink)] group-hover:text-[var(--shell-teal)]">
-                  Parent identity for PAT
-                </div>
-              </Link>
-              <span className="rounded-full border border-[var(--shell-border)] bg-white/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--shell-muted)]">
-                Performance Alignment Technology
-              </span>
-            </div>
-            <nav className="pat-sans flex items-center gap-4 text-sm text-[var(--shell-muted)]">
-              <Link className="hover:text-[var(--shell-ink)]" href="/">
-                Home
-              </Link>
-              <Link className="hover:text-[var(--shell-ink)]" href="/platform">
-                Workspace
-              </Link>
-              <Link className="hover:text-[var(--shell-ink)]" href="/survey">
-                Survey
-              </Link>
-              <Link className="hover:text-[var(--shell-ink)]" href="/results">
-                Results
-              </Link>
-              <Link className="hover:text-[var(--shell-ink)]" href="/outputs">
-                Outputs
-              </Link>
-            </nav>
-            <div className="hidden items-center gap-3 md:flex">
-              <div className="rounded-[20px] border border-[var(--shell-border)] bg-white/80 px-4 py-2 text-right shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
-                <div className="pat-label">
-                  PAT Perspective
-                </div>
-                <div className="pat-sans text-sm font-semibold text-[var(--shell-ink)]">
-                  {experience.audienceLabel}
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
+        <main className="mx-auto flex w-full max-w-6xl flex-1 px-6 py-12">{children}</main>
 
-        <main className="mx-auto max-w-6xl px-6 py-16">{children}</main>
-
-        <footer className="border-t border-[var(--shell-border)] py-10">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 text-xs text-[var(--shell-muted)]">
-            <div className="pat-sans">
-              C2Acct is the corporate identity. PAT is the institutional platform surface.
-            </div>
-            <div className="pat-sans">
-              Copyright {new Date().getFullYear()} C2Acct / PAT
+        <footer className="mt-auto border-t border-[var(--shell-border)] py-5">
+          <div className="mx-auto flex max-w-6xl items-center justify-center px-6 text-[11px] text-[var(--shell-muted)]">
+            <div className="pat-sans inline-flex items-center gap-3">
+              <span>{messages.chrome.copyright}</span>
+              <span
+                aria-hidden="true"
+                className="h-3.5 w-px rounded-full bg-[var(--shell-border-strong)]"
+              />
+              <span>{messages.chrome.pat}</span>
             </div>
           </div>
         </footer>

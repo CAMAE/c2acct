@@ -10,7 +10,7 @@ type StatusState = {
 export default function EnsureCompanySelected() {
   const [done, setDone] = useState(false);
   const [status, setStatus] = useState<StatusState>({
-    message: "Preparing institutional context…",
+    message: "Preparing PAT context…",
     tone: "info",
   });
 
@@ -93,7 +93,7 @@ export default function EnsureCompanySelected() {
 
         if (!cancelled) {
           setStatus({
-            message: "Institutional context ready. Refreshing workflow…",
+            message: "PAT context ready. Refreshing workflow…",
             tone: "info",
           });
           window.location.reload();

@@ -19,6 +19,7 @@ Phase 1 fixes the contract without a risky schema rewrite.
 - `/api/survey/module/[key]` returns normalized sections, question validation metadata, and staged feature flags.
 - `/api/survey/submit` validates answers by question type and metadata on the server.
 - `/survey/[key]` renders supported question types through one module client instead of ad hoc page logic.
+- The five-module PAT firm assessment now seeds a concrete capability layer through `CapabilityNode`, `ModuleCapability`, and `SurveyQuestionCapability` so the live firm model is explainable at the module and question level.
 
 ## Supported runtime types
 

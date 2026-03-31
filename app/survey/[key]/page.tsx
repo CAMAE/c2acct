@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import EnsureCompanySelected from "@/app/components/EnsureCompanySelected";
 import AssessmentModuleClient from "@/app/components/assessment/AssessmentModuleClient";
 import { getSessionUser } from "@/lib/auth/session";
+import { USER_ALIGNMENT_MODULE_KEY, ensureUserAlignmentSystem } from "@/lib/userPat";
 
 export default async function SurveyModulePage({
   params,
@@ -9,6 +10,10 @@ export default async function SurveyModulePage({
   params: Promise<{ key: string }>;
 }) {
   const { key } = await params;
+  if (key === USER_ALIGNMENT_MODULE_KEY) {
+    await ensureUserAlignmentSystem();
+  }
+
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
     redirect(`/login?callbackUrl=${encodeURIComponent(`/survey/${key}`)}`);

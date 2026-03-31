@@ -16,6 +16,13 @@ const questionMetaSchema = z.object({
       key: z.string().min(1),
       title: z.string().min(1),
       description: z.string().min(1).optional(),
+      order: z.number().int().positive().optional(),
+      utilityFamily: z.string().min(1).optional(),
+      utilityKey: z.string().min(1).optional(),
+      utilityLabel: z.string().min(1).optional(),
+      subcategoryKey: z.string().min(1).optional(),
+      subcategoryTitle: z.string().min(1).optional(),
+      basisKey: z.string().min(1).optional(),
     })
     .optional(),
   slider: z
@@ -99,7 +106,29 @@ export type AssessmentSection = {
   key: string;
   title: string;
   description?: string;
+  order: number;
+  utilityFamily?: string;
+  utilityKey?: string;
+  utilityLabel?: string;
+  subcategoryKey?: string;
+  subcategoryTitle?: string;
+  basisKey?: string;
   questionIds: string[];
+};
+
+export type AssessmentRollup = {
+  key: string;
+  title: string;
+  score: number | null;
+  answeredCount: number;
+  questionCount: number;
+  questionIds: string[];
+  utilityFamily?: string;
+  utilityKey?: string;
+  utilityLabel?: string;
+  subcategoryKey?: string;
+  subcategoryTitle?: string;
+  basisKey?: string;
 };
 
 export type AssessmentModulePayload = {
@@ -115,6 +144,11 @@ export type AssessmentModulePayload = {
     branching: boolean;
     roleVariants: boolean;
   };
+  draft?: {
+    answers: Record<string, NormalizedAnswer>;
+    currentStep: number;
+    updatedAt: string;
+  } | null;
 };
 
 export type NormalizedAnswer =
@@ -133,6 +167,22 @@ type QuestionRecord = {
   order: number;
   required: boolean;
   meta: Prisma.JsonValue | null;
+  sectionId?: string | null;
+  SurveySection?: PersistedSectionRecord | null;
+};
+
+type PersistedSectionRecord = {
+  id: string;
+  key: string;
+  title: string;
+  description: string | null;
+  order: number;
+  utilityFamily: string | null;
+  utilityKey: string | null;
+  utilityLabel: string | null;
+  subcategoryKey: string | null;
+  subcategoryTitle: string | null;
+  basisKey: string | null;
 };
 
 export function parseQuestionMeta(meta: Prisma.JsonValue | null | undefined): AssessmentQuestionMeta {
@@ -140,13 +190,38 @@ export function parseQuestionMeta(meta: Prisma.JsonValue | null | undefined): As
   return parsed.success ? parsed.data : {};
 }
 
+function mergeSectionMeta(
+  meta: AssessmentQuestionMeta,
+  section: PersistedSectionRecord | null | undefined
+): AssessmentQuestionMeta {
+  if (!section) {
+    return meta;
+  }
+
+  return {
+    ...meta,
+    section: {
+      key: section.key,
+      title: section.title,
+      description: section.description ?? meta.section?.description,
+      order: section.order,
+      utilityFamily: section.utilityFamily ?? meta.section?.utilityFamily,
+      utilityKey: section.utilityKey ?? meta.section?.utilityKey,
+      utilityLabel: section.utilityLabel ?? meta.section?.utilityLabel,
+      subcategoryKey: section.subcategoryKey ?? meta.section?.subcategoryKey,
+      subcategoryTitle: section.subcategoryTitle ?? meta.section?.subcategoryTitle,
+      basisKey: section.basisKey ?? meta.section?.basisKey,
+    },
+  };
+}
+
 export function normalizeQuestionRuntime(question: QuestionRecord): AssessmentQuestionRuntime {
-  const meta = parseQuestionMeta(question.meta);
+  const meta = mergeSectionMeta(parseQuestionMeta(question.meta), question.SurveySection);
   const validation: AssessmentQuestionRuntime["validation"] = {};
   let status: AssessmentQuestionRuntime["status"] = "ready";
 
   if (question.inputType === QuestionInputType.SLIDER) {
-    const min = meta.slider?.min ?? 1;
+    const min = meta.slider?.min ?? 0;
     const max = meta.slider?.max ?? 5;
     validation.slider = {
       min,
@@ -190,20 +265,27 @@ export function normalizeQuestionRuntime(question: QuestionRecord): AssessmentQu
   };
 }
 
-export function buildAssessmentModulePayload(module: {
-  id: string;
-  key: string;
-  title: string;
-  description: string | null;
-  scope: string;
-  version: number;
-}, questions: QuestionRecord[]): AssessmentModulePayload {
-  const runtimeQuestions = questions
-    .map(normalizeQuestionRuntime)
-    .sort((left, right) => left.order - right.order);
-
+function buildSectionsFromQuestions(
+  runtimeQuestions: AssessmentQuestionRuntime[],
+  persistedSections: PersistedSectionRecord[] = []
+) {
   const sectionMap = new Map<string, AssessmentSection>();
-  const orderedSections: AssessmentSection[] = [];
+
+  for (const persistedSection of persistedSections) {
+    sectionMap.set(persistedSection.key, {
+      key: persistedSection.key,
+      title: persistedSection.title,
+      description: persistedSection.description ?? undefined,
+      order: persistedSection.order,
+      utilityFamily: persistedSection.utilityFamily ?? undefined,
+      utilityKey: persistedSection.utilityKey ?? undefined,
+      utilityLabel: persistedSection.utilityLabel ?? undefined,
+      subcategoryKey: persistedSection.subcategoryKey ?? undefined,
+      subcategoryTitle: persistedSection.subcategoryTitle ?? undefined,
+      basisKey: persistedSection.basisKey ?? undefined,
+      questionIds: [],
+    });
+  }
 
   for (const question of runtimeQuestions) {
     const sectionKey = question.meta.section?.key ?? "core";
@@ -213,15 +295,37 @@ export function buildAssessmentModulePayload(module: {
       continue;
     }
 
-    const section: AssessmentSection = {
+    sectionMap.set(sectionKey, {
       key: sectionKey,
       title: question.meta.section?.title ?? "Core Assessment",
       description: question.meta.section?.description,
+      order: question.meta.section?.order ?? sectionMap.size + 1,
+      utilityFamily: question.meta.section?.utilityFamily,
+      utilityKey: question.meta.section?.utilityKey,
+      utilityLabel: question.meta.section?.utilityLabel,
+      subcategoryKey: question.meta.section?.subcategoryKey,
+      subcategoryTitle: question.meta.section?.subcategoryTitle,
+      basisKey: question.meta.section?.basisKey,
       questionIds: [question.id],
-    };
-    sectionMap.set(sectionKey, section);
-    orderedSections.push(section);
+    });
   }
+
+  return Array.from(sectionMap.values())
+    .filter((section) => section.questionIds.length > 0)
+    .sort((left, right) => left.order - right.order);
+}
+
+export function buildAssessmentModulePayload(module: {
+  id: string;
+  key: string;
+  title: string;
+  description: string | null;
+  scope: string;
+  version: number;
+}, questions: QuestionRecord[], sections: PersistedSectionRecord[] = []): AssessmentModulePayload {
+  const runtimeQuestions = questions
+    .map(normalizeQuestionRuntime)
+    .sort((left, right) => left.order - right.order);
 
   return {
     id: module.id,
@@ -230,7 +334,7 @@ export function buildAssessmentModulePayload(module: {
     description: module.description,
     scope: module.scope,
     version: module.version,
-    sections: orderedSections,
+    sections: buildSectionsFromQuestions(runtimeQuestions, sections),
     questions: runtimeQuestions,
     stagedFeatures: {
       branching: runtimeQuestions.some((question) => Boolean(question.meta.branching)),
@@ -240,10 +344,6 @@ export function buildAssessmentModulePayload(module: {
 }
 
 export function getDefaultAnswer(question: AssessmentQuestionRuntime): NormalizedAnswer | undefined {
-  if (question.inputType === QuestionInputType.SLIDER && question.validation.slider) {
-    return question.validation.slider.min;
-  }
-
   if (question.inputType === QuestionInputType.BOOLEAN) {
     return false;
   }
@@ -253,6 +353,109 @@ export function getDefaultAnswer(question: AssessmentQuestionRuntime): Normalize
   }
 
   return undefined;
+}
+
+function round1(value: number) {
+  return Math.round(value * 10) / 10;
+}
+
+export function normalizeAnswerToPercent(
+  question: AssessmentQuestionRuntime,
+  answer: NormalizedAnswer | undefined
+) {
+  if (typeof answer !== "number" || !Number.isFinite(answer)) {
+    return null;
+  }
+
+  if (question.inputType === QuestionInputType.SLIDER && question.validation.slider) {
+    const denominator = question.validation.slider.max - question.validation.slider.min;
+    if (denominator <= 0) {
+      return null;
+    }
+    return round1(((answer - question.validation.slider.min) / denominator) * 100);
+  }
+
+  if (
+    question.inputType === QuestionInputType.NUMBER &&
+    typeof question.validation.number?.min === "number" &&
+    typeof question.validation.number?.max === "number"
+  ) {
+    const denominator = question.validation.number.max - question.validation.number.min;
+    if (denominator <= 0) {
+      return null;
+    }
+    return round1(((answer - question.validation.number.min) / denominator) * 100);
+  }
+
+  return null;
+}
+
+export function buildAssessmentRollups(
+  questions: AssessmentQuestionRuntime[],
+  answers: Record<string, NormalizedAnswer>
+) {
+  const sections = buildSectionsFromQuestions(questions);
+  const questionById = new Map(questions.map((question) => [question.id, question]));
+
+  const sectionRollups: AssessmentRollup[] = sections.map((section) => {
+    const sectionQuestions = section.questionIds
+      .map((questionId) => questionById.get(questionId))
+      .filter((question): question is AssessmentQuestionRuntime => Boolean(question));
+    const normalizedScores = sectionQuestions
+      .map((question) => normalizeAnswerToPercent(question, answers[question.id]))
+      .filter((score): score is number => typeof score === "number");
+
+    return {
+      key: section.key,
+      title: section.title,
+      score:
+        normalizedScores.length > 0
+          ? round1(normalizedScores.reduce((sum, score) => sum + score, 0) / normalizedScores.length)
+          : null,
+      answeredCount: normalizedScores.length,
+      questionCount: section.questionIds.length,
+      questionIds: section.questionIds,
+      utilityFamily: section.utilityFamily,
+      utilityKey: section.utilityKey,
+      utilityLabel: section.utilityLabel,
+      subcategoryKey: section.subcategoryKey,
+      subcategoryTitle: section.subcategoryTitle,
+      basisKey: section.basisKey,
+    };
+  });
+
+  const utilityMap = new Map<string, AssessmentRollup>();
+  for (const section of sectionRollups) {
+    if (!section.utilityKey) {
+      continue;
+    }
+
+    const existing = utilityMap.get(section.utilityKey) ?? {
+      key: section.utilityKey,
+      title: section.utilityLabel ?? section.utilityKey,
+      score: null,
+      answeredCount: 0,
+      questionCount: 0,
+      questionIds: [],
+      utilityFamily: section.utilityFamily,
+      utilityKey: section.utilityKey,
+      utilityLabel: section.utilityLabel,
+    };
+
+    if (typeof section.score === "number") {
+      const cumulativeScore = (existing.score ?? 0) * existing.answeredCount + section.score * section.answeredCount;
+      existing.answeredCount += section.answeredCount;
+      existing.score = existing.answeredCount > 0 ? round1(cumulativeScore / existing.answeredCount) : null;
+    }
+    existing.questionCount += section.questionCount;
+    existing.questionIds.push(...section.questionIds);
+    utilityMap.set(section.utilityKey, existing);
+  }
+
+  return {
+    sections: sectionRollups,
+    utilities: Array.from(utilityMap.values()).sort((left, right) => left.title.localeCompare(right.title)),
+  };
 }
 
 export function isAnswerPresent(answer: NormalizedAnswer | undefined): boolean {

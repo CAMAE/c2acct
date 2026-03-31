@@ -101,7 +101,7 @@ Validation helpers:
 
 2. Browser signed-in validation (manual, session-real).
 - Sign in via `/login` (approved beta user with mapped `User.email`).
-- Navigate `/survey/firm_alignment_v1`.
+- Navigate `/firm/alignment-assessment` and open one of the five PAT firm modules.
 - Submit answers successfully.
 - Confirm redirect/navigation to results state and latest submission visibility.
 - Confirm outputs page loads without contract errors and shows unlocked/locked data based on session company.

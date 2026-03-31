@@ -307,6 +307,8 @@ model Product {
   updatedAt                 DateTime
   Company                   Company?                    @relation(fields: [companyId], references: [id], onDelete: SetNull)
   Subject                   Subject?
+  ProductAssessmentPlan     ProductAssessmentPlan[]
+  ProductProfile            ProductProfile?
   Vendor                    VendorProfile?              @relation(fields: [vendorId], references: [id], onDelete: SetNull)
   ProductCapabilityMap      ProductCapabilityMap[]
   ProductSignal             ProductSignal[]
@@ -314,6 +316,46 @@ model Product {
 
   @@index([companyId])
   @@index([vendorId])
+}
+
+model ProductProfile {
+  id                  String   @id
+  productId           String   @unique
+  logoUrl             String?
+  logoAssetRef        String?
+  positioning         String?
+  targetCustomer      String?
+  targetUseContext    String?
+  implementationStyle String?
+  operatingModelFit   String?
+  primaryBuyer        String?
+  integrationPosture  String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  Product             Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductAssessmentPlan {
+  id                   String                       @id
+  productId            String
+  perspective          ProductAssessmentPerspective
+  registryVersion      String
+  selectedUtilityKeys  String[]
+  generatedQuestionIds String[]
+  profileQuestionIds   String[]
+  scoredQuestionIds    String[]
+  openEndedQuestionIds String[]
+  moduleOrder          String[]
+  sectionOrder         String[]
+  modulePlan           Json
+  sectionPlan          Json
+  createdAt            DateTime                     @default(now())
+  updatedAt            DateTime                     @updatedAt
+  Product              Product                      @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, perspective])
+  @@index([perspective])
+  @@index([productId])
 }
 
 model Portal {
@@ -327,20 +369,46 @@ model Portal {
 }
 
 model Subject {
-  id                String              @id
-  key               String              @unique
-  displayName       String
-  kind              SubjectKind
-  companyId         String?             @unique
-  productId         String?             @unique
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  Company           Company?            @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  Product           Product?            @relation(fields: [productId], references: [id], onDelete: Cascade)
-  CompanyBadge      CompanyBadge[]
-  SubjectMembership SubjectMembership[]
-  SurveySubmission  SurveySubmission[]
-  VendorProfile     VendorProfile?
+  id                     String                   @id
+  key                    String                   @unique
+  displayName            String
+  kind                   SubjectKind
+  companyId              String?                  @unique
+  productId              String?                  @unique
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  Company                Company?                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  MembershipSubscription MembershipSubscription[]
+  Product                Product?                 @relation(fields: [productId], references: [id], onDelete: Cascade)
+  CompanyBadge           CompanyBadge[]
+  SubjectMembership      SubjectMembership[]
+  SurveySubmission       SurveySubmission[]
+  VendorProfile          VendorProfile?
+}
+
+model MembershipSubscription {
+  id                      String           @id
+  subjectId               String
+  plan                    MembershipPlan
+  status                  MembershipStatus
+  provider                String?
+  externalCustomerRef     String?
+  externalSubscriptionRef String?
+  checkoutSessionRef      String?
+  checkoutRequestedPlan   MembershipPlan?
+  startedAt               DateTime?
+  trialEndsAt             DateTime?
+  currentPeriodStart      DateTime?
+  currentPeriodEnd        DateTime?
+  canceledAt              DateTime?
+  metadata                Json?
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+  Subject                 Subject          @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([subjectId])
+  @@index([plan, status])
+  @@index([subjectId, status])
 }
 
 model VendorProfile {
@@ -523,13 +591,37 @@ model SurveyModule {
   updatedAt        DateTime
   BadgeRule        BadgeRule[]
   ModuleCapability ModuleCapability[]
+  SurveySection    SurveySection[]
   SurveyQuestion   SurveyQuestion[]
   SurveySubmission SurveySubmission[]
+}
+
+model SurveySection {
+  id               String           @id
+  moduleId         String
+  key              String
+  title            String
+  description      String?
+  order            Int
+  utilityFamily    String?
+  utilityKey       String?
+  utilityLabel     String?
+  subcategoryKey   String?
+  subcategoryTitle String?
+  basisKey         String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  SurveyModule     SurveyModule     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  SurveyQuestion   SurveyQuestion[]
+
+  @@unique([moduleId, key])
+  @@index([moduleId, order])
 }
 
 model SurveyQuestion {
   id                       String                     @id
   moduleId                 String
+  sectionId                String?
   key                      String
   prompt                   String
   inputType                QuestionInputType
@@ -540,7 +632,12 @@ model SurveyQuestion {
   meta                     Json?
   updatedAt                DateTime
   SurveyModule             SurveyModule               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  SurveySection            SurveySection?             @relation(fields: [sectionId], references: [id], onDelete: SetNull)
   SurveyQuestionCapability SurveyQuestionCapability[]
+
+  @@unique([moduleId, key])
+  @@index([moduleId, order])
+  @@index([sectionId, order])
 }
 
 model SurveyQuestionCapability {
@@ -591,9 +688,26 @@ model User {
   updatedAt         DateTime
   companyId         String?
   Company           Company?            @relation(fields: [companyId], references: [id])
+  OperatorAuditEvent OperatorAuditEvent[]
   SubjectMembership SubjectMembership[]
 
   @@index([companyId])
+}
+
+model OperatorAuditEvent {
+  id         String   @id
+  actorUserId String?
+  action     String
+  entityType String
+  entityId   String?
+  summary    String
+  details    Json?
+  createdAt  DateTime @default(now())
+  Actor      User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([actorUserId, createdAt])
+  @@index([entityType, createdAt])
+  @@index([action, createdAt])
 }
 
 enum CapabilityLevel {
@@ -621,6 +735,20 @@ enum ModuleScope {
   ENTERPRISE
 }
 
+enum MembershipPlan {
+  FREE
+  PRO
+  ELITE
+}
+
+enum MembershipStatus {
+  ACTIVE
+  TRIAL
+  PENDING_CHECKOUT
+  PAST_DUE
+  CANCELED
+}
+
 enum QuestionInputType {
   SLIDER
   SELECT
@@ -635,6 +763,12 @@ enum ProductDeploymentModel {
   DESKTOP
   HYBRID
   MANAGED_SERVICE
+}
+
+enum ProductAssessmentPerspective {
+  VENDOR
+  FIRM
+  INDIVIDUAL
 }
 
 enum ProductTaxonomyFit {

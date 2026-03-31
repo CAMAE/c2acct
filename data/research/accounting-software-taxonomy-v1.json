@@ -6,7 +6,33 @@
     "sourceType": "MANUAL_TAXONOMY",
     "status": "SEEDED",
     "artifactPath": "data/research/accounting-software-taxonomy-v1.json",
-    "notes": "Canonical taxonomy substrate for PAT. The referenced vendor/product breakdown sheet was not present in the repo or adjacent workspace at implementation time, so vendor and product arrays remain intentionally empty until the grounded research artifact is available."
+    "notes": "Canonical taxonomy substrate for PAT. This artifact now anchors the research-backed product utility registry implemented in lib/productUtilityRegistry.ts. Vendor and product arrays remain intentionally empty until grounded market/vendor data is added."
+  },
+  "patProductUtilityRegistry": {
+    "key": "product-utility-registry-v2",
+    "version": "2026-03-product-utility-v2",
+    "artifactPath": "lib/productUtilityRegistry.ts",
+    "notes": "Canonical PAT utility-family coverage for reusable vendor, firm, and individual product assessments.",
+    "utilityFamilyKeys": [
+      "erp_gl_core_ledger",
+      "ap_payables_spend",
+      "ar_billing_collections",
+      "expense_management",
+      "close_reconciliation_consolidation",
+      "reporting_analytics_fpa",
+      "forecasting_planning",
+      "tax_workflow_compliance",
+      "audit_workflow_workpapers_evidence",
+      "payroll_workforce_support",
+      "document_capture_management_esignature",
+      "workflow_practice_operations_task_routing",
+      "client_collaboration_portal_requests",
+      "payments_treasury_cash_application_commerce_connectivity",
+      "crm_revenue_workflow",
+      "controls_compliance_audit_trail_approvals",
+      "integration_interoperability_data_sync",
+      "automation_orchestration_ai_assistance"
+    ]
   },
   "taxonomyBuckets": [
     {

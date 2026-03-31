@@ -1,4 +1,4 @@
-import { PrismaClient, CompanyType, ModuleScope, QuestionInputType, SubjectKind } from "@prisma/client";
+import { PrismaClient, CompanyType, SubjectKind } from "@prisma/client";
 import { randomUUID } from "crypto";
 import path from "node:path";
 import {
@@ -10,161 +10,15 @@ import {
   TIER1_ALIGNMENT_BADGE_NAME,
   TIER1_INSIGHTS,
 } from "../lib/patUnlocks";
+import { ensureLocalReviewUsers } from "../lib/auth/localReview";
+import { ensureFirmAlignmentSystem, FIRM_MODULE_DEFINITIONS } from "../lib/firmPat";
+import { FIRM_CAPABILITY_DEFINITIONS } from "../lib/firmCapabilities";
 
 const prisma = new PrismaClient();
 
-const MODULE_KEY = "firm_alignment_v1";
-const MODULE_TITLE = "Firm Alignment Survey";
 const DEMO_COMPANY_NAME = "Demo Company";
 
-const questions = [
-  {
-    key: "alignment_q1",
-    prompt: "How clearly is your operating model documented?",
-    order: 1,
-    meta: {
-      section: {
-        key: "operating-model",
-        title: "Operating Model Discipline",
-        description: "Assess how clearly the firm defines and maintains its operating design.",
-      },
-      helpText: "Anchor your answer in current-state documentation, not the intended future state.",
-      slider: {
-        min: 1,
-        max: 5,
-        step: 1,
-        labels: {
-          "1": "Ad hoc",
-          "5": "Institutionalized",
-        },
-      },
-    },
-  },
-  {
-    key: "alignment_q2",
-    prompt: "How consistently do teams follow the documented process?",
-    order: 2,
-    meta: {
-      section: {
-        key: "operating-model",
-        title: "Operating Model Discipline",
-        description: "Assess how clearly the firm defines and maintains its operating design.",
-      },
-      helpText: "Score the repeatability of execution across the firm, not the best-performing team.",
-      slider: {
-        min: 1,
-        max: 5,
-        step: 1,
-        labels: {
-          "1": "Inconsistent",
-          "5": "Consistent",
-        },
-      },
-    },
-  },
-  {
-    key: "alignment_q3",
-    prompt: "How effective is cross-functional communication?",
-    order: 3,
-    meta: {
-      section: {
-        key: "coordination",
-        title: "Cross-Functional Coordination",
-        description: "Measure the quality of handoffs and visibility between teams.",
-      },
-      helpText: "Use actual handoff quality and issue resolution speed as the benchmark.",
-      slider: {
-        min: 1,
-        max: 5,
-        step: 1,
-        labels: {
-          "1": "Opaque",
-          "5": "Clear",
-        },
-      },
-      branching: {
-        mode: "phase_2",
-        visibleWhen: {
-          questionKey: "alignment_q2",
-          equals: 1,
-        },
-      },
-    },
-  },
-];
-
-async function ensureSurveyModule() {
-  const now = new Date();
-
-  const moduleRecord = await prisma.surveyModule.upsert({
-    where: { key: MODULE_KEY },
-    update: {
-      title: MODULE_TITLE,
-      description: "Baseline institutional alignment assessment for a firm.",
-      scope: ModuleScope.FIRM,
-      active: true,
-      version: 1,
-      weight: 1,
-      updatedAt: now,
-    },
-    create: {
-      id: randomUUID(),
-      key: MODULE_KEY,
-      title: MODULE_TITLE,
-      description: "Baseline institutional alignment assessment for a firm.",
-      scope: ModuleScope.FIRM,
-      active: true,
-      version: 1,
-      weight: 1,
-      updatedAt: now,
-    },
-  });
-
-  for (const question of questions) {
-    const existing = await prisma.surveyQuestion.findFirst({
-      where: {
-        moduleId: moduleRecord.id,
-        key: question.key,
-      },
-      select: { id: true },
-    });
-
-    if (existing) {
-      await prisma.surveyQuestion.update({
-        where: { id: existing.id },
-        data: {
-          prompt: question.prompt,
-          inputType: QuestionInputType.SLIDER,
-          weight: 1,
-          order: question.order,
-          required: true,
-          meta: question.meta,
-          updatedAt: now,
-        },
-      });
-      continue;
-    }
-
-    await prisma.surveyQuestion.create({
-      data: {
-        id: randomUUID(),
-        moduleId: moduleRecord.id,
-        key: question.key,
-        prompt: question.prompt,
-        inputType: QuestionInputType.SLIDER,
-        weight: 1,
-        order: question.order,
-        required: true,
-        meta: question.meta,
-        updatedAt: now,
-      },
-    });
-  }
-
-  return moduleRecord;
-}
-
-async function ensureTier1Content(moduleId: string) {
+async function ensureTier1Content(moduleIds: string[]) {
   const now = new Date();
 
   const badge = await prisma.badge.upsert({
@@ -184,22 +38,24 @@ async function ensureTier1Content(moduleId: string) {
     where: {
       badgeId_moduleId: {
         badgeId: badge.id,
-        moduleId,
+        moduleId: moduleIds[0],
       },
     },
     update: {
       minScore: 0,
-      required: true,
+      required: false,
     },
     create: {
       id: randomUUID(),
       badgeId: badge.id,
-      moduleId,
+      moduleId: moduleIds[0],
       minScore: 0,
-      required: true,
+      required: false,
     },
   });
 
+  // Compatibility-only tier-1 cards still exist in the dashboard layer.
+  // The five-module PAT firm system remains the canonical assessment model.
   for (const insight of TIER1_INSIGHTS) {
     const persistedInsight = await prisma.insight.upsert({
       where: { key: insight.key },
@@ -302,11 +158,12 @@ async function ensureDefaultPortal() {
 }
 
 async function main() {
-  const moduleRecord = await ensureSurveyModule();
-  const badge = await ensureTier1Content(moduleRecord.id);
+  const modules = await ensureFirmAlignmentSystem();
+  const badge = await ensureTier1Content(modules.map((module) => module.id));
   const demoCompany = await ensureDemoCompany();
   const subject = await ensureCompanySubject(demoCompany.id, demoCompany.name);
   const portal = await ensureDefaultPortal();
+  const localReviewSeed = await ensureLocalReviewUsers(prisma);
   const taxonomyArtifact = await loadAccountingTaxonomyArtifact(
     path.join(process.cwd(), "data/research/accounting-software-taxonomy-v1.json")
   );
@@ -316,8 +173,29 @@ async function main() {
     apply: true,
   });
 
-  const questionCount = await prisma.surveyQuestion.count({
-    where: { moduleId: moduleRecord.id },
+  const questionCounts = await Promise.all(
+    modules.map(async (module) => ({
+      key: module.key,
+      questionCount: await prisma.surveyQuestion.count({
+        where: { moduleId: module.id },
+      }),
+      sectionCount: await prisma.surveySection.count({
+        where: { moduleId: module.id },
+      }),
+      moduleCapabilityCount: await prisma.moduleCapability.count({
+        where: { moduleId: module.id },
+      }),
+    }))
+  );
+
+  const firmQuestionMappings = await prisma.surveyQuestionCapability.count({
+    where: {
+      SurveyQuestion: {
+        moduleId: {
+          in: modules.map((module) => module.id),
+        },
+      },
+    },
   });
 
   const tier1InsightCount = await prisma.insight.count({
@@ -325,9 +203,13 @@ async function main() {
   });
 
   console.log("Seed complete", {
-    moduleKey: moduleRecord.key,
-    moduleId: moduleRecord.id,
-    questionCount,
+    firmModuleKeys: modules.map((module) => module.key),
+    firmModuleCount: modules.length,
+    expectedFirmModuleCount: FIRM_MODULE_DEFINITIONS.length,
+    totalFirmQuestionCount: questionCounts.reduce((total, module) => total + module.questionCount, 0),
+    firmCapabilityNodeCount: FIRM_CAPABILITY_DEFINITIONS.length,
+    totalFirmQuestionCapabilityMappings: firmQuestionMappings,
+    questionCounts,
     badgeId: badge.id,
     badgeName: badge.name,
     tier1InsightCount,
@@ -335,16 +217,20 @@ async function main() {
     demoCompanyName: demoCompany.name,
     subjectId: subject.id,
     portalKey: portal.key,
+    localReviewAuthSeeded: localReviewSeed.seeded,
+    localReviewUserEmails: localReviewSeed.userEmails,
     taxonomyBuckets: taxonomySummary.taxonomyBuckets,
     taxonomyProducts: taxonomySummary.products,
   });
 }
 
 main()
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  })
-  .finally(async () => {
+  .then(async () => {
     await prisma.$disconnect();
+    process.exit(0);
+  })
+  .catch(async (error) => {
+    console.error(error);
+    await prisma.$disconnect();
+    process.exit(1);
   });

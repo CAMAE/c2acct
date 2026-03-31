@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import { QuestionInputType } from "@prisma/client";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   getDefaultAnswer,
   isAnswerPresent,
@@ -14,6 +15,64 @@ import {
 type Props = {
   moduleKey: string;
 };
+
+function clampStep(step: number, totalSteps: number) {
+  return Math.min(Math.max(step, 1), Math.max(totalSteps, 1));
+}
+
+function getPostSubmitHref(moduleKey: string) {
+  if (moduleKey === "user_alignment_v1") {
+    return "/user/insights?submitted=1";
+  }
+
+  if (moduleKey.startsWith("firm_alignment_")) {
+    return "/firm/insights?submitted=1";
+  }
+
+  if (moduleKey === "vendor_product_alignment_v1") {
+    return "/vendor/product-insight?submitted=1";
+  }
+
+  if (moduleKey === "firm_product_review_v1") {
+    return "/firm/product-assessments?submitted=1";
+  }
+
+  return "/user/insights?submitted=1";
+}
+
+function getAssessmentLandingHref(moduleKey: string) {
+  if (moduleKey === "user_alignment_v1") {
+    return "/user/alignment-assessment";
+  }
+
+  if (moduleKey.startsWith("firm_alignment_")) {
+    return "/firm/alignment-assessment";
+  }
+
+  if (moduleKey === "vendor_product_alignment_v1") {
+    return "/vendor/product-assessment";
+  }
+
+  if (moduleKey === "firm_product_review_v1") {
+    return "/firm/product-assessments";
+  }
+
+  return "/user/alignment-assessment";
+}
+
+function AssessmentPatFraming() {
+  return (
+    <div className="flex flex-wrap items-center gap-3 text-left sm:gap-4">
+      <div className="brand-pat-wordmark text-[2rem] leading-none text-[var(--shell-ink)] sm:text-[2.5rem]">
+        PAT
+      </div>
+      <div className="h-10 w-px bg-[rgba(12,33,66,0.12)] sm:h-12" aria-hidden="true" />
+      <div className="text-sm font-medium tracking-[0.08em] text-[var(--shell-ink)] sm:text-base">
+        Performance Alignment Technology
+      </div>
+    </div>
+  );
+}
 
 function renderQuestionInput(
   question: AssessmentQuestionRuntime,
@@ -30,24 +89,48 @@ function renderQuestionInput(
 
   if (question.inputType === QuestionInputType.SLIDER && question.validation.slider) {
     const slider = question.validation.slider;
-    const selectedValue = typeof value === "number" ? value : slider.min;
+    const selectedValue = typeof value === "number" ? value : null;
+    const optionValues = Array.from(
+      { length: Math.floor((slider.max - slider.min) / slider.step) + 1 },
+      (_, index) => slider.min + index * slider.step
+    );
 
     return (
       <div className="grid gap-4">
-        <input
-          type="range"
-          min={slider.min}
-          max={slider.max}
-          step={slider.step}
-          value={selectedValue}
-          onChange={(event) => setAnswer(Number(event.target.value))}
-          className="accent-[var(--shell-accent-strong)]"
-        />
+        <div
+          className="mx-auto grid w-full max-w-[30rem] grid-cols-3 gap-2 sm:grid-cols-6"
+          role="radiogroup"
+          aria-label={`${question.prompt} answer choices`}
+        >
+          {optionValues.map((optionValue) => {
+            const active = selectedValue === optionValue;
+
+            return (
+              <button
+                key={optionValue}
+                type="button"
+                role="radio"
+                aria-checked={active}
+                onClick={() => setAnswer(optionValue)}
+                className="pat-question-choice-button w-full min-w-0 justify-center"
+                data-active={active}
+              >
+                {optionValue}
+              </button>
+            );
+          })}
+        </div>
         <div className="pat-sans flex items-center justify-between gap-3 text-xs text-[var(--shell-muted)]">
           <span>{slider.labels?.[String(slider.min)] ?? `Low (${slider.min})`}</span>
-          <span className="rounded-full border border-[var(--shell-border)] bg-white px-3 py-1 text-sm font-semibold text-[var(--shell-ink)]">
-            {selectedValue}
-          </span>
+          {selectedValue === null ? (
+            <span className="rounded-full border border-[var(--shell-border)] bg-white px-3 py-1 text-sm font-semibold text-[var(--shell-muted)]">
+              Select a score
+            </span>
+          ) : (
+            <span className="rounded-full border border-[var(--shell-border)] bg-white px-3 py-1 text-sm font-semibold text-[var(--shell-ink)]">
+              {selectedValue}
+            </span>
+          )}
           <span>{slider.labels?.[String(slider.max)] ?? `High (${slider.max})`}</span>
         </div>
       </div>
@@ -188,12 +271,18 @@ function renderQuestionInput(
 
 export default function AssessmentModuleClient({ moduleKey }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [data, setData] = useState<AssessmentModulePayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Record<string, NormalizedAnswer>>({});
   const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [autosaveState, setAutosaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [autosaveError, setAutosaveError] = useState<string | null>(null);
+  const assessmentLandingHref = getAssessmentLandingHref(moduleKey);
+  const resultsLandingHref = data ? getPostSubmitHref(data.key).replace(/\?submitted=1$/, "") : assessmentLandingHref;
 
   useEffect(() => {
     let cancelled = false;
@@ -234,8 +323,11 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
     if (!data) return;
 
     setAnswers((currentAnswers) => {
-      const nextAnswers = { ...currentAnswers };
-      let changed = false;
+      const nextAnswers = {
+        ...(data.draft?.answers ?? {}),
+        ...currentAnswers,
+      };
+      let changed = Object.keys(nextAnswers).length !== Object.keys(currentAnswers).length;
 
       for (const question of data.questions) {
         if (!(question.id in nextAnswers)) {
@@ -250,6 +342,31 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
       return changed ? nextAnswers : currentAnswers;
     });
   }, [data]);
+
+  useEffect(() => {
+    if (!data) {
+      return;
+    }
+
+    const fallbackStep = data.draft?.currentStep ?? 1;
+    const requested = Number(searchParams.get("step") ?? String(fallbackStep));
+    const totalSteps = Math.max(1, data.sections.length);
+    const normalized = clampStep(Number.isFinite(requested) ? requested : 1, totalSteps);
+
+    if (normalized === requested) {
+      return;
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
+    if (normalized <= 1) {
+      params.delete("step");
+    } else {
+      params.set("step", String(normalized));
+    }
+
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }, [data, pathname, router, searchParams]);
 
   const questionsById = useMemo(() => {
     const entries: Array<[string, AssessmentQuestionRuntime]> =
@@ -268,10 +385,72 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
   );
 
   const missingRequiredCount = requiredQuestionIds.length - answeredRequiredCount;
+  const totalSteps = Math.max(1, data?.sections.length ?? 0);
+  const requestedStep = Number(searchParams.get("step") ?? String(data?.draft?.currentStep ?? 1));
+  const currentStep = clampStep(Number.isFinite(requestedStep) ? requestedStep : 1, totalSteps);
 
   function setAnswer(questionId: string, value: NormalizedAnswer) {
     setAnswers((currentAnswers) => ({ ...currentAnswers, [questionId]: value }));
   }
+
+  async function saveDraft(stepOverride: number, answersOverride = answers) {
+    if (!data || submitStatus === "success") {
+      return true;
+    }
+
+    setAutosaveState("saving");
+    setAutosaveError(null);
+
+    try {
+      const response = await fetch("/api/survey/draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          moduleKey: data.key,
+          step: stepOverride,
+          totalSteps,
+          answers: answersOverride,
+        }),
+      });
+
+      if (response.status === 401) {
+        const callbackUrl =
+          typeof window !== "undefined"
+            ? `${window.location.pathname}${window.location.search}`
+            : `/survey/${data.key}`;
+        window.location.assign(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+        return false;
+      }
+
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok || body?.ok !== true) {
+        throw new Error(body?.error ?? body?.detail ?? `HTTP ${response.status}`);
+      }
+
+      setAutosaveState("saved");
+      return true;
+    } catch (saveFailure) {
+      setAutosaveState("error");
+      setAutosaveError(saveFailure instanceof Error ? saveFailure.message : "Unable to save progress");
+      return false;
+    }
+  }
+
+  const autosaveDraft = useEffectEvent(() => {
+    void saveDraft(currentStep);
+  });
+
+  useEffect(() => {
+    if (!data || submitStatus === "success") {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      autosaveDraft();
+    }, 700);
+
+    return () => window.clearTimeout(timeout);
+  }, [answers, data, submitStatus]);
 
   async function submitSurvey() {
     if (!data || submitStatus === "submitting") {
@@ -316,7 +495,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
       }
 
       setSubmitStatus("success");
-      router.push("/results?submitted=1");
+      router.push(getPostSubmitHref(data.key));
     } catch (submitFailure) {
       setSubmitStatus("error");
       setSubmitError(submitFailure instanceof Error ? submitFailure.message : "Submit failed");
@@ -326,10 +505,10 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
   if (loading) {
     return (
       <div className="mx-auto max-w-5xl py-8">
-        <section className="pat-card-strong p-8">
-          <div className="pat-label text-white/60">PAT Assessment</div>
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight">Loading the current module...</h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-white/74">
+        <section className="pat-card p-8">
+          <AssessmentPatFraming />
+          <h1 className="mt-5 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">Loading the current module...</h1>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
             PAT is preparing the assessment contract, sections, and question metadata for this workflow.
           </p>
         </section>
@@ -350,7 +529,11 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
             <button type="button" onClick={() => window.location.reload()} className="pat-button-primary">
               Retry
             </button>
-            <button type="button" onClick={() => router.push("/survey")} className="pat-button-secondary">
+            <button
+              type="button"
+              onClick={() => router.push(assessmentLandingHref)}
+              className="pat-button-secondary"
+            >
               Back to readiness
             </button>
           </div>
@@ -370,36 +553,72 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
   const unsupportedQuestions = data.questions.filter((question) => question.status === "unsupported");
   const completionPct =
     requiredQuestionIds.length === 0 ? 0 : Math.round((answeredRequiredCount / requiredQuestionIds.length) * 100);
+  const currentSection = data.sections[currentStep - 1] ?? data.sections[0];
+  const currentStepQuestionIds = currentSection?.questionIds ?? [];
+  const currentStepRequiredIds = currentStepQuestionIds.filter((questionId) => requiredQuestionIds.includes(questionId));
+  const currentStepAnsweredCount = currentStepRequiredIds.filter((questionId) => isAnswerPresent(answers[questionId])).length;
+  const currentStepMissingCount = currentStepRequiredIds.length - currentStepAnsweredCount;
+  const visibleSections = currentSection ? [currentSection] : [];
+
+  function setStep(nextStep: number) {
+    const params = new URLSearchParams(searchParams.toString());
+    const normalizedStep = clampStep(nextStep, totalSteps);
+
+    if (normalizedStep <= 1) {
+      params.delete("step");
+    } else {
+      params.set("step", String(normalizedStep));
+    }
+
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: true });
+  }
+
+  async function changeStep(nextStep: number) {
+    const saved = await saveDraft(currentStep);
+    if (!saved) {
+      return;
+    }
+
+    setStep(nextStep);
+  }
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 py-8">
-      <header className="pat-card-strong p-8">
-        <div className="pat-label text-white/60">PAT Assessment Module</div>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight">{data.title}</h1>
-        <div className="pat-sans mt-2 text-sm text-white/62">
-          {data.scope} module · v{data.version}
+      <header className="pat-card p-8">
+        <AssessmentPatFraming />
+        <div className="pat-label mt-5">Assessment module</div>
+        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">{data.title}</h1>
+        <div className="pat-sans mt-2 text-sm text-[var(--shell-muted)]">
+          Section {currentStep} of {totalSteps} · {data.questions.length} questions total · v{data.version}
         </div>
         {data.description ? (
-          <p className="mt-4 max-w-3xl text-base leading-7 text-white/74">{data.description}</p>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">{data.description}</p>
         ) : null}
+        <p className="mt-4 max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">
+          Work through the assessment one section at a time. PAT now paces each section as a focused 5-question chapter where section metadata is available.
+        </p>
 
         <div className="mt-7 grid gap-4 md:grid-cols-2">
-          <div className="rounded-[22px] border border-white/10 bg-white/7 p-5">
-            <div className="pat-label text-white/54">Progress</div>
-            <div className="pat-sans mt-3 text-4xl font-semibold tracking-tight">{completionPct}%</div>
-            <div className="mt-3 text-sm leading-6 text-white/70">
+          <div className="pat-soft-panel p-5">
+            <div className="pat-label">Progress</div>
+            <div className="pat-sans mt-3 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">{completionPct}%</div>
+            <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
               {answeredRequiredCount} of {requiredQuestionIds.length} required questions completed
             </div>
-          </div>
-          <div className="rounded-[22px] border border-white/10 bg-white/7 p-5">
-            <div className="pat-label text-white/54">Current path</div>
-            <div className="pat-sans mt-3 text-xl font-semibold tracking-tight">
-              Assessment - Results - Outputs
-            </div>
-            <div className="mt-3 text-sm leading-6 text-white/70">
-              Submission moves directly into the protected PAT readout flow.
+            <div className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+              Current section: {currentStepAnsweredCount} of {currentStepRequiredIds.length} required responses captured
             </div>
           </div>
+          <Link href="/survey/help" className="pat-soft-panel block p-5 hover:border-[rgba(6,54,116,0.34)]">
+            <div className="pat-label">Assessment help</div>
+            <div className="pat-sans mt-3 text-xl font-semibold tracking-tight text-[var(--shell-ink)]">
+              How to take PAT assessments
+            </div>
+            <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+              Open the assessment guide for section pacing, response expectations, and what happens after submission.
+            </div>
+          </Link>
         </div>
       </header>
 
@@ -422,10 +641,9 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
       ) : null}
 
       <div className="grid gap-5">
-        {data.sections.map((section, sectionIndex) => (
+        {visibleSections.map((section) => (
           <section key={section.key} className="pat-card overflow-hidden p-6">
             <div className="grid gap-2">
-              <div className="pat-label">Section {sectionIndex + 1}</div>
               <h2 className="text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">{section.title}</h2>
               {section.description ? (
                 <p className="max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">{section.description}</p>
@@ -489,28 +707,62 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
           <div className="pat-banner pat-banner-success">Submission accepted. Opening the current results view...</div>
         ) : null}
 
-        {missingRequiredCount > 0 ? (
+        {currentStepMissingCount > 0 ? (
           <div className="pat-banner pat-banner-warning">
-            {missingRequiredCount} required question{missingRequiredCount === 1 ? "" : "s"} still need a response
-            before PAT can accept this submission.
+            {currentStepMissingCount} required question{currentStepMissingCount === 1 ? "" : "s"} still need a response
+            before PAT can open the next section.
           </div>
         ) : null}
 
         <div className="flex flex-wrap gap-3">
+          {currentStep > 1 ? (
+            <button type="button" onClick={() => void changeStep(currentStep - 1)} className="pat-button-secondary">
+              Back a section
+            </button>
+          ) : null}
+          {currentStep < totalSteps ? (
+            <button
+              type="button"
+              onClick={() => void changeStep(currentStep + 1)}
+              disabled={currentStepMissingCount > 0}
+              className="pat-button-primary"
+            >
+              Continue to next section
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={submitSurvey}
+              disabled={submitStatus === "submitting" || submitStatus === "success" || currentStepMissingCount > 0}
+              className="pat-button-primary"
+            >
+              {submitStatus === "submitting" ? "Submitting assessment..." : "Submit assessment"}
+            </button>
+          )}
           <button
             type="button"
-            onClick={submitSurvey}
-            disabled={submitStatus === "submitting" || submitStatus === "success"}
-            className="pat-button-primary"
+            onClick={() => router.push(assessmentLandingHref)}
+            className="pat-button-secondary"
           >
-            {submitStatus === "submitting" ? "Submitting assessment..." : "Submit assessment"}
-          </button>
-          <button type="button" onClick={() => router.push("/survey")} className="pat-button-secondary">
             Back to readiness
           </button>
-          <button type="button" onClick={() => router.push("/results")} className="pat-button-secondary">
+          <button
+            type="button"
+            onClick={() => router.push(resultsLandingHref)}
+            className="pat-button-secondary"
+          >
             Review current results
           </button>
+        </div>
+
+        <div className="text-sm text-[var(--shell-muted)]">
+          {autosaveState === "saving"
+            ? "Saving progress..."
+            : autosaveState === "saved"
+              ? "Progress saved"
+              : autosaveState === "error"
+                ? `Autosave issue: ${autosaveError ?? "Unable to save progress"}`
+                : "Progress saves automatically as you move through the module."}
         </div>
 
         {submitError ? <div className="pat-banner pat-banner-danger">Submit error: {submitError}</div> : null}

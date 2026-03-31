@@ -20,18 +20,21 @@ This is deliberate. The platform now knows about broader audiences, but it does 
 ## Phase 1 matrix
 
 ### Firm
-- Live now: workspace, survey, results, outputs, profiles
+- Live now: workspace, canonical firm assessment, firm insights, firm admin, firm membership
+- Compatibility only: `/survey`, `/results`, `/outputs`, `/profiles`
 - Hidden: talent, HR, higher-ed, association, media-specific modules
 - Planned but shown intentionally: ecosystem map
 
 ### Vendor
-- Live now: workspace, survey, results, outputs, profiles
+- Live now: workspace, vendor product assessment, vendor alignment insights, vendor product insight, vendor admin, vendor membership
+- Compatibility only: `/results`, `/outputs`, `/profiles`
 - Hidden: firm-irrelevant ecosystem surfaces
 - Planned but shown intentionally: ecosystem map
 
 ### Individual / Member
-- Live now: workspace shell only
-- Restricted: no survey/results/outputs unless a company-backed PAT subject exists
+- Live now: workspace shell, profile surface, membership surface, user insight framing
+- Compatibility only: `/results`, `/outputs`, `/profiles`
+- Restricted: person-side maturity is still thinner than firm/vendor and should not be overstated
 - Planned but shown intentionally: member briefing
 
 ### Talent
@@ -61,7 +64,14 @@ This is deliberate. The platform now knows about broader audiences, but it does 
 - Enabled nav links are derived from the same visibility matrix used for cards.
 - Admin links are only shown to `ADMIN` and `OWNER`.
 - Assessment routes remain intact and only appear as enabled when the actor has a company-backed PAT subject.
+- Compatibility routes must redirect into canonical role-specific surfaces rather than presenting a competing product shell.
 - Irrelevant surfaces are hidden; relevant but unavailable surfaces are shown as controlled `planned` or `restricted` states.
+
+## Operator note
+
+- `/admin` is the live C2Core operator surface.
+- `/admin/briefings` is the live consultant/operator briefing path.
+- `member-briefing` remains staged until person-side modules and member-native evidence become truthful enough to support it.
 
 ## Validation note
 

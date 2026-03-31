@@ -5,6 +5,7 @@ import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
 import {
   requiresCompanyBackedAssessment,
   resolveAssessmentSubjectContext,
+  withCompanyScopeFallback,
 } from "@/lib/subjectContext";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
@@ -21,12 +22,14 @@ export async function GET() {
   }
 
   try {
-    const rows = await prisma.companyBadge.findMany({
-      where: assessmentContext.subjectId
-        ? { subjectId: assessmentContext.subjectId }
-        : { companyId: assessmentContext.companyId },
-      orderBy: { awardedAt: "desc" },
-      include: { Badge: { select: { name: true } } },
+    const { value: rows } = await withCompanyScopeFallback(assessmentContext, {
+      label: "earned badges",
+      run: (where) =>
+        prisma.companyBadge.findMany({
+          where,
+          orderBy: { awardedAt: "desc" },
+          include: { Badge: { select: { name: true } } },
+        }),
     });
 
     const earned = rows.map((r) => ({

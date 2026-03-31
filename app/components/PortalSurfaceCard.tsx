@@ -1,13 +1,16 @@
 import Link from "next/link";
+import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import type { PortalSurface } from "@/lib/portalVisibility";
 
 type PortalSurfaceCardProps = {
   surface: PortalSurface;
 };
 
-export default function PortalSurfaceCard({
+export default async function PortalSurfaceCard({
   surface,
 }: PortalSurfaceCardProps) {
+  const messages = await getRequestLocaleMessages();
+
   const content = (
     <>
       <div className="flex items-start justify-between gap-4">
@@ -29,10 +32,10 @@ export default function PortalSurfaceCard({
           }`}
         >
           {surface.availability === "enabled"
-            ? "Live"
+            ? messages.common.live
             : surface.availability === "restricted"
-              ? "Scoped"
-              : "Queued"}
+              ? messages.common.scoped
+              : messages.common.queued}
         </span>
       </div>
       {surface.reason ? (
@@ -44,14 +47,10 @@ export default function PortalSurfaceCard({
   );
 
   const className =
-    "group block rounded-[24px] border border-[var(--shell-border)] bg-white p-6 shadow-[0_24px_60px_rgba(15,23,42,0.06)] transition";
+    "pat-card pat-card-interactive group block rounded-[24px] bg-white p-6";
 
   if (surface.availability === "enabled" && surface.href) {
-    return (
-      <Link href={surface.href} className={`${className} hover:-translate-y-0.5 hover:border-[var(--shell-accent)]/30`}>
-        {content}
-      </Link>
-    );
+    return <Link href={surface.href} className={className}>{content}</Link>;
   }
 
   return <div className={`${className} opacity-95`}>{content}</div>;

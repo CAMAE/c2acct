@@ -1,4 +1,11 @@
-import { TIER1_ALIGNMENT_BADGE_ID, TIER1_ALIGNMENT_BADGE_NAME, TOP_OUTPUT_CARDS } from "@/lib/patUnlocks";
+/**
+ * Compatibility-only dashboard helpers for older generic PAT shells.
+ *
+ * Canonical score, unlock, insight, and evidence behavior now lives in the
+ * role-specific PAT routes and their runtime engines. Keep this file thin and
+ * do not add new product semantics here.
+ */
+import { TIER1_ALIGNMENT_BADGE_ID, TIER1_ALIGNMENT_BADGE_NAME, TOP_INSIGHT_CARDS } from "@/lib/patUnlocks";
 
 export type DashboardSubmissionSnapshot = {
   id: string;
@@ -43,8 +50,8 @@ export function deriveScoreBand(rawScorePct: number | null): DashboardScoreBand 
   }
 
   return {
-    label: "Institutionalizing posture",
-    detail: "The current score indicates repeatable operating discipline strong enough to support deeper PAT outputs.",
+    label: "Operationally scaled posture",
+    detail: "The current score indicates repeatable operating discipline strong enough to support deeper PAT insights.",
     tone: "emerald",
   };
 }
@@ -72,28 +79,30 @@ export function deriveIntegrityNarrative(signalIntegrityScore: number): {
 
   return {
     label: "High confidence",
-    detail: "The response pattern is consistent enough to support current Tier 1 interpretation.",
+    detail: "The response pattern is consistent enough to support current Pro membership interpretation.",
     tone: "emerald",
   };
 }
 
-export function buildOutputAvailability(input: {
+export function buildInsightAvailability(input: {
   earnedBadgeIds: Iterable<string>;
   unlockedInsightKeys: Iterable<string>;
 }) {
   const earnedBadgeIds = new Set(input.earnedBadgeIds);
   const unlockedInsightKeys = new Set(input.unlockedInsightKeys);
 
-  return TOP_OUTPUT_CARDS.map((card) => {
+  return TOP_INSIGHT_CARDS.map((card) => {
     const badgeSatisfied = !card.requiredBadgeId || earnedBadgeIds.has(card.requiredBadgeId);
     const insightSatisfied = !card.requiredInsightKey || unlockedInsightKeys.has(card.requiredInsightKey);
-    const unlocked = badgeSatisfied || insightSatisfied;
+    const unlocked = badgeSatisfied && insightSatisfied;
 
     let unlockRequirement = "Always available";
-    if (card.requiredInsightKey) {
+    if (card.requiredBadgeId === TIER1_ALIGNMENT_BADGE_ID && card.requiredInsightKey) {
       unlockRequirement = `Requires ${TIER1_ALIGNMENT_BADGE_NAME} and unlocked insight ${card.requiredInsightKey}`;
     } else if (card.requiredBadgeId === TIER1_ALIGNMENT_BADGE_ID) {
       unlockRequirement = `Requires ${TIER1_ALIGNMENT_BADGE_NAME}`;
+    } else if (card.requiredInsightKey) {
+      unlockRequirement = `Requires unlocked insight ${card.requiredInsightKey}`;
     } else if (card.requiredBadgeId) {
       unlockRequirement = `Requires badge ${card.requiredBadgeId}`;
     }

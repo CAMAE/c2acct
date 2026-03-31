@@ -11,7 +11,7 @@
 
 ## Two-lane execution
 ### Ship lane (user-visible)
-1) Fix /survey experience (redirect to /survey/firm_alignment_v1 or module picker)
+1) Keep `/survey` as a compatibility redirect to `/firm/alignment-assessment`
 2) Fix submit payload contract
 3) Results/Outputs clarity + locked insight affordances
 4) Company selection (seeded dropdown)

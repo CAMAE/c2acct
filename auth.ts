@@ -2,6 +2,10 @@ import NextAuth from "next-auth";
 import type { UserRole } from "@prisma/client";
 import authConfig from "@/auth.config";
 import prisma from "@/lib/prisma";
+import { getResolvedAuthEnv } from "@/lib/auth/env";
+import { ensureLocalReviewUserByEmail, isLocalReviewAuthRequested } from "@/lib/auth/localReview";
+
+const resolvedAuthEnv = getResolvedAuthEnv();
 
 type DbUserClaims = {
   id: string;
@@ -23,15 +27,31 @@ async function findUserByEmail(email: string): Promise<DbUserClaims | null> {
   });
 }
 
+async function findOrEnsureUserByEmail(email: string) {
+  const existing = await findUserByEmail(email);
+  if (existing) {
+    return existing;
+  }
+
+  if (!isLocalReviewAuthRequested()) {
+    return null;
+  }
+
+  await ensureLocalReviewUserByEmail(prisma, email);
+  return findUserByEmail(email);
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  secret: resolvedAuthEnv.values.secret ?? undefined,
+  trustHost: true,
   session: { strategy: "jwt" },
   callbacks: {
     async signIn({ user }) {
       const normalizedEmail = normalizeEmail(user?.email);
       if (!normalizedEmail) return false;
 
-      const dbUser = await findUserByEmail(normalizedEmail);
+      const dbUser = await findOrEnsureUserByEmail(normalizedEmail);
       if (!dbUser) return false;
 
       (user as typeof user & { dbUser?: DbUserClaims }).dbUser = dbUser;
@@ -51,7 +71,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const normalizedEmail = normalizeEmail(token.email);
       if (!normalizedEmail) return token;
 
-      const dbUser = await findUserByEmail(normalizedEmail);
+      const dbUser = await findOrEnsureUserByEmail(normalizedEmail);
       if (!dbUser) return token;
 
       token.sub = dbUser.id;

@@ -1,0 +1,279 @@
+import { randomUUID } from "crypto";
+import {
+  CompanyType,
+  SubjectKind,
+  SubjectMembershipRole,
+  type PrismaClient,
+  type UserRole,
+} from "@prisma/client";
+
+export const LOCAL_REVIEW_AUTH_FLAG_ENV = "PAT_ENABLE_LOCAL_REVIEW_AUTH";
+export const LOCAL_REVIEW_PASSWORD_ENV = "PAT_LOCAL_REVIEW_PASSWORD";
+export const LOCAL_REVIEW_FIRM_COMPANY_NAME = "Demo Company";
+export const LOCAL_REVIEW_VENDOR_COMPANY_NAME = "PAT Demo Vendor";
+
+export type LocalReviewKey = "vendor" | "firm" | "individual" | "admin";
+
+export type LocalReviewUserDefinition = {
+  key: LocalReviewKey;
+  label: string;
+  email: string;
+  role: UserRole;
+  companyType: CompanyType | null;
+  companyName: string | null;
+  redirectTo: string;
+};
+
+export const LOCAL_REVIEW_USERS: LocalReviewUserDefinition[] = [
+  {
+    key: "vendor",
+    label: "Vendor review",
+    email: "review.vendor@pat.local",
+    role: "MEMBER",
+    companyType: CompanyType.VENDOR,
+    companyName: LOCAL_REVIEW_VENDOR_COMPANY_NAME,
+    redirectTo: "/vendor",
+  },
+  {
+    key: "firm",
+    label: "Firm review",
+    email: "review.firm@pat.local",
+    role: "OWNER",
+    companyType: CompanyType.FIRM,
+    companyName: LOCAL_REVIEW_FIRM_COMPANY_NAME,
+    redirectTo: "/firm",
+  },
+  {
+    key: "individual",
+    label: "Individual review",
+    email: "review.individual@pat.local",
+    role: "MEMBER",
+    companyType: null,
+    companyName: null,
+    redirectTo: "/user",
+  },
+  {
+    key: "admin",
+    label: "Admin/operator review",
+    email: "review.admin@pat.local",
+    role: "ADMIN",
+    companyType: CompanyType.FIRM,
+    companyName: LOCAL_REVIEW_FIRM_COMPANY_NAME,
+    redirectTo: "/admin",
+  },
+] as const;
+
+type LocalReviewSeedSummary = {
+  seeded: boolean;
+  userEmails: string[];
+};
+
+type PrismaSeedClient = Pick<PrismaClient, "company" | "user" | "subject" | "subjectMembership">;
+
+function normalizeEmail(email: string | null | undefined) {
+  if (!email) {
+    return null;
+  }
+
+  const normalized = email.trim().toLowerCase();
+  return normalized.length > 0 ? normalized : null;
+}
+
+export function isLocalReviewAuthRequested() {
+  return process.env.NODE_ENV !== "production" && process.env[LOCAL_REVIEW_AUTH_FLAG_ENV] === "1";
+}
+
+export function shouldSeedLocalReviewUsers() {
+  return process.env.NODE_ENV !== "production";
+}
+
+export function findLocalReviewUserByEmail(email: string | null | undefined) {
+  const normalized = normalizeEmail(email);
+  if (!normalized) {
+    return null;
+  }
+
+  return LOCAL_REVIEW_USERS.find((entry) => entry.email === normalized) ?? null;
+}
+
+export function getLocalReviewUsersForUi() {
+  return LOCAL_REVIEW_USERS.map((entry) => ({
+    key: entry.key,
+    label: entry.label,
+    email: entry.email,
+    redirectTo: entry.redirectTo,
+  }));
+}
+
+async function ensureCompany(
+  prisma: PrismaSeedClient,
+  input: {
+    name: string;
+    type: CompanyType;
+  }
+) {
+  const existing = await prisma.company.findFirst({
+    where: { name: input.name },
+    select: { id: true },
+  });
+
+  if (existing) {
+    await prisma.company.update({
+      where: { id: existing.id },
+      data: {
+        type: input.type,
+        updatedAt: new Date(),
+      },
+    });
+
+    return { id: existing.id };
+  }
+
+  return prisma.company.create({
+    data: {
+      id: randomUUID(),
+      name: input.name,
+      type: input.type,
+      updatedAt: new Date(),
+    },
+    select: { id: true },
+  });
+}
+
+async function ensurePersonSubjectMembership(
+  prisma: PrismaSeedClient,
+  input: {
+    userId: string;
+    email: string;
+  }
+) {
+  const subject = await prisma.subject.upsert({
+    where: { key: `person:${input.userId}` },
+    update: {
+      displayName: input.email,
+      kind: SubjectKind.PERSON,
+      updatedAt: new Date(),
+    },
+    create: {
+      id: randomUUID(),
+      key: `person:${input.userId}`,
+      displayName: input.email,
+      kind: SubjectKind.PERSON,
+      updatedAt: new Date(),
+    },
+    select: { id: true },
+  });
+
+  await prisma.subjectMembership.upsert({
+    where: {
+      subjectId_userId: {
+        subjectId: subject.id,
+        userId: input.userId,
+      },
+    },
+    update: {
+      membershipRole: SubjectMembershipRole.MEMBER,
+      active: true,
+      isPrimary: true,
+      updatedAt: new Date(),
+    },
+    create: {
+      id: randomUUID(),
+      subjectId: subject.id,
+      userId: input.userId,
+      membershipRole: SubjectMembershipRole.MEMBER,
+      active: true,
+      isPrimary: true,
+      updatedAt: new Date(),
+    },
+  });
+}
+
+async function ensureLocalReviewCompanies(prisma: PrismaSeedClient) {
+  const companyIdsByName = new Map<string, string>();
+
+  for (const company of [
+    { name: LOCAL_REVIEW_FIRM_COMPANY_NAME, type: CompanyType.FIRM },
+    { name: LOCAL_REVIEW_VENDOR_COMPANY_NAME, type: CompanyType.VENDOR },
+  ]) {
+    const resolved = await ensureCompany(prisma, company);
+    companyIdsByName.set(company.name, resolved.id);
+  }
+
+  return companyIdsByName;
+}
+
+async function ensureLocalReviewUserRecord(
+  prisma: PrismaSeedClient,
+  input: {
+    entry: LocalReviewUserDefinition;
+    companyIdsByName: Map<string, string>;
+  }
+) {
+  const companyId = input.entry.companyName ? input.companyIdsByName.get(input.entry.companyName) ?? null : null;
+  const user = await prisma.user.upsert({
+    where: { email: input.entry.email },
+    update: {
+      name: input.entry.label,
+      role: input.entry.role,
+      companyId,
+      updatedAt: new Date(),
+    },
+    create: {
+      id: randomUUID(),
+      email: input.entry.email,
+      name: input.entry.label,
+      role: input.entry.role,
+      companyId,
+      updatedAt: new Date(),
+    },
+    select: { id: true, email: true },
+  });
+
+  if (input.entry.key === "individual") {
+    await ensurePersonSubjectMembership(prisma, {
+      userId: user.id,
+      email: user.email,
+    });
+  }
+
+  return user;
+}
+
+export async function ensureLocalReviewUserByEmail(
+  prisma: PrismaSeedClient,
+  email: string | null | undefined
+) {
+  const entry = findLocalReviewUserByEmail(email);
+
+  if (!entry || !shouldSeedLocalReviewUsers()) {
+    return null;
+  }
+
+  const companyIdsByName = await ensureLocalReviewCompanies(prisma);
+  return ensureLocalReviewUserRecord(prisma, { entry, companyIdsByName });
+}
+
+export async function ensureLocalReviewUsers(prisma: PrismaSeedClient): Promise<LocalReviewSeedSummary> {
+  if (!shouldSeedLocalReviewUsers()) {
+    return {
+      seeded: false,
+      userEmails: [],
+    };
+  }
+
+  const companyIdsByName = await ensureLocalReviewCompanies(prisma);
+
+  const userEmails: string[] = [];
+
+  for (const entry of LOCAL_REVIEW_USERS) {
+    const user = await ensureLocalReviewUserRecord(prisma, { entry, companyIdsByName });
+
+    userEmails.push(user.email);
+  }
+
+  return {
+    seeded: true,
+    userEmails,
+  };
+}

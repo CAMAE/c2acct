@@ -4,6 +4,29 @@ import type { AssessmentSubjectContext } from "@/lib/subjectContext";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
+const PROTECTED_PAT_PAGE_PREFIXES = [
+  "/admin",
+  "/platform",
+  "/survey",
+  "/results",
+  "/outputs",
+  "/profiles",
+  "/firm",
+  "/vendor",
+  "/user",
+] as const;
+
+const PROTECTED_PAT_API_PREFIXES = [
+  "/api/results",
+  "/api/insights/unlocked",
+  "/api/badges/earned",
+  "/api/survey/module",
+  "/api/survey/draft",
+  "/api/survey/submit",
+  "/api/firm/product-assessment/submit",
+  "/api/vendor/product-assessment/submit",
+] as const;
+
 type AuthzUser = {
   role: UserRole;
   companyId: string | null;
@@ -47,4 +70,24 @@ export function unauthorizedResponse(error = "Unauthorized") {
 
 export function forbiddenResponse(error = "Forbidden") {
   return NextResponse.json({ ok: false, error }, { status: 403, headers: NO_STORE_HEADERS });
+}
+
+export function isProtectedPatPagePath(pathname: string) {
+  return PROTECTED_PAT_PAGE_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+}
+
+export function isProtectedPatApiPath(pathname: string) {
+  return PROTECTED_PAT_API_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+}
+
+export function buildLoginRedirectPath(input: {
+  pathname: string;
+  search?: string;
+}) {
+  const callbackUrl = `${input.pathname}${input.search ?? ""}`;
+  return `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
 }
