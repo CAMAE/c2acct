@@ -42,10 +42,14 @@ export type ResolvedAuthEnv = {
     githubSecret: ResolvedCandidate;
     localReviewPassword: ResolvedCandidate;
   };
+  canonicalLocalOrigin: string;
+  normalizedBaseUrl: string | null;
   missing: string[];
   callbackUrl: string | null;
   providerCallbackPath: string;
   githubProviderReady: boolean;
+  githubAuthEnabled: boolean;
+  githubAvailabilityReason: string | null;
   localReviewRequested: boolean;
   localReviewEnabled: boolean;
   localReviewProviderReady: boolean;
@@ -77,9 +81,18 @@ const CANDIDATES: Record<AuthEnvKey, CandidateSpec> = {
 };
 
 let cachedEnvSources: EnvSource[] | null = null;
+const DEFAULT_CANONICAL_LOCAL_ORIGIN = "http://127.0.0.1:3001";
 
 function hasValue(value: string | undefined | null) {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function normalizeOrigin(value: string | null | undefined) {
+  if (!hasValue(value)) {
+    return null;
+  }
+
+  return value!.trim().replace(/\/$/, "");
 }
 
 function hasOwnEnv(name: string) {
@@ -226,17 +239,22 @@ export function getResolvedAuthEnv(): ResolvedAuthEnv {
   };
 
   const baseUrl = resolvedBy.baseUrl.value;
+  const normalizedBaseUrl = normalizeOrigin(baseUrl);
   const secret = resolvedBy.secret.value;
   const githubId = resolvedBy.githubId.value;
   const githubSecret = resolvedBy.githubSecret.value;
   const localReviewPassword = resolvedBy.localReviewPassword.value;
-  const localReviewRequested = process.env.NODE_ENV !== "production" && process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH === "1";
+  const localReviewRequested =
+    process.env.NODE_ENV !== "production" && process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH === "1";
   const localReviewEnabled = localReviewRequested;
+  const canonicalLocalOrigin =
+    normalizeOrigin(process.env.PAT_LOCAL_ORIGIN) ?? DEFAULT_CANONICAL_LOCAL_ORIGIN;
+  const localGithubRequested = process.env.PAT_ENABLE_LOCAL_GITHUB_AUTH === "1";
 
   const callbackPath = "/api/auth/callback/github";
   const callbackUrl =
-    baseUrl && /^https?:\/\//.test(baseUrl)
-      ? `${baseUrl.replace(/\/$/, "")}${callbackPath}`
+    normalizedBaseUrl && /^https?:\/\//.test(normalizedBaseUrl)
+      ? `${normalizedBaseUrl}${callbackPath}`
       : null;
 
   const missing: string[] = [];
@@ -246,8 +264,23 @@ export function getResolvedAuthEnv(): ResolvedAuthEnv {
   if (!githubSecret) missing.push(CANDIDATES.githubSecret.label);
 
   const githubProviderReady = Boolean(githubId && githubSecret);
+  const localGithubOriginAligned =
+    process.env.NODE_ENV === "production" || normalizedBaseUrl === canonicalLocalOrigin;
+  const githubAuthEnabled = Boolean(
+    githubProviderReady &&
+      (process.env.NODE_ENV === "production" || (localGithubOriginAligned && localGithubRequested))
+  );
+  const githubAvailabilityReason = !githubProviderReady
+    ? "GitHub provider env is incomplete."
+    : process.env.NODE_ENV === "production"
+      ? null
+      : !localGithubOriginAligned
+        ? `Local GitHub sign-in is blocked until AUTH_URL and NEXTAUTH_URL are both set to ${canonicalLocalOrigin}.`
+        : !localGithubRequested
+          ? `Local GitHub sign-in stays hidden until the OAuth app allows ${callbackUrl ?? `${canonicalLocalOrigin}${callbackPath}`} and PAT_ENABLE_LOCAL_GITHUB_AUTH=1 is set.`
+          : null;
   const localReviewProviderReady = Boolean(localReviewEnabled && secret && localReviewPassword);
-  const ready = Boolean((baseUrl && secret && githubProviderReady) || localReviewProviderReady);
+  const ready = Boolean((normalizedBaseUrl && secret && githubAuthEnabled) || localReviewProviderReady);
 
   if (localReviewEnabled && !localReviewPassword) {
     missing.push(CANDIDATES.localReviewPassword.label);
@@ -261,11 +294,15 @@ export function getResolvedAuthEnv(): ResolvedAuthEnv {
       githubSecret,
       localReviewPassword,
     },
+    canonicalLocalOrigin,
+    normalizedBaseUrl,
     resolvedBy,
     missing,
     callbackUrl,
     providerCallbackPath: callbackPath,
     githubProviderReady,
+    githubAuthEnabled,
+    githubAvailabilityReason,
     localReviewRequested,
     localReviewEnabled,
     localReviewProviderReady,

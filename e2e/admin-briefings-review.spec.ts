@@ -23,10 +23,24 @@ async function signInAsAdmin(page: Page) {
   expect(responseBody?.url?.includes("error=")).not.toBe(true);
 }
 
+async function gotoStable(page: Page, url: string) {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      await page.goto(url, { waitUntil: "domcontentloaded" });
+      return;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (attempt === 1 || !message.includes("ERR_ABORTED")) {
+        throw error;
+      }
+    }
+  }
+}
+
 test("admin briefing routes render board-ready structure from live PAT data", async ({ page }) => {
   await signInAsAdmin(page);
 
-  await page.goto("/admin/briefings");
+  await gotoStable(page, "/admin/briefings");
   await expect(page.getByRole("heading", { name: "Briefings", exact: true })).toBeVisible();
 
   const companyLink = page
@@ -37,7 +51,7 @@ test("admin briefing routes render board-ready structure from live PAT data", as
   const companyHref = await companyLink.getAttribute("href");
   expect(companyHref).toBeTruthy();
 
-  await page.goto(companyHref ?? "/admin/briefings");
+  await gotoStable(page, companyHref ?? "/admin/briefings");
   await expect(page).toHaveURL(new RegExp(".*/admin/briefings/[^/]+$"));
   await expect(page.getByText("Executive summary", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Individual layer", { exact: true }).first()).toBeVisible();
@@ -69,7 +83,7 @@ test("admin briefing routes render board-ready structure from live PAT data", as
     ).toHaveCount(2);
   }
 
-  await page.goto(`${companyHref}/print`);
+  await gotoStable(page, `${companyHref}/print`);
   await expect(page.getByText("Print briefing", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Executive summary", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Confidence and evidence appendix", { exact: true }).first()).toBeVisible();

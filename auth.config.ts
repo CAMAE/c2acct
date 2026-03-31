@@ -24,7 +24,7 @@ const authConfig: NextAuthConfig = {
     },
   },
   providers: [
-    ...(resolvedAuthEnv.githubProviderReady
+    ...(resolvedAuthEnv.githubAuthEnabled
       ? [
           GitHub({
             clientId: resolvedAuthEnv.values.githubId!,

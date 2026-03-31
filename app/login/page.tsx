@@ -30,8 +30,28 @@ function describeDestination(path: string) {
 }
 
 function describeAuthError(error: string | null, cookieState: ReturnType<typeof summarizeLocalAuthCookies>) {
+  if (error === "local_review_disabled") {
+    return "Local review sign-in is disabled in this runtime. Set PAT_ENABLE_LOCAL_REVIEW_AUTH=1 in non-production development before using the seeded review identities.";
+  }
+
+  if (error === "local_review_secret_missing") {
+    return "Local review sign-in is blocked because AUTH_SECRET or NEXTAUTH_SECRET is missing. Auth.js cannot mint a real local review session until the secret is set.";
+  }
+
+  if (error === "local_review_password_missing") {
+    return "Local review sign-in is enabled, but PAT_LOCAL_REVIEW_PASSWORD is missing or blank in the running dev server. Restart the app with PAT_LOCAL_REVIEW_PASSWORD=pat-local-review before retrying.";
+  }
+
+  if (error === "local_review_password_mismatch") {
+    return "The submitted local review password does not match the running dev server. Restart with PAT_LOCAL_REVIEW_PASSWORD=pat-local-review or use the exact password configured in the current runtime.";
+  }
+
+  if (error === "local_review_invalid_user") {
+    return "That local review identity is not part of the seeded deterministic PAT review users. Use one of the listed review.*@pat.local accounts.";
+  }
+
   if (error === "local_review_invalid" || error === "CredentialsSignin") {
-    return "Local review sign-in failed. Confirm that PAT local review auth is enabled locally and that the password matches PAT_LOCAL_REVIEW_PASSWORD.";
+    return "Local review sign-in failed after the credentials handoff. Confirm PAT local review auth is enabled, AUTH_SECRET is stable, and PAT_LOCAL_REVIEW_PASSWORD matches the running dev server.";
   }
 
   if (error === "AccessDenied") {
@@ -108,6 +128,15 @@ export default async function LoginPage({
               ? "Local review mode is the intended QA path in development. It uses seeded PAT identities and creates a real Auth.js session for protected PAT routes and write flows."
               : "GitHub sign-in remains strict. Only provisioned PAT users are allowed through, so Access Denied for an unseeded account is expected behavior rather than a broken sign-in flow."}
           </p>
+          <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+            Canonical local origin: <span className="font-semibold text-[var(--shell-ink)]">{authRuntime.canonicalLocalOrigin}</span>
+            {authRuntime.resolvedBaseUrl ? (
+              <>
+                {" "}
+                · Resolved auth origin: <span className="font-semibold text-[var(--shell-ink)]">{authRuntime.resolvedBaseUrl}</span>
+              </>
+            ) : null}
+          </div>
 
           {authReset ? (
             <div className="mt-6 rounded-[18px] border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm leading-6 text-emerald-900">
@@ -123,7 +152,7 @@ export default async function LoginPage({
             </div>
           ) : null}
 
-          {authRuntime.githubProviderReady ? (
+          {authRuntime.githubAuthEnabled ? (
             <div className="mt-8">
               <form
                 action={async () => {
@@ -144,7 +173,14 @@ export default async function LoginPage({
             </div>
           ) : (
             <div className="mt-8 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-6 text-amber-900">
-              <div className="font-semibold">GitHub sign-in is not configured for this local runtime.</div>
+              <div className="font-semibold">
+                {authRuntime.githubProviderReady
+                  ? "GitHub sign-in is intentionally unavailable in this local runtime."
+                  : "GitHub sign-in is not configured for this local runtime."}
+              </div>
+              {authRuntime.githubUnavailableReason ? (
+                <div className="mt-2">{authRuntime.githubUnavailableReason}</div>
+              ) : null}
               <div className="mt-2">
                 Missing env: {authRuntime.missing.join(", ")}
               </div>

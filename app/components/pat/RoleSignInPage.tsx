@@ -18,9 +18,13 @@ export default function RoleSignInPage({ role }: RoleSignInPageProps) {
   const localReviewKey = role === "user" ? "individual" : role;
   const localReviewUser = localReviewUsers.find((entry) => entry.key === localReviewKey) ?? null;
   const primaryHref =
-    authRuntime.ready || !inviteeAccessEnabled ? "/sign-in" : "/sign-in/invitee";
+    authRuntime.githubAuthEnabled || authRuntime.localReviewProviderReady || !inviteeAccessEnabled
+      ? "/sign-in"
+      : "/sign-in/invitee";
   const primaryLabel =
-    authRuntime.ready || !inviteeAccessEnabled ? "Open sign-in hub" : "Continue with access code";
+    authRuntime.githubAuthEnabled || authRuntime.localReviewProviderReady || !inviteeAccessEnabled
+      ? "Open sign-in hub"
+      : "Continue with access code";
   const roleRedirect = role === "user" ? "/user" : `/${role}`;
 
   return (
@@ -31,7 +35,7 @@ export default function RoleSignInPage({ role }: RoleSignInPageProps) {
           Enter PAT through the {config.label.toLowerCase()} path
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          {authRuntime.ready
+          {authRuntime.githubAuthEnabled || authRuntime.localReviewProviderReady
             ? `This role entry route stays thin on purpose. It uses the existing login and callback-safe auth flow, then returns the user to the ${config.label.toLowerCase()} homepage route so the rest of the PAT structure can stay consistent.`
             : inviteeAccessEnabled
               ? `Local GitHub auth is not ready right now, so this role route keeps the PAT surface usable by sending invitees through the controlled access-code path instead of a broken sign-in dead-end.`
@@ -108,6 +112,9 @@ export default function RoleSignInPage({ role }: RoleSignInPageProps) {
             <div className="font-semibold">Local GitHub auth is not ready for this PAT route.</div>
             <div className="mt-2">Missing env: {authRuntime.missing.join(", ")}</div>
             <div className="mt-2">Expected callback: {authRuntime.callbackUrl ?? "Set AUTH_URL or NEXTAUTH_URL first"}</div>
+            {authRuntime.githubUnavailableReason ? (
+              <div className="mt-2">{authRuntime.githubUnavailableReason}</div>
+            ) : null}
             {authRuntime.localReviewEnabled ? (
               <div className="mt-2">
                 Local review mode is requested, but the runtime is still missing the password or stable auth secret required to create a real session.
