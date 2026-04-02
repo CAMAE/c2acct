@@ -2,7 +2,25 @@
 
 ## Purpose
 
-This file is the repo-level build order and launch-readiness guide for the current PAT implementation. It reflects the live operator-first product shape in this repo rather than earlier assumptions from pre-PAT or partially implemented AAE notes.
+This file is the repo-level build order and launch-readiness guide for the current PAT implementation.
+
+The name remains historical. It does not mean the live PAT surface is AAE.
+
+As of 2026-04-02, the canonical release root is:
+
+- `/Users/camerongarrett/work/c2acct-live`
+
+Forbidden live roots:
+
+- `/Users/camerongarrett/work/c2acct` is development-only and non-live.
+- `/private/tmp/c2acct-main-auth` is a mixed release copy, quarantined, and non-live.
+
+Current rollback state:
+
+- The canonical recovery branch is `recovery/pat-2026-03-31-baseline`.
+- The exact rollback baseline is `078a41f6816e81e599b94423faf501d10c2aa70c`.
+- PAT home, PAT shell/nav, and the PAT sign-in hub are the active source-of-truth surfaces on that baseline.
+- `/login` is still present on this baseline as a first-class legacy auth surface. Do not treat that as final PAT launch truth; it is preserved here because this prompt restores the last known-good 2026-03-31 PAT baseline only.
 
 The current launch truth is:
 
@@ -20,6 +38,8 @@ The current launch truth is:
 - Repo entrypoint: `README.md`
 - Active repo map: `docs/active-repo-map.md`
 - Build guide source note: `docs/architecture/core-build-guide-source-of-truth.md`
+- Rollback restore audit: `docs/audit/PAT_rollback_restore_2026-04-02.md`
+- Post-3/31 recovery inventory: `docs/audit/PAT_post_3_31_recovery_inventory_2026-04-02.md`
 - Portal visibility matrix: `docs/architecture/pat-portal-visibility-matrix-phase1.md`
 - PAT assessment architecture: `docs/architecture/pat-assessment-engine-phase1.md`
 - Auth contract: `docs/architecture/auth-env-contract.md`

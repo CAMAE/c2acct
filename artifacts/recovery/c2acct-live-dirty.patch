@@ -1,0 +1,2830 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 3fda882..7b107dc 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -22,24 +22,33 @@ jobs:
+         with:
+           config: .gitleaks.toml
+ 
+-  build:
+-    name: Build Check
+-    runs-on: ubuntu-latest
+-    steps:
+-      - uses: actions/checkout@v4
+-      - uses: pnpm/action-setup@v2
+-        with:
+-          version: 8
++  build:
++    name: Build Check
++    runs-on: ubuntu-latest
++    env:
++      BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
++      HEAD_SHA: ${{ github.sha }}
++    steps:
++      - uses: actions/checkout@v4
++        with:
++          fetch-depth: 0
++      - uses: pnpm/action-setup@v2
++        with:
++          version: 8
+       - uses: actions/setup-node@v4
+         with:
+           node-version: 20
+           cache: 'pnpm'
+       - run: pnpm install
+ 
+-      - name: Prisma generate
+-
+-        run: pnpm exec prisma generate --generator client
+-      - run: pnpm build
++      - name: Prisma generate
++
++        run: pnpm exec prisma generate --generator client
++      - name: Release-critical change detection
++        run: node scripts/release/check-release-critical-changes.mjs --base "$BASE_SHA" --head "$HEAD_SHA"
++      - name: Approved PAT marker verification
++        run: node scripts/release/verify-approved-pat-markers.mjs --root .
++      - run: pnpm build
+ 
+ 
+ 
+diff --git a/app/admin/actions.ts b/app/admin/actions.ts
+index 419a71f..4f23d67 100644
+--- a/app/admin/actions.ts
++++ b/app/admin/actions.ts
+@@ -45,7 +45,7 @@ function getReturnTo(formData: FormData, fallback: string) {
+ async function requireAdminActor() {
+   const actor = await getSessionUser();
+   if (!actor) {
+-    redirect("/login?callbackUrl=%2Fadmin");
++    redirect("/sign-in?callbackUrl=%2Fadmin");
+   }
+ 
+   if (!canAccessPortalAdmin(actor)) {
+diff --git a/app/api/auth/local-reset/route.ts b/app/api/auth/local-reset/route.ts
+index ebbe8e3..e4c3e56 100644
+--- a/app/api/auth/local-reset/route.ts
++++ b/app/api/auth/local-reset/route.ts
+@@ -3,7 +3,7 @@ import { clearLocalAuthCookies } from "@/lib/auth/cookies";
+ 
+ function sanitizeRedirect(target: string | null) {
+   if (!target || !target.startsWith("/")) {
+-    return "/login";
++    return "/sign-in";
+   }
+ 
+   return target;
+@@ -29,7 +29,7 @@ function buildResetResponse(request: NextRequest, redirectTarget: string, reason
+ export async function POST(request: NextRequest) {
+   const formData = await request.formData().catch(() => null);
+   const redirectTo = sanitizeRedirect(
+-    typeof formData?.get("redirectTo") === "string" ? String(formData.get("redirectTo")) : "/login"
++    typeof formData?.get("redirectTo") === "string" ? String(formData.get("redirectTo")) : "/sign-in"
+   );
+   const reason = typeof formData?.get("reason") === "string" ? String(formData.get("reason")) : null;
+ 
+diff --git a/app/api/health/db/route.ts b/app/api/health/db/route.ts
+index 7bfddff..3a08663 100644
+--- a/app/api/health/db/route.ts
++++ b/app/api/health/db/route.ts
+@@ -1,42 +1,12 @@
+-import fs from "node:fs/promises";
+-import path from "node:path";
+ import { prisma } from "@/lib/prisma";
++import { getPublicReleaseFingerprintView, getReleaseFingerprint } from "@/lib/release/fingerprint";
+ import { NextResponse } from "next/server";
+ 
+ const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
+ 
+-async function readReleaseMetadata() {
+-  const filePath = path.join(process.cwd(), "artifacts/mac-mini/state/release-state.env");
+-
+-  try {
+-    const raw = await fs.readFile(filePath, "utf8");
+-    const entries = Object.fromEntries(
+-      raw
+-        .split("\n")
+-        .map((line) => line.trim())
+-        .filter(Boolean)
+-        .map((line) => {
+-          const [key, ...valueParts] = line.split("=");
+-          return [key, valueParts.join("=")];
+-        })
+-    );
+-
+-    return {
+-      branch: entries.BRANCH ?? null,
+-      commit: entries.COMMIT ?? null,
+-      buildId: entries.BUILD_ID ?? null,
+-      buildTimeUtc: entries.BUILD_TIME_UTC ?? null,
+-      buildReason: entries.BUILD_REASON ?? null,
+-      gitDirty: entries.GIT_DIRTY ?? null,
+-    };
+-  } catch {
+-    return null;
+-  }
+-}
+-
+ export async function GET() {
+   const timestamp = new Date().toISOString();
+-  const release = await readReleaseMetadata();
++  const release = getPublicReleaseFingerprintView(await getReleaseFingerprint());
+ 
+   try {
+     await prisma.$queryRaw`SELECT 1 as ok`;
+diff --git a/app/components/EnsureCompanySelected.tsx b/app/components/EnsureCompanySelected.tsx
+index 2ff8e14..052fadb 100644
+--- a/app/components/EnsureCompanySelected.tsx
++++ b/app/components/EnsureCompanySelected.tsx
+@@ -27,7 +27,7 @@ export default function EnsureCompanySelected() {
+               typeof window !== "undefined"
+                 ? `${window.location.pathname}${window.location.search}`
+                 : "/";
+-            window.location.assign(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
++            window.location.assign(`/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+           }
+           return;
+         }
+@@ -75,7 +75,7 @@ export default function EnsureCompanySelected() {
+               typeof window !== "undefined"
+                 ? `${window.location.pathname}${window.location.search}`
+                 : "/";
+-            window.location.assign(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
++            window.location.assign(`/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+           }
+           return;
+         }
+diff --git a/app/components/assessment/AssessmentModuleClient.tsx b/app/components/assessment/AssessmentModuleClient.tsx
+index f4fe2a3..c67af49 100644
+--- a/app/components/assessment/AssessmentModuleClient.tsx
++++ b/app/components/assessment/AssessmentModuleClient.tsx
+@@ -418,7 +418,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
+           typeof window !== "undefined"
+             ? `${window.location.pathname}${window.location.search}`
+             : `/survey/${data.key}`;
+-        window.location.assign(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
++        window.location.assign(`/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+         return false;
+       }
+ 
+@@ -485,7 +485,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
+           typeof window !== "undefined"
+             ? `${window.location.pathname}${window.location.search}`
+             : `/survey/${data.key}`;
+-        window.location.assign(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
++        window.location.assign(`/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+         return;
+       }
+ 
+diff --git a/app/components/pat/RoleSignInPage.tsx b/app/components/pat/RoleSignInPage.tsx
+index 065746d..13328ba 100644
+--- a/app/components/pat/RoleSignInPage.tsx
++++ b/app/components/pat/RoleSignInPage.tsx
+@@ -102,7 +102,7 @@ export default function RoleSignInPage({ role }: RoleSignInPageProps) {
+           Callback target: <span className="font-semibold text-[var(--shell-ink)]">/{role}</span>
+         </div>
+         <div className="pat-soft-panel p-5 text-sm leading-6 text-[var(--shell-muted)]">
+-          Auth plumbing: <span className="font-semibold text-[var(--shell-ink)]">{authRuntime.localReviewProviderReady ? "role-specific local review or GitHub from /sign-in" : "existing /login flow"}</span>
++          Auth plumbing: <span className="font-semibold text-[var(--shell-ink)]">{authRuntime.localReviewProviderReady ? "role-specific local review or GitHub from /sign-in" : "existing /sign-in flow"}</span>
+         </div>
+       </section>
+ 
+diff --git a/app/layout.tsx b/app/layout.tsx
+index 86a0a8a..9372405 100644
+--- a/app/layout.tsx
++++ b/app/layout.tsx
+@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
+ import AppHeader, { type HeaderNavItem } from "@/app/components/header/AppHeader";
+ import { barlowFontClassName } from "@/app/fonts/barlow";
+ import { getSessionUser } from "@/lib/auth/session";
++import { getReleaseFingerprint } from "@/lib/release/fingerprint";
+ import {
+   APP_LOCALE_COOKIE,
+   getLocaleMessages,
+@@ -25,6 +26,7 @@ export default async function RootLayout({
+   const locale = resolveLocale(cookieStore.get(APP_LOCALE_COOKIE)?.value);
+   const messages = getLocaleMessages(locale);
+   const sessionUser = await getSessionUser();
++  const releaseFingerprint = await getReleaseFingerprint();
+   const experience = await resolvePortalExperience(sessionUser);
+   const enabledHrefs = new Set(
+     experience.surfaces
+@@ -71,6 +73,21 @@ export default async function RootLayout({
+                 className="h-3.5 w-px rounded-full bg-[var(--shell-border-strong)]"
+               />
+               <span>{messages.chrome.pat}</span>
++              {releaseFingerprint?.releaseId ? (
++                <>
++                  <span
++                    aria-hidden="true"
++                    className="h-3.5 w-px rounded-full bg-[var(--shell-border-strong)]"
++                  />
++                  <span
++                    className="pat-sans"
++                    data-release-fingerprint={releaseFingerprint.releaseId}
++                    data-release-auth-mode={releaseFingerprint.authMode ?? "unknown"}
++                  >
++                    {`Release ${releaseFingerprint.releaseId}`}
++                  </span>
++                </>
++              ) : null}
+             </div>
+           </div>
+         </footer>
+diff --git a/app/login/page.tsx b/app/login/page.tsx
+index deec4c4..08587a6 100644
+--- a/app/login/page.tsx
++++ b/app/login/page.tsx
+@@ -1,11 +1,4 @@
+-import Link from "next/link";
+-import { cookies } from "next/headers";
+-import BrandLockup from "@/app/components/brand/BrandLockup";
+-import { signIn } from "@/auth";
+-import { getLocalReviewUsersForUi } from "@/lib/auth/localReview";
+-import { getPresentLocalAuthCookies, summarizeLocalAuthCookies } from "@/lib/auth/cookies";
+-import { getAuthRuntimeStatus } from "@/lib/auth/runtime";
+-import { isInviteeAccessEnabled } from "@/lib/invitee/access";
++import { redirect } from "next/navigation";
+ 
+ type SearchParams = Record<string, string | string[] | undefined>;
+ 
+@@ -15,287 +8,20 @@ function getSingleParam(value: string | string[] | undefined) {
+   return null;
+ }
+ 
+-function sanitizeRedirect(target: string | null) {
+-  if (!target) return "/";
+-  return target.startsWith("/") ? target : "/";
+-}
+-
+-function describeDestination(path: string) {
+-  if (path.startsWith("/survey")) return "assessment readiness";
+-  if (path.startsWith("/results")) return "results";
+-  if (path.startsWith("/outputs")) return "insights";
+-  if (path.startsWith("/profiles")) return "profile";
+-  if (path.startsWith("/platform")) return "PAT platform";
+-  return "home";
+-}
+-
+-function describeAuthError(error: string | null, cookieState: ReturnType<typeof summarizeLocalAuthCookies>) {
+-  if (error === "local_review_disabled") {
+-    return "Local review sign-in is disabled in this runtime. Set PAT_ENABLE_LOCAL_REVIEW_AUTH=1 in non-production development before using the seeded review identities.";
+-  }
+-
+-  if (error === "local_review_secret_missing") {
+-    return "Local review sign-in is blocked because AUTH_SECRET or NEXTAUTH_SECRET is missing. Auth.js cannot mint a real local review session until the secret is set.";
+-  }
+-
+-  if (error === "local_review_password_missing") {
+-    return "Local review sign-in is enabled, but PAT_LOCAL_REVIEW_PASSWORD is missing or blank in the running dev server. Restart the app with PAT_LOCAL_REVIEW_PASSWORD=pat-local-review before retrying.";
+-  }
+-
+-  if (error === "local_review_password_mismatch") {
+-    return "The submitted local review password does not match the running dev server. Restart with PAT_LOCAL_REVIEW_PASSWORD=pat-local-review or use the exact password configured in the current runtime.";
+-  }
+-
+-  if (error === "local_review_invalid_user") {
+-    return "That local review identity is not part of the seeded deterministic PAT review users. Use one of the listed review.*@pat.local accounts.";
+-  }
+-
+-  if (error === "local_review_invalid" || error === "CredentialsSignin") {
+-    return "Local review sign-in failed after the credentials handoff. Confirm PAT local review auth is enabled, AUTH_SECRET is stable, and PAT_LOCAL_REVIEW_PASSWORD matches the running dev server.";
+-  }
+-
+-  if (error === "AccessDenied") {
+-    return "The account that just authenticated is not provisioned in the PAT User table. Use a seeded local review identity or add the user locally before retrying.";
+-  }
+-
+-  if (error === "CallbackRouteError" || error === "OAuthCallbackError" || error === "InvalidCheck") {
+-    return cookieState.hasPkce || cookieState.hasState
+-      ? "Auth callback state is stale or invalid. Reset local auth state to clear callback, state, and PKCE cookies before retrying."
+-      : "Auth callback state is invalid. Confirm AUTH_URL matches the browser origin before retrying sign-in.";
+-  }
+-
+-  if (error === "Configuration") {
+-    return "Auth configuration is incomplete for this runtime. Review the local PAT auth env contract before retrying.";
+-  }
+-
+-  return null;
+-}
+-
+ export default async function LoginPage({
+   searchParams,
+ }: {
+   searchParams?: Promise<SearchParams>;
+ }) {
+   const resolvedSearchParams = searchParams ? await searchParams : undefined;
+-  const callbackUrl = getSingleParam(resolvedSearchParams?.callbackUrl);
+-  const redirectTo = getSingleParam(resolvedSearchParams?.redirectTo);
+-  const safeRedirect = sanitizeRedirect(redirectTo ?? callbackUrl);
+-  const destinationLabel = describeDestination(safeRedirect);
+-  const authRuntime = getAuthRuntimeStatus();
+-  const authReset = getSingleParam(resolvedSearchParams?.authReset) === "1";
+-  const authCookiesPresent = getPresentLocalAuthCookies(await cookies());
+-  const authCookieState = summarizeLocalAuthCookies(authCookiesPresent);
+-  const authError = getSingleParam(resolvedSearchParams?.error);
+-  const authResetReason = getSingleParam(resolvedSearchParams?.authResetReason);
+-  const authErrorCopy = describeAuthError(authError, authCookieState);
+-  const inviteeAccessEnabled = isInviteeAccessEnabled();
+-  const localReviewUsers = getLocalReviewUsersForUi();
+-
+-  return (
+-    <section className="mx-auto max-w-4xl">
+-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]">
+-        <div className="pat-card-strong p-8">
+-          <BrandLockup mode="hero" />
+-          <div className="pat-label mt-5">
+-            Performance Alignment Technology
+-          </div>
+-          <h1 className="mt-4 text-4xl font-semibold tracking-tight">
+-            Sign in once and return to the exact step you meant to reach.
+-          </h1>
+-          <p className="pat-dark-copy mt-5 max-w-2xl text-base leading-7">
+-            Performance Alignment Technology uses callback-safe redirects so sign-in stays quiet and predictable. After authentication, you will return directly to {destinationLabel}.
+-          </p>
+-          <div className="pat-dark-panel mt-8 p-5">
+-            <div className="pat-label">
+-              Redirect target
+-            </div>
+-            <div className="pat-sans mt-2 text-lg font-semibold text-[var(--dark-surface-ink)]">{destinationLabel}</div>
+-            <div className="pat-dark-copy-soft mt-2 text-sm leading-6">
+-              Only relative in-product paths are honored. External redirect targets are discarded.
+-            </div>
+-          </div>
+-        </div>
++  const params = new URLSearchParams();
+ 
+-        <div className="pat-card p-8">
+-          <div className="pat-label">
+-            Sign in
+-          </div>
+-          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
+-            {authRuntime.localReviewProviderReady ? "Use a seeded PAT review identity or an approved GitHub account" : "Use your approved GitHub account"}
+-          </h2>
+-          <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+-            {authRuntime.localReviewProviderReady
+-              ? "Local review mode is the intended QA path in development. It uses seeded PAT identities and creates a real Auth.js session for protected PAT routes and write flows."
+-              : "GitHub sign-in remains strict. Only provisioned PAT users are allowed through, so Access Denied for an unseeded account is expected behavior rather than a broken sign-in flow."}
+-          </p>
+-          <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+-            Canonical local origin: <span className="font-semibold text-[var(--shell-ink)]">{authRuntime.canonicalLocalOrigin}</span>
+-            {authRuntime.resolvedBaseUrl ? (
+-              <>
+-                {" "}
+-                · Resolved auth origin: <span className="font-semibold text-[var(--shell-ink)]">{authRuntime.resolvedBaseUrl}</span>
+-              </>
+-            ) : null}
+-          </div>
+-
+-          {authReset ? (
+-            <div className="mt-6 rounded-[18px] border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm leading-6 text-emerald-900">
+-              {authResetReason === "stale_callback"
+-                ? "Local auth state was cleared after a stale callback or invalid PKCE/state flow. Session, callback, and verifier cookies were removed so you can retry sign-in cleanly."
+-                : "Local auth state was cleared. Session, callback, and PKCE cookies were removed so you can retry sign-in with a clean local browser state."}
+-            </div>
+-          ) : null}
+-
+-          {authErrorCopy ? (
+-            <div className="mt-6 rounded-[18px] border border-rose-200 bg-rose-50 px-4 py-4 text-sm leading-6 text-rose-900">
+-              {authErrorCopy}
+-            </div>
+-          ) : null}
+-
+-          {authRuntime.githubAuthEnabled ? (
+-            <div className="mt-8">
+-              <form
+-                action={async () => {
+-                  "use server";
+-                  await signIn("github", { redirectTo: safeRedirect });
+-                }}
+-              >
+-                <button
+-                  type="submit"
+-                  className="pat-button-primary w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--shell-accent)]"
+-                >
+-                  Continue with GitHub
+-                </button>
+-              </form>
+-              <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+-                GitHub stays available for production-style review, but PAT still admits only provisioned users. If a non-seeded GitHub account hits Access Denied, use the development-only local review identities below for manual QA.
+-              </div>
+-            </div>
+-          ) : (
+-            <div className="mt-8 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-6 text-amber-900">
+-              <div className="font-semibold">
+-                {authRuntime.githubProviderReady
+-                  ? "GitHub sign-in is intentionally unavailable in this local runtime."
+-                  : "GitHub sign-in is not configured for this local runtime."}
+-              </div>
+-              {authRuntime.githubUnavailableReason ? (
+-                <div className="mt-2">{authRuntime.githubUnavailableReason}</div>
+-              ) : null}
+-              <div className="mt-2">
+-                Missing env: {authRuntime.missing.join(", ")}
+-              </div>
+-              <div className="mt-2">
+-                Expected callback: {authRuntime.callbackUrl ?? "Set AUTH_URL to enable callback generation"}
+-              </div>
+-              {authRuntime.warnings.length > 0 ? (
+-                <div className="mt-2">
+-                  Local config warning:
+-                  <ul className="mt-1 list-disc pl-5">
+-                    {authRuntime.warnings.map((warning) => (
+-                      <li key={warning}>{warning}</li>
+-                    ))}
+-                  </ul>
+-                </div>
+-              ) : null}
+-              <div className="mt-2">
+-                Operator steps:
+-                <ul className="mt-1 list-disc pl-5">
+-                  {authRuntime.operatorSteps.map((step) => (
+-                    <li key={step}>{step}</li>
+-                  ))}
+-                </ul>
+-              </div>
+-              <div className="mt-2">
+-                Performance Alignment Technology is blocking sign-in here so local users do not get sent into a broken GitHub 404.
+-              </div>
+-              {inviteeAccessEnabled ? (
+-                <div className="mt-4 flex flex-wrap gap-3">
+-                  <Link className="pat-button-secondary" href="/sign-in/invitee">
+-                    Continue with access code
+-                  </Link>
+-                </div>
+-              ) : null}
+-            </div>
+-          )}
+-
+-          {authRuntime.localReviewEnabled ? (
+-            <div className="mt-6 rounded-[20px] border border-sky-200 bg-sky-50 px-5 py-5 text-sm leading-6 text-sky-950">
+-              <div className="font-semibold">Development-only local review auth</div>
+-              <div className="mt-2">
+-                This path is available only when `NODE_ENV !== &quot;production&quot;` and `PAT_ENABLE_LOCAL_REVIEW_AUTH=1`. It creates a real Auth.js session for local review and is not a production sign-in mechanism.
+-              </div>
+-              <div className="mt-2">
+-                For local QA, start here instead of GitHub. Each seeded identity lands in its role portal with the same protected-session behavior used by PAT write flows.
+-              </div>
+-              {!authRuntime.localReviewProviderReady ? (
+-                <div className="mt-3 rounded-[16px] border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
+-                  Local review mode is requested, but the session path is not ready yet. Set PAT_LOCAL_REVIEW_PASSWORD and keep AUTH_SECRET stable before trying the role-specific review entries.
+-                </div>
+-              ) : null}
+-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+-                {localReviewUsers.map((reviewUser) => (
+-                  <Link
+-                    key={reviewUser.key}
+-                    href={`/sign-in?view=${reviewUser.key}`}
+-                    className="rounded-[16px] border border-sky-200 bg-white px-4 py-3 text-left transition-colors duration-150 hover:border-sky-300"
+-                  >
+-                    <div className="font-semibold text-[var(--shell-ink)]">{reviewUser.label}</div>
+-                    <div className="mt-1 text-xs text-[var(--shell-muted)]">{reviewUser.email}</div>
+-                  </Link>
+-                ))}
+-              </div>
+-              <div className="mt-4">
+-                Vendor returns to `/vendor`, firm to `/firm`, individual to `/user`, and admin/operator to `/admin` after sign-in.
+-              </div>
+-              <div className="mt-2 text-xs leading-5 text-[var(--shell-muted)]">
+-                Use the reset button below if stale OAuth, PKCE, or session cookies keep a review browser stuck in an old auth state.
+-              </div>
+-            </div>
+-          ) : null}
+-
+-          <div className="pat-soft-panel mt-6 p-4 text-sm leading-6 text-[var(--shell-muted)]">
+-            <div className="font-semibold text-[var(--shell-ink)]">Local auth recovery</div>
+-            <div className="mt-2">
+-              If sign-in loops, JWTSessionError reports a secret mismatch, or the callback flow returns invalid state/PKCE errors, clear local auth cookies and retry.
+-            </div>
+-            <div className="mt-2">
+-              Expected callback: <span className="font-semibold text-[var(--shell-ink)]">{authRuntime.callbackUrl ?? "Set AUTH_URL or NEXTAUTH_URL first"}</span>
+-            </div>
+-            <div className="mt-2">
+-              Cookies detected: <span className="font-semibold text-[var(--shell-ink)]">{authCookiesPresent.length > 0 ? authCookiesPresent.join(", ") : "none"}</span>
+-            </div>
+-            <form action={authRuntime.resetPath} method="post" className="mt-4">
+-              <input type="hidden" name="redirectTo" value={`/login?callbackUrl=${encodeURIComponent(safeRedirect)}`} />
+-              <input type="hidden" name="reason" value="stale_callback" />
+-              <button type="submit" className="pat-button-secondary">
+-                Reset local auth state
+-              </button>
+-            </form>
+-          </div>
+-
+-          {authRuntime.warnings.length > 0 ? (
+-            <div className="mt-6 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-6 text-amber-900">
+-              <div className="font-semibold">Local env warnings</div>
+-              <ul className="mt-2 list-disc pl-5">
+-                {authRuntime.warnings.map((warning) => (
+-                  <li key={warning}>{warning}</li>
+-                ))}
+-              </ul>
+-              <div className="mt-2">
+-                Blank values in `.env.local` are ignored for auth resolution. Remove them or replace them with real values if local auth still looks wrong.
+-              </div>
+-            </div>
+-          ) : null}
+-
+-          <div className="pat-soft-panel mt-6 p-4 text-sm leading-6 text-[var(--shell-muted)]">
+-            Returning path: <span className="font-semibold text-[var(--shell-ink)]">{destinationLabel}</span>
+-          </div>
++  for (const key of ["callbackUrl", "redirectTo", "error", "authReset", "authResetReason"]) {
++    const value = getSingleParam(resolvedSearchParams?.[key]);
++    if (value) {
++      params.set(key, value);
++    }
++  }
+ 
+-          <Link href="/" className="pat-link mt-5 inline-flex">
+-            Back to home
+-          </Link>
+-        </div>
+-      </div>
+-    </section>
+-  );
++  redirect(`/sign-in${params.size > 0 ? `?${params.toString()}` : ""}`);
+ }
+diff --git a/app/platform/layout.tsx b/app/platform/layout.tsx
+index d9792ba..2599de9 100644
+--- a/app/platform/layout.tsx
++++ b/app/platform/layout.tsx
+@@ -11,7 +11,7 @@ export default async function PlatformLayout({
+ }) {
+   const sessionUser = await getSessionUser();
+   if (!sessionUser) {
+-    redirect("/login?callbackUrl=%2Fplatform");
++    redirect("/sign-in?callbackUrl=%2Fplatform");
+   }
+ 
+   const experience = await resolvePortalExperience(sessionUser);
+diff --git a/app/sign-in/page.tsx b/app/sign-in/page.tsx
+index 0b23a1d..37e7f27 100644
+--- a/app/sign-in/page.tsx
++++ b/app/sign-in/page.tsx
+@@ -179,7 +179,7 @@ function RoleAccessCard({
+             {accessCodeLabel}
+           </Link>
+         ) : (
+-          <Link className="pat-button-primary" href={`/login?callbackUrl=${encodeURIComponent(roleRedirect)}`}>
++          <Link className="pat-button-primary" href={`/sign-in?callbackUrl=${encodeURIComponent(roleRedirect)}`}>
+             {localAuthLabel}
+           </Link>
+         )}
+diff --git a/app/survey/[key]/page.tsx b/app/survey/[key]/page.tsx
+index edbaada..657b447 100644
+--- a/app/survey/[key]/page.tsx
++++ b/app/survey/[key]/page.tsx
+@@ -16,7 +16,7 @@ export default async function SurveyModulePage({
+ 
+   const sessionUser = await getSessionUser();
+   if (!sessionUser) {
+-    redirect(`/login?callbackUrl=${encodeURIComponent(`/survey/${key}`)}`);
++    redirect(`/sign-in?callbackUrl=${encodeURIComponent(`/survey/${key}`)}`);
+   }
+ 
+   return (
+diff --git a/auth.config.ts b/auth.config.ts
+index 4cf6400..2222b80 100644
+--- a/auth.config.ts
++++ b/auth.config.ts
+@@ -15,7 +15,7 @@ const authConfig: NextAuthConfig = {
+ 
+       if (codeText === "JWTSessionError" || codeText === "InvalidCheck") {
+         console.warn(
+-          `[auth] ${codeText}: treating local auth state as stale. Use /login to clear session, callback, and PKCE cookies before retrying.`
++          `[auth] ${codeText}: treating local auth state as stale. Use /sign-in to clear session, callback, and PKCE cookies before retrying.`
+         );
+         return;
+       }
+@@ -63,7 +63,7 @@ const authConfig: NextAuthConfig = {
+       : []),
+   ],
+   pages: {
+-    signIn: "/login",
++    signIn: "/sign-in",
+   },
+ };
+ 
+diff --git a/docs/CORE_BUILD_AAE.md b/docs/CORE_BUILD_AAE.md
+index 1a2b9bc..624111f 100644
+--- a/docs/CORE_BUILD_AAE.md
++++ b/docs/CORE_BUILD_AAE.md
+@@ -2,301 +2,95 @@
+ 
+ ## Purpose
+ 
+-This file is the repo-level build order and launch-readiness guide for the current PAT implementation. It reflects the live operator-first product shape in this repo rather than earlier assumptions from pre-PAT or partially implemented AAE notes.
+-
+-The current launch truth is:
+-
+-- GitHub remains the strict production auth provider.
+-- Dev-only local review auth is the intended manual QA path.
+-- Firm PAT uses the canonical five-module model.
+-- Vendor product assessment, taxonomy, dynamic assessment plans, and product insights are live enough for review.
+-- Membership pages and cards exist for vendor, firm, and individual audiences.
+-- `/admin` is the active C2Core operator control plane.
+-- `/admin/briefings` is the active consultant/operator briefing surface.
+-- Member briefing remains staged off until stronger person-side maturity exists.
+-
+-## Current source-of-truth docs
+-
+-- Repo entrypoint: `README.md`
+-- Active repo map: `docs/active-repo-map.md`
+-- Build guide source note: `docs/architecture/core-build-guide-source-of-truth.md`
+-- Portal visibility matrix: `docs/architecture/pat-portal-visibility-matrix-phase1.md`
+-- PAT assessment architecture: `docs/architecture/pat-assessment-engine-phase1.md`
+-- Auth contract: `docs/architecture/auth-env-contract.md`
+-- Runtime hardening snapshot: `docs/architecture/runtime-hardening-status-2026-03-08.md`
+-- Audit summary: `docs/audit/AAE_Codebase_Audit_and_Platform_Hardening_Report_2026-03-05.md`
+-
+-## Final recommended build order
+-
+-### 1. Auth and local review access first
+-
+-Auth is the first real dependency because every protected PAT page, submit path, admin surface, and briefing depends on a valid Auth.js session.
+-
+-- Production path:
+-  - GitHub provider remains primary.
+-  - Non-provisioned GitHub users may still be denied by design.
+-- Local QA path:
+-  - Enable only when `NODE_ENV !== "production"` and `PAT_ENABLE_LOCAL_REVIEW_AUTH=1`.
+-  - Requires `PAT_LOCAL_REVIEW_PASSWORD` and `AUTH_SECRET` or `NEXTAUTH_SECRET`.
+-  - Deterministic local review users:
+-    - `review.vendor@pat.local`
+-    - `review.firm@pat.local`
+-    - `review.individual@pat.local`
+-    - `review.admin@pat.local`
+-- Canonical sign-in surfaces:
+-  - `/login`
+-  - `/sign-in`
+-  - `/sign-in/vendor`
+-  - `/sign-in/firm`
+-  - `/sign-in/user`
+-  - `/sign-in?view=admin`
+-- Local reset path:
+-  - `/api/auth/local-reset`
+-
+-### 2. Identity model and tenancy boundary
+-
+-After auth works, PAT depends on company/subject context being resolved correctly.
+-
+-- Company-backed firm and vendor paths remain the canonical operating model.
+-- Subject-aware compatibility exists where needed, but company-rooted records still remain canonical for several write paths.
+-- Membership is now a real model with audience-aware resolution and free-tier fallback.
+-- Do not treat invitee access as the main authenticated review path.
+-
+-### 3. Portal and role surfaces
+-
+-Once auth and context resolve cleanly, the live role surfaces are:
+-
+-- Firm:
+-  - `/firm`
+-  - `/firm/alignment-assessment`
+-  - `/firm/insights`
+-  - `/firm/admin`
+-  - `/firm/membership`
+-- Vendor:
+-  - `/vendor`
+-  - `/vendor/product-assessment`
+-  - `/vendor/alignment-insights`
+-  - `/vendor/product-insight`
+-  - `/vendor/admin`
+-  - `/vendor/membership`
+-- Individual:
+-  - `/user`
+-  - `/user/alignment-assessment`
+-  - `/user/insights`
+-  - `/user/profile`
+-  - `/user/membership`
+-- Operator:
+-  - `/admin`
+-  - `/admin/*`
+-
+-Compatibility-only routes still exist, but they should not be treated as product truth:
+-
+-- `/survey` -> compatibility redirect to the firm assessment path
+-- `/results` -> compatibility redirect to canonical role interpretation
+-- `/outputs` -> compatibility redirect to canonical role insights
+-- `/profiles` -> compatibility redirect to canonical role profile/admin
+-
+-### 4. Canonical firm PAT assessment model
+-
+-The only canonical firm assessment model is the five-module PAT system.
+-
+-- Modules:
+-  - `firm_alignment_operating_model_v1`
+-  - `firm_alignment_automation_ai_v1`
+-  - `firm_alignment_data_flow_v1`
+-  - `firm_alignment_governance_v1`
+-  - `firm_alignment_strategy_v1`
+-- Question contract:
+-  - 5 modules
+-  - 20 questions per module
+-  - 100 scored firm questions total
+-- Section contract:
+-  - first-class `SurveySection`
+-  - section-aware pacing
+-  - 5-question section progression where authored
+-
+-The older legacy single-module firm survey is no longer canonical and must remain compatibility-only if retained at all.
+-
+-### 5. Vendor and product utility taxonomy
+-
+-Product taxonomy is now real infrastructure, not a placeholder.
+-
+-- Research-backed utility registry exists.
+-- Utility families, subcategories, and question-bank architecture are versioned.
+-- Product taxonomy assignments and capability mappings are operator-manageable through `/admin`.
+-- Utility/subcategory structure is designed for vendor-first use now and later perspective reuse from firm and individual views.
+-
+-### 6. Product assessment blueprint and perspective reuse
+-
+-Vendor product assessment is no longer mostly missing.
+-
+-- Product profile metadata exists.
+-- Dynamic product assessment plans persist stable utility selections, generated question ids, section order, and version.
+-- Product assessment includes:
+-  - product-general module
+-  - utility-driven sections
+-  - final open-ended questions
+-- The architecture is built for future reuse from firm and individual review perspectives without reseeding every combination as static survey rows.
+-
+-### 7. Scoring, badges, unlock rules, and evidence
+-
+-Scoring rules stay conservative and explicit.
+-
+-- Canonical score:
+-  - raw score remains the canonical submission score
+-- Confidence:
+-  - `signalIntegrityScore` stays separate
+-  - confidence does not replace canonical score
+-- Capability layer:
+-  - question-to-capability mappings are seeded
+-  - final PAT firm submits write capability scores
+-- Firm insight unlocks:
+-  - require completion plus capability-grounded thresholds
+-- Evidence:
+-  - insights should show module, section, cluster, and question-basis detail where current data supports it
+-  - unsupported benchmark or forecast claims remain off-limits
+-
+-Compatibility note:
+-
+-- `lib/patUnlocks.ts` and `lib/patDashboard.ts` remain only as thin compatibility helpers for older generic dashboard concepts.
+-- Canonical unlock logic now lives in the PAT insight engines and evaluation path, not in those legacy helper files.
+-
+-### 8. Membership and portal gating
+-
+-Membership is implemented enough to support UI truth now and payments later.
+-
+-- Plans:
+-  - `FREE`
+-  - `PRO`
+-  - `ELITE`
+-- Statuses:
+-  - `ACTIVE`
+-  - `TRIAL`
+-  - `PENDING_CHECKOUT`
+-  - `PAST_DUE`
+-  - `CANCELED`
+-- Role-specific routes:
+-  - `/vendor/membership`
+-  - `/firm/membership`
+-  - `/user/membership`
+-  - role-specific checkout placeholders
+-- Membership cards are present on relevant portal/admin surfaces.
+-- Free fallback resolution is shared and safe when no membership row exists yet.
+-
+-### 9. C2Core admin/operator control plane
+-
+-Admin is not absent. `/admin` is the live operator overview and control plane.
+-
+-Current operator routes:
+-
+-- `/admin`
+-- `/admin/organizations`
+-- `/admin/organizations/[companyId]`
+-- `/admin/users`
+-- `/admin/taxonomy`
+-- `/admin/modules`
+-- `/admin/insights`
+-- `/admin/products`
+-- `/admin/products/[productId]`
+-- `/admin/runtime`
+-- `/admin/briefings`
+-
+-Current admin capabilities include:
+-
+-- company and user oversight
+-- membership edits
+-- taxonomy and bucket management
+-- product taxonomy assignment
+-- module/section/question management
+-- capability mapping
+-- insight rule management
+-- portal visibility updates
+-- runtime diagnostics
+-
+-Admin mutations log `OperatorAuditEvent`.
+-
+-### 10. Consultant briefing layer
+-
+-The active briefing implementation is operator-facing and lives under `/admin/briefings`.
+-
+-- It summarizes:
+-  - executive summary
+-  - individual layer
+-  - firm layer
+-  - product layer
+-  - ecosystem layer
+-  - insight narrative
+-  - risks and opportunities
+-  - 30/60/90 next actions
+-  - confidence and evidence appendix
+-- It uses current engine data only.
+-- It separates canonical score from confidence.
+-- It explicitly avoids unsupported benchmarks and forecasts.
+-
+-Member briefing is still staged:
+-
+-- Keep `PAT_ENABLE_MEMBER_BRIEFING=0` unless person-side maturity is strong enough to support a truthful member-native briefing.
+-- Do not repurpose the operator briefing as a member-facing launch surface.
+-
+-### 11. Validation and launch-readiness checklist
+-
+-Use this order for clean-machine validation:
+-
+-1. `npm install`
+-2. `npm run db:recreate`
+-3. `npm run prisma:migrate:local`
+-4. `PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:baseline`
+-5. `PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:pat-runtime`
+-6. `npm run build`
+-7. `npm run typecheck`
+-8. `npm run test`
+-9. `npm run test:e2e`
+-10. `npm run validate:db`
+-11. `npm run validate:launch`
+-
+-Manual operator QA should then verify:
+-
+-- local review sign-in for vendor, firm, individual, admin
+-- protected route access after local review sign-in
+-- firm assessment completion and insight unlock behavior
+-- vendor product assessment and product insight behavior
+-- membership page defaulting and checkout placeholder routing
+-- `/admin` operator routes
+-- `/admin/briefings` live board-ready briefing render
+-
+-## Deprecated or compatibility-only paths
+-
+-These paths may stay for compatibility, but they are not canonical product surfaces:
+-
+-- `/survey`
+-- `/results`
+-- `/outputs`
+-- `/profiles`
+-- `lib/patDashboard.ts`
+-- `lib/patUnlocks.ts`
+-
+-Rules for these paths:
+-
+-- keep them thin
+-- redirect or bridge into canonical role-specific PAT routes
+-- do not add new product semantics to them
+-- do not let them compete with the firm/vendor/user/admin surfaces
+-
+-## Remaining deeper work that should not block this release
+-
+-- strengthen person-side assessment modules so individual/member workflows stop leaning on company-backed compatibility
+-- add a truthful subject-native capability and benchmark bridge before claiming richer member-native interpretation
+-- continue firm/vendor/admin cleanup where older overlap still survives as compatibility-only wrappers
+-- add deeper product-review seeded data so operator briefing product-detail routes are always populated in local demos
+-- connect membership checkout placeholder rows to real payment processing when commercial flow is ready
+-
+-## Operational hygiene
+-
+-- Canonical baseline seed: `prisma/seed.ts`
+-- Canonical PAT runtime seed: `scripts/seed-pat-runtime.ts`
+-- Safe export:
+-  - `scripts/export-codebase-safe.sh`
+-  - `scripts/export-codebase-safe.ps1`
+-- Secret scan:
+-  - `npm run secrets:scan`
+-- Do not export `.env*`, `.next`, `node_modules`, `logs`, `artifacts/mac-mini`, test artifacts, or temporary local files.
++This file is the repo-level implementation and launch-readiness overview for the PAT release line in this repository.
++
++The name remains historical. It does not mean the live product surface is AAE.
++
++## Current Source-Of-Truth Order
++
++Use these documents in this order:
++
++1. `docs/release/PAT_release_contract.md`
++2. `docs/release/release-critical-surface-review.md`
++3. `docs/active-repo-map.md`
++4. `docs/architecture/core-build-guide-source-of-truth.md`
++5. `docs/audit/PAT_release_root_reconciliation_2026-04-02.md`
++6. `docs/audit/PAT_runtime_contract_repair_2026-04-02.md`
++7. `docs/audit/PAT_release_gate_report_2026-04-02.md`
++8. `docs/audit/PAT_release_fingerprint_visibility_2026-04-02.md`
++
++## Source-Of-Truth Summary
++
++- Public `main` is historical AAE surface truth until PAT is merged there.
++- Public `main` is not the current PAT release truth.
++- Public `main` is visibly AAE today and must not be used to validate the current PAT homepage, PAT header/nav, or PAT sign-in hub.
++- The canonical live PAT release root is `/Users/camerongarrett/work/c2acct-live`.
++- `/Users/camerongarrett/work/c2acct` is a dev workspace and is not an acceptable live root.
++- `/private/tmp/c2acct-main-auth` is a quarantined mixed release copy and is a forbidden live source.
++
++## Runtime Summary
++
++- Live auth mode: `github`
++- Canonical sign-in route: `/sign-in`
++- `/login` is compatibility-only and must not remain a second independent top-level sign-in experience.
++- Production requires:
++  - `DATABASE_URL`
++  - `AUTH_URL` or `NEXTAUTH_URL`
++  - `AUTH_SECRET` or `NEXTAUTH_SECRET`
++  - `AUTH_GITHUB_ID`
++  - `AUTH_GITHUB_SECRET`
++- Production forbids:
++  - `PAT_ENABLE_LOCAL_REVIEW_AUTH=1`
++
++## Canonical PAT Surface Summary
++
++- Homepage truth: `app/page.tsx`
++- Shell truth: `app/layout.tsx`
++- Sign-in hub truth: `app/sign-in/page.tsx`
++- Header/nav truth: `app/components/header/**`
++- PAT product shell and supporting content: `app/components/pat/**`
++- Runtime auth truth: `auth.ts`, `auth.config.ts`, `lib/auth/**`, `proxy.ts`
++- Role-entry truth:
++  - `app/sign-in/vendor/page.tsx`
++  - `app/sign-in/firm/page.tsx`
++  - `app/sign-in/user/page.tsx`
++  - `app/admin/page.tsx`
++  - `app/vendor/page.tsx`
++  - `app/firm/page.tsx`
++  - `app/user/page.tsx`
++
++## Preflight Before Any Release Marked Healthy
++
++Required before deploy is marked healthy:
++
++1. source-integrity gate passes
++2. PAT-surface gate passes
++3. browser, API, and operator fingerprint match
++4. role-route validation passes
++5. launchd target matches the canonical root contract
++
++Required commands:
++
++1. `npm run build`
++2. `node scripts/release/validate-source-integrity.mjs --root /Users/camerongarrett/work/c2acct-live`
++3. `node scripts/release/validate-pat-surfaces.mjs --root /Users/camerongarrett/work/c2acct-live --port 3310`
++4. `npx playwright test e2e/release-integrity.spec.ts`
++5. `bash scripts/mac-mini/launchd-install.sh --check`
++6. `bash scripts/mac-mini/status.sh`
++
++## Forbidden Shortcuts
++
++- no deploy from `/private/tmp/*`
++- no deploy from `/Users/camerongarrett/work/c2acct`
++- no build-only signoff
++- no route-existence-only signoff
++- no health-endpoint-only signoff
++- no branch-name-only signoff
++- no treating `/login` as primary PAT sign-in truth
++
++## Product Reality Summary
++
++- PAT is the live release line in the canonical root.
++- AAE strings such as `AAE`, `Autonomous Alignment Infrastructure`, `Profiles`, `Top Seven Outputs`, and `Alignment Survey` are release-blocking regressions on PAT-critical surfaces.
++- GitHub remains the live production sign-in provider.
++- Dev-only local review auth remains allowed only for non-production QA and smoke validation.
+diff --git a/docs/active-repo-map.md b/docs/active-repo-map.md
+index 81c9842..c4dea4a 100644
+--- a/docs/active-repo-map.md
++++ b/docs/active-repo-map.md
+@@ -1,7 +1,29 @@
+ # Active Repo Map
+ 
++## Release And Runtime Source Matrix
++
++- canonical live PAT release root:
++  - `/Users/camerongarrett/work/c2acct-live`
++- non-live dev workspace:
++  - `/Users/camerongarrett/work/c2acct`
++- forbidden mixed source:
++  - `/private/tmp/c2acct-main-auth`
++- public `main`:
++  - historical AAE surface truth until PAT is merged there
++  - not current PAT release truth
++- live auth mode:
++  - `github`
++- canonical sign-in route:
++  - `/sign-in`
++- compatibility-only sign-in route:
++  - `/login`
++
+ ## Runtime path
+-- `app/login/page.tsx`: auth entrypoint.
++- `app/login/page.tsx`: compatibility-only redirect into the canonical `/sign-in` PAT hub.
++- `app/sign-in/page.tsx`: canonical PAT auth entrypoint.
++- `app/sign-in/vendor/page.tsx`: vendor role-entry path.
++- `app/sign-in/firm/page.tsx`: firm role-entry path.
++- `app/sign-in/user/page.tsx`: individual role-entry path.
+ - `app/survey/page.tsx`: compatibility redirect to the canonical firm assessment hub.
+ - `app/firm/alignment-assessment/page.tsx`: canonical five-module PAT firm assessment entry.
+ - `app/survey/[key]/page.tsx`: live survey UI for active modules.
+@@ -23,10 +45,41 @@
+ ## Auth and company boundary
+ - `auth.ts` and `auth.config.ts`: NextAuth wiring and user-claim hydration.
+ - `proxy.ts`: protected PAT page/API gate using the shared resolved auth-secret path.
++- `lib/auth/**`: live auth runtime contract and local-review/non-production helpers.
+ - `lib/auth/session.ts`: session-user lookup.
+ - `lib/authz.ts`: role and authorization helpers.
+ - `app/api/company/select/route.ts` and `app/api/company/default/route.ts`: selected-company context.
+ 
++## Release Contract And Gating
++
++- `docs/release/PAT_release_contract.md`: authoritative live-root, auth-mode, and forbidden-source contract.
++- `docs/release/release-critical-surface-review.md`: release-critical review scope and preflight checklist.
++- `ops/release/canonical-root.json`: committed runtime contract.
++- `ops/release/pat-surface-manifest.json`: protected PAT markers and forbidden AAE markers.
++- `ops/release/fingerprint.json`: generated release fingerprint contract shared by browser, API, and ops.
++- `scripts/release/validate-source-integrity.mjs`: wrong-root and wrong-build gate.
++- `scripts/release/validate-pat-surfaces.mjs`: rendered PAT surface and fingerprint gate.
++- `scripts/release/prelaunch-gate.mjs`: launch-blocking preflight entrypoint.
++- `e2e/release-integrity.spec.ts`: release smoke and role-route validation.
++
++## Release-Critical Review Set
++
++- `app/page.tsx`
++- `app/layout.tsx`
++- `app/sign-in/page.tsx`
++- `app/components/header/**`
++- `app/components/pat/**`
++- `auth.ts`
++- `auth.config.ts`
++- `lib/auth/**`
++- `proxy.ts`
++- `scripts/mac-mini/common.sh`
++- `scripts/mac-mini/app-start.sh`
++- `scripts/mac-mini/launchd-install.sh`
++- `scripts/mac-mini/validate-runtime-contract.sh`
++- `ops/mac-mini/launchd/*.plist.template`
++- role-entry and role-target routes under `app/sign-in/*`, `app/admin`, `app/vendor`, `app/firm`, and `app/user`
++
+ ## Data contract
+ - `prisma/schema.prisma`: current source of truth for models and enums.
+ - `prisma/migrations/`: migration history.
+diff --git a/docs/architecture/auth-env-contract.md b/docs/architecture/auth-env-contract.md
+index 544b00e..79f548d 100644
+--- a/docs/architecture/auth-env-contract.md
++++ b/docs/architecture/auth-env-contract.md
+@@ -2,7 +2,19 @@
+ 
+ Date: 2026-03-08
+ 
+-This file is the source of truth for runtime auth env semantics.
++This file describes runtime auth/env semantics.
++
++For the live PAT release contract, defer first to:
++
++- `docs/release/PAT_release_contract.md`
++
++Current live release clarification:
++
++- live auth mode is `github`
++- canonical PAT sign-in route is `/sign-in`
++- `/login` is compatibility-only
++- `/Users/camerongarrett/work/c2acct-live` is the canonical live root
++- `/Users/camerongarrett/work/c2acct` and `/private/tmp/c2acct-main-auth` are not valid live roots
+ 
+ Required runtime variables:
+ - AUTH_SECRET
+diff --git a/docs/architecture/auth-provider-decision.md b/docs/architecture/auth-provider-decision.md
+index 6d829d2..63cd81e 100644
+--- a/docs/architecture/auth-provider-decision.md
++++ b/docs/architecture/auth-provider-decision.md
+@@ -1,4 +1,11 @@
+-# Auth Provider Decision (Task 1)
++# Auth Provider Decision (Task 1)
++
++Historical architecture note:
++
++- This document records the provider-selection decision.
++- For the live PAT release contract, use `docs/release/PAT_release_contract.md`.
++- The current canonical PAT sign-in route is `/sign-in`.
++- `/login` is compatibility-only.
+ 
+ ## 1. Executive recommendation
+ Choose **GitHub OAuth** as the single Auth.js provider path for Phase 1.
+@@ -30,10 +37,12 @@ Choose **GitHub OAuth** as the single Auth.js provider path for Phase 1.
+ Required runtime auth/env variables are defined in:
+ - `docs/architecture/auth-env-contract.md`
+ 
+-Use that file as the single source of truth for:
+-- `AUTH_SECRET` vs `AUTH_GITHUB_SECRET` semantics
+-- local `.env.local` usage
+-- rotation guidance boundaries
++Use that file for provider env semantics. Use `docs/release/PAT_release_contract.md` for live release truth.
++
++That means:
++- `AUTH_SECRET` vs `AUTH_GITHUB_SECRET` semantics
++- local `.env.local` usage
++- rotation guidance boundaries
+ 
+ ## 5. Required external setup
+ - Create one GitHub OAuth App for this environment.
+@@ -65,9 +74,12 @@ Use that file as the single source of truth for:
+ - JWT session strategy.
+ - Session callback must enrich token/session with `role` and `companyId` from Prisma `User`.
+ 
+-### `app/login/page.tsx`
+-- Single sign-in action/button for GitHub OAuth.
+-- Minimal UX copy for beta access and denied-user handling.
++### `app/login/page.tsx`
++- Compatibility-only redirect into the canonical `/sign-in` PAT hub.
++
++### `app/sign-in/page.tsx`
++- Canonical PAT sign-in hub.
++- GitHub remains the live production provider path.
+ 
+ ### Smoke testing
+ - `scripts/smoke-golden-path.ps1` cannot assume anonymous API access anymore.
+@@ -79,4 +91,4 @@ Use that file as the single source of truth for:
+ 1. GitHub OAuth app credentials are created and available in environment variables.
+ 2. First OWNER user row (email + role + companyId) is seeded/verified in DB.
+ 
+-After those two are ready, proceed with Phase 1 code implementation in the approved order.
+\ No newline at end of file
++After those two are ready, proceed with Phase 1 code implementation in the approved order.
+diff --git a/docs/architecture/core-build-guide-source-of-truth.md b/docs/architecture/core-build-guide-source-of-truth.md
+index db0bb74..546bb2f 100644
+--- a/docs/architecture/core-build-guide-source-of-truth.md
++++ b/docs/architecture/core-build-guide-source-of-truth.md
+@@ -1,5 +1,11 @@
+ # Core Build Guide Source Of Truth
+ 
++Authoritative release/source-of-truth docs now are:
++
++1. `docs/release/PAT_release_contract.md`
++2. `docs/release/release-critical-surface-review.md`
++3. `docs/active-repo-map.md`
++
+ The uploaded build guide remains the editorial source note:
+ 
+ - `Core Build AAE Guide.pages`
+@@ -11,7 +17,9 @@ The in-repo implementation order and launch-readiness guide now lives in:
+ Current rule:
+ 
+ - Use `Core Build AAE Guide.pages` for intent and direction.
+-- Use `docs/CORE_BUILD_AAE.md` for current repo reality, launch order, rollout decisions, and compatibility/deprecation status.
++- Use `docs/CORE_BUILD_AAE.md` for current repo reality and launch order.
++- Use `docs/release/PAT_release_contract.md` for canonical live root, runtime source, auth mode, compatibility routes, and forbidden-source rules.
++- Use `docs/release/release-critical-surface-review.md` for release-critical review scope and preflight policy.
+ 
+ This is necessary because the repo has moved materially since the earlier audit period:
+ 
+@@ -20,3 +28,11 @@ This is necessary because the repo has moved materially since the earlier audit
+ - vendor product assessment and dynamic product plans now exist.
+ - consultant/operator briefings now exist under `/admin/briefings`.
+ - member briefing still remains staged until person-side maturity is ready.
++
++Current clarification:
++
++- Public `main` is historical AAE surface truth until PAT is merged there.
++- Public `main` is not the current PAT release truth.
++- The canonical live PAT release root is `/Users/camerongarrett/work/c2acct-live`.
++- `/Users/camerongarrett/work/c2acct` is a non-live dev workspace.
++- `/private/tmp/c2acct-main-auth` is a quarantined mixed copy and forbidden live source.
+diff --git a/docs/architecture/golden-path-repair-plan.md b/docs/architecture/golden-path-repair-plan.md
+index 5a1bf7f..cdbf8eb 100644
+--- a/docs/architecture/golden-path-repair-plan.md
++++ b/docs/architecture/golden-path-repair-plan.md
+@@ -1,4 +1,11 @@
+-# Golden Path Repair Plan (Post-Auth Hardening)
++# Golden Path Repair Plan (Post-Auth Hardening)
++
++Historical planning note:
++
++- This document predates the reconciled PAT release contract.
++- For current live release truth, use `docs/release/PAT_release_contract.md`.
++- `/sign-in` is now the canonical PAT sign-in route.
++- `/login` is compatibility-only.
+ 
+ ## Objective
+ Repair the real browser flow end-to-end (`/survey/[key]` -> submit -> results -> outputs) after Task 1 auth hardening, while staying pre-Mac-mini, hardening-first, and build-green.
+@@ -56,8 +63,8 @@ Validation helpers:
+ - Build payload with `moduleKey` + `answers`.
+ - Keep optional `companyId` hint out of client payload by default (session is authority server-side).
+ 
+-2. Handle protected responses explicitly in survey UI.
+-- 401: redirect to `/login?callbackUrl=<current survey path>`.
++2. Handle protected responses explicitly in survey UI.
++- 401: redirect to `/sign-in?callbackUrl=<current survey path>`.
+ - 403: show clear message (signed in but no company / not allowed).
+ - 400/404: surface API error details safely for debugging and user guidance.
+ 
+@@ -99,8 +106,8 @@ Validation helpers:
+ 1. Script-level preflight (non-auth bypass).
+ - Run `scripts/smoke-golden-path.ps1` for seed + module fetch + auth-required reminders.
+ 
+-2. Browser signed-in validation (manual, session-real).
+-- Sign in via `/login` (approved beta user with mapped `User.email`).
++2. Browser signed-in validation (manual, session-real).
++- Sign in via `/sign-in` (approved beta user with mapped `User.email`).
+ - Navigate `/firm/alignment-assessment` and open one of the five PAT firm modules.
+ - Submit answers successfully.
+ - Confirm redirect/navigation to results state and latest submission visibility.
+diff --git a/e2e/local-review-auth.spec.ts b/e2e/local-review-auth.spec.ts
+index b2aaf58..7930c3f 100644
+--- a/e2e/local-review-auth.spec.ts
++++ b/e2e/local-review-auth.spec.ts
+@@ -64,7 +64,7 @@ test.describe("local review auth", () => {
+   test.setTimeout(60_000);
+ 
+   test("shows deterministic local review entries for vendor, firm, individual, and admin", async ({ page }) => {
+-    await page.goto("/login");
++    await page.goto("/sign-in");
+     await expect(page.getByText("Development-only local review auth")).toBeVisible();
+     await expect(page.getByText("review.vendor@pat.local")).toBeVisible();
+     await expect(page.getByText("review.firm@pat.local")).toBeVisible();
+diff --git a/e2e/pat-critical-paths.spec.ts b/e2e/pat-critical-paths.spec.ts
+index 3a1a82f..7df272a 100644
+--- a/e2e/pat-critical-paths.spec.ts
++++ b/e2e/pat-critical-paths.spec.ts
+@@ -18,7 +18,7 @@ test.describe("PAT critical browser paths", () => {
+ 
+     for (const route of protectedRoutes) {
+       await page.goto(route);
+-      expect(page.url()).toContain(`/login?callbackUrl=${encodeURIComponent(route)}`);
++      expect(page.url()).toContain(`/sign-in?callbackUrl=${encodeURIComponent(route)}`);
+     }
+ 
+     const response = await request.post("/api/survey/submit", {
+@@ -35,7 +35,7 @@ test.describe("PAT critical browser paths", () => {
+   test.skip(process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH === "1", "local review auth is intentionally enabled for e2e");
+ 
+   test("keeps local review controls hidden in production-style e2e mode", async ({ page }) => {
+-    await page.goto("/login");
++    await page.goto("/sign-in");
+     await expect(page.getByText("Development-only local review auth")).toHaveCount(0);
+     await expect(page.getByText("review.vendor@pat.local")).toHaveCount(0);
+ 
+diff --git a/lib/adminControlPlane.ts b/lib/adminControlPlane.ts
+index 3fb64fb..7835ed9 100644
+--- a/lib/adminControlPlane.ts
++++ b/lib/adminControlPlane.ts
+@@ -81,7 +81,7 @@ export const PRODUCT_CAPABILITY_COVERAGE_OPTIONS = [
+ export async function requireAdminSession(): Promise<SessionUser> {
+   const sessionUser = await getSessionUser();
+   if (!sessionUser) {
+-    redirect("/login?callbackUrl=%2Fadmin");
++    redirect("/sign-in?callbackUrl=%2Fadmin");
+   }
+ 
+   if (!canAccessPortalAdmin(sessionUser)) {
+diff --git a/lib/auth/env.ts b/lib/auth/env.ts
+index 72c1b67..2fd3cb9 100644
+--- a/lib/auth/env.ts
++++ b/lib/auth/env.ts
+@@ -1,6 +1,7 @@
+ import fs from "node:fs";
+ import path from "node:path";
+ import dotenv from "dotenv";
++import { getRuntimeContract, type ProductionAuthMode } from "@/lib/runtimeContract";
+ 
+ type AuthEnvKey =
+   | "baseUrl"
+@@ -28,6 +29,7 @@ type ResolvedCandidate = {
+ };
+ 
+ export type ResolvedAuthEnv = {
++  authMode: ProductionAuthMode;
+   values: {
+     baseUrl: string | null;
+     secret: string | null;
+@@ -49,6 +51,7 @@ export type ResolvedAuthEnv = {
+   providerCallbackPath: string;
+   githubProviderReady: boolean;
+   githubAuthEnabled: boolean;
++  credentialsAuthEnabled: boolean;
+   githubAvailabilityReason: string | null;
+   localReviewRequested: boolean;
+   localReviewEnabled: boolean;
+@@ -230,6 +233,7 @@ function collectWarnings() {
+ }
+ 
+ export function getResolvedAuthEnv(): ResolvedAuthEnv {
++  const runtimeContract = getRuntimeContract();
+   const resolvedBy = {
+     baseUrl: resolveFromProcessOrFiles(CANDIDATES.baseUrl.envNames),
+     secret: resolveFromProcessOrFiles(CANDIDATES.secret.envNames),
+@@ -250,6 +254,7 @@ export function getResolvedAuthEnv(): ResolvedAuthEnv {
+   const canonicalLocalOrigin =
+     normalizeOrigin(process.env.PAT_LOCAL_ORIGIN) ?? DEFAULT_CANONICAL_LOCAL_ORIGIN;
+   const localGithubRequested = process.env.PAT_ENABLE_LOCAL_GITHUB_AUTH === "1";
++  const authMode = runtimeContract.productionAuthMode;
+ 
+   const callbackPath = "/api/auth/callback/github";
+   const callbackUrl =
+@@ -260,17 +265,25 @@ export function getResolvedAuthEnv(): ResolvedAuthEnv {
+   const missing: string[] = [];
+   if (!baseUrl) missing.push(CANDIDATES.baseUrl.label);
+   if (!secret) missing.push(CANDIDATES.secret.label);
+-  if (!githubId) missing.push(CANDIDATES.githubId.label);
+-  if (!githubSecret) missing.push(CANDIDATES.githubSecret.label);
++  if ((authMode === "github" || authMode === "hybrid") && !githubId) {
++    missing.push(CANDIDATES.githubId.label);
++  }
++  if ((authMode === "github" || authMode === "hybrid") && !githubSecret) {
++    missing.push(CANDIDATES.githubSecret.label);
++  }
+ 
+   const githubProviderReady = Boolean(githubId && githubSecret);
++  const credentialsAuthEnabled = authMode === "credentials" || authMode === "hybrid";
+   const localGithubOriginAligned =
+     process.env.NODE_ENV === "production" || normalizedBaseUrl === canonicalLocalOrigin;
+   const githubAuthEnabled = Boolean(
++    (authMode === "github" || authMode === "hybrid") &&
+     githubProviderReady &&
+       (process.env.NODE_ENV === "production" || (localGithubOriginAligned && localGithubRequested))
+   );
+-  const githubAvailabilityReason = !githubProviderReady
++  const githubAvailabilityReason = authMode === "credentials"
++    ? "GitHub auth is disabled by the runtime contract."
++    : !githubProviderReady
+     ? "GitHub provider env is incomplete."
+     : process.env.NODE_ENV === "production"
+       ? null
+@@ -280,13 +293,20 @@ export function getResolvedAuthEnv(): ResolvedAuthEnv {
+           ? `Local GitHub sign-in stays hidden until the OAuth app allows ${callbackUrl ?? `${canonicalLocalOrigin}${callbackPath}`} and PAT_ENABLE_LOCAL_GITHUB_AUTH=1 is set.`
+           : null;
+   const localReviewProviderReady = Boolean(localReviewEnabled && secret && localReviewPassword);
+-  const ready = Boolean((normalizedBaseUrl && secret && githubAuthEnabled) || localReviewProviderReady);
++  const productionModeReady =
++    authMode === "credentials"
++      ? Boolean(normalizedBaseUrl && secret && credentialsAuthEnabled)
++      : authMode === "hybrid"
++        ? Boolean(normalizedBaseUrl && secret && githubProviderReady && credentialsAuthEnabled)
++        : Boolean(normalizedBaseUrl && secret && githubAuthEnabled);
++  const ready = Boolean(productionModeReady || localReviewProviderReady);
+ 
+   if (localReviewEnabled && !localReviewPassword) {
+     missing.push(CANDIDATES.localReviewPassword.label);
+   }
+ 
+   return {
++    authMode,
+     values: {
+       baseUrl,
+       secret,
+@@ -302,6 +322,7 @@ export function getResolvedAuthEnv(): ResolvedAuthEnv {
+     providerCallbackPath: callbackPath,
+     githubProviderReady,
+     githubAuthEnabled,
++    credentialsAuthEnabled,
+     githubAvailabilityReason,
+     localReviewRequested,
+     localReviewEnabled,
+diff --git a/lib/auth/runtime.ts b/lib/auth/runtime.ts
+index 0ade05c..a5c9370 100644
+--- a/lib/auth/runtime.ts
++++ b/lib/auth/runtime.ts
+@@ -2,9 +2,11 @@ import { getLocalReviewUsersForUi } from "@/lib/auth/localReview";
+ import { getResolvedAuthEnv } from "@/lib/auth/env";
+ 
+ export type AuthRuntimeStatus = {
++  authMode: string;
+   ready: boolean;
+   githubProviderReady: boolean;
+   githubAuthEnabled: boolean;
++  credentialsAuthEnabled: boolean;
+   githubUnavailableReason: string | null;
+   localReviewEnabled: boolean;
+   localReviewProviderReady: boolean;
+@@ -30,9 +32,11 @@ export function getAuthRuntimeStatus(): AuthRuntimeStatus {
+     resolved.callbackUrl ?? `${resolved.canonicalLocalOrigin}/api/auth/callback/github`;
+ 
+   return {
++    authMode: resolved.authMode,
+     ready: resolved.ready,
+     githubProviderReady: resolved.githubProviderReady,
+     githubAuthEnabled: resolved.githubAuthEnabled,
++    credentialsAuthEnabled: resolved.credentialsAuthEnabled,
+     githubUnavailableReason: resolved.githubAvailabilityReason,
+     localReviewEnabled: resolved.localReviewEnabled,
+     localReviewProviderReady: resolved.localReviewProviderReady,
+@@ -44,12 +48,17 @@ export function getAuthRuntimeStatus(): AuthRuntimeStatus {
+     warnings: resolved.warnings,
+     localReviewUsers: getLocalReviewUsersForUi(),
+     operatorSteps: [
++      `Selected production auth mode: ${resolved.authMode}.`,
+       `Use one canonical local origin everywhere. The repo default is ${resolved.canonicalLocalOrigin}.`,
+       "Set AUTH_URL and NEXTAUTH_URL to that same local app origin and use the same origin in the browser.",
+       "Set AUTH_SECRET or NEXTAUTH_SECRET once and keep it stable for local Auth.js session decryption.",
+-      "Set AUTH_GITHUB_ID and AUTH_GITHUB_SECRET from the GitHub OAuth app.",
++      ...(resolved.authMode === "github" || resolved.authMode === "hybrid"
++        ? ["Set AUTH_GITHUB_ID and AUTH_GITHUB_SECRET from the GitHub OAuth app."]
++        : []),
+       `Register ${callbackExample} as the GitHub callback URL.`,
+-      "Keep local GitHub sign-in off until that exact callback is registered, then opt in with PAT_ENABLE_LOCAL_GITHUB_AUTH=1.",
++      ...(resolved.authMode === "github" || resolved.authMode === "hybrid"
++        ? ["Keep local GitHub sign-in off until that exact callback is registered, then opt in with PAT_ENABLE_LOCAL_GITHUB_AUTH=1."]
++        : []),
+       "Set PAT_ENABLE_LOCAL_REVIEW_AUTH=1 and PAT_LOCAL_REVIEW_PASSWORD only for local development when you need deterministic review sign-in without GitHub.",
+       "If .env.local contains blank auth values, remove them or set real values. The local auth resolver now ignores those blanks and falls back to configured values in .env.",
+       "If local sign-in fails after a secret change or a broken callback, reset local auth cookies and try again.",
+diff --git a/lib/auth/session.ts b/lib/auth/session.ts
+index d09cdd4..64c7a1b 100644
+--- a/lib/auth/session.ts
++++ b/lib/auth/session.ts
+@@ -87,18 +87,18 @@ function shouldLogAuthFallback(authError: SessionReadResult["authError"]) {
+ 
+ function buildAuthFallbackMessage(authError: Exclude<SessionReadResult["authError"], null>) {
+   if (authError === "stale_session") {
+-    return "[auth] session read fallback (stale_session). Treating request as signed out. Reset local auth state from /login if a local secret changed or a stale session cookie persists.";
++    return "[auth] session read fallback (stale_session). Treating request as signed out. Reset local auth state from /sign-in if a local secret changed or a stale session cookie persists.";
+   }
+ 
+   if (authError === "stale_pkce") {
+-    return "[auth] session read fallback (stale_pkce). Treating request as signed out. Reset local auth state from /login if an interrupted GitHub callback left PKCE cookies behind.";
++    return "[auth] session read fallback (stale_pkce). Treating request as signed out. Reset local auth state from /sign-in if an interrupted GitHub callback left PKCE cookies behind.";
+   }
+ 
+   if (authError === "auth_misconfigured") {
+     return "[auth] session read fallback (auth_misconfigured). Treating request as signed out. Check AUTH_SECRET or NEXTAUTH_SECRET before retrying local sign-in.";
+   }
+ 
+-  return "[auth] session read fallback (unknown). Treating request as signed out. If this persists on live requests, inspect auth logs and reset local auth state from /login.";
++  return "[auth] session read fallback (unknown). Treating request as signed out. If this persists on live requests, inspect auth logs and reset local auth state from /sign-in.";
+ }
+ 
+ const readSessionResult = cache(async (): Promise<SessionReadResult> => {
+diff --git a/lib/authz.ts b/lib/authz.ts
+index cbab6bc..69a188e 100644
+--- a/lib/authz.ts
++++ b/lib/authz.ts
+@@ -89,5 +89,5 @@ export function buildLoginRedirectPath(input: {
+   search?: string;
+ }) {
+   const callbackUrl = `${input.pathname}${input.search ?? ""}`;
+-  return `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
++  return `/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+ }
+diff --git a/next.config.ts b/next.config.ts
+index cb651cd..68a6c64 100644
+--- a/next.config.ts
++++ b/next.config.ts
+@@ -1,5 +1,7 @@
+ import type { NextConfig } from "next";
+ 
+-const nextConfig: NextConfig = {};
++const nextConfig: NextConfig = {
++  output: "standalone",
++};
+ 
+ export default nextConfig;
+diff --git a/ops/mac-mini/README.md b/ops/mac-mini/README.md
+index 1b0a273..929f3f6 100644
+--- a/ops/mac-mini/README.md
++++ b/ops/mac-mini/README.md
+@@ -1,6 +1,6 @@
+ # Mac Mini Remote Ops
+ 
+-This repo includes a small launchd-oriented operations layer for a Mac mini host. It keeps runtime state under `artifacts/mac-mini/`, avoids printing secrets, and uses the existing production entrypoints: `pnpm build` and `pnpm start`.
++This repo includes a launchd-oriented operations layer for a Mac mini host. It keeps runtime state under `artifacts/mac-mini/`, avoids printing secrets, and now treats `ops/release/canonical-root.json` as the authoritative release contract for canonical root and production auth mode.
+ 
+ The layer is intentionally phone-friendly:
+ 
+@@ -17,13 +17,13 @@ The layer is intentionally phone-friendly:
+ 
+ 1. Install dependencies with `pnpm install`.
+ 2. Create `.env.local` with the production or staging values needed by the app.
+-3. Ensure the required runtime keys are present:
+-   - `DATABASE_URL`
+-   - `NEXTAUTH_SECRET`
+-   - `AUTH_GITHUB_ID`
+-   - `AUTH_GITHUB_SECRET`
+-4. Build once with `pnpm build`.
+-5. Install or refresh the launch agents with `pnpm ops:mac-mini:launchd:install`.
++3. Ensure the required runtime keys are present for the selected auth mode in `ops/release/canonical-root.json`:
++   - always: `DATABASE_URL`
++   - always: `AUTH_URL` or `NEXTAUTH_URL`
++   - always: `AUTH_SECRET` or `NEXTAUTH_SECRET`
++   - for `github` or `hybrid`: `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`
++4. Build once with `npm run build`.
++5. Install or refresh the launch agents with `bash scripts/mac-mini/launchd-install.sh`.
+ 
+ ## Remote commands
+ 
+@@ -38,9 +38,10 @@ pnpm ops:mac-mini:verify
+ 
+ `pnpm ops:mac-mini:status` prints:
+ 
++- canonical root and auth mode
+ - branch and commit
+ - whether the git worktree is clean or dirty
+-- launchd support and load state
++- launchd support, targets, and load state
+ - listen host/port and health result
+ - build id, build time, and build reason
+ - env/build/node_modules preflight summary
+@@ -51,8 +52,9 @@ pnpm ops:mac-mini:verify
+ - Templates live in `ops/mac-mini/launchd/`.
+ - Rendered copies are written to `artifacts/mac-mini/launchd/`.
+ - Installed user agents live in `~/Library/LaunchAgents/`.
++- Install state is written to `artifacts/mac-mini/state/canonical-root.json`.
+ 
+-The install script is safe to re-run. It re-renders the plists, lint-checks them with `plutil`, boots out any existing agents, bootstraps the updated versions, and kickstarts the app agent.
++The install script is safe to re-run. It re-renders the plists, lint-checks them with `plutil`, writes the canonical root state file with auth mode and release fingerprint seed, then bootstraps the updated agents.
+ 
+ ## Logs and artifacts
+ 
+@@ -64,8 +66,8 @@ The install script is safe to re-run. It re-renders the plists, lint-checks them
+ 
+ ## Notes
+ 
+-- The app agent will refuse to start if required env vars are missing.
+-- The app agent only auto-builds when usable build output is missing. Regular deploy flow should still stay `git pull`, `pnpm install`, `pnpm build`, then `pnpm ops:mac-mini:launchd:install`.
++- The app agent will refuse to start if the current directory is not the canonical root, if the root is dirty, if the fingerprint seed is missing, or if env vars contradict the selected auth mode.
++- The app agent runs the built standalone artifact via `node .next/standalone/server.js`. Regular deploy flow should stay `git pull`, `npm install`, `npm run build`, then `bash scripts/mac-mini/launchd-install.sh`.
+ - Health checks use `http://127.0.0.1:$PORT/api/health/db` by default. Override `PORT` or `MAC_MINI_HOST` in `.env.local` only if your host setup requires it.
+ - The health endpoint returns safe release metadata only. It does not echo env contents or secrets.
+ 
+diff --git a/ops/mac-mini/launchd/com.c2acct.app.plist.template b/ops/mac-mini/launchd/com.c2acct.app.plist.template
+index f452195..be62f56 100644
+--- a/ops/mac-mini/launchd/com.c2acct.app.plist.template
++++ b/ops/mac-mini/launchd/com.c2acct.app.plist.template
+@@ -12,10 +12,18 @@
+     <string>__HOME__</string>
+     <key>PATH</key>
+     <string>__PATH__</string>
++    <key>NODE_ENV</key>
++    <string>production</string>
+     <key>PORT</key>
+     <string>__PORT__</string>
+     <key>MAC_MINI_HOST</key>
+     <string>__MAC_MINI_HOST__</string>
++    <key>PAT_AUTH_MODE</key>
++    <string>__AUTH_MODE__</string>
++    <key>PAT_RUNTIME_CONTRACT_FILE</key>
++    <string>__CONTRACT_FILE__</string>
++    <key>PAT_CANONICAL_STATE_FILE</key>
++    <string>__STATE_FILE__</string>
+   </dict>
+   <key>ProgramArguments</key>
+   <array>
+diff --git a/ops/mac-mini/launchd/com.c2acct.verify.plist.template b/ops/mac-mini/launchd/com.c2acct.verify.plist.template
+index 6634659..2828eb3 100644
+--- a/ops/mac-mini/launchd/com.c2acct.verify.plist.template
++++ b/ops/mac-mini/launchd/com.c2acct.verify.plist.template
+@@ -12,10 +12,18 @@
+     <string>__HOME__</string>
+     <key>PATH</key>
+     <string>__PATH__</string>
++    <key>NODE_ENV</key>
++    <string>production</string>
+     <key>PORT</key>
+     <string>__PORT__</string>
+     <key>MAC_MINI_HOST</key>
+     <string>__MAC_MINI_HOST__</string>
++    <key>PAT_AUTH_MODE</key>
++    <string>__AUTH_MODE__</string>
++    <key>PAT_RUNTIME_CONTRACT_FILE</key>
++    <string>__CONTRACT_FILE__</string>
++    <key>PAT_CANONICAL_STATE_FILE</key>
++    <string>__STATE_FILE__</string>
+   </dict>
+   <key>ProgramArguments</key>
+   <array>
+diff --git a/package.json b/package.json
+index 5906cda..e3ac594 100644
+--- a/package.json
++++ b/package.json
+@@ -44,9 +44,16 @@
+     "seed:accounting-taxonomy:dry-run": "node --import tsx scripts/import-accounting-taxonomy.ts",
+     "ops:mac-mini:status": "bash scripts/mac-mini/status.sh",
+     "ops:mac-mini:health": "bash scripts/mac-mini/health-check.sh",
++    "ops:mac-mini:contract": "bash scripts/mac-mini/validate-runtime-contract.sh --check",
+     "ops:mac-mini:launchd:install": "bash scripts/mac-mini/launchd-install.sh",
+     "ops:mac-mini:launchd:check": "bash scripts/mac-mini/launchd-check.sh",
+-    "ops:mac-mini:verify": "bash scripts/mac-mini/nightly-verify.sh"
++    "ops:mac-mini:verify": "bash scripts/mac-mini/nightly-verify.sh",
++    "ops:mac-mini:rollback:dry-run": "bash scripts/mac-mini/rollback-release.sh --dry-run",
++    "release:markers": "node scripts/release/verify-approved-pat-markers.mjs --root .",
++    "release:critical": "node scripts/release/check-release-critical-changes.mjs --base HEAD~1 --head HEAD",
++    "release:gate": "node scripts/release/validate-source-integrity.mjs --root . && node scripts/release/verify-approved-pat-markers.mjs --root . && node scripts/release/validate-pat-surfaces.mjs --root . --port 3310",
++    "release:smoke": "PLAYWRIGHT_PORT=3311 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3311 PLAYWRIGHT_WEB_SERVER_COMMAND='PORT=3311 HOSTNAME=127.0.0.1 AUTH_URL=http://127.0.0.1:3311 NEXTAUTH_URL=http://127.0.0.1:3311 AUTH_SECRET=pat-release-smoke-secret AUTH_GITHUB_ID=pat-release-github-id AUTH_GITHUB_SECRET=pat-release-github-secret PAT_ENABLE_LOCAL_REVIEW_AUTH=1 PAT_LOCAL_REVIEW_PASSWORD=pat-local-review node .next/standalone/server.js' playwright test e2e/release-integrity.spec.ts",
++    "release:prelaunch": "npm run build && node scripts/release/prelaunch-gate.mjs --root . --port 3310"
+   },
+   "dependencies": {
+     "@prisma/client": "^5.22.0",
+diff --git a/proxy.ts b/proxy.ts
+index 5fd59d6..e0d8235 100644
+--- a/proxy.ts
++++ b/proxy.ts
+@@ -56,7 +56,9 @@ export const config = {
+     "/api/survey/module/:path*",
+     "/api/survey/draft/:path*",
+     "/api/survey/submit/:path*",
++    "/api/firm/product-assessment/draft/:path*",
+     "/api/firm/product-assessment/submit/:path*",
++    "/api/vendor/product-assessment/draft/:path*",
+     "/api/vendor/product-assessment/submit/:path*",
+   ],
+ };
+diff --git a/scripts/mac-mini/app-start.sh b/scripts/mac-mini/app-start.sh
+index 42528f0..769d1f5 100644
+--- a/scripts/mac-mini/app-start.sh
++++ b/scripts/mac-mini/app-start.sh
+@@ -6,21 +6,40 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ # shellcheck disable=SC1091
+ . "${SCRIPT_DIR}/common.sh"
+ 
+-mac_mini_require_cmd pnpm
++MODE="${1:-start}"
++
++mac_mini_require_cmd node
+ mac_mini_ensure_dirs
+-mac_mini_prune_artifacts
++mac_mini_load_contract
+ mac_mini_load_env
++mac_mini_assert_contract_ready
++mac_mini_assert_pwd_matches_root
++mac_mini_assert_git_clean
+ mac_mini_assert_env_ready
++mac_mini_validate_canonical_state
++mac_mini_assert_build_present
+ 
+-if [ ! -d "${MAC_MINI_ROOT}/node_modules" ]; then
+-  echo "node_modules is missing. Run 'pnpm install' before starting the app." >&2
+-  exit 1
++if [ "${MODE}" = "--check" ]; then
++  printf '%s\n' "$(mac_mini_preflight_summary)"
++  printf 'fingerprint_seed=%s\n' "${MAC_MINI_STATE_FINGERPRINT_SEED}"
++  printf 'production_start_command=node %s/.next/standalone/server.js\n' "${MAC_MINI_CANONICAL_ROOT}"
++  exit 0
++fi
++
++if [ "${MODE}" = "--dry-run" ]; then
++  printf '%s\n' "$(mac_mini_preflight_summary)"
++  printf 'fingerprint_seed=%s\n' "${MAC_MINI_STATE_FINGERPRINT_SEED}"
++  printf 'would_exec=node %s/.next/standalone/server.js\n' "${MAC_MINI_CANONICAL_ROOT}"
++  exit 0
+ fi
+ 
+-mac_mini_build_if_needed
++if [ "${MODE}" != "start" ]; then
++  echo "Usage: bash scripts/mac-mini/app-start.sh [--check|--dry-run]" >&2
++  exit 1
++fi
+ 
+ echo "$(mac_mini_now_utc)" > "${MAC_MINI_STATE_DIR}/app-last-start-at.txt"
+ printf '%s\n' "$$" > "${MAC_MINI_STATE_DIR}/app-launch-script.pid"
+ 
+-cd "${MAC_MINI_ROOT}"
+-exec pnpm exec next start --hostname "${MAC_MINI_HOST}" --port "${PORT}"
++export HOSTNAME="${MAC_MINI_HOST}"
++exec node "${MAC_MINI_CANONICAL_ROOT}/.next/standalone/server.js"
+diff --git a/scripts/mac-mini/common.sh b/scripts/mac-mini/common.sh
+index 47811ac..469c9ef 100644
+--- a/scripts/mac-mini/common.sh
++++ b/scripts/mac-mini/common.sh
+@@ -2,23 +2,55 @@
+ 
+ set -euo pipefail
+ 
+-MAC_MINI_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+-MAC_MINI_ARTIFACTS_DIR="${MAC_MINI_ROOT}/artifacts/mac-mini"
++MAC_MINI_SOURCE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
++MAC_MINI_ARTIFACTS_DIR="${MAC_MINI_SOURCE_ROOT}/artifacts/mac-mini"
+ MAC_MINI_LOG_DIR="${MAC_MINI_ARTIFACTS_DIR}/logs"
+ MAC_MINI_REPORT_DIR="${MAC_MINI_ARTIFACTS_DIR}/reports"
+ MAC_MINI_STATE_DIR="${MAC_MINI_ARTIFACTS_DIR}/state"
+ MAC_MINI_LAUNCHD_DIR="${MAC_MINI_ARTIFACTS_DIR}/launchd"
++MAC_MINI_CONTRACT_FILE="${MAC_MINI_SOURCE_ROOT}/ops/release/canonical-root.json"
++MAC_MINI_FINGERPRINT_FILE="${MAC_MINI_SOURCE_ROOT}/ops/release/fingerprint.json"
++MAC_MINI_CANONICAL_STATE_FILE="${MAC_MINI_STATE_DIR}/canonical-root.json"
++MAC_MINI_RELEASE_FILE="${MAC_MINI_STATE_DIR}/release-state.env"
++MAC_MINI_EXPECTED_RELEASE_FILE="${MAC_MINI_STATE_DIR}/expected-live-release.json"
++MAC_MINI_LAST_KNOWN_GOOD_FILE="${MAC_MINI_STATE_DIR}/last-known-good-release.json"
++MAC_MINI_PREVIOUS_KNOWN_GOOD_FILE="${MAC_MINI_STATE_DIR}/previous-known-good-release.json"
++MAC_MINI_RELEASE_HISTORY_DIR="${MAC_MINI_STATE_DIR}/release-history"
+ MAC_MINI_DEFAULT_PORT="${MAC_MINI_PORT:-${PORT:-3000}}"
+ MAC_MINI_DEFAULT_HOST="${MAC_MINI_HOST:-127.0.0.1}"
+ MAC_MINI_APP_LABEL="${MAC_MINI_APP_LABEL:-com.c2acct.app}"
+ MAC_MINI_VERIFY_LABEL="${MAC_MINI_VERIFY_LABEL:-com.c2acct.verify}"
+-MAC_MINI_RELEASE_FILE="${MAC_MINI_STATE_DIR}/release-state.env"
+-MAC_MINI_REQUIRED_ENV_VARS=(
+-  DATABASE_URL
+-  NEXTAUTH_SECRET
+-  AUTH_GITHUB_ID
+-  AUTH_GITHUB_SECRET
+-)
++
++MAC_MINI_CONTRACT_LOADED=0
++MAC_MINI_STATE_LOADED=0
++MAC_MINI_ROOT=""
++MAC_MINI_CANONICAL_ROOT=""
++MAC_MINI_AUTH_MODE=""
++MAC_MINI_SIGN_IN_PATH=""
++MAC_MINI_COMPAT_LOGIN_PATH=""
++MAC_MINI_FORBIDDEN_ROOTS_RAW=""
++MAC_MINI_SCHEMA_VERSION=""
++
++MAC_MINI_STATE_AUTH_MODE=""
++MAC_MINI_STATE_CANONICAL_ROOT=""
++MAC_MINI_STATE_FINGERPRINT_SEED=""
++MAC_MINI_STATE_APP_PLIST=""
++MAC_MINI_STATE_VERIFY_PLIST=""
++MAC_MINI_STATE_APP_TARGET=""
++MAC_MINI_STATE_VERIFY_TARGET=""
++MAC_MINI_FINGERPRINT_RELEASE_ID=""
++MAC_MINI_FINGERPRINT_BRANCH=""
++MAC_MINI_FINGERPRINT_COMMIT_SHA=""
++MAC_MINI_FINGERPRINT_COMMIT_SHORT=""
++MAC_MINI_FINGERPRINT_CANONICAL_ROOT=""
++MAC_MINI_FINGERPRINT_CANONICAL_ROOT_NAME=""
++MAC_MINI_FINGERPRINT_BUILD_TIMESTAMP=""
++MAC_MINI_FINGERPRINT_AUTH_MODE=""
++MAC_MINI_FINGERPRINT_BUILD_SOURCE_TYPE=""
++MAC_MINI_FINGERPRINT_BUILD_ID=""
++MAC_MINI_FINGERPRINT_BUILD_REASON=""
++MAC_MINI_FINGERPRINT_SEED=""
++MAC_MINI_FINGERPRINT_GIT_DIRTY=""
+ 
+ mac_mini_now_utc() {
+   date -u +"%Y-%m-%dT%H:%M:%SZ"
+@@ -28,15 +60,115 @@ mac_mini_timestamp() {
+   date -u +"%Y%m%dT%H%M%SZ"
+ }
+ 
++mac_mini_log() {
++  printf '[%s] %s\n' "$(mac_mini_now_utc)" "$*"
++}
++
++mac_mini_require_cmd() {
++  if ! command -v "$1" >/dev/null 2>&1; then
++    echo "Missing required command: $1" >&2
++    exit 1
++  fi
++}
++
+ mac_mini_ensure_dirs() {
+   mkdir -p \
+     "${MAC_MINI_LOG_DIR}" \
+     "${MAC_MINI_REPORT_DIR}" \
+     "${MAC_MINI_STATE_DIR}" \
+-    "${MAC_MINI_LAUNCHD_DIR}"
++    "${MAC_MINI_LAUNCHD_DIR}" \
++    "${MAC_MINI_RELEASE_HISTORY_DIR}"
++}
++
++mac_mini_load_contract() {
++  if [ "${MAC_MINI_CONTRACT_LOADED}" -eq 1 ]; then
++    return
++  fi
++
++  mac_mini_require_cmd node
++  if [ ! -f "${MAC_MINI_CONTRACT_FILE}" ]; then
++    echo "Runtime contract file is missing: ${MAC_MINI_CONTRACT_FILE}" >&2
++    exit 1
++  fi
++
++  local contract_line
++  contract_line="$(
++    node --input-type=module -e '
++      import fs from "node:fs";
++      import path from "node:path";
++      const file = process.argv[1];
++      const contract = JSON.parse(fs.readFileSync(file, "utf8"));
++      const fields = [
++        String(contract.schemaVersion ?? 1),
++        path.resolve(contract.canonicalRoot),
++        String(contract.productionAuthMode ?? ""),
++        String(contract.signInPath ?? ""),
++        String(contract.compatibilityLoginPath ?? ""),
++        Array.isArray(contract.forbiddenDeployRoots)
++          ? contract.forbiddenDeployRoots.map((value) => path.resolve(String(value))).join(":")
++          : "",
++      ];
++      console.log(fields.join("\t"));
++    ' "${MAC_MINI_CONTRACT_FILE}"
++  )"
++
++  IFS=$'\t' read -r \
++    MAC_MINI_SCHEMA_VERSION \
++    MAC_MINI_CANONICAL_ROOT \
++    MAC_MINI_AUTH_MODE \
++    MAC_MINI_SIGN_IN_PATH \
++    MAC_MINI_COMPAT_LOGIN_PATH \
++    MAC_MINI_FORBIDDEN_ROOTS_RAW <<< "${contract_line}"
++
++  MAC_MINI_ROOT="${MAC_MINI_CANONICAL_ROOT}"
++  MAC_MINI_CONTRACT_LOADED=1
++}
++
++mac_mini_load_canonical_state() {
++  if [ "${MAC_MINI_STATE_LOADED}" -eq 1 ]; then
++    return 0
++  fi
++
++  if [ ! -f "${MAC_MINI_CANONICAL_STATE_FILE}" ]; then
++    return 1
++  fi
++
++  mac_mini_require_cmd node
++  local state_line
++  state_line="$(
++    node --input-type=module -e '
++      import fs from "node:fs";
++      const file = process.argv[1];
++      const state = JSON.parse(fs.readFileSync(file, "utf8"));
++      const fields = [
++        String(state.authMode ?? ""),
++        String(state.canonicalRoot ?? ""),
++        String(state.releaseFingerprintSeed ?? ""),
++        String(state.launchdAppPlist ?? ""),
++        String(state.launchdVerifyPlist ?? ""),
++        String(state.launchdAppTarget ?? ""),
++        String(state.launchdVerifyTarget ?? ""),
++      ];
++      console.log(fields.join("\t"));
++    ' "${MAC_MINI_CANONICAL_STATE_FILE}"
++  )"
++
++  IFS=$'\t' read -r \
++    MAC_MINI_STATE_AUTH_MODE \
++    MAC_MINI_STATE_CANONICAL_ROOT \
++    MAC_MINI_STATE_FINGERPRINT_SEED \
++    MAC_MINI_STATE_APP_PLIST \
++    MAC_MINI_STATE_VERIFY_PLIST \
++    MAC_MINI_STATE_APP_TARGET \
++    MAC_MINI_STATE_VERIFY_TARGET <<< "${state_line}"
++
++  MAC_MINI_STATE_LOADED=1
++  return 0
+ }
+ 
+ mac_mini_load_env() {
++  mac_mini_load_contract
++
+   if [ -f "${MAC_MINI_ROOT}/.env" ]; then
+     set -a
+     # shellcheck disable=SC1091
+@@ -51,50 +183,126 @@ mac_mini_load_env() {
+     set +a
+   fi
+ 
++  export NODE_ENV="${NODE_ENV:-production}"
+   export PORT="${PORT:-${MAC_MINI_DEFAULT_PORT}}"
+   export MAC_MINI_PORT="${PORT}"
+   export MAC_MINI_HOST="${MAC_MINI_HOST:-${MAC_MINI_DEFAULT_HOST}}"
++  export PAT_AUTH_MODE="${PAT_AUTH_MODE:-${MAC_MINI_AUTH_MODE}}"
++  export PAT_CANONICAL_RELEASE_ROOT="${PAT_CANONICAL_RELEASE_ROOT:-${MAC_MINI_CANONICAL_ROOT}}"
+ }
+ 
+-mac_mini_log() {
+-  printf '[%s] %s\n' "$(mac_mini_now_utc)" "$*"
++mac_mini_resolve_env_value() {
++  local name
++  for name in "$@"; do
++    if [ -n "${!name:-}" ]; then
++      printf '%s' "${!name}"
++      return 0
++    fi
++  done
++  return 1
+ }
+ 
+-mac_mini_require_cmd() {
+-  if ! command -v "$1" >/dev/null 2>&1; then
+-    echo "Missing required command: $1" >&2
+-    exit 1
++mac_mini_missing_env_vars() {
++  local missing=()
++
++  if ! mac_mini_resolve_env_value AUTH_URL NEXTAUTH_URL >/dev/null 2>&1; then
++    missing+=("AUTH_URL or NEXTAUTH_URL")
++  fi
++
++  if ! mac_mini_resolve_env_value AUTH_SECRET NEXTAUTH_SECRET >/dev/null 2>&1; then
++    missing+=("AUTH_SECRET or NEXTAUTH_SECRET")
++  fi
++
++  if [ -z "${DATABASE_URL:-}" ]; then
++    missing+=("DATABASE_URL")
++  fi
++
++  if [ "${PAT_AUTH_MODE}" = "github" ] || [ "${PAT_AUTH_MODE}" = "hybrid" ]; then
++    if [ -z "${AUTH_GITHUB_ID:-}" ]; then
++      missing+=("AUTH_GITHUB_ID")
++    fi
++    if [ -z "${AUTH_GITHUB_SECRET:-}" ]; then
++      missing+=("AUTH_GITHUB_SECRET")
++    fi
++  fi
++
++  if [ "${#missing[@]}" -gt 0 ]; then
++    printf '%s\n' "${missing[@]}"
+   fi
+ }
+ 
+-mac_mini_prune_artifacts() {
+-  find "${MAC_MINI_LOG_DIR}" -type f -mtime +14 -delete 2>/dev/null || true
+-  find "${MAC_MINI_REPORT_DIR}" -mindepth 1 -maxdepth 1 -type d -mtime +30 -exec rm -rf {} + 2>/dev/null || true
+-  find "${MAC_MINI_REPORT_DIR}" -type f -mtime +30 -delete 2>/dev/null || true
++mac_mini_assert_contract_ready() {
++  mac_mini_load_contract
+ 
+-  # Keep only the 10 newest nightly summaries for fast phone inspection.
+-  local summaries
+-  summaries="$(ls -1t "${MAC_MINI_REPORT_DIR}"/nightly-summary-*.txt 2>/dev/null || true)"
+-  if [ -n "${summaries}" ]; then
+-    printf '%s\n' "${summaries}" | awk 'NR>10' | while IFS= read -r old_summary; do
+-      [ -n "${old_summary}" ] && rm -f "${old_summary}"
+-    done
++  if [ "${MAC_MINI_SOURCE_ROOT}" != "${MAC_MINI_CANONICAL_ROOT}" ]; then
++    echo "Script source root does not match runtime contract canonical root." >&2
++    echo "source_root=${MAC_MINI_SOURCE_ROOT}" >&2
++    echo "canonical_root=${MAC_MINI_CANONICAL_ROOT}" >&2
++    exit 1
++  fi
++
++  if [ "${PAT_CANONICAL_RELEASE_ROOT:-${MAC_MINI_CANONICAL_ROOT}}" != "${MAC_MINI_CANONICAL_ROOT}" ]; then
++    echo "PAT_CANONICAL_RELEASE_ROOT does not match the runtime contract." >&2
++    exit 1
++  fi
++
++  case "${MAC_MINI_CANONICAL_ROOT}" in
++    /private/tmp/*)
++      echo "Canonical root cannot point at /private/tmp." >&2
++      exit 1
++      ;;
++  esac
++
++  local forbidden_root
++  IFS=':' read -r -a forbidden_roots <<< "${MAC_MINI_FORBIDDEN_ROOTS_RAW}"
++  for forbidden_root in "${forbidden_roots[@]}"; do
++    if [ -n "${forbidden_root}" ] && [ "${MAC_MINI_CANONICAL_ROOT}" = "${forbidden_root}" ]; then
++      echo "Canonical root matches a forbidden deploy root: ${forbidden_root}" >&2
++      exit 1
++    fi
++  done
++
++  if [ "${PAT_AUTH_MODE:-${MAC_MINI_AUTH_MODE}}" != "${MAC_MINI_AUTH_MODE}" ]; then
++    echo "PAT_AUTH_MODE does not match the runtime contract." >&2
++    exit 1
+   fi
+ }
+ 
+-mac_mini_health_url() {
+-  printf 'http://%s:%s/api/health/db' "${MAC_MINI_HOST:-${MAC_MINI_DEFAULT_HOST}}" "${PORT:-${MAC_MINI_DEFAULT_PORT}}"
++mac_mini_assert_pwd_matches_root() {
++  local current_dir
++  current_dir="$(pwd -P)"
++  if [ "${current_dir}" != "${MAC_MINI_CANONICAL_ROOT}" ]; then
++    echo "Current working directory must match the canonical release root." >&2
++    echo "pwd=${current_dir}" >&2
++    echo "canonical_root=${MAC_MINI_CANONICAL_ROOT}" >&2
++    exit 1
++  fi
+ }
+ 
+-mac_mini_app_url() {
+-  printf 'http://%s:%s/' "${MAC_MINI_HOST:-${MAC_MINI_DEFAULT_HOST}}" "${PORT:-${MAC_MINI_DEFAULT_PORT}}"
++mac_mini_git_branch() {
++  git -C "${MAC_MINI_CANONICAL_ROOT}" rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown
+ }
+ 
+-mac_mini_latest_verify_summary() {
+-  local latest
+-  latest="$(ls -1t "${MAC_MINI_REPORT_DIR}"/nightly-summary-*.txt 2>/dev/null | head -n 1 || true)"
+-  if [ -n "${latest}" ]; then
+-    printf '%s' "${latest}"
++mac_mini_git_commit() {
++  git -C "${MAC_MINI_CANONICAL_ROOT}" rev-parse --short HEAD 2>/dev/null || echo unknown
++}
++
++mac_mini_git_commit_full() {
++  git -C "${MAC_MINI_CANONICAL_ROOT}" rev-parse HEAD 2>/dev/null || echo unknown
++}
++
++mac_mini_git_dirty() {
++  if [ -n "$(git -C "${MAC_MINI_CANONICAL_ROOT}" status --short --untracked-files=normal 2>/dev/null || true)" ]; then
++    echo dirty
++  else
++    echo clean
++  fi
++}
++
++mac_mini_assert_git_clean() {
++  if [ "$(mac_mini_git_dirty)" != "clean" ]; then
++    echo "Canonical release root must be clean before app start." >&2
++    exit 1
+   fi
+ }
+ 
+@@ -106,68 +314,231 @@ mac_mini_has_launchctl() {
+   command -v launchctl >/dev/null 2>&1
+ }
+ 
+-mac_mini_git_branch() {
+-  git -C "${MAC_MINI_ROOT}" rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown
++mac_mini_health_url() {
++  printf 'http://%s:%s/api/health/db' "${MAC_MINI_HOST:-${MAC_MINI_DEFAULT_HOST}}" "${PORT:-${MAC_MINI_DEFAULT_PORT}}"
+ }
+ 
+-mac_mini_git_commit() {
+-  git -C "${MAC_MINI_ROOT}" rev-parse --short HEAD 2>/dev/null || echo unknown
++mac_mini_app_url() {
++  printf 'http://%s:%s/' "${MAC_MINI_HOST:-${MAC_MINI_DEFAULT_HOST}}" "${PORT:-${MAC_MINI_DEFAULT_PORT}}"
+ }
+ 
+-mac_mini_git_dirty() {
+-  if git -C "${MAC_MINI_ROOT}" diff --quiet --ignore-submodules HEAD >/dev/null 2>&1; then
+-    echo clean
+-  else
+-    echo dirty
++mac_mini_build_is_present() {
++  [ -f "${MAC_MINI_CANONICAL_ROOT}/.next/standalone/server.js" ] &&
++    [ -f "${MAC_MINI_CANONICAL_ROOT}/.next/BUILD_ID" ]
++}
++
++mac_mini_assert_build_present() {
++  if ! mac_mini_build_is_present; then
++    echo "Missing standalone build artifact under ${MAC_MINI_CANONICAL_ROOT}/.next/standalone." >&2
++    exit 1
+   fi
+ }
+ 
+-mac_mini_missing_env_vars() {
+-  local missing=()
+-  local var_name
+-  for var_name in "${MAC_MINI_REQUIRED_ENV_VARS[@]}"; do
+-    if [ -z "${!var_name:-}" ]; then
+-      missing+=("${var_name}")
+-    fi
+-  done
++mac_mini_build_if_needed() {
++  mac_mini_assert_contract_ready
++  if mac_mini_build_is_present; then
++    mac_mini_write_release_state "existing-build"
++    return
++  fi
+ 
+-  if [ "${#missing[@]}" -gt 0 ]; then
+-    printf '%s\n' "${missing[@]}"
++  mac_mini_require_cmd npm
++  mac_mini_log "No standalone build artifact found; running npm run build."
++  (
++    cd "${MAC_MINI_CANONICAL_ROOT}"
++    npm run build
++  )
++  mac_mini_write_release_state "fresh-build"
++}
++
++mac_mini_build_id() {
++  if [ -f "${MAC_MINI_CANONICAL_ROOT}/.next/BUILD_ID" ]; then
++    cat "${MAC_MINI_CANONICAL_ROOT}/.next/BUILD_ID"
++  else
++    echo missing
+   fi
+ }
+ 
+-mac_mini_assert_env_ready() {
+-  local missing
+-  missing="$(mac_mini_missing_env_vars || true)"
+-  if [ -n "${missing}" ]; then
+-    echo "Missing required environment variables:" >&2
+-    printf '%s\n' "${missing}" >&2
+-    exit 1
++mac_mini_build_age_human() {
++  if [ ! -f "${MAC_MINI_CANONICAL_ROOT}/.next/BUILD_ID" ]; then
++    echo missing
++    return
+   fi
++
++  stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S %Z" "${MAC_MINI_CANONICAL_ROOT}/.next/BUILD_ID" 2>/dev/null || echo unknown
+ }
+ 
+-mac_mini_build_is_present() {
+-  [ -f "${MAC_MINI_ROOT}/.next/BUILD_ID" ]
++mac_mini_compute_release_fingerprint_seed() {
++  printf '%s' "${MAC_MINI_CANONICAL_ROOT}|$(mac_mini_git_commit)|$(mac_mini_build_id)|$(mac_mini_now_utc)" | shasum -a 256 | awk '{print $1}'
+ }
+ 
+ mac_mini_write_release_state() {
+   local build_reason="$1"
+-  local build_id="missing"
+-
+-  if mac_mini_build_is_present; then
+-    build_id="$(cat "${MAC_MINI_ROOT}/.next/BUILD_ID" 2>/dev/null || echo missing)"
+-  fi
+ 
+   cat > "${MAC_MINI_RELEASE_FILE}" <<EOF
+ BUILD_TIME_UTC=$(mac_mini_now_utc)
+ BUILD_REASON=${build_reason}
++ROOT=${MAC_MINI_CANONICAL_ROOT}
++AUTH_MODE=${MAC_MINI_AUTH_MODE}
+ BRANCH=$(mac_mini_git_branch)
+ COMMIT=$(mac_mini_git_commit)
+ GIT_DIRTY=$(mac_mini_git_dirty)
+-BUILD_ID=${build_id}
++BUILD_ID=$(mac_mini_build_id)
++EOF
++}
++
++mac_mini_write_release_fingerprint() {
++  if ! mac_mini_load_canonical_state; then
++    echo "Canonical state file is missing: ${MAC_MINI_CANONICAL_STATE_FILE}" >&2
++    exit 1
++  fi
++
++  mac_mini_load_release_state || true
++
++  local commit_sha
++  local commit_short
++  local build_id
++  local build_timestamp
++  local build_reason
++  local git_dirty
++  commit_sha="$(mac_mini_git_commit_full)"
++  commit_short="$(mac_mini_git_commit)"
++  build_id="${BUILD_ID:-$(mac_mini_build_id)}"
++  build_timestamp="${BUILD_TIME_UTC:-$(mac_mini_now_utc)}"
++  build_reason="${BUILD_REASON:-unknown}"
++  git_dirty="${GIT_DIRTY:-$(mac_mini_git_dirty)}"
++
++  cat > "${MAC_MINI_FINGERPRINT_FILE}" <<EOF
++{
++  "schemaVersion": 1,
++  "releaseId": "${commit_short}:${build_id}",
++  "branch": "$(mac_mini_git_branch)",
++  "commitSha": "${commit_sha}",
++  "commitShort": "${commit_short}",
++  "canonicalRoot": "${MAC_MINI_CANONICAL_ROOT}",
++  "canonicalRootName": "$(basename "${MAC_MINI_CANONICAL_ROOT}")",
++  "buildTimestamp": "${build_timestamp}",
++  "authMode": "${MAC_MINI_AUTH_MODE}",
++  "buildSourceType": "standalone-build",
++  "buildId": "${build_id}",
++  "buildReason": "${build_reason}",
++  "releaseFingerprintSeed": "${MAC_MINI_STATE_FINGERPRINT_SEED}",
++  "gitDirty": "${git_dirty}"
++}
++EOF
++}
++
++mac_mini_write_release_snapshot() {
++  local target_file="$1"
++  local snapshot_status="$2"
++  local observed_at="${3:-$(mac_mini_now_utc)}"
++
++  if ! mac_mini_load_release_fingerprint; then
++    echo "Release fingerprint file is missing: ${MAC_MINI_FINGERPRINT_FILE}" >&2
++    exit 1
++  fi
++
++  if ! mac_mini_load_canonical_state; then
++    echo "Canonical state file is missing: ${MAC_MINI_CANONICAL_STATE_FILE}" >&2
++    exit 1
++  fi
++
++  cat > "${target_file}" <<EOF
++{
++  "schemaVersion": 1,
++  "status": "${snapshot_status}",
++  "observedAt": "${observed_at}",
++  "releaseId": "${MAC_MINI_FINGERPRINT_RELEASE_ID}",
++  "branch": "${MAC_MINI_FINGERPRINT_BRANCH}",
++  "commitSha": "${MAC_MINI_FINGERPRINT_COMMIT_SHA}",
++  "commitShort": "${MAC_MINI_FINGERPRINT_COMMIT_SHORT}",
++  "canonicalRoot": "${MAC_MINI_FINGERPRINT_CANONICAL_ROOT}",
++  "canonicalRootName": "${MAC_MINI_FINGERPRINT_CANONICAL_ROOT_NAME}",
++  "buildTimestamp": "${MAC_MINI_FINGERPRINT_BUILD_TIMESTAMP}",
++  "authMode": "${MAC_MINI_FINGERPRINT_AUTH_MODE}",
++  "buildSourceType": "${MAC_MINI_FINGERPRINT_BUILD_SOURCE_TYPE}",
++  "buildId": "${MAC_MINI_FINGERPRINT_BUILD_ID}",
++  "buildReason": "${MAC_MINI_FINGERPRINT_BUILD_REASON}",
++  "releaseFingerprintSeed": "${MAC_MINI_FINGERPRINT_SEED}",
++  "gitDirty": "${MAC_MINI_FINGERPRINT_GIT_DIRTY}",
++  "launchdAppTarget": "${MAC_MINI_STATE_APP_TARGET}",
++  "launchdVerifyTarget": "${MAC_MINI_STATE_VERIFY_TARGET}",
++  "launchdAppPlist": "${MAC_MINI_STATE_APP_PLIST}",
++  "launchdVerifyPlist": "${MAC_MINI_STATE_VERIFY_PLIST}"
++}
+ EOF
+ }
+ 
++mac_mini_write_expected_release() {
++  mac_mini_write_release_snapshot "${MAC_MINI_EXPECTED_RELEASE_FILE}" "expected-live"
++}
++
++mac_mini_promote_last_known_good_release() {
++  if [ -f "${MAC_MINI_LAST_KNOWN_GOOD_FILE}" ] && [ -f "${MAC_MINI_EXPECTED_RELEASE_FILE}" ]; then
++    local previous_release_id=""
++    local expected_release_id=""
++    previous_release_id="$(
++      node --input-type=module -e 'import fs from "node:fs"; const file = process.argv[1]; const data = JSON.parse(fs.readFileSync(file, "utf8")); console.log(String(data.releaseId ?? ""));' "${MAC_MINI_LAST_KNOWN_GOOD_FILE}"
++    )"
++    expected_release_id="$(
++      node --input-type=module -e 'import fs from "node:fs"; const file = process.argv[1]; const data = JSON.parse(fs.readFileSync(file, "utf8")); console.log(String(data.releaseId ?? ""));' "${MAC_MINI_EXPECTED_RELEASE_FILE}"
++    )"
++    if [ -n "${previous_release_id}" ] && [ "${previous_release_id}" != "${expected_release_id}" ]; then
++      cp "${MAC_MINI_LAST_KNOWN_GOOD_FILE}" "${MAC_MINI_PREVIOUS_KNOWN_GOOD_FILE}"
++    fi
++  fi
++
++  mac_mini_write_release_snapshot "${MAC_MINI_LAST_KNOWN_GOOD_FILE}" "last-known-good"
++  cp "${MAC_MINI_LAST_KNOWN_GOOD_FILE}" "${MAC_MINI_RELEASE_HISTORY_DIR}/$(mac_mini_timestamp)-${MAC_MINI_FINGERPRINT_RELEASE_ID}.json"
++}
++
++mac_mini_load_release_fingerprint() {
++  if [ ! -f "${MAC_MINI_FINGERPRINT_FILE}" ]; then
++    return 1
++  fi
++
++  local fingerprint_line
++  fingerprint_line="$(
++    node --input-type=module -e '
++      import fs from "node:fs";
++      const file = process.argv[1];
++      const fingerprint = JSON.parse(fs.readFileSync(file, "utf8"));
++      const fields = [
++        String(fingerprint.releaseId ?? ""),
++        String(fingerprint.branch ?? ""),
++        String(fingerprint.commitSha ?? ""),
++        String(fingerprint.commitShort ?? ""),
++        String(fingerprint.canonicalRoot ?? ""),
++        String(fingerprint.canonicalRootName ?? ""),
++        String(fingerprint.buildTimestamp ?? ""),
++        String(fingerprint.authMode ?? ""),
++        String(fingerprint.buildSourceType ?? ""),
++        String(fingerprint.buildId ?? ""),
++        String(fingerprint.buildReason ?? ""),
++        String(fingerprint.releaseFingerprintSeed ?? ""),
++        String(fingerprint.gitDirty ?? ""),
++      ];
++      console.log(fields.join("\t"));
++    ' "${MAC_MINI_FINGERPRINT_FILE}"
++  )"
++
++  IFS=$'\t' read -r \
++    MAC_MINI_FINGERPRINT_RELEASE_ID \
++    MAC_MINI_FINGERPRINT_BRANCH \
++    MAC_MINI_FINGERPRINT_COMMIT_SHA \
++    MAC_MINI_FINGERPRINT_COMMIT_SHORT \
++    MAC_MINI_FINGERPRINT_CANONICAL_ROOT \
++    MAC_MINI_FINGERPRINT_CANONICAL_ROOT_NAME \
++    MAC_MINI_FINGERPRINT_BUILD_TIMESTAMP \
++    MAC_MINI_FINGERPRINT_AUTH_MODE \
++    MAC_MINI_FINGERPRINT_BUILD_SOURCE_TYPE \
++    MAC_MINI_FINGERPRINT_BUILD_ID \
++    MAC_MINI_FINGERPRINT_BUILD_REASON \
++    MAC_MINI_FINGERPRINT_SEED \
++    MAC_MINI_FINGERPRINT_GIT_DIRTY <<< "${fingerprint_line}"
++
++  return 0
++}
++
+ mac_mini_load_release_state() {
+   if [ -f "${MAC_MINI_RELEASE_FILE}" ]; then
+     set -a
+@@ -180,53 +551,147 @@ mac_mini_load_release_state() {
+   return 1
+ }
+ 
+-mac_mini_build_age_human() {
+-  if [ ! -f "${MAC_MINI_ROOT}/.next/BUILD_ID" ]; then
+-    echo missing
+-    return
++mac_mini_assert_env_ready() {
++  local missing
++  missing="$(mac_mini_missing_env_vars || true)"
++  if [ -n "${missing}" ]; then
++    echo "Missing required environment variables for auth mode ${PAT_AUTH_MODE}:" >&2
++    printf '%s\n' "${missing}" >&2
++    exit 1
++  fi
++
++  if [ "${NODE_ENV}" = "production" ] && [ "${PAT_ENABLE_LOCAL_REVIEW_AUTH:-0}" = "1" ]; then
++    echo "PAT_ENABLE_LOCAL_REVIEW_AUTH=1 is forbidden in production." >&2
++    exit 1
+   fi
+ 
+-  stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S %Z" "${MAC_MINI_ROOT}/.next/BUILD_ID" 2>/dev/null || echo unknown
++  if [ "${PAT_AUTH_MODE}" = "credentials" ] && { [ -n "${AUTH_GITHUB_ID:-}" ] || [ -n "${AUTH_GITHUB_SECRET:-}" ]; }; then
++    mac_mini_log "credentials mode selected; GitHub envs are ignored."
++  fi
+ }
+ 
+-mac_mini_build_if_needed() {
+-  local reason="existing-build"
+-  if ! mac_mini_build_is_present; then
+-    reason="missing-build"
+-    mac_mini_log "No usable build artifact found; running pnpm build."
+-    (
+-      cd "${MAC_MINI_ROOT}"
+-      pnpm build
+-    )
++mac_mini_validate_canonical_state() {
++  if ! mac_mini_load_canonical_state; then
++    echo "Canonical state file is missing: ${MAC_MINI_CANONICAL_STATE_FILE}" >&2
++    exit 1
+   fi
+ 
+-  mac_mini_write_release_state "${reason}"
++  if [ "${MAC_MINI_STATE_CANONICAL_ROOT}" != "${MAC_MINI_CANONICAL_ROOT}" ]; then
++    echo "Canonical state root does not match the runtime contract." >&2
++    exit 1
++  fi
++
++  if [ "${MAC_MINI_STATE_AUTH_MODE}" != "${MAC_MINI_AUTH_MODE}" ]; then
++    echo "Canonical state auth mode does not match the runtime contract." >&2
++    exit 1
++  fi
++
++  if [ -z "${MAC_MINI_STATE_FINGERPRINT_SEED}" ]; then
++    echo "Canonical state file is missing releaseFingerprintSeed." >&2
++    exit 1
++  fi
++
++  if ! mac_mini_load_release_fingerprint; then
++    echo "Release fingerprint file is missing: ${MAC_MINI_FINGERPRINT_FILE}" >&2
++    exit 1
++  fi
+ }
+ 
+-mac_mini_preflight_summary() {
+-  local missing
+-  missing="$(mac_mini_missing_env_vars || true)"
+-  if [ -f "${MAC_MINI_ROOT}/.env.local" ] || [ -f "${MAC_MINI_ROOT}/.env" ]; then
+-    printf 'env_file=present\n'
+-  else
+-    printf 'env_file=missing\n'
++mac_mini_assert_plist_matches_contract() {
++  local plist_file="$1"
++  local expected_program="$2"
++
++  if [ ! -f "${plist_file}" ]; then
++    echo "Missing plist: ${plist_file}" >&2
++    exit 1
+   fi
+ 
+-  if [ -d "${MAC_MINI_ROOT}/node_modules" ]; then
+-    printf 'node_modules=present\n'
+-  else
+-    printf 'node_modules=missing\n'
++  if ! grep -F "<string>${MAC_MINI_CANONICAL_ROOT}</string>" "${plist_file}" >/dev/null 2>&1; then
++    echo "Plist does not point at the canonical root: ${plist_file}" >&2
++    exit 1
+   fi
+ 
++  if ! grep -F "<string>${expected_program}</string>" "${plist_file}" >/dev/null 2>&1; then
++    echo "Plist does not point at the expected script: ${plist_file}" >&2
++    exit 1
++  fi
++
++  if ! grep -F "<string>${MAC_MINI_AUTH_MODE}</string>" "${plist_file}" >/dev/null 2>&1; then
++    echo "Plist does not embed the expected auth mode: ${plist_file}" >&2
++    exit 1
++  fi
++}
++
++mac_mini_preflight_summary() {
++  local missing
++  local build_state
++  missing="$(mac_mini_missing_env_vars || true)"
++  build_state="missing"
+   if mac_mini_build_is_present; then
+-    printf 'build=present\n'
+-  else
+-    printf 'build=missing\n'
++    build_state="present"
+   fi
+ 
++  printf 'contract_file=%s\n' "${MAC_MINI_CONTRACT_FILE}"
++  printf 'fingerprint_file=%s %s\n' "${MAC_MINI_FINGERPRINT_FILE}" "$([ -f "${MAC_MINI_FINGERPRINT_FILE}" ] && echo present || echo missing)"
++  printf 'expected_release_file=%s %s\n' "${MAC_MINI_EXPECTED_RELEASE_FILE}" "$([ -f "${MAC_MINI_EXPECTED_RELEASE_FILE}" ] && echo present || echo missing)"
++  printf 'last_known_good_file=%s %s\n' "${MAC_MINI_LAST_KNOWN_GOOD_FILE}" "$([ -f "${MAC_MINI_LAST_KNOWN_GOOD_FILE}" ] && echo present || echo missing)"
++  printf 'previous_known_good_file=%s %s\n' "${MAC_MINI_PREVIOUS_KNOWN_GOOD_FILE}" "$([ -f "${MAC_MINI_PREVIOUS_KNOWN_GOOD_FILE}" ] && echo present || echo missing)"
++  printf 'canonical_root=%s\n' "${MAC_MINI_CANONICAL_ROOT}"
++  printf 'auth_mode=%s\n' "${PAT_AUTH_MODE:-${MAC_MINI_AUTH_MODE}}"
++  printf 'sign_in_path=%s\n' "${MAC_MINI_SIGN_IN_PATH}"
++  printf 'compat_login_path=%s\n' "${MAC_MINI_COMPAT_LOGIN_PATH}"
++  printf 'branch=%s\n' "$(mac_mini_git_branch)"
++  printf 'commit=%s\n' "$(mac_mini_git_commit)"
++  printf 'git_dirty=%s\n' "$(mac_mini_git_dirty)"
++  printf 'state_file=%s %s\n' "${MAC_MINI_CANONICAL_STATE_FILE}" "$([ -f "${MAC_MINI_CANONICAL_STATE_FILE}" ] && echo present || echo missing)"
++  printf 'build=%s\n' "${build_state}"
+   if [ -n "${missing}" ]; then
+     printf 'env_ready=no missing=%s\n' "$(printf '%s' "${missing}" | tr '\n' ',' | sed 's/,$//')"
+   else
+     printf 'env_ready=yes\n'
+   fi
+ }
++
++mac_mini_latest_verify_summary() {
++  local latest
++  latest="$(ls -1t "${MAC_MINI_REPORT_DIR}"/nightly-summary-*.txt 2>/dev/null | head -n 1 || true)"
++  if [ -n "${latest}" ]; then
++    printf '%s' "${latest}"
++  fi
++}
++
++mac_mini_prune_artifacts() {
++  find "${MAC_MINI_LOG_DIR}" -type f -mtime +14 -delete 2>/dev/null || true
++  find "${MAC_MINI_REPORT_DIR}" -mindepth 1 -maxdepth 1 -type d -mtime +30 -exec rm -rf {} + 2>/dev/null || true
++  find "${MAC_MINI_REPORT_DIR}" -type f -mtime +30 -delete 2>/dev/null || true
++}
++
++mac_mini_run_self_check() {
++  mac_mini_ensure_dirs
++  mac_mini_load_contract
++  mac_mini_load_env
++  mac_mini_assert_contract_ready
++  printf '%s\n' "$(mac_mini_preflight_summary)"
++}
++
++mac_mini_run_self_dry_run() {
++  mac_mini_run_self_check
++  printf 'launchd_app_target=%s\n' "gui/${UID}/${MAC_MINI_APP_LABEL}"
++  printf 'launchd_verify_target=%s\n' "gui/${UID}/${MAC_MINI_VERIFY_LABEL}"
++  printf 'production_start_command=node %s/.next/standalone/server.js\n' "${MAC_MINI_CANONICAL_ROOT}"
++}
++
++if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
++  case "${1:-}" in
++    --check)
++      mac_mini_run_self_check
++      ;;
++    --dry-run)
++      mac_mini_run_self_dry_run
++      ;;
++    *)
++      echo "Usage: bash scripts/mac-mini/common.sh [--check|--dry-run]" >&2
++      exit 1
++      ;;
++  esac
++fi
+diff --git a/scripts/mac-mini/launchd-check.sh b/scripts/mac-mini/launchd-check.sh
+index f17720d..e642f88 100644
+--- a/scripts/mac-mini/launchd-check.sh
++++ b/scripts/mac-mini/launchd-check.sh
+@@ -7,13 +7,18 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ . "${SCRIPT_DIR}/common.sh"
+ 
+ mac_mini_ensure_dirs
++mac_mini_load_contract
+ mac_mini_load_env
++mac_mini_load_canonical_state || true
+ 
+ app_agent_path="$(mac_mini_launch_agent_path "${MAC_MINI_APP_LABEL}")"
+ verify_agent_path="$(mac_mini_launch_agent_path "${MAC_MINI_VERIFY_LABEL}")"
+ 
+ printf 'app_plist=%s %s\n' "${app_agent_path}" "$([ -f "${app_agent_path}" ] && echo present || echo missing)"
+ printf 'verify_plist=%s %s\n' "${verify_agent_path}" "$([ -f "${verify_agent_path}" ] && echo present || echo missing)"
++printf 'canonical_root=%s\n' "${MAC_MINI_CANONICAL_ROOT}"
++printf 'auth_mode=%s\n' "${PAT_AUTH_MODE}"
++printf 'state_file=%s %s\n' "${MAC_MINI_CANONICAL_STATE_FILE}" "$([ -f "${MAC_MINI_CANONICAL_STATE_FILE}" ] && echo present || echo missing)"
+ printf '%s\n' "$(mac_mini_preflight_summary)"
+ 
+ if mac_mini_has_launchctl; then
+diff --git a/scripts/mac-mini/launchd-install.sh b/scripts/mac-mini/launchd-install.sh
+index cd8472a..20023b0 100644
+--- a/scripts/mac-mini/launchd-install.sh
++++ b/scripts/mac-mini/launchd-install.sh
+@@ -6,61 +6,139 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ # shellcheck disable=SC1091
+ . "${SCRIPT_DIR}/common.sh"
+ 
++MODE="${1:-install}"
++
+ mac_mini_require_cmd plutil
+ mac_mini_ensure_dirs
++mac_mini_load_contract
+ mac_mini_load_env
+-mac_mini_assert_env_ready
++mac_mini_assert_contract_ready
+ 
+-template_dir="${MAC_MINI_ROOT}/ops/mac-mini/launchd"
++template_dir="${MAC_MINI_CANONICAL_ROOT}/ops/mac-mini/launchd"
+ app_template="${template_dir}/${MAC_MINI_APP_LABEL}.plist.template"
+ verify_template="${template_dir}/${MAC_MINI_VERIFY_LABEL}.plist.template"
+ app_rendered="${MAC_MINI_LAUNCHD_DIR}/${MAC_MINI_APP_LABEL}.plist"
+ verify_rendered="${MAC_MINI_LAUNCHD_DIR}/${MAC_MINI_VERIFY_LABEL}.plist"
+ app_agent_path="$(mac_mini_launch_agent_path "${MAC_MINI_APP_LABEL}")"
+ verify_agent_path="$(mac_mini_launch_agent_path "${MAC_MINI_VERIFY_LABEL}")"
+-
+-if [ ! -f "${app_template}" ] || [ ! -f "${verify_template}" ]; then
+-  echo "Launchd templates are missing under ops/mac-mini/launchd." >&2
+-  exit 1
+-fi
+-
+-if [ ! -d "${MAC_MINI_ROOT}/node_modules" ]; then
+-  echo "node_modules is missing. Run 'pnpm install' before installing launch agents." >&2
+-  exit 1
+-fi
++app_target="gui/${UID}/${MAC_MINI_APP_LABEL}"
++verify_target="gui/${UID}/${MAC_MINI_VERIFY_LABEL}"
+ 
+ render_template() {
+   local input="$1"
+   local output="$2"
+ 
+   sed \
+-    -e "s#__ROOT__#${MAC_MINI_ROOT}#g" \
++    -e "s#__ROOT__#${MAC_MINI_CANONICAL_ROOT}#g" \
+     -e "s#__HOME__#${HOME}#g" \
+     -e "s#__PORT__#${PORT}#g" \
+     -e "s#__MAC_MINI_HOST__#${MAC_MINI_HOST}#g" \
+     -e "s#__PATH__#${PATH}#g" \
++    -e "s#__AUTH_MODE__#${MAC_MINI_AUTH_MODE}#g" \
++    -e "s#__CONTRACT_FILE__#${MAC_MINI_CONTRACT_FILE}#g" \
++    -e "s#__STATE_FILE__#${MAC_MINI_CANONICAL_STATE_FILE}#g" \
+     "${input}" > "${output}"
+ }
+ 
++write_canonical_state() {
++  local fingerprint_seed
++  fingerprint_seed="$(mac_mini_compute_release_fingerprint_seed)"
++
++  cat > "${MAC_MINI_CANONICAL_STATE_FILE}" <<EOF
++{
++  "schemaVersion": 1,
++  "writtenAt": "$(mac_mini_now_utc)",
++  "canonicalRoot": "${MAC_MINI_CANONICAL_ROOT}",
++  "authMode": "${MAC_MINI_AUTH_MODE}",
++  "releaseFingerprintSeed": "${fingerprint_seed}",
++  "branch": "$(mac_mini_git_branch)",
++  "commit": "$(mac_mini_git_commit)",
++  "gitDirty": "$(mac_mini_git_dirty)",
++  "buildId": "$(mac_mini_build_id)",
++  "launchdAppPlist": "${app_agent_path}",
++  "launchdVerifyPlist": "${verify_agent_path}",
++  "launchdAppTarget": "${app_target}",
++  "launchdVerifyTarget": "${verify_target}"
++}
++EOF
++}
++
++check_install() {
++  mac_mini_validate_canonical_state
++  local app_plist_to_check="${app_rendered}"
++  local verify_plist_to_check="${verify_rendered}"
++  if [ ! -f "${app_plist_to_check}" ]; then
++    app_plist_to_check="${app_agent_path}"
++  fi
++  if [ ! -f "${verify_plist_to_check}" ]; then
++    verify_plist_to_check="${verify_agent_path}"
++  fi
++  mac_mini_assert_plist_matches_contract "${app_plist_to_check}" "${MAC_MINI_CANONICAL_ROOT}/scripts/mac-mini/app-start.sh"
++  mac_mini_assert_plist_matches_contract "${verify_plist_to_check}" "${MAC_MINI_CANONICAL_ROOT}/scripts/mac-mini/nightly-verify.sh"
++  printf 'canonical_root_state=%s\n' "${MAC_MINI_CANONICAL_STATE_FILE}"
++  printf 'release_fingerprint=%s\n' "${MAC_MINI_FINGERPRINT_FILE}"
++  printf 'launchd_app_plist=%s\n' "${app_plist_to_check}"
++  printf 'launchd_verify_plist=%s\n' "${verify_plist_to_check}"
++  printf 'launchd_app_target=%s\n' "${app_target}"
++  printf 'launchd_verify_target=%s\n' "${verify_target}"
++}
++
++if [ "${MODE}" = "--check" ]; then
++  check_install
++  exit 0
++fi
++
++if [ "${MODE}" != "install" ] && [ "${MODE}" != "--dry-run" ]; then
++  echo "Usage: bash scripts/mac-mini/launchd-install.sh [--check|--dry-run]" >&2
++  exit 1
++fi
++
++if [ ! -f "${app_template}" ] || [ ! -f "${verify_template}" ]; then
++  echo "Launchd templates are missing under ops/mac-mini/launchd." >&2
++  exit 1
++fi
++
++mac_mini_assert_env_ready
++mac_mini_build_if_needed
++
++node "${MAC_MINI_CANONICAL_ROOT}/scripts/release/prelaunch-gate.mjs" \
++  --root "${MAC_MINI_CANONICAL_ROOT}" \
++  --port "${PAT_RELEASE_GATE_PORT:-3310}"
++
+ mkdir -p "${HOME}/Library/LaunchAgents"
+ render_template "${app_template}" "${app_rendered}"
+ render_template "${verify_template}" "${verify_rendered}"
+ plutil -lint "${app_rendered}" >/dev/null
+ plutil -lint "${verify_rendered}" >/dev/null
++
++if [ "${MODE}" = "--dry-run" ]; then
++  write_canonical_state
++  mac_mini_write_release_state "launchd-install-dry-run"
++  mac_mini_write_release_fingerprint
++  mac_mini_write_expected_release
++  printf 'would_render_app_plist=%s\n' "${app_rendered}"
++  printf 'would_render_verify_plist=%s\n' "${verify_rendered}"
++  printf 'would_install_app_plist=%s\n' "${app_agent_path}"
++  printf 'would_install_verify_plist=%s\n' "${verify_agent_path}"
++  printf 'auth_mode=%s\n' "${MAC_MINI_AUTH_MODE}"
++  printf 'canonical_root=%s\n' "${MAC_MINI_CANONICAL_ROOT}"
++  exit 0
++fi
++
+ cp "${app_rendered}" "${app_agent_path}"
+ cp "${verify_rendered}" "${verify_agent_path}"
++write_canonical_state
++mac_mini_write_release_state "launchd-install"
++mac_mini_write_release_fingerprint
++mac_mini_write_expected_release
+ 
+ if mac_mini_has_launchctl; then
+   launchctl bootout "gui/${UID}" "${app_agent_path}" >/dev/null 2>&1 || true
+   launchctl bootout "gui/${UID}" "${verify_agent_path}" >/dev/null 2>&1 || true
+   launchctl bootstrap "gui/${UID}" "${app_agent_path}"
+   launchctl bootstrap "gui/${UID}" "${verify_agent_path}"
+-  launchctl enable "gui/${UID}/${MAC_MINI_APP_LABEL}"
+-  launchctl enable "gui/${UID}/${MAC_MINI_VERIFY_LABEL}"
+-  launchctl kickstart -k "gui/${UID}/${MAC_MINI_APP_LABEL}"
+-else
+-  echo "launchctl is unavailable on this host. Plists were rendered but not bootstrapped." >&2
++  launchctl enable "${app_target}"
++  launchctl enable "${verify_target}"
+ fi
+ 
+-printf 'Installed launch agents:\n%s\n%s\n' "${app_agent_path}" "${verify_agent_path}"
+-bash "${SCRIPT_DIR}/launchd-check.sh"
++check_install
+diff --git a/scripts/mac-mini/nightly-verify.sh b/scripts/mac-mini/nightly-verify.sh
+index f45f225..d0e3f12 100644
+--- a/scripts/mac-mini/nightly-verify.sh
++++ b/scripts/mac-mini/nightly-verify.sh
+@@ -6,10 +6,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ # shellcheck disable=SC1091
+ . "${SCRIPT_DIR}/common.sh"
+ 
+-mac_mini_require_cmd pnpm
+ mac_mini_ensure_dirs
+ mac_mini_prune_artifacts
++mac_mini_load_contract
+ mac_mini_load_env
++mac_mini_assert_contract_ready
+ 
+ timestamp="$(mac_mini_timestamp)"
+ report_dir="${MAC_MINI_REPORT_DIR}/${timestamp}"
+@@ -35,7 +36,8 @@ run_and_capture() {
+ 
+ {
+   printf 'timestamp=%s\n' "$(mac_mini_now_utc)"
+-  printf 'repo=%s\n' "${MAC_MINI_ROOT}"
++  printf 'repo=%s\n' "${MAC_MINI_CANONICAL_ROOT}"
++  printf 'auth_mode=%s\n' "${PAT_AUTH_MODE}"
+   printf 'branch=%s\n' "$(mac_mini_git_branch)"
+   printf 'commit=%s\n' "$(mac_mini_git_commit)"
+   printf 'git_dirty=%s\n' "$(mac_mini_git_dirty)"
+@@ -44,13 +46,22 @@ run_and_capture() {
+   printf '%s\n' "$(mac_mini_preflight_summary)"
+ } > "${summary_file}"
+ 
+-if ! run_and_capture build pnpm build; then
++if ! run_and_capture build npm run build; then
+   failure_count=$((failure_count + 1))
+ else
+   mac_mini_write_release_state "nightly-verify"
++  mac_mini_write_release_fingerprint
+ fi
+ 
+-if ! run_and_capture lint pnpm lint; then
++if ! run_and_capture lint npm run lint; then
++  failure_count=$((failure_count + 1))
++fi
++
++if ! run_and_capture source_integrity node scripts/release/validate-source-integrity.mjs --root "${MAC_MINI_CANONICAL_ROOT}"; then
++  failure_count=$((failure_count + 1))
++fi
++
++if ! run_and_capture approved_markers node scripts/release/verify-approved-pat-markers.mjs --root "${MAC_MINI_CANONICAL_ROOT}"; then
+   failure_count=$((failure_count + 1))
+ fi
+ 
+@@ -62,6 +73,10 @@ if ! run_and_capture status bash "${SCRIPT_DIR}/status.sh"; then
+   failure_count=$((failure_count + 1))
+ fi
+ 
++if ! run_and_capture live_pat_surfaces node scripts/release/validate-pat-surfaces.mjs --root "${MAC_MINI_CANONICAL_ROOT}" --base-url "$(mac_mini_app_url)"; then
++  failure_count=$((failure_count + 1))
++fi
++
+ if ! run_and_capture disk df -h .; then
+   failure_count=$((failure_count + 1))
+ fi
+@@ -83,6 +98,10 @@ if [ -f "${report_dir}/status.log" ]; then
+   printf 'status_summary=%s\n' "$(grep -E '^(branch|commit|listen|health|build_id|build_time|last_verify)=' "${report_dir}/status.log" | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g')" >> "${summary_file}"
+ fi
+ 
++if [ "${failure_count}" -eq 0 ]; then
++  mac_mini_promote_last_known_good_release
++  printf 'last_known_good=%s\n' "${MAC_MINI_LAST_KNOWN_GOOD_FILE}" >> "${summary_file}"
++fi
+ cp "${summary_file}" "${MAC_MINI_STATE_DIR}/latest-nightly-summary.txt"
+ printf 'summary=%s\n' "${summary_file}"
+ if [ "${failure_count}" -gt 0 ]; then
+diff --git a/scripts/mac-mini/status.sh b/scripts/mac-mini/status.sh
+index 3f5304e..735c991 100644
+--- a/scripts/mac-mini/status.sh
++++ b/scripts/mac-mini/status.sh
+@@ -7,7 +7,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ . "${SCRIPT_DIR}/common.sh"
+ 
+ mac_mini_ensure_dirs
++mac_mini_load_contract
+ mac_mini_load_env
++mac_mini_load_canonical_state || true
++mac_mini_load_release_fingerprint || true
+ 
+ app_agent_status="unavailable"
+ verify_agent_status="unavailable"
+@@ -51,15 +54,18 @@ mac_mini_load_release_state || true
+ preflight_output="$(mac_mini_preflight_summary)"
+ 
+ printf 'time=%s\n' "$(mac_mini_now_utc)"
+-printf 'repo=%s\n' "${MAC_MINI_ROOT}"
++printf 'repo=%s\n' "${MAC_MINI_CANONICAL_ROOT}"
+ printf 'branch=%s\n' "${branch}"
+ printf 'commit=%s\n' "${commit}"
+ printf 'git_dirty=%s\n' "${dirty}"
++printf 'auth_mode=%s\n' "${PAT_AUTH_MODE}"
+ printf 'app_label=%s\n' "${MAC_MINI_APP_LABEL}"
+ printf 'verify_label=%s\n' "${MAC_MINI_VERIFY_LABEL}"
+ printf 'launchd_mode=%s\n' "${launchd_mode}"
+ printf 'launchd_app=%s\n' "${app_agent_status}"
+ printf 'launchd_verify=%s\n' "${verify_agent_status}"
++printf 'launchd_app_target=%s\n' "${app_launchd_target}"
++printf 'launchd_verify_target=%s\n' "${verify_launchd_target}"
+ printf 'listen=%s host=%s port=%s\n' "${listening}" "${MAC_MINI_HOST}" "${PORT}"
+ printf 'health=%s %s\n' "${health_status}" "${health_details}"
+ printf 'app_url=%s\n' "$(mac_mini_app_url)"
+@@ -69,6 +75,27 @@ printf 'build_reason=%s\n' "${BUILD_REASON:-unknown}"
+ printf 'build_commit=%s\n' "${COMMIT:-unknown}"
+ printf 'build_branch=%s\n' "${BRANCH:-unknown}"
+ printf 'build_age=%s\n' "$(mac_mini_build_age_human)"
++printf 'fingerprint_release_id=%s\n' "${MAC_MINI_FINGERPRINT_RELEASE_ID:-missing}"
++printf 'fingerprint_branch=%s\n' "${MAC_MINI_FINGERPRINT_BRANCH:-missing}"
++printf 'fingerprint_commit_sha=%s\n' "${MAC_MINI_FINGERPRINT_COMMIT_SHA:-missing}"
++printf 'fingerprint_canonical_root=%s\n' "${MAC_MINI_FINGERPRINT_CANONICAL_ROOT:-missing}"
++printf 'fingerprint_build_timestamp=%s\n' "${MAC_MINI_FINGERPRINT_BUILD_TIMESTAMP:-missing}"
++printf 'fingerprint_auth_mode=%s\n' "${MAC_MINI_FINGERPRINT_AUTH_MODE:-missing}"
++printf 'fingerprint_build_source_type=%s\n' "${MAC_MINI_FINGERPRINT_BUILD_SOURCE_TYPE:-missing}"
++printf 'fingerprint_build_id=%s\n' "${MAC_MINI_FINGERPRINT_BUILD_ID:-missing}"
++printf 'fingerprint_seed=%s\n' "${MAC_MINI_FINGERPRINT_SEED:-missing}"
++if [ -f "${MAC_MINI_EXPECTED_RELEASE_FILE}" ]; then
++  printf 'expected_release_id=%s\n' "$(node --input-type=module -e 'import fs from "node:fs"; const file = process.argv[1]; const data = JSON.parse(fs.readFileSync(file, "utf8")); console.log(String(data.releaseId ?? "missing"));' "${MAC_MINI_EXPECTED_RELEASE_FILE}")"
++fi
++if [ -f "${MAC_MINI_LAST_KNOWN_GOOD_FILE}" ]; then
++  printf 'last_known_good_release_id=%s\n' "$(node --input-type=module -e 'import fs from "node:fs"; const file = process.argv[1]; const data = JSON.parse(fs.readFileSync(file, "utf8")); console.log(String(data.releaseId ?? "missing"));' "${MAC_MINI_LAST_KNOWN_GOOD_FILE}")"
++fi
++if [ -f "${MAC_MINI_PREVIOUS_KNOWN_GOOD_FILE}" ]; then
++  printf 'previous_known_good_release_id=%s\n' "$(node --input-type=module -e 'import fs from "node:fs"; const file = process.argv[1]; const data = JSON.parse(fs.readFileSync(file, "utf8")); console.log(String(data.releaseId ?? "missing"));' "${MAC_MINI_PREVIOUS_KNOWN_GOOD_FILE}")"
++fi
++printf 'state_root=%s\n' "${MAC_MINI_STATE_CANONICAL_ROOT:-missing}"
++printf 'state_auth_mode=%s\n' "${MAC_MINI_STATE_AUTH_MODE:-missing}"
++printf 'state_fingerprint_seed=%s\n' "${MAC_MINI_STATE_FINGERPRINT_SEED:-missing}"
+ printf '%s\n' "${preflight_output}"
+ if [ -n "${last_verify}" ]; then
+   printf 'last_verify=%s\n' "${last_verify}"
+diff --git a/tests/auth-env.contract.test.ts b/tests/auth-env.contract.test.ts
+index ec763fb..2444055 100644
+--- a/tests/auth-env.contract.test.ts
++++ b/tests/auth-env.contract.test.ts
+@@ -1,5 +1,6 @@
+ import { afterEach, describe, expect, it } from "vitest";
+ import { getResolvedAuthEnv, getResolvedAuthSecret } from "@/lib/auth/env";
++import { getRuntimeContract } from "@/lib/runtimeContract";
+ 
+ const ORIGINAL_AUTH_SECRET = process.env.AUTH_SECRET;
+ const ORIGINAL_NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET;
+@@ -54,6 +55,11 @@ afterEach(() => {
+ });
+ 
+ describe("auth env secret resolution", () => {
++  it("binds auth env resolution to the runtime contract production mode", () => {
++    expect(getRuntimeContract().productionAuthMode).toBe("github");
++    expect(getResolvedAuthEnv().authMode).toBe("github");
++  });
++
+   it("uses the same resolved secret helper that auth and proxy depend on", () => {
+     process.env.AUTH_SECRET = "preferred-auth-secret";
+     process.env.NEXTAUTH_SECRET = "fallback-nextauth-secret";
+@@ -80,6 +86,7 @@ describe("auth env secret resolution", () => {
+     const misaligned = getResolvedAuthEnv();
+     expect(misaligned.githubProviderReady).toBe(true);
+     expect(misaligned.githubAuthEnabled).toBe(false);
++    expect(misaligned.credentialsAuthEnabled).toBe(false);
+     expect(misaligned.callbackUrl).toBe("http://localhost:3000/api/auth/callback/github");
+     expect(misaligned.githubAvailabilityReason).toContain("http://127.0.0.1:3001");
+ 

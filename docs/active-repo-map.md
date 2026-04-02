@@ -1,7 +1,15 @@
 # Active Repo Map
 
+## Release-root classification
+- `/Users/camerongarrett/work/c2acct-live`: canonical PAT recovery root and only candidate live root.
+- `/Users/camerongarrett/work/c2acct`: development-only workspace, non-live.
+- `/private/tmp/c2acct-main-auth`: mixed release copy, quarantined, non-live.
+
 ## Runtime path
-- `app/login/page.tsx`: auth entrypoint.
+- `app/page.tsx`: canonical PAT homepage on the 2026-03-31 rollback baseline.
+- `app/layout.tsx`: canonical PAT shell/header/nav on the 2026-03-31 rollback baseline.
+- `app/sign-in/page.tsx`: canonical PAT sign-in hub on the 2026-03-31 rollback baseline.
+- `app/login/page.tsx`: legacy first-class auth page preserved by the 2026-03-31 rollback baseline; not final PAT launch truth.
 - `app/survey/page.tsx`: compatibility redirect to the canonical firm assessment hub.
 - `app/firm/alignment-assessment/page.tsx`: canonical five-module PAT firm assessment entry.
 - `app/survey/[key]/page.tsx`: live survey UI for active modules.
@@ -26,6 +34,11 @@
 - `lib/auth/session.ts`: session-user lookup.
 - `lib/authz.ts`: role and authorization helpers.
 - `app/api/company/select/route.ts` and `app/api/company/default/route.ts`: selected-company context.
+
+## Rollback-state notes
+- `next.config.ts`: baseline config at `078a41f6816e81e599b94423faf501d10c2aa70c`; no standalone runtime hardening is active on this rollback branch.
+- `scripts/mac-mini/app-start.sh`, `scripts/mac-mini/common.sh`, and `scripts/mac-mini/launchd-install.sh`: baseline Mac mini runtime scripts restored to the 2026-03-31 state.
+- `ops/release/pat-surface-manifest.json`: baseline PAT surface marker seed captured from the rollback source of truth. This is an audit artifact, not yet a release gate.
 
 ## Data contract
 - `prisma/schema.prisma`: current source of truth for models and enums.
