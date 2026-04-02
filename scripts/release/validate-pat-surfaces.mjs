@@ -177,6 +177,22 @@ async function readTextResponse(url, init) {
   };
 }
 
+function isRedirectStatus(status) {
+  return [301, 302, 303, 307, 308].includes(status);
+}
+
+function extractCallbackTarget(location) {
+  if (!location) return null;
+  try {
+    const parsed = new URL(location, "http://127.0.0.1");
+    const callbackUrl = parsed.searchParams.get("callbackUrl");
+    const redirectTo = parsed.searchParams.get("redirectTo");
+    return redirectTo ?? callbackUrl;
+  } catch {
+    return null;
+  }
+}
+
 function startStandaloneServer(root, port) {
   const serverPath = path.join(root, ".next", "standalone", "server.js");
   const child = spawn("node", [serverPath], {
@@ -240,22 +256,73 @@ export async function runPatSurfaceValidation({ root, port, timeoutMs, baseUrl: 
     }
 
     for (const routeKey of ["/", "/sign-in", "/vendor", "/firm", "/user", "/admin"]) {
-      const response = await readTextResponse(`${baseUrl}${routeKey}`);
+      const response = await readTextResponse(`${baseUrl}${routeKey}`, { redirect: "manual" });
       routeEvidence[routeKey] = { status: response.status };
-      if (response.status !== 200) {
+
+      if (routeKey === "/" || routeKey === "/sign-in") {
+        if (response.status !== 200) {
+          failures.push(`${routeKey}:unexpected_status:${response.status}`);
+          continue;
+        }
+
+        failures.push(
+          ...validateRouteHtml(
+            routeKey,
+            response.bodyText,
+            manifest.routes[routeKey],
+            manifest.globalForbiddenMarkers
+          )
+        );
+        routeEvidence[routeKey].releaseId = extractBrowserReleaseId(response.bodyText);
+        continue;
+      }
+
+      if (response.status === 200) {
+        failures.push(
+          ...validateRouteHtml(
+            routeKey,
+            response.bodyText,
+            manifest.routes[routeKey],
+            manifest.globalForbiddenMarkers
+          )
+        );
+        routeEvidence[routeKey].releaseId = extractBrowserReleaseId(response.bodyText);
+        continue;
+      }
+
+      if (!isRedirectStatus(response.status)) {
         failures.push(`${routeKey}:unexpected_status:${response.status}`);
+        continue;
+      }
+
+      const location = response.headers.get("location") ?? "";
+      const callbackTarget = extractCallbackTarget(location);
+      routeEvidence[routeKey].location = location;
+      routeEvidence[routeKey].callbackTarget = callbackTarget;
+
+      if (!location.startsWith("/sign-in")) {
+        failures.push(`${routeKey}:bad_redirect_target:${location || "missing"}`);
+        continue;
+      }
+
+      if (callbackTarget !== routeKey) {
+        failures.push(`${routeKey}:bad_callback_target:${callbackTarget || "missing"}`);
+      }
+
+      const signInResponse = await readTextResponse(`${baseUrl}${location}`);
+      if (signInResponse.status !== 200) {
+        failures.push(`${routeKey}:redirect_target_status:${signInResponse.status}`);
         continue;
       }
 
       failures.push(
         ...validateRouteHtml(
-          routeKey,
-          response.bodyText,
-          manifest.routes[routeKey],
+          "/sign-in",
+          signInResponse.bodyText,
+          manifest.routes["/sign-in"],
           manifest.globalForbiddenMarkers
-        )
+        ).map((entry) => entry.replace("/sign-in:", `${routeKey}:sign-in:`))
       );
-      routeEvidence[routeKey].releaseId = extractBrowserReleaseId(response.bodyText);
     }
 
     const homeResponse = await readTextResponse(`${baseUrl}/`);

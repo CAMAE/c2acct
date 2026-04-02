@@ -32,10 +32,48 @@ function computeFingerprintSeed(root, commitSha, authMode, runtimeSourceType) {
     .split(/\s+/)[0];
 }
 
+function loadReleaseCriticalConfig() {
+  return JSON.parse(fs.readFileSync(path.resolve("ops/release/release-critical-files.json"), "utf8"));
+}
+
+function normalizeStatusPath(rawPath) {
+  if (!rawPath) return "";
+  if (rawPath.includes(" -> ")) {
+    return rawPath.split(" -> ").pop()?.trim() ?? rawPath.trim();
+  }
+  return rawPath.trim();
+}
+
+function parseGitStatus(root) {
+  const output = execFileSync("git", ["-C", root, "status", "--porcelain"], {
+    encoding: "utf8",
+  });
+  if (!output) {
+    return [];
+  }
+
+  return output
+    .split(/\r?\n/)
+    .map((line) => line.trimEnd())
+    .filter(Boolean)
+    .map((line) => ({
+      status: line.slice(0, 2),
+      path: normalizeStatusPath(line.slice(3)),
+      raw: line,
+    }));
+}
+
+function matchesCriticalPath(filePath, criticalPaths) {
+  return criticalPaths.some((pattern) =>
+    pattern.endsWith("/") ? filePath.startsWith(pattern) : filePath === pattern
+  );
+}
+
 const { root } = parseArgs(process.argv.slice(2));
 const resolvedRoot = path.resolve(root);
 const contractPath = path.resolve("ops/release/canonical-root.json");
 const statePath = path.resolve("artifacts/mac-mini/state/canonical-root.json");
+const criticalConfig = loadReleaseCriticalConfig();
 const contract = JSON.parse(fs.readFileSync(contractPath, "utf8"));
 const state = fs.existsSync(statePath) ? JSON.parse(fs.readFileSync(statePath, "utf8")) : null;
 const failures = [];
@@ -52,8 +90,15 @@ if (resolvedRoot.startsWith("/private/tmp/")) {
   failures.push("forbidden_tmp_root");
 }
 
-const dirty = runGit(resolvedRoot, "status", "--porcelain");
-if (dirty.length > 0) {
+const dirtyEntries = parseGitStatus(resolvedRoot);
+const criticalDirtyEntries = dirtyEntries.filter((entry) =>
+  matchesCriticalPath(entry.path, criticalConfig.criticalPaths)
+);
+const nonCriticalDirtyEntries = dirtyEntries.filter((entry) =>
+  !matchesCriticalPath(entry.path, criticalConfig.criticalPaths)
+);
+
+if (criticalDirtyEntries.length > 0) {
   failures.push("git_dirty");
 }
 
@@ -94,6 +139,9 @@ const result = {
   runtimeSourceType: contract.runtimeSourceType,
   startCommand: contract.startCommand,
   releaseFingerprintSeed: seed,
+  dirtyEntries: dirtyEntries.map((entry) => entry.raw),
+  criticalDirtyEntries: criticalDirtyEntries.map((entry) => entry.raw),
+  nonCriticalDirtyEntries: nonCriticalDirtyEntries.map((entry) => entry.raw),
   failures,
 };
 

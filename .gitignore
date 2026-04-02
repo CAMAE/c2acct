@@ -44,6 +44,7 @@ artifacts/mac-mini/logs/
 artifacts/mac-mini/reports/
 artifacts/mac-mini/state/
 artifacts/mac-mini/launchd/
+artifacts/reports/
 
 # local machine noise
 .DS_Store
