@@ -1,116 +1,126 @@
 {
-  "schemaVersion": 1,
-  "capturedAt": "2026-04-02",
-  "sourceCommit": "078a41f6816e81e599b94423faf501d10c2aa70c",
-  "sourceBranch": "recovery/pat-2026-03-31-baseline",
-  "canonicalReleaseRoot": "/Users/camerongarrett/work/c2acct-live",
-  "baselineType": "rollback-seed",
-  "notes": [
-    "This file seeds PAT-positive and forbidden AAE markers from the restored 2026-03-31 baseline.",
-    "It is an audit artifact only. It does not add release gates in this prompt."
+  "schemaVersion": 2,
+  "sourceOfTruth": {
+    "canonicalRootName": "c2acct-live",
+    "baselineCommit": "078a41f6816e81e599b94423faf501d10c2aa70c",
+    "reconciledCommit": "2e0a56af79e45056ea45650a68ee7a1252110ead"
+  },
+  "globalForbiddenMarkers": [
+    "AAE",
+    "Autonomous Alignment Infrastructure for Accounting Firms.",
+    "Profiles",
+    "Top Seven Outputs",
+    "Alignment Survey",
+    "pre-approved GitHub accounts"
   ],
-  "protectedSurfaces": {
-    "home": {
-      "sourceFile": "app/page.tsx",
+  "validationArtifacts": [
+    "ops/release/pat-surface-manifest.json",
+    "ops/release/release-critical-files.json",
+    "scripts/release/validate-pat-surfaces.mjs",
+    "scripts/release/verify-approved-pat-markers.mjs",
+    "scripts/release/check-release-critical-changes.mjs",
+    "scripts/release/prelaunch-gate.mjs",
+    "e2e/release-integrity.spec.ts",
+    "tests/release-surface-validator.test.ts"
+  ],
+  "routes": {
+    "/": {
+      "sourceFiles": [
+        "app/page.tsx",
+        "lib/locale.ts"
+      ],
       "positiveMarkers": [
         "PAT",
         "Performance Alignment Technology",
         "The intelligence layer inside C2Acct",
         "Meet PAT",
         "Choose your path"
-      ],
-      "forbiddenMarkers": [
-        "AAE",
-        "Autonomous Alignment Infrastructure for Accounting Firms.",
-        "Profiles",
-        "Top Seven Outputs",
-        "Alignment Survey"
       ]
     },
-    "layout": {
-      "sourceFile": "app/layout.tsx",
+    "header": {
+      "sourceFiles": [
+        "app/layout.tsx",
+        "app/components/header/AppHeader.tsx",
+        "lib/locale.ts"
+      ],
       "positiveMarkers": [
-        "C2Acct | PAT",
-        "Home",
         "Meet PAT",
         "Sign in",
         "Vendor",
         "Firm",
-        "Individual",
-        "C2Core"
-      ],
-      "forbiddenMarkers": [
-        "AAE",
-        "Autonomous Alignment Infrastructure for Accounting Firms.",
-        "Profiles",
-        "Top Seven Outputs",
-        "Alignment Survey"
+        "Individual"
       ]
     },
-    "sign_in": {
-      "sourceFile": "app/sign-in/page.tsx",
-      "positiveMarkers": [
-        "Sign In | C2Acct",
-        "Role-oriented sign-in hub for PAT.",
-        "Choose a PAT role and sign in with the path this runtime actually supports.",
-        "Landing route:",
-        "Development-only local review auth"
+    "/sign-in": {
+      "sourceFiles": [
+        "app/sign-in/page.tsx",
+        "lib/locale.ts"
       ],
-      "forbiddenMarkers": [
-        "AAE",
-        "Autonomous Alignment Infrastructure for Accounting Firms.",
-        "Profiles",
-        "Top Seven Outputs",
-        "Alignment Survey",
-        "Use your approved GitHub account"
+      "positiveMarkers": [
+        "SIGN-IN",
+        "Canonical local origin:",
+        "Landing route:"
       ]
     },
-    "login": {
-      "sourceFile": "app/login/page.tsx",
-      "positiveMarkers": [
-        "Performance Alignment Technology",
-        "Continue with GitHub",
-        "Development-only local review auth"
-      ],
-      "forbiddenMarkers": [
-        "AAE",
-        "Autonomous Alignment Infrastructure for Accounting Firms.",
-        "Profiles",
-        "Top Seven Outputs",
-        "Alignment Survey"
-      ],
-      "status": "baseline-legacy-surface"
-    },
-    "role_routes": {
+    "/vendor": {
       "sourceFiles": [
         "app/vendor/page.tsx",
+        "lib/locale.ts"
+      ],
+      "positiveMarkers": [
+        "Vendor portal",
+        "Your vendor workspace in PAT"
+      ]
+    },
+    "/firm": {
+      "sourceFiles": [
         "app/firm/page.tsx",
+        "lib/locale.ts"
+      ],
+      "positiveMarkers": [
+        "Firm portal",
+        "Your firm workspace in PAT"
+      ]
+    },
+    "/user": {
+      "sourceFiles": [
         "app/user/page.tsx",
+        "lib/locale.ts"
+      ],
+      "positiveMarkers": [
+        "Individual portal",
+        "Your individual workspace for PAT"
+      ]
+    },
+    "/admin": {
+      "sourceFiles": [
         "app/admin/page.tsx"
       ],
       "positiveMarkers": [
-        "Vendor | C2Acct",
-        "Firm | C2Acct",
-        "Individual | C2Acct",
         "C2Core operator control plane",
         "Canonical PAT firm runtime"
+      ]
+    },
+    "/login": {
+      "sourceFiles": [
+        "app/login/page.tsx",
+        "lib/auth/routes.ts"
+      ],
+      "mode": "compatibility-only",
+      "expectedRedirectPrefix": "/sign-in",
+      "positiveMarkers": [
+        "buildCanonicalSignInPath",
+        "redirect("
       ],
       "forbiddenMarkers": [
-        "AAE",
+        "Continue with GitHub",
+        "pre-approved GitHub accounts",
+        "Top Seven Outputs",
+        "Alignment Survey",
         "Autonomous Alignment Infrastructure for Accounting Firms.",
         "Profiles",
-        "Top Seven Outputs",
-        "Alignment Survey"
+        "AAE"
       ]
     }
-  },
-  "rootClassification": {
-    "canonical": "/Users/camerongarrett/work/c2acct-live",
-    "developmentOnly": [
-      "/Users/camerongarrett/work/c2acct"
-    ],
-    "quarantined": [
-      "/private/tmp/c2acct-main-auth"
-    ]
   }
 }

@@ -51,6 +51,7 @@ dirty="$(mac_mini_git_dirty)"
 last_verify="$(mac_mini_latest_verify_summary)"
 mac_mini_load_release_state || true
 preflight_output="$(mac_mini_preflight_summary)"
+fingerprint_env="$(node --import tsx "${MAC_MINI_ROOT}/scripts/release/read-release-fingerprint.ts" --format env)"
 
 printf 'time=%s\n' "$(mac_mini_now_utc)"
 printf 'canonical_root=%s\n' "${MAC_MINI_CANONICAL_ROOT}"
@@ -76,6 +77,7 @@ printf 'build_reason=%s\n' "${BUILD_REASON:-unknown}"
 printf 'build_commit=%s\n' "${COMMIT:-unknown}"
 printf 'build_branch=%s\n' "${BRANCH:-unknown}"
 printf 'build_age=%s\n' "$(mac_mini_build_age_human)"
+printf '%s\n' "${fingerprint_env}"
 printf '%s\n' "${preflight_output}"
 if [ -n "${last_verify}" ]; then
   printf 'last_verify=%s\n' "${last_verify}"

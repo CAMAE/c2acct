@@ -9,7 +9,7 @@
     "start": "next start",
     "release:gate": "node scripts/release/validate-source-integrity.mjs --root .",
     "release:smoke": "npm run build",
-    "release:prelaunch": "npm run release:smoke && npm run release:gate",
+    "release:prelaunch": "npm run release:smoke && node scripts/release/prelaunch-gate.mjs --root .",
     "lint": "eslint --max-warnings=-1",
     "lint:repo": "eslint app lib prisma scripts --max-warnings=0",
     "lint:test": "eslint app lib prisma scripts tests e2e --max-warnings=0",

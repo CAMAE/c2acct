@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import AppHeader, { type HeaderNavItem } from "@/app/components/header/AppHeader";
 import { barlowFontClassName } from "@/app/fonts/barlow";
 import { getSessionUser } from "@/lib/auth/session";
+import { getPublicReleaseFingerprint } from "@/lib/release/fingerprint";
 import {
   APP_LOCALE_COOKIE,
   getLocaleMessages,
@@ -25,6 +26,7 @@ export default async function RootLayout({
   const locale = resolveLocale(cookieStore.get(APP_LOCALE_COOKIE)?.value);
   const messages = getLocaleMessages(locale);
   const sessionUser = await getSessionUser();
+  const releaseFingerprint = getPublicReleaseFingerprint();
   const experience = await resolvePortalExperience(sessionUser);
   const enabledHrefs = new Set(
     experience.surfaces
@@ -71,6 +73,13 @@ export default async function RootLayout({
                 className="h-3.5 w-px rounded-full bg-[var(--shell-border-strong)]"
               />
               <span>{messages.chrome.pat}</span>
+              <span
+                aria-hidden="true"
+                className="h-3.5 w-px rounded-full bg-[var(--shell-border-strong)]"
+              />
+              <span data-release-fingerprint={releaseFingerprint.releaseId}>
+                Release {releaseFingerprint.releaseId}
+              </span>
             </div>
           </div>
         </footer>
