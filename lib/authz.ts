@@ -1,5 +1,6 @@
 import type { UserRole } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { buildProtectedSignInRedirectPath } from "@/lib/auth/routes";
 import type { AssessmentSubjectContext } from "@/lib/subjectContext";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
@@ -84,10 +85,9 @@ export function isProtectedPatApiPath(pathname: string) {
   );
 }
 
-export function buildLoginRedirectPath(input: {
+export function buildSignInRedirectPath(input: {
   pathname: string;
   search?: string;
 }) {
-  const callbackUrl = `${input.pathname}${input.search ?? ""}`;
-  return `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+  return buildProtectedSignInRedirectPath(input);
 }

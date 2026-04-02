@@ -2,6 +2,13 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { signIn } from "@/auth";
 import { signInWithLocalReviewCredentials } from "@/lib/auth/localReviewActions";
+import {
+  buildCanonicalSignInPath,
+  inferCanonicalSignInView,
+  resolvePostAuthRedirectForView,
+  sanitizeAuthRedirect,
+  type CanonicalSignInView,
+} from "@/lib/auth/routes";
 import MeetPatContent from "@/app/components/pat/MeetPatContent";
 import { getPresentLocalAuthCookies, summarizeLocalAuthCookies } from "@/lib/auth/cookies";
 import { getLocalReviewUsersForUi } from "@/lib/auth/localReview";
@@ -16,7 +23,7 @@ export const metadata = {
 };
 
 type SearchParams = Record<string, string | string[] | undefined>;
-type AccessView = "vendor" | "firm" | "individual" | "admin" | "invitee" | "pat" | "help";
+type AccessView = CanonicalSignInView | "invitee" | "pat" | "help";
 
 function getSingleParam(value: string | string[] | undefined) {
   if (typeof value === "string") return value;
@@ -121,6 +128,7 @@ function RoleAccessCard({
   localReviewRequested,
   localReviewEmail,
   inviteeAccessEnabled,
+  hubHref,
 }: {
   title: string;
   subtitle: string;
@@ -139,6 +147,7 @@ function RoleAccessCard({
   localReviewRequested: boolean;
   localReviewEmail: string | null;
   inviteeAccessEnabled: boolean;
+  hubHref: string;
 }) {
   return (
     <section className="pat-card p-8">
@@ -179,7 +188,7 @@ function RoleAccessCard({
             {accessCodeLabel}
           </Link>
         ) : (
-          <Link className="pat-button-primary" href={`/login?callbackUrl=${encodeURIComponent(roleRedirect)}`}>
+          <Link className="pat-button-primary" href={hubHref}>
             {localAuthLabel}
           </Link>
         )}
@@ -274,6 +283,8 @@ function HelpInline({
   localReviewRequested,
   inviteeAccessEnabled,
   authCookiesPresent,
+  resetPath,
+  resetRedirectTo,
 }: {
   messages: Awaited<ReturnType<typeof getRequestLocaleMessages>>["signIn"];
   callbackTarget: string;
@@ -282,6 +293,8 @@ function HelpInline({
   localReviewRequested: boolean;
   inviteeAccessEnabled: boolean;
   authCookiesPresent: string[];
+  resetPath: string;
+  resetRedirectTo: string;
 }) {
   return (
     <section className="pat-card p-8">
@@ -316,6 +329,13 @@ function HelpInline({
         <div className="mt-2">
           {messages.localAuthCookies}: <span className="font-semibold text-[var(--shell-ink)]">{authCookiesPresent.length > 0 ? authCookiesPresent.join(", ") : "none"}</span>
         </div>
+        <form action={resetPath} method="post" className="mt-4">
+          <input type="hidden" name="redirectTo" value={resetRedirectTo} />
+          <input type="hidden" name="reason" value="stale_callback" />
+          <button type="submit" className="pat-button-secondary">
+            Reset local auth state
+          </button>
+        </form>
       </div>
     </section>
   );
@@ -329,7 +349,11 @@ export default async function SignInHubPage({
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const messages = await getRequestLocaleMessages();
   const requestedView = getSingleParam(resolvedSearchParams?.view);
-  const activeView: AccessView = isAccessView(requestedView) ? requestedView : "vendor";
+  const callbackUrl = getSingleParam(resolvedSearchParams?.callbackUrl);
+  const redirectTo = getSingleParam(resolvedSearchParams?.redirectTo);
+  const requestedTarget = sanitizeAuthRedirect(redirectTo ?? callbackUrl);
+  const inferredView = inferCanonicalSignInView(requestedTarget);
+  const activeView: AccessView = isAccessView(requestedView) ? requestedView : inferredView ?? "vendor";
   const authError = getSingleParam(resolvedSearchParams?.error);
   const authReset = getSingleParam(resolvedSearchParams?.authReset) === "1";
   const authResetReason = getSingleParam(resolvedSearchParams?.authResetReason);
@@ -340,6 +364,17 @@ export default async function SignInHubPage({
   const authErrorCopy = describeAuthError(authError, authCookieState);
   const localReviewUsers = getLocalReviewUsersForUi();
   const localReviewEmailByKey = new Map(localReviewUsers.map((entry) => [entry.key, entry.email]));
+  const requestedRoleRedirects: Record<CanonicalSignInView, string> = {
+    vendor: resolvePostAuthRedirectForView("vendor", requestedTarget),
+    firm: resolvePostAuthRedirectForView("firm", requestedTarget),
+    individual: resolvePostAuthRedirectForView("individual", requestedTarget),
+    admin: resolvePostAuthRedirectForView("admin", requestedTarget),
+  };
+  const resetRedirectTo = buildCanonicalSignInPath({
+    callbackUrl,
+    redirectTo,
+    view: activeView,
+  });
   const toggleOptions: { id: AccessView; label: string }[] = [
     { id: "vendor", label: messages.signIn.vendor },
     { id: "firm", label: messages.signIn.firm },
@@ -395,7 +430,7 @@ export default async function SignInHubPage({
           title={messages.signIn.vendorTitle}
           subtitle={messages.signIn.vendorSubtitle}
           body={messages.signIn.roleBody}
-          roleRedirect="/vendor"
+          roleRedirect={requestedRoleRedirects.vendor}
           view="vendor"
           signInLabel={messages.common.continueWithGitHub}
           accessCodeLabel={messages.common.continueWithAccessCode}
@@ -409,6 +444,7 @@ export default async function SignInHubPage({
           localReviewRequested={authRuntime.localReviewEnabled}
           localReviewEmail={localReviewEmailByKey.get("vendor") ?? null}
           inviteeAccessEnabled={inviteeAccessEnabled}
+          hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.vendor, view: "vendor" })}
         />
       ) : null}
 
@@ -417,7 +453,7 @@ export default async function SignInHubPage({
           title={messages.signIn.firmTitle}
           subtitle={messages.signIn.firmSubtitle}
           body={messages.signIn.roleBody}
-          roleRedirect="/firm"
+          roleRedirect={requestedRoleRedirects.firm}
           view="firm"
           signInLabel={messages.common.continueWithGitHub}
           accessCodeLabel={messages.common.continueWithAccessCode}
@@ -431,6 +467,7 @@ export default async function SignInHubPage({
           localReviewRequested={authRuntime.localReviewEnabled}
           localReviewEmail={localReviewEmailByKey.get("firm") ?? null}
           inviteeAccessEnabled={inviteeAccessEnabled}
+          hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.firm, view: "firm" })}
         />
       ) : null}
 
@@ -439,7 +476,7 @@ export default async function SignInHubPage({
           title={messages.signIn.individualTitle}
           subtitle={messages.signIn.individualSubtitle}
           body={messages.signIn.roleBody}
-          roleRedirect="/user"
+          roleRedirect={requestedRoleRedirects.individual}
           view="individual"
           signInLabel={messages.common.continueWithGitHub}
           accessCodeLabel={messages.common.continueWithAccessCode}
@@ -453,6 +490,7 @@ export default async function SignInHubPage({
           localReviewRequested={authRuntime.localReviewEnabled}
           localReviewEmail={localReviewEmailByKey.get("individual") ?? null}
           inviteeAccessEnabled={inviteeAccessEnabled}
+          hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.individual, view: "individual" })}
         />
       ) : null}
 
@@ -461,7 +499,7 @@ export default async function SignInHubPage({
           title="Admin/operator"
           subtitle="Local operator access"
           body="Use the deterministic admin review account for local-only operator review. This path exists for development review and uses a real Auth.js session when enabled."
-          roleRedirect="/admin"
+          roleRedirect={requestedRoleRedirects.admin}
           view="admin"
           signInLabel={messages.common.continueWithGitHub}
           accessCodeLabel={messages.common.continueWithAccessCode}
@@ -475,6 +513,7 @@ export default async function SignInHubPage({
           localReviewRequested={authRuntime.localReviewEnabled}
           localReviewEmail={localReviewEmailByKey.get("admin") ?? null}
           inviteeAccessEnabled={inviteeAccessEnabled}
+          hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.admin, view: "admin" })}
         />
       ) : null}
 
@@ -515,6 +554,8 @@ export default async function SignInHubPage({
           localReviewRequested={authRuntime.localReviewEnabled}
           inviteeAccessEnabled={inviteeAccessEnabled}
           authCookiesPresent={authCookiesPresent}
+          resetPath={authRuntime.resetPath}
+          resetRedirectTo={resetRedirectTo}
         />
       ) : null}
     </div>

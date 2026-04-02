@@ -7,6 +7,9 @@
     "dev:turbopack": "next dev --turbopack",
     "build": "next build --webpack",
     "start": "next start",
+    "release:gate": "node scripts/release/validate-source-integrity.mjs --root .",
+    "release:smoke": "npm run build",
+    "release:prelaunch": "npm run release:smoke && npm run release:gate",
     "lint": "eslint --max-warnings=-1",
     "lint:repo": "eslint app lib prisma scripts --max-warnings=0",
     "lint:test": "eslint app lib prisma scripts tests e2e --max-warnings=0",
@@ -46,7 +49,8 @@
     "ops:mac-mini:health": "bash scripts/mac-mini/health-check.sh",
     "ops:mac-mini:launchd:install": "bash scripts/mac-mini/launchd-install.sh",
     "ops:mac-mini:launchd:check": "bash scripts/mac-mini/launchd-check.sh",
-    "ops:mac-mini:verify": "bash scripts/mac-mini/nightly-verify.sh"
+    "ops:mac-mini:verify": "bash scripts/mac-mini/nightly-verify.sh",
+    "ops:mac-mini:validate-runtime": "bash scripts/mac-mini/validate-runtime-contract.sh --check"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

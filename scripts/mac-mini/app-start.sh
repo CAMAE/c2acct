@@ -6,10 +6,24 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck disable=SC1091
 . "${SCRIPT_DIR}/common.sh"
 
-mac_mini_require_cmd pnpm
+mode="start"
+for arg in "$@"; do
+  case "${arg}" in
+    --check) mode="check" ;;
+    --dry-run) mode="dry-run" ;;
+    *) ;;
+  esac
+done
+
+mac_mini_require_cmd node
+mac_mini_require_cmd git
+mac_mini_require_cmd shasum
 mac_mini_ensure_dirs
 mac_mini_prune_artifacts
+mac_mini_load_contract
 mac_mini_load_env
+mac_mini_assert_runtime_root_allowed
+mac_mini_assert_clean_root
 mac_mini_assert_env_ready
 
 if [ ! -d "${MAC_MINI_ROOT}/node_modules" ]; then
@@ -17,10 +31,25 @@ if [ ! -d "${MAC_MINI_ROOT}/node_modules" ]; then
   exit 1
 fi
 
+if [ "$(pwd -P)" != "${MAC_MINI_CANONICAL_ROOT}" ]; then
+  echo "Current working directory must be the canonical root: ${MAC_MINI_CANONICAL_ROOT}" >&2
+  exit 1
+fi
+
 mac_mini_build_if_needed
+mac_mini_write_canonical_state "app-start-${mode}"
+start_command="HOSTNAME=${MAC_MINI_HOST} PORT=${PORT} node ${MAC_MINI_ROOT}/.next/standalone/server.js"
+
+if [ "${mode}" = "check" ] || [ "${mode}" = "dry-run" ]; then
+  printf 'mode=%s\n' "${mode}"
+  printf 'canonical_root=%s\n' "${MAC_MINI_CANONICAL_ROOT}"
+  printf 'auth_mode=%s\n' "${MAC_MINI_AUTH_MODE}"
+  printf 'start_command=%s\n' "${start_command}"
+  exit 0
+fi
 
 echo "$(mac_mini_now_utc)" > "${MAC_MINI_STATE_DIR}/app-last-start-at.txt"
 printf '%s\n' "$$" > "${MAC_MINI_STATE_DIR}/app-launch-script.pid"
 
 cd "${MAC_MINI_ROOT}"
-exec pnpm exec next start --hostname "${MAC_MINI_HOST}" --port "${PORT}"
+HOSTNAME="${MAC_MINI_HOST}" PORT="${PORT}" exec node "${MAC_MINI_ROOT}/.next/standalone/server.js"

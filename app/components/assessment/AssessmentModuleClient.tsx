@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import { QuestionInputType } from "@prisma/client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { buildCanonicalSignInPath } from "@/lib/auth/routes";
 import {
   getDefaultAnswer,
   isAnswerPresent,
@@ -418,7 +419,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
           typeof window !== "undefined"
             ? `${window.location.pathname}${window.location.search}`
             : `/survey/${data.key}`;
-        window.location.assign(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+        window.location.assign(buildCanonicalSignInPath({ callbackUrl }));
         return false;
       }
 
@@ -485,7 +486,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
           typeof window !== "undefined"
             ? `${window.location.pathname}${window.location.search}`
             : `/survey/${data.key}`;
-        window.location.assign(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+        window.location.assign(buildCanonicalSignInPath({ callbackUrl }));
         return;
       }
 

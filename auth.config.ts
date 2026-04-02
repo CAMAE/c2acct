@@ -13,9 +13,9 @@ const authConfig: NextAuthConfig = {
     error(code, ...message) {
       const codeText = String(code);
 
-      if (codeText === "JWTSessionError" || codeText === "InvalidCheck") {
-        console.warn(
-          `[auth] ${codeText}: treating local auth state as stale. Use /login to clear session, callback, and PKCE cookies before retrying.`
+        if (codeText === "JWTSessionError" || codeText === "InvalidCheck") {
+          console.warn(
+          `[auth] ${codeText}: treating local auth state as stale. Use /sign-in to clear session, callback, and PKCE cookies before retrying.`
         );
         return;
       }
@@ -63,7 +63,7 @@ const authConfig: NextAuthConfig = {
       : []),
   ],
   pages: {
-    signIn: "/login",
+    signIn: "/sign-in",
   },
 };
 

@@ -15,6 +15,7 @@ import {
 } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { buildCanonicalSignInPath } from "@/lib/auth/routes";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
 import { canAccessPortalAdmin } from "@/lib/authz";
@@ -45,7 +46,7 @@ function getReturnTo(formData: FormData, fallback: string) {
 async function requireAdminActor() {
   const actor = await getSessionUser();
   if (!actor) {
-    redirect("/login?callbackUrl=%2Fadmin");
+    redirect(buildCanonicalSignInPath({ callbackUrl: "/admin", view: "admin" }));
   }
 
   if (!canAccessPortalAdmin(actor)) {

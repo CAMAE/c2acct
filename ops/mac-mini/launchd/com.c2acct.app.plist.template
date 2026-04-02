@@ -16,6 +16,10 @@
     <string>__PORT__</string>
     <key>MAC_MINI_HOST</key>
     <string>__MAC_MINI_HOST__</string>
+    <key>PAT_AUTH_MODE</key>
+    <string>__AUTH_MODE__</string>
+    <key>MAC_MINI_START_COMMAND</key>
+    <string>__START_COMMAND__</string>
   </dict>
   <key>ProgramArguments</key>
   <array>

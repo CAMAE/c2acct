@@ -10,6 +10,7 @@ import {
   TaxonomyBucketKind,
 } from "@prisma/client";
 import { redirect } from "next/navigation";
+import { buildCanonicalSignInPath } from "@/lib/auth/routes";
 import prisma from "@/lib/prisma";
 import { getSessionUser, type SessionUser } from "@/lib/auth/session";
 import { canAccessPortalAdmin } from "@/lib/authz";
@@ -81,7 +82,7 @@ export const PRODUCT_CAPABILITY_COVERAGE_OPTIONS = [
 export async function requireAdminSession(): Promise<SessionUser> {
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
-    redirect("/login?callbackUrl=%2Fadmin");
+    redirect(buildCanonicalSignInPath({ callbackUrl: "/admin", view: "admin" }));
   }
 
   if (!canAccessPortalAdmin(sessionUser)) {

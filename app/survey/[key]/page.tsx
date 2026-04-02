@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import EnsureCompanySelected from "@/app/components/EnsureCompanySelected";
 import AssessmentModuleClient from "@/app/components/assessment/AssessmentModuleClient";
+import { buildCanonicalSignInPath } from "@/lib/auth/routes";
 import { getSessionUser } from "@/lib/auth/session";
 import { USER_ALIGNMENT_MODULE_KEY, ensureUserAlignmentSystem } from "@/lib/userPat";
 
@@ -16,7 +17,7 @@ export default async function SurveyModulePage({
 
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
-    redirect(`/login?callbackUrl=${encodeURIComponent(`/survey/${key}`)}`);
+    redirect(buildCanonicalSignInPath({ callbackUrl: `/survey/${key}` }));
   }
 
   return (

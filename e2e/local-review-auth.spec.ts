@@ -64,14 +64,19 @@ test.describe("local review auth", () => {
   test.setTimeout(60_000);
 
   test("shows deterministic local review entries for vendor, firm, individual, and admin", async ({ page }) => {
-    await page.goto("/login");
-    await expect(page.getByText("Development-only local review auth")).toBeVisible();
-    await expect(page.getByText("review.vendor@pat.local")).toBeVisible();
-    await expect(page.getByText("review.firm@pat.local")).toBeVisible();
-    await expect(page.getByText("review.individual@pat.local")).toBeVisible();
-    await expect(page.getByText("review.admin@pat.local")).toBeVisible();
-    await expect(page.getByText("GitHub sign-in is intentionally unavailable in this local runtime.")).toBeVisible();
-    await expect(page.getByText("http://127.0.0.1:3001/api/auth/callback/github", { exact: true }).first()).toBeVisible();
+    const roleCases = [
+      { view: "vendor", email: "review.vendor@pat.local", landing: "/vendor" },
+      { view: "firm", email: "review.firm@pat.local", landing: "/firm" },
+      { view: "individual", email: "review.individual@pat.local", landing: "/user" },
+      { view: "admin", email: "review.admin@pat.local", landing: "/admin" },
+    ] as const;
+
+    for (const roleCase of roleCases) {
+      await page.goto(`/sign-in?view=${roleCase.view}`);
+      await expect(page.getByText("Development-only local review auth")).toBeVisible();
+      await expect(page.getByText(roleCase.email)).toBeVisible();
+      await expect(page.getByText(roleCase.landing)).toBeVisible();
+    }
   });
 
   test("covers the vendor signed-in product assessment and membership flow", async ({ browser }) => {

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "canonicalRoot": "/Users/camerongarrett/work/c2acct-live",
+  "forbiddenRoots": [
+    "/Users/camerongarrett/work/c2acct",
+    "/private/tmp/c2acct-main-auth"
+  ],
+  "authMode": "github",
+  "runtimeSourceType": "standalone-build",
+  "startCommand": "node .next/standalone/server.js",
+  "baselineCommit": "078a41f6816e81e599b94423faf501d10c2aa70c",
+  "notes": [
+    "Rollback-baseline runtime contract.",
+    "Local review auth remains non-production only."
+  ]
+}

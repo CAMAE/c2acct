@@ -102,7 +102,7 @@ export default function RoleSignInPage({ role }: RoleSignInPageProps) {
           Callback target: <span className="font-semibold text-[var(--shell-ink)]">/{role}</span>
         </div>
         <div className="pat-soft-panel p-5 text-sm leading-6 text-[var(--shell-muted)]">
-          Auth plumbing: <span className="font-semibold text-[var(--shell-ink)]">{authRuntime.localReviewProviderReady ? "role-specific local review or GitHub from /sign-in" : "existing /login flow"}</span>
+          Auth plumbing: <span className="font-semibold text-[var(--shell-ink)]">{authRuntime.localReviewProviderReady ? "role-specific local review or GitHub from /sign-in" : "canonical /sign-in hub"}</span>
         </div>
       </section>
 

@@ -7,6 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "${SCRIPT_DIR}/common.sh"
 
 mac_mini_ensure_dirs
+mac_mini_load_contract
 mac_mini_load_env
 
 app_agent_status="unavailable"
@@ -45,16 +46,21 @@ fi
 
 branch="$(mac_mini_git_branch)"
 commit="$(mac_mini_git_commit)"
+commit_sha="$(mac_mini_git_commit_full)"
 dirty="$(mac_mini_git_dirty)"
 last_verify="$(mac_mini_latest_verify_summary)"
 mac_mini_load_release_state || true
 preflight_output="$(mac_mini_preflight_summary)"
 
 printf 'time=%s\n' "$(mac_mini_now_utc)"
+printf 'canonical_root=%s\n' "${MAC_MINI_CANONICAL_ROOT}"
 printf 'repo=%s\n' "${MAC_MINI_ROOT}"
 printf 'branch=%s\n' "${branch}"
 printf 'commit=%s\n' "${commit}"
+printf 'commit_sha=%s\n' "${commit_sha}"
 printf 'git_dirty=%s\n' "${dirty}"
+printf 'auth_mode=%s\n' "${MAC_MINI_AUTH_MODE}"
+printf 'start_command=%s\n' "${MAC_MINI_START_COMMAND}"
 printf 'app_label=%s\n' "${MAC_MINI_APP_LABEL}"
 printf 'verify_label=%s\n' "${MAC_MINI_VERIFY_LABEL}"
 printf 'launchd_mode=%s\n' "${launchd_mode}"
@@ -63,6 +69,7 @@ printf 'launchd_verify=%s\n' "${verify_agent_status}"
 printf 'listen=%s host=%s port=%s\n' "${listening}" "${MAC_MINI_HOST}" "${PORT}"
 printf 'health=%s %s\n' "${health_status}" "${health_details}"
 printf 'app_url=%s\n' "$(mac_mini_app_url)"
+printf 'release_fingerprint_seed=%s\n' "$(mac_mini_release_fingerprint_seed)"
 printf 'build_id=%s\n' "${BUILD_ID:-missing}"
 printf 'build_time=%s\n' "${BUILD_TIME_UTC:-unknown}"
 printf 'build_reason=%s\n' "${BUILD_REASON:-unknown}"

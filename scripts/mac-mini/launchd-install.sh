@@ -6,9 +6,24 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck disable=SC1091
 . "${SCRIPT_DIR}/common.sh"
 
+mode="install"
+for arg in "$@"; do
+  case "${arg}" in
+    --check) mode="check" ;;
+    --dry-run) mode="dry-run" ;;
+    *) ;;
+  esac
+done
+
 mac_mini_require_cmd plutil
+mac_mini_require_cmd node
+mac_mini_require_cmd git
+mac_mini_require_cmd shasum
 mac_mini_ensure_dirs
+mac_mini_load_contract
 mac_mini_load_env
+mac_mini_assert_runtime_root_allowed
+mac_mini_assert_clean_root
 mac_mini_assert_env_ready
 
 template_dir="${MAC_MINI_ROOT}/ops/mac-mini/launchd"
@@ -34,19 +49,55 @@ render_template() {
   local output="$2"
 
   sed \
-    -e "s#__ROOT__#${MAC_MINI_ROOT}#g" \
+    -e "s#__ROOT__#${MAC_MINI_CANONICAL_ROOT}#g" \
     -e "s#__HOME__#${HOME}#g" \
     -e "s#__PORT__#${PORT}#g" \
     -e "s#__MAC_MINI_HOST__#${MAC_MINI_HOST}#g" \
+    -e "s#__AUTH_MODE__#${MAC_MINI_AUTH_MODE}#g" \
+    -e "s#__START_COMMAND__#${MAC_MINI_START_COMMAND}#g" \
     -e "s#__PATH__#${PATH}#g" \
     "${input}" > "${output}"
 }
 
-mkdir -p "${HOME}/Library/LaunchAgents"
+mac_mini_write_canonical_state "launchd-install-${mode}"
 render_template "${app_template}" "${app_rendered}"
 render_template "${verify_template}" "${verify_rendered}"
 plutil -lint "${app_rendered}" >/dev/null
 plutil -lint "${verify_rendered}" >/dev/null
+
+if ! grep -q "${MAC_MINI_CANONICAL_ROOT}" "${app_rendered}"; then
+  echo "Rendered app plist does not point at canonical root." >&2
+  exit 1
+fi
+
+if ! grep -q "${MAC_MINI_CANONICAL_ROOT}" "${verify_rendered}"; then
+  echo "Rendered verify plist does not point at canonical root." >&2
+  exit 1
+fi
+
+if [ "${mode}" = "check" ]; then
+  printf 'mode=check\n'
+  printf 'canonical_root=%s\n' "${MAC_MINI_CANONICAL_ROOT}"
+  printf 'auth_mode=%s\n' "${MAC_MINI_AUTH_MODE}"
+  printf 'start_command=%s\n' "${MAC_MINI_START_COMMAND}"
+  printf 'app_plist=%s\n' "${app_rendered}"
+  printf 'verify_plist=%s\n' "${verify_rendered}"
+  exit 0
+fi
+
+(cd "${MAC_MINI_ROOT}" && npm run release:prelaunch)
+
+if [ "${mode}" = "dry-run" ]; then
+  printf 'mode=dry-run\n'
+  printf 'canonical_root=%s\n' "${MAC_MINI_CANONICAL_ROOT}"
+  printf 'auth_mode=%s\n' "${MAC_MINI_AUTH_MODE}"
+  printf 'start_command=%s\n' "${MAC_MINI_START_COMMAND}"
+  printf 'app_plist=%s\n' "${app_rendered}"
+  printf 'verify_plist=%s\n' "${verify_rendered}"
+  exit 0
+fi
+
+mkdir -p "${HOME}/Library/LaunchAgents"
 cp "${app_rendered}" "${app_agent_path}"
 cp "${verify_rendered}" "${verify_agent_path}"
 

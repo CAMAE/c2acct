@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 import {
-  buildLoginRedirectPath,
+  buildSignInRedirectPath,
   isProtectedPatApiPath,
   isProtectedPatPagePath,
   unauthorizedResponse,
@@ -32,11 +32,11 @@ export default async function proxy(req: NextRequest) {
     return unauthorizedResponse();
   }
 
-  const loginPath = buildLoginRedirectPath({
+  const signInPath = buildSignInRedirectPath({
     pathname,
     search: req.nextUrl.search,
   });
-  return NextResponse.redirect(new URL(loginPath, req.nextUrl));
+  return NextResponse.redirect(new URL(signInPath, req.nextUrl));
 }
 
 export const config = {

@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useState } from "react";
+import { buildCanonicalSignInPath } from "@/lib/auth/routes";
 
 type StatusState = {
   message: string;
@@ -27,7 +28,7 @@ export default function EnsureCompanySelected() {
               typeof window !== "undefined"
                 ? `${window.location.pathname}${window.location.search}`
                 : "/";
-            window.location.assign(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+            window.location.assign(buildCanonicalSignInPath({ callbackUrl }));
           }
           return;
         }
@@ -75,7 +76,7 @@ export default function EnsureCompanySelected() {
               typeof window !== "undefined"
                 ? `${window.location.pathname}${window.location.search}`
                 : "/";
-            window.location.assign(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+            window.location.assign(buildCanonicalSignInPath({ callbackUrl }));
           }
           return;
         }

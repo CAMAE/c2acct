@@ -18,7 +18,7 @@ test.describe("PAT critical browser paths", () => {
 
     for (const route of protectedRoutes) {
       await page.goto(route);
-      expect(page.url()).toContain(`/login?callbackUrl=${encodeURIComponent(route)}`);
+      expect(page.url()).toContain(`/sign-in?callbackUrl=${encodeURIComponent(route)}`);
     }
 
     const response = await request.post("/api/survey/submit", {
@@ -35,10 +35,6 @@ test.describe("PAT critical browser paths", () => {
   test.skip(process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH === "1", "local review auth is intentionally enabled for e2e");
 
   test("keeps local review controls hidden in production-style e2e mode", async ({ page }) => {
-    await page.goto("/login");
-    await expect(page.getByText("Development-only local review auth")).toHaveCount(0);
-    await expect(page.getByText("review.vendor@pat.local")).toHaveCount(0);
-
     await page.goto("/sign-in?view=vendor");
     await expect(page.getByText("Development-only local review auth")).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Continue with local review" })).toHaveCount(0);
