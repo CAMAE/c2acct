@@ -200,8 +200,22 @@ export function getReleaseFingerprint(): ReleaseFingerprint {
 }
 
 export function getPublicReleaseFingerprint(): PublicReleaseFingerprint {
-  const { canonicalRoot: _canonicalRoot, ...publicFingerprint } = getReleaseFingerprint();
-  return publicFingerprint;
+  const fingerprint = getReleaseFingerprint();
+  return {
+    schemaVersion: fingerprint.schemaVersion,
+    releaseId: fingerprint.releaseId,
+    commitSha: fingerprint.commitSha,
+    commitShort: fingerprint.commitShort,
+    branch: fingerprint.branch,
+    canonicalRootName: fingerprint.canonicalRootName,
+    buildTimestamp: fingerprint.buildTimestamp,
+    authMode: fingerprint.authMode,
+    buildSourceType: fingerprint.buildSourceType,
+    buildId: fingerprint.buildId,
+    releaseFingerprintSeed: fingerprint.releaseFingerprintSeed,
+    startCommand: fingerprint.startCommand,
+    gitDirty: fingerprint.gitDirty,
+  };
 }
 
 export function getPublicReleaseFingerprintView(
