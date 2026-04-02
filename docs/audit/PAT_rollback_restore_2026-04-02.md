@@ -4,13 +4,17 @@
 
 Rollback won.
 
-The canonical recovery root is `/Users/camerongarrett/work/c2acct-live` on branch `recovery/pat-2026-03-31-baseline`, reset to the exact PAT baseline commit `078a41f6816e81e599b94423faf501d10c2aa70c`.
+The canonical recovery root is `/Users/camerongarrett/work/c2acct-live` on branch `recovery/pat-2026-03-31-baseline`.
+
+- Exact rollback baseline commit: `078a41f6816e81e599b94423faf501d10c2aa70c`
+- Current branch head after recording rollback artifacts: `5052be3`
+- The only changes above the baseline are audit, inventory, and manifest-seed artifacts. PAT product surfaces remain restored from the 2026-03-31 baseline.
 
 ## Root matrix
 
 | Root | Branch | SHA | Dirty state | Classification |
 | --- | --- | --- | --- | --- |
-| `/Users/camerongarrett/work/c2acct-live` | `recovery/pat-2026-03-31-baseline` | `078a41f6816e81e599b94423faf501d10c2aa70c` | clean after rollback capture and commit | canonical PAT recovery root |
+| `/Users/camerongarrett/work/c2acct-live` | `recovery/pat-2026-03-31-baseline` | `5052be3` head on baseline `078a41f6816e81e599b94423faf501d10c2aa70c` | clean after rollback capture and commit | canonical PAT recovery root |
 | `/Users/camerongarrett/work/c2acct` | `feat/mac-mini-ops-hardening` | `078a41f6816e81e599b94423faf501d10c2aa70c` | dirty | development-only, non-live |
 | `/private/tmp/c2acct-main-auth` | `release-pat-launch-rc-2026-04-01` | `c6e39d967cf27d002918e503cd4ff61db06af72a` | dirty | mixed, quarantined, non-live |
 
