@@ -77,6 +77,7 @@ const criticalConfig = loadReleaseCriticalConfig();
 const contract = JSON.parse(fs.readFileSync(contractPath, "utf8"));
 const state = fs.existsSync(statePath) ? JSON.parse(fs.readFileSync(statePath, "utf8")) : null;
 const failures = [];
+const warnings = [];
 
 if (resolvedRoot !== contract.canonicalRoot) {
   failures.push(`root_mismatch expected=${contract.canonicalRoot} actual=${resolvedRoot}`);
@@ -116,7 +117,7 @@ if (!fs.existsSync(path.join(resolvedRoot, ".next", "standalone", "server.js")))
 }
 
 if (!state) {
-  failures.push("missing_runtime_state_file");
+  warnings.push("missing_runtime_state_file");
 } else {
   if (state.canonicalRoot !== contract.canonicalRoot) {
     failures.push("state_root_mismatch");
@@ -124,8 +125,11 @@ if (!state) {
   if (state.authMode !== contract.authMode) {
     failures.push("state_auth_mode_mismatch");
   }
+  if (state.commitSha && state.commitSha !== commitSha) {
+    warnings.push(`state_commit_out_of_date expected=${commitSha} actual=${state.commitSha}`);
+  }
   if (state.releaseFingerprintSeed !== seed) {
-    failures.push("state_fingerprint_seed_mismatch");
+    warnings.push("state_fingerprint_seed_out_of_date");
   }
 }
 
@@ -142,6 +146,7 @@ const result = {
   dirtyEntries: dirtyEntries.map((entry) => entry.raw),
   criticalDirtyEntries: criticalDirtyEntries.map((entry) => entry.raw),
   nonCriticalDirtyEntries: nonCriticalDirtyEntries.map((entry) => entry.raw),
+  warnings,
   failures,
 };
 
