@@ -1,305 +1,262 @@
 # PAT Full Launch Owner Audit (2026-04-02)
 
-## Scope
+Evidence root for this audit:
 
-This audit treats the current rollback recovery branch `recovery/pat-2026-03-31-baseline` at commit `6e082f8142a44db7f7e672a5073938c0a6c54eba` as the only source of truth for launch readiness.
+- Canonical local release root: `/Users/camerongarrett/work/c2acct-live`
+- Canonical branch: `recovery/pat-2026-03-31-baseline`
+- Current HEAD at audit time: `252b7f39ec77b5459c26791769410b87c4048cec`
+- Rollback baseline named by local docs and release manifest: `078a41f6816e81e599b94423faf501d10c2aa70c`
+- `origin/main`: `363436c0e049ff8652c8e6fc1fd5c3bbdce58531` dated `2026-03-08 17:16:59 -0500`
+- Ahead/behind versus `origin/main`: `28` ahead, `0` behind
 
-Referenced evidence on this branch:
+Prompt-referenced files missing in this environment:
 
-- `docs/audit/PAT_rollback_restore_2026-04-02.md`
-- `docs/audit/PAT_runtime_contract_repair_2026-04-02.md`
-- `docs/rebuild/PAT_rebuild_slices_from_2026_03_31.md`
-- `artifacts/recovery/c2acct-live-dirty.patch`
-- `artifacts/recovery/post-3-31-file-inventory.txt`
-- `artifacts/mac-mini/reports/nightly-summary-20260402T224727Z.txt`
+- `/mnt/data/Pasted text.txt`
+- `/mnt/data/Pasted text (2).txt`
+- `/mnt/data/Core Build AAE Guide.pages`
+- `docs/audit/GitHub_Main_Reconciliation_2026-04-01.md`
+- `docs/audit/PAT_Launch_Readiness_Audit_2026-04-01.md`
+- `docs/audit/PAT_Release_Candidate_Ship_Report_2026-04-01.md`
 
-Prompt-referenced April 1 audit files such as `docs/audit/GitHub_Main_Reconciliation_2026-04-01.md`, `docs/audit/PAT_Launch_Readiness_Audit_2026-04-01.md`, and `docs/audit/PAT_Release_Candidate_Ship_Report_2026-04-01.md` are not present on this recovery branch. Their absence is itself part of the GitHub-visible versus local-truth drift risk.
+Exact source-of-truth decision for this audit:
 
-## Executive Decision
+- Local recovery source is the only candidate release truth.
+- GitHub-visible `origin/main` is stale shared truth only.
+- Live host runtime on port `3000` is wrong or incomplete until proven by launchd ownership plus release-fingerprint agreement.
 
-NO-GO.
+## current risk
 
-The rollback recovery branch is materially improved and is now the correct PAT release candidate, but the host is not serving this validated build. PAT must not go live until the canonical root is the active runtime on the host and the running service passes rendered PAT surface validation, health validation, fingerprint agreement, and launchd-root proof at the real deployed URL.
+Current risk is `high`.
 
-## What Is Already Fixed
+The local source tree is PAT-correct in the files that define the launch surface, but the release is not launch-ready because the current launch-critical gate is red and the host is not cut over. `node scripts/release/validate-source-integrity.mjs --root /Users/camerongarrett/work/c2acct-live` failed on `2026-04-02` with `git_dirty`, driven by launch-critical dirty entries in `scripts/mac-mini/nightly-verify.sh` and `scripts/mac-mini/status.sh`. The host proof on the same date shows `launchd_service_state=not-loaded`, `live_port_owner_state=stale-listener`, `live_port_owner_pid=25059`, and `live_release_probe_http=000`.
 
-### Fixed: product-surface risk in source
+The only defensible launch direction is `FIX_FORWARD_FROM_ROLLBACK_BASELINE`: keep `/Users/camerongarrett/work/c2acct-live` as source of truth, do not merge `origin/main`, do not import `/private/tmp/c2acct-main-auth`, and fix the remaining blockers on top of the rollback recovery line.
 
-- PAT home is present in `app/page.tsx`.
-- PAT shell and nav are present in `app/layout.tsx`.
-- `/sign-in` is the canonical PAT auth hub in `app/sign-in/page.tsx`.
-- `/login` is compatibility-only in `app/login/page.tsx`.
-- PAT role routes exist and are source-verified for `/vendor`, `/firm`, `/user`, and `/admin`.
-- Approved PAT marker verification passes from source:
-  - `node scripts/release/verify-approved-pat-markers.mjs --root .`
+## release risk
 
-### Fixed: auth route contract
+Release risk is `high` because the branch is dirty and the release-state artifacts disagree.
 
-- `auth.config.ts` points Auth.js at `/sign-in`.
-- protected-route redirects were moved off first-class `/login`.
-- `/login` now preserves safe redirect/query recovery without remaining a user-facing auth destination.
-- Unit coverage exists for canonical sign-in and login compatibility behavior.
+Evidence:
 
-### Fixed: runtime contract in repo
+- Branch: `recovery/pat-2026-03-31-baseline`
+- HEAD: `252b7f39ec77b5459c26791769410b87c4048cec`
+- Dirty entries include:
+  - `M scripts/mac-mini/launchd-check.sh`
+  - `M scripts/mac-mini/nightly-verify.sh`
+  - `M scripts/mac-mini/status.sh`
+  - `?? scripts/mac-mini/port-owner-proof.sh`
+- Source-integrity warnings show stale recorded state:
+  - `state_commit_out_of_date expected=252b7f39ec77b5459c26791769410b87c4048cec actual=01a68f4f09d4523f9f5db35814d2419157cdd8af`
+  - `state_fingerprint_seed_out_of_date`
+- `artifacts/mac-mini/state/canonical-root.json` has been rewritten to current HEAD, but `artifacts/mac-mini/state/release-state.env` still reports `COMMIT=01a68f4` and `BUILD_ID=dSLY1LiY8b0PPPk-gfrLG`, while `.next/BUILD_ID` is `fBUhtnyBzIXuKNflFKKkF`.
 
-- `next.config.ts` is set to `output: "standalone"`.
-- `package.json` contains `release:gate`, `release:smoke`, and `release:prelaunch`.
-- canonical runtime contract is encoded in `ops/release/canonical-root.json`.
-- fail-closed runtime validation exists in:
-  - `scripts/mac-mini/common.sh`
-  - `scripts/mac-mini/app-start.sh`
-  - `scripts/mac-mini/launchd-install.sh`
-  - `scripts/release/validate-source-integrity.mjs`
+Conclusion: the repo contains the right release machinery, but the release proof set is not synchronized to a clean launch candidate yet.
 
-### Fixed: release-source risk in repo
+## runtime risk
 
-- canonical release root is `/Users/camerongarrett/work/c2acct-live`.
-- forbidden roots are:
-  - `/Users/camerongarrett/work/c2acct`
-  - `/private/tmp/c2acct-main-auth`
-- `/private/tmp/c2acct-main-auth` remains quarantined and non-live.
+Runtime risk is `high`.
 
-### Fixed: operator visibility and rollback proof in repo
+Local isolated rendered-PAT validation could not be freshly proven in this sandboxed session. Running `node scripts/release/validate-pat-surfaces.mjs --root /Users/camerongarrett/work/c2acct-live --port 3310` failed with `listen EPERM: operation not permitted 127.0.0.1:3310`, so this session could not bind an ephemeral standalone runtime for a fresh local browser-level proof.
 
-- browser-visible fingerprint is rendered from `app/layout.tsx`.
-- API fingerprint exists at `/api/release-fingerprint`.
-- operator status prints the same fingerprint contract.
-- rollback is scripted in `scripts/mac-mini/rollback-release.sh`.
-- nightly verification and CI critical-file protection are present.
+Live runtime proof is worse:
 
-## Must Fix Before Launch
+- `node scripts/release/validate-pat-surfaces.mjs --root /Users/camerongarrett/work/c2acct-live --base-url http://127.0.0.1:3000` failed with `runtime_error:unknown:fetch failed`
+- direct `curl` to `http://127.0.0.1:3000/`, `/sign-in`, and `/login` returned connection failure in this sandbox
+- host proof still shows `live_port_listening=yes`, `live_port_owner_state=stale-listener`, and no reachable `/api/release-fingerprint`
 
-### Must fix: running-service mismatch on the host
+Conclusion: local PAT correctness and host PAT correctness are not the same thing. Local source is coherent; live runtime is not proven and should be treated as wrong.
 
-Latest nightly evidence in `artifacts/mac-mini/reports/nightly-summary-20260402T224727Z.txt` proves the host is not serving the validated recovery branch:
+## auth risk
 
-- `health` failed with `401` at `http://127.0.0.1:3000/api/health/db`
-- `live_pat_surfaces` failed against `http://127.0.0.1:3000`
-- `/sign-in` returned `404`
-- `/login` returned `200` with first-class wrong-site content
-- `/`, `/vendor`, `/firm`, `/user`, and `/admin` rendered AAE markers and lacked PAT markers
-- browser-visible release fingerprint was absent from rendered pages
-- `launchd_app=not-loaded`
+Auth risk is `medium-high`.
 
-This is a launch blocker because it means the active service is not the validated PAT runtime from the canonical root.
+What is fixed locally:
 
-### Must fix: launchd and host runtime alignment
+- `auth.config.ts` points Auth.js at `/sign-in`
+- `app/login/page.tsx` is a redirect shim into `buildCanonicalSignInPath(...)`
+- `auth.ts` allows only provisioned users or explicit non-production local-review users
+- `lib/auth/localReview.ts` keeps deterministic review identities behind non-production flow only
+- unit coverage exists in `tests/auth.signin-canonical.test.ts` and `tests/auth.login-compat.test.ts`
 
-The repo contract is correct, but the host does not yet prove that `launchctl` is bootstrapping the canonical root:
+What is still blocking launch:
 
-- status shows `launchd_app=not-loaded`
-- the port is occupied anyway
-- the running process is therefore not proven to be the canonical `c2acct-live` standalone artifact
+- host status reports `env_ready=no missing=AUTH_GITHUB_ID,AUTH_GITHUB_SECRET`
+- production auth mode remains `github`
+- no audit evidence supports expanding auth beyond GitHub-mode for this track
 
-Before launch, the active service must be reinstalled or restarted from the canonical root and then proven with:
+No-ship auth markers before launch:
 
-- `npm run release:prelaunch`
-- `bash scripts/mac-mini/launchd-install.sh --check`
-- `launchctl print gui/$(id -u)/com.c2acct.app`
-- `bash scripts/mac-mini/status.sh`
-- rendered PAT surface validation against the real runtime URL
+- no password-hash migration
+- no bootstrap-user auth expansion
+- no credentials-first production auth
+- no import of mixed-copy `app/sign-in/**` or invitee/auth surface files from `/private/tmp/c2acct-main-auth`
 
-### Must fix: production env readiness
+## product-surface risk
 
-The selected live auth mode is still `github`. Current status output shows:
+Product-surface risk is split:
 
-- `env_ready=no missing=AUTH_GITHUB_ID,AUTH_GITHUB_SECRET`
+- Local source risk: `low`
+- Live rendered surface risk: `high`
 
-PAT cannot launch in `github` mode without:
+Local PAT-positive evidence:
 
-- `DATABASE_URL`
-- `AUTH_SECRET` or `NEXTAUTH_SECRET`
-- `AUTH_URL` or `NEXTAUTH_URL`
-- `AUTH_GITHUB_ID`
-- `AUTH_GITHUB_SECRET`
-
-### Must fix: rendered PAT gate must pass against the real runtime URL
-
-Source-level verification is green, but build success and source verification do not prove launch readiness.
-
-The real deployed runtime must pass:
-
-- `/`
-- `/sign-in`
-- `/vendor`
-- `/firm`
-- `/user`
-- `/admin`
-- `/login` as compatibility-only
-- `/api/release-fingerprint`
-
-and must show:
-
-- PAT-positive markers
-- no AAE markers
-- fingerprint agreement across browser, API, and ops
-
-## Can Wait Until After Clean Launch
-
-### Can wait: Slice A auth and seed hygiene
-
-Deferred in `docs/rebuild/PAT_rebuild_slices_from_2026_03_31.md`.
-
-- credentials-first auth
-- password hashing and bootstrap seeding cleanup
-- full invitee removal from all non-primary paths
-
-These are not required to launch the rollback-baseline PAT runtime, because the current live contract remains `github`.
-
-### Can wait: Slice D product utility recovery
-
-Deferred for post-launch file-by-file review because `/private/tmp/c2acct-main-auth` is mixed and noisy.
-
-- vendor product utility recovery
-- broader vendor activation UX additions
-- post-3/31 product runtime additions not required for launch-surface correctness
-
-### Can wait: documentation backfill to absent April 1 audits
-
-The recovery branch already has current rollback/runtime/rebuild docs. Restoring older audit filenames is not a prelaunch requirement.
-
-## Must Not Land Before Launch
-
-### Must not land: deferred slices A and D as a blob
-
-Do not batch-restore credentials, product utility, or other deferred post-3/31 work before launch. The current recovery branch is PAT-correct specifically because those slices were kept out of the launch path.
-
-### Must not land: anything from `/private/tmp/c2acct-main-auth` without file-level proof
-
-That tree is mixed, quarantined, and historically carried wrong-site AAE surface risk.
-
-### Must not land: product redesign or PAT surface rewrite
-
-Current launch work is about proving and serving the rollback-baseline PAT truth, not redesigning it.
-
-### Must not land: silent bypass of release gates
-
-Do not treat:
-
-- `npm run build`
-- route existence
-- HTTP 200 alone
-- source grep alone
-
-as sufficient launch proof.
-
-## GitHub-Visible Vs Local-Truth Drift
-
-### Current local recovery truth
-
-Current branch head: `6e082f8142a44db7f7e672a5073938c0a6c54eba`
-
-Local recovery truth now includes:
-
-- canonical `/sign-in`
-- `/login` compatibility-only
-- standalone runtime
-- source-integrity gate
-- PAT surface manifest and rendered surface gate
-- browser/API/operator fingerprint contract
-- nightly verify
-- rollback script
-- CI critical-file drift protection
-
-### Earlier GitHub-visible truth
-
-- `origin/main` is still at `363436c0e049ff8652c8e6fc1fd5c3bbdce58531`
-- `origin/main:app/page.tsx` still renders:
+- `app/page.tsx` renders PAT home and sign-in entry
+- `app/layout.tsx` renders PAT shell/header and release fingerprint
+- `app/sign-in/page.tsx` is the canonical PAT sign-in hub
+- `app/vendor/page.tsx`, `app/firm/page.tsx`, `app/user/page.tsx`, and `app/admin/page.tsx` are PAT/C2Core surfaces
+- `ops/release/pat-surface-manifest.json` marks the no-ship surface markers as forbidden:
   - `AAE`
   - `Autonomous Alignment Infrastructure for Accounting Firms.`
   - `Profiles`
   - `Top Seven Outputs`
-- `origin/main:app/login/page.tsx` still renders:
-  - `Beta access is restricted to pre-approved GitHub accounts.`
-  - `Continue with GitHub`
+  - `Alignment Survey`
+  - `pre-approved GitHub accounts`
 
-Conclusion:
+GitHub-visible stale evidence from `origin/main`:
 
-- public GitHub `main` remains stale AAE truth
-- local recovery branch is the corrected PAT launch candidate
-- launch-owner decision must not be based on public `main`
+- `origin/main:app/page.tsx` still renders `AAE`, `Autonomous Alignment Infrastructure for Accounting Firms.`, `Profiles`, and `Top Seven Outputs`
+- `origin/main:app/login/page.tsx` still renders `Beta access is restricted to pre-approved GitHub accounts.` and `Continue with GitHub`
+- `origin/main:auth.config.ts` still points `signIn` at `/login`
 
-## Reconciling The Rendered-Surface Mismatch
+Conclusion: local PAT surface is the corrected truth; GitHub main and live host runtime are not.
 
-Mismatch to reconcile:
+## deployment/launchd/host risk
 
-- approved PAT marker verification later passed from source
-- earlier rendered PAT surface validation for `/vendor`, `/firm`, `/user`, `/admin` failed badly
+Deployment/launchd/host risk is `high` and is a launch blocker.
 
-Classification:
+Evidence from `bash scripts/mac-mini/port-owner-proof.sh`:
 
-- this is a stale running service problem, not a stale manifest and not a real route regression
+- `launchd_service_state=not-loaded`
+- `launchd_service_pid=missing`
+- `live_port_listening=yes`
+- `live_port_owner_state=stale-listener`
+- `live_port_owner_pid=25059`
+- `live_port_owner_command=node`
+- `live_release_probe_http=000`
+- `ownership_check=fail`
+- `ownership_failures=launchd_not_loaded,non_launchd_port_owner,live_release_endpoint_unavailable`
 
-Why:
+Evidence from `bash scripts/mac-mini/launchd-check.sh`:
 
-1. Source verification passes against the current recovery branch files for `/`, header, `/sign-in`, `/vendor`, `/firm`, `/user`, `/admin`, and `/login`.
-2. The current source files are PAT-positive and do not contain the AAE markers the rendered validator reported.
-3. The rendered validator hit `http://127.0.0.1:3000`, where:
-   - `/sign-in` returned `404`
-   - `/login` returned `200` and behaved like a first-class login page
-   - AAE markers appeared on multiple routes
-   - the browser release fingerprint was absent
-4. Status simultaneously showed:
-   - `launchd_app=not-loaded`
-   - `listen=yes host=127.0.0.1 port=3000`
+- `launchd_app=not-loaded`
+- `launchd_verify=loaded`
+- `env_ready=no missing=AUTH_GITHUB_ID,AUTH_GITHUB_SECRET`
+- command exits non-zero because host ownership proof fails
 
-Therefore the failing rendered validation was exercising a stale or wrong running service, not the current recovery branch artifact.
+Conclusion: port ownership, launchd state, live fingerprint availability, and env readiness do not agree. Host cutover is not complete and must not be waved through.
 
-## Category Summary
+## source-of-truth risk
 
-### Product-surface risk
+Source-of-truth risk is `high` unless the launch owner ignores stale or missing inputs.
 
-- Source risk: fixed
-- Running-service risk: launch blocker
+Current truth hierarchy:
 
-### Auth risk
+1. `/Users/camerongarrett/work/c2acct-live` on `recovery/pat-2026-03-31-baseline` at `252b7f39ec77b5459c26791769410b87c4048cec`
+2. In-repo build and audit docs present locally on that branch
+3. `origin/main` only as stale comparison material
+4. port `3000` runtime only after host proof passes
 
-- Route contract: fixed
-- Production env readiness: launch blocker until GitHub envs are present on host
-- Credentials-first redesign: can wait
+Why the risk exists:
 
-### Runtime risk
+- several prompt-cited source files are absent in this environment
+- the prior full audit file in-repo was itself stale and anchored to older HEAD `6e082f8...`
+- `origin/main` is materially older AAE-era content
+- live host runtime is not fingerprint-verifiable
 
-- Repo runtime contract: fixed
-- Real deployed runtime proof: launch blocker
+Conclusion: for launch ownership, local recovery source is the exact source of truth and anything else is supporting or stale evidence.
 
-### Launchd / host risk
+## local-vs-GitHub drift risk
 
-- Launchd scripts and checks: fixed in repo
-- Actual loaded service target: launch blocker
+Local-vs-GitHub drift risk is `high`, but the drift is mostly intentional and necessary.
 
-### Release-source risk
+`origin/main...HEAD` contains 519 changed paths and 28 local-only commits. Drift classification for launch ownership:
 
-- Canonical root selection and quarantine: fixed
-- Host still serving non-proven runtime: launch blocker
+- `launch-critical landed`
+  - PAT shell and homepage replacement
+  - canonical `/sign-in` and `/login` compatibility redirect
+  - `proxy.ts` protected-route gate
+  - PAT role portals under `app/vendor/*`, `app/firm/*`, `app/user/*`, `app/admin/*`
+  - standalone runtime config in `next.config.ts`
+  - release fingerprint route and library
+  - source-integrity and rendered-surface validators
+  - Mac mini launchd/install/status/rollback contract
+  - CI release-critical change detection and PAT marker checks
+- `launch-safe local-only`
+  - current audit docs
+  - rebuild notes
+  - recovery artifacts
+  - research packages
+  - archive migrations of obsolete helper scripts
+- `defer prelaunch`
+  - Slice A auth/seed/password-hash expansion described in local docs but not required for GitHub-mode launch
+  - remaining Slice D work outside the already-landed narrow sub-slices
+- `reject mixed-copy surface`
+  - any top-level shell/auth/homepage/sign-in imports from `/private/tmp/c2acct-main-auth`
+  - any AAE-branded or `/login`-primary surface from stale `origin/main`
+- `unknown`
+  - none of the audited launch-critical local drift fell into unknown; unknown status applies only to the prompt-cited missing external files
 
-### Documentation / source-of-truth risk
+Conclusion: the right response to drift is not to merge `origin/main`; it is to keep fixing forward from the rollback recovery line.
 
-- Current rollback/runtime/rebuild docs: fixed enough for launch ownership
-- Missing April 1 audit filenames on branch: non-blocking but should be noted
+## already fixed
 
-### GitHub-visible vs local-truth drift risk
+- Canonical release root is encoded as `/Users/camerongarrett/work/c2acct-live`
+- `next.config.ts` is `output: "standalone"`
+- `package.json` includes `release:prelaunch`
+- `/sign-in` is the canonical PAT sign-in route
+- `/login` is compatibility-only in local source
+- PAT/C2Core top-level surfaces exist locally for `/`, `/vendor`, `/firm`, `/user`, and `/admin`
+- release fingerprint route exists at `app/api/release-fingerprint/route.ts`
+- host proof scripts exist locally and fail closed
+- CI contains release-critical drift detection and PAT marker verification
+- `origin/main` staleness is now explicit and evidenced
 
-- Still high
-- `origin/main` is not safe launch truth
-- launch decisions must use the recovery branch plus real host proof
+## still missing
 
-## Highest-Confidence Launch Recommendation
+- clean source-integrity pass on current HEAD `252b7f39ec77b5459c26791769410b87c4048cec`
+- synchronized release-state artifacts for current HEAD and current build
+- live launchd ownership of port `3000`
+- reachable live `/api/release-fingerprint`
+- live PAT rendered-surface proof on the real runtime URL
+- production GitHub env readiness on host
+- a fresh rendered-PAT proof for current HEAD outside this sandbox's port-binding restriction
 
-Do not launch PAT from the current host state.
+## should add before launch
 
-Launch only after the canonical recovery branch `recovery/pat-2026-03-31-baseline` is the active runtime on the host and all of the following are green at the real runtime URL:
+- commit or otherwise reconcile the launch-critical Mac mini script changes so source-integrity can pass
+- refresh build and release-state artifacts on the intended release commit
+- rerun `npm run release:prelaunch` on a clean tree
+- rerun `bash scripts/mac-mini/launchd-check.sh` until `ownership_check=pass`
+- rerun rendered PAT surface validation against the actual live URL after launchd cutover
+- capture one current host proof bundle after cutover:
+  - `status.sh`
+  - `port-owner-proof.sh --check`
+  - `/api/release-fingerprint`
+  - rendered PAT surface validation
 
-1. `npm run release:prelaunch`
-2. `bash scripts/mac-mini/launchd-install.sh --check`
-3. `bash scripts/mac-mini/status.sh` showing:
-   - `launchd_app=loaded`
-   - canonical root `/Users/camerongarrett/work/c2acct-live`
-   - clean git state
-   - auth mode `github`
-   - no missing required envs
-4. `node scripts/release/validate-pat-surfaces.mjs --root /Users/camerongarrett/work/c2acct-live --base-url <real_runtime_url>`
-5. `curl -s <real_runtime_url>/api/release-fingerprint`
-6. browser verification that `/`, `/sign-in`, `/vendor`, `/firm`, `/user`, `/admin`, and `/login` match PAT truth and show no AAE markers
+## must not add before launch
 
-Until those are true at once, the correct launch-owner call is NO-GO.
+- do not merge `origin/main` into the recovery branch
+- do not import any top-level shell/auth/sign-in/homepage files from `/private/tmp/c2acct-main-auth`
+- do not expand auth beyond GitHub-mode in this track
+- do not ship AAE markers, `/login` as primary auth, or `pre-approved GitHub accounts` copy
+- do not bypass launchd proof with ad hoc `node` listeners on port `3000`
+- do not treat `npm run build` alone as launch readiness
+- do not land deferred Slice A as a blob
+- do not land additional deferred Slice D work before launch
+
+## highest-confidence launch recommendation
+
+`FIX_FORWARD_FROM_ROLLBACK_BASELINE`
+
+Reason:
+
+- the exact source of truth is the local recovery branch, not `origin/main` and not the current live host runtime
+- the local PAT product/auth/runtime contract is substantially fixed
+- the exact current blocker set is host cutover plus release proof hygiene, not PAT surface reconstruction
+- no-ship markers and deferred slices are known and can be held
+
+Single go/no-go decision as of `2026-04-02`:
+
+- `NO-GO` for immediate launch
+- `GO` only after the current blocker matrix is cleared on top of `/Users/camerongarrett/work/c2acct-live`

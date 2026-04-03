@@ -1,34 +1,57 @@
 # Core Build Guide Source Of Truth
 
-The uploaded build guide remains the editorial source note:
+The uploaded build-guide files remain editorial history:
 
 - `Core Build AAE Guide.pages`
+- `/mnt/data/Pasted text.txt`
 
-The in-repo implementation order and launch-readiness guide now lives in:
+The authoritative PAT implementation truth is now the recovery branch in the canonical repo:
 
-- `docs/CORE_BUILD_AAE.md`
+- repo root: `/Users/camerongarrett/work/c2acct-live`
+- branch: `recovery/pat-2026-03-31-baseline`
+- current HEAD: `252b7f39ec77b5459c26791769410b87c4048cec`
 
-Current rule:
+## Authority rule
 
-- Use `Core Build AAE Guide.pages` for intent and direction.
-- Use `docs/CORE_BUILD_AAE.md` for current repo reality, launch order, and rollback-state classification.
+- Use the uploaded AAE guide only for historical intent.
+- Use the local recovery repo and PAT audit docs for actual launch truth.
+- Do not treat `origin/main` as authoritative for PAT shell, PAT auth routing, PAT runtime proofing, or PAT host cutover state.
+- Do not use `/private/tmp/c2acct-main-auth` as a restore or publish source for PAT shell files.
 
-Canonical release-root rule as of 2026-04-02:
+## Current PAT truth
 
-- `/Users/camerongarrett/work/c2acct-live` is the only candidate release root.
-- `/Users/camerongarrett/work/c2acct` is development-only and must not be used as a live root.
-- `/private/tmp/c2acct-main-auth` is a mixed release copy and must not be used as a live root.
+- `/` is PAT.
+- `/sign-in` is canonical.
+- `/login` is compatibility-only and must redirect into `/sign-in`.
+- PAT shell, PAT header, PAT cards, PAT brand assets, and release fingerprint endpoint are part of launch truth.
+- The validated isolated runtime proof is local PAT truth.
+- The live host on port `3000` is still wrong until it is launchd-owned from the canonical root and serves the same PAT fingerprint and PAT routes.
 
-Current rollback-state rule:
+## Source-of-truth docs
 
-- The repo has been restored to the last known-good PAT baseline at `078a41f6816e81e599b94423faf501d10c2aa70c`.
-- PAT home, PAT shell/nav, and the PAT sign-in hub are the baseline source of truth.
-- Any post-2026-03-31 hardening or runtime work must be recovered later from the preserved dirty patch and file inventory, not assumed to be live truth now.
+- `docs/active-repo-map.md`
+- `docs/audit/PAT_rollback_restore_2026-04-02.md`
+- `docs/audit/PAT_route_surface_reconciliation_2026-04-02.md`
+- `docs/audit/PAT_prelaunch_green_proof_2026-04-02.md`
+- `docs/audit/PAT_host_cutover_proof_2026-04-02.md`
+- `docs/audit/PAT_live_host_cutover_2026-04-02.md`
+- `docs/audit/PAT_full_launch_owner_audit_2026-04-02.md`
+- `docs/release/PAT_launch_blocker_matrix_2026-04-02.md`
 
-This is necessary because the repo has moved materially since the earlier audit period:
+## Recovery-branch publication rule
 
-- `/admin` is now a live operator control plane.
-- membership pages and membership cards now exist.
-- vendor product assessment and dynamic product plans now exist.
-- consultant/operator briefings now exist under `/admin/briefings`.
-- member briefing still remains staged until person-side maturity is ready.
+- The correct published branch name remains `recovery/pat-2026-03-31-baseline`.
+- Publish that branch directly from the canonical repo root.
+- Do not merge stale `origin/main` into the recovery branch.
+- Do not fast-forward `main` to the recovery branch in this track.
+- Do not push while the working tree is dirty.
+
+## Remaining gap after source reconciliation
+
+Even after the recovery branch is documented as the source of truth, the live host remains behind source truth until all of these are true:
+
+1. installed launch agents point at `/Users/camerongarrett/work/c2acct-live`
+2. `com.c2acct.app` is loaded by `launchd`
+3. port `3000` is owned by that launchd app, not a stale manual listener
+4. live `/api/release-fingerprint` exists and matches the validated PAT release id
+5. live `/`, `/sign-in`, `/login`, and protected route redirects match the PAT contract

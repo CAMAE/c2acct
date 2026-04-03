@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --webpack",
     "dev:turbopack": "next dev --turbopack",
-    "build": "next build --webpack",
+    "build": "next build --webpack && node scripts/release/prepare-standalone-runtime.mjs",
     "start": "next start",
     "release:gate": "node scripts/release/validate-source-integrity.mjs --root .",
     "release:smoke": "npm run build",

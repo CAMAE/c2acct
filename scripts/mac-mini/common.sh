@@ -114,6 +114,37 @@ mac_mini_launch_agent_path() {
   printf '%s/Library/LaunchAgents/%s.plist' "${HOME}" "$1"
 }
 
+mac_mini_plist_working_directory() {
+  local plist_path="$1"
+  if [ ! -f "${plist_path}" ]; then
+    return 1
+  fi
+
+  sed -n '/<key>WorkingDirectory<\/key>/{n;s#.*<string>\(.*\)</string>.*#\1#;p;q;}' "${plist_path}"
+}
+
+mac_mini_plist_root_status() {
+  local plist_path="$1"
+  local root
+
+  if [ ! -f "${plist_path}" ]; then
+    printf 'missing'
+    return 0
+  fi
+
+  root="$(mac_mini_plist_working_directory "${plist_path}" || true)"
+  if [ -z "${root}" ]; then
+    printf 'unknown'
+    return 0
+  fi
+
+  if [ "${root}" = "${MAC_MINI_CANONICAL_ROOT}" ]; then
+    printf 'canonical'
+  else
+    printf 'mismatch'
+  fi
+}
+
 mac_mini_has_launchctl() {
   command -v launchctl >/dev/null 2>&1
 }
@@ -212,6 +243,21 @@ mac_mini_standalone_server_present() {
   [ -f "$(mac_mini_standalone_server_path)" ]
 }
 
+mac_mini_standalone_static_present() {
+  [ -d "${MAC_MINI_ROOT}/.next/standalone/.next/static" ]
+}
+
+mac_mini_standalone_public_present() {
+  [ -d "${MAC_MINI_ROOT}/.next/standalone/public" ]
+}
+
+mac_mini_prepare_runtime_assets() {
+  (
+    cd "${MAC_MINI_ROOT}"
+    node scripts/release/prepare-standalone-runtime.mjs >/dev/null
+  )
+}
+
 mac_mini_release_fingerprint_seed() {
   printf '%s|%s|%s|%s' \
     "${MAC_MINI_CANONICAL_ROOT}" \
@@ -293,6 +339,21 @@ mac_mini_build_if_needed() {
 
   if ! mac_mini_standalone_server_present; then
     echo "Standalone server artifact is missing after build." >&2
+    exit 1
+  fi
+
+  if ! mac_mini_standalone_static_present || ! mac_mini_standalone_public_present; then
+    mac_mini_log "Standalone runtime assets are incomplete; repairing static and public packaging."
+  fi
+  mac_mini_prepare_runtime_assets
+
+  if ! mac_mini_standalone_static_present; then
+    echo "Standalone static assets are missing after packaging repair." >&2
+    exit 1
+  fi
+
+  if ! mac_mini_standalone_public_present; then
+    echo "Standalone public assets are missing after packaging repair." >&2
     exit 1
   fi
 

@@ -1,73 +1,69 @@
 # Active Repo Map
 
+## Authoritative source of truth
+
+- Canonical repo root: `/Users/camerongarrett/work/c2acct-live`
+- Authoritative PAT branch: `recovery/pat-2026-03-31-baseline`
+- Current authoritative local HEAD: `252b7f39ec77b5459c26791769410b87c4048cec`
+- Shared `origin/main` is not authoritative for PAT launch state and remains stale AAE-era truth.
+
 ## Release-root classification
+
 - `/Users/camerongarrett/work/c2acct-live`: canonical PAT recovery root and only candidate live root.
-- `/Users/camerongarrett/work/c2acct`: development-only workspace, non-live.
+- `/Users/camerongarrett/work/c2acct`: development-only workspace and currently the stale root still referenced by installed host launch agents.
 - `/private/tmp/c2acct-main-auth`: mixed release copy, quarantined, non-live.
 
-## Runtime path
-- `app/page.tsx`: canonical PAT homepage on the 2026-03-31 rollback baseline.
-- `app/layout.tsx`: canonical PAT shell/header/nav on the 2026-03-31 rollback baseline.
-- `app/sign-in/page.tsx`: canonical PAT sign-in hub on the 2026-03-31 rollback baseline.
-- `app/login/page.tsx`: legacy first-class auth page preserved by the 2026-03-31 rollback baseline; not final PAT launch truth.
-- `app/survey/page.tsx`: compatibility redirect to the canonical firm assessment hub.
-- `app/firm/alignment-assessment/page.tsx`: canonical five-module PAT firm assessment entry.
-- `app/survey/[key]/page.tsx`: live survey UI for active modules.
-- `app/api/survey/module/[key]/route.ts`: module + question payload for survey rendering.
-- `app/api/survey/submit/route.ts`: authenticated, company-bound submission path.
-- `app/results/page.tsx`: compatibility redirect to canonical role-specific interpretation.
-- `app/outputs/page.tsx`: compatibility redirect to canonical role-specific insight surfaces.
-- `app/profiles/page.tsx`: compatibility redirect to canonical role-specific profile/admin surfaces.
-- `app/api/results/route.ts`: latest submission readback.
-- `app/api/badges/earned/route.ts`: badge state API for canonical PAT surfaces.
-- `app/api/insights/unlocked/route.ts`: unlocked insight API for canonical PAT surfaces.
+## PAT-critical top-level runtime path
 
-## Canonical role surfaces
-- `app/firm/*`: live firm portal, firm assessment, firm insights, firm admin, firm membership.
-- `app/vendor/*`: live vendor portal, vendor product assessment, vendor alignment insights, vendor product insight, vendor admin, vendor membership.
-- `app/user/*`: live individual portal, user assessment scaffold, user insights, user profile, user membership.
-- `app/admin/*`: active C2Core operator control plane and consultant/operator briefing layer.
+- `app/page.tsx`: canonical PAT homepage.
+- `app/layout.tsx`: canonical PAT shell and shared header frame.
+- `app/sign-in/page.tsx`: canonical PAT sign-in hub.
+- `app/login/page.tsx`: compatibility-only redirect into `/sign-in`; must not be treated as the primary auth surface.
+- `app/vendor/page.tsx`: canonical PAT vendor entry.
+- `app/firm/page.tsx`: canonical PAT firm entry.
+- `app/user/page.tsx`: canonical PAT user entry.
+- `app/admin/page.tsx`: canonical PAT admin/operator entry.
+- `app/components/header/AppHeader.tsx`: canonical PAT header.
+- `app/components/pat/*`: canonical PAT landing and sign-in shell components.
+- `app/globals.css`: PAT visual system and shell styling.
 
-## Auth and company boundary
-- `auth.ts` and `auth.config.ts`: NextAuth wiring and user-claim hydration.
-- `proxy.ts`: protected PAT page/API gate using the shared resolved auth-secret path.
-- `lib/auth/session.ts`: session-user lookup.
-- `lib/authz.ts`: role and authorization helpers.
-- `app/api/company/select/route.ts` and `app/api/company/default/route.ts`: selected-company context.
+## Auth and route contract
 
-## Rollback-state notes
-- `next.config.ts`: baseline config at `078a41f6816e81e599b94423faf501d10c2aa70c`; no standalone runtime hardening is active on this rollback branch.
-- `scripts/mac-mini/app-start.sh`, `scripts/mac-mini/common.sh`, and `scripts/mac-mini/launchd-install.sh`: baseline Mac mini runtime scripts restored to the 2026-03-31 state.
-- `ops/release/pat-surface-manifest.json`: baseline PAT surface marker seed captured from the rollback source of truth. This is an audit artifact, not yet a release gate.
+- `auth.ts` and `auth.config.ts`: GitHub-mode auth wiring and session hydration.
+- `proxy.ts`: PAT protected-route gate.
+- `/`: PAT
+- `/sign-in`: canonical sign-in route
+- `/login`: compatibility-only redirect to `/sign-in`
+- unauthenticated `/vendor`, `/firm`, `/user`, `/admin`: canonical `307` redirects into `/sign-in`
 
-## Data contract
-- `prisma/schema.prisma`: current source of truth for models and enums.
-- `prisma/migrations/`: migration history.
-- `lib/scoring.ts` and `lib/signalIntegrity.ts`: score and integrity semantics used on submit.
-- `SurveySection`: first-class layer between module and question for section-aware pacing and evidence.
-- `MembershipSubscription`: subject-aware membership state with free fallback.
-- `OperatorAuditEvent`: audit log for admin mutations.
+## Release and runtime proofing
 
-## Canonical seed and smoke path
-- `prisma/seed.ts`: baseline seed for the five PAT firm modules, their 100 questions, tier-1 content, and demo company.
-- `scripts/seed-pat-runtime.ts`: canonical PAT runtime seed for firm, vendor, and user scaffolding.
-- `scripts/seed-firm-alignment.mjs`: compatibility wrapper that delegates to the canonical PAT runtime seed.
-- `scripts/seed-tier1-badges-insights.mjs`: compatibility wrapper that delegates to the canonical PAT runtime seed.
-- `scripts/seed-demo-company.mjs`: demo company seed.
-- `scripts/smoke-golden-path.ps1`: browser-assisted smoke helper for the protected path using the canonical PAT firm module keys.
-- `scripts/validate-db.ts` and `scripts/validate-launch.ts`: canonical DB-backed and launch-readiness validation entrypoints.
+- `ops/release/canonical-root.json`: canonical root and runtime contract.
+- `ops/release/pat-surface-manifest.json`: PAT marker/source manifest used by release validation.
+- `ops/release/release-critical-files.json`: release-critical source inventory.
+- `scripts/release/validate-source-integrity.mjs`: source-of-truth and dirty-tree gate.
+- `scripts/release/validate-pat-surfaces.mjs`: rendered PAT surface and fingerprint validator.
+- `scripts/release/verify-approved-pat-markers.mjs`: PAT marker verification.
+- `scripts/release/read-release-fingerprint.ts`: operator-side fingerprint reader.
+- `scripts/mac-mini/app-start.sh`: guarded canonical runtime start path.
+- `scripts/mac-mini/launchd-install.sh`: guarded launch agent install path.
+- `scripts/mac-mini/launchd-check.sh`: launchd, root, and ownership validation.
+- `scripts/mac-mini/status.sh`: operator status summary.
+- `scripts/mac-mini/nightly-verify.sh`: nightly release/host verifier.
+- `scripts/mac-mini/port-owner-proof.sh`: host ownership and live fingerprint proof.
 
-## Explicit placeholders that should stay placeholders
-- `app/api/fmi/route.ts`
-- `app/api/fmi/momentum/route.ts`
-- `app/api/users/route.ts`
-- `app/api/engagements/[id]/score/route.ts`
-- `app/api/surveys/[moduleId]/route.ts`
+## PAT audit and release docs
 
-## Compatibility-only helpers
-- `lib/patDashboard.ts`: legacy generic dashboard helper types and narratives kept only for compatibility.
-- `lib/patUnlocks.ts`: compatibility constants for older dashboard shells; canonical unlock rules now live in PAT insight runtime/evaluators.
+- `docs/audit/PAT_rollback_restore_2026-04-02.md`: rollback anchor restore proof.
+- `docs/audit/PAT_route_surface_reconciliation_2026-04-02.md`: PAT-critical route reconciliation.
+- `docs/audit/PAT_prelaunch_green_proof_2026-04-02.md`: last clean green prelaunch proof.
+- `docs/audit/PAT_host_cutover_proof_2026-04-02.md`: host ownership proofing contract.
+- `docs/audit/PAT_live_host_cutover_2026-04-02.md`: current live-host failure proof.
+- `docs/audit/PAT_full_launch_owner_audit_2026-04-02.md`: launch-owner audit and recommendation.
+- `docs/release/PAT_launch_blocker_matrix_2026-04-02.md`: launch blocker register.
 
-## Archive locations
-- `scripts/archive/`: obsolete or one-off scripts kept only for history.
-- `docs/archive/`: archived generated logs and superseded operational debris.
+## Source-vs-host truth rule
+
+- Local recovery source in `/Users/camerongarrett/work/c2acct-live` is the authoritative PAT truth.
+- `origin/main` is a stale comparison target, not a restore source for PAT shell or launch state.
+- Live host `127.0.0.1:3000` is currently not authoritative because it still serves stale AAE from a non-launchd process and old-root launch-agent installation.

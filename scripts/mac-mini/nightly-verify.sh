@@ -72,6 +72,10 @@ if ! run_and_capture status bash "${SCRIPT_DIR}/status.sh"; then
   failure_count=$((failure_count + 1))
 fi
 
+if ! run_and_capture host_cutover_proof bash "${SCRIPT_DIR}/port-owner-proof.sh" --check; then
+  failure_count=$((failure_count + 1))
+fi
+
 if ! run_and_capture live_pat_surfaces node scripts/release/validate-pat-surfaces.mjs --root "${MAC_MINI_ROOT}" --base-url "$(mac_mini_app_url | sed 's#/$##')"; then
   failure_count=$((failure_count + 1))
 fi
@@ -94,7 +98,11 @@ if [ -f "${report_dir}/health.log" ]; then
 fi
 
 if [ -f "${report_dir}/status.log" ]; then
-  printf 'status_summary=%s\n' "$(grep -E '^(branch|commit|listen|health|build_id|build_time|release_id|fingerprint_commit_sha|fingerprint_auth_mode|last_verify)=' "${report_dir}/status.log" | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g')" >> "${summary_file}"
+  printf 'status_summary=%s\n' "$(grep -E '^(branch|commit|listen|health|build_id|build_time|release_id|fingerprint_commit_sha|fingerprint_auth_mode|launchd_service_state|live_port_owner_state|live_port_owner_pid|live_release_id|ownership_check|ownership_failures|last_verify)=' "${report_dir}/status.log" | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g')" >> "${summary_file}"
+fi
+
+if [ -f "${report_dir}/host_cutover_proof.log" ]; then
+  printf 'host_cutover_summary=%s\n' "$(grep -E '^(launchd_service_state|live_port_owner_state|live_port_owner_pid|live_release_probe_http|live_release_id|expected_release_id|ownership_check|ownership_failures)=' "${report_dir}/host_cutover_proof.log" | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g')" >> "${summary_file}"
 fi
 
 if [ "${failure_count}" -eq 0 ] && [ -f "${MAC_MINI_STATE_DIR}/expected-live-release.json" ]; then

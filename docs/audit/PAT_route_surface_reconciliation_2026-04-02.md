@@ -2,144 +2,180 @@
 
 ## Scope
 
-This reconciliation treats the 2026-03-31 rollback baseline restored in `078a41f6816e81e599b94423faf501d10c2aa70c` as the authoritative PAT-critical surface truth, with current recovery branch head `6e082f8142a44db7f7e672a5073938c0a6c54eba`.
+This reconciliation re-checks PAT-critical top-level source truth against:
 
-Checked surfaces:
+- rollback anchor from local docs: `078a41f6816e81e599b94423faf501d10c2aa70c`
+- last green PAT head recorded in local docs: `340e30c4a5547fad8f6ac13c6fd5518b5b2d8994`
+- current head at verification time: `252b7f39ec77b5459c26791769410b87c4048cec`
 
-- `/`
-- `/sign-in`
-- PAT shell and header
-- `/vendor`
-- `/firm`
-- `/user`
-- `/admin`
-- `/login` compatibility-only behavior
+This check is source-only. It does not treat stale or unreachable host runtime output as source drift.
 
-Checked files:
+## Files checked
 
-- `app/page.tsx`
 - `app/layout.tsx`
+- `app/page.tsx`
+- `app/login/page.tsx`
 - `app/sign-in/page.tsx`
 - `app/vendor/page.tsx`
 - `app/firm/page.tsx`
 - `app/user/page.tsx`
 - `app/admin/page.tsx`
 - `app/components/header/AppHeader.tsx`
-- `lib/locale.ts`
+- `app/components/pat/MeetPatContent.tsx`
+- `app/components/pat/PatRouteCard.tsx`
+- `app/components/pat/PortalPanelSelector.tsx`
+- `app/components/pat/RoleRoutePage.tsx`
+- `app/components/pat/RoleSignInPage.tsx`
+- `app/globals.css`
 - `ops/release/pat-surface-manifest.json`
-- `tests/release-surface-validator.test.ts`
-- `e2e/release-integrity.spec.ts`
 
-## What Was Checked
+## Anchor extraction
 
-### Top-level PAT truth
+Rollback anchor was extracted from local source-of-truth docs, not memory:
 
-- `app/page.tsx` still renders the PAT wordmark, the PAT product name, the PAT hero copy, `Meet PAT`, and the `/sign-in` path.
-- `app/sign-in/page.tsx` remains the primary role-oriented PAT sign-in hub.
-- `app/login/page.tsx` is still compatibility-only and redirects into `buildCanonicalSignInPath(...)`.
+- `docs/audit/PAT_rollback_restore_2026-04-02.md`
+- `docs/rebuild/PAT_rebuild_slices_from_2026_03_31.md`
 
-### PAT shell and header
+Resolved rollback anchor:
 
-- `app/layout.tsx` still constructs the PAT shell nav for:
-  - `/`
-  - `/pat`
-  - `/sign-in`
-  - `/vendor`
-  - `/firm`
-  - `/user`
-  - conditional `/admin`
-- `app/components/header/AppHeader.tsx` applies that same menu shell across protected routes.
+- `078a41f6816e81e599b94423faf501d10c2aa70c`
 
-### Role routes
+## File-by-file reconciliation
 
-- `app/vendor/page.tsx` still carries:
-  - `Vendor PAT homepage and product flow entry.`
-  - `Vendor portal`
-  - `Your vendor workspace in PAT`
-- `app/firm/page.tsx` still carries:
-  - `Firm PAT homepage and flow entry.`
-  - `Firm portal`
-  - `Your firm workspace in PAT`
-- `app/user/page.tsx` still carries:
-  - `Individual PAT homepage scaffold and route entry.`
-  - `Individual portal`
-  - `Your individual workspace for PAT`
-- `app/admin/page.tsx` still carries:
-  - `C2Core operator control plane`
-  - `Canonical PAT firm runtime`
+### Matches rollback anchor exactly
 
-### Manifest alignment
+- `app/page.tsx`
+- `app/vendor/page.tsx`
+- `app/firm/page.tsx`
+- `app/user/page.tsx`
+- `app/admin/page.tsx`
+- `app/components/header/AppHeader.tsx`
+- `app/components/pat/MeetPatContent.tsx`
+- `app/components/pat/PatRouteCard.tsx`
+- `app/components/pat/PortalPanelSelector.tsx`
+- `app/components/pat/RoleRoutePage.tsx`
+- `app/globals.css`
 
-`ops/release/pat-surface-manifest.json` currently expects those same PAT-positive markers on the protected routes and forbids:
+### Documented, validated post-rollback changes above the rollback anchor
 
-- `AAE`
-- `Autonomous Alignment Infrastructure for Accounting Firms.`
-- `Profiles`
-- `Top Seven Outputs`
-- `Alignment Survey`
-- `pre-approved GitHub accounts`
+- `app/layout.tsx`
+  - drift exists above `078a41f6...`
+  - current file remains PAT shell truth and now includes browser-visible release fingerprint
+  - no forbidden AAE markers present
+- `app/login/page.tsx`
+  - drift exists above `078a41f6...`
+  - current file is compatibility-only and redirects into `buildCanonicalSignInPath(...)`
+  - this is the expected post-rollback Slice B landing, not a regression
+- `app/sign-in/page.tsx`
+  - drift exists above `078a41f6...`
+  - current file remains the canonical PAT role-oriented sign-in hub
+  - PAT-positive source markers remain present
+- `app/components/pat/RoleSignInPage.tsx`
+  - drift exists above `078a41f6...`
+  - change is minor and remains PAT-consistent
+- `ops/release/pat-surface-manifest.json`
+  - added after the rollback anchor as part of the release-surface validation layer
+  - manifest still matches current PAT source truth and was not rewritten in this track
 
-## Mismatches Found
+### Drift versus last green PAT head
 
-### Source-level route drift
+No PAT-critical source drift exists versus the last green PAT head recorded in local docs:
+
+- `340e30c4a5547fad8f6ac13c6fd5518b5b2d8994`
+
+`git diff --name-status 340e30c4a5547fad8f6ac13c6fd5518b5b2d8994...HEAD -- [PAT-critical paths]` returned no changes.
+
+## Source-truth rules confirmed in source
+
+### `/` is PAT
+
+Confirmed in `app/page.tsx`:
+
+- PAT wordmark present
+- PAT product copy present
+- `Meet PAT` present
+- `/sign-in` remains the sign-in entry path
+
+### `/sign-in` is canonical
+
+Confirmed in `app/sign-in/page.tsx`:
+
+- role-oriented PAT sign-in hub remains primary
+- PAT-positive markers remain present
+- source includes `Canonical local origin:` and `Landing route:`
+
+### `/login` is compatibility-only
+
+Confirmed in `app/login/page.tsx`:
+
+- file only redirects through `buildCanonicalSignInPath(...)`
+- no first-class login UI remains in this route source
+- no `Continue with GitHub` or `pre-approved GitHub accounts` copy remains
+
+### PAT header exists
+
+Confirmed in `app/layout.tsx` and `app/components/header/AppHeader.tsx`:
+
+- PAT shell nav includes `Home`, `Meet PAT`, `Sign in`, `Vendor`, `Firm`, `Individual`, and conditional `C2Core`
+- PAT shell remains the top-level chrome across route surfaces
+
+### Protected routes remain PAT-correct
+
+Confirmed in source:
+
+- `app/vendor/page.tsx` contains `Vendor portal` and `Your vendor workspace in PAT`
+- `app/firm/page.tsx` contains `Firm portal` and `Your firm workspace in PAT`
+- `app/user/page.tsx` contains `Individual portal` and `Your individual workspace for PAT`
+- `app/admin/page.tsx` contains `C2Core operator control plane` and `Canonical PAT firm runtime`
+
+## Marker and validator results
+
+### PAT marker verification
+
+Command:
+
+```bash
+node scripts/release/verify-approved-pat-markers.mjs --root .
+```
+
+Result:
+
+- `ok: true`
+- all PAT-positive markers found
+- no AAE/global forbidden markers found in PAT-critical protected files
+
+### Release-surface validator test
+
+Command:
+
+```bash
+npm run test:unit -- tests/release-surface-validator.test.ts
+```
+
+Result:
+
+- `1` test file passed
+- `2` tests passed
+
+## Restores performed
 
 None.
 
-The current recovery branch route source matches the PAT baseline expectations in the manifest for:
+No PAT-critical source file required restore from the rollback anchor or the last green PAT head.
 
-- `/`
-- `header`
-- `/sign-in`
-- `/vendor`
-- `/firm`
-- `/user`
-- `/admin`
-- `/login`
+## Reconciliation result
 
-### Rendered mismatch seen earlier
+PAT-critical top-level source truth has not regressed.
 
-Earlier rendered failures against `http://127.0.0.1:3000` are not evidence of current route-source drift.
+Current state is:
 
-Why:
+- rollback-anchor exact for the majority of PAT-critical surface files
+- intentionally advanced above the rollback anchor only where local docs already record validated post-rollback PAT work
+- identical to the last green PAT head for every PAT-critical file checked
 
-1. approved PAT marker verification currently passes against the route source files
-2. the route source files do not contain the AAE UI markers the nightly rendered validator reported
-3. nightly rendered validation showed:
-   - `/sign-in` returned `404`
-   - `/login` returned `200` as a first-class wrong-site page
-   - AAE markers appeared on `/`, `/vendor`, `/firm`, `/user`, and `/admin`
-4. the same nightly status showed `launchd_app=not-loaded` while port `3000` was already occupied
+Therefore:
 
-Conclusion:
-
-- the manifest is not stale for the PAT baseline
-- the route files are not currently regressed
-- the earlier rendered mismatch came from a stale running service on the host, not from this recovery branch
-
-## What Changed
-
-No protected route files changed in this reconciliation.
-
-No manifest changes were required.
-
-The current manifest is already aligned with the rollback-baseline PAT route truth on this branch.
-
-## What Now Passes
-
-Validated from current branch source:
-
-- PAT-positive markers exist for `/`, `header`, `/sign-in`, `/vendor`, `/firm`, `/user`, `/admin`, and `/login`
-- AAE negative markers are absent from the protected route source files covered by the manifest
-- `/login` remains compatibility-only in source
-- PAT shell and header remain consistent across protected role routes
-
-Validation commands used:
-
-- `node scripts/release/verify-approved-pat-markers.mjs --root .`
-- `npm run test:unit -- tests/release-surface-validator.test.ts`
-
-## Reconciliation Result
-
-Top-level PAT truth and role-surface truth are currently aligned on the rollback recovery branch.
-
-The remaining risk is not route-source drift. The remaining risk is host/runtime drift: the active running service still needs to be replaced with the validated canonical PAT build before rendered PAT route proof can be considered green.
+- PAT surface truth remains intact in source
+- `/login` remains compatibility-only
+- `/sign-in` remains canonical
+- no AAE markers remain in PAT-critical source files

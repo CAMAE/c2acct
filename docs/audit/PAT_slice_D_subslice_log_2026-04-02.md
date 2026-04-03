@@ -109,6 +109,35 @@ Reason source integrity is still red:
 
 This source-integrity failure is not caused by the landed Slice D sub-slices.
 
+## Current Re-Verification On Recovery HEAD
+
+Current authoritative HEAD:
+
+- `252b7f39ec77b5459c26791769410b87c4048cec`
+
+Re-verified in this track:
+
+- `node scripts/release/verify-approved-pat-markers.mjs --root .` -> passed
+- `npm run test:unit -- tests/product-utility-integrity.contract.test.ts tests/vendor-product-insight.contract.test.ts tests/vendor-product.contract.test.ts tests/vendor-product-assessment.contract.test.ts` -> passed (`4` files, `10` tests)
+
+Current full prelaunch result on this dirty/sandboxed tree:
+
+- `npm run release:prelaunch` -> failed
+
+Failure cause was not Slice D regression:
+
+- `sourceIntegrity.ok: false` because unrelated critical dirty files are still present in:
+  - `scripts/mac-mini/common.sh`
+  - `scripts/mac-mini/nightly-verify.sh`
+  - `scripts/mac-mini/status.sh`
+- `patSurfaces.ok: false` because the sandbox could not bind the isolated validator runtime on `127.0.0.1:3310`:
+  - `listen EPERM: operation not permitted 127.0.0.1:3310`
+
+Decision from this re-verification:
+
+- no additional Slice D subslices were landed
+- the two already landed Slice D subslices remain the only validated prelaunch-safe Slice D recoveries
+
 ## Deferred Sub-Slices
 
 Deferred for later explicit review:
