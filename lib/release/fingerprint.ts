@@ -119,38 +119,26 @@ function resolveBuildTimestamp(state: CanonicalRootState | null) {
 }
 
 function resolveCommitSha(contract: CanonicalRootContract, state: CanonicalRootState | null) {
-  if (state?.commitSha) {
-    return state.commitSha;
-  }
-
   try {
     return runGit("rev-parse", "HEAD");
   } catch {
-    return contract.baselineCommit ?? "unknown";
+    return state?.commitSha ?? contract.baselineCommit ?? "unknown";
   }
 }
 
 function resolveBranch(state: CanonicalRootState | null) {
-  if (state?.branch) {
-    return state.branch;
-  }
-
   try {
     return runGit("rev-parse", "--abbrev-ref", "HEAD");
   } catch {
-    return "unknown";
+    return state?.branch ?? "unknown";
   }
 }
 
 function resolveGitDirty(state: CanonicalRootState | null) {
-  if (state?.gitDirty) {
-    return state.gitDirty;
-  }
-
   try {
     return runGit("status", "--porcelain").length > 0 ? "dirty" : "clean";
   } catch {
-    return "unknown";
+    return state?.gitDirty ?? "unknown";
   }
 }
 
