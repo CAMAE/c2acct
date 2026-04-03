@@ -34,13 +34,21 @@ const fixture: VendorProductInsightSnapshotInput = {
   vendorSelfReported: {
     latestScore: 84,
     submittedAt: new Date("2026-03-30T12:00:00.000Z"),
-    responses: vendorResponses,
+    responses: {
+      answers: vendorResponses,
+      scaleMin: 1,
+      scaleMax: 5,
+    },
   },
   firmReviewed: {
     assessmentCount: 2,
     latestSubmittedAt: new Date("2026-03-30T13:00:00.000Z"),
     averageScore: 34,
-    responseSets: firmResponseSets,
+    responseSets: firmResponseSets.map((answers) => ({
+      answers,
+      scaleMin: 1,
+      scaleMax: 5,
+    })),
   },
 };
 
@@ -49,6 +57,7 @@ const snapshot = buildVendorProductInsightSnapshot(fixture);
 assert.equal(snapshot.vendorSelfReported.latestScore, 84, "Vendor self-reported signal should be preserved.");
 assert.equal(snapshot.firmReviewed.assessmentCount, 2, "Firm-reviewed sample size should be preserved.");
 assert.equal(snapshot.firmReviewed.averageScore, 34, "Firm-reviewed average should remain explicit in the snapshot.");
+assert.match(snapshot.product.utilityScopeLabel, /2 declared utilities/, "Utility scope should remain explicit.");
 assert.equal(snapshot.divergence.points, 50, "Expected deterministic divergence between vendor and firm signal.");
 assert.match(
   snapshot.divergence.label,

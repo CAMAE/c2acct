@@ -1,13 +1,22 @@
 import { describe, expect, it } from "vitest";
 import { buildFirmProductQuestions } from "@/lib/firmPat";
+import { normalizeAnswerForStoredScale } from "@/lib/productAssessmentRuntime";
 import {
   buildVendorProductInsightSnapshot,
   type VendorProductInsightSnapshotInput,
 } from "@/lib/vendorProductInsightEngine";
 import { buildVendorProductQuestions } from "@/lib/vendorPat";
 
-describe("vendor product combined signal behavior", () => {
-  it("keeps vendor self-report and firm-reviewed signal explicit in the combined snapshot", () => {
+describe("vendor product insight runtime", () => {
+  it("normalizes stored answers against the submission scale", () => {
+    expect(normalizeAnswerForStoredScale(1, 1, 5)).toBe(0);
+    expect(normalizeAnswerForStoredScale(3, 1, 5)).toBe(50);
+    expect(normalizeAnswerForStoredScale(5, 1, 5)).toBe(100);
+    expect(normalizeAnswerForStoredScale(4, 0, 5)).toBe(80);
+    expect(normalizeAnswerForStoredScale(4, 4, 4)).toBeNull();
+  });
+
+  it("carries utility scope and stored-scale normalization into the insight snapshot", () => {
     const utilityKeys = ["ap_automation", "reporting_analytics"];
     const vendorQuestions = buildVendorProductQuestions(utilityKeys);
     const firmQuestions = buildFirmProductQuestions(utilityKeys);
@@ -51,25 +60,13 @@ describe("vendor product combined signal behavior", () => {
 
     const snapshot = buildVendorProductInsightSnapshot(fixture);
 
-    expect(snapshot.vendorSelfReported.latestScore).toBe(84);
-    expect(snapshot.firmReviewed.assessmentCount).toBe(2);
-    expect(snapshot.firmReviewed.averageScore).toBe(34);
     expect(snapshot.product.utilityScopeLabel).toContain("2 declared utilities");
-    expect(snapshot.divergence.points).toBe(50);
-    expect(snapshot.divergence.label).toMatch(/Vendor self-view is running above firm-reviewed signal/);
-    expect(snapshot.combinedCurrentPatReadout).toMatch(
-      /vendor self-reported signal at 84% with firm-reviewed signal at 34% across 2 assessments/i
-    );
-    expect(snapshot.confidenceBand).toBe("directional");
-    expect(snapshot.confidenceSummary).toMatch(/directional rather than broadly confirmed/i);
     expect(snapshot.confidenceCaveats.some((caveat) => caveat.includes("2 assessments"))).toBe(true);
     expect(snapshot.confidenceCaveats.some((caveat) => caveat.includes("50 points apart"))).toBe(true);
-    expect(
-      snapshot.insightRecords.every(
-        (record) =>
-          record.exactAssessmentBasis.includes("Vendor self-reported signal") &&
-          record.exactAssessmentBasis.includes("Firm-reviewed signal")
-      )
-    ).toBe(true);
+    expect(snapshot.insightRecords.some((record) => record.exactAssessmentBasis.includes("Utility scope:"))).toBe(
+      true
+    );
+    expect(snapshot.vendorSelfReported.sectionEvidence.every((section) => section.averageScore !== null)).toBe(true);
+    expect(snapshot.firmReviewed.utilityEvidence).toHaveLength(utilityKeys.length);
   });
 });

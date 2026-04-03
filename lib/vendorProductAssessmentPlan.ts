@@ -1,7 +1,8 @@
 import type { ProductProfileFieldKey } from "@/lib/productUtilityRegistry";
-import { buildProductAssessmentPlan } from "@/lib/vendorProductQuestionBank";
-
-export const VENDOR_PRODUCT_ASSESSMENT_UTILITY_CAP = 4;
+import {
+  buildProductAssessmentPlan,
+  type ProductAssessmentPerspective,
+} from "@/lib/vendorProductQuestionBank";
 
 export type VendorProductProfileInput = {
   productName: string;
@@ -49,19 +50,28 @@ export function buildVendorProductAssessmentPlan(selectedUtilityKeys: string[]) 
   return buildProductAssessmentPlan({
     perspective: "vendor",
     selectedUtilityKeys,
-    utilityCap: VENDOR_PRODUCT_ASSESSMENT_UTILITY_CAP,
     includeProductGeneral: true,
     includeOpenEnded: true,
   });
 }
 
-export function serializeVendorProductAssessmentPlan(selectedUtilityKeys: string[]) {
-  const plan = buildVendorProductAssessmentPlan(selectedUtilityKeys);
+export function serializeProductAssessmentPlan(input: {
+  perspective: ProductAssessmentPerspective;
+  selectedUtilityKeys: string[];
+  includeProductGeneral?: boolean;
+  includeOpenEnded?: boolean;
+}) {
+  const plan = buildProductAssessmentPlan({
+    perspective: input.perspective,
+    selectedUtilityKeys: input.selectedUtilityKeys,
+    includeProductGeneral: input.includeProductGeneral,
+    includeOpenEnded: input.includeOpenEnded,
+  });
 
   return {
     plan,
     registryVersion: plan.version,
-    selectedUtilityKeys,
+    selectedUtilityKeys: input.selectedUtilityKeys,
     generatedQuestionIds: plan.modules.flatMap((module) => module.questions.map((question) => question.id)),
     profileQuestionIds:
       plan.modules.find((module) => module.kind === "general")?.questions.map((question) => question.id) ?? [],
@@ -99,6 +109,15 @@ export function serializeVendorProductAssessmentPlan(selectedUtilityKeys: string
       }))
     ),
   };
+}
+
+export function serializeVendorProductAssessmentPlan(selectedUtilityKeys: string[]) {
+  return serializeProductAssessmentPlan({
+    perspective: "vendor",
+    selectedUtilityKeys,
+    includeProductGeneral: true,
+    includeOpenEnded: true,
+  });
 }
 
 export function getVendorProductProfileQuestions() {
