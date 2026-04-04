@@ -79,12 +79,38 @@ function normalizeEmail(email: string | null | undefined) {
   return normalized.length > 0 ? normalized : null;
 }
 
+function isLoopbackOrigin(value: string | null | undefined) {
+  if (!value) {
+    return false;
+  }
+
+  try {
+    const parsed = new URL(value);
+    return parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost";
+  } catch {
+    return false;
+  }
+}
+
+export function isLocalReviewRuntimeAllowed() {
+  if (process.env.NODE_ENV !== "production") {
+    return true;
+  }
+
+  return [
+    process.env.AUTH_URL,
+    process.env.NEXTAUTH_URL,
+    process.env.PAT_LOCAL_ORIGIN,
+    process.env.MAC_MINI_PUBLIC_ORIGIN,
+  ].some((origin) => isLoopbackOrigin(origin ?? null));
+}
+
 export function isLocalReviewAuthRequested() {
-  return process.env.NODE_ENV !== "production" && process.env[LOCAL_REVIEW_AUTH_FLAG_ENV] === "1";
+  return isLocalReviewRuntimeAllowed() && process.env[LOCAL_REVIEW_AUTH_FLAG_ENV] === "1";
 }
 
 export function shouldSeedLocalReviewUsers() {
-  return process.env.NODE_ENV !== "production";
+  return isLocalReviewRuntimeAllowed();
 }
 
 export function findLocalReviewUserByEmail(email: string | null | undefined) {

@@ -5,8 +5,6 @@ import prisma from "@/lib/prisma";
 import { getResolvedAuthEnv } from "@/lib/auth/env";
 import { ensureLocalReviewUserByEmail, isLocalReviewAuthRequested } from "@/lib/auth/localReview";
 
-const resolvedAuthEnv = getResolvedAuthEnv();
-
 type DbUserClaims = {
   id: string;
   email: string;
@@ -43,7 +41,7 @@ async function findOrEnsureUserByEmail(email: string) {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  secret: resolvedAuthEnv.values.secret ?? undefined,
+  secret: getResolvedAuthEnv().values.secret ?? undefined,
   trustHost: true,
   session: { strategy: "jwt" },
   callbacks: {

@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import dotenv from "dotenv";
+import { isLocalReviewAuthRequested } from "@/lib/auth/localReview";
 
 type AuthEnvKey =
   | "baseUrl"
@@ -81,7 +82,7 @@ const CANDIDATES: Record<AuthEnvKey, CandidateSpec> = {
 };
 
 let cachedEnvSources: EnvSource[] | null = null;
-const DEFAULT_CANONICAL_LOCAL_ORIGIN = "http://127.0.0.1:3001";
+const DEFAULT_CANONICAL_LOCAL_ORIGIN = "http://127.0.0.1:3000";
 
 function hasValue(value: string | undefined | null) {
   return typeof value === "string" && value.trim().length > 0;
@@ -244,8 +245,7 @@ export function getResolvedAuthEnv(): ResolvedAuthEnv {
   const githubId = resolvedBy.githubId.value;
   const githubSecret = resolvedBy.githubSecret.value;
   const localReviewPassword = resolvedBy.localReviewPassword.value;
-  const localReviewRequested =
-    process.env.NODE_ENV !== "production" && process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH === "1";
+  const localReviewRequested = isLocalReviewAuthRequested();
   const localReviewEnabled = localReviewRequested;
   const canonicalLocalOrigin =
     normalizeOrigin(process.env.PAT_LOCAL_ORIGIN) ?? DEFAULT_CANONICAL_LOCAL_ORIGIN;

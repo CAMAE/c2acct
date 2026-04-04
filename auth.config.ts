@@ -2,7 +2,7 @@ import type { NextAuthConfig } from "next-auth";
 import GitHub from "next-auth/providers/github";
 import Credentials from "next-auth/providers/credentials";
 import { getResolvedAuthEnv } from "@/lib/auth/env";
-import { findLocalReviewUserByEmail } from "@/lib/auth/localReview";
+import { findLocalReviewUserByEmail, isLocalReviewAuthRequested } from "@/lib/auth/localReview";
 
 const resolvedAuthEnv = getResolvedAuthEnv();
 
@@ -32,7 +32,7 @@ const authConfig: NextAuthConfig = {
           }),
         ]
       : []),
-    ...(resolvedAuthEnv.localReviewProviderReady
+    ...(isLocalReviewAuthRequested()
       ? [
           Credentials({
             credentials: {
@@ -40,15 +40,16 @@ const authConfig: NextAuthConfig = {
               password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
+              const runtimeAuthEnv = getResolvedAuthEnv();
               const email = typeof credentials?.email === "string" ? credentials.email.trim().toLowerCase() : "";
               const password = typeof credentials?.password === "string" ? credentials.password : "";
               const reviewUser = findLocalReviewUserByEmail(email);
 
-              if (!reviewUser || !resolvedAuthEnv.values.localReviewPassword) {
+              if (!reviewUser || !runtimeAuthEnv.values.localReviewPassword) {
                 return null;
               }
 
-              if (password !== resolvedAuthEnv.values.localReviewPassword) {
+              if (password !== runtimeAuthEnv.values.localReviewPassword) {
                 return null;
               }
 

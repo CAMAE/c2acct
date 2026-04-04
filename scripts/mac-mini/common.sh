@@ -185,9 +185,41 @@ mac_mini_missing_env_vars() {
     [ -n "${AUTH_GITHUB_SECRET:-}" ] || missing+=("AUTH_GITHUB_SECRET")
   fi
 
+  if [ "${PAT_ENABLE_LOCAL_REVIEW_AUTH:-0}" = "1" ] && [ -z "${PAT_LOCAL_REVIEW_PASSWORD:-}" ]; then
+    missing+=("PAT_LOCAL_REVIEW_PASSWORD")
+  fi
+
   if [ "${#missing[@]}" -gt 0 ]; then
     printf '%s\n' "${missing[@]}"
   fi
+}
+
+mac_mini_origin_is_loopback() {
+  case "$1" in
+    http://127.0.0.1:*|https://127.0.0.1:*|http://localhost:*|https://localhost:*)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+mac_mini_local_review_runtime_allowed() {
+  local origin
+
+  for origin in \
+    "${AUTH_URL:-}" \
+    "${NEXTAUTH_URL:-}" \
+    "${PAT_LOCAL_ORIGIN:-}" \
+    "${MAC_MINI_PUBLIC_ORIGIN:-}"
+  do
+    if [ -n "${origin}" ] && mac_mini_origin_is_loopback "${origin}"; then
+      return 0
+    fi
+  done
+
+  return 1
 }
 
 mac_mini_assert_runtime_root_allowed() {
@@ -225,8 +257,8 @@ mac_mini_assert_env_ready() {
     exit 1
   fi
 
-  if [ "${NODE_ENV:-production}" = "production" ] && [ "${PAT_ENABLE_LOCAL_REVIEW_AUTH:-0}" = "1" ]; then
-    echo "PAT_ENABLE_LOCAL_REVIEW_AUTH=1 is forbidden in production runtime." >&2
+  if [ "${PAT_ENABLE_LOCAL_REVIEW_AUTH:-0}" = "1" ] && ! mac_mini_local_review_runtime_allowed; then
+    echo "PAT_ENABLE_LOCAL_REVIEW_AUTH=1 is allowed only for loopback-local PAT runtimes." >&2
     exit 1
   fi
 }

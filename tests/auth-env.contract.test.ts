@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { getResolvedAuthEnv, getResolvedAuthSecret } from "@/lib/auth/env";
 
+const ORIGINAL_NODE_ENV = process.env.NODE_ENV;
 const ORIGINAL_AUTH_SECRET = process.env.AUTH_SECRET;
 const ORIGINAL_NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET;
 const ORIGINAL_AUTH_URL = process.env.AUTH_URL;
@@ -8,8 +9,17 @@ const ORIGINAL_NEXTAUTH_URL = process.env.NEXTAUTH_URL;
 const ORIGINAL_GITHUB_ID = process.env.AUTH_GITHUB_ID;
 const ORIGINAL_GITHUB_SECRET = process.env.AUTH_GITHUB_SECRET;
 const ORIGINAL_LOCAL_GITHUB = process.env.PAT_ENABLE_LOCAL_GITHUB_AUTH;
+const ORIGINAL_LOCAL_REVIEW = process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH;
+const ORIGINAL_LOCAL_REVIEW_PASSWORD = process.env.PAT_LOCAL_REVIEW_PASSWORD;
+const ORIGINAL_LOCAL_ORIGIN = process.env.PAT_LOCAL_ORIGIN;
 
 afterEach(() => {
+  if (ORIGINAL_NODE_ENV === undefined) {
+    delete process.env.NODE_ENV;
+  } else {
+    process.env.NODE_ENV = ORIGINAL_NODE_ENV;
+  }
+
   if (ORIGINAL_AUTH_SECRET === undefined) {
     delete process.env.AUTH_SECRET;
   } else {
@@ -51,6 +61,24 @@ afterEach(() => {
   } else {
     process.env.PAT_ENABLE_LOCAL_GITHUB_AUTH = ORIGINAL_LOCAL_GITHUB;
   }
+
+  if (ORIGINAL_LOCAL_REVIEW === undefined) {
+    delete process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH;
+  } else {
+    process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH = ORIGINAL_LOCAL_REVIEW;
+  }
+
+  if (ORIGINAL_LOCAL_REVIEW_PASSWORD === undefined) {
+    delete process.env.PAT_LOCAL_REVIEW_PASSWORD;
+  } else {
+    process.env.PAT_LOCAL_REVIEW_PASSWORD = ORIGINAL_LOCAL_REVIEW_PASSWORD;
+  }
+
+  if (ORIGINAL_LOCAL_ORIGIN === undefined) {
+    delete process.env.PAT_LOCAL_ORIGIN;
+  } else {
+    process.env.PAT_LOCAL_ORIGIN = ORIGINAL_LOCAL_ORIGIN;
+  }
 });
 
 describe("auth env secret resolution", () => {
@@ -70,7 +98,7 @@ describe("auth env secret resolution", () => {
     expect(getResolvedAuthEnv().values.secret).toBe("fallback-nextauth-secret");
   });
 
-  it("blocks local GitHub auth until the canonical 127.0.0.1:3001 callback is aligned and explicitly enabled", () => {
+  it("blocks local GitHub auth until the canonical 127.0.0.1:3000 callback is aligned and explicitly enabled", () => {
     process.env.AUTH_URL = "http://localhost:3000";
     process.env.AUTH_GITHUB_ID = "github-id";
     process.env.AUTH_GITHUB_SECRET = "github-secret";
@@ -81,14 +109,30 @@ describe("auth env secret resolution", () => {
     expect(misaligned.githubProviderReady).toBe(true);
     expect(misaligned.githubAuthEnabled).toBe(false);
     expect(misaligned.callbackUrl).toBe("http://localhost:3000/api/auth/callback/github");
-    expect(misaligned.githubAvailabilityReason).toContain("http://127.0.0.1:3001");
+    expect(misaligned.githubAvailabilityReason).toContain("http://127.0.0.1:3000");
 
-    process.env.AUTH_URL = "http://127.0.0.1:3001";
-    process.env.NEXTAUTH_URL = "http://127.0.0.1:3001";
+    process.env.AUTH_URL = "http://127.0.0.1:3000";
+    process.env.NEXTAUTH_URL = "http://127.0.0.1:3000";
     process.env.PAT_ENABLE_LOCAL_GITHUB_AUTH = "1";
 
     const aligned = getResolvedAuthEnv();
     expect(aligned.githubAuthEnabled).toBe(true);
-    expect(aligned.callbackUrl).toBe("http://127.0.0.1:3001/api/auth/callback/github");
+    expect(aligned.callbackUrl).toBe("http://127.0.0.1:3000/api/auth/callback/github");
+  });
+
+  it("allows loopback-only local review auth in the local standalone runtime when the flag and password are set", () => {
+    process.env.NODE_ENV = "production";
+    process.env.AUTH_URL = "http://127.0.0.1:3000";
+    process.env.NEXTAUTH_URL = "http://127.0.0.1:3000";
+    process.env.PAT_LOCAL_ORIGIN = "http://127.0.0.1:3000";
+    process.env.AUTH_SECRET = "auth-secret";
+    process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH = "1";
+    process.env.PAT_LOCAL_REVIEW_PASSWORD = "pat-local-review";
+
+    const resolved = getResolvedAuthEnv();
+    expect(resolved.canonicalLocalOrigin).toBe("http://127.0.0.1:3000");
+    expect(resolved.localReviewRequested).toBe(true);
+    expect(resolved.localReviewEnabled).toBe(true);
+    expect(resolved.localReviewProviderReady).toBe(true);
   });
 });
