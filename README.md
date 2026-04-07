@@ -1,26 +1,30 @@
 # C2Acct
 
-C2Acct is the current AAE institutional alignment application. The live product is intentionally narrow today, but the repo is structured around company-scoped survey submission, scoring, results, and unlocked outputs rather than a one-off single-firm prototype.
+C2Acct is the active PAT product repo. "AAE" still appears in some historical filenames, archive docs, and compatibility notes, but PAT is the current runtime/build truth.
 
 ## What is live now
 
-The protected golden path is:
+The clean PAT path is:
 
-1. `login`
-2. `survey`
-3. `submit`
-4. `results`
-5. `outputs`
+1. `/`
+2. `/sign-in`
+3. role workspace: `/vendor`, `/firm`, `/user`, `/admin`, or assigned consultant `/consultants` when `PAT_ENABLE_CONSULTANT_ACCESS=1`
+4. role-specific assessment, insights, membership, admin, and briefing surfaces
 
 Current active runtime entrypoints:
 
-- `/login`
-- `/survey` -> compatibility redirect to `/firm/alignment-assessment`
-- `/firm/alignment-assessment`
-- `/survey/[key]`
-- `/results`
-- `/outputs`
+- `/`
+- `/sign-in`
+- `/vendor`
+- `/firm`
+- `/user`
 - `/admin`
+- `/consultants` when `PAT_ENABLE_CONSULTANT_ACCESS=1`
+- `/survey` -> compatibility redirect to `/firm/alignment-assessment`
+- `/survey/[key]`
+- `/login` -> compatibility redirect to `/sign-in`
+- `/results` -> compatibility redirect to canonical PAT insight interpretation
+- `/outputs` -> compatibility redirect to canonical PAT insight interpretation
 
 Current active APIs:
 
@@ -64,6 +68,25 @@ Authorization is company-bound:
 
 If you are bootstrapping a new environment, create the operator `User` row directly in the database after seeding baseline data.
 
+## Bootstrap a fresh checkout
+
+Use `pnpm` as the canonical package manager. CI, lockfiles, and local bootstrap all assume `pnpm`; `npm` is not the active maintenance path for this repo.
+
+Safe fresh-checkout bootstrap:
+
+```bash
+pnpm bootstrap:repo
+```
+
+Equivalent manual path:
+
+```bash
+pnpm install
+pnpm prisma:generate
+```
+
+This bootstrap path is intentionally narrow. It installs dependencies and generates the Prisma client without assuming Docker, seed data, or local runtime env vars are already ready.
+
 ## Canonical data bootstrap
 
 The repo previously contained multiple stale seed paths. The current source of truth is:
@@ -103,7 +126,7 @@ Historical or broken one-off seed/repair utilities were moved under `scripts/arc
 Install and run:
 
 ```bash
-pnpm install
+pnpm bootstrap:repo
 pnpm dev
 ```
 
@@ -114,6 +137,12 @@ pnpm lint
 pnpm typecheck
 pnpm build
 ```
+
+Operator truth:
+
+- `pnpm start`: canonical packaged runtime start using `node .next/standalone/server.js`
+- `pnpm start:next`: non-canonical framework server path for debugging only
+- `pnpm standalone:local`: local standalone launcher that pins honest loopback auth env
 
 Deterministic local PAT validation against Docker Postgres on `localhost:5433`:
 
@@ -127,6 +156,21 @@ One-command launch verification from a clean local DB:
 ```bash
 pnpm validate:launch
 ```
+
+Validation truth:
+
+- `pnpm validate:launch`: full repo/runtime/browser validation path
+- `pnpm release:prelaunch`: narrower release-artifact and PAT surface proof
+- `pnpm validate:release-surfaces`: explicit alias for `release:prelaunch`
+
+Canonical local standalone runtime:
+
+```bash
+pnpm build
+pnpm standalone:local
+```
+
+`pnpm standalone:local` loads repo-root `.env.local` first, then `.env`, and supplies local-only loopback defaults for `AUTH_URL`, `NEXTAUTH_URL`, `AUTH_SECRET`, `PAT_ENABLE_LOCAL_REVIEW_AUTH`, and `PAT_LOCAL_REVIEW_PASSWORD` so the standalone sign-in surface does not boot into the missing-secret path.
 
 What `validate:db` covers:
 
@@ -142,7 +186,9 @@ What `validate:db` covers:
 
 If the DB is unavailable, the DB validation scripts fail with an explicit `db:up` and `db:wait` recovery path instead of ambiguous Prisma output.
 
-`validate:launch` now includes build, typecheck, unit tests, and Playwright local-review browser coverage after the DB-backed PAT runtime checks.
+`validate:launch` now includes DB validation, build, standalone startup proof, typecheck, unit tests, and Playwright local-review browser coverage.
+
+`release:prelaunch` is intentionally narrower. It proves the release artifact and rendered PAT surface contract, but it is not a substitute for `validate:launch`.
 
 ## Local review auth
 
@@ -161,12 +207,13 @@ Deterministic local review identities:
 - `review.firm@pat.local`
 - `review.individual@pat.local`
 - `review.admin@pat.local`
+- `review.consultant@pat.local`
 
 Seed with the flag enabled so those users exist in the local DB with canonical role/company bindings:
 
 ```bash
-PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:baseline
-PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:pat-runtime
+PAT_ENABLE_LOCAL_REVIEW_AUTH=1 pnpm seed:baseline
+PAT_ENABLE_LOCAL_REVIEW_AUTH=1 pnpm seed:pat-runtime
 ```
 
 This local review path is never exposed in production and does not replace GitHub auth there.
@@ -174,11 +221,20 @@ This local review path is never exposed in production and does not replace GitHu
 Exact local manual review sequence:
 
 ```bash
-npm run db:recreate
-npm run prisma:migrate:local
-PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:baseline
-PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:pat-runtime
-PAT_ENABLE_LOCAL_REVIEW_AUTH=1 PAT_LOCAL_REVIEW_PASSWORD=pat-local-review AUTH_SECRET=pat-local-auth-secret npm run dev
+pnpm db:recreate
+pnpm prisma:migrate:local
+PAT_ENABLE_LOCAL_REVIEW_AUTH=1 pnpm seed:baseline
+PAT_ENABLE_LOCAL_REVIEW_AUTH=1 pnpm seed:pat-runtime
+PAT_ENABLE_LOCAL_REVIEW_AUTH=1 PAT_LOCAL_REVIEW_PASSWORD=pat-local-review AUTH_SECRET=pat-local-auth-secret pnpm dev
+```
+
+Equivalent local standalone review sequence:
+
+```bash
+pnpm db:recreate
+pnpm validate:db
+pnpm build
+pnpm standalone:local
 ```
 
 Then review these browser paths with the seeded local review identities:
@@ -195,18 +251,22 @@ Then review these browser paths with the seeded local review identities:
 4. `/sign-in?view=admin`
    Use `review.admin@pat.local` and `pat-local-review`
    Verify `/admin`
+5. `/sign-in?view=consultant`
+   Use `review.consultant@pat.local` and `pat-local-review`
+   Only enable this when `PAT_ENABLE_CONSULTANT_ACCESS=1` for explicit proof. Then verify the sign-in surface itself, add a consultant profile and firm assignment from `/admin/consultants`, and only then expect `/consultants` briefing access to open cleanly
 
 ## Safe repo handoff
 
 Use the sanitized export script when handing off the codebase for review, launch prep, or external packaging.
 
 ```bash
-npm run handoff:preflight
-npm run export:safe -- /tmp/c2acct-export
+pnpm handoff:preflight
+pnpm export:safe -- /tmp/c2acct-export
 ```
 
 What it excludes by default:
 
+- `.git` and `.git/`
 - `.env*`
 - `.next`
 - `node_modules`
@@ -216,17 +276,17 @@ What it excludes by default:
 - temporary files and local scratch state
 - archive files such as `.zip`, `.tar`, `.tgz`
 
-Operator rule: never hand off the repo by zipping the working tree directly. Do not export `.env`, `.env.local`, build output, Mac mini artifacts, or any other local secrets/runtime residue.
+Operator rule: never hand off the repo by zipping the working tree directly. Do not export `.git`, `.env`, `.env.local`, build output, Mac mini artifacts, or any other local secrets/runtime residue.
 
 Pre-handoff checklist:
 
-1. `npm run secrets:scan`
-2. `npm run build`
-3. `npm run typecheck`
-4. `npm run export:safe -- /tmp/c2acct-export`
-5. Confirm the export tree excludes `.env*`, `.next`, `node_modules`, `logs`, `artifacts/mac-mini`, and temp files before creating a zip
+1. `pnpm secrets:scan`
+2. `pnpm build`
+3. `pnpm typecheck`
+4. `pnpm export:safe -- /tmp/c2acct-export`
+5. Confirm the export tree excludes `.git`, `.env*`, `.next`, `node_modules`, `logs`, `artifacts/mac-mini`, and temp files before creating a zip
 
-If `gitleaks` is not installed locally, `npm run secrets:scan` falls back to Docker with the repo `.gitleaks.toml`.
+If `gitleaks` is not installed locally, `pnpm secrets:scan` falls back to Docker with the repo `.gitleaks.toml`.
 
 ## Repo map
 
@@ -267,6 +327,7 @@ Normal deploy flow on the Mac mini:
 ```bash
 git pull
 pnpm install
+pnpm prisma:generate
 pnpm build
 pnpm ops:mac-mini:launchd:install
 ```

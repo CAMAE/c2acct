@@ -111,6 +111,7 @@ type LocaleMessages = {
   chrome: Record<
     | "home_aria"
     | "language"
+    | "membership"
     | "navigation"
     | "open_language_menu"
     | "open_navigation_menu"
@@ -267,6 +268,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
     chrome: {
       home_aria: "Open home",
       language: "Language",
+      membership: "Membership",
       navigation: "Navigation",
       open_language_menu: "Open language menu",
       open_navigation_menu: "Open navigation menu",
@@ -589,6 +591,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
     chrome: {
       home_aria: "Abrir inicio",
       language: "Idioma",
+      membership: "Membresia",
       navigation: "Navegación",
       open_language_menu: "Abrir menú de idioma",
       open_navigation_menu: "Abrir menú de navegación",
@@ -911,6 +914,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
     chrome: {
       home_aria: "Ouvrir l’accueil",
       language: "Langue",
+      membership: "Adhesion",
       navigation: "Navigation",
       open_language_menu: "Ouvrir le menu de langue",
       open_navigation_menu: "Ouvrir le menu de navigation",

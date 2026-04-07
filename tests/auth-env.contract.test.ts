@@ -1,109 +1,63 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { getResolvedAuthEnv, getResolvedAuthSecret } from "@/lib/auth/env";
 
-const ORIGINAL_NODE_ENV = process.env.NODE_ENV;
-const ORIGINAL_AUTH_SECRET = process.env.AUTH_SECRET;
-const ORIGINAL_NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET;
-const ORIGINAL_AUTH_URL = process.env.AUTH_URL;
-const ORIGINAL_NEXTAUTH_URL = process.env.NEXTAUTH_URL;
-const ORIGINAL_GITHUB_ID = process.env.AUTH_GITHUB_ID;
-const ORIGINAL_GITHUB_SECRET = process.env.AUTH_GITHUB_SECRET;
-const ORIGINAL_LOCAL_GITHUB = process.env.PAT_ENABLE_LOCAL_GITHUB_AUTH;
-const ORIGINAL_LOCAL_REVIEW = process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH;
-const ORIGINAL_LOCAL_REVIEW_PASSWORD = process.env.PAT_LOCAL_REVIEW_PASSWORD;
-const ORIGINAL_LOCAL_ORIGIN = process.env.PAT_LOCAL_ORIGIN;
+const AUTH_ENV_KEYS = [
+  "NODE_ENV",
+  "AUTH_SECRET",
+  "NEXTAUTH_SECRET",
+  "AUTH_URL",
+  "NEXTAUTH_URL",
+  "AUTH_GITHUB_ID",
+  "AUTH_GITHUB_SECRET",
+  "PAT_ENABLE_LOCAL_GITHUB_AUTH",
+  "PAT_ENABLE_LOCAL_REVIEW_AUTH",
+  "PAT_LOCAL_REVIEW_PASSWORD",
+  "PAT_LOCAL_ORIGIN",
+] as const;
+
+type AuthEnvKey = (typeof AUTH_ENV_KEYS)[number];
+
+function setAuthEnv(values: Partial<Record<AuthEnvKey, string>>) {
+  for (const key of AUTH_ENV_KEYS) {
+    vi.stubEnv(key, "");
+  }
+
+  for (const [key, value] of Object.entries(values)) {
+    vi.stubEnv(key, value);
+  }
+}
 
 afterEach(() => {
-  if (ORIGINAL_NODE_ENV === undefined) {
-    delete process.env.NODE_ENV;
-  } else {
-    process.env.NODE_ENV = ORIGINAL_NODE_ENV;
-  }
-
-  if (ORIGINAL_AUTH_SECRET === undefined) {
-    delete process.env.AUTH_SECRET;
-  } else {
-    process.env.AUTH_SECRET = ORIGINAL_AUTH_SECRET;
-  }
-
-  if (ORIGINAL_NEXTAUTH_SECRET === undefined) {
-    delete process.env.NEXTAUTH_SECRET;
-  } else {
-    process.env.NEXTAUTH_SECRET = ORIGINAL_NEXTAUTH_SECRET;
-  }
-
-  if (ORIGINAL_AUTH_URL === undefined) {
-    delete process.env.AUTH_URL;
-  } else {
-    process.env.AUTH_URL = ORIGINAL_AUTH_URL;
-  }
-
-  if (ORIGINAL_NEXTAUTH_URL === undefined) {
-    delete process.env.NEXTAUTH_URL;
-  } else {
-    process.env.NEXTAUTH_URL = ORIGINAL_NEXTAUTH_URL;
-  }
-
-  if (ORIGINAL_GITHUB_ID === undefined) {
-    delete process.env.AUTH_GITHUB_ID;
-  } else {
-    process.env.AUTH_GITHUB_ID = ORIGINAL_GITHUB_ID;
-  }
-
-  if (ORIGINAL_GITHUB_SECRET === undefined) {
-    delete process.env.AUTH_GITHUB_SECRET;
-  } else {
-    process.env.AUTH_GITHUB_SECRET = ORIGINAL_GITHUB_SECRET;
-  }
-
-  if (ORIGINAL_LOCAL_GITHUB === undefined) {
-    delete process.env.PAT_ENABLE_LOCAL_GITHUB_AUTH;
-  } else {
-    process.env.PAT_ENABLE_LOCAL_GITHUB_AUTH = ORIGINAL_LOCAL_GITHUB;
-  }
-
-  if (ORIGINAL_LOCAL_REVIEW === undefined) {
-    delete process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH;
-  } else {
-    process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH = ORIGINAL_LOCAL_REVIEW;
-  }
-
-  if (ORIGINAL_LOCAL_REVIEW_PASSWORD === undefined) {
-    delete process.env.PAT_LOCAL_REVIEW_PASSWORD;
-  } else {
-    process.env.PAT_LOCAL_REVIEW_PASSWORD = ORIGINAL_LOCAL_REVIEW_PASSWORD;
-  }
-
-  if (ORIGINAL_LOCAL_ORIGIN === undefined) {
-    delete process.env.PAT_LOCAL_ORIGIN;
-  } else {
-    process.env.PAT_LOCAL_ORIGIN = ORIGINAL_LOCAL_ORIGIN;
-  }
+  vi.unstubAllEnvs();
 });
 
 describe("auth env secret resolution", () => {
   it("uses the same resolved secret helper that auth and proxy depend on", () => {
-    process.env.AUTH_SECRET = "preferred-auth-secret";
-    process.env.NEXTAUTH_SECRET = "fallback-nextauth-secret";
+    setAuthEnv({
+      AUTH_SECRET: "preferred-auth-secret",
+      NEXTAUTH_SECRET: "fallback-nextauth-secret",
+    });
 
     expect(getResolvedAuthSecret()).toBe("preferred-auth-secret");
     expect(getResolvedAuthEnv().values.secret).toBe("preferred-auth-secret");
   });
 
   it("falls back to NEXTAUTH_SECRET when AUTH_SECRET is absent", () => {
-    delete process.env.AUTH_SECRET;
-    process.env.NEXTAUTH_SECRET = "fallback-nextauth-secret";
+    setAuthEnv({
+      NEXTAUTH_SECRET: "fallback-nextauth-secret",
+    });
 
     expect(getResolvedAuthSecret()).toBe("fallback-nextauth-secret");
     expect(getResolvedAuthEnv().values.secret).toBe("fallback-nextauth-secret");
   });
 
   it("blocks local GitHub auth until the canonical 127.0.0.1:3000 callback is aligned and explicitly enabled", () => {
-    process.env.AUTH_URL = "http://localhost:3000";
-    process.env.AUTH_GITHUB_ID = "github-id";
-    process.env.AUTH_GITHUB_SECRET = "github-secret";
-    process.env.AUTH_SECRET = "auth-secret";
-    delete process.env.PAT_ENABLE_LOCAL_GITHUB_AUTH;
+    setAuthEnv({
+      AUTH_URL: "http://localhost:3000",
+      AUTH_GITHUB_ID: "github-id",
+      AUTH_GITHUB_SECRET: "github-secret",
+      AUTH_SECRET: "auth-secret",
+    });
 
     const misaligned = getResolvedAuthEnv();
     expect(misaligned.githubProviderReady).toBe(true);
@@ -111,9 +65,14 @@ describe("auth env secret resolution", () => {
     expect(misaligned.callbackUrl).toBe("http://localhost:3000/api/auth/callback/github");
     expect(misaligned.githubAvailabilityReason).toContain("http://127.0.0.1:3000");
 
-    process.env.AUTH_URL = "http://127.0.0.1:3000";
-    process.env.NEXTAUTH_URL = "http://127.0.0.1:3000";
-    process.env.PAT_ENABLE_LOCAL_GITHUB_AUTH = "1";
+    setAuthEnv({
+      AUTH_URL: "http://127.0.0.1:3000",
+      NEXTAUTH_URL: "http://127.0.0.1:3000",
+      AUTH_GITHUB_ID: "github-id",
+      AUTH_GITHUB_SECRET: "github-secret",
+      AUTH_SECRET: "auth-secret",
+      PAT_ENABLE_LOCAL_GITHUB_AUTH: "1",
+    });
 
     const aligned = getResolvedAuthEnv();
     expect(aligned.githubAuthEnabled).toBe(true);
@@ -121,13 +80,15 @@ describe("auth env secret resolution", () => {
   });
 
   it("allows loopback-only local review auth in the local standalone runtime when the flag and password are set", () => {
-    process.env.NODE_ENV = "production";
-    process.env.AUTH_URL = "http://127.0.0.1:3000";
-    process.env.NEXTAUTH_URL = "http://127.0.0.1:3000";
-    process.env.PAT_LOCAL_ORIGIN = "http://127.0.0.1:3000";
-    process.env.AUTH_SECRET = "auth-secret";
-    process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH = "1";
-    process.env.PAT_LOCAL_REVIEW_PASSWORD = "pat-local-review";
+    setAuthEnv({
+      NODE_ENV: "production",
+      AUTH_URL: "http://127.0.0.1:3000",
+      NEXTAUTH_URL: "http://127.0.0.1:3000",
+      PAT_LOCAL_ORIGIN: "http://127.0.0.1:3000",
+      AUTH_SECRET: "auth-secret",
+      PAT_ENABLE_LOCAL_REVIEW_AUTH: "1",
+      PAT_LOCAL_REVIEW_PASSWORD: "pat-local-review",
+    });
 
     const resolved = getResolvedAuthEnv();
     expect(resolved.canonicalLocalOrigin).toBe("http://127.0.0.1:3000");

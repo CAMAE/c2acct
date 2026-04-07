@@ -9,7 +9,15 @@ import {
 import { computeScore } from "@/lib/scoring";
 import { evaluateSignalIntegrity } from "@/lib/signalIntegrity";
 import { PRODUCT_UTILITY_SCORED_QUESTION_COUNT } from "@/lib/productUtilityRegistry";
+import {
+  normalizeVendorProductProfileInput,
+  serializeVendorProductAssessmentPlan,
+} from "@/lib/vendorProductAssessmentPlan";
 import { buildProductAssessmentPlan, getProductUtilityCatalog } from "@/lib/vendorProductQuestionBank";
+import {
+  PRODUCT_ASSESSMENT_SCALE_MAX,
+  PRODUCT_ASSESSMENT_SCALE_MIN,
+} from "@/lib/productAssessmentRuntime";
 
 export const VENDOR_PRODUCT_MODULE_KEY = "vendor_product_alignment_v1";
 export const VENDOR_PRODUCT_MODULE_TITLE = "Vendor Product Assessment";
@@ -72,6 +80,26 @@ export type VendorProductStatus = {
   statusLabel: string;
 };
 
+export type VendorProductAssessmentCompletionStatus = {
+  completed: boolean;
+  latestSubmissionId: string | null;
+  latestScore: number | null;
+  latestSubmittedAt: Date | null;
+  utilityKeys: string[];
+  scoredQuestionCount: number;
+  openEndedQuestionCount: number;
+  statusLabel: string;
+  reason: string;
+};
+
+type VendorProductAssessmentSubmissionRecord = {
+  id: string;
+  score: number | null;
+  createdAt: Date;
+  answeredCount: number;
+  answers: unknown;
+};
+
 export const PRODUCT_TIER1_INSIGHTS: VendorInsightDetail[] = insightContent.vendorProduct
   .filter((item) => item.tier === 1)
   .map((item) => ({
@@ -109,6 +137,83 @@ export const ALIGNMENT_INSIGHT_DEFINITIONS: VendorInsightDetail[] = insightConte
   why: item.why,
   how: item.how,
 }));
+
+function normalizeSubmittedUtilityKeys(input: unknown) {
+  if (!Array.isArray(input)) {
+    return [];
+  }
+
+  const seen = new Set<string>();
+
+  return input
+    .filter((entry): entry is string => typeof entry === "string")
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0)
+    .filter((entry) => {
+      if (seen.has(entry)) {
+        return false;
+      }
+      seen.add(entry);
+      return VENDOR_UTILITY_CATALOG.some((utility) => utility.key === entry);
+    })
+    .slice(0, VENDOR_PRODUCT_UTILITY_CAP);
+}
+
+function getNumberRecord(input: unknown) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    return null;
+  }
+
+  const entries = Object.entries(input);
+  if (
+    !entries.every(
+      ([, value]) =>
+        typeof value === "number" &&
+        Number.isFinite(value) &&
+        value >= PRODUCT_ASSESSMENT_SCALE_MIN &&
+        value <= PRODUCT_ASSESSMENT_SCALE_MAX
+    )
+  ) {
+    return null;
+  }
+
+  return Object.fromEntries(entries) as Record<string, number>;
+}
+
+function getStringRecord(input: unknown) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    return null;
+  }
+
+  const entries = Object.entries(input);
+  if (!entries.every(([, value]) => typeof value === "string")) {
+    return null;
+  }
+
+  return Object.fromEntries(entries) as Record<string, string>;
+}
+
+function buildIncompleteVendorAssessmentStatus(input: {
+  latestSubmission?: VendorProductAssessmentSubmissionRecord | null;
+  utilityKeys?: string[];
+  scoredQuestionCount?: number;
+  openEndedQuestionCount?: number;
+  statusLabel?: string;
+  reason?: string;
+}): VendorProductAssessmentCompletionStatus {
+  return {
+    completed: false,
+    latestSubmissionId: input.latestSubmission?.id ?? null,
+    latestScore: input.latestSubmission?.score ?? null,
+    latestSubmittedAt: input.latestSubmission?.createdAt ?? null,
+    utilityKeys: input.utilityKeys ?? [],
+    scoredQuestionCount: input.scoredQuestionCount ?? 0,
+    openEndedQuestionCount: input.openEndedQuestionCount ?? 0,
+    statusLabel: input.statusLabel ?? "Awaiting vendor assessment",
+    reason:
+      input.reason ?? "Firm review opens only after the vendor completes the full product assessment for this product.",
+  };
+}
 
 export function getVendorUtilityLabels(selectedUtilityKeys: string[]) {
   return selectedUtilityKeys
@@ -221,6 +326,81 @@ export function deriveProductStatus(input: {
         : latestSubmission
           ? "Assessment recorded"
           : "Ready for assessment",
+  };
+}
+
+export function deriveVendorProductAssessmentCompletionStatus(input: {
+  latestSubmission?: VendorProductAssessmentSubmissionRecord | null;
+}): VendorProductAssessmentCompletionStatus {
+  const latestSubmission = input.latestSubmission ?? null;
+  if (!latestSubmission) {
+    return buildIncompleteVendorAssessmentStatus({});
+  }
+
+  const payload =
+    latestSubmission.answers && typeof latestSubmission.answers === "object" && !Array.isArray(latestSubmission.answers)
+      ? (latestSubmission.answers as Record<string, unknown>)
+      : null;
+
+  if (!payload) {
+    return buildIncompleteVendorAssessmentStatus({
+      latestSubmission,
+      statusLabel: "Vendor assessment incomplete",
+    });
+  }
+
+  const utilityKeys = normalizeSubmittedUtilityKeys(payload.utilitySelection);
+  if (utilityKeys.length === 0) {
+    return buildIncompleteVendorAssessmentStatus({
+      latestSubmission,
+      statusLabel: "Vendor assessment incomplete",
+    });
+  }
+
+  const expectedScoredQuestions = buildVendorProductQuestions(utilityKeys);
+  const expectedScoredQuestionIds = new Set(expectedScoredQuestions.map((question) => question.id));
+  const expectedPlan = serializeVendorProductAssessmentPlan(utilityKeys);
+  const expectedOpenEndedQuestionIds = new Set(expectedPlan.openEndedQuestionIds);
+  const responsePayload = getNumberRecord(payload.responses);
+  const openEndedPayload = getStringRecord(payload.openEndedResponses);
+  const normalizedProfile = normalizeVendorProductProfileInput(
+    payload.profile && typeof payload.profile === "object" && !Array.isArray(payload.profile)
+      ? (payload.profile as Record<string, string | null | undefined>)
+      : {}
+  );
+  const profileComplete = Object.values(normalizedProfile).every((value) => value.length > 0);
+  const responseEntries = responsePayload ? Object.entries(responsePayload) : [];
+  const openEndedEntries = openEndedPayload ? Object.entries(openEndedPayload) : [];
+  const scoredResponsesComplete =
+    responseEntries.length === expectedScoredQuestions.length &&
+    latestSubmission.answeredCount === expectedScoredQuestions.length &&
+    responseEntries.every(([questionId]) => expectedScoredQuestionIds.has(questionId));
+  const openEndedResponsesComplete =
+    openEndedEntries.length === expectedPlan.openEndedQuestionIds.length &&
+    openEndedEntries.every(
+      ([questionId, value]) => expectedOpenEndedQuestionIds.has(questionId) && value.trim().length > 0
+    );
+
+  if (!profileComplete || !scoredResponsesComplete || !openEndedResponsesComplete) {
+    return buildIncompleteVendorAssessmentStatus({
+      latestSubmission,
+      utilityKeys,
+      scoredQuestionCount: expectedScoredQuestions.length,
+      openEndedQuestionCount: expectedPlan.openEndedQuestionIds.length,
+      statusLabel: "Vendor assessment incomplete",
+    });
+  }
+
+  return {
+    completed: true,
+    latestSubmissionId: latestSubmission.id,
+    latestScore: latestSubmission.score ?? null,
+    latestSubmittedAt: latestSubmission.createdAt,
+    utilityKeys,
+    scoredQuestionCount: expectedScoredQuestions.length,
+    openEndedQuestionCount: expectedPlan.openEndedQuestionIds.length,
+    statusLabel: "Ready for firm review",
+    reason: "Firm review is available because the vendor completed the full product assessment.",
   };
 }
 
@@ -470,14 +650,14 @@ export async function upsertVendorProductSignals(
 export function computeVendorAssessmentMetrics(answers: Record<string, number>) {
   const score = computeScore({
     answers,
-    scaleMin: 1,
-    scaleMax: 5,
+    scaleMin: PRODUCT_ASSESSMENT_SCALE_MIN,
+    scaleMax: PRODUCT_ASSESSMENT_SCALE_MAX,
   });
 
   const integrity = evaluateSignalIntegrity(answers, {
     expectedQuestionCount: Object.keys(answers).length,
-    scaleMin: 1,
-    scaleMax: 5,
+    scaleMin: PRODUCT_ASSESSMENT_SCALE_MIN,
+    scaleMax: PRODUCT_ASSESSMENT_SCALE_MAX,
   });
 
   return {

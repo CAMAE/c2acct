@@ -1,5 +1,5 @@
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
-import MembershipCard from "@/app/components/membership/MembershipCard";
+import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
 import {
   IndividualHelpInlineContent,
@@ -8,7 +8,6 @@ import {
 } from "@/app/components/individual/IndividualPortalContent";
 import { getSessionUser } from "@/lib/auth/session";
 import { getInviteeAccessContext } from "@/lib/invitee/access";
-import { resolveCurrentMembership } from "@/lib/membership";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import { resolvePortalExperience } from "@/lib/portalVisibility";
 import { getUserAlignmentProgress, getUserPatContext } from "@/lib/userPat";
@@ -47,7 +46,6 @@ export default async function UserPage({
   const userPatContext = sessionUser ? await getUserPatContext(sessionUser) : null;
   const alignmentProgress = sessionUser ? await getUserAlignmentProgress(sessionUser) : null;
   const audienceMismatch = sessionUser ? experience?.audience !== "individual" : false;
-  const membershipState = sessionUser ? await resolveCurrentMembership(sessionUser, "individual") : null;
   const userRecord = sessionUser
     ? await prisma.user.findUnique({
         where: { id: sessionUser.id },
@@ -106,7 +104,10 @@ export default async function UserPage({
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
-        <div className="pat-label">{messages.portal.individual.eyebrow}</div>
+        <PortalAudienceEyebrow
+          label={messages.portal.individual.eyebrow}
+          audienceLabel={messages.nav.individual}
+        />
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
           {messages.portal.individual.title}
         </h1>
@@ -149,16 +150,8 @@ export default async function UserPage({
                   {messages.portal.individual.signInToEdit}
                 </div>
               )}
-            </div>
-            <div className="space-y-6">
-              {membershipState ? (
-                <MembershipCard
-                  audienceLabel="individual"
-                  href="/user/membership"
-                  plan={membershipState.membership.plan}
-                  status={membershipState.membership.status}
-                />
-              ) : null}
+          </div>
+          <div className="space-y-6">
               <div className="pat-card p-6">
                 <div className="pat-label">{messages.portal.individual.currentSignedInAccount}</div>
                 <div className="mt-4 grid gap-2 text-sm leading-6 text-[var(--shell-muted)]">
@@ -193,14 +186,6 @@ export default async function UserPage({
             <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
               {messages.portal.individual.individualAlignment}: <span className="font-semibold text-[var(--shell-ink)]">{alignmentProgress?.tier1Unlocked ? messages.portal.individual.completed : messages.portal.individual.pending}</span>
             </div>
-            {membershipState ? (
-              <MembershipCard
-                audienceLabel="individual"
-                href="/user/membership"
-                plan={membershipState.membership.plan}
-                status={membershipState.membership.status}
-              />
-            ) : null}
           </section>
 
           {audienceMismatch ? (

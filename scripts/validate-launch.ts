@@ -1,12 +1,18 @@
 import { spawnSync } from "node:child_process";
+import { loadEnv } from "./_shared/prismaScript";
+
+loadEnv();
+
+const packageManagerCommand = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
 const steps = [
-  ["npm", ["run", "db:recreate"]],
-  ["npm", ["run", "validate:db"]],
-  ["npm", ["run", "build"]],
-  ["npm", ["run", "typecheck"]],
-  ["npm", ["run", "test"]],
-  ["npm", ["run", "test:e2e"]],
+  [packageManagerCommand, ["db:recreate"]],
+  [packageManagerCommand, ["validate:db"]],
+  [packageManagerCommand, ["build"]],
+  [packageManagerCommand, ["standalone:local:check"]],
+  [packageManagerCommand, ["typecheck"]],
+  [packageManagerCommand, ["test"]],
+  [packageManagerCommand, ["test:e2e"]],
 ] as const;
 
 for (const [command, args] of steps) {

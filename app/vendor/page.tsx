@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
-import MembershipCard from "@/app/components/membership/MembershipCard";
+import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
 import VendorAdminPanels from "@/app/components/vendor/VendorAdminPanels";
 import {
@@ -11,7 +11,6 @@ import {
 } from "@/app/components/vendor/VendorPortalContent";
 import { getSessionUser } from "@/lib/auth/session";
 import { getInviteeAccessContext } from "@/lib/invitee/access";
-import { resolveCurrentMembership } from "@/lib/membership";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/profileSettingsStore";
 import prisma from "@/lib/prisma";
@@ -55,7 +54,6 @@ export default async function VendorPage({
     { key: "help", label: messages.common.help, href: getPanelHref("help") },
   ] as const;
   const needsAdminContent = activePanel === "admin";
-  const membershipState = sessionUser ? await resolveCurrentMembership(sessionUser, "vendor") : null;
 
   async function saveProfile(formData: FormData) {
     "use server";
@@ -177,7 +175,10 @@ export default async function VendorPage({
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
-        <div className="pat-label">{messages.portal.vendor.eyebrow}</div>
+        <PortalAudienceEyebrow
+          label={messages.portal.vendor.eyebrow}
+          audienceLabel={messages.nav.vendor}
+        />
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
           {messages.portal.vendor.title}
         </h1>
@@ -199,16 +200,6 @@ export default async function VendorPage({
       ) : activePanel === "admin" ? (
         <div className="space-y-6">
           <VendorAdminInlineContent />
-          {membershipState ? (
-            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              <MembershipCard
-                audienceLabel="vendor"
-                href="/vendor/membership"
-                plan={membershipState.membership.plan}
-                status={membershipState.membership.status}
-              />
-            </section>
-          ) : null}
           {profileSettings && contract ? (
             <VendorAdminPanels
               contract={contract}
@@ -231,7 +222,7 @@ export default async function VendorPage({
 
           <section className="pat-card p-6">
             <div className="pat-label">{messages.portal.vendor.currentVendorContext}</div>
-            <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
                 {messages.portal.vendor.account}: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser?.email ?? inviteeAccess?.label ?? messages.common.notSignedIn}</span>
               </div>
@@ -241,14 +232,6 @@ export default async function VendorPage({
               <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
                 {messages.portal.vendor.products}: <span className="font-semibold text-[var(--shell-ink)]">{vendorContext.products.length}</span>
               </div>
-              {membershipState ? (
-                <MembershipCard
-                  audienceLabel="vendor"
-                  href="/vendor/membership"
-                  plan={membershipState.membership.plan}
-                  status={membershipState.membership.status}
-                />
-              ) : null}
             </div>
           </section>
         </>

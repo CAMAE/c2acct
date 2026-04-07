@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import MembershipPageShell from "@/app/components/membership/MembershipPageShell";
 import { getSessionUser } from "@/lib/auth/session";
-import { getDefaultMembershipTab } from "@/lib/membershipContent";
+import { getRequestedMembershipTab } from "@/lib/membershipContent";
 import { resolveCurrentMembership } from "@/lib/membership";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +14,7 @@ export const metadata = {
 export default async function UserMembershipPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ checkout?: string }>;
+  searchParams?: Promise<{ checkout?: string; tab?: string }>;
 }) {
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
@@ -35,7 +35,7 @@ export default async function UserMembershipPage({
       currentPlan={membership.plan}
       currentStatus={membership.status}
       displayName={membership.displayName}
-      initialTab={getDefaultMembershipTab(membership.plan)}
+      initialTab={getRequestedMembershipTab(params?.tab, membership.plan)}
     />
   );
 }

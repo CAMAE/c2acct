@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import AppHeader, { type HeaderNavItem } from "@/app/components/header/AppHeader";
 import { barlowFontClassName } from "@/app/fonts/barlow";
 import { getSessionUser } from "@/lib/auth/session";
+import { getMembershipPathPrefix } from "@/lib/membershipContent";
 import { getPublicReleaseFingerprint } from "@/lib/release/fingerprint";
 import {
   APP_LOCALE_COOKIE,
@@ -46,10 +47,15 @@ export default async function RootLayout({
     href: item.href,
     label: messages.nav[item.key],
   }));
+  const membershipHref =
+    experience.audience === "vendor" || experience.audience === "firm" || experience.audience === "individual"
+      ? `${getMembershipPathPrefix(experience.audience)}/membership`
+      : null;
   const headerUiText = {
     closeNavigationMenu: messages.chrome.close_navigation_menu,
     homeAriaLabel: messages.chrome.home_aria,
     language: messages.chrome.language,
+    membership: messages.chrome.membership,
     navigation: messages.chrome.navigation,
     openLanguageMenu: messages.chrome.open_language_menu,
     openNavigationMenu: messages.chrome.open_navigation_menu,
@@ -60,12 +66,17 @@ export default async function RootLayout({
       <body
         className={`${barlowFontClassName} pat-shell flex min-h-screen flex-col bg-[var(--shell-bg)] text-[var(--shell-ink)] antialiased`}
       >
-        <AppHeader currentLocale={locale} navItems={translatedNavItems} uiText={headerUiText} />
+        <AppHeader
+          currentLocale={locale}
+          membershipHref={membershipHref}
+          navItems={translatedNavItems}
+          uiText={headerUiText}
+        />
 
-        <main className="mx-auto flex w-full max-w-6xl flex-1 px-6 py-12">{children}</main>
+        <main className="pat-shell-main flex flex-1">{children}</main>
 
         <footer className="mt-auto border-t border-[var(--shell-border)] py-5">
-          <div className="mx-auto flex max-w-6xl items-center justify-center px-6 text-[11px] text-[var(--shell-muted)]">
+          <div className="pat-shell-frame flex items-center justify-center text-[11px] text-[var(--shell-muted)]">
             <div className="pat-sans inline-flex items-center gap-3">
               <span>{messages.chrome.copyright}</span>
               <span

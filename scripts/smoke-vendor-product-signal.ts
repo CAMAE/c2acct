@@ -16,12 +16,12 @@ const vendorQuestions = buildVendorProductQuestions(utilityKeys);
 const firmQuestions = buildFirmProductQuestions(utilityKeys);
 
 const vendorResponses = Object.fromEntries(
-  vendorQuestions.map((question, index) => [question.id, index % 4 === 0 ? 5 : 4])
+  vendorQuestions.map((question, index) => [question.id, index % 6])
 );
 
 const firmResponseSets = [
-  Object.fromEntries(firmQuestions.map((question, index) => [question.id, index % 5 === 0 ? 2 : 3])),
-  Object.fromEntries(firmQuestions.map((question, index) => [question.id, index % 4 === 0 ? 1 : 2])),
+  Object.fromEntries(firmQuestions.map((question, index) => [question.id, (index + 1) % 6])),
+  Object.fromEntries(firmQuestions.map((question, index) => [question.id, (index + 3) % 6])),
 ];
 
 const fixture: VendorProductInsightSnapshotInput = {
@@ -36,7 +36,7 @@ const fixture: VendorProductInsightSnapshotInput = {
     submittedAt: new Date("2026-03-30T12:00:00.000Z"),
     responses: {
       answers: vendorResponses,
-      scaleMin: 1,
+      scaleMin: 0,
       scaleMax: 5,
     },
   },
@@ -46,7 +46,7 @@ const fixture: VendorProductInsightSnapshotInput = {
     averageScore: 34,
     responseSets: firmResponseSets.map((answers) => ({
       answers,
-      scaleMin: 1,
+      scaleMin: 0,
       scaleMax: 5,
     })),
   },

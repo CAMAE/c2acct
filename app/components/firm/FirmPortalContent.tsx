@@ -1,3 +1,4 @@
+import Link from "next/link";
 import MeetPatContent from "@/app/components/pat/MeetPatContent";
 import type { PortalSurface } from "@/lib/portalVisibility";
 import { FIRM_HELP_CARDS } from "@/lib/firmPat";
@@ -104,37 +105,95 @@ export function FirmAdminInlineContent() {
   );
 }
 
-export function FirmHelpInlineContent() {
+type FirmHelpInlineContentProps = {
+  topic?: string;
+  productId?: string;
+  productName?: string;
+};
+
+function renderFirmHelpCard(card: (typeof FIRM_HELP_CARDS)[number]) {
+  return (
+    <div key={card.title} className="pat-card p-6">
+      <div className="text-xl font-semibold text-[var(--shell-ink)]">{card.title}</div>
+      <div className="mt-4 grid gap-3 text-sm leading-6 text-[var(--shell-muted)]">
+        <div>
+          <span className="font-semibold text-[var(--shell-ink)]">What it is:</span> {card.what}
+        </div>
+        <div>
+          <span className="font-semibold text-[var(--shell-ink)]">Why it matters:</span> {card.why}
+        </div>
+        <div>
+          <span className="font-semibold text-[var(--shell-ink)]">How to use it:</span> {card.how}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function FirmHelpInlineContent({
+  topic,
+  productId,
+  productName,
+}: FirmHelpInlineContentProps = {}) {
+  const workspaceHelpCards = FIRM_HELP_CARDS.slice(0, 3);
+  const scopedCard =
+    topic === "product-assessment"
+      ? workspaceHelpCards.find((card) => card.title === "Product Assessments")
+      : undefined;
+  const visibleCards = scopedCard ? [scopedCard] : workspaceHelpCards;
+  const supportingCards = scopedCard
+    ? workspaceHelpCards.filter((card) => card.title !== scopedCard.title)
+    : [];
+  const assessmentHref = productId ? `/firm/product-assessments/${productId}` : "/firm/product-assessments";
+
   return (
     <section className="space-y-6">
       <section className="pat-card p-8">
         <div className="pat-label">Firm help</div>
         <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
-          What each firm page does
+          {scopedCard ? "How firm product assessment works" : "What each firm page does"}
         </h2>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          This help view maps the active firm PAT surfaces so leaders can understand what each one does and when to use it.
+          {scopedCard
+            ? `This scoped help view stays inside the existing firm help route and focuses on the current firm product review flow${productName ? ` for ${productName}` : ""}: utility-scoped questions only, truthful current-state scoring, and the connection back to vendor product insight.`
+            : "This help view maps the active firm PAT surfaces so leaders can understand what each one does and when to use it."}
         </p>
       </section>
 
-      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {FIRM_HELP_CARDS.slice(0, 3).map((card) => (
-          <div key={card.title} className="pat-card p-6">
-            <div className="text-xl font-semibold text-[var(--shell-ink)]">{card.title}</div>
-            <div className="mt-4 grid gap-3 text-sm leading-6 text-[var(--shell-muted)]">
-              <div>
-                <span className="font-semibold text-[var(--shell-ink)]">What it is:</span> {card.what}
-              </div>
-              <div>
-                <span className="font-semibold text-[var(--shell-ink)]">Why it matters:</span> {card.why}
-              </div>
-              <div>
-                <span className="font-semibold text-[var(--shell-ink)]">How to use it:</span> {card.how}
-              </div>
-            </div>
-          </div>
-        ))}
+      <section className={`grid gap-5 ${scopedCard ? "md:grid-cols-1 xl:grid-cols-1" : "md:grid-cols-2 xl:grid-cols-3"}`}>
+        {visibleCards.map((card) => renderFirmHelpCard(card))}
       </section>
+
+      {scopedCard ? (
+        <section className="pat-card p-6">
+          <div className="pat-label">Next step</div>
+          <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
+            Return to the current product review when you are ready to continue answering the utility-scoped firm questions.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link className="pat-button-primary" href={assessmentHref}>
+              {productName ? `Back to ${productName}` : "Back to product assessment"}
+            </Link>
+            <Link className="pat-button-secondary" href="/firm/help">
+              Review all firm help
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
+      {supportingCards.length > 0 ? (
+        <section className="space-y-4">
+          <div>
+            <h3 className="text-2xl font-semibold text-[var(--shell-ink)]">Other firm help</h3>
+            <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
+              These adjacent firm help surfaces stay available while the current product review remains in progress.
+            </p>
+          </div>
+          <section className="grid gap-5 md:grid-cols-2">
+            {supportingCards.map((card) => renderFirmHelpCard(card))}
+          </section>
+        </section>
+      ) : null}
     </section>
   );
 }

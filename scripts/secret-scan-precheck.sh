@@ -15,5 +15,5 @@ if command -v docker >/dev/null 2>&1; then
     dir /repo --config /repo/.gitleaks.toml --redact --no-banner
 fi
 
-echo "gitleaks precheck unavailable: install gitleaks locally or use Docker Desktop, then rerun 'npm run secrets:scan'." >&2
+echo "gitleaks precheck unavailable: install gitleaks locally or use Docker Desktop, then rerun 'pnpm secrets:scan'." >&2
 exit 1

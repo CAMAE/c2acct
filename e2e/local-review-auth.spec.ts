@@ -1,8 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const localReviewPassword = process.env.PAT_LOCAL_REVIEW_PASSWORD ?? "pat-local-review";
+const consultantAccessEnabled = process.env.PAT_ENABLE_CONSULTANT_ACCESS === "1";
 
-type LocalReviewRole = "vendor" | "firm" | "individual" | "admin";
+type LocalReviewRole = "vendor" | "firm" | "individual" | "admin" | "consultant";
 
 async function assertNoAuthOrRuntimeFailure(page: Page) {
   await expect(page.getByText("Access Denied")).toHaveCount(0);
@@ -28,7 +29,15 @@ async function gotoStable(page: Page, url: string) {
 
 async function signInAsRole(page: Page, role: LocalReviewRole) {
   const roleRedirect =
-    role === "vendor" ? "/vendor" : role === "firm" ? "/firm" : role === "individual" ? "/user" : "/admin";
+    role === "vendor"
+      ? "/vendor"
+      : role === "firm"
+        ? "/firm"
+        : role === "individual"
+          ? "/user"
+          : role === "consultant"
+            ? "/consultants"
+            : "/admin";
   const reviewEmail =
     role === "vendor"
       ? "review.vendor@pat.local"
@@ -36,6 +45,8 @@ async function signInAsRole(page: Page, role: LocalReviewRole) {
         ? "review.firm@pat.local"
         : role === "individual"
           ? "review.individual@pat.local"
+          : role === "consultant"
+            ? "review.consultant@pat.local"
           : "review.admin@pat.local";
   const csrfResponse = await page.context().request.get("/api/auth/csrf");
   expect(csrfResponse.ok()).toBeTruthy();
@@ -60,15 +71,43 @@ async function signInAsRole(page: Page, role: LocalReviewRole) {
   await assertNoAuthOrRuntimeFailure(page);
 }
 
+function buildUniqueFirmName(label: string) {
+  return `Consultant ${label} Firm ${Date.now()} ${Math.random().toString(36).slice(2, 8)}`;
+}
+
+async function createFirmOrganization(page: Page, name: string) {
+  await gotoStable(page, "/admin/organizations");
+  await page.getByPlaceholder("Organization name").fill(name);
+  await page.locator('select[name="type"]').selectOption("FIRM");
+  await Promise.all([
+    page.waitForURL("**/admin/organizations"),
+    page.getByRole("button", { name: "Create", exact: true }).click(),
+  ]);
+  await assertNoAuthOrRuntimeFailure(page);
+
+  const organizationLink = page
+    .locator('a[href^="/admin/organizations/"]')
+    .filter({ hasText: name })
+    .first();
+  await expect(organizationLink).toBeVisible();
+  const href = await organizationLink.getAttribute("href");
+  expect(href).toBeTruthy();
+
+  return href!.split("/").pop()!;
+}
+
 test.describe("local review auth", () => {
   test.setTimeout(60_000);
 
-  test("shows deterministic local review entries for vendor, firm, individual, and admin", async ({ page }) => {
+  test("shows deterministic local review entries for vendor, firm, individual, admin, and consultant", async ({ page }) => {
     const roleCases = [
       { view: "vendor", email: "review.vendor@pat.local", landing: "/vendor" },
       { view: "firm", email: "review.firm@pat.local", landing: "/firm" },
       { view: "individual", email: "review.individual@pat.local", landing: "/user" },
       { view: "admin", email: "review.admin@pat.local", landing: "/admin" },
+      ...(consultantAccessEnabled
+        ? [{ view: "consultant", email: "review.consultant@pat.local", landing: "/consultants" }]
+        : []),
     ] as const;
 
     for (const roleCase of roleCases) {
@@ -172,5 +211,70 @@ test.describe("local review auth", () => {
     await expect(adminPage.getByRole("heading", { name: "Briefings", exact: true })).toBeVisible();
 
     await adminContext.close();
+  });
+
+  test("proves consultant access stays company-scoped after admin create and assignment", async ({ browser }) => {
+    test.skip(!consultantAccessEnabled, "Consultant access is gated off until explicit proof is requested.");
+
+    const assignedFirmName = buildUniqueFirmName("Assigned");
+    const unassignedFirmName = buildUniqueFirmName("Unassigned");
+
+    const adminContext = await browser.newContext();
+    const adminPage = await adminContext.newPage();
+
+    await signInAsRole(adminPage, "admin");
+    await adminPage.waitForURL("**/admin**");
+
+    const assignedCompanyId = await createFirmOrganization(adminPage, assignedFirmName);
+    const unassignedCompanyId = await createFirmOrganization(adminPage, unassignedFirmName);
+
+    await gotoStable(adminPage, "/admin/consultants");
+    await adminPage.getByPlaceholder("consultant@company.com").fill("review.consultant@pat.local");
+    await adminPage.getByPlaceholder("Consultant name").fill("Consultant review");
+    await Promise.all([
+      adminPage.waitForURL("**/admin/consultants"),
+      adminPage.getByRole("button", { name: "Add consultant", exact: true }).click(),
+    ]);
+    await assertNoAuthOrRuntimeFailure(adminPage);
+
+    const consultantCard = adminPage
+      .locator("div.rounded-\\[22px\\].border")
+      .filter({ hasText: "review.consultant@pat.local" })
+      .first();
+    await expect(consultantCard).toBeVisible();
+    await consultantCard.locator('select[name="companyId"]').selectOption({ label: assignedFirmName });
+    await Promise.all([
+      adminPage.waitForURL("**/admin/consultants"),
+      consultantCard.getByRole("button", { name: "Assign firm", exact: true }).click(),
+    ]);
+    await assertNoAuthOrRuntimeFailure(adminPage);
+    await expect(consultantCard.getByText(`/consultants/briefings/${assignedCompanyId}`)).toBeVisible();
+    await expect(consultantCard.getByText(assignedFirmName)).toBeVisible();
+
+    await adminContext.close();
+
+    const consultantContext = await browser.newContext();
+    const consultantPage = await consultantContext.newPage();
+
+    await signInAsRole(consultantPage, "consultant");
+    await consultantPage.waitForURL("**/consultants");
+    await assertNoAuthOrRuntimeFailure(consultantPage);
+    await expect(consultantPage.getByRole("heading", { name: "Assigned PAT briefings", exact: true })).toBeVisible();
+    await expect(consultantPage.getByText(assignedFirmName)).toBeVisible();
+    await expect(consultantPage.getByText(unassignedFirmName)).toHaveCount(0);
+
+    await gotoStable(consultantPage, `/consultants/briefings/${assignedCompanyId}`);
+    await assertNoAuthOrRuntimeFailure(consultantPage);
+    await expect(
+      consultantPage.getByRole("heading", { name: `${assignedFirmName} briefing`, exact: true })
+    ).toBeVisible();
+
+    const deniedResponse = await consultantPage.goto(`/consultants/briefings/${unassignedCompanyId}`, {
+      waitUntil: "domcontentloaded",
+    });
+    expect(deniedResponse?.status()).toBe(404);
+    await expect(consultantPage.getByText("This page could not be found")).toBeVisible();
+
+    await consultantContext.close();
   });
 });

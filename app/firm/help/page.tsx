@@ -5,6 +5,24 @@ export const metadata = {
   description: "Firm PAT help and explainer surface.",
 };
 
-export default function FirmHelpPage() {
-  return <FirmHelpInlineContent />;
+type SearchParams = {
+  topic?: string;
+  productId?: string;
+  productName?: string;
+};
+
+export default async function FirmHelpPage({
+  searchParams,
+}: {
+  searchParams?: Promise<SearchParams>;
+}) {
+  const params = searchParams ? await searchParams : undefined;
+
+  return (
+    <FirmHelpInlineContent
+      topic={params?.topic}
+      productId={params?.productId}
+      productName={params?.productName}
+    />
+  );
 }

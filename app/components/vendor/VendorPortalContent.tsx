@@ -1,3 +1,4 @@
+import Link from "next/link";
 import MeetPatContent from "@/app/components/pat/MeetPatContent";
 import type { PortalSurface } from "@/lib/portalVisibility";
 
@@ -79,6 +80,12 @@ export const vendorAdminHelpCards = [
   },
 ] as const;
 
+type VendorHelpInlineContentProps = {
+  topic?: string;
+  productId?: string;
+  productName?: string;
+};
+
 export function VendorMeetPatContent() {
   return <MeetPatContent />;
 }
@@ -124,40 +131,91 @@ export function VendorAdminInlineContent() {
   );
 }
 
-export function VendorHelpInlineContent() {
+function renderVendorHelpCard(card: (typeof vendorHelpCards)[number]) {
+  return (
+    <div key={card.title} className="pat-card p-6">
+      <div className="text-xl font-semibold text-[var(--shell-ink)]">{card.title}</div>
+      <div className="mt-4 grid gap-3 text-sm leading-6 text-[var(--shell-muted)]">
+        <div>
+          <span className="font-semibold text-[var(--shell-ink)]">What it is:</span> {card.what}
+        </div>
+        <div>
+          <span className="font-semibold text-[var(--shell-ink)]">Where it goes:</span> {card.where}
+        </div>
+        <div>
+          <span className="font-semibold text-[var(--shell-ink)]">Why it matters:</span> {card.why}
+        </div>
+        <div>
+          <span className="font-semibold text-[var(--shell-ink)]">How to use it:</span> {card.how}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function VendorHelpInlineContent({
+  topic,
+  productId,
+  productName,
+}: VendorHelpInlineContentProps = {}) {
+  const scopedCard =
+    topic === "product-assessment"
+      ? vendorHelpCards.find((card) => card.title === "Product Assessment")
+      : undefined;
+  const visibleCards = scopedCard ? [scopedCard] : vendorHelpCards;
+  const supportingCards = scopedCard
+    ? vendorHelpCards.filter((card) => card.title !== scopedCard.title)
+    : [];
+  const assessmentHref = productId ? `/vendor/product-assessment/${productId}` : "/vendor/product-assessment";
+
   return (
     <section className="space-y-6">
       <section className="pat-card p-8">
         <div className="pat-label">Vendor help</div>
         <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
-          What each vendor page does
+          {scopedCard ? "How vendor product assessment works" : "What each vendor page does"}
         </h2>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          This help view explains each active vendor workspace surface in plain product language: what it is, where it goes, why it matters, and how to use it.
+          {scopedCard
+            ? `This scoped help view stays inside the existing vendor help route and focuses on the per-product PAT assessment flow${productName ? ` for ${productName}` : ""}: the first-page utility declaration, the 10-question pacing, and what PAT expects before submission.`
+            : "This help view explains each active vendor workspace surface in plain product language: what it is, where it goes, why it matters, and how to use it."}
         </p>
       </section>
 
-      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {vendorHelpCards.map((card) => (
-          <div key={card.title} className="pat-card p-6">
-            <div className="text-xl font-semibold text-[var(--shell-ink)]">{card.title}</div>
-            <div className="mt-4 grid gap-3 text-sm leading-6 text-[var(--shell-muted)]">
-              <div>
-                <span className="font-semibold text-[var(--shell-ink)]">What it is:</span> {card.what}
-              </div>
-              <div>
-                <span className="font-semibold text-[var(--shell-ink)]">Where it goes:</span> {card.where}
-              </div>
-              <div>
-                <span className="font-semibold text-[var(--shell-ink)]">Why it matters:</span> {card.why}
-              </div>
-              <div>
-                <span className="font-semibold text-[var(--shell-ink)]">How to use it:</span> {card.how}
-              </div>
-            </div>
-          </div>
-        ))}
+      <section className={`grid gap-5 ${scopedCard ? "md:grid-cols-1 xl:grid-cols-1" : "md:grid-cols-2 xl:grid-cols-3"}`}>
+        {visibleCards.map((card) => renderVendorHelpCard(card))}
       </section>
+
+      {scopedCard ? (
+        <section className="pat-card p-6">
+          <div className="pat-label">Next step</div>
+          <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
+            Return to the current product assessment when you are ready to continue through the utility-scored pages and final open-ended responses.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link className="pat-button-primary" href={assessmentHref}>
+              {productName ? `Back to ${productName}` : "Back to product assessment"}
+            </Link>
+            <Link className="pat-button-secondary" href="/vendor/help">
+              Review all vendor help
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
+      {supportingCards.length > 0 ? (
+        <section className="space-y-4">
+          <div>
+            <h3 className="text-2xl font-semibold text-[var(--shell-ink)]">Other vendor help</h3>
+            <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
+              These vendor help surfaces stay available if you need the adjacent PAT routes after finishing the product assessment.
+            </p>
+          </div>
+          <section className="grid gap-5 md:grid-cols-2">
+            {supportingCards.map((card) => renderVendorHelpCard(card))}
+          </section>
+        </section>
+      ) : null}
     </section>
   );
 }

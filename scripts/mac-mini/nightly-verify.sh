@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck disable=SC1091
 . "${SCRIPT_DIR}/common.sh"
 
-mac_mini_require_cmd npm
+mac_mini_require_cmd pnpm
 mac_mini_ensure_dirs
 mac_mini_prune_artifacts
 mac_mini_load_contract
@@ -45,14 +45,14 @@ run_and_capture() {
   printf '%s\n' "$(mac_mini_preflight_summary)"
 } > "${summary_file}"
 
-if ! run_and_capture build npm run build; then
+if ! run_and_capture build pnpm build; then
   failure_count=$((failure_count + 1))
 else
   mac_mini_write_release_state "nightly-verify"
   node --import tsx "${MAC_MINI_ROOT}/scripts/release/read-release-fingerprint.ts" > "${MAC_MINI_STATE_DIR}/expected-live-release.json"
 fi
 
-if ! run_and_capture lint npm run lint; then
+if ! run_and_capture lint pnpm lint; then
   failure_count=$((failure_count + 1))
 fi
 

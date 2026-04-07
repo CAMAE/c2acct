@@ -121,6 +121,27 @@
         "Profiles",
         "AAE"
       ]
+    },
+    "/sign-in?view=consultant": {
+      "sourceFiles": [
+        "app/sign-in/page.tsx",
+        "lib/auth/routes.ts"
+      ],
+      "positiveMarkers": [
+        "Consultant",
+        "Consultant access is disabled in this runtime"
+      ]
+    },
+    "/consultants": {
+      "sourceFiles": [
+        "app/consultants/page.tsx",
+        "app/consultants/layout.tsx",
+        "lib/consultantAccess.ts"
+      ],
+      "positiveMarkers": [
+        "Assigned PAT briefings",
+        "Assigned company briefings"
+      ]
     }
   }
 }

@@ -1,6 +1,6 @@
 import MembershipPageShell from "@/app/components/membership/MembershipPageShell";
 import { getSessionUser } from "@/lib/auth/session";
-import { getDefaultMembershipTab } from "@/lib/membershipContent";
+import { getRequestedMembershipTab } from "@/lib/membershipContent";
 import { resolveCurrentMembership } from "@/lib/membership";
 import { redirect } from "next/navigation";
 
@@ -14,7 +14,7 @@ export const metadata = {
 export default async function VendorMembershipPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ checkout?: string }>;
+  searchParams?: Promise<{ checkout?: string; tab?: string }>;
 }) {
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
@@ -35,7 +35,7 @@ export default async function VendorMembershipPage({
       currentPlan={membership.plan}
       currentStatus={membership.status}
       displayName={membership.displayName}
-      initialTab={getDefaultMembershipTab(membership.plan)}
+      initialTab={getRequestedMembershipTab(params?.tab, membership.plan)}
     />
   );
 }

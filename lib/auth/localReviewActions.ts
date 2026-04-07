@@ -13,7 +13,7 @@ function sanitizeRedirect(target: string) {
 }
 
 function sanitizeView(target: string) {
-  return target === "vendor" || target === "firm" || target === "individual" || target === "admin"
+  return target === "vendor" || target === "firm" || target === "individual" || target === "admin" || target === "consultant"
     ? target
     : "vendor";
 }

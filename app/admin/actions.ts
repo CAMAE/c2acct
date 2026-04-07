@@ -25,6 +25,10 @@ function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
+function getEmail(formData: FormData, key: string) {
+  return getString(formData, key).toLowerCase();
+}
+
 function getNullableString(formData: FormData, key: string) {
   const value = getString(formData, key);
   return value === "" || value === "__none__" ? null : value;
@@ -299,6 +303,228 @@ export async function updateUserMembershipAction(formData: FormData) {
     details: { plan, status },
   });
 
+  await redirectWithRevalidate(returnTo);
+}
+
+export async function createConsultantAction(formData: FormData) {
+  const actor = await requireAdminActor();
+  const email = getEmail(formData, "email");
+  const name = getNullableString(formData, "name");
+  const returnTo = getReturnTo(formData, "/admin/consultants");
+
+  if (!email) {
+    redirect(returnTo);
+  }
+
+  const user = await prisma.user.upsert({
+    where: { email },
+    update: {
+      ...(name ? { name } : {}),
+      updatedAt: new Date(),
+    },
+    create: {
+      id: randomUUID(),
+      email,
+      name,
+      role: "MEMBER",
+      updatedAt: new Date(),
+    },
+    select: { id: true, email: true },
+  });
+
+  const consultantProfile = await prisma.consultantProfile.upsert({
+    where: { userId: user.id },
+    update: {
+      active: true,
+      updatedAt: new Date(),
+    },
+    create: {
+      id: randomUUID(),
+      userId: user.id,
+      active: true,
+    },
+    select: { id: true },
+  });
+
+  await recordOperatorAuditEvent({
+    actorUserId: actor.id,
+    action: "add-consultant",
+    entityType: "consultant",
+    entityId: consultantProfile.id,
+    summary: `Added consultant ${user.email}`,
+    details: { email },
+  });
+
+  revalidatePath("/consultants");
+  await redirectWithRevalidate(returnTo);
+}
+
+export async function deactivateConsultantAction(formData: FormData) {
+  const actor = await requireAdminActor();
+  const consultantProfileId = getString(formData, "consultantProfileId");
+  const returnTo = getReturnTo(formData, "/admin/consultants");
+
+  if (!consultantProfileId) {
+    redirect(returnTo);
+  }
+
+  const consultantProfile = await prisma.consultantProfile.findUnique({
+    where: { id: consultantProfileId },
+    select: {
+      id: true,
+      User: {
+        select: { email: true },
+      },
+    },
+  });
+  if (!consultantProfile) {
+    redirect(returnTo);
+  }
+
+  await prisma.consultantProfile.update({
+    where: { id: consultantProfileId },
+    data: {
+      active: false,
+      updatedAt: new Date(),
+      ConsultantAssignment: {
+        updateMany: {
+          where: { active: true },
+          data: {
+            active: false,
+            updatedAt: new Date(),
+          },
+        },
+      },
+    },
+  });
+
+  await recordOperatorAuditEvent({
+    actorUserId: actor.id,
+    action: "remove-consultant",
+    entityType: "consultant",
+    entityId: consultantProfile.id,
+    summary: `Removed consultant ${consultantProfile.User.email}`,
+    details: { email: consultantProfile.User.email },
+  });
+
+  revalidatePath("/consultants");
+  await redirectWithRevalidate(returnTo);
+}
+
+export async function upsertConsultantAssignmentAction(formData: FormData) {
+  const actor = await requireAdminActor();
+  const consultantProfileId = getString(formData, "consultantProfileId");
+  const companyId = getString(formData, "companyId");
+  const returnTo = getReturnTo(formData, "/admin/consultants");
+
+  if (!consultantProfileId || !companyId) {
+    redirect(returnTo);
+  }
+
+  const [consultantProfile, company] = await Promise.all([
+    prisma.consultantProfile.findUnique({
+      where: { id: consultantProfileId },
+      select: {
+        id: true,
+        active: true,
+        User: {
+          select: { email: true },
+        },
+      },
+    }),
+    prisma.company.findUnique({
+      where: { id: companyId },
+      select: { id: true, name: true, type: true },
+    }),
+  ]);
+
+  if (!consultantProfile || !consultantProfile.active || !company || company.type !== CompanyType.FIRM) {
+    redirect(returnTo);
+  }
+
+  const assignment = await prisma.consultantAssignment.upsert({
+    where: {
+      consultantProfileId_companyId: {
+        consultantProfileId,
+        companyId,
+      },
+    },
+    update: {
+      active: true,
+      updatedAt: new Date(),
+    },
+    create: {
+      id: randomUUID(),
+      consultantProfileId,
+      companyId,
+      active: true,
+    },
+  });
+
+  await recordOperatorAuditEvent({
+    actorUserId: actor.id,
+    action: "assign-consultant",
+    entityType: "consultant-assignment",
+    entityId: assignment.id,
+    summary: `Assigned consultant ${consultantProfile.User.email} to ${company.name}`,
+    details: { companyId: company.id, companyName: company.name },
+  });
+
+  revalidatePath("/consultants");
+  revalidatePath(`/consultants/briefings/${company.id}`);
+  await redirectWithRevalidate(returnTo);
+}
+
+export async function removeConsultantAssignmentAction(formData: FormData) {
+  const actor = await requireAdminActor();
+  const assignmentId = getString(formData, "assignmentId");
+  const returnTo = getReturnTo(formData, "/admin/consultants");
+
+  if (!assignmentId) {
+    redirect(returnTo);
+  }
+
+  const assignment = await prisma.consultantAssignment.findUnique({
+    where: { id: assignmentId },
+    select: {
+      id: true,
+      companyId: true,
+      Company: {
+        select: { name: true },
+      },
+      ConsultantProfile: {
+        select: {
+          User: {
+            select: { email: true },
+          },
+        },
+      },
+    },
+  });
+
+  if (!assignment) {
+    redirect(returnTo);
+  }
+
+  await prisma.consultantAssignment.update({
+    where: { id: assignmentId },
+    data: {
+      active: false,
+      updatedAt: new Date(),
+    },
+  });
+
+  await recordOperatorAuditEvent({
+    actorUserId: actor.id,
+    action: "remove-consultant-assignment",
+    entityType: "consultant-assignment",
+    entityId: assignment.id,
+    summary: `Removed consultant ${assignment.ConsultantProfile.User.email} from ${assignment.Company.name}`,
+    details: { companyId: assignment.companyId, companyName: assignment.Company.name },
+  });
+
+  revalidatePath("/consultants");
+  revalidatePath(`/consultants/briefings/${assignment.companyId}`);
   await redirectWithRevalidate(returnTo);
 }
 

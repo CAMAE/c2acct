@@ -23,7 +23,7 @@ function waitForTcpPort(host: string, port: number, timeout: number) {
         if (Date.now() - startedAt >= timeout) {
           reject(
             new Error(
-              `Timed out waiting for local PAT database at ${host}:${port}. Start it with \`npm run db:up\`.`
+              `Timed out waiting for local PAT database at ${host}:${port}. Start it with \`pnpm db:up\`.`
             )
           );
           return;

@@ -2,7 +2,7 @@ import type { MembershipPlan, MembershipStatus } from "@prisma/client";
 import { DEFAULT_FREE_MEMBERSHIP_PLAN, MEMBERSHIP_PLAN, normalizeMembershipPlan } from "@/lib/membership";
 import type { MembershipAudience } from "@/lib/membershipContext";
 
-export type MembershipTabKey = MembershipPlan | "MEET_PAT" | "HELP";
+export type MembershipTabKey = MembershipPlan | "HELP";
 
 type PlanPanelContent = {
   title: string;
@@ -17,6 +17,11 @@ type NarrativePanelContent = {
   title: string;
   summary: string;
   bullets: string[];
+};
+
+type MembershipHelpCard = {
+  title: string;
+  body: string;
 };
 
 type MembershipAudienceContent = {
@@ -44,17 +49,46 @@ export type MembershipPageModel = {
         summary: string;
         what: string;
         why: string;
+        scopeNote: string;
         ownsPlan: boolean;
         ctaTitle: string;
         ctaBody: string;
         ctaHref: string;
+        detailHref: string;
+        detailLabel: string;
       }
     | {
-        kind: "narrative";
+        kind: "help";
         title: string;
         summary: string;
-        bullets: string[];
+        cards: MembershipHelpCard[];
+      };
+};
+
+export type MembershipTierDetailModel = {
+  audience: MembershipAudience;
+  plan: MembershipPlan;
+  currentPlan: MembershipPlan;
+  currentStatus: MembershipStatus;
+  hero: {
+    eyebrow: string;
+    title: string;
+    body: string;
   };
+  routeCard: {
+    title: string;
+    body: string;
+    href: string;
+    ctaLabel: string;
+  };
+  sections: Array<{
+    title: string;
+    body: string;
+  }>;
+  ownsPlan: boolean;
+  actionLabel: string;
+  actionHref: string;
+  backHref: string;
 };
 
 function isPlanTabKey(value: MembershipTabKey): value is MembershipPlan {
@@ -69,7 +103,7 @@ function normalizeMembershipTabKey(
     return getDefaultMembershipTab(currentPlan);
   }
 
-  if (activeTab === "MEET_PAT" || activeTab === "HELP") {
+  if (activeTab === "HELP") {
     return activeTab;
   }
 
@@ -119,7 +153,7 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
       },
     },
     meetPat: {
-      title: "Meet PAT inside the membership flow",
+      title: "PAT membership model",
       summary: "PAT membership should feel connected to the operating model, not bolted on beside it.",
       bullets: [
         "PAT turns structured assessment signal into explainable operating readouts for the vendor audience.",
@@ -154,28 +188,28 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
         ctaBody: "Start the checkout placeholder to stage a firmer PAT operating tier without adding payment complexity yet.",
       },
       PRO: {
-        title: "Pro gives the firm a more actionable operating readout",
-        summary: "Pro is for firms that want clearer operating interpretation, stronger insight framing, and a more usable PAT layer for leadership.",
+        title: "Pro turns the live firm alignment insight layer into a clearer operating surface",
+        summary: "Pro is the current firm membership tier for firms that want the live alignment insight route packaged more explicitly for leadership use.",
         what:
-          "It turns the firm assessment and insight surface into a more practical management tool rather than a completed-assessment trophy.",
+          "It stays tied to the current alignment-insight surface backed by completed modules and capability signal, rather than inventing a wider paid firm platform.",
         why:
-          "That matters when leadership needs to act on readiness, change posture, automation capacity, or governance signal.",
+          "That matters when leadership needs clearer interpretation of readiness, change posture, automation capacity, and governance signal from the existing PAT evidence.",
         ctaTitle: "Upgrade into Pro",
-        ctaBody: "Open the checkout placeholder and carry the firm toward a stronger PAT operating tier.",
+        ctaBody: "Open the checkout placeholder to stage the firm alignment-insight tier without over-claiming broader firm product scope.",
       },
       ELITE: {
-        title: "Elite is the disciplined future tier for advanced firm intelligence",
-        summary: "Elite is where higher-confidence benchmark or scenario layers can live when the evidence and operating path support them.",
+        title: "Elite is the staged higher-order firm insight tier",
+        summary: "Elite remains the visible but still staged extension of the firm alignment insight surface.",
         what:
-          "It is intended for premium intelligence surfaces that should remain staged until the underlying signals are genuinely launch-ready.",
+          "It is reserved for richer firm insight packaging that should stay attached to alignment evidence until PAT can support a stronger premium layer honestly.",
         why:
-          "That keeps the firm promise honest while still giving operators a visible path to the next commercial tier.",
+          "That keeps the firm promise honest while still making the higher-order tier legible.",
         ctaTitle: "Stage the Elite path",
-        ctaBody: "Use the checkout placeholder to register Elite intent without overstating today’s live product.",
+        ctaBody: "Use the checkout placeholder to register Elite intent without implying a broader firm intelligence suite is already live.",
       },
     },
     meetPat: {
-      title: "Meet PAT inside the firm membership flow",
+      title: "PAT membership model",
       summary: "Membership should reinforce PAT’s operating role inside the firm rather than distract from it.",
       bullets: [
         "PAT uses structured assessments and capability state to ground the firm intelligence layer.",
@@ -231,7 +265,7 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
       },
     },
     meetPat: {
-      title: "Meet PAT inside the individual membership flow",
+      title: "PAT membership model",
       summary: "PAT membership for individuals should stay practical, legible, and restrained.",
       bullets: [
         "PAT turns structured personal assessment signal into a usable operating readout.",
@@ -267,12 +301,50 @@ export function buildMembershipCheckoutHref(audience: MembershipAudience, plan: 
   return `${getMembershipPathPrefix(audience)}/membership/checkout?plan=${plan.toLowerCase()}`;
 }
 
+export function buildMembershipTierDetailHref(audience: MembershipAudience, plan: MembershipPlan) {
+  return `${getMembershipPathPrefix(audience)}/membership/${plan.toLowerCase()}`;
+}
+
+export function getRequestedMembershipTab(
+  rawTab: string | undefined,
+  currentPlan: MembershipPlan
+): MembershipTabKey {
+  const normalizedTab = rawTab?.trim().toUpperCase();
+
+  if (normalizedTab === "HELP") {
+    return "HELP";
+  }
+
+  if (
+    normalizedTab === MEMBERSHIP_PLAN.FREE ||
+    normalizedTab === MEMBERSHIP_PLAN.PRO ||
+    normalizedTab === MEMBERSHIP_PLAN.ELITE
+  ) {
+    return normalizedTab;
+  }
+
+  return getDefaultMembershipTab(currentPlan);
+}
+
+export function parseMembershipPlanSegment(rawSegment: string | undefined) {
+  const normalizedSegment = rawSegment?.trim().toUpperCase();
+
+  if (
+    normalizedSegment === MEMBERSHIP_PLAN.FREE ||
+    normalizedSegment === MEMBERSHIP_PLAN.PRO ||
+    normalizedSegment === MEMBERSHIP_PLAN.ELITE
+  ) {
+    return normalizedSegment;
+  }
+
+  return null;
+}
+
 export function getMembershipTabs() {
   return [
     { key: MEMBERSHIP_PLAN.FREE as MembershipTabKey, label: "Free" },
     { key: MEMBERSHIP_PLAN.PRO as MembershipTabKey, label: "Pro" },
     { key: MEMBERSHIP_PLAN.ELITE as MembershipTabKey, label: "Elite" },
-    { key: "MEET_PAT" as MembershipTabKey, label: "Meet PAT" },
     { key: "HELP" as MembershipTabKey, label: "Help" },
   ];
 }
@@ -296,6 +368,263 @@ export function getRequestedCheckoutPlan(rawPlan: string | undefined, currentPla
   return normalizedCurrentPlan === MEMBERSHIP_PLAN.ELITE ? MEMBERSHIP_PLAN.ELITE : MEMBERSHIP_PLAN.PRO;
 }
 
+function getMembershipScopeNote(audience: MembershipAudience, plan: MembershipPlan) {
+  if (audience === "vendor") {
+    if (plan === MEMBERSHIP_PLAN.FREE) {
+      return "Free keeps the vendor workspace, profile continuity, and membership/account state coherent. It does not claim the stronger vendor insight packaging reserved for higher tiers.";
+    }
+
+    if (plan === MEMBERSHIP_PLAN.PRO) {
+      return "Pro is the live vendor-facing packaging layer around current product intelligence and alignment insight routes. It stays grounded in current PAT signal rather than benchmark or projection claims.";
+    }
+
+    return "Elite is visible as the higher vendor intelligence tier, but its benchmark, scenario, and richer premium packaging remain staged rather than fully unlocked today.";
+  }
+
+  if (audience === "firm") {
+    if (plan === MEMBERSHIP_PLAN.FREE) {
+      return "Free keeps the firm workspace, alignment route access, and membership state coherent without claiming a broader paid intelligence layer.";
+    }
+
+    if (plan === MEMBERSHIP_PLAN.PRO) {
+      return "Current firm Pro scope aligns to the live firm alignment insight surface. It is not a separate paid contract for product review, admin, or advisory behavior.";
+    }
+
+    return "Current firm Elite remains a staged higher-order firm insight layer attached to the alignment insight surface. It does not unlock a broader firm product suite today.";
+  }
+
+  if (plan === MEMBERSHIP_PLAN.FREE) {
+    return "Free keeps the individual workspace, profile continuity, and personal PAT subject path available without claiming a deeper guidance layer.";
+  }
+
+  if (plan === MEMBERSHIP_PLAN.PRO) {
+    return "Current individual Pro scope is the live but intentionally light personal insight surface PAT can support from person-level alignment state now.";
+  }
+
+  return "Individual Elite stays staged and explanation-first. It does not imply a full personal benchmark, projection, or coaching engine is already live.";
+}
+
+function getMembershipLiveNowNote(audience: MembershipAudience, plan: MembershipPlan) {
+  if (audience === "vendor") {
+    if (plan === MEMBERSHIP_PLAN.FREE) {
+      return "The baseline vendor workspace, profile state, and membership plumbing are already live and route-backed.";
+    }
+
+    if (plan === MEMBERSHIP_PLAN.PRO) {
+      return "The live vendor Pro framing appears today across vendor product intelligence and vendor alignment insight surfaces.";
+    }
+
+    return "The Elite vendor layer is currently represented through locked cards and detail routes that stay visible without overstating the premium layer.";
+  }
+
+  if (audience === "firm") {
+    if (plan === MEMBERSHIP_PLAN.FREE) {
+      return "The live firm baseline is the workspace, alignment assessment, and membership/account state already present in PAT.";
+    }
+
+    if (plan === MEMBERSHIP_PLAN.PRO) {
+      return "The live firm Pro layer is the firm insights surface backed by alignment-module and capability signal.";
+    }
+
+    return "The live firm Elite expression is still the locked higher-order layer inside the firm insights surface.";
+  }
+
+  if (plan === MEMBERSHIP_PLAN.FREE) {
+    return "The individual baseline is the workspace, profile continuity, and subject-aware membership plumbing already present in PAT.";
+  }
+
+  if (plan === MEMBERSHIP_PLAN.PRO) {
+    return "The live individual Pro layer is the limited but real person-level insight structure that opens from the individual alignment path.";
+  }
+
+  return "The live individual Elite expression remains a staged locked layer with disciplined detail pages instead of fabricated premium analysis.";
+}
+
+function getMembershipStagedNote(audience: MembershipAudience, plan: MembershipPlan) {
+  if (audience === "vendor") {
+    if (plan === MEMBERSHIP_PLAN.FREE) {
+      return "Moving beyond Free is about stronger vendor-facing insight packaging, not about replacing the baseline PAT evidence contract.";
+    }
+
+    if (plan === MEMBERSHIP_PLAN.PRO) {
+      return "What stays out of scope in Pro is the richer benchmark, scenario, and projection packaging reserved for a later Elite layer.";
+    }
+
+    return "Elite remains staged until the premium vendor intelligence layer can be defended with the right evidence and commercial plumbing.";
+  }
+
+  if (audience === "firm") {
+    if (plan === MEMBERSHIP_PLAN.FREE) {
+      return "Higher tiers are about clearer firm insight packaging, not about inventing a larger paid firm platform before the current scope is ready.";
+    }
+
+    if (plan === MEMBERSHIP_PLAN.PRO) {
+      return "What stays out of scope in firm Pro today is any broader paid promise beyond the live alignment-insight layer.";
+    }
+
+    return "Elite stays staged until PAT can back a stronger firm intelligence layer without overclaiming the current source truth.";
+  }
+
+  if (plan === MEMBERSHIP_PLAN.FREE) {
+    return "Higher tiers are about stronger personal interpretation and packaging, not about changing the honesty of the underlying person-level signal.";
+  }
+
+  if (plan === MEMBERSHIP_PLAN.PRO) {
+    return "What stays out of scope in individual Pro is the richer premium intelligence layer that PAT has not built yet.";
+  }
+
+  return "Elite remains staged until PAT has a real premium personal layer instead of a thin placeholder.";
+}
+
+function getMembershipRouteCard(audience: MembershipAudience, plan: MembershipPlan) {
+  if (audience === "vendor") {
+    if (plan === MEMBERSHIP_PLAN.FREE) {
+      return {
+        title: "Current vendor workspace",
+        body: "Review the live vendor workspace, assessment, and help surfaces from the baseline tier.",
+        href: "/vendor",
+        ctaLabel: "Open vendor workspace",
+      };
+    }
+
+    if (plan === MEMBERSHIP_PLAN.PRO) {
+      return {
+        title: "Live vendor intelligence routes",
+        body: "Open the current vendor product and alignment insight surfaces that carry the live Pro framing today.",
+        href: "/vendor/product-insight",
+        ctaLabel: "Open vendor product intelligence",
+      };
+    }
+
+    return {
+      title: "Visible but staged vendor layer",
+      body: "Review the locked vendor intelligence surfaces where Elite remains visible but not overstated.",
+      href: "/vendor/alignment-insights",
+      ctaLabel: "Open vendor alignment insights",
+    };
+  }
+
+  if (audience === "firm") {
+    if (plan === MEMBERSHIP_PLAN.FREE) {
+      return {
+        title: "Current firm workspace",
+        body: "Open the live firm workspace and alignment assessment baseline.",
+        href: "/firm",
+        ctaLabel: "Open firm workspace",
+      };
+    }
+
+    return {
+      title: plan === MEMBERSHIP_PLAN.PRO ? "Live firm alignment insights" : "Staged firm intelligence layer",
+      body:
+        plan === MEMBERSHIP_PLAN.PRO
+          ? "Open the current firm insight surface backed by completed alignment modules and capability signal."
+          : "Open the firm insight surface where the higher-order Elite layer is visible but still locked and disclaimer-driven.",
+      href: "/firm/insights",
+      ctaLabel: "Open firm insights",
+    };
+  }
+
+  if (plan === MEMBERSHIP_PLAN.FREE) {
+    return {
+      title: "Current individual workspace",
+      body: "Open the live individual workspace, profile path, and alignment entry points from the baseline tier.",
+      href: "/user",
+      ctaLabel: "Open individual workspace",
+    };
+  }
+
+  return {
+    title: plan === MEMBERSHIP_PLAN.PRO ? "Live individual insight route" : "Staged individual premium layer",
+    body:
+      plan === MEMBERSHIP_PLAN.PRO
+        ? "Open the current person-level insight surface that PAT can support from live alignment state."
+        : "Open the individual insight surface where Elite remains visible but intentionally limited.",
+    href: "/user/insights",
+    ctaLabel: "Open individual insights",
+  };
+}
+
+function getMembershipHelpCards(
+  audience: MembershipAudience,
+  content: MembershipAudienceContent
+): MembershipHelpCard[] {
+  return [
+    {
+      title: "Free",
+      body: `${content.plans.FREE.summary} ${getMembershipScopeNote(audience, MEMBERSHIP_PLAN.FREE)}`,
+    },
+    {
+      title: "Pro",
+      body: `${content.plans.PRO.summary} ${getMembershipScopeNote(audience, MEMBERSHIP_PLAN.PRO)}`,
+    },
+    {
+      title: "Elite",
+      body: `${content.plans.ELITE.summary} ${getMembershipScopeNote(audience, MEMBERSHIP_PLAN.ELITE)}`,
+    },
+    {
+      title: "PAT membership model",
+      body: `${content.meetPat.summary} ${content.meetPat.bullets[0] ?? ""}`.trim(),
+    },
+  ];
+}
+
+export function getMembershipTierDetailModel(input: {
+  audience: MembershipAudience;
+  plan: MembershipPlan;
+  currentPlan: MembershipPlan;
+  currentStatus: MembershipStatus;
+}): MembershipTierDetailModel {
+  const content = MEMBERSHIP_PAGE_CONTENT[input.audience];
+  const selectedPlan = normalizeMembershipPlan(input.plan);
+  const currentPlan = normalizeMembershipPlan(input.currentPlan);
+  const ownsPlan = selectedPlan === currentPlan;
+  const checkoutPlan =
+    selectedPlan === MEMBERSHIP_PLAN.FREE
+      ? currentPlan === DEFAULT_FREE_MEMBERSHIP_PLAN
+        ? MEMBERSHIP_PLAN.PRO
+        : currentPlan
+      : selectedPlan;
+  const planContent = content.plans[selectedPlan];
+  const routeCard = getMembershipRouteCard(input.audience, selectedPlan);
+
+  return {
+    audience: input.audience,
+    plan: selectedPlan,
+    currentPlan,
+    currentStatus: input.currentStatus,
+    hero: {
+      eyebrow: `${content.eyebrow} · ${formatMembershipValue(selectedPlan)}`,
+      title: planContent.title,
+      body: `${planContent.summary} ${getMembershipScopeNote(input.audience, selectedPlan)}`,
+    },
+    routeCard,
+    sections: [
+      {
+        title: "What it is",
+        body: planContent.what,
+      },
+      {
+        title: "Current truthful scope",
+        body: getMembershipLiveNowNote(input.audience, selectedPlan),
+      },
+      {
+        title: "What stays staged",
+        body: getMembershipStagedNote(input.audience, selectedPlan),
+      },
+    ],
+    ownsPlan,
+    actionLabel:
+      ownsPlan && selectedPlan === MEMBERSHIP_PLAN.FREE
+        ? "Explore Pro checkout placeholder"
+        : ownsPlan
+          ? "Open current tier checkout placeholder"
+          : `Open ${formatMembershipValue(checkoutPlan)} checkout placeholder`,
+    actionHref: buildMembershipCheckoutHref(input.audience, checkoutPlan),
+    backHref: `${getMembershipPathPrefix(input.audience)}/membership?tab=${selectedPlan.toLowerCase()}`,
+  };
+}
+
 export function getMembershipPageModel(input: {
   audience: MembershipAudience;
   currentPlan: MembershipPlan;
@@ -304,25 +633,6 @@ export function getMembershipPageModel(input: {
   const content = MEMBERSHIP_PAGE_CONTENT[input.audience];
   const currentPlan = normalizeMembershipPlan(input.currentPlan);
   const activeTab = normalizeMembershipTabKey(input.activeTab, currentPlan);
-
-  if (activeTab === "MEET_PAT") {
-    return {
-      audience: input.audience,
-      activeTab,
-      currentPlan,
-      hero: {
-        eyebrow: content.eyebrow,
-        title: content.title,
-        body: content.body,
-      },
-      panel: {
-        kind: "narrative",
-        title: content.meetPat.title,
-        summary: content.meetPat.summary,
-        bullets: content.meetPat.bullets,
-      },
-    };
-  }
 
   if (activeTab === "HELP") {
     return {
@@ -335,10 +645,10 @@ export function getMembershipPageModel(input: {
         body: content.body,
       },
       panel: {
-        kind: "narrative",
+        kind: "help",
         title: content.help.title,
         summary: content.help.summary,
-        bullets: content.help.bullets,
+        cards: getMembershipHelpCards(input.audience, content),
       },
     };
   }
@@ -367,12 +677,15 @@ export function getMembershipPageModel(input: {
       summary: planContent.summary,
       what: planContent.what,
       why: planContent.why,
+      scopeNote: getMembershipScopeNote(input.audience, activeTab),
       ownsPlan,
       ctaTitle: ownsPlan ? `Continue with ${formatMembershipValue(activeTab)}` : planContent.ctaTitle,
       ctaBody: ownsPlan
         ? `Open the ${formatMembershipValue(ctaPlan)} checkout placeholder to continue the current membership handoff cleanly.`
         : planContent.ctaBody,
       ctaHref: buildMembershipCheckoutHref(input.audience, ctaPlan),
+      detailHref: buildMembershipTierDetailHref(input.audience, activeTab),
+      detailLabel: `Open ${formatMembershipValue(activeTab)} detail`,
     },
   };
 }

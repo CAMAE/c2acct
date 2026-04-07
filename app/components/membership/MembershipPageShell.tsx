@@ -71,6 +71,7 @@ export default function MembershipPageShell({
                 className={isActive ? "pat-button-primary" : "pat-button-secondary"}
                 onClick={() => setActiveTab(tab.key)}
                 type="button"
+                aria-pressed={isActive}
               >
                 {tab.label}
               </button>
@@ -79,7 +80,9 @@ export default function MembershipPageShell({
         </div>
       </section>
 
-      <MembershipPlanPanel model={model} />
+      <section className="space-y-6" key={activeTab}>
+        <MembershipPlanPanel model={model} />
+      </section>
     </div>
   );
 }

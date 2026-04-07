@@ -31,6 +31,16 @@
   --shell-success: #166534;
   --shell-warning: #9a3412;
   --shell-danger: #7f1d1d;
+  --shell-max-width: 84rem;
+  --shell-gutter: clamp(1.1rem, 0.95rem + 0.9vw, 1.7rem);
+  --shell-main-pad-y: clamp(2.1rem, 1.75rem + 1.05vw, 2.85rem);
+  --pat-card-pad-xl: clamp(1.55rem, 1.35rem + 0.6vw, 1.85rem);
+  --pat-card-pad-lg: clamp(1.2rem, 1.08rem + 0.4vw, 1.42rem);
+  --pat-card-pad-md: clamp(1rem, 0.92rem + 0.22vw, 1.12rem);
+  --pat-card-pad-sm: clamp(0.92rem, 0.86rem + 0.14vw, 0.98rem);
+  --pat-hero-title-size: clamp(1.82rem, 1.7rem + 0.35vw, 2.12rem);
+  --pat-section-title-size: clamp(1.42rem, 1.34rem + 0.22vw, 1.72rem);
+  --pat-subsection-title-size: clamp(1.16rem, 1.1rem + 0.18vw, 1.4rem);
 }
 
 html,
@@ -67,6 +77,21 @@ textarea {
 
 .pat-shell {
   color: var(--shell-ink);
+}
+
+.pat-shell-frame {
+  width: 100%;
+  max-width: var(--shell-max-width);
+  margin-inline: auto;
+  padding-inline: var(--shell-gutter);
+}
+
+.pat-shell-main {
+  width: 100%;
+  max-width: var(--shell-max-width);
+  margin-inline: auto;
+  padding-inline: var(--shell-gutter);
+  padding-block: var(--shell-main-pad-y);
 }
 
 .pat-label {
@@ -118,6 +143,45 @@ textarea {
   background: var(--shell-panel);
 }
 
+.pat-card.p-8 {
+  padding: var(--pat-card-pad-xl);
+}
+
+.pat-card.p-6,
+.pat-soft-panel.p-5,
+.pat-subpanel.p-5 {
+  padding: var(--pat-card-pad-lg);
+}
+
+.pat-card.p-5,
+.pat-soft-panel.p-4,
+.pat-subpanel.p-4 {
+  padding: var(--pat-card-pad-md);
+}
+
+.pat-card.p-4 {
+  padding: var(--pat-card-pad-sm);
+}
+
+.pat-card h1.text-4xl,
+.pat-card h2.text-4xl {
+  font-size: var(--pat-hero-title-size);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+}
+
+.pat-card h2.text-3xl {
+  font-size: var(--pat-section-title-size);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.pat-card h3.text-2xl {
+  font-size: var(--pat-subsection-title-size);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+}
+
 .pat-card-interactive {
   transition:
     border-color 160ms ease,
@@ -125,7 +189,48 @@ textarea {
 }
 
 .pat-card-interactive:hover {
-  border-color: rgba(6, 54, 116, 0.34);
+  border-color: rgba(6, 54, 116, 0.32);
+  background-color: rgba(6, 54, 116, 0.025);
+}
+
+.pat-card-tinted-interactive {
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.pat-card-tinted-interactive:hover {
+  border-color: rgba(79, 191, 226, 0.45);
+  background-color: rgba(79, 191, 226, 0.17);
+}
+
+.pat-card-muted {
+  border-color: rgba(148, 163, 184, 0.28);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(241, 245, 249, 0.98));
+}
+
+.pat-card-muted-interactive {
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.pat-card-muted-interactive:hover {
+  border-color: rgba(100, 116, 139, 0.34);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(241, 245, 249, 1));
+}
+
+.pat-range-unanswered {
+  accent-color: rgba(92, 108, 128, 0.22);
+  opacity: 0.72;
+}
+
+.pat-range-unanswered::-webkit-slider-thumb {
+  opacity: 0.2;
+}
+
+.pat-range-unanswered::-moz-range-thumb {
+  opacity: 0.2;
 }
 
 .pat-card-strong {
@@ -176,6 +281,24 @@ textarea {
   border: 1px solid var(--shell-border);
   border-radius: 20px;
   background: var(--shell-panel-soft);
+}
+
+.pat-soft-panel-interactive {
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.pat-soft-panel-interactive:hover {
+  border-color: rgba(6, 54, 116, 0.32);
+  background-color: rgba(6, 54, 116, 0.025);
+  color: var(--shell-ink);
+}
+
+.pat-label-emphasis {
+  font-weight: 800;
+  color: var(--shell-ink);
 }
 
 .pat-button-primary {

@@ -255,7 +255,9 @@ export async function runPatSurfaceValidation({ root, port, timeoutMs, baseUrl: 
       await waitForServer(baseUrl, timeoutMs);
     }
 
-    for (const routeKey of ["/", "/sign-in", "/vendor", "/firm", "/user", "/admin"]) {
+    const routeKeys = Object.keys(manifest.routes).filter((routeKey) => routeKey !== "header" && routeKey !== "/login");
+
+    for (const routeKey of routeKeys) {
       const response = await readTextResponse(`${baseUrl}${routeKey}`, { redirect: "manual" });
       routeEvidence[routeKey] = { status: response.status };
 

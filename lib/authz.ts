@@ -15,6 +15,7 @@ const PROTECTED_PAT_PAGE_PREFIXES = [
   "/firm",
   "/vendor",
   "/user",
+  "/consultants",
 ] as const;
 
 const PROTECTED_PAT_API_PREFIXES = [

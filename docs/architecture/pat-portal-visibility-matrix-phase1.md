@@ -70,7 +70,8 @@ This is deliberate. The platform now knows about broader audiences, but it does 
 ## Operator note
 
 - `/admin` is the live C2Core operator surface.
-- `/admin/briefings` is the live consultant/operator briefing path.
+- `/admin/briefings` is the live operator briefing path.
+- `/consultants` is the live scoped consultant briefing path once explicit firm-company assignment exists.
 - `member-briefing` remains staged until person-side modules and member-native evidence become truthful enough to support it.
 
 ## Validation note

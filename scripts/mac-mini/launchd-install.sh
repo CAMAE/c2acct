@@ -85,7 +85,7 @@ if [ "${mode}" = "check" ]; then
   exit 0
 fi
 
-(cd "${MAC_MINI_ROOT}" && npm run release:prelaunch)
+(cd "${MAC_MINI_ROOT}" && pnpm release:prelaunch)
 
 if [ "${mode}" = "dry-run" ]; then
   printf 'mode=dry-run\n'

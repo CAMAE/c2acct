@@ -15,6 +15,7 @@ import { getLocalReviewUsersForUi } from "@/lib/auth/localReview";
 import { getAuthRuntimeStatus } from "@/lib/auth/runtime";
 import { isInviteeAccessEnabled } from "@/lib/invitee/access";
 import { submitInviteeCode } from "@/app/sign-in/invitee/actions";
+import { isConsultantAccessEnabled } from "@/lib/consultantAccess";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 
 export const metadata = {
@@ -32,7 +33,7 @@ function getSingleParam(value: string | string[] | undefined) {
 }
 
 function isAccessView(value: string | null): value is AccessView {
-  return value === "vendor" || value === "firm" || value === "individual" || value === "admin" || value === "invitee" || value === "pat" || value === "help";
+  return value === "vendor" || value === "firm" || value === "individual" || value === "admin" || value === "consultant" || value === "invitee" || value === "pat" || value === "help";
 }
 
 function getViewHref(view: AccessView) {
@@ -134,7 +135,7 @@ function RoleAccessCard({
   subtitle: string;
   body: string;
   roleRedirect: string;
-  view: "vendor" | "firm" | "individual" | "admin";
+  view: "vendor" | "firm" | "individual" | "admin" | "consultant";
   signInLabel: string;
   accessCodeLabel: string;
   localAuthLabel: string;
@@ -353,7 +354,13 @@ export default async function SignInHubPage({
   const redirectTo = getSingleParam(resolvedSearchParams?.redirectTo);
   const requestedTarget = sanitizeAuthRedirect(redirectTo ?? callbackUrl);
   const inferredView = inferCanonicalSignInView(requestedTarget);
-  const activeView: AccessView = isAccessView(requestedView) ? requestedView : inferredView ?? "vendor";
+  const requestedAccessView: AccessView = isAccessView(requestedView)
+    ? requestedView
+    : inferredView ?? "vendor";
+  const consultantAccessEnabled = isConsultantAccessEnabled();
+  const consultantViewDisabled =
+    requestedAccessView === "consultant" && !consultantAccessEnabled;
+  const activeView: AccessView = consultantViewDisabled ? "vendor" : requestedAccessView;
   const authError = getSingleParam(resolvedSearchParams?.error);
   const authReset = getSingleParam(resolvedSearchParams?.authReset) === "1";
   const authResetReason = getSingleParam(resolvedSearchParams?.authResetReason);
@@ -369,6 +376,7 @@ export default async function SignInHubPage({
     firm: resolvePostAuthRedirectForView("firm", requestedTarget),
     individual: resolvePostAuthRedirectForView("individual", requestedTarget),
     admin: resolvePostAuthRedirectForView("admin", requestedTarget),
+    consultant: resolvePostAuthRedirectForView("consultant", requestedTarget),
   };
   const resetRedirectTo = buildCanonicalSignInPath({
     callbackUrl,
@@ -379,6 +387,7 @@ export default async function SignInHubPage({
     { id: "vendor", label: messages.signIn.vendor },
     { id: "firm", label: messages.signIn.firm },
     { id: "individual", label: messages.signIn.individual },
+    ...(consultantAccessEnabled ? [{ id: "consultant" as const, label: "Consultant" }] : []),
     ...(authRuntime.localReviewEnabled ? [{ id: "admin" as const, label: "Admin" }] : []),
     { id: "invitee", label: messages.signIn.invitee },
     { id: "pat", label: messages.signIn.meetPat },
@@ -418,6 +427,11 @@ export default async function SignInHubPage({
         {authErrorCopy ? (
           <div className="mt-5 rounded-[18px] border border-rose-200 bg-rose-50 px-4 py-4 text-sm leading-6 text-rose-900">
             {authErrorCopy}
+          </div>
+        ) : null}
+        {consultantViewDisabled ? (
+          <div className="mt-5 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-6 text-amber-900">
+            Consultant access is disabled in this runtime until the company-scoped consultant plane is explicitly re-enabled for proof. The vendor entry remains the default sign-in path here.
           </div>
         ) : null}
         <div className="mt-6">
@@ -514,6 +528,29 @@ export default async function SignInHubPage({
           localReviewEmail={localReviewEmailByKey.get("admin") ?? null}
           inviteeAccessEnabled={inviteeAccessEnabled}
           hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.admin, view: "admin" })}
+        />
+      ) : null}
+
+      {activeView === "consultant" ? (
+        <RoleAccessCard
+          title="Consultant"
+          subtitle="Assigned briefing access"
+          body="Use the consultant path to open only the firm briefings and product briefing slices explicitly assigned to this PAT user account. Consultant access is additive on the current user record, not a separate credentials plane, and it does not add fabricated executive narrative."
+          roleRedirect={requestedRoleRedirects.consultant}
+          view="consultant"
+          signInLabel={messages.common.continueWithGitHub}
+          accessCodeLabel={messages.common.continueWithAccessCode}
+          localAuthLabel={messages.common.reviewLocalAuthSetup}
+          modeLabel={authRuntime.localReviewProviderReady ? "Deterministic local consultant account review" : authRuntime.githubAuthEnabled ? "GitHub" : "GitHub setup required"}
+          githubReady={authRuntime.githubAuthEnabled}
+          githubUnavailableReason={authRuntime.githubUnavailableReason}
+          callbackUrl={authRuntime.callbackUrl}
+          canonicalLocalOrigin={authRuntime.canonicalLocalOrigin}
+          localReviewEnabled={authRuntime.localReviewProviderReady}
+          localReviewRequested={authRuntime.localReviewEnabled}
+          localReviewEmail={localReviewEmailByKey.get("consultant") ?? null}
+          inviteeAccessEnabled={inviteeAccessEnabled}
+          hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.consultant, view: "consultant" })}
         />
       ) : null}
 

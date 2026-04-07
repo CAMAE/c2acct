@@ -14,6 +14,7 @@ import { buildCanonicalSignInPath } from "@/lib/auth/routes";
 import prisma from "@/lib/prisma";
 import { getSessionUser, type SessionUser } from "@/lib/auth/session";
 import { canAccessPortalAdmin } from "@/lib/authz";
+import { isConsultantAccessEnabled } from "@/lib/consultantAccess";
 import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
 import { getPatDiagnosticsSnapshot } from "@/lib/patDiagnostics";
 
@@ -21,6 +22,7 @@ export const ADMIN_NAV_ITEMS = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/organizations", label: "Organizations" },
   { href: "/admin/users", label: "Users" },
+  { href: "/admin/consultants", label: "Consultants" },
   { href: "/admin/taxonomy", label: "Taxonomy" },
   { href: "/admin/modules", label: "Modules" },
   { href: "/admin/insights", label: "Insights" },
@@ -28,6 +30,12 @@ export const ADMIN_NAV_ITEMS = [
   { href: "/admin/briefings", label: "Briefings" },
   { href: "/admin/runtime", label: "Runtime" },
 ] as const;
+
+export function getAdminNavItems() {
+  return isConsultantAccessEnabled()
+    ? ADMIN_NAV_ITEMS
+    : ADMIN_NAV_ITEMS.filter((item) => item.href !== "/admin/consultants");
+}
 
 export const COMPANY_TYPE_OPTIONS = [CompanyType.FIRM, CompanyType.VENDOR] as const;
 export const MEMBERSHIP_PLAN_OPTIONS = [
@@ -103,10 +111,12 @@ export async function getAdminAccessState() {
 export async function getAdminOverviewData() {
   const canonicalFirmModuleKeys = FIRM_MODULE_DEFINITIONS.map((module) => module.key);
   const diagnosticsSnapshot = getPatDiagnosticsSnapshot();
+  const consultantAccessEnabled = isConsultantAccessEnabled();
 
   const [
     organizations,
     users,
+    consultants,
     products,
     modules,
     sections,
@@ -119,6 +129,9 @@ export async function getAdminOverviewData() {
   ] = await Promise.all([
     prisma.company.count(),
     prisma.user.count(),
+    consultantAccessEnabled
+      ? prisma.consultantProfile.count({ where: { active: true } }).catch(() => 0)
+      : Promise.resolve(0),
     prisma.product.count(),
     prisma.surveyModule.count(),
     prisma.surveySection.count().catch(() => 0),
@@ -156,9 +169,11 @@ export async function getAdminOverviewData() {
   });
 
   return {
+    consultantAccessEnabled,
     metrics: {
       organizations,
       users,
+      consultants,
       products,
       modules,
       sections,

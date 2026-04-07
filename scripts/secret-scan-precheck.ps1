@@ -15,4 +15,4 @@ if ($Docker) {
   exit $LASTEXITCODE
 }
 
-throw "gitleaks precheck unavailable: install gitleaks locally or use Docker Desktop, then rerun 'npm run secrets:scan'."
+throw "gitleaks precheck unavailable: install gitleaks locally or use Docker Desktop, then rerun 'pnpm secrets:scan'."

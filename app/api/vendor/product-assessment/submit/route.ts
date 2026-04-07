@@ -6,6 +6,10 @@ import prisma from "@/lib/prisma";
 import { unauthorizedResponse, forbiddenResponse } from "@/lib/authz";
 import { getSessionUser } from "@/lib/auth/session";
 import {
+  PRODUCT_ASSESSMENT_SCALE_MAX,
+  PRODUCT_ASSESSMENT_SCALE_MIN,
+} from "@/lib/productAssessmentRuntime";
+import {
   normalizeVendorProductProfileInput,
   serializeVendorProductAssessmentPlan,
 } from "@/lib/vendorProductAssessmentPlan";
@@ -38,7 +42,7 @@ const SubmitVendorAssessmentSchema = z.object({
     integrationPosture: z.string().trim().min(1),
   }),
   openEndedResponses: z.record(z.string(), z.string()),
-  answers: z.record(z.string(), z.number().min(1).max(5)),
+  answers: z.record(z.string(), z.number().min(PRODUCT_ASSESSMENT_SCALE_MIN).max(PRODUCT_ASSESSMENT_SCALE_MAX)),
 });
 
 function isUrl(value: string) {

@@ -24,7 +24,7 @@ export default function MembershipCard({
 }: MembershipCardProps) {
   return (
     <Link
-      className="pat-soft-panel block p-4 text-sm leading-6 text-[var(--shell-muted)] transition hover:-translate-y-0.5 hover:border-[var(--shell-accent)] hover:text-[var(--shell-ink)]"
+      className="pat-soft-panel pat-soft-panel-interactive block p-4 text-sm leading-6 text-[var(--shell-muted)]"
       href={href}
     >
       <div className="pat-label">Membership</div>

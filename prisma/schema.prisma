@@ -115,6 +115,7 @@ model Company {
   FirmMaturityMomentum   FirmMaturityMomentum[]
   FirmMaturitySnapshot   FirmMaturitySnapshot[]
   Product                Product[]
+  ConsultantAssignment   ConsultantAssignment[]
   Subject                Subject?
   SurveySubmission       SurveySubmission[]
   User                   User[]
@@ -688,10 +689,36 @@ model User {
   updatedAt         DateTime
   companyId         String?
   Company           Company?            @relation(fields: [companyId], references: [id])
+  ConsultantProfile ConsultantProfile?
   OperatorAuditEvent OperatorAuditEvent[]
   SubjectMembership SubjectMembership[]
 
   @@index([companyId])
+}
+
+model ConsultantProfile {
+  id                   String                 @id
+  userId               String                 @unique
+  active               Boolean                @default(true)
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  User                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ConsultantAssignment ConsultantAssignment[]
+}
+
+model ConsultantAssignment {
+  id                  String            @id
+  consultantProfileId String
+  companyId           String
+  active              Boolean           @default(true)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  Company             Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  ConsultantProfile   ConsultantProfile @relation(fields: [consultantProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([consultantProfileId, companyId])
+  @@index([companyId, active])
+  @@index([consultantProfileId, active])
 }
 
 model OperatorAuditEvent {

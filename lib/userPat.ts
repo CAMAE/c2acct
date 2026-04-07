@@ -40,6 +40,30 @@ export const USER_TIER2_INSIGHT_DEFINITIONS = [
   },
 ] as const;
 
+export type UserInsightDefinition =
+  | ((typeof USER_TIER1_INSIGHT_DEFINITIONS)[number] & { tier: 1 })
+  | ((typeof USER_TIER2_INSIGHT_DEFINITIONS)[number] & { tier: 2 });
+
+export function getUserInsightDefinition(key: string): UserInsightDefinition | null {
+  const tier1Insight = USER_TIER1_INSIGHT_DEFINITIONS.find((insight) => insight.key === key);
+  if (tier1Insight) {
+    return {
+      ...tier1Insight,
+      tier: 1,
+    };
+  }
+
+  const tier2Insight = USER_TIER2_INSIGHT_DEFINITIONS.find((insight) => insight.key === key);
+  if (tier2Insight) {
+    return {
+      ...tier2Insight,
+      tier: 2,
+    };
+  }
+
+  return null;
+}
+
 export const USER_ALIGNMENT_MODULE_KEY = "user_alignment_v1";
 export const USER_ALIGNMENT_MODULE_TITLE = "User Alignment Assessment";
 

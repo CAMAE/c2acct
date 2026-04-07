@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ProductAssessmentPerspective } from "@prisma/client";
 import { redirect } from "next/navigation";
 import VendorProductAssessmentClient from "@/app/components/vendor/VendorProductAssessmentClient";
@@ -118,9 +117,16 @@ export default async function VendorProductAssessmentDetailPage({
 
   const initialAnswers = persistedAnswerPayload?.responses ?? {};
   const initialOpenEndedAnswers = persistedAnswerPayload?.openEndedResponses ?? {};
+  const resolvedProductName = productRecord?.name ?? product.name;
+  const helpSearchParams = new URLSearchParams({
+    topic: "product-assessment",
+    productId: product.id,
+    productName: resolvedProductName,
+  });
+  const productAssessmentHelpHref = `/vendor/help?${helpSearchParams.toString()}`;
   const initialProfile = getInitialVendorProductProfile({
     product: {
-      name: productRecord?.name ?? product.name,
+      name: resolvedProductName,
       summary: productRecord?.summary ?? product.summary,
     },
     profile: productRecord?.ProductProfile ?? null,
@@ -169,19 +175,11 @@ export default async function VendorProductAssessmentDetailPage({
       <section className="pat-card p-8">
         <div className="pat-label">Product assessment</div>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
-          {product.name}
+          {resolvedProductName}
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           Declare the utilities this product solves, then answer the per-product PAT assessment. The submission persists as product-specific vendor self-signal, not a generic company submission.
         </p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link className="pat-button-secondary" href="/vendor/product-assessment">
-            Back to products
-          </Link>
-          <Link className="pat-button-secondary" href={`/vendor/product-insight/${product.id}`}>
-            Open product insight
-          </Link>
-        </div>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
             Website: <span className="font-semibold text-[var(--shell-ink)]">{product.website ?? "--"}</span>
@@ -197,12 +195,15 @@ export default async function VendorProductAssessmentDetailPage({
 
       <VendorProductAssessmentClient
         productId={product.id}
-        productName={productRecord?.name ?? product.name}
+        productName={resolvedProductName}
         utilityCatalog={VENDOR_UTILITY_CATALOG}
         initialUtilityKeys={initialUtilityKeys}
         initialAnswers={initialAnswers}
         initialOpenEndedAnswers={initialOpenEndedAnswers}
         initialProfile={initialProfile}
+        productsHref="/vendor/product-assessment"
+        productInsightHref={`/vendor/product-insight/${product.id}`}
+        helpHref={productAssessmentHelpHref}
       />
     </div>
   );

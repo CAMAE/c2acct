@@ -10,6 +10,11 @@ import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { getFirmManagedUserRecords } from "@/lib/userPat";
 import { getVendorAlignmentInsightBundle } from "@/lib/vendorAlignmentInsightEngine";
 import { getVendorProductInsightSnapshot } from "@/lib/vendorProductInsightEngine";
+import { buildProductAssessmentPlan } from "@/lib/vendorProductQuestionBank";
+import {
+  VENDOR_PRODUCT_MODULE_KEY,
+  deriveVendorProductAssessmentCompletionStatus,
+} from "@/lib/vendorPat";
 
 type ModuleRecord = {
   id: string;
@@ -94,6 +99,21 @@ export type BriefingProductSummary = {
   utilityLabels: string[];
   taxonomyTitles: string[];
   capabilityKeys: string[];
+  latestVendorAssessmentSubmittedAt: Date | null;
+  openEndedResponseCount: number;
+};
+
+export type BriefingProductOpenEndedResponse = {
+  productId: string;
+  productName: string;
+  vendorName: string;
+  questionId: string;
+  questionKey: string;
+  questionPrompt: string;
+  sectionTitle: string;
+  sectionDescription: string;
+  responseText: string;
+  submittedAt: Date | null;
 };
 
 export type BriefingConfidenceEntry = {
@@ -157,6 +177,7 @@ export type AdminCompanyBriefing = {
     averageFirmReviewScore: number | null;
     reviewedProductCount: number;
     products: BriefingProductSummary[];
+    openEndedResponses: BriefingProductOpenEndedResponse[];
     evidence: string[];
   };
   ecosystemLayer: {
@@ -194,11 +215,30 @@ export type AdminProductBriefing = {
     confidenceScore: number | null;
     submittedAt: Date | null;
   };
+  latestVendorAssessment: {
+    submittedAt: Date | null;
+    responseCount: number;
+    openEndedResponses: BriefingProductOpenEndedResponse[];
+  };
   narrative: string;
   risks: BriefingRiskOpportunity[];
   opportunities: BriefingRiskOpportunity[];
   confidenceAppendix: BriefingConfidenceEntry[];
 };
+
+const PRODUCT_OPEN_ENDED_RUNTIME_QUESTIONS = buildProductAssessmentPlan({
+  selectedUtilityKeys: [],
+  includeProductGeneral: false,
+  includeOpenEnded: true,
+}).modules.flatMap((module) => module.questions);
+
+const PRODUCT_OPEN_ENDED_RUNTIME_BY_ID = new Map(
+  PRODUCT_OPEN_ENDED_RUNTIME_QUESTIONS.map((question) => [question.id, question])
+);
+
+const PRODUCT_OPEN_ENDED_RUNTIME_BY_KEY = new Map(
+  PRODUCT_OPEN_ENDED_RUNTIME_QUESTIONS.map((question) => [question.key, question])
+);
 
 type LayerConfidence = {
   band: BriefingConfidenceBand;
@@ -240,6 +280,111 @@ function extractResponses(answers: unknown) {
         typeof entry[1] === "number" &&
         Number.isFinite(entry[1])
     )
+  );
+}
+
+function getObjectRecord(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+
+  return value as Record<string, unknown>;
+}
+
+function getStringRecord(value: unknown) {
+  const record = getObjectRecord(value);
+  if (!record) {
+    return null;
+  }
+
+  return Object.fromEntries(
+    Object.entries(record).filter(
+      (entry): entry is [string, string] =>
+        typeof entry[0] === "string" &&
+        typeof entry[1] === "string"
+    )
+  );
+}
+
+function getProductQuestionKeyFromId(questionId: string) {
+  const parts = questionId.split("__");
+  return parts[parts.length - 1] ?? questionId;
+}
+
+function resolveProductOpenEndedQuestion(questionId: string) {
+  const directMatch = PRODUCT_OPEN_ENDED_RUNTIME_BY_ID.get(questionId);
+  if (directMatch) {
+    return directMatch;
+  }
+
+  return PRODUCT_OPEN_ENDED_RUNTIME_BY_KEY.get(getProductQuestionKeyFromId(questionId)) ?? null;
+}
+
+function extractProductOpenEndedResponses(input: {
+  answers: unknown;
+  productId: string;
+  productName: string;
+  vendorName: string;
+  submittedAt: Date | null;
+}) {
+  const answerPayload = getObjectRecord(input.answers);
+  const openEndedPayload = getStringRecord(answerPayload?.openEndedResponses);
+
+  if (!openEndedPayload) {
+    return [] satisfies BriefingProductOpenEndedResponse[];
+  }
+
+  return Object.entries(openEndedPayload)
+    .map(([questionId, responseText]) => {
+      const trimmedResponse = responseText.trim();
+      if (trimmedResponse.length === 0) {
+        return null;
+      }
+
+      const runtimeQuestion = resolveProductOpenEndedQuestion(questionId);
+      return {
+        productId: input.productId,
+        productName: input.productName,
+        vendorName: input.vendorName,
+        questionId,
+        questionKey: runtimeQuestion?.key ?? getProductQuestionKeyFromId(questionId),
+        questionPrompt:
+          runtimeQuestion?.prompt ?? "Stored product open-ended question (" + questionId + ")",
+        sectionTitle: runtimeQuestion?.section.title ?? "Open-ended product responses",
+        sectionDescription:
+          runtimeQuestion?.section.description ??
+          "Narrative vendor responses from the latest completed product assessment.",
+        responseText: trimmedResponse,
+        submittedAt: input.submittedAt,
+      } satisfies BriefingProductOpenEndedResponse;
+    })
+    .filter(
+      (response): response is BriefingProductOpenEndedResponse => Boolean(response)
+    )
+    .sort((left, right) => {
+      const leftQuestion = resolveProductOpenEndedQuestion(left.questionId);
+      const rightQuestion = resolveProductOpenEndedQuestion(right.questionId);
+      return (leftQuestion?.order ?? Number.MAX_SAFE_INTEGER) - (rightQuestion?.order ?? Number.MAX_SAFE_INTEGER);
+    });
+}
+
+export function filterBriefingOpenEndedResponses(
+  responses: BriefingProductOpenEndedResponse[],
+  query: string | null | undefined
+) {
+  const normalizedQuery = query?.trim().toLowerCase() ?? "";
+  if (normalizedQuery.length === 0) {
+    return responses;
+  }
+
+  return responses.filter((response) =>
+    [
+      response.productName,
+      response.vendorName,
+      response.questionPrompt,
+      response.sectionTitle,
+      response.responseText,
+    ].some((value) => value.toLowerCase().includes(normalizedQuery))
   );
 }
 
@@ -593,6 +738,117 @@ function summarizeIndividualLayer(input: {
   };
 }
 
+async function getLatestVendorAssessmentsByProductId(
+  products: Array<{
+    id: string;
+    name: string;
+    Company: {
+      name: string;
+    } | null;
+  }>
+) {
+  if (products.length === 0) {
+    return new Map<
+      string,
+      {
+        submissionId: string;
+        submittedAt: Date;
+        openEndedResponses: BriefingProductOpenEndedResponse[];
+      }
+    >();
+  }
+
+  const vendorModule = await prisma.surveyModule.findUnique({
+    where: { key: VENDOR_PRODUCT_MODULE_KEY },
+    select: { id: true },
+  }).catch(() => null);
+
+  if (!vendorModule) {
+    return new Map<
+      string,
+      {
+        submissionId: string;
+        submittedAt: Date;
+        openEndedResponses: BriefingProductOpenEndedResponse[];
+      }
+    >();
+  }
+
+  const submissions = await prisma.surveySubmission.findMany({
+    where: getSurveyFinalWhere({
+      moduleId: vendorModule.id,
+      Subject: { productId: { in: products.map((product) => product.id) } },
+    }),
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      score: true,
+      answeredCount: true,
+      createdAt: true,
+      answers: true,
+      Subject: {
+        select: {
+          productId: true,
+        },
+      },
+    },
+  }).catch(() => []);
+
+  const latestSubmissionByProductId = new Map<(typeof products)[number]["id"], (typeof submissions)[number]>();
+  for (const submission of submissions) {
+    const productId = submission.Subject?.productId;
+    if (!productId || latestSubmissionByProductId.has(productId)) {
+      continue;
+    }
+    latestSubmissionByProductId.set(productId, submission);
+  }
+
+  const productById = new Map(products.map((product) => [product.id, product]));
+  const latestAssessmentByProductId = new Map<
+    string,
+    {
+      submissionId: string;
+      submittedAt: Date;
+      openEndedResponses: BriefingProductOpenEndedResponse[];
+    }
+  >();
+
+  for (const [productId, submission] of latestSubmissionByProductId.entries()) {
+    const product = productById.get(productId);
+    if (!product) {
+      continue;
+    }
+
+    const completion = deriveVendorProductAssessmentCompletionStatus({
+      latestSubmission: {
+        id: submission.id,
+        score: submission.score,
+        createdAt: submission.createdAt,
+        answeredCount: submission.answeredCount,
+        answers: submission.answers,
+      },
+    });
+
+    if (!completion.completed) {
+      continue;
+    }
+
+    latestAssessmentByProductId.set(productId, {
+      submissionId: submission.id,
+      submittedAt: submission.createdAt,
+      openEndedResponses: extractProductOpenEndedResponses({
+        answers: submission.answers,
+        productId,
+        productName: product.name,
+        vendorName: product.Company?.name ?? "Vendor",
+        submittedAt: submission.createdAt,
+      }),
+    });
+  }
+
+  return latestAssessmentByProductId;
+}
+
 async function getBriefingProducts(companyId: string) {
   const firmModule = await prisma.surveyModule.findUnique({
     where: { key: FIRM_PRODUCT_MODULE_KEY },
@@ -675,9 +931,12 @@ async function getBriefingProducts(companyId: string) {
     },
   });
 
+  const latestVendorAssessmentsByProductId = await getLatestVendorAssessmentsByProductId(products);
+
   const items = await Promise.all(
     products.map(async (product) => {
       const latestCompanyReview = latestSubmissionByProductId.get(product.id) ?? null;
+      const latestVendorAssessment = latestVendorAssessmentsByProductId.get(product.id) ?? null;
       const snapshot =
         product.companyId ? await getVendorProductInsightSnapshot(product.companyId, product.id) : null;
 
@@ -700,6 +959,8 @@ async function getBriefingProducts(companyId: string) {
         utilityLabels: snapshot?.product.utilityLabels ?? [],
         taxonomyTitles: product.ProductTaxonomyAssignment.map((entry) => entry.Bucket.title),
         capabilityKeys: product.ProductCapabilityMap.map((entry) => entry.capabilityKey),
+        latestVendorAssessmentSubmittedAt: latestVendorAssessment?.submittedAt ?? null,
+        openEndedResponseCount: latestVendorAssessment?.openEndedResponses.length ?? 0,
         summary: product.summary,
         website: product.website,
         productSignals: product.ProductSignal.map((signal) => ({
@@ -707,6 +968,7 @@ async function getBriefingProducts(companyId: string) {
           valueText: signal.valueText,
           valueNumber: signal.valueNumber,
         })),
+        latestVendorAssessment,
         latestCompanyReview,
         snapshot,
       };
@@ -716,9 +978,14 @@ async function getBriefingProducts(companyId: string) {
   return items.sort((left, right) => left.productName.localeCompare(right.productName));
 }
 
-export async function getAdminBriefingCatalog(): Promise<BriefingCatalogItem[]> {
+export async function getAdminBriefingCatalog(input?: {
+  companyIds?: string[];
+}): Promise<BriefingCatalogItem[]> {
   const companies = await prisma.company.findMany({
-    where: { type: "FIRM" },
+    where: {
+      type: "FIRM",
+      ...(input?.companyIds?.length ? { id: { in: input.companyIds } } : {}),
+    },
     orderBy: { name: "asc" },
     select: {
       id: true,
@@ -1009,7 +1276,10 @@ export async function getAdminCompanyBriefing(companyId: string): Promise<AdminC
         utilityLabels: product.utilityLabels,
         taxonomyTitles: product.taxonomyTitles,
         capabilityKeys: product.capabilityKeys,
+        latestVendorAssessmentSubmittedAt: product.latestVendorAssessmentSubmittedAt,
+        openEndedResponseCount: product.openEndedResponseCount,
       })),
+      openEndedResponses: products.flatMap((product) => product.latestVendorAssessment?.openEndedResponses ?? []),
       evidence: products.slice(0, 3).map(
         (product) =>
           `${product.productName}: firm raw score ${product.canonicalFirmReviewScore ?? "--"}%, vendor self-report ${
@@ -1167,6 +1437,8 @@ export async function getAdminProductBriefing(
       utilityLabels: product.utilityLabels,
       taxonomyTitles: product.taxonomyTitles,
       capabilityKeys: product.capabilityKeys,
+      latestVendorAssessmentSubmittedAt: product.latestVendorAssessmentSubmittedAt,
+      openEndedResponseCount: product.openEndedResponseCount,
       summary: product.summary,
       website: product.website,
       productSignals: product.productSignals,
@@ -1175,6 +1447,11 @@ export async function getAdminProductBriefing(
       canonicalScore: product.latestCompanyReview?.score ?? null,
       confidenceScore: product.latestCompanyReview?.signalIntegrityScore ?? null,
       submittedAt: product.latestCompanyReview?.createdAt ?? null,
+    },
+    latestVendorAssessment: {
+      submittedAt: product.latestVendorAssessment?.submittedAt ?? null,
+      responseCount: product.latestVendorAssessment?.openEndedResponses.length ?? 0,
+      openEndedResponses: product.latestVendorAssessment?.openEndedResponses ?? [],
     },
     narrative: `${product.productName} is currently summarized from the company's latest raw firm review score of ${
       product.latestCompanyReview?.score ?? "--"

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { deriveProductStatus } from "@/lib/vendorPat";
+import {
+  buildVendorProductQuestions,
+  computeVendorAssessmentMetrics,
+  deriveProductStatus,
+  deriveVendorProductAssessmentCompletionStatus,
+} from "@/lib/vendorPat";
 import {
   buildVendorProductAssessmentPlan,
   serializeVendorProductAssessmentPlan,
@@ -65,5 +70,85 @@ describe("vendor product assessment contracts", () => {
     expect(readyStatus.statusLabel).toBe("Ready for assessment");
     expect(recordedStatus.statusLabel).toBe("Assessment recorded");
     expect(recordedStatus.latestScore).toBe(82);
+  });
+
+  it("only treats a vendor product assessment as firm-reviewable when the full vendor submission is complete", () => {
+    const utilityKeys = ["erp_gl_core_ledger"];
+    const scoredQuestions = buildVendorProductQuestions(utilityKeys);
+    const plan = serializeVendorProductAssessmentPlan(utilityKeys);
+    const responses = Object.fromEntries(scoredQuestions.map((question, index) => [question.id, index % 6]));
+    const openEndedResponses = Object.fromEntries(plan.openEndedQuestionIds.map((questionId) => [questionId, "Grounded narrative context."]));
+
+    const completeStatus = deriveVendorProductAssessmentCompletionStatus({
+      latestSubmission: {
+        id: "vendor-submission-complete",
+        score: 84,
+        createdAt: new Date("2026-04-06T12:00:00.000Z"),
+        answeredCount: scoredQuestions.length,
+        answers: {
+          utilitySelection: utilityKeys,
+          profile: {
+            productName: "Ledger Core",
+            productDescription: "Deterministic profile body.",
+            logoReference: "https://example.com/logo.png",
+            positioning: "Positioning",
+            targetCustomer: "Target customer",
+            targetUseContext: "Target use context",
+            implementationStyle: "Implementation style",
+            operatingModelFit: "Operating model fit",
+            primaryBuyer: "Primary buyer",
+            integrationPosture: "Integration posture",
+          },
+          responses,
+          openEndedResponses,
+        },
+      },
+    });
+
+    const incompleteStatus = deriveVendorProductAssessmentCompletionStatus({
+      latestSubmission: {
+        id: "vendor-submission-incomplete",
+        score: 84,
+        createdAt: new Date("2026-04-06T12:30:00.000Z"),
+        answeredCount: scoredQuestions.length,
+        answers: {
+          utilitySelection: utilityKeys,
+          profile: {
+            productName: "Ledger Core",
+            productDescription: "",
+            logoReference: "https://example.com/logo.png",
+            positioning: "Positioning",
+            targetCustomer: "Target customer",
+            targetUseContext: "Target use context",
+            implementationStyle: "Implementation style",
+            operatingModelFit: "Operating model fit",
+            primaryBuyer: "Primary buyer",
+            integrationPosture: "Integration posture",
+          },
+          responses,
+          openEndedResponses,
+        },
+      },
+    });
+
+    expect(completeStatus.completed).toBe(true);
+    expect(completeStatus.statusLabel).toBe("Ready for firm review");
+    expect(completeStatus.utilityKeys).toEqual(utilityKeys);
+    expect(completeStatus.scoredQuestionCount).toBe(scoredQuestions.length);
+    expect(incompleteStatus.completed).toBe(false);
+    expect(incompleteStatus.statusLabel).toBe("Vendor assessment incomplete");
+  });
+
+  it("treats 0 as a valid scored answer in vendor product metrics", () => {
+    const utilityKeys = ["erp_gl_core_ledger"];
+    const scoredQuestions = buildVendorProductQuestions(utilityKeys);
+    const answers = Object.fromEntries(scoredQuestions.map((question, index) => [question.id, index % 6]));
+
+    const metrics = computeVendorAssessmentMetrics(answers);
+
+    expect(metrics.score.scaleMin).toBe(0);
+    expect(metrics.score.scaleMax).toBe(5);
+    expect(metrics.score.answeredCount).toBe(scoredQuestions.length);
+    expect(metrics.integrity.meta.numericAnswered).toBe(scoredQuestions.length);
   });
 });

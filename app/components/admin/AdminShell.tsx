@@ -29,7 +29,7 @@ export function AdminPanel({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-6">
+    <section className="rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-5">
       <div className="mb-5">
         <h2 className="text-xl font-semibold tracking-tight text-[var(--shell-ink)]">{title}</h2>
         {description ? (
@@ -51,10 +51,10 @@ export function AdminMetricCard({
   detail: string;
 }) {
   return (
-    <div className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-5">
+    <div className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-4">
       <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">{label}</div>
-      <div className="mt-3 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">{value}</div>
-      <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{detail}</div>
+      <div className="mt-2 text-[2rem] font-semibold tracking-tight text-[var(--shell-ink)] md:text-[2.15rem]">{value}</div>
+      <div className="mt-2.5 text-sm leading-6 text-[var(--shell-muted)]">{detail}</div>
     </div>
   );
 }
@@ -71,7 +71,7 @@ export function AdminActionLink({
   return (
     <Link
       href={href}
-      className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5 transition hover:border-[rgba(6,54,116,0.32)]"
+      className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-4 transition hover:border-[rgba(6,54,116,0.32)]"
     >
       <div className="text-lg font-semibold text-[var(--shell-ink)]">{title}</div>
       <div className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{body}</div>

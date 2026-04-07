@@ -2,6 +2,11 @@ import { ModuleScope, type QuestionInputType, type UserRole } from "@prisma/clie
 import { randomUUID } from "crypto";
 import prisma from "@/lib/prisma";
 import { buildIntegrationEnvelope } from "@/lib/integrations/c2acct";
+import {
+  PRODUCT_ASSESSMENT_SCALE_MAX,
+  PRODUCT_ASSESSMENT_SCALE_MIN,
+} from "@/lib/productAssessmentRuntime";
+import { computeScore } from "@/lib/scoring";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { TIER1_ALIGNMENT_BADGE_ID, TIER1_ALIGNMENT_BADGE_NAME } from "@/lib/patUnlocks";
 import {
@@ -11,11 +16,12 @@ import {
   getFirmQuestionCapabilityKeys,
 } from "@/lib/firmCapabilities";
 import {
+  deriveVendorProductAssessmentCompletionStatus,
   type VendorAssessmentQuestion,
+  VENDOR_PRODUCT_MODULE_KEY,
   VENDOR_PRODUCT_TIER2_HOVER,
   VENDOR_PRODUCT_UTILITY_CAP,
   ensureProductSubject,
-  extractUtilityKeysFromSignals,
 } from "@/lib/vendorPat";
 import { buildProductAssessmentPlan } from "@/lib/vendorProductQuestionBank";
 import { insightContent } from "@/lib/insightContent";
@@ -161,6 +167,11 @@ export type FirmProductCatalogItem = {
   vendorName: string;
   summary: string | null;
   utilityKeys: string[];
+  questionCount: number;
+  reviewAvailable: boolean;
+  reviewStatusLabel: string;
+  reviewStatusReason: string;
+  vendorAssessmentCompletedAt: Date | null;
 };
 
 export const FIRM_PRODUCT_MODULE_KEY = "firm_product_review_v1";
@@ -688,23 +699,87 @@ export async function getFirmProductCatalog() {
       name: true,
       summary: true,
       slug: true,
-      ProductSignal: {
-        where: { signalKey: { startsWith: "pat.utility." } },
-        select: { signalKey: true, valueNumber: true },
-      },
       Company: {
         select: { name: true },
       },
     },
   }).catch(() => []);
 
-  return products.map((product) => ({
-    id: product.id,
-    name: product.name,
-    vendorName: product.Company?.name ?? "Vendor",
-    summary: product.summary,
-    utilityKeys: extractUtilityKeysFromSignals(product.ProductSignal),
-  })) satisfies FirmProductCatalogItem[];
+  const vendorProductModule = await prisma.surveyModule.findUnique({
+    where: { key: VENDOR_PRODUCT_MODULE_KEY },
+    select: { id: true },
+  }).catch(() => null);
+
+  const latestVendorSubmissionByProductId = new Map<
+    string,
+    {
+      id: string;
+      score: number;
+      createdAt: Date;
+      answeredCount: number;
+      answers: unknown;
+    }
+  >();
+
+  if (vendorProductModule && products.length > 0) {
+    const submissions = await prisma.surveySubmission.findMany({
+      where: {
+        moduleId: vendorProductModule.id,
+        Subject: {
+          productId: {
+            in: products.map((product) => product.id),
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        score: true,
+        createdAt: true,
+        answeredCount: true,
+        answers: true,
+        Subject: {
+          select: {
+            productId: true,
+          },
+        },
+      },
+    }).catch(() => []);
+
+    for (const submission of submissions) {
+      const productId = submission.Subject?.productId;
+      if (!productId || latestVendorSubmissionByProductId.has(productId)) {
+        continue;
+      }
+
+      latestVendorSubmissionByProductId.set(productId, {
+        id: submission.id,
+        score: submission.score,
+        createdAt: submission.createdAt,
+        answeredCount: submission.answeredCount,
+        answers: submission.answers,
+      });
+    }
+  }
+
+  return products.map((product) => {
+    const vendorAssessmentStatus = deriveVendorProductAssessmentCompletionStatus({
+      latestSubmission: latestVendorSubmissionByProductId.get(product.id) ?? null,
+    });
+
+    return {
+      id: product.id,
+      name: product.name,
+      vendorName: product.Company?.name ?? "Vendor",
+      summary: product.summary,
+      utilityKeys: vendorAssessmentStatus.utilityKeys,
+      questionCount: vendorAssessmentStatus.scoredQuestionCount,
+      reviewAvailable: vendorAssessmentStatus.completed,
+      reviewStatusLabel: vendorAssessmentStatus.statusLabel,
+      reviewStatusReason: vendorAssessmentStatus.reason,
+      vendorAssessmentCompletedAt: vendorAssessmentStatus.latestSubmittedAt,
+    };
+  }) satisfies FirmProductCatalogItem[];
 }
 
 export async function submitFirmProductAssessment(input: {
@@ -725,7 +800,11 @@ export async function submitFirmProductAssessment(input: {
   const subject = await ensureProductSubject(product);
 
   const values = Object.values(input.answers);
-  const average = values.length === 0 ? 0 : Math.round(values.reduce((sum, value) => sum + value, 0) / values.length / 5 * 100);
+  const score = computeScore({
+    answers: input.answers,
+    scaleMin: PRODUCT_ASSESSMENT_SCALE_MIN,
+    scaleMax: PRODUCT_ASSESSMENT_SCALE_MAX,
+  });
 
   return prisma.surveySubmission.create({
     data: {
@@ -737,11 +816,11 @@ export async function submitFirmProductAssessment(input: {
       answers: {
         responses: input.answers,
       },
-      score: average,
-      weightedAvg: values.length === 0 ? null : values.reduce((sum, value) => sum + value, 0) / values.length,
+      score: score.rawScorePct,
+      weightedAvg: score.rawWeightedAvg,
       scoreVersion: 1,
-      scaleMin: 1,
-      scaleMax: 5,
+      scaleMin: PRODUCT_ASSESSMENT_SCALE_MIN,
+      scaleMax: PRODUCT_ASSESSMENT_SCALE_MAX,
       totalWeight: values.length,
       answeredCount: values.length,
       signalIntegrityScore: 1,

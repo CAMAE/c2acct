@@ -1,9 +1,26 @@
-import path from "node:path";
-import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
+import { applyRepoEnv, resolveRepoEnvValue } from "@/lib/env/repoEnv";
 
-export function loadEnv(filename = ".env") {
-  dotenv.config({ path: path.join(process.cwd(), filename) });
+export function loadEnv() {
+  applyRepoEnv();
+}
+
+function getRequiredDatabaseUrl() {
+  loadEnv();
+
+  const resolved = resolveRepoEnvValue(["DATABASE_URL"]);
+  if (resolved.value) {
+    return resolved.value;
+  }
+
+  const location =
+    resolved.defined && resolved.blank && resolved.source
+      ? `${resolved.envName} is blank in ${resolved.source}.`
+      : `${resolved.envName} was not found in runtime env, .env.local, or .env.`;
+
+  throw new Error(
+    `PAT local database commands require DATABASE_URL. ${location} Set DATABASE_URL in repo-root .env.local or .env, then rerun the command.`
+  );
 }
 
 type PrismaErrorLike = {
@@ -16,7 +33,7 @@ function isPrismaErrorLike(error: unknown): error is PrismaErrorLike {
 }
 
 export function getDatabaseTarget() {
-  const databaseUrl = process.env.DATABASE_URL ?? "postgresql://postgres:postgres@localhost:5433/c2acct";
+  const databaseUrl = getRequiredDatabaseUrl();
 
   try {
     const parsed = new URL(databaseUrl);
@@ -45,7 +62,7 @@ function formatDatabaseUnavailableError(error: unknown) {
   return new Error(
     [
       `Local PAT database is unavailable at ${target.host}:${target.port}/${target.database}.`,
-      "Start the Docker Postgres service with `npm run db:up`, wait with `npm run db:wait`, then rerun the validation command.",
+      "Start the Docker Postgres service with `pnpm db:up`, wait with `pnpm db:wait`, then rerun the validation command.",
       code ? `Prisma error code: ${code}.` : null,
       `Original error: ${message}`,
     ]
@@ -55,6 +72,7 @@ function formatDatabaseUnavailableError(error: unknown) {
 }
 
 export async function runWithPrisma<T>(callback: (prisma: PrismaClient) => Promise<T>) {
+  getRequiredDatabaseUrl();
   const prisma = new PrismaClient();
   try {
     return await callback(prisma);

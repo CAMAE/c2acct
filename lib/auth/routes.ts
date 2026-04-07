@@ -1,4 +1,4 @@
-export type CanonicalSignInView = "vendor" | "firm" | "individual" | "admin";
+export type CanonicalSignInView = "vendor" | "firm" | "individual" | "admin" | "consultant";
 
 type CanonicalSignInPathInput = {
   callbackUrl?: string | null;
@@ -58,6 +58,10 @@ export function inferCanonicalSignInView(
     return "individual";
   }
 
+  if (safeTarget === "/consultants" || safeTarget.startsWith("/consultants/")) {
+    return "consultant";
+  }
+
   return null;
 }
 
@@ -69,7 +73,8 @@ export function buildCanonicalSignInPath(input: CanonicalSignInPathInput) {
     input.view === "vendor" ||
     input.view === "firm" ||
     input.view === "individual" ||
-    input.view === "admin"
+    input.view === "admin" ||
+    input.view === "consultant"
       ? input.view
       : inferCanonicalSignInView(safeRedirectTo ?? safeCallbackUrl);
 
@@ -131,6 +136,10 @@ export function resolvePostAuthRedirectForView(
 
   if (view === "individual") {
     return "/user";
+  }
+
+  if (view === "consultant") {
+    return "/consultants";
   }
 
   return "/admin";

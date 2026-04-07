@@ -7,6 +7,7 @@
  * Safety:
  *   - If NODE_ENV=production, requires ALLOW_PROD_DB_MIGRATIONS=1
  *   - Prevents accidental prod schema changes from a runner
+ *   - Uses the repo-local Prisma CLI via pnpm to avoid npx version drift
  */
 import { spawnSync } from "node:child_process";
 import { loadEnv } from "./_shared/prismaScript";
@@ -29,13 +30,19 @@ if (isProduction && process.env.ALLOW_PROD_DB_MIGRATIONS !== "1") {
 }
 
 if (!process.env.DATABASE_URL) {
-  fail("DATABASE_URL is not set.");
+  fail("PAT local Prisma commands require DATABASE_URL from runtime env, .env.local, or .env.");
 }
 
-const npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
-const result = spawnSync(npxCommand, ["prisma", ...args], {
+const packageManagerCommand = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
+const result = spawnSync(packageManagerCommand, ["exec", "prisma", ...args], {
   stdio: "inherit",
   env: process.env,
 });
+
+if (result.error) {
+  fail(
+    `Failed to launch Prisma via pnpm. Run "pnpm install" and "pnpm prisma:generate", then retry. Original error: ${result.error.message}`
+  );
+}
 
 process.exit(result.status ?? 1);

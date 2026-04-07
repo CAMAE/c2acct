@@ -1,6 +1,8 @@
 import type { ProductProfileFieldKey } from "@/lib/productUtilityRegistry";
 import {
   buildProductAssessmentPlan,
+  type ProductAssessmentPlan,
+  type ProductAssessmentQuestion,
   type ProductAssessmentPerspective,
 } from "@/lib/vendorProductQuestionBank";
 
@@ -29,6 +31,39 @@ export type VendorProductProfileRecord = {
   integrationPosture: string | null;
 };
 
+export const VENDOR_PRODUCT_ASSESSMENT_PAGE_SIZE = 10;
+
+export type VendorProductAssessmentPageEntry =
+  | {
+      key: string;
+      kind: "profile" | "score" | "open-ended";
+      question: ProductAssessmentQuestion;
+    }
+  | {
+      key: "utility-declaration";
+      kind: "utility-declaration";
+    };
+
+export type VendorProductAssessmentPage = {
+  key: string;
+  index: number;
+  kind: "profile" | "score" | "open-ended";
+  title: string;
+  description: string;
+  entries: VendorProductAssessmentPageEntry[];
+  questionCount: number;
+  questionIds: string[];
+};
+
+export type VendorProductAssessmentPagePlan = {
+  version: string;
+  pageSize: number;
+  profileQuestions: ProductAssessmentQuestion[];
+  scoredQuestions: ProductAssessmentQuestion[];
+  openEndedQuestions: ProductAssessmentQuestion[];
+  pages: VendorProductAssessmentPage[];
+};
+
 export const VENDOR_PRODUCT_PROFILE_FIELD_ORDER: ProductProfileFieldKey[] = [
   "productName",
   "productDescription",
@@ -46,6 +81,27 @@ function normalizeText(value: string | null | undefined) {
   return value?.trim() ?? "";
 }
 
+function chunkQuestions<T>(questions: T[], pageSize: number) {
+  const pages: T[][] = [];
+
+  for (let index = 0; index < questions.length; index += pageSize) {
+    pages.push(questions.slice(index, index + pageSize));
+  }
+
+  return pages;
+}
+
+function buildQuestionEntries(
+  kind: "profile" | "score" | "open-ended",
+  questions: ProductAssessmentQuestion[]
+): VendorProductAssessmentPageEntry[] {
+  return questions.map((question) => ({
+    key: question.id,
+    kind,
+    question,
+  }));
+}
+
 export function buildVendorProductAssessmentPlan(selectedUtilityKeys: string[]) {
   return buildProductAssessmentPlan({
     perspective: "vendor",
@@ -53,6 +109,82 @@ export function buildVendorProductAssessmentPlan(selectedUtilityKeys: string[]) 
     includeProductGeneral: true,
     includeOpenEnded: true,
   });
+}
+
+export function buildVendorProductAssessmentPagePlan(input: {
+  assessmentPlan: ProductAssessmentPlan;
+  pageSize?: number;
+}): VendorProductAssessmentPagePlan {
+  const pageSize = input.pageSize ?? VENDOR_PRODUCT_ASSESSMENT_PAGE_SIZE;
+  const profileQuestions =
+    input.assessmentPlan.modules.find((module) => module.kind === "general")?.questions ?? [];
+  const scoredQuestions = input.assessmentPlan.modules
+    .filter((module) => module.kind === "utility")
+    .flatMap((module) => module.questions);
+  const openEndedQuestions = input.assessmentPlan.modules
+    .filter((module) => module.kind === "open-ended")
+    .flatMap((module) => module.questions);
+
+  const pages: VendorProductAssessmentPage[] = [
+    {
+      key: "product-profile",
+      index: 1,
+      kind: "profile",
+      title: "Product profile and utility declaration",
+      description:
+        "Capture the stable product profile first, then declare the utilities that activate the scored PAT question set.",
+      entries: [
+        ...buildQuestionEntries("profile", profileQuestions),
+        {
+          key: "utility-declaration",
+          kind: "utility-declaration",
+        },
+      ],
+      questionCount: profileQuestions.length,
+      questionIds: profileQuestions.map((question) => question.id),
+    },
+  ];
+
+  let pageIndex = 2;
+
+  chunkQuestions(scoredQuestions, pageSize).forEach((questions, chunkIndex, chunks) => {
+    pages.push({
+      key: `utility-scoring-${chunkIndex + 1}`,
+      index: pageIndex,
+      kind: "score",
+      title: chunks.length === 1 ? "Utility scoring" : `Utility scoring page ${chunkIndex + 1}`,
+      description:
+        "Work through the active utility-scored questions in focused 10-question pages while PAT preserves the declared utility scope.",
+      entries: buildQuestionEntries("score", questions),
+      questionCount: questions.length,
+      questionIds: questions.map((question) => question.id),
+    });
+    pageIndex += 1;
+  });
+
+  chunkQuestions(openEndedQuestions, pageSize).forEach((questions, chunkIndex, chunks) => {
+    pages.push({
+      key: `open-ended-${chunkIndex + 1}`,
+      index: pageIndex,
+      kind: "open-ended",
+      title: chunks.length === 1 ? "Open-ended responses" : `Open-ended responses page ${chunkIndex + 1}`,
+      description:
+        "Keep the narrative PAT context in the same flow so the product submission carries scored signal and qualitative nuance together.",
+      entries: buildQuestionEntries("open-ended", questions),
+      questionCount: questions.length,
+      questionIds: questions.map((question) => question.id),
+    });
+    pageIndex += 1;
+  });
+
+  return {
+    version: input.assessmentPlan.version,
+    pageSize,
+    profileQuestions,
+    scoredQuestions,
+    openEndedQuestions,
+    pages,
+  };
 }
 
 export function serializeProductAssessmentPlan(input: {

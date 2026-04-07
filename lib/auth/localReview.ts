@@ -12,7 +12,7 @@ export const LOCAL_REVIEW_PASSWORD_ENV = "PAT_LOCAL_REVIEW_PASSWORD";
 export const LOCAL_REVIEW_FIRM_COMPANY_NAME = "Demo Company";
 export const LOCAL_REVIEW_VENDOR_COMPANY_NAME = "PAT Demo Vendor";
 
-export type LocalReviewKey = "vendor" | "firm" | "individual" | "admin";
+export type LocalReviewKey = "vendor" | "firm" | "individual" | "admin" | "consultant";
 
 export type LocalReviewUserDefinition = {
   key: LocalReviewKey;
@@ -60,6 +60,15 @@ export const LOCAL_REVIEW_USERS: LocalReviewUserDefinition[] = [
     companyType: CompanyType.FIRM,
     companyName: LOCAL_REVIEW_FIRM_COMPANY_NAME,
     redirectTo: "/admin",
+  },
+  {
+    key: "consultant",
+    label: "Consultant review",
+    email: "review.consultant@pat.local",
+    role: "MEMBER",
+    companyType: null,
+    companyName: null,
+    redirectTo: "/consultants",
   },
 ] as const;
 

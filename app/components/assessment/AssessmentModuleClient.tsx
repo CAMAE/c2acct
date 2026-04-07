@@ -505,7 +505,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-5xl py-8">
+      <div className="mx-auto w-full max-w-[72rem] py-6">
         <section className="pat-card p-8">
           <AssessmentPatFraming />
           <h1 className="mt-5 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">Loading the current module...</h1>
@@ -519,7 +519,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
 
   if (error) {
     return (
-      <div className="mx-auto max-w-5xl py-8">
+      <div className="mx-auto w-full max-w-[72rem] py-6">
         <section className="pat-card p-8">
           <div className="pat-label">Assessment unavailable</div>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-danger)]">
@@ -545,7 +545,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
 
   if (!data) {
     return (
-      <div className="mx-auto max-w-5xl py-8">
+      <div className="mx-auto w-full max-w-[72rem] py-6">
         <section className="pat-card p-8">Assessment module is unavailable.</section>
       </div>
     );
@@ -585,7 +585,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 py-8">
+    <div className="mx-auto w-full max-w-[72rem] space-y-6 py-6">
       <header className="pat-card p-8">
         <AssessmentPatFraming />
         <div className="pat-label mt-5">Assessment module</div>

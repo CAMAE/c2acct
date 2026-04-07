@@ -2,11 +2,20 @@
 
 ## Purpose
 
-This file is the repo-level build order and launch-readiness guide for the current PAT implementation.
+This is the repo-level build order and launch-readiness guide for the current PAT implementation.
 
-The name remains historical. It does not mean the live PAT surface is AAE.
+The filename is historical. It does not mean the live product or runtime is AAE.
 
-As of 2026-04-02, the canonical release root is:
+This guide still references dated 2026-04-02 rollback and launch artifacts. Treat any branch or commit values from those sections as historical evidence from that date, not as guaranteed current checkout truth.
+
+Current checkout truth should come from:
+
+- `git branch --show-current`
+- `git rev-parse HEAD`
+- `git status --short`
+- `docs/active-repo-map.md`
+
+Canonical release root:
 
 - `/Users/camerongarrett/work/c2acct-live`
 
@@ -15,22 +24,28 @@ Forbidden live roots:
 - `/Users/camerongarrett/work/c2acct` is development-only and non-live.
 - `/private/tmp/c2acct-main-auth` is a mixed release copy, quarantined, and non-live.
 
-Current rollback state:
+## Operator truth table
 
-- The canonical recovery branch is `recovery/pat-2026-03-31-baseline`.
-- The exact rollback baseline is `078a41f6816e81e599b94423faf501d10c2aa70c`.
-- PAT home, PAT shell/nav, and the PAT sign-in hub are the active source-of-truth surfaces on that baseline.
-- `/login` is still present on this baseline as a first-class legacy auth surface. Do not treat that as final PAT launch truth; it is preserved here because this prompt restores the last known-good 2026-03-31 PAT baseline only.
+| Concern | Canonical meaning | Non-canonical / narrower meaning |
+| --- | --- | --- |
+| runtime start | `pnpm start` -> `node .next/standalone/server.js` packaged standalone runtime | `pnpm start:next` -> `next start` debugging path only |
+| local standalone review | `pnpm standalone:local` -> loopback standalone runtime with explicit PAT auth env | `pnpm dev` -> development server, not packaged-runtime proof |
+| full launch validation | `pnpm validate:launch` -> DB + runtime + tests + browser validation | `pnpm release:prelaunch` -> release artifact and PAT surface proof only |
+| safe handoff export | `pnpm export:safe -- <dir>` -> excludes `.git`, `.env*`, build output, ops artifacts, temp/test residue | zipping the working tree is forbidden |
 
-The current launch truth is:
+## Current launch truth
 
+- PAT is the active product/runtime.
 - GitHub remains the strict production auth provider.
 - Dev-only local review auth is the intended manual QA path.
+- `/sign-in` is the canonical sign-in surface.
+- `/login` remains compatibility-only and must redirect into `/sign-in`.
 - Firm PAT uses the canonical five-module model.
 - Vendor product assessment, taxonomy, dynamic assessment plans, and product insights are live enough for review.
 - Membership pages and cards exist for vendor, firm, and individual audiences.
 - `/admin` is the active C2Core operator control plane.
-- `/admin/briefings` is the active consultant/operator briefing surface.
+- `/admin/briefings` is the active operator briefing surface.
+- `/consultants` is a gated consultant briefing surface. It should only be treated as active when `PAT_ENABLE_CONSULTANT_ACCESS=1` and an admin has assigned firm-company access.
 - Member briefing remains staged off until stronger person-side maturity exists.
 
 ## Current source-of-truth docs
@@ -44,11 +59,28 @@ The current launch truth is:
 - PAT assessment architecture: `docs/architecture/pat-assessment-engine-phase1.md`
 - Auth contract: `docs/architecture/auth-env-contract.md`
 - Runtime hardening snapshot: `docs/architecture/runtime-hardening-status-2026-03-08.md`
-- Audit summary: `docs/audit/AAE_Codebase_Audit_and_Platform_Hardening_Report_2026-03-05.md`
+- Historical audit summary: `docs/audit/AAE_Codebase_Audit_and_Platform_Hardening_Report_2026-03-05.md`
 
 ## Final recommended build order
 
-### 1. Auth and local review access first
+### 1. Bootstrap the repo first
+
+Use `pnpm` as the canonical package manager.
+
+Safe fresh-checkout bootstrap:
+
+1. `pnpm bootstrap:repo`
+2. Create `.env.local` with the PAT runtime env vars needed for this machine.
+3. Start Docker Postgres only when you are ready to run migrations/seeds.
+
+Equivalent manual bootstrap:
+
+1. `pnpm install`
+2. `pnpm prisma:generate`
+
+This bootstrap path is intentionally safe on a clean machine. It does not assume the DB, seeds, or auth env are already ready.
+
+### 2. Auth and local review access
 
 Auth is the first real dependency because every protected PAT page, submit path, admin surface, and briefing depends on a valid Auth.js session.
 
@@ -63,17 +95,20 @@ Auth is the first real dependency because every protected PAT page, submit path,
     - `review.firm@pat.local`
     - `review.individual@pat.local`
     - `review.admin@pat.local`
+    - `review.consultant@pat.local`
 - Canonical sign-in surfaces:
-  - `/login`
   - `/sign-in`
   - `/sign-in/vendor`
   - `/sign-in/firm`
   - `/sign-in/user`
   - `/sign-in?view=admin`
+  - `/sign-in?view=consultant`
+- Compatibility-only auth surface:
+  - `/login` -> redirects into `/sign-in`
 - Local reset path:
   - `/api/auth/local-reset`
 
-### 2. Identity model and tenancy boundary
+### 3. Identity model and tenancy boundary
 
 After auth works, PAT depends on company/subject context being resolved correctly.
 
@@ -82,7 +117,7 @@ After auth works, PAT depends on company/subject context being resolved correctl
 - Membership is now a real model with audience-aware resolution and free-tier fallback.
 - Do not treat invitee access as the main authenticated review path.
 
-### 3. Portal and role surfaces
+### 4. Portal and role surfaces
 
 Once auth and context resolve cleanly, the live role surfaces are:
 
@@ -108,15 +143,20 @@ Once auth and context resolve cleanly, the live role surfaces are:
 - Operator:
   - `/admin`
   - `/admin/*`
+- Consultant:
+  - gated behind `PAT_ENABLE_CONSULTANT_ACCESS=1`
+  - `/consultants`
+  - `/consultants/briefings/[companyId]`
+  - `/consultants/briefings/[companyId]/products/[productId]`
 
-Compatibility-only routes still exist, but they should not be treated as product truth:
+Compatibility-only routes still exist, but they are not product truth:
 
 - `/survey` -> compatibility redirect to the firm assessment path
 - `/results` -> compatibility redirect to canonical role interpretation
 - `/outputs` -> compatibility redirect to canonical role insights
 - `/profiles` -> compatibility redirect to canonical role profile/admin
 
-### 4. Canonical firm PAT assessment model
+### 5. Canonical firm PAT assessment model
 
 The only canonical firm assessment model is the five-module PAT system.
 
@@ -137,49 +177,31 @@ The only canonical firm assessment model is the five-module PAT system.
 
 The older legacy single-module firm survey is no longer canonical and must remain compatibility-only if retained at all.
 
-### 5. Vendor and product utility taxonomy
+### 6. Vendor product utility taxonomy and assessment
 
-Product taxonomy is now real infrastructure, not a placeholder.
+Product taxonomy is real infrastructure, not a placeholder.
 
 - Research-backed utility registry exists.
 - Utility families, subcategories, and question-bank architecture are versioned.
 - Product taxonomy assignments and capability mappings are operator-manageable through `/admin`.
-- Utility/subcategory structure is designed for vendor-first use now and later perspective reuse from firm and individual views.
-
-### 6. Product assessment blueprint and perspective reuse
-
-Vendor product assessment is no longer mostly missing.
-
-- Product profile metadata exists.
-- Dynamic product assessment plans persist stable utility selections, generated question ids, section order, and version.
-- Product assessment includes:
-  - product-general module
-  - utility-driven sections
-  - final open-ended questions
-- The architecture is built for future reuse from firm and individual review perspectives without reseeding every combination as static survey rows.
+- Vendor product assessment persists stable utility selections, generated question ids, section order, and version.
+- Product assessment includes product-general content, utility-driven sections, and final open-ended questions.
 
 ### 7. Scoring, badges, unlock rules, and evidence
 
 Scoring rules stay conservative and explicit.
 
-- Canonical score:
-  - raw score remains the canonical submission score
-- Confidence:
-  - `signalIntegrityScore` stays separate
-  - confidence does not replace canonical score
-- Capability layer:
-  - question-to-capability mappings are seeded
-  - final PAT firm submits write capability scores
-- Firm insight unlocks:
-  - require completion plus capability-grounded thresholds
-- Evidence:
-  - insights should show module, section, cluster, and question-basis detail where current data supports it
-  - unsupported benchmark or forecast claims remain off-limits
+- Raw score remains the canonical submission score.
+- `signalIntegrityScore` stays separate from canonical score.
+- Question-to-capability mappings are seeded.
+- Final PAT firm submits write capability scores.
+- Firm insight unlocks require completion plus capability-grounded thresholds.
+- Unsupported benchmark or forecast claims remain off-limits.
 
 Compatibility note:
 
-- `lib/patUnlocks.ts` and `lib/patDashboard.ts` remain only as thin compatibility helpers for older generic dashboard concepts.
-- Canonical unlock logic now lives in the PAT insight engines and evaluation path, not in those legacy helper files.
+- `lib/patUnlocks.ts` and `lib/patDashboard.ts` remain thin compatibility helpers for older generic dashboard concepts.
+- Canonical unlock logic now lives in the PAT insight engines and evaluation path.
 
 ### 8. Membership and portal gating
 
@@ -205,7 +227,7 @@ Membership is implemented enough to support UI truth now and payments later.
 
 ### 9. C2Core admin/operator control plane
 
-Admin is not absent. `/admin` is the live operator overview and control plane.
+`/admin` is the live operator overview and control plane.
 
 Current operator routes:
 
@@ -220,38 +242,20 @@ Current operator routes:
 - `/admin/products/[productId]`
 - `/admin/runtime`
 - `/admin/briefings`
+- `/admin/consultants`
 
-Current admin capabilities include:
-
-- company and user oversight
-- membership edits
-- taxonomy and bucket management
-- product taxonomy assignment
-- module/section/question management
-- capability mapping
-- insight rule management
-- portal visibility updates
-- runtime diagnostics
+Current admin capabilities include company and user oversight, membership edits, taxonomy management, product assignment, module management, capability mapping, insight rule management, portal visibility updates, and runtime diagnostics.
 
 Admin mutations log `OperatorAuditEvent`.
 
-### 10. Consultant briefing layer
+### 10. Briefing layer
 
-The active briefing implementation is operator-facing and lives under `/admin/briefings`.
+The active briefing implementation is operator-facing under `/admin/briefings` and consultant-facing under `/consultants/briefings/*`.
 
-- It summarizes:
-  - executive summary
-  - individual layer
-  - firm layer
-  - product layer
-  - ecosystem layer
-  - insight narrative
-  - risks and opportunities
-  - 30/60/90 next actions
-  - confidence and evidence appendix
+- It summarizes executive, individual, firm, product, and ecosystem layers.
 - It uses current engine data only.
 - It separates canonical score from confidence.
-- It explicitly avoids unsupported benchmarks and forecasts.
+- It avoids unsupported benchmarks and forecasts.
 
 Member briefing is still staged:
 
@@ -262,17 +266,22 @@ Member briefing is still staged:
 
 Use this order for clean-machine validation:
 
-1. `npm install`
-2. `npm run db:recreate`
-3. `npm run prisma:migrate:local`
-4. `PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:baseline`
-5. `PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:pat-runtime`
-6. `npm run build`
-7. `npm run typecheck`
-8. `npm run test`
-9. `npm run test:e2e`
-10. `npm run validate:db`
-11. `npm run validate:launch`
+1. `pnpm bootstrap:repo`
+2. `pnpm db:recreate`
+3. `pnpm prisma:migrate:local`
+4. `PAT_ENABLE_LOCAL_REVIEW_AUTH=1 pnpm seed:baseline`
+5. `PAT_ENABLE_LOCAL_REVIEW_AUTH=1 pnpm seed:pat-runtime`
+6. `pnpm build`
+7. `pnpm typecheck`
+8. `pnpm test`
+9. `pnpm test:e2e`
+10. `pnpm validate:db`
+11. `pnpm validate:launch`
+
+Validation meaning:
+
+- `pnpm validate:launch` is the full launch-proof path for this repo.
+- `pnpm release:prelaunch` is narrower. It validates the release artifact and PAT surface contract, but it does not replace `validate:launch`.
 
 Manual operator QA should then verify:
 
@@ -318,5 +327,5 @@ Rules for these paths:
   - `scripts/export-codebase-safe.sh`
   - `scripts/export-codebase-safe.ps1`
 - Secret scan:
-  - `npm run secrets:scan`
-- Do not export `.env*`, `.next`, `node_modules`, `logs`, `artifacts/mac-mini`, test artifacts, or temporary local files.
+  - `pnpm secrets:scan`
+- Do not export `.git`, `.env*`, `.next`, `node_modules`, `logs`, `artifacts/mac-mini`, test artifacts, or temporary local files.

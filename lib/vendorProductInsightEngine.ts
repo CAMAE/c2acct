@@ -1,7 +1,10 @@
 import prisma from "@/lib/prisma";
 import { FIRM_PRODUCT_MODULE_KEY, buildFirmProductQuestions } from "@/lib/firmPat";
 import { recordPatDiagnostic } from "@/lib/patDiagnostics";
-import { normalizeAnswerForStoredScale } from "@/lib/productAssessmentRuntime";
+import {
+  normalizeAnswerForStoredScale,
+  resolveStoredProductAssessmentScale,
+} from "@/lib/productAssessmentRuntime";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import {
   PRODUCT_TIER1_INSIGHTS,
@@ -721,16 +724,23 @@ export async function getVendorProductInsightSnapshot(companyId: string, product
       : Promise.resolve([]),
   ]);
 
+  const vendorScale = resolveStoredProductAssessmentScale(
+    latestVendorSubmission?.scaleMin,
+    latestVendorSubmission?.scaleMax
+  );
   const vendorResponses = {
     answers: extractResponses(latestVendorSubmission?.answers),
-    scaleMin: latestVendorSubmission?.scaleMin ?? 1,
-    scaleMax: latestVendorSubmission?.scaleMax ?? 5,
+    scaleMin: vendorScale.scaleMin,
+    scaleMax: vendorScale.scaleMax,
   };
-  const firmResponseSets = firmSubmissions.map((submission) => ({
-    answers: extractResponses(submission.answers),
-    scaleMin: submission.scaleMin ?? 1,
-    scaleMax: submission.scaleMax ?? 5,
-  }));
+  const firmResponseSets = firmSubmissions.map((submission) => {
+    const storedScale = resolveStoredProductAssessmentScale(submission.scaleMin, submission.scaleMax);
+    return {
+      answers: extractResponses(submission.answers),
+      scaleMin: storedScale.scaleMin,
+      scaleMax: storedScale.scaleMax,
+    };
+  });
   return buildVendorProductInsightSnapshot({
     product: {
       id: product.id,

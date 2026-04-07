@@ -22,7 +22,7 @@ PAT_ENABLE_DEV_PREVIEW=1
 Then run:
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Open:

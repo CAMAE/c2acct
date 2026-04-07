@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { redirect } from "next/navigation";
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
-import MembershipCard from "@/app/components/membership/MembershipCard";
+import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
 import FirmAdminPanels from "@/app/components/firm/FirmAdminPanels";
 import {
@@ -13,7 +13,6 @@ import {
 import { getSessionUser } from "@/lib/auth/session";
 import { buildFirmExternalProfileContract, getFirmAssessmentProgress } from "@/lib/firmPat";
 import { getInviteeAccessContext } from "@/lib/invitee/access";
-import { resolveCurrentMembership } from "@/lib/membership";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/profileSettingsStore";
 import prisma from "@/lib/prisma";
@@ -82,8 +81,6 @@ export default async function FirmPage({
   ] as const;
   const needsAdminContent = activePanel === "admin" && company?.type === "FIRM";
   const adminCompany = company?.type === "FIRM" ? company : null;
-  const membershipState =
-    sessionUser && company?.type === "FIRM" ? await resolveCurrentMembership(sessionUser, "firm") : null;
 
   async function saveFirmProfile(formData: FormData) {
     "use server";
@@ -214,7 +211,10 @@ export default async function FirmPage({
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
-        <div className="pat-label">{messages.portal.firm.eyebrow}</div>
+        <PortalAudienceEyebrow
+          label={messages.portal.firm.eyebrow}
+          audienceLabel={messages.nav.firm}
+        />
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
           {messages.portal.firm.title}
         </h1>
@@ -231,16 +231,6 @@ export default async function FirmPage({
       ) : activePanel === "admin" ? (
         <div className="space-y-6">
           <FirmAdminInlineContent />
-          {membershipState ? (
-            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              <MembershipCard
-                audienceLabel="firm"
-                href="/firm/membership"
-                plan={membershipState.membership.plan}
-                status={membershipState.membership.status}
-              />
-            </section>
-          ) : null}
           {profileSettings && contract ? (
             <FirmAdminPanels
               contract={contract}
@@ -255,7 +245,7 @@ export default async function FirmPage({
         <FirmHelpInlineContent />
       ) : (
         <>
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
               {messages.portal.firm.account}: <span className="font-semibold text-[var(--shell-ink)]">{company?.name ?? inviteeAccess?.companyName ?? messages.common.unbound}</span>
             </div>
@@ -265,14 +255,6 @@ export default async function FirmPage({
             <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
               {messages.portal.firm.productReviewLoop}: <span className="font-semibold text-[var(--shell-ink)]">{messages.portal.firm.live}</span>
             </div>
-            {membershipState ? (
-              <MembershipCard
-                audienceLabel="firm"
-                href="/firm/membership"
-                plan={membershipState.membership.plan}
-                status={membershipState.membership.status}
-              />
-            ) : null}
           </section>
 
           <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">

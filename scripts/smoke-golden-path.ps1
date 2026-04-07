@@ -19,7 +19,7 @@ $moduleKeys = @(
 
 node .\scripts\seed-firm-alignment.mjs | Out-Host
 node .\scripts\seed-demo-company.mjs   | Out-Host
-node .\scripts\check-question-count.js | Out-Host
+node --import tsx .\scripts\check-question-count.ts | Out-Host
 
 $companyId = (node .\scripts\_get-demo-company-id.mjs | Out-String).Trim()
 if ([string]::IsNullOrWhiteSpace($companyId)) { throw "Demo Company not found" }
@@ -33,17 +33,19 @@ foreach ($moduleKey in $moduleKeys) {
 Write-Host "DEMO_COMPANY_ID=$companyId"
 Write-Host "CANONICAL_FIRM_ENTRY=$Base/firm/alignment-assessment"
 Write-Host "COMPAT_REDIRECT=$Base/survey -> /firm/alignment-assessment"
+Write-Host "CANONICAL_SIGN_IN=$Base/sign-in?view=firm"
+Write-Host "COMPAT_LOGIN_REDIRECT=$Base/login -> /sign-in?view=firm"
 
 Write-Host "AUTH_REQUIRED: Protected routes now require authenticated browser/session."
 Write-Host "AUTH_REQUIRED: /api/survey/submit"
 Write-Host "AUTH_REQUIRED: /api/results"
 Write-Host "AUTH_REQUIRED: /api/badges/earned"
 Write-Host "AUTH_REQUIRED: /api/insights/unlocked"
-Write-Host "NEXT_STEP: Sign in via $Base/login, then validate firm assessment, results, and outputs in the browser session."
+Write-Host "NEXT_STEP: Sign in via $Base/sign-in?view=firm, then validate the PAT firm assessment and insights flow in the browser session."
 
 Write-Host "OPEN => $Base/firm/alignment-assessment"
-Write-Host "OPEN => $Base/results"
-Write-Host "OPEN => $Base/outputs"
+Write-Host "OPEN => $Base/firm/insights"
+Write-Host "COMPAT_OPEN => $Base/results"
+Write-Host "COMPAT_OPEN => $Base/outputs"
 start "$Base/firm/alignment-assessment"
-start "$Base/results"
-start "$Base/outputs"
+start "$Base/firm/insights"

@@ -156,7 +156,7 @@ export default async function VendorProductAssessmentPage() {
                     <Link
                       key={product.id}
                       href={`/vendor/product-assessment/${product.id}`}
-                      className="block rounded-[24px] border border-[var(--shell-border)] bg-white p-6 shadow-[0_24px_60px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:border-[var(--shell-accent)]/30"
+                      className="pat-card pat-card-interactive block rounded-[24px] p-6 shadow-[0_24px_60px_rgba(15,23,42,0.06)]"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div>

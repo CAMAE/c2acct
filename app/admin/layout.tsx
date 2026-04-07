@@ -1,11 +1,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { getAdminAccessState, ADMIN_NAV_ITEMS } from "@/lib/adminControlPlane";
+import { getAdminAccessState, getAdminNavItems } from "@/lib/adminControlPlane";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const { sessionUser, isAdmin } = await getAdminAccessState();
+  const navItems = getAdminNavItems();
 
   if (!sessionUser || !isAdmin) {
     return (
@@ -35,7 +36,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     <div className="space-y-8">
       <section className="pat-card p-5">
         <div className="flex flex-wrap gap-2">
-          {ADMIN_NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}

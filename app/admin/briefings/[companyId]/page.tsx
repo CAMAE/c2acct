@@ -8,10 +8,13 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminCompanyBriefingPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ companyId: string }>;
+  searchParams: Promise<{ q?: string }>;
 }) {
   const { companyId } = await params;
+  const { q } = await searchParams;
   const briefing = await getAdminCompanyBriefing(companyId);
 
   if (!briefing) {
@@ -34,7 +37,7 @@ export default async function AdminCompanyBriefingPage({
         </Link>
       </div>
 
-      <CompanyBriefingView briefing={briefing} />
+      <CompanyBriefingView briefing={briefing} searchQuery={q} />
     </div>
   );
 }

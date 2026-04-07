@@ -5,9 +5,11 @@ import type {
   AdminProductBriefing,
   BriefingConfidenceEntry,
   BriefingModuleHeatmapItem,
+  BriefingProductOpenEndedResponse,
   BriefingProductSummary,
   BriefingRiskOpportunity,
 } from "@/lib/adminBriefingEngine";
+import { filterBriefingOpenEndedResponses } from "@/lib/adminBriefingEngine";
 
 function formatPercent(value: number | null) {
   return value === null ? "--" : `${Math.round(value)}%`;
@@ -21,12 +23,128 @@ function formatDate(value: Date | null) {
   return value ? value.toLocaleDateString() : "No live update yet";
 }
 
+function truncateText(value: string, maxLength: number) {
+  if (value.length <= maxLength) {
+    return value;
+  }
+
+  return `${value.slice(0, Math.max(0, maxLength - 1)).trimEnd()}...`;
+}
+
+function ProductOpenEndedResponsesPanel({
+  title,
+  description,
+  responses,
+  searchAction,
+  searchQuery,
+  emptyState,
+  showProductLinks = false,
+  truncateAnswers = false,
+  printMode = false,
+}: {
+  title: string;
+  description: string;
+  responses: BriefingProductOpenEndedResponse[];
+  searchAction: string;
+  searchQuery?: string;
+  emptyState: string;
+  showProductLinks?: boolean;
+  truncateAnswers?: boolean;
+  printMode?: boolean;
+}) {
+  const normalizedQuery = searchQuery?.trim() ?? "";
+  const filteredResponses = filterBriefingOpenEndedResponses(responses, normalizedQuery);
+
+  return (
+    <AdminPanel title={title} description={description}>
+      {!printMode ? (
+        <form action={searchAction} className="mb-5 grid gap-3 md:grid-cols-[1fr_auto_auto]">
+          <input
+            type="search"
+            name="q"
+            defaultValue={normalizedQuery}
+            className="pat-input"
+            placeholder="Search product, question, or answer text"
+          />
+          <button type="submit" className="pat-button-secondary">
+            Search responses
+          </button>
+          {normalizedQuery ? (
+            <Link href={searchAction} className="pat-button-secondary text-center">
+              Clear
+            </Link>
+          ) : (
+            <div />
+          )}
+        </form>
+      ) : null}
+
+      <div className="mb-5 text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
+        {normalizedQuery
+          ? `${filteredResponses.length} of ${responses.length} latest vendor response${responses.length === 1 ? "" : "s"} match "${normalizedQuery}"`
+          : `${responses.length} latest vendor response${responses.length === 1 ? "" : "s"} searchable in this briefing`}
+      </div>
+
+      {filteredResponses.length === 0 ? (
+        <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5 text-sm leading-6 text-[var(--shell-muted)]">
+          {emptyState}
+        </div>
+      ) : (
+        <div className="grid gap-4 xl:grid-cols-2">
+          {filteredResponses.map((response) => (
+            <div
+              key={`${response.productId}-${response.questionId}`}
+              className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+                    {response.sectionTitle}
+                  </div>
+                  <div className="mt-2 text-base font-semibold text-[var(--shell-ink)]">
+                    {response.questionPrompt}
+                  </div>
+                </div>
+                <div className="text-right text-xs text-[var(--shell-muted)]">
+                  <div>{response.productName}</div>
+                  <div>{formatDate(response.submittedAt)}</div>
+                </div>
+              </div>
+
+              <div className="mt-3 text-xs leading-5 text-[var(--shell-muted)]">
+                Vendor: {response.vendorName}
+              </div>
+
+              <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
+                {truncateAnswers ? truncateText(response.responseText, 240) : response.responseText}
+              </p>
+
+              {showProductLinks ? (
+                <div className="mt-4">
+                  <Link
+                    href={`${searchAction}/products/${response.productId}${
+                      normalizedQuery ? `?q=${encodeURIComponent(normalizedQuery)}` : ""
+                    }`}
+                    className="pat-button-secondary text-center"
+                  >
+                    Open product briefing
+                  </Link>
+                </div>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      )}
+    </AdminPanel>
+  );
+}
+
 export function ExecutiveSummaryCard({
   briefing,
   printHref,
 }: {
   briefing: AdminCompanyBriefing;
-  printHref: string;
+  printHref?: string | null;
 }) {
   return (
     <section className="grid gap-4 xl:grid-cols-[1.4fr_0.6fr]">
@@ -79,9 +197,11 @@ export function ExecutiveSummaryCard({
           value={String(briefing.individualLayer.peopleAssessed)}
           detail="Linked users with individual PAT submissions."
         />
-        <Link href={printHref} className="pat-button-secondary print:hidden text-center">
-          Open print view
-        </Link>
+        {printHref ? (
+          <Link href={printHref} className="pat-button-secondary print:hidden text-center">
+            Open print view
+          </Link>
+        ) : null}
       </div>
     </section>
   );
@@ -132,9 +252,11 @@ export function ModuleHeatmap({ modules }: { modules: BriefingModuleHeatmapItem[
 
 export function ProductStackSummary({
   companyId,
+  productBasePath,
   products,
 }: {
   companyId: string;
+  productBasePath?: string;
   products: BriefingProductSummary[];
 }) {
   return (
@@ -151,7 +273,7 @@ export function ProductStackSummary({
           products.map((product) => (
             <Link
               key={product.productId}
-              href={`/admin/briefings/${companyId}/products/${product.productId}`}
+              href={`${productBasePath ?? `/admin/briefings/${companyId}`}/products/${product.productId}`}
               className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5 transition hover:border-[rgba(6,54,116,0.32)]"
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
@@ -176,6 +298,9 @@ export function ProductStackSummary({
                     {utility}
                   </span>
                 ))}
+              </div>
+              <div className="mt-4 text-xs leading-5 text-[var(--shell-muted)]">
+                Latest vendor narrative answers: {product.openEndedResponseCount} · vendor update {formatDate(product.latestVendorAssessmentSubmittedAt)}
               </div>
             </Link>
           ))
@@ -257,15 +382,23 @@ export function ConfidenceEvidencePanel({
 export function CompanyBriefingView({
   briefing,
   printMode = false,
+  searchQuery,
+  basePath,
+  printHref,
 }: {
   briefing: AdminCompanyBriefing;
   printMode?: boolean;
+  searchQuery?: string;
+  basePath?: string;
+  printHref?: string | null;
 }) {
+  const resolvedBasePath = basePath ?? `/admin/briefings/${briefing.company.id}`;
+
   return (
     <div className={`space-y-8 ${printMode ? "print:space-y-5" : ""}`}>
       <ExecutiveSummaryCard
         briefing={briefing}
-        printHref={`/admin/briefings/${briefing.company.id}/print`}
+        printHref={typeof printHref === "undefined" ? `${resolvedBasePath}/print` : printHref}
       />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -317,7 +450,26 @@ export function CompanyBriefingView({
       </AdminPanel>
 
       <ModuleHeatmap modules={briefing.firmLayer.moduleHeatmap} />
-      <ProductStackSummary companyId={briefing.company.id} products={briefing.productLayer.products} />
+      <ProductStackSummary
+        companyId={briefing.company.id}
+        productBasePath={resolvedBasePath}
+        products={briefing.productLayer.products}
+      />
+      <ProductOpenEndedResponsesPanel
+        title="Latest vendor open-ended product responses"
+        description="These cards come directly from the latest completed vendor product assessment for each reviewed product in the current firm stack."
+        responses={briefing.productLayer.openEndedResponses}
+        searchAction={resolvedBasePath}
+        searchQuery={searchQuery}
+        emptyState={
+          searchQuery?.trim()
+            ? "No latest vendor open-ended responses match the current search."
+            : "No latest vendor open-ended product responses are available for the reviewed product stack yet."
+        }
+        showProductLinks
+        truncateAnswers
+        printMode={printMode}
+      />
 
       <section className="grid gap-6 xl:grid-cols-2">
         <RiskOpportunityPanel title="Risks" items={briefing.risks} />
@@ -349,9 +501,15 @@ export function CompanyBriefingView({
 
 export function ProductBriefingView({
   briefing,
+  searchQuery,
+  basePath,
 }: {
   briefing: AdminProductBriefing;
+  searchQuery?: string;
+  basePath?: string;
 }) {
+  const resolvedBasePath = basePath ?? `/admin/briefings/${briefing.company.id}`;
+
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
@@ -384,6 +542,8 @@ export function ProductBriefingView({
             <div>Utilities: {briefing.product.utilityLabels.length ? briefing.product.utilityLabels.join(", ") : "No utility declarations yet"}</div>
             <div>Taxonomy: {briefing.product.taxonomyTitles.length ? briefing.product.taxonomyTitles.join(", ") : "No taxonomy assignments yet"}</div>
             <div>Capabilities: {briefing.product.capabilityKeys.length ? briefing.product.capabilityKeys.join(", ") : "No capability mappings yet"}</div>
+            <div>Latest vendor open-ended responses: {briefing.latestVendorAssessment.responseCount}</div>
+            <div>Latest vendor assessment: {formatDate(briefing.latestVendorAssessment.submittedAt)}</div>
             {briefing.product.website ? (
               <div>
                 Website:{" "}
@@ -395,6 +555,19 @@ export function ProductBriefingView({
           </div>
         </AdminPanel>
       </section>
+
+      <ProductOpenEndedResponsesPanel
+        title="Latest vendor open-ended responses"
+        description="These answers are surfaced directly from the latest completed vendor product assessment for this product. PAT does not synthesize or rewrite them."
+        responses={briefing.latestVendorAssessment.openEndedResponses}
+        searchAction={`${resolvedBasePath}/products/${briefing.product.productId}`}
+        searchQuery={searchQuery}
+        emptyState={
+          searchQuery?.trim()
+            ? "No latest vendor open-ended responses match the current search."
+            : "No latest vendor open-ended responses are available for this product yet."
+        }
+      />
 
       <section className="grid gap-6 xl:grid-cols-2">
         <RiskOpportunityPanel title="Product risks" items={briefing.risks} />

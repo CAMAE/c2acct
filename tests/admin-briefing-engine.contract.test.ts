@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildBriefingActionPlan,
   buildRiskOpportunityPanels,
+  filterBriefingOpenEndedResponses,
 } from "@/lib/adminBriefingEngine";
 
 describe("admin briefing engine contracts", () => {
@@ -54,6 +55,8 @@ describe("admin briefing engine contracts", () => {
           utilityLabels: ["AP automation"],
           taxonomyTitles: ["Payables"],
           capabilityKeys: ["controls"],
+          latestVendorAssessmentSubmittedAt: new Date("2026-03-29T00:00:00.000Z"),
+          openEndedResponseCount: 10,
         },
         {
           productId: "prod_2",
@@ -70,6 +73,8 @@ describe("admin briefing engine contracts", () => {
           utilityLabels: ["Close"],
           taxonomyTitles: ["Close"],
           capabilityKeys: ["controls"],
+          latestVendorAssessmentSubmittedAt: new Date("2026-03-29T00:00:00.000Z"),
+          openEndedResponseCount: 8,
         },
       ],
       ecosystemSummary: "The ecosystem layer is current-state PAT context only.",
@@ -80,5 +85,38 @@ describe("admin briefing engine contracts", () => {
     expect(panels.risks[1].title).toMatch(/LedgerFlow/);
     expect(panels.opportunities[0].title).toMatch(/Operating Model/);
     expect(panels.opportunities[1].title).toMatch(/CloseMap/);
+  });
+
+  it("filters latest vendor open-ended responses by product, question, or answer text", () => {
+    const responses = [
+      {
+        productId: "prod_1",
+        productName: "LedgerFlow",
+        vendorName: "Vendor A",
+        questionId: "product_open_ended_v1__strongest_workflow",
+        questionKey: "strongest_workflow",
+        questionPrompt: "In which workflow or operating situation does this product currently look strongest, and what evidence supports that read?",
+        sectionTitle: "Operating readout and current fit",
+        sectionDescription: "Narrative PAT context.",
+        responseText: "Month-end close orchestration is the strongest current workflow.",
+        submittedAt: new Date("2026-03-30T00:00:00.000Z"),
+      },
+      {
+        productId: "prod_2",
+        productName: "CloseMap",
+        vendorName: "Vendor B",
+        questionId: "product_open_ended_v1__integration_gap",
+        questionKey: "integration_gap",
+        questionPrompt: "What integration, data, or interoperability gap matters most before PAT should treat this product as stronger than directional?",
+        sectionTitle: "Follow-up, evidence, and next action",
+        sectionDescription: "Narrative PAT context.",
+        responseText: "ERP mapping remains the main integration gap.",
+        submittedAt: new Date("2026-03-30T00:00:00.000Z"),
+      },
+    ];
+
+    expect(filterBriefingOpenEndedResponses(responses, "ledger")).toHaveLength(1);
+    expect(filterBriefingOpenEndedResponses(responses, "integration")).toHaveLength(1);
+    expect(filterBriefingOpenEndedResponses(responses, "close")).toHaveLength(2);
   });
 });

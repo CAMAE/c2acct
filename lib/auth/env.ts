@@ -1,7 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
-import dotenv from "dotenv";
 import { isLocalReviewAuthRequested } from "@/lib/auth/localReview";
+import { readRepoEnvSources, resolveRepoEnvValue, type ResolvedRepoEnvValue } from "@/lib/env/repoEnv";
 
 type AuthEnvKey =
   | "baseUrl"
@@ -96,98 +94,18 @@ function normalizeOrigin(value: string | null | undefined) {
   return value!.trim().replace(/\/$/, "");
 }
 
-function hasOwnEnv(name: string) {
-  return Object.prototype.hasOwnProperty.call(process.env, name);
-}
-
-function getEnvFiles(): string[] {
-  const cwd = process.cwd();
-  return [".env.local", ".env"].map((file) => path.join(cwd, file));
-}
-
 function loadEnvSources(): EnvSource[] {
   if (cachedEnvSources) {
     return cachedEnvSources;
   }
 
-  cachedEnvSources = getEnvFiles()
-    .filter((file) => fs.existsSync(file))
-    .map((file) => ({
-      file: path.basename(file),
-      values: dotenv.parse(fs.readFileSync(file)),
-    }));
+  cachedEnvSources = readRepoEnvSources();
 
   return cachedEnvSources;
 }
 
-function resolveFromProcessOrFiles(envNames: string[]) {
-  let firstBlankCandidate:
-    | {
-        source: string;
-        envName: string;
-      }
-    | null = null;
-
-  for (const envName of envNames) {
-    if (hasOwnEnv(envName)) {
-      const runtimeValue = process.env[envName];
-      if (hasValue(runtimeValue)) {
-        return {
-          value: runtimeValue!.trim(),
-          source: "runtime",
-          envName,
-          defined: true,
-          blank: false,
-        };
-      }
-
-      firstBlankCandidate ??= {
-        source: "runtime",
-        envName,
-      };
-    }
-  }
-
-  const envSources = loadEnvSources();
-  for (const envName of envNames) {
-    for (const source of envSources) {
-      if (Object.prototype.hasOwnProperty.call(source.values, envName)) {
-        const fileValue = source.values[envName];
-        if (hasValue(fileValue)) {
-          return {
-            value: fileValue.trim(),
-            source: source.file,
-            envName,
-            defined: true,
-            blank: false,
-          };
-        }
-
-        firstBlankCandidate ??= {
-          source: source.file,
-          envName,
-        };
-      }
-    }
-  }
-
-  if (firstBlankCandidate) {
-    return {
-      value: null,
-      source: firstBlankCandidate.source,
-      envName: firstBlankCandidate.envName,
-      defined: true,
-      blank: true,
-    };
-  }
-
-  return {
-    value: null,
-    source: null,
-    envName: envNames[0],
-    defined: false,
-    blank: false,
-  };
+function resolveFromProcessOrFiles(envNames: string[]): ResolvedRepoEnvValue {
+  return resolveRepoEnvValue(envNames);
 }
 
 function collectWarnings() {

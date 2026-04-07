@@ -1,12 +1,21 @@
 import Link from "next/link";
-import { AdminActionLink, AdminMetricCard, AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
-import { getAdminOverviewData, buildOperatorBriefings } from "@/lib/adminControlPlane";
+import {
+  AdminActionLink,
+  AdminMetricCard,
+  AdminPageIntro,
+  AdminPanel,
+} from "@/app/components/admin/AdminShell";
+import {
+  buildOperatorBriefings,
+  getAdminOverviewData,
+} from "@/lib/adminControlPlane";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminOverviewPage() {
   const overview = await getAdminOverviewData();
-  const latestSubmitStatus = overview.diagnosticsSnapshot.latestByArea.get("survey_submit")?.status ?? null;
+  const latestSubmitStatus =
+    overview.diagnosticsSnapshot.latestByArea.get("survey_submit")?.status ?? null;
   const briefings = buildOperatorBriefings({
     canonicalModules: overview.canonicalModules,
     recentAuditCount: overview.auditEvents.length,
@@ -17,15 +26,42 @@ export default async function AdminOverviewPage() {
     <div className="space-y-8">
       <AdminPageIntro
         title="C2Core operator control plane"
-        description="Use this overview to move into the live operator work areas: organizations, users, taxonomy, modules, insights, products, briefings, and runtime controls. This is the canonical admin surface for PAT."
+        description={`Use this overview to move into the live operator work areas: organizations, users${overview.consultantAccessEnabled ? ", consultants" : ""}, taxonomy, modules, insights, products, briefings, and runtime controls. This remains the canonical admin surface for PAT.`}
       />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <AdminMetricCard label="Organizations" value={String(overview.metrics.organizations)} detail="Companies under operator oversight" />
-        <AdminMetricCard label="Users" value={String(overview.metrics.users)} detail="Accounts and role assignments" />
-        <AdminMetricCard label="Products" value={String(overview.metrics.products)} detail="Vendor and firm-linked product records" />
-        <AdminMetricCard label="Modules / Sections" value={`${overview.metrics.modules} / ${overview.metrics.sections}`} detail="Assessment runtime structure" />
-        <AdminMetricCard label="Insights / Memberships" value={`${overview.metrics.insights} / ${overview.metrics.memberships}`} detail="Insight inventory and active membership rows" />
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+        <AdminMetricCard
+          label="Organizations"
+          value={String(overview.metrics.organizations)}
+          detail="Companies under operator oversight"
+        />
+        <AdminMetricCard
+          label="Users"
+          value={String(overview.metrics.users)}
+          detail="Accounts across PAT audiences"
+        />
+        {overview.consultantAccessEnabled ? (
+          <AdminMetricCard
+            label="Consultants"
+            value={String(overview.metrics.consultants)}
+            detail="Active consultant profiles with scoped briefing access"
+          />
+        ) : null}
+        <AdminMetricCard
+          label="Products"
+          value={String(overview.metrics.products)}
+          detail="Vendor and firm-linked product records"
+        />
+        <AdminMetricCard
+          label="Modules / Sections"
+          value={`${overview.metrics.modules} / ${overview.metrics.sections}`}
+          detail="Assessment runtime structure"
+        />
+        <AdminMetricCard
+          label="Insights / Memberships"
+          value={`${overview.metrics.insights} / ${overview.metrics.memberships}`}
+          detail="Insight inventory and active membership rows"
+        />
       </section>
 
       <AdminPanel
@@ -33,14 +69,53 @@ export default async function AdminOverviewPage() {
         description="Each route below is data-backed and focused on a specific operator responsibility."
       >
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <AdminActionLink href="/admin/organizations" title="Organizations" body="Company oversight, company-backed membership controls, linked users, and product context." />
-          <AdminActionLink href="/admin/users" title="Users" body="Role assignment, company linkage, and individual membership controls." />
-          <AdminActionLink href="/admin/taxonomy" title="Taxonomy" body="Category and subcategory management, plus bucket-to-capability mappings." />
-          <AdminActionLink href="/admin/modules" title="Modules" body="Module, section, question, and assessment mapping management." />
-          <AdminActionLink href="/admin/insights" title="Insights" body="Insight text, unlock rules, capability thresholds, and visibility state." />
-          <AdminActionLink href="/admin/products" title="Products" body="Product oversight, taxonomy assignments, and capability mappings." />
-          <AdminActionLink href="/admin/briefings" title="Briefings" body="Operator-ready summaries of readiness gaps, audit activity, and recent pipeline state." />
-          <AdminActionLink href="/admin/runtime" title="Runtime" body="Portal visibility, runtime consistency, diagnostics, and recent audit events." />
+          <AdminActionLink
+            href="/admin/organizations"
+            title="Organizations"
+            body="Company oversight, company-backed membership controls, linked users, and product context."
+          />
+          <AdminActionLink
+            href="/admin/users"
+            title="Users"
+            body="Role assignment, company linkage, and individual membership controls."
+          />
+          {overview.consultantAccessEnabled ? (
+            <AdminActionLink
+              href="/admin/consultants"
+              title="Consultants"
+              body="Consultant roster, assigned firm scopes, and briefing access management without changing PAT audience roles."
+            />
+          ) : null}
+          <AdminActionLink
+            href="/admin/taxonomy"
+            title="Taxonomy"
+            body="Category and subcategory management, plus bucket-to-capability mappings."
+          />
+          <AdminActionLink
+            href="/admin/modules"
+            title="Modules"
+            body="Module, section, question, and assessment mapping management."
+          />
+          <AdminActionLink
+            href="/admin/insights"
+            title="Insights"
+            body="Insight text, unlock rules, capability thresholds, and visibility state."
+          />
+          <AdminActionLink
+            href="/admin/products"
+            title="Products"
+            body="Product oversight, taxonomy assignments, and capability mappings."
+          />
+          <AdminActionLink
+            href="/admin/briefings"
+            title="Briefings"
+            body="Operator-ready summaries of readiness gaps, audit activity, and recent pipeline state."
+          />
+          <AdminActionLink
+            href="/admin/runtime"
+            title="Runtime"
+            body="Portal visibility, runtime consistency, diagnostics, and recent audit events."
+          />
         </div>
       </AdminPanel>
 
@@ -56,7 +131,9 @@ export default async function AdminOverviewPage() {
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <div className="text-lg font-semibold text-[var(--shell-ink)]">{module.title}</div>
+                  <div className="text-lg font-semibold text-[var(--shell-ink)]">
+                    {module.title}
+                  </div>
                   <div className="mt-1 text-sm text-[var(--shell-muted)]">{module.key}</div>
                 </div>
                 <div className="rounded-full border border-[var(--shell-border)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
@@ -79,9 +156,16 @@ export default async function AdminOverviewPage() {
       >
         <div className="grid gap-4 md:grid-cols-3">
           {briefings.map((briefing) => (
-            <div key={briefing.key} className="rounded-[20px] border border-[var(--shell-border)] bg-white/80 p-5">
-              <div className="text-lg font-semibold text-[var(--shell-ink)]">{briefing.title}</div>
-              <div className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{briefing.summary}</div>
+            <div
+              key={briefing.key}
+              className="rounded-[20px] border border-[var(--shell-border)] bg-white/80 p-5"
+            >
+              <div className="text-lg font-semibold text-[var(--shell-ink)]">
+                {briefing.title}
+              </div>
+              <div className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+                {briefing.summary}
+              </div>
             </div>
           ))}
         </div>
@@ -94,10 +178,15 @@ export default async function AdminOverviewPage() {
         <div className="grid gap-3">
           {overview.auditEvents.length > 0 ? (
             overview.auditEvents.map((event) => (
-              <div key={event.id} className="rounded-[18px] border border-[var(--shell-border)] bg-white/75 p-4">
+              <div
+                key={event.id}
+                className="rounded-[18px] border border-[var(--shell-border)] bg-white/75 p-4"
+              >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <div className="font-semibold text-[var(--shell-ink)]">{event.summary}</div>
+                    <div className="font-semibold text-[var(--shell-ink)]">
+                      {event.summary}
+                    </div>
                     <div className="mt-1 text-sm text-[var(--shell-muted)]">
                       {event.action} · {event.entityType} · {event.Actor?.email ?? "Unknown operator"}
                     </div>
@@ -114,10 +203,15 @@ export default async function AdminOverviewPage() {
             </div>
           )}
         </div>
-        <div className="mt-5">
+        <div className="mt-5 flex flex-wrap gap-3">
           <Link className="pat-button-secondary" href="/admin/runtime">
             Open runtime and audit feed
           </Link>
+          {overview.consultantAccessEnabled ? (
+            <Link className="pat-button-secondary" href="/admin/consultants">
+              Open consultant management
+            </Link>
+          ) : null}
         </div>
       </AdminPanel>
     </div>

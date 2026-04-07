@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
+import {
+  PRODUCT_ASSESSMENT_SCALE_MAX,
+  PRODUCT_ASSESSMENT_SCALE_MIN,
+} from "@/lib/productAssessmentRuntime";
 import { getVendorCompanyContext } from "@/lib/vendorPat";
 import { buildFirmProductQuestions, submitFirmProductAssessment } from "@/lib/firmPat";
 
@@ -9,7 +13,7 @@ const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
 const Schema = z.object({
   productId: z.string().min(1),
-  answers: z.record(z.string(), z.number().min(1).max(5)),
+  answers: z.record(z.string(), z.number().min(PRODUCT_ASSESSMENT_SCALE_MIN).max(PRODUCT_ASSESSMENT_SCALE_MAX)),
 });
 
 export async function POST(request: Request) {
@@ -38,6 +42,16 @@ export async function POST(request: Request) {
   const product = products.find((entry) => entry.id === productId);
   if (!product) {
     return NextResponse.json({ ok: false, error: "Product not found" }, { status: 404, headers: NO_STORE_HEADERS });
+  }
+
+  if (!product.reviewAvailable) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Firm review opens only after the vendor completes the full product assessment.",
+      },
+      { status: 400, headers: NO_STORE_HEADERS }
+    );
   }
 
   const expected = buildFirmProductQuestions(product.utilityKeys);

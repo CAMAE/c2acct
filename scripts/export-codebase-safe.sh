@@ -12,6 +12,7 @@ destination="$1"
 mkdir -p "$destination"
 
 rsync -a \
+  --exclude='.git' \
   --exclude='.git/' \
   --exclude='.env*' \
   --exclude='.envrc' \
@@ -38,4 +39,4 @@ rsync -a \
   "$repo_root/" "$destination/"
 
 printf 'Sanitized export created at %s\n' "$destination"
-printf 'Excluded: .env* .next node_modules logs artifacts/mac-mini temp files test artifacts archives\n'
+printf 'Excluded: .git .git/ .env* .next node_modules logs artifacts/mac-mini temp files test artifacts archives\n'

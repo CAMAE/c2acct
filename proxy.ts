@@ -50,6 +50,7 @@ export const config = {
     "/firm/:path*",
     "/vendor/:path*",
     "/user/:path*",
+    "/consultants/:path*",
     "/api/results/:path*",
     "/api/insights/unlocked/:path*",
     "/api/badges/earned/:path*",

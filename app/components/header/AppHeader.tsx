@@ -13,18 +13,52 @@ export type HeaderNavItem = {
 
 type AppHeaderProps = {
   currentLocale: AppLocale;
+  membershipHref: string | null;
   navItems: HeaderNavItem[];
   uiText: {
     closeNavigationMenu: string;
     homeAriaLabel: string;
     language: string;
+    membership: string;
     navigation: string;
     openLanguageMenu: string;
     openNavigationMenu: string;
   };
 };
 
-export default function AppHeader({ currentLocale, navItems, uiText }: AppHeaderProps) {
+function resolveMembershipHref(pathname: string | null, fallbackHref: string | null) {
+  if (
+    pathname === "/sign-in" ||
+    pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/consultants")
+  ) {
+    return null;
+  }
+
+  if (!pathname) {
+    return fallbackHref;
+  }
+
+  if (pathname.startsWith("/vendor") || pathname.startsWith("/sign-in/vendor")) {
+    return "/vendor/membership";
+  }
+
+  if (pathname.startsWith("/firm") || pathname.startsWith("/sign-in/firm")) {
+    return "/firm/membership";
+  }
+
+  if (
+    pathname.startsWith("/user") ||
+    pathname.startsWith("/sign-in/user") ||
+    pathname.startsWith("/sign-in/invitee")
+  ) {
+    return "/user/membership";
+  }
+
+  return fallbackHref;
+}
+
+export default function AppHeader({ currentLocale, membershipHref, navItems, uiText }: AppHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -34,7 +68,15 @@ export default function AppHeader({ currentLocale, navItems, uiText }: AppHeader
   const languageCardRef = useRef<HTMLDivElement | null>(null);
   const languageTriggerRef = useRef<HTMLButtonElement | null>(null);
   const iconButtonClassName =
-    "inline-flex h-[3.35rem] w-[3.35rem] items-center justify-center rounded-[1.15rem] border border-[var(--shell-border)] bg-white text-[var(--shell-ink)] hover:border-[rgba(6,54,116,0.32)] focus:outline-none focus:ring-2 focus:ring-[rgba(6,54,116,0.18)]";
+    "inline-flex h-[3.05rem] w-[3.05rem] items-center justify-center rounded-[1.05rem] border border-[var(--shell-border)] bg-white text-[var(--shell-ink)] hover:border-[rgba(6,54,116,0.32)] focus:outline-none focus:ring-2 focus:ring-[rgba(6,54,116,0.18)]";
+  const resolvedMembershipHref = resolveMembershipHref(pathname, membershipHref);
+  const membershipActive =
+    resolvedMembershipHref
+      ? pathname === resolvedMembershipHref || pathname?.startsWith(`${resolvedMembershipHref}/`)
+      : false;
+  const membershipButtonClassName = membershipActive
+    ? "inline-flex h-[3.05rem] w-[3.05rem] items-center justify-center rounded-[1.05rem] border border-[rgba(6,54,116,0.18)] bg-[rgba(6,54,116,0.05)] text-[var(--shell-ink)] focus:outline-none focus:ring-2 focus:ring-[rgba(6,54,116,0.18)]"
+    : iconButtonClassName;
 
   async function setLocale(nextLocale: AppLocale) {
     await fetch("/api/locale", {
@@ -89,12 +131,28 @@ export default function AppHeader({ currentLocale, navItems, uiText }: AppHeader
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-[var(--shell-border)] bg-white/92 backdrop-blur-[10px]">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-1.5 sm:px-6">
+        <div className="pat-shell-frame flex items-center justify-between gap-3.5 py-1 sm:py-1.5">
           <Link href="/" className="min-w-0 shrink-0" aria-label={uiText.homeAriaLabel}>
             <BrandLockup mode="header" />
           </Link>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
+            {resolvedMembershipHref ? (
+              <Link
+                href={resolvedMembershipHref}
+                className={membershipButtonClassName}
+                aria-label={uiText.membership}
+                title={uiText.membership}
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5.5 w-5.5 stroke-current" fill="none" strokeWidth="1.8">
+                  <rect x="4" y="6" width="16" height="12" rx="2.5" />
+                  <path d="M8 10.5h4" strokeLinecap="round" />
+                  <path d="M8 13.5h5" strokeLinecap="round" />
+                  <path d="m17 9.25.58 1.18 1.3.19-.94.92.22 1.31-1.16-.61-1.16.61.22-1.31-.94-.92 1.3-.19z" strokeLinejoin="round" />
+                </svg>
+              </Link>
+            ) : null}
+
             <div className="relative">
               <button
                 ref={languageTriggerRef}
@@ -117,7 +175,7 @@ export default function AppHeader({ currentLocale, navItems, uiText }: AppHeader
                 <div
                   ref={languageCardRef}
                   id="language-nav-card"
-                  className="absolute right-0 top-[3.8rem] z-[65] min-w-[11.5rem] rounded-[1.35rem] border border-[var(--shell-border)] bg-white/98 p-2.5"
+                  className="absolute right-0 top-[3.55rem] z-[65] min-w-[11rem] rounded-[1.25rem] border border-[var(--shell-border)] bg-white/98 p-2.5"
                 >
                   <div className="px-2.5 pb-2 text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-[var(--shell-muted)]">
                     {uiText.language}
@@ -174,7 +232,7 @@ export default function AppHeader({ currentLocale, navItems, uiText }: AppHeader
           <div
             ref={cardRef}
             id="global-nav-card"
-            className="pointer-events-auto absolute right-5 top-[4.9rem] w-[min(18rem,calc(100vw-1.75rem))] rounded-[1.75rem] border border-[var(--shell-border)] bg-white/98 p-3 sm:right-6 sm:top-[5.1rem] sm:w-[19rem]"
+            className="pointer-events-auto absolute right-4 top-[4.55rem] w-[min(17rem,calc(100vw-1.5rem))] rounded-[1.55rem] border border-[var(--shell-border)] bg-white/98 p-3 sm:right-6 sm:top-[4.8rem] sm:w-[18rem]"
           >
             <div className="flex items-center justify-between gap-4 border-b border-[var(--shell-border)] px-3 pb-3">
               <div id="global-nav-title" className="text-[0.82rem] font-semibold uppercase tracking-[0.22em] text-[var(--shell-muted)]">
