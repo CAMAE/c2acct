@@ -178,9 +178,12 @@ export function getReleaseFingerprint(): ReleaseFingerprint {
   const commitSha = resolveCommitSha(contract, state);
   const buildSourceType = state?.runtimeSourceType ?? contract.runtimeSourceType;
   const authMode = state?.authMode ?? contract.authMode;
-  const releaseFingerprintSeed =
-    state?.releaseFingerprintSeed
-    ?? computeReleaseFingerprintSeed(canonicalRoot, commitSha, authMode, buildSourceType);
+  const releaseFingerprintSeed = computeReleaseFingerprintSeed(
+    canonicalRoot,
+    commitSha,
+    authMode,
+    buildSourceType
+  );
   const buildId = readBuildId();
 
   return {
