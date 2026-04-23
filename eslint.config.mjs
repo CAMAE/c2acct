@@ -19,6 +19,8 @@ const eslintConfig = defineConfig([
     "docs/archive/**",
     "tmp/**",
     "agent-work/**",
+    ".venv/**",
+    ".venv311/**",
 ]),
 
   { rules: { "@typescript-eslint/no-explicit-any": "warn" } },

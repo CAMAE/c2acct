@@ -116,6 +116,18 @@ export type AssessmentSection = {
   questionIds: string[];
 };
 
+export type AssessmentPage = {
+  key: string;
+  title: string;
+  description?: string;
+  order: number;
+  questionIds: string[];
+  questionCount: number;
+  sectionKeys: string[];
+  startQuestionNumber: number;
+  endQuestionNumber: number;
+};
+
 export type AssessmentRollup = {
   key: string;
   title: string;
@@ -139,6 +151,7 @@ export type AssessmentModulePayload = {
   scope: string;
   version: number;
   sections: AssessmentSection[];
+  pages: AssessmentPage[];
   questions: AssessmentQuestionRuntime[];
   stagedFeatures: {
     branching: boolean;
@@ -315,6 +328,51 @@ function buildSectionsFromQuestions(
     .sort((left, right) => left.order - right.order);
 }
 
+export function buildAssessmentPages(
+  runtimeQuestions: AssessmentQuestionRuntime[],
+  sections: AssessmentSection[],
+  pageSize = 10
+) {
+  const safePageSize = Math.max(1, pageSize);
+  const pages: AssessmentPage[] = [];
+  const sectionByKey = new Map(sections.map((section) => [section.key, section]));
+
+  for (let index = 0; index < runtimeQuestions.length; index += safePageSize) {
+    const pageQuestions = runtimeQuestions.slice(index, index + safePageSize);
+    const startQuestionNumber = index + 1;
+    const endQuestionNumber = index + pageQuestions.length;
+    const sectionKeys = Array.from(
+      new Set(pageQuestions.map((question) => question.meta.section?.key ?? "core"))
+    );
+    const sectionTitles = sectionKeys.map(
+      (sectionKey) => sectionByKey.get(sectionKey)?.title ?? "Core assessment"
+    );
+    const description =
+      sectionKeys.length === 1
+        ? sectionByKey.get(sectionKeys[0])?.description ??
+          `PAT keeps this page focused on ${sectionTitles[0]}.`
+        : `PAT keeps this page to 10 questions while preserving section scoring across ${sectionTitles.join(" and ")}.`;
+
+    pages.push({
+      key: `page-${pages.length + 1}`,
+      title: `Questions ${startQuestionNumber}-${endQuestionNumber}`,
+      description,
+      order: pages.length + 1,
+      questionIds: pageQuestions.map((question) => question.id),
+      questionCount: pageQuestions.length,
+      sectionKeys,
+      startQuestionNumber,
+      endQuestionNumber,
+    });
+  }
+
+  return pages;
+}
+
+export function normalizeAssessmentStep(step: number, totalSteps: number) {
+  return Math.min(Math.max(step, 1), Math.max(totalSteps, 1));
+}
+
 export function buildAssessmentModulePayload(module: {
   id: string;
   key: string;
@@ -326,6 +384,7 @@ export function buildAssessmentModulePayload(module: {
   const runtimeQuestions = questions
     .map(normalizeQuestionRuntime)
     .sort((left, right) => left.order - right.order);
+  const builtSections = buildSectionsFromQuestions(runtimeQuestions, sections);
 
   return {
     id: module.id,
@@ -334,7 +393,8 @@ export function buildAssessmentModulePayload(module: {
     description: module.description,
     scope: module.scope,
     version: module.version,
-    sections: buildSectionsFromQuestions(runtimeQuestions, sections),
+    sections: builtSections,
+    pages: buildAssessmentPages(runtimeQuestions, builtSections),
     questions: runtimeQuestions,
     stagedFeatures: {
       branching: runtimeQuestions.some((question) => Boolean(question.meta.branching)),

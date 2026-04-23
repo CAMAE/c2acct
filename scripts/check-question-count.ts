@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { QuestionInputType } from "@prisma/client";
 import { runWithPrisma } from "./_shared/prismaScript";
 
 const moduleKeys = [
@@ -8,7 +9,10 @@ const moduleKeys = [
   "firm_alignment_governance_v1",
   "firm_alignment_strategy_v1",
 ];
-const expectedQuestionCount = 20;
+const expectedScoredQuestionCount = 20;
+const expectedOpenEndedQuestionCount = 5;
+const expectedQuestionCount =
+  expectedScoredQuestionCount + expectedOpenEndedQuestionCount;
 
 function fail(message: string): never {
   throw new Error(message);
@@ -29,18 +33,40 @@ async function main() {
     }
 
     const counts = await Promise.all(
-      surveyModules.map(async (surveyModule) => ({
-        key: surveyModule.key,
-        title: surveyModule.title,
-        questionCount: await prisma.surveyQuestion.count({ where: { moduleId: surveyModule.id } }),
-      }))
+      surveyModules.map(async (surveyModule) => {
+        const [questionCount, scoredQuestionCount, openEndedQuestionCount] = await Promise.all([
+          prisma.surveyQuestion.count({ where: { moduleId: surveyModule.id } }),
+          prisma.surveyQuestion.count({
+            where: { moduleId: surveyModule.id, inputType: QuestionInputType.SLIDER },
+          }),
+          prisma.surveyQuestion.count({
+            where: { moduleId: surveyModule.id, inputType: QuestionInputType.TEXT },
+          }),
+        ]);
+
+        return {
+          key: surveyModule.key,
+          title: surveyModule.title,
+          questionCount,
+          scoredQuestionCount,
+          openEndedQuestionCount,
+        };
+      })
     );
 
-    const invalidModules = counts.filter((surveyModule) => surveyModule.questionCount !== expectedQuestionCount);
+    const invalidModules = counts.filter(
+      (surveyModule) =>
+        surveyModule.questionCount !== expectedQuestionCount ||
+        surveyModule.scoredQuestionCount !== expectedScoredQuestionCount ||
+        surveyModule.openEndedQuestionCount !== expectedOpenEndedQuestionCount
+    );
     if (invalidModules.length > 0) {
       fail(
         invalidModules
-          .map((surveyModule) => `${surveyModule.key} has ${surveyModule.questionCount} questions`)
+          .map(
+            (surveyModule) =>
+              `${surveyModule.key} has ${surveyModule.questionCount} total questions (${surveyModule.scoredQuestionCount} scored, ${surveyModule.openEndedQuestionCount} open-ended)`
+          )
           .join("; ")
       );
     }
@@ -56,6 +82,8 @@ async function main() {
           ok: true,
           moduleCount: counts.length,
           expectedQuestionCount,
+          expectedScoredQuestionCount,
+          expectedOpenEndedQuestionCount,
           totalQuestionCount,
           counts,
         },

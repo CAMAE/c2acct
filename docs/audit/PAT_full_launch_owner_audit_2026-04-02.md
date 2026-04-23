@@ -1,10 +1,17 @@
 # PAT Full Launch Owner Audit (2026-04-02)
 
+Current usage note:
+
+- This file is a dated 2026-04-02 audit snapshot.
+- Use `docs/active-repo-map.md` and `README.md` for current checkout truth and the repo's `pnpm`-first validation runbook.
+- Comparison-only exports and stale roots remain supporting evidence only, not release-decision truth.
+- Current checkout truth has moved beyond this snapshot. For the current build id, use the latest release-proof artifacts such as `.next/BUILD_ID`, `/api/release-fingerprint`, or `pnpm standalone:local:check`; for current dirty-tree truth, use `git status --short`.
+
 Evidence root for this audit:
 
 - Canonical local release root: `/Users/camerongarrett/work/c2acct-live`
-- Canonical branch: `recovery/pat-2026-03-31-baseline`
-- Current HEAD at audit time: `252b7f39ec77b5459c26791769410b87c4048cec`
+- Canonical branch at audit time: the dated recovery-line branch recorded in this 2026-04-02 snapshot
+- Current HEAD at audit time: the then-current recovery-line head recorded in this snapshot
 - Rollback baseline named by local docs and release manifest: `078a41f6816e81e599b94423faf501d10c2aa70c`
 - `origin/main`: `363436c0e049ff8652c8e6fc1fd5c3bbdce58531` dated `2026-03-08 17:16:59 -0500`
 - Ahead/behind versus `origin/main`: `28` ahead, `0` behind
@@ -20,7 +27,7 @@ Prompt-referenced files missing in this environment:
 
 Exact source-of-truth decision for this audit:
 
-- Local recovery source is the only candidate release truth.
+- The local checkout at audit time was the only candidate release truth.
 - GitHub-visible `origin/main` is stale shared truth only.
 - Live host runtime on port `3000` is wrong or incomplete until proven by launchd ownership plus release-fingerprint agreement.
 
@@ -30,7 +37,7 @@ Current risk is `high`.
 
 The local source tree is PAT-correct in the files that define the launch surface, but the release is not launch-ready because the current launch-critical gate is red and the host is not cut over. `node scripts/release/validate-source-integrity.mjs --root /Users/camerongarrett/work/c2acct-live` failed on `2026-04-02` with `git_dirty`, driven by launch-critical dirty entries in `scripts/mac-mini/nightly-verify.sh` and `scripts/mac-mini/status.sh`. The host proof on the same date shows `launchd_service_state=not-loaded`, `live_port_owner_state=stale-listener`, `live_port_owner_pid=25059`, and `live_release_probe_http=000`.
 
-The only defensible launch direction is `FIX_FORWARD_FROM_ROLLBACK_BASELINE`: keep `/Users/camerongarrett/work/c2acct-live` as source of truth, do not merge `origin/main`, do not import `/private/tmp/c2acct-main-auth`, and fix the remaining blockers on top of the rollback recovery line.
+The only defensible launch direction in that snapshot was `FIX_FORWARD_FROM_ROLLBACK_BASELINE`: keep `/Users/camerongarrett/work/c2acct-live` as source of truth, do not merge `origin/main`, do not import `/private/tmp/c2acct-main-auth`, and fix the remaining blockers on top of the then-current checkout line.
 
 ## release risk
 
@@ -38,15 +45,15 @@ Release risk is `high` because the branch is dirty and the release-state artifac
 
 Evidence:
 
-- Branch: `recovery/pat-2026-03-31-baseline`
-- HEAD: `252b7f39ec77b5459c26791769410b87c4048cec`
+- Branch at audit time: the dated recovery-line branch
+- HEAD at audit time: the then-current recovery-line head captured on 2026-04-02
 - Dirty entries include:
   - `M scripts/mac-mini/launchd-check.sh`
   - `M scripts/mac-mini/nightly-verify.sh`
   - `M scripts/mac-mini/status.sh`
   - `?? scripts/mac-mini/port-owner-proof.sh`
 - Source-integrity warnings show stale recorded state:
-  - `state_commit_out_of_date expected=252b7f39ec77b5459c26791769410b87c4048cec actual=01a68f4f09d4523f9f5db35814d2419157cdd8af`
+  - `state_commit_out_of_date` between the recorded state file and the audit-time head
   - `state_fingerprint_seed_out_of_date`
 - `artifacts/mac-mini/state/canonical-root.json` has been rewritten to current HEAD, but `artifacts/mac-mini/state/release-state.env` still reports `COMMIT=01a68f4` and `BUILD_ID=dSLY1LiY8b0PPPk-gfrLG`, while `.next/BUILD_ID` is `fBUhtnyBzIXuKNflFKKkF`.
 
@@ -151,8 +158,8 @@ Source-of-truth risk is `high` unless the launch owner ignores stale or missing 
 
 Current truth hierarchy:
 
-1. `/Users/camerongarrett/work/c2acct-live` on `recovery/pat-2026-03-31-baseline` at `252b7f39ec77b5459c26791769410b87c4048cec`
-2. In-repo build and audit docs present locally on that branch
+1. `/Users/camerongarrett/work/c2acct-live` on the current checked-out branch and commit
+2. In-repo build and audit docs present locally in that checkout
 3. `origin/main` only as stale comparison material
 4. port `3000` runtime only after host proof passes
 
@@ -163,7 +170,7 @@ Why the risk exists:
 - `origin/main` is materially older AAE-era content
 - live host runtime is not fingerprint-verifiable
 
-Conclusion: for launch ownership, local recovery source is the exact source of truth and anything else is supporting or stale evidence.
+Conclusion: for launch ownership, the current local checkout is the exact source of truth and anything else is supporting or stale evidence.
 
 ## local-vs-GitHub drift risk
 
@@ -213,7 +220,7 @@ Conclusion: the right response to drift is not to merge `origin/main`; it is to 
 
 ## still missing
 
-- clean source-integrity pass on current HEAD `252b7f39ec77b5459c26791769410b87c4048cec`
+- clean source-integrity pass on the then-current audit-time head
 - synchronized release-state artifacts for current HEAD and current build
 - live launchd ownership of port `3000`
 - reachable live `/api/release-fingerprint`
@@ -225,7 +232,7 @@ Conclusion: the right response to drift is not to merge `origin/main`; it is to 
 
 - commit or otherwise reconcile the launch-critical Mac mini script changes so source-integrity can pass
 - refresh build and release-state artifacts on the intended release commit
-- rerun `npm run release:prelaunch` on a clean tree
+- rerun `pnpm release:prelaunch` on a clean tree
 - rerun `bash scripts/mac-mini/launchd-check.sh` until `ownership_check=pass`
 - rerun rendered PAT surface validation against the actual live URL after launchd cutover
 - capture one current host proof bundle after cutover:
@@ -241,7 +248,7 @@ Conclusion: the right response to drift is not to merge `origin/main`; it is to 
 - do not expand auth beyond GitHub-mode in this track
 - do not ship AAE markers, `/login` as primary auth, or `pre-approved GitHub accounts` copy
 - do not bypass launchd proof with ad hoc `node` listeners on port `3000`
-- do not treat `npm run build` alone as launch readiness
+- do not treat `pnpm build` alone as launch readiness
 - do not land deferred Slice A as a blob
 - do not land additional deferred Slice D work before launch
 

@@ -1,11 +1,15 @@
-import Link from "next/link";
-import InsightStatusBadge from "@/app/components/insights/InsightStatusBadge";
+import { redirect } from "next/navigation";
 import InsightsModeShell from "@/app/components/insights/InsightsModeShell";
-import { compactInsightSummary } from "@/app/components/insights/insightCardText";
-import { getVendorAlignmentInsightContent } from "@/lib/insightContent";
+import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
+import { getSessionUser } from "@/lib/auth/session";
+import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
-import { VENDOR_PRODUCT_TIER2_HOVER } from "@/lib/vendorPat";
-import { getVendorAlignmentInsightBundle } from "@/lib/vendorAlignmentInsightEngine";
+import {
+  buildVendorAlignmentEliteInsightCards,
+  buildVendorAlignmentProInsightCards,
+  getRequestedVendorAlignmentInsightOverviewMode,
+  getVendorAlignmentInsightBundle,
+} from "@/lib/vendorAlignmentInsightEngine";
 
 export const dynamic = "force-dynamic";
 
@@ -14,165 +18,103 @@ export const metadata = {
   description: "Vendor alignment insights connected to firm alignment signal.",
 };
 
-function formatFreshness(value: Date | null) {
-  return value ? value.toLocaleDateString() : "No live update yet";
+type SearchParams = {
+  mode?: string;
+};
+
+function getModeHref(mode: "pro" | "elite" | "help") {
+  return `/vendor/alignment-insights?mode=${mode}`;
 }
 
-export default async function VendorAlignmentInsightsPage() {
+export default async function VendorAlignmentInsightsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<SearchParams>;
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const messages = await getRequestLocaleMessages();
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) {
+    redirect("/sign-in/vendor");
+  }
+  const entitlement = await resolveMembershipEntitlement(sessionUser, "vendor", MEMBERSHIP_PLAN.PRO);
+  if (!entitlement.allowed) {
+    return (
+      <MembershipSurfaceGate
+        audience="vendor"
+        surfaceLabel="Vendor alignment insights"
+        title="Vendor alignment insights require Pro membership"
+        body="Vendor alignment insights are part of the current Pro vendor tier. PAT keeps the route visible so the membership path is explicit, but the insight catalog opens only after Pro is active."
+        displayName={entitlement.membership.displayName}
+        currentPlan={entitlement.membership.plan}
+        currentStatus={entitlement.membership.status}
+        requiredPlan={entitlement.requiredPlan}
+        membershipHref={entitlement.membershipHref}
+        upgradeHref={entitlement.upgradeHref}
+        workspaceHref="/vendor"
+        workspaceLabel="Open vendor workspace"
+        availableNow="The baseline vendor state still keeps workspace entry, help, and membership routing available."
+        stagedNote="This overview is the current Pro packaging layer around firm-alignment signal, so PAT does not open it from the baseline state."
+      />
+    );
+  }
   const bundle = await getVendorAlignmentInsightBundle();
-  const proReports = bundle.reports.filter((report) => report.tier === 1);
-  const eliteReports = bundle.reports.filter((report) => report.tier === 2);
+  const activeMode = getRequestedVendorAlignmentInsightOverviewMode(resolvedSearchParams?.mode);
+  const proCards = buildVendorAlignmentProInsightCards(bundle);
+  const eliteCards = buildVendorAlignmentEliteInsightCards(bundle);
+  const toggleOptions = [
+    { key: "pro", label: "Pro Insights", href: getModeHref("pro") },
+    { key: "elite", label: "Elite Insights", href: getModeHref("elite") },
+    { key: "help", label: "Help", href: getModeHref("help") },
+  ] as const;
 
   return (
     <InsightsModeShell
-      hero={
-        <section className="pat-card p-8">
-          <div className="pat-label">Vendor alignment insights</div>
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
-            {messages.insights.vendorAlignment.heroTitle}
-          </h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-            {messages.insights.vendorAlignment.heroBody}
-          </p>
-          <div className="mt-6 grid gap-4 md:grid-cols-4">
-            <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-              {messages.insights.vendorAlignment.firmsInSignalBase}:{" "}
-              <span className="font-semibold text-[var(--shell-ink)]">{bundle.sampleSize}</span>
-            </div>
-            <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-              {messages.insights.vendorAlignment.currentPatModuleAverage}:{" "}
-              <span className="font-semibold text-[var(--shell-ink)]">
-                {bundle.averageModuleScore === null ? "--" : `${Math.round(bundle.averageModuleScore)}%`}
-              </span>
-            </div>
-            <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-              {messages.insights.vendorAlignment.moduleVariance}:{" "}
-              <span className="font-semibold text-[var(--shell-ink)]">
-                {bundle.moduleVariance === null ? "--" : bundle.moduleVariance}
-              </span>
-            </div>
-            <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-              {messages.insights.vendorAlignment.confidence}:{" "}
-              <span className="font-semibold text-[var(--shell-ink)]">{bundle.confidenceLabel}</span>
-              <div className="mt-1 text-xs leading-5">{formatFreshness(bundle.latestUpdatedAt)}</div>
-            </div>
-          </div>
-          <div className="mt-4 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4 text-sm leading-6 text-[var(--shell-muted)]">
-            {bundle.confidenceSummary}
-          </div>
-        </section>
+      activeMode={activeMode}
+      eyebrow="Vendor alignment insights"
+      title={messages.insights.vendorAlignment.heroTitle}
+      audienceTerms={["Vendor"]}
+      heroBody={messages.insights.vendorAlignment.heroBody}
+      currentStateSummary={
+        bundle.sampleSize === 0
+          ? "PAT does not have enough current firm alignment evidence yet to open a grounded vendor alignment readout."
+          : "PAT is summarizing current firm alignment signal so you can see where vendor-facing demand, friction, and implementation conditions look strongest right now."
       }
-      proContent={
-        <>
-          <div>
-            <h2 className="text-2xl font-semibold text-[var(--shell-ink)]">
-              {messages.insights.vendorAlignment.proTitle}
-            </h2>
-            <p className="mt-1 text-sm text-[var(--shell-muted)]">
-              {messages.insights.vendorAlignment.proBody}
-            </p>
-          </div>
-          <div className="grid gap-5 md:grid-cols-2">
-            {proReports.map((report) => (
-              <Link
-                key={report.key}
-                href={`/vendor/alignment-insights/${report.key}`}
-                className="pat-card pat-card-interactive block p-6"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="text-lg font-semibold text-[var(--shell-ink)]">{report.title}</div>
-                  <InsightStatusBadge label={report.confidenceLabel} />
-                </div>
-                <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-                  {compactInsightSummary(report.currentStateSummary)}
-                </p>
-                <div className="mt-4 text-xs leading-5 text-[var(--shell-muted)]">
-                  {messages.insights.shared.sample}: {report.sampleSize} · {messages.insights.shared.freshness}:{" "}
-                  {formatFreshness(report.latestUpdatedAt)}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </>
-      }
-      eliteContent={
-        <>
-          <div>
-            <h2 className="text-2xl font-semibold text-[var(--shell-ink)]">
-              {messages.insights.vendorAlignment.eliteTitle}
-            </h2>
-            <p className="mt-1 text-sm text-[var(--shell-muted)]">
-              {messages.insights.vendorAlignment.eliteBody}
-            </p>
-          </div>
-          <div className="grid gap-5 md:grid-cols-2">
-            {eliteReports.map((report) => {
-              const content = getVendorAlignmentInsightContent(report.key);
-              return (
-                <Link
-                  key={report.key}
-                  href={`/vendor/alignment-insights/${report.key}`}
-                  title={content?.lockedState?.disclaimer ?? VENDOR_PRODUCT_TIER2_HOVER}
-                  className="pat-card pat-card-muted pat-card-muted-interactive block p-6"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="text-lg font-semibold text-[var(--shell-ink)]">{report.title}</div>
-                    <InsightStatusBadge label="Locked" tone="locked" />
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-                    {compactInsightSummary(content?.lockedState?.summary ?? report.currentStateSummary)}
-                  </p>
-                  <div className="mt-4 text-xs leading-5 text-[var(--shell-muted)]">
-                    {content?.lockedState?.disclaimer ?? VENDOR_PRODUCT_TIER2_HOVER}
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </>
-      }
-      helpContent={
-        <>
-          <div>
-            <h2 className="text-2xl font-semibold text-[var(--shell-ink)]">How Pro and Elite differ here</h2>
-            <p className="mt-1 text-sm text-[var(--shell-muted)]">
-              This vendor page reads live firm alignment evidence for current-state insight now, while keeping the higher-order layer visibly staged without overstating what PAT already knows.
-            </p>
-          </div>
-          <div className="grid gap-5 xl:grid-cols-3">
-            <article className="pat-card p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div className="text-lg font-semibold text-[var(--shell-ink)]">Pro access</div>
-                <InsightStatusBadge label="Pro Insights" />
-              </div>
-              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-                Pro cards use live firm module, capability, and question-cluster evidence. Those detail pages already exist and stay clickable from the catalog.
-              </p>
-            </article>
-            <article className="pat-card pat-card-muted p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div className="text-lg font-semibold text-[var(--shell-ink)]">Elite access</div>
-                <InsightStatusBadge label="Locked" tone="locked" />
-              </div>
-              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-                Elite cards stay visible so the vendor can see where richer benchmark, projection, and simulation layers would sit later, but they remain locked until that evidence layer is real.
-              </p>
-            </article>
-            <article className="pat-card p-6">
-              <div className="text-lg font-semibold text-[var(--shell-ink)]">Route truth</div>
-              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-                Both Pro and locked Elite cards already have detail routes. The locked detail view stays disclaimer-driven rather than pretending the deeper intelligence is live.
-              </p>
-              <div className="mt-5">
-                <Link className="pat-link" href="/vendor/help">
-                  Review vendor help
-                </Link>
-              </div>
-            </article>
-          </div>
-        </>
-      }
+      toggleAriaLabel="Vendor alignment insight modes"
+      toggleOptions={toggleOptions}
+      proPanel={{
+        title: "Pro insights",
+        intro: "Concise current-state vendor alignment insight grounded in current firm PAT evidence.",
+        cards: proCards,
+        columnsClassName: "md:grid-cols-2",
+      }}
+      elitePanel={{
+        title: "Elite insights",
+        intro: "Coming soon. Unlock with Elite membership.",
+        cards: eliteCards,
+        columnsClassName: "md:grid-cols-2 xl:grid-cols-3",
+      }}
+      helpPanel={{
+        title: "Help",
+        intro: "Use this page to review the current vendor-facing alignment readouts built from current firm evidence, then open the insight that best matches the adoption conditions you need to understand.",
+        infoCards: [
+          {
+            title: "Pro insights",
+            body: "Open these cards for current-state alignment readouts grounded in completed firm PAT modules, capability scores, and answer-cluster evidence.",
+          },
+          {
+            title: "Elite insights",
+            body: "Coming soon. Unlock with Elite membership.",
+            tone: "muted",
+            badgeLabel: "Coming soon",
+            badgeTone: "locked",
+          },
+          {
+            title: "Why it is useful",
+            body: "These insights help vendors understand the current operating environment they are selling into before they shape messaging, rollout, or implementation expectations.",
+          },
+        ],
+      }}
     />
   );
 }

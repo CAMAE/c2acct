@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { formatFeatureCountLabel, replaceUtilityTermsForDisplay } from "@/lib/displayCopy";
 import {
   PRODUCT_GENERAL_MODULE,
   PRODUCT_OPEN_ENDED_MODULE,
   PRODUCT_SCORE_GUIDE,
+  PRODUCT_UTILITY_REGISTRY,
   PRODUCT_UTILITY_REGISTRY_METADATA,
+  PRODUCT_UTILITY_SCORED_QUESTION_COUNT,
 } from "@/lib/productUtilityRegistry";
 
 describe("product utility registry integrity", () => {
@@ -30,5 +33,27 @@ describe("product utility registry integrity", () => {
   it("documents the non-ranking intent of the registry metadata", () => {
     expect(PRODUCT_UTILITY_REGISTRY_METADATA.notes.some((note) => note.includes("not product rankings"))).toBe(true);
     expect(PRODUCT_UTILITY_REGISTRY_METADATA.notes.some((note) => note.includes("evidence honesty"))).toBe(true);
+  });
+
+  it("keeps the shipped feature registry above the old four-feature ceiling with 20 scored questions per feature", () => {
+    expect(PRODUCT_UTILITY_REGISTRY.length).toBeGreaterThan(4);
+    expect(
+      PRODUCT_UTILITY_REGISTRY.every(
+        (utility) =>
+          utility.subcategories.reduce((sum, subcategory) => sum + subcategory.questions.length, 0) ===
+          PRODUCT_UTILITY_SCORED_QUESTION_COUNT
+      )
+    ).toBe(true);
+  });
+
+  it("keeps internal utility contracts intact while allowing display-layer feature wording", () => {
+    expect(PRODUCT_UTILITY_REGISTRY.every((utility) => typeof utility.key === "string" && utility.key.length > 0)).toBe(
+      true
+    );
+    expect(PRODUCT_UTILITY_REGISTRY_METADATA.notes.some((note) => /utilit/i.test(note))).toBe(true);
+    expect(replaceUtilityTermsForDisplay("Utility scoring for declared utilities")).toBe(
+      "Feature scoring for declared features"
+    );
+    expect(formatFeatureCountLabel(2)).toBe("2 features");
   });
 });

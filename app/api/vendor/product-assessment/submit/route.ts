@@ -11,12 +11,13 @@ import {
 } from "@/lib/productAssessmentRuntime";
 import {
   normalizeVendorProductProfileInput,
+  serializeVendorAdaptiveOpenEndedQuestionSnapshot,
   serializeVendorProductAssessmentPlan,
 } from "@/lib/vendorProductAssessmentPlan";
 import {
   VENDOR_PRODUCT_MODULE_KEY,
   VENDOR_PRODUCT_QUESTIONS_PER_UTILITY,
-  VENDOR_PRODUCT_UTILITY_CAP,
+  VENDOR_PRODUCT_UTILITY_SELECTION_LIMIT,
   buildVendorProductQuestions,
   computeVendorAssessmentMetrics,
   ensureProductSubject,
@@ -28,7 +29,7 @@ const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
 const SubmitVendorAssessmentSchema = z.object({
   productId: z.string().min(1),
-  utilityKeys: z.array(z.string().min(1)).min(1).max(VENDOR_PRODUCT_UTILITY_CAP),
+  utilityKeys: z.array(z.string().min(1)).min(1).max(VENDOR_PRODUCT_UTILITY_SELECTION_LIMIT),
   profile: z.object({
     productName: z.string().trim().min(1),
     productDescription: z.string().trim().min(1),
@@ -136,9 +137,12 @@ export async function POST(request: Request) {
   const { score, integrity } = computeVendorAssessmentMetrics(answers);
   const normalizedProfile = normalizeVendorProductProfileInput(profile);
   const assessmentPlan = serializeVendorProductAssessmentPlan(utilityKeys);
-  const openEndedQuestionIds = assessmentPlan.plan.modules
-    .filter((module) => module.kind === "open-ended")
-    .flatMap((module) => module.questions.map((question) => question.id));
+  const adaptiveOpenEndedQuestions = serializeVendorAdaptiveOpenEndedQuestionSnapshot({
+    selectedUtilityKeys: utilityKeys,
+    profile: normalizedProfile,
+    answers,
+  });
+  const openEndedQuestionIds = adaptiveOpenEndedQuestions.map((question) => question.id);
   const submittedOpenEndedIds = Object.keys(openEndedResponses);
   if (submittedOpenEndedIds.length !== openEndedQuestionIds.length) {
     return NextResponse.json(
@@ -251,8 +255,9 @@ export async function POST(request: Request) {
         version: moduleRecord.version ?? 1,
         answers: {
           utilitySelection: utilityKeys,
-          profile,
+          profile: normalizedProfile,
           openEndedResponses,
+          openEndedPlan: adaptiveOpenEndedQuestions,
           assessmentPlanId: persistedPlan.id,
           registryVersion: assessmentPlan.registryVersion,
           responses: answers,

@@ -4,6 +4,7 @@ import {
   type MembershipSubscription,
 } from "@prisma/client";
 import { randomUUID } from "crypto";
+import { findLocalReviewUserByEmail, isLocalReviewAuthRequested } from "@/lib/auth/localReview";
 import prisma from "@/lib/prisma";
 import type { SessionUser } from "@/lib/auth/session";
 import {
@@ -18,7 +19,7 @@ export type MembershipSnapshot = {
   displayName: string;
   plan: MembershipPlan;
   status: MembershipStatus;
-  source: "database" | "virtual-free";
+  source: "database" | "virtual-free" | "local-review-compatibility";
   compatibilityMode: MembershipResolvedContext["compatibilityMode"];
   checkoutHref: string;
   subscription: MembershipSubscription | null;
@@ -40,6 +41,27 @@ export const MEMBERSHIP_STATUS = {
 
 export const DEFAULT_FREE_MEMBERSHIP_PLAN = MEMBERSHIP_PLAN.FREE;
 export const DEFAULT_FREE_MEMBERSHIP_STATUS = MEMBERSHIP_STATUS.ACTIVE;
+
+const MEMBERSHIP_PLAN_RANK: Record<MembershipPlan, number> = {
+  [MEMBERSHIP_PLAN.FREE]: 0,
+  [MEMBERSHIP_PLAN.PRO]: 1,
+  [MEMBERSHIP_PLAN.ELITE]: 2,
+};
+
+export type MembershipEntitlementSnapshot = {
+  context: MembershipResolvedContext;
+  membership: MembershipSnapshot;
+  requiredPlan: MembershipPlan;
+  allowed: boolean;
+  membershipHref: string;
+  upgradeHref: string;
+};
+
+export type LocalReviewCompatibilityMembership = {
+  audience: Extract<MembershipAudience, "vendor" | "firm">;
+  plan: MembershipPlan;
+  status: MembershipStatus;
+};
 
 export function normalizeMembershipPlan(plan: string | MembershipPlan | null | undefined): MembershipPlan {
   if (plan === MEMBERSHIP_PLAN.PRO || plan === MEMBERSHIP_PLAN.ELITE) {
@@ -95,6 +117,71 @@ function getCheckoutHref(audience: MembershipAudience) {
   return `/${getAudiencePrefix(audience)}/membership/checkout`;
 }
 
+export function getMembershipHref(audience: MembershipAudience) {
+  return `/${getAudiencePrefix(audience)}/membership`;
+}
+
+export function getMembershipUpgradeHref(audience: MembershipAudience, requiredPlan: MembershipPlan) {
+  const safePlan = requiredPlan === MEMBERSHIP_PLAN.ELITE ? MEMBERSHIP_PLAN.ELITE : MEMBERSHIP_PLAN.PRO;
+  return `${getCheckoutHref(audience)}?plan=${safePlan.toLowerCase()}`;
+}
+
+export function getMembershipPlanRank(plan: string | MembershipPlan | null | undefined) {
+  return MEMBERSHIP_PLAN_RANK[normalizeMembershipPlan(plan)];
+}
+
+export function hasMembershipAccess(
+  currentPlan: string | MembershipPlan | null | undefined,
+  requiredPlan: MembershipPlan
+) {
+  return getMembershipPlanRank(currentPlan) >= getMembershipPlanRank(requiredPlan);
+}
+
+export function resolveLocalReviewCompatibilityMembership(
+  audience: MembershipAudience,
+  email: string | null | undefined
+): LocalReviewCompatibilityMembership | null {
+  if (!isLocalReviewAuthRequested()) {
+    return null;
+  }
+
+  const reviewUser = findLocalReviewUserByEmail(email);
+  if (audience === "vendor" && reviewUser?.key === "vendor") {
+    return {
+      audience,
+      plan: MEMBERSHIP_PLAN.PRO,
+      status: MEMBERSHIP_STATUS.ACTIVE,
+    };
+  }
+
+  if (audience === "firm" && reviewUser?.key === "firm") {
+    return {
+      audience,
+      plan: MEMBERSHIP_PLAN.PRO,
+      status: MEMBERSHIP_STATUS.ACTIVE,
+    };
+  }
+
+  return null;
+}
+
+function buildLocalReviewCompatibilitySnapshot(input: {
+  context: MembershipResolvedContext;
+  compatibilityMembership: LocalReviewCompatibilityMembership;
+}): MembershipSnapshot {
+  return {
+    audience: input.context.audience,
+    subjectId: input.context.subjectId,
+    displayName: input.context.displayName,
+    plan: input.compatibilityMembership.plan,
+    status: input.compatibilityMembership.status,
+    source: "local-review-compatibility",
+    compatibilityMode: input.context.compatibilityMode,
+    checkoutHref: getCheckoutHref(input.context.audience),
+    subscription: null,
+  };
+}
+
 export async function getMembershipSnapshotForContext(
   context: MembershipResolvedContext
 ): Promise<MembershipSnapshot> {
@@ -139,10 +226,35 @@ export async function resolveCurrentMembership(
 ) {
   const context = await resolveMembershipContext(sessionUser, audience);
   const membership = await getMembershipSnapshotForContext(context);
+  const compatibilityMembership = resolveLocalReviewCompatibilityMembership(audience, sessionUser.email);
+  const resolvedMembership =
+    compatibilityMembership && !hasMembershipAccess(membership.plan, compatibilityMembership.plan)
+      ? buildLocalReviewCompatibilitySnapshot({
+          context,
+          compatibilityMembership,
+        })
+      : membership;
+
+  return {
+    context,
+    membership: resolvedMembership,
+  };
+}
+
+export async function resolveMembershipEntitlement(
+  sessionUser: SessionUser,
+  audience: MembershipAudience,
+  requiredPlan: MembershipPlan = MEMBERSHIP_PLAN.PRO
+): Promise<MembershipEntitlementSnapshot> {
+  const { context, membership } = await resolveCurrentMembership(sessionUser, audience);
 
   return {
     context,
     membership,
+    requiredPlan,
+    allowed: hasMembershipAccess(membership.plan, requiredPlan),
+    membershipHref: getMembershipHref(audience),
+    upgradeHref: getMembershipUpgradeHref(audience, requiredPlan),
   };
 }
 

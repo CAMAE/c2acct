@@ -55,7 +55,36 @@ function parseKeyValueOutput(output) {
 }
 
 function normalizeText(value) {
-  return value.replace(/\s+/g, " ");
+  return value.replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+export function resolveRouteValidationConfig(routeConfig, env = process.env) {
+  const consultantAccessGate = routeConfig?.consultantAccessGate;
+  if (!consultantAccessGate) {
+    return {
+      ...routeConfig,
+      validationMode: null,
+    };
+  }
+
+  const enabled =
+    String(env?.[consultantAccessGate.envVar] ?? "") === String(consultantAccessGate.enabledValue ?? "1");
+  const activeGateConfig = enabled
+    ? consultantAccessGate.enabled ?? {}
+    : consultantAccessGate.disabled ?? {};
+
+  return {
+    ...routeConfig,
+    positiveMarkers: [
+      ...(routeConfig?.positiveMarkers ?? []),
+      ...(activeGateConfig.positiveMarkers ?? []),
+    ],
+    forbiddenMarkers: [
+      ...(routeConfig?.forbiddenMarkers ?? []),
+      ...(activeGateConfig.forbiddenMarkers ?? []),
+    ],
+    validationMode: enabled ? "enabled" : "disabled",
+  };
 }
 
 export function validateRouteHtml(routeKey, html, routeConfig, globalForbiddenMarkers) {
@@ -63,13 +92,13 @@ export function validateRouteHtml(routeKey, html, routeConfig, globalForbiddenMa
   const normalizedHtml = normalizeText(html);
 
   for (const marker of routeConfig.positiveMarkers ?? []) {
-    if (!normalizedHtml.includes(marker)) {
+    if (!normalizedHtml.includes(normalizeText(marker))) {
       failures.push(`${routeKey}:missing_positive:${marker}`);
     }
   }
 
   for (const marker of [...(globalForbiddenMarkers ?? []), ...(routeConfig.forbiddenMarkers ?? [])]) {
-    if (normalizedHtml.includes(marker)) {
+    if (normalizedHtml.includes(normalizeText(marker))) {
       failures.push(`${routeKey}:forbidden_marker:${marker}`);
     }
   }
@@ -91,9 +120,68 @@ export function validateLoginCompatibility(response, manifestRoute) {
   }
 
   for (const marker of manifestRoute.forbiddenMarkers ?? []) {
-    if (body.includes(marker)) {
+    if (body.includes(normalizeText(marker))) {
       failures.push(`/login:forbidden_body_marker:${marker}`);
     }
+  }
+
+  return failures;
+}
+
+export function validateRuntimeOwnership(apiFingerprint, sourceIntegrity) {
+  const failures = [];
+
+  for (const failure of sourceIntegrity?.failures ?? []) {
+    failures.push(`source_integrity:${failure}`);
+  }
+
+  if (!apiFingerprint?.canonicalRootName) {
+    failures.push("runtime_ownership:api_root_name_missing");
+  } else {
+    const expectedRootName = path.basename(sourceIntegrity?.canonicalRoot ?? "");
+    if (expectedRootName && apiFingerprint.canonicalRootName !== expectedRootName) {
+      failures.push(
+        `runtime_ownership:root_name_mismatch:${apiFingerprint.canonicalRootName}:${expectedRootName}`
+      );
+    }
+  }
+
+  if (!apiFingerprint?.buildSourceType) {
+    failures.push("runtime_ownership:api_build_source_missing");
+  } else if (
+    sourceIntegrity?.runtimeSourceType
+    && apiFingerprint.buildSourceType !== sourceIntegrity.runtimeSourceType
+  ) {
+    failures.push(
+      `runtime_ownership:build_source_mismatch:${apiFingerprint.buildSourceType}:${sourceIntegrity.runtimeSourceType}`
+    );
+  }
+
+  if (!apiFingerprint?.startCommand) {
+    failures.push("runtime_ownership:api_start_command_missing");
+  } else if (
+    sourceIntegrity?.startCommand
+    && apiFingerprint.startCommand !== sourceIntegrity.startCommand
+  ) {
+    failures.push(
+      `runtime_ownership:start_command_mismatch:${apiFingerprint.startCommand}:${sourceIntegrity.startCommand}`
+    );
+  }
+
+  if (!apiFingerprint?.authMode) {
+    failures.push("runtime_ownership:api_auth_mode_missing");
+  } else if (sourceIntegrity?.authMode && apiFingerprint.authMode !== sourceIntegrity.authMode) {
+    failures.push(`runtime_ownership:auth_mode_mismatch:${apiFingerprint.authMode}:${sourceIntegrity.authMode}`);
+  }
+
+  if (
+    apiFingerprint?.releaseFingerprintSeed
+    && sourceIntegrity?.releaseFingerprintSeed
+    && apiFingerprint.releaseFingerprintSeed !== sourceIntegrity.releaseFingerprintSeed
+  ) {
+    failures.push(
+      `runtime_ownership:seed_mismatch:${apiFingerprint.releaseFingerprintSeed}:${sourceIntegrity.releaseFingerprintSeed}`
+    );
   }
 
   return failures;
@@ -242,6 +330,12 @@ function readOperatorStatus(root, port) {
   return parseKeyValueOutput(output);
 }
 
+async function readSourceIntegrity(root) {
+  const moduleUrl = pathToFileURL(path.join(root, "scripts/release/validate-source-integrity.mjs")).href;
+  const sourceIntegrityModule = await import(moduleUrl);
+  return sourceIntegrityModule.runSourceIntegrityValidation({ root });
+}
+
 export async function runPatSurfaceValidation({ root, port, timeoutMs, baseUrl: requestedBaseUrl }) {
   const manifest = loadManifest(root);
   const baseUrl = requestedBaseUrl?.replace(/\/$/, "") || `http://127.0.0.1:${port}`;
@@ -258,8 +352,12 @@ export async function runPatSurfaceValidation({ root, port, timeoutMs, baseUrl: 
     const routeKeys = Object.keys(manifest.routes).filter((routeKey) => routeKey !== "header" && routeKey !== "/login");
 
     for (const routeKey of routeKeys) {
+      const effectiveRouteConfig = resolveRouteValidationConfig(manifest.routes[routeKey]);
       const response = await readTextResponse(`${baseUrl}${routeKey}`, { redirect: "manual" });
-      routeEvidence[routeKey] = { status: response.status };
+      routeEvidence[routeKey] = {
+        status: response.status,
+        validationMode: effectiveRouteConfig.validationMode ?? null,
+      };
 
       if (routeKey === "/" || routeKey === "/sign-in") {
         if (response.status !== 200) {
@@ -271,7 +369,7 @@ export async function runPatSurfaceValidation({ root, port, timeoutMs, baseUrl: 
           ...validateRouteHtml(
             routeKey,
             response.bodyText,
-            manifest.routes[routeKey],
+            effectiveRouteConfig,
             manifest.globalForbiddenMarkers
           )
         );
@@ -284,7 +382,7 @@ export async function runPatSurfaceValidation({ root, port, timeoutMs, baseUrl: 
           ...validateRouteHtml(
             routeKey,
             response.bodyText,
-            manifest.routes[routeKey],
+            effectiveRouteConfig,
             manifest.globalForbiddenMarkers
           )
         );
@@ -350,9 +448,11 @@ export async function runPatSurfaceValidation({ root, port, timeoutMs, baseUrl: 
     const fingerprintPayload = await fingerprintResponse.json();
     const apiFingerprint = fingerprintPayload?.fingerprint ?? null;
     const operatorStatus = readOperatorStatus(root, port);
+    const sourceIntegrity = await readSourceIntegrity(root);
     const browserReleaseId = routeEvidence["/"]?.releaseId ?? routeEvidence["/sign-in"]?.releaseId ?? null;
 
     failures.push(...validateFingerprintAgreement(browserReleaseId, apiFingerprint, operatorStatus));
+    failures.push(...validateRuntimeOwnership(apiFingerprint, sourceIntegrity));
 
     return {
       ok: failures.length === 0,
@@ -370,6 +470,7 @@ export async function runPatSurfaceValidation({ root, port, timeoutMs, baseUrl: 
         buildId: operatorStatus.fingerprint_build_id ?? null,
         releaseFingerprintSeed: operatorStatus.fingerprint_release_fingerprint_seed ?? null,
       },
+      sourceIntegrity,
       failures,
     };
   } catch (error) {

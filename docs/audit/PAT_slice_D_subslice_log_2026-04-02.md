@@ -6,7 +6,7 @@ Prompt 3.3 required Slice D recovery in sub-slices no larger than one coherent c
 
 Authoritative branch during this work:
 
-- `recovery/pat-2026-03-31-baseline`
+- the dated recovery baseline branch used for the 2026-04-02 Slice D work
 
 Protected PAT routes held fixed throughout:
 
@@ -111,9 +111,9 @@ This source-integrity failure is not caused by the landed Slice D sub-slices.
 
 ## Current Re-Verification On Recovery HEAD
 
-Current authoritative HEAD:
+Current authoritative HEAD at re-verification time:
 
-- `252b7f39ec77b5459c26791769410b87c4048cec`
+- the then-current recovery-line head recorded in the 2026-04-02 evidence set
 
 Re-verified in this track:
 

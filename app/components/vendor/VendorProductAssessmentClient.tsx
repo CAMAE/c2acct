@@ -1,13 +1,13 @@
 "use client";
 
-import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import {
   VENDOR_PRODUCT_TIER2_HOVER,
-  VENDOR_PRODUCT_UTILITY_CAP,
   type UtilityDefinition,
 } from "@/lib/vendorPat";
+import { formatFeatureCountLabel } from "@/lib/displayCopy";
 import {
   buildVendorProductAssessmentPagePlan,
   buildVendorProductAssessmentPlan,
@@ -22,16 +22,16 @@ import {
 } from "@/lib/productAssessmentRuntime";
 
 type Props = {
+  productBrand: string;
   productId: string;
   productName: string;
+  productWebsite: string | null;
+  latestScore: number | null;
   utilityCatalog: UtilityDefinition[];
   initialUtilityKeys: string[];
   initialAnswers: Record<string, number>;
   initialOpenEndedAnswers: Record<string, string>;
   initialProfile: VendorProductProfileInput;
-  productsHref: string;
-  productInsightHref: string;
-  helpHref: string;
 };
 
 type QuestionGroup = {
@@ -68,7 +68,7 @@ function groupQuestionsBySection(questions: ProductAssessmentQuestion[]) {
       description: question.section.description,
       label:
         question.moduleKind === "utility"
-          ? question.utilityLabel ?? question.section.utilityLabel ?? "Utility scoring"
+          ? question.utilityLabel ?? question.section.utilityLabel ?? "Feature scoring"
           : question.moduleKind === "open-ended"
             ? "Open-ended module"
             : "Product profile",
@@ -80,18 +80,20 @@ function groupQuestionsBySection(questions: ProductAssessmentQuestion[]) {
 }
 
 export default function VendorProductAssessmentClient({
+  productBrand,
   productId,
   productName,
+  productWebsite,
+  latestScore,
   utilityCatalog,
   initialUtilityKeys,
   initialAnswers,
   initialOpenEndedAnswers,
   initialProfile,
-  productsHref,
-  productInsightHref,
-  helpHref,
 }: Props) {
   const router = useRouter();
+  const topCardRef = useRef<HTMLElement | null>(null);
+  const hasMountedRef = useRef(false);
   const [selectedUtilityKeys, setSelectedUtilityKeys] = useState<string[]>(initialUtilityKeys);
   const [answers, setAnswers] = useState<Record<string, number>>(initialAnswers);
   const [openEndedAnswers, setOpenEndedAnswers] = useState<Record<string, string>>(initialOpenEndedAnswers);
@@ -102,8 +104,12 @@ export default function VendorProductAssessmentClient({
   const [pageError, setPageError] = useState<string | null>(null);
 
   const assessmentPlan = useMemo(
-    () => buildVendorProductAssessmentPlan(selectedUtilityKeys),
-    [selectedUtilityKeys]
+    () =>
+      buildVendorProductAssessmentPlan(selectedUtilityKeys, {
+        profile,
+        answers,
+      }),
+    [answers, profile, selectedUtilityKeys]
   );
   const pagePlan = useMemo(
     () => buildVendorProductAssessmentPagePlan({ assessmentPlan }),
@@ -162,10 +168,21 @@ export default function VendorProductAssessmentClient({
   const canAdvanceFromCurrentPage = currentPageMissingCount === 0;
   const canSubmitAssessment =
     selectedUtilityKeys.length > 0 &&
-    selectedUtilityKeys.length <= VENDOR_PRODUCT_UTILITY_CAP &&
     profileAnsweredCount === profileQuestions.length &&
     scoredAnsweredCount === activeQuestions.length &&
     openEndedAnsweredCount === openEndedQuestions.length;
+
+  useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      return;
+    }
+
+    topCardRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [visibleCurrentPageIndex]);
 
   function setScoredAnswer(questionId: string, nextValue: string) {
     setAnswers((current) => ({
@@ -189,9 +206,6 @@ export default function VendorProductAssessmentClient({
       if (selected) {
         return current.filter((entry) => entry !== nextKey);
       }
-      if (current.length >= VENDOR_PRODUCT_UTILITY_CAP) {
-        return current;
-      }
       return [...current, nextKey];
     });
   }
@@ -206,7 +220,7 @@ export default function VendorProductAssessmentClient({
     if (!canAdvanceFromCurrentPage) {
       setPageError(
         currentPageIncludesUtilityDeclaration && selectedUtilityKeys.length === 0
-          ? "Complete the first page and declare at least one utility before PAT opens the next page."
+          ? "Complete the first page and declare at least one feature before PAT opens the next page."
           : `Complete the remaining ${currentPageMissingCount} required item${currentPageMissingCount === 1 ? "" : "s"} on this page before continuing.`
       );
       return;
@@ -218,13 +232,7 @@ export default function VendorProductAssessmentClient({
   async function submitAssessment() {
     if (selectedUtilityKeys.length === 0) {
       setSubmitState("error");
-      setSubmitError("Select at least one utility before submitting.");
-      return;
-    }
-
-    if (selectedUtilityKeys.length > VENDOR_PRODUCT_UTILITY_CAP) {
-      setSubmitState("error");
-      setSubmitError(`Select no more than ${VENDOR_PRODUCT_UTILITY_CAP} utilities in v1.`);
+      setSubmitError("Select at least one feature before submitting.");
       return;
     }
 
@@ -284,46 +292,83 @@ export default function VendorProductAssessmentClient({
 
   return (
     <div className="space-y-8">
-      <section className="grid gap-4 md:grid-cols-2">
-        <div className="pat-soft-panel p-5">
-          <div className="pat-label">Progress card</div>
-          <div className="mt-3 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">{progress}%</div>
-          <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-            {answeredCount} of {totalCount} active questions completed
+      <section ref={topCardRef} className="pat-card p-8">
+        <div className="pat-label">{productBrand}</div>
+        <PatAudienceTitle
+          as="h1"
+          title={`Vendor product assessment for ${productName}`}
+          audienceTerms={["Vendor"]}
+          className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]"
+        />
+        <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
+          Tell PAT what this product does, work through the paced assessment pages, and submit the finished response set for this product&apos;s current-state signal.
+        </p>
+        <div className="mt-6 grid gap-4 md:grid-cols-4">
+          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+            Website: <span className="font-semibold text-[var(--shell-ink)]">{productWebsite ?? "--"}</span>
           </div>
-          <div className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-            Page {visibleCurrentPageIndex} of {totalPages} · {currentPageAnsweredCount} of {currentPageQuestionCount} question
-            {currentPageQuestionCount === 1 ? "" : "s"} complete
+          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+            Latest score: <span className="font-semibold text-[var(--shell-ink)]">{latestScore ?? "--"}</span>
           </div>
-          <div className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-            Utilities selected: <span className="font-semibold text-[var(--shell-ink)]">{selectedUtilityKeys.length}</span>
-            {" "}of {VENDOR_PRODUCT_UTILITY_CAP}
+          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+            Page: <span className="font-semibold text-[var(--shell-ink)]">{visibleCurrentPageIndex} / {totalPages}</span>
           </div>
-          <div className="mt-4 flex flex-wrap gap-4 text-sm font-semibold text-[var(--shell-accent)]">
-            <Link href={productsHref} className="hover:text-[var(--shell-accent-strong)]">
-              Back to products
-            </Link>
-            <Link href={productInsightHref} className="hover:text-[var(--shell-accent-strong)]">
-              Open product insight
-            </Link>
+          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+            Progress: <span className="font-semibold text-[var(--shell-ink)]">{progress}%</span>
           </div>
         </div>
-
-        <Link href={helpHref} className="pat-soft-panel pat-soft-panel-interactive block p-5">
-          <div className="pat-label">Help card</div>
-          <div className="mt-3 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">
-            Product assessment help
-          </div>
-          <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-            Open the scoped help view for utility declaration, 10-question page pacing, and what PAT expects before submission.
-          </div>
-        </Link>
-      </section>
-
-      <section className="pat-card p-6">
-        <div className="pat-label">Assessment page</div>
-        <h2 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">{currentPage.title}</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">{currentPage.description}</p>
+        <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+          <section className="pat-soft-panel p-5">
+            <div className="pat-label">Progress</div>
+            <div className="mt-3 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">
+              {currentPage.title}
+            </div>
+            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{currentPage.description}</p>
+            <div className="mt-4 grid gap-2 text-sm leading-6 text-[var(--shell-muted)]">
+              <div>
+                Current page completion:{" "}
+                <span className="font-semibold text-[var(--shell-ink)]">
+                  {currentPageAnsweredCount} of {currentPageQuestionCount}
+                </span>
+              </div>
+              <div>
+                Total answered:{" "}
+                <span className="font-semibold text-[var(--shell-ink)]">
+                  {answeredCount} of {totalCount}
+                </span>
+              </div>
+              <div>
+                Features selected:{" "}
+                <span className="font-semibold text-[var(--shell-ink)]">
+                  {formatFeatureCountLabel(selectedUtilityKeys.length)}
+                </span>
+              </div>
+            </div>
+          </section>
+          <section className="pat-soft-panel p-5">
+            <div className="pat-label">Help</div>
+            <div className="mt-3 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">
+              Quick tutorial
+            </div>
+            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+              Move through the assessment one page at a time, answer each question honestly, and use the progress panel to keep track of where this product stands.
+            </p>
+            <div className="mt-5 grid gap-3 text-sm leading-6 text-[var(--shell-muted)]">
+              <div>
+                <span className="font-semibold text-[var(--shell-ink)]">How to take it:</span> complete the product profile,
+                confirm the right features, answer the scored pages, then finish the written follow-ups.
+              </div>
+              <div>
+                <span className="font-semibold text-[var(--shell-ink)]">Why to take it:</span> your responses give PAT a
+                grounded view of this product that can support the current vendor product-intelligence flow.
+              </div>
+              <div>
+                <span className="font-semibold text-[var(--shell-ink)]">What happens next:</span> after submission, PAT
+                saves the assessment to this product and uses it as the current vendor product signal.
+              </div>
+            </div>
+          </section>
+        </div>
       </section>
 
       {currentPage.kind === "profile" ? (
@@ -331,10 +376,10 @@ export default function VendorProductAssessmentClient({
           <section className="pat-card p-6">
             <div className="pat-label">Product profile</div>
             <h3 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">
-              First 10 product-bio questions
+              First 10 product profile questions
             </h3>
             <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-              PAT stores these stable product profile fields separately from scored assessment answers so the product can be resumed, reviewed, and reused across future firm and individual product assessments.
+              Start by describing the product clearly so PAT can interpret the rest of the assessment in the right context.
             </p>
             <div className="mt-6 grid gap-4 lg:grid-cols-2">
               {profileQuestions.map((question) => {
@@ -385,33 +430,39 @@ export default function VendorProductAssessmentClient({
           </section>
 
           <section className="pat-card p-6">
-            <div className="pat-label">Utility declaration</div>
+            <div className="pat-label">Feature declaration</div>
             <h3 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">
-              Which utilities does {productName} solve?
+              Which features does {productName} solve?
             </h3>
             <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-              This first page deliberately ends with utility declaration so PAT can generate the correct utility-scored question set before the rest of the assessment opens. One utility activates 20 scored questions, up to a v1 cap of 4 utilities.
+              Choose the features that best match what this product actually supports so PAT can open the right assessment path.
             </p>
+            <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+              Current declared scope: {formatFeatureCountLabel(selectedUtilityKeys.length)}.
+            </div>
             <div className="mt-6 grid gap-3 md:grid-cols-2">
               {utilityCatalog.map((utility) => {
                 const active = selectedUtilityKeys.includes(utility.key);
-                const atCap = !active && selectedUtilityKeys.length >= VENDOR_PRODUCT_UTILITY_CAP;
 
                 return (
-                  <button
+                  <label
                     key={utility.key}
-                    type="button"
-                    disabled={atCap}
-                    onClick={() => toggleUtility(utility.key)}
                     className={`rounded-[20px] border p-4 text-left ${
                       active
                         ? "border-[rgba(6,54,116,0.16)] bg-[rgba(6,54,116,0.05)]"
                         : "border-[var(--shell-border)] bg-white"
-                    } ${atCap ? "opacity-55" : ""}`}
+                    } cursor-pointer`}
                   >
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={active}
+                      aria-label={utility.label}
+                      onChange={() => toggleUtility(utility.key)}
+                    />
                     <div className="text-sm font-semibold text-[var(--shell-ink)]">{utility.label}</div>
                     <div className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{utility.description}</div>
-                  </button>
+                  </label>
                 );
               })}
             </div>
@@ -491,11 +542,14 @@ export default function VendorProductAssessmentClient({
       )}
 
       <section className="pat-card p-6">
-        <div className="pat-label">{visibleCurrentPageIndex < totalPages ? "Page navigation" : "Submit"}</div>
+        <div className="pat-label">{visibleCurrentPageIndex < totalPages ? "Next" : "Submit"}</div>
+        <div className="mt-3 text-xl font-semibold text-[var(--shell-ink)]">
+          {visibleCurrentPageIndex < totalPages ? "Next" : "Submit"}
+        </div>
         <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
           {visibleCurrentPageIndex < totalPages
-            ? "PAT keeps the hero stable at the top while the question region moves page by page through profile, utility-scored, and open-ended responses."
-            : "PAT saves vendor product self-signal to the current product, persists the generated assessment plan for stable resume behavior, and stores the assessment record in the live submission system."}
+            ? "Continue to next page of the assessment"
+            : "Submit the completed assessment so PAT can save the current vendor product signal for this product."}
         </p>
 
         {pageError ? (
@@ -531,7 +585,6 @@ export default function VendorProductAssessmentClient({
               {submitState === "submitting" ? "Submitting..." : "Submit product assessment"}
             </button>
           )}
-
         </div>
 
         <div className="mt-4 flex flex-wrap gap-3 text-sm text-[var(--shell-muted)]">

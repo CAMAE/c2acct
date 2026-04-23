@@ -5,6 +5,7 @@ import {
 } from "@/lib/firmCapabilities";
 import {
   FIRM_MODULE_DEFINITIONS,
+  FIRM_MODULE_OPEN_ENDED_QUESTION_COUNT,
   FIRM_MODULE_QUESTION_STEMS,
   FIRM_TIER1_INSIGHT_DEFINITIONS,
 } from "@/lib/firmPat";
@@ -72,9 +73,25 @@ function validateCanonicalFirmRuntime() {
     fail(`Expected 20 canonical PAT question stems, found ${FIRM_MODULE_QUESTION_STEMS.length}.`);
   }
 
-  const expectedQuestionTotal = FIRM_MODULE_DEFINITIONS.length * FIRM_MODULE_QUESTION_STEMS.length;
-  if (expectedQuestionTotal !== 100) {
-    fail(`Expected 100 total canonical PAT firm questions, computed ${expectedQuestionTotal}.`);
+  if (FIRM_MODULE_OPEN_ENDED_QUESTION_COUNT !== 5) {
+    fail(
+      `Expected 5 canonical PAT open-ended follow-up prompts per module, found ${FIRM_MODULE_OPEN_ENDED_QUESTION_COUNT}.`
+    );
+  }
+
+  const expectedScoredQuestionTotal =
+    FIRM_MODULE_DEFINITIONS.length * FIRM_MODULE_QUESTION_STEMS.length;
+  if (expectedScoredQuestionTotal !== 100) {
+    fail(
+      `Expected 100 total canonical PAT scored firm questions, computed ${expectedScoredQuestionTotal}.`
+    );
+  }
+
+  const expectedQuestionTotal =
+    FIRM_MODULE_DEFINITIONS.length *
+    (FIRM_MODULE_QUESTION_STEMS.length + FIRM_MODULE_OPEN_ENDED_QUESTION_COUNT);
+  if (expectedQuestionTotal !== 125) {
+    fail(`Expected 125 total canonical PAT firm questions, computed ${expectedQuestionTotal}.`);
   }
 }
 
@@ -96,7 +113,7 @@ function main() {
   scanForForbiddenCanonicalDrift();
 
   console.log(
-    `PASS check-pat-runtime-consistency: ${FIRM_MODULE_DEFINITIONS.length} canonical firm modules, ${FIRM_MODULE_QUESTION_STEMS.length} questions each, ${FIRM_TIER1_INSIGHT_DEFINITIONS.length} Pro insights with rule coverage, no canonical ${LEGACY_FIRM_MODULE_KEY} drift.`
+    `PASS check-pat-runtime-consistency: ${FIRM_MODULE_DEFINITIONS.length} canonical firm modules, ${FIRM_MODULE_QUESTION_STEMS.length} scored questions plus ${FIRM_MODULE_OPEN_ENDED_QUESTION_COUNT} open-ended follow-ups each, ${FIRM_TIER1_INSIGHT_DEFINITIONS.length} Pro insights with rule coverage, no canonical ${LEGACY_FIRM_MODULE_KEY} drift.`
   );
 }
 

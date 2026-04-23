@@ -1,64 +1,119 @@
-"use client";
-
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import InsightStatusBadge from "@/app/components/insights/InsightStatusBadge";
+import InsightSurfaceCardGrid, { type InsightSurfaceGridCard } from "@/app/components/insights/InsightSurfaceCardGrid";
+import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
+import PatModeToggle from "@/app/components/pat/PatModeToggle";
 
 export type InsightsModeKey = "pro" | "elite" | "help";
 
-type InsightsModeShellProps = {
-  hero: ReactNode;
-  proContent: ReactNode;
-  eliteContent: ReactNode;
-  helpContent: ReactNode;
-  defaultMode?: InsightsModeKey;
+type InsightInfoCard = {
+  title: string;
+  body: string;
+  actions?: ReactNode;
+  badgeLabel?: string;
+  badgeTone?: "active" | "muted" | "locked";
+  tone?: "default" | "muted";
 };
 
-const modeOptions: Array<{ key: InsightsModeKey; label: string }> = [
-  { key: "pro", label: "Pro Insights" },
-  { key: "elite", label: "Elite Insights" },
-  { key: "help", label: "Help" },
-];
+type InsightsModePanel = {
+  title: string;
+  intro: string;
+  cards?: readonly InsightSurfaceGridCard[];
+  infoCards?: readonly InsightInfoCard[];
+  columnsClassName?: string;
+};
+
+type InsightsModeShellProps = {
+  activeMode: InsightsModeKey;
+  eyebrow: string;
+  heroBody: ReactNode;
+  proPanel: InsightsModePanel;
+  elitePanel: InsightsModePanel;
+  helpPanel: InsightsModePanel;
+  title: string;
+  toggleAriaLabel: string;
+  toggleOptions: ReadonlyArray<{
+    key: InsightsModeKey;
+    label: string;
+    href: string;
+  }>;
+  audienceTerms?: string[];
+  currentStateSummary?: ReactNode;
+  heroSupplement?: ReactNode;
+};
 
 export default function InsightsModeShell({
-  hero,
-  proContent,
-  eliteContent,
-  helpContent,
-  defaultMode = "pro",
+  activeMode,
+  eyebrow,
+  heroBody,
+  proPanel,
+  elitePanel,
+  helpPanel,
+  title,
+  toggleAriaLabel,
+  toggleOptions,
+  audienceTerms,
+  currentStateSummary,
+  heroSupplement,
 }: InsightsModeShellProps) {
-  const [activeMode, setActiveMode] = useState<InsightsModeKey>(defaultMode);
-
-  const panelContent =
-    activeMode === "pro"
-      ? proContent
-      : activeMode === "elite"
-        ? eliteContent
-        : helpContent;
+  const activePanel = activeMode === "pro" ? proPanel : activeMode === "elite" ? elitePanel : helpPanel;
 
   return (
     <div className="space-y-8">
-      {hero}
-
-      <section className="pat-card p-4">
-        <div className="flex flex-wrap gap-3">
-          {modeOptions.map((mode) => {
-            const isActive = mode.key === activeMode;
-            return (
-              <button
-                key={mode.key}
-                type="button"
-                className={isActive ? "pat-button-primary" : "pat-button-secondary"}
-                aria-pressed={isActive}
-                onClick={() => setActiveMode(mode.key)}
-              >
-                {mode.label}
-              </button>
-            );
-          })}
+      <section className="pat-card p-8">
+        <div className="pat-label">{eyebrow}</div>
+        <PatAudienceTitle
+          as="h1"
+          title={title}
+          audienceTerms={audienceTerms ?? []}
+          className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]"
+        />
+        <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">{heroBody}</p>
+        {currentStateSummary ? (
+          <div className="mt-6 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4 text-sm leading-6 text-[var(--shell-muted)]">
+            {currentStateSummary}
+          </div>
+        ) : null}
+        <div className="mt-6">
+          <PatModeToggle
+            activeKey={activeMode}
+            ariaLabel={toggleAriaLabel}
+            options={toggleOptions}
+            navigationMode="replace"
+          />
         </div>
       </section>
+      {heroSupplement}
 
-      <section className="space-y-6" key={activeMode}>
-        {panelContent}
+      <section className="space-y-4" key={activeMode}>
+        <div>
+          <h2 className="text-2xl font-semibold text-[var(--shell-ink)]">{activePanel.title}</h2>
+          <p className="mt-1 text-sm text-[var(--shell-muted)]">{activePanel.intro}</p>
+        </div>
+        {activePanel.cards ? (
+          <InsightSurfaceCardGrid
+            cards={activePanel.cards}
+            columnsClassName={activePanel.columnsClassName}
+          />
+        ) : activePanel.infoCards ? (
+          <section className={`grid gap-5 ${activePanel.columnsClassName ?? "xl:grid-cols-3"}`}>
+            {activePanel.infoCards.map((card) => (
+              <article
+                key={card.title}
+                className={`${card.tone === "muted" ? "pat-card pat-card-muted" : "pat-card"} p-6`}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="text-lg font-semibold text-[var(--shell-ink)]">{card.title}</div>
+                  {card.badgeLabel ? (
+                    <InsightStatusBadge label={card.badgeLabel} tone={card.badgeTone} />
+                  ) : null}
+                </div>
+                <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{card.body}</p>
+                {card.actions ? <div className="mt-5 flex flex-wrap gap-3">{card.actions}</div> : null}
+              </article>
+            ))}
+          </section>
+        ) : null}
       </section>
     </div>
   );

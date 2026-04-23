@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { QuestionInputType } from "@prisma/client";
 import { runWithPrisma } from "./_shared/prismaScript";
 import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
 
@@ -20,6 +21,7 @@ async function main() {
           orderBy: { order: "asc" },
           select: {
             key: true,
+            inputType: true,
             SurveyQuestionCapability: {
               select: { nodeId: true },
             },
@@ -46,7 +48,9 @@ async function main() {
 
     const questionsMissingCapabilities = modules.flatMap((surveyModule) =>
       surveyModule.SurveyQuestion.filter(
-        (question) => question.SurveyQuestionCapability.length === 0
+        (question) =>
+          question.inputType === QuestionInputType.SLIDER &&
+          question.SurveyQuestionCapability.length === 0
       ).map((question) => `${surveyModule.key}:${question.key}`)
     );
 
@@ -62,6 +66,12 @@ async function main() {
           moduleKey: surveyModule.key,
           moduleCapabilityCount: surveyModule.ModuleCapability.length,
           questionCount: surveyModule.SurveyQuestion.length,
+          scoredQuestionCount: surveyModule.SurveyQuestion.filter(
+            (question) => question.inputType === QuestionInputType.SLIDER
+          ).length,
+          openEndedQuestionCount: surveyModule.SurveyQuestion.filter(
+            (question) => question.inputType === QuestionInputType.TEXT
+          ).length,
           questionCapabilityCount: surveyModule.SurveyQuestion.reduce(
             (total, question) => total + question.SurveyQuestionCapability.length,
             0

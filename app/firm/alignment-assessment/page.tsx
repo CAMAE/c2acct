@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
+import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import { getSessionUser } from "@/lib/auth/session";
+import { PAT_PRODUCT_NAME } from "@/lib/displayCopy";
+import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { getFirmAssessmentProgress } from "@/lib/firmPat";
 
 export const dynamic = "force-dynamic";
@@ -10,18 +14,42 @@ export default async function FirmAlignmentAssessmentPage() {
   if (!sessionUser?.companyId) {
     redirect("/sign-in/firm");
   }
+  const entitlement = await resolveMembershipEntitlement(sessionUser, "firm", MEMBERSHIP_PLAN.PRO);
+  if (!entitlement.allowed) {
+    return (
+      <MembershipSurfaceGate
+        audience="firm"
+        surfaceLabel="Firm alignment assessment"
+        title="Firm alignment assessment requires Pro membership"
+        body="The modular firm alignment assessment is part of the current Pro firm tier. PAT keeps the route visible so the upgrade path is explicit, but the assessment modules open only after Pro is active."
+        displayName={entitlement.membership.displayName}
+        currentPlan={entitlement.membership.plan}
+        currentStatus={entitlement.membership.status}
+        requiredPlan={entitlement.requiredPlan}
+        membershipHref={entitlement.membershipHref}
+        upgradeHref={entitlement.upgradeHref}
+        workspaceHref="/firm"
+        workspaceLabel="Open firm workspace"
+        availableNow="The baseline firm state still keeps workspace entry, help, and membership routing available."
+        stagedNote="This assessment surface feeds the current firm insight layer, so PAT treats it as part of the current Pro operating tier rather than the baseline state."
+      />
+    );
+  }
 
   const modules = await getFirmAssessmentProgress(sessionUser.companyId);
 
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
-        <div className="pat-label">Firm alignment assessment</div>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
-          Five modules, one live firm alignment system
-        </h1>
+        <div className="pat-label">{PAT_PRODUCT_NAME}</div>
+        <PatAudienceTitle
+          as="h1"
+          title="Firm alignment assessment across five PAT modules"
+          audienceTerms={["Firm"]}
+          className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]"
+        />
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          This is the modular PAT firm alignment assessment. Each module carries 20 questions on a 0 to 5 current-state scale, progress is tracked independently, and submissions flow directly into the existing results and insight unlock system.
+          This is the modular PAT firm alignment assessment. Each module carries 20 scored questions on a 0 to 5 current-state scale plus five open-ended follow-up prompts, progress is tracked independently, and submissions flow directly into the existing results and insight unlock system. Complete the alignment assessment to unlock insights that help improve firm productivity.
         </p>
       </section>
 
@@ -41,21 +69,6 @@ export default async function FirmAlignmentAssessmentPage() {
             </div>
           </Link>
         ))}
-      </section>
-
-      <section className="pat-card p-6">
-        <div className="pat-label">Unlock path</div>
-        <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-          Pro membership firm insights unlock through the live badge and capability-rule system. Completing all five modules proves assessment coverage; the related capability thresholds determine whether each Pro insight is ready to surface.
-        </p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link className="pat-button-secondary" href="/firm/insights">
-            Open firm insights
-          </Link>
-          <Link className="pat-button-secondary" href="/firm">
-            Return to firm workspace
-          </Link>
-        </div>
       </section>
     </div>
   );

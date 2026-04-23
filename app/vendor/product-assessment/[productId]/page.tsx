@@ -1,7 +1,11 @@
+import { randomUUID } from "node:crypto";
 import { ProductAssessmentPerspective } from "@prisma/client";
 import { redirect } from "next/navigation";
+import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import VendorProductAssessmentClient from "@/app/components/vendor/VendorProductAssessmentClient";
 import { getSessionUser } from "@/lib/auth/session";
+import { PAT_PRODUCT_NAME } from "@/lib/displayCopy";
+import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import prisma from "@/lib/prisma";
 import {
   getInitialVendorProductProfile,
@@ -29,6 +33,27 @@ export default async function VendorProductAssessmentDetailPage({
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
     redirect("/sign-in/vendor");
+  }
+  const entitlement = await resolveMembershipEntitlement(sessionUser, "vendor", MEMBERSHIP_PLAN.PRO);
+  if (!entitlement.allowed) {
+    return (
+      <MembershipSurfaceGate
+        audience="vendor"
+        surfaceLabel="Vendor product assessment"
+        title="Vendor product assessment requires Pro membership"
+        body="This product-level assessment runtime is part of the current Pro vendor tier. PAT keeps the page visible so the upgrade path stays explicit, but it does not open the assessment body until Pro is active."
+        displayName={entitlement.membership.displayName}
+        currentPlan={entitlement.membership.plan}
+        currentStatus={entitlement.membership.status}
+        requiredPlan={entitlement.requiredPlan}
+        membershipHref={entitlement.membershipHref}
+        upgradeHref={entitlement.upgradeHref}
+        workspaceHref="/vendor/product-assessment"
+        workspaceLabel="Back to vendor product assessments"
+        availableNow="The baseline vendor state still keeps the portal, help, and membership routes available without opening the assessment runtime."
+        stagedNote="This assessment body feeds the current product-intelligence layer, so PAT treats it as a Pro surface rather than a baseline portal page."
+      />
+    );
   }
 
   const vendorContext = await getVendorCompanyContext(sessionUser.companyId);
@@ -118,12 +143,6 @@ export default async function VendorProductAssessmentDetailPage({
   const initialAnswers = persistedAnswerPayload?.responses ?? {};
   const initialOpenEndedAnswers = persistedAnswerPayload?.openEndedResponses ?? {};
   const resolvedProductName = productRecord?.name ?? product.name;
-  const helpSearchParams = new URLSearchParams({
-    topic: "product-assessment",
-    productId: product.id,
-    productName: resolvedProductName,
-  });
-  const productAssessmentHelpHref = `/vendor/help?${helpSearchParams.toString()}`;
   const initialProfile = getInitialVendorProductProfile({
     product: {
       name: resolvedProductName,
@@ -154,7 +173,7 @@ export default async function VendorProductAssessmentDetailPage({
       updatedAt: new Date(),
     },
     create: {
-      id: `product-plan-${product.id}-vendor`,
+      id: randomUUID(),
       productId: product.id,
       perspective: ProductAssessmentPerspective.VENDOR,
       registryVersion: persistedPlanSnapshot.registryVersion,
@@ -171,40 +190,17 @@ export default async function VendorProductAssessmentDetailPage({
   });
 
   return (
-    <div className="space-y-8">
-      <section className="pat-card p-8">
-        <div className="pat-label">Product assessment</div>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
-          {resolvedProductName}
-        </h1>
-        <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          Declare the utilities this product solves, then answer the per-product PAT assessment. The submission persists as product-specific vendor self-signal, not a generic company submission.
-        </p>
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Website: <span className="font-semibold text-[var(--shell-ink)]">{product.website ?? "--"}</span>
-          </div>
-          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Latest score: <span className="font-semibold text-[var(--shell-ink)]">{latestSubmission?.score ?? "--"}</span>
-          </div>
-          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Utility catalog: <span className="font-semibold text-[var(--shell-ink)]">{VENDOR_UTILITY_CATALOG.length} options</span>
-          </div>
-        </div>
-      </section>
-
-      <VendorProductAssessmentClient
-        productId={product.id}
-        productName={resolvedProductName}
-        utilityCatalog={VENDOR_UTILITY_CATALOG}
-        initialUtilityKeys={initialUtilityKeys}
-        initialAnswers={initialAnswers}
-        initialOpenEndedAnswers={initialOpenEndedAnswers}
-        initialProfile={initialProfile}
-        productsHref="/vendor/product-assessment"
-        productInsightHref={`/vendor/product-insight/${product.id}`}
-        helpHref={productAssessmentHelpHref}
-      />
-    </div>
+    <VendorProductAssessmentClient
+      productBrand={PAT_PRODUCT_NAME}
+      productId={product.id}
+      productName={resolvedProductName}
+      productWebsite={productRecord?.website ?? product.website}
+      latestScore={latestSubmission?.score ?? null}
+      utilityCatalog={VENDOR_UTILITY_CATALOG}
+      initialUtilityKeys={initialUtilityKeys}
+      initialAnswers={initialAnswers}
+      initialOpenEndedAnswers={initialOpenEndedAnswers}
+      initialProfile={initialProfile}
+    />
   );
 }

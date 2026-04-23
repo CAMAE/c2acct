@@ -4,9 +4,13 @@ import {
   DEFAULT_FREE_MEMBERSHIP_STATUS,
   MEMBERSHIP_PLAN,
   MEMBERSHIP_STATUS,
+  getMembershipPlanRank,
+  getMembershipUpgradeHref,
+  hasMembershipAccess,
   getVirtualFreeMembershipSnapshot,
   normalizeMembershipPlan,
   normalizeMembershipStatus,
+  resolveLocalReviewCompatibilityMembership,
 } from "@/lib/membership";
 
 describe("membership resolver contracts", () => {
@@ -57,5 +61,48 @@ describe("membership resolver contracts", () => {
     expect(individual.plan).toBe(DEFAULT_FREE_MEMBERSHIP_PLAN);
     expect(individual.status).toBe(DEFAULT_FREE_MEMBERSHIP_STATUS);
     expect(individual.checkoutHref).toBe("/user/membership/checkout");
+  });
+
+  it("keeps the plan ranking and minimum-tier checks explicit", () => {
+    expect(getMembershipPlanRank(MEMBERSHIP_PLAN.FREE)).toBeLessThan(getMembershipPlanRank(MEMBERSHIP_PLAN.PRO));
+    expect(getMembershipPlanRank(MEMBERSHIP_PLAN.PRO)).toBeLessThan(getMembershipPlanRank(MEMBERSHIP_PLAN.ELITE));
+    expect(hasMembershipAccess(MEMBERSHIP_PLAN.FREE, MEMBERSHIP_PLAN.PRO)).toBe(false);
+    expect(hasMembershipAccess(MEMBERSHIP_PLAN.PRO, MEMBERSHIP_PLAN.PRO)).toBe(true);
+    expect(hasMembershipAccess(MEMBERSHIP_PLAN.ELITE, MEMBERSHIP_PLAN.PRO)).toBe(true);
+  });
+
+  it("builds upgrade hrefs against the current paid tiers only", () => {
+    expect(getMembershipUpgradeHref("vendor", MEMBERSHIP_PLAN.PRO)).toBe("/vendor/membership/checkout?plan=pro");
+    expect(getMembershipUpgradeHref("firm", MEMBERSHIP_PLAN.ELITE)).toBe("/firm/membership/checkout?plan=elite");
+    expect(getMembershipUpgradeHref("individual", MEMBERSHIP_PLAN.FREE)).toBe("/user/membership/checkout?plan=pro");
+  });
+
+  it("defines explicit local-review compatibility membership only for vendor and firm review identities", () => {
+    const previousFlag = process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH;
+
+    process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH = "1";
+
+    try {
+      expect(resolveLocalReviewCompatibilityMembership("vendor", "review.vendor@pat.local")).toEqual({
+        audience: "vendor",
+        plan: MEMBERSHIP_PLAN.PRO,
+        status: MEMBERSHIP_STATUS.ACTIVE,
+      });
+      expect(resolveLocalReviewCompatibilityMembership("firm", "review.firm@pat.local")).toEqual({
+        audience: "firm",
+        plan: MEMBERSHIP_PLAN.PRO,
+        status: MEMBERSHIP_STATUS.ACTIVE,
+      });
+      expect(resolveLocalReviewCompatibilityMembership("vendor", "review.firm@pat.local")).toBeNull();
+      expect(resolveLocalReviewCompatibilityMembership("firm", "review.vendor@pat.local")).toBeNull();
+      expect(resolveLocalReviewCompatibilityMembership("individual", "review.individual@pat.local")).toBeNull();
+      expect(resolveLocalReviewCompatibilityMembership("firm", "review.admin@pat.local")).toBeNull();
+    } finally {
+      if (typeof previousFlag === "string") {
+        process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH = previousFlag;
+      } else {
+        delete process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH;
+      }
+    }
   });
 });

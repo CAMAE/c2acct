@@ -6,7 +6,7 @@ export const individualWorkspaceCards: PortalSurface[] = [
   {
     id: "individual-alignment-assessment",
     title: "Alignment Assessment",
-    description: "Open the live person-level PAT alignment assessment and carry the saved signal into individual insight visibility.",
+    description: "Open the current person-level PAT alignment assessment and carry the saved signal into individual insight visibility.",
     href: "/user/alignment-assessment",
     audience: ["individual"],
     section: "operate",
@@ -35,7 +35,7 @@ export const individualWorkspaceCards: PortalSurface[] = [
 export const individualHelpCards = [
   {
     title: "Alignment Assessment",
-    what: "The live home for the person-level PAT alignment assessment.",
+    what: "The current home for the person-level PAT alignment assessment.",
     why: "Individuals need a clean entry into their own PAT signal, not only firm or vendor views.",
     how: "Open it to use the existing PAT survey runtime and carry real person-level signal into the individual insight layer.",
     href: "/user/alignment-assessment",
@@ -43,8 +43,8 @@ export const individualHelpCards = [
   {
     title: "Product Assessment",
     what: "The staged route for future person-level product review and fit signal.",
-    why: "Individual experience with products is a distinct PAT layer, but PAT should not fake a live product runtime before the person-to-product plumbing actually exists.",
-    how: "Use it to review the real readiness state now: person subject support is live, shared product plumbing exists, and the missing individual submit and insight-consumption path are called out explicitly.",
+    why: "Individual experience with products is a distinct PAT layer, but PAT should not fake a working product runtime before the person-to-product plumbing actually exists.",
+    how: "Use it to review the real route state now: person-subject support exists, shared product plumbing exists, and the missing individual submit and insight-consumption path are called out explicitly.",
     href: "/user/product-assessment",
   },
   {
@@ -118,7 +118,7 @@ export function IndividualHelpInlineContent({
         </h2>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           {scopedCard
-            ? "This scoped help view focuses on the current individual product-assessment truth: person subjects and the shared product model exist, but PAT does not yet have a live individual submit path, product selection contract, or person-level product insight consumer."
+            ? "This scoped help view focuses on the current individual product-assessment truth: person subjects and the shared product model exist, but PAT does not yet have a current individual submit path, product selection contract, or person-level product insight consumer."
             : "This help view explains the current individual PAT route set in plain language so the staged person-native flow is easy to review without pretending deeper product behavior already exists."}
         </p>
       </section>
@@ -131,7 +131,7 @@ export function IndividualHelpInlineContent({
         <section className="pat-card p-6">
           <div className="pat-label">Next step</div>
           <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Return to the individual product-assessment route to review the staged readiness map, or open the live individual alignment flow if you need person-native PAT signal today.
+            Return to the individual product-assessment route to review the staged route map, or open the current individual alignment flow if you need person-native PAT signal today.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link className="pat-button-primary" href="/user/product-assessment">

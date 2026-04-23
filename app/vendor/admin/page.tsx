@@ -149,7 +149,7 @@ export default async function VendorAdminPage() {
         />
         {canAccessPortalAdmin(sessionUser) ? (
           <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Platform-wide operator controls now live in <a className="font-semibold text-[var(--shell-accent)]" href="/admin">/admin</a>. Keep this vendor admin page focused on vendor-owned profile and product tasks.
+            Platform-wide operator controls now sit in <a className="font-semibold text-[var(--shell-accent)]" href="/admin">/admin</a>. Keep this vendor admin page focused on vendor-owned profile and product tasks.
           </p>
         ) : null}
       </section>

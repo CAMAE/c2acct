@@ -1,12 +1,15 @@
 import fs from "node:fs";
 import path from "node:path";
+import net from "node:net";
 import { spawn } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
 import { loadEnv } from "./_shared/prismaScript";
+import { assertStartupRoot, renderProbeFailure, waitForPatHomepage } from "./startup-guard";
 
 type ParsedArgs = {
   check: boolean;
   port: number;
+  portWasExplicit: boolean;
   timeoutMs: number;
 };
 
@@ -14,11 +17,14 @@ const SECRET_MISSING_MARKER =
   "Local review sign-in is blocked because AUTH_SECRET or NEXTAUTH_SECRET is missing.";
 const DEFAULT_LOCAL_REVIEW_PASSWORD = "pat-local-review";
 const DEFAULT_LOCAL_AUTH_SECRET = "pat-local-auth-secret";
+const LOCAL_STANDALONE_PORT_ENV = "PAT_LOCAL_STANDALONE_PORT";
 
 function parseArgs(argv: string[]): ParsedArgs {
+  const configuredPort = process.env[LOCAL_STANDALONE_PORT_ENV] ?? process.env.PORT ?? "3000";
   const parsed: ParsedArgs = {
     check: false,
-    port: Number(process.env.PORT ?? 3000),
+    port: Number(configuredPort),
+    portWasExplicit: Boolean(process.env[LOCAL_STANDALONE_PORT_ENV]),
     timeoutMs: 45_000,
   };
 
@@ -31,6 +37,7 @@ function parseArgs(argv: string[]): ParsedArgs {
 
     if (arg === "--port") {
       parsed.port = Number(argv[index + 1] ?? parsed.port);
+      parsed.portWasExplicit = true;
       index += 1;
       continue;
     }
@@ -42,6 +49,74 @@ function parseArgs(argv: string[]): ParsedArgs {
   }
 
   return parsed;
+}
+
+function ensureValidPort(port: number) {
+  if (!Number.isInteger(port) || port < 1 || port > 65_535) {
+    throw new Error(`PAT local standalone requires a valid TCP port. Received ${String(port)}.`);
+  }
+
+  return port;
+}
+
+function probeLoopbackPort(port: number) {
+  return new Promise<boolean>((resolve, reject) => {
+    const server = net.createServer();
+
+    server.once("error", (error: NodeJS.ErrnoException) => {
+      server.close();
+      if (error.code === "EADDRINUSE") {
+        resolve(false);
+        return;
+      }
+
+      reject(error);
+    });
+
+    server.once("listening", () => {
+      server.close(() => resolve(true));
+    });
+
+    server.listen(port, "127.0.0.1");
+  });
+}
+
+async function resolveProofPort(preferredPort: number, portWasExplicit: boolean) {
+  const safePreferredPort = ensureValidPort(preferredPort);
+
+  if (await probeLoopbackPort(safePreferredPort)) {
+    return {
+      port: safePreferredPort,
+      fallbackFrom: null as number | null,
+    };
+  }
+
+  if (portWasExplicit) {
+    throw new Error(
+      `PAT local standalone cannot bind to explicit proof port 127.0.0.1:${safePreferredPort} because it is already in use. Choose another loopback port with \`--port\` or \`${LOCAL_STANDALONE_PORT_ENV}=\`.`
+    );
+  }
+
+  for (let offset = 1; offset <= 10; offset += 1) {
+    const candidate = safePreferredPort + offset;
+    if (candidate > 65_535) {
+      break;
+    }
+
+    if (await probeLoopbackPort(candidate)) {
+      return {
+        port: candidate,
+        fallbackFrom: safePreferredPort,
+      };
+    }
+  }
+
+  throw new Error(
+    `PAT local standalone could not find a free loopback proof port starting at 127.0.0.1:${safePreferredPort}. Tried ${safePreferredPort}-${Math.min(
+      safePreferredPort + 10,
+      65_535
+    )}.`
+  );
 }
 
 function isLoopbackUrl(value: string) {
@@ -63,7 +138,8 @@ function resolveStandaloneEnv(port: number) {
     process.env.AUTH_SECRET?.trim() ||
     process.env.NEXTAUTH_SECRET?.trim() ||
     DEFAULT_LOCAL_AUTH_SECRET;
-  const localReviewPassword = process.env.PAT_LOCAL_REVIEW_PASSWORD?.trim() || DEFAULT_LOCAL_REVIEW_PASSWORD;
+  const localReviewPassword =
+    process.env.PAT_LOCAL_REVIEW_PASSWORD?.trim() || DEFAULT_LOCAL_REVIEW_PASSWORD;
 
   const failures: string[] = [];
 
@@ -156,6 +232,7 @@ async function readHealthStatus(baseUrl: string) {
 }
 
 async function runStandaloneCheck(port: number, timeoutMs: number) {
+  assertStartupRoot("standalone");
   const serverPath = assertStandaloneBuildPresent();
   const env = {
     ...process.env,
@@ -179,6 +256,11 @@ async function runStandaloneCheck(port: number, timeoutMs: number) {
   const baseUrl = `http://127.0.0.1:${port}`;
 
   try {
+    const homepageProbe = await waitForPatHomepage(baseUrl, "standalone", timeoutMs);
+    if (!homepageProbe.ok) {
+      throw new Error(renderProbeFailure(homepageProbe));
+    }
+
     const signInResponse = await waitForOkResponse(`${baseUrl}/sign-in?view=vendor`, timeoutMs);
     const signInHtml = await signInResponse.text();
 
@@ -190,7 +272,7 @@ async function runStandaloneCheck(port: number, timeoutMs: number) {
 
     const health = await readHealthStatus(baseUrl);
     console.log(
-      `PASS standalone:local:check: PAT standalone is serving on ${baseUrl} with local review auth secret present and db health status=${String(
+      `PASS standalone:local:check: PAT standalone is serving on ${baseUrl}${homepageProbe.releaseId ? ` (Release ${homepageProbe.releaseId})` : ""} with homepage and /api/release-fingerprint agreement proved, local review auth secret present, and db health status=${String(
         health.status ?? "unavailable"
       )} ok=${String(health.ok)}.`
     );
@@ -210,16 +292,24 @@ async function runStandaloneCheck(port: number, timeoutMs: number) {
 }
 
 async function main() {
+  assertStartupRoot("standalone");
   const args = parseArgs(process.argv.slice(2));
   const serverPath = assertStandaloneBuildPresent();
-  const env = resolveStandaloneEnv(args.port);
+  const portResolution = await resolveProofPort(args.port, args.portWasExplicit);
+  const env = resolveStandaloneEnv(portResolution.port);
+
+  if (portResolution.fallbackFrom !== null) {
+    console.log(
+      `PAT local standalone proof port 127.0.0.1:${portResolution.fallbackFrom} is busy; using 127.0.0.1:${portResolution.port} instead.`
+    );
+  }
 
   if (args.check) {
-    await runStandaloneCheck(args.port, args.timeoutMs);
+    await runStandaloneCheck(portResolution.port, args.timeoutMs);
     return;
   }
 
-  console.log(`Launching PAT local standalone on http://127.0.0.1:${args.port}`);
+  console.log(`Launching PAT local standalone on http://127.0.0.1:${portResolution.port}`);
   const child = spawn("node", [serverPath], {
     cwd: process.cwd(),
     env: {
@@ -237,6 +327,20 @@ async function main() {
 
   process.on("SIGINT", () => stopChild("SIGINT"));
   process.on("SIGTERM", () => stopChild("SIGTERM"));
+
+  const homepageProbe = await waitForPatHomepage(
+    `http://127.0.0.1:${portResolution.port}`,
+    "standalone",
+    args.timeoutMs
+  );
+  if (!homepageProbe.ok) {
+    stopChild("SIGTERM");
+    await delay(250);
+    if (child.exitCode === null) {
+      stopChild("SIGKILL");
+    }
+    throw new Error(renderProbeFailure(homepageProbe));
+  }
 
   await new Promise<void>((resolve, reject) => {
     child.once("exit", (code: number | null) => {

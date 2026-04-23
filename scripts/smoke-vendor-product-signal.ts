@@ -31,6 +31,12 @@ const fixture: VendorProductInsightSnapshotInput = {
     summary: "Deterministic vendor product signal fixture.",
     utilityKeys,
   },
+  vendorAssessmentStatus: {
+    completed: true,
+    latestSubmittedAt: new Date("2026-03-30T12:00:00.000Z"),
+    statusLabel: "Ready for firm review",
+    reason: "Firm review is available because the vendor completed the full product assessment.",
+  },
   vendorSelfReported: {
     latestScore: 84,
     submittedAt: new Date("2026-03-30T12:00:00.000Z"),
@@ -54,6 +60,7 @@ const fixture: VendorProductInsightSnapshotInput = {
 
 const snapshot = buildVendorProductInsightSnapshot(fixture);
 
+assert.equal(snapshot.vendorAssessmentStatus.completed, true, "Completed vendor assessment status should be explicit.");
 assert.equal(snapshot.vendorSelfReported.latestScore, 84, "Vendor self-reported signal should be preserved.");
 assert.equal(snapshot.firmReviewed.assessmentCount, 2, "Firm-reviewed sample size should be preserved.");
 assert.equal(snapshot.firmReviewed.averageScore, 34, "Firm-reviewed average should remain explicit in the snapshot.");
@@ -73,11 +80,11 @@ assert.ok(
   snapshot.confidenceCaveats.some((caveat) => caveat.includes("2 assessments")),
   "Small firm review samples should produce a confidence caveat."
 );
-assert.equal(snapshot.confidenceBand, "directional", "Two firm reviews should remain directional.");
+assert.equal(snapshot.confidenceBand, "sample_thin", "Two firm reviews should remain sample-thin.");
 assert.match(
   snapshot.confidenceSummary,
-  /directional rather than broadly confirmed/i,
-  "Thin firm review samples should be described as directional."
+  /sample-thin rather than broadly confirmed/i,
+  "Thin firm review samples should be described as sample-thin."
 );
 assert.ok(
   snapshot.confidenceCaveats.some((caveat) => caveat.includes("50 points apart")),

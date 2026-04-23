@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   redirect: vi.fn(),
@@ -28,14 +28,20 @@ vi.mock("@/lib/prisma-compat", () => ({
 import { CONSULTANT_ACCESS_FLAG_ENV, isConsultantAccessEnabled } from "@/lib/consultantAccess";
 
 describe("consultant access flag contract", () => {
-  it("stays off by default until consultant proof is explicitly enabled", () => {
+  beforeEach(() => {
+    vi.stubEnv(CONSULTANT_ACCESS_FLAG_ENV, "0");
+  });
+
+  afterEach(() => {
     vi.unstubAllEnvs();
+  });
+
+  it("stays off by default until consultant proof is explicitly enabled", () => {
     expect(isConsultantAccessEnabled()).toBe(false);
   });
 
   it("turns on only when the explicit consultant flag is set to 1", () => {
     vi.stubEnv(CONSULTANT_ACCESS_FLAG_ENV, "1");
     expect(isConsultantAccessEnabled()).toBe(true);
-    vi.unstubAllEnvs();
   });
 });

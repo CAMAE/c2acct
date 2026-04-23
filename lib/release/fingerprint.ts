@@ -56,6 +56,17 @@ export type PublicReleaseFingerprintView = {
   gitDirty: string;
 };
 
+const PUBLIC_RUNTIME_IDENTITY_FIELDS = [
+  "releaseId",
+  "commitSha",
+  "canonicalRootName",
+  "authMode",
+  "buildSourceType",
+  "buildId",
+  "releaseFingerprintSeed",
+  "startCommand",
+] as const satisfies ReadonlyArray<keyof PublicReleaseFingerprint>;
+
 const repoRoot = process.cwd();
 const contractPath = path.join(repoRoot, "ops/release/canonical-root.json");
 const statePath = path.join(repoRoot, "artifacts/mac-mini/state/canonical-root.json");
@@ -71,7 +82,10 @@ function readJsonFile<T>(filePath: string): T | null {
 }
 
 function runGit(...args: string[]) {
-  return execFileSync("git", ["-C", repoRoot, ...args], { encoding: "utf8" }).trim();
+  return execFileSync("git", ["-C", repoRoot, ...args], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "ignore"],
+  }).trim();
 }
 
 function readBuildId() {
@@ -221,4 +235,24 @@ export function getPublicReleaseFingerprintView(
     releaseFingerprintSeed: fingerprint.releaseFingerprintSeed,
     gitDirty: fingerprint.gitDirty,
   };
+}
+
+export function getPublicReleaseFingerprintMismatches(
+  actual: Partial<PublicReleaseFingerprint> | null | undefined,
+  expected: PublicReleaseFingerprint = getPublicReleaseFingerprint()
+) {
+  if (!actual) {
+    return ["fingerprint_missing"];
+  }
+
+  return PUBLIC_RUNTIME_IDENTITY_FIELDS.flatMap((field) => {
+    const actualValue = actual[field];
+    const expectedValue = expected[field];
+
+    if (actualValue === expectedValue) {
+      return [];
+    }
+
+    return [`${field}_mismatch:${String(actualValue ?? "missing")}:${String(expectedValue)}`];
+  });
 }

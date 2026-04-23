@@ -2,6 +2,7 @@
 import prisma from "@/lib/prisma";
 import { buildAssessmentModulePayload } from "@/lib/assessmentRuntime";
 import { getSessionUser } from "@/lib/auth/session";
+import { ensureFirmAlignmentSystem } from "@/lib/firmPat";
 import {
   requiresCompanyBackedAssessment,
   resolveAssessmentSubjectContext,
@@ -17,6 +18,9 @@ export async function GET(
     const { key } = await params;
     if (key === USER_ALIGNMENT_MODULE_KEY) {
       await ensureUserAlignmentSystem();
+    }
+    if (key.startsWith("firm_alignment_")) {
+      await ensureFirmAlignmentSystem();
     }
 
     const mod = await prisma.surveyModule.findUnique({

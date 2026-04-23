@@ -1,7 +1,10 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import InsightStatusBadge from "@/app/components/insights/InsightStatusBadge";
+import { notFound, redirect } from "next/navigation";
+import InsightDetailShell from "@/app/components/insights/InsightDetailShell";
+import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
+import { ELITE_PLACEHOLDER_CTA, ELITE_PLACEHOLDER_MESSAGE } from "@/lib/insightContent";
+import { buildElitePlaceholderSurfaceContent, buildHelpSurfaceContent } from "@/lib/insightSurface";
+import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import {
   getUserAlignmentProgress,
   getUserInsightDefinition,
@@ -14,14 +17,33 @@ type Params = {
   key: string;
 };
 
-function formatDate(value: Date | null | undefined) {
-  return value instanceof Date ? value.toLocaleDateString() : "No live submission yet";
+type SearchParams = {
+  surface?: string;
+};
+
+type SurfaceKey = "help" | "current-evidence" | "next-step";
+
+function getRequestedSurface(rawSurface: string | undefined): SurfaceKey {
+  switch (rawSurface?.trim().toLowerCase()) {
+    case "current-evidence":
+      return "current-evidence";
+    case "next-step":
+      return "next-step";
+    default:
+      return "help";
+  }
 }
 
-export default async function UserInsightDetailPage({
+function formatDate(value: Date | null | undefined) {
+  return value instanceof Date ? value.toLocaleDateString() : "No current submission yet";
+}
+
+export default async function UserInsightPage({
   params,
+  searchParams,
 }: {
   params: Promise<Params>;
+  searchParams?: Promise<SearchParams>;
 }) {
   const { key } = await params;
   const insight = getUserInsightDefinition(key);
@@ -30,136 +52,124 @@ export default async function UserInsightDetailPage({
   }
 
   const sessionUser = await getSessionUser();
-  const [userPatContext, alignmentProgress] = sessionUser
-    ? await Promise.all([
-        getUserPatContext(sessionUser),
-        getUserAlignmentProgress(sessionUser),
-      ])
-    : [null, null];
+  if (!sessionUser) {
+    redirect("/sign-in/user");
+  }
+  const entitlement = await resolveMembershipEntitlement(sessionUser, "individual", MEMBERSHIP_PLAN.PRO);
+  if (!entitlement.allowed) {
+    return (
+      <MembershipSurfaceGate
+        audience="individual"
+        surfaceLabel="Individual insight"
+        title="Individual insight requires Pro membership"
+        body="This insight route is part of the current Pro individual tier. PAT keeps the route visible so the upgrade path stays explicit, but the grounded readout opens only after Pro is active."
+        displayName={entitlement.membership.displayName}
+        currentPlan={entitlement.membership.plan}
+        currentStatus={entitlement.membership.status}
+        requiredPlan={entitlement.requiredPlan}
+        membershipHref={entitlement.membershipHref}
+        upgradeHref={entitlement.upgradeHref}
+        workspaceHref="/user/insights"
+        workspaceLabel="Back to individual insights"
+        availableNow="The baseline individual state still keeps workspace entry and membership routing available."
+        stagedNote="This route is part of the current Pro layer tied to person-level PAT state, so PAT does not open it from the baseline state."
+      />
+    );
+  }
 
-  const isTier2 = insight.tier === 2;
-  const isVisible = !isTier2 && Boolean(alignmentProgress?.tier1Unlocked);
-  const statusLabel = isTier2 ? "Locked" : isVisible ? "Visible" : "Pending";
-  const statusTone = isTier2 ? "locked" : isVisible ? "active" : "muted";
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const [userPatContext, alignmentProgress] = await Promise.all([
+    getUserPatContext(sessionUser),
+    getUserAlignmentProgress(sessionUser),
+  ]);
+
+  const isElite = insight.tier === 2;
+  const proAvailable = Boolean(alignmentProgress?.tier1Unlocked);
+  const activeSurface = isElite ? "help" : getRequestedSurface(resolvedSearchParams?.surface);
+  const surfaceOptions = isElite
+    ? [{ key: "help", label: "Help", href: `/user/insights/${key}?surface=help` }]
+    : [
+        { key: "help", label: "Help", href: `/user/insights/${key}?surface=help` },
+        { key: "current-evidence", label: "Current evidence", href: `/user/insights/${key}?surface=current-evidence` },
+        { key: "next-step", label: "Next step", href: `/user/insights/${key}?surface=next-step` },
+      ];
+
+  const combinedEvidenceText = isElite
+    ? "This route remains reserved for a deeper person-level PAT layer that is not available today."
+    : `Current evidence combines ${userPatContext?.assessmentCount ?? 0} completed individual alignment submission${userPatContext?.assessmentCount === 1 ? "" : "s"}, the latest recorded score, and the current person-level unlock state behind this view.`;
+
+  const surfaceContent = isElite
+    ? buildElitePlaceholderSurfaceContent({
+        key: "help",
+        title: "Help",
+        intro: ELITE_PLACEHOLDER_MESSAGE,
+        what: insight.description,
+        why: "PAT keeps this route visible so the future person-level intelligence layer is explicit without overstating what exists today.",
+        how: ELITE_PLACEHOLDER_CTA,
+      })
+    : activeSurface === "current-evidence"
+      ? {
+          key: "current-evidence" as const,
+          title: "Current evidence",
+          intro: "This view stays grounded in the person-level alignment evidence PAT can support today.",
+          items: [
+            {
+              title: "Available current data",
+              body: `Person subject linked: ${userPatContext?.subjectMembershipReady ? "Yes" : "Not yet"}. Alignment submissions: ${userPatContext?.assessmentCount ?? 0}. Latest score: ${userPatContext?.latestScore ?? "--"}. Latest submission: ${formatDate(userPatContext?.latestSubmittedAt)}.`,
+            },
+            {
+              title: "Current access state",
+              body: proAvailable
+                ? "The current person-level insight layer is open because PAT has a completed individual alignment submission to ground it."
+                : "PAT still needs a completed individual alignment submission before this person-level view can carry more grounded interpretation.",
+            },
+          ],
+        }
+      : activeSurface === "next-step"
+        ? {
+            key: "next-step" as const,
+            title: "Next step",
+            intro: "The next useful step is still the individual alignment assessment and the evidence it creates.",
+            items: [
+              {
+                title: "What to do next",
+                body: proAvailable
+                  ? "Review the current alignment assessment results and use them to sharpen where your workflow fit or adoption friction needs attention next."
+                  : "Complete the individual alignment assessment so PAT has real person-level evidence to work from.",
+              },
+              {
+                title: "What changes after that",
+                body: "A stronger person-level layer would require more than completion alone. PAT would also need a deeper individual insight engine before it should claim richer comparison, projection, or coaching behavior.",
+              },
+            ],
+          }
+        : buildHelpSurfaceContent({
+            intro: proAvailable
+              ? "This page gives you a disciplined person-level readout without inventing a deeper individual insight model."
+              : "This page stays visible so the route is clear, but a grounded person-level readout still depends on the individual alignment assessment.",
+            what: insight.description,
+            why: "It keeps the individual surface tied to the person-level evidence PAT actually has instead of generic advice or unsupported projection.",
+            how: proAvailable
+              ? "Use this page to understand your current work-fit picture, then return to the assessment when you need to refresh the evidence."
+              : "Start with the individual alignment assessment so PAT can ground this page in current person-level evidence.",
+          });
 
   return (
-    <div className="space-y-8">
-      <section className={`${isTier2 ? "pat-card pat-card-muted" : "pat-card"} p-8`}>
-        <div className="pat-label">Individual insight detail</div>
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <h1 className="text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
-            {insight.title}
-          </h1>
-          <InsightStatusBadge label={statusLabel} tone={statusTone} />
-        </div>
-        <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          {isTier2
-            ? `${insight.description} This remains a staged detail view only. PAT is not claiming a live individual projection, comparison, or richer guidance engine here yet.`
-            : `${insight.description} This route is intentionally disciplined: it uses the live person-level alignment state PAT already has, but it does not fabricate a deeper per-insight narrative that the current individual model cannot support.`}
-        </p>
-        <div className="mt-6 grid gap-4 md:grid-cols-4">
-          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Person subject:{" "}
-            <span className="font-semibold text-[var(--shell-ink)]">
-              {sessionUser ? (userPatContext?.subjectMembershipReady ? "Ready" : "Fallback") : "Guest"}
-            </span>
-          </div>
-          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Alignment submissions:{" "}
-            <span className="font-semibold text-[var(--shell-ink)]">{userPatContext?.assessmentCount ?? 0}</span>
-          </div>
-          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Latest score:{" "}
-            <span className="font-semibold text-[var(--shell-ink)]">{userPatContext?.latestScore ?? "--"}</span>
-          </div>
-          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Alignment coverage:{" "}
-            <span className="font-semibold text-[var(--shell-ink)]">
-              {alignmentProgress ? `${alignmentProgress.answeredCount}/${alignmentProgress.questionCount}` : "0/20"}
-            </span>
-          </div>
-        </div>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link className="pat-button-secondary" href="/user/insights">
-            Back to individual insights
-          </Link>
-          <Link className="pat-button-primary" href="/user/alignment-assessment">
-            {alignmentProgress?.tier1Unlocked ? "Review alignment assessment" : "Start alignment assessment"}
-          </Link>
-          <Link className="pat-button-secondary" href={sessionUser ? "/user" : "/sign-in/user"}>
-            {sessionUser ? "Open individual workspace" : "Sign in as individual"}
-          </Link>
-        </div>
-      </section>
-
-      <section className="grid gap-5 md:grid-cols-3">
-        <article className="pat-card p-6">
-          <div className="pat-label">What this insight is</div>
-          <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-            {insight.description}
-          </p>
-        </article>
-        <article className="pat-card p-6">
-          <div className="pat-label">What data is currently available</div>
-          <div className="mt-4 space-y-2 text-sm leading-6 text-[var(--shell-muted)]">
-            <p>
-              PAT can currently show whether the person subject is live, how many final submissions exist, the latest score, and whether the individual alignment route has crossed the current Pro visibility gate.
-            </p>
-            <p>
-              Latest submission date:{" "}
-              <span className="font-semibold text-[var(--shell-ink)]">
-                {formatDate(userPatContext?.latestSubmittedAt)}
-              </span>
-            </p>
-          </div>
-        </article>
-        <article className="pat-card p-6">
-          <div className="pat-label">Why deeper interpretation is limited</div>
-          <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-            PAT does not yet have a dedicated individual insight engine, no per-insight evidence breakdown, no person-native question-cluster analysis, and no live benchmark or projection layer for this audience. That means a richer narrative here would be fabricated rather than sourced from real runtime output.
-          </p>
-        </article>
-      </section>
-
-      <section className="pat-card p-6">
-        <div className="pat-label">What would unlock fuller detail</div>
-        <div className="mt-4 space-y-3 text-sm leading-6 text-[var(--shell-muted)]">
-          {!isTier2 ? (
-            <>
-              <p>
-                First, the person needs a completed individual alignment submission so the current Pro visibility gate is grounded in live data rather than an empty scaffold.
-              </p>
-              <p>
-                Second, PAT would need a real individual insight runtime that computes per-insight evidence, not just a general alignment completion state.
-              </p>
-            </>
-          ) : (
-            <>
-              <p>
-                Elite remains locked because PAT does not yet have an individual benchmark, projection, or comparison layer that would justify higher-order interpretation.
-              </p>
-              <p>
-                A fuller Elite detail page would require both the person-native insight engine and a broader evidence layer beyond current individual alignment completion.
-              </p>
-            </>
-          )}
-        </div>
-      </section>
-
-      <section className="pat-card p-6">
-        <div className="pat-label">Current PAT truth</div>
-        <div className="mt-4 space-y-3 text-sm leading-6 text-[var(--shell-muted)]">
-          <p>
-            Pro visibility state:{" "}
-            <span className="font-semibold text-[var(--shell-ink)]">
-              {alignmentProgress?.tier1Unlocked ? "Unlocked by live alignment submission" : "Still pending a live alignment submission"}
-            </span>
-          </p>
-          <p>
-            Current route behavior is intentionally limited. This page exists so PAT has a real destination for individual insight review, but it does not claim an individual productized intelligence layer that is not present in source.
-          </p>
-        </div>
-      </section>
-    </div>
+    <InsightDetailShell
+      activeKey={activeSurface}
+      eyebrow="Individual insight"
+      title={insight.title}
+      summary={
+        isElite
+          ? ELITE_PLACEHOLDER_MESSAGE
+          : `${insight.description} PAT keeps this view tied to current person-level evidence rather than a fabricated deeper individual engine.`
+      }
+      surfaceContent={surfaceContent}
+      toggleAriaLabel="Individual insight views"
+      toggleOptions={surfaceOptions}
+      combinedEvidenceText={combinedEvidenceText}
+      combinedEvidenceNote={isElite ? ELITE_PLACEHOLDER_MESSAGE : undefined}
+      muted={isElite}
+    />
   );
 }

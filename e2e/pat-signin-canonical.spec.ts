@@ -1,4 +1,7 @@
 import { expect, test } from "@playwright/test";
+import { expectConsultantSignInRouteState } from "./consultantSignInContract";
+
+const consultantAccessEnabled = process.env.PAT_ENABLE_CONSULTANT_ACCESS === "1";
 
 test.describe("PAT canonical sign-in routing", () => {
   test("treats /login as a compatibility-only shim into /sign-in", async ({ page }) => {
@@ -16,7 +19,18 @@ test.describe("PAT canonical sign-in routing", () => {
 
   test("keeps role-targeted sign-in deep links intact on /sign-in", async ({ page }) => {
     await page.goto("/sign-in?callbackUrl=%2Fvendor%2Fproduct-insight%2Fproduct-fixture");
-    await expect(page.getByText("Landing route:")).toBeVisible();
-    await expect(page.getByText("/vendor/product-insight/product-fixture")).toBeVisible();
+    const signInCard = page
+      .locator("section")
+      .filter({ hasText: "Landing route:" })
+      .filter({ hasText: "/vendor/product-insight/product-fixture" })
+      .first();
+
+    await expect(signInCard).toBeVisible();
+    await expect(signInCard).toContainText("/vendor/product-insight/product-fixture");
+  });
+
+  test("handles consultant deep links deterministically based on the consultant gate", async ({ page }) => {
+    await page.goto("/sign-in?view=consultant&callbackUrl=%2Fconsultants");
+    await expectConsultantSignInRouteState(page, consultantAccessEnabled);
   });
 });

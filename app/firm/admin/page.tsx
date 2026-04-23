@@ -180,7 +180,7 @@ export default async function FirmAdminPage() {
         />
         {canAccessPortalAdmin(sessionUser) ? (
           <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Platform-wide operator controls now live in <a className="font-semibold text-[var(--shell-accent)]" href="/admin">/admin</a>. Keep this firm admin page focused on firm-owned profile and team tasks.
+            Platform-wide operator controls now sit in <a className="font-semibold text-[var(--shell-accent)]" href="/admin">/admin</a>. Keep this firm admin page focused on firm-owned profile and team tasks.
           </p>
         ) : null}
       </section>

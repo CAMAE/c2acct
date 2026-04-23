@@ -14,6 +14,7 @@ export async function GET() {
     {
       headers: {
         "x-pat-release-id": fingerprint.releaseId,
+        "cache-control": "no-store, max-age=0",
       },
     }
   );

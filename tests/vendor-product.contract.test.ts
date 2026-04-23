@@ -28,6 +28,12 @@ describe("vendor product combined signal behavior", () => {
         summary: "Deterministic vendor product signal fixture.",
         utilityKeys,
       },
+      vendorAssessmentStatus: {
+        completed: true,
+        latestSubmittedAt: new Date("2026-03-30T12:00:00.000Z"),
+        statusLabel: "Firm review available",
+        reason: "Firm review is available because the vendor completed the full product assessment.",
+      },
       vendorSelfReported: {
         latestScore: 84,
         submittedAt: new Date("2026-03-30T12:00:00.000Z"),
@@ -52,6 +58,7 @@ describe("vendor product combined signal behavior", () => {
     const snapshot = buildVendorProductInsightSnapshot(fixture);
 
     expect(snapshot.vendorSelfReported.latestScore).toBe(84);
+    expect(snapshot.vendorAssessmentStatus.completed).toBe(true);
     expect(snapshot.firmReviewed.assessmentCount).toBe(2);
     expect(snapshot.firmReviewed.averageScore).toBe(34);
     expect(snapshot.product.utilityScopeLabel).toContain("2 declared utilities");
@@ -60,8 +67,8 @@ describe("vendor product combined signal behavior", () => {
     expect(snapshot.combinedCurrentPatReadout).toMatch(
       /vendor self-reported signal at 84% with firm-reviewed signal at 34% across 2 assessments/i
     );
-    expect(snapshot.confidenceBand).toBe("directional");
-    expect(snapshot.confidenceSummary).toMatch(/directional rather than broadly confirmed/i);
+    expect(snapshot.confidenceBand).toBe("sample_thin");
+    expect(snapshot.confidenceSummary).toMatch(/sample-thin rather than broadly confirmed/i);
     expect(snapshot.confidenceCaveats.some((caveat) => caveat.includes("2 assessments"))).toBe(true);
     expect(snapshot.confidenceCaveats.some((caveat) => caveat.includes("50 points apart"))).toBe(true);
     expect(

@@ -40,6 +40,8 @@
                     "node_modules",
                     "prisma/migrations/**/*",
                     "scripts/archive/**/*",
-                    "docs/archive/**/*"
+                    "docs/archive/**/*",
+                    ".venv/**/*",
+                    ".venv311/**/*"
                 ]
 }

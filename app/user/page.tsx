@@ -1,5 +1,6 @@
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
+import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
 import {
   IndividualHelpInlineContent,
@@ -108,9 +109,12 @@ export default async function UserPage({
           label={messages.portal.individual.eyebrow}
           audienceLabel={messages.nav.individual}
         />
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
-          {messages.portal.individual.title}
-        </h1>
+        <PatAudienceTitle
+          as="h1"
+          title={messages.portal.individual.title}
+          audienceTerms={[messages.nav.individual, "User"]}
+          className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]"
+        />
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           {messages.portal.individual.body}
         </p>
@@ -158,7 +162,7 @@ export default async function UserPage({
                   <div>Email: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser?.email ?? messages.common.notSignedIn}</span></div>
                   <div>{messages.portal.individual.role}: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser?.role ?? messages.common.guest}</span></div>
                   <div>{messages.portal.individual.companyContext}: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser?.companyId ?? messages.common.unbound}</span></div>
-                  <div>{messages.portal.individual.personPatSubject}: <span className="font-semibold text-[var(--shell-ink)]">{userPatContext?.personSubjectId ?? messages.insights.shared.pending}</span></div>
+                  <div>{messages.portal.individual.patSubjectLink}: <span className="font-semibold text-[var(--shell-ink)]">{userPatContext?.personSubjectId ?? messages.insights.shared.pending}</span></div>
                   <div>{messages.portal.individual.assessmentCount}: <span className="font-semibold text-[var(--shell-ink)]">{userPatContext?.assessmentCount ?? 0}</span></div>
                   <div>{messages.portal.individual.latestScore}: <span className="font-semibold text-[var(--shell-ink)]">{userPatContext?.latestScore ?? "--"}</span></div>
                 </div>
@@ -181,7 +185,7 @@ export default async function UserPage({
               {messages.portal.individual.audience}: <span className="font-semibold text-[var(--shell-ink)]">{experience?.audience ?? inviteeAccess?.audience ?? messages.common.unbound}</span>
             </div>
             <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-              {messages.portal.individual.personPatSubject}: <span className="font-semibold text-[var(--shell-ink)]">{userPatContext ? (userPatContext.subjectMembershipReady ? messages.portal.individual.ready : messages.portal.individual.fallback) : messages.portal.individual.unavailable}</span>
+              {messages.portal.individual.patSubjectLink}: <span className="font-semibold text-[var(--shell-ink)]">{userPatContext ? (userPatContext.subjectMembershipReady ? messages.portal.individual.connected : messages.portal.individual.fallback) : messages.portal.individual.unavailable}</span>
             </div>
             <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
               {messages.portal.individual.individualAlignment}: <span className="font-semibold text-[var(--shell-ink)]">{alignmentProgress?.tier1Unlocked ? messages.portal.individual.completed : messages.portal.individual.pending}</span>

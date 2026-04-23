@@ -13,6 +13,12 @@ It is grounded in four evidence sources:
 
 It does not authorize bulk restore from either preserved source. It is a file-by-file recovery plan only.
 
+## Current execution and authority note
+
+- Use `pnpm` as the current repo package-manager and validation standard.
+- Use `docs/active-repo-map.md` and the current checkout state for current truth.
+- Treat `/Users/camerongarrett/work/c2acct`, `/private/tmp/c2acct-main-auth`, and comparison-only working-tree exports as comparison material only, not release-decision truth.
+
 ## Slice Summary
 
 | Slice | Theme | Current status on rollback branch | Launch timing | Why |
@@ -88,7 +94,7 @@ Rejected until separately proven because they could silently reshape the live au
 
 ### Validation required
 
-- `npm run build`
+- `pnpm build`
 - auth unit tests
 - local-review or credentials smoke tests
 - `node scripts/release/validate-source-integrity.mjs --root /Users/camerongarrett/work/c2acct-live`
@@ -148,8 +154,8 @@ Landed:
 
 ### Validation required
 
-- `npm run build`
-- `npm run test:unit -- tests/auth.signin-canonical.test.ts tests/auth.login-compat.test.ts tests/auth-env.contract.test.ts tests/local-review-auth.contract.test.ts`
+- `pnpm build`
+- `pnpm exec vitest run tests/auth.signin-canonical.test.ts tests/auth.login-compat.test.ts tests/auth-env.contract.test.ts tests/local-review-auth.contract.test.ts`
 - role-route and redirect validation through rendered PAT surface gate
 
 ### Launch outcome
@@ -231,8 +237,8 @@ Quarantine-only operator additions that remain deferred until separately reviewe
 
 ### Validation required
 
-- `npm run build`
-- `npm run release:prelaunch`
+- `pnpm build`
+- `pnpm release:prelaunch`
 - `bash scripts/mac-mini/launchd-check.sh`
 - `bash scripts/mac-mini/status.sh`
 - `bash scripts/mac-mini/nightly-verify.sh`
@@ -351,7 +357,7 @@ Rejected because they directly risk PAT surface drift from the mixed copy:
 
 ### Validation required
 
-- `npm run build`
+- `pnpm build`
 - relevant unit tests for vendor/firm/product runtime
 - source-integrity gate
 - rendered PAT surface gate
@@ -367,7 +373,7 @@ Rejected because they directly risk PAT surface drift from the mixed copy:
    - landed at:
      - `c7f90aa`
    - validation:
-     - `npm run test:unit -- tests/product-utility-integrity.contract.test.ts`
+     - `pnpm exec vitest run tests/product-utility-integrity.contract.test.ts`
 
 2. Vendor product insight runtime
    - local files:
@@ -381,18 +387,18 @@ Rejected because they directly risk PAT surface drift from the mixed copy:
    - landed at:
      - `9dea36b`
    - validation:
-     - `npm run test:unit -- tests/vendor-product-insight.contract.test.ts tests/vendor-product.contract.test.ts tests/vendor-product-assessment.contract.test.ts`
+     - `pnpm exec vitest run tests/vendor-product-insight.contract.test.ts tests/vendor-product.contract.test.ts tests/vendor-product-assessment.contract.test.ts`
 
-### Current validation status on HEAD `252b7f39ec77b5459c26791769410b87c4048cec`
+### Current validation status on the then-current recovery-line head recorded in the 2026-04-02 evidence set
 
 Passed on current head:
 
 - `node scripts/release/verify-approved-pat-markers.mjs --root .`
-- `npm run test:unit -- tests/product-utility-integrity.contract.test.ts tests/vendor-product-insight.contract.test.ts tests/vendor-product.contract.test.ts tests/vendor-product-assessment.contract.test.ts`
+- `pnpm exec vitest run tests/product-utility-integrity.contract.test.ts tests/vendor-product-insight.contract.test.ts tests/vendor-product.contract.test.ts tests/vendor-product-assessment.contract.test.ts`
 
 Not green on current dirty/sandboxed tree:
 
-- `npm run release:prelaunch`
+- `pnpm release:prelaunch`
 
 Reason:
 

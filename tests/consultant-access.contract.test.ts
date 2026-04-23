@@ -1,4 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { CONSULTANT_ACCESS_FLAG_ENV, getConsultantAccessStateForUser } from "@/lib/consultantAccess";
 
 const {
   findUniqueMock,
@@ -27,8 +29,6 @@ vi.mock("@/lib/auth/session", () => ({
   getSessionUser: vi.fn(),
 }));
 
-import { getConsultantAccessStateForUser } from "@/lib/consultantAccess";
-
 describe("consultant access contracts", () => {
   const sessionUser = {
     id: "user_consultant",
@@ -41,11 +41,15 @@ describe("consultant access contracts", () => {
     findUniqueMock.mockReset();
     matchesPrismaMissingSchemaTargetMock.mockReset();
     warnPrismaCompatibilityOnceMock.mockReset();
+    vi.stubEnv(CONSULTANT_ACCESS_FLAG_ENV, "0");
+  });
+
+  afterEach(() => {
     vi.unstubAllEnvs();
   });
 
   it("resolves active company-scoped consultant assignments from the existing PAT user account", async () => {
-    vi.stubEnv("PAT_ENABLE_CONSULTANT_ACCESS", "1");
+    vi.stubEnv(CONSULTANT_ACCESS_FLAG_ENV, "1");
     findUniqueMock.mockResolvedValue({
       id: "consultant_profile_1",
       active: true,
@@ -93,7 +97,7 @@ describe("consultant access contracts", () => {
   });
 
   it("returns null when the PAT user account has no active consultant profile", async () => {
-    vi.stubEnv("PAT_ENABLE_CONSULTANT_ACCESS", "1");
+    vi.stubEnv(CONSULTANT_ACCESS_FLAG_ENV, "1");
     findUniqueMock.mockResolvedValue({
       id: "consultant_profile_1",
       active: false,
@@ -108,7 +112,7 @@ describe("consultant access contracts", () => {
   });
 
   it("falls back safely when consultant tables are missing locally", async () => {
-    vi.stubEnv("PAT_ENABLE_CONSULTANT_ACCESS", "1");
+    vi.stubEnv(CONSULTANT_ACCESS_FLAG_ENV, "1");
     const missingSchemaError = new Error("consultantprofile relation is missing");
     findUniqueMock.mockRejectedValue(missingSchemaError);
     matchesPrismaMissingSchemaTargetMock.mockReturnValue(true);
@@ -125,6 +129,7 @@ describe("consultant access contracts", () => {
   });
 
   it("returns null without querying consultant tables when consultant access is gated off", async () => {
+    vi.stubEnv(CONSULTANT_ACCESS_FLAG_ENV, "0");
     await expect(getConsultantAccessStateForUser(sessionUser)).resolves.toBeNull();
     expect(findUniqueMock).not.toHaveBeenCalled();
   });

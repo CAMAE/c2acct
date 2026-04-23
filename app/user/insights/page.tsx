@@ -1,195 +1,159 @@
 import Link from "next/link";
-import InsightStatusBadge from "@/app/components/insights/InsightStatusBadge";
+import { redirect } from "next/navigation";
 import InsightsModeShell from "@/app/components/insights/InsightsModeShell";
-import { compactInsightSummary } from "@/app/components/insights/insightCardText";
+import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
+import { ELITE_PLACEHOLDER_CTA, ELITE_PLACEHOLDER_MESSAGE, ELITE_PLACEHOLDER_TITLE } from "@/lib/insightContent";
+import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import {
   USER_TIER1_INSIGHT_DEFINITIONS,
   USER_TIER2_INSIGHT_DEFINITIONS,
   getUserAlignmentProgress,
-  getUserPatContext,
 } from "@/lib/userPat";
 
 export const dynamic = "force-dynamic";
 
-export default async function UserInsightsPage() {
+type SearchParams = {
+  mode?: string;
+};
+
+function getModeHref(mode: "pro" | "elite" | "help") {
+  return `/user/insights?mode=${mode}`;
+}
+
+function getRequestedMode(rawMode: string | undefined) {
+  switch (rawMode?.trim().toLowerCase()) {
+    case "elite":
+      return "elite" as const;
+    case "help":
+      return "help" as const;
+    default:
+      return "pro" as const;
+  }
+}
+
+export default async function UserInsightsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<SearchParams>;
+}) {
   const sessionUser = await getSessionUser();
-  const [userPatContext, alignmentProgress] = sessionUser
-    ? await Promise.all([
-        getUserPatContext(sessionUser),
-        getUserAlignmentProgress(sessionUser),
-      ])
-    : [null, null];
+  if (!sessionUser) {
+    redirect("/sign-in/user");
+  }
+  const entitlement = await resolveMembershipEntitlement(sessionUser, "individual", MEMBERSHIP_PLAN.PRO);
+  if (!entitlement.allowed) {
+    return (
+      <MembershipSurfaceGate
+        audience="individual"
+        surfaceLabel="Individual insights"
+        title="Individual insights require Pro membership"
+        body="The current individual insight route is part of the current Pro individual tier. PAT keeps the route visible so the membership path stays explicit, but the insight surface opens only after Pro is active."
+        displayName={entitlement.membership.displayName}
+        currentPlan={entitlement.membership.plan}
+        currentStatus={entitlement.membership.status}
+        requiredPlan={entitlement.requiredPlan}
+        membershipHref={entitlement.membershipHref}
+        upgradeHref={entitlement.upgradeHref}
+        workspaceHref="/user"
+        workspaceLabel="Open individual workspace"
+        availableNow="The baseline individual state still keeps workspace entry, help, profile continuity, and membership routing available."
+        stagedNote="This route is the current Pro packaging layer around person-level PAT state, so PAT does not open it from the baseline state."
+      />
+    );
+  }
+
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const activeMode = getRequestedMode(resolvedSearchParams?.mode);
+  const alignmentProgress = await getUserAlignmentProgress(sessionUser);
+
+  const proAvailable = Boolean(alignmentProgress?.tier1Unlocked);
+  const toggleOptions = [
+    { key: "pro", label: "Pro Insights", href: getModeHref("pro") },
+    { key: "elite", label: "Elite Insights", href: getModeHref("elite") },
+    { key: "help", label: "Help", href: getModeHref("help") },
+  ] as const;
+
+  const currentStateSummary = proAvailable
+    ? "PAT is using your completed individual alignment evidence to keep the current person-level view tied to your recorded workflow signal."
+    : "PAT needs a completed individual alignment submission before it can open a grounded person-level insight readout.";
+  const proCards = USER_TIER1_INSIGHT_DEFINITIONS.map((card) => ({
+    key: card.key,
+    title: card.title,
+    summary: proAvailable
+      ? card.description
+      : "Complete the individual alignment assessment before relying on this person-level view.",
+    href: `/user/insights/${card.key}`,
+    interactive: true,
+    statusLabel: proAvailable ? undefined : "Assessment needed",
+    tone: proAvailable ? ("active" as const) : ("muted" as const),
+    supportingText: proAvailable
+      ? "Grounded in current person-level alignment evidence."
+      : "Current person-level alignment evidence is still missing.",
+  }));
+  const eliteCards = USER_TIER2_INSIGHT_DEFINITIONS.map((card) => ({
+    key: card.key,
+    title: card.title,
+    summary: card.description,
+    interactive: false,
+    statusLabel: ELITE_PLACEHOLDER_TITLE,
+    tone: "locked" as const,
+    supportingText: ELITE_PLACEHOLDER_CTA,
+  }));
 
   return (
     <InsightsModeShell
-      hero={
-        <>
-          <section className="pat-card p-8">
-            <div className="pat-label">Individual insights</div>
-            <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
-              Reviewable insight structure for the individual layer
-            </h1>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-              This page keeps the individual-facing insight pattern reviewable now through live person-subject plumbing, while staying explicit that the deeper individual intelligence layer is still intentionally light.
-            </p>
-          </section>
-
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-              Person subject:{" "}
-              <span className="font-semibold text-[var(--shell-ink)]">
-                {userPatContext?.subjectMembershipReady ? "Ready" : "Fallback"}
-              </span>
-            </div>
-            <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-              Individual submissions:{" "}
-              <span className="font-semibold text-[var(--shell-ink)]">{userPatContext?.assessmentCount ?? 0}</span>
-            </div>
-            <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-              Latest score:{" "}
-              <span className="font-semibold text-[var(--shell-ink)]">{userPatContext?.latestScore ?? "--"}</span>
-            </div>
-            <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-              Pro unlock:{" "}
-              <span className="font-semibold text-[var(--shell-ink)]">
-                {alignmentProgress?.tier1Unlocked ? "Visible" : "Pending assessment"}
-              </span>
-            </div>
-          </section>
-
-          <section className="flex flex-wrap gap-3">
-            <Link className="pat-button-primary" href="/user/alignment-assessment">
-              {alignmentProgress?.tier1Unlocked ? "Review alignment assessment" : "Start alignment assessment"}
-            </Link>
-            <Link className="pat-button-secondary" href="/user">
-              Back to individual home
-            </Link>
-            <Link className="pat-button-secondary" href={sessionUser ? "/user" : "/sign-in/user"}>
-              {sessionUser ? "Open individual workspace" : "Sign in as individual"}
-            </Link>
-          </section>
-        </>
-      }
-      proContent={
-        <>
-          <div>
-            <h2 className="text-2xl font-semibold text-[var(--shell-ink)]">Pro Insights</h2>
-            <p className="mt-1 text-sm text-[var(--shell-muted)]">
-              These individual cards now open disciplined detail pages. The detail stays intentionally limited to live person-level alignment state instead of pretending a deeper individual engine already exists.
-            </p>
-          </div>
-          <div className="grid gap-5 md:grid-cols-2">
-            {USER_TIER1_INSIGHT_DEFINITIONS.map((card) => {
-              const visible = Boolean(alignmentProgress?.tier1Unlocked);
-              return (
-                <Link
-                  key={card.key}
-                  href={`/user/insights/${card.key}`}
-                  className={`${visible ? "pat-card pat-card-interactive" : "pat-card pat-card-muted pat-card-muted-interactive"} block p-6`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="text-lg font-semibold text-[var(--shell-ink)]">{card.title}</div>
-                    <InsightStatusBadge
-                      label={visible ? "Visible" : "Pending"}
-                      tone={visible ? "active" : "muted"}
-                    />
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-                    {visible
-                      ? compactInsightSummary(card.description)
-                      : "Complete the individual alignment assessment to unlock this Pro PAT view."}
-                  </p>
-                  <div className="mt-4 text-xs leading-5 text-[var(--shell-muted)]">
-                    Limited detail available · live alignment state only.
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </>
-      }
-      eliteContent={
-        <>
-          <div>
-            <h2 className="text-2xl font-semibold text-[var(--shell-ink)]">Elite Insights</h2>
-            <p className="mt-1 text-sm text-[var(--shell-muted)]">
-              Elite remains visible as a staged layer. The detail pages stay explicit about what is missing instead of fabricating benchmark, projection, or richer individual guidance.
-            </p>
-          </div>
-          <section className="pat-card p-6">
-            <div className="pat-label">Current route truth</div>
-            <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-              Individual insight detail routes now exist, but they stay intentionally limited. These locked cards keep the next layer legible without inventing productized behavior that is not present in source.
-            </p>
-          </section>
-          <div className="grid gap-5 md:grid-cols-2">
-            {USER_TIER2_INSIGHT_DEFINITIONS.map((card) => (
-              <Link
-                key={card.key}
-                href={`/user/insights/${card.key}`}
-                title="Unlock with Elite membership"
-                className="pat-card pat-card-muted pat-card-muted-interactive block p-6"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="text-lg font-semibold text-[var(--shell-ink)]">{card.title}</div>
-                  <InsightStatusBadge label="Locked" tone="locked" />
-                </div>
-                <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-                  {compactInsightSummary(card.description)}
-                </p>
-                <div className="mt-4 text-xs leading-5 text-[var(--shell-muted)]">
-                  Staged only · limited locked detail available.
-                </div>
-              </Link>
-            ))}
-          </div>
-        </>
-      }
-      helpContent={
-        <>
-          <div>
-            <h2 className="text-2xl font-semibold text-[var(--shell-ink)]">How Pro and Elite differ here</h2>
-            <p className="mt-1 text-sm text-[var(--shell-muted)]">
-              The individual page is intentionally conservative. It uses live person-level alignment status where that plumbing exists, but it does not claim a full individual insight engine or per-insight evidence system that has not been built yet.
-            </p>
-          </div>
-          <div className="grid gap-5 xl:grid-cols-3">
-            <article className="pat-card p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div className="text-lg font-semibold text-[var(--shell-ink)]">Pro access</div>
-                <InsightStatusBadge label="Pro Insights" />
-              </div>
-              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-                Pro uses the live individual alignment gate only. The detail routes now exist, but they stay disciplined and only show person-level alignment state PAT can really support today.
-              </p>
-            </article>
-            <article className="pat-card pat-card-muted p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div className="text-lg font-semibold text-[var(--shell-ink)]">Elite access</div>
-                <InsightStatusBadge label="Locked" tone="locked" />
-              </div>
-              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-                Elite remains staged only. Its detail routes explain the gap honestly, but they do not pretend the individual benchmark, projection, or richer guidance system is already present.
-              </p>
-            </article>
-            <article className="pat-card p-6">
-              <div className="text-lg font-semibold text-[var(--shell-ink)]">Next step</div>
-              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-                The truthful way forward is still the individual alignment assessment. That is the live person-level input path PAT can use today without inventing a separate intelligence engine.
-              </p>
-              <div className="mt-5 flex flex-wrap gap-3">
+      activeMode={activeMode}
+      eyebrow="Individual insights"
+      title="Individual insights"
+      audienceTerms={["Individual"]}
+      heroBody="Use this page to review the current person-level PAT readouts that can be supported from your individual alignment submissions today."
+      currentStateSummary={currentStateSummary}
+      toggleAriaLabel="Individual insight modes"
+      toggleOptions={toggleOptions}
+      proPanel={{
+        title: "Pro Insights",
+        intro: "Open these cards for current person-level readouts tied to the alignment evidence PAT can support today.",
+        cards: proCards,
+        columnsClassName: "md:grid-cols-2",
+      }}
+      elitePanel={{
+        title: "Elite Insights",
+        intro: ELITE_PLACEHOLDER_MESSAGE,
+        cards: eliteCards,
+        columnsClassName: "md:grid-cols-2",
+      }}
+      helpPanel={{
+        title: "Help",
+        intro: "Use this page to review the current person-level picture, then open the insight that best matches the work question you need to understand next.",
+        infoCards: [
+          {
+            title: "Pro insights",
+            body: "These cards stay tied to person-level alignment evidence only. PAT does not invent a separate individual analysis model beyond the submissions it actually has.",
+          },
+          {
+            title: "Elite insights",
+            body: ELITE_PLACEHOLDER_MESSAGE,
+            tone: "muted",
+            badgeLabel: ELITE_PLACEHOLDER_TITLE,
+            badgeTone: "locked",
+          },
+          {
+            title: "Next step",
+            body: "The individual alignment assessment remains the current input path that strengthens these readouts and opens more grounded person-level interpretation.",
+            actions: (
+              <>
                 <Link className="pat-button-primary" href="/user/alignment-assessment">
-                  {alignmentProgress?.tier1Unlocked ? "Review alignment assessment" : "Start alignment assessment"}
+                  {proAvailable ? "Review alignment assessment" : "Start alignment assessment"}
                 </Link>
                 <Link className="pat-button-secondary" href="/user/help">
                   Review individual help
                 </Link>
-              </div>
-            </article>
-          </div>
-        </>
-      }
+              </>
+            ),
+          },
+        ],
+      }}
     />
   );
 }

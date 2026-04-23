@@ -1,17 +1,30 @@
 # C2Acct
 
-C2Acct is the active PAT product repo. "AAE" still appears in some historical filenames, archive docs, and compatibility notes, but PAT is the current runtime/build truth.
+C2Acct is the authoritative PAT product repo rooted at `/Users/camerongarrett/work/c2acct-live`. "AAE" still appears in historical filenames, archive docs, and compatibility notes, but PAT is the current source and runtime truth in this repo.
 
-## What is live now
+## Source of truth
 
-The clean PAT path is:
+- The canonical PAT repo root is `/Users/camerongarrett/work/c2acct-live`. Current branch, commit, and dirty-tree truth come from `git branch --show-current`, `git rev-parse HEAD`, and `git status --short`, with `docs/active-repo-map.md` as the repo map.
+- The current attached checkout is `fix/local-review-signin-hotfix` at `668ff249b1e28cfadd206a9e14819dcb416ad365`, and the current attached build id must be read from the latest release-proof artifacts such as `.next/BUILD_ID`, `/api/release-fingerprint`, or `pnpm standalone:local:check` rather than from this doc.
+- `README.md` and `docs/active-repo-map.md` are the current repo-level source-of-truth docs. The rebuild, audit, and release docs dated 2026-04-02 remain historical evidence only.
+- Dated audit and release docs are historical evidence snapshots. They do not by themselves prove that any external host is live today.
+- The current dirty tree means launch readiness is still unproven even if older snapshots were green.
+- Generated proof outputs under `artifacts/audit/`, `artifacts/release/`, and `artifacts/visual/` are quarantine-only evidence files. Keep them out of release-decision dirt; do not use broad ignore rules to hide real source or release-critical changes.
+- `/sign-in` is the canonical PAT sign-in route. `/login` is compatibility-only and must redirect into `/sign-in`.
+- `origin/main`, quarantined mixed-copy roots, and comparison-only working-tree exports are not authoritative for release decisions. See `docs/release/comparison-only-working-tree-exports.md`.
+
+## Current PAT route contract in source
+
+This section describes the route and runtime contract implemented in source. Use the release and host proof docs before claiming that any deployed environment is live.
+
+Canonical PAT path in source:
 
 1. `/`
 2. `/sign-in`
 3. role workspace: `/vendor`, `/firm`, `/user`, `/admin`, or assigned consultant `/consultants` when `PAT_ENABLE_CONSULTANT_ACCESS=1`
 4. role-specific assessment, insights, membership, admin, and briefing surfaces
 
-Current active runtime entrypoints:
+Current PAT routes in source:
 
 - `/`
 - `/sign-in`
@@ -26,7 +39,7 @@ Current active runtime entrypoints:
 - `/results` -> compatibility redirect to canonical PAT insight interpretation
 - `/outputs` -> compatibility redirect to canonical PAT insight interpretation
 
-Current active APIs:
+Current PAT APIs in source:
 
 - `/api/auth/[...nextauth]`
 - `/api/company/default`
@@ -38,13 +51,20 @@ Current active APIs:
 - `/api/insights/unlocked`
 - `/api/health/db`
 
-Intentional explicit 404 placeholders remain in place for future surfaces that are not live yet:
+Intentional explicit `404` placeholders remain in place for future surfaces that are not wired into the PAT runtime yet:
 
 - `/api/fmi`
 - `/api/fmi/momentum`
 - `/api/users`
 - `/api/engagements/[id]/score`
 - `/api/surveys/[moduleId]`
+
+## Current PAT product truth in source
+
+- PAT product-facing UI copy uses `feature` and `features` where that improves user comprehension. Internal registries, API payloads, and persistence contracts may still use `utilityKey` or `utilityKeys` where those identifiers remain the authoritative runtime contract.
+- Core signed-in PAT assessment and insight surfaces are currently `Pro`-gated with honest membership upgrade paths. PAT does not gate `/sign-in`, workspace entry, or membership overview behind that requirement.
+- Elite insight and membership surfaces remain visible where staged, but visible Elite cards or checkout options do not by themselves prove that a richer premium layer is fully live.
+- Membership checkout routes provide realistic payment-form scaffolding only. They still record checkout intent scaffolding and do not process live card, ACH, PayPal, Stripe, or Square payments in the current source tree.
 
 ## Stack
 
@@ -70,7 +90,7 @@ If you are bootstrapping a new environment, create the operator `User` row direc
 
 ## Bootstrap a fresh checkout
 
-Use `pnpm` as the canonical package manager. CI, lockfiles, and local bootstrap all assume `pnpm`; `npm` is not the active maintenance path for this repo.
+Use `pnpm` as the canonical package manager and validation standard. This repo ships `pnpm-lock.yaml`, `pnpm-workspace.yaml`, a `packageManager` field, and bootstrap/package scripts that call `pnpm`. Do not mix `npm install` into the maintained repo workflow unless you are doing a one-off compatibility check in a disposable environment.
 
 Safe fresh-checkout bootstrap:
 
@@ -97,7 +117,7 @@ The repo previously contained multiple stale seed paths. The current source of t
 It seeds:
 
 - the canonical five-module PAT firm alignment system
-- 100 live PAT firm questions across those five modules
+- 100 scored PAT firm slider questions plus 25 open-ended follow-up prompts across those five modules
 - tier-1 badge rule and unlocked insight content
 - a `Demo Company`
 
@@ -130,13 +150,23 @@ pnpm bootstrap:repo
 pnpm dev
 ```
 
-Stable validation commands:
+Canonical validation commands:
 
 ```bash
+pnpm install
 pnpm lint
 pnpm typecheck
+pnpm exec vitest run tests/release-surface-validator.test.ts
 pnpm build
 ```
+
+`pnpm validate:launch` remains the full repo/runtime/browser proof path. `pnpm release:prelaunch` remains the narrower release-artifact and PAT surface proof.
+
+Current release status:
+
+- attached checkout build id is intentionally not pinned in this doc; read it from the current release-proof artifacts and fingerprint surfaces
+- attached checkout reports `gitDirty=dirty`
+- host cutover proof is still required before any live or launch-ready claim is credible
 
 Operator truth:
 
@@ -170,7 +200,9 @@ pnpm build
 pnpm standalone:local
 ```
 
-`pnpm standalone:local` loads repo-root `.env.local` first, then `.env`, and supplies local-only loopback defaults for `AUTH_URL`, `NEXTAUTH_URL`, `AUTH_SECRET`, `PAT_ENABLE_LOCAL_REVIEW_AUTH`, and `PAT_LOCAL_REVIEW_PASSWORD` so the standalone sign-in surface does not boot into the missing-secret path.
+`pnpm standalone:local` loads repo-root `.env.local` first, then `.env`, and supplies local-only loopback defaults for `AUTH_URL`, `NEXTAUTH_URL`, `AUTH_SECRET`, `PAT_ENABLE_LOCAL_REVIEW_AUTH`, and `PAT_LOCAL_REVIEW_PASSWORD` so the standalone sign-in surface does not boot into the missing-secret path. It prefers `127.0.0.1:3000` for local proof, automatically falls forward to the next free loopback port when `3000` is busy, and still allows an explicit loopback port via `--port` or `PAT_LOCAL_STANDALONE_PORT=`.
+
+`pnpm standalone:local:check` is the explicit served-build identity proof. It fails closed if the homepage marker probe or `/api/release-fingerprint` agreement does not match the current repo build fingerprint.
 
 What `validate:db` covers:
 
@@ -178,15 +210,15 @@ What `validate:db` covers:
 - Prisma migrations
 - canonical baseline seed
 - PAT runtime seed
-- five PAT firm modules with 20 questions each
 - DB-backed module and question capability mappings
 - DB-backed company capability score writes
 - DB-backed firm insight unlock checks
 - vendor alignment engine smoke coverage
+- five PAT firm modules with 20 scored slider questions and five open-ended follow-up prompts each
 
 If the DB is unavailable, the DB validation scripts fail with an explicit `db:up` and `db:wait` recovery path instead of ambiguous Prisma output.
 
-`validate:launch` now includes DB validation, build, standalone startup proof, typecheck, unit tests, and Playwright local-review browser coverage.
+`validate:launch` now includes DB validation, build, standalone startup proof, typecheck, unit tests, Playwright local-review browser coverage, and Playwright release-integrity browser coverage.
 
 `release:prelaunch` is intentionally narrower. It proves the release artifact and rendered PAT surface contract, but it is not a substitute for `validate:launch`.
 
@@ -225,8 +257,10 @@ pnpm db:recreate
 pnpm prisma:migrate:local
 PAT_ENABLE_LOCAL_REVIEW_AUTH=1 pnpm seed:baseline
 PAT_ENABLE_LOCAL_REVIEW_AUTH=1 pnpm seed:pat-runtime
-PAT_ENABLE_LOCAL_REVIEW_AUTH=1 PAT_LOCAL_REVIEW_PASSWORD=pat-local-review AUTH_SECRET=pat-local-auth-secret pnpm dev
+pnpm dev:proof
 ```
+
+`pnpm dev:proof` is the explicit browser-review entrypoint. It binds only to loopback, injects the local-review auth env safely, prefers `127.0.0.1:3001`, falls forward through `3010` when needed, and reuses an already running PAT proof dev server instead of failing on `.next/dev/lock`. Use `--port` or `PAT_LOCAL_PROOF_PORT=` only when you need a specific loopback port.
 
 Equivalent local standalone review sequence:
 
@@ -241,7 +275,7 @@ Then review these browser paths with the seeded local review identities:
 
 1. `/sign-in?view=vendor`
    Use `review.vendor@pat.local` and `pat-local-review`
-   Verify `/vendor`, `/vendor/membership`, `/vendor/product-assessment`, product creation, utility branching, final open-ended responses, submit, and `/vendor/product-insight/[productId]`
+   Verify `/vendor`, `/vendor/membership`, `/vendor/product-assessment`, product creation, feature branching, final open-ended responses, submit, and `/vendor/product-insight/[productId]`
 2. `/sign-in?view=firm`
    Use `review.firm@pat.local` and `pat-local-review`
    Verify `/firm`, `/firm/admin`, and `/firm/membership`
@@ -293,7 +327,9 @@ If `gitleaks` is not installed locally, `pnpm secrets:scan` falls back to Docker
 Start here:
 
 - `docs/active-repo-map.md`
-- `docs/CORE_BUILD_AAE.md`
+- `docs/architecture/core-build-guide-source-of-truth.md`
+- `docs/release/comparison-only-working-tree-exports.md`
+- `docs/CORE_BUILD_AAE.md` (historical filename, still useful for PAT build-order context)
 
 Primary source-of-truth code areas:
 

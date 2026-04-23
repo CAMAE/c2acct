@@ -319,7 +319,7 @@ function HelpInline({
           {messages.callbackTarget}: <span className="font-semibold text-[var(--shell-ink)]">{callbackTarget}</span>
         </div>
         <div className="mt-2">
-          {messages.githubAuth}: <span className="font-semibold text-[var(--shell-ink)]">{authReady ? messages.authReady : messages.authNeedsConfig}</span>
+          {messages.githubAuth}: <span className="font-semibold text-[var(--shell-ink)]">{authReady ? messages.authAvailable : messages.authNeedsConfig}</span>
         </div>
         <div className="mt-2">
           Local review auth: <span className="font-semibold text-[var(--shell-ink)]">{localReviewReady ? "enabled and write-capable" : localReviewRequested ? "requested but not fully configured" : "disabled"}</span>

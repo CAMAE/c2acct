@@ -2,6 +2,17 @@ import prisma from "@/lib/prisma";
 import { normalizeQuestionRuntime, type NormalizedAnswer } from "@/lib/assessmentRuntime";
 import { FIRM_CAPABILITY_DEFINITIONS } from "@/lib/firmCapabilities";
 import { FIRM_MODULE_DEFINITIONS, FIRM_MODULE_QUESTION_STEMS } from "@/lib/firmPat";
+import {
+  ELITE_PLACEHOLDER_CTA,
+  ELITE_PLACEHOLDER_MESSAGE,
+  ELITE_PLACEHOLDER_TITLE,
+  getVendorAlignmentInsightContent,
+} from "@/lib/insightContent";
+import {
+  buildElitePlaceholderSurfaceContent,
+  buildHelpSurfaceContent,
+  type InsightSurfaceContent,
+} from "@/lib/insightSurface";
 import { recordPatDiagnostic } from "@/lib/patDiagnostics";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import {
@@ -54,7 +65,7 @@ export type VendorAlignmentInsightReport = {
   tier: 1 | 2;
   locked: boolean;
   latestUpdatedAt: Date | null;
-  confidenceBand: "no_signal" | "directional" | "emerging" | "grounded";
+  confidenceBand: "no_signal" | "sample_thin" | "emerging" | "grounded";
   confidenceLabel: string;
   confidenceSummary: string;
   currentStateSummary: string;
@@ -80,11 +91,35 @@ export type VendorAlignmentInsightBundle = {
   averageModuleScore: number | null;
   moduleVariance: number | null;
   latestUpdatedAt: Date | null;
-  confidenceBand: "no_signal" | "directional" | "emerging" | "grounded";
+  confidenceBand: "no_signal" | "sample_thin" | "emerging" | "grounded";
   confidenceLabel: string;
   confidenceSummary: string;
   reports: VendorAlignmentInsightReport[];
 };
+
+export type VendorAlignmentInsightOverviewMode = "pro" | "elite" | "help";
+export type VendorAlignmentInsightDetailSurfaceKey = "pro" | "elite" | "help";
+
+export type VendorAlignmentInsightOverviewCard = {
+  key: string;
+  title: string;
+  summary: string;
+  statusLabel?: string;
+  tone: "active" | "locked";
+  href: string | null;
+  interactive: boolean;
+  supportingText: string | null;
+};
+
+export type VendorAlignmentInsightDetailSurfaceCard = {
+  key: VendorAlignmentInsightDetailSurfaceKey;
+  title: string;
+  summary: string;
+  href: string | null;
+  interactive: boolean;
+};
+
+export type VendorAlignmentInsightDetailSurfaceContent = InsightSurfaceContent<VendorAlignmentInsightDetailSurfaceKey>;
 
 const STEM_CLUSTER_DEFINITIONS = [
   {
@@ -248,6 +283,40 @@ const INSIGHT_SIGNAL_CONFIG: Record<
   },
 };
 
+export function getRequestedVendorAlignmentInsightOverviewMode(
+  rawMode: string | undefined
+): VendorAlignmentInsightOverviewMode {
+  switch (rawMode?.trim().toLowerCase()) {
+    case "elite":
+      return "elite";
+    case "help":
+      return "help";
+    case "pro":
+    default:
+      return "pro";
+  }
+}
+
+export function getRequestedVendorAlignmentInsightDetailSurface(
+  rawSurface: string | undefined
+): VendorAlignmentInsightDetailSurfaceKey {
+  switch (rawSurface?.trim().toLowerCase()) {
+    case "pro":
+      return "pro";
+    case "elite":
+      return "elite";
+    case "help":
+      return "help";
+    case "basis":
+    case "modules":
+    case "capabilities":
+    case "confidence":
+      return "pro";
+    default:
+      return "pro";
+  }
+}
+
 function round1(value: number) {
   return Math.round(value * 10) / 10;
 }
@@ -302,10 +371,10 @@ function describeSampleSignal(sampleSize: number) {
     return "No completed firm PAT submissions are available yet.";
   }
   if (sampleSize === 1) {
-    return "The current vendor readout is based on 1 assessed firm, so it remains a very thin directional signal.";
+    return "The current vendor readout is based on 1 assessed firm, so it remains a very thin current-state signal.";
   }
   if (sampleSize < 5) {
-    return `The current vendor readout is based on ${sampleSize} assessed firms, so patterns should be treated as directional rather than broad market evidence.`;
+    return `The current vendor readout is based on ${sampleSize} assessed firms, so patterns should be treated as sample-thin rather than broad market evidence.`;
   }
   return `The current vendor readout is based on ${sampleSize} assessed firms and remains current-state PAT signal only, not benchmark or forecast intelligence.`;
 }
@@ -314,24 +383,24 @@ function getConfidenceBand(sampleSize: number) {
   if (sampleSize <= 0) {
     return {
       band: "no_signal" as const,
-      label: "No live signal",
+      label: "No current-state signal",
       summary:
         "No completed firm PAT submissions are available yet, so this remains a placeholder for future current-state signal.",
     };
   }
   if (sampleSize === 1) {
     return {
-      band: "directional" as const,
-      label: "Directional only",
+      band: "sample_thin" as const,
+      label: "Early current-state signal",
       summary:
-        "This readout is based on one firm only and should be treated as directional rather than strong signal.",
+        "This readout is based on one firm only and should be treated as early current-state signal rather than strong confirmation.",
     };
   }
   if (sampleSize < 5) {
     return {
-      band: "directional" as const,
-      label: "Directional",
-      summary: `This readout is based on ${sampleSize} firms and remains directional rather than broad market signal.`,
+      band: "sample_thin" as const,
+      label: "Sample-thin current-state signal",
+      summary: `This readout is based on ${sampleSize} firms and remains sample-thin rather than broad market signal.`,
     };
   }
   if (sampleSize < 10) {
@@ -377,16 +446,14 @@ function buildLockedReport(
     locked: true,
     latestUpdatedAt: snapshot.latestUpdatedAt,
     confidenceBand: snapshot.confidenceBand,
-    confidenceLabel: "Staged only",
-    confidenceSummary:
-      "This Elite card is staged only. PAT is not implying that benchmark, forecast, or scenario intelligence already exists behind it.",
-    currentStateSummary:
-      "This Elite insight remains staged only. PAT is not claiming benchmark, projection, or scenario intelligence from the current firm signal base.",
+    confidenceLabel: ELITE_PLACEHOLDER_TITLE,
+    confidenceSummary: ELITE_PLACEHOLDER_MESSAGE,
+    currentStateSummary: ELITE_PLACEHOLDER_MESSAGE,
     what: definition.what,
     why: definition.why,
     how: definition.how,
     exactAssessmentBasis:
-      "Current vendor alignment uses live firm PAT submissions, capability scores, and answer patterns for Pro insights only. This Elite card stays locked because the repo does not yet have an honest benchmark, time-series projection, or scenario layer behind it.",
+      "Current vendor alignment uses current firm PAT submissions, capability scores, and answer patterns for Pro insights only. Unlock with Elite membership when the deeper benchmark, projection, and scenario layer is truly available.",
     confidenceCaveats: [describeSampleSignal(snapshot.sampleSize)],
     sampleSize: snapshot.sampleSize,
     submissionCount: snapshot.submissionCount,
@@ -425,11 +492,6 @@ function buildProNarrative(input: {
     .slice(0, 3);
   const weakestCluster = [...input.clusters].sort((left, right) => left.averageScore - right.averageScore)[0];
   const { strongest, weakest } = summarizeModuleSpread(strongestModules, weakestModules);
-  const relevantModuleAverage = average(
-    scoredModules.flatMap((moduleEvidence) =>
-      typeof moduleEvidence.averageScore === "number" ? [moduleEvidence.averageScore] : []
-    )
-  );
 
   const basisLines = [
     `Firm sample size: ${input.snapshot.sampleSize}. Final firm submissions in basis set: ${input.snapshot.submissionCount}.`,
@@ -439,7 +501,7 @@ function buildProNarrative(input: {
       ? `Relevant capabilities: ${strongestCapabilities
           .map((capability) => `${capability.title} (${formatScore(capability.averageScore)})`)
           .join(", ")}.`
-      : "Relevant capabilities: live company capability scores are not populated yet for this slice.",
+      : "Relevant capabilities: current company capability scores are not populated yet for this slice.",
     notableClusters.length > 0
       ? `Relevant question clusters: ${notableClusters
           .map((cluster) => `${cluster.title} (${formatScore(cluster.averageScore)})`)
@@ -473,9 +535,7 @@ function buildProNarrative(input: {
     currentStateSummary:
       scoredModules.length === 0
         ? `${input.definition.title} has no completed firm PAT evidence yet.`
-        : `${input.definition.title} is currently based on ${input.snapshot.sampleSize} firm PAT sample${
-            input.snapshot.sampleSize === 1 ? "" : "s"
-          }. ${input.snapshot.confidenceSummary} The relevant module average is ${formatScore(relevantModuleAverage)}, with strongest support in ${strongest} and weakest support in ${weakest}.`,
+        : `${input.definition.title} shows the current firm-alignment picture, with the strongest support in ${strongest} and the most pressure in ${weakest}.`,
     what:
       scoredModules.length === 0
         ? "This vendor alignment insight becomes evidence-backed after enough firm PAT submissions exist."
@@ -590,6 +650,226 @@ export function buildVendorAlignmentInsightBundle(
   });
 
   return bundle;
+}
+
+export function buildVendorAlignmentProInsightCards(
+  bundle: VendorAlignmentInsightBundle
+): VendorAlignmentInsightOverviewCard[] {
+  return bundle.reports
+    .filter((report) => report.tier === 1)
+    .map(
+      (report) =>
+        ({
+          key: report.key,
+          title: report.title,
+          summary: report.currentStateSummary,
+          tone: "active",
+          href: `/vendor/alignment-insights/${report.key}`,
+          interactive: true,
+          supportingText: report.strongestModules.length
+            ? `Strongest support: ${report.strongestModules.map((module) => module.title).join(", ")}.`
+            : report.notableQuestionClusters.length
+              ? `Most visible pattern: ${report.notableQuestionClusters[0]?.title ?? "Current operating evidence"}.`
+              : "Current firm evidence is still taking shape.",
+        }) satisfies VendorAlignmentInsightOverviewCard
+    );
+}
+
+export function buildVendorAlignmentEliteInsightCards(bundle: VendorAlignmentInsightBundle) {
+  return bundle.reports
+    .filter((report) => report.tier === 2)
+    .map((report) => {
+      const content = getVendorAlignmentInsightContent(report.key);
+
+      return {
+        key: report.key,
+        title: report.title,
+        summary: content?.lockedState?.summary ?? report.currentStateSummary,
+        statusLabel: ELITE_PLACEHOLDER_TITLE,
+        tone: "locked",
+        href: null,
+        interactive: false,
+        supportingText: content?.lockedState?.disclaimer ?? ELITE_PLACEHOLDER_CTA,
+      } satisfies VendorAlignmentInsightOverviewCard;
+    });
+}
+
+export function buildVendorAlignmentInsightDetailSurfaceCards(input: {
+  report: VendorAlignmentInsightReport;
+}) {
+  const content = getVendorAlignmentInsightContent(input.report.key);
+  const lockedState = content?.lockedState;
+  const baseHref = `/vendor/alignment-insights/${input.report.key}`;
+  return [
+    {
+      key: "pro",
+      title: "Pro",
+      summary: input.report.currentStateSummary,
+      href: `${baseHref}?surface=pro`,
+      interactive: true,
+    },
+    {
+      key: "elite",
+      title: "Elite",
+      summary: input.report.locked
+        ? lockedState?.summary ?? ELITE_PLACEHOLDER_MESSAGE
+        : ELITE_PLACEHOLDER_MESSAGE,
+      href: `${baseHref}?surface=elite`,
+      interactive: true,
+    },
+    {
+      key: "help",
+      title: "Help",
+      summary: input.report.locked
+        ? lockedState?.summary ?? input.report.currentStateSummary
+        : input.report.currentStateSummary,
+      href: `${baseHref}?surface=help`,
+      interactive: true,
+    },
+  ] satisfies VendorAlignmentInsightDetailSurfaceCard[];
+}
+
+function summarizeAlignmentStrengths(report: VendorAlignmentInsightReport) {
+  if (!report.strongestModules.length && !report.contributingCapabilities.length) {
+    return "PAT does not have enough grounded module or capability evidence yet to separate the strongest supports cleanly.";
+  }
+
+  const moduleText = report.strongestModules.length
+    ? `Strongest contributing modules right now: ${report.strongestModules
+        .map((module) => `${module.title} (${formatScore(module.averageScore)})`)
+        .join(", ")}.`
+    : "";
+  const capabilityText = report.contributingCapabilities.length
+    ? `Most relevant supporting capabilities: ${report.contributingCapabilities
+        .map((capability) => `${capability.title} (${formatScore(capability.averageScore)})`)
+        .join(", ")}.`
+    : "";
+
+  return [moduleText, capabilityText].filter(Boolean).join(" ");
+}
+
+function summarizeAlignmentPressure(report: VendorAlignmentInsightReport) {
+  if (!report.weakestModules.length && !report.notableQuestionClusters.length) {
+    return "PAT does not have enough grounded module or question-pattern evidence yet to separate the pressure points cleanly.";
+  }
+
+  const moduleText = report.weakestModules.length
+    ? `Current pressure is showing most clearly in ${report.weakestModules
+        .map((module) => `${module.title} (${formatScore(module.averageScore)})`)
+        .join(", ")}.`
+    : "";
+  const clusterText = report.notableQuestionClusters.length
+    ? `The most visible operating patterns in this readout are ${report.notableQuestionClusters
+        .map((cluster) => `${cluster.title} (${formatScore(cluster.averageScore)})`)
+        .join(", ")}.`
+    : "";
+
+  return [moduleText, clusterText].filter(Boolean).join(" ");
+}
+
+function summarizeAlignmentLimits(report: VendorAlignmentInsightReport) {
+  return [report.confidenceSummary, ...report.confidenceCaveats.slice(0, 2)]
+    .filter(Boolean)
+    .join(" ");
+}
+
+export function buildVendorAlignmentInsightDetailSurfaceContent(input: {
+  report: VendorAlignmentInsightReport;
+  surface: VendorAlignmentInsightDetailSurfaceKey;
+}) {
+  const content = getVendorAlignmentInsightContent(input.report.key);
+  const lockedState = content?.lockedState;
+
+  switch (input.surface) {
+    case "pro":
+      return {
+        key: "pro",
+        title: "Pro",
+        intro: input.report.locked
+          ? "PAT keeps the Pro surface focused on the grounded current-state evidence already available for this alignment theme."
+          : "PAT keeps the Pro surface focused on the grounded evidence behind this current vendor alignment readout.",
+        items: [
+          {
+            title: "Current PAT picture",
+            body:
+              `${input.report.currentStateSummary} ` +
+              `The current relevant module average is ${formatScore(input.report.averageModuleScore)}, ` +
+              `with cross-module variance ${
+                input.report.moduleVariance === null ? "not yet separated cleanly" : `of ${round1(input.report.moduleVariance)} points`
+              }.`,
+          },
+          {
+            title: "Where the signal is strongest",
+            body: summarizeAlignmentStrengths(input.report),
+          },
+          {
+            title: "Where the signal is under pressure",
+            body: summarizeAlignmentPressure(input.report),
+          },
+          {
+            title: "Current limits",
+            body: summarizeAlignmentLimits(input.report),
+          },
+        ],
+      } satisfies VendorAlignmentInsightDetailSurfaceContent;
+    case "elite":
+      return buildElitePlaceholderSurfaceContent<VendorAlignmentInsightDetailSurfaceKey>({
+        key: "elite",
+        intro: input.report.locked
+          ? lockedState?.summary ?? ELITE_PLACEHOLDER_MESSAGE
+          : ELITE_PLACEHOLDER_MESSAGE,
+        what: input.report.locked
+          ? lockedState?.what ?? content?.what ?? ELITE_PLACEHOLDER_TITLE
+          : "A deeper PAT interpretation layer reserved for benchmark, projection, and scenario work that is not yet live in this route.",
+        why: input.report.locked
+          ? lockedState?.why ?? content?.why ?? ELITE_PLACEHOLDER_CTA
+          : "The deeper comparative and forward-looking layer should stay unavailable until PAT can support it honestly.",
+        how: input.report.locked
+          ? lockedState?.how ?? content?.how ?? ELITE_PLACEHOLDER_CTA
+          : `${ELITE_PLACEHOLDER_TITLE}. ${ELITE_PLACEHOLDER_CTA}.`,
+      });
+    case "help":
+      return buildHelpSurfaceContent<VendorAlignmentInsightDetailSurfaceKey>({
+        key: "help",
+        intro: input.report.locked
+          ? lockedState?.summary ?? input.report.currentStateSummary
+          : input.report.currentStateSummary,
+        what: input.report.locked ? lockedState?.what ?? input.report.what : input.report.what,
+        why: input.report.locked ? lockedState?.why ?? input.report.why : input.report.why,
+        how: input.report.locked ? lockedState?.how ?? input.report.how : input.report.how,
+      });
+    default:
+      return {
+        key: "pro",
+        title: "Pro",
+        intro: input.report.locked
+          ? "PAT keeps the Pro surface focused on the grounded current-state evidence already available for this alignment theme."
+          : "PAT keeps the Pro surface focused on the grounded evidence behind this current vendor alignment readout.",
+        items: [
+          {
+            title: "Current PAT picture",
+            body:
+              `${input.report.currentStateSummary} ` +
+              `The current relevant module average is ${formatScore(input.report.averageModuleScore)}, ` +
+              `with cross-module variance ${
+                input.report.moduleVariance === null ? "not yet separated cleanly" : `of ${round1(input.report.moduleVariance)} points`
+              }.`,
+          },
+          {
+            title: "Where the signal is strongest",
+            body: summarizeAlignmentStrengths(input.report),
+          },
+          {
+            title: "Where the signal is under pressure",
+            body: summarizeAlignmentPressure(input.report),
+          },
+          {
+            title: "Current limits",
+            body: summarizeAlignmentLimits(input.report),
+          },
+        ],
+      } satisfies VendorAlignmentInsightDetailSurfaceContent;
+  }
 }
 
 export async function getVendorAlignmentInsightBundle() {

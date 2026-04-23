@@ -2,13 +2,13 @@
 
 ## Scope
 
-Reconcile the authoritative local PAT recovery branch against `origin/main` without merging stale AAE main into recovery.
+Reconcile the authoritative local PAT checkout at the time against `origin/main` without merging stale AAE main into the release line.
 
 ## Authoritative local source
 
 - repo root: `/Users/camerongarrett/work/c2acct-live`
-- branch: `recovery/pat-2026-03-31-baseline`
-- HEAD: `252b7f39ec77b5459c26791769410b87c4048cec`
+- branch at snapshot time: the dated recovery-line branch used on 2026-04-02
+- HEAD at snapshot time: the then-current recovery-line head used on 2026-04-02
 
 ## Remote comparison
 
@@ -19,14 +19,14 @@ git fetch origin --prune
 git rev-list --left-right --count origin/main...HEAD
 git diff --name-status origin/main...HEAD
 git log --oneline --decorate origin/main..HEAD
-git ls-remote --heads origin recovery/pat-2026-03-31-baseline
+git ls-remote --heads origin <historical-recovery-line-name>
 ```
 
 Results:
 
 - ahead/behind vs `origin/main`: `0 28`
-- local recovery branch is `28` commits ahead of `origin/main`
-- remote recovery branch `recovery/pat-2026-03-31-baseline` is not present on `origin`
+- local release line at snapshot time is `28` commits ahead of `origin/main`
+- remote historical recovery branch was not present on `origin`
 - raw drift artifacts:
   - `artifacts/reports/origin-main-vs-head.diff.txt`
   - `artifacts/reports/origin-main-vs-head.log`
@@ -104,11 +104,9 @@ Results:
 
 ## Recovery branch naming
 
-The current recovery branch name is still the right published name:
+At the time of this snapshot, the recovery-line name matched the rollback anchor date and audit trail.
 
-- `recovery/pat-2026-03-31-baseline`
-
-That name matches:
+That naming matched:
 
 - the rollback anchor date
 - the PAT recovery audit trail
@@ -116,7 +114,7 @@ That name matches:
 
 ## Publish status
 
-The recovery branch is **not yet publishable in this working tree** because the tree is dirty.
+The release line captured in this snapshot was **not yet publishable in this working tree** because the tree was dirty.
 
 Current dirty entries include:
 
@@ -132,11 +130,11 @@ Track rule says:
 
 - do not push a dirty tree
 
-Because of that rule, `git push -u origin HEAD:recovery/pat-2026-03-31-baseline` was not executed from this dirty state.
+Because of that rule, the historical recovery-line push was not executed from this dirty state.
 
 ## Exact remaining gap between source truth and live host truth
 
-Source truth is the local PAT recovery branch in `/Users/camerongarrett/work/c2acct-live`.
+Source truth for this snapshot is the local PAT checkout line in `/Users/camerongarrett/work/c2acct-live`.
 
 Live host truth is still wrong because:
 
@@ -152,4 +150,4 @@ Live host truth is still wrong because:
 
 ## Conclusion
 
-The local recovery branch is the real PAT source of truth. `origin/main` is stale. The right publication target remains `origin/recovery/pat-2026-03-31-baseline`, but the branch must be pushed only from a clean working tree.
+The local PAT checkout line is the real PAT source of truth for this snapshot. `origin/main` is stale. Any publication target must be driven from a clean working tree, not from stale comparison history.

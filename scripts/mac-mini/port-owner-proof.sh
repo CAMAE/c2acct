@@ -107,8 +107,17 @@ live_commit_sha="missing"
 live_auth_mode="missing"
 live_build_id="missing"
 live_release_fingerprint_seed="missing"
+homepage_probe_ok="no"
+homepage_probe_http="missing"
+homepage_release_id="missing"
+homepage_missing_pat_markers=""
+homepage_forbidden_markers=""
+homepage_failures=""
 api_body_file="$(mktemp "${TMPDIR:-/tmp}/pat-live-release.XXXXXX")"
+homepage_probe_file="$(mktemp "${TMPDIR:-/tmp}/pat-homepage-proof.XXXXXX")"
+homepage_probe_status=1
 trap 'rm -f "${api_body_file}"' EXIT
+trap 'rm -f "${api_body_file}" "${homepage_probe_file}"' EXIT
 
 app_base_url="$(mac_mini_app_url | sed 's#/$##')"
 if [ "${listening}" = "yes" ]; then
@@ -132,7 +141,28 @@ if [ "${listening}" = "yes" ]; then
   fi
 fi
 
-expected_env="$(node --import tsx "${MAC_MINI_ROOT}/scripts/release/read-release-fingerprint.ts" --format env)"
+if [ "${listening}" = "yes" ]; then
+  if (
+    cd "${MAC_MINI_ROOT}" &&
+    node --import tsx scripts/startup-guard.ts verify-base-url --kind standalone --base-url "${app_base_url}" --format env
+  ) >"${homepage_probe_file}" 2>/dev/null; then
+    homepage_probe_status=0
+  else
+    homepage_probe_status=$?
+  fi
+
+  if [ -s "${homepage_probe_file}" ]; then
+    homepage_probe_payload="$(cat "${homepage_probe_file}")"
+    homepage_probe_ok="$(read_key_value_var "${homepage_probe_payload}" homepage_probe_ok || printf 'no')"
+    homepage_probe_http="$(read_key_value_var "${homepage_probe_payload}" homepage_probe_http || printf 'missing')"
+    homepage_release_id="$(read_key_value_var "${homepage_probe_payload}" homepage_release_id || printf 'missing')"
+    homepage_missing_pat_markers="$(read_key_value_var "${homepage_probe_payload}" homepage_missing_pat_markers || printf '')"
+    homepage_forbidden_markers="$(read_key_value_var "${homepage_probe_payload}" homepage_forbidden_markers || printf '')"
+    homepage_failures="$(read_key_value_var "${homepage_probe_payload}" homepage_failures || printf '')"
+  fi
+fi
+
+expected_env="$(cd "${MAC_MINI_ROOT}" && node --import tsx scripts/release/read-release-fingerprint.ts --format env)"
 expected_release_id="$(read_key_value_var "${expected_env}" release_id || printf 'missing')"
 expected_commit_sha="$(read_key_value_var "${expected_env}" fingerprint_commit_sha || printf 'missing')"
 expected_auth_mode="$(read_key_value_var "${expected_env}" fingerprint_auth_mode || printf 'missing')"
@@ -156,6 +186,10 @@ if [ "${listening}" = "yes" ] && [ "${api_status}" != "200" ]; then
   failures+=("live_release_endpoint_unavailable")
 fi
 
+if [ "${listening}" = "yes" ] && [ "${homepage_probe_status}" != "0" ]; then
+  failures+=("homepage_not_pat")
+fi
+
 if [ "${api_status}" = "200" ] && [ "${live_release_id}" != "${expected_release_id}" ]; then
   failures+=("release_id_mismatch")
 fi
@@ -166,6 +200,10 @@ fi
 
 if [ "${api_status}" = "200" ] && [ "${live_auth_mode}" != "${expected_auth_mode}" ]; then
   failures+=("auth_mode_mismatch")
+fi
+
+if [ "${api_status}" = "200" ] && [ "${live_build_id}" != "${expected_build_id}" ]; then
+  failures+=("build_id_mismatch")
 fi
 
 if [ "${api_status}" = "200" ] && [ "${live_release_fingerprint_seed}" != "${expected_release_fingerprint_seed}" ]; then
@@ -193,6 +231,12 @@ printf 'expected_commit_sha=%s\n' "${expected_commit_sha}"
 printf 'expected_auth_mode=%s\n' "${expected_auth_mode}"
 printf 'expected_build_id=%s\n' "${expected_build_id}"
 printf 'expected_release_fingerprint_seed=%s\n' "${expected_release_fingerprint_seed}"
+printf 'homepage_probe_ok=%s\n' "${homepage_probe_ok}"
+printf 'homepage_probe_http=%s\n' "${homepage_probe_http}"
+printf 'homepage_release_id=%s\n' "${homepage_release_id}"
+printf 'homepage_missing_pat_markers=%s\n' "${homepage_missing_pat_markers}"
+printf 'homepage_forbidden_markers=%s\n' "${homepage_forbidden_markers}"
+printf 'homepage_failures=%s\n' "${homepage_failures}"
 
 if [ "${#failures[@]}" -gt 0 ]; then
   printf 'ownership_check=fail\n'

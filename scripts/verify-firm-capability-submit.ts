@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { randomUUID } from "node:crypto";
-import { CompanyType } from "@prisma/client";
+import { CompanyType, QuestionInputType } from "@prisma/client";
 import type { Prisma } from "@prisma/client";
 import { normalizeQuestionRuntime, type NormalizedAnswer } from "@/lib/assessmentRuntime";
 import {
@@ -109,10 +109,17 @@ async function main() {
       normalizeQuestionRuntime(question)
     );
     const answers: Record<string, NormalizedAnswer> = Object.fromEntries(
-      runtimeQuestions.map((question) => [question.id, 5])
+      runtimeQuestions.map((question) => [
+        question.id,
+        question.inputType === QuestionInputType.TEXT
+          ? `Validation response for ${question.key}`
+          : 5,
+      ])
     );
     const numericAnswers = Object.fromEntries(
-      runtimeQuestions.map((question) => [question.id, 5])
+      runtimeQuestions
+        .filter((question) => question.inputType !== QuestionInputType.TEXT)
+        .map((question) => [question.id, 5])
     );
     const scoreScale = getAssessmentScoreScale(runtimeQuestions);
     const score = computeScore({

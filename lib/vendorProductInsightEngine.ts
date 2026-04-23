@@ -1,5 +1,12 @@
 import prisma from "@/lib/prisma";
 import { FIRM_PRODUCT_MODULE_KEY, buildFirmProductQuestions } from "@/lib/firmPat";
+import {
+  ELITE_PLACEHOLDER_CTA,
+  ELITE_PLACEHOLDER_MESSAGE,
+  ELITE_PLACEHOLDER_TITLE,
+  getVendorProductInsightContent,
+} from "@/lib/insightContent";
+import { buildHelpSurfaceContent, type InsightSurfaceContent } from "@/lib/insightSurface";
 import { recordPatDiagnostic } from "@/lib/patDiagnostics";
 import {
   normalizeAnswerForStoredScale,
@@ -8,14 +15,40 @@ import {
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import {
   PRODUCT_TIER1_INSIGHTS,
+  PRODUCT_TIER2_INSIGHTS,
   VENDOR_PRODUCT_MODULE_KEY,
   buildVendorProductQuestions,
+  deriveVendorProductAssessmentCompletionStatus,
   extractUtilityKeysFromSignals,
   getVendorCompanyContext,
   getVendorUtilityLabels,
 } from "@/lib/vendorPat";
 
 type ProductInsightDefinition = (typeof PRODUCT_TIER1_INSIGHTS)[number];
+
+export type VendorProductInsightDetailMode = "pro" | "elite" | "help";
+export type VendorProductInsightDetailSurfaceKey = "help" | "evidence";
+
+export type VendorProductInsightDetailCard = {
+  key: string;
+  title: string;
+  summary: string;
+  statusLabel?: string;
+  tone: "active" | "locked";
+  href: string | null;
+  interactive: boolean;
+  supportingText: string | null;
+};
+
+export type VendorProductInsightDetailSurfaceCard = {
+  key: VendorProductInsightDetailSurfaceKey;
+  title: string;
+  summary: string;
+  href: string | null;
+  interactive: boolean;
+};
+
+export type VendorProductInsightDetailSurfaceContent = InsightSurfaceContent<VendorProductInsightDetailSurfaceKey>;
 
 type VendorSectionEvidence = {
   key: string;
@@ -34,7 +67,7 @@ type UtilityEvidence = {
 export type VendorProductInsightRecord = {
   key: ProductInsightDefinition["key"];
   title: string;
-  confidenceBand: "no_signal" | "directional" | "emerging" | "grounded";
+  confidenceBand: "no_signal" | "sample_thin" | "emerging" | "grounded";
   confidenceLabel: string;
   what: string;
   why: string;
@@ -58,6 +91,12 @@ export type VendorProductInsightSnapshot = {
     utilityLabels: string[];
     utilityScopeLabel: string;
   };
+  vendorAssessmentStatus: {
+    completed: boolean;
+    latestSubmittedAt: Date | null;
+    statusLabel: string;
+    reason: string;
+  };
   vendorSelfReported: {
     latestScore: number | null;
     submittedAt: Date | null;
@@ -74,7 +113,7 @@ export type VendorProductInsightSnapshot = {
     label: string;
   };
   latestUpdatedAt: Date | null;
-  confidenceBand: "no_signal" | "directional" | "emerging" | "grounded";
+  confidenceBand: "no_signal" | "sample_thin" | "emerging" | "grounded";
   confidenceLabel: string;
   confidenceSummary: string;
   combinedCurrentPatReadout: string;
@@ -88,6 +127,12 @@ export type VendorProductInsightSnapshotInput = {
     name: string;
     summary: string | null;
     utilityKeys: string[];
+  };
+  vendorAssessmentStatus: {
+    completed: boolean;
+    latestSubmittedAt: Date | null;
+    statusLabel: string;
+    reason: string;
   };
   vendorSelfReported: {
     latestScore: number | null;
@@ -109,6 +154,37 @@ export type VendorProductInsightSnapshotInput = {
     }>;
   };
 };
+
+export function getRequestedVendorProductInsightDetailMode(
+  rawMode: string | undefined
+): VendorProductInsightDetailMode {
+  switch (rawMode?.trim().toLowerCase()) {
+    case "elite":
+      return "elite";
+    case "help":
+      return "help";
+    case "pro":
+    default:
+      return "pro";
+  }
+}
+
+export function getRequestedVendorProductInsightDetailSurface(
+  rawSurface: string | undefined
+): VendorProductInsightDetailSurfaceKey {
+  switch (rawSurface?.trim().toLowerCase()) {
+    case "help":
+      return "help";
+    case "evidence":
+    case "basis":
+    case "vendor-evidence":
+    case "firm-evidence":
+    case "confidence":
+      return "evidence";
+    default:
+      return "help";
+  }
+}
 
 function round1(value: number) {
   return Math.round(value * 10) / 10;
@@ -159,7 +235,7 @@ function buildConfidenceCaveats(input: {
 
   if (input.utilityKeys.length === 0) {
     caveats.push(
-      "No product utility declaration is live yet, so PAT cannot treat this as a scoped product-utility readout."
+      "No product utility declaration is available yet, so PAT cannot treat this as a scoped product-utility readout."
     );
   }
 
@@ -181,7 +257,7 @@ function buildConfidenceCaveats(input: {
     );
   } else if (input.firmAssessmentCount === 1) {
     caveats.push(
-      "Firm-reviewed signal is based on 1 assessment only, so it remains directional rather than broadly representative."
+      "Firm-reviewed signal is based on 1 assessment only, so it remains early and sample-thin."
     );
   } else if (input.firmAssessmentCount < 4) {
     caveats.push(
@@ -203,7 +279,7 @@ function buildConfidenceCaveats(input: {
     caveats.push(
       `Vendor self-view and firm-reviewed signal are currently ${Math.abs(
         input.divergencePoints
-      )} points apart, so PAT should treat the gap as a live calibration issue rather than a cosmetic difference.`
+      )} points apart, so PAT should treat the gap as a current calibration issue rather than a cosmetic difference.`
     );
   }
 
@@ -231,24 +307,24 @@ function getConfidenceBand(input: {
   if (input.vendorScore === null && input.firmAssessmentCount === 0) {
     return {
       band: "no_signal" as const,
-      label: "No live signal",
+      label: "No current-state signal",
       summary:
         "Neither vendor self-reported signal nor firm-reviewed signal is available yet, so this remains an ungrounded placeholder.",
     };
   }
   if (input.firmAssessmentCount <= 1) {
     return {
-      band: "directional" as const,
-      label: "Directional",
+      band: "sample_thin" as const,
+      label: "Early current-state signal",
       summary:
-        "Firm-reviewed signal is absent or very thin, so the combined readout should be treated as directional rather than strong signal.",
+        "Firm-reviewed signal is absent or very thin, so the combined readout should be treated as early current-state signal rather than strong confirmation.",
     };
   }
   if (input.firmAssessmentCount < 4) {
     return {
-      band: "directional" as const,
-      label: "Directional",
-      summary: `Firm-reviewed signal is based on ${input.firmAssessmentCount} assessments, so this remains directional rather than broadly confirmed.`,
+      band: "sample_thin" as const,
+      label: "Sample-thin current-state signal",
+      summary: `Firm-reviewed signal is based on ${input.firmAssessmentCount} assessments, so this remains sample-thin rather than broadly confirmed.`,
     };
   }
   if (input.firmAssessmentCount < 8) {
@@ -450,7 +526,7 @@ function buildInsightRecord(input: {
   firmAssessmentCount: number;
   firmAverageScore: number | null;
   divergence: VendorProductInsightSnapshot["divergence"];
-  confidenceBand: "no_signal" | "directional" | "emerging" | "grounded";
+  confidenceBand: "no_signal" | "sample_thin" | "emerging" | "grounded";
   confidenceLabel: string;
   utilityKeys: string[];
   vendorResponses: {
@@ -607,6 +683,7 @@ export function buildVendorProductInsightSnapshot(
       utilityLabels,
       utilityScopeLabel,
     },
+    vendorAssessmentStatus: input.vendorAssessmentStatus,
     vendorSelfReported: {
       latestScore: input.vendorSelfReported.latestScore,
       submittedAt: input.vendorSelfReported.submittedAt,
@@ -643,6 +720,7 @@ export function buildVendorProductInsightSnapshot(
     status: input.firmReviewed.assessmentCount < 4 ? "warn" : "ok",
     summary: "Vendor product insight snapshot generated.",
     details: {
+      completedVendorAssessment: input.vendorAssessmentStatus.completed,
       vendorSignalPresent: input.vendorSelfReported.latestScore !== null,
       firmAssessmentCount: input.firmReviewed.assessmentCount,
       lowSample: input.firmReviewed.assessmentCount < 4,
@@ -651,6 +729,239 @@ export function buildVendorProductInsightSnapshot(
   });
 
   return snapshot;
+}
+
+export function filterVendorProductInsightCatalogToCompleted(
+  snapshots: readonly VendorProductInsightSnapshot[]
+) {
+  return snapshots.filter((snapshot) => snapshot.vendorAssessmentStatus.completed);
+}
+
+export function buildVendorProductProInsightCards(
+  snapshot: VendorProductInsightSnapshot
+): VendorProductInsightDetailCard[] {
+  return snapshot.insightRecords.map((insight) => ({
+    key: insight.key,
+    title: insight.title,
+    summary: insight.currentStateSummary,
+    tone: "active" as const,
+    href: `/vendor/product-insight/${snapshot.product.id}/${insight.key}`,
+    interactive: true,
+    supportingText:
+      insight.strongestVendorSections.length > 0
+        ? `Strongest current sections: ${insight.strongestVendorSections
+            .map((section) => section.title)
+            .join(", ")}`
+        : "No clear section separation yet.",
+  }));
+}
+
+export function buildVendorProductEliteInsightCards() {
+  return PRODUCT_TIER2_INSIGHTS.map((insight) => {
+    const content = getVendorProductInsightContent(insight.key);
+
+    return {
+      key: insight.key,
+      title: insight.title,
+      summary:
+        content?.lockedState?.summary ??
+        `${ELITE_PLACEHOLDER_TITLE}.`,
+      statusLabel: ELITE_PLACEHOLDER_TITLE,
+      tone: "locked" as const,
+      href: null,
+      interactive: false,
+      supportingText: content?.lockedState?.disclaimer ?? ELITE_PLACEHOLDER_CTA,
+    } satisfies VendorProductInsightDetailCard;
+  });
+}
+
+export function buildVendorProductInsightDetailSurfaceCards(input: {
+  snapshot: VendorProductInsightSnapshot;
+  insightKey: string;
+  record: VendorProductInsightRecord | null;
+  locked: boolean;
+}) {
+  const content = getVendorProductInsightContent(input.insightKey);
+  const lockedState = content?.lockedState;
+  const baseHref = `/vendor/product-insight/${input.snapshot.product.id}/${input.insightKey}`;
+  const vendorEvidenceCount = input.record?.vendorSectionEvidence.length ?? 0;
+  const firmEvidenceCount = input.snapshot.firmReviewed.utilityEvidence.filter(
+    (utility) => utility.averageScore !== null
+  ).length;
+
+  const surfaces: VendorProductInsightDetailSurfaceCard[] = [
+    {
+      key: "help",
+      title: "Help",
+      summary: input.locked
+        ? lockedState?.summary ?? ELITE_PLACEHOLDER_MESSAGE
+        : input.record?.currentStateSummary ?? input.snapshot.combinedCurrentPatReadout,
+      href: `${baseHref}?surface=help`,
+      interactive: true,
+    },
+    {
+      key: "evidence",
+      title: "Evidence",
+      summary:
+        input.record || vendorEvidenceCount > 0 || firmEvidenceCount > 0
+          ? "Review the vendor section evidence alongside the firm-reviewed utility evidence behind this readout."
+          : input.snapshot.combinedCurrentPatReadout,
+      href: `${baseHref}?surface=evidence`,
+      interactive: true,
+    },
+  ];
+
+  return surfaces;
+}
+
+function summarizeVendorEvidence(record: VendorProductInsightRecord | null) {
+  if (!record?.vendorSectionEvidence.length) {
+    return "No vendor-reported section evidence is populated yet for this product.";
+  }
+
+  const strongest =
+    record.strongestVendorSections.length > 0
+      ? `Strongest right now: ${record.strongestVendorSections
+          .map((section) => `${section.title} (${formatScore(section.averageScore)})`)
+          .join(", ")}.`
+      : "";
+  const weakest =
+    record.weakestVendorSections.length > 0
+      ? `Weakest right now: ${record.weakestVendorSections
+          .map((section) => `${section.title} (${formatScore(section.averageScore)})`)
+          .join(", ")}.`
+      : "";
+
+  return [
+    `PAT currently separates ${record.vendorSectionEvidence.length} vendor-reported section${
+      record.vendorSectionEvidence.length === 1 ? "" : "s"
+    } for this product.`,
+    strongest,
+    weakest,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function summarizeFirmEvidence(snapshot: VendorProductInsightSnapshot, record: VendorProductInsightRecord | null) {
+  const groundedUtilities = snapshot.firmReviewed.utilityEvidence.filter(
+    (utility) => utility.averageScore !== null
+  );
+
+  if (!groundedUtilities.length) {
+    return "Firm-reviewed evidence is still too thin to separate utility-level strengths and weaknesses cleanly.";
+  }
+
+  const strongest =
+    record?.strongestFirmUtilities.length
+      ? `Strongest right now: ${record.strongestFirmUtilities
+          .map((utility) => `${utility.utilityLabel} (${formatScore(utility.averageScore)})`)
+          .join(", ")}.`
+      : "";
+  const weakest =
+    record?.weakestFirmUtilities.length
+      ? `Weakest right now: ${record.weakestFirmUtilities
+          .map((utility) => `${utility.utilityLabel} (${formatScore(utility.averageScore)})`)
+          .join(", ")}.`
+      : "";
+
+  return [
+    `Firm-reviewed signal is grounded across ${groundedUtilities.length} utilit${
+      groundedUtilities.length === 1 ? "y" : "ies"
+    } and ${snapshot.firmReviewed.assessmentCount} assessment${
+      snapshot.firmReviewed.assessmentCount === 1 ? "" : "s"
+    }.`,
+    strongest,
+    weakest,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function summarizeCurrentLimits(snapshot: VendorProductInsightSnapshot, record: VendorProductInsightRecord | null) {
+  const caveats = (record?.confidenceCaveats ?? snapshot.confidenceCaveats).slice(0, 2);
+  return [snapshot.confidenceSummary, ...caveats].filter(Boolean).join(" ");
+}
+
+export function buildVendorProductInsightDetailSurfaceContent(input: {
+  snapshot: VendorProductInsightSnapshot;
+  insightKey: string;
+  record: VendorProductInsightRecord | null;
+  surface: VendorProductInsightDetailSurfaceKey;
+  locked: boolean;
+}) {
+  const content = getVendorProductInsightContent(input.insightKey);
+  const lockedState = content?.lockedState;
+
+  switch (input.surface) {
+    case "help":
+      return buildHelpSurfaceContent<VendorProductInsightDetailSurfaceKey>({
+        key: "help",
+        intro: input.locked
+          ? lockedState?.summary ?? ELITE_PLACEHOLDER_MESSAGE
+          : input.record?.currentStateSummary ?? input.snapshot.combinedCurrentPatReadout,
+        what: input.locked
+          ? lockedState?.what ?? content?.what ?? "Coming soon."
+          : input.record?.what ?? content?.what ?? "No product-intelligence explanation is available yet.",
+        why: input.locked
+          ? lockedState?.why ?? content?.why ?? ELITE_PLACEHOLDER_CTA
+          : input.record?.why ?? content?.why ?? "No product-intelligence rationale is available yet.",
+        how: input.locked
+          ? lockedState?.how ?? content?.how ?? ELITE_PLACEHOLDER_CTA
+          : input.record?.how ?? content?.how ?? "No product-intelligence use guidance is available yet.",
+      });
+    case "evidence":
+      return {
+        key: "evidence",
+        title: "Evidence",
+        intro: input.locked
+          ? "PAT can still show the current product evidence here, even while the deeper Elite interpretation remains locked."
+          : "PAT keeps the lower surface focused on the evidence that supports this product readout today.",
+        items: [
+          {
+            title: "Current PAT picture",
+            body: [
+              input.snapshot.combinedCurrentPatReadout,
+              `Utility scope: ${input.snapshot.product.utilityScopeLabel}.`,
+              `Vendor self-reported signal: ${formatScore(input.snapshot.vendorSelfReported.latestScore)}.`,
+              `Firm-reviewed signal: ${formatScore(input.snapshot.firmReviewed.averageScore)} across ${
+                input.snapshot.firmReviewed.assessmentCount
+              } assessment${input.snapshot.firmReviewed.assessmentCount === 1 ? "" : "s"}.`,
+            ].join(" "),
+          },
+          {
+            title: "Vendor-reported evidence",
+            body: summarizeVendorEvidence(input.record),
+          },
+          {
+            title: "Firm-reviewed evidence",
+            body: summarizeFirmEvidence(input.snapshot, input.record),
+          },
+          {
+            title: input.locked ? "Why the deeper view is still locked" : "Current limits",
+            body: input.locked
+              ? `${summarizeCurrentLimits(input.snapshot, input.record)} ${lockedState?.disclaimer ?? ELITE_PLACEHOLDER_CTA}.`
+              : summarizeCurrentLimits(input.snapshot, input.record),
+          },
+        ],
+      } satisfies VendorProductInsightDetailSurfaceContent;
+    default:
+      return buildHelpSurfaceContent<VendorProductInsightDetailSurfaceKey>({
+        key: "help",
+        intro: input.locked
+          ? lockedState?.summary ?? "Coming soon. Unlock with Elite membership."
+          : input.record?.currentStateSummary ?? input.snapshot.combinedCurrentPatReadout,
+        what: input.locked
+          ? lockedState?.what ?? content?.what ?? "Coming soon."
+          : input.record?.what ?? content?.what ?? "No product-intelligence explanation is available yet.",
+        why: input.locked
+          ? lockedState?.why ?? content?.why ?? "Unlock with Elite membership."
+          : input.record?.why ?? content?.why ?? "No product-intelligence rationale is available yet.",
+        how: input.locked
+          ? lockedState?.how ?? content?.how ?? "Unlock with Elite membership."
+          : input.record?.how ?? content?.how ?? "No product-intelligence use guidance is available yet.",
+      });
+  }
 }
 
 export async function getVendorProductInsightSnapshot(companyId: string, productId: string) {
@@ -698,6 +1009,7 @@ export async function getVendorProductInsightSnapshot(companyId: string, product
             id: true,
             score: true,
             createdAt: true,
+            answeredCount: true,
             answers: true,
             scaleMin: true,
             scaleMax: true,
@@ -724,6 +1036,18 @@ export async function getVendorProductInsightSnapshot(companyId: string, product
       : Promise.resolve([]),
   ]);
 
+  const vendorAssessmentStatus = deriveVendorProductAssessmentCompletionStatus({
+    latestSubmission: latestVendorSubmission
+      ? {
+          id: latestVendorSubmission.id,
+          score: latestVendorSubmission.score,
+          createdAt: latestVendorSubmission.createdAt,
+          answeredCount: latestVendorSubmission.answeredCount,
+          answers: latestVendorSubmission.answers,
+        }
+      : null,
+  });
+
   const vendorScale = resolveStoredProductAssessmentScale(
     latestVendorSubmission?.scaleMin,
     latestVendorSubmission?.scaleMax
@@ -746,7 +1070,16 @@ export async function getVendorProductInsightSnapshot(companyId: string, product
       id: product.id,
       name: product.name,
       summary: product.summary,
-      utilityKeys,
+      utilityKeys:
+        vendorAssessmentStatus.utilityKeys.length > 0
+          ? vendorAssessmentStatus.utilityKeys
+          : utilityKeys,
+    },
+    vendorAssessmentStatus: {
+      completed: vendorAssessmentStatus.completed,
+      latestSubmittedAt: vendorAssessmentStatus.latestSubmittedAt,
+      statusLabel: vendorAssessmentStatus.statusLabel,
+      reason: vendorAssessmentStatus.reason,
     },
     vendorSelfReported: {
       latestScore: latestVendorSubmission?.score ?? null,
@@ -776,5 +1109,5 @@ export async function getVendorProductInsightCatalog(
       catalog.push(snapshot);
     }
   }
-  return catalog;
+  return filterVendorProductInsightCatalogToCompleted(catalog);
 }

@@ -9,13 +9,20 @@ Make the validated PAT runtime the actual launchd-owned process on `127.0.0.1:30
 - live release fingerprint agreement
 - live PAT route/render agreement
 
-## Expected Live Target
+## Current usage note
+
+- This file is a dated 2026-04-02 host proof snapshot.
+- Use `docs/active-repo-map.md` and `README.md` for current checkout truth before making a new release decision.
+- Current checkout truth has moved beyond this snapshot. For the current build id, use the latest release-proof artifacts such as `.next/BUILD_ID`, `/api/release-fingerprint`, or `pnpm standalone:local:check`; for current dirty-tree truth, use `git status --short`.
+
+## Current release-decision target
 
 - canonical root: `/Users/camerongarrett/work/c2acct-live`
-- branch: `recovery/pat-2026-03-31-baseline`
-- head: `252b7f39ec77b5459c26791769410b87c4048cec`
-- expected release id: `252b7f3:PiIoy2zzgeyjs8bNhSs0P`
+- branch: `fix/local-review-signin-hotfix`
+- head: `668ff249b1e28cfadd206a9e14819dcb416ad365`
+- expected build id for a new launch decision must come from the latest attached release-proof artifacts, not from this dated snapshot
 - expected auth mode: `github`
+- release status: blocked while `gitDirty=dirty` and host cutover is not clean
 
 ## Host Proofing Changes
 

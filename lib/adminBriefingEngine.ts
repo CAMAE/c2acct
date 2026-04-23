@@ -10,6 +10,7 @@ import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { getFirmManagedUserRecords } from "@/lib/userPat";
 import { getVendorAlignmentInsightBundle } from "@/lib/vendorAlignmentInsightEngine";
 import { getVendorProductInsightSnapshot } from "@/lib/vendorProductInsightEngine";
+import type { VendorAdaptiveOpenEndedQuestionSnapshot } from "@/lib/vendorProductAssessmentPlan";
 import { buildProductAssessmentPlan } from "@/lib/vendorProductQuestionBank";
 import {
   VENDOR_PRODUCT_MODULE_KEY,
@@ -311,6 +312,37 @@ function getProductQuestionKeyFromId(questionId: string) {
   return parts[parts.length - 1] ?? questionId;
 }
 
+function getStoredProductOpenEndedQuestionMap(input: unknown) {
+  if (!Array.isArray(input)) {
+    return new Map<string, VendorAdaptiveOpenEndedQuestionSnapshot>();
+  }
+
+  const questions = input
+    .map((entry) => {
+      if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+        return null;
+      }
+
+      const question = entry as Record<string, unknown>;
+      if (
+        typeof question.id !== "string" ||
+        typeof question.key !== "string" ||
+        typeof question.prompt !== "string" ||
+        typeof question.order !== "number" ||
+        typeof question.sectionKey !== "string" ||
+        typeof question.sectionTitle !== "string" ||
+        typeof question.sectionDescription !== "string"
+      ) {
+        return null;
+      }
+
+      return question as VendorAdaptiveOpenEndedQuestionSnapshot;
+    })
+    .filter((entry): entry is VendorAdaptiveOpenEndedQuestionSnapshot => Boolean(entry));
+
+  return new Map(questions.map((question) => [question.id, question]));
+}
+
 function resolveProductOpenEndedQuestion(questionId: string) {
   const directMatch = PRODUCT_OPEN_ENDED_RUNTIME_BY_ID.get(questionId);
   if (directMatch) {
@@ -329,6 +361,7 @@ function extractProductOpenEndedResponses(input: {
 }) {
   const answerPayload = getObjectRecord(input.answers);
   const openEndedPayload = getStringRecord(answerPayload?.openEndedResponses);
+  const storedOpenEndedQuestionMap = getStoredProductOpenEndedQuestionMap(answerPayload?.openEndedPlan);
 
   if (!openEndedPayload) {
     return [] satisfies BriefingProductOpenEndedResponse[];
@@ -342,16 +375,22 @@ function extractProductOpenEndedResponses(input: {
       }
 
       const runtimeQuestion = resolveProductOpenEndedQuestion(questionId);
+      const storedQuestion = storedOpenEndedQuestionMap.get(questionId);
       return {
         productId: input.productId,
         productName: input.productName,
         vendorName: input.vendorName,
         questionId,
-        questionKey: runtimeQuestion?.key ?? getProductQuestionKeyFromId(questionId),
+        questionKey:
+          storedQuestion?.key ?? runtimeQuestion?.key ?? getProductQuestionKeyFromId(questionId),
         questionPrompt:
-          runtimeQuestion?.prompt ?? "Stored product open-ended question (" + questionId + ")",
-        sectionTitle: runtimeQuestion?.section.title ?? "Open-ended product responses",
+          storedQuestion?.prompt ??
+          runtimeQuestion?.prompt ??
+          "Stored product open-ended question (" + questionId + ")",
+        sectionTitle:
+          storedQuestion?.sectionTitle ?? runtimeQuestion?.section.title ?? "Open-ended product responses",
         sectionDescription:
+          storedQuestion?.sectionDescription ??
           runtimeQuestion?.section.description ??
           "Narrative vendor responses from the latest completed product assessment.",
         responseText: trimmedResponse,

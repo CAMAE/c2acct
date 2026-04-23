@@ -38,7 +38,7 @@ fi
 
 mac_mini_build_if_needed
 mac_mini_write_canonical_state "app-start-${mode}"
-start_command="HOSTNAME=${MAC_MINI_HOST} PORT=${PORT} node ${MAC_MINI_ROOT}/.next/standalone/server.js"
+start_command="HOSTNAME=${MAC_MINI_HOST} PORT=${PORT} node --import tsx ${MAC_MINI_ROOT}/scripts/startup-guard.ts launch --kind standalone --port ${PORT} -- node ${MAC_MINI_ROOT}/.next/standalone/server.js"
 
 if [ "${mode}" = "check" ] || [ "${mode}" = "dry-run" ]; then
   printf 'mode=%s\n' "${mode}"
@@ -52,4 +52,4 @@ echo "$(mac_mini_now_utc)" > "${MAC_MINI_STATE_DIR}/app-last-start-at.txt"
 printf '%s\n' "$$" > "${MAC_MINI_STATE_DIR}/app-launch-script.pid"
 
 cd "${MAC_MINI_ROOT}"
-HOSTNAME="${MAC_MINI_HOST}" PORT="${PORT}" exec node "${MAC_MINI_ROOT}/.next/standalone/server.js"
+HOSTNAME="${MAC_MINI_HOST}" PORT="${PORT}" exec node --import tsx "${MAC_MINI_ROOT}/scripts/startup-guard.ts" launch --kind standalone --port "${PORT}" -- node "${MAC_MINI_ROOT}/.next/standalone/server.js"

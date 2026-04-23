@@ -1,14 +1,33 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  PRODUCT_GENERAL_QUESTION_COUNT,
+  PRODUCT_OPEN_ENDED_QUESTION_COUNT,
+  PRODUCT_UTILITY_REGISTRY,
+  PRODUCT_UTILITY_SCORED_QUESTION_COUNT,
+} from "@/lib/productUtilityRegistry";
+import {
+  bucketVendorProductsByAssessmentStatus,
   buildVendorProductQuestions,
   computeVendorAssessmentMetrics,
   deriveProductStatus,
   deriveVendorProductAssessmentCompletionStatus,
+  deriveVendorProductOverviewStatus,
+  getRequestedVendorProductAssessmentOverviewMode,
+  VENDOR_PRODUCT_UTILITY_SELECTION_LIMIT,
 } from "@/lib/vendorPat";
+import { PAT_PRODUCT_NAME } from "@/lib/displayCopy";
 import {
+  VENDOR_PRODUCT_ASSESSMENT_PAGE_SIZE,
+  buildVendorAdaptiveOpenEndedQuestions,
+  buildVendorProductAssessmentPagePlan,
   buildVendorProductAssessmentPlan,
+  serializeVendorAdaptiveOpenEndedQuestionSnapshot,
   serializeVendorProductAssessmentPlan,
 } from "@/lib/vendorProductAssessmentPlan";
+
+const ROOT = "/Users/camerongarrett/work/c2acct-live";
 
 describe("vendor product assessment contracts", () => {
   it("builds the product-general module, utility-driven scored modules, and final open-ended module", () => {
@@ -50,6 +69,124 @@ describe("vendor product assessment contracts", () => {
     });
   });
 
+  it("removes the old four-feature cap while preserving 20 scored questions per selected feature", () => {
+    const selectedUtilityKeys = PRODUCT_UTILITY_REGISTRY.slice(0, 5).map((utility) => utility.key);
+    const plan = buildVendorProductAssessmentPlan(selectedUtilityKeys);
+    const snapshot = serializeVendorProductAssessmentPlan(selectedUtilityKeys);
+    const utilityModules = plan.modules.filter((module) => module.kind === "utility");
+
+    expect(PRODUCT_UTILITY_REGISTRY.length).toBeGreaterThan(4);
+    expect(VENDOR_PRODUCT_UTILITY_SELECTION_LIMIT).toBe(PRODUCT_UTILITY_REGISTRY.length);
+    expect(utilityModules).toHaveLength(selectedUtilityKeys.length);
+    expect(utilityModules.every((module) => module.questions.length === PRODUCT_UTILITY_SCORED_QUESTION_COUNT)).toBe(true);
+    expect(buildVendorProductQuestions(selectedUtilityKeys)).toHaveLength(
+      selectedUtilityKeys.length * PRODUCT_UTILITY_SCORED_QUESTION_COUNT
+    );
+    expect(snapshot.selectedUtilityKeys).toEqual(selectedUtilityKeys);
+    expect(snapshot.scoredQuestionIds).toHaveLength(
+      selectedUtilityKeys.length * PRODUCT_UTILITY_SCORED_QUESTION_COUNT
+    );
+    expect(snapshot.generatedQuestionIds).toHaveLength(
+      PRODUCT_GENERAL_QUESTION_COUNT +
+        selectedUtilityKeys.length * PRODUCT_UTILITY_SCORED_QUESTION_COUNT +
+        PRODUCT_OPEN_ENDED_QUESTION_COUNT
+    );
+  });
+
+  it("builds a navigable ten-question page plan with profile first and bounded page sizes", () => {
+    const selectedUtilityKeys = PRODUCT_UTILITY_REGISTRY.slice(0, 5).map((utility) => utility.key);
+    const assessmentPlan = buildVendorProductAssessmentPlan(selectedUtilityKeys);
+    const pagePlan = buildVendorProductAssessmentPagePlan({ assessmentPlan });
+    const scorePages = pagePlan.pages.filter((page) => page.kind === "score");
+    const openEndedPages = pagePlan.pages.filter((page) => page.kind === "open-ended");
+
+    expect(pagePlan.pageSize).toBe(VENDOR_PRODUCT_ASSESSMENT_PAGE_SIZE);
+    expect(pagePlan.pages[0]?.kind).toBe("profile");
+    expect(pagePlan.pages[0]?.questionCount).toBe(PRODUCT_GENERAL_QUESTION_COUNT);
+    expect(pagePlan.pages[0]?.entries.some((entry) => entry.kind === "utility-declaration")).toBe(true);
+    expect(scorePages).toHaveLength(
+      Math.ceil((selectedUtilityKeys.length * PRODUCT_UTILITY_SCORED_QUESTION_COUNT) / VENDOR_PRODUCT_ASSESSMENT_PAGE_SIZE)
+    );
+    expect(scorePages.every((page) => page.questionCount <= VENDOR_PRODUCT_ASSESSMENT_PAGE_SIZE)).toBe(true);
+    expect(openEndedPages).toHaveLength(
+      Math.ceil(PRODUCT_OPEN_ENDED_QUESTION_COUNT / VENDOR_PRODUCT_ASSESSMENT_PAGE_SIZE)
+    );
+    expect(openEndedPages.every((page) => page.questionCount <= VENDOR_PRODUCT_ASSESSMENT_PAGE_SIZE)).toBe(true);
+  });
+
+  it("builds deterministic adaptive open-ended prompts from selected features, scored outcomes, and profile context", () => {
+    const selectedUtilityKeys = ["erp_gl_core_ledger", "ap_payables_spend"];
+    const basePlan = buildVendorProductAssessmentPlan(selectedUtilityKeys);
+    const scoredQuestions = basePlan.modules
+      .filter((module) => module.kind === "utility")
+      .flatMap((module) => module.questions);
+    const answers = Object.fromEntries(
+      scoredQuestions.map((question) => {
+        let score = question.utilityKey === "erp_gl_core_ledger" ? 4 : 2;
+
+        if (
+          question.utilityKey === "ap_payables_spend" &&
+          question.section.basisKey === "integration-readiness"
+        ) {
+          score = 0;
+        }
+
+        if (
+          question.utilityKey === "ap_payables_spend" &&
+          question.section.basisKey === "adoption-ease"
+        ) {
+          score = 1;
+        }
+
+        return [question.id, score];
+      })
+    );
+    const profile = {
+      productName: "LedgerFlow",
+      productDescription: "Grounded product description.",
+      logoReference: "https://example.com/logo.png",
+      positioning: "Grounded positioning",
+      targetCustomer: "Controller-led finance teams",
+      targetUseContext: "Month-end close and payables execution",
+      implementationStyle: "Guided rollout",
+      operatingModelFit: "Teams with documented close discipline",
+      primaryBuyer: "Controller or VP Finance",
+      integrationPosture: "ERP-connected with controlled connector depth",
+    };
+
+    const adaptiveQuestions = buildVendorAdaptiveOpenEndedQuestions({
+      selectedUtilityKeys,
+      profile,
+      answers,
+    });
+    const adaptiveSnapshot = serializeVendorAdaptiveOpenEndedQuestionSnapshot({
+      selectedUtilityKeys,
+      profile,
+      answers,
+    });
+
+    expect(buildVendorAdaptiveOpenEndedQuestions({ selectedUtilityKeys, profile, answers })).toEqual(adaptiveQuestions);
+    expect(adaptiveQuestions).toHaveLength(PRODUCT_OPEN_ENDED_QUESTION_COUNT);
+    expect(adaptiveQuestions.find((question) => question.key === "strongest_workflow")?.prompt).toContain(
+      "ERP / GL / core ledger"
+    );
+    expect(adaptiveQuestions.find((question) => question.key === "weakest_workflow")?.prompt).toContain(
+      "AP / payables / spend"
+    );
+    expect(adaptiveQuestions.find((question) => question.key === "change_management_risk")?.prompt).toContain(
+      "Controller or VP Finance"
+    );
+    expect(adaptiveQuestions.find((question) => question.key === "integration_gap")?.prompt).toContain(
+      "integration readiness scored 0/5"
+    );
+    expect(adaptiveQuestions.find((question) => question.key === "recommended_next_action")?.prompt).toContain(
+      "narrow scope"
+    );
+    expect(adaptiveSnapshot.map((question) => question.prompt)).toEqual(
+      adaptiveQuestions.map((question) => question.prompt)
+    );
+  });
+
   it("reports workspace card state against the full generated question set", () => {
     const readyStatus = deriveProductStatus({
       utilityKeys: ["erp_gl_core_ledger"],
@@ -67,7 +204,7 @@ describe("vendor product assessment contracts", () => {
     });
 
     expect(readyStatus.questionCount).toBe(40);
-    expect(readyStatus.statusLabel).toBe("Ready for assessment");
+    expect(readyStatus.statusLabel).toBe("Assessment available");
     expect(recordedStatus.statusLabel).toBe("Assessment recorded");
     expect(recordedStatus.latestScore).toBe(82);
   });
@@ -132,11 +269,115 @@ describe("vendor product assessment contracts", () => {
     });
 
     expect(completeStatus.completed).toBe(true);
-    expect(completeStatus.statusLabel).toBe("Ready for firm review");
+    expect(completeStatus.statusLabel).toBe("Firm review available");
     expect(completeStatus.utilityKeys).toEqual(utilityKeys);
     expect(completeStatus.scoredQuestionCount).toBe(scoredQuestions.length);
     expect(incompleteStatus.completed).toBe(false);
     expect(incompleteStatus.statusLabel).toBe("Vendor assessment incomplete");
+  });
+
+  it("maps assessment overview modes to the four stable top-card toggle states", () => {
+    expect(getRequestedVendorProductAssessmentOverviewMode(undefined)).toBe("existing");
+    expect(getRequestedVendorProductAssessmentOverviewMode("completed")).toBe("completed");
+    expect(getRequestedVendorProductAssessmentOverviewMode("existing")).toBe("existing");
+    expect(getRequestedVendorProductAssessmentOverviewMode("add-new")).toBe("add-new");
+    expect(getRequestedVendorProductAssessmentOverviewMode("help")).toBe("help");
+    expect(getRequestedVendorProductAssessmentOverviewMode("unknown")).toBe("existing");
+  });
+
+  it("exports the PAT product brand string used on vendor product assessment top cards", () => {
+    expect(PAT_PRODUCT_NAME).toBe("PAT | Performance Alignment Technology");
+  });
+
+  it("keeps incomplete recorded products out of the completed bucket", () => {
+    const utilityKeys = ["erp_gl_core_ledger"];
+    const scoredQuestions = buildVendorProductQuestions(utilityKeys);
+    const plan = serializeVendorProductAssessmentPlan(utilityKeys);
+    const responses = Object.fromEntries(scoredQuestions.map((question, index) => [question.id, index % 6]));
+    const openEndedResponses = Object.fromEntries(
+      plan.openEndedQuestionIds.map((questionId) => [questionId, "Grounded narrative context."])
+    );
+
+    const completed = deriveVendorProductOverviewStatus({
+      signalUtilityKeys: [],
+      latestSubmission: {
+        id: "complete",
+        score: 84,
+        createdAt: new Date("2026-04-06T12:00:00.000Z"),
+        answeredCount: scoredQuestions.length,
+        answers: {
+          utilitySelection: utilityKeys,
+          profile: {
+            productName: "Ledger Core",
+            productDescription: "Deterministic profile body.",
+            logoReference: "https://example.com/logo.png",
+            positioning: "Positioning",
+            targetCustomer: "Target customer",
+            targetUseContext: "Target use context",
+            implementationStyle: "Implementation style",
+            operatingModelFit: "Operating model fit",
+            primaryBuyer: "Primary buyer",
+            integrationPosture: "Integration posture",
+          },
+          responses,
+          openEndedResponses,
+        },
+      },
+    });
+
+    const incomplete = deriveVendorProductOverviewStatus({
+      signalUtilityKeys: utilityKeys,
+      latestSubmission: {
+        id: "incomplete",
+        score: 60,
+        createdAt: new Date("2026-04-06T12:30:00.000Z"),
+        answeredCount: scoredQuestions.length,
+        answers: {
+          utilitySelection: utilityKeys,
+          profile: {
+            productName: "Ledger Core",
+            productDescription: "",
+            logoReference: "https://example.com/logo.png",
+            positioning: "Positioning",
+            targetCustomer: "Target customer",
+            targetUseContext: "Target use context",
+            implementationStyle: "Implementation style",
+            operatingModelFit: "Operating model fit",
+            primaryBuyer: "Primary buyer",
+            integrationPosture: "Integration posture",
+          },
+          responses,
+          openEndedResponses,
+        },
+      },
+    });
+
+    const awaitingStart = deriveVendorProductOverviewStatus({
+      signalUtilityKeys: [],
+      latestSubmission: null,
+    });
+
+    const readyWithoutFinalSubmission = deriveVendorProductOverviewStatus({
+      signalUtilityKeys: utilityKeys,
+      latestSubmission: null,
+    });
+
+    expect(completed.completed).toBe(true);
+    expect(completed.statusLabel).toBe("Firm review available");
+    expect(incomplete.completed).toBe(false);
+    expect(incomplete.statusLabel).toBe("Vendor assessment incomplete");
+    expect(awaitingStart.statusLabel).toBe("Needs utility declaration");
+    expect(readyWithoutFinalSubmission.statusLabel).toBe("Assessment available");
+
+    const buckets = bucketVendorProductsByAssessmentStatus([
+      { id: "completed", status: completed },
+      { id: "incomplete", status: incomplete },
+      { id: "awaiting", status: awaitingStart },
+      { id: "ready", status: readyWithoutFinalSubmission },
+    ]);
+
+    expect(buckets.completed.map((entry) => entry.id)).toEqual(["completed"]);
+    expect(buckets.existing.map((entry) => entry.id)).toEqual(["incomplete", "awaiting", "ready"]);
   });
 
   it("treats 0 as a valid scored answer in vendor product metrics", () => {
@@ -150,5 +391,28 @@ describe("vendor product assessment contracts", () => {
     expect(metrics.score.scaleMax).toBe(5);
     expect(metrics.score.answeredCount).toBe(scoredQuestions.length);
     expect(metrics.integrity.meta.numericAnswered).toBe(scoredQuestions.length);
+  });
+
+  it("keeps vendor product assessment routes free of legacy ready and directional language", () => {
+    const overviewText = readFileSync(
+      path.join(ROOT, "app/vendor/product-assessment/page.tsx"),
+      "utf8"
+    );
+    const detailText = readFileSync(
+      path.join(ROOT, "app/vendor/product-assessment/[productId]/page.tsx"),
+      "utf8"
+    );
+
+    for (const text of [overviewText, detailText]) {
+      expect(text).not.toContain("Ready for assessment");
+      expect(text).not.toContain("Ready for firm review");
+      expect(text).not.toContain("residual directional");
+      expect(text).not.toMatch(/\b[Dd]irectional\b/);
+      expect(text).not.toContain("Confidence and caveats");
+    }
+
+    expect(overviewText).toContain("Completed vendor product assessments");
+    expect(overviewText).toContain("Existing products still in progress");
+    expect(overviewText).toContain("How to use vendor product assessment");
   });
 });

@@ -1,12 +1,20 @@
 # PAT Launch Blocker Matrix (2026-04-02)
 
+Current usage note:
+
+- This file is a dated 2026-04-02 blocker snapshot.
+- Use `docs/active-repo-map.md` and `README.md` for current checkout truth and the repo's canonical `pnpm` validation commands.
+- Current checkout truth has moved beyond this snapshot. For the current build id, use the latest release-proof artifacts such as `.next/BUILD_ID`, `/api/release-fingerprint`, or `pnpm standalone:local:check`; for current dirty-tree truth, use `git status --short`.
+- Later PAT UX, membership, and payment-form scaffold changes in source do not by themselves clear these blockers or prove that live payment processing is ready.
+- The branch and head values below are the 2026-04-02 snapshot inputs for this matrix, not guaranteed current checkout truth.
+
 Decision: `FIX_FORWARD_FROM_ROLLBACK_BASELINE`
 
-Exact source of truth:
+Exact source snapshot for this matrix:
 
 - local root: `/Users/camerongarrett/work/c2acct-live`
-- branch: `recovery/pat-2026-03-31-baseline`
-- head: `252b7f39ec77b5459c26791769410b87c4048cec`
+- branch at snapshot time: the dated 2026-03-31 recovery-line branch recorded in April evidence
+- head at snapshot time: the then-current recovery-line head recorded in the 2026-04-02 evidence set
 - stale comparison branch: `origin/main` at `363436c0e049ff8652c8e6fc1fd5c3bbdce58531`
 
 ## Fixed
@@ -53,7 +61,7 @@ Exact source of truth:
 
 ## Launch recommendation
 
-`NO-GO` until `B1` through `B7` are cleared on the local recovery branch.
+`NO-GO` until `B1` through `B7` are cleared on the current checkout and a clean runtime proof exists.
 
 Recommended path:
 

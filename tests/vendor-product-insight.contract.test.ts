@@ -1,11 +1,22 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { buildFirmProductQuestions } from "@/lib/firmPat";
 import { normalizeAnswerForStoredScale } from "@/lib/productAssessmentRuntime";
 import {
+  buildVendorProductEliteInsightCards,
+  buildVendorProductInsightDetailSurfaceCards,
+  buildVendorProductInsightDetailSurfaceContent,
+  buildVendorProductProInsightCards,
   buildVendorProductInsightSnapshot,
+  filterVendorProductInsightCatalogToCompleted,
+  getRequestedVendorProductInsightDetailMode,
+  getRequestedVendorProductInsightDetailSurface,
   type VendorProductInsightSnapshotInput,
 } from "@/lib/vendorProductInsightEngine";
 import { buildVendorProductQuestions } from "@/lib/vendorPat";
+
+const ROOT = "/Users/camerongarrett/work/c2acct-live";
 
 describe("vendor product insight runtime", () => {
   it("normalizes stored answers against the submission scale", () => {
@@ -37,6 +48,12 @@ describe("vendor product insight runtime", () => {
         summary: "Deterministic vendor product signal fixture.",
         utilityKeys,
       },
+      vendorAssessmentStatus: {
+        completed: true,
+        latestSubmittedAt: new Date("2026-03-30T12:00:00.000Z"),
+        statusLabel: "Assessment complete",
+        reason: "Firm review is available because the vendor completed the full product assessment.",
+      },
       vendorSelfReported: {
         latestScore: 84,
         submittedAt: new Date("2026-03-30T12:00:00.000Z"),
@@ -61,6 +78,7 @@ describe("vendor product insight runtime", () => {
     const snapshot = buildVendorProductInsightSnapshot(fixture);
 
     expect(snapshot.product.utilityScopeLabel).toContain("2 declared utilities");
+    expect(snapshot.vendorAssessmentStatus.completed).toBe(true);
     expect(snapshot.confidenceCaveats.some((caveat) => caveat.includes("2 assessments"))).toBe(true);
     expect(snapshot.confidenceCaveats.some((caveat) => caveat.includes("50 points apart"))).toBe(true);
     expect(snapshot.insightRecords.some((record) => record.exactAssessmentBasis.includes("Utility scope:"))).toBe(
@@ -68,5 +86,249 @@ describe("vendor product insight runtime", () => {
     );
     expect(snapshot.vendorSelfReported.sectionEvidence.every((section) => section.averageScore !== null)).toBe(true);
     expect(snapshot.firmReviewed.utilityEvidence).toHaveLength(utilityKeys.length);
+  });
+
+  it("filters the catalog to products with a completed final vendor assessment only", () => {
+    const completedSnapshot = buildVendorProductInsightSnapshot({
+      product: {
+        id: "completed-product",
+        name: "Completed Product",
+        summary: null,
+        utilityKeys: [],
+      },
+      vendorAssessmentStatus: {
+        completed: true,
+        latestSubmittedAt: new Date("2026-04-10T12:00:00.000Z"),
+        statusLabel: "Assessment complete",
+        reason: "Firm review is available because the vendor completed the full product assessment.",
+      },
+      vendorSelfReported: {
+        latestScore: 81,
+        submittedAt: new Date("2026-04-10T12:00:00.000Z"),
+        responses: {
+          answers: {},
+          scaleMin: 0,
+          scaleMax: 5,
+        },
+      },
+      firmReviewed: {
+        assessmentCount: 0,
+        latestSubmittedAt: null,
+        averageScore: null,
+        responseSets: [],
+      },
+    });
+    const incompleteSnapshot = buildVendorProductInsightSnapshot({
+      product: {
+        id: "incomplete-product",
+        name: "Incomplete Product",
+        summary: null,
+        utilityKeys: [],
+      },
+      vendorAssessmentStatus: {
+        completed: false,
+        latestSubmittedAt: new Date("2026-04-10T13:00:00.000Z"),
+        statusLabel: "Vendor assessment incomplete",
+        reason: "This product does not yet have a completed final vendor product assessment submission.",
+      },
+      vendorSelfReported: {
+        latestScore: 67,
+        submittedAt: new Date("2026-04-10T13:00:00.000Z"),
+        responses: {
+          answers: {},
+          scaleMin: 0,
+          scaleMax: 5,
+        },
+      },
+      firmReviewed: {
+        assessmentCount: 0,
+        latestSubmittedAt: null,
+        averageScore: null,
+        responseSets: [],
+      },
+    });
+
+    expect(
+      filterVendorProductInsightCatalogToCompleted([completedSnapshot, incompleteSnapshot]).map(
+        (snapshot) => snapshot.product.id
+      )
+    ).toEqual(["completed-product"]);
+  });
+
+  it("maps vendor product modes and keeps elite cards non-clickable", () => {
+    const snapshot = buildVendorProductInsightSnapshot({
+      product: {
+        id: "focus-product",
+        name: "Focus Product",
+        summary: null,
+        utilityKeys: [],
+      },
+      vendorAssessmentStatus: {
+        completed: true,
+        latestSubmittedAt: new Date("2026-04-10T12:00:00.000Z"),
+        statusLabel: "Assessment complete",
+        reason: "Firm review is available because the vendor completed the full product assessment.",
+      },
+      vendorSelfReported: {
+        latestScore: 81,
+        submittedAt: new Date("2026-04-10T12:00:00.000Z"),
+        responses: {
+          answers: {},
+          scaleMin: 0,
+          scaleMax: 5,
+        },
+      },
+      firmReviewed: {
+        assessmentCount: 0,
+        latestSubmittedAt: null,
+        averageScore: null,
+        responseSets: [],
+      },
+    });
+
+    expect(getRequestedVendorProductInsightDetailMode(undefined)).toBe("pro");
+    expect(getRequestedVendorProductInsightDetailMode("pro")).toBe("pro");
+    expect(getRequestedVendorProductInsightDetailMode("elite")).toBe("elite");
+    expect(getRequestedVendorProductInsightDetailMode("help")).toBe("help");
+    expect(getRequestedVendorProductInsightDetailMode("unknown")).toBe("pro");
+    const proCards = buildVendorProductProInsightCards(snapshot);
+    expect(proCards.every((card) => card.interactive && card.href && card.statusLabel === undefined)).toBe(
+      true
+    );
+    expect(
+      buildVendorProductEliteInsightCards().every(
+        (card) =>
+          !card.interactive &&
+          card.href === null &&
+          card.statusLabel === "Coming soon" &&
+          card.supportingText === "Unlock with Elite membership"
+      )
+    ).toBe(true);
+  });
+
+  it("builds clickable Pro drill-down surfaces and explanation-first Elite surfaces", () => {
+    const snapshot = buildVendorProductInsightSnapshot({
+      product: {
+        id: "focus-product",
+        name: "Focus Product",
+        summary: null,
+        utilityKeys: ["ap_automation"],
+      },
+      vendorAssessmentStatus: {
+        completed: true,
+        latestSubmittedAt: new Date("2026-04-10T12:00:00.000Z"),
+        statusLabel: "Assessment complete",
+        reason: "Firm review is available because the vendor completed the full product assessment.",
+      },
+      vendorSelfReported: {
+        latestScore: 81,
+        submittedAt: new Date("2026-04-10T12:00:00.000Z"),
+        responses: {
+          answers: {},
+          scaleMin: 0,
+          scaleMax: 5,
+        },
+      },
+      firmReviewed: {
+        assessmentCount: 2,
+        latestSubmittedAt: new Date("2026-04-10T13:00:00.000Z"),
+        averageScore: 63,
+        responseSets: [
+          {
+            answers: {},
+            scaleMin: 0,
+            scaleMax: 5,
+          },
+        ],
+      },
+    });
+    const record = snapshot.insightRecords[0]!;
+
+    expect(getRequestedVendorProductInsightDetailSurface(undefined)).toBe("help");
+    expect(getRequestedVendorProductInsightDetailSurface("firm-evidence")).toBe("evidence");
+    expect(getRequestedVendorProductInsightDetailSurface("confidence")).toBe("evidence");
+
+    const proCards = buildVendorProductInsightDetailSurfaceCards({
+      snapshot,
+      insightKey: record.key,
+      record,
+      locked: false,
+    });
+    const eliteCards = buildVendorProductInsightDetailSurfaceCards({
+      snapshot,
+      insightKey: "market-comparison",
+      record: null,
+      locked: true,
+    });
+
+    expect(proCards.map((card) => card.key)).toEqual(["help", "evidence"]);
+    expect(proCards.every((card) => card.interactive && card.href?.includes(`surface=${card.key}`))).toBe(true);
+    expect(proCards.find((card) => card.key === "evidence")?.summary).toBe(
+      "Review the vendor section evidence alongside the firm-reviewed utility evidence behind this readout."
+    );
+    expect(eliteCards.map((card) => card.key)).toEqual(["help", "evidence"]);
+    expect(eliteCards.every((card) => card.interactive && card.href?.includes(`surface=${card.key}`))).toBe(
+      true
+    );
+    expect(proCards.some((card) => card.title === "Confidence and caveats")).toBe(false);
+
+    const proSurface = buildVendorProductInsightDetailSurfaceContent({
+      snapshot,
+      insightKey: record.key,
+      record,
+      surface: "evidence",
+      locked: false,
+    });
+    const eliteSurface = buildVendorProductInsightDetailSurfaceContent({
+      snapshot,
+      insightKey: "market-comparison",
+      record: null,
+      surface: "evidence",
+      locked: true,
+    });
+
+    const proSurfaceText = `${proSurface.title} ${proSurface.intro} ${proSurface.items
+      .map((item) => `${item.title} ${item.body}`)
+      .join(" ")}`;
+
+    expect(proSurface.title).toBe("Evidence");
+    expect(proSurface.items.map((item) => item.title)).toEqual([
+      "Current PAT picture",
+      "Vendor-reported evidence",
+      "Firm-reviewed evidence",
+      "Current limits",
+    ]);
+    expect(proSurfaceText).toMatch(/sample-thin|early current-state/i);
+    expect(proSurfaceText).not.toContain("Confidence and caveats");
+    expect(proSurfaceText).not.toContain("Freshness:");
+    expect(proSurfaceText).not.toMatch(/Caveat \d+/);
+    expect(eliteSurface.items.some((item) => item.body.includes("Vendor self-reported signal"))).toBe(true);
+    expect(
+      buildVendorProductInsightDetailSurfaceContent({
+        snapshot,
+        insightKey: "market-comparison",
+        record: null,
+        surface: "help",
+        locked: true,
+      }).items.map((item) => item.title)
+    ).toEqual(["What it is", "Why it matters", "How to use it"]);
+  });
+
+  it("keeps the detail route on the cleaned shared shell without legacy panel clutter", () => {
+    const text = readFileSync(
+      path.join(ROOT, "app/vendor/product-insight/[productId]/[insightKey]/page.tsx"),
+      "utf8"
+    );
+
+    expect(text).toContain('import InsightDetailShell from "@/app/components/insights/InsightDetailShell";');
+    expect(text).toContain("<InsightDetailShell");
+    expect(text).not.toContain("PatModeToggle");
+    expect(text).not.toContain("Confidence and caveats");
+    expect(text).not.toContain("Assessment basis");
+    expect(text).not.toContain("Module evidence");
+    expect(text).not.toContain("Capability and question evidence");
+    expect(text).not.toContain("Freshness:");
+    expect(text).not.toContain("Sample:");
+    expect(text).not.toMatch(/Caveat \d+/);
   });
 });

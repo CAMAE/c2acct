@@ -58,7 +58,7 @@ export async function POST(request: Request) {
   const answerKeys = Object.keys(answers);
   if (expected.length === 0) {
     return NextResponse.json(
-      { ok: false, error: "This product has no declared utilities yet." },
+      { ok: false, error: "This product has no declared features yet." },
       { status: 400, headers: NO_STORE_HEADERS }
     );
   }

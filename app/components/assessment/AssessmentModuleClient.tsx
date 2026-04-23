@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useEffectEvent, useMemo, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { QuestionInputType } from "@prisma/client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { buildCanonicalSignInPath } from "@/lib/auth/routes";
 import {
   getDefaultAnswer,
   isAnswerPresent,
+  normalizeAssessmentStep,
   type AssessmentModulePayload,
   type AssessmentQuestionRuntime,
   type NormalizedAnswer,
@@ -17,9 +18,12 @@ type Props = {
   moduleKey: string;
 };
 
-function clampStep(step: number, totalSteps: number) {
-  return Math.min(Math.max(step, 1), Math.max(totalSteps, 1));
-}
+type VisiblePageSection = {
+  key: string;
+  title: string;
+  description?: string;
+  questionIds: string[];
+};
 
 function getPostSubmitHref(moduleKey: string) {
   if (moduleKey === "user_alignment_v1") {
@@ -75,6 +79,74 @@ function AssessmentPatFraming() {
   );
 }
 
+function isVendorStyleSlider(question: AssessmentQuestionRuntime) {
+  return (
+    question.inputType === QuestionInputType.SLIDER &&
+    Boolean(question.validation.slider) &&
+    question.validation.slider?.min === 0 &&
+    question.validation.slider?.max === 5 &&
+    question.validation.slider?.step === 1
+  );
+}
+
+function renderLegacySliderChoices(
+  question: AssessmentQuestionRuntime,
+  value: NormalizedAnswer | undefined,
+  setAnswer: (value: NormalizedAnswer) => void
+) {
+  const slider = question.validation.slider;
+  if (!slider) {
+    return null;
+  }
+
+  const selectedValue = typeof value === "number" ? value : null;
+  const optionValues = Array.from(
+    { length: Math.floor((slider.max - slider.min) / slider.step) + 1 },
+    (_, index) => slider.min + index * slider.step
+  );
+
+  return (
+    <div className="grid gap-4">
+      <div
+        className="mx-auto grid w-full max-w-[30rem] grid-cols-3 gap-2 sm:grid-cols-6"
+        role="radiogroup"
+        aria-label={`${question.prompt} answer choices`}
+      >
+        {optionValues.map((optionValue) => {
+          const active = selectedValue === optionValue;
+
+          return (
+            <button
+              key={optionValue}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={() => setAnswer(optionValue)}
+              className="pat-question-choice-button w-full min-w-0 justify-center"
+              data-active={active}
+            >
+              {optionValue}
+            </button>
+          );
+        })}
+      </div>
+      <div className="pat-sans flex items-center justify-between gap-3 text-xs text-[var(--shell-muted)]">
+        <span>{slider.labels?.[String(slider.min)] ?? `Low (${slider.min})`}</span>
+        {selectedValue === null ? (
+          <span className="rounded-full border border-[var(--shell-border)] bg-white px-3 py-1 text-sm font-semibold text-[var(--shell-muted)]">
+            Select a score
+          </span>
+        ) : (
+          <span className="rounded-full border border-[var(--shell-border)] bg-white px-3 py-1 text-sm font-semibold text-[var(--shell-ink)]">
+            {selectedValue}
+          </span>
+        )}
+        <span>{slider.labels?.[String(slider.max)] ?? `High (${slider.max})`}</span>
+      </div>
+    </div>
+  );
+}
+
 function renderQuestionInput(
   question: AssessmentQuestionRuntime,
   value: NormalizedAnswer | undefined,
@@ -88,54 +160,46 @@ function renderQuestionInput(
     );
   }
 
-  if (question.inputType === QuestionInputType.SLIDER && question.validation.slider) {
+  if (isVendorStyleSlider(question) && question.validation.slider) {
     const slider = question.validation.slider;
-    const selectedValue = typeof value === "number" ? value : null;
-    const optionValues = Array.from(
-      { length: Math.floor((slider.max - slider.min) / slider.step) + 1 },
-      (_, index) => slider.min + index * slider.step
-    );
+    const hasAnswer = typeof value === "number" && Number.isFinite(value);
+    const selectedValue = hasAnswer ? value : slider.min;
 
     return (
       <div className="grid gap-4">
-        <div
-          className="mx-auto grid w-full max-w-[30rem] grid-cols-3 gap-2 sm:grid-cols-6"
-          role="radiogroup"
-          aria-label={`${question.prompt} answer choices`}
-        >
-          {optionValues.map((optionValue) => {
-            const active = selectedValue === optionValue;
-
-            return (
-              <button
-                key={optionValue}
-                type="button"
-                role="radio"
-                aria-checked={active}
-                onClick={() => setAnswer(optionValue)}
-                className="pat-question-choice-button w-full min-w-0 justify-center"
-                data-active={active}
-              >
-                {optionValue}
-              </button>
-            );
-          })}
-        </div>
-        <div className="pat-sans flex items-center justify-between gap-3 text-xs text-[var(--shell-muted)]">
+        <input
+          type="range"
+          min={slider.min}
+          max={slider.max}
+          step={slider.step}
+          value={selectedValue}
+          onInput={(event) => setAnswer(Number(event.currentTarget.value))}
+          onChange={(event) => setAnswer(Number(event.currentTarget.value))}
+          onPointerUp={(event) => setAnswer(Number(event.currentTarget.value))}
+          onKeyUp={(event) => setAnswer(Number(event.currentTarget.value))}
+          className={`w-full ${hasAnswer ? "accent-[var(--shell-accent)]" : "pat-range-unanswered"}`}
+          aria-describedby={`${question.id}-range-state`}
+        />
+        <div className="mt-1 flex items-center justify-between gap-3 text-xs text-[var(--shell-muted)]">
           <span>{slider.labels?.[String(slider.min)] ?? `Low (${slider.min})`}</span>
-          {selectedValue === null ? (
-            <span className="rounded-full border border-[var(--shell-border)] bg-white px-3 py-1 text-sm font-semibold text-[var(--shell-muted)]">
-              Select a score
-            </span>
-          ) : (
-            <span className="rounded-full border border-[var(--shell-border)] bg-white px-3 py-1 text-sm font-semibold text-[var(--shell-ink)]">
-              {selectedValue}
-            </span>
-          )}
+          <span
+            id={`${question.id}-range-state`}
+            className={`rounded-full border px-3 py-1 text-sm font-semibold ${
+              hasAnswer
+                ? "border-[var(--shell-border)] bg-white text-[var(--shell-ink)]"
+                : "border-amber-200 bg-amber-50 text-amber-900"
+            }`}
+          >
+            {hasAnswer ? value : "Not answered"}
+          </span>
           <span>{slider.labels?.[String(slider.max)] ?? `High (${slider.max})`}</span>
         </div>
       </div>
     );
+  }
+
+  if (question.inputType === QuestionInputType.SLIDER && question.validation.slider) {
+    return renderLegacySliderChoices(question, value, setAnswer);
   }
 
   if (question.inputType === QuestionInputType.TEXT) {
@@ -274,6 +338,8 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const topCardRef = useRef<HTMLElement | null>(null);
+  const hasMountedRef = useRef(false);
   const [data, setData] = useState<AssessmentModulePayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -282,6 +348,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [autosaveState, setAutosaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [autosaveError, setAutosaveError] = useState<string | null>(null);
+  const [pageError, setPageError] = useState<string | null>(null);
   const assessmentLandingHref = getAssessmentLandingHref(moduleKey);
   const resultsLandingHref = data ? getPostSubmitHref(data.key).replace(/\?submitted=1$/, "") : assessmentLandingHref;
 
@@ -321,7 +388,9 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
   }, [moduleKey]);
 
   useEffect(() => {
-    if (!data) return;
+    if (!data) {
+      return;
+    }
 
     setAnswers((currentAnswers) => {
       const nextAnswers = {
@@ -344,6 +413,9 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
     });
   }, [data]);
 
+  const pages = data?.pages ?? [];
+  const totalSteps = Math.max(1, pages.length);
+
   useEffect(() => {
     if (!data) {
       return;
@@ -351,8 +423,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
 
     const fallbackStep = data.draft?.currentStep ?? 1;
     const requested = Number(searchParams.get("step") ?? String(fallbackStep));
-    const totalSteps = Math.max(1, data.sections.length);
-    const normalized = clampStep(Number.isFinite(requested) ? requested : 1, totalSteps);
+    const normalized = normalizeAssessmentStep(Number.isFinite(requested) ? requested : 1, totalSteps);
 
     if (normalized === requested) {
       return;
@@ -367,13 +438,33 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
 
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-  }, [data, pathname, router, searchParams]);
+  }, [data, pathname, router, searchParams, totalSteps]);
+
+  const requestedStep = Number(searchParams.get("step") ?? String(data?.draft?.currentStep ?? 1));
+  const currentStep = normalizeAssessmentStep(Number.isFinite(requestedStep) ? requestedStep : 1, totalSteps);
+
+  useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      return;
+    }
+
+    topCardRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [currentStep]);
 
   const questionsById = useMemo(() => {
     const entries: Array<[string, AssessmentQuestionRuntime]> =
       data?.questions.map((question) => [question.id, question]) ?? [];
     return new Map<string, AssessmentQuestionRuntime>(entries);
   }, [data]);
+
+  const questionNumberById = useMemo(
+    () => new Map((data?.questions ?? []).map((question, index) => [question.id, index + 1])),
+    [data]
+  );
 
   const requiredQuestionIds = useMemo(
     () => data?.questions.filter((question) => question.required).map((question) => question.id) ?? [],
@@ -386,9 +477,46 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
   );
 
   const missingRequiredCount = requiredQuestionIds.length - answeredRequiredCount;
-  const totalSteps = Math.max(1, data?.sections.length ?? 0);
-  const requestedStep = Number(searchParams.get("step") ?? String(data?.draft?.currentStep ?? 1));
-  const currentStep = clampStep(Number.isFinite(requestedStep) ? requestedStep : 1, totalSteps);
+
+  const currentPage = pages[currentStep - 1] ?? pages[0];
+  const currentPageQuestionIds = currentPage?.questionIds ?? [];
+  const currentPageRequiredIds = currentPageQuestionIds.filter((questionId) =>
+    requiredQuestionIds.includes(questionId)
+  );
+  const currentPageAnsweredCount = currentPageRequiredIds.filter((questionId) =>
+    isAnswerPresent(answers[questionId])
+  ).length;
+  const currentPageMissingCount = currentPageRequiredIds.length - currentPageAnsweredCount;
+
+  const visibleSections = useMemo<VisiblePageSection[]>(() => {
+    if (!data || !currentPage) {
+      return [];
+    }
+
+    const pageQuestionIdSet = new Set(currentPage.questionIds);
+    const sections: VisiblePageSection[] = [];
+
+    currentPage.sectionKeys.forEach((sectionKey) => {
+      const section = data.sections.find((entry) => entry.key === sectionKey);
+      if (!section) {
+        return;
+      }
+
+      const questionIds = section.questionIds.filter((questionId) => pageQuestionIdSet.has(questionId));
+      if (questionIds.length === 0) {
+        return;
+      }
+
+      sections.push({
+        key: section.key,
+        title: section.title,
+        description: section.description,
+        questionIds,
+      });
+    });
+
+    return sections;
+  }, [currentPage, data]);
 
   function setAnswer(questionId: string, value: NormalizedAnswer) {
     setAnswers((currentAnswers) => ({ ...currentAnswers, [questionId]: value }));
@@ -453,6 +581,32 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
     return () => window.clearTimeout(timeout);
   }, [answers, data, submitStatus]);
 
+  function setStep(nextStep: number) {
+    const params = new URLSearchParams(searchParams.toString());
+    const normalizedStep = normalizeAssessmentStep(nextStep, totalSteps);
+
+    if (normalizedStep <= 1) {
+      params.delete("step");
+    } else {
+      params.set("step", String(normalizedStep));
+    }
+
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    setPageError(null);
+    setSubmitError(null);
+  }
+
+  async function changeStep(nextStep: number) {
+    const normalizedStep = normalizeAssessmentStep(nextStep, totalSteps);
+    const saved = await saveDraft(normalizedStep);
+    if (!saved) {
+      return;
+    }
+
+    setStep(normalizedStep);
+  }
+
   async function submitSurvey() {
     if (!data || submitStatus === "submitting") {
       return;
@@ -508,7 +662,9 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
       <div className="mx-auto w-full max-w-[72rem] py-6">
         <section className="pat-card p-8">
           <AssessmentPatFraming />
-          <h1 className="mt-5 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">Loading the current module...</h1>
+          <h1 className="mt-5 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
+            Loading the current module...
+          </h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
             PAT is preparing the assessment contract, sections, and question metadata for this workflow.
           </p>
@@ -543,7 +699,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
     );
   }
 
-  if (!data) {
+  if (!data || !currentPage) {
     return (
       <div className="mx-auto w-full max-w-[72rem] py-6">
         <section className="pat-card p-8">Assessment module is unavailable.</section>
@@ -554,72 +710,101 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
   const unsupportedQuestions = data.questions.filter((question) => question.status === "unsupported");
   const completionPct =
     requiredQuestionIds.length === 0 ? 0 : Math.round((answeredRequiredCount / requiredQuestionIds.length) * 100);
-  const currentSection = data.sections[currentStep - 1] ?? data.sections[0];
-  const currentStepQuestionIds = currentSection?.questionIds ?? [];
-  const currentStepRequiredIds = currentStepQuestionIds.filter((questionId) => requiredQuestionIds.includes(questionId));
-  const currentStepAnsweredCount = currentStepRequiredIds.filter((questionId) => isAnswerPresent(answers[questionId])).length;
-  const currentStepMissingCount = currentStepRequiredIds.length - currentStepAnsweredCount;
-  const visibleSections = currentSection ? [currentSection] : [];
-
-  function setStep(nextStep: number) {
-    const params = new URLSearchParams(searchParams.toString());
-    const normalizedStep = clampStep(nextStep, totalSteps);
-
-    if (normalizedStep <= 1) {
-      params.delete("step");
-    } else {
-      params.set("step", String(normalizedStep));
-    }
-
-    const query = params.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: true });
-  }
-
-  async function changeStep(nextStep: number) {
-    const saved = await saveDraft(currentStep);
-    if (!saved) {
-      return;
-    }
-
-    setStep(nextStep);
-  }
 
   return (
-    <div className="mx-auto w-full max-w-[72rem] space-y-6 py-6">
-      <header className="pat-card p-8">
+    <div className="mx-auto w-full max-w-[72rem] space-y-8 py-6">
+      <header ref={topCardRef} className="pat-card p-8">
         <AssessmentPatFraming />
         <div className="pat-label mt-5">Assessment module</div>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">{data.title}</h1>
-        <div className="pat-sans mt-2 text-sm text-[var(--shell-muted)]">
-          Section {currentStep} of {totalSteps} · {data.questions.length} questions total · v{data.version}
-        </div>
         {data.description ? (
           <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">{data.description}</p>
         ) : null}
         <p className="mt-4 max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">
-          Work through the assessment one section at a time. PAT now paces each section as a focused 5-question chapter where section metadata is available.
+          PAT keeps this module in ten-question pages while preserving the same 0 to 5 scoring,
+          draft-saving, and unlock logic underneath.
         </p>
 
-        <div className="mt-7 grid gap-4 md:grid-cols-2">
-          <div className="pat-soft-panel p-5">
-            <div className="pat-label">Progress</div>
-            <div className="pat-sans mt-3 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">{completionPct}%</div>
-            <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-              {answeredRequiredCount} of {requiredQuestionIds.length} required questions completed
-            </div>
-            <div className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-              Current section: {currentStepAnsweredCount} of {currentStepRequiredIds.length} required responses captured
-            </div>
+        <div className="mt-6 grid gap-4 md:grid-cols-4">
+          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+            Page: <span className="font-semibold text-[var(--shell-ink)]">{currentStep} / {totalSteps}</span>
           </div>
-          <Link href="/survey/help" className="pat-soft-panel block p-5 hover:border-[rgba(6,54,116,0.34)]">
-            <div className="pat-label">Assessment help</div>
-            <div className="pat-sans mt-3 text-xl font-semibold tracking-tight text-[var(--shell-ink)]">
-              How to take PAT assessments
+          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+            Progress: <span className="font-semibold text-[var(--shell-ink)]">{completionPct}%</span>
+          </div>
+          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+            Questions: <span className="font-semibold text-[var(--shell-ink)]">{data.questions.length}</span>
+          </div>
+          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+            Autosave:{" "}
+            <span className="font-semibold text-[var(--shell-ink)]">
+              {autosaveState === "saving"
+                ? "Saving"
+                : autosaveState === "saved"
+                  ? "Saved"
+                  : autosaveState === "error"
+                    ? "Issue"
+                    : "Ready"}
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+          <section className="pat-soft-panel p-5">
+            <div className="pat-label">Process</div>
+            <div className="mt-3 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">
+              {currentPage.title}
             </div>
-            <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-              Open the assessment guide for section pacing, response expectations, and what happens after submission.
+            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+              {currentPage.description}
+            </p>
+            <div className="mt-4 grid gap-2 text-sm leading-6 text-[var(--shell-muted)]">
+              <div>
+                Current page completion:{" "}
+                <span className="font-semibold text-[var(--shell-ink)]">
+                  {currentPageAnsweredCount} of {currentPageRequiredIds.length}
+                </span>
+              </div>
+              <div>
+                Page range:{" "}
+                <span className="font-semibold text-[var(--shell-ink)]">
+                  {currentPage.startQuestionNumber}-{currentPage.endQuestionNumber}
+                </span>
+              </div>
+              <div>
+                Total answered:{" "}
+                <span className="font-semibold text-[var(--shell-ink)]">
+                  {answeredRequiredCount} of {requiredQuestionIds.length}
+                </span>
+              </div>
             </div>
-          </Link>
+          </section>
+
+          <section className="pat-soft-panel p-5">
+            <div className="pat-label">Help</div>
+            <div className="mt-3 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">
+              Ten-question pacing with the same scoring contract
+            </div>
+            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+              Use the range slider for the current-state 0 to 5 PAT score. Question numbering, draft
+              saving, resume behavior, and unlock rules stay grounded in the same module contract.
+            </p>
+            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+              The final five follow-up questions are module-specific and fixed today. PAT is not
+              claiming adaptive firm follow-up wording yet.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-4 text-sm font-semibold text-[var(--shell-accent)]">
+              <Link href={assessmentLandingHref} className="hover:text-[var(--shell-accent-strong)]">
+                Back to readiness
+              </Link>
+              <Link href={resultsLandingHref} className="hover:text-[var(--shell-accent-strong)]">
+                Review current results
+              </Link>
+              <Link href="/survey/help" className="hover:text-[var(--shell-accent-strong)]">
+                Open assessment help
+              </Link>
+            </div>
+          </section>
         </div>
       </header>
 
@@ -645,13 +830,13 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
         {visibleSections.map((section) => (
           <section key={section.key} className="pat-card overflow-hidden p-6">
             <div className="grid gap-2">
-              <h2 className="text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">{section.title}</h2>
+              <div className="pat-label">{section.title}</div>
               {section.description ? (
                 <p className="max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">{section.description}</p>
               ) : null}
             </div>
 
-            <div className="mt-6 grid gap-4">
+            <div className="mt-6 grid gap-5">
               {section.questionIds.map((questionId) => {
                 const question = questionsById.get(questionId);
                 if (!question) {
@@ -665,6 +850,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
                   <article key={question.id} className="pat-subpanel p-5">
                     <div className="grid gap-3">
                       <div className="pat-label">
+                        Question {questionNumberById.get(question.id) ?? 1} of {data.questions.length} ·{" "}
                         {question.required ? "Required" : "Optional"}
                         {question.meta.groupKey ? ` · ${question.meta.groupKey}` : ""}
                       </div>
@@ -684,7 +870,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
                       ) : null}
                     </div>
 
-                    <div className="mt-4">
+                    <div className="mt-5">
                       {renderQuestionInput(question, value, (nextValue) => setAnswer(question.id, nextValue))}
                     </div>
 
@@ -703,60 +889,70 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
         ))}
       </div>
 
-      <div className="grid gap-3">
-        {submitStatus === "success" ? (
-          <div className="pat-banner pat-banner-success">Submission accepted. Opening the current results view...</div>
-        ) : null}
+      <section className="pat-card p-6">
+        <div className="pat-label">{currentStep < totalSteps ? "Next" : "Submit"}</div>
+        <div className="mt-3 text-xl font-semibold text-[var(--shell-ink)]">
+          {currentStep < totalSteps ? "Next" : "Submit"}
+        </div>
+        <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
+          {currentStep < totalSteps
+            ? "Continue to next page of the assessment"
+            : "Submit this module to preserve the scored PAT record, unlock evaluation state, and carry the current module signal into the live firm results flow."}
+        </p>
 
-        {currentStepMissingCount > 0 ? (
-          <div className="pat-banner pat-banner-warning">
-            {currentStepMissingCount} required question{currentStepMissingCount === 1 ? "" : "s"} still need a response
-            before PAT can open the next section.
+        {currentPageMissingCount > 0 ? (
+          <div className="mt-4 rounded-[18px] border border-amber-200 bg-amber-50/90 p-4 text-sm leading-6 text-amber-900">
+            {currentPageMissingCount} required question{currentPageMissingCount === 1 ? "" : "s"} still need a
+            response before PAT can {currentStep < totalSteps ? "open the next page" : "submit this module"}.
           </div>
         ) : null}
 
-        <div className="flex flex-wrap gap-3">
+        {pageError ? (
+          <div className="mt-4 rounded-[18px] border border-amber-200 bg-amber-50/90 p-4 text-sm leading-6 text-amber-900">
+            {pageError}
+          </div>
+        ) : null}
+
+        {submitError ? (
+          <div className="mt-4 rounded-[18px] border border-amber-200 bg-amber-50/90 p-4 text-sm leading-6 text-amber-900">
+            {submitError}
+          </div>
+        ) : null}
+
+        {submitStatus === "success" ? (
+          <div className="mt-4 pat-banner pat-banner-success">
+            Submission accepted. Opening the current results view...
+          </div>
+        ) : null}
+
+        <div className="mt-6 flex flex-wrap gap-3">
           {currentStep > 1 ? (
             <button type="button" onClick={() => void changeStep(currentStep - 1)} className="pat-button-secondary">
-              Back a section
+              Back a page
             </button>
           ) : null}
           {currentStep < totalSteps ? (
             <button
               type="button"
               onClick={() => void changeStep(currentStep + 1)}
-              disabled={currentStepMissingCount > 0}
+              disabled={currentPageMissingCount > 0}
               className="pat-button-primary"
             >
-              Continue to next section
+              Continue to next page
             </button>
           ) : (
             <button
               type="button"
               onClick={submitSurvey}
-              disabled={submitStatus === "submitting" || submitStatus === "success" || currentStepMissingCount > 0}
+              disabled={submitStatus === "submitting" || submitStatus === "success" || currentPageMissingCount > 0}
               className="pat-button-primary"
             >
               {submitStatus === "submitting" ? "Submitting assessment..." : "Submit assessment"}
             </button>
           )}
-          <button
-            type="button"
-            onClick={() => router.push(assessmentLandingHref)}
-            className="pat-button-secondary"
-          >
-            Back to readiness
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push(resultsLandingHref)}
-            className="pat-button-secondary"
-          >
-            Review current results
-          </button>
         </div>
 
-        <div className="text-sm text-[var(--shell-muted)]">
+        <div className="mt-4 text-sm text-[var(--shell-muted)]">
           {autosaveState === "saving"
             ? "Saving progress..."
             : autosaveState === "saved"
@@ -765,9 +961,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
                 ? `Autosave issue: ${autosaveError ?? "Unable to save progress"}`
                 : "Progress saves automatically as you move through the module."}
         </div>
-
-        {submitError ? <div className="pat-banner pat-banner-danger">Submit error: {submitError}</div> : null}
-      </div>
+      </section>
     </div>
   );
 }

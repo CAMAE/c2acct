@@ -5,8 +5,20 @@ import {
   FIRM_TIER1_INSIGHT_CAPABILITY_RULES,
 } from "@/lib/firmCapabilities";
 import {
+  ELITE_PLACEHOLDER_CTA,
+  ELITE_PLACEHOLDER_MESSAGE,
+  ELITE_PLACEHOLDER_TITLE,
+  getFirmInsightContent,
+} from "@/lib/insightContent";
+import {
+  buildElitePlaceholderSurfaceContent,
+  buildHelpSurfaceContent,
+  type InsightSurfaceContent,
+} from "@/lib/insightSurface";
+import {
   FIRM_MODULE_DEFINITIONS,
   FIRM_TIER1_INSIGHT_DEFINITIONS,
+  FIRM_TIER2_INSIGHT_DEFINITIONS,
 } from "@/lib/firmPat";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 
@@ -45,7 +57,7 @@ export type FirmInsightReport = {
   title: string;
   sampleSize: number;
   latestUpdatedAt: Date | null;
-  confidenceBand: "no_signal" | "directional" | "emerging" | "grounded";
+  confidenceBand: "no_signal" | "sample_thin" | "emerging" | "grounded";
   confidenceLabel: string;
   confidenceSummary: string;
   currentStateSummary: string;
@@ -61,26 +73,85 @@ export type FirmInsightReport = {
   confidenceCaveats: string[];
 };
 
+export type FirmInsightOverviewMode = "pro" | "elite" | "help";
+
+export type FirmInsightOverviewCard = {
+  key: string;
+  title: string;
+  summary: string;
+  statusLabel?: string;
+  tone: "active" | "muted" | "locked";
+  href: string | null;
+  interactive: boolean;
+  supportingText: string | null;
+};
+
+export type FirmInsightDetailSurfaceKey = "pro" | "elite" | "help";
+
+export type FirmInsightDetailSurfaceCard = {
+  key: FirmInsightDetailSurfaceKey;
+  title: string;
+  summary: string;
+  href: string | null;
+  interactive: boolean;
+};
+
+export type FirmInsightDetailSurfaceContent = InsightSurfaceContent<FirmInsightDetailSurfaceKey>;
+
+export function getRequestedFirmInsightOverviewMode(
+  rawMode: string | undefined
+): FirmInsightOverviewMode {
+  switch (rawMode?.trim().toLowerCase()) {
+    case "elite":
+      return "elite";
+    case "help":
+      return "help";
+    case "pro":
+    default:
+      return "pro";
+  }
+}
+
+export function getRequestedFirmInsightDetailSurface(
+  rawSurface: string | undefined
+): FirmInsightDetailSurfaceKey {
+  switch (rawSurface?.trim().toLowerCase()) {
+    case "pro":
+      return "pro";
+    case "elite":
+      return "elite";
+    case "help":
+      return "help";
+    case "basis":
+    case "modules":
+    case "capabilities":
+    case "confidence":
+      return "pro";
+    default:
+      return "pro";
+  }
+}
+
 function getConfidenceBand(sampleSize: number) {
   if (sampleSize <= 0) {
     return {
       band: "no_signal" as const,
-      label: "No live signal",
+      label: "No current-state signal",
       summary: "PAT does not yet have enough completed firm evidence to support a grounded readout.",
     };
   }
   if (sampleSize === 1) {
     return {
-      band: "directional" as const,
-      label: "Directional only",
-      summary: "This readout is based on one completed module submission only and should be treated as directional.",
+      band: "sample_thin" as const,
+      label: "Early current-state signal",
+      summary: "This readout is based on one completed module submission only and should be treated as early current-state signal.",
     };
   }
   if (sampleSize < 4) {
     return {
-      band: "directional" as const,
-      label: "Directional",
-      summary: `This readout is based on ${sampleSize} relevant module submissions and remains directional rather than strong signal.`,
+      band: "sample_thin" as const,
+      label: "Sample-thin current-state signal",
+      summary: `This readout is based on ${sampleSize} relevant module submissions and remains sample-thin rather than strong confirmation.`,
     };
   }
   if (sampleSize < 8) {
@@ -172,7 +243,7 @@ function describeConfidenceCaveats(input: {
 
   if (input.clusterCount < 2) {
     caveats.push(
-      "Question-cluster evidence is thin, so PAT should treat the current interpretation as directional rather than richly differentiated."
+      "Question-cluster evidence is thin, so PAT should treat the current interpretation as sample-thin rather than richly differentiated."
     );
   }
 
@@ -193,7 +264,6 @@ function buildNarrative(input: {
   capabilities: CapabilityEvidence[];
   clusters: ClusterEvidence[];
   caveats: string[];
-  confidenceSummary: string;
 }) {
   const strongestNames = input.strongestModules.map((module) => module.title).join(" and ");
   const weakestNames = input.weakestModules.map((module) => module.title).join(" and ");
@@ -211,11 +281,9 @@ function buildNarrative(input: {
     currentStateSummary:
       availableModules === 0
         ? `${input.title} has no completed firm assessment evidence yet.`
-        : `${input.title} is currently based on ${availableModules} relevant module submission${
-            availableModules === 1 ? "" : "s"
-          }. ${input.confidenceSummary} The strongest current support comes from ${
+        : `${input.title} shows the current operating picture, with the strongest support in ${
             strongestNames || "the current strongest module evidence"
-          }, while the weakest support sits in ${
+          } and the most pressure in ${
             weakestNames || "the current weakest module evidence"
           }.`,
     what:
@@ -237,6 +305,198 @@ function buildNarrative(input: {
             input.caveats[0] ?? ""
           }`,
   };
+}
+
+export function buildFirmProInsightCards(input: {
+  reports: Map<InsightKey, FirmInsightReport>;
+  unlockedKeys: Set<string>;
+}): FirmInsightOverviewCard[] {
+  return FIRM_TIER1_INSIGHT_DEFINITIONS.map((insight) => {
+    const report = input.reports.get(insight.key as InsightKey);
+    const visible = input.unlockedKeys.has(insight.key);
+    const content = getFirmInsightContent(insight.key);
+
+    return {
+      key: insight.key,
+      title: insight.title,
+      summary: report?.currentStateSummary ?? content?.summary ?? insight.body,
+      tone: visible ? "active" : "muted",
+      href: `/firm/insights/${insight.key}`,
+      interactive: true,
+      supportingText: report
+        ? visible
+          ? report.strongestModules.length
+            ? `Strongest support: ${report.strongestModules.map((module) => module.title).join(", ")}.`
+            : "Current evidence is available for this readout."
+          : "Current evidence is visible here, but the full Pro unlock still depends on the required capability thresholds."
+        : "PAT is still waiting on grounded module and capability evidence for a stable current-state readout.",
+    } satisfies FirmInsightOverviewCard;
+  });
+}
+
+export function buildFirmEliteInsightCards() {
+  return FIRM_TIER2_INSIGHT_DEFINITIONS.map((insight) => {
+    const content = getFirmInsightContent(insight.key);
+
+    return {
+      key: insight.key,
+      title: insight.title,
+      summary: content?.lockedState?.summary ?? ELITE_PLACEHOLDER_MESSAGE,
+      statusLabel: ELITE_PLACEHOLDER_TITLE,
+      tone: "locked",
+      href: null,
+      interactive: false,
+      supportingText: content?.lockedState?.disclaimer ?? ELITE_PLACEHOLDER_CTA,
+    } satisfies FirmInsightOverviewCard;
+  });
+}
+
+export function buildFirmInsightDetailSurfaceCards(input: {
+  insightKey: string;
+  report: FirmInsightReport;
+  locked: boolean;
+}) {
+  const baseHref = `/firm/insights/${input.insightKey}`;
+  return [
+    {
+      key: "pro",
+      title: "Pro",
+      summary: input.report.currentStateSummary,
+      href: `${baseHref}?surface=pro`,
+      interactive: true,
+    },
+    {
+      key: "elite",
+      title: "Elite",
+      summary: ELITE_PLACEHOLDER_MESSAGE,
+      href: `${baseHref}?surface=elite`,
+      interactive: true,
+    },
+    {
+      key: "help",
+      title: "Help",
+      summary: input.report.currentStateSummary,
+      href: `${baseHref}?surface=help`,
+      interactive: true,
+    },
+  ] satisfies FirmInsightDetailSurfaceCard[];
+}
+
+function summarizeFirmInsightStrengths(report: FirmInsightReport) {
+  if (!report.strongestModules.length && !report.contributingCapabilities.length) {
+    return "PAT does not yet have enough grounded module or capability evidence to separate the strongest supports clearly.";
+  }
+
+  const moduleText = report.strongestModules.length
+    ? `Strongest supporting modules right now: ${report.strongestModules
+        .map((module) => `${module.title} (${typeof module.score === "number" ? `${Math.round(module.score)}%` : "--"})`)
+        .join(", ")}.`
+    : "";
+  const capabilityText = report.contributingCapabilities.length
+    ? `Most relevant supporting capabilities: ${report.contributingCapabilities
+        .filter((capability) => capability.score !== null)
+        .map((capability) => `${capability.title} (${Math.round(capability.score ?? 0)}%)`)
+        .join(", ")}.`
+    : "";
+
+  return [moduleText, capabilityText].filter(Boolean).join(" ");
+}
+
+function summarizeFirmInsightPressure(report: FirmInsightReport) {
+  if (!report.weakestModules.length && !report.notableQuestionClusters.length) {
+    return "PAT does not yet have enough grounded module or question-pattern evidence to separate the current pressure points clearly.";
+  }
+
+  const moduleText = report.weakestModules.length
+    ? `The current drag is showing most clearly in ${report.weakestModules
+        .map((module) => `${module.title} (${typeof module.score === "number" ? `${Math.round(module.score)}%` : "--"})`)
+        .join(", ")}.`
+    : "";
+  const clusterText = report.notableQuestionClusters.length
+    ? `The most visible operating patterns in this readout are ${report.notableQuestionClusters
+        .map((cluster) => `${cluster.title} (${Math.round(cluster.averageScore)}%)`)
+        .join(", ")}.`
+    : "";
+
+  return [moduleText, clusterText].filter(Boolean).join(" ");
+}
+
+function summarizeFirmInsightLimits(report: FirmInsightReport) {
+  return [report.confidenceSummary, ...report.confidenceCaveats.slice(0, 2)]
+    .filter(Boolean)
+    .join(" ");
+}
+
+export function buildFirmInsightDetailSurfaceContent(input: {
+  report: FirmInsightReport;
+  surface: FirmInsightDetailSurfaceKey;
+}) {
+  switch (input.surface) {
+    case "pro":
+      return {
+        key: "pro",
+        title: "Pro",
+        intro: "PAT keeps the Pro surface focused on the grounded evidence behind this current firm alignment readout.",
+        items: [
+          {
+            title: "Current PAT picture",
+            body: `${input.report.currentStateSummary} ${input.report.basisSummary}`,
+          },
+          {
+            title: "Where the signal is strongest",
+            body: summarizeFirmInsightStrengths(input.report),
+          },
+          {
+            title: "Where the signal is under pressure",
+            body: summarizeFirmInsightPressure(input.report),
+          },
+          {
+            title: "Current limits",
+            body: summarizeFirmInsightLimits(input.report),
+          },
+        ],
+      } satisfies FirmInsightDetailSurfaceContent;
+    case "elite":
+      return buildElitePlaceholderSurfaceContent<FirmInsightDetailSurfaceKey>({
+        key: "elite",
+        intro: ELITE_PLACEHOLDER_MESSAGE,
+        what: "A deeper PAT interpretation layer reserved for benchmark, projection, and recommendation work that is not yet live in this route.",
+        why: "The deeper comparative layer should stay unavailable until PAT can support it honestly with more than current-state evidence alone.",
+        how: `${ELITE_PLACEHOLDER_TITLE}. ${ELITE_PLACEHOLDER_CTA}.`,
+      });
+    case "help":
+      return buildHelpSurfaceContent<FirmInsightDetailSurfaceKey>({
+        key: "help",
+        intro: input.report.currentStateSummary,
+        what: input.report.what,
+        why: input.report.why,
+        how: input.report.how,
+      });
+    default:
+      return {
+        key: "pro",
+        title: "Pro",
+        intro: "PAT keeps the Pro surface focused on the grounded evidence behind this current firm alignment readout.",
+        items: [
+          {
+            title: "Current PAT picture",
+            body: `${input.report.currentStateSummary} ${input.report.basisSummary}`,
+          },
+          {
+            title: "Where the signal is strongest",
+            body: summarizeFirmInsightStrengths(input.report),
+          },
+          {
+            title: "Where the signal is under pressure",
+            body: summarizeFirmInsightPressure(input.report),
+          },
+          {
+            title: "Current limits",
+            body: summarizeFirmInsightLimits(input.report),
+          },
+        ],
+      } satisfies FirmInsightDetailSurfaceContent;
+  }
 }
 
 export async function getFirmInsightReports(companyId: string) {
@@ -452,7 +712,6 @@ export async function getFirmInsightReports(companyId: string) {
       capabilities: relevantCapabilities,
       clusters: notableQuestionClusters,
       caveats: confidenceCaveats,
-      confidenceSummary: confidence.summary,
     });
 
     reports.set(insight.key, {

@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import { redirect } from "next/navigation";
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
+import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
 import FirmAdminPanels from "@/app/components/firm/FirmAdminPanels";
 import {
@@ -215,9 +216,12 @@ export default async function FirmPage({
           label={messages.portal.firm.eyebrow}
           audienceLabel={messages.nav.firm}
         />
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
-          {messages.portal.firm.title}
-        </h1>
+        <PatAudienceTitle
+          as="h1"
+          title={messages.portal.firm.title}
+          audienceTerms={[messages.nav.firm]}
+          className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]"
+        />
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           {messages.portal.firm.body}
         </p>
@@ -253,7 +257,10 @@ export default async function FirmPage({
               {messages.portal.firm.modulesCompleted}: <span className="font-semibold text-[var(--shell-ink)]">{completedModules} / 5</span>
             </div>
             <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-              {messages.portal.firm.productReviewLoop}: <span className="font-semibold text-[var(--shell-ink)]">{messages.portal.firm.live}</span>
+              {messages.portal.firm.productReviewLoop}:{" "}
+              <span className="font-semibold text-[var(--shell-ink)]">
+                Opens when vendor product assessment is complete
+              </span>
             </div>
           </section>
 

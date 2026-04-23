@@ -8,6 +8,10 @@
   "globalForbiddenMarkers": [
     "AAE",
     "Autonomous Alignment Infrastructure for Accounting Firms.",
+    "EXECUTIVE DASHBOARD SYSTEM",
+    "Premium top-level routing with local drilldowns",
+    "Quick Actions",
+    "Insights Bridge",
     "Profiles",
     "Top Seven Outputs",
     "Alignment Survey",
@@ -127,10 +131,31 @@
         "app/sign-in/page.tsx",
         "lib/auth/routes.ts"
       ],
-      "positiveMarkers": [
-        "Consultant",
-        "Consultant access is disabled in this runtime"
-      ]
+      "consultantAccessGate": {
+        "envVar": "PAT_ENABLE_CONSULTANT_ACCESS",
+        "enabledValue": "1",
+        "enabled": {
+          "positiveMarkers": [
+            "Consultant",
+            "Assigned briefing access",
+            "Landing route:",
+            "/consultants"
+          ],
+          "forbiddenMarkers": [
+            "Consultant access is disabled in this runtime"
+          ]
+        },
+        "disabled": {
+          "positiveMarkers": [
+            "Consultant access is disabled in this runtime",
+            "Landing route:",
+            "/vendor"
+          ],
+          "forbiddenMarkers": [
+            "Assigned briefing access"
+          ]
+        }
+      }
     },
     "/consultants": {
       "sourceFiles": [

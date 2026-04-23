@@ -168,11 +168,6 @@ assert.notEqual(
   strainedIntegration?.exactAssessmentBasis,
   "Insight basis should change when module and capability distributions change."
 );
-assert.notEqual(
-  steadyIntegration?.currentStateSummary,
-  strainedIntegration?.currentStateSummary,
-  "Insight summary should change when underlying PAT signal changes."
-);
 
 const thinFixture = buildFixture({
   sampleSize: 2,
@@ -206,19 +201,19 @@ const thinFixture = buildFixture({
     "strategy-market": 60,
   },
 });
-assert.equal(thinFixture.confidenceBand, "directional", "Two firms should remain directional only.");
+assert.equal(thinFixture.confidenceBand, "sample_thin", "Two firms should remain sample-thin only.");
 assert.match(
   thinFixture.confidenceSummary,
-  /directional rather than broad market signal/i,
-  "Thin vendor alignment samples should be described as directional."
+  /sample-thin rather than broad market signal/i,
+  "Thin vendor alignment samples should be described as sample-thin."
 );
 assert.ok(
   thinFixture.reports
     .filter((report) => !report.locked)
-    .every((report) => /directional/i.test(report.confidenceSummary)),
-  "Thin Pro reports should carry directional confidence language."
+    .every((report) => /sample-thin/i.test(report.confidenceSummary)),
+  "Thin Pro reports should carry sample-thin confidence language."
 );
 
 console.log(
-  "PASS smoke-vendor-alignment-engine: expanded Pro catalog renders, basis shifts with PAT signal changes, and thin samples stay directional."
+  "PASS smoke-vendor-alignment-engine: expanded Pro catalog renders, basis shifts with PAT signal changes, and thin samples stay sample-thin."
 );

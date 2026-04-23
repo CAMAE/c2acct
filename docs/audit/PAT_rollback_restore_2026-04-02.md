@@ -4,7 +4,9 @@
 
 Rollback won.
 
-The canonical recovery root is `/Users/camerongarrett/work/c2acct-live` on branch `recovery/pat-2026-03-31-baseline`.
+This file records a dated rollback snapshot only. Current checkout truth now lives in `docs/active-repo-map.md` and `README.md`.
+
+The canonical recovery root for this snapshot was `/Users/camerongarrett/work/c2acct-live` on the dated recovery baseline branch created for the rollback exercise.
 
 - Exact rollback baseline commit: `078a41f6816e81e599b94423faf501d10c2aa70c`
 - Current branch head after recording rollback artifacts: `5052be3`
@@ -14,7 +16,7 @@ The canonical recovery root is `/Users/camerongarrett/work/c2acct-live` on branc
 
 | Root | Branch | SHA | Dirty state | Classification |
 | --- | --- | --- | --- | --- |
-| `/Users/camerongarrett/work/c2acct-live` | `recovery/pat-2026-03-31-baseline` | `5052be3` head on baseline `078a41f6816e81e599b94423faf501d10c2aa70c` | clean after rollback capture and commit | canonical PAT recovery root |
+| `/Users/camerongarrett/work/c2acct-live` | dated recovery baseline branch | `5052be3` head on baseline `078a41f6816e81e599b94423faf501d10c2aa70c` | clean after rollback capture and commit | canonical PAT recovery root at snapshot time |
 | `/Users/camerongarrett/work/c2acct` | `feat/mac-mini-ops-hardening` | `078a41f6816e81e599b94423faf501d10c2aa70c` | dirty | development-only, non-live |
 | `/private/tmp/c2acct-main-auth` | `release-pat-launch-rc-2026-04-01` | `c6e39d967cf27d002918e503cd4ff61db06af72a` | dirty | mixed, quarantined, non-live |
 
@@ -30,7 +32,7 @@ The canonical recovery root is `/Users/camerongarrett/work/c2acct-live` on branc
 
 1. Captured the full pre-rollback dirty diff to `artifacts/recovery/c2acct-live-dirty.patch`.
 2. Captured the pre-rollback dirty file inventory to `artifacts/recovery/post-3-31-file-inventory.txt`.
-3. Created branch `recovery/pat-2026-03-31-baseline` at `078a41f6816e81e599b94423faf501d10c2aa70c`.
+3. Created the dated recovery baseline branch at `078a41f6816e81e599b94423faf501d10c2aa70c`.
 4. Stashed the later local edits for later slice recovery after the rollback baseline was re-established.
 5. Restored only the recovery artifacts needed for audit continuity.
 6. Refreshed `/private/tmp/c2acct-main-auth/.QUARANTINED_MIXED_RELEASE_DO_NOT_DEPLOY`.

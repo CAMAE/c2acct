@@ -97,7 +97,7 @@ export default async function VendorProfilePage() {
       <section className="pat-card p-8">
         <div className="pat-label">Vendor profile</div>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
-          General, editable, and integration-ready
+          General, editable, and prepared for future integration
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           This profile is the clean vendor-facing contract inside PAT. It is editable in the app now and designed to receive future data from the c2acct.com / six-site connection when the real adapter is available.
@@ -109,7 +109,7 @@ export default async function VendorProfilePage() {
           <div className="pat-label">Profile editor</div>
           {vendorContext.company?.type !== "VENDOR" ? (
             <div className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-              Sign in with a vendor-linked account to edit the live vendor profile.
+              Sign in with a vendor-linked account to edit the current vendor profile.
             </div>
           ) : (
             <form action={updateVendorProfile} className="mt-4 grid gap-4">
@@ -131,7 +131,7 @@ export default async function VendorProfilePage() {
             </pre>
           </div>
           <div className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Source is currently manual app entry. Future sync should update this contract instead of pretending a live connection already exists.
+            Source is currently manual app entry. Future sync should update this contract instead of pretending an active connection already exists.
           </div>
         </div>
       </section>

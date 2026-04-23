@@ -1,12 +1,17 @@
 # PAT Route Surface Reconciliation (2026-04-02)
 
+Current usage note:
+
+- This file is a dated 2026-04-02 route reconciliation snapshot.
+- Use `docs/active-repo-map.md` and `README.md` for current checkout truth.
+
 ## Scope
 
 This reconciliation re-checks PAT-critical top-level source truth against:
 
 - rollback anchor from local docs: `078a41f6816e81e599b94423faf501d10c2aa70c`
 - last green PAT head recorded in local docs: `340e30c4a5547fad8f6ac13c6fd5518b5b2d8994`
-- current head at verification time: `252b7f39ec77b5459c26791769410b87c4048cec`
+- current head at verification time: the then-current recovery-line head recorded in the 2026-04-02 evidence set
 
 This check is source-only. It does not treat stale or unreachable host runtime output as source drift.
 

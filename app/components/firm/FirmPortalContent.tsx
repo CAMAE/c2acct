@@ -16,7 +16,7 @@ export const firmWorkspaceCards: PortalSurface[] = [
   {
     id: "firm-product-assessments",
     title: "Product Assessment",
-    description: "Review vendor products through utility-aligned firm product assessments that feed vendor product insight.",
+    description: "Review vendor products through feature-aligned firm product assessments that feed vendor product insight.",
     href: "/firm/product-assessments",
     audience: ["firm"],
     section: "operate",
@@ -155,7 +155,7 @@ export function FirmHelpInlineContent({
         </h2>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           {scopedCard
-            ? `This scoped help view stays inside the existing firm help route and focuses on the current firm product review flow${productName ? ` for ${productName}` : ""}: utility-scoped questions only, truthful current-state scoring, and the connection back to vendor product insight.`
+            ? `This scoped help view stays inside the existing firm help route and focuses on the current firm product review flow${productName ? ` for ${productName}` : ""}: feature-scoped questions only, truthful current-state scoring, and the connection back to vendor product insight.`
             : "This help view maps the active firm PAT surfaces so leaders can understand what each one does and when to use it."}
         </p>
       </section>
@@ -168,7 +168,7 @@ export function FirmHelpInlineContent({
         <section className="pat-card p-6">
           <div className="pat-label">Next step</div>
           <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Return to the current product review when you are ready to continue answering the utility-scoped firm questions.
+            Return to the current product review when you are ready to continue answering the feature-scoped firm questions.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link className="pat-button-primary" href={assessmentHref}>

@@ -1,4 +1,4 @@
-import { ModuleScope, type QuestionInputType, type UserRole } from "@prisma/client";
+import { ModuleScope, QuestionInputType, type UserRole } from "@prisma/client";
 import { randomUUID } from "crypto";
 import prisma from "@/lib/prisma";
 import { buildIntegrationEnvelope } from "@/lib/integrations/c2acct";
@@ -20,7 +20,6 @@ import {
   type VendorAssessmentQuestion,
   VENDOR_PRODUCT_MODULE_KEY,
   VENDOR_PRODUCT_TIER2_HOVER,
-  VENDOR_PRODUCT_UTILITY_CAP,
   ensureProductSubject,
 } from "@/lib/vendorPat";
 import { buildProductAssessmentPlan } from "@/lib/vendorProductQuestionBank";
@@ -91,6 +90,164 @@ export const FIRM_MODULE_QUESTION_STEMS = [
   "How well can this area adapt to market or client change?",
   "How ready is this area for the next stage of PAT insight depth?",
 ] as const;
+
+export const FIRM_MODULE_OPEN_ENDED_QUESTION_COUNT = 5;
+
+type FirmOpenEndedPromptDefinition = {
+  keySuffix: string;
+  prompt: string;
+  placeholder: string;
+};
+
+const FIRM_MODULE_OPEN_ENDED_PROMPTS: Record<
+  (typeof FIRM_MODULE_DEFINITIONS)[number]["sectionKey"],
+  readonly FirmOpenEndedPromptDefinition[]
+> = {
+  "operating-model": [
+    {
+      keySuffix: "workflow_bottleneck",
+      prompt: "What is the biggest workflow bottleneck currently slowing execution in this area, and where does it show up most often?",
+      placeholder: "Describe the workflow, teams involved, and the current drag it creates.",
+    },
+    {
+      keySuffix: "ownership_gap",
+      prompt: "Where is ownership or accountability still unclear in this area, and what breakdown does that create in practice?",
+      placeholder: "Name the handoff, decision point, or recurring confusion PAT should understand.",
+    },
+    {
+      keySuffix: "review_metric",
+      prompt: "What review cadence, metric, or visibility signal would most improve operating discipline here over the next 90 days?",
+      placeholder: "Focus on the one measurement or review change that would matter most.",
+    },
+    {
+      keySuffix: "handoff_rework",
+      prompt: "Which handoff currently creates the most rework, and what tends to go wrong at that point?",
+      placeholder: "Use a concrete example of where rework or escalation appears.",
+    },
+    {
+      keySuffix: "support_needed",
+      prompt: "What vendor, tool, or operating support would help improve workflow discipline here without creating more disruption?",
+      placeholder: "Explain the support needed and the condition it should improve.",
+    },
+  ],
+  "automation-ai": [
+    {
+      keySuffix: "automation_candidate",
+      prompt: "Which process is most ready for automation or AI support today, and what is still blocking safe rollout?",
+      placeholder: "Describe the process, the expected value, and the current blocker.",
+    },
+    {
+      keySuffix: "guardrails_needed",
+      prompt: "Where would AI-assisted work create the most value in this area, and what guardrails would need to be in place first?",
+      placeholder: "Be specific about the use case and the control requirement.",
+    },
+    {
+      keySuffix: "data_prerequisite",
+      prompt: "What data, workflow, or systems prerequisite is still missing for repeatable automation in this area?",
+      placeholder: "Name the missing prerequisite PAT should treat as the gating dependency.",
+    },
+    {
+      keySuffix: "change_barrier",
+      prompt: "What team, skill, or change-management barrier is most likely to slow adoption of automation here?",
+      placeholder: "Explain the barrier and how it shows up in current operations.",
+    },
+    {
+      keySuffix: "proof_required",
+      prompt: "What proof would leadership need before expanding automation or AI usage in this area more broadly?",
+      placeholder: "Describe the evidence, threshold, or result leadership would need to see.",
+    },
+  ],
+  "data-flow": [
+    {
+      keySuffix: "handoff_failure",
+      prompt: "Which system or process handoff currently creates the biggest data delay or data-quality failure in this area?",
+      placeholder: "Identify the handoff and explain what breaks or slows down.",
+    },
+    {
+      keySuffix: "trust_gap",
+      prompt: "Where does confidence in data quality or reporting break down most often today?",
+      placeholder: "Describe the source of the trust gap and the operational consequence.",
+    },
+    {
+      keySuffix: "integration_dependency",
+      prompt: "What integration dependency is most likely to threaten implementation or reporting continuity here?",
+      placeholder: "Name the dependency and the risk it creates.",
+    },
+    {
+      keySuffix: "visibility_gap",
+      prompt: "What visibility or reporting gap most limits operational control in this area right now?",
+      placeholder: "Explain what leaders or teams still cannot see clearly enough.",
+    },
+    {
+      keySuffix: "continuity_improvement",
+      prompt: "What one change would most improve continuity across tools, teams, or data flows in this area?",
+      placeholder: "Focus on the single improvement with the highest current-state payoff.",
+    },
+  ],
+  governance: [
+    {
+      keySuffix: "control_drag",
+      prompt: "Which control, approval, or review step currently slows work here with the least operational value returned?",
+      placeholder: "Describe the step, why it feels heavy, and what it protects today.",
+    },
+    {
+      keySuffix: "vendor_risk_gap",
+      prompt: "What vendor-risk or control evidence is still hardest to obtain or maintain in this area?",
+      placeholder: "Be specific about the evidence gap PAT should understand.",
+    },
+    {
+      keySuffix: "decision_ownership",
+      prompt: "Where is governance decision ownership still unclear, and what risk does that create?",
+      placeholder: "Name the decision area and the consequence of the current ambiguity.",
+    },
+    {
+      keySuffix: "resilience_concern",
+      prompt: "What resilience, incident, or failure scenario concerns leadership most in this area right now?",
+      placeholder: "Describe the scenario and why it matters operationally.",
+    },
+    {
+      keySuffix: "trust_requirement",
+      prompt: "What would most improve trust in a new vendor, tool, or control approach touching this area?",
+      placeholder: "Explain the evidence, behavior, or safeguard that would matter most.",
+    },
+  ],
+  strategy: [
+    {
+      keySuffix: "execution_gap",
+      prompt: "Which strategic priority is hardest to translate into day-to-day execution in this area, and why?",
+      placeholder: "Describe the priority and where execution breaks down.",
+    },
+    {
+      keySuffix: "change_drag",
+      prompt: "Where do change efforts lose traction most often in this area today?",
+      placeholder: "Name the point in the change cycle where momentum usually drops.",
+    },
+    {
+      keySuffix: "market_pressure",
+      prompt: "What market, client, or competitive pressure is forcing the biggest reprioritization in this area right now?",
+      placeholder: "Explain the pressure and how it is changing current decisions.",
+    },
+    {
+      keySuffix: "roadmap_risk",
+      prompt: "What risk is most likely to cause the current roadmap or change plan in this area to miss expectations?",
+      placeholder: "Focus on the risk with the highest near-term consequence.",
+    },
+    {
+      keySuffix: "readiness_signal",
+      prompt: "What signal would tell you this area is ready for deeper PAT insight use, broader change, or faster execution?",
+      placeholder: "Describe the concrete signal or condition you would look for.",
+    },
+  ],
+};
+
+// Keep firm follow-up wording fixed and module-specific until PAT can derive prompt text
+// from real completed module evidence at runtime. The current repo does not claim adaptive
+// open-ended wording for firm modules yet.
+export function buildFirmModuleOpenEndedPrompts(
+  moduleDefinition: (typeof FIRM_MODULE_DEFINITIONS)[number]
+) {
+  return FIRM_MODULE_OPEN_ENDED_PROMPTS[moduleDefinition.sectionKey];
+}
 
 const FIRM_MODULE_SECTIONS = [
   {
@@ -481,6 +638,79 @@ export async function ensureFirmAlignmentSystem() {
       });
     }
 
+    const openEndedSectionKey = `${moduleDefinition.sectionKey}-module-follow-up`;
+    const openEndedSectionTitle = `${moduleDefinition.title}: Module follow-up`;
+    const openEndedSectionDescription =
+      "Five module-specific follow-up questions capture current operating context that PAT cannot read from numeric scores alone. PAT keeps this wording fixed today rather than overstating adaptive follow-up logic.";
+
+    for (const [index, promptDefinition] of buildFirmModuleOpenEndedPrompts(moduleDefinition).entries()) {
+      const questionKey = `${moduleDefinition.sectionKey}_open_${index + 1}`;
+      expectedQuestionKeys.push(questionKey);
+      const existingQuestions = await prisma.surveyQuestion.findMany({
+        where: {
+          moduleId: moduleRecord.id,
+          key: questionKey,
+        },
+        select: { id: true },
+        orderBy: { createdAt: "asc" },
+      });
+
+      const primaryExistingQuestion = existingQuestions[0] ?? null;
+      const duplicateExistingQuestionIds = existingQuestions.slice(1).map((question) => question.id);
+
+      if (duplicateExistingQuestionIds.length > 0) {
+        await prisma.surveyQuestion.deleteMany({
+          where: {
+            id: {
+              in: duplicateExistingQuestionIds,
+            },
+          },
+        });
+      }
+
+      const data = {
+        prompt: `${moduleDefinition.title}: ${promptDefinition.prompt}`,
+        inputType: QuestionInputType.TEXT,
+        weight: 0,
+        order: FIRM_MODULE_QUESTION_STEMS.length + index + 1,
+        required: true,
+        sectionId: null,
+        meta: {
+          section: {
+            key: openEndedSectionKey,
+            title: openEndedSectionTitle,
+            description: openEndedSectionDescription,
+            order: FIRM_MODULE_SECTIONS.length + 1,
+          },
+          helpText:
+            "Use current-state examples and operating detail. This response is required for context quality, but it does not change the numeric PAT score.",
+          placeholder: promptDefinition.placeholder,
+          text: {
+            multiline: true,
+            maxLength: 2000,
+          },
+        },
+        updatedAt: now,
+      };
+
+      if (primaryExistingQuestion) {
+        await prisma.surveyQuestion.update({
+          where: { id: primaryExistingQuestion.id },
+          data,
+        });
+      } else {
+        await prisma.surveyQuestion.create({
+          data: {
+            id: randomUUID(),
+            moduleId: moduleRecord.id,
+            key: questionKey,
+            ...data,
+          },
+          select: { id: true },
+        });
+      }
+    }
+
     await prisma.surveyQuestion.deleteMany({
       where: {
         moduleId: moduleRecord.id,
@@ -608,7 +838,7 @@ export async function ensureFirmProductModule() {
     where: { key: FIRM_PRODUCT_MODULE_KEY },
     update: {
       title: FIRM_PRODUCT_MODULE_TITLE,
-      description: "Firm-side product assessment aligned to vendor-declared utilities.",
+      description: "Firm-side product assessment aligned to vendor-declared features.",
       scope: ModuleScope.PRODUCT,
       active: true,
       version: 1,
@@ -619,7 +849,7 @@ export async function ensureFirmProductModule() {
       id: randomUUID(),
       key: FIRM_PRODUCT_MODULE_KEY,
       title: FIRM_PRODUCT_MODULE_TITLE,
-      description: "Firm-side product assessment aligned to vendor-declared utilities.",
+      description: "Firm-side product assessment aligned to vendor-declared features.",
       scope: ModuleScope.PRODUCT,
       active: true,
       version: 1,
@@ -634,7 +864,6 @@ export function buildFirmProductQuestions(selectedUtilityKeys: string[]): Vendor
   return buildProductAssessmentPlan({
     perspective: "firm",
     selectedUtilityKeys,
-    utilityCap: VENDOR_PRODUCT_UTILITY_CAP,
     includeProductGeneral: false,
     includeOpenEnded: false,
   }).modules.flatMap((module) => module.questions) as VendorAssessmentQuestion[];
@@ -839,16 +1068,16 @@ export const FIRM_HELP_CARDS = [
   },
   {
     title: "Product Assessments",
-    what: "Firm-side product reviews aligned only to vendor-declared utilities.",
+    what: "Firm-side product reviews aligned only to vendor-declared features.",
     why: "This is the firm-to-vendor product intelligence loop inside PAT.",
-    how: "Choose a product, answer the utility-aligned questions, and persist the review.",
+    how: "Choose a product, answer the feature-aligned questions, and persist the review.",
     href: "/firm/product-assessments",
   },
   {
-    title: "Insights",
-    what: "Firm-facing Pro membership and Elite membership PAT insights.",
-    why: "This turns the assessment and product signal into usable decision support.",
-    how: "Open insight cards, review unlocked Pro membership content, and inspect staged Elite membership cards.",
+    title: "Alignment Insights",
+    what: "Firm-facing Pro and Elite PAT alignment insights.",
+    why: "This turns alignment assessment and product signal into usable current-state decision support.",
+    how: "Open firm alignment insight cards, review grounded Pro detail, and inspect staged Elite cards without overstating what is live.",
     href: "/firm/insights",
   },
   {

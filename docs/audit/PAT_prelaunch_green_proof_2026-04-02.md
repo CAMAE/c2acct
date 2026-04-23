@@ -10,11 +10,17 @@ Prove that the rollback recovery branch can pass the strict PAT prelaunch gate o
 - AAE marker leakage
 - fingerprint disagreement
 
-## Clean Recovery Head
+## Current usage note
+
+- This file is a dated 2026-04-02 proof snapshot.
+- Use `docs/active-repo-map.md` and `README.md` for current checkout truth and the repo's `pnpm`-first validation runbook.
+- Current checkout truth has moved on since this snapshot. For the current build id, use the latest release-proof artifacts such as `.next/BUILD_ID`, `/api/release-fingerprint`, or `pnpm standalone:local:check`; for current dirty-tree truth, use `git status --short`.
+
+## Clean Historical Proof Head
 
 Validated head:
 
-- branch: `recovery/pat-2026-03-31-baseline`
+- branch: the dated recovery-line branch used for this 2026-04-02 proof
 - commit: `340e30c4a5547fad8f6ac13c6fd5518b5b2d8994`
 
 ## Changes Required To Get Green
@@ -109,9 +115,9 @@ The green result came from removing false positives, not from weakening the laun
 
 ## Conclusion
 
-`npm run release:prelaunch` is green on the clean rollback recovery branch once:
+`npm run release:prelaunch` was green on the clean April 2 recovery-line candidate once:
 
 1. runtime state is refreshed for the current committed head
 2. rendered PAT validation is executed against the ephemeral standalone process it actually starts
 
-The remaining launch risk is operational host cutover, not repo-side prelaunch gating.
+The remaining launch risk in that snapshot was operational host cutover, not repo-side prelaunch gating. That is still not enough to claim the current dirty checkout is launch-ready.

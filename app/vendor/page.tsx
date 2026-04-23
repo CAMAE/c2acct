@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
+import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
 import VendorAdminPanels from "@/app/components/vendor/VendorAdminPanels";
 import {
@@ -179,9 +180,12 @@ export default async function VendorPage({
           label={messages.portal.vendor.eyebrow}
           audienceLabel={messages.nav.vendor}
         />
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
-          {messages.portal.vendor.title}
-        </h1>
+        <PatAudienceTitle
+          as="h1"
+          title={messages.portal.vendor.title}
+          audienceTerms={[messages.nav.vendor]}
+          className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]"
+        />
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           {messages.portal.vendor.body}
         </p>

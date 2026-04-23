@@ -31,7 +31,6 @@ type InsightLocaleBundle = {
     sample: string;
     confidence: string;
     freshness: string;
-    noLiveUpdateYet: string;
     whatItIs: string;
     whyItMatters: string;
     howToUseIt: string;
@@ -62,8 +61,6 @@ type InsightLocaleBundle = {
     eliteBody: string;
     proAvailableLabel: string;
     proPendingLabel: string;
-    detailVisible: string;
-    detailPending: string;
     unlockRequirement: string;
     unlockBody: string;
     backToInsights: string;
@@ -81,7 +78,6 @@ type InsightLocaleBundle = {
     proBody: string;
     eliteTitle: string;
     eliteBody: string;
-    signalStatus: string;
     assessmentBasis: string;
     backToAlignmentInsights: string;
   };
@@ -121,7 +117,6 @@ type LocaleMessages = {
     string
   >;
   common: {
-    live: string;
     scoped: string;
     queued: string;
     workspace: string;
@@ -139,7 +134,6 @@ type LocaleMessages = {
     notSignedIn: string;
     guest: string;
     unbound: string;
-    liveEvidenceEnglishOnly: string;
   };
   home: {
     productName: string;
@@ -181,7 +175,7 @@ type LocaleMessages = {
     helpCards: Array<{ title: string; body: string }>;
     callbackTarget: string;
     githubAuth: string;
-    authReady: string;
+    authAvailable: string;
     authNeedsConfig: string;
     inviteeAccess: string;
     enabled: string;
@@ -204,7 +198,6 @@ type LocaleMessages = {
       account: string;
       modulesCompleted: string;
       productReviewLoop: string;
-      live: string;
     };
     vendor: {
       eyebrow: string;
@@ -228,11 +221,11 @@ type LocaleMessages = {
       account: string;
       role: string;
       audience: string;
-      personPatSubject: string;
+      patSubjectLink: string;
       individualAlignment: string;
       completed: string;
       pending: string;
-      ready: string;
+      connected: string;
       fallback: string;
       unavailable: string;
       audienceMismatch: string;
@@ -277,7 +270,6 @@ const messages: Record<AppLocale, LocaleMessages> = {
       pat: "PAT",
     },
     common: {
-      live: "Live",
       scoped: "Scoped",
       queued: "Queued",
       workspace: "Workspace",
@@ -295,8 +287,6 @@ const messages: Record<AppLocale, LocaleMessages> = {
       notSignedIn: "Not signed in",
       guest: "Guest",
       unbound: "Unbound",
-      liveEvidenceEnglishOnly:
-        "Some live evidence narrative still renders in English while localization coverage expands beyond the audited launch flows.",
     },
     home: {
       productName: "Performance Alignment Technology",
@@ -350,7 +340,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
       ],
       callbackTarget: "Callback target",
       githubAuth: "GitHub auth",
-      authReady: "Ready",
+      authAvailable: "Available",
       authNeedsConfig: "Needs local configuration",
       inviteeAccess: "Invitee access",
       enabled: "Enabled",
@@ -365,7 +355,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
       sections: [
         {
           title: "What PAT does",
-          body: "PAT captures structured operating and product signals, preserves context, and turns those signals into decision-ready interpretation across firm, vendor, and individual views.",
+          body: "PAT captures structured operating and product signals, preserves context, and turns those signals into actionable interpretation across firm, vendor, and individual views.",
         },
         {
           title: "Why it matters",
@@ -389,7 +379,6 @@ const messages: Record<AppLocale, LocaleMessages> = {
         account: "Firm account",
         modulesCompleted: "Modules completed",
         productReviewLoop: "Product review loop",
-        live: "Live",
       },
       vendor: {
         eyebrow: "Vendor portal",
@@ -397,7 +386,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         body:
           "Unlock a more connected vendor experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.",
         compatibilityMode:
-          "Vendor taxonomy/profile tables are not fully available in the local database yet. The route architecture is live, but vendor data persistence depends on the current Prisma schema being applied.",
+          "Vendor taxonomy/profile tables are not fully available in the local database yet. The route architecture is already in place, but vendor data persistence depends on the current Prisma schema being applied.",
         currentVendorContext: "Current vendor context",
         account: "Account",
         vendorCompany: "Vendor company",
@@ -417,19 +406,19 @@ const messages: Record<AppLocale, LocaleMessages> = {
         account: "Account",
         role: "Role",
         audience: "Audience",
-        personPatSubject: "Person PAT subject",
+        patSubjectLink: "PAT subject link",
         individualAlignment: "Individual alignment",
         completed: "Completed",
         pending: "Pending",
-        ready: "Ready",
-        fallback: "Fallback",
+        connected: "Connected",
+        fallback: "Fallback path",
         unavailable: "Unavailable",
         audienceMismatch:
           "Your current signed-in PAT context is not bound to the individual audience. These routes are still reviewable now, but deeper person-native behavior will remain gated until the dedicated individual flow is built.",
         companyContext: "Company context",
         assessmentCount: "Assessment count",
         latestScore: "Latest score",
-        signInToEdit: "Sign in to edit the live individual profile settings.",
+        signInToEdit: "Sign in to edit the current individual profile settings.",
       },
       cards: {
         firm: {
@@ -439,17 +428,17 @@ const messages: Record<AppLocale, LocaleMessages> = {
           },
           "firm-product-assessments": {
             title: "Product Assessment",
-            description: "Review vendor products through utility-aligned firm product assessments that feed vendor product insight.",
+            description: "Review vendor products through feature-aligned firm product assessments that feed vendor product insight.",
           },
           "firm-insights": {
-            title: "Insights",
-            description: "Open firm-facing Pro membership and Elite membership PAT insights based on current firm and product alignment signal.",
+            title: "Alignment Insights",
+            description: "Open firm-facing Pro and Elite PAT alignment insights based on current firm and product alignment signal.",
           },
         },
         vendor: {
           "product-assessment": {
             title: "Product Assessment",
-            description: "Select a software product, declare the utilities it solves, and run the per-product PAT assessment.",
+            description: "Select a software product, declare the features it solves, and run the per-product PAT assessment.",
           },
           "product-insight": {
             title: "Product Insight",
@@ -463,7 +452,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         individual: {
           "individual-alignment-assessment": {
             title: "Alignment Assessment",
-            description: "Open the live person-level PAT alignment assessment and carry the saved signal into individual insight visibility.",
+            description: "Open the current person-level PAT alignment assessment and carry the saved signal into individual insight visibility.",
           },
           "individual-product-assessment": {
             title: "Product Assessment",
@@ -484,7 +473,6 @@ const messages: Record<AppLocale, LocaleMessages> = {
         sample: "Sample",
         confidence: "Confidence",
         freshness: "Freshness",
-        noLiveUpdateYet: "No live update yet",
         whatItIs: "What it is",
         whyItMatters: "Why it matters",
         howToUseIt: "How to use it",
@@ -500,51 +488,46 @@ const messages: Record<AppLocale, LocaleMessages> = {
         noCompletedModuleEvidenceYet: "No completed module evidence yet.",
         questionClusterEvidenceNotAvailable: "Question-cluster evidence is not available yet.",
         basisEnglishOnlyNote:
-          "Live evidence summaries may still render in English while broader insight localization is completed.",
+          "Current-state evidence summaries may still render in English while broader insight localization is completed.",
       },
       firm: {
-        title: "Firm Insights | C2Acct",
-        heroTitle: "PAT insight grounded in firm and product alignment data",
+        title: "Firm Alignment Insights | C2Acct",
+        heroTitle: "Firm alignment insights",
         heroBody:
-          "Pro membership insights unlock when the firm has both full five-module completion coverage and the capability strength each insight theme requires. Elite membership stays visible as blue restricted cards so the firm can see where the PAT intelligence layer expands next.",
+          "Use this page to review what your current PAT alignment evidence says about operating strength, automation readiness, data and controls, and change readiness.",
         currentStateNote:
-          "Firm insight remains current-state PAT interpretation only. When module coverage or capability evidence is thin, the readout is presented as directional rather than strong signal.",
+          "PAT uses current firm module and product-review evidence only. It does not claim benchmark or forecast support here.",
         modulesCompleted: "Modules completed",
         productReviewsSubmitted: "Product reviews submitted",
         latestModuleAverage: "Latest module average",
-        proTitle: "Pro membership",
+        proTitle: "Pro Insights",
         proBody:
-          "Current-state PAT insight that becomes visible after five-module completion and relevant capability-score thresholds are both satisfied.",
-        eliteTitle: "Elite membership",
-        eliteBody:
-          "Higher-order intelligence remains present in the UI, but restricted until Elite membership and deeper data coverage are active. These cards do not imply that benchmark or forecast intelligence is already available.",
+          "Open these cards for grounded current-state firm readouts tied to current PAT evidence.",
+        eliteTitle: "Elite Insights",
+        eliteBody: "Coming soon. Unlock with Elite membership.",
         proAvailableLabel:
           "Available now from completed firm alignment coverage plus the required capability signal.",
         proPendingLabel:
           "Requires all five firm alignment modules plus the relevant capability thresholds for this insight theme.",
-        detailVisible: "Visible",
-        detailPending: "Pending",
         unlockRequirement: "Unlock requirement",
         unlockBody:
           "Complete all five firm alignment modules and meet the capability thresholds tied to this insight theme. Module-completion badges prove coverage; capability scores determine whether the Pro interpretation is grounded enough to show.",
-        backToInsights: "Back to firm insights",
+        backToInsights: "Back to firm alignment insights",
         openAlignmentAssessment: "Open alignment assessment",
       },
       vendorAlignment: {
         title: "Vendor Alignment Insights | C2Acct",
-        heroTitle: "Vendor-side PAT signal grounded in live firm assessment evidence",
+        heroTitle: "Vendor alignment insights",
         heroBody:
-          "The visible Pro catalog reads from completed firm PAT modules, module spread, stored answer clusters, and live capability scores when they exist. Elite remains staged where the repo still lacks honest benchmark, forecast, or simulation support.",
+          "Use this page to understand what the current firm alignment signal says about the operating conditions vendors are likely walking into right now.",
         firmsInSignalBase: "Firms in signal base",
         currentPatModuleAverage: "Current PAT module average",
         moduleVariance: "Module variance",
         confidence: "Confidence",
         proTitle: "Pro membership",
-        proBody: "Launch-sufficient current-state vendor intelligence tied to live firm PAT signal.",
+        proBody: "Grounded current-state vendor intelligence tied to current firm PAT signal.",
         eliteTitle: "Elite membership",
-        eliteBody:
-          "Higher-order intelligence stays visibly staged and honestly locked. These cards do not imply that benchmark, forecast, or simulation support already exists.",
-        signalStatus: "Signal status",
+        eliteBody: "Coming soon. Unlock with Elite membership.",
         assessmentBasis: "Assessment basis",
         backToAlignmentInsights: "Back to alignment insights",
       },
@@ -552,9 +535,9 @@ const messages: Record<AppLocale, LocaleMessages> = {
         title: "Vendor Product Insight | C2Acct",
         heroTitle: "Product intelligence catalog",
         heroBody:
-          "Each product page now separates vendor self-reported signal from firm-reviewed signal, then shows the combined current PAT readout only where the evidence actually supports it.",
+          "Only products with a completed vendor product assessment appear here. Open one product to review its current product intelligence.",
         heroNote:
-          "Product insight remains current-state PAT evidence only. Thin firm review coverage is shown as directional signal rather than strong market confirmation.",
+          "Product intelligence stays focused on current product signal rather than benchmark or forecast claims.",
         backToVendorHome: "Back to vendor home",
         openProductAssessment: "Open product assessment",
         noProducts:
@@ -567,8 +550,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         proBody:
           "Each insight keeps vendor self-report, firm review, and combined PAT interpretation distinct.",
         eliteTitle: "Elite membership insights",
-        eliteBody:
-          "Elite membership remains visible but restrained until a broader evidence layer exists. These locked cards do not imply that benchmark or forecast intelligence is already live.",
+        eliteBody: "Coming soon. Unlock with Elite membership.",
         backToProductCatalog: "Back to product catalog",
         basisTemplateLabel: "Basis template",
       },
@@ -600,7 +582,6 @@ const messages: Record<AppLocale, LocaleMessages> = {
       pat: "PAT",
     },
     common: {
-      live: "Activo",
       scoped: "Acotado",
       queued: "En cola",
       workspace: "Espacio de trabajo",
@@ -618,8 +599,6 @@ const messages: Record<AppLocale, LocaleMessages> = {
       notSignedIn: "Sin sesión",
       guest: "Invitado",
       unbound: "Sin vincular",
-      liveEvidenceEnglishOnly:
-        "Parte de la narrativa de evidencia en vivo todavía se muestra en inglés mientras la localización se amplía más allá de los flujos auditados para lanzamiento.",
     },
     home: {
       productName: "Performance Alignment Technology",
@@ -673,7 +652,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
       ],
       callbackTarget: "Destino de retorno",
       githubAuth: "Autenticación GitHub",
-      authReady: "Lista",
+      authAvailable: "Disponible",
       authNeedsConfig: "Necesita configuración local",
       inviteeAccess: "Acceso de invitado",
       enabled: "Habilitado",
@@ -712,7 +691,6 @@ const messages: Record<AppLocale, LocaleMessages> = {
         account: "Cuenta de firma",
         modulesCompleted: "Módulos completados",
         productReviewLoop: "Ciclo de revisión de productos",
-        live: "Activo",
       },
       vendor: {
         eyebrow: "Portal de proveedor",
@@ -720,7 +698,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         body:
           "Desbloquea una experiencia de proveedor más conectada con acceso ágil a evaluaciones, herramientas operativas e insights para avanzar el trabajo con confianza.",
         compatibilityMode:
-          "Las tablas de taxonomía/perfil de proveedor todavía no están completamente disponibles en la base de datos local. La arquitectura de rutas está activa, pero la persistencia de datos del proveedor depende del esquema actual de Prisma.",
+          "Las tablas de taxonomía/perfil de proveedor todavía no están completamente disponibles en la base de datos local. La arquitectura de rutas ya está en su lugar, pero la persistencia de datos del proveedor depende del esquema actual de Prisma.",
         currentVendorContext: "Contexto actual del proveedor",
         account: "Cuenta",
         vendorCompany: "Empresa proveedora",
@@ -740,19 +718,19 @@ const messages: Record<AppLocale, LocaleMessages> = {
         account: "Cuenta",
         role: "Rol",
         audience: "Audiencia",
-        personPatSubject: "Sujeto PAT de persona",
+        patSubjectLink: "Vínculo PAT",
         individualAlignment: "Alineación individual",
         completed: "Completado",
         pending: "Pendiente",
-        ready: "Listo",
-        fallback: "Alternativo",
+        connected: "Conectado",
+        fallback: "Ruta alternativa",
         unavailable: "No disponible",
         audienceMismatch:
           "Tu contexto PAT actual con sesión iniciada no está vinculado a la audiencia individual. Estas rutas siguen siendo revisables ahora, pero el comportamiento más profundo nativo de persona seguirá limitado hasta que se construya el flujo individual dedicado.",
         companyContext: "Contexto de empresa",
         assessmentCount: "Cantidad de evaluaciones",
         latestScore: "Puntaje más reciente",
-        signInToEdit: "Inicia sesión para editar la configuración activa del perfil individual.",
+        signInToEdit: "Inicia sesión para editar la configuración actual del perfil individual.",
       },
       cards: {
         firm: {
@@ -765,8 +743,8 @@ const messages: Record<AppLocale, LocaleMessages> = {
             description: "Revisa productos de proveedores mediante evaluaciones de producto alineadas por utilidad que alimentan el insight de producto del proveedor.",
           },
           "firm-insights": {
-            title: "Insights",
-            description: "Abre los insights PAT de firma para membresía Pro y Elite basados en la señal actual de alineación de firma y producto.",
+            title: "Insights de alineación",
+            description: "Abre los insights PAT de alineación para firma, Pro y Elite, basados en la señal actual de alineación de firma y producto.",
           },
         },
         vendor: {
@@ -807,7 +785,6 @@ const messages: Record<AppLocale, LocaleMessages> = {
         sample: "Muestra",
         confidence: "Confianza",
         freshness: "Actualización",
-        noLiveUpdateYet: "Sin actualización activa aún",
         whatItIs: "Qué es",
         whyItMatters: "Por qué importa",
         howToUseIt: "Cómo usarlo",
@@ -823,11 +800,11 @@ const messages: Record<AppLocale, LocaleMessages> = {
         noCompletedModuleEvidenceYet: "Todavía no hay evidencia de módulos completados.",
         questionClusterEvidenceNotAvailable: "La evidencia por clúster de preguntas aún no está disponible.",
         basisEnglishOnlyNote:
-          "Los resúmenes de evidencia en vivo todavía pueden mostrarse en inglés mientras se completa la localización más amplia de insights.",
+          "Los resúmenes de evidencia del estado actual todavía pueden mostrarse en inglés mientras se completa la localización más amplia de insights.",
       },
       firm: {
-        title: "Insights de firma | C2Acct",
-        heroTitle: "Insight PAT basado en datos de alineación de firma y producto",
+        title: "Insights de alineación de firma | C2Acct",
+        heroTitle: "Insights de alineación de firma basados en datos de alineación de firma y producto",
         heroBody:
           "Los insights Pro se desbloquean cuando la firma tiene cobertura completa de los cinco módulos y la fortaleza de capacidad que exige cada tema. Elite sigue visible como tarjetas restringidas para mostrar dónde se amplía la capa de inteligencia PAT.",
         currentStateNote:
@@ -835,27 +812,24 @@ const messages: Record<AppLocale, LocaleMessages> = {
         modulesCompleted: "Módulos completados",
         productReviewsSubmitted: "Revisiones de producto enviadas",
         latestModuleAverage: "Promedio más reciente por módulo",
-        proTitle: "Membresía Pro",
+        proTitle: "Insights Pro",
         proBody:
           "Insight PAT del estado actual que se vuelve visible después de completar los cinco módulos y cumplir los umbrales de capacidad relevantes.",
-        eliteTitle: "Membresía Elite",
-        eliteBody:
-          "La inteligencia de orden superior permanece visible en la interfaz, pero restringida hasta que estén activas la membresía Elite y una cobertura de datos más profunda. Estas tarjetas no implican que ya exista inteligencia de benchmark o pronóstico.",
+        eliteTitle: "Insights Elite",
+        eliteBody: "Coming soon. Unlock with Elite membership.",
         proAvailableLabel:
           "Disponible ahora a partir de la cobertura completa de alineación de firma y la señal de capacidad requerida.",
         proPendingLabel:
           "Requiere los cinco módulos de alineación de firma y los umbrales de capacidad relevantes para este tema.",
-        detailVisible: "Visible",
-        detailPending: "Pendiente",
         unlockRequirement: "Requisito de desbloqueo",
         unlockBody:
           "Completa los cinco módulos de alineación de firma y alcanza los umbrales de capacidad ligados a este tema. Las insignias de finalización prueban cobertura; los puntajes de capacidad determinan si la interpretación Pro es lo bastante sólida para mostrarse.",
-        backToInsights: "Volver a insights de firma",
+        backToInsights: "Volver a insights de alineación de firma",
         openAlignmentAssessment: "Abrir evaluación de alineación",
       },
       vendorAlignment: {
         title: "Insights de alineación de proveedor | C2Acct",
-        heroTitle: "Señal PAT del lado proveedor basada en evidencia activa de evaluación de firmas",
+        heroTitle: "Señal PAT del lado proveedor basada en evidencia actual de evaluación de firmas",
         heroBody:
           "El catálogo Pro visible lee módulos PAT completados por firmas, dispersión entre módulos, clústeres de respuestas almacenadas y puntajes de capacidad cuando existen. Elite queda reservado donde el repositorio aún no tiene soporte honesto de benchmark, pronóstico o simulación.",
         firmsInSignalBase: "Firmas en la base de señal",
@@ -863,11 +837,9 @@ const messages: Record<AppLocale, LocaleMessages> = {
         moduleVariance: "Varianza entre módulos",
         confidence: "Confianza",
         proTitle: "Membresía Pro",
-        proBody: "Inteligencia de proveedor suficiente para lanzamiento, vinculada a señal PAT real de firmas.",
+        proBody: "Inteligencia de proveedor del estado actual, vinculada a la señal PAT actual de firmas.",
         eliteTitle: "Membresía Elite",
-        eliteBody:
-          "La inteligencia de orden superior permanece visible y honestamente bloqueada. Estas tarjetas no implican que ya exista soporte de benchmark, pronóstico o simulación.",
-        signalStatus: "Estado de la señal",
+        eliteBody: "Coming soon. Unlock with Elite membership.",
         assessmentBasis: "Base de evaluación",
         backToAlignmentInsights: "Volver a insights de alineación",
       },
@@ -923,7 +895,6 @@ const messages: Record<AppLocale, LocaleMessages> = {
       pat: "PAT",
     },
     common: {
-      live: "Actif",
       scoped: "Cadré",
       queued: "En attente",
       workspace: "Espace de travail",
@@ -941,8 +912,6 @@ const messages: Record<AppLocale, LocaleMessages> = {
       notSignedIn: "Non connecté",
       guest: "Invité",
       unbound: "Non lié",
-      liveEvidenceEnglishOnly:
-        "Une partie de la narration de preuve en direct reste affichée en anglais pendant l’extension de la localisation au-delà des flux audités pour le lancement.",
     },
     home: {
       productName: "Performance Alignment Technology",
@@ -996,7 +965,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
       ],
       callbackTarget: "Cible de retour",
       githubAuth: "Authentification GitHub",
-      authReady: "Prête",
+      authAvailable: "Disponible",
       authNeedsConfig: "Configuration locale requise",
       inviteeAccess: "Accès invité",
       enabled: "Activé",
@@ -1035,7 +1004,6 @@ const messages: Record<AppLocale, LocaleMessages> = {
         account: "Compte cabinet",
         modulesCompleted: "Modules terminés",
         productReviewLoop: "Boucle de revue produit",
-        live: "Actif",
       },
       vendor: {
         eyebrow: "Portail vendeur",
@@ -1043,7 +1011,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         body:
           "Débloquez une expérience vendeur plus connectée avec un accès fluide aux évaluations, aux outils opérationnels et aux insights nécessaires pour faire avancer le travail avec confiance.",
         compatibilityMode:
-          "Les tables de taxonomie/profil vendeur ne sont pas encore entièrement disponibles dans la base locale. L’architecture des routes est active, mais la persistance des données vendeur dépend du schéma Prisma actuellement appliqué.",
+          "Les tables de taxonomie/profil vendeur ne sont pas encore entièrement disponibles dans la base locale. L’architecture des routes est déjà en place, mais la persistance des données vendeur dépend du schéma Prisma actuellement appliqué.",
         currentVendorContext: "Contexte vendeur actuel",
         account: "Compte",
         vendorCompany: "Société vendeuse",
@@ -1063,19 +1031,19 @@ const messages: Record<AppLocale, LocaleMessages> = {
         account: "Compte",
         role: "Rôle",
         audience: "Audience",
-        personPatSubject: "Sujet PAT personne",
+        patSubjectLink: "Lien PAT",
         individualAlignment: "Alignement individuel",
         completed: "Terminé",
         pending: "En attente",
-        ready: "Prêt",
-        fallback: "Repli",
+        connected: "Connecté",
+        fallback: "Mode de secours",
         unavailable: "Indisponible",
         audienceMismatch:
           "Votre contexte PAT actuellement connecté n’est pas rattaché à l’audience individuelle. Ces routes restent consultables, mais le comportement natif à la personne restera limité tant que le flux individuel dédié ne sera pas construit.",
         companyContext: "Contexte société",
         assessmentCount: "Nombre d’évaluations",
         latestScore: "Dernier score",
-        signInToEdit: "Connectez-vous pour modifier les paramètres actifs du profil individuel.",
+        signInToEdit: "Connectez-vous pour modifier les paramètres actuels du profil individuel.",
       },
       cards: {
         firm: {
@@ -1088,8 +1056,8 @@ const messages: Record<AppLocale, LocaleMessages> = {
             description: "Évaluez les produits vendeurs via des évaluations produit orientées utilité qui alimentent l’insight produit vendeur.",
           },
           "firm-insights": {
-            title: "Insights",
-            description: "Ouvrez les insights PAT côté cabinet Pro et Elite basés sur le signal actuel d’alignement cabinet et produit.",
+            title: "Insights d’alignement",
+            description: "Ouvrez les insights PAT d’alignement côté cabinet, Pro et Elite, basés sur le signal actuel d’alignement cabinet et produit.",
           },
         },
         vendor: {
@@ -1130,7 +1098,6 @@ const messages: Record<AppLocale, LocaleMessages> = {
         sample: "Échantillon",
         confidence: "Confiance",
         freshness: "Actualisation",
-        noLiveUpdateYet: "Pas encore de mise à jour active",
         whatItIs: "Ce que c’est",
         whyItMatters: "Pourquoi cela compte",
         howToUseIt: "Comment l’utiliser",
@@ -1146,11 +1113,11 @@ const messages: Record<AppLocale, LocaleMessages> = {
         noCompletedModuleEvidenceYet: "Pas encore de preuve de module terminé.",
         questionClusterEvidenceNotAvailable: "La preuve par groupes de questions n’est pas encore disponible.",
         basisEnglishOnlyNote:
-          "Les résumés de preuve en direct peuvent encore s’afficher en anglais pendant la finalisation d’une localisation plus large des insights.",
+          "Les résumés de preuve de l’état actuel peuvent encore s’afficher en anglais pendant la finalisation d’une localisation plus large des insights.",
       },
       firm: {
-        title: "Insights cabinet | C2Acct",
-        heroTitle: "Insight PAT fondé sur les données d’alignement cabinet et produit",
+        title: "Insights d’alignement cabinet | C2Acct",
+        heroTitle: "Insights d’alignement cabinet fondés sur les données d’alignement cabinet et produit",
         heroBody:
           "Les insights Pro se débloquent lorsque le cabinet dispose à la fois d’une couverture complète des cinq modules et de la force de capacité requise par chaque thème. Elite reste visible sous forme de cartes restreintes pour montrer où la couche d’intelligence PAT s’étendra ensuite.",
         currentStateNote:
@@ -1158,27 +1125,24 @@ const messages: Record<AppLocale, LocaleMessages> = {
         modulesCompleted: "Modules terminés",
         productReviewsSubmitted: "Revues produit soumises",
         latestModuleAverage: "Dernière moyenne par module",
-        proTitle: "Abonnement Pro",
+        proTitle: "Insights Pro",
         proBody:
           "Insight PAT de l’état actuel visible après l’achèvement des cinq modules et l’atteinte des seuils de capacité concernés.",
-        eliteTitle: "Abonnement Elite",
-        eliteBody:
-          "L’intelligence de niveau supérieur reste visible dans l’interface, mais restreinte tant que l’abonnement Elite et une couverture de données plus profonde ne sont pas actifs. Ces cartes n’impliquent pas que l’intelligence de benchmark ou de projection soit déjà disponible.",
+        eliteTitle: "Insights Elite",
+        eliteBody: "Coming soon. Unlock with Elite membership.",
         proAvailableLabel:
           "Disponible maintenant grâce à la couverture complète de l’alignement cabinet et au signal de capacité requis.",
         proPendingLabel:
           "Nécessite les cinq modules d’alignement cabinet ainsi que les seuils de capacité liés à ce thème.",
-        detailVisible: "Visible",
-        detailPending: "En attente",
         unlockRequirement: "Condition de déblocage",
         unlockBody:
           "Terminez les cinq modules d’alignement cabinet et atteignez les seuils de capacité liés à ce thème. Les badges d’achèvement prouvent la couverture ; les scores de capacité déterminent si l’interprétation Pro est suffisamment solide pour être affichée.",
-        backToInsights: "Retour aux insights cabinet",
+        backToInsights: "Retour aux insights d’alignement cabinet",
         openAlignmentAssessment: "Ouvrir l’évaluation d’alignement",
       },
       vendorAlignment: {
         title: "Insights d’alignement vendeur | C2Acct",
-        heroTitle: "Signal PAT côté vendeur fondé sur des preuves actives d’évaluation cabinet",
+        heroTitle: "Signal PAT côté vendeur fondé sur des preuves actuelles d’évaluation cabinet",
         heroBody:
           "Le catalogue Pro visible s’appuie sur les modules PAT cabinet terminés, la dispersion inter-modules, les groupes de réponses stockés et les scores de capacité lorsqu’ils existent. Elite reste réservé là où le dépôt ne dispose pas encore d’un support honnête de benchmark, projection ou simulation.",
         firmsInSignalBase: "Cabinets dans la base de signal",
@@ -1187,11 +1151,9 @@ const messages: Record<AppLocale, LocaleMessages> = {
         confidence: "Confiance",
         proTitle: "Abonnement Pro",
         proBody:
-          "Intelligence vendeur suffisante pour le lancement, liée à un signal PAT cabinet réellement présent.",
+          "Intelligence vendeur de l’état actuel, liée au signal PAT cabinet actuel.",
         eliteTitle: "Abonnement Elite",
-        eliteBody:
-          "L’intelligence de niveau supérieur reste visible et honnêtement verrouillée. Ces cartes n’impliquent pas que le benchmark, la projection ou la simulation soient déjà disponibles.",
-        signalStatus: "État du signal",
+        eliteBody: "Coming soon. Unlock with Elite membership.",
         assessmentBasis: "Base d’évaluation",
         backToAlignmentInsights: "Retour aux insights d’alignement",
       },

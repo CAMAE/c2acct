@@ -89,7 +89,7 @@ function buildId(parts: string[]) {
   return parts.join("__");
 }
 
-function getSelectedUtilities(selectedUtilityKeys: string[], utilityCap: number) {
+function getSelectedUtilities(selectedUtilityKeys: string[]) {
   const seen = new Set<string>();
 
   return selectedUtilityKeys
@@ -100,7 +100,6 @@ function getSelectedUtilities(selectedUtilityKeys: string[], utilityCap: number)
       seen.add(utilityKey);
       return true;
     })
-    .slice(0, utilityCap)
     .map((utilityKey) => PRODUCT_UTILITY_REGISTRY.find((utility) => utility.key === utilityKey))
     .filter((utility): utility is (typeof PRODUCT_UTILITY_REGISTRY)[number] => Boolean(utility));
 }
@@ -160,10 +159,9 @@ function buildGeneralModule(orderOffset: number): ProductAssessmentModule {
 
 function buildUtilityModules(
   selectedUtilityKeys: string[],
-  utilityCap: number,
   orderOffset: number
 ): ProductAssessmentModule[] {
-  const utilities = getSelectedUtilities(selectedUtilityKeys, utilityCap);
+  const utilities = getSelectedUtilities(selectedUtilityKeys);
   let order = orderOffset;
 
   return utilities.map((utility) => {
@@ -305,14 +303,12 @@ export function getProductUtilityCatalog(): ProductUtilityCatalogEntry[] {
 export function buildProductAssessmentPlan(input: {
   perspective?: ProductAssessmentPerspective;
   selectedUtilityKeys: string[];
-  utilityCap?: number;
   includeProductGeneral?: boolean;
   includeOpenEnded?: boolean;
 }): ProductAssessmentPlan {
   const perspective = input.perspective ?? "vendor";
   const includeProductGeneral = input.includeProductGeneral ?? true;
   const includeOpenEnded = input.includeOpenEnded ?? true;
-  const utilityCap = input.utilityCap ?? input.selectedUtilityKeys.length;
   const modules: ProductAssessmentModule[] = [];
   let order = 0;
 
@@ -322,7 +318,7 @@ export function buildProductAssessmentPlan(input: {
     order += generalModule.questions.length;
   }
 
-  const utilityModules = buildUtilityModules(input.selectedUtilityKeys, utilityCap, order);
+  const utilityModules = buildUtilityModules(input.selectedUtilityKeys, order);
   modules.push(...utilityModules);
   order += utilityModules.reduce((sum, module) => sum + module.questions.length, 0);
 
@@ -337,10 +333,9 @@ export function buildProductAssessmentPlan(input: {
   };
 }
 
-export function buildScoredUtilityQuestions(selectedUtilityKeys: string[], utilityCap: number) {
+export function buildScoredUtilityQuestions(selectedUtilityKeys: string[]) {
   return buildProductAssessmentPlan({
     selectedUtilityKeys,
-    utilityCap,
     includeProductGeneral: false,
     includeOpenEnded: false,
   }).modules.flatMap((module) => module.questions);

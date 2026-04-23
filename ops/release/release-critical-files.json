@@ -16,7 +16,9 @@
     "app/admin/",
     "scripts/mac-mini/common.sh",
     "scripts/mac-mini/app-start.sh",
+    "scripts/mac-mini/launchd-check.sh",
     "scripts/mac-mini/launchd-install.sh",
+    "scripts/mac-mini/port-owner-proof.sh",
     "scripts/mac-mini/status.sh",
     "scripts/mac-mini/nightly-verify.sh",
     "scripts/mac-mini/rollback-release.sh",
@@ -31,9 +33,22 @@
     "scripts/release/check-release-critical-changes.mjs",
     "ops/release/pat-surface-manifest.json"
   ],
+  "ignoredDirtyPaths": [
+    ".venv/",
+    ".venv311/",
+    "myenv/",
+    "generate_text.py",
+    "get-pip.py",
+    "artifacts/audit/",
+    "artifacts/release/",
+    "artifacts/visual/"
+  ],
   "validationArtifacts": [
     "ops/release/pat-surface-manifest.json",
     "ops/release/release-critical-files.json",
+    "scripts/validate-launch.ts",
+    "scripts/mac-mini/launchd-check.sh",
+    "scripts/mac-mini/port-owner-proof.sh",
     "scripts/release/validate-pat-surfaces.mjs",
     "scripts/release/verify-approved-pat-markers.mjs",
     "scripts/release/check-release-critical-changes.mjs",

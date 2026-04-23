@@ -86,7 +86,7 @@ export default async function UserProfilePage() {
             </form>
           ) : (
             <div className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-              Sign in to edit the live individual profile settings.
+              Sign in to edit the current individual profile settings.
             </div>
           )}
         </div>

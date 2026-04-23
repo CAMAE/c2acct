@@ -21,7 +21,6 @@ import {
 
 export const VENDOR_PRODUCT_MODULE_KEY = "vendor_product_alignment_v1";
 export const VENDOR_PRODUCT_MODULE_TITLE = "Vendor Product Assessment";
-export const VENDOR_PRODUCT_UTILITY_CAP = 4;
 export const VENDOR_PRODUCT_QUESTIONS_PER_UTILITY = PRODUCT_UTILITY_SCORED_QUESTION_COUNT;
 export const VENDOR_PRODUCT_TIER2_HOVER = "Unlock with Elite membership";
 
@@ -43,6 +42,7 @@ export type VendorInsightDetail = {
 };
 
 export const VENDOR_UTILITY_CATALOG: UtilityDefinition[] = getProductUtilityCatalog();
+export const VENDOR_PRODUCT_UTILITY_SELECTION_LIMIT = VENDOR_UTILITY_CATALOG.length;
 
 export type VendorAssessmentQuestion = {
   id: string;
@@ -100,6 +100,19 @@ type VendorProductAssessmentSubmissionRecord = {
   answers: unknown;
 };
 
+export type VendorProductAssessmentOverviewMode = "completed" | "existing" | "add-new" | "help";
+
+export type VendorProductOverviewStatus = {
+  completed: boolean;
+  latestSubmissionId: string | null;
+  latestScore: number | null;
+  latestSubmittedAt: Date | null;
+  utilityKeys: string[];
+  questionCount: number;
+  statusLabel: string;
+  reason: string;
+};
+
 export const PRODUCT_TIER1_INSIGHTS: VendorInsightDetail[] = insightContent.vendorProduct
   .filter((item) => item.tier === 1)
   .map((item) => ({
@@ -155,8 +168,7 @@ function normalizeSubmittedUtilityKeys(input: unknown) {
       }
       seen.add(entry);
       return VENDOR_UTILITY_CATALOG.some((utility) => utility.key === entry);
-    })
-    .slice(0, VENDOR_PRODUCT_UTILITY_CAP);
+    });
 }
 
 function getNumberRecord(input: unknown) {
@@ -274,7 +286,6 @@ export function buildVendorProductQuestions(selectedUtilityKeys: string[]) {
   return buildProductAssessmentPlan({
     perspective: "vendor",
     selectedUtilityKeys,
-    utilityCap: VENDOR_PRODUCT_UTILITY_CAP,
     includeProductGeneral: false,
     includeOpenEnded: false,
   }).modules.flatMap((module) => module.questions) as VendorAssessmentQuestion[];
@@ -309,7 +320,6 @@ export function deriveProductStatus(input: {
   const questionCount = buildProductAssessmentPlan({
     perspective: "vendor",
     selectedUtilityKeys: input.utilityKeys,
-    utilityCap: VENDOR_PRODUCT_UTILITY_CAP,
     includeProductGeneral: true,
     includeOpenEnded: true,
   }).modules.reduce((sum, module) => sum + module.questions.length, 0);
@@ -325,8 +335,24 @@ export function deriveProductStatus(input: {
         ? "Needs utility declaration"
         : latestSubmission
           ? "Assessment recorded"
-          : "Ready for assessment",
+          : "Assessment available",
   };
+}
+
+export function getRequestedVendorProductAssessmentOverviewMode(
+  rawMode: string | undefined
+): VendorProductAssessmentOverviewMode {
+  switch (rawMode?.trim().toLowerCase()) {
+    case "completed":
+      return "completed";
+    case "add-new":
+      return "add-new";
+    case "help":
+      return "help";
+    case "existing":
+    default:
+      return "existing";
+  }
 }
 
 export function deriveVendorProductAssessmentCompletionStatus(input: {
@@ -399,8 +425,66 @@ export function deriveVendorProductAssessmentCompletionStatus(input: {
     utilityKeys,
     scoredQuestionCount: expectedScoredQuestions.length,
     openEndedQuestionCount: expectedPlan.openEndedQuestionIds.length,
-    statusLabel: "Ready for firm review",
+    statusLabel: "Firm review available",
     reason: "Firm review is available because the vendor completed the full product assessment.",
+  };
+}
+
+export function deriveVendorProductOverviewStatus(input: {
+  latestSubmission?: VendorProductAssessmentSubmissionRecord | null;
+  signalUtilityKeys: string[];
+}): VendorProductOverviewStatus {
+  const completionStatus = deriveVendorProductAssessmentCompletionStatus({
+    latestSubmission: input.latestSubmission,
+  });
+
+  if (completionStatus.completed || completionStatus.latestSubmissionId) {
+    const utilityKeys =
+      completionStatus.utilityKeys.length > 0 ? completionStatus.utilityKeys : input.signalUtilityKeys;
+    const questionCount = buildProductAssessmentPlan({
+      perspective: "vendor",
+      selectedUtilityKeys: utilityKeys,
+      includeProductGeneral: true,
+      includeOpenEnded: true,
+    }).modules.reduce((sum, module) => sum + module.questions.length, 0);
+
+    return {
+      completed: completionStatus.completed,
+      latestSubmissionId: completionStatus.latestSubmissionId,
+      latestScore: completionStatus.latestScore,
+      latestSubmittedAt: completionStatus.latestSubmittedAt,
+      utilityKeys,
+      questionCount,
+      statusLabel: completionStatus.statusLabel,
+      reason: completionStatus.reason,
+    };
+  }
+
+  const workspaceStatus = deriveProductStatus({
+    latestSubmission: null,
+    utilityKeys: input.signalUtilityKeys,
+  });
+
+  return {
+    completed: false,
+    latestSubmissionId: workspaceStatus.latestSubmissionId,
+    latestScore: workspaceStatus.latestScore,
+    latestSubmittedAt: workspaceStatus.latestSubmittedAt,
+    utilityKeys: workspaceStatus.utilityKeys,
+    questionCount: workspaceStatus.questionCount,
+    statusLabel:
+      input.signalUtilityKeys.length === 0 ? "Needs utility declaration" : workspaceStatus.statusLabel,
+    reason:
+      input.signalUtilityKeys.length === 0
+        ? "Declare at least one feature before PAT can build the full assessment for this product."
+        : "This product exists in PAT, but it does not yet have a completed final vendor product assessment submission.",
+  };
+}
+
+export function bucketVendorProductsByAssessmentStatus<T extends { status: { completed: boolean } }>(items: readonly T[]) {
+  return {
+    completed: items.filter((item) => item.status.completed),
+    existing: items.filter((item) => !item.status.completed),
   };
 }
 
@@ -586,7 +670,7 @@ export async function upsertVendorProductSignals(
   utilityKeys: string[],
   latestScore: number
 ) {
-  const selectedUtilityKeys = utilityKeys.slice(0, VENDOR_PRODUCT_UTILITY_CAP);
+  const selectedUtilityKeys = normalizeSubmittedUtilityKeys(utilityKeys);
   const selectedSignalKeys = selectedUtilityKeys.map(productSignalKeyForUtility);
 
   await tx.productSignal.deleteMany({

@@ -6,13 +6,18 @@ loadEnv();
 const packageManagerCommand = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
 const steps = [
+  [packageManagerCommand, ["lint:test"]],
   [packageManagerCommand, ["db:recreate"]],
   [packageManagerCommand, ["validate:db"]],
+  [packageManagerCommand, ["typecheck"]],
+  [packageManagerCommand, ["test:unit"]],
   [packageManagerCommand, ["build"]],
   [packageManagerCommand, ["standalone:local:check"]],
-  [packageManagerCommand, ["typecheck"]],
-  [packageManagerCommand, ["test"]],
-  [packageManagerCommand, ["test:e2e"]],
+  [packageManagerCommand, ["release:prelaunch"]],
+  [packageManagerCommand, ["test:e2e:local-review"]],
+  [packageManagerCommand, ["test:e2e:release-integrity"]],
+  ["bash", ["scripts/mac-mini/launchd-check.sh"]],
+  ["bash", ["scripts/mac-mini/port-owner-proof.sh"]],
 ] as const;
 
 for (const [command, args] of steps) {

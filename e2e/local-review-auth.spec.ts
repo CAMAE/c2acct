@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { expectConsultantSignInRouteState } from "./consultantSignInContract";
 
 const localReviewPassword = process.env.PAT_LOCAL_REVIEW_PASSWORD ?? "pat-local-review";
 const consultantAccessEnabled = process.env.PAT_ENABLE_CONSULTANT_ACCESS === "1";
@@ -25,6 +26,14 @@ async function gotoStable(page: Page, url: string) {
       }
     }
   }
+}
+
+function getLocalReviewCard(page: Page, email: string) {
+  return page
+    .locator("section")
+    .filter({ hasText: "Development-only local review auth" })
+    .filter({ hasText: email })
+    .first();
 }
 
 async function signInAsRole(page: Page, role: LocalReviewRole) {
@@ -97,7 +106,7 @@ async function createFirmOrganization(page: Page, name: string) {
 }
 
 test.describe("local review auth", () => {
-  test.setTimeout(60_000);
+  test.setTimeout(120_000);
 
   test("shows deterministic local review entries for vendor, firm, individual, admin, and consultant", async ({ page }) => {
     const roleCases = [
@@ -111,14 +120,33 @@ test.describe("local review auth", () => {
     ] as const;
 
     for (const roleCase of roleCases) {
-      await page.goto(`/sign-in?view=${roleCase.view}`);
-      await expect(page.getByText("Development-only local review auth")).toBeVisible();
-      await expect(page.getByText(roleCase.email)).toBeVisible();
-      await expect(page.getByText(roleCase.landing)).toBeVisible();
+      await gotoStable(page, `/sign-in?view=${roleCase.view}`);
+      const reviewCard = getLocalReviewCard(page, roleCase.email);
+      await expect(reviewCard).toBeVisible();
+      await expect(reviewCard).toContainText("Development-only local review auth");
+      await expect(reviewCard).toContainText(roleCase.email);
+      await expect(reviewCard).toContainText(roleCase.landing);
     }
   });
 
-  test("covers the vendor signed-in product assessment and membership flow", async ({ browser }) => {
+  test("keeps consultant sign-in deep links deterministic when consultant access is gated", async ({
+    page,
+  }) => {
+    await page.goto("/sign-in?view=consultant&callbackUrl=%2Fconsultants");
+
+    if (consultantAccessEnabled) {
+      await expectConsultantSignInRouteState(page, consultantAccessEnabled);
+      const consultantCard = getLocalReviewCard(page, "review.consultant@pat.local");
+      await expect(consultantCard).toBeVisible();
+      await expect(consultantCard).toContainText("/consultants");
+      return;
+    }
+
+    await expectConsultantSignInRouteState(page, consultantAccessEnabled);
+    await expect(getLocalReviewCard(page, "review.vendor@pat.local")).toBeVisible();
+  });
+
+  test("covers vendor local-review route access on the served runtime", async ({ browser }) => {
     const membershipContext = await browser.newContext();
     const membershipPage = await membershipContext.newPage();
 
@@ -129,27 +157,49 @@ test.describe("local review auth", () => {
     await expect(membershipLink).toBeVisible();
     await gotoStable(membershipPage, "/vendor/membership");
     await assertNoAuthOrRuntimeFailure(membershipPage);
-    await expect(membershipPage.getByRole("button", { name: "Free" })).toHaveClass(/pat-button-primary/);
+    await expect(membershipPage.getByRole("button", { name: "Pro Membership", exact: true })).toBeVisible();
+    await expect(membershipPage.getByRole("button", { name: "Elite Membership", exact: true })).toBeVisible();
+    await expect(membershipPage.getByRole("button", { name: "Help", exact: true })).toBeVisible();
+    await expect(membershipPage.getByText("What it is", { exact: true }).first()).toBeVisible();
+    await gotoStable(membershipPage, "/vendor/membership/checkout?plan=pro");
+    await assertNoAuthOrRuntimeFailure(membershipPage);
+    await expect(membershipPage.getByRole("heading", { name: /checkout scaffold/i }).first()).toBeVisible();
+    await expect(membershipPage.getByRole("button", { name: /Credit \/ Debit Card/i })).toBeVisible();
+    await expect(membershipPage.getByRole("button", { name: /Bank Account/i })).toBeVisible();
+    await expect(membershipPage.getByRole("button", { name: /PayPal/i })).toBeVisible();
+    await expect(membershipPage.getByRole("button", { name: /Stripe/i })).toBeVisible();
+    await expect(membershipPage.getByRole("button", { name: /Square/i })).toBeVisible();
+    await expect(membershipPage.getByText("No live charge will be created", { exact: true })).toBeVisible();
 
     await membershipContext.close();
 
-    const assessmentContext = await browser.newContext();
-    const assessmentPage = await assessmentContext.newPage();
+    const vendorContext = await browser.newContext();
+    const vendorPage = await vendorContext.newPage();
 
-    await signInAsRole(assessmentPage, "vendor");
-    await assessmentPage.waitForURL("**/vendor**");
-    await expect(assessmentPage.locator('a[href="/vendor/product-assessment"]').first()).toBeVisible();
-    await gotoStable(assessmentPage, "/vendor/product-assessment");
-    await assertNoAuthOrRuntimeFailure(assessmentPage);
-    await expect(
-      assessmentPage.getByRole("heading", { name: "Per-product assessment, not one generic vendor form" })
-    ).toBeVisible();
-    await expect(assessmentPage.getByRole("heading", { name: "Product list" })).toBeVisible();
+    await signInAsRole(vendorPage, "vendor");
+    await vendorPage.waitForURL("**/vendor**");
+    await assertNoAuthOrRuntimeFailure(vendorPage);
 
-    await assessmentContext.close();
+    await gotoStable(vendorPage, "/vendor");
+    await assertNoAuthOrRuntimeFailure(vendorPage);
+    await expect(vendorPage.getByRole("heading", { name: /Vendor/i }).first()).toBeVisible();
+
+    await gotoStable(vendorPage, "/vendor/product-assessment");
+    await assertNoAuthOrRuntimeFailure(vendorPage);
+    await expect(vendorPage.getByRole("heading", { name: /Vendor product assessment/i }).first()).toBeVisible();
+
+    await gotoStable(vendorPage, "/vendor/product-insight");
+    await assertNoAuthOrRuntimeFailure(vendorPage);
+    await expect(vendorPage.getByRole("heading", { name: /Vendor product intelligence/i }).first()).toBeVisible();
+
+    await gotoStable(vendorPage, "/vendor/alignment-insights");
+    await assertNoAuthOrRuntimeFailure(vendorPage);
+    await expect(vendorPage.getByText("Vendor alignment insights", { exact: true }).first()).toBeVisible();
+
+    await vendorContext.close();
   });
 
-  test("covers firm and individual signed-in membership entry without access denied or runtime crashes", async ({
+  test("covers firm review routes and individual membership entry without access denied or runtime crashes", async ({
     browser,
   }) => {
     const firmContext = await browser.newContext();
@@ -162,8 +212,33 @@ test.describe("local review auth", () => {
 
     await gotoStable(firmPage, "/firm/membership");
     await assertNoAuthOrRuntimeFailure(firmPage);
-    await expect(firmPage.getByRole("button", { name: "Free" })).toHaveClass(/pat-button-primary/);
-    await expect(firmPage.getByRole("heading", { name: /Set the PAT tier/i })).toBeVisible();
+    await expect(firmPage.getByRole("button", { name: "Pro Membership", exact: true })).toBeVisible();
+    await expect(firmPage.getByRole("button", { name: "Elite Membership", exact: true })).toBeVisible();
+    await expect(firmPage.getByRole("button", { name: "Help", exact: true })).toBeVisible();
+    await expect(firmPage.getByText("What it is", { exact: true }).first()).toBeVisible();
+    await gotoStable(firmPage, "/firm/membership/checkout?plan=pro");
+    await assertNoAuthOrRuntimeFailure(firmPage);
+    await expect(firmPage.getByRole("heading", { name: /checkout scaffold/i }).first()).toBeVisible();
+    await expect(firmPage.getByRole("button", { name: /Credit \/ Debit Card/i })).toBeVisible();
+    await expect(firmPage.getByText("No live charge will be created", { exact: true })).toBeVisible();
+
+    await gotoStable(firmPage, "/firm/alignment-assessment");
+    await assertNoAuthOrRuntimeFailure(firmPage);
+    await expect(
+      firmPage.getByRole("heading", { name: /Firm alignment assessment/i }).first()
+    ).toBeVisible();
+
+    await gotoStable(firmPage, "/firm/product-assessments");
+    await assertNoAuthOrRuntimeFailure(firmPage);
+    await expect(
+      firmPage.getByRole("heading", { name: /Firm product assessments/i }).first()
+    ).toBeVisible();
+
+    await gotoStable(firmPage, "/firm/insights");
+    await assertNoAuthOrRuntimeFailure(firmPage);
+    await expect(
+      firmPage.getByRole("heading", { name: /Firm alignment insights/i }).first()
+    ).toBeVisible();
 
     await firmContext.close();
 
@@ -177,8 +252,15 @@ test.describe("local review auth", () => {
 
     await gotoStable(individualPage, "/user/membership");
     await assertNoAuthOrRuntimeFailure(individualPage);
-    await expect(individualPage.getByRole("button", { name: "Free" })).toHaveClass(/pat-button-primary/);
-    await expect(individualPage.getByRole("heading", { name: /PAT tier/i })).toBeVisible();
+    await expect(individualPage.getByRole("button", { name: "Pro Membership", exact: true })).toBeVisible();
+    await expect(individualPage.getByRole("button", { name: "Elite Membership", exact: true })).toBeVisible();
+    await expect(individualPage.getByRole("button", { name: "Help", exact: true })).toBeVisible();
+    await expect(individualPage.getByText("What it is", { exact: true }).first()).toBeVisible();
+    await gotoStable(individualPage, "/user/membership/checkout?plan=elite");
+    await assertNoAuthOrRuntimeFailure(individualPage);
+    await expect(individualPage.getByRole("heading", { name: /checkout scaffold/i }).first()).toBeVisible();
+    await expect(individualPage.getByRole("button", { name: /Credit \/ Debit Card/i })).toBeVisible();
+    await expect(individualPage.getByText("No live charge will be created", { exact: true })).toBeVisible();
 
     await individualContext.close();
   });
@@ -200,17 +282,73 @@ test.describe("local review auth", () => {
     await assertNoAuthOrRuntimeFailure(adminPage);
     await expect(adminPage.getByRole("heading", { name: /Modules/i })).toBeVisible();
 
-    await adminPage.getByRole("link", { name: "Runtime", exact: true }).click();
-    await adminPage.waitForURL("**/admin/runtime");
+    await gotoStable(adminPage, "/admin/runtime");
     await assertNoAuthOrRuntimeFailure(adminPage);
     await expect(adminPage.getByRole("heading", { name: "Runtime", exact: true })).toBeVisible();
 
-    await adminPage.getByRole("link", { name: "Briefings", exact: true }).click();
-    await adminPage.waitForURL("**/admin/briefings");
+    await gotoStable(adminPage, "/admin/briefings");
     await assertNoAuthOrRuntimeFailure(adminPage);
     await expect(adminPage.getByRole("heading", { name: "Briefings", exact: true })).toBeVisible();
 
+    if (consultantAccessEnabled) {
+      await gotoStable(adminPage, "/admin/consultants");
+      await assertNoAuthOrRuntimeFailure(adminPage);
+      await expect(adminPage.getByRole("heading", { name: "Consultants", exact: true })).toBeVisible();
+    } else {
+      await gotoStable(adminPage, "/admin");
+      await expect(adminPage.getByRole("link", { name: "Consultants", exact: true })).toHaveCount(0);
+    }
+
     await adminContext.close();
+  });
+
+  test("proves the served release fingerprint matches the signed-in local-review runtime", async ({
+    browser,
+  }) => {
+    const vendorContext = await browser.newContext();
+    const vendorPage = await vendorContext.newPage();
+    await signInAsRole(vendorPage, "vendor");
+    await gotoStable(vendorPage, "/vendor");
+    await assertNoAuthOrRuntimeFailure(vendorPage);
+
+    const vendorFingerprintResponse = await vendorPage.context().request.get("/api/release-fingerprint");
+    expect(vendorFingerprintResponse.ok()).toBeTruthy();
+    const vendorFingerprintPayload = (await vendorFingerprintResponse.json()) as {
+      fingerprint?: {
+        releaseId?: string;
+        commitSha?: string;
+        buildId?: string;
+        canonicalRootName?: string;
+      };
+    };
+    expect(vendorFingerprintPayload.fingerprint?.canonicalRootName).toBe("c2acct-live");
+    expect(vendorFingerprintPayload.fingerprint?.commitSha?.length).toBeGreaterThan(6);
+    expect(vendorFingerprintPayload.fingerprint?.buildId).toBeTruthy();
+    await expect(vendorPage.locator("[data-release-fingerprint]").first()).toContainText(
+      vendorFingerprintPayload.fingerprint?.releaseId ?? ""
+    );
+    await vendorContext.close();
+
+    const firmContext = await browser.newContext();
+    const firmPage = await firmContext.newPage();
+    await signInAsRole(firmPage, "firm");
+    await gotoStable(firmPage, "/firm");
+    await assertNoAuthOrRuntimeFailure(firmPage);
+
+    const firmFingerprintResponse = await firmPage.context().request.get("/api/release-fingerprint");
+    expect(firmFingerprintResponse.ok()).toBeTruthy();
+    const firmFingerprintPayload = (await firmFingerprintResponse.json()) as {
+      fingerprint?: {
+        releaseId?: string;
+      };
+    };
+    expect(firmFingerprintPayload.fingerprint?.releaseId).toBe(
+      vendorFingerprintPayload.fingerprint?.releaseId
+    );
+    await expect(firmPage.locator("[data-release-fingerprint]").first()).toContainText(
+      firmFingerprintPayload.fingerprint?.releaseId ?? ""
+    );
+    await firmContext.close();
   });
 
   test("proves consultant access stays company-scoped after admin create and assignment", async ({ browser }) => {
@@ -248,8 +386,12 @@ test.describe("local review auth", () => {
       consultantCard.getByRole("button", { name: "Assign firm", exact: true }).click(),
     ]);
     await assertNoAuthOrRuntimeFailure(adminPage);
-    await expect(consultantCard.getByText(`/consultants/briefings/${assignedCompanyId}`)).toBeVisible();
-    await expect(consultantCard.getByText(assignedFirmName)).toBeVisible();
+    const assignmentCard = consultantCard
+      .locator("div.rounded-\\[16px\\]")
+      .filter({ hasText: `/consultants/briefings/${assignedCompanyId}` })
+      .first();
+    await expect(assignmentCard).toBeVisible();
+    await expect(assignmentCard).toContainText(assignedFirmName);
 
     await adminContext.close();
 

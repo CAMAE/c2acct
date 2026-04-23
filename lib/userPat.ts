@@ -462,7 +462,7 @@ export async function getUserAlignmentProgress(sessionUser: SessionUser): Promis
     return {
       moduleKey: USER_ALIGNMENT_MODULE_KEY,
       title: USER_ALIGNMENT_MODULE_TITLE,
-      description: "Live person-level PAT alignment intake using the existing survey flow.",
+      description: "Person-level PAT alignment assessment using the existing survey flow.",
       questionCount,
       answeredCount: 0,
       latestScore: null,
@@ -488,7 +488,7 @@ export async function getUserAlignmentProgress(sessionUser: SessionUser): Promis
   return {
     moduleKey: USER_ALIGNMENT_MODULE_KEY,
     title: USER_ALIGNMENT_MODULE_TITLE,
-    description: "Live person-level PAT alignment intake using the existing survey flow.",
+    description: "Person-level PAT alignment assessment using the existing survey flow.",
     questionCount,
     answeredCount: latestSubmission?.answeredCount ?? 0,
     latestScore: latestSubmission?.score ?? null,

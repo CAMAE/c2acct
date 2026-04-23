@@ -6,7 +6,7 @@ export const vendorWorkspaceCards: PortalSurface[] = [
   {
     id: "product-assessment",
     title: "Product Assessment",
-    description: "Select a software product, declare the utilities it solves, and run the per-product PAT assessment.",
+    description: "Select a software product, declare the features it solves, and run the per-product PAT assessment.",
     href: "/vendor/product-assessment",
     audience: ["vendor"],
     section: "operate",
@@ -35,10 +35,10 @@ export const vendorWorkspaceCards: PortalSurface[] = [
 export const vendorHelpCards = [
   {
     title: "Product Assessment",
-    what: "A per-product PAT assessment driven by declared utility coverage.",
+    what: "A per-product PAT assessment driven by declared feature coverage.",
     where: "Routes to the product list, then into a product-specific assessment page.",
     why: "Each product needs its own self-signal and cannot be buried under one generic vendor score.",
-    how: "Choose a product, declare utilities, complete the scaled question bank, and submit.",
+    how: "Choose a product, declare features, complete the scaled question bank, and submit.",
     href: "/vendor/product-assessment",
   },
   {
@@ -51,7 +51,7 @@ export const vendorHelpCards = [
   },
   {
     title: "Alignment Insight",
-    what: "Vendor-facing alignment insights tied to the live firm alignment layer.",
+    what: "Vendor-facing alignment insights tied to the current firm alignment layer.",
     where: "Routes to the vendor alignment insight catalog and then into detail pages.",
     why: "This connects vendor decision support back to actual firm assessment signal.",
     how: "Open the insight group, then inspect each detail page for what, why, and how to use it.",
@@ -177,7 +177,7 @@ export function VendorHelpInlineContent({
         </h2>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           {scopedCard
-            ? `This scoped help view stays inside the existing vendor help route and focuses on the per-product PAT assessment flow${productName ? ` for ${productName}` : ""}: the first-page utility declaration, the 10-question pacing, and what PAT expects before submission.`
+            ? `This scoped help view stays inside the existing vendor help route and focuses on the per-product PAT assessment flow${productName ? ` for ${productName}` : ""}: the first-page feature declaration, the 10-question pacing, and what PAT expects before submission.`
             : "This help view explains each active vendor workspace surface in plain product language: what it is, where it goes, why it matters, and how to use it."}
         </p>
       </section>
@@ -190,7 +190,7 @@ export function VendorHelpInlineContent({
         <section className="pat-card p-6">
           <div className="pat-label">Next step</div>
           <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Return to the current product assessment when you are ready to continue through the utility-scored pages and final open-ended responses.
+            Return to the current product assessment when you are ready to continue through the feature-scored pages and final open-ended responses.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link className="pat-button-primary" href={assessmentHref}>
