@@ -25,6 +25,33 @@ trim_spaces() {
   printf '%s' "$1" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'
 }
 
+read_parent_pid() {
+  local pid="$1"
+  local parent_pid
+
+  parent_pid="$(ps -p "${pid}" -o ppid= 2>/dev/null || true)"
+  parent_pid="$(trim_spaces "${parent_pid}")"
+  printf '%s' "${parent_pid}"
+}
+
+pid_is_descendant_of() {
+  local pid="$1"
+  local ancestor_pid="$2"
+  local current_pid="${pid}"
+  local depth=0
+
+  while [ -n "${current_pid}" ] && [ "${current_pid}" != "0" ] && [ "${depth}" -lt 32 ]; do
+    if [ "${current_pid}" = "${ancestor_pid}" ]; then
+      return 0
+    fi
+
+    current_pid="$(read_parent_pid "${current_pid}")"
+    depth=$((depth + 1))
+  done
+
+  return 1
+}
+
 read_key_value_var() {
   local payload="$1"
   local target_key="$2"
@@ -93,7 +120,10 @@ if [ -n "${listen_output}" ]; then
     port_owner_command_line="unavailable"
   fi
 
-  if [ "${launchd_state}" = "loaded" ] && [ "${launchd_pid}" = "${port_owner_pid}" ]; then
+  if [ "${launchd_state}" = "loaded" ] && (
+    [ "${launchd_pid}" = "${port_owner_pid}" ] ||
+    pid_is_descendant_of "${port_owner_pid}" "${launchd_pid}"
+  ); then
     port_owner_state="launchd-owned"
   else
     port_owner_state="stale-listener"

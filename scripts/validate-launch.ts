@@ -16,6 +16,7 @@ const steps = [
   [packageManagerCommand, ["release:prelaunch"]],
   [packageManagerCommand, ["test:e2e:local-review"]],
   [packageManagerCommand, ["test:e2e:release-integrity"]],
+  ["bash", ["scripts/mac-mini/restart-app.sh"]],
   ["bash", ["scripts/mac-mini/launchd-check.sh"]],
   ["bash", ["scripts/mac-mini/port-owner-proof.sh"]],
 ] as const;
