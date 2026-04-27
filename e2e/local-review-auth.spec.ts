@@ -36,6 +36,21 @@ function getLocalReviewCard(page: Page, email: string) {
     .first();
 }
 
+async function expectScaffoldCheckout(page: Page) {
+  await expect(page.getByRole("heading", { name: /checkout scaffold/i }).first()).toBeVisible();
+  await expect(page.getByText("Payment state: Scaffold only", { exact: true })).toBeVisible();
+  await expect(page.getByText(/No live charge will be created/i).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /Card readiness/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Billing contact/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: /PayPal/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Stripe/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Square/i })).toBeVisible();
+  await expect(page.getByText(/No card processor, tokenization step, card number, or live charge/i)).toBeVisible();
+  await expect(page.getByLabel(/card number/i)).toHaveCount(0);
+  await expect(page.getByLabel(/security code|cvc|cvv/i)).toHaveCount(0);
+  await expect(page.getByLabel(/routing number|account number/i)).toHaveCount(0);
+}
+
 async function signInAsRole(page: Page, role: LocalReviewRole) {
   const roleRedirect =
     role === "vendor"
@@ -163,13 +178,7 @@ test.describe("local review auth", () => {
     await expect(membershipPage.getByText("What it is", { exact: true }).first()).toBeVisible();
     await gotoStable(membershipPage, "/vendor/membership/checkout?plan=pro");
     await assertNoAuthOrRuntimeFailure(membershipPage);
-    await expect(membershipPage.getByRole("heading", { name: /checkout scaffold/i }).first()).toBeVisible();
-    await expect(membershipPage.getByRole("button", { name: /Credit \/ Debit Card/i })).toBeVisible();
-    await expect(membershipPage.getByRole("button", { name: /Bank Account/i })).toBeVisible();
-    await expect(membershipPage.getByRole("button", { name: /PayPal/i })).toBeVisible();
-    await expect(membershipPage.getByRole("button", { name: /Stripe/i })).toBeVisible();
-    await expect(membershipPage.getByRole("button", { name: /Square/i })).toBeVisible();
-    await expect(membershipPage.getByText("No live charge will be created", { exact: true })).toBeVisible();
+    await expectScaffoldCheckout(membershipPage);
 
     await membershipContext.close();
 
@@ -218,9 +227,7 @@ test.describe("local review auth", () => {
     await expect(firmPage.getByText("What it is", { exact: true }).first()).toBeVisible();
     await gotoStable(firmPage, "/firm/membership/checkout?plan=pro");
     await assertNoAuthOrRuntimeFailure(firmPage);
-    await expect(firmPage.getByRole("heading", { name: /checkout scaffold/i }).first()).toBeVisible();
-    await expect(firmPage.getByRole("button", { name: /Credit \/ Debit Card/i })).toBeVisible();
-    await expect(firmPage.getByText("No live charge will be created", { exact: true })).toBeVisible();
+    await expectScaffoldCheckout(firmPage);
 
     await gotoStable(firmPage, "/firm/alignment-assessment");
     await assertNoAuthOrRuntimeFailure(firmPage);
@@ -258,9 +265,7 @@ test.describe("local review auth", () => {
     await expect(individualPage.getByText("What it is", { exact: true }).first()).toBeVisible();
     await gotoStable(individualPage, "/user/membership/checkout?plan=elite");
     await assertNoAuthOrRuntimeFailure(individualPage);
-    await expect(individualPage.getByRole("heading", { name: /checkout scaffold/i }).first()).toBeVisible();
-    await expect(individualPage.getByRole("button", { name: /Credit \/ Debit Card/i })).toBeVisible();
-    await expect(individualPage.getByText("No live charge will be created", { exact: true })).toBeVisible();
+    await expectScaffoldCheckout(individualPage);
 
     await individualContext.close();
   });
