@@ -298,20 +298,58 @@ mac_mini_release_fingerprint_seed() {
     | shasum -a 256 | awk '{print $1}'
 }
 
+mac_mini_existing_release_value() {
+  local key="$1"
+  if [ ! -f "${MAC_MINI_RELEASE_FILE}" ]; then
+    return 1
+  fi
+
+  awk -F= -v key="${key}" '$1 == key { print substr($0, length(key) + 2); exit }' "${MAC_MINI_RELEASE_FILE}"
+}
+
+mac_mini_build_time_for_release_state() {
+  local branch="$1"
+  local commit="$2"
+  local git_dirty="$3"
+  local build_id="$4"
+  local existing_build_time
+
+  existing_build_time="$(mac_mini_existing_release_value BUILD_TIME_UTC || true)"
+  if [ -n "${existing_build_time}" ] \
+    && [ "$(mac_mini_existing_release_value BRANCH || true)" = "${branch}" ] \
+    && [ "$(mac_mini_existing_release_value COMMIT || true)" = "${commit}" ] \
+    && [ "$(mac_mini_existing_release_value GIT_DIRTY || true)" = "${git_dirty}" ] \
+    && [ "$(mac_mini_existing_release_value BUILD_ID || true)" = "${build_id}" ]; then
+    printf '%s\n' "${existing_build_time}"
+    return 0
+  fi
+
+  mac_mini_now_utc
+}
+
 mac_mini_write_release_state() {
   local build_reason="$1"
   local build_id="missing"
+  local branch
+  local commit
+  local git_dirty
+  local build_time
 
   if mac_mini_build_is_present; then
     build_id="$(cat "${MAC_MINI_ROOT}/.next/BUILD_ID" 2>/dev/null || echo missing)"
   fi
 
+  branch="$(mac_mini_git_branch)"
+  commit="$(mac_mini_git_commit)"
+  git_dirty="$(mac_mini_git_dirty)"
+  build_time="$(mac_mini_build_time_for_release_state "${branch}" "${commit}" "${git_dirty}" "${build_id}")"
+
   cat > "${MAC_MINI_RELEASE_FILE}" <<EOF
-BUILD_TIME_UTC=$(mac_mini_now_utc)
+BUILD_TIME_UTC=${build_time}
 BUILD_REASON=${build_reason}
-BRANCH=$(mac_mini_git_branch)
-COMMIT=$(mac_mini_git_commit)
-GIT_DIRTY=$(mac_mini_git_dirty)
+BRANCH=${branch}
+COMMIT=${commit}
+GIT_DIRTY=${git_dirty}
 BUILD_ID=${build_id}
 EOF
 }

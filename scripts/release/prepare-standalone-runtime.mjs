@@ -52,6 +52,41 @@ function readBuildId() {
   return fs.readFileSync(buildIdPath, "utf8").trim() || "missing";
 }
 
+function readReleaseState() {
+  if (!fs.existsSync(releaseStatePath)) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    fs
+      .readFileSync(releaseStatePath, "utf8")
+      .split(/\r?\n/)
+      .filter((line) => line && !line.startsWith("#"))
+      .map((line) => {
+        const separatorIndex = line.indexOf("=");
+        if (separatorIndex <= 0) {
+          return [line, ""];
+        }
+        return [line.slice(0, separatorIndex), line.slice(separatorIndex + 1)];
+      })
+  );
+}
+
+function resolveBuildTimestamp({ branch, commitShort, gitDirty, buildId }) {
+  const existingState = readReleaseState();
+  if (
+    existingState.BUILD_TIME_UTC
+    && existingState.BRANCH === branch
+    && existingState.COMMIT === commitShort
+    && existingState.GIT_DIRTY === gitDirty
+    && existingState.BUILD_ID === buildId
+  ) {
+    return existingState.BUILD_TIME_UTC;
+  }
+
+  return nowUtc();
+}
+
 function writeReleaseArtifacts(buildReason) {
   fs.mkdirSync(releaseStateDir, { recursive: true });
 
@@ -71,8 +106,8 @@ function writeReleaseArtifacts(buildReason) {
   const releaseFingerprintSeed = run("shasum", ["-a", "256"], {
     input: `${contract.canonicalRoot}|${commitSha}|${contract.authMode}|${contract.runtimeSourceType}`,
   }).split(/\s+/)[0];
-  const writtenAt = nowUtc();
   const buildId = readBuildId();
+  const writtenAt = resolveBuildTimestamp({ branch, commitShort, gitDirty, buildId });
 
   fs.writeFileSync(
     releaseStatePath,
