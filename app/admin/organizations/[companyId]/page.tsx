@@ -119,6 +119,31 @@ export default async function AdminOrganizationDetailPage({
         </form>
       </AdminPanel>
 
+      <AdminPanel title="Billing reconciliation state" description="Provider subscription truth and the last webhook reconciliation proof for this company subject.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
+            <div className="pat-label">Provider</div>
+            <div className="mt-2 font-semibold text-[var(--shell-ink)]">{subscription?.provider ?? "none"}</div>
+            <div className="mt-1 text-sm text-[var(--shell-muted)]">{subscription?.externalCustomerRef ?? "No provider customer"}</div>
+          </div>
+          <div className="rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
+            <div className="pat-label">Subscription</div>
+            <div className="mt-2 font-semibold text-[var(--shell-ink)]">{subscription?.providerStatus ?? "unreconciled"}</div>
+            <div className="mt-1 text-sm text-[var(--shell-muted)]">{subscription?.externalSubscriptionRef ?? "No provider subscription"}</div>
+          </div>
+          <div className="rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
+            <div className="pat-label">Last event</div>
+            <div className="mt-2 font-semibold text-[var(--shell-ink)]">{subscription?.lastBillingEventType ?? "none"}</div>
+            <div className="mt-1 text-sm text-[var(--shell-muted)]">{subscription?.lastBillingEventAt ? subscription.lastBillingEventAt.toLocaleString() : "No event timestamp"}</div>
+          </div>
+          <div className="rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
+            <div className="pat-label">Webhook proof</div>
+            <div className="mt-2 font-semibold text-[var(--shell-ink)]">{subscription?.lastWebhookEventId ?? "none"}</div>
+            <div className="mt-1 text-sm text-[var(--shell-muted)]">{subscription?.lastReconciledAt ? subscription.lastReconciledAt.toLocaleString() : "Never reconciled"}</div>
+          </div>
+        </div>
+      </AdminPanel>
+
       <section className="grid gap-6 xl:grid-cols-3">
         <AdminPanel title="Users">
           <div className="grid gap-3">

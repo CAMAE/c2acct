@@ -37,6 +37,9 @@ export const MEMBERSHIP_STATUS = {
   PENDING_CHECKOUT: "PENDING_CHECKOUT",
   PAST_DUE: "PAST_DUE",
   CANCELED: "CANCELED",
+  INCOMPLETE: "INCOMPLETE",
+  UNPAID: "UNPAID",
+  PAYMENT_ACTION_REQUIRED: "PAYMENT_ACTION_REQUIRED",
 } as const satisfies Record<string, MembershipStatus>;
 
 export const DEFAULT_FREE_MEMBERSHIP_PLAN = MEMBERSHIP_PLAN.FREE;
@@ -78,7 +81,10 @@ export function normalizeMembershipStatus(
     status === MEMBERSHIP_STATUS.TRIAL ||
     status === MEMBERSHIP_STATUS.PENDING_CHECKOUT ||
     status === MEMBERSHIP_STATUS.PAST_DUE ||
-    status === MEMBERSHIP_STATUS.CANCELED
+    status === MEMBERSHIP_STATUS.CANCELED ||
+    status === MEMBERSHIP_STATUS.INCOMPLETE ||
+    status === MEMBERSHIP_STATUS.UNPAID ||
+    status === MEMBERSHIP_STATUS.PAYMENT_ACTION_REQUIRED
   ) {
     return status;
   }
@@ -135,6 +141,23 @@ export function hasMembershipAccess(
   requiredPlan: MembershipPlan
 ) {
   return getMembershipPlanRank(currentPlan) >= getMembershipPlanRank(requiredPlan);
+}
+
+export function isMembershipStatusEntitled(status: string | MembershipStatus | null | undefined) {
+  const normalizedStatus = normalizeMembershipStatus(status);
+  return normalizedStatus === MEMBERSHIP_STATUS.ACTIVE || normalizedStatus === MEMBERSHIP_STATUS.TRIAL;
+}
+
+function isProviderSubscriptionEntitled(subscription: MembershipSubscription | null) {
+  if (!subscription || subscription.provider !== "stripe") {
+    return true;
+  }
+
+  return subscription.providerStatus === "active" || subscription.providerStatus === "trialing";
+}
+
+export function isMembershipSnapshotEntitled(membership: Pick<MembershipSnapshot, "status" | "subscription">) {
+  return isMembershipStatusEntitled(membership.status) && isProviderSubscriptionEntitled(membership.subscription);
 }
 
 export function resolveLocalReviewCompatibilityMembership(
@@ -252,7 +275,7 @@ export async function resolveMembershipEntitlement(
     context,
     membership,
     requiredPlan,
-    allowed: hasMembershipAccess(membership.plan, requiredPlan),
+    allowed: isMembershipSnapshotEntitled(membership) && hasMembershipAccess(membership.plan, requiredPlan),
     membershipHref: getMembershipHref(audience),
     upgradeHref: getMembershipUpgradeHref(audience, requiredPlan),
   };
@@ -272,8 +295,16 @@ export async function ensureDefaultFreeMembership(
     update: {
       plan: DEFAULT_FREE_MEMBERSHIP_PLAN,
       status: DEFAULT_FREE_MEMBERSHIP_STATUS,
+      providerStatus: null,
+      providerPriceRef: null,
+      externalSubscriptionRef: null,
       checkoutRequestedPlan: null,
       checkoutSessionRef: null,
+      lastBillingEventType: "membership.free.defaulted",
+      lastBillingEventAt: new Date(),
+      lastWebhookEventId: null,
+      lastReconciledAt: null,
+      paymentActionRequiredAt: null,
       updatedAt: new Date(),
     },
     create: {
@@ -322,6 +353,16 @@ export async function startCheckoutPlaceholderFlow(input: {
       checkoutRequestedPlan: input.requestedPlan,
       checkoutSessionRef: `placeholder:${context.subjectId}:${Date.now()}`,
       provider: "pat-placeholder",
+      externalCustomerRef: null,
+      externalSubscriptionRef: null,
+      providerPriceRef: null,
+      providerStatus: "scaffold",
+      providerCancelAtPeriodEnd: false,
+      lastBillingEventType: "checkout.placeholder.created",
+      lastBillingEventAt: new Date(),
+      lastWebhookEventId: null,
+      lastReconciledAt: null,
+      paymentActionRequiredAt: null,
       updatedAt: new Date(),
     },
     create: {
@@ -332,6 +373,10 @@ export async function startCheckoutPlaceholderFlow(input: {
       checkoutRequestedPlan: input.requestedPlan,
       checkoutSessionRef: `placeholder:${context.subjectId}:${Date.now()}`,
       provider: "pat-placeholder",
+      providerStatus: "scaffold",
+      providerCancelAtPeriodEnd: false,
+      lastBillingEventType: "checkout.placeholder.created",
+      lastBillingEventAt: new Date(),
       startedAt: new Date(),
     },
   });

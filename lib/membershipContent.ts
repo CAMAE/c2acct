@@ -4,6 +4,7 @@ import type { MembershipAudience } from "@/lib/membershipContext";
 
 export type MembershipTabKey = typeof MEMBERSHIP_PLAN.PRO | typeof MEMBERSHIP_PLAN.ELITE | "HELP";
 export type MembershipPaymentMethodKey = "card" | "bank" | "paypal" | "stripe" | "square";
+export type MembershipCheckoutBillingMode = "provider" | "scaffold";
 
 type PlanPanelContent = {
   title: string;
@@ -105,7 +106,14 @@ export type MembershipCheckoutModel = {
   summary: {
     tierLabel: string;
     currentState: string;
+    paymentStateLabel: string;
     processingNote: string;
+  };
+  billing: {
+    mode: MembershipCheckoutBillingMode;
+    providerLabel: string;
+    disabledReason: string | null;
+    truthLabel: string;
   };
   paymentMethods: Array<{
     key: MembershipPaymentMethodKey;
@@ -132,6 +140,11 @@ export type MembershipCheckoutModel = {
     membershipLabel: string;
     workspaceHref: string;
     workspaceLabel: string;
+  };
+  billingPortal: {
+    enabled: boolean;
+    label: string;
+    note: string;
   };
   submitLabel: string;
 };
@@ -554,10 +567,16 @@ function getMembershipWorkspaceLink(audience: MembershipAudience) {
   };
 }
 
-function getMembershipPaymentMethodOptions() {
+function getMembershipPaymentMethodOptions(billingMode: MembershipCheckoutBillingMode) {
+  if (billingMode === "provider") {
+    return [
+      { key: "stripe" as const, label: "Stripe-hosted checkout", state: "default" as const, statusLabel: "Configured" },
+    ];
+  }
+
   return [
-    { key: "card" as const, label: "Credit / Debit Card", state: "default" as const, statusLabel: "Scaffold" },
-    { key: "bank" as const, label: "Bank Account", state: "default" as const, statusLabel: "Scaffold" },
+    { key: "card" as const, label: "Card readiness", state: "default" as const, statusLabel: "Scaffold" },
+    { key: "bank" as const, label: "Billing contact", state: "default" as const, statusLabel: "Scaffold" },
     { key: "paypal" as const, label: "PayPal", state: "locked" as const, statusLabel: "Future" },
     { key: "stripe" as const, label: "Stripe", state: "locked" as const, statusLabel: "Future" },
     { key: "square" as const, label: "Square", state: "locked" as const, statusLabel: "Future" },
@@ -570,15 +589,15 @@ function getMembershipPaymentMethodPanel(
 ) {
   if (method === "bank") {
     return {
-      title: "Bank account scaffold",
-      summary: "Collect the ordinary ACH-style account details PAT would need before a real bank-debit integration exists.",
+      title: "Billing-contact scaffold",
+      summary: "Collect non-sensitive billing contact details PAT can use before a real bank-debit integration exists.",
       detail:
-        "This bank-account panel is a non-live scaffold only. PAT records checkout intent, but it does not debit an account or connect to a banking processor yet.",
+        "This panel is a non-live scaffold only. PAT records checkout intent, but it does not debit an account or connect to a banking processor yet.",
       fields: [
-        "Account holder name",
-        "Routing number",
-        "Account number",
-        "Account type",
+        "Billing contact name",
+        "Accounts payable email",
+        "Future bank customer reference",
+        "Billing cadence note",
       ],
     };
   }
@@ -599,14 +618,14 @@ function getMembershipPaymentMethodPanel(
 
   if (method === "stripe") {
     return {
-      title: "Stripe integration path",
-      summary: "Show where Stripe-hosted payment fields and customer metadata will attach later without claiming live Stripe processing today.",
+      title: "Stripe-hosted checkout",
+      summary: "Stripe collects payment method details on its hosted checkout surface when billing is configured.",
       detail:
-        "PAT is not mounting Stripe Elements or creating a live payment intent here yet. The checkout form remains a future-ready scaffold around the current membership handoff.",
+        "PAT stores Stripe customer, checkout session, subscription, invoice, and webhook references only. PAT does not store raw card numbers or security codes.",
       fields: [
-        "Future Stripe customer email",
-        "Future payment intent reference",
-        "Future billing contact name",
+        "Billing contact email",
+        "Billing contact name",
+        "Provider customer reference",
       ],
     };
   }
@@ -619,24 +638,24 @@ function getMembershipPaymentMethodPanel(
         "PAT does not initialize a Square payment form here today. This panel exists only to keep the future provider path visible while processing remains non-live.",
       fields: [
         "Future Square buyer contact",
-        "Future card token field",
+        "Future payment token reference",
         "Future location reference",
       ],
     };
   }
 
   return {
-    title: "Card scaffold",
-    summary: "Collect the ordinary card details a real checkout would need while staying explicit that PAT is not charging a card yet.",
+    title: "Card readiness scaffold",
+    summary: "Collect non-sensitive billing contact details only while staying explicit that PAT is not charging a card here.",
     detail:
       audience === "individual"
-        ? "PAT records individual membership checkout intent only. No card processor, tokenization step, or live charge is running yet."
-        : "PAT records organization-level membership checkout intent only. No card processor, tokenization step, or live charge is running yet.",
+        ? "PAT records individual membership checkout intent only. No card processor, tokenization step, card number, or live charge is accepted on this page."
+        : "PAT records organization-level membership checkout intent only. No card processor, tokenization step, card number, or live charge is accepted on this page.",
     fields: [
-      "Card number",
-      "Expiration date",
-      "Security code",
-      "Card nickname",
+      "Billing contact name",
+      "Billing contact email",
+      "Future provider customer reference",
+      "Internal billing note",
     ],
   };
 }
@@ -808,6 +827,8 @@ export function getMembershipCheckoutModel(input: {
   selectedPlan: MembershipPlan;
   currentPlan: MembershipPlan;
   currentStatus: MembershipStatus;
+  billingMode?: MembershipCheckoutBillingMode;
+  billingDisabledReason?: string | null;
 }): MembershipCheckoutModel {
   const content = MEMBERSHIP_PAGE_CONTENT[input.audience];
   const selectedPlan = normalizeMembershipPlan(input.selectedPlan);
@@ -815,6 +836,8 @@ export function getMembershipCheckoutModel(input: {
   const planContent = content.plans[selectedPlan];
   const workspaceLink = getMembershipWorkspaceLink(input.audience);
   const membershipHref = `${getMembershipPathPrefix(input.audience)}/membership?tab=${selectedPlan.toLowerCase()}`;
+  const billingMode = input.billingMode ?? "scaffold";
+  const providerBacked = billingMode === "provider";
 
   return {
     audience: input.audience,
@@ -823,17 +846,30 @@ export function getMembershipCheckoutModel(input: {
     currentStatus: input.currentStatus,
     hero: {
       eyebrow: `${content.eyebrow} checkout`,
-      title: `${formatMembershipValue(selectedPlan)} membership checkout scaffold`,
-      body:
-        "This checkout form is intentionally realistic but not live. PAT collects ordinary payment and billing inputs as scaffold state while the real checkout outcome remains the existing scaffold membership row.",
+      title: providerBacked
+        ? `${formatMembershipValue(selectedPlan)} membership checkout`
+        : `${formatMembershipValue(selectedPlan)} membership checkout scaffold`,
+      body: providerBacked
+        ? "Billing is configured for Stripe-hosted checkout. PAT redirects to Stripe for payment collection and stores provider customer, session, subscription, invoice, and webhook references only."
+        : "Billing is disabled or missing provider configuration. PAT records explicit checkout intent as scaffold state only; no live charge, card collection, or provider session is created.",
     },
     summary: {
       tierLabel: formatMembershipValue(selectedPlan),
       currentState: `${formatMembershipValue(currentPlan)} / ${getMembershipStatusSummary(input.currentStatus)}`,
-      processingNote:
-        "No live payment processor is wired on this page yet. Submitting this form records checkout intent only so a real provider can attach later without changing the membership contract.",
+      paymentStateLabel: providerBacked ? "Stripe configured" : "Scaffold only",
+      processingNote: providerBacked
+        ? "Submitting continues to Stripe-hosted checkout. Entitlements remain pending until signed provider webhook proof reconciles an active or trialing subscription."
+        : `No live payment processor is active for this plan${input.billingDisabledReason ? ` (${input.billingDisabledReason})` : ""}. Submitting records checkout intent only.`,
     },
-    paymentMethods: getMembershipPaymentMethodOptions(),
+    billing: {
+      mode: billingMode,
+      providerLabel: providerBacked ? "Stripe" : "PAT scaffold",
+      disabledReason: input.billingDisabledReason ?? null,
+      truthLabel: providerBacked
+        ? "Stripe will collect payment details; PAT does not store card numbers."
+        : "No live charge will be created.",
+    },
+    paymentMethods: getMembershipPaymentMethodOptions(billingMode),
     paymentPanels: {
       card: getMembershipPaymentMethodPanel("card", input.audience),
       bank: getMembershipPaymentMethodPanel("bank", input.audience),
@@ -847,8 +883,9 @@ export function getMembershipCheckoutModel(input: {
       liveNow: getMembershipLiveNowNote(input.audience, selectedPlan),
       staged: getMembershipStagedNote(input.audience, selectedPlan),
       afterSubmitTitle: "What happens after submit",
-      afterSubmitBody:
-        "Submitting this form records checkout intent on the existing membership row and returns PAT to the current membership surface. No processor session, token exchange, or live charge is created yet.",
+      afterSubmitBody: providerBacked
+        ? "PAT creates a Stripe checkout session, marks the membership as pending checkout, and waits for signed webhook reconciliation before granting paid entitlement."
+        : "Submitting this form records checkout intent on the existing membership row and returns PAT to the current membership surface. No processor session, token exchange, or live charge is created.",
     },
     navigation: {
       membershipHref,
@@ -856,6 +893,15 @@ export function getMembershipCheckoutModel(input: {
       workspaceHref: workspaceLink.href,
       workspaceLabel: workspaceLink.label,
     },
-    submitLabel: `Record ${formatMembershipValue(selectedPlan)} checkout intent`,
+    billingPortal: {
+      enabled: providerBacked,
+      label: "Open Stripe customer portal",
+      note: providerBacked
+        ? "Available after a Stripe customer exists for this subject."
+        : "Customer portal is disabled while billing runs in scaffold mode.",
+    },
+    submitLabel: providerBacked
+      ? "Continue to Stripe checkout"
+      : `Record ${formatMembershipValue(selectedPlan)} checkout intent`,
   };
 }

@@ -24,7 +24,14 @@ export default async function AdminUsersPage() {
       select: {
         key: true,
         MembershipSubscription: {
-          select: { plan: true, status: true },
+          select: {
+            plan: true,
+            status: true,
+            provider: true,
+            providerStatus: true,
+            lastBillingEventType: true,
+            lastReconciledAt: true,
+          },
         },
       },
     }).catch(() => []),
@@ -50,6 +57,9 @@ export default async function AdminUsersPage() {
                   <div className="text-lg font-semibold text-[var(--shell-ink)]">{user.email}</div>
                   <div className="mt-1 text-sm text-[var(--shell-muted)]">
                     {user.role} · {user.Company ? `${user.Company.name} (${user.Company.type})` : "No company linked"} · Individual membership {individualMembership ? `${individualMembership.plan} / ${individualMembership.status}` : "FREE / ACTIVE"}
+                  </div>
+                  <div className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
+                    Billing {individualMembership?.provider ?? "none"} · Provider status {individualMembership?.providerStatus ?? "unreconciled"} · Last event {individualMembership?.lastBillingEventType ?? "none"} · Reconciled {individualMembership?.lastReconciledAt ? individualMembership.lastReconciledAt.toLocaleString() : "never"}
                   </div>
                 </div>
                 <div className="grid gap-4 xl:grid-cols-2">

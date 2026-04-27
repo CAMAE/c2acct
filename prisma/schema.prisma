@@ -379,6 +379,8 @@ model Subject {
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime                 @updatedAt
   Company                Company?                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  BillingCustomer        BillingCustomer[]
+  BillingInvoice         BillingInvoice[]
   MembershipSubscription MembershipSubscription[]
   Product                Product?                 @relation(fields: [productId], references: [id], onDelete: Cascade)
   CompanyBadge           CompanyBadge[]
@@ -395,6 +397,9 @@ model MembershipSubscription {
   provider                String?
   externalCustomerRef     String?
   externalSubscriptionRef String?
+  providerPriceRef        String?
+  providerStatus          String?
+  providerCancelAtPeriodEnd Boolean        @default(false)
   checkoutSessionRef      String?
   checkoutRequestedPlan   MembershipPlan?
   startedAt               DateTime?
@@ -402,6 +407,11 @@ model MembershipSubscription {
   currentPeriodStart      DateTime?
   currentPeriodEnd        DateTime?
   canceledAt              DateTime?
+  lastBillingEventType    String?
+  lastBillingEventAt      DateTime?
+  lastWebhookEventId      String?
+  lastReconciledAt        DateTime?
+  paymentActionRequiredAt DateTime?
   metadata                Json?
   createdAt               DateTime         @default(now())
   updatedAt               DateTime         @updatedAt
@@ -410,6 +420,72 @@ model MembershipSubscription {
   @@unique([subjectId])
   @@index([plan, status])
   @@index([subjectId, status])
+  @@index([provider, externalCustomerRef])
+  @@index([provider, externalSubscriptionRef])
+}
+
+model BillingCustomer {
+  id                 String   @id
+  subjectId          String
+  provider           String
+  providerCustomerId String
+  email              String?
+  name               String?
+  metadata           Json?
+  lastSyncedAt       DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  Subject            Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([subjectId, provider])
+  @@unique([provider, providerCustomerId])
+  @@index([subjectId])
+}
+
+model BillingWebhookEvent {
+  id              String    @id
+  provider        String
+  providerEventId String
+  eventType       String
+  apiVersion      String?
+  livemode        Boolean   @default(false)
+  payload         Json
+  processingStatus String   @default("received")
+  processingError String?
+  processedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([provider, providerEventId])
+  @@index([provider, eventType, createdAt])
+  @@index([processingStatus, createdAt])
+}
+
+model BillingInvoice {
+  id                         String   @id
+  subjectId                  String?
+  provider                   String
+  providerInvoiceId          String
+  providerCustomerId         String?
+  providerSubscriptionId     String?
+  status                     String
+  amountDue                  Int?
+  amountPaid                 Int?
+  currency                   String?
+  hostedInvoiceUrl           String?
+  invoicePdf                 String?
+  paymentIntentRef           String?
+  lastPaymentError           String?
+  raw                        Json?
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+  Subject                    Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+
+  @@unique([provider, providerInvoiceId])
+  @@index([subjectId])
+  @@index([provider, providerSubscriptionId])
+  @@index([provider, providerCustomerId])
+  @@index([status, updatedAt])
 }
 
 model VendorProfile {
@@ -774,6 +850,9 @@ enum MembershipStatus {
   PENDING_CHECKOUT
   PAST_DUE
   CANCELED
+  INCOMPLETE
+  UNPAID
+  PAYMENT_ACTION_REQUIRED
 }
 
 enum QuestionInputType {

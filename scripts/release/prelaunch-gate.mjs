@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
+import fs from "node:fs";
 import path from "node:path";
 
 function parseArgs(argv) {
@@ -45,6 +46,7 @@ const sourceIntegrity = runNodeJson([
   "scripts/release/validate-source-integrity.mjs",
   "--root",
   root,
+  "--allow-stale-last-known-good",
 ]);
 
 const patSurfaces = runNodeJson([
@@ -53,6 +55,7 @@ const patSurfaces = runNodeJson([
   root,
   "--port",
   String(args.port),
+  "--allow-stale-last-known-good",
 ]);
 
 const result = {
@@ -61,6 +64,32 @@ const result = {
   sourceIntegrity,
   patSurfaces,
 };
+
+if (result.ok) {
+  const stateDir = path.join(root, "artifacts", "mac-mini", "state");
+  const expectedLiveReleasePath = path.join(stateDir, "expected-live-release.json");
+  const lastKnownGoodReleasePath = path.join(stateDir, "last-known-good-release.json");
+  const previousKnownGoodReleasePath = path.join(stateDir, "previous-known-good-release.json");
+
+  if (fs.existsSync(expectedLiveReleasePath)) {
+    if (fs.existsSync(lastKnownGoodReleasePath)) {
+      fs.copyFileSync(lastKnownGoodReleasePath, previousKnownGoodReleasePath);
+    }
+    fs.copyFileSync(expectedLiveReleasePath, lastKnownGoodReleasePath);
+    result.lastKnownGoodPromotion = {
+      expectedLiveReleasePath,
+      lastKnownGoodReleasePath,
+      previousKnownGoodReleasePath,
+    };
+
+    result.postPromotionSourceIntegrity = runNodeJson([
+      "scripts/release/validate-source-integrity.mjs",
+      "--root",
+      root,
+    ]);
+    result.ok = result.ok && result.postPromotionSourceIntegrity.ok;
+  }
+}
 
 console.log(JSON.stringify(result, null, 2));
 

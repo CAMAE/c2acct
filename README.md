@@ -4,11 +4,12 @@ C2Acct is the authoritative PAT product repo rooted at `/Users/camerongarrett/wo
 
 ## Source of truth
 
-- The canonical PAT repo root is `/Users/camerongarrett/work/c2acct-live`. Current branch, commit, and dirty-tree truth come from `git branch --show-current`, `git rev-parse HEAD`, and `git status --short`, with `docs/active-repo-map.md` as the repo map.
-- The current attached checkout is `fix/local-review-signin-hotfix` at `668ff249b1e28cfadd206a9e14819dcb416ad365`, and the current attached build id must be read from the latest release-proof artifacts such as `.next/BUILD_ID`, `/api/release-fingerprint`, or `pnpm standalone:local:check` rather than from this doc.
+- The canonical PAT repo root is `/Users/camerongarrett/work/c2acct-live`. Current branch and commit truth come from `git branch --show-current` and `git rev-parse HEAD`, with `docs/active-repo-map.md` as the repo map.
+- Release dirty-tree truth comes from `node --import tsx scripts/release/read-release-git-dirty.ts --format state`. It uses `ops/release/release-critical-files.json` so quarantined generated evidence paths do not make a clean release look dirty, while real source and release-critical changes still block launch.
+- The current attached build id must be read from `.next/BUILD_ID`, `/api/release-fingerprint`, or `pnpm standalone:local:check` rather than from this doc.
 - `README.md` and `docs/active-repo-map.md` are the current repo-level source-of-truth docs. The rebuild, audit, and release docs dated 2026-04-02 remain historical evidence only.
 - Dated audit and release docs are historical evidence snapshots. They do not by themselves prove that any external host is live today.
-- The current dirty tree means launch readiness is still unproven even if older snapshots were green.
+- A dirty release tree means launch readiness is unproven even if older snapshots were green.
 - Generated proof outputs under `artifacts/audit/`, `artifacts/release/`, and `artifacts/visual/` are quarantine-only evidence files. Keep them out of release-decision dirt; do not use broad ignore rules to hide real source or release-critical changes.
 - `/sign-in` is the canonical PAT sign-in route. `/login` is compatibility-only and must redirect into `/sign-in`.
 - `origin/main`, quarantined mixed-copy roots, and comparison-only working-tree exports are not authoritative for release decisions. See `docs/release/comparison-only-working-tree-exports.md`.
@@ -64,7 +65,8 @@ Intentional explicit `404` placeholders remain in place for future surfaces that
 - PAT product-facing UI copy uses `feature` and `features` where that improves user comprehension. Internal registries, API payloads, and persistence contracts may still use `utilityKey` or `utilityKeys` where those identifiers remain the authoritative runtime contract.
 - Core signed-in PAT assessment and insight surfaces are currently `Pro`-gated with honest membership upgrade paths. PAT does not gate `/sign-in`, workspace entry, or membership overview behind that requirement.
 - Elite insight and membership surfaces remain visible where staged, but visible Elite cards or checkout options do not by themselves prove that a richer premium layer is fully live.
-- Membership checkout routes provide realistic payment-form scaffolding only. They still record checkout intent scaffolding and do not process live card, ACH, PayPal, Stripe, or Square payments in the current source tree.
+- Membership checkout routes are provider-backed only when `PAT_BILLING_ENABLED=1`, `STRIPE_SECRET_KEY`, and the audience/plan `STRIPE_PRICE_*` env var are present. Without that proof, checkout copy must say scaffold/no live charge.
+- PAT never stores raw card numbers, security codes, or bank account numbers. Stripe-hosted checkout collects payment details; PAT stores provider customer, checkout session, subscription, invoice, webhook-event refs, and reconciliation timestamps.
 
 ## Stack
 
@@ -87,6 +89,26 @@ Authorization is company-bound:
 - company selection is persisted in the `aae_companyId` cookie but cannot cross the session company boundary
 
 If you are bootstrapping a new environment, create the operator `User` row directly in the database after seeding baseline data.
+
+## Billing and subscription truth
+
+Stripe is the only provider-backed billing path in source. Configure it with:
+
+- `PAT_BILLING_ENABLED=1`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_PRICE_VENDOR_PRO`, `STRIPE_PRICE_VENDOR_ELITE`
+- `STRIPE_PRICE_FIRM_PRO`, `STRIPE_PRICE_FIRM_ELITE`
+- `STRIPE_PRICE_INDIVIDUAL_PRO`, `STRIPE_PRICE_INDIVIDUAL_ELITE` or the user aliases `STRIPE_PRICE_USER_PRO`, `STRIPE_PRICE_USER_ELITE`
+
+Provider routes:
+
+- `POST /api/billing/webhooks`: verifies Stripe signatures, persists webhook events idempotently, reconciles subscription/invoice state, and records processing proof.
+- `POST /api/billing/portal`: redirects signed-in users to Stripe customer portal when a provider customer exists.
+
+Subscription entitlement truth comes from provider reconciliation. `active` and `trialing` Stripe subscription states can grant entitlement; `past_due`, `canceled`, `incomplete`, `unpaid`, and `payment_action_required` do not. Checkout session creation only marks `PENDING_CHECKOUT` until signed webhook proof reconciles the provider subscription.
+
+Live provider roundtrip remains `UNVERIFIED` unless Stripe keys/CLI or a signed fixture run proves the route. Local fixture tests are acceptable local-only proof; they are not public-live billing proof.
 
 ## Bootstrap a fresh checkout
 
@@ -165,7 +187,7 @@ pnpm build
 Current release status:
 
 - attached checkout build id is intentionally not pinned in this doc; read it from the current release-proof artifacts and fingerprint surfaces
-- attached checkout reports `gitDirty=dirty`
+- attached checkout dirty state is intentionally not pinned in this doc; read it with `node --import tsx scripts/release/read-release-git-dirty.ts --format state`
 - host cutover proof is still required before any live or launch-ready claim is credible
 
 Operator truth:
@@ -192,6 +214,18 @@ Validation truth:
 - `pnpm validate:launch`: full repo/runtime/browser validation path
 - `pnpm release:prelaunch`: narrower release-artifact and PAT surface proof
 - `pnpm validate:release-surfaces`: explicit alias for `release:prelaunch`
+
+Release fingerprint truth:
+
+- Canonical root: `ops/release/canonical-root.json` declares `/Users/camerongarrett/work/c2acct-live`.
+- Package manager: `pnpm`, pinned by `packageManager` and `pnpm-lock.yaml`.
+- Build command: `pnpm build`, which runs `next build --webpack` and `scripts/release/prepare-standalone-runtime.mjs`.
+- Start command: `pnpm start`, which launches `node .next/standalone/server.js` through `scripts/startup-guard.ts`.
+- Auth mode: production/operator runtime uses `github`; local-review auth is development-only and loopback-only.
+- Fingerprint fields: `releaseId`, `branch`, `commitSha`, `commitShort`, `buildId`, `buildTimestamp`, `authMode`, `buildSourceType`, `canonicalRootName`, `releaseFingerprintSeed`, `startCommand`, and `gitDirty`; operator-only JSON also includes full `canonicalRoot`.
+- Artifact chain: `canonical-root.json`, `release-state.env`, `expected-live-release.json`, `last-known-good-release.json`, `/api/release-fingerprint`, `/api/health/db`, `status.sh`, `port-owner-proof.sh`, `release:prelaunch`, and `validate:launch` must agree on branch, commit, build id, build timestamp, root identity, start command, auth mode, and dirty state.
+- `last-known-good-release.json` is promoted from `expected-live-release.json` only after prelaunch/nightly proof succeeds. Startup and strict source-integrity validation fail if it is missing, stale, or disagrees with the expected release.
+- Public-live release state remains `UNVERIFIED` unless there is a reachable public live URL proof; loopback-only proof is local QA only.
 
 Canonical local standalone runtime:
 

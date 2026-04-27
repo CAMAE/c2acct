@@ -12,6 +12,7 @@ export function parseArgs(argv) {
     port: 3310,
     timeoutMs: 45000,
     baseUrl: null,
+    allowStaleLastKnownGood: false,
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -27,6 +28,8 @@ export function parseArgs(argv) {
     } else if (argv[index] === "--base-url") {
       args.baseUrl = String(argv[index + 1] ?? "");
       index += 1;
+    } else if (argv[index] === "--allow-stale-last-known-good") {
+      args.allowStaleLastKnownGood = true;
     }
   }
 
@@ -184,7 +187,29 @@ export function validateRuntimeOwnership(apiFingerprint, sourceIntegrity) {
     );
   }
 
+  if (!apiFingerprint?.gitDirty) {
+    failures.push("runtime_ownership:api_git_dirty_missing");
+  } else if (sourceIntegrity?.gitDirty && apiFingerprint.gitDirty !== sourceIntegrity.gitDirty) {
+    failures.push(`runtime_ownership:git_dirty_mismatch:${apiFingerprint.gitDirty}:${sourceIntegrity.gitDirty}`);
+  }
+
   return failures;
+}
+
+function compareFingerprintField(failures, scope, field, leftValue, rightValue) {
+  const leftMissing = leftValue === undefined || leftValue === null || leftValue === "";
+  const rightMissing = rightValue === undefined || rightValue === null || rightValue === "";
+
+  if (leftMissing || rightMissing) {
+    failures.push(
+      `${scope}:${field}_missing:${leftMissing ? "left" : "present"}:${rightMissing ? "right" : "present"}`
+    );
+    return;
+  }
+
+  if (leftValue !== rightValue) {
+    failures.push(`${scope}:${field}_mismatch:${leftValue}:${rightValue}`);
+  }
 }
 
 export function validateFingerprintAgreement(browserReleaseId, apiFingerprint, operatorStatus) {
@@ -216,9 +241,44 @@ export function validateFingerprintAgreement(browserReleaseId, apiFingerprint, o
     failures.push(`fingerprint:commit_mismatch:${apiFingerprint.commitSha}:${operatorStatus.fingerprint_commit_sha}`);
   }
 
+  compareFingerprintField(
+    failures,
+    "fingerprint",
+    "branch",
+    apiFingerprint?.branch,
+    operatorStatus.fingerprint_branch
+  );
+  compareFingerprintField(
+    failures,
+    "fingerprint",
+    "build_timestamp",
+    apiFingerprint?.buildTimestamp,
+    operatorStatus.fingerprint_build_timestamp
+  );
   if (apiFingerprint?.authMode && operatorStatus.fingerprint_auth_mode && apiFingerprint.authMode !== operatorStatus.fingerprint_auth_mode) {
     failures.push(`fingerprint:auth_mode_mismatch:${apiFingerprint.authMode}:${operatorStatus.fingerprint_auth_mode}`);
   }
+  compareFingerprintField(
+    failures,
+    "fingerprint",
+    "build_source_type",
+    apiFingerprint?.buildSourceType,
+    operatorStatus.fingerprint_build_source_type
+  );
+  compareFingerprintField(
+    failures,
+    "fingerprint",
+    "build_id",
+    apiFingerprint?.buildId,
+    operatorStatus.fingerprint_build_id
+  );
+  compareFingerprintField(
+    failures,
+    "fingerprint",
+    "canonical_root_name",
+    apiFingerprint?.canonicalRootName,
+    operatorStatus.fingerprint_canonical_root_name
+  );
 
   if (
     apiFingerprint?.releaseFingerprintSeed
@@ -227,6 +287,52 @@ export function validateFingerprintAgreement(browserReleaseId, apiFingerprint, o
   ) {
     failures.push(
       `fingerprint:seed_mismatch:${apiFingerprint.releaseFingerprintSeed}:${operatorStatus.fingerprint_release_fingerprint_seed}`
+    );
+  }
+
+  compareFingerprintField(
+    failures,
+    "fingerprint",
+    "start_command",
+    apiFingerprint?.startCommand,
+    operatorStatus.fingerprint_start_command
+  );
+  compareFingerprintField(
+    failures,
+    "fingerprint",
+    "git_dirty",
+    apiFingerprint?.gitDirty,
+    operatorStatus.fingerprint_git_dirty
+  );
+
+  return failures;
+}
+
+export function validateHealthFingerprintAgreement(apiFingerprint, healthRelease) {
+  const failures = [];
+  if (!healthRelease) {
+    return ["health_fingerprint:missing"];
+  }
+
+  for (const field of [
+    "releaseId",
+    "branch",
+    "commitSha",
+    "buildId",
+    "buildTimestamp",
+    "authMode",
+    "buildSourceType",
+    "canonicalRootName",
+    "releaseFingerprintSeed",
+    "startCommand",
+    "gitDirty",
+  ]) {
+    compareFingerprintField(
+      failures,
+      "health_fingerprint",
+      field,
+      apiFingerprint?.[field],
+      healthRelease?.[field]
     );
   }
 
@@ -330,13 +436,19 @@ function readOperatorStatus(root, port) {
   return parseKeyValueOutput(output);
 }
 
-async function readSourceIntegrity(root) {
+async function readSourceIntegrity(root, allowStaleLastKnownGood = false) {
   const moduleUrl = pathToFileURL(path.join(root, "scripts/release/validate-source-integrity.mjs")).href;
   const sourceIntegrityModule = await import(moduleUrl);
-  return sourceIntegrityModule.runSourceIntegrityValidation({ root });
+  return sourceIntegrityModule.runSourceIntegrityValidation({ root, allowStaleLastKnownGood });
 }
 
-export async function runPatSurfaceValidation({ root, port, timeoutMs, baseUrl: requestedBaseUrl }) {
+export async function runPatSurfaceValidation({
+  root,
+  port,
+  timeoutMs,
+  baseUrl: requestedBaseUrl,
+  allowStaleLastKnownGood = false,
+}) {
   const manifest = loadManifest(root);
   const baseUrl = requestedBaseUrl?.replace(/\/$/, "") || `http://127.0.0.1:${port}`;
   const failures = [];
@@ -447,11 +559,15 @@ export async function runPatSurfaceValidation({ root, port, timeoutMs, baseUrl: 
     const fingerprintResponse = await fetch(`${baseUrl}/api/release-fingerprint`);
     const fingerprintPayload = await fingerprintResponse.json();
     const apiFingerprint = fingerprintPayload?.fingerprint ?? null;
+    const healthResponse = await fetch(`${baseUrl}/api/health/db`, { redirect: "manual" });
+    const healthPayload = await healthResponse.json().catch(() => null);
+    const healthRelease = healthPayload?.release ?? null;
     const operatorStatus = readOperatorStatus(root, port);
-    const sourceIntegrity = await readSourceIntegrity(root);
+    const sourceIntegrity = await readSourceIntegrity(root, allowStaleLastKnownGood);
     const browserReleaseId = routeEvidence["/"]?.releaseId ?? routeEvidence["/sign-in"]?.releaseId ?? null;
 
     failures.push(...validateFingerprintAgreement(browserReleaseId, apiFingerprint, operatorStatus));
+    failures.push(...validateHealthFingerprintAgreement(apiFingerprint, healthRelease));
     failures.push(...validateRuntimeOwnership(apiFingerprint, sourceIntegrity));
 
     return {
@@ -463,12 +579,20 @@ export async function runPatSurfaceValidation({ root, port, timeoutMs, baseUrl: 
       routeEvidence,
       browserReleaseId,
       apiFingerprint,
+      healthFingerprint: healthRelease,
+      healthStatus: healthResponse.status,
       operatorFingerprint: {
         releaseId: operatorStatus.release_id ?? null,
         commitSha: operatorStatus.fingerprint_commit_sha ?? null,
+        branch: operatorStatus.fingerprint_branch ?? null,
         authMode: operatorStatus.fingerprint_auth_mode ?? null,
         buildId: operatorStatus.fingerprint_build_id ?? null,
+        buildTimestamp: operatorStatus.fingerprint_build_timestamp ?? null,
+        canonicalRootName: operatorStatus.fingerprint_canonical_root_name ?? null,
+        buildSourceType: operatorStatus.fingerprint_build_source_type ?? null,
         releaseFingerprintSeed: operatorStatus.fingerprint_release_fingerprint_seed ?? null,
+        startCommand: operatorStatus.fingerprint_start_command ?? null,
+        gitDirty: operatorStatus.fingerprint_git_dirty ?? null,
       },
       sourceIntegrity,
       failures,

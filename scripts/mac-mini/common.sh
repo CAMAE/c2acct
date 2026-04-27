@@ -162,11 +162,10 @@ mac_mini_git_commit_full() {
 }
 
 mac_mini_git_dirty() {
-  if git -C "${MAC_MINI_ROOT}" diff --quiet --ignore-submodules HEAD >/dev/null 2>&1; then
-    echo clean
-  else
-    echo dirty
-  fi
+  (
+    cd "${MAC_MINI_ROOT}"
+    node --import tsx scripts/release/read-release-git-dirty.ts --root "${MAC_MINI_ROOT}" --format state
+  )
 }
 
 mac_mini_missing_env_vars() {
@@ -335,6 +334,47 @@ mac_mini_write_canonical_state() {
   "buildReason": "${build_reason}"
 }
 EOF
+}
+
+mac_mini_write_expected_live_release() {
+  mac_mini_ensure_dirs
+  (
+    cd "${MAC_MINI_ROOT}"
+    node --import tsx scripts/release/read-release-fingerprint.ts
+  ) > "${MAC_MINI_STATE_DIR}/expected-live-release.json"
+  mac_mini_sync_release_proof_to_standalone
+}
+
+mac_mini_assert_release_artifacts_agree() {
+  (
+    cd "${MAC_MINI_ROOT}"
+    node scripts/release/validate-source-integrity.mjs --root "${MAC_MINI_ROOT}" >/dev/null
+  )
+}
+
+mac_mini_sync_release_proof_to_standalone() {
+  local standalone_root="${MAC_MINI_ROOT}/.next/standalone"
+  local standalone_state_dir="${standalone_root}/artifacts/mac-mini/state"
+  local standalone_ops_dir="${standalone_root}/ops"
+
+  if [ ! -d "${standalone_root}" ]; then
+    return 0
+  fi
+
+  mkdir -p "${standalone_state_dir}" "${standalone_ops_dir}"
+  rm -rf "${standalone_ops_dir}/release"
+  cp -R "${MAC_MINI_ROOT}/ops/release" "${standalone_ops_dir}/release"
+
+  for state_file in \
+    release-state.env \
+    canonical-root.json \
+    expected-live-release.json \
+    last-known-good-release.json
+  do
+    if [ -f "${MAC_MINI_STATE_DIR}/${state_file}" ]; then
+      cp "${MAC_MINI_STATE_DIR}/${state_file}" "${standalone_state_dir}/${state_file}"
+    fi
+  done
 }
 
 mac_mini_load_release_state() {

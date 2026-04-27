@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { MembershipSubscription } from "@prisma/client";
 import {
   DEFAULT_FREE_MEMBERSHIP_PLAN,
   DEFAULT_FREE_MEMBERSHIP_STATUS,
@@ -8,6 +9,8 @@ import {
   getMembershipUpgradeHref,
   hasMembershipAccess,
   getVirtualFreeMembershipSnapshot,
+  isMembershipSnapshotEntitled,
+  isMembershipStatusEntitled,
   normalizeMembershipPlan,
   normalizeMembershipStatus,
   resolveLocalReviewCompatibilityMembership,
@@ -28,6 +31,41 @@ describe("membership resolver contracts", () => {
     expect(normalizeMembershipStatus(MEMBERSHIP_STATUS.PENDING_CHECKOUT)).toBe(
       MEMBERSHIP_STATUS.PENDING_CHECKOUT
     );
+    expect(normalizeMembershipStatus(MEMBERSHIP_STATUS.INCOMPLETE)).toBe(MEMBERSHIP_STATUS.INCOMPLETE);
+    expect(normalizeMembershipStatus(MEMBERSHIP_STATUS.UNPAID)).toBe(MEMBERSHIP_STATUS.UNPAID);
+    expect(normalizeMembershipStatus(MEMBERSHIP_STATUS.PAYMENT_ACTION_REQUIRED)).toBe(
+      MEMBERSHIP_STATUS.PAYMENT_ACTION_REQUIRED
+    );
+  });
+
+  it("treats only active or trialing provider-backed subscriptions as entitled", () => {
+    const pendingStripeSubscription = {
+      provider: "stripe",
+      providerStatus: "checkout_session_created",
+    } as MembershipSubscription;
+    const activeStripeSubscription = {
+      provider: "stripe",
+      providerStatus: "active",
+    } as MembershipSubscription;
+    const operatorSubscription = {
+      provider: "pat-operator",
+      providerStatus: null,
+    } as MembershipSubscription;
+
+    expect(isMembershipStatusEntitled(MEMBERSHIP_STATUS.ACTIVE)).toBe(true);
+    expect(isMembershipStatusEntitled(MEMBERSHIP_STATUS.PAST_DUE)).toBe(false);
+    expect(isMembershipSnapshotEntitled({
+      status: MEMBERSHIP_STATUS.ACTIVE,
+      subscription: pendingStripeSubscription,
+    })).toBe(false);
+    expect(isMembershipSnapshotEntitled({
+      status: MEMBERSHIP_STATUS.ACTIVE,
+      subscription: activeStripeSubscription,
+    })).toBe(true);
+    expect(isMembershipSnapshotEntitled({
+      status: MEMBERSHIP_STATUS.ACTIVE,
+      subscription: operatorSubscription,
+    })).toBe(true);
   });
 
   it("builds a virtual free snapshot for every audience", () => {

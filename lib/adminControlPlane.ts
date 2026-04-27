@@ -49,6 +49,9 @@ export const MEMBERSHIP_STATUS_OPTIONS = [
   MembershipStatus.PENDING_CHECKOUT,
   MembershipStatus.PAST_DUE,
   MembershipStatus.CANCELED,
+  MembershipStatus.INCOMPLETE,
+  MembershipStatus.UNPAID,
+  MembershipStatus.PAYMENT_ACTION_REQUIRED,
 ] as const;
 export const MODULE_SCOPE_OPTIONS = [
   ModuleScope.FIRM,

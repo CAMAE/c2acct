@@ -17,6 +17,10 @@ export default async function AdminOrganizationsPage() {
             select: {
               plan: true,
               status: true,
+              provider: true,
+              providerStatus: true,
+              lastBillingEventType: true,
+              lastReconciledAt: true,
             },
           },
         },
@@ -70,6 +74,9 @@ export default async function AdminOrganizationsPage() {
                     <div className="text-lg font-semibold text-[var(--shell-ink)]">{organization.name}</div>
                     <div className="mt-1 text-sm text-[var(--shell-muted)]">
                       {organization.type} · Membership {subscription ? `${subscription.plan} / ${subscription.status}` : `${MEMBERSHIP_PLAN_OPTIONS[0]} / ${MEMBERSHIP_STATUS_OPTIONS[0]}`}
+                    </div>
+                    <div className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
+                      Billing {subscription?.provider ?? "none"} · Provider status {subscription?.providerStatus ?? "unreconciled"} · Last event {subscription?.lastBillingEventType ?? "none"} · Reconciled {subscription?.lastReconciledAt ? subscription.lastReconciledAt.toLocaleString() : "never"}
                     </div>
                   </div>
                   <div className="text-sm text-[var(--shell-muted)]">Open detail</div>

@@ -93,20 +93,24 @@ describe("membership page contracts", () => {
     expect(getRequestedCheckoutPlan("FREE", MEMBERSHIP_PLAN.PRO)).toBe(MEMBERSHIP_PLAN.PRO);
   });
 
-  it("defaults checkout payment methods to card and keeps the method order stable", () => {
+  it("defaults checkout payment methods to scaffold mode when billing is not configured", () => {
     const model = getMembershipCheckoutModel({
       audience: "vendor",
       selectedPlan: MEMBERSHIP_PLAN.PRO,
       currentPlan: MEMBERSHIP_PLAN.FREE,
       currentStatus: MEMBERSHIP_STATUS.ACTIVE,
+      billingMode: "scaffold",
+      billingDisabledReason: "billing_disabled",
     });
 
     expect(getRequestedMembershipPaymentMethod(undefined)).toBe("card");
     expect(getRequestedMembershipPaymentMethod("stripe")).toBe("stripe");
     expect(getRequestedMembershipPaymentMethod("unknown")).toBe("card");
+    expect(model.summary.paymentStateLabel).toBe("Scaffold only");
+    expect(model.billing.truthLabel).toBe("No live charge will be created.");
     expect(model.paymentMethods).toEqual([
-      { key: "card", label: "Credit / Debit Card", state: "default", statusLabel: "Scaffold" },
-      { key: "bank", label: "Bank Account", state: "default", statusLabel: "Scaffold" },
+      { key: "card", label: "Card readiness", state: "default", statusLabel: "Scaffold" },
+      { key: "bank", label: "Billing contact", state: "default", statusLabel: "Scaffold" },
       { key: "paypal", label: "PayPal", state: "locked", statusLabel: "Future" },
       { key: "stripe", label: "Stripe", state: "locked", statusLabel: "Future" },
       { key: "square", label: "Square", state: "locked", statusLabel: "Future" },
@@ -119,18 +123,42 @@ describe("membership page contracts", () => {
       selectedPlan: MEMBERSHIP_PLAN.ELITE,
       currentPlan: MEMBERSHIP_PLAN.PRO,
       currentStatus: MEMBERSHIP_STATUS.PENDING_CHECKOUT,
+      billingMode: "scaffold",
     });
 
     expect(model.summary.processingNote).toMatch(/No live payment processor/i);
-    expect(model.paymentPanels.card.fields).toContain("Card number");
-    expect(model.paymentPanels.bank.fields).toContain("Routing number");
+    expect(model.paymentPanels.card.fields).not.toContain("Card number");
+    expect(model.paymentPanels.card.fields).not.toContain("Security code");
+    expect(model.paymentPanels.card.fields).toContain("Billing contact name");
+    expect(model.paymentPanels.bank.fields).toContain("Future bank customer reference");
     expect(model.paymentPanels.paypal.detail).toMatch(/does not open a PayPal session/i);
-    expect(model.paymentPanels.stripe.detail).toMatch(/not mounting Stripe Elements/i);
+    expect(model.paymentPanels.stripe.detail).toMatch(/does not store raw card numbers/i);
     expect(model.paymentPanels.square.detail).toMatch(/does not initialize a Square payment form/i);
     expect(model.explanation.afterSubmitBody).toMatch(/records checkout intent/i);
     expect(model.navigation.membershipHref).toBe("/firm/membership?tab=elite");
     expect(model.navigation.workspaceHref).toBe("/firm");
     expect(model.submitLabel).toBe("Record Elite checkout intent");
+  });
+
+  it("switches checkout copy to Stripe-hosted provider mode only when configured", () => {
+    const model = getMembershipCheckoutModel({
+      audience: "individual",
+      selectedPlan: MEMBERSHIP_PLAN.PRO,
+      currentPlan: MEMBERSHIP_PLAN.FREE,
+      currentStatus: MEMBERSHIP_STATUS.ACTIVE,
+      billingMode: "provider",
+    });
+
+    expect(model.hero.title).toBe("Pro membership checkout");
+    expect(model.summary.paymentStateLabel).toBe("Stripe configured");
+    expect(model.summary.processingNote).toMatch(/Stripe-hosted checkout/i);
+    expect(model.billing.truthLabel).toMatch(/does not store card numbers/i);
+    expect(model.paymentMethods).toEqual([
+      { key: "stripe", label: "Stripe-hosted checkout", state: "default", statusLabel: "Configured" },
+    ]);
+    expect(model.explanation.afterSubmitBody).toMatch(/signed webhook reconciliation/i);
+    expect(model.billingPortal.enabled).toBe(true);
+    expect(model.submitLabel).toBe("Continue to Stripe checkout");
   });
 
   it("keeps the tier detail view focused on honest plan detail rather than live-route cards", () => {

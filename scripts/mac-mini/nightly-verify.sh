@@ -49,14 +49,15 @@ if ! run_and_capture build pnpm build; then
   failure_count=$((failure_count + 1))
 else
   mac_mini_write_release_state "nightly-verify"
-  node --import tsx "${MAC_MINI_ROOT}/scripts/release/read-release-fingerprint.ts" > "${MAC_MINI_STATE_DIR}/expected-live-release.json"
+  mac_mini_write_canonical_state "nightly-verify"
+  mac_mini_write_expected_live_release
 fi
 
 if ! run_and_capture lint pnpm lint; then
   failure_count=$((failure_count + 1))
 fi
 
-if ! run_and_capture source_integrity node scripts/release/validate-source-integrity.mjs --root "${MAC_MINI_ROOT}"; then
+if ! run_and_capture source_integrity node scripts/release/validate-source-integrity.mjs --root "${MAC_MINI_ROOT}" --allow-stale-last-known-good; then
   failure_count=$((failure_count + 1))
 fi
 
@@ -76,12 +77,23 @@ if ! run_and_capture host_cutover_proof bash "${SCRIPT_DIR}/port-owner-proof.sh"
   failure_count=$((failure_count + 1))
 fi
 
-if ! run_and_capture live_pat_surfaces node scripts/release/validate-pat-surfaces.mjs --root "${MAC_MINI_ROOT}" --base-url "$(mac_mini_app_url | sed 's#/$##')"; then
+if ! run_and_capture live_pat_surfaces node scripts/release/validate-pat-surfaces.mjs --root "${MAC_MINI_ROOT}" --base-url "$(mac_mini_app_url | sed 's#/$##')" --allow-stale-last-known-good; then
   failure_count=$((failure_count + 1))
 fi
 
 if ! run_and_capture disk df -h .; then
   failure_count=$((failure_count + 1))
+fi
+
+if [ "${failure_count}" -eq 0 ] && [ -f "${MAC_MINI_STATE_DIR}/expected-live-release.json" ]; then
+  if [ -f "${MAC_MINI_STATE_DIR}/last-known-good-release.json" ]; then
+    cp "${MAC_MINI_STATE_DIR}/last-known-good-release.json" "${MAC_MINI_STATE_DIR}/previous-known-good-release.json"
+  fi
+  cp "${MAC_MINI_STATE_DIR}/expected-live-release.json" "${MAC_MINI_STATE_DIR}/last-known-good-release.json"
+
+  if ! run_and_capture post_promotion_source_integrity node scripts/release/validate-source-integrity.mjs --root "${MAC_MINI_ROOT}"; then
+    failure_count=$((failure_count + 1))
+  fi
 fi
 
 mac_mini_load_release_state || true
@@ -98,18 +110,11 @@ if [ -f "${report_dir}/health.log" ]; then
 fi
 
 if [ -f "${report_dir}/status.log" ]; then
-  printf 'status_summary=%s\n' "$(grep -E '^(branch|commit|listen|health|build_id|build_time|release_id|fingerprint_commit_sha|fingerprint_auth_mode|launchd_service_state|live_port_owner_state|live_port_owner_pid|live_release_id|ownership_check|ownership_failures|last_verify)=' "${report_dir}/status.log" | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g')" >> "${summary_file}"
+  printf 'status_summary=%s\n' "$(grep -E '^(branch|commit|commit_sha|git_dirty|listen|health|build_id|build_time|release_id|fingerprint_commit_sha|fingerprint_branch|fingerprint_build_timestamp|fingerprint_auth_mode|fingerprint_build_source_type|fingerprint_build_id|fingerprint_canonical_root_name|fingerprint_start_command|fingerprint_git_dirty|launchd_service_state|live_port_owner_state|live_port_owner_pid|live_release_id|live_commit_sha|live_branch|live_build_id|live_git_dirty|ownership_check|ownership_failures|last_verify)=' "${report_dir}/status.log" | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g')" >> "${summary_file}"
 fi
 
 if [ -f "${report_dir}/host_cutover_proof.log" ]; then
-  printf 'host_cutover_summary=%s\n' "$(grep -E '^(launchd_service_state|live_port_owner_state|live_port_owner_pid|live_release_probe_http|live_release_id|expected_release_id|ownership_check|ownership_failures)=' "${report_dir}/host_cutover_proof.log" | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g')" >> "${summary_file}"
-fi
-
-if [ "${failure_count}" -eq 0 ] && [ -f "${MAC_MINI_STATE_DIR}/expected-live-release.json" ]; then
-  if [ -f "${MAC_MINI_STATE_DIR}/last-known-good-release.json" ]; then
-    cp "${MAC_MINI_STATE_DIR}/last-known-good-release.json" "${MAC_MINI_STATE_DIR}/previous-known-good-release.json"
-  fi
-  cp "${MAC_MINI_STATE_DIR}/expected-live-release.json" "${MAC_MINI_STATE_DIR}/last-known-good-release.json"
+  printf 'host_cutover_summary=%s\n' "$(grep -E '^(launchd_service_state|live_port_owner_state|live_port_owner_pid|live_release_probe_http|live_release_id|live_commit_sha|live_branch|live_build_id|live_git_dirty|expected_release_id|expected_commit_sha|expected_branch|expected_build_id|expected_git_dirty|ownership_check|ownership_failures)=' "${report_dir}/host_cutover_proof.log" | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g')" >> "${summary_file}"
 fi
 
 cp "${summary_file}" "${MAC_MINI_STATE_DIR}/latest-nightly-summary.txt"

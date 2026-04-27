@@ -88,6 +88,21 @@ function normalizeEmail(email: string | null | undefined) {
   return normalized.length > 0 ? normalized : null;
 }
 
+function slugifyLocalReviewName(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function getLocalReviewCompanyId(input: {
+  name: string;
+  type: CompanyType;
+}) {
+  return `demo-${input.type === CompanyType.VENDOR ? "vendor" : "firm"}-company-${slugifyLocalReviewName(input.name)}`;
+}
+
 function isLoopbackOrigin(value: string | null | undefined) {
   if (!value) {
     return false;
@@ -166,7 +181,7 @@ async function ensureCompany(
 
   return prisma.company.create({
     data: {
-      id: randomUUID(),
+      id: getLocalReviewCompanyId(input),
       name: input.name,
       type: input.type,
       updatedAt: new Date(),

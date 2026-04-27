@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
+import { getReleaseGitState } from "./git-state";
 
 type CanonicalRootContract = {
   canonicalRoot: string;
@@ -53,18 +54,24 @@ export type PublicReleaseFingerprintView = {
   buildSourceType: string;
   canonicalRootName: string;
   releaseFingerprintSeed: string;
+  startCommand: string;
   gitDirty: string;
 };
 
 const PUBLIC_RUNTIME_IDENTITY_FIELDS = [
+  "schemaVersion",
   "releaseId",
   "commitSha",
+  "commitShort",
+  "branch",
   "canonicalRootName",
+  "buildTimestamp",
   "authMode",
   "buildSourceType",
   "buildId",
   "releaseFingerprintSeed",
   "startCommand",
+  "gitDirty",
 ] as const satisfies ReadonlyArray<keyof PublicReleaseFingerprint>;
 
 const repoRoot = process.cwd();
@@ -150,7 +157,7 @@ function resolveBranch(state: CanonicalRootState | null) {
 
 function resolveGitDirty(state: CanonicalRootState | null) {
   try {
-    return runGit("status", "--porcelain").length > 0 ? "dirty" : "clean";
+    return getReleaseGitState(repoRoot).gitDirty;
   } catch {
     return state?.gitDirty ?? "unknown";
   }
@@ -236,6 +243,7 @@ export function getPublicReleaseFingerprintView(
     buildSourceType: fingerprint.buildSourceType,
     canonicalRootName: fingerprint.canonicalRootName,
     releaseFingerprintSeed: fingerprint.releaseFingerprintSeed,
+    startCommand: fingerprint.startCommand,
     gitDirty: fingerprint.gitDirty,
   };
 }

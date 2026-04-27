@@ -36,6 +36,8 @@ if [ "${mode}" = "check" ] || [ "${mode}" = "dry-run" ]; then
 fi
 
 mac_mini_write_canonical_state "restart-app-${mode}"
+mac_mini_write_expected_live_release
+mac_mini_assert_release_artifacts_agree
 launchctl kickstart -k "${launchd_target}"
 
 attempt=0

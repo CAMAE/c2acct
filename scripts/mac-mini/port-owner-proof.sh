@@ -77,9 +77,15 @@ parse_live_fingerprint_env() {
     const fields = {
       live_release_id: fingerprint.releaseId ?? "missing",
       live_commit_sha: fingerprint.commitSha ?? "missing",
+      live_branch: fingerprint.branch ?? "missing",
       live_auth_mode: fingerprint.authMode ?? "missing",
+      live_build_source_type: fingerprint.buildSourceType ?? "missing",
       live_build_id: fingerprint.buildId ?? "missing",
+      live_build_timestamp: fingerprint.buildTimestamp ?? "missing",
+      live_canonical_root_name: fingerprint.canonicalRootName ?? "missing",
       live_release_fingerprint_seed: fingerprint.releaseFingerprintSeed ?? "missing",
+      live_start_command: fingerprint.startCommand ?? "missing",
+      live_git_dirty: fingerprint.gitDirty ?? "missing",
     };
     for (const [key, value] of Object.entries(fields)) {
       process.stdout.write(`${key}=${String(value)}\n`);
@@ -134,9 +140,15 @@ api_status="000"
 api_error="none"
 live_release_id="missing"
 live_commit_sha="missing"
+live_branch="missing"
 live_auth_mode="missing"
+live_build_source_type="missing"
 live_build_id="missing"
+live_build_timestamp="missing"
+live_canonical_root_name="missing"
 live_release_fingerprint_seed="missing"
+live_start_command="missing"
+live_git_dirty="missing"
 homepage_probe_ok="no"
 homepage_probe_http="missing"
 homepage_release_id="missing"
@@ -156,9 +168,15 @@ if [ "${listening}" = "yes" ]; then
       if live_env="$(parse_live_fingerprint_env "${api_body_file}" 2>/dev/null)"; then
         live_release_id="$(read_key_value_var "${live_env}" live_release_id || printf 'missing')"
         live_commit_sha="$(read_key_value_var "${live_env}" live_commit_sha || printf 'missing')"
+        live_branch="$(read_key_value_var "${live_env}" live_branch || printf 'missing')"
         live_auth_mode="$(read_key_value_var "${live_env}" live_auth_mode || printf 'missing')"
+        live_build_source_type="$(read_key_value_var "${live_env}" live_build_source_type || printf 'missing')"
         live_build_id="$(read_key_value_var "${live_env}" live_build_id || printf 'missing')"
+        live_build_timestamp="$(read_key_value_var "${live_env}" live_build_timestamp || printf 'missing')"
+        live_canonical_root_name="$(read_key_value_var "${live_env}" live_canonical_root_name || printf 'missing')"
         live_release_fingerprint_seed="$(read_key_value_var "${live_env}" live_release_fingerprint_seed || printf 'missing')"
+        live_start_command="$(read_key_value_var "${live_env}" live_start_command || printf 'missing')"
+        live_git_dirty="$(read_key_value_var "${live_env}" live_git_dirty || printf 'missing')"
       else
         api_error="invalid_fingerprint_payload"
       fi
@@ -195,9 +213,15 @@ fi
 expected_env="$(cd "${MAC_MINI_ROOT}" && node --import tsx scripts/release/read-release-fingerprint.ts --format env)"
 expected_release_id="$(read_key_value_var "${expected_env}" release_id || printf 'missing')"
 expected_commit_sha="$(read_key_value_var "${expected_env}" fingerprint_commit_sha || printf 'missing')"
+expected_branch="$(read_key_value_var "${expected_env}" fingerprint_branch || printf 'missing')"
 expected_auth_mode="$(read_key_value_var "${expected_env}" fingerprint_auth_mode || printf 'missing')"
+expected_build_source_type="$(read_key_value_var "${expected_env}" fingerprint_build_source_type || printf 'missing')"
 expected_build_id="$(read_key_value_var "${expected_env}" fingerprint_build_id || printf 'missing')"
+expected_build_timestamp="$(read_key_value_var "${expected_env}" fingerprint_build_timestamp || printf 'missing')"
+expected_canonical_root_name="$(read_key_value_var "${expected_env}" fingerprint_canonical_root_name || printf 'missing')"
 expected_release_fingerprint_seed="$(read_key_value_var "${expected_env}" fingerprint_release_fingerprint_seed || printf 'missing')"
+expected_start_command="$(read_key_value_var "${expected_env}" fingerprint_start_command || printf 'missing')"
+expected_git_dirty="$(read_key_value_var "${expected_env}" fingerprint_git_dirty || printf 'missing')"
 
 failures=()
 if [ "${launchd_state}" != "loaded" ]; then
@@ -228,16 +252,40 @@ if [ "${api_status}" = "200" ] && [ "${live_commit_sha}" != "${expected_commit_s
   failures+=("commit_sha_mismatch")
 fi
 
+if [ "${api_status}" = "200" ] && [ "${live_branch}" != "${expected_branch}" ]; then
+  failures+=("branch_mismatch")
+fi
+
 if [ "${api_status}" = "200" ] && [ "${live_auth_mode}" != "${expected_auth_mode}" ]; then
   failures+=("auth_mode_mismatch")
+fi
+
+if [ "${api_status}" = "200" ] && [ "${live_build_source_type}" != "${expected_build_source_type}" ]; then
+  failures+=("build_source_type_mismatch")
 fi
 
 if [ "${api_status}" = "200" ] && [ "${live_build_id}" != "${expected_build_id}" ]; then
   failures+=("build_id_mismatch")
 fi
 
+if [ "${api_status}" = "200" ] && [ "${live_build_timestamp}" != "${expected_build_timestamp}" ]; then
+  failures+=("build_timestamp_mismatch")
+fi
+
+if [ "${api_status}" = "200" ] && [ "${live_canonical_root_name}" != "${expected_canonical_root_name}" ]; then
+  failures+=("canonical_root_name_mismatch")
+fi
+
 if [ "${api_status}" = "200" ] && [ "${live_release_fingerprint_seed}" != "${expected_release_fingerprint_seed}" ]; then
   failures+=("fingerprint_seed_mismatch")
+fi
+
+if [ "${api_status}" = "200" ] && [ "${live_start_command}" != "${expected_start_command}" ]; then
+  failures+=("start_command_mismatch")
+fi
+
+if [ "${api_status}" = "200" ] && [ "${live_git_dirty}" != "${expected_git_dirty}" ]; then
+  failures+=("git_dirty_mismatch")
 fi
 
 printf 'launchd_target=%s\n' "${app_launchd_target}"
@@ -253,14 +301,26 @@ printf 'live_release_probe_http=%s\n' "${api_status}"
 printf 'live_release_probe_error=%s\n' "${api_error}"
 printf 'live_release_id=%s\n' "${live_release_id}"
 printf 'live_commit_sha=%s\n' "${live_commit_sha}"
+printf 'live_branch=%s\n' "${live_branch}"
 printf 'live_auth_mode=%s\n' "${live_auth_mode}"
+printf 'live_build_source_type=%s\n' "${live_build_source_type}"
 printf 'live_build_id=%s\n' "${live_build_id}"
+printf 'live_build_timestamp=%s\n' "${live_build_timestamp}"
+printf 'live_canonical_root_name=%s\n' "${live_canonical_root_name}"
 printf 'live_release_fingerprint_seed=%s\n' "${live_release_fingerprint_seed}"
+printf 'live_start_command=%s\n' "${live_start_command}"
+printf 'live_git_dirty=%s\n' "${live_git_dirty}"
 printf 'expected_release_id=%s\n' "${expected_release_id}"
 printf 'expected_commit_sha=%s\n' "${expected_commit_sha}"
+printf 'expected_branch=%s\n' "${expected_branch}"
 printf 'expected_auth_mode=%s\n' "${expected_auth_mode}"
+printf 'expected_build_source_type=%s\n' "${expected_build_source_type}"
 printf 'expected_build_id=%s\n' "${expected_build_id}"
+printf 'expected_build_timestamp=%s\n' "${expected_build_timestamp}"
+printf 'expected_canonical_root_name=%s\n' "${expected_canonical_root_name}"
 printf 'expected_release_fingerprint_seed=%s\n' "${expected_release_fingerprint_seed}"
+printf 'expected_start_command=%s\n' "${expected_start_command}"
+printf 'expected_git_dirty=%s\n' "${expected_git_dirty}"
 printf 'homepage_probe_ok=%s\n' "${homepage_probe_ok}"
 printf 'homepage_probe_http=%s\n' "${homepage_probe_http}"
 printf 'homepage_release_id=%s\n' "${homepage_release_id}"

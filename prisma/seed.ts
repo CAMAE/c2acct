@@ -5,18 +5,21 @@ import {
   importAccountingTaxonomy,
   loadAccountingTaxonomyArtifact,
 } from "../lib/research/accountingTaxonomy";
+import { applyRepoEnv } from "../lib/env/repoEnv";
 import {
   TIER1_ALIGNMENT_BADGE_ID,
   TIER1_ALIGNMENT_BADGE_NAME,
   TIER1_INSIGHTS,
 } from "../lib/patUnlocks";
 import { ensureLocalReviewUsers } from "../lib/auth/localReview";
-import { ensureFirmAlignmentSystem, FIRM_MODULE_DEFINITIONS } from "../lib/firmPat";
 import { FIRM_CAPABILITY_DEFINITIONS } from "../lib/firmCapabilities";
+
+applyRepoEnv();
 
 const prisma = new PrismaClient();
 
 const DEMO_COMPANY_NAME = "Demo Company";
+const DEMO_COMPANY_ID = "demo-firm-company-demo-company";
 
 async function ensureTier1Content(moduleIds: string[]) {
   const now = new Date();
@@ -111,7 +114,7 @@ async function ensureDemoCompany() {
 
   return prisma.company.create({
     data: {
-      id: randomUUID(),
+      id: DEMO_COMPANY_ID,
       name: DEMO_COMPANY_NAME,
       type: CompanyType.FIRM,
       updatedAt: new Date(),
@@ -158,6 +161,7 @@ async function ensureDefaultPortal() {
 }
 
 async function main() {
+  const { ensureFirmAlignmentSystem, FIRM_MODULE_DEFINITIONS } = await import("../lib/firmPat");
   const modules = await ensureFirmAlignmentSystem();
   const badge = await ensureTier1Content(modules.map((module) => module.id));
   const demoCompany = await ensureDemoCompany();

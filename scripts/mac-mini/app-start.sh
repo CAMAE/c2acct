@@ -38,6 +38,8 @@ fi
 
 mac_mini_build_if_needed
 mac_mini_write_canonical_state "app-start-${mode}"
+mac_mini_write_expected_live_release
+mac_mini_assert_release_artifacts_agree
 start_command="HOSTNAME=${MAC_MINI_HOST} PORT=${PORT} node --import tsx ${MAC_MINI_ROOT}/scripts/startup-guard.ts launch --kind standalone --port ${PORT} -- node ${MAC_MINI_ROOT}/.next/standalone/server.js"
 
 if [ "${mode}" = "check" ] || [ "${mode}" = "dry-run" ]; then

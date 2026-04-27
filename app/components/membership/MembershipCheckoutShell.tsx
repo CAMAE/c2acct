@@ -33,11 +33,13 @@ export default function MembershipCheckoutShell({
   startCheckout,
 }: MembershipCheckoutShellProps) {
   const [activeMethod, setActiveMethod] = useState<MembershipPaymentMethodKey>(initialMethod);
+  const firstMethod = model.paymentMethods[0]?.key ?? "card";
   const activeMethodPanel =
     model.paymentMethods.find((method) => method.key === activeMethod)?.key === activeMethod
       ? activeMethod
-      : "card";
+      : firstMethod;
   const paymentPanel = model.paymentPanels[activeMethodPanel];
+  const providerBacked = model.billing.mode === "provider";
 
   return (
     <div className="space-y-8">
@@ -53,7 +55,7 @@ export default function MembershipCheckoutShell({
             Current state: <span className="font-semibold text-[var(--shell-ink)]">{model.summary.currentState}</span>
           </div>
           <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Payment state: <span className="font-semibold text-[var(--shell-ink)]">Scaffold only</span>
+            Payment state: <span className="font-semibold text-[var(--shell-ink)]">{model.summary.paymentStateLabel}</span>
           </div>
         </div>
         <div className="mt-5 rounded-[18px] border border-amber-200 bg-amber-50/90 p-4 text-sm leading-6 text-amber-950">
@@ -66,115 +68,127 @@ export default function MembershipCheckoutShell({
           <input type="hidden" name="plan" value={model.plan} />
           <input type="hidden" name="paymentMethod" value={activeMethodPanel} />
 
-          <div className="pat-label">Checkout scaffold</div>
+          <div className="pat-label">{providerBacked ? "Provider checkout" : "Checkout scaffold"}</div>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
-            Payment form scaffold
+            {providerBacked ? "Continue through Stripe" : "Payment form scaffold"}
           </h2>
           <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Complete the ordinary payment and billing fields below. PAT uses them as future-ready scaffold inputs only; submitting this form still records checkout intent rather than processing a payment.
+            {providerBacked
+              ? "PAT creates a Stripe-hosted checkout session. Payment details are collected by Stripe after redirect, not by this PAT form."
+              : "Complete the non-sensitive billing fields below. PAT uses them as future-ready scaffold inputs only; submitting this form records checkout intent rather than processing a payment."}
           </p>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <label className="space-y-2">
-              <span className="text-sm font-medium text-[var(--shell-ink)]">{getAudienceEmailLabel(model.audience)}</span>
-              <input
-                required
-                name="email"
-                type="email"
-                autoComplete="email"
-                className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
-              />
-            </label>
-            <label className="space-y-2">
-              <span className="text-sm font-medium text-[var(--shell-ink)]">Name on card</span>
-              <input
-                required
-                name="nameOnCard"
-                autoComplete="cc-name"
-                className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
-              />
-            </label>
-            <label className="space-y-2 md:col-span-2">
-              <span className="text-sm font-medium text-[var(--shell-ink)]">Billing address</span>
-              <input
-                required
-                name="billingAddressLine1"
-                autoComplete="address-line1"
-                placeholder="Address line 1"
-                className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
-              />
-            </label>
-            <label className="space-y-2 md:col-span-2">
-              <span className="sr-only">Billing address line 2</span>
-              <input
-                name="billingAddressLine2"
-                autoComplete="address-line2"
-                placeholder="Address line 2"
-                className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
-              />
-            </label>
-            <label className="space-y-2">
-              <span className="text-sm font-medium text-[var(--shell-ink)]">City</span>
-              <input
-                required
-                name="billingCity"
-                autoComplete="address-level2"
-                className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
-              />
-            </label>
-            <label className="space-y-2">
-              <span className="text-sm font-medium text-[var(--shell-ink)]">State / region</span>
-              <input
-                required
-                name="billingState"
-                autoComplete="address-level1"
-                className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
-              />
-            </label>
-            <label className="space-y-2">
-              <span className="text-sm font-medium text-[var(--shell-ink)]">Postal code</span>
-              <input
-                required
-                name="billingPostalCode"
-                autoComplete="postal-code"
-                className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
-              />
-            </label>
-            <label className="space-y-2">
-              <span className="text-sm font-medium text-[var(--shell-ink)]">Country</span>
-              <input
-                required
-                name="billingCountry"
-                autoComplete="country-name"
-                defaultValue={getCountryDefault(model.audience)}
-                className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
-              />
-            </label>
-          </div>
+          {providerBacked ? (
+            <div className="mt-6 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-5 text-sm leading-6 text-[var(--shell-muted)]">
+              {model.billing.truthLabel} Entitlement remains pending until Stripe webhook reconciliation confirms an active or trialing subscription.
+            </div>
+          ) : (
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              <label className="space-y-2">
+                <span className="text-sm font-medium text-[var(--shell-ink)]">{getAudienceEmailLabel(model.audience)}</span>
+                <input
+                  required
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
+                />
+              </label>
+              <label className="space-y-2">
+                <span className="text-sm font-medium text-[var(--shell-ink)]">Billing contact name</span>
+                <input
+                  required
+                  name="billingContactName"
+                  autoComplete="name"
+                  className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
+                />
+              </label>
+              <label className="space-y-2 md:col-span-2">
+                <span className="text-sm font-medium text-[var(--shell-ink)]">Billing address</span>
+                <input
+                  required
+                  name="billingAddressLine1"
+                  autoComplete="address-line1"
+                  placeholder="Address line 1"
+                  className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
+                />
+              </label>
+              <label className="space-y-2 md:col-span-2">
+                <span className="sr-only">Billing address line 2</span>
+                <input
+                  name="billingAddressLine2"
+                  autoComplete="address-line2"
+                  placeholder="Address line 2"
+                  className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
+                />
+              </label>
+              <label className="space-y-2">
+                <span className="text-sm font-medium text-[var(--shell-ink)]">City</span>
+                <input
+                  required
+                  name="billingCity"
+                  autoComplete="address-level2"
+                  className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
+                />
+              </label>
+              <label className="space-y-2">
+                <span className="text-sm font-medium text-[var(--shell-ink)]">State / region</span>
+                <input
+                  required
+                  name="billingState"
+                  autoComplete="address-level1"
+                  className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
+                />
+              </label>
+              <label className="space-y-2">
+                <span className="text-sm font-medium text-[var(--shell-ink)]">Postal code</span>
+                <input
+                  required
+                  name="billingPostalCode"
+                  autoComplete="postal-code"
+                  className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
+                />
+              </label>
+              <label className="space-y-2">
+                <span className="text-sm font-medium text-[var(--shell-ink)]">Country</span>
+                <input
+                  required
+                  name="billingCountry"
+                  autoComplete="country-name"
+                  defaultValue={getCountryDefault(model.audience)}
+                  className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
+                />
+              </label>
+            </div>
+          )}
 
-          <div className="mt-6">
+          {model.paymentMethods.length > 1 ? (
+            <div className="mt-6">
             <PatModeToggle
               activeKey={activeMethodPanel}
               ariaLabel="Payment methods"
               options={model.paymentMethods}
               onChange={(key) => setActiveMethod(key as MembershipPaymentMethodKey)}
             />
-          </div>
+            </div>
+          ) : null}
 
           <div className="mt-6 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-5">
             <div className="pat-label">{paymentPanel.title}</div>
             <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{paymentPanel.summary}</p>
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-              {paymentPanel.fields.map((field) => (
-                <label key={field} className="space-y-2">
-                  <span className="text-sm font-medium text-[var(--shell-ink)]">{field}</span>
-                  <input
-                    name={`method-${field.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-                    className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
-                  />
-                </label>
-              ))}
-            </div>
+            {providerBacked ? null : (
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                {paymentPanel.fields.map((field) => (
+                  <label key={field} className="space-y-2">
+                    <span className="text-sm font-medium text-[var(--shell-ink)]">{field}</span>
+                    <input
+                      name={`method-${field.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                      className="w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[var(--shell-accent)]"
+                    />
+                  </label>
+                ))}
+              </div>
+            )}
             <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">{paymentPanel.detail}</p>
           </div>
 
@@ -183,7 +197,7 @@ export default function MembershipCheckoutShell({
               {model.submitLabel}
             </button>
             <span className="text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-              No live charge will be created
+              {model.billing.truthLabel}
             </span>
           </div>
         </form>
@@ -218,7 +232,19 @@ export default function MembershipCheckoutShell({
               <Link className="pat-button-secondary" href={model.navigation.workspaceHref}>
                 {model.navigation.workspaceLabel}
               </Link>
+              {model.billingPortal.enabled ? (
+                <form action="/api/billing/portal" method="post">
+                  <input type="hidden" name="audience" value={model.audience} />
+                  <input type="hidden" name="returnTo" value={model.navigation.membershipHref} />
+                  <button type="submit" className="pat-button-secondary">
+                    {model.billingPortal.label}
+                  </button>
+                </form>
+              ) : null}
             </div>
+            <p className="mt-4 text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+              {model.billingPortal.note}
+            </p>
           </article>
         </aside>
       </section>
