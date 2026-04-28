@@ -45,7 +45,7 @@ export default function RoleSignInPage({ role }: RoleSignInPageProps) {
           <div className="mt-5 rounded-[18px] border border-sky-200 bg-sky-50 px-4 py-4 text-sm leading-6 text-sky-950">
             <div className="font-semibold">Development-only local review auth is enabled.</div>
             <div className="mt-2">
-              This route can create a real local Auth.js session for deterministic {config.label.toLowerCase()} review without GitHub.
+              This route can create a real loopback-only Auth.js session for deterministic {config.label.toLowerCase()} review without GitHub. It is not available on public production origins.
             </div>
             {localReviewUser ? (
               <div className="mt-2">

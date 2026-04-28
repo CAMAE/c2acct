@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { createMembershipCustomerPortalSession } from "@/lib/billing/portal";
 import type { MembershipAudience } from "@/lib/membershipContext";
+import { ELEVATED_ACTION, hasElevatedConfirmation } from "@/lib/security/elevatedAction";
+import { consumeDurableRateLimit, getClientIp, rateLimitJsonResponse } from "@/lib/security/rateLimit";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -32,6 +34,25 @@ export async function POST(request: Request) {
   const formData = await request.formData();
   const audience = parseAudience(formData.get("audience"));
   const returnPath = parseReturnPath(formData.get("returnTo"), audience);
+  const redirectUrl = new URL(returnPath, request.url);
+
+  if (!hasElevatedConfirmation(formData, ELEVATED_ACTION.BILLING_PORTAL)) {
+    redirectUrl.searchParams.set("portal", "unavailable");
+    redirectUrl.searchParams.set("reason", "confirmation_required");
+    return NextResponse.redirect(redirectUrl, 303);
+  }
+
+  const quota = await consumeDurableRateLimit({
+    scope: "billing.portal",
+    key: `${sessionUser.id}:${getClientIp(request)}`,
+    limit: 6,
+    windowMs: 60_000,
+  });
+
+  if (!quota.allowed) {
+    return rateLimitJsonResponse(quota);
+  }
+
   const result = await createMembershipCustomerPortalSession({
     sessionUser,
     audience,
@@ -42,9 +63,9 @@ export async function POST(request: Request) {
     return NextResponse.redirect(result.redirectUrl, 303);
   }
 
-  const redirectUrl = new URL(result.returnPath, request.url);
-  redirectUrl.searchParams.set("portal", result.mode === "scaffold" ? "scaffold" : "unavailable");
-  redirectUrl.searchParams.set("reason", result.reason ?? "unknown");
+  const fallbackUrl = new URL(result.returnPath, request.url);
+  fallbackUrl.searchParams.set("portal", result.mode === "scaffold" ? "scaffold" : "unavailable");
+  fallbackUrl.searchParams.set("reason", result.reason ?? "unknown");
 
-  return NextResponse.redirect(redirectUrl, 303);
+  return NextResponse.redirect(fallbackUrl, 303);
 }

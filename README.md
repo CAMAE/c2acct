@@ -106,6 +106,8 @@ Provider routes:
 - `POST /api/billing/webhooks`: verifies Stripe signatures, persists webhook events idempotently, reconciles subscription/invoice state, and records processing proof.
 - `POST /api/billing/portal`: redirects signed-in users to Stripe customer portal when a provider customer exists.
 
+Billing-sensitive routes require explicit account-holder confirmation and durable DB-backed rate limits. The customer portal route is limited per signed-in user and client IP. Stripe webhooks are signature-verified and rate-limited per client IP before reconciliation.
+
 Subscription entitlement truth comes from provider reconciliation. `active` and `trialing` Stripe subscription states can grant entitlement; `past_due`, `canceled`, `incomplete`, `unpaid`, and `payment_action_required` do not. Checkout session creation only marks `PENDING_CHECKOUT` until signed webhook proof reconciles the provider subscription.
 
 Live provider roundtrip remains `UNVERIFIED` unless Stripe keys/CLI or a signed fixture run proves the route. Local fixture tests are acceptable local-only proof; they are not public-live billing proof.
@@ -262,10 +264,12 @@ GitHub remains the primary production auth provider.
 
 For deterministic local manual review, PAT can expose a development-only Auth.js Credentials path when all of the following are true:
 
-- `NODE_ENV !== "production"`
 - `PAT_ENABLE_LOCAL_REVIEW_AUTH=1`
 - `PAT_LOCAL_REVIEW_PASSWORD` is set
 - `AUTH_SECRET` or `NEXTAUTH_SECRET` is set so Auth.js can sign a real session
+- every configured app origin used by the auth runtime is loopback-only (`localhost`, `127.0.0.1`, or `::1`)
+
+The local-review policy checks `AUTH_URL`, `NEXTAUTH_URL`, `PAT_LOCAL_ORIGIN`, `MAC_MINI_PUBLIC_ORIGIN`, `NEXT_PUBLIC_APP_URL`, and `PAT_PUBLIC_BASE_URL`. Any public/non-loopback origin disables the credentials provider and blocks `review.*@pat.local` accounts even if those rows already exist in the database. A production-mode standalone loopback proof can use local review only when the flag is set and all configured origins remain loopback.
 
 Deterministic local review identities:
 
@@ -282,7 +286,7 @@ PAT_ENABLE_LOCAL_REVIEW_AUTH=1 pnpm seed:baseline
 PAT_ENABLE_LOCAL_REVIEW_AUTH=1 pnpm seed:pat-runtime
 ```
 
-This local review path is never exposed in production and does not replace GitHub auth there.
+This local review path is never exposed on public production origins and does not replace GitHub auth there.
 
 Exact local manual review sequence:
 

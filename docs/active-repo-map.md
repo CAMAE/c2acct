@@ -40,6 +40,9 @@
 ## Auth and route contract
 
 - `auth.ts` and `auth.config.ts`: GitHub-mode auth wiring and session hydration.
+- `lib/auth/localReview.ts`: deterministic local-review identity policy; credentials auth is available only when `PAT_ENABLE_LOCAL_REVIEW_AUTH=1` and all configured auth/app origins are loopback.
+- `lib/security/rateLimit.ts`: durable DB-backed quota buckets for sensitive routes.
+- `lib/security/elevatedAction.ts`: explicit account-holder confirmation contract for billing-sensitive form posts.
 - `proxy.ts`: PAT protected-route gate.
 - `/`: PAT
 - `/sign-in`: canonical sign-in route
@@ -80,7 +83,7 @@ Release fingerprint fields:
 
 - Operator JSON from `scripts/release/read-release-fingerprint.ts`: `releaseId`, `branch`, `commitSha`, `commitShort`, `canonicalRoot`, `canonicalRootName`, `buildTimestamp`, `authMode`, `buildSourceType`, `buildId`, `releaseFingerprintSeed`, `startCommand`, and `gitDirty`.
 - Public `/api/release-fingerprint` and `/api/health/db`: same runtime identity without the full local filesystem root; `canonicalRootName` is the public root proof.
-- Auth mode is `github` for the canonical operator runtime. Local-review mode is allowed only for loopback development proof with `PAT_ENABLE_LOCAL_REVIEW_AUTH=1`, `PAT_LOCAL_REVIEW_PASSWORD`, and an Auth.js secret.
+- Auth mode is `github` for the canonical operator runtime. Local-review mode is allowed only for loopback proof with `PAT_ENABLE_LOCAL_REVIEW_AUTH=1`, `PAT_LOCAL_REVIEW_PASSWORD`, an Auth.js secret, and no public/non-loopback values in `AUTH_URL`, `NEXTAUTH_URL`, `PAT_LOCAL_ORIGIN`, `MAC_MINI_PUBLIC_ORIGIN`, `NEXT_PUBLIC_APP_URL`, or `PAT_PUBLIC_BASE_URL`.
 - Validation chain: `pnpm lint:test`, `pnpm typecheck`, `pnpm test:unit -- tests/release-surface-validator.test.ts`, `pnpm build`, `pnpm release:prelaunch`, and `pnpm validate:launch`.
 - Release proof files `canonical-root.json`, `release-state.env`, `expected-live-release.json`, and `last-known-good-release.json` are strict startup inputs. `last-known-good-release.json` is promoted only after prelaunch/nightly proof passes; stale or contradictory proof blocks startup.
 - Public-live release state is `UNVERIFIED` unless a public deployment URL has live fingerprint proof. Loopback host proof is local-only QA.
@@ -92,6 +95,7 @@ Current PAT product truth:
 - Elite insight tiers remain visible where staged, but locked Elite cards are not proof that the richer premium layer is fully wired or ready to ship.
 - Membership checkout routes use Stripe-hosted provider checkout only when `PAT_BILLING_ENABLED=1`, `STRIPE_SECRET_KEY`, and the matching audience/plan `STRIPE_PRICE_*` value exist. Otherwise the visible copy and write path must stay explicit scaffold/no live charge.
 - Billing provider truth lives in `lib/billing/*`, `BillingCustomer`, `BillingWebhookEvent`, `BillingInvoice`, and provider fields on `MembershipSubscription`.
+- Sensitive billing entry points require explicit account-holder confirmation and durable `RateLimitBucket` quotas before portal redirects or webhook reconciliation continue.
 - PAT stores provider refs and reconciliation timestamps only; it does not store raw card numbers, security codes, or bank account numbers.
 - Entitlements for provider-backed rows come from reconciled provider subscription state. `active` and `trialing` can grant access; `past_due`, `canceled`, `incomplete`, `unpaid`, and `payment_action_required` cannot.
 - Live Stripe roundtrip state remains `UNVERIFIED` unless a Stripe CLI/live-key run exists. Signed webhook fixtures are local-only proof.

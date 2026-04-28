@@ -9,6 +9,7 @@ import {
   getRequestedCheckoutPlan,
   getRequestedMembershipPaymentMethod,
 } from "@/lib/membershipContent";
+import { ELEVATED_ACTION, hasElevatedConfirmation } from "@/lib/security/elevatedAction";
 
 export const dynamic = "force-dynamic";
 
@@ -57,6 +58,10 @@ export default async function VendorMembershipCheckoutPage({
     }
 
     const requestedPlan = String(formData.get("plan")) === MEMBERSHIP_PLAN.ELITE ? MEMBERSHIP_PLAN.ELITE : MEMBERSHIP_PLAN.PRO;
+    if (!hasElevatedConfirmation(formData, ELEVATED_ACTION.MEMBERSHIP_CHECKOUT)) {
+      redirect(`/vendor/membership/checkout?plan=${requestedPlan.toLowerCase()}&billing=confirmation_required`);
+    }
+
     const result = await startMembershipCheckoutFlow({
       sessionUser: actor,
       audience: "vendor",

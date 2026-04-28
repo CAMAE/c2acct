@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import PatModeToggle from "@/app/components/pat/PatModeToggle";
 import type { MembershipCheckoutModel, MembershipPaymentMethodKey } from "@/lib/membershipContent";
+import { ELEVATED_ACTION, ELEVATED_CONFIRMATION_FIELD } from "@/lib/security/elevatedAction";
 
 type MembershipCheckoutShellProps = {
   model: MembershipCheckoutModel;
@@ -192,6 +193,19 @@ export default function MembershipCheckoutShell({
             <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">{paymentPanel.detail}</p>
           </div>
 
+          <label className="mt-6 flex gap-3 rounded-[18px] border border-[var(--shell-border)] bg-white/80 p-4 text-sm leading-6 text-[var(--shell-muted)]">
+            <input
+              required
+              type="checkbox"
+              name={ELEVATED_CONFIRMATION_FIELD}
+              value={ELEVATED_ACTION.MEMBERSHIP_CHECKOUT}
+              className="mt-1 h-4 w-4"
+            />
+            <span>
+              I confirm I am the signed-in account holder and understand this action may create a provider checkout session or record a billing checkout intent for this PAT membership.
+            </span>
+          </label>
+
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <button type="submit" className="pat-button-primary">
               {model.submitLabel}
@@ -233,9 +247,19 @@ export default function MembershipCheckoutShell({
                 {model.navigation.workspaceLabel}
               </Link>
               {model.billingPortal.enabled ? (
-                <form action="/api/billing/portal" method="post">
+                <form action="/api/billing/portal" method="post" className="grid gap-3">
                   <input type="hidden" name="audience" value={model.audience} />
                   <input type="hidden" name="returnTo" value={model.navigation.membershipHref} />
+                  <label className="flex gap-3 rounded-[16px] border border-[var(--shell-border)] bg-white/80 p-3 text-xs leading-5 text-[var(--shell-muted)]">
+                    <input
+                      required
+                      type="checkbox"
+                      name={ELEVATED_CONFIRMATION_FIELD}
+                      value={ELEVATED_ACTION.BILLING_PORTAL}
+                      className="mt-0.5 h-4 w-4"
+                    />
+                    <span>Confirm account-holder access to billing portal management.</span>
+                  </label>
                   <button type="submit" className="pat-button-secondary">
                     {model.billingPortal.label}
                   </button>

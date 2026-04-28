@@ -50,7 +50,7 @@ export function getAuthRuntimeStatus(): AuthRuntimeStatus {
       "Set AUTH_GITHUB_ID and AUTH_GITHUB_SECRET from the GitHub OAuth app.",
       `Register ${callbackExample} as the GitHub callback URL.`,
       "Keep local GitHub sign-in off until that exact callback is registered, then opt in with PAT_ENABLE_LOCAL_GITHUB_AUTH=1.",
-      "Set PAT_ENABLE_LOCAL_REVIEW_AUTH=1 and PAT_LOCAL_REVIEW_PASSWORD only for local development when you need deterministic review sign-in without GitHub.",
+      "Set PAT_ENABLE_LOCAL_REVIEW_AUTH=1 and PAT_LOCAL_REVIEW_PASSWORD only for loopback local review when you need deterministic review sign-in without GitHub.",
       "If .env.local contains blank auth values, remove them or set real values. The local auth resolver now ignores those blanks and falls back to configured values in .env.",
       "If local sign-in fails after a secret change or a broken callback, reset local auth cookies and try again.",
     ],

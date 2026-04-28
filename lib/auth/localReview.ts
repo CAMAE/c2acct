@@ -11,6 +11,14 @@ export const LOCAL_REVIEW_AUTH_FLAG_ENV = "PAT_ENABLE_LOCAL_REVIEW_AUTH";
 export const LOCAL_REVIEW_PASSWORD_ENV = "PAT_LOCAL_REVIEW_PASSWORD";
 export const LOCAL_REVIEW_FIRM_COMPANY_NAME = "Demo Company";
 export const LOCAL_REVIEW_VENDOR_COMPANY_NAME = "PAT Demo Vendor";
+export const LOCAL_REVIEW_ORIGIN_ENV_KEYS = [
+  "AUTH_URL",
+  "NEXTAUTH_URL",
+  "PAT_LOCAL_ORIGIN",
+  "MAC_MINI_PUBLIC_ORIGIN",
+  "NEXT_PUBLIC_APP_URL",
+  "PAT_PUBLIC_BASE_URL",
+] as const;
 
 export type LocalReviewKey = "vendor" | "firm" | "individual" | "admin" | "consultant";
 
@@ -79,6 +87,22 @@ type LocalReviewSeedSummary = {
 
 type PrismaSeedClient = Pick<PrismaClient, "company" | "user" | "subject" | "subjectMembership">;
 
+export type LocalReviewAuthPolicy = {
+  flagEnabled: boolean;
+  nodeEnv: string;
+  productionLike: boolean;
+  origins: Array<{
+    envName: string;
+    origin: string;
+    loopback: boolean;
+  }>;
+  publicOrigins: string[];
+  runtimeAllowed: boolean;
+  credentialsProviderAvailable: boolean;
+  seedAllowed: boolean;
+  reason: string | null;
+};
+
 function normalizeEmail(email: string | null | undefined) {
   if (!email) {
     return null;
@@ -110,31 +134,83 @@ function isLoopbackOrigin(value: string | null | undefined) {
 
   try {
     const parsed = new URL(value);
-    return parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost";
+    return parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost" || parsed.hostname === "::1";
   } catch {
     return false;
   }
 }
 
-export function isLocalReviewRuntimeAllowed() {
-  if (process.env.NODE_ENV !== "production") {
+function normalizeOrigin(value: string | null | undefined) {
+  const normalized = value?.trim();
+  return normalized ? normalized.replace(/\/$/, "") : null;
+}
+
+export function getLocalReviewAuthPolicy(env: NodeJS.ProcessEnv = process.env): LocalReviewAuthPolicy {
+  const nodeEnv = env.NODE_ENV || "development";
+  const flagEnabled = env[LOCAL_REVIEW_AUTH_FLAG_ENV] === "1";
+  const origins = LOCAL_REVIEW_ORIGIN_ENV_KEYS.flatMap((envName) => {
+    const origin = normalizeOrigin(env[envName]);
+    return origin
+      ? [{
+          envName,
+          origin,
+          loopback: isLoopbackOrigin(origin),
+        }]
+      : [];
+  });
+  const publicOrigins = origins.filter((origin) => !origin.loopback).map((origin) => `${origin.envName}=${origin.origin}`);
+  const productionLike = nodeEnv === "production" || publicOrigins.length > 0;
+  const hasLoopbackOrigin = origins.some((origin) => origin.loopback);
+  const localNonProductionWithoutOrigin = nodeEnv !== "production" && origins.length === 0;
+  const loopbackOnly = publicOrigins.length === 0 && (hasLoopbackOrigin || localNonProductionWithoutOrigin);
+  const runtimeAllowed = loopbackOnly;
+  const credentialsProviderAvailable = flagEnabled && runtimeAllowed;
+  const seedAllowed = nodeEnv !== "production"
+    ? runtimeAllowed
+    : flagEnabled && runtimeAllowed && hasLoopbackOrigin;
+  const reason = !flagEnabled
+    ? "local-review-flag-disabled"
+    : !runtimeAllowed
+      ? publicOrigins.length > 0
+        ? `non-loopback-origin:${publicOrigins.join(",")}`
+        : "loopback-origin-required"
+      : null;
+
+  return {
+    flagEnabled,
+    nodeEnv,
+    productionLike,
+    origins,
+    publicOrigins,
+    runtimeAllowed,
+    credentialsProviderAvailable,
+    seedAllowed,
+    reason,
+  };
+}
+
+export function isLocalReviewRuntimeAllowed(env: NodeJS.ProcessEnv = process.env) {
+  return getLocalReviewAuthPolicy(env).runtimeAllowed;
+}
+
+export function isLocalReviewAuthRequested(env: NodeJS.ProcessEnv = process.env) {
+  return getLocalReviewAuthPolicy(env).credentialsProviderAvailable;
+}
+
+export function shouldSeedLocalReviewUsers(env: NodeJS.ProcessEnv = process.env) {
+  return getLocalReviewAuthPolicy(env).seedAllowed;
+}
+
+export function isLocalReviewEmail(email: string | null | undefined) {
+  return Boolean(findLocalReviewUserByEmail(email));
+}
+
+export function canUseLocalReviewEmail(email: string | null | undefined, env: NodeJS.ProcessEnv = process.env) {
+  if (!isLocalReviewEmail(email)) {
     return true;
   }
 
-  return [
-    process.env.AUTH_URL,
-    process.env.NEXTAUTH_URL,
-    process.env.PAT_LOCAL_ORIGIN,
-    process.env.MAC_MINI_PUBLIC_ORIGIN,
-  ].some((origin) => isLoopbackOrigin(origin ?? null));
-}
-
-export function isLocalReviewAuthRequested() {
-  return isLocalReviewRuntimeAllowed() && process.env[LOCAL_REVIEW_AUTH_FLAG_ENV] === "1";
-}
-
-export function shouldSeedLocalReviewUsers() {
-  return isLocalReviewRuntimeAllowed();
+  return isLocalReviewAuthRequested(env);
 }
 
 export function findLocalReviewUserByEmail(email: string | null | undefined) {

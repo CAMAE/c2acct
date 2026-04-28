@@ -813,6 +813,19 @@ model OperatorAuditEvent {
   @@index([action, createdAt])
 }
 
+model RateLimitBucket {
+  id        String   @id
+  scope     String
+  keyHash   String
+  count     Int      @default(0)
+  resetAt   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([scope, keyHash])
+  @@index([scope, resetAt])
+}
+
 enum CapabilityLevel {
   TIER1
   TIER2

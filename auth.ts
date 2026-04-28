@@ -3,7 +3,11 @@ import type { UserRole } from "@prisma/client";
 import authConfig from "@/auth.config";
 import prisma from "@/lib/prisma";
 import { getResolvedAuthEnv } from "@/lib/auth/env";
-import { ensureLocalReviewUserByEmail, isLocalReviewAuthRequested } from "@/lib/auth/localReview";
+import {
+  canUseLocalReviewEmail,
+  ensureLocalReviewUserByEmail,
+  isLocalReviewAuthRequested,
+} from "@/lib/auth/localReview";
 
 type DbUserClaims = {
   id: string;
@@ -19,6 +23,10 @@ function normalizeEmail(email: string | null | undefined) {
 }
 
 async function findUserByEmail(email: string): Promise<DbUserClaims | null> {
+  if (!canUseLocalReviewEmail(email)) {
+    return null;
+  }
+
   return prisma.user.findFirst({
     where: { email: { equals: email, mode: "insensitive" } },
     select: { id: true, email: true, role: true, companyId: true },
@@ -94,6 +102,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       sessionUser.role = (token.role as UserRole | undefined) ?? "MEMBER";
       sessionUser.companyId =
         typeof token.companyId === "string" ? token.companyId : null;
+      delete (sessionUser as typeof sessionUser & { name?: unknown }).name;
+      delete (sessionUser as typeof sessionUser & { image?: unknown }).image;
 
       return session;
     },

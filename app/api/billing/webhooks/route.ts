@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getBillingConfig } from "@/lib/billing/config";
 import { processStripeWebhookEvent } from "@/lib/billing/reconcile";
 import { type StripeEvent, verifyStripeWebhookSignature } from "@/lib/billing/stripe";
+import { consumeDurableRateLimit, getClientIp, rateLimitJsonResponse } from "@/lib/security/rateLimit";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -13,6 +14,17 @@ export async function POST(request: Request) {
       { ok: false, reason: config.webhookSecret ? "billing-disabled" : "missing-stripe-webhook-secret" },
       { status: 503 }
     );
+  }
+
+  const quota = await consumeDurableRateLimit({
+    scope: "billing.webhook",
+    key: getClientIp(request),
+    limit: 120,
+    windowMs: 60_000,
+  });
+
+  if (!quota.allowed) {
+    return rateLimitJsonResponse(quota);
   }
 
   const payload = await request.text();

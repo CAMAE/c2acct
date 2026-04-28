@@ -30,22 +30,11 @@ import { writeCompanyCapabilityScores } from "@/lib/companyCapabilityScoreWrites
 import { recordPatDiagnostic } from "@/lib/patDiagnostics";
 import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
 import { SURVEY_FINAL_SCORE_VERSION, getSurveyDraftWhere } from "@/lib/surveyDrafts";
+import { consumeDurableRateLimit, rateLimitJsonResponse } from "@/lib/security/rateLimit";
 
 const SUBMIT_WINDOW_MS = 60_000;
 const SUBMIT_MAX_REQUESTS_PER_WINDOW = 20;
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
-
-type SubmitRateLimitState = {
-  count: number;
-  resetAt: number;
-};
-
-declare global {
-  var __submitRateLimitStore: Map<string, SubmitRateLimitState> | undefined;
-}
-
-const submitRateLimitStore = globalThis.__submitRateLimitStore ?? new Map<string, SubmitRateLimitState>();
-globalThis.__submitRateLimitStore = submitRateLimitStore;
 
 const SubmitSchema = z
   .object({
@@ -56,32 +45,6 @@ const SubmitSchema = z
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function consumeSubmitQuota(key: string, now = Date.now()): boolean {
-  // Opportunistic cleanup to prevent unbounded growth in long-lived dev processes.
-  for (const [entryKey, state] of submitRateLimitStore.entries()) {
-    if (state.resetAt <= now) {
-      submitRateLimitStore.delete(entryKey);
-    }
-  }
-
-  const current = submitRateLimitStore.get(key);
-  if (!current || current.resetAt <= now) {
-    submitRateLimitStore.set(key, {
-      count: 1,
-      resetAt: now + SUBMIT_WINDOW_MS,
-    });
-    return true;
-  }
-
-  if (current.count >= SUBMIT_MAX_REQUESTS_PER_WINDOW) {
-    return false;
-  }
-
-  current.count += 1;
-  submitRateLimitStore.set(key, current);
-  return true;
 }
 
 const CANONICAL_FIRM_MODULE_KEYS: ReadonlySet<string> = new Set(
@@ -101,11 +64,15 @@ export async function POST(req: Request) {
 
   const effectiveCompanyId = assessmentContext.companyId;
   const submitRateLimitKey = `${sessionUser.id}:${assessmentContext.subjectId ?? effectiveCompanyId}`;
-  if (!consumeSubmitQuota(submitRateLimitKey)) {
-    return NextResponse.json(
-      { ok: false, error: "Too many requests" },
-      { status: 429, headers: NO_STORE_HEADERS }
-    );
+  const quota = await consumeDurableRateLimit({
+    scope: "survey.submit",
+    key: submitRateLimitKey,
+    limit: SUBMIT_MAX_REQUESTS_PER_WINDOW,
+    windowMs: SUBMIT_WINDOW_MS,
+  });
+
+  if (!quota.allowed) {
+    return rateLimitJsonResponse(quota);
   }
 
   let raw: unknown;

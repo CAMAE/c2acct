@@ -1,6 +1,7 @@
 import type { CompanyType, UserRole } from "@prisma/client";
 import { cache } from "react";
 import { auth } from "@/auth";
+export { SESSION_USER_FIELD_NAMES } from "@/lib/auth/sessionFields";
 
 export type SessionUser = {
   id: string;

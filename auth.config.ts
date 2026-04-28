@@ -45,7 +45,7 @@ const authConfig: NextAuthConfig = {
               const password = typeof credentials?.password === "string" ? credentials.password : "";
               const reviewUser = findLocalReviewUserByEmail(email);
 
-              if (!reviewUser || !runtimeAuthEnv.values.localReviewPassword) {
+              if (!reviewUser || !runtimeAuthEnv.localReviewProviderReady || !runtimeAuthEnv.values.localReviewPassword) {
                 return null;
               }
 

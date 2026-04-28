@@ -42,7 +42,7 @@ function getViewHref(view: AccessView) {
 
 function describeAuthError(error: string | null, cookieState: ReturnType<typeof summarizeLocalAuthCookies>) {
   if (error === "local_review_disabled") {
-    return "Local review sign-in is disabled in this runtime. Set PAT_ENABLE_LOCAL_REVIEW_AUTH=1 in non-production development before using the seeded PAT review identities.";
+    return "Local review sign-in is disabled in this runtime. It requires PAT_ENABLE_LOCAL_REVIEW_AUTH=1 and loopback-only local origins before seeded PAT review identities can be used.";
   }
 
   if (error === "local_review_secret_missing") {
@@ -197,10 +197,10 @@ function RoleAccessCard({
 
       {localReviewEnabled && localReviewEmail ? (
         <div className="mt-6 rounded-[18px] border border-sky-200 bg-sky-50/90 p-5 text-sm leading-6 text-sky-950">
-          <div className="font-semibold">Development-only local review auth</div>
-          <div className="mt-2">
-            This route can create a real local Auth.js session without GitHub only in non-production review mode. It is never a production sign-in path.
-          </div>
+            <div className="font-semibold">Development-only local review auth</div>
+            <div className="mt-2">
+            This route can create a real local Auth.js session without GitHub only in loopback local review mode. It is never a public production sign-in path.
+            </div>
           <div className="mt-3">
             Review identity: <span className="font-semibold text-[var(--shell-ink)]">{localReviewEmail}</span>
           </div>
@@ -243,7 +243,7 @@ function RoleAccessCard({
             </div>
           ) : null}
           <div className="mt-3 text-xs leading-5 text-[var(--shell-muted)]">
-            Requires `PAT_ENABLE_LOCAL_REVIEW_AUTH=1`, a stable `AUTH_SECRET`, and `PAT_LOCAL_REVIEW_PASSWORD` in local env.
+            Requires `PAT_ENABLE_LOCAL_REVIEW_AUTH=1`, a stable `AUTH_SECRET`, `PAT_LOCAL_REVIEW_PASSWORD`, and loopback-only auth origins.
           </div>
           {!githubReady && githubUnavailableReason ? (
             <div className="mt-3 rounded-[16px] border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">

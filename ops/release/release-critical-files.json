@@ -9,6 +9,7 @@
     "auth.ts",
     "auth.config.ts",
     "lib/auth/",
+    "lib/security/",
     "proxy.ts",
     "app/vendor/",
     "app/firm/",
@@ -69,6 +70,7 @@
     "scripts/release/check-release-critical-changes.mjs",
     "scripts/release/prelaunch-gate.mjs",
     "tests/billing-provider.contract.test.ts",
+    "tests/auth-boundaries.contract.test.ts",
     "e2e/release-integrity.spec.ts",
     "tests/release-surface-validator.test.ts"
   ]
