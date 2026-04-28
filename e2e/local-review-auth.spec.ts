@@ -279,6 +279,12 @@ test.describe("local review auth", () => {
     await assertNoAuthOrRuntimeFailure(adminPage);
     await expect(adminPage.getByRole("heading", { name: /C2Core operator control plane/i })).toBeVisible();
 
+    await gotoStable(adminPage, "/admin/launch");
+    await assertNoAuthOrRuntimeFailure(adminPage);
+    await expect(adminPage.getByRole("heading", { name: "Launch control plane", exact: true })).toBeVisible();
+    await expect(adminPage.getByRole("heading", { name: "Customer and product footprint", exact: true })).toBeVisible();
+    await expect(adminPage.getByRole("heading", { name: "Release identity", exact: true })).toBeVisible();
+
     await gotoStable(adminPage, "/admin/taxonomy");
     await assertNoAuthOrRuntimeFailure(adminPage);
     await expect(adminPage.getByRole("heading", { name: "Taxonomy", exact: true })).toBeVisible();

@@ -20,6 +20,7 @@ import { getPatDiagnosticsSnapshot } from "@/lib/patDiagnostics";
 
 export const ADMIN_NAV_ITEMS = [
   { href: "/admin", label: "Overview" },
+  { href: "/admin/launch", label: "Launch" },
   { href: "/admin/organizations", label: "Organizations" },
   { href: "/admin/users", label: "Users" },
   { href: "/admin/consultants", label: "Consultants" },

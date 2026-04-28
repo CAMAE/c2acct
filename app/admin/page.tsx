@@ -70,6 +70,11 @@ export default async function AdminOverviewPage() {
       >
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <AdminActionLink
+            href="/admin/launch"
+            title="Launch control"
+            body="Launch health, customer and membership state, billing reconciliation, demo readiness, local review state, and release identity."
+          />
+          <AdminActionLink
             href="/admin/organizations"
             title="Organizations"
             body="Company oversight, company-backed membership controls, linked users, and product context."
