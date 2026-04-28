@@ -31,6 +31,7 @@
     "/": {
       "sourceFiles": [
         "app/page.tsx",
+        "lib/publicOnboarding.ts",
         "lib/locale.ts"
       ],
       "positiveMarkers": [
@@ -39,6 +40,53 @@
         "The intelligence layer inside C2Acct",
         "Meet PAT",
         "Choose your path"
+      ]
+    },
+    "/onboarding": {
+      "sourceFiles": [
+        "app/onboarding/page.tsx",
+        "lib/publicOnboarding.ts"
+      ],
+      "positiveMarkers": [
+        "Public onboarding",
+        "Choose a role",
+        "Checkout is explicit"
+      ]
+    },
+    "/onboarding/vendor": {
+      "sourceFiles": [
+        "app/onboarding/[audience]/page.tsx",
+        "lib/publicOnboarding.ts"
+      ],
+      "positiveMarkers": [
+        "Vendor onboarding",
+        "First PAT value",
+        "Payment state:",
+        "Vendor insights stay pending"
+      ]
+    },
+    "/onboarding/firm": {
+      "sourceFiles": [
+        "app/onboarding/[audience]/page.tsx",
+        "lib/publicOnboarding.ts"
+      ],
+      "positiveMarkers": [
+        "Firm onboarding",
+        "First PAT value",
+        "Payment state:",
+        "Firm insights stay pending"
+      ]
+    },
+    "/onboarding/user": {
+      "sourceFiles": [
+        "app/onboarding/[audience]/page.tsx",
+        "lib/publicOnboarding.ts"
+      ],
+      "positiveMarkers": [
+        "Individual onboarding",
+        "First PAT value",
+        "Payment state:",
+        "Individual insights stay pending"
       ]
     },
     "header": {
