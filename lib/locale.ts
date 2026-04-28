@@ -300,7 +300,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         "Understand how PAT turns assessments, capability signal, and product evidence into current-state decision support.",
       meetPatCta: "Learn more about PAT",
       signInLabel: "Choose your path",
-      signInTitle: "Choose your path",
+      signInTitle: "Continue to sign in",
       signedInCopy: "You are signed in. Choose your path to access your designed workspace.",
       signedOutCopy:
         "Vendors, firms, and individuals sign in here to access their PAT workspace. Role-based dashboards and assessments begin after sign-in.",
