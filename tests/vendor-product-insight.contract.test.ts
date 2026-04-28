@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { getDemoProducts } from "@/data/demoPatEcosystem";
 import { buildFirmProductQuestions } from "@/lib/firmPat";
 import { normalizeAnswerForStoredScale } from "@/lib/productAssessmentRuntime";
 import {
@@ -153,6 +154,128 @@ describe("vendor product insight runtime", () => {
         (snapshot) => snapshot.product.id
       )
     ).toEqual(["completed-product"]);
+  });
+
+  it("separates empty, partial, and fully seeded product insight evidence without overclaiming", () => {
+    const demoProduct = getDemoProducts()[0]?.product;
+    expect(demoProduct).toBeTruthy();
+    const utilityKeys = demoProduct!.utilityKeys.slice(0, 3);
+    const vendorQuestions = buildVendorProductQuestions(utilityKeys);
+    const firmQuestions = buildFirmProductQuestions(utilityKeys);
+    const vendorAnswers = Object.fromEntries(vendorQuestions.map((question) => [question.id, 4]));
+    const firmAnswers = Object.fromEntries(firmQuestions.map((question) => [question.id, 4]));
+    const firmResponseSet = {
+      answers: firmAnswers,
+      scaleMin: 0,
+      scaleMax: 5,
+    };
+
+    const emptySnapshot = buildVendorProductInsightSnapshot({
+      product: {
+        id: "empty-product",
+        name: "Empty Product",
+        summary: null,
+        utilityKeys: [],
+      },
+      vendorAssessmentStatus: {
+        completed: false,
+        latestSubmittedAt: null,
+        statusLabel: "Needs utility declaration",
+        reason: "This product does not yet have a completed final vendor product assessment submission.",
+      },
+      vendorSelfReported: {
+        latestScore: null,
+        submittedAt: null,
+        responses: {
+          answers: {},
+          scaleMin: 0,
+          scaleMax: 5,
+        },
+      },
+      firmReviewed: {
+        assessmentCount: 0,
+        latestSubmittedAt: null,
+        averageScore: null,
+        responseSets: [],
+      },
+    });
+    const partialSnapshot = buildVendorProductInsightSnapshot({
+      product: {
+        id: "partial-product",
+        name: demoProduct!.name,
+        summary: demoProduct!.summary,
+        utilityKeys,
+      },
+      vendorAssessmentStatus: {
+        completed: true,
+        latestSubmittedAt: new Date("2026-04-26T12:00:00.000Z"),
+        statusLabel: "Firm review available",
+        reason: "Firm review is available because the vendor completed the full product assessment.",
+      },
+      vendorSelfReported: {
+        latestScore: 82,
+        submittedAt: new Date("2026-04-26T12:00:00.000Z"),
+        responses: {
+          answers: vendorAnswers,
+          scaleMin: 0,
+          scaleMax: 5,
+        },
+      },
+      firmReviewed: {
+        assessmentCount: 0,
+        latestSubmittedAt: null,
+        averageScore: null,
+        responseSets: [],
+      },
+    });
+    const fullSnapshot = buildVendorProductInsightSnapshot({
+      product: {
+        id: "full-product",
+        name: demoProduct!.name,
+        summary: demoProduct!.summary,
+        utilityKeys,
+      },
+      vendorAssessmentStatus: {
+        completed: true,
+        latestSubmittedAt: new Date("2026-04-26T12:00:00.000Z"),
+        statusLabel: "Firm review available",
+        reason: "Firm review is available because the vendor completed the full product assessment.",
+      },
+      vendorSelfReported: {
+        latestScore: 82,
+        submittedAt: new Date("2026-04-26T12:00:00.000Z"),
+        responses: {
+          answers: vendorAnswers,
+          scaleMin: 0,
+          scaleMax: 5,
+        },
+      },
+      firmReviewed: {
+        assessmentCount: 8,
+        latestSubmittedAt: new Date("2026-04-26T13:00:00.000Z"),
+        responseSets: Array.from({ length: 8 }, () => firmResponseSet),
+      },
+    });
+
+    expect(emptySnapshot.confidenceBand).toBe("no_signal");
+    expect(emptySnapshot.combinedCurrentPatReadout).toMatch(/not have enough current PAT evidence/i);
+    expect(emptySnapshot.confidenceCaveats.join(" ")).toMatch(/No product utility declaration|No vendor self-assessment/i);
+    expect(partialSnapshot.confidenceBand).toBe("sample_thin");
+    expect(partialSnapshot.combinedCurrentPatReadout).toMatch(/vendor-authored current-state view/i);
+    expect(partialSnapshot.confidenceCaveats.join(" ")).toMatch(/No firm product reviews are available yet/i);
+    expect(fullSnapshot.confidenceBand).toBe("grounded");
+    expect(fullSnapshot.confidenceSummary).toMatch(/not claiming benchmark or forecast support/i);
+
+    const fullEvidenceSurface = buildVendorProductInsightDetailSurfaceContent({
+      snapshot: fullSnapshot,
+      insightKey: fullSnapshot.insightRecords[0]!.key,
+      record: fullSnapshot.insightRecords[0]!,
+      surface: "evidence",
+      locked: false,
+    });
+    const fullEvidenceText = fullEvidenceSurface.items.map((item) => `${item.title} ${item.body}`).join(" ");
+    expect(fullEvidenceText).toMatch(/Firm-reviewed signal is grounded across 3 utilities and 8 assessments/i);
+    expect(fullEvidenceText).toMatch(/current-state PAT evidence only/i);
   });
 
   it("maps vendor product modes and keeps elite cards non-clickable", () => {

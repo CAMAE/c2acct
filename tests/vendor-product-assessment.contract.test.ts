@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { getDemoProducts } from "@/data/demoPatEcosystem";
 import {
   PRODUCT_GENERAL_QUESTION_COUNT,
   PRODUCT_OPEN_ENDED_QUESTION_COUNT,
@@ -274,6 +275,78 @@ describe("vendor product assessment contracts", () => {
     expect(completeStatus.scoredQuestionCount).toBe(scoredQuestions.length);
     expect(incompleteStatus.completed).toBe(false);
     expect(incompleteStatus.statusLabel).toBe("Vendor assessment incomplete");
+  });
+
+  it("proves empty, partial, and fully completed vendor product submissions cannot drift into the wrong readiness state", () => {
+    const demoProduct = getDemoProducts()[0]?.product;
+    expect(demoProduct).toBeTruthy();
+    const utilityKeys = demoProduct!.utilityKeys.slice(0, 3);
+    const scoredQuestions = buildVendorProductQuestions(utilityKeys);
+    const plan = serializeVendorProductAssessmentPlan(utilityKeys);
+    const completeResponses = Object.fromEntries(scoredQuestions.map((question, index) => [question.id, index % 6]));
+    const completeOpenEndedResponses = Object.fromEntries(
+      plan.openEndedQuestionIds.map((questionId) => [questionId, "Grounded demo narrative evidence."])
+    );
+    const completeProfile = {
+      productName: demoProduct!.name,
+      productDescription: demoProduct!.summary,
+      logoReference: "https://example.com/logo.png",
+      positioning: demoProduct!.profile.positioning,
+      targetCustomer: demoProduct!.profile.targetCustomer,
+      targetUseContext: demoProduct!.profile.targetUseContext,
+      implementationStyle: demoProduct!.profile.implementationStyle,
+      operatingModelFit: demoProduct!.profile.operatingModelFit,
+      primaryBuyer: demoProduct!.profile.primaryBuyer,
+      integrationPosture: demoProduct!.profile.integrationPosture,
+    };
+
+    const emptyStatus = deriveVendorProductAssessmentCompletionStatus({
+      latestSubmission: null,
+    });
+    const partialStatus = deriveVendorProductAssessmentCompletionStatus({
+      latestSubmission: {
+        id: "vendor-submission-partial",
+        score: 81,
+        createdAt: new Date("2026-04-26T12:00:00.000Z"),
+        answeredCount: scoredQuestions.length - 1,
+        answers: {
+          utilitySelection: utilityKeys,
+          profile: completeProfile,
+          responses: Object.fromEntries(scoredQuestions.slice(0, -1).map((question, index) => [question.id, index % 6])),
+          openEndedResponses: completeOpenEndedResponses,
+        },
+      },
+    });
+    const completeStatus = deriveVendorProductAssessmentCompletionStatus({
+      latestSubmission: {
+        id: "vendor-submission-complete",
+        score: 84,
+        createdAt: new Date("2026-04-26T12:30:00.000Z"),
+        answeredCount: scoredQuestions.length,
+        answers: {
+          utilitySelection: utilityKeys,
+          profile: completeProfile,
+          responses: completeResponses,
+          openEndedResponses: completeOpenEndedResponses,
+        },
+      },
+    });
+
+    expect(plan.generatedQuestionIds.length).toBeGreaterThan(scoredQuestions.length);
+    expect(emptyStatus).toMatchObject({
+      completed: false,
+      statusLabel: "Awaiting vendor assessment",
+    });
+    expect(partialStatus).toMatchObject({
+      completed: false,
+      statusLabel: "Vendor assessment incomplete",
+    });
+    expect(completeStatus).toMatchObject({
+      completed: true,
+      statusLabel: "Firm review available",
+      utilityKeys,
+      scoredQuestionCount: scoredQuestions.length,
+    });
   });
 
   it("maps assessment overview modes to the four stable top-card toggle states", () => {

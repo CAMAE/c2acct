@@ -142,6 +142,96 @@ describe("vendor alignment catalog", () => {
     expect(eliteReports.every((report) => report.locked)).toBe(true);
   });
 
+  it("keeps vendor alignment readiness truthful across empty, partial, and full firm evidence", () => {
+    const empty = buildVendorAlignmentInsightBundle({
+      sampleSize: 0,
+      submissionCount: 0,
+      moduleAggregates: [],
+      capabilityAggregates: [],
+      questionClusters: [],
+    });
+    const partial = buildFixture({
+      sampleSize: 1,
+      submissionCount: 5,
+      moduleScores: {
+        operating: 71,
+        automation: 63,
+        data: 58,
+        governance: 62,
+        strategy: 66,
+      },
+      capabilityScores: {
+        firm_capability_operating_model_discipline: 70,
+        firm_capability_operating_clarity: 68,
+        firm_capability_execution_consistency: 64,
+        firm_capability_measurement_visibility: 59,
+        firm_capability_automation_ai_readiness: 63,
+        firm_capability_change_enablement: 62,
+        firm_capability_strategy_change_alignment: 66,
+        firm_capability_data_flow_integration: 58,
+        firm_capability_control_resilience: 61,
+        firm_capability_governance_controls: 62,
+        firm_capability_strategic_alignment: 65,
+      },
+      clusterScores: {
+        "operating-discipline": 70,
+        "workflow-friction": 55,
+        "automation-change": 63,
+        "data-integration": 58,
+        "controls-risk": 60,
+        "strategy-market": 66,
+      },
+    });
+    const full = buildFixture({
+      sampleSize: 10,
+      submissionCount: 50,
+      moduleScores: {
+        operating: 78,
+        automation: 74,
+        data: 71,
+        governance: 72,
+        strategy: 76,
+      },
+      capabilityScores: {
+        firm_capability_operating_model_discipline: 78,
+        firm_capability_operating_clarity: 75,
+        firm_capability_execution_consistency: 74,
+        firm_capability_measurement_visibility: 72,
+        firm_capability_automation_ai_readiness: 74,
+        firm_capability_change_enablement: 73,
+        firm_capability_strategy_change_alignment: 76,
+        firm_capability_data_flow_integration: 71,
+        firm_capability_control_resilience: 72,
+        firm_capability_governance_controls: 73,
+        firm_capability_strategic_alignment: 76,
+      },
+      clusterScores: {
+        "operating-discipline": 77,
+        "workflow-friction": 69,
+        "automation-change": 74,
+        "data-integration": 71,
+        "controls-risk": 72,
+        "strategy-market": 76,
+      },
+    });
+
+    const emptyReport = empty.reports.find((report) => report.tier === 1)!;
+    const partialReport = partial.reports.find((report) => report.tier === 1)!;
+    const fullReport = full.reports.find((report) => report.tier === 1)!;
+
+    expect(empty.confidenceBand).toBe("no_signal");
+    expect(emptyReport.currentStateSummary).toMatch(/no completed firm PAT evidence yet/i);
+    expect(emptyReport.exactAssessmentBasis).toMatch(/Firm sample size: 0/i);
+    expect(emptyReport.confidenceCaveats.join(" ")).toMatch(/No completed firm PAT submissions/i);
+    expect(partial.confidenceBand).toBe("sample_thin");
+    expect(partialReport.confidenceCaveats.join(" ")).toMatch(/based on 1 assessed firm/i);
+    expect(full.confidenceBand).toBe("grounded");
+    expect(full.confidenceSummary).toMatch(/not claiming benchmark or forecast support/i);
+    expect(fullReport.contributingModules.length).toBeGreaterThan(0);
+    expect(fullReport.contributingCapabilities.length).toBeGreaterThan(0);
+    expect(fullReport.notableQuestionClusters.length).toBeGreaterThan(0);
+  });
+
   it("changes insight basis when the underlying PAT distribution changes", () => {
     const baseline = buildFixture({
       sampleSize: 9,

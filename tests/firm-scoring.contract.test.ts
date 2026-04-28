@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { PAT_PRODUCT_NAME } from "@/lib/displayCopy";
 import { computeScore, summarizeSubmissionScores } from "@/lib/scoring";
 import {
+  buildFirmProductQuestions,
   buildFirmModuleOpenEndedPrompts,
   FIRM_MODULE_DEFINITIONS,
   FIRM_MODULE_OPEN_ENDED_QUESTION_COUNT,
@@ -84,5 +85,52 @@ describe("firm modular scoring", () => {
 
     expect(score.answeredCount).toBe(20);
     expect(score.totalWeight).toBe(20);
+  });
+
+  it("separates firm alignment final-answer coverage from raw numeric scoring", () => {
+    const moduleDefinition = FIRM_MODULE_DEFINITIONS[0]!;
+    const openEndedPrompts = buildFirmModuleOpenEndedPrompts(moduleDefinition);
+    const numericAnswers = Object.fromEntries(
+      FIRM_MODULE_QUESTION_STEMS.map((_, index) => [`q${index + 1}`, index % 6])
+    );
+    const numericScore = computeScore({
+      answers: numericAnswers,
+      scaleMin: 0,
+      scaleMax: 5,
+    });
+
+    expect(openEndedPrompts).toHaveLength(FIRM_MODULE_OPEN_ENDED_QUESTION_COUNT);
+    expect(numericScore.answeredCount).toBe(FIRM_MODULE_QUESTION_STEMS.length);
+    expect(Object.keys(numericAnswers)).toHaveLength(20);
+    expect(Object.keys(numericAnswers).length + openEndedPrompts.length).toBe(25);
+    expect(Object.keys(numericAnswers).length).toBeLessThan(
+      Object.keys(numericAnswers).length + openEndedPrompts.length
+    );
+  });
+
+  it("proves firm product assessments require complete feature-aligned answers before submission", () => {
+    const utilityKeys = ["ap_payables_spend", "reporting_analytics_fpa"];
+    const questions = buildFirmProductQuestions(utilityKeys);
+    const emptyAnswers = {};
+    const partialAnswers = Object.fromEntries(
+      questions.slice(0, -1).map((question, index) => [question.id, index % 6])
+    );
+    const completeAnswers = Object.fromEntries(
+      questions.map((question, index) => [question.id, index % 6])
+    );
+    const missingFromPartial = questions.filter((question) => !Object.hasOwn(partialAnswers, question.id));
+    const completeScore = computeScore({
+      answers: completeAnswers,
+      scaleMin: 0,
+      scaleMax: 5,
+    });
+
+    expect(questions).toHaveLength(utilityKeys.length * 20);
+    expect(Object.keys(emptyAnswers)).toHaveLength(0);
+    expect(Object.keys(partialAnswers)).toHaveLength(questions.length - 1);
+    expect(missingFromPartial).toHaveLength(1);
+    expect(completeScore.answeredCount).toBe(questions.length);
+    expect(completeScore.totalWeight).toBe(questions.length);
+    expect(completeScore.rawScorePct).toBeGreaterThan(0);
   });
 });

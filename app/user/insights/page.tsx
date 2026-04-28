@@ -3,12 +3,12 @@ import { redirect } from "next/navigation";
 import InsightsModeShell from "@/app/components/insights/InsightsModeShell";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
-import { ELITE_PLACEHOLDER_CTA, ELITE_PLACEHOLDER_MESSAGE, ELITE_PLACEHOLDER_TITLE } from "@/lib/insightContent";
+import { ELITE_PLACEHOLDER_MESSAGE, ELITE_PLACEHOLDER_TITLE } from "@/lib/insightContent";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import {
-  USER_TIER1_INSIGHT_DEFINITIONS,
-  USER_TIER2_INSIGHT_DEFINITIONS,
+  buildUserInsightOverviewState,
   getUserAlignmentProgress,
+  getRequestedUserInsightOverviewMode,
 } from "@/lib/userPat";
 
 export const dynamic = "force-dynamic";
@@ -19,17 +19,6 @@ type SearchParams = {
 
 function getModeHref(mode: "pro" | "elite" | "help") {
   return `/user/insights?mode=${mode}`;
-}
-
-function getRequestedMode(rawMode: string | undefined) {
-  switch (rawMode?.trim().toLowerCase()) {
-    case "elite":
-      return "elite" as const;
-    case "help":
-      return "help" as const;
-    default:
-      return "pro" as const;
-  }
 }
 
 export default async function UserInsightsPage({
@@ -64,42 +53,16 @@ export default async function UserInsightsPage({
   }
 
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const activeMode = getRequestedMode(resolvedSearchParams?.mode);
+  const activeMode = getRequestedUserInsightOverviewMode(resolvedSearchParams?.mode);
   const alignmentProgress = await getUserAlignmentProgress(sessionUser);
 
   const proAvailable = Boolean(alignmentProgress?.tier1Unlocked);
+  const insightOverview = buildUserInsightOverviewState({ tier1Unlocked: proAvailable });
   const toggleOptions = [
     { key: "pro", label: "Pro Insights", href: getModeHref("pro") },
     { key: "elite", label: "Elite Insights", href: getModeHref("elite") },
     { key: "help", label: "Help", href: getModeHref("help") },
   ] as const;
-
-  const currentStateSummary = proAvailable
-    ? "PAT is using your completed individual alignment evidence to keep the current person-level view tied to your recorded workflow signal."
-    : "PAT needs a completed individual alignment submission before it can open a grounded person-level insight readout.";
-  const proCards = USER_TIER1_INSIGHT_DEFINITIONS.map((card) => ({
-    key: card.key,
-    title: card.title,
-    summary: proAvailable
-      ? card.description
-      : "Complete the individual alignment assessment before relying on this person-level view.",
-    href: `/user/insights/${card.key}`,
-    interactive: true,
-    statusLabel: proAvailable ? undefined : "Assessment needed",
-    tone: proAvailable ? ("active" as const) : ("muted" as const),
-    supportingText: proAvailable
-      ? "Grounded in current person-level alignment evidence."
-      : "Current person-level alignment evidence is still missing.",
-  }));
-  const eliteCards = USER_TIER2_INSIGHT_DEFINITIONS.map((card) => ({
-    key: card.key,
-    title: card.title,
-    summary: card.description,
-    interactive: false,
-    statusLabel: ELITE_PLACEHOLDER_TITLE,
-    tone: "locked" as const,
-    supportingText: ELITE_PLACEHOLDER_CTA,
-  }));
 
   return (
     <InsightsModeShell
@@ -108,19 +71,19 @@ export default async function UserInsightsPage({
       title="Individual insights"
       audienceTerms={["Individual"]}
       heroBody="Use this page to review the current person-level PAT readouts that can be supported from your individual alignment submissions today."
-      currentStateSummary={currentStateSummary}
+      currentStateSummary={insightOverview.currentStateSummary}
       toggleAriaLabel="Individual insight modes"
       toggleOptions={toggleOptions}
       proPanel={{
         title: "Pro Insights",
         intro: "Open these cards for current person-level readouts tied to the alignment evidence PAT can support today.",
-        cards: proCards,
+        cards: insightOverview.proCards,
         columnsClassName: "md:grid-cols-2",
       }}
       elitePanel={{
         title: "Elite Insights",
         intro: ELITE_PLACEHOLDER_MESSAGE,
-        cards: eliteCards,
+        cards: insightOverview.eliteCards,
         columnsClassName: "md:grid-cols-2",
       }}
       helpPanel={{

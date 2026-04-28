@@ -7,6 +7,16 @@ import {
 } from "@prisma/client";
 import { randomUUID } from "crypto";
 import type { SessionUser } from "@/lib/auth/session";
+import {
+  ELITE_PLACEHOLDER_CTA,
+  ELITE_PLACEHOLDER_MESSAGE,
+  ELITE_PLACEHOLDER_TITLE,
+} from "@/lib/insightContent";
+import {
+  buildElitePlaceholderSurfaceContent,
+  buildHelpSurfaceContent,
+  type InsightSurfaceContent,
+} from "@/lib/insightSurface";
 import prisma from "@/lib/prisma";
 import {
   matchesPrismaMissingSchemaTarget,
@@ -44,6 +54,28 @@ export type UserInsightDefinition =
   | ((typeof USER_TIER1_INSIGHT_DEFINITIONS)[number] & { tier: 1 })
   | ((typeof USER_TIER2_INSIGHT_DEFINITIONS)[number] & { tier: 2 });
 
+export type UserInsightOverviewMode = "pro" | "elite" | "help";
+export type UserInsightDetailSurfaceKey = "help" | "current-evidence" | "next-step";
+
+export type UserInsightOverviewCard = {
+  key: string;
+  title: string;
+  summary: string;
+  href?: string | null;
+  interactive: boolean;
+  statusLabel?: string;
+  supportingText?: string | null;
+  tone?: "active" | "muted" | "locked";
+};
+
+export type UserInsightOverviewState = {
+  currentStateSummary: string;
+  proCards: UserInsightOverviewCard[];
+  eliteCards: UserInsightOverviewCard[];
+};
+
+export type UserInsightDetailSurfaceContent = InsightSurfaceContent<UserInsightDetailSurfaceKey>;
+
 export function getUserInsightDefinition(key: string): UserInsightDefinition | null {
   const tier1Insight = USER_TIER1_INSIGHT_DEFINITIONS.find((insight) => insight.key === key);
   if (tier1Insight) {
@@ -62,6 +94,166 @@ export function getUserInsightDefinition(key: string): UserInsightDefinition | n
   }
 
   return null;
+}
+
+export function getRequestedUserInsightOverviewMode(
+  rawMode: string | undefined
+): UserInsightOverviewMode {
+  switch (rawMode?.trim().toLowerCase()) {
+    case "elite":
+      return "elite";
+    case "help":
+      return "help";
+    case "pro":
+    default:
+      return "pro";
+  }
+}
+
+export function getRequestedUserInsightDetailSurface(
+  rawSurface: string | undefined
+): UserInsightDetailSurfaceKey {
+  switch (rawSurface?.trim().toLowerCase()) {
+    case "current-evidence":
+      return "current-evidence";
+    case "next-step":
+      return "next-step";
+    case "help":
+    default:
+      return "help";
+  }
+}
+
+export function buildUserInsightOverviewState(input: {
+  tier1Unlocked: boolean;
+}): UserInsightOverviewState {
+  const proAvailable = input.tier1Unlocked;
+
+  return {
+    currentStateSummary: proAvailable
+      ? "PAT is using your completed individual alignment evidence to keep the current person-level view tied to your recorded workflow signal."
+      : "PAT needs a completed individual alignment submission before it can open a grounded person-level insight readout.",
+    proCards: USER_TIER1_INSIGHT_DEFINITIONS.map((card) => ({
+      key: card.key,
+      title: card.title,
+      summary: proAvailable
+        ? card.description
+        : "Complete the individual alignment assessment before relying on this person-level view.",
+      href: `/user/insights/${card.key}`,
+      interactive: true,
+      statusLabel: proAvailable ? undefined : "Assessment needed",
+      tone: proAvailable ? "active" : "muted",
+      supportingText: proAvailable
+        ? "Grounded in current person-level alignment evidence."
+        : "Current person-level alignment evidence is still missing.",
+    })),
+    eliteCards: USER_TIER2_INSIGHT_DEFINITIONS.map((card) => ({
+      key: card.key,
+      title: card.title,
+      summary: card.description,
+      interactive: false,
+      statusLabel: ELITE_PLACEHOLDER_TITLE,
+      tone: "locked",
+      supportingText: ELITE_PLACEHOLDER_CTA,
+    })),
+  };
+}
+
+function formatUserInsightDate(value: Date | null | undefined) {
+  return value instanceof Date ? value.toLocaleDateString() : "No current submission yet";
+}
+
+export function buildUserCombinedEvidenceText(input: {
+  insight: UserInsightDefinition;
+  userPatContext: Pick<UserPatContext, "assessmentCount"> | null | undefined;
+}) {
+  if (input.insight.tier === 2) {
+    return "This route remains reserved for a deeper person-level PAT layer that is not available today.";
+  }
+
+  const assessmentCount = input.userPatContext?.assessmentCount ?? 0;
+  return `Current evidence combines ${assessmentCount} completed individual alignment submission${
+    assessmentCount === 1 ? "" : "s"
+  }, the latest recorded score, and the current person-level unlock state behind this view.`;
+}
+
+export function buildUserInsightDetailSurfaceContent(input: {
+  insight: UserInsightDefinition;
+  userPatContext: Pick<
+    UserPatContext,
+    "subjectMembershipReady" | "assessmentCount" | "latestScore" | "latestSubmittedAt"
+  > | null | undefined;
+  alignmentProgress: Pick<UserAssessmentProgress, "tier1Unlocked"> | null | undefined;
+  surface: UserInsightDetailSurfaceKey;
+}): UserInsightDetailSurfaceContent {
+  const proAvailable = Boolean(input.alignmentProgress?.tier1Unlocked);
+
+  if (input.insight.tier === 2) {
+    return buildElitePlaceholderSurfaceContent<UserInsightDetailSurfaceKey>({
+      key: "help",
+      title: "Help",
+      intro: ELITE_PLACEHOLDER_MESSAGE,
+      what: input.insight.description,
+      why: "PAT keeps this route visible so the future person-level intelligence layer is explicit without overstating what exists today.",
+      how: ELITE_PLACEHOLDER_CTA,
+    });
+  }
+
+  if (input.surface === "current-evidence") {
+    return {
+      key: "current-evidence",
+      title: "Current evidence",
+      intro: "This view stays grounded in the person-level alignment evidence PAT can support today.",
+      items: [
+        {
+          title: "Available current data",
+          body: `Person subject linked: ${
+            input.userPatContext?.subjectMembershipReady ? "Yes" : "Not yet"
+          }. Alignment submissions: ${input.userPatContext?.assessmentCount ?? 0}. Latest score: ${
+            input.userPatContext?.latestScore ?? "--"
+          }. Latest submission: ${formatUserInsightDate(input.userPatContext?.latestSubmittedAt)}.`,
+        },
+        {
+          title: "Current access state",
+          body: proAvailable
+            ? "The current person-level insight layer is open because PAT has a completed individual alignment submission to ground it."
+            : "PAT still needs a completed individual alignment submission before this person-level view can carry more grounded interpretation.",
+        },
+      ],
+    };
+  }
+
+  if (input.surface === "next-step") {
+    return {
+      key: "next-step",
+      title: "Next step",
+      intro: "The next useful step is still the individual alignment assessment and the evidence it creates.",
+      items: [
+        {
+          title: "What to do next",
+          body: proAvailable
+            ? "Review the current alignment assessment results and use them to sharpen where your workflow fit or adoption friction needs attention next."
+            : "Complete the individual alignment assessment so PAT has real person-level evidence to work from.",
+        },
+        {
+          title: "What changes after that",
+          body: "A stronger person-level layer would require more than completion alone. PAT would also need a deeper individual insight engine before it should claim richer comparison, projection, or coaching behavior.",
+        },
+      ],
+    };
+  }
+
+  return buildHelpSurfaceContent<UserInsightDetailSurfaceKey>({
+    key: "help",
+    intro: proAvailable
+      ? "This page gives you a disciplined person-level readout without inventing a deeper individual insight model."
+      : "This page stays visible so the route is clear, but a grounded person-level readout still depends on the individual alignment assessment.",
+    what: input.insight.description,
+    why: "It keeps the individual surface tied to the person-level evidence PAT actually has instead of generic advice or unsupported projection.",
+    how: proAvailable
+      ? "Use this page to understand your current work-fit picture, then return to the assessment when you need to refresh the evidence."
+      : "Start with the individual alignment assessment so PAT can ground this page in current person-level evidence.",
+  });
 }
 
 export const USER_ALIGNMENT_MODULE_KEY = "user_alignment_v1";
