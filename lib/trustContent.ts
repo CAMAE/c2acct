@@ -53,7 +53,7 @@ export const TRUST_FOOTER_LINKS = [
   { href: "/security", label: "Security" },
   { href: "/support", label: "Support" },
   { href: "/billing-policy", label: "Billing policy" },
-  { href: "/release", label: "Release" },
+  { href: "/release", label: "Build proof" },
 ] as const;
 
 export const TRUST_RELEASE_FIELDS = [
