@@ -61,6 +61,28 @@ function normalizeText(value) {
   return value.replace(/\s+/g, " ").trim().toLowerCase();
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function containsForbiddenMarker(html, marker) {
+  const normalizedHtml = normalizeText(html);
+  const normalizedMarker = normalizeText(marker);
+  if (!normalizedMarker) {
+    return false;
+  }
+
+  if (/^[a-z0-9]{1,3}$/i.test(marker.trim())) {
+    const tokenPattern = new RegExp(
+      `(^|[^a-z0-9_])${escapeRegExp(normalizedMarker)}([^a-z0-9_]|$)`,
+      "i"
+    );
+    return tokenPattern.test(normalizedHtml);
+  }
+
+  return normalizedHtml.includes(normalizedMarker);
+}
+
 export function resolveRouteValidationConfig(routeConfig, env = process.env) {
   const consultantAccessGate = routeConfig?.consultantAccessGate;
   if (!consultantAccessGate) {
@@ -101,7 +123,7 @@ export function validateRouteHtml(routeKey, html, routeConfig, globalForbiddenMa
   }
 
   for (const marker of [...(globalForbiddenMarkers ?? []), ...(routeConfig.forbiddenMarkers ?? [])]) {
-    if (normalizedHtml.includes(normalizeText(marker))) {
+    if (containsForbiddenMarker(html, marker)) {
       failures.push(`${routeKey}:forbidden_marker:${marker}`);
     }
   }

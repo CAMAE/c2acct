@@ -104,6 +104,19 @@ describe("release surface validator", async () => {
     expect(failures).toContain("/:forbidden_marker:Top Seven Outputs");
   });
 
+  it("does not treat short forbidden markers as substrings inside release hashes", () => {
+    const failures = validator.validateRouteHtml(
+      "/release",
+      "<html><body><dd>e49c13a1d115daaefa1292652429e9c2a2b6a363</dd><p>PAT release proof</p></body></html>",
+      {
+        positiveMarkers: ["PAT"],
+      },
+      ["AAE"]
+    );
+
+    expect(failures).toEqual([]);
+  });
+
   it("fails when the homepage contains the exact stale AAE screenshot chrome", () => {
     const failures = validator.validateRouteHtml(
       "/",
