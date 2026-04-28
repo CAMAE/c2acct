@@ -1,10 +1,12 @@
 ﻿import "./globals.css";
 import { cookies } from "next/headers";
+import Link from "next/link";
 import AppHeader, { type HeaderNavItem } from "@/app/components/header/AppHeader";
 import { barlowFontClassName } from "@/app/fonts/barlow";
 import { getSessionUser } from "@/lib/auth/session";
 import { getMembershipPathPrefix } from "@/lib/membershipContent";
 import { getPublicReleaseFingerprint } from "@/lib/release/fingerprint";
+import { TRUST_FOOTER_LINKS } from "@/lib/trustContent";
 import {
   APP_LOCALE_COOKIE,
   getLocaleMessages,
@@ -43,10 +45,13 @@ export default async function RootLayout({
     { href: "/user", key: "individual" },
     ...(enabledHrefs.has("/admin") ? [{ href: "/admin", key: "c2core" as const }] : []),
   ];
-  const translatedNavItems: HeaderNavItem[] = navItems.map((item) => ({
-    href: item.href,
-    label: messages.nav[item.key],
-  }));
+  const translatedNavItems: HeaderNavItem[] = [
+    ...navItems.map((item) => ({
+      href: item.href,
+      label: messages.nav[item.key],
+    })),
+    { href: "/trust", label: "Trust" },
+  ];
   const membershipHref =
     experience.audience === "vendor" || experience.audience === "firm" || experience.audience === "individual"
       ? `${getMembershipPathPrefix(experience.audience)}/membership`
@@ -76,8 +81,22 @@ export default async function RootLayout({
         <main className="pat-shell-main flex flex-1">{children}</main>
 
         <footer className="mt-auto border-t border-[var(--shell-border)] py-5">
-          <div className="pat-shell-frame flex items-center justify-center text-[11px] text-[var(--shell-muted)]">
-            <div className="pat-sans inline-flex items-center gap-3">
+          <div className="pat-shell-frame flex flex-col items-center gap-3 text-[11px] text-[var(--shell-muted)]">
+            <nav aria-label="PAT trust and launch links">
+              <ul className="pat-sans flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+                {TRUST_FOOTER_LINKS.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="font-semibold text-[var(--shell-muted)] hover:text-[var(--shell-ink)]"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            <div className="pat-sans inline-flex flex-wrap items-center justify-center gap-3">
               <span>{messages.chrome.copyright}</span>
               <span
                 aria-hidden="true"

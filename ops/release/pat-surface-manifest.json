@@ -25,6 +25,7 @@
     "scripts/release/check-release-critical-changes.mjs",
     "scripts/release/prelaunch-gate.mjs",
     "e2e/release-integrity.spec.ts",
+    "tests/trust-surfaces.contract.test.ts",
     "tests/release-surface-validator.test.ts"
   ],
   "routes": {
@@ -89,11 +90,98 @@
         "Individual insights stay pending"
       ]
     },
+    "/trust": {
+      "sourceFiles": [
+        "app/trust/page.tsx",
+        "app/components/trust/TrustSurfacePage.tsx",
+        "lib/trustContent.ts"
+      ],
+      "positiveMarkers": [
+        "PAT trust center",
+        "Launch-readiness information",
+        "No unsupported claims"
+      ]
+    },
+    "/privacy": {
+      "sourceFiles": [
+        "app/privacy/page.tsx",
+        "app/components/trust/TrustSurfacePage.tsx",
+        "lib/trustContent.ts"
+      ],
+      "positiveMarkers": [
+        "Privacy policy draft",
+        "PAT privacy policy draft.",
+        "Payment data"
+      ]
+    },
+    "/terms": {
+      "sourceFiles": [
+        "app/terms/page.tsx",
+        "app/components/trust/TrustSurfacePage.tsx",
+        "lib/trustContent.ts"
+      ],
+      "positiveMarkers": [
+        "Terms of service draft",
+        "PAT terms of service draft.",
+        "Product output"
+      ]
+    },
+    "/security": {
+      "sourceFiles": [
+        "app/security/page.tsx",
+        "app/components/trust/TrustSurfacePage.tsx",
+        "lib/trustContent.ts"
+      ],
+      "positiveMarkers": [
+        "Security posture",
+        "PAT security posture.",
+        "Authentication boundaries"
+      ]
+    },
+    "/support": {
+      "sourceFiles": [
+        "app/support/page.tsx",
+        "app/components/trust/TrustSurfacePage.tsx",
+        "lib/trustContent.ts"
+      ],
+      "positiveMarkers": [
+        "Support and contact",
+        "How to contact PAT support",
+        "Billing support"
+      ]
+    },
+    "/billing-policy": {
+      "sourceFiles": [
+        "app/billing-policy/page.tsx",
+        "app/components/trust/TrustSurfacePage.tsx",
+        "lib/trustContent.ts"
+      ],
+      "positiveMarkers": [
+        "Billing policy draft",
+        "PAT billing policy draft.",
+        "Scaffold mode"
+      ]
+    },
+    "/release": {
+      "sourceFiles": [
+        "app/release/page.tsx",
+        "app/components/trust/TrustSurfacePage.tsx",
+        "lib/trustContent.ts",
+        "lib/release/fingerprint.ts"
+      ],
+      "positiveMarkers": [
+        "Release transparency",
+        "Current PAT release and build transparency.",
+        "Runtime fingerprint",
+        "Public-live status"
+      ]
+    },
     "header": {
       "sourceFiles": [
         "app/layout.tsx",
         "app/components/header/AppHeader.tsx",
-        "lib/locale.ts"
+        "lib/locale.ts",
+        "lib/trustContent.ts"
       ],
       "positiveMarkers": [
         "Meet PAT",

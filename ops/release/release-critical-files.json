@@ -3,9 +3,17 @@
   "criticalPaths": [
     "app/page.tsx",
     "app/layout.tsx",
+    "app/trust/",
+    "app/privacy/",
+    "app/terms/",
+    "app/security/",
+    "app/support/",
+    "app/billing-policy/",
+    "app/release/",
     "app/sign-in/page.tsx",
     "app/login/page.tsx",
     "app/components/header/",
+    "app/components/trust/",
     "auth.ts",
     "auth.config.ts",
     "lib/auth/",
@@ -18,6 +26,7 @@
     "app/api/billing/",
     "app/components/membership/",
     "lib/billing/",
+    "lib/trustContent.ts",
     "lib/membership.ts",
     "lib/membershipContent.ts",
     "lib/membershipContext.ts",
@@ -71,6 +80,7 @@
     "scripts/release/prelaunch-gate.mjs",
     "tests/billing-provider.contract.test.ts",
     "tests/auth-boundaries.contract.test.ts",
+    "tests/trust-surfaces.contract.test.ts",
     "e2e/release-integrity.spec.ts",
     "tests/release-surface-validator.test.ts"
   ]
