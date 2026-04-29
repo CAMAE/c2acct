@@ -428,9 +428,11 @@ async function collectRouteSmokeProof(options) {
     status: result.ok ? "COMPLETE" : "CONFLICTING",
     ok: result.ok,
     baseUrl: result.baseUrl,
+    browserReleaseId: result.browserReleaseId ?? null,
     routeEvidence: result.routeEvidence,
     apiFingerprint: result.apiFingerprint ?? null,
     healthFingerprint: result.healthFingerprint ?? null,
+    healthStatus: result.healthStatus ?? null,
     operatorFingerprint: result.operatorFingerprint ?? null,
     sourceIntegrity: result.sourceIntegrity ?? null,
     failures: result.failures ?? [],
@@ -477,6 +479,14 @@ function buildKnownItems({ sourceIntegrity, routeSmoke, databaseProof, billingPr
         ? "Stripe configuration is present, but live provider roundtrip still requires external proof."
         : "Billing is scaffold-only and must not claim a live charge.",
       proof: billingProof.paymentModeProof,
+    },
+    {
+      key: "provider-backed-billing-readiness",
+      status: "PARTIAL",
+      label: "Provider-backed billing architecture exists, but launch proof is not a live provider roundtrip.",
+      proof: billingProof.providerConfigured
+        ? "Stripe env is configured; live provider roundtrip remains unverified."
+        : "Stripe code path exists, but runtime env is absent so launch payment truth is scaffold-only.",
     },
     {
       key: "stripe-live-roundtrip",
