@@ -14,6 +14,7 @@
     "release:gate": "node scripts/release/validate-source-integrity.mjs --root .",
     "release:smoke": "pnpm build",
     "release:prelaunch": "pnpm release:smoke && node scripts/release/prelaunch-gate.mjs --root .",
+    "launch:proof": "node scripts/release/generate-launch-proof-bundle.mjs --root .",
     "validate:release-surfaces": "pnpm release:prelaunch",
     "lint": "eslint --max-warnings=-1",
     "lint:repo": "eslint app lib prisma scripts --max-warnings=0",
