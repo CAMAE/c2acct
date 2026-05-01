@@ -232,4 +232,32 @@ describe("launch proof bundle contract", async () => {
 
     expect(summary).toBe("Route smoke was not requested for this proof generation run.");
   });
+
+  it("classifies Stripe fixture proof as partial and Stripe CLI proof as complete", () => {
+    expect(proof.summarizeStripeRoundtripProofArtifact({
+      artifactPath: "artifacts/billing/stripe-roundtrip-fixture.json",
+      proof: {
+        mode: "fixture",
+        status: "PARTIAL",
+        generatedAt: "2026-05-01T00:00:00.000Z",
+        checks: [],
+      },
+    })).toEqual(expect.objectContaining({
+      status: "PARTIAL",
+      mode: "fixture",
+    }));
+
+    expect(proof.summarizeStripeRoundtripProofArtifact({
+      artifactPath: "artifacts/billing/stripe-roundtrip-cli.json",
+      proof: {
+        mode: "stripe-cli",
+        status: "COMPLETE",
+        generatedAt: "2026-05-01T00:00:00.000Z",
+        checks: [],
+      },
+    })).toEqual(expect.objectContaining({
+      status: "COMPLETE",
+      mode: "stripe-cli",
+    }));
+  });
 });

@@ -35,6 +35,8 @@ export const REQUIRED_VALIDATION_COMMANDS = Object.freeze({
 const DEFAULT_OUTPUT_DIR = "artifacts/launch-proof";
 const DEFAULT_JSON_NAME = "4.26.26-launch-proof.json";
 const DEFAULT_MARKDOWN_NAME = "4.26.26-launch-proof.md";
+const BILLING_PROOF_DIR = "artifacts/billing";
+const STRIPE_ROUNDTRIP_PROOF_PATTERN = /^stripe-roundtrip-.+\.json$/;
 const DEMO_VERSION_PATTERN = /DEMO_PAT_ECOSYSTEM_VERSION\s*=\s*"([^"]+)"/;
 
 function parseArgs(argv) {
@@ -198,6 +200,111 @@ function buildStatusBuckets(items) {
   );
 }
 
+function readStripeRoundtripProofArtifacts(root) {
+  const proofDir = path.join(root, BILLING_PROOF_DIR);
+  if (!fs.existsSync(proofDir)) {
+    return [];
+  }
+
+  return fs
+    .readdirSync(proofDir)
+    .filter((fileName) => STRIPE_ROUNDTRIP_PROOF_PATTERN.test(fileName))
+    .map((fileName) => {
+      const fullPath = path.join(proofDir, fileName);
+      const proof = readOptionalJson(fullPath);
+      if (!proof) return null;
+      const stat = fs.statSync(fullPath);
+      return {
+        proof,
+        artifactPath: path.relative(root, fullPath),
+        generatedAt: proof.generatedAt ?? stat.mtime.toISOString(),
+        mtimeMs: stat.mtimeMs,
+      };
+    })
+    .filter(Boolean)
+    .sort((left, right) => {
+      const leftTime = Date.parse(left.generatedAt) || left.mtimeMs;
+      const rightTime = Date.parse(right.generatedAt) || right.mtimeMs;
+      return rightTime - leftTime;
+    });
+}
+
+export function summarizeStripeRoundtripProofArtifact(artifact) {
+  const proof = artifact?.proof;
+  if (!proof) {
+    return null;
+  }
+
+  const artifactPath = artifact.artifactPath ?? "unknown";
+  if (proof.mode === "stripe-cli" && proof.status === "COMPLETE") {
+    return {
+      status: "COMPLETE",
+      reason: `Stripe CLI/test-mode provider roundtrip proof captured in ${artifactPath}.`,
+      artifactPath,
+      generatedAt: proof.generatedAt ?? null,
+      mode: proof.mode,
+      checks: proof.checks ?? [],
+    };
+  }
+
+  if (proof.mode === "fixture" && proof.status === "PARTIAL") {
+    return {
+      status: "PARTIAL",
+      reason: `Signed Stripe-like fixture proof captured in ${artifactPath}; this proves local verification/reconciliation but is not a live or Stripe CLI provider roundtrip.`,
+      artifactPath,
+      generatedAt: proof.generatedAt ?? null,
+      mode: proof.mode,
+      checks: proof.checks ?? [],
+    };
+  }
+
+  if (proof.status === "UNVERIFIED") {
+    return {
+      status: "UNVERIFIED",
+      reason: `Stripe roundtrip proof artifact ${artifactPath} is UNVERIFIED: ${proof.stripeCliRun?.reason ?? "provider proof is incomplete"}.`,
+      artifactPath,
+      generatedAt: proof.generatedAt ?? null,
+      mode: proof.mode ?? "unknown",
+      checks: proof.checks ?? [],
+    };
+  }
+
+  return {
+    status: "CONFLICTING",
+    reason: `Stripe roundtrip proof artifact ${artifactPath} is not acceptable for launch proof: mode=${proof.mode ?? "unknown"} status=${proof.status ?? "missing"}.`,
+    artifactPath,
+    generatedAt: proof.generatedAt ?? null,
+    mode: proof.mode ?? "unknown",
+    checks: proof.checks ?? [],
+  };
+}
+
+function selectStripeRoundtripProof(root, billingConfigured) {
+  const artifacts = readStripeRoundtripProofArtifacts(root);
+  const cliComplete = artifacts.find((artifact) =>
+    artifact.proof?.mode === "stripe-cli" && artifact.proof?.status === "COMPLETE"
+  );
+  const fixturePartial = artifacts.find((artifact) =>
+    artifact.proof?.mode === "fixture" && artifact.proof?.status === "PARTIAL"
+  );
+  const selected = cliComplete ?? fixturePartial ?? artifacts[0] ?? null;
+  const summary = summarizeStripeRoundtripProofArtifact(selected);
+  if (summary) {
+    return summary;
+  }
+
+  return {
+    status: "UNVERIFIED",
+    reason: billingConfigured
+      ? "Stripe runtime configuration is present, but no durable Stripe roundtrip proof artifact was found under artifacts/billing."
+      : "Stripe runtime env is absent and no durable Stripe roundtrip proof artifact was found under artifacts/billing.",
+    artifactPath: null,
+    generatedAt: null,
+    mode: null,
+    checks: [],
+  };
+}
+
 function summarizeValidationStatus(validationResults) {
   const statuses = Object.values(validationResults).map((result) => result.status);
   if (statuses.every((status) => status === "COMPLETE")) {
@@ -212,7 +319,7 @@ function summarizeValidationStatus(validationResults) {
   return "UNVERIFIED";
 }
 
-function buildBillingProof(env, databaseProof) {
+function buildBillingProof(env, databaseProof, root) {
   const enabled = env.PAT_BILLING_ENABLED === "1" || env.PAT_BILLING_ENABLED?.toLowerCase() === "true";
   const hasSecret = Boolean(env.STRIPE_SECRET_KEY?.trim());
   const hasWebhookSecret = Boolean(env.STRIPE_WEBHOOK_SECRET?.trim());
@@ -234,6 +341,8 @@ function buildBillingProof(env, databaseProof) {
     configuredPriceKeys.length > 0 ? null : "STRIPE_PRICE_*",
   ].filter(Boolean);
 
+  const roundtripProof = selectStripeRoundtripProof(root, configured);
+
   return {
     status: configured ? "PARTIAL" : "COMPLETE",
     provider: "stripe",
@@ -249,10 +358,7 @@ function buildBillingProof(env, databaseProof) {
     paymentModeProof: configured
       ? "Stripe runtime configuration is present. Live provider roundtrip still requires signed webhook or Stripe CLI proof."
       : "Billing runtime is scaffold-only because required Stripe env is absent; UI must state no live charge.",
-    liveProviderRoundtrip: {
-      status: "UNVERIFIED",
-      reason: "No Stripe CLI/live provider roundtrip artifact was supplied to this bundle.",
-    },
+    liveProviderRoundtrip: roundtripProof,
     databaseState: {
       customers: databaseProof.counts.billingCustomers,
       webhookEvents: databaseProof.counts.billingWebhookEvents,
@@ -521,7 +627,7 @@ function buildKnownItems({ sourceIntegrity, routeSmoke, databaseProof, billingPr
     {
       key: "stripe-live-roundtrip",
       status: billingProof.liveProviderRoundtrip.status,
-      label: "Live Stripe/Stripe CLI webhook roundtrip proof.",
+      label: "Stripe signed webhook or CLI/test-mode provider roundtrip proof.",
       proof: billingProof.liveProviderRoundtrip.reason,
     },
     {
@@ -583,7 +689,7 @@ export async function buildLaunchProofBundle(options = {}) {
     options.validationResults ?? {}
   );
   const publicLiveQA = buildPublicLiveQA(options.publicLiveUrl ?? process.env.PAT_PUBLIC_LIVE_URL ?? "");
-  const billingProof = buildBillingProof(process.env, databaseProof);
+  const billingProof = buildBillingProof(process.env, databaseProof, root);
   const brandProof = buildBrandProof(root);
   const knownItems = buildKnownItems({
     sourceIntegrity,
@@ -792,6 +898,8 @@ export function validateLaunchProofBundle(bundle) {
 
   required(bundle?.paymentMode?.mode, "paymentMode.mode", failures);
   required(bundle?.paymentMode?.proof, "paymentMode.proof", failures);
+  required(bundle?.paymentMode?.liveProviderRoundtrip?.status, "paymentMode.liveProviderRoundtrip.status", failures);
+  required(bundle?.paymentMode?.liveProviderRoundtrip?.reason, "paymentMode.liveProviderRoundtrip.reason", failures);
   required(bundle?.billing?.provider, "billing.provider", failures);
   required(bundle?.brandIntegration?.patPng?.status, "brandIntegration.patPng.status", failures);
   required(bundle?.publicLiveQA?.status, "publicLiveQA.status", failures);
@@ -846,7 +954,7 @@ function renderMarkdown(bundle) {
     "## Billing And Public-Live Truth",
     "",
     `- Payment mode: ${bundle.paymentMode.mode}. ${bundle.paymentMode.proof}`,
-    `- Live provider roundtrip: ${bundle.paymentMode.liveProviderRoundtrip.status}. ${bundle.paymentMode.liveProviderRoundtrip.reason}`,
+    `- Stripe provider roundtrip: ${bundle.paymentMode.liveProviderRoundtrip.status}. ${bundle.paymentMode.liveProviderRoundtrip.reason}`,
     `- Public-live QA: ${bundle.publicLiveQA.status}. ${bundle.publicLiveQA.reason}`,
     `- PAT.png: ${bundle.brandIntegration.patPng.status}. ${bundle.brandIntegration.patPng.note}`,
     "",

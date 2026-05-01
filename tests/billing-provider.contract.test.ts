@@ -56,6 +56,11 @@ import {
   verifyStripeWebhookSignature,
 } from "@/lib/billing/stripe";
 import { MEMBERSHIP_PLAN, MEMBERSHIP_STATUS } from "@/lib/membership";
+import {
+  buildStripeEntitlementMatrix,
+  buildStripeRoundtripFixtureEvents,
+  proofContainsSensitiveBillingData,
+} from "@/scripts/billing/stripe-roundtrip-proof";
 
 const configuredBilling: BillingConfig = {
   mode: "configured",
@@ -411,5 +416,46 @@ describe("billing provider contracts", () => {
         lastWebhookEventId: "billing_event_3",
       }),
     }));
+  });
+
+  it("builds redacted Stripe roundtrip fixture events and keeps failed states non-entitled", () => {
+    const entitlementMatrix = buildStripeEntitlementMatrix();
+
+    expect(entitlementMatrix.active.entitled).toBe(true);
+    expect(entitlementMatrix.trialing.entitled).toBe(true);
+    expect(entitlementMatrix.past_due.entitled).toBe(false);
+    expect(entitlementMatrix.canceled.entitled).toBe(false);
+    expect(entitlementMatrix.incomplete.entitled).toBe(false);
+    expect(entitlementMatrix.unpaid.entitled).toBe(false);
+    expect(entitlementMatrix.payment_action_required.entitled).toBe(false);
+
+    const fixtures = buildStripeRoundtripFixtureEvents({
+      proofRunId: "fixtureproof",
+      subjectId: "subject_1",
+      customerId: "cus_fixture",
+      subscriptionId: "sub_fixture",
+      nowSeconds: 1_777_000_000,
+    });
+    const fixtureEnvelope = {
+      mode: "fixture",
+      redaction: {
+        rawEventPayloadIncluded: false,
+        rawCardOrBankDataIncluded: false,
+        secretsIncluded: false,
+      },
+      entitlementMatrix,
+      eventTypes: [
+        fixtures.activeSubscription.type,
+        fixtures.invoicePaid.type,
+        fixtures.invoiceFailed.type,
+        fixtures.invoiceActionRequired.type,
+        ...fixtures.subscriptionStatuses.map((event) => event.type),
+      ],
+    };
+
+    expect(fixtureEnvelope.eventTypes).toContain("invoice.paid");
+    expect(fixtureEnvelope.eventTypes).toContain("invoice.payment_failed");
+    expect(fixtureEnvelope.eventTypes).toContain("invoice.payment_action_required");
+    expect(proofContainsSensitiveBillingData(fixtureEnvelope)).toBe(false);
   });
 });

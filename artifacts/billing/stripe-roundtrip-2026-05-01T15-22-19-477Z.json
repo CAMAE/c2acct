@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "proofName": "PAT Stripe billing roundtrip proof",
+  "generatedAt": "2026-05-01T15:22:19.477Z",
+  "mode": "fixture",
+  "status": "PARTIAL",
+  "provider": "stripe",
+  "environment": {
+    "billingEnabled": false,
+    "hasStripeSecretKey": false,
+    "hasStripeWebhookSecret": false,
+    "hasConfiguredPrice": false,
+    "stripeCliAvailable": null,
+    "keyMode": "absent"
+  },
+  "redaction": {
+    "rawEventPayloadIncluded": false,
+    "rawCardOrBankDataIncluded": false,
+    "secretsIncluded": false
+  },
+  "fixtureRun": {
+    "subjectId": "4b6d65cf-672c-4491-a114-3aedbf4f6b45",
+    "subjectKey": "billing-proof:20260501T152219477Z:4b6d65cf",
+    "customerId": "cus_fixture_20260501T152219477Z",
+    "subscriptionId": "sub_fixture_20260501T152219477Z",
+    "processedEventIds": [
+      "evt_fixture_20260501T152219477Z_active",
+      "evt_fixture_20260501T152219477Z_invoice_paid",
+      "evt_fixture_20260501T152219477Z_invoice_failed",
+      "evt_fixture_20260501T152219477Z_invoice_action_required",
+      "evt_fixture_20260501T152219477Z_trialing",
+      "evt_fixture_20260501T152219477Z_past_due",
+      "evt_fixture_20260501T152219477Z_canceled",
+      "evt_fixture_20260501T152219477Z_incomplete",
+      "evt_fixture_20260501T152219477Z_unpaid",
+      "evt_fixture_20260501T152219477Z_payment_action_required"
+    ],
+    "webhookRecordIds": [
+      "a56c8f88-8140-4f6b-9462-65281a468a7d",
+      "9c581440-91cb-4329-bf7e-cfcd2ea99955",
+      "208f2d41-387d-4dc0-afdb-3cd0e44d1071",
+      "7dbe67b9-ac6c-4583-8037-c7ba23750cd9",
+      "3f1dbba9-4df2-4a37-8dab-beff14a8ca20",
+      "9bfc2433-ebf8-49ec-9980-a89920a7267f",
+      "8d39472a-571e-4d04-95d6-dcbbd2fd9e05",
+      "ff88f454-c848-43c7-9f9d-b2bc895aa517",
+      "da096b8c-ef84-404e-8534-fc3423b1cc0a",
+      "da2e20fa-cce9-4ade-8e12-c9ab80f672a1"
+    ],
+    "invoiceIds": [
+      "in_fixture_20260501T152219477Z_paid",
+      "in_fixture_20260501T152219477Z_failed",
+      "in_fixture_20260501T152219477Z_action_required"
+    ],
+    "duplicateEventId": "evt_fixture_20260501T152219477Z_active",
+    "finalMembershipStatus": "PAYMENT_ACTION_REQUIRED"
+  },
+  "entitlementMatrix": {
+    "active": {
+      "membershipStatus": "ACTIVE",
+      "entitled": true
+    },
+    "trialing": {
+      "membershipStatus": "TRIAL",
+      "entitled": true
+    },
+    "past_due": {
+      "membershipStatus": "PAST_DUE",
+      "entitled": false
+    },
+    "canceled": {
+      "membershipStatus": "CANCELED",
+      "entitled": false
+    },
+    "incomplete": {
+      "membershipStatus": "INCOMPLETE",
+      "entitled": false
+    },
+    "unpaid": {
+      "membershipStatus": "UNPAID",
+      "entitled": false
+    },
+    "payment_action_required": {
+      "membershipStatus": "PAYMENT_ACTION_REQUIRED",
+      "entitled": false
+    }
+  },
+  "checks": [
+    {
+      "key": "signature-verification",
+      "status": "COMPLETE",
+      "summary": "Valid signed fixture accepted; invalid and stale signatures rejected."
+    },
+    {
+      "key": "webhook-idempotency",
+      "status": "COMPLETE",
+      "summary": "Duplicate event evt_fixture_20260501T152219477Z_active did not reprocess or create a second row."
+    },
+    {
+      "key": "invoice-paid",
+      "status": "COMPLETE",
+      "summary": "invoice.paid fixture persisted paid invoice state without storing card data."
+    },
+    {
+      "key": "invoice-payment-failed",
+      "status": "COMPLETE",
+      "summary": "invoice.payment_failed fixture persisted open/failed invoice state."
+    },
+    {
+      "key": "invoice-payment-action-required",
+      "status": "COMPLETE",
+      "summary": "invoice.payment_action_required fixture persisted action-required invoice state."
+    },
+    {
+      "key": "non-entitled-failure-states",
+      "status": "COMPLETE",
+      "summary": "past_due, canceled, incomplete, unpaid, and payment_action_required do not grant entitlements."
+    },
+    {
+      "key": "subscription-reconciliation",
+      "status": "COMPLETE",
+      "summary": "Signed subscription fixtures reconciled provider status, price, plan, and subject membership."
+    }
+  ]
+}
