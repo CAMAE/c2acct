@@ -439,6 +439,18 @@ async function collectRouteSmokeProof(options) {
   };
 }
 
+export function summarizeRouteSmokeKnownItemProof(routeSmoke) {
+  if (routeSmoke.ok === true) {
+    return routeSmoke.apiFingerprint?.releaseId ?? "route smoke passed";
+  }
+
+  if (Array.isArray(routeSmoke.failures) && routeSmoke.failures.length > 0) {
+    return routeSmoke.failures.join("; ");
+  }
+
+  return routeSmoke.reason ?? "Route smoke proof was not recorded for this launch bundle.";
+}
+
 function buildKnownItems({ sourceIntegrity, routeSmoke, databaseProof, billingProof, brandProof, validationResults, publicLiveQA }) {
   const validationStatus = summarizeValidationStatus(validationResults);
   const knownItems = [
@@ -458,7 +470,7 @@ function buildKnownItems({ sourceIntegrity, routeSmoke, databaseProof, billingPr
       key: "route-smoke-and-runtime-fingerprint",
       status: routeSmoke.status,
       label: "Standalone route smoke agrees with API, health, and operator release fingerprints.",
-      proof: routeSmoke.ok === true ? routeSmoke.apiFingerprint?.releaseId ?? "route smoke passed" : routeSmoke.failures.join("; "),
+      proof: summarizeRouteSmokeKnownItemProof(routeSmoke),
     },
     {
       key: "database-migration-state",

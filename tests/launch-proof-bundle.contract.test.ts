@@ -221,4 +221,15 @@ describe("launch proof bundle contract", async () => {
     expect(result.failures).toContain("publicLiveQA.status:missing");
     expect(result.failures).toContain("routeSmoke.status:missing");
   });
+
+  it("keeps route-smoke known-item proof explicit when route smoke is unrequested", () => {
+    const summary = proof.summarizeRouteSmokeKnownItemProof({
+      status: "UNVERIFIED",
+      ok: null,
+      reason: "Route smoke was not requested for this proof generation run.",
+      failures: [],
+    });
+
+    expect(summary).toBe("Route smoke was not requested for this proof generation run.");
+  });
 });
