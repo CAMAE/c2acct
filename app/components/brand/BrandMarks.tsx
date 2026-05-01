@@ -80,8 +80,8 @@ export function BrandLockup({ mode = "header", tone = mode === "hero" ? "dark" :
 
         <div className={`w-px ${size.divider} ${dividerTone}`} aria-hidden="true" />
 
-        <div className={`brand-pat-wordmark ${size.patWord} leading-none ${textTone}`}>
-          PAT
+        <div className="flex min-w-0 items-center">
+          <PatBrandMark mode={mode} />
         </div>
       </div>
     );

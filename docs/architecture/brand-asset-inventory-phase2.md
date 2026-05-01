@@ -24,6 +24,8 @@ No UI redesign, auth changes, copy rewrites, or JSX/CSS-drawn marks are part of 
   `public/brand/c2/c2-logo-accounting.png`
 - PAT primary mark:
   `public/brand/pat/pat-logo-accounting.png`
+- Exact public PAT launch-proof mark:
+  `public/PAT.png`
 - Combined supportive mark:
   `public/brand/combined/c2-pat-logo-combined.png`
 
@@ -33,6 +35,8 @@ No UI redesign, auth changes, copy rewrites, or JSX/CSS-drawn marks are part of 
   `public/brand/c2/c2-logo-accounting.png`
 - Primary PAT implementation file:
   `public/brand/pat/pat-logo-accounting.png`
+- Exact PAT.png launch-proof file:
+  `public/PAT.png`
 - Supportive combined implementation file:
   `public/brand/combined/c2-pat-logo-combined.png`
 - Source-of-truth asset registry:
@@ -57,4 +61,5 @@ No UI redesign, auth changes, copy rewrites, or JSX/CSS-drawn marks are part of 
 
 - The current division accent remains accounting green.
 - The active lockup uses separate image-backed C2 and PAT marks.
+- `public/PAT.png` is a byte-for-byte copy of the repo-authoritative PAT primary implementation asset and is the exact file used for launch-proof hash evidence.
 - Legacy C2 raster/vector exports remain in `public/brand/c2/` for compatibility, but the primary runtime registry points to the exact uploaded C2 logo file above.

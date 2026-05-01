@@ -264,19 +264,37 @@ function buildBillingProof(env, databaseProof) {
 
 function buildBrandProof(root) {
   const expectedPatPng = path.join(root, "public/PAT.png");
+  const authoritativePatAsset = "public/brand/pat/pat-logo-accounting.png";
+  const authoritativePatAssetPath = path.join(root, authoritativePatAsset);
+  const expectedSha256 = sha256File(expectedPatPng);
+  const authoritativeSha256 = sha256File(authoritativePatAssetPath);
+  const hasExpectedPatPng = fs.existsSync(expectedPatPng);
+  const matchesAuthoritativeSource = Boolean(expectedSha256 && authoritativeSha256 && expectedSha256 === authoritativeSha256);
+  let status = "MISSING";
+  let note =
+    "Exact public/PAT.png asset is absent. Operator action: supply the official PAT.png from an approved brand source; existing PAT brand assets are listed without treating them as PAT.png proof.";
+  if (hasExpectedPatPng && matchesAuthoritativeSource) {
+    status = "COMPLETE";
+    note = "Exact public/PAT.png asset exists and is hash-checked against the repo-authoritative PAT implementation asset.";
+  } else if (hasExpectedPatPng) {
+    status = "CONFLICTING";
+    note =
+      "Exact public/PAT.png exists but does not hash-match the repo-authoritative PAT implementation asset; do not treat it as official proof.";
+  }
   const discoveredAssets = [
-    "public/brand/pat/pat-logo-accounting.png",
+    authoritativePatAsset,
     "public/brand/combined/c2-pat-logo-combined.png",
   ].filter((assetPath) => fs.existsSync(path.join(root, assetPath)));
 
   return {
-    status: fs.existsSync(expectedPatPng) ? "COMPLETE" : "MISSING",
+    status,
     expectedPath: "public/PAT.png",
-    sha256: sha256File(expectedPatPng),
+    sha256: expectedSha256,
+    authoritativeSourcePath: authoritativePatAsset,
+    authoritativeSourceSha256: authoritativeSha256,
+    matchesAuthoritativeSource,
     discoveredPatBrandAssets: discoveredAssets,
-    note: fs.existsSync(expectedPatPng)
-      ? "Exact PAT.png asset exists."
-      : "Exact PAT.png asset is absent; existing PAT brand assets are listed without treating them as PAT.png proof.",
+    note,
   };
 }
 

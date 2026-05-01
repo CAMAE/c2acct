@@ -40,9 +40,11 @@ export const brandAssets = {
     iconSourcePath: "/brand/c2/c2-icon.eps",
   },
   pat: {
-    primaryMarkPath: "/brand/pat/pat-logo-accounting.png",
+    primaryMarkPath: "/PAT.png",
     primaryMarkSourcePath: brandSourcePaths.patLogo,
-    status: "raster-upload",
+    legacyPrimaryMarkPath: "/brand/pat/pat-logo-accounting.png",
+    legacyPrimaryMarkSourcePath: brandSourcePaths.patLogo,
+    status: "official-public-pat-png",
   },
   combined: {
     supportiveMarkPath: "/brand/combined/c2-pat-logo-combined.png",
