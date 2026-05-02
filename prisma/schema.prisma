@@ -116,6 +116,7 @@ model Company {
   FirmMaturitySnapshot   FirmMaturitySnapshot[]
   Product                Product[]
   ConsultantAssignment   ConsultantAssignment[]
+  PilotCohortMember      PilotCohortMember[]
   Subject                Subject?
   SurveySubmission       SurveySubmission[]
   User                   User[]
@@ -382,11 +383,61 @@ model Subject {
   BillingCustomer        BillingCustomer[]
   BillingInvoice         BillingInvoice[]
   MembershipSubscription MembershipSubscription[]
+  PilotCohortMember      PilotCohortMember[]
   Product                Product?                 @relation(fields: [productId], references: [id], onDelete: Cascade)
   CompanyBadge           CompanyBadge[]
   SubjectMembership      SubjectMembership[]
   SurveySubmission       SurveySubmission[]
   VendorProfile          VendorProfile?
+}
+
+model PilotCohort {
+  id                    String              @id
+  key                   String              @unique
+  name                  String
+  dataBoundary          DataBoundary        @default(PILOT)
+  startsAt              DateTime?
+  ownerContactName      String?
+  ownerContactEmail     String?
+  supportContactName    String?
+  supportContactEmail   String?
+  notes                 String?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  PilotCohortMember     PilotCohortMember[]
+
+  @@index([dataBoundary])
+  @@index([startsAt])
+}
+
+model PilotCohortMember {
+  id                  String                 @id
+  cohortId            String
+  memberKind          PilotCohortMemberKind
+  dataBoundary        DataBoundary           @default(PILOT)
+  provisioningState   PilotProvisioningState @default(INVITED)
+  companyId           String?
+  subjectId           String?
+  userId              String?
+  inviteEmail         String?
+  ownerContactName    String?
+  ownerContactEmail   String?
+  supportContactName  String?
+  supportContactEmail String?
+  notes               String?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+  Company             Company?               @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  PilotCohort         PilotCohort            @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  Subject             Subject?               @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  User                User?                  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([cohortId])
+  @@index([memberKind, dataBoundary])
+  @@index([provisioningState])
+  @@index([companyId])
+  @@index([subjectId])
+  @@index([userId])
 }
 
 model MembershipSubscription {
@@ -767,6 +818,7 @@ model User {
   Company           Company?            @relation(fields: [companyId], references: [id])
   ConsultantProfile ConsultantProfile?
   OperatorAuditEvent OperatorAuditEvent[]
+  PilotCohortMember PilotCohortMember[]
   SubjectMembership SubjectMembership[]
 
   @@index([companyId])
@@ -844,6 +896,12 @@ enum CompanyType {
   VENDOR
 }
 
+enum DataBoundary {
+  DEMO
+  PILOT
+  PRODUCTION
+}
+
 enum ModuleScope {
   FIRM
   VENDOR
@@ -900,6 +958,20 @@ enum ProductCapabilityCoverage {
   CORE
   SUPPORTING
   ADJACENT
+}
+
+enum PilotCohortMemberKind {
+  VENDOR
+  FIRM
+  USER
+}
+
+enum PilotProvisioningState {
+  INVITED
+  PROVISIONING
+  ACTIVE
+  BLOCKED
+  ARCHIVED
 }
 
 enum ResearchConfidence {

@@ -33,6 +33,23 @@ export default async function AdminOrganizationDetailPage({
         orderBy: { name: "asc" },
         select: { id: true, name: true, active: true },
       },
+      PilotCohortMember: {
+        orderBy: { createdAt: "asc" },
+        select: {
+          id: true,
+          dataBoundary: true,
+          provisioningState: true,
+          memberKind: true,
+          inviteEmail: true,
+          ownerContactName: true,
+          ownerContactEmail: true,
+          supportContactName: true,
+          supportContactEmail: true,
+          PilotCohort: {
+            select: { name: true, startsAt: true },
+          },
+        },
+      },
       SurveySubmission: {
         orderBy: { createdAt: "desc" },
         take: 5,
@@ -142,6 +159,31 @@ export default async function AdminOrganizationDetailPage({
             <div className="mt-1 text-sm text-[var(--shell-muted)]">{subscription?.lastReconciledAt ? subscription.lastReconciledAt.toLocaleString() : "Never reconciled"}</div>
           </div>
         </div>
+      </AdminPanel>
+
+      <AdminPanel
+        title="Pilot cohort boundary"
+        description="Pilot membership is tracked independently from deterministic demo readiness and production customer behavior."
+      >
+        {organization.PilotCohortMember.length > 0 ? (
+          <div className="grid gap-4">
+            {organization.PilotCohortMember.map((membership) => (
+              <div key={membership.id} className="rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
+                <div className="font-semibold text-[var(--shell-ink)]">{membership.PilotCohort.name}</div>
+                <div className="mt-1 text-sm text-[var(--shell-muted)]">
+                  {membership.memberKind} · {membership.dataBoundary} · {membership.provisioningState} · Starts {membership.PilotCohort.startsAt ? membership.PilotCohort.startsAt.toLocaleDateString() : "unscheduled"}
+                </div>
+                <div className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
+                  Invite {membership.inviteEmail ?? "none"} · Owner {membership.ownerContactName ?? "unassigned"} {membership.ownerContactEmail ?? ""} · Support {membership.supportContactName ?? "unassigned"} {membership.supportContactEmail ?? ""}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-[18px] border border-[var(--shell-border)] bg-white/75 p-4 text-sm text-[var(--shell-muted)]">
+            No pilot cohort membership is assigned to this organization.
+          </div>
+        )}
       </AdminPanel>
 
       <section className="grid gap-6 xl:grid-cols-3">

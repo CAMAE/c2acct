@@ -9,6 +9,7 @@ async function main() {
     { ensureLocalReviewUsers },
     { ensureDemoPatEcosystem },
     { ensureFirmAlignmentSystem, ensureFirmProductModule },
+    { ensurePilotCohortSeed },
     { ensureUserPatScaffold },
     { ensureVendorProductModule },
   ] = await Promise.all([
@@ -16,6 +17,7 @@ async function main() {
     import("@/lib/auth/localReview"),
     import("@/lib/demoPatEcosystemSeed"),
     import("@/lib/firmPat"),
+    import("@/lib/pilotCohortSeed"),
     import("@/lib/userPat"),
     import("@/lib/vendorPat"),
   ]);
@@ -29,6 +31,7 @@ async function main() {
 
   await ensureUserPatScaffold();
   const demoEcosystem = await ensureDemoPatEcosystem(prisma);
+  const pilotCohort = await ensurePilotCohortSeed(prisma);
   const localReviewSeed = await ensureLocalReviewUsers(prisma);
   const firmSectionCount = await prisma.surveySection.count({
     where: {
@@ -46,6 +49,7 @@ async function main() {
   console.log(`Firm product module: ${firmProductModule.key}`);
   console.log("User PAT insight scaffold: ready");
   console.log("PAT demo ecosystem:", demoEcosystem);
+  console.log("PAT pilot cohort:", pilotCohort);
   console.log(`Local review auth users seeded: ${localReviewSeed.seeded ? localReviewSeed.userEmails.length : 0}`);
 }
 

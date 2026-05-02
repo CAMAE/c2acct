@@ -100,9 +100,22 @@ export default async function AdminLaunchPage() {
 
       <AdminPanel
         title="Customer and product footprint"
-        description="Top-level launch counts across customer accounts, users, and products."
+        description="Top-level launch counts across customer accounts, users, and products. Pilot and demo boundaries are shown separately below."
       >
         <MetricGrid cards={launch.summaryCards} />
+      </AdminPanel>
+
+      <AdminPanel
+        title="Pilot cohort boundary"
+        description="Pilot provisioning state is tracked separately from deterministic demo data and is not public-live customer proof."
+      >
+        <div className="grid gap-5">
+          <MetricGrid cards={launch.pilotCards} />
+          <LaunchTable
+            headers={["Cohort", "Boundary", "Starts", "Members", "Provisioning", "Owner", "Support"]}
+            rows={launch.pilotCohortRows}
+          />
+        </div>
       </AdminPanel>
 
       <AdminPanel

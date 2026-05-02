@@ -9,6 +9,10 @@ import {
   getDemoFirmVendorRelationships,
   getDemoProducts,
 } from "@/data/demoPatEcosystem";
+import {
+  JUNE_1_PILOT_COHORT,
+  getPilotCohortMinimums,
+} from "@/data/pilotCohort";
 import { applyRepoEnv } from "@/lib/env/repoEnv";
 
 const EXPECTED_FIRM_ALIGNMENT_MODULE_COUNT = 5;
@@ -55,6 +59,27 @@ describe("PAT deterministic demo ecosystem", () => {
     }
   });
 
+  it("defines a separate June 1 pilot fixture without demo-boundary classification", () => {
+    const minimums = getPilotCohortMinimums();
+    const demoCompanyNames = new Set([
+      ...DEMO_PAT_VENDORS.map((vendor) => vendor.displayName),
+      ...DEMO_PAT_FIRMS.map((firm) => firm.displayName),
+    ]);
+
+    expect(JUNE_1_PILOT_COHORT.key).toBe("june-1-pilot-2026");
+    expect(JUNE_1_PILOT_COHORT.dataBoundary).toBe("PILOT");
+    expect(JUNE_1_PILOT_COHORT.startsAt).toBe("2026-06-01T00:00:00.000Z");
+    expect(minimums.vendorMemberCount).toBeGreaterThanOrEqual(2);
+    expect(minimums.firmMemberCount).toBeGreaterThanOrEqual(2);
+    expect(minimums.userMemberCount).toBeGreaterThanOrEqual(3);
+
+    for (const organization of JUNE_1_PILOT_COHORT.organizations) {
+      expect(demoCompanyNames.has(organization.name)).toBe(false);
+      expect(organization.supportContactEmail).toMatch(/@pat\.local$/);
+      expect(organization.provisioningState).toMatch(/INVITED|PROVISIONING|ACTIVE/);
+    }
+  });
+
   it("proves the seeded local database is route-ready after seed:baseline and seed:pat-runtime", async () => {
     applyRepoEnv();
     const { getDemoPatEcosystemHealth } = await import("@/lib/demoPatEcosystemHealth");
@@ -75,5 +100,31 @@ describe("PAT deterministic demo ecosystem", () => {
     expect(health.firmVendorRelationshipCount).toBeGreaterThanOrEqual(DEMO_FIRM_VENDOR_RELATIONSHIP_MINIMUM);
     expect(health.routeReady).toBe(true);
     expect(health.ok).toBe(true);
+  });
+
+  it("proves seeded pilot readiness without counting pilot records as demo data", async () => {
+    applyRepoEnv();
+    const { getDemoPatEcosystemHealth } = await import("@/lib/demoPatEcosystemHealth");
+    const { getPilotCohortHealth } = await import("@/lib/pilotCohortHealth");
+    const [demoHealth, pilotHealth] = await Promise.all([
+      getDemoPatEcosystemHealth(),
+      getPilotCohortHealth(),
+    ]);
+    const minimums = getPilotCohortMinimums();
+
+    expect(demoHealth.vendorCount).toBeGreaterThanOrEqual(DEMO_VENDOR_COUNT_MINIMUM);
+    expect(demoHealth.firmCount).toBe(10);
+    expect(pilotHealth.error).toBeNull();
+    expect(pilotHealth.expectedJune1CohortKey).toBe(JUNE_1_PILOT_COHORT.key);
+    expect(pilotHealth.cohortCount).toBeGreaterThanOrEqual(minimums.cohortCount);
+    expect(pilotHealth.memberCount).toBeGreaterThanOrEqual(minimums.memberCount);
+    expect(pilotHealth.vendorMemberCount).toBeGreaterThanOrEqual(minimums.vendorMemberCount);
+    expect(pilotHealth.firmMemberCount).toBeGreaterThanOrEqual(minimums.firmMemberCount);
+    expect(pilotHealth.userMemberCount).toBeGreaterThanOrEqual(minimums.userMemberCount);
+    expect(pilotHealth.pilotBoundaryMemberCount).toBe(pilotHealth.memberCount);
+    expect(pilotHealth.demoBoundaryMemberCount).toBe(0);
+    expect(pilotHealth.productionBoundaryMemberCount).toBe(0);
+    expect(pilotHealth.june1PilotReady).toBe(true);
+    expect(pilotHealth.ok).toBe(true);
   });
 });

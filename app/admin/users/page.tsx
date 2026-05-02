@@ -13,6 +13,16 @@ export default async function AdminUsersPage() {
         Company: {
           select: { id: true, name: true, type: true },
         },
+        PilotCohortMember: {
+          orderBy: { createdAt: "asc" },
+          select: {
+            dataBoundary: true,
+            provisioningState: true,
+            PilotCohort: {
+              select: { name: true },
+            },
+          },
+        },
       },
     }),
     prisma.company.findMany({
@@ -51,6 +61,12 @@ export default async function AdminUsersPage() {
           {users.map((user) => {
             const individualMembership =
               personSubjectByKey.get(`person:${user.id}`)?.MembershipSubscription[0] ?? null;
+            const pilotBoundary = user.PilotCohortMember.length
+              ? user.PilotCohortMember.map(
+                  (membership) =>
+                    `${membership.PilotCohort.name}: ${membership.dataBoundary} / ${membership.provisioningState}`
+                ).join(" · ")
+              : "No pilot cohort";
             return (
               <div key={user.id} className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
                 <div className="mb-4">
@@ -60,6 +76,9 @@ export default async function AdminUsersPage() {
                   </div>
                   <div className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
                     Billing {individualMembership?.provider ?? "none"} · Provider status {individualMembership?.providerStatus ?? "unreconciled"} · Last event {individualMembership?.lastBillingEventType ?? "none"} · Reconciled {individualMembership?.lastReconciledAt ? individualMembership.lastReconciledAt.toLocaleString() : "never"}
+                  </div>
+                  <div className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
+                    Pilot boundary {pilotBoundary}
                   </div>
                 </div>
                 <div className="grid gap-4 xl:grid-cols-2">

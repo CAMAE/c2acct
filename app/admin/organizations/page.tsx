@@ -25,6 +25,17 @@ export default async function AdminOrganizationsPage() {
           },
         },
       },
+      PilotCohortMember: {
+        orderBy: { createdAt: "asc" },
+        select: {
+          dataBoundary: true,
+          provisioningState: true,
+          memberKind: true,
+          PilotCohort: {
+            select: { name: true },
+          },
+        },
+      },
       _count: {
         select: {
           User: true,
@@ -63,6 +74,12 @@ export default async function AdminOrganizationsPage() {
         <div className="grid gap-4">
           {organizations.map((organization) => {
             const subscription = organization.Subject?.MembershipSubscription[0] ?? null;
+            const pilotBoundary = organization.PilotCohortMember.length
+              ? organization.PilotCohortMember.map(
+                  (membership) =>
+                    `${membership.PilotCohort.name}: ${membership.memberKind} ${membership.dataBoundary} / ${membership.provisioningState}`
+                ).join(" · ")
+              : "No pilot cohort";
             return (
               <Link
                 key={organization.id}
@@ -77,6 +94,9 @@ export default async function AdminOrganizationsPage() {
                     </div>
                     <div className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
                       Billing {subscription?.provider ?? "none"} · Provider status {subscription?.providerStatus ?? "unreconciled"} · Last event {subscription?.lastBillingEventType ?? "none"} · Reconciled {subscription?.lastReconciledAt ? subscription.lastReconciledAt.toLocaleString() : "never"}
+                    </div>
+                    <div className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
+                      Pilot boundary {pilotBoundary}
                     </div>
                   </div>
                   <div className="text-sm text-[var(--shell-muted)]">Open detail</div>

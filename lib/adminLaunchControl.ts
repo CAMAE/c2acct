@@ -6,6 +6,11 @@ import {
 import { FIRM_MODULE_DEFINITIONS, FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat";
 import { getLocalReviewAuthPolicy, LOCAL_REVIEW_USERS } from "@/lib/auth/localReview";
 import { getDemoPatEcosystemHealth, type DemoPatEcosystemHealth } from "@/lib/demoPatEcosystemHealth";
+import {
+  emptyPilotCohortHealth,
+  getPilotCohortHealth,
+  type PilotCohortHealth,
+} from "@/lib/pilotCohortHealth";
 import prisma from "@/lib/prisma";
 import {
   getPublicReleaseFingerprintView,
@@ -41,13 +46,16 @@ export type AdminLaunchControlView = {
   summaryCards: AdminLaunchMetric[];
   assessmentCards: AdminLaunchMetric[];
   insightCards: AdminLaunchMetric[];
+  pilotCards: AdminLaunchMetric[];
   billingCards: AdminLaunchMetric[];
   localReviewCards: AdminLaunchMetric[];
   membershipDistributionRows: AdminLaunchTableRow[];
   failedWebhookRows: AdminLaunchTableRow[];
+  pilotCohortRows: AdminLaunchTableRow[];
   releaseRows: AdminLaunchTableRow[];
   demoSeedVersion: string;
   demoHealth: DemoPatEcosystemHealth;
+  pilotHealth: PilotCohortHealth;
   remediationLinks: AdminLaunchLink[];
 };
 
@@ -115,6 +123,7 @@ export type AdminLaunchControlSource = {
   };
   release: PublicReleaseFingerprintView;
   demoHealth: DemoPatEcosystemHealth;
+  pilotHealth: PilotCohortHealth;
 };
 
 const EMPTY_RELEASE: PublicReleaseFingerprintView = {
@@ -278,6 +287,7 @@ export function buildEmptyAdminLaunchControlSource(error: string): AdminLaunchCo
       firmVendorRelationshipCount: 0,
       routeReady: false,
     },
+    pilotHealth: emptyPilotCohortHealth(error),
   };
 }
 
@@ -285,6 +295,12 @@ export function buildAdminLaunchControlView(
   source: AdminLaunchControlSource
 ): AdminLaunchControlView {
   const demoTone: MetricTone = source.demoHealth.routeReady ? "ok" : "warn";
+  const pilotBoundaryIsClean =
+    source.pilotHealth.memberCount > 0 &&
+    source.pilotHealth.pilotBoundaryMemberCount === source.pilotHealth.memberCount &&
+    source.pilotHealth.demoBoundaryMemberCount === 0 &&
+    source.pilotHealth.productionBoundaryMemberCount === 0;
+  const pilotSupportAssigned = source.pilotHealth.rows.some((row) => row.supportContact !== "Unassigned");
   const billingNeedsAttention =
     source.billing.failedWebhookEvents > 0 || source.billing.unreconciledProviderSubscriptions > 0;
   const localReviewStatus = source.localReview.credentialsProviderAvailable
@@ -294,9 +310,10 @@ export function buildAdminLaunchControlView(
       : "Disabled";
 
   return {
-    queryError: source.queryError ?? source.demoHealth.error,
+    queryError: source.queryError ?? source.demoHealth.error ?? source.pilotHealth.error,
     demoSeedVersion: DEMO_PAT_ECOSYSTEM_VERSION,
     demoHealth: source.demoHealth,
+    pilotHealth: source.pilotHealth,
     summaryCards: [
       {
         key: "vendors",
@@ -391,6 +408,41 @@ export function buildAdminLaunchControlView(
         tone: demoTone,
       },
     ],
+    pilotCards: [
+      {
+        key: "pilot-cohorts",
+        label: "Pilot cohorts",
+        value: String(source.pilotHealth.cohortCount),
+        detail: `${source.pilotHealth.memberCount} pilot members tracked outside demo health`,
+        tone: source.pilotHealth.cohortCount > 0 ? "ok" : "warn",
+      },
+      {
+        key: "pilot-boundary",
+        label: "Pilot data boundary",
+        value: formatCoverage(
+          source.pilotHealth.pilotBoundaryMemberCount,
+          source.pilotHealth.memberCount
+        ),
+        detail: `Demo ${source.pilotHealth.demoBoundaryMemberCount} · Production ${source.pilotHealth.productionBoundaryMemberCount}`,
+        tone: pilotBoundaryIsClean ? "ok" : "warn",
+      },
+      {
+        key: "pilot-readiness",
+        label: "Pilot readiness",
+        value: source.pilotHealth.june1PilotReady ? "Ready" : "Blocked",
+        detail: `${source.pilotHealth.activeCount} active · ${source.pilotHealth.provisioningCount} provisioning · ${source.pilotHealth.invitedCount} invited`,
+        tone: source.pilotHealth.june1PilotReady ? "ok" : "warn",
+      },
+      {
+        key: "pilot-support",
+        label: "Pilot support",
+        value: pilotSupportAssigned ? "Assigned" : "Unassigned",
+        detail:
+          source.pilotHealth.rows[0]?.supportContact ??
+          "No pilot support contact is recorded",
+        tone: pilotSupportAssigned ? "ok" : "warn",
+      },
+    ],
     billingCards: [
       {
         key: "billing-customers",
@@ -450,6 +502,36 @@ export function buildAdminLaunchControlView(
               key: "no-failed-webhooks",
               cells: ["No failed webhook events", "No remediation needed", "", "", ""],
               tone: "ok",
+            },
+          ],
+    pilotCohortRows:
+      source.pilotHealth.rows.length > 0
+        ? source.pilotHealth.rows.map((row) => ({
+            key: row.key,
+            cells: [
+              row.name,
+              row.dataBoundary,
+              row.startsAt ?? "No start date",
+              `${row.memberCount} total · ${row.vendorMemberCount} vendors · ${row.firmMemberCount} firms · ${row.userMemberCount} users`,
+              `${row.activeCount} active · ${row.provisioningCount} provisioning · ${row.invitedCount} invited · ${row.blockedCount} blocked`,
+              row.ownerContact,
+              row.supportContact,
+            ],
+            tone: row.dataBoundary === "PILOT" && row.blockedCount === 0 ? "ok" : "warn",
+          }))
+        : [
+            {
+              key: "no-pilot-cohorts",
+              cells: [
+                "No pilot cohorts",
+                "UNVERIFIED",
+                "",
+                "0 total",
+                "0 active",
+                "Unassigned",
+                "Unassigned",
+              ],
+              tone: "warn",
             },
           ],
     releaseRows: buildReleaseRows(source.release),
@@ -524,6 +606,7 @@ export async function getAdminLaunchControlData(): Promise<AdminLaunchControlVie
       recentFailedWebhookEvents,
       seededLocalReviewUsers,
       demoHealth,
+      pilotHealth,
     ] = await Promise.all([
       prisma.company.count({ where: { type: "VENDOR" } }),
       prisma.vendorProfile.count(),
@@ -599,6 +682,7 @@ export async function getAdminLaunchControlData(): Promise<AdminLaunchControlVie
       }).catch(() => []),
       prisma.user.count({ where: { email: { in: localReviewEmails } } }).catch(() => 0),
       getDemoPatEcosystemHealth(),
+      getPilotCohortHealth(),
     ]);
 
     const productIds = await prisma.product.findMany({ select: { id: true } });
@@ -702,6 +786,7 @@ export async function getAdminLaunchControlData(): Promise<AdminLaunchControlVie
       },
       release: safeReleaseFingerprint(),
       demoHealth,
+      pilotHealth,
     };
 
     return buildAdminLaunchControlView(source);

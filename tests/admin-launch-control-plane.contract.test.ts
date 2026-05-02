@@ -7,6 +7,10 @@ import {
   type AdminLaunchControlSource,
 } from "@/lib/adminLaunchControl";
 import { DEMO_PAT_ECOSYSTEM_VERSION } from "@/data/demoPatEcosystem";
+import {
+  JUNE_1_PILOT_COHORT,
+  PILOT_COHORT_SEED_VERSION,
+} from "@/data/pilotCohort";
 
 const release = {
   releaseId: "abc1234:build_1",
@@ -99,6 +103,45 @@ function seededSource(): AdminLaunchControlSource {
       firmVendorRelationshipCount: 110,
       routeReady: true,
     },
+    pilotHealth: {
+      ok: true,
+      error: null,
+      seedVersion: PILOT_COHORT_SEED_VERSION,
+      expectedJune1CohortKey: JUNE_1_PILOT_COHORT.key,
+      cohortCount: 1,
+      memberCount: 7,
+      vendorMemberCount: 2,
+      firmMemberCount: 2,
+      userMemberCount: 3,
+      pilotBoundaryMemberCount: 7,
+      demoBoundaryMemberCount: 0,
+      productionBoundaryMemberCount: 0,
+      invitedCount: 1,
+      provisioningCount: 3,
+      activeCount: 3,
+      blockedCount: 0,
+      archivedCount: 0,
+      june1PilotReady: true,
+      rows: [
+        {
+          key: JUNE_1_PILOT_COHORT.key,
+          name: JUNE_1_PILOT_COHORT.name,
+          dataBoundary: "PILOT",
+          startsAt: JUNE_1_PILOT_COHORT.startsAt,
+          ownerContact: "Pilot Operations <pilot.ops@pat.local>",
+          supportContact: "PAT Support <support@pat.local>",
+          memberCount: 7,
+          vendorMemberCount: 2,
+          firmMemberCount: 2,
+          userMemberCount: 3,
+          invitedCount: 1,
+          provisioningCount: 3,
+          activeCount: 3,
+          blockedCount: 0,
+          archivedCount: 0,
+        },
+      ],
+    },
   };
 }
 
@@ -121,7 +164,35 @@ describe("admin launch control plane contracts", () => {
     expect(view.insightCards.find((card) => card.key === "demo-seed")?.detail).toContain(
       DEMO_PAT_ECOSYSTEM_VERSION
     );
+    expect(view.pilotCards.map((card) => [card.label, card.value])).toEqual([
+      ["Pilot cohorts", "1"],
+      ["Pilot data boundary", "7/7 (100%)"],
+      ["Pilot readiness", "Ready"],
+      ["Pilot support", "Assigned"],
+    ]);
+    expect(view.pilotCohortRows[0].cells).toEqual([
+      JUNE_1_PILOT_COHORT.name,
+      "PILOT",
+      JUNE_1_PILOT_COHORT.startsAt,
+      "7 total · 2 vendors · 2 firms · 3 users",
+      "3 active · 3 provisioning · 1 invited · 0 blocked",
+      "Pilot Operations <pilot.ops@pat.local>",
+      "PAT Support <support@pat.local>",
+    ]);
     expect(view.localReviewCards.find((card) => card.key === "local-review-users")?.value).toBe("5/5");
+  });
+
+  it("keeps deterministic demo readiness separate from pilot cohort metrics", () => {
+    const source = seededSource();
+    const view = buildAdminLaunchControlView(source);
+
+    expect(view.demoHealth.vendorCount).toBe(11);
+    expect(view.demoHealth.firmCount).toBe(10);
+    expect(view.pilotHealth.vendorMemberCount).toBe(2);
+    expect(view.pilotHealth.firmMemberCount).toBe(2);
+    expect(view.pilotCards.find((card) => card.key === "pilot-boundary")?.detail).toBe(
+      "Demo 0 · Production 0"
+    );
   });
 
   it("renders membership and billing reconciliation without exposing payment payloads", () => {
@@ -154,6 +225,8 @@ describe("admin launch control plane contracts", () => {
     ]);
     expect(view.releaseRows.find((row) => row.key === "release-id")?.cells[1]).toBe("unavailable");
     expect(view.demoHealth.routeReady).toBe(false);
+    expect(view.pilotHealth.june1PilotReady).toBe(false);
+    expect(view.pilotCohortRows[0].key).toBe("no-pilot-cohorts");
   });
 
   it("adds launch control to admin navigation and only links to real remediation routes", () => {
