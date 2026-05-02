@@ -488,4 +488,61 @@ describe("vendor product assessment contracts", () => {
     expect(overviewText).toContain("Existing products still in progress");
     expect(overviewText).toContain("How to use vendor product assessment");
   });
+
+  it("documents and source-proves the Phase 2 vendor product assessment QA checklist", () => {
+    const proofText = readFileSync(
+      path.join(ROOT, "docs/pilot/vendor-product-assessment-phase2-proof.md"),
+      "utf8"
+    );
+    const overviewText = readFileSync(
+      path.join(ROOT, "app/vendor/product-assessment/page.tsx"),
+      "utf8"
+    );
+    const detailText = readFileSync(
+      path.join(ROOT, "app/vendor/product-assessment/[productId]/page.tsx"),
+      "utf8"
+    );
+    const clientText = readFileSync(
+      path.join(ROOT, "app/components/vendor/VendorProductAssessmentClient.tsx"),
+      "utf8"
+    );
+    const submitRouteText = readFileSync(
+      path.join(ROOT, "app/api/vendor/product-assessment/submit/route.ts"),
+      "utf8"
+    );
+
+    for (const required of [
+      "Completed mode",
+      "Existing mode",
+      "Add New mode",
+      "Help mode",
+      "Product create",
+      "Product select",
+      "Resume behavior",
+      "Submit behavior",
+      "Feature declaration",
+      "Profile questions",
+      "Scored questions",
+      "Open-ended questions",
+      "Pagination",
+      "Top-scroll",
+      "Submit gating",
+    ]) {
+      expect(proofText).toContain(required);
+    }
+
+    expect(overviewText).toContain('mode=${mode}');
+    expect(overviewText).toContain('activeMode === "completed"');
+    expect(overviewText).toContain('activeMode === "existing"');
+    expect(overviewText).toContain('activeMode === "add-new"');
+    expect(overviewText).toContain("async function createProduct");
+    expect(detailText).toContain("persistedAnswerPayload");
+    expect(detailText).toContain("ProductAssessmentPlan");
+    expect(clientText).toContain("topCardRef.current?.scrollIntoView");
+    expect(clientText).toContain("continueToNextPage");
+    expect(clientText).toContain("canSubmitAssessment");
+    expect(clientText).toContain('disabled={submitState === "submitting" || !canSubmitAssessment}');
+    expect(submitRouteText).toContain("Complete every active question before submitting.");
+    expect(submitRouteText).toContain("Complete every open-ended question before submitting.");
+  });
 });
