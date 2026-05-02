@@ -35,6 +35,7 @@ export type VendorProductProfileRecord = {
 };
 
 export const VENDOR_PRODUCT_ASSESSMENT_PAGE_SIZE = 10;
+export const VENDOR_PRODUCT_MAX_BROWSER_SESSION_QUESTIONS = 500;
 
 export type VendorProductAssessmentPageEntry =
   | {
@@ -65,6 +66,14 @@ export type VendorProductAssessmentPagePlan = {
   scoredQuestions: ProductAssessmentQuestion[];
   openEndedQuestions: ProductAssessmentQuestion[];
   pages: VendorProductAssessmentPage[];
+};
+
+export type VendorProductAssessmentQuestionLoad = {
+  totalQuestionCount: number;
+  maxBrowserSessionQuestionCount: number;
+  pageCount: number;
+  pageSize: number;
+  safeForBrowserSession: boolean;
 };
 
 export type VendorAdaptiveOpenEndedQuestionSnapshot = {
@@ -118,6 +127,26 @@ function buildQuestionEntries(
     kind,
     question,
   }));
+}
+
+export function getVendorProductAssessmentQuestionLoad(
+  pagePlan: Pick<
+    VendorProductAssessmentPagePlan,
+    "profileQuestions" | "scoredQuestions" | "openEndedQuestions" | "pages" | "pageSize"
+  >
+): VendorProductAssessmentQuestionLoad {
+  const totalQuestionCount =
+    pagePlan.profileQuestions.length +
+    pagePlan.scoredQuestions.length +
+    pagePlan.openEndedQuestions.length;
+
+  return {
+    totalQuestionCount,
+    maxBrowserSessionQuestionCount: VENDOR_PRODUCT_MAX_BROWSER_SESSION_QUESTIONS,
+    pageCount: pagePlan.pages.length,
+    pageSize: pagePlan.pageSize,
+    safeForBrowserSession: totalQuestionCount <= VENDOR_PRODUCT_MAX_BROWSER_SESSION_QUESTIONS,
+  };
 }
 
 type SectionFact = {

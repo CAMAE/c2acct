@@ -10,6 +10,8 @@ import {
   PRODUCT_ASSESSMENT_SCALE_MIN,
 } from "@/lib/productAssessmentRuntime";
 import {
+  buildVendorProductAssessmentPagePlan,
+  getVendorProductAssessmentQuestionLoad,
   normalizeVendorProductProfileInput,
   serializeVendorAdaptiveOpenEndedQuestionSnapshot,
   serializeVendorProductAssessmentPlan,
@@ -137,6 +139,19 @@ export async function POST(request: Request) {
   const { score, integrity } = computeVendorAssessmentMetrics(answers);
   const normalizedProfile = normalizeVendorProductProfileInput(profile);
   const assessmentPlan = serializeVendorProductAssessmentPlan(utilityKeys);
+  const questionLoad = getVendorProductAssessmentQuestionLoad(
+    buildVendorProductAssessmentPagePlan({ assessmentPlan: assessmentPlan.plan })
+  );
+  if (!questionLoad.safeForBrowserSession) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Feature selection is too large for one browser session.",
+        detail: `Selected features generate ${questionLoad.totalQuestionCount} questions; the current guard is ${questionLoad.maxBrowserSessionQuestionCount}.`,
+      },
+      { status: 400, headers: NO_STORE_HEADERS }
+    );
+  }
   const adaptiveOpenEndedQuestions = serializeVendorAdaptiveOpenEndedQuestionSnapshot({
     selectedUtilityKeys: utilityKeys,
     profile: normalizedProfile,

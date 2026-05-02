@@ -11,6 +11,7 @@ import { formatFeatureCountLabel } from "@/lib/displayCopy";
 import {
   buildVendorProductAssessmentPagePlan,
   buildVendorProductAssessmentPlan,
+  getVendorProductAssessmentQuestionLoad,
   normalizeVendorProductProfileInput,
   type VendorProductAssessmentPageEntry,
   type VendorProductProfileInput,
@@ -115,6 +116,10 @@ export default function VendorProductAssessmentClient({
     () => buildVendorProductAssessmentPagePlan({ assessmentPlan }),
     [assessmentPlan]
   );
+  const questionLoad = useMemo(
+    () => getVendorProductAssessmentQuestionLoad(pagePlan),
+    [pagePlan]
+  );
 
   const profileQuestions = pagePlan.profileQuestions;
   const activeQuestions = pagePlan.scoredQuestions;
@@ -161,12 +166,14 @@ export default function VendorProductAssessmentClient({
     (entry) => entry.kind === "utility-declaration"
   );
   const currentPageUtilityReady = !currentPageIncludesUtilityDeclaration || selectedUtilityKeys.length > 0;
+  const questionLoadSafe = questionLoad.safeForBrowserSession;
   const currentPageMissingCount =
     currentPageQuestionCount -
     currentPageAnsweredCount +
     (currentPageUtilityReady ? 0 : 1);
-  const canAdvanceFromCurrentPage = currentPageMissingCount === 0;
+  const canAdvanceFromCurrentPage = questionLoadSafe && currentPageMissingCount === 0;
   const canSubmitAssessment =
+    questionLoadSafe &&
     selectedUtilityKeys.length > 0 &&
     profileAnsweredCount === profileQuestions.length &&
     scoredAnsweredCount === activeQuestions.length &&
@@ -217,6 +224,13 @@ export default function VendorProductAssessmentClient({
   }
 
   function continueToNextPage() {
+    if (!questionLoadSafe) {
+      setPageError(
+        `This feature selection generates ${questionLoad.totalQuestionCount} questions, above the ${questionLoad.maxBrowserSessionQuestionCount}-question browser-session guard. Narrow the feature scope before continuing.`
+      );
+      return;
+    }
+
     if (!canAdvanceFromCurrentPage) {
       setPageError(
         currentPageIncludesUtilityDeclaration && selectedUtilityKeys.length === 0
@@ -230,6 +244,14 @@ export default function VendorProductAssessmentClient({
   }
 
   async function submitAssessment() {
+    if (!questionLoadSafe) {
+      setSubmitState("error");
+      setSubmitError(
+        `This feature selection generates ${questionLoad.totalQuestionCount} questions, above the ${questionLoad.maxBrowserSessionQuestionCount}-question browser-session guard. Narrow the feature scope before submitting.`
+      );
+      return;
+    }
+
     if (selectedUtilityKeys.length === 0) {
       setSubmitState("error");
       setSubmitError("Select at least one feature before submitting.");
@@ -370,6 +392,15 @@ export default function VendorProductAssessmentClient({
           </section>
         </div>
       </section>
+
+      {!questionLoadSafe ? (
+        <section className="pat-card border-amber-200 bg-amber-50/90 p-6 text-sm leading-6 text-amber-950">
+          <div className="pat-label">Feature scale guard</div>
+          <p className="mt-3">
+            This feature selection generates {questionLoad.totalQuestionCount} questions across {questionLoad.pageCount} pages, above the {questionLoad.maxBrowserSessionQuestionCount}-question browser-session guard. Narrow the feature scope before continuing so the assessment remains usable in one pilot QA session.
+          </p>
+        </section>
+      ) : null}
 
       {currentPage.kind === "profile" ? (
         <div className="space-y-4">

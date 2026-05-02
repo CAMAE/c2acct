@@ -22,9 +22,11 @@ import {
 import { PAT_PRODUCT_NAME } from "@/lib/displayCopy";
 import {
   VENDOR_PRODUCT_ASSESSMENT_PAGE_SIZE,
+  VENDOR_PRODUCT_MAX_BROWSER_SESSION_QUESTIONS,
   buildVendorAdaptiveOpenEndedQuestions,
   buildVendorProductAssessmentPagePlan,
   buildVendorProductAssessmentPlan,
+  getVendorProductAssessmentQuestionLoad,
   serializeVendorAdaptiveOpenEndedQuestionSnapshot,
   serializeVendorProductAssessmentPlan,
 } from "@/lib/vendorProductAssessmentPlan";
@@ -71,36 +73,36 @@ describe("vendor product assessment contracts", () => {
     });
   });
 
-  it("removes the old four-feature cap while preserving 20 scored questions per selected feature", () => {
-    const selectedUtilityKeys = PRODUCT_UTILITY_REGISTRY.slice(0, 5).map((utility) => utility.key);
+  it("proves all registry features can be selected without restoring the old four-feature cap", () => {
+    const selectedUtilityKeys = PRODUCT_UTILITY_REGISTRY.map((utility) => utility.key);
     const plan = buildVendorProductAssessmentPlan(selectedUtilityKeys);
     const snapshot = serializeVendorProductAssessmentPlan(selectedUtilityKeys);
     const utilityModules = plan.modules.filter((module) => module.kind === "utility");
+    const expectedScoredQuestionCount =
+      PRODUCT_UTILITY_REGISTRY.length * PRODUCT_UTILITY_SCORED_QUESTION_COUNT;
+    const expectedGeneratedQuestionCount =
+      PRODUCT_GENERAL_QUESTION_COUNT +
+      expectedScoredQuestionCount +
+      PRODUCT_OPEN_ENDED_QUESTION_COUNT;
 
     expect(PRODUCT_UTILITY_REGISTRY.length).toBeGreaterThan(4);
     expect(VENDOR_PRODUCT_UTILITY_SELECTION_LIMIT).toBe(PRODUCT_UTILITY_REGISTRY.length);
     expect(utilityModules).toHaveLength(selectedUtilityKeys.length);
     expect(utilityModules.every((module) => module.questions.length === PRODUCT_UTILITY_SCORED_QUESTION_COUNT)).toBe(true);
-    expect(buildVendorProductQuestions(selectedUtilityKeys)).toHaveLength(
-      selectedUtilityKeys.length * PRODUCT_UTILITY_SCORED_QUESTION_COUNT
-    );
+    expect(buildVendorProductQuestions(selectedUtilityKeys)).toHaveLength(expectedScoredQuestionCount);
     expect(snapshot.selectedUtilityKeys).toEqual(selectedUtilityKeys);
-    expect(snapshot.scoredQuestionIds).toHaveLength(
-      selectedUtilityKeys.length * PRODUCT_UTILITY_SCORED_QUESTION_COUNT
-    );
-    expect(snapshot.generatedQuestionIds).toHaveLength(
-      PRODUCT_GENERAL_QUESTION_COUNT +
-        selectedUtilityKeys.length * PRODUCT_UTILITY_SCORED_QUESTION_COUNT +
-        PRODUCT_OPEN_ENDED_QUESTION_COUNT
-    );
+    expect(snapshot.scoredQuestionIds).toHaveLength(expectedScoredQuestionCount);
+    expect(snapshot.generatedQuestionIds).toHaveLength(expectedGeneratedQuestionCount);
+    expect(expectedGeneratedQuestionCount).toBeLessThanOrEqual(VENDOR_PRODUCT_MAX_BROWSER_SESSION_QUESTIONS);
   });
 
-  it("builds a navigable ten-question page plan with profile first and bounded page sizes", () => {
-    const selectedUtilityKeys = PRODUCT_UTILITY_REGISTRY.slice(0, 5).map((utility) => utility.key);
+  it("builds a navigable ten-question page plan for all registry features with bounded page sizes", () => {
+    const selectedUtilityKeys = PRODUCT_UTILITY_REGISTRY.map((utility) => utility.key);
     const assessmentPlan = buildVendorProductAssessmentPlan(selectedUtilityKeys);
     const pagePlan = buildVendorProductAssessmentPagePlan({ assessmentPlan });
     const scorePages = pagePlan.pages.filter((page) => page.kind === "score");
     const openEndedPages = pagePlan.pages.filter((page) => page.kind === "open-ended");
+    const questionLoad = getVendorProductAssessmentQuestionLoad(pagePlan);
 
     expect(pagePlan.pageSize).toBe(VENDOR_PRODUCT_ASSESSMENT_PAGE_SIZE);
     expect(pagePlan.pages[0]?.kind).toBe("profile");
@@ -114,6 +116,35 @@ describe("vendor product assessment contracts", () => {
       Math.ceil(PRODUCT_OPEN_ENDED_QUESTION_COUNT / VENDOR_PRODUCT_ASSESSMENT_PAGE_SIZE)
     );
     expect(openEndedPages.every((page) => page.questionCount <= VENDOR_PRODUCT_ASSESSMENT_PAGE_SIZE)).toBe(true);
+    expect(pagePlan.pages.every((page) => page.questionCount <= VENDOR_PRODUCT_ASSESSMENT_PAGE_SIZE)).toBe(true);
+    expect(questionLoad).toMatchObject({
+      totalQuestionCount:
+        PRODUCT_GENERAL_QUESTION_COUNT +
+        PRODUCT_UTILITY_REGISTRY.length * PRODUCT_UTILITY_SCORED_QUESTION_COUNT +
+        PRODUCT_OPEN_ENDED_QUESTION_COUNT,
+      maxBrowserSessionQuestionCount: VENDOR_PRODUCT_MAX_BROWSER_SESSION_QUESTIONS,
+      safeForBrowserSession: true,
+    });
+  });
+
+  it("marks oversized generated question loads unsafe without capping feature selection", () => {
+    const overloadedLoad = getVendorProductAssessmentQuestionLoad({
+      profileQuestions: Array.from({
+        length: PRODUCT_GENERAL_QUESTION_COUNT,
+      }) as never[],
+      scoredQuestions: Array.from({
+        length: VENDOR_PRODUCT_MAX_BROWSER_SESSION_QUESTIONS + 1,
+      }) as never[],
+      openEndedQuestions: Array.from({
+        length: PRODUCT_OPEN_ENDED_QUESTION_COUNT,
+      }) as never[],
+      pages: [],
+      pageSize: VENDOR_PRODUCT_ASSESSMENT_PAGE_SIZE,
+    });
+
+    expect(VENDOR_PRODUCT_UTILITY_SELECTION_LIMIT).toBe(PRODUCT_UTILITY_REGISTRY.length);
+    expect(overloadedLoad.totalQuestionCount).toBeGreaterThan(VENDOR_PRODUCT_MAX_BROWSER_SESSION_QUESTIONS);
+    expect(overloadedLoad.safeForBrowserSession).toBe(false);
   });
 
   it("builds deterministic adaptive open-ended prompts from selected features, scored outcomes, and profile context", () => {
