@@ -182,6 +182,13 @@ describe("launch proof bundle contract", async () => {
         url: null,
         reason: "fixture no live URL",
         evidence: [],
+        artifactPath: null,
+        checkedAt: "2026-04-26T00:00:00.000Z",
+        routeEvidence: {},
+        apiFingerprint: null,
+        healthFingerprint: null,
+        failures: [],
+        partialReasons: [],
       },
       knownItems,
       statusBuckets: Object.fromEntries(
@@ -231,6 +238,50 @@ describe("launch proof bundle contract", async () => {
     });
 
     expect(summary).toBe("Route smoke was not requested for this proof generation run.");
+  });
+
+  it("keeps public-live unverified without URL and classifies URL evidence strictly", async () => {
+    const missing = await proof.buildPublicLiveQA("", {
+      releaseId: "1234567:build_fixture",
+    }, {
+      root: "/repo",
+      generatedAt: "2026-04-26T00:00:00.000Z",
+    });
+
+    expect(missing.status).toBe("UNVERIFIED");
+    expect(missing.artifactPath).toBeNull();
+
+    const classifyPublicLiveProof = proof.classifyPublicLiveProof as unknown as (input: {
+      publicLiveUrl: string;
+      failures: string[];
+      partialReasons: string[];
+      fingerprintMatches: boolean;
+    }) => { status: string };
+
+    expect(classifyPublicLiveProof({
+      publicLiveUrl: "https://pat.example.test",
+      failures: [],
+      partialReasons: [],
+      fingerprintMatches: true,
+    })).toEqual(expect.objectContaining({
+      status: "COMPLETE",
+    }));
+    expect(classifyPublicLiveProof({
+      publicLiveUrl: "https://pat.example.test",
+      failures: [],
+      partialReasons: ["/api/health/db returned 503 ok=false"],
+      fingerprintMatches: true,
+    })).toEqual(expect.objectContaining({
+      status: "PARTIAL",
+    }));
+    expect(classifyPublicLiveProof({
+      publicLiveUrl: "https://pat.example.test",
+      failures: ["public_api_fingerprint:releaseId_mismatch:old:new"],
+      partialReasons: [],
+      fingerprintMatches: false,
+    })).toEqual(expect.objectContaining({
+      status: "CONFLICTING",
+    }));
   });
 
   it("classifies Stripe fixture proof as partial and Stripe CLI proof as complete", () => {

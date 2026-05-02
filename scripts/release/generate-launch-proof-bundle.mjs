@@ -38,6 +38,47 @@ const DEFAULT_MARKDOWN_NAME = "4.26.26-launch-proof.md";
 const BILLING_PROOF_DIR = "artifacts/billing";
 const STRIPE_ROUNDTRIP_PROOF_PATTERN = /^stripe-roundtrip-.+\.json$/;
 const DEMO_VERSION_PATTERN = /DEMO_PAT_ECOSYSTEM_VERSION\s*=\s*"([^"]+)"/;
+const PUBLIC_LIVE_ROUTES = Object.freeze([
+  "/",
+  "/sign-in",
+  "/vendor",
+  "/firm",
+  "/user",
+  "/admin",
+  "/api/release-fingerprint",
+  "/api/health/db",
+  "/release",
+]);
+const PUBLIC_LIVE_HTML_ROUTES = new Set(["/", "/sign-in", "/release"]);
+const PUBLIC_LIVE_REDIRECT_ROUTES = new Set(["/vendor", "/firm", "/user", "/admin"]);
+const PUBLIC_FINGERPRINT_FIELDS = Object.freeze([
+  "schemaVersion",
+  "releaseId",
+  "commitSha",
+  "commitShort",
+  "branch",
+  "canonicalRootName",
+  "buildTimestamp",
+  "authMode",
+  "buildSourceType",
+  "buildId",
+  "releaseFingerprintSeed",
+  "startCommand",
+  "gitDirty",
+]);
+const PUBLIC_HEALTH_FINGERPRINT_FIELDS = Object.freeze([
+  "releaseId",
+  "commitSha",
+  "branch",
+  "canonicalRootName",
+  "buildTimestamp",
+  "authMode",
+  "buildSourceType",
+  "buildId",
+  "releaseFingerprintSeed",
+  "startCommand",
+  "gitDirty",
+]);
 
 function parseArgs(argv) {
   const args = {
@@ -139,6 +180,133 @@ function sha256File(filePath) {
   }
 
   return createHash("sha256").update(fs.readFileSync(filePath)).digest("hex");
+}
+
+function sha256Text(value) {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+function timestampForFileName(value) {
+  return value.replace(/[:.]/g, "-");
+}
+
+function normalizePublicLiveUrl(value) {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return null;
+    }
+    parsed.hash = "";
+    parsed.search = "";
+    return parsed.toString().replace(/\/$/, "");
+  } catch {
+    return null;
+  }
+}
+
+function compactSnippet(value, maxLength = 700) {
+  return value.replace(/\s+/g, " ").trim().slice(0, maxLength);
+}
+
+function normalizeMarkerText(value) {
+  return String(value ?? "").replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+function htmlContainsForbiddenMarker(html, marker) {
+  const normalizedHtml = normalizeMarkerText(html);
+  const normalizedMarker = normalizeMarkerText(marker);
+  if (!normalizedMarker) {
+    return false;
+  }
+
+  if (/^[a-z0-9]{1,3}$/i.test(String(marker).trim())) {
+    const escaped = normalizedMarker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(`(^|[^a-z0-9_])${escaped}([^a-z0-9_]|$)`, "i").test(normalizedHtml);
+  }
+
+  return normalizedHtml.includes(normalizedMarker);
+}
+
+function extractBrowserReleaseId(html) {
+  const dataAttributeMatch = html.match(/data-release-fingerprint="([^"]+)"/);
+  if (dataAttributeMatch?.[1]) {
+    return dataAttributeMatch[1];
+  }
+
+  const textMatch = html.match(/Release ([A-Za-z0-9:_-]+)/);
+  return textMatch?.[1] ?? null;
+}
+
+function extractCallbackTarget(location, baseUrl) {
+  if (!location) return null;
+  try {
+    const parsed = new URL(location, baseUrl);
+    return parsed.searchParams.get("redirectTo") ?? parsed.searchParams.get("callbackUrl");
+  } catch {
+    return null;
+  }
+}
+
+function normalizeRedirectPath(location, baseUrl) {
+  if (!location) return "";
+  try {
+    const parsed = new URL(location, baseUrl);
+    return `${parsed.pathname}${parsed.search}`;
+  } catch {
+    return location;
+  }
+}
+
+function comparePublicFingerprint(actual, expected, fields = PUBLIC_FINGERPRINT_FIELDS, scope = "public_fingerprint") {
+  if (!actual) {
+    return [`${scope}:missing`];
+  }
+
+  return fields.flatMap((field) => {
+    const actualValue = actual?.[field];
+    const expectedValue = expected?.[field];
+    if (actualValue === expectedValue) {
+      return [];
+    }
+    return [`${scope}:${field}_mismatch:${String(actualValue ?? "missing")}:${String(expectedValue ?? "missing")}`];
+  });
+}
+
+export function classifyPublicLiveProof({ publicLiveUrl, failures = [], partialReasons = [], fingerprintMatches = false }) {
+  if (!publicLiveUrl) {
+    return {
+      status: "UNVERIFIED",
+      reason: "No PAT_PUBLIC_LIVE_URL or --public-live-url was supplied; public-live QA remains unverified.",
+    };
+  }
+
+  if (failures.length > 0) {
+    return {
+      status: "CONFLICTING",
+      reason: failures.join("; "),
+    };
+  }
+
+  if (fingerprintMatches && partialReasons.length > 0) {
+    return {
+      status: "PARTIAL",
+      reason: partialReasons.join("; "),
+    };
+  }
+
+  if (fingerprintMatches) {
+    return {
+      status: "COMPLETE",
+      reason: "Public/staging URL served the expected PAT release fingerprint across required routes and APIs.",
+    };
+  }
+
+  return {
+    status: "UNVERIFIED",
+    reason: "Public/staging URL was supplied, but release fingerprint proof was not captured.",
+  };
 }
 
 function parseDemoSeedVersion(root) {
@@ -575,6 +743,62 @@ export function summarizeRouteSmokeKnownItemProof(routeSmoke) {
   return routeSmoke.reason ?? "Route smoke proof was not recorded for this launch bundle.";
 }
 
+async function fetchPublicLiveRoute(baseUrl, routePath) {
+  const url = `${baseUrl}${routePath}`;
+  const fetchedAt = new Date().toISOString();
+  const response = await fetch(url, {
+    redirect: "manual",
+    headers: {
+      "user-agent": "PAT launch-proof public-live validator",
+      accept: routePath.startsWith("/api/") ? "application/json" : "text/html,application/xhtml+xml",
+    },
+  });
+  const bodyText = await response.text();
+
+  return {
+    path: routePath,
+    url,
+    fetchedAt,
+    status: response.status,
+    contentType: response.headers.get("content-type") ?? "",
+    location: response.headers.get("location") ?? "",
+    responseHashSha256: sha256Text(bodyText),
+    bodyText,
+  };
+}
+
+function buildPublicLiveRouteEvidence(response, includeSnippet) {
+  return {
+    path: response.path,
+    url: response.url,
+    fetchedAt: response.fetchedAt,
+    status: response.status,
+    contentType: response.contentType,
+    location: response.location || null,
+    responseHashSha256: response.responseHashSha256,
+    snippet: includeSnippet ? compactSnippet(response.bodyText) : null,
+  };
+}
+
+function parsePublicJson(response) {
+  try {
+    return JSON.parse(response.bodyText);
+  } catch {
+    return null;
+  }
+}
+
+function writePublicLiveProofArtifact(root, proof) {
+  const outputDir = path.join(root, DEFAULT_OUTPUT_DIR);
+  fs.mkdirSync(outputDir, { recursive: true });
+  const artifactPath = path.join(
+    outputDir,
+    `public-live-${timestampForFileName(proof.generatedAt)}.json`
+  );
+  fs.writeFileSync(artifactPath, `${JSON.stringify(proof, null, 2)}\n`);
+  return path.relative(root, artifactPath);
+}
+
 function buildKnownItems({ sourceIntegrity, routeSmoke, databaseProof, billingProof, brandProof, validationResults, publicLiveQA }) {
   const validationStatus = summarizeValidationStatus(validationResults);
   const knownItems = [
@@ -653,21 +877,179 @@ function buildKnownItems({ sourceIntegrity, routeSmoke, databaseProof, billingPr
   return knownItems;
 }
 
-function buildPublicLiveQA(publicLiveUrl) {
+export async function buildPublicLiveQA(publicLiveUrl, expectedReleaseFingerprint, options = {}) {
+  const root = path.resolve(options.root ?? process.cwd());
+  const generatedAt = options.generatedAt ?? new Date().toISOString();
+  const normalizedUrl = normalizePublicLiveUrl(publicLiveUrl);
   if (!publicLiveUrl) {
     return {
       status: "UNVERIFIED",
       url: null,
       reason: "No PAT_PUBLIC_LIVE_URL or --public-live-url was supplied; public-live QA remains unverified.",
       evidence: [],
+      artifactPath: null,
+      checkedAt: generatedAt,
+      routeEvidence: {},
+      apiFingerprint: null,
+      healthFingerprint: null,
+      failures: [],
+      partialReasons: [],
     };
   }
 
+  if (!normalizedUrl) {
+    return {
+      status: "CONFLICTING",
+      url: publicLiveUrl,
+      reason: "PAT_PUBLIC_LIVE_URL or --public-live-url is not a valid http(s) URL.",
+      evidence: [],
+      artifactPath: null,
+      checkedAt: generatedAt,
+      routeEvidence: {},
+      apiFingerprint: null,
+      healthFingerprint: null,
+      failures: ["public_live_url:invalid"],
+      partialReasons: [],
+    };
+  }
+
+  const manifest = loadManifest(root);
+  const failures = [];
+  const partialReasons = [];
+  const routeEvidence = {};
+  let apiFingerprint = null;
+  let healthFingerprint = null;
+  let releasePageReleaseId = null;
+
+  try {
+    for (const routePath of PUBLIC_LIVE_ROUTES) {
+      const response = await fetchPublicLiveRoute(normalizedUrl, routePath);
+      const includeSnippet = PUBLIC_LIVE_HTML_ROUTES.has(routePath);
+      const evidence = buildPublicLiveRouteEvidence(response, includeSnippet);
+      routeEvidence[routePath] = evidence;
+
+      if (PUBLIC_LIVE_HTML_ROUTES.has(routePath)) {
+        if (response.status !== 200) {
+          failures.push(`${routePath}:unexpected_status:${response.status}`);
+        }
+
+        const forbiddenMarkers = (manifest.globalForbiddenMarkers ?? [])
+          .filter((marker) => htmlContainsForbiddenMarker(response.bodyText, marker));
+        evidence.forbiddenMarkers = forbiddenMarkers;
+        if (forbiddenMarkers.length > 0) {
+          failures.push(`${routePath}:forbidden_markers:${forbiddenMarkers.join("|")}`);
+        }
+
+        const browserReleaseId = extractBrowserReleaseId(response.bodyText);
+        evidence.releaseId = browserReleaseId;
+        if (routePath === "/release") {
+          releasePageReleaseId = browserReleaseId;
+        }
+        continue;
+      }
+
+      if (PUBLIC_LIVE_REDIRECT_ROUTES.has(routePath)) {
+        const redirectPath = normalizeRedirectPath(response.location, normalizedUrl);
+        const callbackTarget = extractCallbackTarget(response.location, normalizedUrl);
+        evidence.redirectPath = redirectPath;
+        evidence.callbackTarget = callbackTarget;
+
+        if (![301, 302, 303, 307, 308].includes(response.status)) {
+          failures.push(`${routePath}:expected_redirect_status:${response.status}`);
+        }
+        if (!redirectPath.startsWith("/sign-in")) {
+          failures.push(`${routePath}:bad_redirect_target:${redirectPath || "missing"}`);
+        }
+        if (callbackTarget !== routePath) {
+          failures.push(`${routePath}:bad_callback_target:${callbackTarget || "missing"}`);
+        }
+        continue;
+      }
+
+      if (routePath === "/api/release-fingerprint") {
+        if (response.status !== 200) {
+          failures.push(`${routePath}:unexpected_status:${response.status}`);
+        }
+        const payload = parsePublicJson(response);
+        evidence.payload = payload;
+        apiFingerprint = payload?.fingerprint ?? null;
+        evidence.fingerprint = apiFingerprint;
+        failures.push(
+          ...comparePublicFingerprint(
+            apiFingerprint,
+            expectedReleaseFingerprint,
+            PUBLIC_FINGERPRINT_FIELDS,
+            "public_api_fingerprint"
+          )
+        );
+        continue;
+      }
+
+      if (routePath === "/api/health/db") {
+        const payload = parsePublicJson(response);
+        evidence.payload = payload;
+        healthFingerprint = payload?.release ?? null;
+        evidence.release = healthFingerprint;
+        failures.push(
+          ...comparePublicFingerprint(
+            healthFingerprint,
+            expectedReleaseFingerprint,
+            PUBLIC_HEALTH_FINGERPRINT_FIELDS,
+            "public_health_fingerprint"
+          )
+        );
+        if (response.status !== 200 || payload?.ok !== true) {
+          partialReasons.push(`/api/health/db returned ${response.status} ok=${String(payload?.ok ?? "missing")}`);
+        }
+      }
+    }
+
+    if (releasePageReleaseId && releasePageReleaseId !== expectedReleaseFingerprint.releaseId) {
+      failures.push(`public_release_page:release_id_mismatch:${releasePageReleaseId}:${expectedReleaseFingerprint.releaseId}`);
+    }
+  } catch (error) {
+    failures.push(`public_live_fetch_error:${error?.code ?? "unknown"}:${error?.message ?? String(error)}`);
+  }
+
+  const fingerprintMatches = failures.filter((failure) => failure.includes("fingerprint")).length === 0
+    && Boolean(apiFingerprint?.releaseId)
+    && apiFingerprint.releaseId === expectedReleaseFingerprint.releaseId;
+  const classification = classifyPublicLiveProof({
+    publicLiveUrl: normalizedUrl,
+    failures,
+    partialReasons,
+    fingerprintMatches,
+  });
+  const proof = {
+    schemaVersion: 1,
+    proofName: "PAT public/staging live release proof",
+    generatedAt,
+    checkedAt: new Date().toISOString(),
+    url: normalizedUrl,
+    status: classification.status,
+    reason: classification.reason,
+    expectedReleaseFingerprint,
+    apiFingerprint,
+    healthFingerprint,
+    routesChecked: PUBLIC_LIVE_ROUTES,
+    routeEvidence,
+    failures,
+    partialReasons,
+  };
+  const artifactPath = writePublicLiveProofArtifact(root, proof);
+
   return {
-    status: "PARTIAL",
-    url: publicLiveUrl,
-    reason: "A public URL was supplied, but this bundle does not include live logs or public route-smoke proof.",
-    evidence: ["public-live-url-supplied"],
+    status: classification.status,
+    url: normalizedUrl,
+    reason: classification.reason,
+    evidence: [artifactPath],
+    artifactPath,
+    checkedAt: proof.checkedAt,
+    routeEvidence,
+    apiFingerprint,
+    healthFingerprint,
+    failures,
+    partialReasons,
   };
 }
 
@@ -688,7 +1070,15 @@ export async function buildLaunchProofBundle(options = {}) {
     options.validationResultsPath ?? "",
     options.validationResults ?? {}
   );
-  const publicLiveQA = buildPublicLiveQA(options.publicLiveUrl ?? process.env.PAT_PUBLIC_LIVE_URL ?? "");
+  const releaseFingerprint = sourceIntegrity.artifactAgreement.expected;
+  const publicLiveQA = await buildPublicLiveQA(
+    options.publicLiveUrl ?? process.env.PAT_PUBLIC_LIVE_URL ?? "",
+    releaseFingerprint,
+    {
+      root,
+      generatedAt: options.generatedAt ?? new Date().toISOString(),
+    }
+  );
   const billingProof = buildBillingProof(process.env, databaseProof, root);
   const brandProof = buildBrandProof(root);
   const knownItems = buildKnownItems({
@@ -700,7 +1090,6 @@ export async function buildLaunchProofBundle(options = {}) {
     validationResults,
     publicLiveQA,
   });
-  const releaseFingerprint = sourceIntegrity.artifactAgreement.expected;
 
   const bundle = {
     schemaVersion: 1,
@@ -903,6 +1292,10 @@ export function validateLaunchProofBundle(bundle) {
   required(bundle?.billing?.provider, "billing.provider", failures);
   required(bundle?.brandIntegration?.patPng?.status, "brandIntegration.patPng.status", failures);
   required(bundle?.publicLiveQA?.status, "publicLiveQA.status", failures);
+  required(bundle?.publicLiveQA?.reason, "publicLiveQA.reason", failures);
+  required(bundle?.publicLiveQA?.checkedAt, "publicLiveQA.checkedAt", failures);
+  required(bundle?.publicLiveQA?.evidence, "publicLiveQA.evidence", failures);
+  required(bundle?.publicLiveQA?.routeEvidence, "publicLiveQA.routeEvidence", failures);
   required(bundle?.demoData?.counts, "demoData.counts", failures);
   required(bundle?.routeSmoke?.status, "routeSmoke.status", failures);
 
@@ -956,6 +1349,7 @@ function renderMarkdown(bundle) {
     `- Payment mode: ${bundle.paymentMode.mode}. ${bundle.paymentMode.proof}`,
     `- Stripe provider roundtrip: ${bundle.paymentMode.liveProviderRoundtrip.status}. ${bundle.paymentMode.liveProviderRoundtrip.reason}`,
     `- Public-live QA: ${bundle.publicLiveQA.status}. ${bundle.publicLiveQA.reason}`,
+    `- Public-live artifact: ${bundle.publicLiveQA.artifactPath ?? "none"}`,
     `- PAT.png: ${bundle.brandIntegration.patPng.status}. ${bundle.brandIntegration.patPng.note}`,
     "",
     "## Demo Data Counts",
