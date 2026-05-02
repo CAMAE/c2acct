@@ -113,6 +113,14 @@ export type VendorProductOverviewStatus = {
   reason: string;
 };
 
+export type VendorProductAssessmentSortableEntry = {
+  product: {
+    id: string;
+    name: string;
+  };
+  status: Pick<VendorProductOverviewStatus, "completed" | "latestSubmittedAt">;
+};
+
 export const PRODUCT_TIER1_INSIGHTS: VendorInsightDetail[] = insightContent.vendorProduct
   .filter((item) => item.tier === 1)
   .map((item) => ({
@@ -488,6 +496,34 @@ export function bucketVendorProductsByAssessmentStatus<T extends { status: { com
   };
 }
 
+export function sortVendorProductAssessmentEntries<T extends VendorProductAssessmentSortableEntry>(
+  items: readonly T[]
+) {
+  return [...items].sort((left, right) => {
+    if (left.status.completed !== right.status.completed) {
+      return left.status.completed ? -1 : 1;
+    }
+
+    if (left.status.completed && right.status.completed) {
+      const leftSubmittedAt = left.status.latestSubmittedAt?.getTime() ?? 0;
+      const rightSubmittedAt = right.status.latestSubmittedAt?.getTime() ?? 0;
+      if (leftSubmittedAt !== rightSubmittedAt) {
+        return rightSubmittedAt - leftSubmittedAt;
+      }
+    }
+
+    const nameOrder = left.product.name.localeCompare(right.product.name, undefined, {
+      sensitivity: "base",
+      numeric: true,
+    });
+    if (nameOrder !== 0) {
+      return nameOrder;
+    }
+
+    return left.product.id.localeCompare(right.product.id);
+  });
+}
+
 export async function ensureVendorProductModule() {
   try {
     return await prisma.surveyModule.upsert({
@@ -557,7 +593,7 @@ export async function getVendorCompanyContext(companyId: string | null | undefin
         },
         Product: {
           where: { active: true },
-          orderBy: { name: "asc" },
+          orderBy: [{ name: "asc" }, { id: "asc" }],
           select: {
             id: true,
             name: true,

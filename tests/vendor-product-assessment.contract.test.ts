@@ -16,6 +16,7 @@ import {
   deriveVendorProductAssessmentCompletionStatus,
   deriveVendorProductOverviewStatus,
   getRequestedVendorProductAssessmentOverviewMode,
+  sortVendorProductAssessmentEntries,
   VENDOR_PRODUCT_UTILITY_SELECTION_LIMIT,
 } from "@/lib/vendorPat";
 import { PAT_PRODUCT_NAME } from "@/lib/displayCopy";
@@ -358,6 +359,59 @@ describe("vendor product assessment contracts", () => {
     expect(getRequestedVendorProductAssessmentOverviewMode("unknown")).toBe("existing");
   });
 
+  it("sorts long vendor product assessment lists deterministically across completed and existing states", () => {
+    const completedNewer = {
+      product: { id: "product-c", name: "Ledger 10" },
+      status: {
+        completed: true,
+        latestSubmittedAt: new Date("2026-05-02T14:00:00.000Z"),
+      },
+    };
+    const completedOlder = {
+      product: { id: "product-a", name: "Ledger 2" },
+      status: {
+        completed: true,
+        latestSubmittedAt: new Date("2026-05-01T14:00:00.000Z"),
+      },
+    };
+    const existingAlpha = {
+      product: { id: "product-b", name: "Alpha Product" },
+      status: {
+        completed: false,
+        latestSubmittedAt: null,
+      },
+    };
+    const existingDuplicateName = {
+      product: { id: "product-d", name: "alpha product" },
+      status: {
+        completed: false,
+        latestSubmittedAt: null,
+      },
+    };
+
+    const sorted = sortVendorProductAssessmentEntries([
+      existingDuplicateName,
+      completedOlder,
+      existingAlpha,
+      completedNewer,
+    ]);
+
+    expect(sorted.map((entry) => entry.product.id)).toEqual([
+      "product-c",
+      "product-a",
+      "product-b",
+      "product-d",
+    ]);
+    expect(bucketVendorProductsByAssessmentStatus(sorted).completed.map((entry) => entry.product.id)).toEqual([
+      "product-c",
+      "product-a",
+    ]);
+    expect(bucketVendorProductsByAssessmentStatus(sorted).existing.map((entry) => entry.product.id)).toEqual([
+      "product-b",
+      "product-d",
+    ]);
+  });
+
   it("exports the PAT product brand string used on vendor product assessment top cards", () => {
     expect(PAT_PRODUCT_NAME).toBe("PAT | Performance Alignment Technology");
   });
@@ -487,6 +541,11 @@ describe("vendor product assessment contracts", () => {
     expect(overviewText).toContain("Completed vendor product assessments");
     expect(overviewText).toContain("Existing products still in progress");
     expect(overviewText).toContain("How to use vendor product assessment");
+    expect(overviewText).toContain("No products exist yet. Use Add New to create an inventory record");
+    expect(overviewText).toContain("does not declare features, create a final submission, or count as a completed product assessment");
+    expect(overviewText).toContain("redirect(\"/vendor/product-assessment?mode=existing\")");
+    expect(overviewText).toContain("sortVendorProductAssessmentEntries(productEntries)");
+    expect(overviewText).toContain("mode=add-new");
   });
 
   it("documents and source-proves the Phase 2 vendor product assessment QA checklist", () => {

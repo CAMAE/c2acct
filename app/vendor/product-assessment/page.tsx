@@ -20,6 +20,7 @@ import {
   extractUtilityKeysFromSignals,
   getRequestedVendorProductAssessmentOverviewMode,
   getVendorCompanyContext,
+  sortVendorProductAssessmentEntries,
 } from "@/lib/vendorPat";
 
 export const dynamic = "force-dynamic";
@@ -149,7 +150,7 @@ export default async function VendorProductAssessmentPage({
     const summary = String(formData.get("summary") ?? "").trim();
 
     if (!name) {
-      redirect("/vendor/product-assessment");
+      redirect("/vendor/product-assessment?mode=add-new");
     }
 
     const vendorProfile = await ensureVendorProfileForCompany(liveContext.company);
@@ -166,7 +167,7 @@ export default async function VendorProductAssessmentPage({
       },
     });
 
-    redirect("/vendor/product-assessment");
+    redirect("/vendor/product-assessment?mode=existing");
   }
 
   const moduleRecord = await prisma.surveyModule.findUnique({
@@ -210,7 +211,8 @@ export default async function VendorProductAssessmentPage({
     })
   );
 
-  const buckets = bucketVendorProductsByAssessmentStatus(productEntries);
+  const sortedProductEntries = sortVendorProductAssessmentEntries(productEntries);
+  const buckets = bucketVendorProductsByAssessmentStatus(sortedProductEntries);
   const activeMode =
     params?.mode
       ? getRequestedVendorProductAssessmentOverviewMode(params.mode)
@@ -293,7 +295,9 @@ export default async function VendorProductAssessmentPage({
           <div className="grid gap-5 md:grid-cols-2">
             {buckets.existing.length === 0 ? (
               <div className="pat-card p-6 text-sm leading-6 text-[var(--shell-muted)]">
-                Every current product is already completed. Use Completed to review them or Add New to register another product.
+                {productEntries.length === 0
+                  ? "No products exist yet. Use Add New to create an inventory record, then open that product from Existing to complete the assessment."
+                  : "Every current product already has a completed final vendor product assessment. Use Completed to review them or Add New to register another product."}
               </div>
             ) : (
               buckets.existing.map((entry) => <ProductAssessmentCard key={entry.product.id} entry={entry} />)
@@ -305,7 +309,7 @@ export default async function VendorProductAssessmentPage({
           <div className="pat-label">Add new product</div>
           <h2 className="mt-4 text-2xl font-semibold text-[var(--shell-ink)]">Create a product record before assessment begins</h2>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">
-            Adding a product creates the PAT inventory record only. It does not declare features or count as a completed product assessment.
+            Adding a product creates the PAT inventory record only. It does not declare features, create a final submission, or count as a completed product assessment.
           </p>
           <form action={createProduct} className="mt-6 grid gap-4 lg:grid-cols-[1fr_1fr]">
             <input name="name" className="pat-input" placeholder="Product name" required />
@@ -343,7 +347,7 @@ export default async function VendorProductAssessmentPage({
             <article className="pat-card p-6">
               <div className="text-lg font-semibold text-[var(--shell-ink)]">What happens after submission</div>
               <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-                PAT saves the finished assessment to that product, keeps it available for resume and review, and uses the submitted signal in the current product-intelligence flow.
+                PAT saves a final vendor product assessment submission to that product, moves it from Existing to Completed, opens firm review eligibility, and uses the submitted signal in the current product-intelligence flow.
               </p>
             </article>
           </section>
