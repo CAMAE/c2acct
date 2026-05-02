@@ -336,6 +336,8 @@ pnpm handoff:preflight
 pnpm export:safe -- /tmp/c2acct-export
 ```
 
+Every safe export writes `/tmp/c2acct-export/EXPORT_MANIFEST.json`. Treat that manifest as the audit record: it lists required source-of-truth paths, confirms launch-proof artifacts were included, records excluded forbidden paths, and fails the export if critical files are missing or forbidden files remain.
+
 What it excludes by default:
 
 - `.git` and `.git/`
@@ -343,10 +345,18 @@ What it excludes by default:
 - `.next`
 - `node_modules`
 - `artifacts/mac-mini/*`
+- `artifacts/reports`, `artifacts/audit`, `artifacts/release`, and `artifacts/visual`
 - `logs`
 - `playwright-report`, `test-results`, `blob-report`, `coverage`
-- temporary files and local scratch state
+- temporary files, local virtualenvs, and local scratch state
 - archive files such as `.zip`, `.tar`, `.tgz`
+
+What the manifest requires:
+
+- `README.md`, `docs/active-repo-map.md`, and `docs/CORE_BUILD_AAE.md`
+- `artifacts/launch-proof/4.26.26-launch-proof.json` and `.md`
+- `package.json`, `pnpm-lock.yaml`, `prisma/schema.prisma`, and `prisma/migrations`
+- `scripts/release` and `tests`
 
 Operator rule: never hand off the repo by zipping the working tree directly. Do not export `.git`, `.env`, `.env.local`, build output, Mac mini artifacts, or any other local secrets/runtime residue.
 
@@ -356,7 +366,7 @@ Pre-handoff checklist:
 2. `pnpm build`
 3. `pnpm typecheck`
 4. `pnpm export:safe -- /tmp/c2acct-export`
-5. Confirm the export tree excludes `.git`, `.env*`, `.next`, `node_modules`, `logs`, `artifacts/mac-mini`, and temp files before creating a zip
+5. Inspect `/tmp/c2acct-export/EXPORT_MANIFEST.json` and confirm `summary.ok` is `true` before creating a zip
 
 If `gitleaks` is not installed locally, `pnpm secrets:scan` falls back to Docker with the repo `.gitleaks.toml`.
 

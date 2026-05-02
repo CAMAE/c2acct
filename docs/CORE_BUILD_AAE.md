@@ -32,7 +32,7 @@ Forbidden live roots:
 | runtime start | `pnpm start` -> `node .next/standalone/server.js` packaged standalone runtime | `pnpm start:next` -> `next start` debugging path only |
 | local standalone review | `pnpm standalone:local` -> loopback standalone runtime with explicit PAT auth env | `pnpm dev` -> development server, not packaged-runtime proof |
 | full launch validation | `pnpm validate:launch` -> DB + runtime + tests + browser validation | `pnpm release:prelaunch` -> release artifact and PAT surface proof only |
-| safe handoff export | `pnpm export:safe -- <dir>` -> excludes `.git`, `.env*`, build output, ops artifacts, temp/test residue | zipping the working tree is forbidden |
+| safe handoff export | `pnpm export:safe -- <dir>` -> writes `EXPORT_MANIFEST.json`, includes source docs/proof/tests/scripts, excludes `.git`, `.env*`, build output, ops artifacts, temp/test residue | zipping the working tree is forbidden |
 
 ## Current launch truth
 
