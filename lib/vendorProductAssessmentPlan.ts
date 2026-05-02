@@ -166,6 +166,12 @@ type QuestionFact = {
   score: number;
 };
 
+type PromptGroundingContext = {
+  featureLabels: string;
+  productContext: string;
+  targetContext: string;
+};
+
 const IMPLEMENTATION_FOCUS_BASIS_KEYS: ProductQuestionBasisKey[] = [
   "implementation-friction",
   "training-onboarding",
@@ -346,6 +352,78 @@ function describeQuestionFocus(questionFact: QuestionFact | null) {
   return `${questionFact.question.section.title} (${formatBasisLabel(questionFact.question.section.basisKey)} scored ${questionFact.score}/5)`;
 }
 
+function formatList(values: string[]) {
+  if (values.length === 0) {
+    return "";
+  }
+
+  if (values.length === 1) {
+    return values[0]!;
+  }
+
+  return `${values.slice(0, -1).join(", ")} and ${values.at(-1)}`;
+}
+
+function describeProductContext(profile: VendorProductProfileInput) {
+  const namedParts = [
+    profile.productName ? `product ${profile.productName}` : null,
+    profile.positioning ? `positioned as ${profile.positioning}` : null,
+    profile.targetUseContext ? `used for ${profile.targetUseContext}` : null,
+  ].filter((value): value is string => Boolean(value));
+
+  return namedParts.length > 0 ? formatList(namedParts) : "the declared product profile";
+}
+
+function describeTargetContext(profile: VendorProductProfileInput) {
+  return profile.primaryBuyer || profile.targetCustomer || "the declared buyer or operator";
+}
+
+function buildPromptGroundingContext(input: {
+  scoredQuestions: ProductAssessmentQuestion[];
+  normalizedProfile: VendorProductProfileInput;
+}): PromptGroundingContext {
+  const featureLabels = Array.from(
+    new Set(
+      input.scoredQuestions
+        .map((question) => question.utilityLabel)
+        .filter((label): label is string => Boolean(label))
+    )
+  );
+
+  return {
+    featureLabels: featureLabels.length > 0 ? formatList(featureLabels) : "the selected features",
+    productContext: describeProductContext(input.normalizedProfile),
+    targetContext: describeTargetContext(input.normalizedProfile),
+  };
+}
+
+function insufficientEvidencePrompt(questionKey: string, context: PromptGroundingContext) {
+  switch (questionKey) {
+    case "strongest_workflow":
+      return `PAT has insufficient scored evidence to identify a strongest workflow yet. For ${context.productContext} and selected features (${context.featureLabels}), what concrete evidence should PAT inspect first before naming a strength?`;
+    case "weakest_workflow":
+      return `PAT has insufficient scored evidence to identify a weakest workflow yet. For ${context.productContext} and selected features (${context.featureLabels}), what missing evidence or unresolved operating limit should be captured first?`;
+    case "implementation_risk":
+      return `PAT has insufficient scored evidence to isolate implementation pressure yet. For ${context.productContext}, what implementation fact would most change the readout before PAT treats rollout risk as grounded?`;
+    case "change_management_risk":
+      return `PAT has insufficient scored evidence to isolate adoption pressure yet. For ${context.targetContext}, what change-management evidence should PAT gather before making a stronger adoption-risk read?`;
+    case "integration_gap":
+      return `PAT has insufficient scored evidence to isolate integration pressure yet. Given ${context.productContext}, what integration, data, or interoperability evidence is still missing?`;
+    case "control_concern":
+      return `PAT has insufficient scored evidence to isolate control pressure yet. For selected features (${context.featureLabels}), what approval, auditability, or governance evidence should be checked first?`;
+    case "best_fit_customer":
+      return `PAT has insufficient scored evidence to name a best-fit customer yet. Based only on ${context.productContext}, what customer-fit evidence should PAT collect before making that call?`;
+    case "poor_fit_customer":
+      return `PAT has insufficient scored evidence to name a poor-fit customer yet. For ${context.targetContext}, what operating boundary or mismatch evidence should PAT collect first?`;
+    case "evidence_needed_next":
+      return `PAT has insufficient scored evidence to rank the next evidence gap. For ${context.productContext} and selected features (${context.featureLabels}), what evidence would most improve calibration next?`;
+    case "recommended_next_action":
+      return `PAT has insufficient scored evidence to recommend continue, reposition, narrow scope, or gather evidence. What is the single most useful evidence-gathering step for ${context.productContext} next?`;
+    default:
+      return `PAT has insufficient scored evidence for this follow-up. What evidence should PAT collect next for ${context.productContext}?`;
+  }
+}
+
 function getSuggestedNextAction(input: {
   strongestSection: SectionFact | null;
   weakestSection: SectionFact | null;
@@ -393,6 +471,8 @@ export function buildVendorAdaptiveOpenEndedQuestions(input: {
   const sectionFacts = getSectionFacts(scoredQuestions, answers);
   const utilityFacts = getUtilityFacts(scoredQuestions, answers);
   const questionFacts = getQuestionFacts(scoredQuestions, answers);
+  const missingScoredQuestionCount = Math.max(scoredQuestions.length - questionFacts.length, 0);
+  const scoreCoverageLabel = `${questionFacts.length}/${scoredQuestions.length}`;
   const strongestSection = pickSection(sectionFacts, "strongest");
   const weakestSection = pickSection(sectionFacts, "weakest");
   const strongestUtility = pickUtility(utilityFacts, "strongest");
@@ -413,9 +493,16 @@ export function buildVendorAdaptiveOpenEndedQuestions(input: {
     strongestSection,
     weakestSection,
   });
+  const groundingContext = buildPromptGroundingContext({
+    scoredQuestions,
+    normalizedProfile,
+  });
+  const hasScoredEvidence = questionFacts.length > 0;
 
   return baseOpenEndedQuestions.map((question) => {
-    let prompt = question.prompt;
+    let prompt = hasScoredEvidence
+      ? question.prompt
+      : insufficientEvidencePrompt(question.key, groundingContext);
 
     switch (question.key) {
       case "strongest_workflow":
@@ -463,12 +550,16 @@ export function buildVendorAdaptiveOpenEndedQuestions(input: {
         }
         break;
       case "evidence_needed_next":
-        if (weakestSection) {
+        if (hasScoredEvidence && missingScoredQuestionCount > 0) {
+          prompt = `PAT has partial scored evidence (${scoreCoverageLabel} answered), so missing evidence still matters before ranking the product too strongly. For ${groundingContext.productContext} and selected features (${groundingContext.featureLabels}), which missing evidence would most improve calibration next?`;
+        } else if (weakestSection) {
           prompt = `PAT's weakest current section is ${weakestSection.title} (${formatAverageScore(weakestSection.average)}/5). What additional evidence would most improve confidence, calibration, or operator usefulness in that area next?`;
         }
         break;
       case "recommended_next_action":
-        if (strongestSection && weakestSection) {
+        if (hasScoredEvidence && missingScoredQuestionCount > 0) {
+          prompt = `PAT has partial scored evidence (${scoreCoverageLabel} answered), so the safest next action may still be evidence gathering. What is the single most useful missing-evidence step for ${groundingContext.productContext} before choosing continue, reposition, or narrow scope?`;
+        } else if (strongestSection && weakestSection) {
           prompt = `PAT's current read suggests ${suggestedNextAction} next, with ${strongestSection.title} at ${formatAverageScore(strongestSection.average)}/5 and ${weakestSection.title} at ${formatAverageScore(weakestSection.average)}/5. What is the single most sensible next action after this review, and why?`;
         }
         break;

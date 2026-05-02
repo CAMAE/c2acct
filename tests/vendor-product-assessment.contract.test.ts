@@ -192,6 +192,11 @@ describe("vendor product assessment contracts", () => {
       profile,
       answers,
     });
+    const clonedAdaptiveQuestions = buildVendorAdaptiveOpenEndedQuestions({
+      selectedUtilityKeys: [...selectedUtilityKeys],
+      profile: { ...profile },
+      answers: { ...answers },
+    });
     const adaptiveSnapshot = serializeVendorAdaptiveOpenEndedQuestionSnapshot({
       selectedUtilityKeys,
       profile,
@@ -199,6 +204,7 @@ describe("vendor product assessment contracts", () => {
     });
 
     expect(buildVendorAdaptiveOpenEndedQuestions({ selectedUtilityKeys, profile, answers })).toEqual(adaptiveQuestions);
+    expect(clonedAdaptiveQuestions).toEqual(adaptiveQuestions);
     expect(adaptiveQuestions).toHaveLength(PRODUCT_OPEN_ENDED_QUESTION_COUNT);
     expect(adaptiveQuestions.find((question) => question.key === "strongest_workflow")?.prompt).toContain(
       "ERP / GL / core ledger"
@@ -218,6 +224,81 @@ describe("vendor product assessment contracts", () => {
     expect(adaptiveSnapshot.map((question) => question.prompt)).toEqual(
       adaptiveQuestions.map((question) => question.prompt)
     );
+  });
+
+  it("uses explicit insufficient-evidence fallback prompts without inventing product claims", () => {
+    const selectedUtilityKeys = ["erp_gl_core_ledger", "ap_payables_spend"];
+    const profile = {
+      productName: "LedgerFlow",
+      productDescription: "",
+      logoReference: "",
+      positioning: "controller close workspace",
+      targetCustomer: "mid-market finance teams",
+      targetUseContext: "month-end close and payables execution",
+      implementationStyle: "",
+      operatingModelFit: "",
+      primaryBuyer: "Controller",
+      integrationPosture: "",
+    };
+
+    const fallbackQuestions = buildVendorAdaptiveOpenEndedQuestions({
+      selectedUtilityKeys,
+      profile,
+      answers: {},
+    });
+    const repeatedFallbackQuestions = buildVendorAdaptiveOpenEndedQuestions({
+      selectedUtilityKeys: [...selectedUtilityKeys],
+      profile: { ...profile },
+      answers: {},
+    });
+    const prompts = fallbackQuestions.map((question) => question.prompt);
+
+    expect(repeatedFallbackQuestions).toEqual(fallbackQuestions);
+    expect(prompts.every((prompt) => prompt.includes("insufficient scored evidence"))).toBe(true);
+    expect(prompts.join(" ")).toContain("ERP / GL / core ledger");
+    expect(prompts.join(" ")).toContain("AP / payables / spend");
+    expect(prompts.join(" ")).toContain("LedgerFlow");
+    expect(prompts.join(" ")).toContain("controller close workspace");
+    expect(prompts.join(" ")).toContain("Controller");
+    expect(prompts.join(" ")).not.toMatch(/\bcurrently scores\b/i);
+    expect(prompts.join(" ")).not.toMatch(/\bstrongest active feature section\b/i);
+    expect(prompts.join(" ")).not.toMatch(/\bweakest active feature section\b/i);
+  });
+
+  it("shapes partial-evidence prompts around missing scored answers before recommending a next action", () => {
+    const selectedUtilityKeys = ["erp_gl_core_ledger"];
+    const basePlan = buildVendorProductAssessmentPlan(selectedUtilityKeys);
+    const scoredQuestions = basePlan.modules
+      .filter((module) => module.kind === "utility")
+      .flatMap((module) => module.questions);
+    const partialAnswers = Object.fromEntries(
+      scoredQuestions.slice(0, 3).map((question, index) => [question.id, index + 2])
+    );
+    const profile = {
+      productName: "LedgerFlow",
+      productDescription: "Grounded product description.",
+      logoReference: "https://example.com/logo.png",
+      positioning: "Controller close workspace",
+      targetCustomer: "Controller-led finance teams",
+      targetUseContext: "Month-end close",
+      implementationStyle: "Guided rollout",
+      operatingModelFit: "Teams with documented close discipline",
+      primaryBuyer: "Controller",
+      integrationPosture: "ERP-connected",
+    };
+
+    const partialQuestions = buildVendorAdaptiveOpenEndedQuestions({
+      selectedUtilityKeys,
+      profile,
+      answers: partialAnswers,
+    });
+    const evidenceNeeded = partialQuestions.find((question) => question.key === "evidence_needed_next")?.prompt;
+    const nextAction = partialQuestions.find((question) => question.key === "recommended_next_action")?.prompt;
+
+    expect(evidenceNeeded).toContain("partial scored evidence (3/20 answered)");
+    expect(evidenceNeeded).toContain("which missing evidence would most improve calibration next");
+    expect(nextAction).toContain("partial scored evidence (3/20 answered)");
+    expect(nextAction).toContain("missing-evidence step");
   });
 
   it("reports workspace card state against the full generated question set", () => {
