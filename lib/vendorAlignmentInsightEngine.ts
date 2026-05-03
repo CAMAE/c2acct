@@ -731,7 +731,7 @@ export function buildVendorAlignmentInsightDetailSurfaceCards(input: {
 
 function summarizeAlignmentStrengths(report: VendorAlignmentInsightReport) {
   if (!report.strongestModules.length && !report.contributingCapabilities.length) {
-    return "PAT does not have enough grounded module or capability evidence yet to separate the strongest supports cleanly.";
+    return "Insufficient current firm PAT evidence: PAT does not have enough grounded module or capability evidence yet to separate the strongest supports cleanly.";
   }
 
   const moduleText = report.strongestModules.length
@@ -750,7 +750,7 @@ function summarizeAlignmentStrengths(report: VendorAlignmentInsightReport) {
 
 function summarizeAlignmentPressure(report: VendorAlignmentInsightReport) {
   if (!report.weakestModules.length && !report.notableQuestionClusters.length) {
-    return "PAT does not have enough grounded module or question-pattern evidence yet to separate the pressure points cleanly.";
+    return "Insufficient current firm PAT evidence: PAT does not have enough grounded module or question-pattern evidence yet to separate the pressure points cleanly.";
   }
 
   const moduleText = report.weakestModules.length
@@ -773,6 +773,39 @@ function summarizeAlignmentLimits(report: VendorAlignmentInsightReport) {
     .join(" ");
 }
 
+function buildAlignmentEvidenceProvenanceItem(report: VendorAlignmentInsightReport) {
+  const latestUpdatedAt = report.latestUpdatedAt ? report.latestUpdatedAt.toISOString() : "not available";
+  const moduleEvidence =
+    report.contributingModules.length > 0
+      ? report.contributingModules
+          .map((module) => `${module.title} (${formatScore(module.averageScore)}, sample ${module.sampleSize})`)
+          .join(", ")
+      : "insufficient module-pattern evidence for this insight";
+  const capabilityEvidence =
+    report.contributingCapabilities.length > 0
+      ? report.contributingCapabilities
+          .map((capability) => `${capability.title} (${formatScore(capability.averageScore)}, sample ${capability.sampleSize})`)
+          .join(", ")
+      : "insufficient capability evidence for this insight";
+  const clusterEvidence =
+    report.notableQuestionClusters.length > 0
+      ? report.notableQuestionClusters
+          .map((cluster) => `${cluster.title} (${formatScore(cluster.averageScore)}, ${cluster.responseCount} responses)`)
+          .join(", ")
+      : "insufficient answer-cluster evidence for this insight";
+
+  return {
+    title: "Evidence provenance",
+    body: [
+      `Firm PAT source: ${report.sampleSize} assessed firm${report.sampleSize === 1 ? "" : "s"} and ${report.submissionCount} final firm module submission${report.submissionCount === 1 ? "" : "s"}; latest update ${latestUpdatedAt}.`,
+      `Module patterns: ${moduleEvidence}.`,
+      `Capability evidence: ${capabilityEvidence}.`,
+      `Question-cluster evidence: ${clusterEvidence}.`,
+      "PAT uses only current firm PAT signal, module patterns, capability scores, and stored answer clusters for this detail page; it is not claiming benchmark, projection, scenario, customer, or market-wide proof.",
+    ].join(" "),
+  };
+}
+
 export function buildVendorAlignmentInsightDetailSurfaceContent(input: {
   report: VendorAlignmentInsightReport;
   surface: VendorAlignmentInsightDetailSurfaceKey;
@@ -786,7 +819,7 @@ export function buildVendorAlignmentInsightDetailSurfaceContent(input: {
         key: "pro",
         title: "Pro",
         intro: input.report.locked
-          ? "PAT keeps the Pro surface focused on the grounded current-state evidence already available for this alignment theme."
+          ? "This locked Elite insight has no live Pro readout. PAT only shows the current evidence boundary while the deeper Elite layer remains muted and unavailable."
           : "PAT keeps the Pro surface focused on the grounded evidence behind this current vendor alignment readout.",
         items: [
           {
@@ -798,6 +831,7 @@ export function buildVendorAlignmentInsightDetailSurfaceContent(input: {
                 input.report.moduleVariance === null ? "not yet separated cleanly" : `of ${round1(input.report.moduleVariance)} points`
               }.`,
           },
+          buildAlignmentEvidenceProvenanceItem(input.report),
           {
             title: "Where the signal is strongest",
             body: summarizeAlignmentStrengths(input.report),
@@ -813,10 +847,11 @@ export function buildVendorAlignmentInsightDetailSurfaceContent(input: {
         ],
       } satisfies VendorAlignmentInsightDetailSurfaceContent;
     case "elite":
-      return buildElitePlaceholderSurfaceContent<VendorAlignmentInsightDetailSurfaceKey>({
+      {
+      const eliteSurface = buildElitePlaceholderSurfaceContent<VendorAlignmentInsightDetailSurfaceKey>({
         key: "elite",
         intro: input.report.locked
-          ? lockedState?.summary ?? ELITE_PLACEHOLDER_MESSAGE
+          ? `This is not a live Elite interpretation. ${lockedState?.summary ?? ELITE_PLACEHOLDER_MESSAGE}`
           : ELITE_PLACEHOLDER_MESSAGE,
         what: input.report.locked
           ? lockedState?.what ?? content?.what ?? ELITE_PLACEHOLDER_TITLE
@@ -828,8 +863,20 @@ export function buildVendorAlignmentInsightDetailSurfaceContent(input: {
           ? lockedState?.how ?? content?.how ?? ELITE_PLACEHOLDER_CTA
           : `${ELITE_PLACEHOLDER_TITLE}. ${ELITE_PLACEHOLDER_CTA}.`,
       });
+      return {
+        ...eliteSurface,
+        items: [
+          ...eliteSurface.items,
+          {
+            title: "Locked Elite boundary",
+            body: `${lockedState?.basis ?? "Elite evidence is not available in the current PAT product."} The page is muted because this Elite layer is not live; PAT is not claiming benchmark, projection, scenario, customer, or market-wide proof here.`,
+          },
+        ],
+      } satisfies VendorAlignmentInsightDetailSurfaceContent;
+    }
     case "help":
-      return buildHelpSurfaceContent<VendorAlignmentInsightDetailSurfaceKey>({
+      {
+      const helpSurface = buildHelpSurfaceContent<VendorAlignmentInsightDetailSurfaceKey>({
         key: "help",
         intro: input.report.locked
           ? lockedState?.summary ?? input.report.currentStateSummary
@@ -838,12 +885,25 @@ export function buildVendorAlignmentInsightDetailSurfaceContent(input: {
         why: input.report.locked ? lockedState?.why ?? input.report.why : input.report.why,
         how: input.report.locked ? lockedState?.how ?? input.report.how : input.report.how,
       });
+      return {
+        ...helpSurface,
+        items: input.report.locked
+          ? [
+              ...helpSurface.items,
+              {
+                title: "Locked Elite boundary",
+                body: `${lockedState?.basis ?? "Elite evidence is not available in the current PAT product."} This page is muted because the Elite insight is not live; use the Pro surface only for the current evidence boundary.`,
+              },
+            ]
+          : [...helpSurface.items, buildAlignmentEvidenceProvenanceItem(input.report)],
+      } satisfies VendorAlignmentInsightDetailSurfaceContent;
+    }
     default:
       return {
         key: "pro",
         title: "Pro",
         intro: input.report.locked
-          ? "PAT keeps the Pro surface focused on the grounded current-state evidence already available for this alignment theme."
+          ? "This locked Elite insight has no live Pro readout. PAT only shows the current evidence boundary while the deeper Elite layer remains muted and unavailable."
           : "PAT keeps the Pro surface focused on the grounded evidence behind this current vendor alignment readout.",
         items: [
           {
@@ -855,6 +915,7 @@ export function buildVendorAlignmentInsightDetailSurfaceContent(input: {
                 input.report.moduleVariance === null ? "not yet separated cleanly" : `of ${round1(input.report.moduleVariance)} points`
               }.`,
           },
+          buildAlignmentEvidenceProvenanceItem(input.report),
           {
             title: "Where the signal is strongest",
             body: summarizeAlignmentStrengths(input.report),

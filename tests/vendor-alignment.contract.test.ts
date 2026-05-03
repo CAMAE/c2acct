@@ -223,6 +223,15 @@ describe("vendor alignment catalog", () => {
     expect(emptyReport.currentStateSummary).toMatch(/no completed firm PAT evidence yet/i);
     expect(emptyReport.exactAssessmentBasis).toMatch(/Firm sample size: 0/i);
     expect(emptyReport.confidenceCaveats.join(" ")).toMatch(/No completed firm PAT submissions/i);
+    const emptySurface = buildVendorAlignmentInsightDetailSurfaceContent({
+      report: emptyReport,
+      surface: "pro",
+    });
+    const emptySurfaceText = emptySurface.items.map((item) => `${item.title} ${item.body}`).join(" ");
+    expect(emptySurfaceText).toMatch(/Evidence provenance/i);
+    expect(emptySurfaceText).toMatch(/Firm PAT source: 0 assessed firms and 0 final firm module submissions/i);
+    expect(emptySurfaceText).toMatch(/insufficient module-pattern evidence/i);
+    expect(emptySurfaceText).toMatch(/Insufficient current firm PAT evidence/i);
     expect(partial.confidenceBand).toBe("sample_thin");
     expect(partialReport.confidenceCaveats.join(" ")).toMatch(/based on 1 assessed firm/i);
     expect(full.confidenceBand).toBe("grounded");
@@ -421,9 +430,19 @@ describe("vendor alignment catalog", () => {
     expect(proCards.map((card) => card.key)).toEqual(["pro", "elite", "help"]);
     expect(eliteCards.map((card) => card.key)).toEqual(["pro", "elite", "help"]);
     expect(proCards.every((card) => card.interactive && card.href?.includes(`surface=${card.key}`))).toBe(true);
+    expect(
+      proCards.every((card) =>
+        card.href?.startsWith(`/vendor/alignment-insights/${proReport.key}?surface=`)
+      )
+    ).toBe(true);
     expect(eliteCards.every((card) => card.interactive && card.href?.includes(`surface=${card.key}`))).toBe(
       true
     );
+    expect(
+      eliteCards.every((card) =>
+        card.href?.startsWith(`/vendor/alignment-insights/${eliteReport.key}?surface=`)
+      )
+    ).toBe(true);
     expect(proCards.some((card) => card.title === "Confidence and caveats")).toBe(false);
     expect(proCards.some((card) => card.title === "Assessment basis")).toBe(false);
     expect(proCards.some((card) => card.title === "Module evidence")).toBe(false);
@@ -437,6 +456,14 @@ describe("vendor alignment catalog", () => {
       report: eliteReport,
       surface: "elite",
     });
+    const proHelpSurface = buildVendorAlignmentInsightDetailSurfaceContent({
+      report: proReport,
+      surface: "help",
+    });
+    const lockedHelpSurface = buildVendorAlignmentInsightDetailSurfaceContent({
+      report: eliteReport,
+      surface: "help",
+    });
     const proSurfaceText = [
       proSurface.title,
       proSurface.intro,
@@ -447,14 +474,32 @@ describe("vendor alignment catalog", () => {
       eliteSurface.intro,
       ...eliteSurface.items.flatMap((item) => [item.title, item.body]),
     ].join(" ");
+    const proHelpSurfaceText = proHelpSurface.items.map((item) => `${item.title} ${item.body}`).join(" ");
+    const lockedHelpSurfaceText = lockedHelpSurface.items.map((item) => `${item.title} ${item.body}`).join(" ");
 
     expect(proSurface.title).toBe("Pro");
     expect(proSurface.items.map((item) => item.title)).toEqual([
       "Current PAT picture",
+      "Evidence provenance",
       "Where the signal is strongest",
       "Where the signal is under pressure",
       "Current limits",
     ]);
+    expect(proSurfaceText).toMatch(/Firm PAT source: 9 assessed firms and 45 final firm module submissions/i);
+    expect(proSurfaceText).toMatch(/Module patterns:/i);
+    expect(proSurfaceText).toMatch(/Capability evidence:/i);
+    expect(proSurfaceText).toMatch(/Question-cluster evidence:/i);
+    expect(proSurfaceText).toMatch(/PAT uses only current firm PAT signal/i);
+    expect(proSurfaceText).not.toMatch(
+      /benchmark proof is available|projection proof is available|scenario proof is available/i
+    );
+    expect(proHelpSurface.items.map((item) => item.title)).toEqual([
+      "What it is",
+      "Why it matters",
+      "How to use it",
+      "Evidence provenance",
+    ]);
+    expect(proHelpSurfaceText).toMatch(/Firm PAT source:/i);
     expect(proSurfaceText).not.toContain("Confidence and caveats");
     expect(proSurfaceText).not.toContain("Assessment basis");
     expect(proSurfaceText).not.toContain("Module evidence");
@@ -463,14 +508,20 @@ describe("vendor alignment catalog", () => {
     expect(proSurfaceText).not.toContain("Sample:");
     expect(proSurfaceText).not.toMatch(/Caveat \d+/);
     expect(eliteSurface.title).toBe("Elite");
-    expect(eliteSurfaceText).toContain("Coming soon");
+    expect(eliteSurface.items.map((item) => item.title)).toEqual([
+      "What it is",
+      "Why it matters",
+      "How to use it",
+      "Locked Elite boundary",
+    ]);
+    expect(eliteSurfaceText).toContain("not a live Elite interpretation");
     expect(eliteSurfaceText).toContain("Unlock with Elite membership");
+    expect(eliteSurfaceText).toContain("not claiming benchmark, projection, scenario, customer, or market-wide proof");
+    expect(eliteSurfaceText).not.toMatch(/Elite insight is live/i);
     expect(
-      buildVendorAlignmentInsightDetailSurfaceContent({
-        report: eliteReport,
-        surface: "help",
-      }).items.map((item) => item.title)
-    ).toEqual(["What it is", "Why it matters", "How to use it"]);
+      lockedHelpSurface.items.map((item) => item.title)
+    ).toEqual(["What it is", "Why it matters", "How to use it", "Locked Elite boundary"]);
+    expect(lockedHelpSurfaceText).toMatch(/Elite insight is not live/i);
   });
 
   it("keeps the vendor alignment detail route on the cleaned shared shell", () => {
