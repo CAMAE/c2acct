@@ -854,8 +854,12 @@ function summarizeFirmEvidence(snapshot: VendorProductInsightSnapshot, record: V
     (utility) => utility.averageScore !== null
   );
 
+  if (snapshot.firmReviewed.assessmentCount === 0) {
+    return "Insufficient firm-reviewed evidence: no firm product assessments have been submitted for this product yet. PAT is showing vendor-authored current-state evidence only and is not treating buyer confirmation as present.";
+  }
+
   if (!groundedUtilities.length) {
-    return "Firm-reviewed evidence is still too thin to separate utility-level strengths and weaknesses cleanly.";
+    return "Insufficient firm-reviewed evidence: firm product assessments exist, but the scored utility evidence is still too thin to separate utility-level strengths and weaknesses cleanly.";
   }
 
   const strongest =
@@ -884,6 +888,31 @@ function summarizeFirmEvidence(snapshot: VendorProductInsightSnapshot, record: V
     .join(" ");
 }
 
+function buildEvidenceProvenanceItem(snapshot: VendorProductInsightSnapshot) {
+  const vendorSubmittedAt = snapshot.vendorAssessmentStatus.latestSubmittedAt
+    ? snapshot.vendorAssessmentStatus.latestSubmittedAt.toISOString()
+    : "not recorded";
+  const firmReviewedAt = snapshot.firmReviewed.latestSubmittedAt
+    ? snapshot.firmReviewed.latestSubmittedAt.toISOString()
+    : "not available";
+  const firmEvidence =
+    snapshot.firmReviewed.assessmentCount > 0
+      ? `${snapshot.firmReviewed.assessmentCount} final firm product assessment${
+          snapshot.firmReviewed.assessmentCount === 1 ? "" : "s"
+        }, latest submitted ${firmReviewedAt}`
+      : "insufficient firm-reviewed evidence: no final firm product assessments are present";
+
+  return {
+    title: "Evidence provenance",
+    body: [
+      `Vendor source: completed final vendor product assessment submitted ${vendorSubmittedAt}.`,
+      `Firm-reviewed source: ${firmEvidence}.`,
+      `Product utility scope: ${snapshot.product.utilityScopeLabel}.`,
+      "PAT uses only these current assessment records for this detail page; it is not claiming benchmark, projection, or market-comparison proof.",
+    ].join(" "),
+  };
+}
+
 function summarizeCurrentLimits(snapshot: VendorProductInsightSnapshot, record: VendorProductInsightRecord | null) {
   const caveats = (record?.confidenceCaveats ?? snapshot.confidenceCaveats).slice(0, 2);
   return [snapshot.confidenceSummary, ...caveats].filter(Boolean).join(" ");
@@ -900,8 +929,8 @@ export function buildVendorProductInsightDetailSurfaceContent(input: {
   const lockedState = content?.lockedState;
 
   switch (input.surface) {
-    case "help":
-      return buildHelpSurfaceContent<VendorProductInsightDetailSurfaceKey>({
+    case "help": {
+      const helpSurface = buildHelpSurfaceContent<VendorProductInsightDetailSurfaceKey>({
         key: "help",
         intro: input.locked
           ? lockedState?.summary ?? ELITE_PLACEHOLDER_MESSAGE
@@ -916,13 +945,26 @@ export function buildVendorProductInsightDetailSurfaceContent(input: {
           ? lockedState?.how ?? content?.how ?? ELITE_PLACEHOLDER_CTA
           : input.record?.how ?? content?.how ?? "No product-intelligence use guidance is available yet.",
       });
+      return {
+        ...helpSurface,
+        items: input.locked
+          ? [
+              ...helpSurface.items,
+              {
+                title: "Locked Elite boundary",
+                body: `${lockedState?.basis ?? "Elite evidence is not available in the current PAT product."} This page is muted because the Elite insight is not live; the visible evidence is limited to the current vendor and firm assessment records already shown in PAT.`,
+              },
+            ]
+          : [...helpSurface.items, buildEvidenceProvenanceItem(input.snapshot)],
+      } satisfies VendorProductInsightDetailSurfaceContent;
+    }
     case "evidence":
       return {
         key: "evidence",
-        title: "Evidence",
+        title: "Evidence and provenance",
         intro: input.locked
-          ? "PAT can still show the current product evidence here, even while the deeper Elite interpretation remains locked."
-          : "PAT keeps the lower surface focused on the evidence that supports this product readout today.",
+          ? "This is not a live Elite interpretation. PAT is only showing the current evidence boundary while the deeper Elite product view remains locked and muted."
+          : "PAT keeps this surface focused on the exact evidence and provenance that supports this product readout today.",
         items: [
           {
             title: "Current PAT picture",
@@ -935,6 +977,7 @@ export function buildVendorProductInsightDetailSurfaceContent(input: {
               } assessment${input.snapshot.firmReviewed.assessmentCount === 1 ? "" : "s"}.`,
             ].join(" "),
           },
+          buildEvidenceProvenanceItem(input.snapshot),
           {
             title: "Vendor-reported evidence",
             body: summarizeVendorEvidence(input.record),

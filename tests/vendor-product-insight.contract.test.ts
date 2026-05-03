@@ -347,9 +347,16 @@ describe("vendor product insight runtime", () => {
       locked: false,
     });
     const partialEvidenceText = partialEvidenceSurface.items.map((item) => `${item.title} ${item.body}`).join(" ");
+    expect(partialEvidenceSurface.items.map((item) => item.title)).toContain("Evidence provenance");
+    expect(partialEvidenceText).toMatch(/completed final vendor product assessment submitted/i);
+    expect(partialEvidenceText).toMatch(/insufficient firm-reviewed evidence: no final firm product assessments/i);
     expect(partialEvidenceText).toMatch(/Firm-reviewed signal: -- across 0 assessments/i);
+    expect(partialEvidenceText).toMatch(/Insufficient firm-reviewed evidence: no firm product assessments/i);
     expect(partialEvidenceText).toMatch(/No firm product reviews are available yet/i);
     expect(partialEvidenceText).not.toMatch(/grounded across \d+ utilities/i);
+    expect(partialEvidenceText).not.toMatch(
+      /benchmark proof is available|projection proof is available|market-comparison proof is available/i
+    );
 
     const fullEvidenceSurface = buildVendorProductInsightDetailSurfaceContent({
       snapshot: fullSnapshot,
@@ -359,6 +366,8 @@ describe("vendor product insight runtime", () => {
       locked: false,
     });
     const fullEvidenceText = fullEvidenceSurface.items.map((item) => `${item.title} ${item.body}`).join(" ");
+    expect(fullEvidenceSurface.items.map((item) => item.title)).toContain("Evidence provenance");
+    expect(fullEvidenceText).toMatch(/Firm-reviewed source: 8 final firm product assessments/i);
     expect(fullEvidenceText).toMatch(/Firm-reviewed signal is grounded across 3 utilities and 8 assessments/i);
     expect(fullEvidenceText).toMatch(/current-state PAT evidence only/i);
   });
@@ -471,6 +480,7 @@ describe("vendor product insight runtime", () => {
 
     expect(proCards.map((card) => card.key)).toEqual(["help", "evidence"]);
     expect(proCards.every((card) => card.interactive && card.href?.includes(`surface=${card.key}`))).toBe(true);
+    expect(proCards.every((card) => card.href?.startsWith(`/vendor/product-insight/${snapshot.product.id}/${record.key}?surface=`))).toBe(true);
     expect(proCards.find((card) => card.key === "evidence")?.summary).toBe(
       "Review the vendor section evidence alongside the firm-reviewed utility evidence behind this readout."
     );
@@ -478,6 +488,11 @@ describe("vendor product insight runtime", () => {
     expect(eliteCards.every((card) => card.interactive && card.href?.includes(`surface=${card.key}`))).toBe(
       true
     );
+    expect(
+      eliteCards.every((card) =>
+        card.href?.startsWith(`/vendor/product-insight/${snapshot.product.id}/market-comparison?surface=`)
+      )
+    ).toBe(true);
     expect(proCards.some((card) => card.title === "Confidence and caveats")).toBe(false);
 
     const proSurface = buildVendorProductInsightDetailSurfaceContent({
@@ -498,18 +513,44 @@ describe("vendor product insight runtime", () => {
     const proSurfaceText = `${proSurface.title} ${proSurface.intro} ${proSurface.items
       .map((item) => `${item.title} ${item.body}`)
       .join(" ")}`;
+    const proHelpSurface = buildVendorProductInsightDetailSurfaceContent({
+      snapshot,
+      insightKey: record.key,
+      record,
+      surface: "help",
+      locked: false,
+    });
+    const proHelpText = proHelpSurface.items.map((item) => `${item.title} ${item.body}`).join(" ");
+    const eliteSurfaceText = `${eliteSurface.title} ${eliteSurface.intro} ${eliteSurface.items
+      .map((item) => `${item.title} ${item.body}`)
+      .join(" ")}`;
 
-    expect(proSurface.title).toBe("Evidence");
+    expect(proSurface.title).toBe("Evidence and provenance");
     expect(proSurface.items.map((item) => item.title)).toEqual([
       "Current PAT picture",
+      "Evidence provenance",
       "Vendor-reported evidence",
       "Firm-reviewed evidence",
       "Current limits",
     ]);
+    expect(proHelpSurface.items.map((item) => item.title)).toEqual([
+      "What it is",
+      "Why it matters",
+      "How to use it",
+      "Evidence provenance",
+    ]);
+    expect(proHelpText).toMatch(/Vendor source: completed final vendor product assessment/i);
+    expect(proHelpText).toMatch(/PAT uses only these current assessment records/i);
     expect(proSurfaceText).toMatch(/sample-thin|early current-state/i);
+    expect(proSurfaceText).toMatch(/Evidence provenance/i);
     expect(proSurfaceText).not.toContain("Confidence and caveats");
     expect(proSurfaceText).not.toContain("Freshness:");
     expect(proSurfaceText).not.toMatch(/Caveat \d+/);
+    expect(eliteSurface.title).toBe("Evidence and provenance");
+    expect(eliteSurfaceText).toMatch(/not a live Elite interpretation/i);
+    expect(eliteSurfaceText).toMatch(/Why the deeper view is still locked/i);
+    expect(eliteSurfaceText).toMatch(/Unlock with Elite membership/i);
+    expect(eliteSurfaceText).not.toMatch(/Elite insight is live/i);
     expect(eliteSurface.items.some((item) => item.body.includes("Vendor self-reported signal"))).toBe(true);
     expect(
       buildVendorProductInsightDetailSurfaceContent({
@@ -519,7 +560,7 @@ describe("vendor product insight runtime", () => {
         surface: "help",
         locked: true,
       }).items.map((item) => item.title)
-    ).toEqual(["What it is", "Why it matters", "How to use it"]);
+    ).toEqual(["What it is", "Why it matters", "How to use it", "Locked Elite boundary"]);
   });
 
   it("keeps the detail route on the cleaned shared shell without legacy panel clutter", () => {
