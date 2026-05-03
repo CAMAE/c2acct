@@ -731,10 +731,16 @@ export function buildVendorProductInsightSnapshot(
   return snapshot;
 }
 
+export function canOpenVendorProductInsight(
+  status: Pick<VendorProductInsightSnapshot["vendorAssessmentStatus"], "completed">
+) {
+  return status.completed === true;
+}
+
 export function filterVendorProductInsightCatalogToCompleted(
   snapshots: readonly VendorProductInsightSnapshot[]
 ) {
-  return snapshots.filter((snapshot) => snapshot.vendorAssessmentStatus.completed);
+  return snapshots.filter((snapshot) => canOpenVendorProductInsight(snapshot.vendorAssessmentStatus));
 }
 
 export function buildVendorProductProInsightCards(
@@ -1047,6 +1053,23 @@ export async function getVendorProductInsightSnapshot(companyId: string, product
         }
       : null,
   });
+
+  if (!canOpenVendorProductInsight(vendorAssessmentStatus)) {
+    recordPatDiagnostic({
+      area: "vendor_product",
+      level: "info",
+      status: "warn",
+      summary: "Vendor product insight blocked until a completed final vendor product assessment exists.",
+      details: {
+        productId,
+        latestVendorSubmissionId: vendorAssessmentStatus.latestSubmissionId,
+        statusLabel: vendorAssessmentStatus.statusLabel,
+        reason: vendorAssessmentStatus.reason,
+      },
+    });
+
+    return null;
+  }
 
   const vendorScale = resolveStoredProductAssessmentScale(
     latestVendorSubmission?.scaleMin,

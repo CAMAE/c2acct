@@ -10,6 +10,7 @@ import {
   buildVendorProductInsightDetailSurfaceContent,
   buildVendorProductProInsightCards,
   buildVendorProductInsightSnapshot,
+  canOpenVendorProductInsight,
   filterVendorProductInsightCatalogToCompleted,
   getRequestedVendorProductInsightDetailMode,
   getRequestedVendorProductInsightDetailSurface,
@@ -90,6 +91,35 @@ describe("vendor product insight runtime", () => {
   });
 
   it("filters the catalog to products with a completed final vendor assessment only", () => {
+    const emptySnapshot = buildVendorProductInsightSnapshot({
+      product: {
+        id: "empty-product",
+        name: "Empty Product",
+        summary: null,
+        utilityKeys: [],
+      },
+      vendorAssessmentStatus: {
+        completed: false,
+        latestSubmittedAt: null,
+        statusLabel: "Awaiting vendor assessment",
+        reason: "Firm review opens only after the vendor completes the full product assessment for this product.",
+      },
+      vendorSelfReported: {
+        latestScore: null,
+        submittedAt: null,
+        responses: {
+          answers: {},
+          scaleMin: 0,
+          scaleMax: 5,
+        },
+      },
+      firmReviewed: {
+        assessmentCount: 0,
+        latestSubmittedAt: null,
+        averageScore: null,
+        responseSets: [],
+      },
+    });
     const completedSnapshot = buildVendorProductInsightSnapshot({
       product: {
         id: "completed-product",
@@ -148,12 +178,55 @@ describe("vendor product insight runtime", () => {
         responseSets: [],
       },
     });
+    const olderCompletedSnapshot = buildVendorProductInsightSnapshot({
+      product: {
+        id: "older-completed-product",
+        name: "Older Completed Product",
+        summary: null,
+        utilityKeys: [],
+      },
+      vendorAssessmentStatus: {
+        completed: true,
+        latestSubmittedAt: new Date("2026-04-01T12:00:00.000Z"),
+        statusLabel: "Assessment complete",
+        reason: "Firm review is available because the vendor completed the full product assessment.",
+      },
+      vendorSelfReported: {
+        latestScore: 76,
+        submittedAt: new Date("2026-04-01T12:00:00.000Z"),
+        responses: {
+          answers: {},
+          scaleMin: 0,
+          scaleMax: 5,
+        },
+      },
+      firmReviewed: {
+        assessmentCount: 1,
+        latestSubmittedAt: new Date("2026-04-02T12:00:00.000Z"),
+        averageScore: 72,
+        responseSets: [
+          {
+            answers: {},
+            scaleMin: 0,
+            scaleMax: 5,
+          },
+        ],
+      },
+    });
 
+    expect(canOpenVendorProductInsight(emptySnapshot.vendorAssessmentStatus)).toBe(false);
+    expect(canOpenVendorProductInsight(incompleteSnapshot.vendorAssessmentStatus)).toBe(false);
+    expect(canOpenVendorProductInsight(completedSnapshot.vendorAssessmentStatus)).toBe(true);
     expect(
-      filterVendorProductInsightCatalogToCompleted([completedSnapshot, incompleteSnapshot]).map(
+      filterVendorProductInsightCatalogToCompleted([
+        emptySnapshot,
+        completedSnapshot,
+        incompleteSnapshot,
+        olderCompletedSnapshot,
+      ]).map(
         (snapshot) => snapshot.product.id
       )
-    ).toEqual(["completed-product"]);
+    ).toEqual(["completed-product", "older-completed-product"]);
   });
 
   it("separates empty, partial, and fully seeded product insight evidence without overclaiming", () => {
@@ -265,6 +338,18 @@ describe("vendor product insight runtime", () => {
     expect(partialSnapshot.confidenceCaveats.join(" ")).toMatch(/No firm product reviews are available yet/i);
     expect(fullSnapshot.confidenceBand).toBe("grounded");
     expect(fullSnapshot.confidenceSummary).toMatch(/not claiming benchmark or forecast support/i);
+
+    const partialEvidenceSurface = buildVendorProductInsightDetailSurfaceContent({
+      snapshot: partialSnapshot,
+      insightKey: partialSnapshot.insightRecords[0]!.key,
+      record: partialSnapshot.insightRecords[0]!,
+      surface: "evidence",
+      locked: false,
+    });
+    const partialEvidenceText = partialEvidenceSurface.items.map((item) => `${item.title} ${item.body}`).join(" ");
+    expect(partialEvidenceText).toMatch(/Firm-reviewed signal: -- across 0 assessments/i);
+    expect(partialEvidenceText).toMatch(/No firm product reviews are available yet/i);
+    expect(partialEvidenceText).not.toMatch(/grounded across \d+ utilities/i);
 
     const fullEvidenceSurface = buildVendorProductInsightDetailSurfaceContent({
       snapshot: fullSnapshot,
@@ -453,5 +538,27 @@ describe("vendor product insight runtime", () => {
     expect(text).not.toContain("Freshness:");
     expect(text).not.toContain("Sample:");
     expect(text).not.toMatch(/Caveat \d+/);
+  });
+
+  it("blocks direct product intelligence routes before incomplete products can build snapshots", () => {
+    const engineText = readFileSync(path.join(ROOT, "lib/vendorProductInsightEngine.ts"), "utf8");
+    const detailPageText = readFileSync(
+      path.join(ROOT, "app/vendor/product-insight/[productId]/page.tsx"),
+      "utf8"
+    );
+    const slicePageText = readFileSync(
+      path.join(ROOT, "app/vendor/product-insight/[productId]/[insightKey]/page.tsx"),
+      "utf8"
+    );
+
+    const readinessCheckIndex = engineText.indexOf("if (!canOpenVendorProductInsight(vendorAssessmentStatus))");
+    const snapshotBuildIndex = engineText.indexOf("return buildVendorProductInsightSnapshot({");
+
+    expect(readinessCheckIndex).toBeGreaterThan(-1);
+    expect(snapshotBuildIndex).toBeGreaterThan(readinessCheckIndex);
+    expect(detailPageText).toContain("const snapshot = await getVendorProductInsightSnapshot");
+    expect(detailPageText).toContain("if (!snapshot) {\n    notFound();\n  }");
+    expect(slicePageText).toContain("const snapshot = await getVendorProductInsightSnapshot");
+    expect(slicePageText).toContain("if (!snapshot) {\n    notFound();\n  }");
   });
 });
