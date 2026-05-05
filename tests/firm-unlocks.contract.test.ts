@@ -255,4 +255,21 @@ describe("firm pro unlock rules", () => {
     expect(text).not.toContain("completed alignment module");
     expect(text).not.toContain("firm product review");
   });
+
+  it("keeps the firm alignment assessment overview grouped by module status", () => {
+    const text = readFileSync(
+      path.join(ROOT, "app/firm/alignment-assessment/page.tsx"),
+      "utf8"
+    );
+
+    expect(text).toContain("STATUS_SECTIONS");
+    expect(text).toContain("Not Started");
+    expect(text).toContain("In Progress");
+    expect(text).toContain("Completed");
+    expect(text).toContain("Overall Progress");
+    expect(text).toContain("Why the five modules matter");
+    expect(text).toContain("not a legacy single survey");
+    expect(text).toContain("summarizeFirmAlignmentProgress");
+    expect(text).not.toContain("legacy single-survey semantics");
+  });
 });

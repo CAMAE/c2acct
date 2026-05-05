@@ -7,7 +7,7 @@ import {
   PRODUCT_ASSESSMENT_SCALE_MIN,
 } from "@/lib/productAssessmentRuntime";
 import { computeScore } from "@/lib/scoring";
-import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
+import { getSurveyDraftWhere, getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { TIER1_ALIGNMENT_BADGE_ID, TIER1_ALIGNMENT_BADGE_NAME } from "@/lib/patUnlocks";
 import {
   FIRM_CAPABILITY_DEFINITIONS,
@@ -311,12 +311,89 @@ export type FirmModuleProgress = {
   badgeId: string;
   title: string;
   description: string;
+  summary: string;
   href: string;
   questionCount: number;
   completedCount: number;
+  draftAnsweredCount: number;
+  status: FirmModuleProgressStatus;
+  statusLabel: string;
+  statusDescription: string;
   latestScore: number | null;
   latestSubmittedAt: Date | null;
+  draftUpdatedAt: Date | null;
 };
+
+export type FirmModuleProgressStatus = "not-started" | "in-progress" | "completed";
+
+export type FirmAlignmentProgressSummary = {
+  totalModules: number;
+  completedModules: number;
+  inProgressModules: number;
+  notStartedModules: number;
+  answeredQuestions: number;
+  totalQuestions: number;
+  completionPercent: number;
+  nextModule: FirmModuleProgress | null;
+};
+
+export function getFirmModuleProgressStatus(input: {
+  questionCount: number;
+  latestSubmittedAt: Date | null;
+  draftAnsweredCount: number;
+}) {
+  if (input.latestSubmittedAt) {
+    return {
+      status: "completed" as const,
+      statusLabel: "Completed",
+      statusDescription: "Final submission recorded. This module now contributes to firm insights and unlock checks.",
+      completedCount: input.questionCount,
+    };
+  }
+
+  if (input.draftAnsweredCount > 0) {
+    return {
+      status: "in-progress" as const,
+      statusLabel: "In Progress",
+      statusDescription: "Draft answers are saved. Resume this module before starting another one if continuity matters.",
+      completedCount: Math.min(input.draftAnsweredCount, input.questionCount),
+    };
+  }
+
+  return {
+    status: "not-started" as const,
+    statusLabel: "Not Started",
+    statusDescription: "No saved answers yet. Start here when this operating area is the best next focus.",
+    completedCount: 0,
+  };
+}
+
+export function summarizeFirmAlignmentProgress(
+  modules: readonly FirmModuleProgress[]
+): FirmAlignmentProgressSummary {
+  const totalModules = FIRM_MODULE_DEFINITIONS.length;
+  const completedModules = modules.filter((module) => module.status === "completed").length;
+  const inProgressModules = modules.filter((module) => module.status === "in-progress").length;
+  const notStartedModules = modules.filter((module) => module.status === "not-started").length;
+  const totalQuestions = modules.reduce((sum, module) => sum + module.questionCount, 0);
+  const answeredQuestions = modules.reduce((sum, module) => sum + module.completedCount, 0);
+  const completionPercent = totalQuestions === 0 ? 0 : Math.round((answeredQuestions / totalQuestions) * 100);
+  const nextModule =
+    modules.find((module) => module.status === "in-progress") ??
+    modules.find((module) => module.status === "not-started") ??
+    null;
+
+  return {
+    totalModules,
+    completedModules,
+    inProgressModules,
+    notStartedModules,
+    answeredQuestions,
+    totalQuestions,
+    completionPercent,
+    nextModule,
+  };
+}
 
 export type FirmProductCatalogItem = {
   id: string;
@@ -872,10 +949,9 @@ export function buildFirmProductQuestions(selectedUtilityKeys: string[]): Vendor
 export async function getFirmAssessmentProgress(companyId: string) {
   await ensureFirmAlignmentSystem();
 
-  const [modules, submissions] = await Promise.all([
+  const [modules, submissions, drafts] = await Promise.all([
     prisma.surveyModule.findMany({
       where: { key: { in: FIRM_MODULE_DEFINITIONS.map((definition) => definition.key) } },
-      orderBy: { key: "asc" },
       select: {
         id: true,
         key: true,
@@ -898,21 +974,68 @@ export async function getFirmAssessmentProgress(companyId: string) {
         createdAt: true,
       },
     }),
+    prisma.surveySubmission.findMany({
+      where: getSurveyDraftWhere({
+        companyId,
+        SurveyModule: {
+          key: { in: FIRM_MODULE_DEFINITIONS.map((definition) => definition.key) },
+        },
+      }),
+      orderBy: { createdAt: "desc" },
+      select: {
+        moduleId: true,
+        answeredCount: true,
+        createdAt: true,
+      },
+    }),
   ]);
 
-  return modules.map((module) => {
-    const latestSubmission = submissions.find((submission) => submission.moduleId === module.id) ?? null;
-    const definition = FIRM_MODULE_DEFINITIONS.find((entry) => entry.key === module.key)!;
+  return FIRM_MODULE_DEFINITIONS.map((definition) => {
+    const moduleRecord = modules.find((entry) => entry.key === definition.key);
+    if (!moduleRecord) {
+      return {
+        key: definition.key,
+        badgeId: definition.badgeId,
+        title: definition.title,
+        description: definition.description,
+        summary: definition.summary,
+        href: `/survey/${definition.key}`,
+        questionCount: 0,
+        completedCount: 0,
+        draftAnsweredCount: 0,
+        status: "not-started",
+        statusLabel: "Not Started",
+        statusDescription: "This canonical firm module is not available in the local survey catalog yet.",
+        latestScore: null,
+        latestSubmittedAt: null,
+        draftUpdatedAt: null,
+      } satisfies FirmModuleProgress;
+    }
+
+    const latestSubmission = submissions.find((submission) => submission.moduleId === moduleRecord.id) ?? null;
+    const latestDraft = drafts.find((draft) => draft.moduleId === moduleRecord.id) ?? null;
+    const progressStatus = getFirmModuleProgressStatus({
+      questionCount: moduleRecord.SurveyQuestion.length,
+      latestSubmittedAt: latestSubmission?.createdAt ?? null,
+      draftAnsweredCount: latestDraft?.answeredCount ?? 0,
+    });
+
     return {
-      key: module.key,
+      key: moduleRecord.key,
       badgeId: definition.badgeId,
-      title: module.title,
-      description: module.description ?? "",
-      href: `/survey/${module.key}`,
-      questionCount: module.SurveyQuestion.length,
-      completedCount: latestSubmission ? module.SurveyQuestion.length : 0,
+      title: moduleRecord.title,
+      description: moduleRecord.description ?? "",
+      summary: definition.summary,
+      href: `/survey/${moduleRecord.key}`,
+      questionCount: moduleRecord.SurveyQuestion.length,
+      completedCount: progressStatus.completedCount,
+      draftAnsweredCount: latestDraft?.answeredCount ?? 0,
+      status: progressStatus.status,
+      statusLabel: progressStatus.statusLabel,
+      statusDescription: progressStatus.statusDescription,
       latestScore: latestSubmission?.score ?? null,
       latestSubmittedAt: latestSubmission?.createdAt ?? null,
+      draftUpdatedAt: latestDraft?.createdAt ?? null,
     } satisfies FirmModuleProgress;
   });
 }
