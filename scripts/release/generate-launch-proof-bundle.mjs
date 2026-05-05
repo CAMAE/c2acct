@@ -681,9 +681,10 @@ async function collectDatabaseProof(root) {
       },
     };
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return {
       status: "UNVERIFIED",
-      error: error instanceof Error ? error.message : String(error),
+      error: `${errorMessage}\n\nDatabase proof is blocked. Start and verify the local DB with: pnpm db:up && pnpm db:wait, then rerun migrations/seeds and pnpm launch:proof.`,
       counts: emptyCounts,
       demoRouteReady: false,
       membershipDistribution: [],
