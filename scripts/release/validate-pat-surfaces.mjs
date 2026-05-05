@@ -5,6 +5,7 @@ import path from "node:path";
 import { execFileSync, spawn } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
+import dotenv from "dotenv";
 
 export function parseArgs(argv) {
   const args = {
@@ -55,6 +56,15 @@ function parseKeyValueOutput(output) {
         return [line.slice(0, separatorIndex), line.slice(separatorIndex + 1)];
       })
   );
+}
+
+function loadRepoEnv(root) {
+  for (const fileName of [".env.local", ".env"]) {
+    const envPath = path.join(root, fileName);
+    if (fs.existsSync(envPath)) {
+      dotenv.config({ path: envPath, override: false });
+    }
+  }
 }
 
 function normalizeText(value) {
@@ -471,6 +481,7 @@ export async function runPatSurfaceValidation({
   baseUrl: requestedBaseUrl,
   allowStaleLastKnownGood = false,
 }) {
+  loadRepoEnv(root);
   const manifest = loadManifest(root);
   const baseUrl = requestedBaseUrl?.replace(/\/$/, "") || `http://127.0.0.1:${port}`;
   const failures = [];
@@ -584,6 +595,9 @@ export async function runPatSurfaceValidation({
     const healthResponse = await fetch(`${baseUrl}/api/health/db`, { redirect: "manual" });
     const healthPayload = await healthResponse.json().catch(() => null);
     const healthRelease = healthPayload?.release ?? null;
+    if (healthResponse.status !== 200 || healthPayload?.ok !== true) {
+      failures.push(`health_route:not_ok:${healthResponse.status}:${healthPayload?.error ?? "missing_ok"}`);
+    }
     const operatorStatus = readOperatorStatus(root, port);
     const sourceIntegrity = await readSourceIntegrity(root, allowStaleLastKnownGood);
     const browserReleaseId = routeEvidence["/"]?.releaseId ?? routeEvidence["/sign-in"]?.releaseId ?? null;
