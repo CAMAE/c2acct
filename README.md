@@ -336,7 +336,14 @@ pnpm handoff:preflight
 pnpm export:safe -- /tmp/c2acct-export
 ```
 
-Every safe export writes `/tmp/c2acct-export/EXPORT_MANIFEST.json`. Treat that manifest as the audit record: it lists required source-of-truth paths, confirms launch-proof artifacts were included, records excluded forbidden paths, and fails the export if critical files are missing or forbidden files remain.
+Every safe export writes `/tmp/c2acct-export/EXPORT_MANIFEST.json`. Treat that manifest as the audit record: it lists required source-of-truth paths, confirms launch-proof artifacts were included, records excluded forbidden paths, records the generated bundle archives, and fails the export if critical files are missing or forbidden files remain.
+
+Every safe export also writes:
+
+- `01-app-root.zip`: current app UI/source root, runtime libraries, public assets, auth/proxy files, and build/test config.
+- `02-db-scripts-ops-tests.zip`: Prisma schema/migrations, scripts, ops files, tests, and e2e proof source.
+- `03-docs-audit-artifacts.zip`: source docs and allowed launch-proof artifacts.
+- `SHA256SUMS.txt`: SHA-256 sums for all three export zips.
 
 What it excludes by default:
 
@@ -353,6 +360,8 @@ What it excludes by default:
 
 What the manifest requires:
 
+- `app`, `app/components`, `app/globals.css`, `lib`, and `public`
+- `auth.ts`, `auth.config.ts`, `proxy.ts`, `next.config.ts`, `tsconfig.json`, `eslint.config.mjs`, `playwright.config.ts`, and `vitest.config.ts`
 - `README.md`, `docs/active-repo-map.md`, and `docs/CORE_BUILD_AAE.md`
 - `artifacts/launch-proof/4.26.26-launch-proof.json` and `.md`
 - `package.json`, `pnpm-lock.yaml`, `prisma/schema.prisma`, and `prisma/migrations`
@@ -366,7 +375,8 @@ Pre-handoff checklist:
 2. `pnpm build`
 3. `pnpm typecheck`
 4. `pnpm export:safe -- /tmp/c2acct-export`
-5. Inspect `/tmp/c2acct-export/EXPORT_MANIFEST.json` and confirm `summary.ok` is `true` before creating a zip
+5. Inspect `/tmp/c2acct-export/EXPORT_MANIFEST.json` and confirm `summary.ok` is `true`
+6. Inspect `/tmp/c2acct-export/SHA256SUMS.txt` and confirm all three generated zips are present
 
 If `gitleaks` is not installed locally, `pnpm secrets:scan` falls back to Docker with the repo `.gitleaks.toml`.
 

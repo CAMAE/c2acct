@@ -9,7 +9,7 @@
 - A dirty release tree blocks release proof and launch-readiness claims.
 - Dated 2026-04-02 audit and release docs still reference rollback branches and heads from that day. Those values are historical evidence, not guaranteed current checkout truth.
 - Shared `origin/main` is not authoritative for PAT launch state and remains stale AAE-era comparison truth.
-- Comparison-only working-tree exports, sanitized handoff bundles, and archived patches are support material only, not release-decision truth. Use `pnpm export:safe -- <dir>` for handoff bundles and inspect `<dir>/EXPORT_MANIFEST.json` to prove required docs/proof/tests/scripts were included and forbidden local/runtime files were excluded. See `docs/release/comparison-only-working-tree-exports.md`.
+- Comparison-only working-tree exports, sanitized handoff bundles, and archived patches are support material only, not release-decision truth. Use `pnpm export:safe -- <dir>` for handoff bundles and inspect `<dir>/EXPORT_MANIFEST.json` to prove required app/lib/public source, docs/proof/tests/scripts, and generated `01-app-root.zip`, `02-db-scripts-ops-tests.zip`, `03-docs-audit-artifacts.zip`, and `SHA256SUMS.txt` were included while forbidden local/runtime files were excluded. See `docs/release/comparison-only-working-tree-exports.md`.
 - Generated proof outputs under `artifacts/audit/`, `artifacts/release/`, and `artifacts/visual/` are quarantined evidence outputs. They should not drive `git_dirty`, but real source and release-critical path changes still do.
 
 ## Release-root classification

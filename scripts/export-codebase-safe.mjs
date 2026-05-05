@@ -3,9 +3,23 @@
 import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 export const CRITICAL_EXPORT_PATHS = Object.freeze([
+  { path: "app", kind: "dir", description: "Next.js App Router source and UI routes." },
+  { path: "app/components", kind: "dir", description: "Core PAT UI component source." },
+  { path: "app/globals.css", kind: "file", description: "PAT global styling source." },
+  { path: "lib", kind: "dir", description: "Runtime domain, auth, billing, assessment, and release logic." },
+  { path: "public", kind: "dir", description: "Public assets including PAT brand proof files." },
+  { path: "auth.ts", kind: "file", description: "Auth.js runtime entrypoint." },
+  { path: "auth.config.ts", kind: "file", description: "Auth.js provider configuration." },
+  { path: "proxy.ts", kind: "file", description: "Canonical protected-route proxy; /login remains compatibility-only." },
+  { path: "next.config.ts", kind: "file", description: "Next.js build/runtime configuration." },
+  { path: "tsconfig.json", kind: "file", description: "TypeScript compiler configuration." },
+  { path: "eslint.config.mjs", kind: "file", description: "ESLint validation configuration." },
+  { path: "playwright.config.ts", kind: "file", description: "Browser validation configuration." },
+  { path: "vitest.config.ts", kind: "file", description: "Unit/contract test configuration." },
   { path: "README.md", kind: "file", description: "Repo source-of-truth overview and runbook." },
   { path: "docs/active-repo-map.md", kind: "file", description: "Active PAT repo map." },
   { path: "docs/CORE_BUILD_AAE.md", kind: "file", description: "Current Core Build guide truth." },
@@ -17,6 +31,63 @@ export const CRITICAL_EXPORT_PATHS = Object.freeze([
   { path: "prisma/migrations", kind: "dir", description: "Database migration history." },
   { path: "scripts/release", kind: "dir", description: "Release validators and proof generators." },
   { path: "tests", kind: "dir", description: "Contract and validation tests." },
+]);
+
+export const EXPORT_BUNDLES = Object.freeze([
+  {
+    name: "01-app-root",
+    zipName: "01-app-root.zip",
+    description: "Application UI, runtime libraries, public assets, auth/proxy, and app/test/build configuration.",
+    entries: [
+      "app",
+      "components",
+      "lib",
+      "public",
+      "data",
+      "middleware.ts",
+      "auth.ts",
+      "auth.config.ts",
+      "proxy.ts",
+      "next.config.ts",
+      "tsconfig.json",
+      "eslint.config.mjs",
+      "playwright.config.ts",
+      "vitest.config.ts",
+      "package.json",
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml",
+      "postcss.config.mjs",
+    ],
+  },
+  {
+    name: "02-db-scripts-ops-tests",
+    zipName: "02-db-scripts-ops-tests.zip",
+    description: "Database schema/migrations, release/ops scripts, tests, e2e, and operator configuration.",
+    entries: [
+      "prisma",
+      "scripts",
+      "tests",
+      "e2e",
+      "ops",
+      "docker-compose.yml",
+      "package.json",
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml",
+    ],
+  },
+  {
+    name: "03-docs-audit-artifacts",
+    zipName: "03-docs-audit-artifacts.zip",
+    description: "Source-of-truth docs and allowed launch proof artifacts.",
+    entries: [
+      "README.md",
+      "docs",
+      "artifacts/launch-proof",
+      "package.json",
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml",
+    ],
+  },
 ]);
 
 export const EXCLUDED_EXPORT_RULES = Object.freeze([
@@ -69,6 +140,7 @@ export const EXCLUDED_EXPORT_RULES = Object.freeze([
 ]);
 
 const EXPORT_MANIFEST_NAME = "EXPORT_MANIFEST.json";
+const EXPORT_SHA256SUMS_NAME = "SHA256SUMS.txt";
 const MAX_EXCLUDED_MATCHES = 500;
 const MAX_FORBIDDEN_EXAMPLES = 200;
 
@@ -138,6 +210,13 @@ function basenameMatchesAny(rel, predicates) {
 function isExcludedPath(rel, isDirectory) {
   const normalized = normalizeRel(rel);
   const base = path.posix.basename(normalized);
+
+  if (
+    EXPORT_BUNDLES.some((bundle) => normalized === bundle.zipName)
+    || normalized === EXPORT_SHA256SUMS_NAME
+  ) {
+    return false;
+  }
 
   if (!normalized || normalized === EXPORT_MANIFEST_NAME) return false;
 
@@ -232,6 +311,10 @@ function removeIfExists(targetPath) {
   }
 }
 
+function existingBundleEntries(destination, entries) {
+  return entries.filter((entry) => fs.existsSync(path.join(destination, entry)));
+}
+
 function copySafeTree(sourceRoot, destination) {
   const copiedFiles = [];
   const excludedMatches = [];
@@ -294,6 +377,59 @@ function scanForbiddenPresent(destination) {
   return matches;
 }
 
+function createExportBundles(destination) {
+  const bundles = [];
+
+  for (const bundle of EXPORT_BUNDLES) {
+    const entries = existingBundleEntries(destination, bundle.entries);
+    const zipPath = path.join(destination, bundle.zipName);
+    removeIfExists(zipPath);
+
+    if (entries.length === 0) {
+      bundles.push({
+        ...bundle,
+        plannedEntries: bundle.entries,
+        includedEntries: entries,
+        presentInExport: false,
+        sha256: null,
+        sizeBytes: 0,
+        error: "No bundle entries exist in sanitized export.",
+      });
+      continue;
+    }
+
+    const zipResult = spawnSync("zip", ["-qr", bundle.zipName, ...entries], {
+      cwd: destination,
+      encoding: "utf8",
+    });
+    if (zipResult.status !== 0) {
+      const errorText = [zipResult.stderr, zipResult.stdout].filter(Boolean).join("\n").trim();
+      throw new Error(`Failed to create ${bundle.zipName}: ${errorText || "zip command failed"}`);
+    }
+
+    bundles.push({
+      ...bundle,
+      plannedEntries: bundle.entries,
+      includedEntries: entries,
+      presentInExport: fs.existsSync(zipPath),
+      sha256: fs.existsSync(zipPath) ? sha256File(zipPath) : null,
+      sizeBytes: fs.existsSync(zipPath) ? fs.statSync(zipPath).size : 0,
+    });
+  }
+
+  const sha256SumsPath = path.join(destination, EXPORT_SHA256SUMS_NAME);
+  const lines = bundles
+    .filter((bundle) => bundle.presentInExport && bundle.sha256)
+    .map((bundle) => `${bundle.sha256}  ${bundle.zipName}`);
+  fs.writeFileSync(sha256SumsPath, `${lines.join("\n")}\n`);
+
+  return {
+    bundles,
+    sha256SumsPath,
+    sha256SumsPresent: fs.existsSync(sha256SumsPath),
+  };
+}
+
 function criticalPathProof(sourceRoot, destination, mode) {
   return CRITICAL_EXPORT_PATHS.map((entry) => {
     const sourcePath = path.join(sourceRoot, entry.path);
@@ -330,6 +466,8 @@ export function buildExportManifest({
   mode,
   copiedFiles = [],
   excludedMatches = [],
+  bundles = null,
+  sha256SumsPresent = null,
 }) {
   const resolvedSource = path.resolve(sourceRoot);
   const resolvedDestination = path.resolve(destination);
@@ -346,6 +484,18 @@ export function buildExportManifest({
     entry.kind === "dir"
     && (entry.sourceFileCount ?? 0) === 0
   );
+  const bundleProof = bundles ?? EXPORT_BUNDLES.map((bundle) => ({
+    ...bundle,
+    plannedEntries: bundle.entries,
+    includedEntries: mode === "dry-run" ? bundle.entries : [],
+    presentInExport: mode === "dry-run" ? null : false,
+    sha256: null,
+    sizeBytes: 0,
+  }));
+  const missingBundles = mode === "dry-run"
+    ? []
+    : bundleProof.filter((bundle) => !bundle.presentInExport || !bundle.sha256 || bundle.sizeBytes <= 0);
+  const missingSha256Sums = mode === "dry-run" ? false : sha256SumsPresent !== true;
 
   return {
     schemaVersion: 1,
@@ -356,16 +506,26 @@ export function buildExportManifest({
     packageManager: "pnpm",
     manifestPath: EXPORT_MANIFEST_NAME,
     criticalPaths,
+    bundles: bundleProof,
+    sha256SumsPath: EXPORT_SHA256SUMS_NAME,
+    sha256SumsPresent: mode === "dry-run" ? null : sha256SumsPresent,
     excludedForbiddenPaths: EXCLUDED_EXPORT_RULES,
     excludedMatchesSample: excludedMatches.slice(0, MAX_EXCLUDED_MATCHES),
     copiedFileCount: mode === "dry-run" ? 0 : copiedFiles.length,
     forbiddenPresentInExport: forbiddenPresent,
     summary: {
-      ok: missingCritical.length === 0 && forbiddenPresent.length === 0 && hashMismatches.length === 0 && emptyCriticalDirs.length === 0,
+      ok: missingCritical.length === 0
+        && forbiddenPresent.length === 0
+        && hashMismatches.length === 0
+        && emptyCriticalDirs.length === 0
+        && missingBundles.length === 0
+        && !missingSha256Sums,
       missingCriticalPaths: missingCritical.map((entry) => entry.path),
       forbiddenPresentCount: forbiddenPresent.length,
       hashMismatches: hashMismatches.map((entry) => entry.path),
       emptyCriticalDirs: emptyCriticalDirs.map((entry) => entry.path),
+      missingBundles: missingBundles.map((bundle) => bundle.name),
+      missingSha256Sums,
     },
   };
 }
@@ -385,12 +545,17 @@ export function runSafeExport(args) {
   const copyResult = args.dryRun
     ? { copiedFiles: [], excludedMatches: [] }
     : copySafeTree(args.sourceRoot, destination);
+  const bundleResult = args.dryRun
+    ? { bundles: null, sha256SumsPresent: null }
+    : createExportBundles(destination);
   const manifest = buildExportManifest({
     sourceRoot: args.sourceRoot,
     destination,
     mode,
     copiedFiles: copyResult.copiedFiles,
     excludedMatches: copyResult.excludedMatches,
+    bundles: bundleResult.bundles,
+    sha256SumsPresent: bundleResult.sha256SumsPresent,
   });
   const manifestPath = writeExportManifest(destination, manifest);
 
@@ -412,7 +577,10 @@ function main() {
   console.log(`Sanitized export ${args.dryRun ? "dry run" : "created"} at ${result.destination}`);
   console.log(`Manifest: ${result.manifestPath}`);
   console.log(
-    "Excluded: .git .env* .next node_modules logs artifacts/mac-mini temp/test/build artifacts archives local envs secrets"
+    "Bundles: 01-app-root.zip 02-db-scripts-ops-tests.zip 03-docs-audit-artifacts.zip"
+  );
+  console.log(
+    "Excluded: .git .env* .next node_modules logs artifacts/mac-mini temp/test/build artifacts pre-existing archives local envs secrets"
   );
 }
 
