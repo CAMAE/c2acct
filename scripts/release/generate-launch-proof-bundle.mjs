@@ -157,7 +157,7 @@ function loadRepoEnv(root) {
   for (const fileName of [".env.local", ".env"]) {
     const envPath = path.join(root, fileName);
     if (fs.existsSync(envPath)) {
-      dotenv.config({ path: envPath, override: false });
+      dotenv.config({ path: envPath, override: false, quiet: true });
     }
   }
 }
