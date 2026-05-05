@@ -370,6 +370,10 @@ export function buildAssessmentPages(
 }
 
 export function normalizeAssessmentStep(step: number, totalSteps: number) {
+  if (!Number.isFinite(step)) {
+    return 1;
+  }
+
   return Math.min(Math.max(step, 1), Math.max(totalSteps, 1));
 }
 

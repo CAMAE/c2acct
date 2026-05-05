@@ -44,7 +44,7 @@ export default async function FirmProductAssessmentDetailPage({
     );
   }
 
-  const products = await getFirmProductCatalog();
+  const products = await getFirmProductCatalog(sessionUser.companyId);
   const { productId } = await params;
   const product = products.find((entry) => entry.id === productId);
   if (!product) {
@@ -71,7 +71,7 @@ export default async function FirmProductAssessmentDetailPage({
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           Review this product inside the feature scope the vendor already declared. Your submission becomes part of the current PAT evidence set rather than a disconnected side form.
         </p>
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
+        <div className="mt-6 grid gap-4 md:grid-cols-4">
           <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
             Vendor: <span className="font-semibold text-[var(--shell-ink)]">{product.vendorName}</span>
           </div>
@@ -81,7 +81,13 @@ export default async function FirmProductAssessmentDetailPage({
           <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
             Questions: <span className="font-semibold text-[var(--shell-ink)]">{product.questionCount}</span>
           </div>
+          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+            Firm review: <span className="font-semibold text-[var(--shell-ink)]">{product.firmReviewStatusLabel}</span>
+          </div>
         </div>
+        <p className="mt-4 max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">
+          {product.firmReviewStatusReason}
+        </p>
       </section>
 
       <FirmProductAssessmentClient product={product} />

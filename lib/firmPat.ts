@@ -406,7 +406,52 @@ export type FirmProductCatalogItem = {
   reviewStatusLabel: string;
   reviewStatusReason: string;
   vendorAssessmentCompletedAt: Date | null;
+  firmReviewStatus: FirmProductReviewStatus;
+  firmReviewStatusLabel: string;
+  firmReviewStatusReason: string;
+  firmReviewDraftAnsweredCount: number;
+  firmReviewDraftUpdatedAt: Date | null;
+  latestFirmReviewSubmittedAt: Date | null;
 };
+
+export type FirmProductReviewStatus = "blocked" | "available" | "in-progress" | "completed";
+
+export function deriveFirmProductReviewStatus(input: {
+  reviewAvailable: boolean;
+  questionCount: number;
+  latestFirmReviewSubmittedAt: Date | null;
+  draftAnsweredCount: number;
+}) {
+  if (!input.reviewAvailable) {
+    return {
+      status: "blocked" as const,
+      label: "Vendor dependency",
+      reason: "Firm review opens only after the vendor completes the full product assessment.",
+    };
+  }
+
+  if (input.latestFirmReviewSubmittedAt) {
+    return {
+      status: "completed" as const,
+      label: "Completed",
+      reason: "Your firm has submitted a final review for this product. You can submit another review if the current operating evidence changes.",
+    };
+  }
+
+  if (input.draftAnsweredCount > 0) {
+    return {
+      status: "in-progress" as const,
+      label: "In Progress",
+      reason: `Your firm has ${Math.min(input.draftAnsweredCount, input.questionCount)} of ${input.questionCount} product questions saved in draft.`,
+    };
+  }
+
+  return {
+    status: "available" as const,
+    label: "Available",
+    reason: "The vendor assessment is complete, so your firm can add current product-fit evidence.",
+  };
+}
 
 export const FIRM_PRODUCT_MODULE_KEY = "firm_product_review_v1";
 export const FIRM_PRODUCT_MODULE_TITLE = "Firm Product Assessment";
@@ -1040,7 +1085,7 @@ export async function getFirmAssessmentProgress(companyId: string) {
   });
 }
 
-export async function getFirmProductCatalog() {
+export async function getFirmProductCatalog(companyId?: string | null) {
   await ensureFirmProductModule();
 
   const products = await prisma.product.findMany({
@@ -1061,6 +1106,10 @@ export async function getFirmProductCatalog() {
     where: { key: VENDOR_PRODUCT_MODULE_KEY },
     select: { id: true },
   }).catch(() => null);
+  const firmProductModule = await prisma.surveyModule.findUnique({
+    where: { key: FIRM_PRODUCT_MODULE_KEY },
+    select: { id: true },
+  }).catch(() => null);
 
   const latestVendorSubmissionByProductId = new Map<
     string,
@@ -1072,17 +1121,19 @@ export async function getFirmProductCatalog() {
       answers: unknown;
     }
   >();
+  const latestFirmSubmissionByProductId = new Map<string, { createdAt: Date }>();
+  const latestFirmDraftByProductId = new Map<string, { answeredCount: number; createdAt: Date }>();
 
   if (vendorProductModule && products.length > 0) {
     const submissions = await prisma.surveySubmission.findMany({
-      where: {
+      where: getSurveyFinalWhere({
         moduleId: vendorProductModule.id,
         Subject: {
           productId: {
             in: products.map((product) => product.id),
           },
         },
-      },
+      }),
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -1114,9 +1165,85 @@ export async function getFirmProductCatalog() {
     }
   }
 
+  if (firmProductModule && companyId && products.length > 0) {
+    const productIds = products.map((product) => product.id);
+    const [firmSubmissions, firmDrafts] = await Promise.all([
+      prisma.surveySubmission.findMany({
+        where: getSurveyFinalWhere({
+          moduleId: firmProductModule.id,
+          companyId,
+          Subject: {
+            productId: {
+              in: productIds,
+            },
+          },
+        }),
+        orderBy: { createdAt: "desc" },
+        select: {
+          createdAt: true,
+          Subject: {
+            select: {
+              productId: true,
+            },
+          },
+        },
+      }).catch(() => []),
+      prisma.surveySubmission.findMany({
+        where: getSurveyDraftWhere({
+          moduleId: firmProductModule.id,
+          companyId,
+          Subject: {
+            productId: {
+              in: productIds,
+            },
+          },
+        }),
+        orderBy: { createdAt: "desc" },
+        select: {
+          answeredCount: true,
+          createdAt: true,
+          Subject: {
+            select: {
+              productId: true,
+            },
+          },
+        },
+      }).catch(() => []),
+    ]);
+
+    for (const submission of firmSubmissions) {
+      const productId = submission.Subject?.productId;
+      if (!productId || latestFirmSubmissionByProductId.has(productId)) {
+        continue;
+      }
+
+      latestFirmSubmissionByProductId.set(productId, { createdAt: submission.createdAt });
+    }
+
+    for (const draft of firmDrafts) {
+      const productId = draft.Subject?.productId;
+      if (!productId || latestFirmDraftByProductId.has(productId)) {
+        continue;
+      }
+
+      latestFirmDraftByProductId.set(productId, {
+        answeredCount: draft.answeredCount,
+        createdAt: draft.createdAt,
+      });
+    }
+  }
+
   return products.map((product) => {
     const vendorAssessmentStatus = deriveVendorProductAssessmentCompletionStatus({
       latestSubmission: latestVendorSubmissionByProductId.get(product.id) ?? null,
+    });
+    const latestFirmReview = latestFirmSubmissionByProductId.get(product.id) ?? null;
+    const latestFirmDraft = latestFirmDraftByProductId.get(product.id) ?? null;
+    const firmReviewStatus = deriveFirmProductReviewStatus({
+      reviewAvailable: vendorAssessmentStatus.completed,
+      questionCount: vendorAssessmentStatus.scoredQuestionCount,
+      latestFirmReviewSubmittedAt: latestFirmReview?.createdAt ?? null,
+      draftAnsweredCount: latestFirmDraft?.answeredCount ?? 0,
     });
 
     return {
@@ -1130,6 +1257,12 @@ export async function getFirmProductCatalog() {
       reviewStatusLabel: vendorAssessmentStatus.statusLabel,
       reviewStatusReason: vendorAssessmentStatus.reason,
       vendorAssessmentCompletedAt: vendorAssessmentStatus.latestSubmittedAt,
+      firmReviewStatus: firmReviewStatus.status,
+      firmReviewStatusLabel: firmReviewStatus.label,
+      firmReviewStatusReason: firmReviewStatus.reason,
+      firmReviewDraftAnsweredCount: latestFirmDraft?.answeredCount ?? 0,
+      firmReviewDraftUpdatedAt: latestFirmDraft?.createdAt ?? null,
+      latestFirmReviewSubmittedAt: latestFirmReview?.createdAt ?? null,
     };
   }) satisfies FirmProductCatalogItem[];
 }

@@ -45,7 +45,7 @@ export default async function FirmProductAssessmentsPage({
     );
   }
   const params = searchParams ? await searchParams : undefined;
-  const products = await getFirmProductCatalog();
+  const products = await getFirmProductCatalog(sessionUser.companyId);
   const reviewableProducts = products.filter((product) => product.reviewAvailable);
   const blockedProduct =
     params?.blockedProductId ? products.find((product) => product.id === params.blockedProductId) : null;
@@ -64,7 +64,9 @@ export default async function FirmProductAssessmentsPage({
           Review the products already available for firm-side input. PAT keeps each review tied to the product’s completed vendor assessment so your feedback stays inside the current product scope and carries forward into the broader insight layer.
         </p>
         <div className="mt-6 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4 text-sm leading-6 text-[var(--shell-muted)]">
-          Only products with a completed vendor product assessment appear here.
+          Only products with a completed vendor product assessment appear here. If this list is empty,
+          the vendor dependency has not been met yet; firms cannot review products until vendors finish
+          their scoped product assessment.
         </div>
       </section>
 
@@ -100,12 +102,22 @@ export default async function FirmProductAssessmentsPage({
                     <div className="mt-2 text-sm text-[var(--shell-muted)]">{product.vendorName}</div>
                   </div>
                   <span className="rounded-full bg-[var(--shell-accent)]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--shell-accent)]">
-                    {product.questionCount} q
+                    {product.firmReviewStatusLabel}
                   </span>
                 </div>
                 <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
                   {product.summary ?? "No summary added yet."}
                 </p>
+                <div className="mt-4 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4 text-sm leading-6 text-[var(--shell-muted)]">
+                  <div>
+                    Questions: <span className="font-semibold text-[var(--shell-ink)]">{product.questionCount}</span>
+                  </div>
+                  <div>
+                    Firm review status:{" "}
+                    <span className="font-semibold text-[var(--shell-ink)]">{product.firmReviewStatusLabel}</span>
+                  </div>
+                  <div>{product.firmReviewStatusReason}</div>
+                </div>
                 <div className="mt-5 flex flex-wrap gap-2">
                   {getVendorUtilityLabels(product.utilityKeys).map((featureLabel) => (
                     <span

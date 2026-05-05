@@ -38,7 +38,7 @@ export async function POST(request: Request) {
   }
 
   const { productId, answers } = parsed.data;
-  const products = await (await import("@/lib/firmPat")).getFirmProductCatalog();
+  const products = await (await import("@/lib/firmPat")).getFirmProductCatalog(context.company.id);
   const product = products.find((entry) => entry.id === productId);
   if (!product) {
     return NextResponse.json({ ok: false, error: "Product not found" }, { status: 404, headers: NO_STORE_HEADERS });
