@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PAT_PRODUCT_NAME } from "@/lib/displayCopy";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import {
   PRODUCT_ASSESSMENT_SCALE_MAX,
   PRODUCT_ASSESSMENT_SCALE_MIN,
@@ -183,7 +183,7 @@ export default function FirmProductAssessmentClient({
   return (
     <div className="space-y-8">
       <section className="pat-card p-6">
-        <div className="pat-label">{PAT_PRODUCT_NAME}</div>
+        <PatLogoLockup mode="hero" tone="light" />
         <div className="mt-4 grid gap-4 md:grid-cols-4">
           <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
             Page:{" "}

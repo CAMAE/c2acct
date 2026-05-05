@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import PatModeToggle, { type PatModeToggleOption } from "@/app/components/pat/PatModeToggle";
 import type { InsightSurfaceContent } from "@/lib/insightSurface";
 
@@ -36,7 +37,8 @@ export default function InsightDetailShell({
   return (
     <div className="space-y-8">
       <section className={`${muted ? "pat-card pat-card-muted" : "pat-card"} p-8`}>
-        <div className="pat-label">{eyebrow}</div>
+        <PatLogoLockup mode="hero" tone="light" />
+        <div className="pat-label mt-6">{eyebrow}</div>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
           {title}
         </h1>

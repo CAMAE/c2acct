@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 
 export function AdminPageIntro({
   eyebrow = "C2Core",
@@ -12,7 +13,8 @@ export function AdminPageIntro({
 }) {
   return (
     <section className="pat-card p-8">
-      <div className="pat-label">{eyebrow}</div>
+      <PatLogoLockup mode="hero" tone="light" />
+      <div className="pat-label mt-6">{eyebrow}</div>
       <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">{title}</h1>
       <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">{description}</p>
     </section>

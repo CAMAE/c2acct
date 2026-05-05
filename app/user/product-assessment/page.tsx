@@ -1,6 +1,6 @@
 import Link from "next/link";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import { getSessionUser } from "@/lib/auth/session";
-import { PAT_PRODUCT_NAME } from "@/lib/displayCopy";
 import { getUserAlignmentProgress, getUserPatContext } from "@/lib/userPat";
 
 export const dynamic = "force-dynamic";
@@ -58,7 +58,7 @@ export default async function UserProductAssessmentPage() {
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
-        <div className="pat-label">{PAT_PRODUCT_NAME}</div>
+        <PatLogoLockup mode="hero" tone="light" />
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
           Structured staging for person-level product signal
         </h1>

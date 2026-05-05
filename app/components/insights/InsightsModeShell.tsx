@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import InsightStatusBadge from "@/app/components/insights/InsightStatusBadge";
 import InsightSurfaceCardGrid, { type InsightSurfaceGridCard } from "@/app/components/insights/InsightSurfaceCardGrid";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
@@ -61,7 +62,8 @@ export default function InsightsModeShell({
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
-        <div className="pat-label">{eyebrow}</div>
+        <PatLogoLockup mode="hero" tone="light" />
+        <div className="pat-label mt-6">{eyebrow}</div>
         <PatAudienceTitle
           as="h1"
           title={title}

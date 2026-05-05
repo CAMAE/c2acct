@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import type { TrustSurface } from "@/lib/trustContent";
 
 type TrustSurfacePageProps = {
@@ -11,8 +12,9 @@ export default function TrustSurfacePage({ surface, children }: TrustSurfacePage
   return (
     <div className="space-y-8">
       <section className="pat-card px-7 py-8 sm:px-10 sm:py-10">
+        <PatLogoLockup mode="hero" tone="light" />
         <div className="flex flex-wrap items-center gap-3">
-          <div className="pat-label">{surface.eyebrow}</div>
+          <div className="pat-label mt-6">{surface.eyebrow}</div>
           <span className="rounded-full border border-[var(--shell-border)] px-3 py-1 text-xs font-semibold text-[var(--shell-muted)]">
             {surface.statusLabel}
           </span>

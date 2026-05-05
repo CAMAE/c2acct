@@ -28,7 +28,16 @@ describe("PAT brand asset contract", () => {
     const source = readFileSync(path.join(ROOT, "app/components/brand/BrandMarks.tsx"), "utf8");
 
     expect(source).toContain("src={brandAssets.pat.primaryMarkPath}");
+    expect(source).toContain("export function PatLogoLockup");
     expect(source).toContain("<PatBrandMark mode={mode} />");
-    expect(source).toContain('<PatBrandMark mode="hero" />');
+    expect(source).toContain("Performance Alignment Technology");
+    expect(source).not.toContain("<C2BrandMark mode={mode} />");
+  });
+
+  it("keeps the app header on the official PAT lockup instead of the old C2/PAT combo", () => {
+    const source = readFileSync(path.join(ROOT, "app/components/header/AppHeader.tsx"), "utf8");
+
+    expect(source).toContain('<BrandLockup mode="header" />');
+    expect(source).not.toContain("C2BrandMark");
   });
 });

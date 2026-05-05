@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { QuestionInputType } from "@prisma/client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import { buildCanonicalSignInPath } from "@/lib/auth/routes";
 import {
   getDefaultAnswer,
@@ -66,17 +67,7 @@ function getAssessmentLandingHref(moduleKey: string) {
 }
 
 function AssessmentPatFraming() {
-  return (
-    <div className="flex flex-wrap items-center gap-3 text-left sm:gap-4">
-      <div className="brand-pat-wordmark text-[2rem] leading-none text-[var(--shell-ink)] sm:text-[2.5rem]">
-        PAT
-      </div>
-      <div className="h-10 w-px bg-[rgba(12,33,66,0.12)] sm:h-12" aria-hidden="true" />
-      <div className="text-sm font-medium tracking-[0.08em] text-[var(--shell-ink)] sm:text-base">
-        Performance Alignment Technology
-      </div>
-    </div>
-  );
+  return <PatLogoLockup mode="hero" tone="light" />;
 }
 
 function isVendorStyleSlider(question: AssessmentQuestionRuntime) {

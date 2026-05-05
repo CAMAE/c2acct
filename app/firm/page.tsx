@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { redirect } from "next/navigation";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
@@ -212,7 +213,9 @@ export default async function FirmPage({
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
+        <PatLogoLockup mode="hero" tone="light" />
         <PortalAudienceEyebrow
+          className="pat-label mt-6"
           label={messages.portal.firm.eyebrow}
           audienceLabel={messages.nav.firm}
         />

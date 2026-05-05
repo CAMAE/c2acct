@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import {
   VENDOR_PRODUCT_TIER2_HOVER,
@@ -23,7 +24,6 @@ import {
 } from "@/lib/productAssessmentRuntime";
 
 type Props = {
-  productBrand: string;
   productId: string;
   productName: string;
   productWebsite: string | null;
@@ -81,7 +81,6 @@ function groupQuestionsBySection(questions: ProductAssessmentQuestion[]) {
 }
 
 export default function VendorProductAssessmentClient({
-  productBrand,
   productId,
   productName,
   productWebsite,
@@ -315,7 +314,7 @@ export default function VendorProductAssessmentClient({
   return (
     <div className="space-y-8">
       <section ref={topCardRef} className="pat-card p-8">
-        <div className="pat-label">{productBrand}</div>
+        <PatLogoLockup mode="hero" tone="light" />
         <PatAudienceTitle
           as="h1"
           title={`Vendor product assessment for ${productName}`}

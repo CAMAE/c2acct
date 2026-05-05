@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import PatModeToggle from "@/app/components/pat/PatModeToggle";
 import type { MembershipCheckoutModel, MembershipPaymentMethodKey } from "@/lib/membershipContent";
 import { ELEVATED_ACTION, ELEVATED_CONFIRMATION_FIELD } from "@/lib/security/elevatedAction";
@@ -45,7 +46,8 @@ export default function MembershipCheckoutShell({
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
-        <div className="pat-label">{model.hero.eyebrow}</div>
+        <PatLogoLockup mode="hero" tone="light" />
+        <div className="pat-label mt-6">{model.hero.eyebrow}</div>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">{model.hero.title}</h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">{model.hero.body}</p>
         <div className="mt-6 grid gap-4 md:grid-cols-3">

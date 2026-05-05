@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import { getAdminAccessState, getAdminNavItems } from "@/lib/adminControlPlane";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +13,8 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     return (
       <section className="mx-auto max-w-3xl">
         <div className="pat-card p-8">
-          <div className="pat-label">C2Core</div>
+          <PatLogoLockup mode="hero" tone="light" />
+          <div className="pat-label mt-6">PAT admin</div>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
             Operator access required
           </h1>

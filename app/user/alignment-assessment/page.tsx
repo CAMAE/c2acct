@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
-import { PAT_PRODUCT_NAME } from "@/lib/displayCopy";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { getUserAlignmentProgress, getUserPatContext } from "@/lib/userPat";
 
@@ -44,7 +44,7 @@ export default async function UserAlignmentAssessmentPage() {
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
-        <div className="pat-label">{PAT_PRODUCT_NAME}</div>
+        <PatLogoLockup mode="hero" tone="light" />
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
           Person-level PAT alignment assessment
         </h1>

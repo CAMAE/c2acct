@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 
 type MeetPatContentProps = {
@@ -11,15 +12,7 @@ export default async function MeetPatContent({ actions }: MeetPatContentProps) {
   return (
     <div className="space-y-8">
       <section className="pat-card px-7 py-8 sm:px-10 sm:py-10">
-        <div className="flex flex-wrap items-center gap-3 text-left sm:gap-4">
-          <div className="brand-pat-wordmark text-[2rem] leading-none text-[var(--shell-ink)] sm:text-[2.5rem]">
-            PAT
-          </div>
-          <div className="h-10 w-px bg-[rgba(12,33,66,0.12)] sm:h-12" aria-hidden="true" />
-          <div className="text-sm font-medium tracking-[0.08em] text-[var(--shell-ink)] sm:text-base">
-            {messages.home.productName}
-          </div>
-        </div>
+        <PatLogoLockup mode="hero" tone="light" />
         <div className="pat-label mt-6">{messages.meetPat.eyebrow}</div>
         <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-tight text-[var(--shell-ink)] sm:text-5xl">
           {messages.meetPat.heroTitle}

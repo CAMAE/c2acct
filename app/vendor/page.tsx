@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
@@ -176,7 +177,9 @@ export default async function VendorPage({
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
+        <PatLogoLockup mode="hero" tone="light" />
         <PortalAudienceEyebrow
+          className="pat-label mt-6"
           label={messages.portal.vendor.eyebrow}
           audienceLabel={messages.nav.vendor}
         />

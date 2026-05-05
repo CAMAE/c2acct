@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import VendorProductAssessmentClient from "@/app/components/vendor/VendorProductAssessmentClient";
 import { getSessionUser } from "@/lib/auth/session";
-import { PAT_PRODUCT_NAME } from "@/lib/displayCopy";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import prisma from "@/lib/prisma";
 import {
@@ -191,7 +190,6 @@ export default async function VendorProductAssessmentDetailPage({
 
   return (
     <VendorProductAssessmentClient
-      productBrand={PAT_PRODUCT_NAME}
       productId={product.id}
       productName={resolvedProductName}
       productWebsite={productRecord?.website ?? product.website}

@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { randomUUID } from "crypto";
 import { redirect } from "next/navigation";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import PatModeToggle from "@/app/components/pat/PatModeToggle";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import {
   formatFeatureCountLabel,
-  PAT_PRODUCT_NAME,
   replaceUtilityTermsForDisplay,
 } from "@/lib/displayCopy";
 import { getSessionUser } from "@/lib/auth/session";
@@ -231,7 +231,7 @@ export default async function VendorProductAssessmentPage({
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
-        <div className="pat-label">{PAT_PRODUCT_NAME}</div>
+        <PatLogoLockup mode="hero" tone="light" />
         <PatAudienceTitle
           as="h1"
           title="Vendor product assessment"

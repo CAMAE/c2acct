@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import type { MembershipTierDetailModel } from "@/lib/membershipContent";
 import { formatMembershipValue, getMembershipStatusSummary } from "@/lib/membershipContent";
 
@@ -16,7 +17,8 @@ export default function MembershipTierDetailPage({
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
-        <div className="pat-label">{model.hero.eyebrow}</div>
+        <PatLogoLockup mode="hero" tone="light" />
+        <div className="pat-label mt-6">{model.hero.eyebrow}</div>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
           {model.hero.title}
         </h1>

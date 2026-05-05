@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { MembershipPlan, MembershipStatus } from "@prisma/client";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import MembershipPlanPanel from "@/app/components/membership/MembershipPlanPanel";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import PatModeToggle from "@/app/components/pat/PatModeToggle";
@@ -51,7 +52,8 @@ export default function MembershipPageShell({
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
-        <div className="pat-label">{model.hero.eyebrow}</div>
+        <PatLogoLockup mode="hero" tone="light" />
+        <div className="pat-label mt-6">{model.hero.eyebrow}</div>
         <PatAudienceTitle
           as="h1"
           title={model.hero.title}

@@ -1,9 +1,9 @@
 import { notFound, redirect } from "next/navigation";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import FirmProductAssessmentClient from "@/app/components/firm/FirmProductAssessmentClient";
 import { getSessionUser } from "@/lib/auth/session";
-import { PAT_PRODUCT_NAME } from "@/lib/displayCopy";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { getFirmProductCatalog } from "@/lib/firmPat";
 
@@ -61,7 +61,7 @@ export default async function FirmProductAssessmentDetailPage({
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
-        <div className="pat-label">{PAT_PRODUCT_NAME}</div>
+        <PatLogoLockup mode="hero" tone="light" />
         <PatAudienceTitle
           as="h1"
           title={`Firm product assessment for ${product.name}`}

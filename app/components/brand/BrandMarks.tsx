@@ -5,6 +5,7 @@ import { activeDivision, brandAssets } from "@/lib/brand/assets";
 type BrandMarksProps = {
   mode?: "header" | "hero";
   tone?: "light" | "dark";
+  className?: string;
 };
 
 type MarkProps = {
@@ -17,17 +18,17 @@ function getMarkSize(mode: "header" | "hero") {
       c2: { width: 1181, height: 696, className: "h-13 w-auto sm:h-15" },
       pat: { width: 272, height: 258, className: "h-10 w-auto sm:h-12" },
       accountingLabel: "text-[1.12rem] sm:text-[1.24rem]",
-      patWord: "text-[1.9rem] sm:text-[2.35rem]",
+      patWord: "text-sm sm:text-base",
       divider: "h-14 sm:h-16",
     };
   }
 
   return {
     c2: { width: 1181, height: 696, className: "h-[2.7rem] w-auto sm:h-[3rem]" },
-    pat: { width: 272, height: 258, className: "h-[2.6rem] w-auto sm:h-[2.9rem]" },
+    pat: { width: 272, height: 258, className: "h-[2.35rem] w-auto sm:h-[2.65rem]" },
     accountingLabel: "text-[1rem] sm:text-[1.1rem]",
-    patWord: "text-[1.62rem] sm:text-[1.82rem]",
-    divider: "h-[2.65rem] sm:h-[2.95rem]",
+    patWord: "text-[0.72rem] sm:text-[0.78rem]",
+    divider: "h-[2.35rem] sm:h-[2.65rem]",
   };
 }
 
@@ -56,7 +57,7 @@ export function PatBrandMark({ mode = "header" }: MarkProps) {
   return (
     <Image
       src={brandAssets.pat.primaryMarkPath}
-      alt={`PAT ${brandAssets.divisions[activeDivision].label} logo`}
+      alt="PAT logo"
       width={size.width}
       height={size.height}
       priority={mode === "hero"}
@@ -65,73 +66,36 @@ export function PatBrandMark({ mode = "header" }: MarkProps) {
   );
 }
 
-export function BrandLockup({ mode = "header", tone = mode === "hero" ? "dark" : "light" }: BrandMarksProps) {
-  const division = brandAssets.divisions[activeDivision];
+export function PatLogoLockup({
+  mode = "header",
+  tone = mode === "hero" ? "dark" : "light",
+  className = "",
+}: BrandMarksProps) {
   const size = getMarkSize(mode);
   const textTone = tone === "dark" ? "text-white" : "text-[var(--shell-ink)]";
   const dividerTone = tone === "dark" ? "bg-white/18" : "bg-[rgba(12,33,66,0.12)]";
 
-  if (mode === "header") {
-    return (
-      <div className="flex items-center gap-[0.7rem] text-left sm:gap-[0.82rem]">
-        <div className="flex min-w-0 items-center">
-          <C2BrandMark mode={mode} />
-        </div>
-
-        <div className={`w-px ${size.divider} ${dividerTone}`} aria-hidden="true" />
-
-        <div className="flex min-w-0 items-center">
-          <PatBrandMark mode={mode} />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className={`flex items-center ${mode === "hero" ? "gap-4 sm:gap-5" : "gap-[0.66rem] sm:gap-[0.8rem]"} text-left`}>
-      <div className="-mt-0.5 flex min-w-0 flex-col items-center gap-0">
-        <C2BrandMark mode={mode} />
-        <span
-          className={`${size.accountingLabel} brand-c2-accounting -mt-[0.42rem] w-full text-center leading-none tracking-[0.01em]`}
-          style={{ color: division.accent }}
-        >
-          {division.label}
-        </span>
-      </div>
-
-      <div
-        className={`w-px ${size.divider} ${dividerTone}`}
-        aria-hidden="true"
-      />
-
-      <div className="flex min-w-0 items-center gap-[0.66rem] sm:gap-[0.8rem]">
-        <PatBrandMark mode={mode} />
-        <div
-          className={`brand-pat-wordmark ${size.patWord} leading-none ${textTone}`}
-        >
-          PAT
-        </div>
+    <div className={`flex flex-wrap items-center gap-3 text-left sm:gap-4 ${className}`}>
+      <PatBrandMark mode={mode} />
+      <div className={`w-px ${size.divider} ${dividerTone}`} aria-hidden="true" />
+      <div className={`font-medium uppercase leading-tight tracking-[0.08em] ${size.patWord} ${textTone}`}>
+        Performance Alignment Technology
       </div>
     </div>
   );
 }
 
+export function BrandLockup({ mode = "header", tone = mode === "hero" ? "dark" : "light", className }: BrandMarksProps) {
+  if (mode === "header") {
+    return <PatLogoLockup mode={mode} tone={tone} className={className} />;
+  }
+
+  return <PatLogoLockup mode={mode} tone={tone} className={className} />;
+}
+
 export default BrandLockup;
 
 export function PatHomepageLockup({ tone = "light" }: { tone?: "light" | "dark" }) {
-  const textTone = tone === "dark" ? "text-white" : "text-[var(--shell-ink)]";
-  const dividerTone = tone === "dark" ? "bg-white/18" : "bg-[rgba(12,33,66,0.12)]";
-
-  return (
-    <div className="flex flex-wrap items-center gap-3 text-left sm:gap-4">
-      <PatBrandMark mode="hero" />
-      <div className={`brand-pat-wordmark text-[2rem] leading-none sm:text-[2.5rem] ${textTone}`}>
-        PAT
-      </div>
-      <div className={`h-10 w-px sm:h-12 ${dividerTone}`} aria-hidden="true" />
-      <div className={`text-sm font-medium tracking-[0.08em] ${textTone} sm:text-base`}>
-        Performance Alignment Technology
-      </div>
-    </div>
-  );
+  return <PatLogoLockup mode="hero" tone={tone} />;
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
@@ -62,7 +63,8 @@ export default async function VendorProductInsightPage() {
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
-        <div className="pat-label">Product intelligence</div>
+        <PatLogoLockup mode="hero" tone="light" />
+        <div className="pat-label mt-6">Product intelligence</div>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
           Vendor product intelligence
         </h1>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { MembershipPlan, MembershipStatus } from "@prisma/client";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import { formatMembershipValue, getMembershipStatusSummary } from "@/lib/membershipContent";
 import type { MembershipAudience } from "@/lib/membershipContext";
@@ -52,7 +53,8 @@ export default function MembershipSurfaceGate({
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
-        <div className="pat-label">{surfaceLabel}</div>
+        <PatLogoLockup mode="hero" tone="light" />
+        <div className="pat-label mt-6">{surfaceLabel}</div>
         <PatAudienceTitle
           as="h1"
           title={title}

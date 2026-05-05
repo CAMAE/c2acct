@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import { isConsultantAccessEnabled, requireConsultantSession } from "@/lib/consultantAccess";
 
 export const dynamic = "force-dynamic";
@@ -20,7 +21,8 @@ export default async function ConsultantLayout({
     return (
       <section className="mx-auto max-w-3xl">
         <div className="pat-card p-8">
-          <div className="pat-label">Consultant</div>
+          <PatLogoLockup mode="hero" tone="light" />
+          <div className="pat-label mt-6">Consultant</div>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
             Consultant access required
           </h1>
@@ -45,7 +47,8 @@ export default async function ConsultantLayout({
       <section className="pat-card p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <div className="pat-label">Consultant</div>
+            <PatLogoLockup mode="header" tone="light" />
+            <div className="pat-label mt-4">Consultant</div>
             <div className="mt-2 text-lg font-semibold text-[var(--shell-ink)]">
               {consultantAccess.consultantLabel}
             </div>
