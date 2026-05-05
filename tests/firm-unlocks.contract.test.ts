@@ -5,6 +5,8 @@ import {
   buildFirmEliteInsightCards,
   buildFirmInsightDetailSurfaceCards,
   buildFirmInsightDetailSurfaceContent,
+  buildFirmLockedInsightDetailSurfaceCards,
+  buildFirmLockedInsightDetailSurfaceContent,
   buildFirmProInsightCards,
   getRequestedFirmInsightDetailSurface,
   getRequestedFirmInsightOverviewMode,
@@ -81,6 +83,57 @@ const firmInsightFixture: FirmInsightReport = {
     },
   ],
   confidenceCaveats: ["Only 3 relevant modules have final submissions."],
+};
+
+const noModuleFirmInsightFixture: FirmInsightReport = {
+  ...firmInsightFixture,
+  sampleSize: 0,
+  latestUpdatedAt: null,
+  confidenceBand: "no_signal",
+  confidenceLabel: "No current-state signal",
+  confidenceSummary: "Complete more modules before treating this as grounded signal.",
+  currentStateSummary: "Operating baseline has no completed firm assessment evidence yet.",
+  basisSummary: "PAT does not have enough completed module evidence to describe a grounded basis yet.",
+  contributingModules: [],
+  strongestModules: [],
+  weakestModules: [],
+  contributingCapabilities: [],
+  notableQuestionClusters: [],
+  confidenceCaveats: ["Complete more modules before using this insight."],
+};
+
+const completedFirmInsightFixture: FirmInsightReport = {
+  ...firmInsightFixture,
+  sampleSize: 8,
+  confidenceBand: "grounded",
+  confidenceLabel: "Grounded current-state signal",
+  confidenceSummary: "Grounded current-state signal for current-state interpretation only.",
+  confidenceCaveats: [
+    "This remains current-state PAT evidence only. No benchmark, peer-comparison, or forecast layer is being claimed here.",
+  ],
+  contributingModules: [
+    ...firmInsightFixture.contributingModules,
+    {
+      key: "firm_alignment_data_flow_v1",
+      title: "Data flow",
+      score: 64,
+      submittedAt: new Date("2026-04-11T12:00:00.000Z"),
+      sectionKey: "data-flow",
+      sectionTitle: "Data flow",
+    },
+  ],
+  notableQuestionClusters: [
+    ...firmInsightFixture.notableQuestionClusters,
+    {
+      key: "cluster-2",
+      title: "Data movement",
+      averageScore: 58,
+      questionCount: 5,
+      moduleTitles: ["Data flow"],
+      sectionTitles: ["Data flow"],
+      questionPrompts: ["Question three", "Question four"],
+    },
+  ],
 };
 
 describe("firm pro unlock rules", () => {
@@ -205,10 +258,12 @@ describe("firm pro unlock rules", () => {
       "What it is",
       "Why it matters",
       "How to use it",
+      "Evidence provenance",
     ]);
     expect(proSurface.title).toBe("Pro");
     expect(proSurface.items.map((item) => item.title)).toEqual([
       "Current PAT picture",
+      "Evidence provenance",
       "Where the signal is strongest",
       "Where the signal is under pressure",
       "Current limits",
@@ -216,8 +271,12 @@ describe("firm pro unlock rules", () => {
     expect(proSurfaceText).toContain("Operating model (78%)");
     expect(proSurfaceText).toContain("Operating model discipline (74%)");
     expect(proSurfaceText).toContain("Only 3 relevant modules");
+    expect(proSurfaceText).toContain("Firm module source: 3 final firm module submissions");
+    expect(proSurfaceText).toContain("Module evidence: Operating model (78%, submitted 2026-04-10T12:00:00.000Z)");
+    expect(proSurfaceText).toContain("Capability evidence: Operating model discipline (74%, meets 60% threshold)");
+    expect(proSurfaceText).toContain("Question-pattern evidence: Ownership and discipline");
+    expect(proSurfaceText).toContain("PAT uses only current firm module, capability, and question-pattern evidence here");
     expect(proSurfaceText).not.toContain("Assessment basis");
-    expect(proSurfaceText).not.toContain("Module evidence");
     expect(proSurfaceText).not.toContain("Capability and question evidence");
     expect(proSurfaceText).not.toContain("Confidence and caveats");
     expect(proSurfaceText).not.toContain("Freshness:");
@@ -226,6 +285,72 @@ describe("firm pro unlock rules", () => {
     expect(eliteSurface.title).toBe("Elite");
     expect(eliteSurfaceText).toContain("Coming soon");
     expect(eliteSurfaceText).toContain("Unlock with Elite membership");
+    expect(eliteSurfaceText).toContain("Locked Elite boundary");
+    expect(eliteSurfaceText).toContain("This is not a live Elite interpretation");
+    expect(eliteSurfaceText).toContain("does not expose unavailable findings");
+  });
+
+  it("keeps no-module and partial-module firm insight surfaces conservative", () => {
+    const noModuleSurface = buildFirmInsightDetailSurfaceContent({
+      report: noModuleFirmInsightFixture,
+      surface: "pro",
+    });
+    const noModuleText = [
+      noModuleSurface.title,
+      noModuleSurface.intro,
+      ...noModuleSurface.items.flatMap((item) => [item.title, item.body]),
+    ].join(" ");
+
+    expect(noModuleText).toContain("Complete more modules");
+    expect(noModuleText).toContain("insufficient module evidence");
+    expect(noModuleText).toContain("insufficient capability evidence");
+    expect(noModuleText).toContain("insufficient question-pattern evidence");
+    expect(noModuleText).toContain("does not claim benchmark, projection, recommendation");
+
+    const completedSurface = buildFirmInsightDetailSurfaceContent({
+      report: completedFirmInsightFixture,
+      surface: "pro",
+    });
+    const completedText = completedSurface.items.flatMap((item) => [item.title, item.body]).join(" ");
+
+    expect(completedText).toContain("Firm module source: 8 final firm module submissions");
+    expect(completedText).toContain("Data flow (64%, submitted 2026-04-11T12:00:00.000Z)");
+    expect(completedText).toContain("Data movement");
+    expect(completedText).toContain("current-state PAT evidence only");
+  });
+
+  it("keeps locked elite firm insight routes click-safe across Pro, Elite, and Help surfaces", () => {
+    const cards = buildFirmLockedInsightDetailSurfaceCards({
+      insightKey: "firm_tier2_board_readiness",
+      summary: "Board readiness is reserved for Elite.",
+    });
+    const proSurface = buildFirmLockedInsightDetailSurfaceContent({
+      surface: "pro",
+      summary: "Board readiness is reserved for Elite.",
+    });
+    const eliteSurface = buildFirmLockedInsightDetailSurfaceContent({
+      surface: "elite",
+      summary: "Board readiness is reserved for Elite.",
+    });
+    const helpSurface = buildFirmLockedInsightDetailSurfaceContent({
+      surface: "help",
+      summary: "Board readiness is reserved for Elite.",
+    });
+    const lockedText = [proSurface, eliteSurface, helpSurface]
+      .flatMap((surface) => [
+        surface.title,
+        surface.intro,
+        ...surface.items.flatMap((item) => [item.title, item.body]),
+      ])
+      .join(" ");
+
+    expect(cards.map((card) => card.key)).toEqual(["pro", "elite", "help"]);
+    expect(cards.every((card) => card.interactive && card.href?.startsWith("/firm/insights/"))).toBe(true);
+    expect(lockedText).toContain("Locked Elite boundary");
+    expect(lockedText).toContain("Complete more modules");
+    expect(lockedText).toContain("not a live Elite interpretation");
+    expect(lockedText).not.toContain("peer benchmark");
+    expect(lockedText).not.toContain("forecast");
   });
 
   it("keeps the firm insight detail route on the cleaned shared shell", () => {
@@ -236,13 +361,16 @@ describe("firm pro unlock rules", () => {
 
     expect(text).toContain('import InsightDetailShell from "@/app/components/insights/InsightDetailShell";');
     expect(text).toContain("<InsightDetailShell");
+    expect(text).toContain("buildFirmLockedInsightDetailSurfaceCards");
+    expect(text).toContain("buildFirmLockedInsightDetailSurfaceContent");
+    expect(text).toContain("const visibleSurfaceKey = activeSurface;");
     expect(text).not.toContain("PatModeToggle");
     expect(text).not.toContain("Confidence and caveats");
     expect(text).not.toContain("Assessment basis");
-    expect(text).not.toContain("Module evidence");
     expect(text).not.toContain("Capability and question evidence");
     expect(text).not.toContain("Freshness:");
     expect(text).not.toContain("Sample:");
+    expect(text).not.toContain('report ? activeSurface : "help"');
     expect(text).not.toMatch(/Caveat \d+/);
   });
 

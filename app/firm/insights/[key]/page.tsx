@@ -5,12 +5,13 @@ import { getSessionUser } from "@/lib/auth/session";
 import {
   buildFirmInsightDetailSurfaceCards,
   buildFirmInsightDetailSurfaceContent,
+  buildFirmLockedInsightDetailSurfaceCards,
+  buildFirmLockedInsightDetailSurfaceContent,
   getFirmInsightReports,
   getRequestedFirmInsightDetailSurface,
 } from "@/lib/firmInsightEngine";
 import { getFirmInsightContent } from "@/lib/insightContent";
 import { evaluateUnlocked } from "@/lib/insights/evaluateUnlocked";
-import { buildHelpSurfaceContent } from "@/lib/insightSurface";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import {
@@ -85,7 +86,7 @@ export default async function FirmInsightDetailPage({
   const unlocked = isTier2 ? false : unlockedKeys.has(key);
   const report = !isTier2 ? insightReports.get(key as (typeof FIRM_TIER1_INSIGHT_DEFINITIONS)[number]["key"]) : null;
   const activeSurface = getRequestedFirmInsightDetailSurface(resolvedSearchParams?.surface);
-  const visibleSurfaceKey = report ? activeSurface : "help";
+  const visibleSurfaceKey = activeSurface;
 
   const surfaceCards = report
     ? buildFirmInsightDetailSurfaceCards({
@@ -93,15 +94,10 @@ export default async function FirmInsightDetailPage({
         report,
         locked: false,
       })
-    : [
-        {
-          key: "help" as const,
-          title: "Help",
-          summary: content?.lockedState?.summary ?? "Coming soon.",
-          href: `/firm/insights/${key}?surface=help`,
-          interactive: true,
-        },
-      ];
+    : buildFirmLockedInsightDetailSurfaceCards({
+        insightKey: key,
+        summary: content?.lockedState?.summary,
+      });
   const toggleOptions = surfaceCards.map((card) => ({
     key: card.key,
     label: card.title,
@@ -113,11 +109,12 @@ export default async function FirmInsightDetailPage({
         report,
         surface: visibleSurfaceKey,
       })
-    : buildHelpSurfaceContent({
-        intro: content?.lockedState?.summary ?? "Coming soon.",
-        what: content?.lockedState?.what ?? "A restricted Elite insight reserved for a deeper PAT layer.",
-        why: content?.lockedState?.why ?? "PAT keeps this route visible so the future intelligence layer is explicit.",
-        how: content?.lockedState?.how ?? "Unlock with Elite membership.",
+    : buildFirmLockedInsightDetailSurfaceContent({
+        surface: visibleSurfaceKey,
+        summary: content?.lockedState?.summary,
+        what: content?.lockedState?.what,
+        why: content?.lockedState?.why,
+        how: content?.lockedState?.how,
       });
 
   const combinedEvidenceText = report

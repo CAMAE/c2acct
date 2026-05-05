@@ -382,9 +382,113 @@ export function buildFirmInsightDetailSurfaceCards(input: {
   ] satisfies FirmInsightDetailSurfaceCard[];
 }
 
+export function buildFirmLockedInsightDetailSurfaceCards(input: {
+  insightKey: string;
+  summary?: string | null;
+}) {
+  const baseHref = `/firm/insights/${input.insightKey}`;
+  const summary = input.summary ?? "This Elite insight is visible for navigation only and does not expose unavailable content.";
+
+  return [
+    {
+      key: "pro",
+      title: "Pro",
+      summary: "No Pro readout is exposed for this locked Elite route.",
+      href: `${baseHref}?surface=pro`,
+      interactive: true,
+    },
+    {
+      key: "elite",
+      title: "Elite",
+      summary,
+      href: `${baseHref}?surface=elite`,
+      interactive: true,
+    },
+    {
+      key: "help",
+      title: "Help",
+      summary: "Explains what stays locked and what evidence is required before PAT can support more detail.",
+      href: `${baseHref}?surface=help`,
+      interactive: true,
+    },
+  ] satisfies FirmInsightDetailSurfaceCard[];
+}
+
+function formatEvidenceDate(date: Date | null) {
+  return date ? date.toISOString() : "no submitted timestamp";
+}
+
+function summarizeModuleProvenance(report: FirmInsightReport) {
+  if (!report.contributingModules.length) {
+    return "insufficient module evidence; complete more modules before using this as a grounded finding.";
+  }
+
+  return report.contributingModules
+    .map((module) => {
+      const score = typeof module.score === "number" ? `${Math.round(module.score)}%` : "score unavailable";
+      return `${module.title} (${score}, submitted ${formatEvidenceDate(module.submittedAt)})`;
+    })
+    .join("; ");
+}
+
+function summarizeCapabilityProvenance(report: FirmInsightReport) {
+  if (!report.contributingCapabilities.length) {
+    return "insufficient capability evidence; no supporting capability scores are available for this readout.";
+  }
+
+  const scoredCapabilities = report.contributingCapabilities
+    .filter((capability) => capability.score !== null)
+    .map((capability) => {
+      const thresholdState = capability.meetsThreshold ? "meets" : "below";
+      return `${capability.title} (${Math.round(capability.score ?? 0)}%, ${thresholdState} ${capability.threshold}% threshold)`;
+    });
+
+  return scoredCapabilities.length
+    ? scoredCapabilities.join("; ")
+    : "insufficient capability evidence; available capabilities do not have scored support yet.";
+}
+
+function summarizeQuestionPatternProvenance(report: FirmInsightReport) {
+  if (!report.notableQuestionClusters.length) {
+    return "insufficient question-pattern evidence; no stable question cluster is available yet.";
+  }
+
+  return report.notableQuestionClusters
+    .map((cluster) => {
+      const moduleText = cluster.moduleTitles.length ? cluster.moduleTitles.join(", ") : "module unavailable";
+      return `${cluster.title} (${Math.round(cluster.averageScore)}% average across ${cluster.questionCount} questions from ${moduleText})`;
+    })
+    .join("; ");
+}
+
+function buildFirmInsightEvidenceProvenanceItem(report: FirmInsightReport) {
+  const sampleText =
+    report.sampleSize === 1
+      ? "1 final firm module submission"
+      : `${report.sampleSize} final firm module submissions`;
+
+  return {
+    title: "Evidence provenance",
+    body: [
+      `Firm module source: ${sampleText}; latest evidence timestamp: ${formatEvidenceDate(report.latestUpdatedAt)}.`,
+      `Module evidence: ${summarizeModuleProvenance(report)}`,
+      `Capability evidence: ${summarizeCapabilityProvenance(report)}`,
+      `Question-pattern evidence: ${summarizeQuestionPatternProvenance(report)}`,
+      "PAT uses only current firm module, capability, and question-pattern evidence here; it does not claim benchmark, projection, recommendation, customer, or public-live proof.",
+    ].join(" "),
+  };
+}
+
+function buildLockedEliteBoundaryItem() {
+  return {
+    title: "Locked Elite boundary",
+    body: "Elite benchmark, projection, recommendation, and comparative content is not live in this route. PAT keeps the locked surface visible for navigation only and does not expose unavailable findings.",
+  };
+}
+
 function summarizeFirmInsightStrengths(report: FirmInsightReport) {
   if (!report.strongestModules.length && !report.contributingCapabilities.length) {
-    return "PAT does not yet have enough grounded module or capability evidence to separate the strongest supports clearly.";
+    return "Complete more modules: PAT does not yet have enough grounded module or capability evidence to separate the strongest supports clearly.";
   }
 
   const moduleText = report.strongestModules.length
@@ -404,7 +508,7 @@ function summarizeFirmInsightStrengths(report: FirmInsightReport) {
 
 function summarizeFirmInsightPressure(report: FirmInsightReport) {
   if (!report.weakestModules.length && !report.notableQuestionClusters.length) {
-    return "PAT does not yet have enough grounded module or question-pattern evidence to separate the current pressure points clearly.";
+    return "Complete more modules: PAT does not yet have enough grounded module or question-pattern evidence to separate the current pressure points clearly.";
   }
 
   const moduleText = report.weakestModules.length
@@ -442,6 +546,7 @@ export function buildFirmInsightDetailSurfaceContent(input: {
             title: "Current PAT picture",
             body: `${input.report.currentStateSummary} ${input.report.basisSummary}`,
           },
+          buildFirmInsightEvidenceProvenanceItem(input.report),
           {
             title: "Where the signal is strongest",
             body: summarizeFirmInsightStrengths(input.report),
@@ -457,21 +562,35 @@ export function buildFirmInsightDetailSurfaceContent(input: {
         ],
       } satisfies FirmInsightDetailSurfaceContent;
     case "elite":
-      return buildElitePlaceholderSurfaceContent<FirmInsightDetailSurfaceKey>({
-        key: "elite",
-        intro: ELITE_PLACEHOLDER_MESSAGE,
-        what: "A deeper PAT interpretation layer reserved for benchmark, projection, and recommendation work that is not yet live in this route.",
-        why: "The deeper comparative layer should stay unavailable until PAT can support it honestly with more than current-state evidence alone.",
-        how: `${ELITE_PLACEHOLDER_TITLE}. ${ELITE_PLACEHOLDER_CTA}.`,
-      });
+      {
+        const eliteSurface = buildElitePlaceholderSurfaceContent<FirmInsightDetailSurfaceKey>({
+          key: "elite",
+          intro: `${ELITE_PLACEHOLDER_MESSAGE} This is not a live Elite interpretation and does not expose benchmark, projection, recommendation, or comparative content.`,
+          what: "A deeper PAT interpretation layer reserved for benchmark, projection, and recommendation work that is not yet live in this route.",
+          why: "The deeper comparative layer should stay unavailable until PAT can support it honestly with more than current-state evidence alone.",
+          how: `${ELITE_PLACEHOLDER_TITLE}. ${ELITE_PLACEHOLDER_CTA}.`,
+        });
+
+        return {
+          ...eliteSurface,
+          items: [...eliteSurface.items, buildLockedEliteBoundaryItem()],
+        } satisfies FirmInsightDetailSurfaceContent;
+      }
     case "help":
-      return buildHelpSurfaceContent<FirmInsightDetailSurfaceKey>({
-        key: "help",
-        intro: input.report.currentStateSummary,
-        what: input.report.what,
-        why: input.report.why,
-        how: input.report.how,
-      });
+      {
+        const helpSurface = buildHelpSurfaceContent<FirmInsightDetailSurfaceKey>({
+          key: "help",
+          intro: input.report.currentStateSummary,
+          what: input.report.what,
+          why: input.report.why,
+          how: input.report.how,
+        });
+
+        return {
+          ...helpSurface,
+          items: [...helpSurface.items, buildFirmInsightEvidenceProvenanceItem(input.report)],
+        } satisfies FirmInsightDetailSurfaceContent;
+      }
     default:
       return {
         key: "pro",
@@ -482,6 +601,7 @@ export function buildFirmInsightDetailSurfaceContent(input: {
             title: "Current PAT picture",
             body: `${input.report.currentStateSummary} ${input.report.basisSummary}`,
           },
+          buildFirmInsightEvidenceProvenanceItem(input.report),
           {
             title: "Where the signal is strongest",
             body: summarizeFirmInsightStrengths(input.report),
@@ -494,6 +614,76 @@ export function buildFirmInsightDetailSurfaceContent(input: {
             title: "Current limits",
             body: summarizeFirmInsightLimits(input.report),
           },
+        ],
+      } satisfies FirmInsightDetailSurfaceContent;
+  }
+}
+
+export function buildFirmLockedInsightDetailSurfaceContent(input: {
+  surface: FirmInsightDetailSurfaceKey;
+  summary?: string | null;
+  what?: string | null;
+  why?: string | null;
+  how?: string | null;
+}) {
+  const summary =
+    input.summary ?? "This Elite insight is not live. PAT is not exposing unavailable benchmark, projection, recommendation, or comparative content.";
+  const lockedBoundary = buildLockedEliteBoundaryItem();
+  const evidenceStatus = {
+    title: "Evidence status",
+    body: "No firm module, capability, or question-pattern evidence is attached to this locked Elite surface. Complete more modules before using PAT for a grounded firm insight.",
+  };
+
+  switch (input.surface) {
+    case "elite":
+      return {
+        key: "elite",
+        title: "Elite",
+        intro: `${summary} This is not a live Elite interpretation.`,
+        items: [
+          {
+            title: "What it is",
+            body: input.what ?? "A restricted future Elite insight layer.",
+          },
+          lockedBoundary,
+          evidenceStatus,
+        ],
+      } satisfies FirmInsightDetailSurfaceContent;
+    case "help":
+      return {
+        key: "help",
+        title: "Help",
+        intro: summary,
+        items: [
+          {
+            title: "What it is",
+            body: input.what ?? "A locked Elite route PAT keeps visible so the future intelligence boundary is explicit.",
+          },
+          {
+            title: "Why it matters",
+            body: input.why ?? "Unavailable insight content should not be mistaken for a live firm finding.",
+          },
+          {
+            title: "How to use it",
+            body: input.how ?? "Use the Pro firm insight routes after completing modules; treat this Elite route as locked.",
+          },
+          lockedBoundary,
+          evidenceStatus,
+        ],
+      } satisfies FirmInsightDetailSurfaceContent;
+    case "pro":
+    default:
+      return {
+        key: "pro",
+        title: "Pro",
+        intro: "This locked Elite route does not expose a Pro readout.",
+        items: [
+          {
+            title: "Current PAT picture",
+            body: "Complete more modules: no grounded Pro firm insight is available from this locked Elite route.",
+          },
+          lockedBoundary,
+          evidenceStatus,
         ],
       } satisfies FirmInsightDetailSurfaceContent;
   }
