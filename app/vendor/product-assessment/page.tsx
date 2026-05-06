@@ -216,11 +216,9 @@ export default async function VendorProductAssessmentPage({
   const activeMode =
     params?.mode
       ? getRequestedVendorProductAssessmentOverviewMode(params.mode)
-      : buckets.completed.length > 0
-        ? "completed"
-        : productEntries.length > 0
-          ? "existing"
-          : "add-new";
+      : productEntries.length > 0
+        ? "existing"
+        : "add-new";
   const toggleOptions = [
     { key: "completed", label: "Completed", href: getModeHref("completed") },
     { key: "existing", label: "Existing", href: getModeHref("existing") },
@@ -257,7 +255,6 @@ export default async function VendorProductAssessmentPage({
             activeKey={activeMode}
             ariaLabel="Vendor product assessment modes"
             options={toggleOptions}
-            navigationMode="replace"
           />
         </div>
       </section>

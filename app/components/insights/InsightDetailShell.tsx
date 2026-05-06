@@ -56,7 +56,6 @@ export default function InsightDetailShell({
             activeKey={activeKey}
             ariaLabel={toggleAriaLabel}
             options={toggleOptions}
-            navigationMode="replace"
           />
         </div>
       </section>

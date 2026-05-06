@@ -81,7 +81,6 @@ export default function InsightsModeShell({
             activeKey={activeMode}
             ariaLabel={toggleAriaLabel}
             options={toggleOptions}
-            navigationMode="replace"
           />
         </div>
       </section>

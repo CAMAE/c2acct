@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import PatModeToggle from "@/app/components/pat/PatModeToggle";
-import type { MembershipCheckoutModel, MembershipPaymentMethodKey } from "@/lib/membershipContent";
+import {
+  getMembershipPathPrefix,
+  type MembershipCheckoutModel,
+  type MembershipPaymentMethodKey,
+} from "@/lib/membershipContent";
 import { ELEVATED_ACTION, ELEVATED_CONFIRMATION_FIELD } from "@/lib/security/elevatedAction";
 
 type MembershipCheckoutShellProps = {
@@ -34,12 +37,16 @@ export default function MembershipCheckoutShell({
   initialMethod,
   startCheckout,
 }: MembershipCheckoutShellProps) {
-  const [activeMethod, setActiveMethod] = useState<MembershipPaymentMethodKey>(initialMethod);
   const firstMethod = model.paymentMethods[0]?.key ?? "card";
   const activeMethodPanel =
-    model.paymentMethods.find((method) => method.key === activeMethod)?.key === activeMethod
-      ? activeMethod
+    model.paymentMethods.find((method) => method.key === initialMethod)?.key === initialMethod
+      ? initialMethod
       : firstMethod;
+  const checkoutHref = `${getMembershipPathPrefix(model.audience)}/membership/checkout?plan=${model.plan.toLowerCase()}`;
+  const paymentMethods = model.paymentMethods.map((method) => ({
+    ...method,
+    href: `${checkoutHref}&method=${method.key}`,
+  }));
   const paymentPanel = model.paymentPanels[activeMethodPanel];
   const providerBacked = model.billing.mode === "provider";
 
@@ -167,12 +174,11 @@ export default function MembershipCheckoutShell({
 
           {model.paymentMethods.length > 1 ? (
             <div className="mt-6">
-            <PatModeToggle
-              activeKey={activeMethodPanel}
-              ariaLabel="Payment methods"
-              options={model.paymentMethods}
-              onChange={(key) => setActiveMethod(key as MembershipPaymentMethodKey)}
-            />
+              <PatModeToggle
+                activeKey={activeMethodPanel}
+                ariaLabel="Payment methods"
+                options={paymentMethods}
+              />
             </div>
           ) : null}
 

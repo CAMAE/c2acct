@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 export type PatModeToggleState = "default" | "locked" | "disabled";
 
@@ -44,14 +43,11 @@ export default function PatModeToggle({
   onChange,
   navigationMode = "push",
 }: PatModeToggleProps) {
-  const router = useRouter();
-
   return (
     <div aria-label={ariaLabel} className="pat-mode-toggle">
       {options.map((option) => {
         const active = option.key === activeKey;
         const state = option.state ?? "default";
-        const disabled = state === "disabled";
         const statusLabel = getVisibleStatusLabel(option);
         const className = "pat-mode-toggle__option";
 
@@ -66,15 +62,20 @@ export default function PatModeToggle({
           </>
         );
 
-        if (!onChange && option.href && !disabled && navigationMode === "push") {
+        if (!onChange && option.href) {
           return (
             <Link
               key={option.key}
               href={option.href}
-              aria-current={active ? "page" : undefined}
+              role="button"
+              replace={navigationMode === "replace"}
+              scroll={false}
               className={className}
               data-active={active}
+              data-key={option.key}
               data-state={state}
+              aria-current={active ? "page" : undefined}
+              aria-pressed={active}
             >
               {content}
             </Link>
@@ -87,21 +88,17 @@ export default function PatModeToggle({
             type="button"
             className={className}
             data-active={active}
+            data-key={option.key}
             data-state={state}
-            aria-disabled={disabled}
+            aria-current={active ? "page" : undefined}
             aria-pressed={active}
-            disabled={disabled}
             onClick={
-              disabled
+              active
                 ? undefined
                 : () => {
                     if (onChange) {
                       onChange(option.key);
                       return;
-                    }
-
-                    if (option.href && navigationMode === "replace") {
-                      router.replace(option.href, { scroll: false });
                     }
                   }
             }

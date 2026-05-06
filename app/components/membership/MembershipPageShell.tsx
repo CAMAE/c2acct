@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import type { MembershipPlan, MembershipStatus } from "@prisma/client";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import MembershipPlanPanel from "@/app/components/membership/MembershipPlanPanel";
@@ -9,6 +8,7 @@ import PatModeToggle from "@/app/components/pat/PatModeToggle";
 import {
   formatMembershipValue,
   getMembershipPageModel,
+  getMembershipPathPrefix,
   getMembershipStatusSummary,
   getMembershipTabs,
   type MembershipTabKey,
@@ -32,7 +32,8 @@ export default function MembershipPageShell({
   initialTab,
   checkoutNotice,
 }: MembershipPageShellProps) {
-  const [activeTab, setActiveTab] = useState<MembershipTabKey>(initialTab);
+  const activeTab = initialTab;
+  const membershipHref = `${getMembershipPathPrefix(audience)}/membership`;
   const model = getMembershipPageModel({
     audience,
     currentPlan,
@@ -41,6 +42,7 @@ export default function MembershipPageShell({
   const membershipTabs = getMembershipTabs().map((tab) => ({
     key: tab.key,
     label: tab.label,
+    href: `${membershipHref}?tab=${tab.key.toLowerCase()}`,
   }));
   const audienceTerms =
     audience === "vendor"
@@ -82,7 +84,6 @@ export default function MembershipPageShell({
             activeKey={activeTab}
             ariaLabel="Membership modes"
             options={membershipTabs}
-            onChange={(key) => setActiveTab(key as MembershipTabKey)}
           />
         </div>
       </section>

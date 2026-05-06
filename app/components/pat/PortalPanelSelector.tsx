@@ -18,7 +18,6 @@ export default function PortalPanelSelector({
       activeKey={activeKey}
       ariaLabel="Portal sections"
       options={options}
-      navigationMode="replace"
     />
   );
 }

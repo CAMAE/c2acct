@@ -75,10 +75,6 @@ function getPatToggleButton(page: Page, label: string) {
     .first();
 }
 
-function buildHistoryProductName() {
-  return `History Product ${Date.now()} ${Math.random().toString(36).slice(2, 7)}`;
-}
-
 async function activatePatToggle(page: Page, label: string, assertSurface: () => Promise<void>) {
   const button = getPatToggleButton(page, label);
   await expect(button).toBeVisible();
@@ -122,7 +118,7 @@ async function openLinkAndWaitForPath(page: Page, href: string, expectedPathname
   throw lastError instanceof Error ? lastError : new Error(`Failed to open path "${expectedPathname}".`);
 }
 
-async function expectBackLeavesCurrentPage(page: Page, expectedPathname: string) {
+async function expectBackStaysOnCurrentPage(page: Page, expectedPathname: string) {
   await page.goBack({ waitUntil: "domcontentloaded" });
   await expectPathname(page, expectedPathname);
   await assertNoAuthOrRuntimeFailure(page);
@@ -131,7 +127,7 @@ async function expectBackLeavesCurrentPage(page: Page, expectedPathname: string)
 test.describe("PAT panel and surface history", () => {
   test.setTimeout(120_000);
 
-  test("uses replace-style panel history on /firm", async ({ page }) => {
+  test("keeps panel history on /firm without leaving the workspace", async ({ page }) => {
     await gotoStable(page, "/sign-in/firm");
     await signInAsRole(page, "firm");
     await expectPathname(page, "/firm");
@@ -154,10 +150,10 @@ test.describe("PAT panel and surface history", () => {
       await expect(page.locator('a[href="/firm/alignment-assessment"]').first()).toBeVisible();
     });
 
-    await expectBackLeavesCurrentPage(page, "/sign-in/firm");
+    await expectBackStaysOnCurrentPage(page, "/firm");
   });
 
-  test("leaves /vendor/product-assessment with one back after mode changes", async ({ page }) => {
+  test("does not leave /vendor/product-assessment with one back after mode changes", async ({ page }) => {
     await gotoStable(page, "/sign-in/vendor");
     await signInAsRole(page, "vendor");
     await expectPathname(page, "/vendor");
@@ -177,33 +173,21 @@ test.describe("PAT panel and surface history", () => {
       await expect(page.getByText("Existing products still in progress", { exact: true })).toBeVisible();
     });
 
-    await expectBackLeavesCurrentPage(page, "/vendor");
+    await expectBackStaysOnCurrentPage(page, "/vendor/product-assessment");
   });
 
-  test("leaves vendor product insight detail with one back after surface changes", async ({ page }) => {
+  test("does not leave vendor product insight detail with one back after surface changes", async ({ page }) => {
     await gotoStable(page, "/sign-in/vendor");
     await signInAsRole(page, "vendor");
 
-    await gotoStable(page, "/vendor/product-assessment?mode=add-new");
-    await assertNoAuthOrRuntimeFailure(page);
-    const productName = buildHistoryProductName();
-    await page.getByPlaceholder("Product name").fill(productName);
-    await page.getByPlaceholder("Product website").fill("https://example.com");
-    await page.getByPlaceholder("Product summary").fill("Product created to verify PAT history behavior.");
-    await Promise.all([
-      page.waitForURL("**/vendor/product-assessment"),
-      page.getByRole("button", { name: "Add product", exact: true }).click(),
-    ]);
+    await gotoStable(page, "/vendor/product-insight");
     await assertNoAuthOrRuntimeFailure(page);
 
-    const productAssessmentLink = page
-      .locator('a[href^="/vendor/product-assessment/"]')
-      .filter({ hasText: productName })
-      .first();
-    await expect(productAssessmentLink).toBeVisible();
-    const assessmentHref = await productAssessmentLink.getAttribute("href");
-    expect(assessmentHref).toBeTruthy();
-    const productId = assessmentHref!.split("/").pop()!;
+    const productInsightLink = page.locator('a[href^="/vendor/product-insight/"]').first();
+    await expect(productInsightLink).toBeVisible();
+    const productInsightHref = await productInsightLink.getAttribute("href");
+    expect(productInsightHref).toBeTruthy();
+    const productId = productInsightHref!.split("/").pop()!;
 
     await gotoStable(page, `/vendor/product-insight/${productId}`);
     await assertNoAuthOrRuntimeFailure(page);
@@ -225,10 +209,10 @@ test.describe("PAT panel and surface history", () => {
       await expect(page.getByText("What it is", { exact: true }).first()).toBeVisible();
     });
 
-    await expectBackLeavesCurrentPage(page, `/vendor/product-insight/${productId}`);
+    await expectBackStaysOnCurrentPage(page, `/vendor/product-insight/${productId}/current-product-fit`);
   });
 
-  test("leaves vendor alignment detail with one back after surface changes", async ({ page }) => {
+  test("does not leave vendor alignment detail with one back after surface changes", async ({ page }) => {
     await gotoStable(page, "/sign-in/vendor");
     await signInAsRole(page, "vendor");
 
@@ -255,10 +239,10 @@ test.describe("PAT panel and surface history", () => {
       await expect(page.getByText("Current PAT picture", { exact: true }).first()).toBeVisible();
     });
 
-    await expectBackLeavesCurrentPage(page, "/vendor/alignment-insights");
+    await expectBackStaysOnCurrentPage(page, "/vendor/alignment-insights/operating-discipline-demand");
   });
 
-  test("leaves firm insight detail with one back after surface changes", async ({ page }) => {
+  test("does not leave firm insight detail with one back after surface changes", async ({ page }) => {
     await gotoStable(page, "/sign-in/firm");
     await signInAsRole(page, "firm");
 
@@ -285,6 +269,6 @@ test.describe("PAT panel and surface history", () => {
       await expect(page.getByText("Current PAT picture", { exact: true }).first()).toBeVisible();
     });
 
-    await expectBackLeavesCurrentPage(page, "/firm/insights");
+    await expectBackStaysOnCurrentPage(page, "/firm/insights/firm_tier1_operating_baseline");
   });
 });
