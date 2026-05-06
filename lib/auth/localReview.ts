@@ -6,6 +6,7 @@ import {
   type PrismaClient,
   type UserRole,
 } from "@prisma/client";
+import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 
 export const LOCAL_REVIEW_AUTH_FLAG_ENV = "PAT_ENABLE_LOCAL_REVIEW_AUTH";
 export const LOCAL_REVIEW_PASSWORD_ENV = "PAT_LOCAL_REVIEW_PASSWORD";
@@ -222,8 +223,8 @@ export function findLocalReviewUserByEmail(email: string | null | undefined) {
   return LOCAL_REVIEW_USERS.find((entry) => entry.email === normalized) ?? null;
 }
 
-export function getLocalReviewUsersForUi() {
-  return LOCAL_REVIEW_USERS.map((entry) => ({
+export function getLocalReviewUsersForUi(env: NodeJS.ProcessEnv = process.env) {
+  return LOCAL_REVIEW_USERS.filter((entry) => entry.key !== "individual" || isIndividualSurfacesEnabled(env)).map((entry) => ({
     key: entry.key,
     label: entry.label,
     email: entry.email,

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
+import { getPilotDisabledSignInPath, isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import prisma from "@/lib/prisma";
 import { ensureUserPatScaffold, getFirmManagedUserRecords } from "@/lib/userPat";
 
@@ -11,6 +12,10 @@ export default async function FirmUserInsightPage({
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
+  if (!isIndividualSurfacesEnabled()) {
+    redirect(getPilotDisabledSignInPath("individual"));
+  }
+
   const sessionUser = await getSessionUser();
   if (!sessionUser?.companyId) {
     redirect("/sign-in/firm");

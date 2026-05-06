@@ -4,7 +4,7 @@ import { expectConsultantSignInRouteState } from "./consultantSignInContract";
 const localReviewPassword = process.env.PAT_LOCAL_REVIEW_PASSWORD ?? "pat-local-review";
 const consultantAccessEnabled = process.env.PAT_ENABLE_CONSULTANT_ACCESS === "1";
 
-type LocalReviewRole = "vendor" | "firm" | "individual" | "admin" | "consultant";
+type LocalReviewRole = "vendor" | "firm" | "admin" | "consultant";
 
 async function assertNoAuthOrRuntimeFailure(page: Page) {
   await expect(page.getByText("Access Denied")).toHaveCount(0);
@@ -57,20 +57,16 @@ async function signInAsRole(page: Page, role: LocalReviewRole) {
       ? "/vendor"
       : role === "firm"
         ? "/firm"
-        : role === "individual"
-          ? "/user"
-          : role === "consultant"
-            ? "/consultants"
-            : "/admin";
+        : role === "consultant"
+          ? "/consultants"
+          : "/admin";
   const reviewEmail =
     role === "vendor"
       ? "review.vendor@pat.local"
       : role === "firm"
         ? "review.firm@pat.local"
-        : role === "individual"
-          ? "review.individual@pat.local"
-          : role === "consultant"
-            ? "review.consultant@pat.local"
+        : role === "consultant"
+          ? "review.consultant@pat.local"
           : "review.admin@pat.local";
   const csrfResponse = await page.context().request.get("/api/auth/csrf");
   expect(csrfResponse.ok()).toBeTruthy();
@@ -123,11 +119,10 @@ async function createFirmOrganization(page: Page, name: string) {
 test.describe("local review auth", () => {
   test.setTimeout(120_000);
 
-  test("shows deterministic local review entries for vendor, firm, individual, admin, and consultant", async ({ page }) => {
+  test("shows deterministic local review entries for vendor, firm, admin, and consultant without shelved individual/invitee entries", async ({ page }) => {
     const roleCases = [
       { view: "vendor", email: "review.vendor@pat.local", landing: "/vendor" },
       { view: "firm", email: "review.firm@pat.local", landing: "/firm" },
-      { view: "individual", email: "review.individual@pat.local", landing: "/user" },
       { view: "admin", email: "review.admin@pat.local", landing: "/admin" },
       ...(consultantAccessEnabled
         ? [{ view: "consultant", email: "review.consultant@pat.local", landing: "/consultants" }]
@@ -142,6 +137,18 @@ test.describe("local review auth", () => {
       await expect(reviewCard).toContainText(roleCase.email);
       await expect(reviewCard).toContainText(roleCase.landing);
     }
+
+    await gotoStable(page, "/sign-in");
+    await expect(page.getByRole("link", { name: "Vendor", exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Firm", exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Admin", exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Meet PAT", exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Help", exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Individual", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Invitee", exact: true })).toHaveCount(0);
+    await expect(page.getByText("Individual", { exact: true })).toHaveCount(0);
+    await expect(page.getByText("Invitee", { exact: true })).toHaveCount(0);
+    await expect(page.getByText("review.individual@pat.local")).toHaveCount(0);
   });
 
   test("keeps consultant sign-in deep links deterministic when consultant access is gated", async ({
@@ -208,7 +215,7 @@ test.describe("local review auth", () => {
     await vendorContext.close();
   });
 
-  test("covers firm review routes and individual membership entry without access denied or runtime crashes", async ({
+  test("covers firm review routes without exposing shelved individual membership entry", async ({
     browser,
   }) => {
     const firmContext = await browser.newContext();
@@ -247,27 +254,11 @@ test.describe("local review auth", () => {
       firmPage.getByRole("heading", { name: /Firm alignment insights/i }).first()
     ).toBeVisible();
 
+    await gotoStable(firmPage, "/user");
+    await expect(firmPage).toHaveURL(/\/sign-in\?pilotDisabled=individual/);
+    await expect(firmPage.getByText(/Individual surfaces are shelved/i)).toBeVisible();
+
     await firmContext.close();
-
-    const individualContext = await browser.newContext();
-    const individualPage = await individualContext.newPage();
-
-    await signInAsRole(individualPage, "individual");
-    await individualPage.waitForURL("**/user**");
-    await assertNoAuthOrRuntimeFailure(individualPage);
-    await expect(individualPage.getByRole("heading", { name: /Individual/i }).first()).toBeVisible();
-
-    await gotoStable(individualPage, "/user/membership");
-    await assertNoAuthOrRuntimeFailure(individualPage);
-    await expect(individualPage.getByRole("button", { name: "Pro Membership", exact: true })).toBeVisible();
-    await expect(individualPage.getByRole("button", { name: "Elite Membership", exact: true })).toBeVisible();
-    await expect(individualPage.getByRole("button", { name: "Help", exact: true })).toBeVisible();
-    await expect(individualPage.getByText("What it is", { exact: true }).first()).toBeVisible();
-    await gotoStable(individualPage, "/user/membership/checkout?plan=elite");
-    await assertNoAuthOrRuntimeFailure(individualPage);
-    await expectScaffoldCheckout(individualPage);
-
-    await individualContext.close();
   });
 
   test("covers admin control-plane routes after local review sign-in", async ({ browser }) => {

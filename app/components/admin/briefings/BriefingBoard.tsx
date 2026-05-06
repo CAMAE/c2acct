@@ -403,7 +403,7 @@ export function CompanyBriefingView({
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <AdminMetricCard
-          label="Individual"
+          label="Person-level"
           value={formatPercent(briefing.individualLayer.averageScore)}
           detail={`${briefing.individualLayer.peopleAssessed}/${briefing.individualLayer.totalUsers} users assessed`}
         />
@@ -431,7 +431,7 @@ export function CompanyBriefingView({
       <AdminPanel title="Layer summaries">
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
-            <div className="text-lg font-semibold text-[var(--shell-ink)]">Individual layer</div>
+            <div className="text-lg font-semibold text-[var(--shell-ink)]">Person-level layer</div>
             <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.individualLayer.summary}</p>
           </div>
           <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">

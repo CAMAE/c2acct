@@ -2,7 +2,7 @@ export const patHomepageSummary = {
   title: "WELCOME",
   eyebrow: "GUIDED INSIGHTS FOR THE ACCOUNTING ECOSYSTEM",
   summary:
-    "PAT is guided intelligence for the accounting ecosystem. It turns structured product and operating signals into usable insight so vendors, firms, and individuals can understand fit, friction, and next steps without losing context.",
+    "PAT is guided intelligence for the accounting ecosystem. It turns structured product and operating signals into usable insight so vendors and firms can understand fit, friction, and next steps without losing context.",
 } as const;
 
 export const patExplainerHero = {

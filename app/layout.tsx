@@ -6,6 +6,7 @@ import { barlowFontClassName } from "@/app/fonts/barlow";
 import { getSessionUser } from "@/lib/auth/session";
 import { getMembershipPathPrefix } from "@/lib/membershipContent";
 import { getPublicReleaseFingerprint } from "@/lib/release/fingerprint";
+import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import { TRUST_FOOTER_LINKS } from "@/lib/trustContent";
 import {
   APP_LOCALE_COOKIE,
@@ -29,6 +30,7 @@ export default async function RootLayout({
   const locale = resolveLocale(cookieStore.get(APP_LOCALE_COOKIE)?.value);
   const messages = getLocaleMessages(locale);
   const sessionUser = await getSessionUser();
+  const individualSurfacesEnabled = isIndividualSurfacesEnabled();
   const releaseFingerprint = getPublicReleaseFingerprint();
   const experience = await resolvePortalExperience(sessionUser);
   const enabledHrefs = new Set(
@@ -42,7 +44,7 @@ export default async function RootLayout({
     { href: "/sign-in", key: "sign_in" },
     { href: "/vendor", key: "vendor" },
     { href: "/firm", key: "firm" },
-    { href: "/user", key: "individual" },
+    ...(individualSurfacesEnabled ? [{ href: "/user", key: "individual" as const }] : []),
     ...(enabledHrefs.has("/admin") ? [{ href: "/admin", key: "c2core" as const }] : []),
   ];
   const translatedNavItems: HeaderNavItem[] = [
@@ -53,7 +55,9 @@ export default async function RootLayout({
     { href: "/trust", label: "Trust" },
   ];
   const membershipHref =
-    experience.audience === "vendor" || experience.audience === "firm" || experience.audience === "individual"
+    experience.audience === "vendor" ||
+    experience.audience === "firm" ||
+    (individualSurfacesEnabled && experience.audience === "individual")
       ? `${getMembershipPathPrefix(experience.audience)}/membership`
       : null;
   const headerUiText = {
@@ -74,6 +78,7 @@ export default async function RootLayout({
         <AppHeader
           currentLocale={locale}
           membershipHref={membershipHref}
+          individualSurfacesEnabled={individualSurfacesEnabled}
           navItems={translatedNavItems}
           uiText={headerUiText}
         />

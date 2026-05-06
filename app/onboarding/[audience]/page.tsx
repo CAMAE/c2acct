@@ -6,7 +6,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import {
   PUBLIC_ONBOARDING_COOKIE,
   getPublicOnboardingPageModel,
-  isPublicOnboardingAudience,
+  isPublicOnboardingAudienceEnabled,
   normalizePublicOnboardingPlan,
   parsePublicOnboardingCookie,
 } from "@/lib/publicOnboarding";
@@ -24,7 +24,7 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<Params> }) {
   const { audience } = await params;
-  if (!isPublicOnboardingAudience(audience)) {
+  if (!isPublicOnboardingAudienceEnabled(audience)) {
     return {
       title: "PAT Onboarding | C2Acct",
     };
@@ -51,7 +51,7 @@ export default async function PublicOnboardingAudiencePage({
     cookies(),
   ]);
 
-  if (!isPublicOnboardingAudience(audience)) {
+  if (!isPublicOnboardingAudienceEnabled(audience)) {
     notFound();
   }
 

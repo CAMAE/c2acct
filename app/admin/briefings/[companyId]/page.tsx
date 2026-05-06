@@ -25,7 +25,7 @@ export default async function AdminCompanyBriefingPage({
     <div className="space-y-8">
       <AdminPageIntro
         title={`${briefing.company.name} briefing`}
-        description="Board-ready PAT briefing built from current individual, firm, product, and ecosystem evidence only."
+        description="Board-ready PAT briefing built from current firm, product, and ecosystem evidence only."
       />
 
       <div className="flex flex-wrap gap-3 print:hidden">

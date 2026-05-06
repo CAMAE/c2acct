@@ -16,6 +16,11 @@ import { getAuthRuntimeStatus } from "@/lib/auth/runtime";
 import { isInviteeAccessEnabled } from "@/lib/invitee/access";
 import { submitInviteeCode } from "@/app/sign-in/invitee/actions";
 import { isConsultantAccessEnabled } from "@/lib/consultantAccess";
+import {
+  getPilotDisabledMessage,
+  isIndividualSurfacesEnabled,
+  isInviteeSurfacesEnabled,
+} from "@/lib/pilotSurfaces";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 
 export const metadata = {
@@ -264,7 +269,7 @@ function RoleAccessCard({
             This runtime is not showing a local role-entry form because PAT_LOCAL_REVIEW_PASSWORD or AUTH_SECRET is missing or unstable.
           </div>
           <div className="mt-2">
-            Until that is fixed, this route only supports the working GitHub or invitee path shown above.
+            Until that is fixed, this route only supports the working GitHub or access-code path shown above.
           </div>
         </div>
       ) : null}
@@ -283,6 +288,7 @@ function HelpInline({
   localReviewReady,
   localReviewRequested,
   inviteeAccessEnabled,
+  helpCards,
   authCookiesPresent,
   resetPath,
   resetRedirectTo,
@@ -293,6 +299,7 @@ function HelpInline({
   localReviewReady: boolean;
   localReviewRequested: boolean;
   inviteeAccessEnabled: boolean;
+  helpCards: Awaited<ReturnType<typeof getRequestLocaleMessages>>["signIn"]["helpCards"];
   authCookiesPresent: string[];
   resetPath: string;
   resetRedirectTo: string;
@@ -307,7 +314,7 @@ function HelpInline({
         {messages.helpBody}
       </p>
       <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {messages.helpCards.map((card) => (
+        {helpCards.map((card) => (
           <article key={card.title} className="pat-card p-6">
             <div className="text-xl font-semibold text-[var(--shell-ink)]">{card.title}</div>
             <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">{card.body}</p>
@@ -325,7 +332,7 @@ function HelpInline({
           Local review auth: <span className="font-semibold text-[var(--shell-ink)]">{localReviewReady ? "enabled and write-capable" : localReviewRequested ? "requested but not fully configured" : "disabled"}</span>
         </div>
         <div className="mt-2">
-          {messages.inviteeAccess}: <span className="font-semibold text-[var(--shell-ink)]">{inviteeAccessEnabled ? messages.enabled : messages.disabled}</span>
+          {inviteeAccessEnabled ? messages.inviteeAccess : "Access-code entry"}: <span className="font-semibold text-[var(--shell-ink)]">{inviteeAccessEnabled ? messages.enabled : messages.disabled}</span>
         </div>
         <div className="mt-2">
           {messages.localAuthCookies}: <span className="font-semibold text-[var(--shell-ink)]">{authCookiesPresent.length > 0 ? authCookiesPresent.join(", ") : "none"}</span>
@@ -352,15 +359,22 @@ export default async function SignInHubPage({
   const requestedView = getSingleParam(resolvedSearchParams?.view);
   const callbackUrl = getSingleParam(resolvedSearchParams?.callbackUrl);
   const redirectTo = getSingleParam(resolvedSearchParams?.redirectTo);
+  const pilotDisabledSurface = getSingleParam(resolvedSearchParams?.pilotDisabled);
+  const individualSurfacesEnabled = isIndividualSurfacesEnabled();
+  const inviteeSurfacesEnabled = isInviteeSurfacesEnabled();
   const requestedTarget = sanitizeAuthRedirect(redirectTo ?? callbackUrl);
   const inferredView = inferCanonicalSignInView(requestedTarget);
-  const requestedAccessView: AccessView = isAccessView(requestedView)
+  const rawRequestedAccessView: AccessView = isAccessView(requestedView)
     ? requestedView
     : inferredView ?? "vendor";
   const consultantAccessEnabled = isConsultantAccessEnabled();
   const consultantViewDisabled =
-    requestedAccessView === "consultant" && !consultantAccessEnabled;
-  const activeView: AccessView = consultantViewDisabled ? "vendor" : requestedAccessView;
+    rawRequestedAccessView === "consultant" && !consultantAccessEnabled;
+  const requestedSurfaceDisabled =
+    (rawRequestedAccessView === "individual" && !individualSurfacesEnabled) ||
+    (rawRequestedAccessView === "invitee" && !inviteeSurfacesEnabled);
+  const activeView: AccessView =
+    consultantViewDisabled || requestedSurfaceDisabled ? "vendor" : rawRequestedAccessView;
   const authError = getSingleParam(resolvedSearchParams?.error);
   const authReset = getSingleParam(resolvedSearchParams?.authReset) === "1";
   const authResetReason = getSingleParam(resolvedSearchParams?.authResetReason);
@@ -383,16 +397,32 @@ export default async function SignInHubPage({
     redirectTo,
     view: activeView,
   });
+  const visibleHelpCards = messages.signIn.helpCards.filter((card) => {
+    if (!individualSurfacesEnabled && card.title === messages.signIn.individual) {
+      return false;
+    }
+
+    if (!inviteeSurfacesEnabled && card.title === messages.signIn.invitee) {
+      return false;
+    }
+
+    return true;
+  });
   const toggleOptions: { id: AccessView; label: string }[] = [
     { id: "vendor", label: messages.signIn.vendor },
     { id: "firm", label: messages.signIn.firm },
-    { id: "individual", label: messages.signIn.individual },
+    ...(individualSurfacesEnabled ? [{ id: "individual" as const, label: messages.signIn.individual }] : []),
     ...(consultantAccessEnabled ? [{ id: "consultant" as const, label: "Consultant" }] : []),
     ...(authRuntime.localReviewEnabled ? [{ id: "admin" as const, label: "Admin" }] : []),
-    { id: "invitee", label: messages.signIn.invitee },
+    ...(inviteeSurfacesEnabled ? [{ id: "invitee" as const, label: messages.signIn.invitee }] : []),
     { id: "pat", label: messages.signIn.meetPat },
     { id: "help", label: messages.signIn.help },
   ];
+  const pilotDisabledMessage =
+    getPilotDisabledMessage(pilotDisabledSurface) ??
+    (requestedSurfaceDisabled
+      ? getPilotDisabledMessage(rawRequestedAccessView === "individual" ? "individual" : "invitee")
+      : null);
 
   return (
     <div className="space-y-8">
@@ -403,7 +433,7 @@ export default async function SignInHubPage({
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           {authRuntime.localReviewProviderReady
-            ? "Local review mode is active, so vendor, firm, individual, and admin routes expose deterministic seeded identities that create real Auth.js sessions. GitHub remains available where configured, but only already-provisioned PAT users are admitted."
+            ? `Local review mode is active, so vendor, firm${authRuntime.localReviewEnabled ? ", and admin" : ""} routes expose deterministic seeded identities that create real Auth.js sessions. Shelved pilot entry paths stay hidden unless their flags are explicitly enabled. GitHub remains available where configured, but only already-provisioned PAT users are admitted.`
             : authRuntime.localReviewEnabled
               ? "Local review mode was requested but is not fully configured. PAT is hiding broken role-entry controls until the missing local auth pieces are fixed."
               : messages.signIn.heroBody}
@@ -432,6 +462,11 @@ export default async function SignInHubPage({
         {consultantViewDisabled ? (
           <div className="mt-5 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-6 text-amber-900">
             Consultant access is disabled in this runtime until the company-scoped consultant plane is explicitly re-enabled for proof. The vendor entry remains the default sign-in path here.
+          </div>
+        ) : null}
+        {pilotDisabledMessage ? (
+          <div className="mt-5 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-6 text-amber-900">
+            {pilotDisabledMessage}
           </div>
         ) : null}
         <div className="mt-6">
@@ -485,7 +520,7 @@ export default async function SignInHubPage({
         />
       ) : null}
 
-      {activeView === "individual" ? (
+      {individualSurfacesEnabled && activeView === "individual" ? (
         <RoleAccessCard
           title={messages.signIn.individualTitle}
           subtitle={messages.signIn.individualSubtitle}
@@ -554,7 +589,7 @@ export default async function SignInHubPage({
         />
       ) : null}
 
-      {activeView === "invitee" ? (
+      {inviteeSurfacesEnabled && activeView === "invitee" ? (
         <section className="pat-card p-8">
           <div className="pat-label">{messages.signIn.inviteeTitle}</div>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
@@ -585,6 +620,7 @@ export default async function SignInHubPage({
       {activeView === "help" ? (
         <HelpInline
           messages={messages.signIn}
+          helpCards={visibleHelpCards}
           callbackTarget={authRuntime.callbackUrl ?? "/sign-in"}
           authReady={authRuntime.githubAuthEnabled}
           localReviewReady={authRuntime.localReviewProviderReady}

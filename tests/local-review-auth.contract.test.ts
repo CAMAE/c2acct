@@ -42,16 +42,19 @@ describe("local review auth contracts", () => {
     expect(findLocalReviewUserByEmail("review.consultant@pat.local")?.key).toBe("consultant");
   });
 
-  it("exposes all local review entries in the UI contract", () => {
-    const entries = getLocalReviewUsersForUi();
+  it("keeps individual local review out of the default pilot UI contract", () => {
+    const entries = getLocalReviewUsersForUi(authEnv());
 
-    expect(entries).toHaveLength(5);
+    expect(entries).toHaveLength(4);
     expect(entries.every((entry) => entry.email.endsWith("@pat.local"))).toBe(true);
     expect(entries.some((entry) => entry.redirectTo === "/vendor")).toBe(true);
     expect(entries.some((entry) => entry.redirectTo === "/firm")).toBe(true);
-    expect(entries.some((entry) => entry.redirectTo === "/user")).toBe(true);
+    expect(entries.some((entry) => entry.redirectTo === "/user")).toBe(false);
     expect(entries.some((entry) => entry.redirectTo === "/admin")).toBe(true);
     expect(entries.some((entry) => entry.redirectTo === "/consultants")).toBe(true);
+
+    const individualEnabledEntries = getLocalReviewUsersForUi(authEnv({ PAT_ENABLE_INDIVIDUAL_SURFACES: "1" }));
+    expect(individualEnabledEntries.some((entry) => entry.redirectTo === "/user")).toBe(true);
   });
 
   it("keeps the credentials provider unavailable unless the flag and local-origin policy pass", () => {

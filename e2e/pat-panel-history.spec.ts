@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 const localReviewPassword = process.env.PAT_LOCAL_REVIEW_PASSWORD ?? "pat-local-review";
 
-type LocalReviewRole = "vendor" | "firm" | "individual";
+type LocalReviewRole = "vendor" | "firm";
 
 async function assertNoAuthOrRuntimeFailure(page: Page) {
   await expect(page.getByText("Access Denied")).toHaveCount(0);
@@ -27,13 +27,8 @@ async function gotoStable(page: Page, url: string) {
 }
 
 async function signInAsRole(page: Page, role: LocalReviewRole) {
-  const roleRedirect = role === "vendor" ? "/vendor" : role === "firm" ? "/firm" : "/user";
-  const reviewEmail =
-    role === "vendor"
-      ? "review.vendor@pat.local"
-      : role === "firm"
-        ? "review.firm@pat.local"
-        : "review.individual@pat.local";
+  const roleRedirect = role === "vendor" ? "/vendor" : "/firm";
+  const reviewEmail = role === "vendor" ? "review.vendor@pat.local" : "review.firm@pat.local";
 
   const csrfResponse = await page.context().request.get("/api/auth/csrf");
   expect(csrfResponse.ok()).toBeTruthy();

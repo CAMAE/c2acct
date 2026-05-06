@@ -17,7 +17,7 @@ export default function PublicOnboardingPage() {
           Choose a role, select a plan path, and reach the first useful PAT assessment.
         </h1>
         <p className="mt-5 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          PAT onboarding starts before sign-in so vendors, firms, and individuals can see what the product does, what evidence is required, and when billing is staged versus provider-backed.
+          PAT onboarding starts before sign-in so vendors and firms can see what the product does, what evidence is required, and when billing is staged versus provider-backed.
         </p>
       </section>
 

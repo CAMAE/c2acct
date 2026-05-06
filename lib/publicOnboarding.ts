@@ -4,6 +4,7 @@ import { getBillingConfig, getBillingModeForPlan } from "@/lib/billing/config";
 import { MEMBERSHIP_PLAN } from "@/lib/membership";
 import { buildMembershipCheckoutHref, buildMembershipTierDetailHref } from "@/lib/membershipContent";
 import type { MembershipAudience } from "@/lib/membershipContext";
+import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 
 export const PUBLIC_ONBOARDING_COOKIE = "pat-public-onboarding";
 export const PUBLIC_ONBOARDING_AUDIENCES = ["vendor", "firm", "user"] as const;
@@ -183,6 +184,13 @@ export function isPublicOnboardingAudience(value: unknown): value is PublicOnboa
   return typeof value === "string" && PUBLIC_ONBOARDING_AUDIENCES.includes(value as PublicOnboardingAudience);
 }
 
+export function isPublicOnboardingAudienceEnabled(
+  value: unknown,
+  env: NodeJS.ProcessEnv = process.env
+): value is PublicOnboardingAudience {
+  return isPublicOnboardingAudience(value) && (value !== "user" || isIndividualSurfacesEnabled(env));
+}
+
 export function isPublicOnboardingPlan(value: unknown): value is PublicOnboardingPlan {
   return typeof value === "string" && PUBLIC_ONBOARDING_PLANS.includes(value as PublicOnboardingPlan);
 }
@@ -200,8 +208,8 @@ export function getPublicOnboardingConfig(audience: PublicOnboardingAudience) {
   return AUDIENCE_CONFIGS[audience];
 }
 
-export function getPublicOnboardingHomeCards() {
-  return PUBLIC_ONBOARDING_AUDIENCES.map((audience) => {
+export function getPublicOnboardingHomeCards(env: NodeJS.ProcessEnv = process.env) {
+  return PUBLIC_ONBOARDING_AUDIENCES.filter((audience) => isPublicOnboardingAudienceEnabled(audience, env)).map((audience) => {
     const config = getPublicOnboardingConfig(audience);
     return {
       audience,

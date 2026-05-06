@@ -18,13 +18,18 @@ function testEnv(overrides: Record<string, string | undefined> = {}): NodeJS.Pro
 
 describe("public onboarding contracts", () => {
   it("defines role-specific public paths from homepage to first assessment", () => {
-    const homeCards = getPublicOnboardingHomeCards();
+    const homeCards = getPublicOnboardingHomeCards(testEnv());
 
-    expect(homeCards.map((card) => card.audience)).toEqual(["vendor", "firm", "user"]);
+    expect(homeCards.map((card) => card.audience)).toEqual(["vendor", "firm"]);
     expect(homeCards.map((card) => card.href)).toEqual([
       "/onboarding/vendor",
       "/onboarding/firm",
-      "/onboarding/user",
+    ]);
+
+    expect(getPublicOnboardingHomeCards(testEnv({ PAT_ENABLE_INDIVIDUAL_SURFACES: "1" })).map((card) => card.audience)).toEqual([
+      "vendor",
+      "firm",
+      "user",
     ]);
 
     for (const audience of PUBLIC_ONBOARDING_AUDIENCES) {

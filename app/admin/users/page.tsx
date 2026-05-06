@@ -2,10 +2,12 @@ import prisma from "@/lib/prisma";
 import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
 import { MEMBERSHIP_PLAN_OPTIONS, MEMBERSHIP_STATUS_OPTIONS } from "@/lib/adminControlPlane";
 import { updateUserContextAction, updateUserMembershipAction } from "@/app/admin/actions";
+import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminUsersPage() {
+  const individualSurfacesEnabled = isIndividualSurfacesEnabled();
   const [users, organizations, personSubjects] = await Promise.all([
     prisma.user.findMany({
       orderBy: [{ role: "asc" }, { email: "asc" }],
@@ -53,7 +55,11 @@ export default async function AdminUsersPage() {
     <div className="space-y-8">
       <AdminPageIntro
         title="Users"
-        description="Operator controls for role assignment, company linkage, and individual membership state."
+        description={
+          individualSurfacesEnabled
+            ? "Operator controls for role assignment, company linkage, and individual membership state."
+            : "Operator controls for role assignment and company linkage. Person-level membership controls are hidden for the current vendor/firm pilot."
+        }
       />
 
       <AdminPanel title="User oversight">
@@ -72,16 +78,23 @@ export default async function AdminUsersPage() {
                 <div className="mb-4">
                   <div className="text-lg font-semibold text-[var(--shell-ink)]">{user.email}</div>
                   <div className="mt-1 text-sm text-[var(--shell-muted)]">
-                    {user.role} · {user.Company ? `${user.Company.name} (${user.Company.type})` : "No company linked"} · Individual membership {individualMembership ? `${individualMembership.plan} / ${individualMembership.status}` : "FREE / ACTIVE"}
+                    {user.role} · {user.Company ? `${user.Company.name} (${user.Company.type})` : "No company linked"}
                   </div>
-                  <div className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
-                    Billing {individualMembership?.provider ?? "none"} · Provider status {individualMembership?.providerStatus ?? "unreconciled"} · Last event {individualMembership?.lastBillingEventType ?? "none"} · Reconciled {individualMembership?.lastReconciledAt ? individualMembership.lastReconciledAt.toLocaleString() : "never"}
-                  </div>
+                  {individualSurfacesEnabled ? (
+                    <>
+                      <div className="mt-1 text-sm text-[var(--shell-muted)]">
+                        Individual membership {individualMembership ? `${individualMembership.plan} / ${individualMembership.status}` : "FREE / ACTIVE"}
+                      </div>
+                      <div className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
+                        Billing {individualMembership?.provider ?? "none"} · Provider status {individualMembership?.providerStatus ?? "unreconciled"} · Last event {individualMembership?.lastBillingEventType ?? "none"} · Reconciled {individualMembership?.lastReconciledAt ? individualMembership.lastReconciledAt.toLocaleString() : "never"}
+                      </div>
+                    </>
+                  ) : null}
                   <div className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
                     Pilot boundary {pilotBoundary}
                   </div>
                 </div>
-                <div className="grid gap-4 xl:grid-cols-2">
+                <div className={`grid gap-4 ${individualSurfacesEnabled ? "xl:grid-cols-2" : ""}`}>
                   <form action={updateUserContextAction} className="grid gap-3 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
                     <input type="hidden" name="userId" value={user.id} />
                     <input type="hidden" name="returnTo" value="/admin/users" />
@@ -104,28 +117,30 @@ export default async function AdminUsersPage() {
                     </button>
                   </form>
 
-                  <form action={updateUserMembershipAction} className="grid gap-3 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
-                    <input type="hidden" name="userId" value={user.id} />
-                    <input type="hidden" name="returnTo" value="/admin/users" />
-                    <div className="text-sm font-semibold text-[var(--shell-ink)]">Individual membership</div>
-                    <select name="plan" defaultValue={individualMembership?.plan ?? "FREE"} className="pat-select">
-                      {MEMBERSHIP_PLAN_OPTIONS.map((plan) => (
-                        <option key={plan} value={plan}>
-                          {plan}
-                        </option>
-                      ))}
-                    </select>
-                    <select name="status" defaultValue={individualMembership?.status ?? "ACTIVE"} className="pat-select">
-                      {MEMBERSHIP_STATUS_OPTIONS.map((status) => (
-                        <option key={status} value={status}>
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-                    <button type="submit" className="pat-button-secondary">
-                      Save individual membership
-                    </button>
-                  </form>
+                  {individualSurfacesEnabled ? (
+                    <form action={updateUserMembershipAction} className="grid gap-3 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
+                      <input type="hidden" name="userId" value={user.id} />
+                      <input type="hidden" name="returnTo" value="/admin/users" />
+                      <div className="text-sm font-semibold text-[var(--shell-ink)]">Individual membership</div>
+                      <select name="plan" defaultValue={individualMembership?.plan ?? "FREE"} className="pat-select">
+                        {MEMBERSHIP_PLAN_OPTIONS.map((plan) => (
+                          <option key={plan} value={plan}>
+                            {plan}
+                          </option>
+                        ))}
+                      </select>
+                      <select name="status" defaultValue={individualMembership?.status ?? "ACTIVE"} className="pat-select">
+                        {MEMBERSHIP_STATUS_OPTIONS.map((status) => (
+                          <option key={status} value={status}>
+                            {status}
+                          </option>
+                        ))}
+                      </select>
+                      <button type="submit" className="pat-button-secondary">
+                        Save individual membership
+                      </button>
+                    </form>
+                  ) : null}
                 </div>
               </div>
             );

@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { submitInviteeCode } from "@/app/sign-in/invitee/actions";
 import { getInviteeCodeConfigs, isInviteeAccessEnabled } from "@/lib/invitee/access";
+import { getPilotDisabledSignInPath, isInviteeSurfacesEnabled } from "@/lib/pilotSurfaces";
 
 export const metadata = {
   title: "Invitee Access | C2Acct",
@@ -19,6 +21,10 @@ export default async function InviteeSignInPage({
 }: {
   searchParams?: Promise<{ error?: string }>;
 }) {
+  if (!isInviteeSurfacesEnabled()) {
+    redirect(getPilotDisabledSignInPath("invitee"));
+  }
+
   const params = searchParams ? await searchParams : undefined;
   const errorMessage = getErrorMessage(params?.error);
   const enabled = isInviteeAccessEnabled();

@@ -82,7 +82,7 @@ export default async function AdminOverviewPage() {
           <AdminActionLink
             href="/admin/users"
             title="Users"
-            body="Role assignment, company linkage, and individual membership controls."
+            body="Role assignment, company linkage, and pilot account controls."
           />
           {overview.consultantAccessEnabled ? (
             <AdminActionLink

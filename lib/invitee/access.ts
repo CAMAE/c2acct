@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 import { CompanyType } from "@prisma/client";
+import { isInviteeSurfacesEnabled } from "@/lib/pilotSurfaces";
 import prisma from "@/lib/prisma";
 
 const INVITEE_COOKIE_NAME = "pat_invitee_access";
@@ -67,7 +68,7 @@ function cleanEnv(value: string | undefined) {
 }
 
 export function isInviteeAccessEnabled() {
-  return cleanEnv(process.env.PAT_ENABLE_INVITEE_ACCESS) === "1";
+  return isInviteeSurfacesEnabled() && cleanEnv(process.env.PAT_ENABLE_INVITEE_ACCESS) === "1";
 }
 
 function getInviteeSecret() {

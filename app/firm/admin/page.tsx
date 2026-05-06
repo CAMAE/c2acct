@@ -7,6 +7,7 @@ import { firmAdminHelpCards } from "@/app/components/firm/FirmPortalContent";
 import { canAccessPortalAdmin } from "@/lib/authz";
 import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/profileSettingsStore";
 import { resolveCurrentMembership } from "@/lib/membership";
+import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import prisma from "@/lib/prisma";
 import { buildFirmExternalProfileContract } from "@/lib/firmPat";
 import { ensureUserPatScaffold, getFirmManagedUserRecords } from "@/lib/userPat";
@@ -19,6 +20,7 @@ export const metadata = {
 };
 
 export default async function FirmAdminPage() {
+  const individualSurfacesEnabled = isIndividualSurfacesEnabled();
   const sessionUser = await getSessionUser();
   if (!sessionUser?.companyId) {
     redirect("/sign-in/firm");
@@ -211,6 +213,7 @@ export default async function FirmAdminPage() {
       </section>
       <FirmAdminPanels
         contract={contract}
+        individualSurfacesEnabled={individualSurfacesEnabled}
         inviteUser={inviteUser}
         profileSettings={profileSettings}
         saveFirmProfile={saveFirmProfile}

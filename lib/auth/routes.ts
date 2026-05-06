@@ -144,3 +144,21 @@ export function resolvePostAuthRedirectForView(
 
   return "/admin";
 }
+
+export function isPilotVisibleSignInView(
+  view: CanonicalSignInView,
+  input: {
+    individualSurfacesEnabled: boolean;
+    consultantAccessEnabled: boolean;
+  }
+) {
+  if (view === "individual") {
+    return input.individualSurfacesEnabled;
+  }
+
+  if (view === "consultant") {
+    return input.consultantAccessEnabled;
+  }
+
+  return true;
+}

@@ -22,12 +22,12 @@ export default async function AdminBriefingsPage() {
     <div className="space-y-8">
       <AdminPageIntro
         title="Briefings"
-        description="Consultant and operator briefings that summarize individual, firm, product, and ecosystem signal from the live PAT engine only."
+        description="Consultant and operator briefings that summarize firm, product, and ecosystem signal from the live PAT engine only."
       />
 
       <AdminPanel
         title="Live firm briefings"
-        description="These briefings are only generated for firm organizations because that is the current PAT layer with the complete individual -> firm -> product -> ecosystem chain."
+        description="These briefings are only generated for firm organizations because that is the current PAT layer with the complete firm -> product -> ecosystem chain."
       >
         <div className="grid gap-4 lg:grid-cols-2">
           {catalog.length === 0 ? (

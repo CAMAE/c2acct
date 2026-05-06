@@ -185,7 +185,7 @@ export const TRUST_SURFACES = {
       {
         title: "Access and acceptable use",
         body:
-          "PAT access is role-based for vendors, firms, individual users, consultants, and operators. Users are responsible for using the correct role path and for keeping any assigned credentials secure.",
+          "PAT access is role-based for vendors, firms, consultants, and operators during the current pilot. Users are responsible for using the correct role path and for keeping any assigned credentials secure.",
       },
       {
         title: "Product output",
@@ -251,7 +251,7 @@ export const TRUST_SURFACES = {
       {
         title: "Local review support",
         body:
-          "If you are reviewing locally, report whether you used vendor, firm, individual, consultant, or admin review access and include any validation command that failed.",
+          "If you are reviewing locally, report whether you used vendor, firm, consultant, or admin review access and include any validation command that failed.",
       },
       {
         title: "Billing support",

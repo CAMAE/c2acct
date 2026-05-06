@@ -15,6 +15,7 @@ import {
 import { getSessionUser } from "@/lib/auth/session";
 import { buildFirmExternalProfileContract, getFirmAssessmentProgress } from "@/lib/firmPat";
 import { getInviteeAccessContext } from "@/lib/invitee/access";
+import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/profileSettingsStore";
 import prisma from "@/lib/prisma";
@@ -42,6 +43,7 @@ export default async function FirmPage({
 }) {
   const params = searchParams ? await searchParams : undefined;
   const messages = await getRequestLocaleMessages();
+  const individualSurfacesEnabled = isIndividualSurfacesEnabled();
   const activePanel =
     params?.panel === "pat" || params?.panel === "admin" || params?.panel === "help" ? params.panel : "workspace";
   const sessionUser = await getSessionUser();
@@ -241,6 +243,7 @@ export default async function FirmPage({
           {profileSettings && contract ? (
             <FirmAdminPanels
               contract={contract}
+              individualSurfacesEnabled={individualSurfacesEnabled}
               inviteUser={inviteUser}
               profileSettings={profileSettings}
               saveFirmProfile={saveFirmProfile}

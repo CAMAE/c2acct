@@ -6,13 +6,13 @@ import {
   PUBLIC_ONBOARDING_COOKIE,
   buildPublicOnboardingState,
   encodePublicOnboardingState,
-  isPublicOnboardingAudience,
+  isPublicOnboardingAudienceEnabled,
   normalizePublicOnboardingPlan,
 } from "@/lib/publicOnboarding";
 
 export async function savePublicOnboardingIntent(formData: FormData) {
   const rawAudience = String(formData.get("audience") ?? "");
-  if (!isPublicOnboardingAudience(rawAudience)) {
+  if (!isPublicOnboardingAudienceEnabled(rawAudience)) {
     redirect("/onboarding");
   }
 

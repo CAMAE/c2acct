@@ -24,12 +24,14 @@ type FirmAdminPanelsProps = {
   inviteUser: (formData: FormData) => Promise<void>;
   profileSettings: ProfileSettings;
   saveFirmProfile: (formData: FormData) => Promise<void>;
+  individualSurfacesEnabled: boolean;
   userInsight: ManagedUser[];
 };
 
 export default function FirmAdminPanels({
   contract,
   inviteUser,
+  individualSurfacesEnabled,
   profileSettings,
   saveFirmProfile,
   userInsight,
@@ -53,15 +55,19 @@ export default function FirmAdminPanels({
         </div>
 
         <div className="pat-card p-6">
-          <div className="pat-label">User Insight</div>
+          <div className="pat-label">{individualSurfacesEnabled ? "User Insight" : "Firm users"}</div>
           <div className="mt-4 text-xl font-semibold text-[var(--shell-ink)]">Manage users under the firm umbrella</div>
           <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-            Open the user insight surface to invite users, review current progress status, and search for an individual user under this firm.
+            {individualSurfacesEnabled
+              ? "Open the user insight surface to invite users, review current progress status, and search for an individual user under this firm."
+              : "Invite users and review current firm account status. Individual insight surfaces are shelved for the current vendor/firm pilot."}
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
-            <Link className="pat-button-primary" href="/firm/admin/user-insight">
-              Open user insight
-            </Link>
+            {individualSurfacesEnabled ? (
+              <Link className="pat-button-primary" href="/firm/admin/user-insight">
+                Open user insight
+              </Link>
+            ) : null}
             <div className="pat-soft-panel px-4 py-3 text-sm text-[var(--shell-muted)]">
               Current users: <span className="font-semibold text-[var(--shell-ink)]">{userInsight.length}</span>
             </div>

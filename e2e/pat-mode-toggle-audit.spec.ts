@@ -4,7 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 const localReviewPassword = process.env.PAT_LOCAL_REVIEW_PASSWORD ?? "pat-local-review";
 
-type LocalReviewRole = "vendor" | "firm" | "individual";
+type LocalReviewRole = "vendor" | "firm";
 
 async function assertNoAuthOrRuntimeFailure(page: Page) {
   await expect(page.getByText("Access Denied")).toHaveCount(0);
@@ -29,13 +29,8 @@ async function gotoStable(page: Page, url: string) {
 }
 
 async function signInAsRole(page: Page, role: LocalReviewRole) {
-  const roleRedirect = role === "vendor" ? "/vendor" : role === "firm" ? "/firm" : "/user";
-  const reviewEmail =
-    role === "vendor"
-      ? "review.vendor@pat.local"
-      : role === "firm"
-        ? "review.firm@pat.local"
-        : "review.individual@pat.local";
+  const roleRedirect = role === "vendor" ? "/vendor" : "/firm";
+  const reviewEmail = role === "vendor" ? "review.vendor@pat.local" : "review.firm@pat.local";
   const csrfResponse = await page.context().request.get("/api/auth/csrf");
   expect(csrfResponse.ok()).toBeTruthy();
   const csrfBody = (await csrfResponse.json()) as { csrfToken?: string };
@@ -166,13 +161,5 @@ test.describe("PAT route-wide mode toggle audit", () => {
     await auditToggleRoute(firmPage, "/firm/membership/checkout?plan=pro", "firm checkout payment methods");
     await firmContext.close();
 
-    const individualContext = await browser.newContext();
-    const individualPage = await individualContext.newPage();
-    await signInAsRole(individualPage, "individual");
-
-    await auditToggleRoute(individualPage, "/user", "individual portal");
-    await auditToggleRoute(individualPage, "/user/membership", "individual membership");
-    await auditToggleRoute(individualPage, "/user/membership/checkout?plan=pro", "individual checkout payment methods");
-    await individualContext.close();
   });
 });

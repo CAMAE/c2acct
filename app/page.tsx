@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import { getSessionUser } from "@/lib/auth/session";
+import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import { getPublicOnboardingHomeCards } from "@/lib/publicOnboarding";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 
 export default async function Home() {
   const sessionUser = await getSessionUser();
   const messages = await getRequestLocaleMessages();
+  const individualSurfacesEnabled = isIndividualSurfacesEnabled();
   const signedIn = Boolean(sessionUser);
   const signInHref = "/sign-in";
   const signInTitle = messages.home.signInTitle;
@@ -14,7 +16,9 @@ export default async function Home() {
   const onboardingCards = getPublicOnboardingHomeCards();
   const signInCopy = signedIn
     ? messages.home.signedInCopy
-    : messages.home.signedOutCopy;
+    : individualSurfacesEnabled
+      ? messages.home.signedOutCopy
+      : "Vendors and firms sign in here to access their PAT workspace. Person-level and access-code paths are shelved for the current pilot.";
 
   return (
     <div className="space-y-8">
@@ -43,7 +47,7 @@ export default async function Home() {
           <div className="rounded-[24px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-5 text-sm leading-6 text-[var(--shell-muted)]">
             <div className="font-semibold text-[var(--shell-ink)]">First-value rule</div>
             <div className="mt-2">
-              PAT does not claim generated insights are ready until the matching vendor, firm, or individual assessment evidence exists.
+              PAT does not claim generated insights are ready until the matching vendor or firm assessment evidence exists.
             </div>
           </div>
         </div>

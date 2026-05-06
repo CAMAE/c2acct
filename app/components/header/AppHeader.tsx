@@ -13,6 +13,7 @@ export type HeaderNavItem = {
 
 type AppHeaderProps = {
   currentLocale: AppLocale;
+  individualSurfacesEnabled: boolean;
   membershipHref: string | null;
   navItems: HeaderNavItem[];
   uiText: {
@@ -26,7 +27,11 @@ type AppHeaderProps = {
   };
 };
 
-function resolveMembershipHref(pathname: string | null, fallbackHref: string | null) {
+function resolveMembershipHref(
+  pathname: string | null,
+  fallbackHref: string | null,
+  individualSurfacesEnabled: boolean
+) {
   if (
     pathname === "/sign-in" ||
     pathname?.startsWith("/admin") ||
@@ -52,13 +57,19 @@ function resolveMembershipHref(pathname: string | null, fallbackHref: string | n
     pathname.startsWith("/sign-in/user") ||
     pathname.startsWith("/sign-in/invitee")
   ) {
-    return "/user/membership";
+    return individualSurfacesEnabled ? "/user/membership" : null;
   }
 
   return fallbackHref;
 }
 
-export default function AppHeader({ currentLocale, membershipHref, navItems, uiText }: AppHeaderProps) {
+export default function AppHeader({
+  currentLocale,
+  individualSurfacesEnabled,
+  membershipHref,
+  navItems,
+  uiText,
+}: AppHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -69,7 +80,7 @@ export default function AppHeader({ currentLocale, membershipHref, navItems, uiT
   const languageTriggerRef = useRef<HTMLButtonElement | null>(null);
   const iconButtonClassName =
     "inline-flex h-[3.05rem] w-[3.05rem] items-center justify-center rounded-[1.05rem] border border-[var(--shell-border)] bg-white text-[var(--shell-ink)] hover:border-[rgba(6,54,116,0.32)] focus:outline-none focus:ring-2 focus:ring-[rgba(6,54,116,0.18)]";
-  const resolvedMembershipHref = resolveMembershipHref(pathname, membershipHref);
+  const resolvedMembershipHref = resolveMembershipHref(pathname, membershipHref, individualSurfacesEnabled);
   const membershipActive =
     resolvedMembershipHref
       ? pathname === resolvedMembershipHref || pathname?.startsWith(`${resolvedMembershipHref}/`)
