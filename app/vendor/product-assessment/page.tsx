@@ -20,6 +20,7 @@ import {
   extractUtilityKeysFromSignals,
   getRequestedVendorProductAssessmentOverviewMode,
   getVendorCompanyContext,
+  getVendorUtilityLabels,
   sortVendorProductAssessmentEntries,
 } from "@/lib/vendorPat";
 
@@ -47,35 +48,77 @@ type ProductAssessmentEntry = {
     id: string;
     name: string;
     summary: string | null;
+    website: string | null;
+    vendorName: string;
   };
   status: ReturnType<typeof deriveVendorProductOverviewStatus>;
 };
+
+function getActualProductUrl(value: string | null | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "https:" || parsed.protocol === "http:" ? parsed.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+function getOverviewStatusLabel(entry: ProductAssessmentEntry) {
+  if (entry.status.completed) {
+    return "Completed final vendor assessment";
+  }
+
+  if (entry.status.latestSubmissionId) {
+    return "In progress, final evidence incomplete";
+  }
+
+  return entry.status.utilityKeys.length > 0 ? "Ready to assess" : "Needs feature declaration";
+}
+
+function getFeatureSummary(utilityKeys: string[]) {
+  const labels = getVendorUtilityLabels(utilityKeys);
+  if (labels.length === 0) {
+    return "No features declared yet.";
+  }
+
+  const visibleLabels = labels.slice(0, 3).map(replaceUtilityTermsForDisplay);
+  const remainingCount = labels.length - visibleLabels.length;
+  return `${visibleLabels.join(", ")}${remainingCount > 0 ? `, +${remainingCount} more` : ""}`;
+}
 
 function ProductAssessmentCard({
   entry,
 }: {
   entry: ProductAssessmentEntry;
 }) {
+  const productUrl = getActualProductUrl(entry.product.website);
+  const featureSummary = getFeatureSummary(entry.status.utilityKeys);
+
   return (
-    <Link
-      href={`/vendor/product-assessment/${entry.product.id}`}
-      className="pat-card pat-card-interactive block rounded-[24px] p-6 shadow-[0_24px_60px_rgba(15,23,42,0.06)]"
+    <article
+      className="pat-card pat-card-interactive block rounded-[24px] p-5 shadow-[0_20px_44px_rgba(15,23,42,0.05)]"
     >
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="text-xl font-semibold text-[var(--shell-ink)]">{entry.product.name}</div>
-          <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-            {entry.product.summary ?? "No summary added yet."}
-          </p>
+      <div>
+        <Link
+          href={`/vendor/product-assessment/${entry.product.id}`}
+          className="text-xl font-semibold text-[var(--shell-ink)] hover:text-[var(--shell-accent)]"
+        >
+          {entry.product.name}
+        </Link>
+        <div className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
+          {getOverviewStatusLabel(entry)}
         </div>
-        <span className="rounded-full bg-[var(--shell-accent)]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--shell-accent)]">
-          {replaceUtilityTermsForDisplay(entry.status.statusLabel)}
-        </span>
+        <p className="mt-3 line-clamp-3 text-sm leading-6 text-[var(--shell-muted)]">
+          {entry.product.summary ?? "No product summary added yet."}
+        </p>
       </div>
       <div className="mt-5 grid gap-2 text-sm leading-6 text-[var(--shell-muted)]">
         <div>
-          Features declared:{" "}
-          <span className="font-semibold text-[var(--shell-ink)]">{entry.status.utilityKeys.length}</span>
+          Vendor context: <span className="font-semibold text-[var(--shell-ink)]">{entry.product.vendorName}</span>
         </div>
         <div>
           Feature scope:{" "}
@@ -84,11 +127,7 @@ function ProductAssessmentCard({
           </span>
         </div>
         <div>
-          Question count:{" "}
-          <span className="font-semibold text-[var(--shell-ink)]">{entry.status.questionCount}</span>
-        </div>
-        <div>
-          Latest score: <span className="font-semibold text-[var(--shell-ink)]">{entry.status.latestScore ?? "--"}</span>
+          Feature summary: <span className="font-semibold text-[var(--shell-ink)]">{featureSummary}</span>
         </div>
         <div>
           Latest final submission:{" "}
@@ -96,9 +135,23 @@ function ProductAssessmentCard({
             {formatSubmittedDate(entry.status.latestSubmittedAt)}
           </span>
         </div>
+        {entry.status.latestScore !== null ? (
+          <div>
+            Latest score: <span className="font-semibold text-[var(--shell-ink)]">{entry.status.latestScore}</span>
+          </div>
+        ) : null}
       </div>
-      <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">{entry.status.reason}</p>
-    </Link>
+      <div className="mt-5 flex flex-wrap gap-3">
+        <Link href={`/vendor/product-assessment/${entry.product.id}`} className="pat-button-primary">
+          Open assessment
+        </Link>
+        {productUrl ? (
+          <a href={productUrl} target="_blank" rel="noreferrer" className="pat-button-secondary">
+            Product URL
+          </a>
+        ) : null}
+      </div>
+    </article>
   );
 }
 
@@ -154,20 +207,21 @@ export default async function VendorProductAssessmentPage({
     }
 
     const vendorProfile = await ensureVendorProfileForCompany(liveContext.company);
-    await prisma.product.create({
+    const product = await prisma.product.create({
       data: {
         id: randomUUID(),
         companyId: liveContext.company.id,
         vendorId: vendorProfile.id,
         name,
         slug: `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "product"}-${Date.now().toString().slice(-5)}`,
-        website: website || null,
+        website: getActualProductUrl(website),
         summary: summary || null,
         updatedAt: new Date(),
       },
+      select: { id: true },
     });
 
-    redirect("/vendor/product-assessment?mode=existing");
+    redirect(`/vendor/product-assessment/${product.id}`);
   }
 
   const moduleRecord = await prisma.surveyModule.findUnique({
@@ -202,6 +256,8 @@ export default async function VendorProductAssessmentPage({
           id: product.id,
           name: product.name,
           summary: product.summary,
+          website: product.website,
+          vendorName: vendorContext.company?.name ?? "Vendor workspace",
         },
         status: deriveVendorProductOverviewStatus({
           latestSubmission,

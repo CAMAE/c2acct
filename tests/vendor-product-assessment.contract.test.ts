@@ -655,9 +655,35 @@ describe("vendor product assessment contracts", () => {
     expect(overviewText).toContain("How to use vendor product assessment");
     expect(overviewText).toContain("No products exist yet. Use Add New to create an inventory record");
     expect(overviewText).toContain("does not declare features, create a final submission, or count as a completed product assessment");
-    expect(overviewText).toContain("redirect(\"/vendor/product-assessment?mode=existing\")");
+    expect(overviewText).toContain("redirect(`/vendor/product-assessment/${product.id}`)");
     expect(overviewText).toContain("sortVendorProductAssessmentEntries(productEntries)");
     expect(overviewText).toContain("mode=add-new");
+  });
+
+  it("keeps the vendor product assessment overview clickable, clean, and mode-scoped", () => {
+    const source = readFileSync(path.join(ROOT, "app/vendor/product-assessment/page.tsx"), "utf8");
+
+    expect(source).toContain("PatModeToggle");
+    expect(source).toContain('key: "completed"');
+    expect(source).toContain('key: "existing"');
+    expect(source).toContain('key: "add-new"');
+    expect(source).toContain('key: "help"');
+    expect(source).toContain("buckets.completed.map");
+    expect(source).toContain("buckets.existing.map");
+    expect(source).not.toContain("entry.status.statusLabel");
+    expect(source).not.toContain("rounded-full bg-[var(--shell-accent)]/10");
+    expect(source).toContain("Vendor context:");
+    expect(source).toContain("Feature scope:");
+    expect(source).toContain("Feature summary:");
+  });
+
+  it("starts a newly added vendor product assessment directly and stores only actual product URLs", () => {
+    const source = readFileSync(path.join(ROOT, "app/vendor/product-assessment/page.tsx"), "utf8");
+
+    expect(source).toContain("function getActualProductUrl");
+    expect(source).toContain('parsed.protocol === "https:" || parsed.protocol === "http:"');
+    expect(source).toContain("website: getActualProductUrl(website)");
+    expect(source).toContain("redirect(`/vendor/product-assessment/${product.id}`)");
   });
 
   it("documents and source-proves the Phase 2 vendor product assessment QA checklist", () => {
