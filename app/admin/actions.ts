@@ -12,6 +12,7 @@ import {
   ResearchConfidence,
   SubjectKind,
   TaxonomyBucketKind,
+  UserRole,
 } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -20,6 +21,7 @@ import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
 import { canAccessPortalAdmin } from "@/lib/authz";
 import { recordOperatorAuditEvent } from "@/lib/operatorAudit";
+import { hashPilotPassword, isSupportedPasswordHash, validatePilotPassword } from "@/lib/auth/passwords";
 
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -248,6 +250,164 @@ export async function updateUserContextAction(formData: FormData) {
     entityId: user.id,
     summary: `Updated user ${user.email}`,
     details: { role, companyId },
+  });
+
+  await redirectWithRevalidate(returnTo);
+}
+
+function isPilotAccountKind(value: string) {
+  return value === "vendor" || value === "firm" || value === "consultant" || value === "admin";
+}
+
+async function resolveProvisionedPasswordHash(input: {
+  temporaryPassword: string;
+  importedPasswordHash: string;
+  returnTo: string;
+}) {
+  if (input.importedPasswordHash) {
+    if (!isSupportedPasswordHash(input.importedPasswordHash)) {
+      redirect(`${input.returnTo}?error=unsupported_password_hash`);
+    }
+
+    return input.importedPasswordHash;
+  }
+
+  const validation = validatePilotPassword(input.temporaryPassword);
+  if (!validation.ok) {
+    redirect(`${input.returnTo}?error=temporary_password_policy`);
+  }
+
+  return hashPilotPassword(input.temporaryPassword);
+}
+
+export async function createPilotUserAction(formData: FormData) {
+  const actor = await requireAdminActor();
+  const email = getEmail(formData, "email");
+  const name = getNullableString(formData, "name");
+  const accountKind = getString(formData, "accountKind");
+  const role = getString(formData, "role");
+  const companyId = getNullableString(formData, "companyId");
+  const temporaryPassword = getString(formData, "temporaryPassword");
+  const importedPasswordHash = getString(formData, "importedPasswordHash");
+  const mustChangePassword = getBoolean(formData, "mustChangePassword");
+  const returnTo = getReturnTo(formData, "/admin/users");
+
+  if (!email || !isPilotAccountKind(accountKind) || !Object.values(UserRole).includes(role as UserRole)) {
+    redirect(returnTo);
+  }
+
+  const company = companyId
+    ? await prisma.company.findUnique({
+        where: { id: companyId },
+        select: { id: true, name: true, type: true },
+      })
+    : null;
+  if ((accountKind === "vendor" || accountKind === "firm") && !company) {
+    redirect(returnTo);
+  }
+  if (accountKind === "vendor" && company?.type !== CompanyType.VENDOR) {
+    redirect(returnTo);
+  }
+  if (accountKind === "firm" && company?.type !== CompanyType.FIRM) {
+    redirect(returnTo);
+  }
+
+  const passwordHash = await resolveProvisionedPasswordHash({
+    temporaryPassword,
+    importedPasswordHash,
+    returnTo,
+  });
+  const now = new Date();
+  const user = await prisma.user.upsert({
+    where: { email },
+    update: {
+      name,
+      role: role as UserRole,
+      companyId,
+      passwordHash,
+      mustChangePassword,
+      passwordUpdatedAt: now,
+      updatedAt: now,
+    },
+    create: {
+      id: randomUUID(),
+      email,
+      name,
+      role: role as UserRole,
+      companyId,
+      passwordHash,
+      mustChangePassword,
+      passwordUpdatedAt: now,
+      updatedAt: now,
+    },
+    select: { id: true, email: true },
+  });
+
+  if (accountKind === "consultant") {
+    await prisma.consultantProfile.upsert({
+      where: { userId: user.id },
+      update: { active: true, updatedAt: now },
+      create: { id: randomUUID(), userId: user.id, active: true },
+    });
+  }
+
+  await recordOperatorAuditEvent({
+    actorUserId: actor.id,
+    action: "provision-pilot-user",
+    entityType: "user",
+    entityId: user.id,
+    summary: `Provisioned pilot ${accountKind} account ${user.email}`,
+    details: {
+      accountKind,
+      role,
+      companyId,
+      passwordSource: importedPasswordHash ? "imported-hash" : "temporary-password",
+      mustChangePassword,
+    },
+  });
+
+  await redirectWithRevalidate(returnTo);
+}
+
+export async function updatePilotUserPasswordAction(formData: FormData) {
+  const actor = await requireAdminActor();
+  const userId = getString(formData, "userId");
+  const temporaryPassword = getString(formData, "temporaryPassword");
+  const importedPasswordHash = getString(formData, "importedPasswordHash");
+  const mustChangePassword = getBoolean(formData, "mustChangePassword");
+  const returnTo = getReturnTo(formData, "/admin/users");
+
+  if (!userId) {
+    redirect(returnTo);
+  }
+
+  const passwordHash = await resolveProvisionedPasswordHash({
+    temporaryPassword,
+    importedPasswordHash,
+    returnTo,
+  });
+  const now = new Date();
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      passwordHash,
+      mustChangePassword,
+      passwordUpdatedAt: now,
+      updatedAt: now,
+    },
+    select: { id: true, email: true },
+  });
+
+  await recordOperatorAuditEvent({
+    actorUserId: actor.id,
+    action: "reset-pilot-password",
+    entityType: "user",
+    entityId: user.id,
+    summary: `Reset pilot password for ${user.email}`,
+    details: {
+      passwordSource: importedPasswordHash ? "imported-hash" : "temporary-password",
+      mustChangePassword,
+    },
   });
 
   await redirectWithRevalidate(returnTo);

@@ -812,6 +812,9 @@ model User {
   email             String              @unique
   name              String?
   role              UserRole            @default(MEMBER)
+  passwordHash      String?
+  mustChangePassword Boolean            @default(false)
+  passwordUpdatedAt DateTime?
   createdAt         DateTime            @default(now())
   updatedAt         DateTime
   companyId         String?

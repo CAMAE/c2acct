@@ -8,6 +8,7 @@ export type SessionUser = {
   email: string;
   role: UserRole;
   companyId: string | null;
+  mustChangePassword?: boolean;
 };
 
 export type ActorContext = {
@@ -22,6 +23,7 @@ type SessionUserShape = {
   email?: unknown;
   role?: unknown;
   companyId?: unknown;
+  mustChangePassword?: unknown;
 };
 
 export type SessionReadResult = {
@@ -42,10 +44,11 @@ function toSessionUser(value: SessionUserShape | undefined): SessionUser | null 
   const email = typeof value.email === "string" ? value.email : "";
   const role = typeof value.role === "string" ? (value.role as UserRole) : "MEMBER";
   const companyId = typeof value.companyId === "string" ? value.companyId : null;
+  const mustChangePassword = value.mustChangePassword === true;
 
   if (!id || !email) return null;
 
-  return { id, email, role, companyId };
+  return { id, email, role, companyId, mustChangePassword };
 }
 
 function classifyAuthFailure(error: unknown): SessionReadResult["authError"] {

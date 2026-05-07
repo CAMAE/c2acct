@@ -2,7 +2,9 @@ import type { NextAuthConfig } from "next-auth";
 import GitHub from "next-auth/providers/github";
 import Credentials from "next-auth/providers/credentials";
 import { getResolvedAuthEnv } from "@/lib/auth/env";
-import { findLocalReviewUserByEmail, isLocalReviewAuthRequested } from "@/lib/auth/localReview";
+import { findLocalReviewUserByEmail } from "@/lib/auth/localReview";
+import { verifyPilotPassword } from "@/lib/auth/passwords";
+import prisma from "@/lib/prisma";
 
 const resolvedAuthEnv = getResolvedAuthEnv();
 
@@ -32,9 +34,7 @@ const authConfig: NextAuthConfig = {
           }),
         ]
       : []),
-    ...(isLocalReviewAuthRequested()
-      ? [
-          Credentials({
+    Credentials({
             credentials: {
               email: { label: "Email", type: "email" },
               password: { label: "Password", type: "password" },
@@ -45,23 +45,45 @@ const authConfig: NextAuthConfig = {
               const password = typeof credentials?.password === "string" ? credentials.password : "";
               const reviewUser = findLocalReviewUserByEmail(email);
 
-              if (!reviewUser || !runtimeAuthEnv.localReviewProviderReady || !runtimeAuthEnv.values.localReviewPassword) {
+              if (reviewUser) {
+                if (!runtimeAuthEnv.localReviewProviderReady || !runtimeAuthEnv.values.localReviewPassword) {
+                  return null;
+                }
+
+                if (password !== runtimeAuthEnv.values.localReviewPassword) {
+                  return null;
+                }
+
+                return {
+                  id: reviewUser.email,
+                  email: reviewUser.email,
+                  name: reviewUser.label,
+                };
+              }
+
+              const pilotUser = await prisma.user.findFirst({
+                where: { email: { equals: email, mode: "insensitive" } },
+                select: { id: true, email: true, name: true, passwordHash: true },
+              });
+              if (!pilotUser?.passwordHash) {
                 return null;
               }
 
-              if (password !== runtimeAuthEnv.values.localReviewPassword) {
+              const passwordValid = await verifyPilotPassword({
+                password,
+                passwordHash: pilotUser.passwordHash,
+              });
+              if (!passwordValid) {
                 return null;
               }
 
               return {
-                id: reviewUser.email,
-                email: reviewUser.email,
-                name: reviewUser.label,
+                id: pilotUser.id,
+                email: pilotUser.email,
+                name: pilotUser.name ?? pilotUser.email,
               };
             },
           }),
-        ]
-      : []),
   ],
   pages: {
     signIn: "/sign-in",

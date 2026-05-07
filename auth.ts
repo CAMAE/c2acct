@@ -14,6 +14,7 @@ type DbUserClaims = {
   email: string;
   role: UserRole;
   companyId: string | null;
+  mustChangePassword: boolean;
 };
 
 function normalizeEmail(email: string | null | undefined) {
@@ -29,7 +30,7 @@ async function findUserByEmail(email: string): Promise<DbUserClaims | null> {
 
   return prisma.user.findFirst({
     where: { email: { equals: email, mode: "insensitive" } },
-    select: { id: true, email: true, role: true, companyId: true },
+    select: { id: true, email: true, role: true, companyId: true, mustChangePassword: true },
   });
 }
 
@@ -71,6 +72,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.email = userWithClaims.dbUser.email;
         token.role = userWithClaims.dbUser.role;
         token.companyId = userWithClaims.dbUser.companyId;
+        token.mustChangePassword = userWithClaims.dbUser.mustChangePassword;
         return token;
       }
 
@@ -84,6 +86,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       token.email = dbUser.email;
       token.role = dbUser.role;
       token.companyId = dbUser.companyId;
+      token.mustChangePassword = dbUser.mustChangePassword;
       return token;
     },
     async session({ session, token }) {
@@ -95,6 +98,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         id?: string;
         role?: UserRole;
         companyId?: string | null;
+        mustChangePassword?: boolean;
       };
 
       sessionUser.id = typeof token.sub === "string" ? token.sub : "";
@@ -102,6 +106,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       sessionUser.role = (token.role as UserRole | undefined) ?? "MEMBER";
       sessionUser.companyId =
         typeof token.companyId === "string" ? token.companyId : null;
+      sessionUser.mustChangePassword = token.mustChangePassword === true;
       delete (sessionUser as typeof sessionUser & { name?: unknown }).name;
       delete (sessionUser as typeof sessionUser & { image?: unknown }).image;
 

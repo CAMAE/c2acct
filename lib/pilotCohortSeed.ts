@@ -9,6 +9,9 @@ import {
   type PilotOrganizationInput,
   type PilotUserInput,
 } from "@/data/pilotCohort";
+import { hashPilotPassword } from "@/lib/auth/passwords";
+
+export const PILOT_SEED_TEMPORARY_PASSWORD = "PatPilotTemp123";
 
 type PilotSeedClient = Pick<
   PrismaClient,
@@ -77,6 +80,17 @@ async function ensurePilotUser(
   companyIdsByKey: Map<string, string>
 ) {
   const companyId = user.companyKey ? companyIdsByKey.get(user.companyKey) ?? null : null;
+  const existing = await client.user.findUnique({
+    where: { email: user.email },
+    select: { passwordHash: true, mustChangePassword: true },
+  });
+  const seedPasswordFields = existing?.passwordHash
+    ? {}
+    : {
+        passwordHash: await hashPilotPassword(PILOT_SEED_TEMPORARY_PASSWORD),
+        mustChangePassword: true,
+        passwordUpdatedAt: new Date(),
+      };
 
   return client.user.upsert({
     where: { email: user.email },
@@ -84,6 +98,7 @@ async function ensurePilotUser(
       name: user.name,
       role: user.role,
       companyId,
+      ...seedPasswordFields,
       updatedAt: new Date(),
     },
     create: {
@@ -92,6 +107,9 @@ async function ensurePilotUser(
       name: user.name,
       role: user.role,
       companyId,
+      passwordHash: await hashPilotPassword(PILOT_SEED_TEMPORARY_PASSWORD),
+      mustChangePassword: true,
+      passwordUpdatedAt: new Date(),
       updatedAt: new Date(),
     },
     select: { id: true, email: true },

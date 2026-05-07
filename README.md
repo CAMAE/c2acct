@@ -279,6 +279,8 @@ Deterministic local review identities:
 - `review.admin@pat.local`
 - `review.consultant@pat.local`
 
+The documented default local-review password is exactly `pat-local-review` with hyphens. `patlocalreview` is not equivalent. A different value is valid only when the running local server was explicitly started with a different `PAT_LOCAL_REVIEW_PASSWORD`.
+
 Seed with the flag enabled so those users exist in the local DB with canonical role/company bindings:
 
 ```bash
@@ -287,6 +289,8 @@ PAT_ENABLE_LOCAL_REVIEW_AUTH=1 pnpm seed:pat-runtime
 ```
 
 This local review path is never exposed on public production origins and does not replace GitHub auth there.
+
+Pilot-provisioned accounts are separate from local-review auth. Operators create vendor, firm, consultant, or admin accounts from `/admin/users` with either a temporary password or a PAT-compatible imported password hash. PAT stores only a salted password hash, marks temporary/imported credentials with `mustChangePassword`, and forces the first signed-in request through `/sign-in/password-update` before protected pilot routes open. The June 1 pilot seed only supplies local fixture credentials for local QA; those records are pilot-boundary proof, not public-live customer proof.
 
 Exact local manual review sequence:
 
@@ -317,13 +321,10 @@ Then review these browser paths with the seeded local review identities:
 2. `/sign-in?view=firm`
    Use `review.firm@pat.local` and `pat-local-review`
    Verify `/firm`, `/firm/admin`, and `/firm/membership`
-3. `/sign-in?view=individual`
-   Use `review.individual@pat.local` and `pat-local-review`
-   Verify `/user`, `/user/profile`, and `/user/membership`
-4. `/sign-in?view=admin`
+3. `/sign-in?view=admin`
    Use `review.admin@pat.local` and `pat-local-review`
    Verify `/admin`
-5. `/sign-in?view=consultant`
+4. `/sign-in?view=consultant`
    Use `review.consultant@pat.local` and `pat-local-review`
    Only enable this when `PAT_ENABLE_CONSULTANT_ACCESS=1` for explicit proof. Then verify the sign-in surface itself, add a consultant profile and firm assignment from `/admin/consultants`, and only then expect `/consultants` briefing access to open cleanly
 

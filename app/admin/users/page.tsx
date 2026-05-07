@@ -1,7 +1,12 @@
 import prisma from "@/lib/prisma";
 import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
 import { MEMBERSHIP_PLAN_OPTIONS, MEMBERSHIP_STATUS_OPTIONS } from "@/lib/adminControlPlane";
-import { updateUserContextAction, updateUserMembershipAction } from "@/app/admin/actions";
+import {
+  createPilotUserAction,
+  updatePilotUserPasswordAction,
+  updateUserContextAction,
+  updateUserMembershipAction,
+} from "@/app/admin/actions";
 import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +19,9 @@ export default async function AdminUsersPage() {
       include: {
         Company: {
           select: { id: true, name: true, type: true },
+        },
+        ConsultantProfile: {
+          select: { id: true, active: true },
         },
         PilotCohortMember: {
           orderBy: { createdAt: "asc" },
@@ -29,7 +37,7 @@ export default async function AdminUsersPage() {
     }),
     prisma.company.findMany({
       orderBy: { name: "asc" },
-      select: { id: true, name: true },
+      select: { id: true, name: true, type: true },
     }),
     prisma.subject.findMany({
       where: { kind: "PERSON" },
@@ -63,6 +71,61 @@ export default async function AdminUsersPage() {
       />
 
       <AdminPanel title="User oversight">
+        <form action={createPilotUserAction} className="mb-6 grid gap-4 rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
+          <div>
+            <div className="text-lg font-semibold text-[var(--shell-ink)]">Provision pilot account</div>
+            <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+              Creates or updates a vendor, firm, consultant, or admin account with a stored salted password hash. Do not enter live card, bank, or shared production secrets here.
+            </p>
+          </div>
+          <div className="grid gap-3 lg:grid-cols-2">
+            <input name="email" type="email" className="pat-input" placeholder="pilot.user@example.com" required />
+            <input name="name" type="text" className="pat-input" placeholder="Display name" />
+            <select name="accountKind" defaultValue="firm" className="pat-select">
+              <option value="vendor">Vendor pilot user</option>
+              <option value="firm">Firm pilot user</option>
+              <option value="consultant">Consultant pilot user</option>
+              <option value="admin">Admin/operator pilot user</option>
+            </select>
+            <select name="role" defaultValue="MEMBER" className="pat-select">
+              <option value="OWNER">OWNER</option>
+              <option value="ADMIN">ADMIN</option>
+              <option value="MEMBER">MEMBER</option>
+            </select>
+            <select name="companyId" defaultValue="__none__" className="pat-select">
+              <option value="__none__">No company</option>
+              {organizations.map((organization) => (
+                <option key={organization.id} value={organization.id}>
+                  {organization.name} ({organization.type})
+                </option>
+              ))}
+            </select>
+            <input
+              name="temporaryPassword"
+              type="password"
+              className="pat-input"
+              placeholder="Temporary password"
+              autoComplete="new-password"
+            />
+            <input
+              name="importedPasswordHash"
+              type="text"
+              className="pat-input lg:col-span-2"
+              placeholder="Optional PAT-compatible imported password hash"
+              autoComplete="off"
+            />
+          </div>
+          <label className="flex items-center gap-3 text-sm font-semibold text-[var(--shell-ink)]">
+            <input name="mustChangePassword" type="checkbox" defaultChecked className="h-4 w-4" />
+            Require password update on first login
+          </label>
+          <div className="text-xs leading-5 text-[var(--shell-muted)]">
+            Temporary passwords must be at least 12 characters and include lowercase, uppercase, and numeric characters. PAT stores only hashes and records provisioning in the operator audit log.
+          </div>
+          <button type="submit" className="pat-button-primary w-fit">
+            Provision account
+          </button>
+        </form>
         <div className="grid gap-4">
           {users.map((user) => {
             const individualMembership =
@@ -79,6 +142,10 @@ export default async function AdminUsersPage() {
                   <div className="text-lg font-semibold text-[var(--shell-ink)]">{user.email}</div>
                   <div className="mt-1 text-sm text-[var(--shell-muted)]">
                     {user.role} · {user.Company ? `${user.Company.name} (${user.Company.type})` : "No company linked"}
+                    {user.ConsultantProfile?.active ? " · Consultant access active" : ""}
+                  </div>
+                  <div className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
+                    Password {user.passwordHash ? "provisioned" : "not provisioned"} · First-login update {user.mustChangePassword ? "required" : "not required"} · Updated {user.passwordUpdatedAt ? user.passwordUpdatedAt.toLocaleString() : "never"}
                   </div>
                   {individualSurfacesEnabled ? (
                     <>
@@ -114,6 +181,33 @@ export default async function AdminUsersPage() {
                     </select>
                     <button type="submit" className="pat-button-primary">
                       Save user context
+                    </button>
+                  </form>
+
+                  <form action={updatePilotUserPasswordAction} className="grid gap-3 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
+                    <input type="hidden" name="userId" value={user.id} />
+                    <input type="hidden" name="returnTo" value="/admin/users" />
+                    <div className="text-sm font-semibold text-[var(--shell-ink)]">Pilot password</div>
+                    <input
+                      name="temporaryPassword"
+                      type="password"
+                      className="pat-input"
+                      placeholder="New temporary password"
+                      autoComplete="new-password"
+                    />
+                    <input
+                      name="importedPasswordHash"
+                      type="text"
+                      className="pat-input"
+                      placeholder="Optional PAT-compatible imported hash"
+                      autoComplete="off"
+                    />
+                    <label className="flex items-center gap-3 text-sm font-semibold text-[var(--shell-ink)]">
+                      <input name="mustChangePassword" type="checkbox" defaultChecked className="h-4 w-4" />
+                      Require password update on next login
+                    </label>
+                    <button type="submit" className="pat-button-secondary">
+                      Reset pilot password
                     </button>
                   </form>
 

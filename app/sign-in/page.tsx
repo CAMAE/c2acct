@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { signIn } from "@/auth";
 import { signInWithLocalReviewCredentials } from "@/lib/auth/localReviewActions";
+import { signInWithPilotCredentials } from "@/lib/auth/pilotPasswordActions";
 import {
   buildCanonicalSignInPath,
   inferCanonicalSignInView,
@@ -68,6 +69,14 @@ function describeAuthError(error: string | null, cookieState: ReturnType<typeof 
 
   if (error === "local_review_invalid" || error === "CredentialsSignin") {
     return "Local review sign-in failed after the credentials handoff. Confirm local review is enabled, AUTH_SECRET is stable, and PAT_LOCAL_REVIEW_PASSWORD matches the running dev server.";
+  }
+
+  if (error === "pilot_password_missing") {
+    return "Enter the provisioned pilot account email and password.";
+  }
+
+  if (error === "pilot_password_invalid") {
+    return "That pilot account could not be signed in. Confirm the admin-provisioned email, temporary password, and account status.";
   }
 
   if (error === "AccessDenied") {
@@ -248,7 +257,7 @@ function RoleAccessCard({
             </div>
           ) : null}
           <div className="mt-3 text-xs leading-5 text-[var(--shell-muted)]">
-            Requires `PAT_ENABLE_LOCAL_REVIEW_AUTH=1`, a stable `AUTH_SECRET`, `PAT_LOCAL_REVIEW_PASSWORD`, and loopback-only auth origins.
+            Requires `PAT_ENABLE_LOCAL_REVIEW_AUTH=1`, a stable `AUTH_SECRET`, `PAT_LOCAL_REVIEW_PASSWORD`, and loopback-only auth origins. The documented default local-review password is `pat-local-review` with hyphens.
           </div>
           {!githubReady && githubUnavailableReason ? (
             <div className="mt-3 rounded-[16px] border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">
@@ -261,6 +270,37 @@ function RoleAccessCard({
           ) : null}
         </div>
       ) : null}
+
+      <div className="mt-6 rounded-[18px] border border-[var(--shell-border)] bg-white/80 p-5 text-sm leading-6 text-[var(--shell-muted)]">
+        <div className="font-semibold text-[var(--shell-ink)]">Provisioned pilot account</div>
+        <p className="mt-2">
+          Vendor, firm, admin, and consultant pilot users sign in here after an operator provisions their account. First-login password updates are enforced when the account is flagged for a temporary or imported credential.
+        </p>
+        <form className="mt-4 grid gap-3 md:max-w-md" action={signInWithPilotCredentials}>
+          <input type="hidden" name="redirectTo" value={roleRedirect} />
+          <input type="hidden" name="source" value="sign-in" />
+          <input type="hidden" name="view" value={view} />
+          <input
+            name="email"
+            type="email"
+            autoComplete="username"
+            placeholder="Provisioned pilot email"
+            className="pat-input"
+            required
+          />
+          <input
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            placeholder="Provisioned pilot password"
+            className="pat-input"
+            required
+          />
+          <button type="submit" className="pat-button-primary">
+            Continue with provisioned account
+          </button>
+        </form>
+      </div>
 
       {localReviewRequested && !localReviewEnabled ? (
         <div className="mt-6 rounded-[18px] border border-amber-200 bg-amber-50/90 p-5 text-sm leading-6 text-amber-900">

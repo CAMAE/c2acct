@@ -25,6 +25,13 @@ export default async function proxy(req: NextRequest) {
   }).catch(() => null);
 
   if (token?.sub) {
+    if (isProtectedPage && token.mustChangePassword === true) {
+      const returnTo = `${pathname}${req.nextUrl.search}`;
+      const passwordUpdateUrl = new URL("/sign-in/password-update", req.nextUrl);
+      passwordUpdateUrl.searchParams.set("returnTo", returnTo);
+      return NextResponse.redirect(passwordUpdateUrl);
+    }
+
     return NextResponse.next();
   }
 
