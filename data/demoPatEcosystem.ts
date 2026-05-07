@@ -59,7 +59,7 @@ export type DemoFirmInput = {
   membership: DemoMembershipInput;
 };
 
-export const DEMO_PAT_ECOSYSTEM_VERSION = "2026-04-26-pat-demo-ecosystem-v1";
+export const DEMO_PAT_ECOSYSTEM_VERSION = "2026-04-26-pat-demo-ecosystem-v2";
 export const DEMO_SEED_BASE_DATE = "2026-04-26T12:00:00.000Z";
 export const DEMO_VENDOR_COUNT_MINIMUM = 10;
 export const DEMO_PRODUCT_COUNT_MINIMUM = 30;

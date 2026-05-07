@@ -57,6 +57,11 @@ describe("PAT deterministic demo ecosystem", () => {
       );
       expect(firmsForVendor.size).toBe(10);
     }
+
+    const productTargets = products.map(({ product }) => product.scoreTarget);
+    const firmTargets = DEMO_PAT_FIRMS.map((firm) => firm.scoreTarget);
+    expect(Math.max(...productTargets) - Math.min(...productTargets)).toBeGreaterThanOrEqual(0.8);
+    expect(Math.max(...firmTargets) - Math.min(...firmTargets)).toBeGreaterThanOrEqual(1);
   });
 
   it("defines a separate June 1 pilot fixture without demo-boundary classification", () => {
@@ -98,6 +103,13 @@ describe("PAT deterministic demo ecosystem", () => {
     );
     expect(health.firmProductAssessmentCount).toBeGreaterThanOrEqual(DEMO_FIRM_VENDOR_RELATIONSHIP_MINIMUM);
     expect(health.firmVendorRelationshipCount).toBeGreaterThanOrEqual(DEMO_FIRM_VENDOR_RELATIONSHIP_MINIMUM);
+    expect(health.vendorProductScoreSpread).toBeGreaterThanOrEqual(30);
+    expect(health.firmProductScoreSpread).toBeGreaterThanOrEqual(30);
+    expect(health.firmAlignmentModuleScoreSpread).toBeGreaterThanOrEqual(25);
+    expect(health.highAlignmentProductCount).toBeGreaterThanOrEqual(2);
+    expect(health.lowAlignmentProductCount).toBeGreaterThanOrEqual(2);
+    expect(health.vendorSelfHigherThanFirmCount).toBeGreaterThanOrEqual(2);
+    expect(health.closeVendorFirmAlignmentCount).toBeGreaterThanOrEqual(2);
     expect(health.routeReady).toBe(true);
     expect(health.ok).toBe(true);
   });

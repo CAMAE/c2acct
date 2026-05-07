@@ -23,6 +23,13 @@ export type DemoPatEcosystemHealth = {
   firmAlignmentSubmissionCount: number;
   firmProductAssessmentCount: number;
   firmVendorRelationshipCount: number;
+  vendorProductScoreSpread: number;
+  firmProductScoreSpread: number;
+  firmAlignmentModuleScoreSpread: number;
+  highAlignmentProductCount: number;
+  lowAlignmentProductCount: number;
+  vendorSelfHigherThanFirmCount: number;
+  closeVendorFirmAlignmentCount: number;
   routeReady: boolean;
 };
 
@@ -47,8 +54,25 @@ function emptyHealth(error: string): DemoPatEcosystemHealth {
     firmAlignmentSubmissionCount: 0,
     firmProductAssessmentCount: 0,
     firmVendorRelationshipCount: 0,
+    vendorProductScoreSpread: 0,
+    firmProductScoreSpread: 0,
+    firmAlignmentModuleScoreSpread: 0,
+    highAlignmentProductCount: 0,
+    lowAlignmentProductCount: 0,
+    vendorSelfHigherThanFirmCount: 0,
+    closeVendorFirmAlignmentCount: 0,
     routeReady: false,
   };
+}
+
+function scoreSpread(scores: number[]) {
+  if (scores.length === 0) return 0;
+  return Math.max(...scores) - Math.min(...scores);
+}
+
+function averageScore(scores: number[]) {
+  if (scores.length === 0) return null;
+  return scores.reduce((total, score) => total + score, 0) / scores.length;
 }
 
 export async function getDemoPatEcosystemHealth(): Promise<DemoPatEcosystemHealth> {
@@ -98,6 +122,9 @@ export async function getDemoPatEcosystemHealth(): Promise<DemoPatEcosystemHealt
       firmAlignmentSubmissionCount,
       firmProductAssessmentCount,
       firmProductRelationshipSubmissions,
+      vendorProductSubmissions,
+      firmAlignmentSubmissions,
+      firmProductSubmissions,
     ] = await Promise.all([
       prisma.productProfile.count({
         where: { productId: { in: productIds } },
@@ -172,6 +199,51 @@ export async function getDemoPatEcosystemHealth(): Promise<DemoPatEcosystemHealt
             },
           })
         : Promise.resolve([]),
+      vendorModule
+        ? prisma.surveySubmission.findMany({
+            where: {
+              moduleId: vendorModule.id,
+              Subject: { productId: { in: productIds } },
+              scoreVersion: { gt: 0 },
+            },
+            select: {
+              score: true,
+              Subject: {
+                select: {
+                  productId: true,
+                },
+              },
+            },
+          })
+        : Promise.resolve([]),
+      prisma.surveySubmission.findMany({
+        where: {
+          companyId: { in: firmIds },
+          moduleId: { in: firmModuleIds },
+          scoreVersion: { gt: 0 },
+        },
+        select: {
+          score: true,
+        },
+      }),
+      firmProductModule
+        ? prisma.surveySubmission.findMany({
+            where: {
+              companyId: { in: firmIds },
+              moduleId: firmProductModule.id,
+              Subject: { productId: { in: productIds } },
+              scoreVersion: { gt: 0 },
+            },
+            select: {
+              score: true,
+              Subject: {
+                select: {
+                  productId: true,
+                },
+              },
+            },
+          })
+        : Promise.resolve([]),
     ]);
 
     const firmVendorRelationships = new Set(
@@ -182,6 +254,36 @@ export async function getDemoPatEcosystemHealth(): Promise<DemoPatEcosystemHealt
         })
         .filter((value): value is string => Boolean(value))
     );
+    const vendorScoresByProduct = new Map<string, number>();
+    for (const submission of vendorProductSubmissions) {
+      const productId = submission.Subject?.productId;
+      if (productId) vendorScoresByProduct.set(productId, submission.score);
+    }
+
+    const firmScoresByProduct = new Map<string, number[]>();
+    for (const submission of firmProductSubmissions) {
+      const productId = submission.Subject?.productId;
+      if (!productId) continue;
+
+      const scores = firmScoresByProduct.get(productId) ?? [];
+      scores.push(submission.score);
+      firmScoresByProduct.set(productId, scores);
+    }
+
+    let highAlignmentProductCount = 0;
+    let lowAlignmentProductCount = 0;
+    let vendorSelfHigherThanFirmCount = 0;
+    let closeVendorFirmAlignmentCount = 0;
+    for (const [productId, vendorScore] of vendorScoresByProduct.entries()) {
+      const firmAverage = averageScore(firmScoresByProduct.get(productId) ?? []);
+      if (firmAverage === null) continue;
+
+      const delta = vendorScore - firmAverage;
+      if (vendorScore >= 82 && firmAverage >= 72) highAlignmentProductCount += 1;
+      if (vendorScore <= 62 && firmAverage <= 62) lowAlignmentProductCount += 1;
+      if (delta >= 18) vendorSelfHigherThanFirmCount += 1;
+      if (Math.abs(delta) <= 7) closeVendorFirmAlignmentCount += 1;
+    }
 
     const routeReady =
       vendors.length >= DEMO_VENDOR_COUNT_MINIMUM &&
@@ -208,6 +310,13 @@ export async function getDemoPatEcosystemHealth(): Promise<DemoPatEcosystemHealt
       firmAlignmentSubmissionCount,
       firmProductAssessmentCount,
       firmVendorRelationshipCount: firmVendorRelationships.size,
+      vendorProductScoreSpread: scoreSpread(vendorProductSubmissions.map((submission) => submission.score)),
+      firmProductScoreSpread: scoreSpread(firmProductSubmissions.map((submission) => submission.score)),
+      firmAlignmentModuleScoreSpread: scoreSpread(firmAlignmentSubmissions.map((submission) => submission.score)),
+      highAlignmentProductCount,
+      lowAlignmentProductCount,
+      vendorSelfHigherThanFirmCount,
+      closeVendorFirmAlignmentCount,
       routeReady,
     };
   } catch (error) {

@@ -101,6 +101,13 @@ function seededSource(): AdminLaunchControlSource {
       firmAlignmentSubmissionCount: 50,
       firmProductAssessmentCount: 110,
       firmVendorRelationshipCount: 110,
+      vendorProductScoreSpread: 40,
+      firmProductScoreSpread: 47,
+      firmAlignmentModuleScoreSpread: 47,
+      highAlignmentProductCount: 12,
+      lowAlignmentProductCount: 7,
+      vendorSelfHigherThanFirmCount: 9,
+      closeVendorFirmAlignmentCount: 28,
       routeReady: true,
     },
     pilotHealth: {

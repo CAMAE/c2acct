@@ -659,18 +659,20 @@ async function collectDatabaseProof(root) {
       insights,
     };
 
+    const demoRouteReady =
+      vendors >= 10 &&
+      products >= 30 &&
+      firms >= 10 &&
+      productProfiles >= 30 &&
+      vendorProductPlans >= 30 &&
+      firmProductPlans >= 30 &&
+      completedSurveySubmissions >= 130;
+
     return {
       status: "COMPLETE",
       error: null,
       counts,
-      demoRouteReady:
-        vendors >= 10 &&
-        products >= 30 &&
-        firms >= 10 &&
-        productProfiles >= products &&
-        vendorProductPlans >= products &&
-        firmProductPlans >= products &&
-        completedSurveySubmissions >= 130,
+      demoRouteReady,
       membershipDistribution,
       migrations: {
         status: latestMigrations.length > 0 ? "COMPLETE" : "UNVERIFIED",

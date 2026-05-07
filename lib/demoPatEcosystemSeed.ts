@@ -74,7 +74,27 @@ type SeededProduct = {
   vendorId: string;
   input: DemoProductInput;
   vendor: DemoVendorInput;
+  productIndex: number;
 };
+
+type ProductVarianceKind = "high-alignment" | "low-alignment" | "vendor-over-firm" | "close-alignment";
+
+const PRODUCT_VARIANCE_PATTERNS: Array<{
+  kind: ProductVarianceKind;
+  vendorOffset: number;
+  firmOffset: number;
+}> = [
+  { kind: "high-alignment", vendorOffset: 0.55, firmOffset: 0.35 },
+  { kind: "high-alignment", vendorOffset: 0.35, firmOffset: 0.2 },
+  { kind: "low-alignment", vendorOffset: -1.2, firmOffset: -1.15 },
+  { kind: "low-alignment", vendorOffset: -1, firmOffset: -0.95 },
+  { kind: "vendor-over-firm", vendorOffset: 0.65, firmOffset: -1.05 },
+  { kind: "vendor-over-firm", vendorOffset: 0.5, firmOffset: -0.85 },
+  { kind: "close-alignment", vendorOffset: 0.1, firmOffset: 0.05 },
+  { kind: "close-alignment", vendorOffset: -0.05, firmOffset: -0.08 },
+];
+
+const FIRM_MODULE_OFFSETS = [0.55, -0.35, 0.2, -0.75, 0.4] as const;
 
 function slugify(value: string) {
   return value
@@ -92,9 +112,43 @@ function clampScore(value: number) {
   return Math.max(PRODUCT_ASSESSMENT_SCALE_MIN, Math.min(PRODUCT_ASSESSMENT_SCALE_MAX, value));
 }
 
-function deterministicAnswer(target: number, index: number, seed: number) {
-  const offset = ((index + seed) % 5) - 2;
-  return clampScore(Math.round(target + offset * 0.42));
+function clampTarget(value: number) {
+  return Math.max(PRODUCT_ASSESSMENT_SCALE_MIN + 0.35, Math.min(PRODUCT_ASSESSMENT_SCALE_MAX - 0.1, value));
+}
+
+function deterministicAnswer(target: number, index: number, seed: number, spread = 0.32) {
+  const offset = ((index * 7 + seed * 3) % 9) - 4;
+  return clampScore(Math.round(target + offset * spread));
+}
+
+function productVariancePattern(productIndex: number) {
+  return PRODUCT_VARIANCE_PATTERNS[productIndex % PRODUCT_VARIANCE_PATTERNS.length]!;
+}
+
+function vendorSelfAssessmentTarget(product: DemoProductInput, productIndex: number) {
+  const pattern = productVariancePattern(productIndex);
+  return clampTarget(product.scoreTarget + pattern.vendorOffset);
+}
+
+function firmProductReviewTarget(input: {
+  firm: DemoFirmInput;
+  product: SeededProduct;
+  relationshipIndex: number;
+}) {
+  const pattern = productVariancePattern(input.product.productIndex);
+  const relationshipOffset = ((input.relationshipIndex % 5) - 2) * 0.16;
+  return clampTarget(
+    input.firm.scoreTarget * 0.35 +
+      input.product.input.scoreTarget * 0.65 +
+      pattern.firmOffset +
+      relationshipOffset
+  );
+}
+
+function firmModuleAssessmentTarget(firm: DemoFirmInput, firmIndex: number, moduleIndex: number) {
+  const moduleOffset = FIRM_MODULE_OFFSETS[moduleIndex % FIRM_MODULE_OFFSETS.length] ?? 0;
+  const firmOffset = ((firmIndex % 5) - 2) * 0.18;
+  return clampTarget(firm.scoreTarget + moduleOffset + firmOffset);
 }
 
 function demoDate(offsetHours: number) {
@@ -311,6 +365,7 @@ async function ensureProduct(client: DemoSeedClient, input: {
   vendorCompanyId: string;
   vendorProfileId: string;
   product: DemoProductInput;
+  productIndex: number;
   sourceId: string;
 }) {
   const slug = `${input.vendor.key}-${input.product.key}`;
@@ -399,6 +454,7 @@ async function ensureProduct(client: DemoSeedClient, input: {
     vendorId: product.vendorId!,
     input: input.product,
     vendor: input.vendor,
+    productIndex: input.productIndex,
   } satisfies SeededProduct;
 }
 
@@ -458,12 +514,14 @@ async function seedVendorProductAssessment(client: DemoSeedClient, input: {
   productIndex: number;
 }) {
   const product = input.product.input;
+  const variancePattern = productVariancePattern(input.productIndex);
+  const assessmentTarget = vendorSelfAssessmentTarget(product, input.productIndex);
   const subject = await ensureProductSubject({ id: input.product.id, name: product.name });
   const questions = buildVendorProductQuestions(product.utilityKeys);
   const answers = Object.fromEntries(
     questions.map((question, index) => [
       question.id,
-      deterministicAnswer(product.scoreTarget, index, input.productIndex),
+      deterministicAnswer(assessmentTarget, index, input.productIndex),
     ])
   );
   const score = computeVendorAssessmentMetrics(answers);
@@ -513,6 +571,8 @@ async function seedVendorProductAssessment(client: DemoSeedClient, input: {
       registryVersion: vendorPlan.registryVersion,
       responses: answers,
       demoSource: DEMO_PAT_ECOSYSTEM_VERSION,
+      demoVariancePattern: variancePattern.kind,
+      demoTargetScore: assessmentTarget,
     },
     score: score.score.rawScorePct,
     weightedAvg: score.score.rawWeightedAvg,
@@ -661,9 +721,10 @@ async function seedFirmAlignmentSubmission(client: DemoSeedClient, input: {
   for (const [questionIndex, question] of input.module.questions.entries()) {
     if (question.inputType === QuestionInputType.SLIDER) {
       answers[question.id] = deterministicAnswer(
-        input.firm.scoreTarget,
+        firmModuleAssessmentTarget(input.firm, input.firmIndex, input.moduleIndex),
         questionIndex,
-        input.firmIndex + input.moduleIndex
+        input.firmIndex + input.moduleIndex,
+        0.34
       );
       continue;
     }
@@ -759,15 +820,18 @@ async function seedFirmProductAssessment(client: DemoSeedClient, input: {
   moduleVersion: number;
   relationshipIndex: number;
 }) {
+  const variancePattern = productVariancePattern(input.product.productIndex);
+  const reviewTarget = firmProductReviewTarget(input);
   const subject = await ensureProductSubject({ id: input.product.id, name: input.product.input.name });
   const questions = buildFirmProductQuestions(input.product.input.utilityKeys);
   const answers = Object.fromEntries(
     questions.map((question, index) => [
       question.id,
       deterministicAnswer(
-        (input.firm.scoreTarget + input.product.input.scoreTarget) / 2,
+        reviewTarget,
         index,
-        input.relationshipIndex
+        input.relationshipIndex,
+        0.36
       ),
     ])
   );
@@ -795,6 +859,8 @@ async function seedFirmProductAssessment(client: DemoSeedClient, input: {
       reviewedVendorKey: input.product.vendor.key,
       reviewedProductKey: input.product.input.key,
       demoSource: DEMO_PAT_ECOSYSTEM_VERSION,
+      demoVariancePattern: variancePattern.kind,
+      demoTargetScore: reviewTarget,
     },
     score: score.rawScorePct,
     weightedAvg: score.rawWeightedAvg,
@@ -933,11 +999,13 @@ export async function ensureDemoPatEcosystem(client: DemoSeedClient) {
     seededVendors.set(vendor.key, seededVendor);
 
     for (const product of vendor.products) {
+      const productIndex = seededProducts.size;
       const seededProduct = await ensureProduct(client, {
         vendor,
         vendorCompanyId: seededVendor.company.id,
         vendorProfileId: seededVendor.vendorProfile.id,
         product,
+        productIndex,
         sourceId: source.id,
       });
       seededProducts.set(`${vendor.key}:${product.key}`, seededProduct);
