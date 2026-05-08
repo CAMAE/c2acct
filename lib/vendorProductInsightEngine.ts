@@ -13,6 +13,7 @@ import {
   resolveStoredProductAssessmentScale,
 } from "@/lib/productAssessmentRuntime";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
+import { getVendorScopedFirms } from "@/lib/tenancy";
 import {
   PRODUCT_TIER1_INSIGHTS,
   PRODUCT_TIER2_INSIGHTS,
@@ -1066,22 +1067,30 @@ export async function getVendorProductInsightSnapshot(companyId: string, product
         }).catch(() => null)
       : Promise.resolve(null),
     firmModule
-      ? prisma.surveySubmission.findMany({
-          where: getSurveyFinalWhere({
-            moduleId: firmModule.id,
-            Subject: { productId },
-            Company: { type: "FIRM" },
-          }),
-          orderBy: { createdAt: "desc" },
-          select: {
-            id: true,
-            score: true,
-            createdAt: true,
-            answers: true,
-            scaleMin: true,
-            scaleMax: true,
-          },
-        }).catch(() => [])
+      ? (async () => {
+          // Phase 1 / Day-10 tenancy: restrict firm-side product reviews to
+          // firms in the vendor's ecosystem (per Q6 walled-tenancy). companyId
+          // here is the vendor's own company; getVendorScopedFirms returns
+          // all FIRM-type companies in open mode so the IN-clause is a no-op
+          // for the pre-Phase-1 baseline behavior.
+          const scopedFirmIds = await getVendorScopedFirms(companyId);
+          return prisma.surveySubmission.findMany({
+            where: getSurveyFinalWhere({
+              moduleId: firmModule.id,
+              Subject: { productId },
+              Company: { type: "FIRM", id: { in: scopedFirmIds } },
+            }),
+            orderBy: { createdAt: "desc" },
+            select: {
+              id: true,
+              score: true,
+              createdAt: true,
+              answers: true,
+              scaleMin: true,
+              scaleMax: true,
+            },
+          }).catch(() => []);
+        })()
       : Promise.resolve([]),
   ]);
 
