@@ -95,18 +95,22 @@ function containsForbiddenMarker(html, marker) {
 
 export function resolveRouteValidationConfig(routeConfig, env = process.env) {
   const consultantAccessGate = routeConfig?.consultantAccessGate;
-  if (!consultantAccessGate) {
+  const individualSurfacesGate = routeConfig?.individualSurfacesGate;
+  const gate = consultantAccessGate ?? individualSurfacesGate ?? null;
+
+  if (!gate) {
     return {
       ...routeConfig,
       validationMode: null,
+      expectedStatus: null,
     };
   }
 
   const enabled =
-    String(env?.[consultantAccessGate.envVar] ?? "") === String(consultantAccessGate.enabledValue ?? "1");
+    String(env?.[gate.envVar] ?? "") === String(gate.enabledValue ?? "1");
   const activeGateConfig = enabled
-    ? consultantAccessGate.enabled ?? {}
-    : consultantAccessGate.disabled ?? {};
+    ? gate.enabled ?? {}
+    : gate.disabled ?? {};
 
   return {
     ...routeConfig,
@@ -119,6 +123,7 @@ export function resolveRouteValidationConfig(routeConfig, env = process.env) {
       ...(activeGateConfig.forbiddenMarkers ?? []),
     ],
     validationMode: enabled ? "enabled" : "disabled",
+    expectedStatus: activeGateConfig.expectedStatus ?? null,
   };
 }
 
@@ -519,6 +524,13 @@ export async function runPatSurfaceValidation({
           )
         );
         routeEvidence[routeKey].releaseId = extractBrowserReleaseId(response.bodyText);
+        continue;
+      }
+
+      if (effectiveRouteConfig.expectedStatus === 404) {
+        if (response.status !== 404) {
+          failures.push(`${routeKey}:expected_404_got:${response.status}`);
+        }
         continue;
       }
 

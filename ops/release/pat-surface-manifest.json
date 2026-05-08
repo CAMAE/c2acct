@@ -83,12 +83,22 @@
         "app/onboarding/[audience]/page.tsx",
         "lib/publicOnboarding.ts"
       ],
-      "positiveMarkers": [
-        "Individual onboarding",
-        "First PAT value",
-        "Payment state:",
-        "Individual insights stay pending"
-      ]
+      "individualSurfacesGate": {
+        "envVar": "PAT_ENABLE_INDIVIDUAL_SURFACES",
+        "enabledValue": "1",
+        "enabled": {
+          "expectedStatus": 200,
+          "positiveMarkers": [
+            "Individual onboarding",
+            "First PAT value",
+            "Payment state:",
+            "Individual insights stay pending"
+          ]
+        },
+        "disabled": {
+          "expectedStatus": 404
+        }
+      }
     },
     "/trust": {
       "sourceFiles": [
