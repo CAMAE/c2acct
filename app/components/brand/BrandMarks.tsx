@@ -75,6 +75,14 @@ export function PatLogoLockup({
   const textTone = tone === "dark" ? "text-white" : "text-[var(--shell-ink)]";
   const dividerTone = tone === "dark" ? "bg-white/18" : "bg-[rgba(12,33,66,0.12)]";
 
+  if (mode === "header") {
+    return (
+      <div className={`flex flex-wrap items-center gap-3 text-left sm:gap-4 ${className}`}>
+        <PatBrandMark mode={mode} />
+      </div>
+    );
+  }
+
   return (
     <div className={`flex flex-wrap items-center gap-3 text-left sm:gap-4 ${className}`}>
       <PatBrandMark mode={mode} />
