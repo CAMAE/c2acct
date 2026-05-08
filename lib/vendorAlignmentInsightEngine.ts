@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { normalizeQuestionRuntime, type NormalizedAnswer } from "@/lib/assessmentRuntime";
 import { FIRM_CAPABILITY_DEFINITIONS } from "@/lib/firmCapabilities";
 import { FIRM_MODULE_DEFINITIONS, FIRM_MODULE_QUESTION_STEMS } from "@/lib/firmPat";
+import { getVendorScopedFirms } from "@/lib/tenancy";
 import {
   ELITE_PLACEHOLDER_CTA,
   ELITE_PLACEHOLDER_MESSAGE,
@@ -933,7 +934,9 @@ export function buildVendorAlignmentInsightDetailSurfaceContent(input: {
   }
 }
 
-export async function getVendorAlignmentInsightBundle() {
+export async function getVendorAlignmentInsightBundle(input?: {
+  vendorCompanyId?: string | null;
+}) {
   const moduleDefinitionsByKey = new Map<string, (typeof FIRM_MODULE_DEFINITIONS)[number]>(
     FIRM_MODULE_DEFINITIONS.map((definition) => [definition.key, definition])
   );
@@ -942,6 +945,18 @@ export async function getVendorAlignmentInsightBundle() {
   );
   const moduleKeys = FIRM_MODULE_DEFINITIONS.map((module) => module.key);
   const capabilityKeys = FIRM_CAPABILITY_DEFINITIONS.map((capability) => capability.key);
+
+  // Phase 1 / Day-10 tenancy: when invoked with a vendor companyId, restrict
+  // firm submissions + capability scores to the vendor's ecosystem firms
+  // (per Q6 walled-tenancy). When invoked without a vendorCompanyId
+  // (admin/global aggregations), behavior is unchanged.
+  const vendorCompanyId = input?.vendorCompanyId ?? null;
+  const scopedFirmIds = vendorCompanyId
+    ? await getVendorScopedFirms(vendorCompanyId)
+    : null;
+  const firmCompanyFilter = scopedFirmIds
+    ? { type: "FIRM" as const, id: { in: scopedFirmIds } }
+    : { type: "FIRM" as const };
 
   const [modules, submissions, capabilityNodes, capabilityScores] = await Promise.all([
     prisma.surveyModule.findMany({
@@ -968,7 +983,7 @@ export async function getVendorAlignmentInsightBundle() {
     prisma.surveySubmission.findMany({
       where: getSurveyFinalWhere({
         SurveyModule: { key: { in: moduleKeys } },
-        Company: { type: "FIRM" },
+        Company: firmCompanyFilter,
       }),
       orderBy: { createdAt: "desc" },
       select: {
@@ -986,7 +1001,7 @@ export async function getVendorAlignmentInsightBundle() {
     }),
     prisma.companyCapabilityScore.findMany({
       where: {
-        Company: { type: "FIRM" },
+        Company: firmCompanyFilter,
       },
       select: {
         companyId: true,

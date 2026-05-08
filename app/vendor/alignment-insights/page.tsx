@@ -58,7 +58,9 @@ export default async function VendorAlignmentInsightsPage({
       />
     );
   }
-  const bundle = await getVendorAlignmentInsightBundle();
+  const bundle = await getVendorAlignmentInsightBundle({
+    vendorCompanyId: sessionUser.companyId,
+  });
   const activeMode = getRequestedVendorAlignmentInsightOverviewMode(resolvedSearchParams?.mode);
   const proCards = buildVendorAlignmentProInsightCards(bundle);
   const eliteCards = buildVendorAlignmentEliteInsightCards(bundle);

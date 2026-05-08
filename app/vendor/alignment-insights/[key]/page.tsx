@@ -53,7 +53,9 @@ export default async function VendorAlignmentInsightDetailPage({
       />
     );
   }
-  const bundle = await getVendorAlignmentInsightBundle();
+  const bundle = await getVendorAlignmentInsightBundle({
+    vendorCompanyId: sessionUser.companyId,
+  });
   const report = bundle.reports.find((entry) => entry.key === key);
   const content = getVendorAlignmentInsightContent(key);
   const activeSurface = getRequestedVendorAlignmentInsightDetailSurface(resolvedSearchParams?.surface);
