@@ -46,19 +46,21 @@ export async function getConsultantAccessStateForUser(
           },
         },
         ConsultantAssignment: {
-          where: {
-            active: true,
-            Company: { type: "FIRM" },
-          },
-          orderBy: {
-            Company: { name: "asc" },
-          },
+          where: { active: true },
           select: {
             id: true,
-            companyId: true,
-            Company: {
+            ecosystemId: true,
+            Ecosystem: {
               select: {
-                name: true,
+                EcosystemFirm: {
+                  select: {
+                    firmCompanyId: true,
+                    FirmCompany: {
+                      select: { id: true, name: true, type: true },
+                    },
+                  },
+                  orderBy: { FirmCompany: { name: "asc" } },
+                },
               },
             },
           },
@@ -70,15 +72,28 @@ export async function getConsultantAccessStateForUser(
       return null;
     }
 
+    // Strict 1:1 (Phase 1 / Day-10) means at most one ConsultantAssignment per profile.
+    // The legacy ConsultantAssignmentScope[] shape (one row per firm) is reconstructed
+    // by walking ecosystem -> firms; the assignmentId is shared across the row set
+    // because there's still only one underlying assignment. Phase 6 (consultantAccess.ts
+    // full rewrite) replaces this shim with an explicit ConsultantEcosystemView return.
+    const assignment = consultantProfile.ConsultantAssignment;
+    const firmMemberships = assignment?.Ecosystem?.EcosystemFirm ?? [];
+    const assignments = assignment
+      ? firmMemberships
+          .filter((membership) => membership.FirmCompany.type === "FIRM")
+          .map((membership) => ({
+            assignmentId: assignment.id,
+            companyId: membership.FirmCompany.id,
+            companyName: membership.FirmCompany.name,
+          }))
+      : [];
+
     return {
       sessionUser,
       consultantProfileId: consultantProfile.id,
       consultantLabel: consultantProfile.User.name?.trim() || consultantProfile.User.email,
-      assignments: consultantProfile.ConsultantAssignment.map((assignment) => ({
-        assignmentId: assignment.id,
-        companyId: assignment.companyId,
-        companyName: assignment.Company.name,
-      })),
+      assignments,
     };
   } catch (error) {
     if (

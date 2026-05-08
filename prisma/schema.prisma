@@ -115,12 +115,13 @@ model Company {
   FirmMaturityMomentum   FirmMaturityMomentum[]
   FirmMaturitySnapshot   FirmMaturitySnapshot[]
   Product                Product[]
-  ConsultantAssignment   ConsultantAssignment[]
   PilotCohortMember      PilotCohortMember[]
   Subject                Subject?
   SurveySubmission       SurveySubmission[]
   User                   User[]
   VendorProfile          VendorProfile?
+  EcosystemAsVendor      Ecosystem?               @relation("EcosystemVendor")
+  EcosystemFirm          EcosystemFirm[]          @relation("EcosystemFirmCompany")
 }
 
 model CompanyBadge {
@@ -834,22 +835,51 @@ model ConsultantProfile {
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
   User                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  ConsultantAssignment ConsultantAssignment[]
+  ConsultantAssignment ConsultantAssignment?
+  Ecosystem            Ecosystem?
 }
 
 model ConsultantAssignment {
   id                  String            @id
-  consultantProfileId String
-  companyId           String
+  consultantProfileId String            @unique
+  ecosystemId         String            @unique
   active              Boolean           @default(true)
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
-  Company             Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  Ecosystem           Ecosystem         @relation(fields: [ecosystemId], references: [id], onDelete: Cascade)
   ConsultantProfile   ConsultantProfile @relation(fields: [consultantProfileId], references: [id], onDelete: Cascade)
 
-  @@unique([consultantProfileId, companyId])
-  @@index([companyId, active])
-  @@index([consultantProfileId, active])
+  @@index([consultantProfileId])
+  @@index([ecosystemId])
+}
+
+model Ecosystem {
+  id                  String                @id
+  name                String
+  vendorCompanyId     String?               @unique
+  consultantProfileId String?               @unique
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+
+  VendorCompany       Company?              @relation("EcosystemVendor", fields: [vendorCompanyId], references: [id], onDelete: SetNull)
+  ConsultantProfile   ConsultantProfile?    @relation(fields: [consultantProfileId], references: [id], onDelete: SetNull)
+  EcosystemFirm       EcosystemFirm[]
+  ConsultantAssignment ConsultantAssignment?
+
+  @@index([vendorCompanyId])
+  @@index([consultantProfileId])
+}
+
+model EcosystemFirm {
+  ecosystemId   String
+  firmCompanyId String   @unique
+  joinedAt      DateTime @default(now())
+
+  Ecosystem     Ecosystem @relation(fields: [ecosystemId], references: [id], onDelete: Cascade)
+  FirmCompany   Company   @relation("EcosystemFirmCompany", fields: [firmCompanyId], references: [id], onDelete: Cascade)
+
+  @@id([ecosystemId, firmCompanyId])
+  @@index([ecosystemId])
 }
 
 model OperatorAuditEvent {

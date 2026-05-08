@@ -48,8 +48,13 @@ describe("consultant access contracts", () => {
     vi.unstubAllEnvs();
   });
 
-  it("resolves active company-scoped consultant assignments from the existing PAT user account", async () => {
+  it("resolves active ecosystem-scoped consultant assignments from the existing PAT user account", async () => {
     vi.stubEnv(CONSULTANT_ACCESS_FLAG_ENV, "1");
+    // Phase 1 / Day-10: ConsultantAssignment is strict-1:1 (singleton, not array)
+    // and points at an Ecosystem whose EcosystemFirm rows yield the firm-companies
+    // the consultant can see. The legacy ConsultantAssignmentScope[] return shape
+    // is preserved by walking ecosystem -> firms; assignmentId is shared because
+    // there's only one underlying assignment.
     findUniqueMock.mockResolvedValue({
       id: "consultant_profile_1",
       active: true,
@@ -57,15 +62,22 @@ describe("consultant access contracts", () => {
         name: "Consultant Review",
         email: "review.consultant@pat.local",
       },
-      ConsultantAssignment: [
-        {
-          id: "assignment_1",
-          companyId: "company_assigned",
-          Company: {
-            name: "Assigned Firm",
-          },
+      ConsultantAssignment: {
+        id: "assignment_1",
+        ecosystemId: "ecosystem_1",
+        Ecosystem: {
+          EcosystemFirm: [
+            {
+              firmCompanyId: "company_assigned",
+              FirmCompany: {
+                id: "company_assigned",
+                name: "Assigned Firm",
+                type: "FIRM",
+              },
+            },
+          ],
         },
-      ],
+      },
     });
 
     const result = await getConsultantAccessStateForUser(sessionUser);
@@ -75,10 +87,20 @@ describe("consultant access contracts", () => {
       select: expect.objectContaining({
         active: true,
         ConsultantAssignment: expect.objectContaining({
-          where: {
-            active: true,
-            Company: { type: "FIRM" },
-          },
+          where: { active: true },
+          select: expect.objectContaining({
+            Ecosystem: expect.objectContaining({
+              select: expect.objectContaining({
+                EcosystemFirm: expect.objectContaining({
+                  select: expect.objectContaining({
+                    FirmCompany: expect.objectContaining({
+                      select: { id: true, name: true, type: true },
+                    }),
+                  }),
+                }),
+              }),
+            }),
+          }),
         }),
       }),
     });
@@ -105,7 +127,7 @@ describe("consultant access contracts", () => {
         name: null,
         email: "review.consultant@pat.local",
       },
-      ConsultantAssignment: [],
+      ConsultantAssignment: null,
     });
 
     await expect(getConsultantAccessStateForUser(sessionUser)).resolves.toBeNull();

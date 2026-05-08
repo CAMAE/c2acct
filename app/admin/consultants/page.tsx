@@ -69,7 +69,7 @@ export default async function AdminConsultantsPage() {
   let compatibilityMode = false;
 
   try {
-    consultantProfiles = await prisma.consultantProfile.findMany({
+    const profiles = await prisma.consultantProfile.findMany({
       where: { active: true },
       orderBy: { createdAt: "asc" },
       select: {
@@ -92,21 +92,53 @@ export default async function AdminConsultantsPage() {
           },
         },
         ConsultantAssignment: {
-          where: { active: true },
-          orderBy: { Company: { name: "asc" } },
           select: {
             id: true,
-            companyId: true,
+            ecosystemId: true,
             active: true,
-            Company: {
+            Ecosystem: {
               select: {
-                id: true,
-                name: true,
+                EcosystemFirm: {
+                  select: {
+                    firmCompanyId: true,
+                    FirmCompany: {
+                      select: { id: true, name: true },
+                    },
+                  },
+                  take: 1,
+                },
               },
             },
           },
         },
       },
+    });
+
+    // Strict 1:1 (Phase 1 / Day-10) means each profile has 0..1 ConsultantAssignment.
+    // The downstream UI still iterates over an array, so we wrap the singleton
+    // in [] vs [single] to preserve render shape while honoring the new schema.
+    consultantProfiles = profiles.map((profile) => {
+      const assignment = profile.ConsultantAssignment;
+      const firmMembership = assignment?.Ecosystem?.EcosystemFirm[0];
+      const firmCompany = firmMembership?.FirmCompany;
+      const wrappedAssignment =
+        assignment && firmCompany && assignment.active
+          ? [
+              {
+                id: assignment.id,
+                companyId: firmCompany.id,
+                active: assignment.active,
+                Company: { id: firmCompany.id, name: firmCompany.name },
+              },
+            ]
+          : [];
+      return {
+        id: profile.id,
+        active: profile.active,
+        createdAt: profile.createdAt,
+        User: profile.User,
+        ConsultantAssignment: wrappedAssignment,
+      };
     });
   } catch (error) {
     if (matchesPrismaMissingSchemaTarget(error, ["consultantprofile", "consultantassignment"])) {

@@ -547,8 +547,7 @@ export async function deactivateConsultantAction(formData: FormData) {
       active: false,
       updatedAt: new Date(),
       ConsultantAssignment: {
-        updateMany: {
-          where: { active: true },
+        update: {
           data: {
             active: false,
             updatedAt: new Date(),
@@ -602,22 +601,45 @@ export async function upsertConsultantAssignmentAction(formData: FormData) {
     redirect(returnTo);
   }
 
-  const assignment = await prisma.consultantAssignment.upsert({
-    where: {
-      consultantProfileId_companyId: {
-        consultantProfileId,
-        companyId,
-      },
-    },
-    update: {
-      active: true,
-      updatedAt: new Date(),
-    },
-    create: {
+  // Ecosystem-aware assignment per Phase 1 (Day-10) schema. Strict 1:1 means
+  // a consultant has at most one ConsultantAssignment, and an ecosystem can
+  // bind to at most one consultant. The admin form still posts the firm
+  // companyId, so this action looks up (or creates) a solo-firm ecosystem
+  // for that firm and points the assignment at it. Phase 5's /admin/ecosystems
+  // surface will replace this lookup-or-create with explicit ecosystem
+  // selection + vendor pairing.
+  const existingMembership = await prisma.ecosystemFirm.findUnique({
+    where: { firmCompanyId: companyId },
+    select: { ecosystemId: true },
+  });
+
+  const ecosystemId =
+    existingMembership?.ecosystemId ??
+    (
+      await prisma.ecosystem.create({
+        data: {
+          id: randomUUID(),
+          name: `Solo: ${company.name}`,
+          updatedAt: new Date(),
+          EcosystemFirm: {
+            create: {
+              firmCompanyId: companyId,
+            },
+          },
+        },
+        select: { id: true },
+      })
+    ).id;
+
+  await prisma.consultantAssignment.deleteMany({ where: { consultantProfileId } });
+
+  const assignment = await prisma.consultantAssignment.create({
+    data: {
       id: randomUUID(),
       consultantProfileId,
-      companyId,
+      ecosystemId,
       active: true,
+      updatedAt: new Date(),
     },
   });
 
@@ -627,7 +649,7 @@ export async function upsertConsultantAssignmentAction(formData: FormData) {
     entityType: "consultant-assignment",
     entityId: assignment.id,
     summary: `Assigned consultant ${consultantProfile.User.email} to ${company.name}`,
-    details: { companyId: company.id, companyName: company.name },
+    details: { companyId: company.id, companyName: company.name, ecosystemId },
   });
 
   revalidatePath("/consultants");
@@ -648,9 +670,15 @@ export async function removeConsultantAssignmentAction(formData: FormData) {
     where: { id: assignmentId },
     select: {
       id: true,
-      companyId: true,
-      Company: {
-        select: { name: true },
+      ecosystemId: true,
+      Ecosystem: {
+        select: {
+          name: true,
+          EcosystemFirm: {
+            select: { firmCompanyId: true },
+            take: 1,
+          },
+        },
       },
       ConsultantProfile: {
         select: {
@@ -674,17 +702,21 @@ export async function removeConsultantAssignmentAction(formData: FormData) {
     },
   });
 
+  const firmCompanyId = assignment.Ecosystem.EcosystemFirm[0]?.firmCompanyId ?? null;
+
   await recordOperatorAuditEvent({
     actorUserId: actor.id,
     action: "remove-consultant-assignment",
     entityType: "consultant-assignment",
     entityId: assignment.id,
-    summary: `Removed consultant ${assignment.ConsultantProfile.User.email} from ${assignment.Company.name}`,
-    details: { companyId: assignment.companyId, companyName: assignment.Company.name },
+    summary: `Removed consultant ${assignment.ConsultantProfile.User.email} from ${assignment.Ecosystem.name}`,
+    details: { ecosystemId: assignment.ecosystemId, ecosystemName: assignment.Ecosystem.name, firmCompanyId },
   });
 
   revalidatePath("/consultants");
-  revalidatePath(`/consultants/briefings/${assignment.companyId}`);
+  if (firmCompanyId) {
+    revalidatePath(`/consultants/briefings/${firmCompanyId}`);
+  }
   await redirectWithRevalidate(returnTo);
 }
 
