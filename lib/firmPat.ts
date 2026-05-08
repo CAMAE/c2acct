@@ -9,6 +9,7 @@ import {
 import { computeScore } from "@/lib/scoring";
 import { getSurveyDraftWhere, getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { TIER1_ALIGNMENT_BADGE_ID, TIER1_ALIGNMENT_BADGE_NAME } from "@/lib/patUnlocks";
+import { getFirmScopedVendors } from "@/lib/tenancy";
 import {
   FIRM_CAPABILITY_DEFINITIONS,
   FIRM_TIER1_INSIGHT_CAPABILITY_RULES,
@@ -1088,8 +1089,18 @@ export async function getFirmAssessmentProgress(companyId: string) {
 export async function getFirmProductCatalog(companyId?: string | null) {
   await ensureFirmProductModule();
 
+  // Phase 1 / Day-10 tenancy: when called with a firm companyId, restrict the
+  // catalog to products owned by vendors in the firm's ecosystem (per Q6 of
+  // the locked consultant scope decisions). When called without a firm
+  // (admin-context invocation), preserve the global catalog. Open mode returns
+  // all VENDOR-type companies so the IN-clause becomes a no-op filter.
+  const scopedVendorIds = companyId ? await getFirmScopedVendors(companyId) : null;
+
   const products = await prisma.product.findMany({
-    where: { active: true },
+    where: {
+      active: true,
+      ...(scopedVendorIds ? { companyId: { in: scopedVendorIds } } : {}),
+    },
     orderBy: [{ Company: { name: "asc" } }, { name: "asc" }],
     select: {
       id: true,
