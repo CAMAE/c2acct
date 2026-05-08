@@ -16,7 +16,7 @@ function getMarkSize(mode: "header" | "hero") {
   if (mode === "hero") {
     return {
       c2: { width: 1181, height: 696, className: "h-13 w-auto sm:h-15" },
-      pat: { width: 272, height: 258, className: "h-10 w-auto sm:h-12" },
+      pat: { width: 800, height: 294, className: "h-10 w-auto sm:h-12" },
       accountingLabel: "text-[1.12rem] sm:text-[1.24rem]",
       patWord: "text-sm sm:text-base",
       divider: "h-14 sm:h-16",
@@ -25,7 +25,7 @@ function getMarkSize(mode: "header" | "hero") {
 
   return {
     c2: { width: 1181, height: 696, className: "h-[2.7rem] w-auto sm:h-[3rem]" },
-    pat: { width: 272, height: 258, className: "h-[2.35rem] w-auto sm:h-[2.65rem]" },
+    pat: { width: 800, height: 294, className: "h-[2.35rem] w-auto sm:h-[2.65rem]" },
     accountingLabel: "text-[1rem] sm:text-[1.1rem]",
     patWord: "text-[0.72rem] sm:text-[0.78rem]",
     divider: "h-[2.35rem] sm:h-[2.65rem]",
