@@ -341,19 +341,62 @@ function readRuntimeVersions(root) {
 function mergeValidationResults(root, validationResultsPath, cliResults) {
   const defaultPath = path.join(root, DEFAULT_OUTPUT_DIR, "validation-results.json");
   const explicitPath = validationResultsPath ? path.resolve(root, validationResultsPath) : defaultPath;
-  const fileResults = readOptionalJson(explicitPath)?.commands ?? {};
+  const fileExists = fs.existsSync(explicitPath);
+  const fileResults = fileExists ? readOptionalJson(explicitPath)?.commands ?? {} : {};
+
+  // Closes AUDIT-D6-001: invalidate cached validation-results.json when it predates HEAD.
+  // Days 3-5 launch-proofs reported COMPLETE while reading a Day-1-vintage file; the stale cache
+  // masked a real failure that surfaced when validate:launch finally ran end-to-end on Day 6.
+  let staleReason = null;
+  if (!fileExists) {
+    staleReason = "validation-results-missing";
+  } else {
+    try {
+      const fileMtimeMs = fs.statSync(explicitPath).mtimeMs;
+      const headTimestampSec = Number(
+        execFileSync("git", ["log", "-1", "--format=%ct", "HEAD"], {
+          cwd: root,
+          encoding: "utf8",
+        }).trim()
+      );
+      if (Number.isFinite(headTimestampSec)) {
+        const headTimestampMs = headTimestampSec * 1000;
+        if (fileMtimeMs < headTimestampMs) {
+          staleReason = `validation-results-cache-stale file-mtime=${new Date(fileMtimeMs).toISOString()} head-committed=${new Date(headTimestampMs).toISOString()}`;
+        }
+      }
+    } catch {
+      // git unavailable or non-repo — fail open: a missing git history shouldn't artificially
+      // invalidate the cache. The validate:launch chain is still the source of truth.
+    }
+  }
+
   const merged = {};
 
   for (const [key, command] of Object.entries(REQUIRED_VALIDATION_COMMANDS)) {
-    const proof = cliResults[key] ?? fileResults[key] ?? {};
-    const status = isStatus(proof.status) ? proof.status : "UNVERIFIED";
-    merged[key] = {
-      key,
-      command,
-      status,
-      summary: proof.summary ?? (status === "COMPLETE" ? "Passed." : "No local proof recorded in this bundle."),
-      completedAt: proof.completedAt ?? (status === "COMPLETE" ? new Date().toISOString() : null),
-    };
+    const cliProof = cliResults[key];
+    const fileProof = fileResults[key] ?? {};
+    let status;
+    let summary;
+    let completedAt;
+
+    if (cliProof) {
+      status = isStatus(cliProof.status) ? cliProof.status : "UNVERIFIED";
+      summary =
+        cliProof.summary ?? (status === "COMPLETE" ? "Passed." : "No local proof recorded in this bundle.");
+      completedAt = cliProof.completedAt ?? (status === "COMPLETE" ? new Date().toISOString() : null);
+    } else if (staleReason) {
+      status = "UNVERIFIED";
+      summary = staleReason;
+      completedAt = null;
+    } else {
+      status = isStatus(fileProof.status) ? fileProof.status : "UNVERIFIED";
+      summary =
+        fileProof.summary ?? (status === "COMPLETE" ? "Passed." : "No local proof recorded in this bundle.");
+      completedAt = fileProof.completedAt ?? (status === "COMPLETE" ? new Date().toISOString() : null);
+    }
+
+    merged[key] = { key, command, status, summary, completedAt };
   }
 
   return merged;
