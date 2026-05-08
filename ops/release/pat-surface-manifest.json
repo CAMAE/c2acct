@@ -197,8 +197,7 @@
         "Meet PAT",
         "Sign in",
         "Vendor",
-        "Firm",
-        "Individual"
+        "Firm"
       ]
     },
     "/sign-in": {
