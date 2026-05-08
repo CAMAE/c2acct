@@ -232,11 +232,11 @@ export default function MembershipCheckoutShell({
             </h2>
             <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">{model.explanation.whatItIs}</p>
             <div className="mt-5 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
-              <div className="pat-label">Live now</div>
+              <div className="pat-label">What&apos;s available today</div>
               <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{model.explanation.liveNow}</p>
             </div>
             <div className="mt-4 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
-              <div className="pat-label">Still staged</div>
+              <div className="pat-label">What&apos;s coming next</div>
               <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{model.explanation.staged}</p>
             </div>
           </article>

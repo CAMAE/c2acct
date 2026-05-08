@@ -171,8 +171,8 @@ describe("membership page contracts", () => {
 
     expect(model.sections.map((section) => section.title)).toEqual([
       "What it is",
-      "Live now",
-      "Still staged",
+      "What's available today",
+      "What's coming next",
       "Why it helps",
     ]);
     expect(model.actionHref).toBe("/vendor/membership/checkout?plan=pro");

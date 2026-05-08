@@ -719,11 +719,11 @@ export function getMembershipTierDetailModel(input: {
         body: planContent.what,
       },
       {
-        title: "Live now",
+        title: "What's available today",
         body: getMembershipLiveNowNote(input.audience, selectedPlan),
       },
       {
-        title: "Still staged",
+        title: "What's coming next",
         body: getMembershipStagedNote(input.audience, selectedPlan),
       },
       {

@@ -53,11 +53,11 @@ export default function MembershipPlanPanel({ model }: MembershipPlanPanelProps)
             <div className="pat-label">What it is</div>
             <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{model.panel.what}</p>
             <div className="mt-4 rounded-[18px] border border-[var(--shell-border)] bg-white/70 p-4">
-              <div className="pat-label">Live now</div>
+              <div className="pat-label">What&apos;s available today</div>
               <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{model.panel.liveNowNote}</p>
             </div>
             <div className="mt-4 rounded-[18px] border border-[var(--shell-border)] bg-white/70 p-4">
-              <div className="pat-label">Still staged</div>
+              <div className="pat-label">What&apos;s coming next</div>
               <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{model.panel.stagedNote}</p>
             </div>
           </div>
