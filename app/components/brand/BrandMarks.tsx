@@ -25,7 +25,7 @@ function getMarkSize(mode: "header" | "hero") {
 
   return {
     c2: { width: 1181, height: 696, className: "h-[2.7rem] w-auto sm:h-[3rem]" },
-    pat: { width: 800, height: 294, className: "h-[2.35rem] w-auto sm:h-[2.65rem]" },
+    pat: { width: 800, height: 294, className: "h-7 w-auto max-w-[110px] sm:h-8 sm:max-w-[130px]" },
     accountingLabel: "text-[1rem] sm:text-[1.1rem]",
     patWord: "text-[0.72rem] sm:text-[0.78rem]",
     divider: "h-[2.35rem] sm:h-[2.65rem]",

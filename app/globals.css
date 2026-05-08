@@ -43,6 +43,10 @@
   --pat-subsection-title-size: clamp(1.16rem, 1.1rem + 0.18vw, 1.4rem);
 }
 
+html {
+  font-size: 14.5px;
+}
+
 html,
 body {
   height: 100%;
