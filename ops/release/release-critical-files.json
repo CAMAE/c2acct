@@ -62,7 +62,9 @@
     "get-pip.py",
     "artifacts/audit/",
     "artifacts/release/",
-    "artifacts/visual/"
+    "artifacts/visual/",
+    "CLAUDE.md",
+    "artifacts/brand-screenshots/"
   ],
   "validationArtifacts": [
     "ops/release/pat-surface-manifest.json",
