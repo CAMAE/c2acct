@@ -7,7 +7,7 @@ async function main() {
   const [
     { default: prisma },
     { ensureLocalReviewUsers },
-    { ensureDemoPatEcosystem },
+    { ensureDemoPatEcosystem, ensureConsultantEcosystemForReview },
     { ensureFirmAlignmentSystem, ensureFirmProductModule },
     { ensurePilotCohortSeed },
     { ensureUserPatScaffold },
@@ -33,6 +33,10 @@ async function main() {
   const demoEcosystem = await ensureDemoPatEcosystem(prisma);
   const pilotCohort = await ensurePilotCohortSeed(prisma);
   const localReviewSeed = await ensureLocalReviewUsers(prisma);
+  // Phase 2 / Day 11: minimal consultant ecosystem so /consultants is non-empty
+  // when review.consultant@pat.local signs in. Runs after ensureLocalReviewUsers
+  // so the consultant User row exists. Phase 6 expands this to 4 ecosystems.
+  const consultantEcosystem = await ensureConsultantEcosystemForReview(prisma);
   const firmSectionCount = await prisma.surveySection.count({
     where: {
       moduleId: {
@@ -51,6 +55,7 @@ async function main() {
   console.log("PAT demo ecosystem:", demoEcosystem);
   console.log("PAT pilot cohort:", pilotCohort);
   console.log(`Local review auth users seeded: ${localReviewSeed.seeded ? localReviewSeed.userEmails.length : 0}`);
+  console.log("Consultant ecosystem (Phase 2 minimal):", consultantEcosystem);
 }
 
 main()

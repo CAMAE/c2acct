@@ -1075,3 +1075,112 @@ export async function ensureDemoPatEcosystem(client: DemoSeedClient) {
     firmProductSubmissionCount,
   };
 }
+
+/**
+ * Phase 2 (Day 11) consultant ecosystem seed. Wraps the seeded `pat-demo-vendor`
+ * and the first 3 demo firms in an Ecosystem assigned to `review.consultant@pat.local`.
+ * Idempotent via the unique constraints on
+ * Ecosystem.vendorCompanyId / EcosystemFirm.firmCompanyId / ConsultantAssignment.consultantProfileId.
+ *
+ * Phase 6 (Day 15) replaces this with the full 4-vendor × ~10-firm demo per Q4
+ * of the locked consultant scope decisions. This function only handles the
+ * minimal singleton-ecosystem case so the consultant landing is non-empty
+ * during Phase 3 dashboard development.
+ *
+ * Returns null when the consultant user is not seeded yet (caller should run
+ * `ensureLocalReviewUsers` first).
+ */
+export async function ensureConsultantEcosystemForReview(client: DemoSeedClient) {
+  const consultantUser = await client.user.findUnique({
+    where: { email: "review.consultant@pat.local" },
+    select: { id: true },
+  });
+  if (!consultantUser) {
+    return null;
+  }
+
+  const consultantProfile = await client.consultantProfile.upsert({
+    where: { userId: consultantUser.id },
+    update: { active: true, updatedAt: new Date() },
+    create: {
+      id: stableId("demo-consultant-profile", "review-consultant"),
+      userId: consultantUser.id,
+      active: true,
+      updatedAt: new Date(),
+    },
+    select: { id: true },
+  });
+
+  const vendorKey = "pat-demo-vendor";
+  const vendorCompany = await client.company.findFirst({
+    where: { id: stableId("demo-vendor-company", vendorKey) },
+    select: { id: true, name: true },
+  });
+  if (!vendorCompany) {
+    return null;
+  }
+
+  const firmKeys = DEMO_PAT_FIRMS.slice(0, 3).map((firm) => firm.key);
+  const firmCompanyIds = firmKeys.map((firmKey) => stableId("demo-firm-company", firmKey));
+  const firmCompanies = await client.company.findMany({
+    where: { id: { in: firmCompanyIds }, type: CompanyType.FIRM },
+    select: { id: true, name: true },
+  });
+  if (firmCompanies.length < 2) {
+    return null;
+  }
+
+  const ecosystem = await client.ecosystem.upsert({
+    where: { vendorCompanyId: vendorCompany.id },
+    update: {
+      consultantProfileId: consultantProfile.id,
+      name: `${vendorCompany.name} Ecosystem`,
+      updatedAt: new Date(),
+    },
+    create: {
+      id: stableId("demo-ecosystem", vendorKey),
+      name: `${vendorCompany.name} Ecosystem`,
+      vendorCompanyId: vendorCompany.id,
+      consultantProfileId: consultantProfile.id,
+      updatedAt: new Date(),
+    },
+    select: { id: true, name: true },
+  });
+
+  for (const firm of firmCompanies) {
+    await client.ecosystemFirm.upsert({
+      where: { firmCompanyId: firm.id },
+      update: { ecosystemId: ecosystem.id },
+      create: {
+        ecosystemId: ecosystem.id,
+        firmCompanyId: firm.id,
+      },
+    });
+  }
+
+  await client.consultantAssignment.upsert({
+    where: { consultantProfileId: consultantProfile.id },
+    update: {
+      ecosystemId: ecosystem.id,
+      active: true,
+      updatedAt: new Date(),
+    },
+    create: {
+      id: stableId("demo-consultant-assignment", "review-consultant"),
+      consultantProfileId: consultantProfile.id,
+      ecosystemId: ecosystem.id,
+      active: true,
+      updatedAt: new Date(),
+    },
+  });
+
+  return {
+    ecosystemId: ecosystem.id,
+    ecosystemName: ecosystem.name,
+    vendorCompanyId: vendorCompany.id,
+    vendorCompanyName: vendorCompany.name,
+    firmCount: firmCompanies.length,
+    consultantProfileId: consultantProfile.id,
+    consultantEmail: "review.consultant@pat.local",
+  };
+}
