@@ -9,6 +9,29 @@ import {
 
 export const CONSULTANT_ACCESS_FLAG_ENV = "PAT_ENABLE_CONSULTANT_ACCESS";
 
+/**
+ * Ecosystem-shaped consultant scope (Phase 3 / Day-12; closes AUDIT-D10-002).
+ *
+ * Each scope describes one ConsultantAssignment's full ecosystem reach:
+ * the vendor company on the vendor side, plus the set of firm companies on
+ * the firm side. Used by /consultants Mock C list view and by the
+ * requireConsultantCompanyAccess gate which now permits both vendor-side
+ * and firm-side company IDs (right shape for Phase 4 drill-down routes).
+ */
+export type ConsultantEcosystemScope = {
+  assignmentId: string;
+  ecosystemId: string;
+  ecosystemName: string;
+  vendorCompanyId: string;
+  vendorCompanyName: string;
+  firmCompanies: { id: string; name: string }[];
+};
+
+/**
+ * @deprecated Use {@link ConsultantEcosystemScope}. Retained as an exported
+ * type alias for one release cycle for any external consumer that imported
+ * the Day-10 shim shape; no internal code references it. Removed in PAT 5.8.
+ */
 export type ConsultantAssignmentScope = {
   assignmentId: string;
   companyId: string;
@@ -19,7 +42,7 @@ export type ConsultantAccessState = {
   sessionUser: SessionUser;
   consultantProfileId: string;
   consultantLabel: string;
-  assignments: ConsultantAssignmentScope[];
+  ecosystems: ConsultantEcosystemScope[];
 };
 
 export function isConsultantAccessEnabled() {
@@ -52,6 +75,12 @@ export async function getConsultantAccessStateForUser(
             ecosystemId: true,
             Ecosystem: {
               select: {
+                id: true,
+                name: true,
+                vendorCompanyId: true,
+                VendorCompany: {
+                  select: { id: true, name: true },
+                },
                 EcosystemFirm: {
                   select: {
                     firmCompanyId: true,
@@ -72,28 +101,38 @@ export async function getConsultantAccessStateForUser(
       return null;
     }
 
-    // Strict 1:1 (Phase 1 / Day-10) means at most one ConsultantAssignment per profile.
-    // The legacy ConsultantAssignmentScope[] shape (one row per firm) is reconstructed
-    // by walking ecosystem -> firms; the assignmentId is shared across the row set
-    // because there's still only one underlying assignment. Phase 6 (consultantAccess.ts
-    // full rewrite) replaces this shim with an explicit ConsultantEcosystemView return.
+    // Strict 1:1 in Phase 1 (one ConsultantAssignment per profile), but the
+    // return shape is plural so Phase 4+ can scale to N:M without another
+    // shape migration.
     const assignment = consultantProfile.ConsultantAssignment;
-    const firmMemberships = assignment?.Ecosystem?.EcosystemFirm ?? [];
-    const assignments = assignment
-      ? firmMemberships
-          .filter((membership) => membership.FirmCompany.type === "FIRM")
-          .map((membership) => ({
-            assignmentId: assignment.id,
-            companyId: membership.FirmCompany.id,
-            companyName: membership.FirmCompany.name,
-          }))
-      : [];
+    const ecosystem = assignment?.Ecosystem ?? null;
+    const ecosystems: ConsultantEcosystemScope[] = [];
+    if (
+      assignment &&
+      ecosystem &&
+      ecosystem.vendorCompanyId &&
+      ecosystem.VendorCompany
+    ) {
+      ecosystems.push({
+        assignmentId: assignment.id,
+        ecosystemId: ecosystem.id,
+        ecosystemName: ecosystem.name,
+        vendorCompanyId: ecosystem.vendorCompanyId,
+        vendorCompanyName: ecosystem.VendorCompany.name,
+        firmCompanies: ecosystem.EcosystemFirm.filter(
+          (membership) => membership.FirmCompany.type === "FIRM"
+        ).map((membership) => ({
+          id: membership.FirmCompany.id,
+          name: membership.FirmCompany.name,
+        })),
+      });
+    }
 
     return {
       sessionUser,
       consultantProfileId: consultantProfile.id,
       consultantLabel: consultantProfile.User.name?.trim() || consultantProfile.User.email,
-      assignments,
+      ecosystems,
     };
   } catch (error) {
     if (
@@ -131,7 +170,11 @@ export async function requireConsultantCompanyAccess(
     return null;
   }
 
-  return consultantAccess.assignments.some((assignment) => assignment.companyId === companyId)
-    ? consultantAccess
-    : null;
+  const allowed = consultantAccess.ecosystems.some(
+    (scope) =>
+      scope.vendorCompanyId === companyId ||
+      scope.firmCompanies.some((firm) => firm.id === companyId)
+  );
+
+  return allowed ? consultantAccess : null;
 }

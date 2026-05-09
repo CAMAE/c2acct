@@ -50,11 +50,11 @@ describe("consultant access contracts", () => {
 
   it("resolves active ecosystem-scoped consultant assignments from the existing PAT user account", async () => {
     vi.stubEnv(CONSULTANT_ACCESS_FLAG_ENV, "1");
-    // Phase 1 / Day-10: ConsultantAssignment is strict-1:1 (singleton, not array)
-    // and points at an Ecosystem whose EcosystemFirm rows yield the firm-companies
-    // the consultant can see. The legacy ConsultantAssignmentScope[] return shape
-    // is preserved by walking ecosystem -> firms; assignmentId is shared because
-    // there's only one underlying assignment.
+    // Phase 3 / Day-12 (closes AUDIT-D10-002): ConsultantAssignment is strict
+    // 1:1 (singleton, not array) and points at an Ecosystem whose VendorCompany
+    // + EcosystemFirm rows yield the full ecosystem reach the consultant has.
+    // Return shape is plural (ecosystems[]) so post-pilot N:M scales without
+    // another shape migration.
     findUniqueMock.mockResolvedValue({
       id: "consultant_profile_1",
       active: true,
@@ -66,6 +66,13 @@ describe("consultant access contracts", () => {
         id: "assignment_1",
         ecosystemId: "ecosystem_1",
         Ecosystem: {
+          id: "ecosystem_1",
+          name: "Acme Holdings",
+          vendorCompanyId: "vendor_acme",
+          VendorCompany: {
+            id: "vendor_acme",
+            name: "Acme Vendor Co",
+          },
           EcosystemFirm: [
             {
               firmCompanyId: "company_assigned",
@@ -91,6 +98,9 @@ describe("consultant access contracts", () => {
           select: expect.objectContaining({
             Ecosystem: expect.objectContaining({
               select: expect.objectContaining({
+                VendorCompany: expect.objectContaining({
+                  select: { id: true, name: true },
+                }),
                 EcosystemFirm: expect.objectContaining({
                   select: expect.objectContaining({
                     FirmCompany: expect.objectContaining({
@@ -108,14 +118,42 @@ describe("consultant access contracts", () => {
       sessionUser,
       consultantProfileId: "consultant_profile_1",
       consultantLabel: "Consultant Review",
-      assignments: [
+      ecosystems: [
         {
           assignmentId: "assignment_1",
-          companyId: "company_assigned",
-          companyName: "Assigned Firm",
+          ecosystemId: "ecosystem_1",
+          ecosystemName: "Acme Holdings",
+          vendorCompanyId: "vendor_acme",
+          vendorCompanyName: "Acme Vendor Co",
+          firmCompanies: [{ id: "company_assigned", name: "Assigned Firm" }],
         },
       ],
     });
+  });
+
+  it("returns an empty ecosystems[] when the assignment exists but the ecosystem has no vendor", async () => {
+    vi.stubEnv(CONSULTANT_ACCESS_FLAG_ENV, "1");
+    // Defensive case: an Ecosystem with vendorCompanyId=null shouldn't render
+    // a card. Skipping at the access layer keeps the UI fail-closed.
+    findUniqueMock.mockResolvedValue({
+      id: "consultant_profile_1",
+      active: true,
+      User: { name: null, email: "review.consultant@pat.local" },
+      ConsultantAssignment: {
+        id: "assignment_orphan",
+        ecosystemId: "ecosystem_orphan",
+        Ecosystem: {
+          id: "ecosystem_orphan",
+          name: "Solo Orphan",
+          vendorCompanyId: null,
+          VendorCompany: null,
+          EcosystemFirm: [],
+        },
+      },
+    });
+
+    const result = await getConsultantAccessStateForUser(sessionUser);
+    expect(result?.ecosystems).toEqual([]);
   });
 
   it("returns null when the PAT user account has no active consultant profile", async () => {

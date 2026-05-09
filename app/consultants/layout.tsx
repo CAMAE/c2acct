@@ -53,7 +53,7 @@ export default async function ConsultantLayout({
               {consultantAccess.consultantLabel}
             </div>
             <div className="mt-1 text-sm text-[var(--shell-muted)]">
-              {consultantAccess.assignments.length} assigned firm briefing{consultantAccess.assignments.length === 1 ? "" : "s"}
+              {consultantAccess.ecosystems.length} active ecosystem{consultantAccess.ecosystems.length === 1 ? "" : "s"}
             </div>
           </div>
           <div className="flex flex-wrap gap-2">

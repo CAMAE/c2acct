@@ -15,7 +15,9 @@ export default async function ConsultantOverviewPage() {
     return null;
   }
 
-  const assignedCompanyIds = consultantAccess.assignments.map((assignment) => assignment.companyId);
+  const assignedCompanyIds = consultantAccess.ecosystems.flatMap((scope) =>
+    scope.firmCompanies.map((firm) => firm.id)
+  );
   const catalog =
     assignedCompanyIds.length > 0
       ? await getAdminBriefingCatalog({ companyIds: assignedCompanyIds })
@@ -37,7 +39,7 @@ export default async function ConsultantOverviewPage() {
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <AdminMetricCard
           label="Assigned firms"
-          value={String(consultantAccess.assignments.length)}
+          value={String(assignedCompanyIds.length)}
           detail="Firm-company briefing scopes assigned to this consultant account"
         />
         <AdminMetricCard
