@@ -270,8 +270,10 @@ export type EcosystemDetailData = {
 
 // TODO(day-13): implement detail aggregation (Mock A signals).
 export async function getEcosystemDetailForConsultant(
-  _consultantProfileId: string,
-  _ecosystemId: string
+  consultantProfileId: string,
+  ecosystemId: string
 ): Promise<EcosystemDetailData | null> {
+  void consultantProfileId;
+  void ecosystemId;
   return null;
 }
