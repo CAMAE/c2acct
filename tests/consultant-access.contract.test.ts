@@ -131,29 +131,49 @@ describe("consultant access contracts", () => {
     });
   });
 
-  it("returns an empty ecosystems[] when the assignment exists but the ecosystem has no vendor", async () => {
+  it("surfaces vendor-less ecosystems with null vendor fields so the per-firm gate still works", async () => {
     vi.stubEnv(CONSULTANT_ACCESS_FLAG_ENV, "1");
-    // Defensive case: an Ecosystem with vendorCompanyId=null shouldn't render
-    // a card. Skipping at the access layer keeps the UI fail-closed.
+    // Legacy admin Assign-firm flow creates Solo: ecosystems with no vendor.
+    // Mock C list view filters them out for display via getEcosystemListForConsultant;
+    // the access state still surfaces them so requireConsultantCompanyAccess
+    // can permit the firm-side companyId. Cleanup is Phase 5 (AUDIT-D10-001).
     findUniqueMock.mockResolvedValue({
       id: "consultant_profile_1",
       active: true,
       User: { name: null, email: "review.consultant@pat.local" },
       ConsultantAssignment: {
-        id: "assignment_orphan",
-        ecosystemId: "ecosystem_orphan",
+        id: "assignment_solo",
+        ecosystemId: "ecosystem_solo",
         Ecosystem: {
-          id: "ecosystem_orphan",
-          name: "Solo Orphan",
+          id: "ecosystem_solo",
+          name: "Solo: Consultant Assigned Firm",
           vendorCompanyId: null,
           VendorCompany: null,
-          EcosystemFirm: [],
+          EcosystemFirm: [
+            {
+              firmCompanyId: "company_solo_assigned",
+              FirmCompany: {
+                id: "company_solo_assigned",
+                name: "Solo Assigned Firm",
+                type: "FIRM",
+              },
+            },
+          ],
         },
       },
     });
 
     const result = await getConsultantAccessStateForUser(sessionUser);
-    expect(result?.ecosystems).toEqual([]);
+    expect(result?.ecosystems).toEqual([
+      {
+        assignmentId: "assignment_solo",
+        ecosystemId: "ecosystem_solo",
+        ecosystemName: "Solo: Consultant Assigned Firm",
+        vendorCompanyId: null,
+        vendorCompanyName: null,
+        firmCompanies: [{ id: "company_solo_assigned", name: "Solo Assigned Firm" }],
+      },
+    ]);
   });
 
   it("returns null when the PAT user account has no active consultant profile", async () => {

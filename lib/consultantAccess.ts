@@ -22,8 +22,13 @@ export type ConsultantEcosystemScope = {
   assignmentId: string;
   ecosystemId: string;
   ecosystemName: string;
-  vendorCompanyId: string;
-  vendorCompanyName: string;
+  // Nullable: the legacy admin "Assign firm" flow (Day-10) creates vendor-less
+  // Solo: ecosystems. Mock C filters those out for display via lib/ecosystem.ts;
+  // the requireConsultantCompanyAccess gate still permits firmCompanies of
+  // such ecosystems so existing Phase-2 drill-down routes keep working until
+  // the admin flow is rewritten in Phase 5 (AUDIT-D10-001).
+  vendorCompanyId: string | null;
+  vendorCompanyName: string | null;
   firmCompanies: { id: string; name: string }[];
 };
 
@@ -103,22 +108,18 @@ export async function getConsultantAccessStateForUser(
 
     // Strict 1:1 in Phase 1 (one ConsultantAssignment per profile), but the
     // return shape is plural so Phase 4+ can scale to N:M without another
-    // shape migration.
+    // shape migration. Vendor-less ecosystems are still surfaced so the
+    // per-firm access gate keeps working — see ConsultantEcosystemScope JSDoc.
     const assignment = consultantProfile.ConsultantAssignment;
     const ecosystem = assignment?.Ecosystem ?? null;
     const ecosystems: ConsultantEcosystemScope[] = [];
-    if (
-      assignment &&
-      ecosystem &&
-      ecosystem.vendorCompanyId &&
-      ecosystem.VendorCompany
-    ) {
+    if (assignment && ecosystem) {
       ecosystems.push({
         assignmentId: assignment.id,
         ecosystemId: ecosystem.id,
         ecosystemName: ecosystem.name,
         vendorCompanyId: ecosystem.vendorCompanyId,
-        vendorCompanyName: ecosystem.VendorCompany.name,
+        vendorCompanyName: ecosystem.VendorCompany?.name ?? null,
         firmCompanies: ecosystem.EcosystemFirm.filter(
           (membership) => membership.FirmCompany.type === "FIRM"
         ).map((membership) => ({
