@@ -51,10 +51,93 @@ test.describe("consultant flow", () => {
     }
   });
 
-  test("tenancy: consultant cannot reach /consultants/ecosystems/<other-ecosystem-id>", async () => {
-    // Day-14 fills this in once /consultants/ecosystems/[ecosystemId] exists.
-    // Today the route 404s for everyone (intentional — no placeholder route).
-    test.skip(true, "Day-14 detail-route tenancy assertion lands when /consultants/ecosystems/[ecosystemId] is built.");
+  test("tenancy: consultant cannot reach /consultants/ecosystems/<other-ecosystem-id>", async ({ page, context }) => {
+    test.skip(
+      !consultantAccessEnabled,
+      "Consultant access flag is off; tenancy test only meaningful when /consultants is reachable."
+    );
+
+    // Detail page is fan-out-heavy at demo-bench scale (11+ firm briefings, vendor
+    // catalog, firm-product catalogs, module progress per firm). The dev server
+    // also does JIT compilation on first hit, so this test needs more budget
+    // than the default 30s.
+    test.setTimeout(180_000);
+
+    // Sign in as Sentinel consultant
+    const csrfRes = await context.request.get("/api/auth/csrf");
+    const { csrfToken } = await csrfRes.json();
+    await context.request.post("/api/auth/callback/credentials", {
+      form: {
+        csrfToken,
+        email: "review.consultant+sentinel@pat.local",
+        password: DEMO_BENCH_PASSWORD,
+        redirectTo: "/consultants",
+      },
+      maxRedirects: 0,
+      failOnStatusCode: false,
+    });
+
+    // Read the Sentinel consultant's owned ecosystem id off the Mock C list.
+    await page.goto("/consultants", { waitUntil: "networkidle" });
+    const ownEcosystemId = await page
+      .locator('[data-testid="ecosystem-list-card"]')
+      .first()
+      .getAttribute("data-ecosystem-id");
+    expect(ownEcosystemId).toBeTruthy();
+
+    // Pre-warm the dynamic route via a 404 path first — this triggers the
+    // dev-server's JIT compile on the cheaper notFound() branch without
+    // running the heavy data aggregator.
+    await context.request.get("/consultants/ecosystems/demo-bench-ecosystem-prewarm", {
+      failOnStatusCode: false,
+      timeout: 60_000,
+    });
+
+    // Own ecosystem detail page -> 200. context.request avoids the dev-server
+    // page-navigation race that can ABORT the first page.goto on a fresh route.
+    const ownResponse = await context.request.get(
+      `/consultants/ecosystems/${ownEcosystemId}`,
+      { failOnStatusCode: false, timeout: 90_000 }
+    );
+    expect(ownResponse.status()).toBe(200);
+
+    // After the route is warm, a page navigation can safely fetch the DOM.
+    await page.goto(`/consultants/ecosystems/${ownEcosystemId}`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="ecosystem-detail-page"]')).toBeVisible();
+
+    // Non-existent ecosystem id -> 404
+    const nonexistentStatus = await context.request
+      .get("/consultants/ecosystems/demo-bench-ecosystem-nonexistent", {
+        failOnStatusCode: false,
+        timeout: 30_000,
+      })
+      .then((res) => res.status());
+    expect(nonexistentStatus).toBe(404);
+
+    // Sign in as Bridgepath consultant in the same context (cookie gets
+    // replaced) and request Sentinel's ecosystem -> 404.
+    const csrf2 = await context.request.get("/api/auth/csrf");
+    const { csrfToken: token2 } = await csrf2.json();
+    await context.request.post("/api/auth/callback/credentials", {
+      form: {
+        csrfToken: token2,
+        email: "review.consultant+bridgepath@pat.local",
+        password: DEMO_BENCH_PASSWORD,
+        redirectTo: "/consultants",
+      },
+      maxRedirects: 0,
+      failOnStatusCode: false,
+    });
+    const crossTenantStatus = await context.request
+      .get(`/consultants/ecosystems/${ownEcosystemId}`, {
+        failOnStatusCode: false,
+        timeout: 30_000,
+      })
+      .then((res) => res.status());
+    expect(crossTenantStatus).toBe(404);
   });
 
   test("demo-bench consultant sees their ecosystem only (Sentinel)", async ({ page, context }) => {
