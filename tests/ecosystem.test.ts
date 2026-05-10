@@ -1,15 +1,24 @@
 import { describe, expect, it } from "vitest";
 
-import type { AdminCompanyBriefing, BriefingCatalogItem } from "@/lib/adminBriefingEngine";
+import type {
+  AdminCompanyBriefing,
+  BriefingCatalogItem,
+  BriefingProductOpenEndedResponse,
+} from "@/lib/adminBriefingEngine";
 import {
+  FUNCTION_BUCKET_KEYS,
   HOT_DIVERGENCE_THRESHOLD,
   aggregateFirmConfidence,
   avgFirmAlignmentScore,
   avgModuleCompletion,
   countHotDivergences,
   countThirtyDayActions,
+  openEndedResponsesForEcosystem,
+  vendorAtAGlanceForVendor,
+  vendorCoverageMapForVendor,
 } from "@/lib/ecosystem";
 import type { FirmAlignmentProgressSummary } from "@/lib/firmPat";
+import type { VendorProductInsightSnapshot } from "@/lib/vendorProductInsightEngine";
 
 function catalogEntry(overrides: Partial<BriefingCatalogItem> = {}): BriefingCatalogItem {
   return {
@@ -161,6 +170,172 @@ describe("lib/ecosystem helpers", () => {
 
     it("averages completionPercent across firms and rounds the result", () => {
       expect(avgModuleCompletion([progress(60), progress(80), progress(90)])).toBe(77);
+    });
+  });
+
+  describe("vendorCoverageMapForVendor", () => {
+    function snapshot(id: string, utilityKeys: string[]): VendorProductInsightSnapshot {
+      return {
+        product: {
+          id,
+          name: `Product ${id}`,
+          summary: null,
+          utilityKeys,
+          utilityLabels: utilityKeys,
+          utilityScopeLabel: "",
+        },
+        firmReviewed: {
+          assessmentCount: 0,
+          averageScore: null,
+          latestSubmittedAt: null,
+          utilityEvidence: [],
+        },
+      } as unknown as VendorProductInsightSnapshot;
+    }
+
+    it("renders all 14 buckets with covered cells where utilityKeys hit", () => {
+      const cells = vendorCoverageMapForVendor([
+        snapshot("p1", ["function-tax", "function-audit"]),
+        snapshot("p2", ["function-tax", "function-workflow", "function-payroll"]),
+      ]);
+      expect(cells).toHaveLength(FUNCTION_BUCKET_KEYS.length);
+      const covered = cells.filter((cell) => cell.covered);
+      expect(covered.map((cell) => cell.bucketKey).sort()).toEqual(
+        ["function-audit", "function-payroll", "function-tax", "function-workflow"].sort()
+      );
+      // tax is in two products, the rest in one
+      const tax = cells.find((cell) => cell.bucketKey === "function-tax");
+      expect(tax?.productCount).toBe(2);
+      const audit = cells.find((cell) => cell.bucketKey === "function-audit");
+      expect(audit?.productCount).toBe(1);
+      // unfilled cells preserved with productCount: 0
+      const unfilled = cells.filter((cell) => !cell.covered);
+      expect(unfilled).toHaveLength(FUNCTION_BUCKET_KEYS.length - 4);
+      expect(unfilled.every((cell) => cell.productCount === 0)).toBe(true);
+    });
+
+    it("ignores utility keys outside the 14-bucket taxonomy", () => {
+      const cells = vendorCoverageMapForVendor([
+        snapshot("p1", ["function-tax", "made-up-bucket", "function-not-a-thing"]),
+      ]);
+      const covered = cells.filter((cell) => cell.covered);
+      expect(covered).toHaveLength(1);
+      expect(covered[0].bucketKey).toBe("function-tax");
+    });
+  });
+
+  describe("vendorAtAGlanceForVendor", () => {
+    function scored(id: string, score: number | null, utilityKeys: string[] = []) {
+      return {
+        product: {
+          id,
+          name: `Product ${id}`,
+          summary: null,
+          utilityKeys,
+          utilityLabels: utilityKeys,
+          utilityScopeLabel: "",
+        },
+        firmReviewed: {
+          assessmentCount: 0,
+          averageScore: score,
+          latestSubmittedAt: null,
+          utilityEvidence: [],
+        },
+      } as unknown as VendorProductInsightSnapshot;
+    }
+
+    it("returns highest and lowest firm-reviewed scores", () => {
+      const result = vendorAtAGlanceForVendor([
+        scored("a", 52, ["function-tax"]),
+        scored("b", 84, ["function-workflow"]),
+        scored("c", 70, ["function-payroll"]),
+      ]);
+      expect(result.productCount).toBe(3);
+      expect(result.strongestProduct).toEqual({ id: "b", name: "Product b", score: 84 });
+      expect(result.weakestProduct).toEqual({ id: "a", name: "Product a", score: 52 });
+      expect(result.functionBucketsCovered).toBe(3);
+      expect(result.functionBucketsTotal).toBe(FUNCTION_BUCKET_KEYS.length);
+    });
+
+    it("nulls strongest/weakest when every score is null", () => {
+      const result = vendorAtAGlanceForVendor([
+        scored("a", null, ["function-tax"]),
+        scored("b", null, []),
+      ]);
+      expect(result.productCount).toBe(2);
+      expect(result.strongestProduct).toBeNull();
+      expect(result.weakestProduct).toBeNull();
+      expect(result.functionBucketsCovered).toBe(1);
+    });
+  });
+
+  describe("openEndedResponsesForEcosystem", () => {
+    function openEndedBriefing(
+      companyId: string,
+      companyName: string,
+      responses: Array<{ productId: string; text: string; submittedAt: Date | null }>
+    ): AdminCompanyBriefing {
+      const openEndedResponses: BriefingProductOpenEndedResponse[] = responses.map(
+        (entry, index) => ({
+          productId: entry.productId,
+          productName: `Product ${entry.productId}`,
+          vendorName: "Vendor",
+          questionId: `q-${index}`,
+          questionKey: `q-key-${index}`,
+          questionPrompt: "Tell us more",
+          sectionTitle: "Section",
+          sectionDescription: "",
+          responseText: entry.text,
+          submittedAt: entry.submittedAt,
+        })
+      );
+      return {
+        company: { id: companyId, name: companyName },
+        productLayer: {
+          products: [],
+          openEndedResponses,
+        },
+        nextActions: [],
+      } as unknown as AdminCompanyBriefing;
+    }
+
+    it("slices to 10 most-recent across firms and reports total count", () => {
+      const briefingA = openEndedBriefing("firm-a", "Firm A",
+        Array.from({ length: 15 }, (_, i) => ({
+          productId: "p1",
+          text: `A response ${i}`,
+          submittedAt: new Date(`2026-04-${String(i + 1).padStart(2, "0")}T12:00:00Z`),
+        })),
+      );
+      const briefingB = openEndedBriefing("firm-b", "Firm B",
+        Array.from({ length: 10 }, (_, i) => ({
+          productId: "p1",
+          text: `B response ${i}`,
+          submittedAt: new Date(`2026-05-${String(i + 1).padStart(2, "0")}T12:00:00Z`),
+        })),
+      );
+      const { responses, totalCount } = openEndedResponsesForEcosystem([briefingA, briefingB], 10);
+      expect(totalCount).toBe(25);
+      expect(responses).toHaveLength(10);
+      // most recent should be 2026-05-10
+      expect(responses[0].submittedAt).toBe("2026-05-10T12:00:00.000Z");
+      expect(responses[0].firmCompanyId).toBe("firm-b");
+    });
+
+    it("skips blank responses and reports zeros for empty input", () => {
+      const { responses, totalCount } = openEndedResponsesForEcosystem([
+        openEndedBriefing("firm-a", "Firm A", [
+          { productId: "p1", text: "real", submittedAt: new Date("2026-05-01") },
+          { productId: "p1", text: "   ", submittedAt: new Date("2026-05-02") },
+        ]),
+      ], 10);
+      expect(totalCount).toBe(1);
+      expect(responses).toHaveLength(1);
+      expect(responses[0].response).toBe("real");
+
+      const empty = openEndedResponsesForEcosystem([], 10);
+      expect(empty.responses).toHaveLength(0);
+      expect(empty.totalCount).toBe(0);
     });
   });
 });

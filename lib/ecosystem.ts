@@ -6,6 +6,7 @@ import {
 } from "@/lib/adminBriefingEngine";
 import {
   getFirmAssessmentProgress,
+  getFirmProductCatalog,
   summarizeFirmAlignmentProgress,
   type FirmAlignmentProgressSummary,
 } from "@/lib/firmPat";
@@ -253,27 +254,333 @@ async function buildEcosystemCard(input: {
   };
 }
 
-// ---------- Day-13 stubs (Mock A detail view) ----------
+// ---------- Day-14 Mock A detail view ----------
 
-// TODO(day-13): Detail-view shape per Mock A. Will surface:
-//   - vendor-at-a-glance (product count, strongest/weakest, capability buckets)
-//   - firm grid (4–10 cards, sortable)
-//   - vendor coverage map (14 function buckets per §6 decision 4)
-//   - open-ended response panel (most-recent 10 per §6 decision 6)
+/**
+ * §6 decision 4: 14 function buckets. Keys mirror data/research/
+ * accounting-software-taxonomy-v1.json's `function-*` prefix entries. Labels
+ * stay short (≤14 chars) so they fit the coverage map cells in
+ * VendorAtAGlance without wrapping.
+ */
+export const FUNCTION_BUCKET_LABELS: Record<string, string> = {
+  "function-tax": "Tax",
+  "function-audit": "Audit",
+  "function-client-management": "Client Mgmt",
+  "function-practice-management": "Practice Mgmt",
+  "function-workflow": "Workflow",
+  "function-document-management": "Document",
+  "function-payroll": "Payroll",
+  "function-cas": "CAS",
+  "function-erp-gl": "ERP/GL",
+  "function-analytics": "Analytics",
+  "function-compliance": "Compliance",
+  "function-billing": "Billing",
+  "function-payments": "Payments",
+  "function-advisory": "Advisory",
+};
+
+export const FUNCTION_BUCKET_KEYS = Object.keys(FUNCTION_BUCKET_LABELS);
+
+export type EcosystemDetailCoverageCell = {
+  bucketKey: string;
+  bucketLabel: string;
+  covered: boolean;
+  productCount: number;
+};
+
+export type EcosystemDetailFirmRow = {
+  firmCompanyId: string;
+  firmCompanyName: string;
+  canonicalFirmScore: number | null;
+  confidenceLabel: string;
+  moduleCompletionPercent: number | null;
+  productReviewCount: number;
+  productsAvailable: number;
+  latestActivityAt: string | null;
+  thirtyDayActionCount: number;
+};
+
+export type EcosystemDetailOpenEndedResponse = {
+  responseId: string;
+  firmCompanyId: string;
+  firmCompanyName: string;
+  productId: string;
+  productName: string;
+  questionLabel: string;
+  response: string;
+  submittedAt: string;
+};
+
+export type EcosystemDetailVendorAtAGlance = {
+  productCount: number;
+  strongestProduct: { id: string; name: string; score: number | null } | null;
+  weakestProduct: { id: string; name: string; score: number | null } | null;
+  functionBucketsCovered: number;
+  functionBucketsTotal: number;
+};
+
 export type EcosystemDetailData = {
+  // Header
   ecosystemId: string;
   ecosystemName: string;
   vendorCompanyId: string;
   vendorCompanyName: string;
-  // Shape finalized in the Day-13 prompt against locked §6 decisions.
+  firmCount: number;
+  latestActivityAt: string | null;
+  firmConfidenceCounts: FirmConfidenceCounts;
+
+  // Tier-1 metrics (mirror Mock C list-view card)
+  avgFirmAlignmentScore: number | null;
+  vendorProductCoverage: { productCount: number; firmReviewCount: number };
+  moduleCompletionRate: number | null;
+  activeDivergenceCount: number;
+  thirtyDayActionCount: number;
+
+  // Vendor surfaces
+  vendorAtAGlance: EcosystemDetailVendorAtAGlance;
+  vendorCoverageMap: EcosystemDetailCoverageCell[];
+
+  // Firm grid
+  firmGrid: EcosystemDetailFirmRow[];
+
+  // Open-ended responses (most-recent 10 + total count for "Show all")
+  openEndedResponses: EcosystemDetailOpenEndedResponse[];
+  openEndedTotalCount: number;
 };
 
-// TODO(day-13): implement detail aggregation (Mock A signals).
+// ---------- Day-14 helpers (pure; exported for unit tests) ----------
+
+/**
+ * Group-by-bucket across vendor product snapshots: a bucket is "covered" if
+ * any product in the vendor's catalog declares its utility key.
+ */
+export function vendorCoverageMapForVendor(
+  vendorCatalog: VendorProductInsightSnapshot[]
+): EcosystemDetailCoverageCell[] {
+  const productCountByBucket = new Map<string, number>();
+  for (const snapshot of vendorCatalog) {
+    for (const utilityKey of snapshot.product.utilityKeys) {
+      if (!FUNCTION_BUCKET_LABELS[utilityKey]) continue;
+      productCountByBucket.set(
+        utilityKey,
+        (productCountByBucket.get(utilityKey) ?? 0) + 1
+      );
+    }
+  }
+  return FUNCTION_BUCKET_KEYS.map((bucketKey) => {
+    const productCount = productCountByBucket.get(bucketKey) ?? 0;
+    return {
+      bucketKey,
+      bucketLabel: FUNCTION_BUCKET_LABELS[bucketKey],
+      covered: productCount > 0,
+      productCount,
+    };
+  });
+}
+
+/**
+ * Strongest = highest firmReviewed.averageScore; weakest = lowest. Both null
+ * when every product lacks a firm-reviewed score. Tiebreakers fall to insertion
+ * order (vendorCatalog is already alphabetized in the engine).
+ */
+export function vendorAtAGlanceForVendor(
+  vendorCatalog: VendorProductInsightSnapshot[]
+): EcosystemDetailVendorAtAGlance {
+  const productCount = vendorCatalog.length;
+  const scored = vendorCatalog
+    .map((snapshot) => ({
+      id: snapshot.product.id,
+      name: snapshot.product.name,
+      score: snapshot.firmReviewed.averageScore,
+    }))
+    .filter((entry): entry is { id: string; name: string; score: number } => entry.score !== null);
+
+  let strongestProduct: EcosystemDetailVendorAtAGlance["strongestProduct"] = null;
+  let weakestProduct: EcosystemDetailVendorAtAGlance["weakestProduct"] = null;
+  if (scored.length > 0) {
+    const sorted = [...scored].sort((a, b) => b.score - a.score);
+    strongestProduct = { id: sorted[0].id, name: sorted[0].name, score: sorted[0].score };
+    const last = sorted[sorted.length - 1];
+    weakestProduct = { id: last.id, name: last.name, score: last.score };
+  }
+
+  const coverage = vendorCoverageMapForVendor(vendorCatalog);
+  const functionBucketsCovered = coverage.filter((cell) => cell.covered).length;
+
+  return {
+    productCount,
+    strongestProduct,
+    weakestProduct,
+    functionBucketsCovered,
+    functionBucketsTotal: FUNCTION_BUCKET_KEYS.length,
+  };
+}
+
+/**
+ * Flat-map open-ended responses across firms' productLayer, sort by submittedAt
+ * desc, slice to `limit`. Returns the sliced array + the pre-slice total count
+ * so the UI can render "Show all (N)".
+ */
+export function openEndedResponsesForEcosystem(
+  briefings: AdminCompanyBriefing[],
+  limit = 10
+): { responses: EcosystemDetailOpenEndedResponse[]; totalCount: number } {
+  const all: EcosystemDetailOpenEndedResponse[] = [];
+  for (const briefing of briefings) {
+    for (const [index, response] of briefing.productLayer.openEndedResponses.entries()) {
+      if (!response.responseText.trim()) continue;
+      all.push({
+        responseId: `${briefing.company.id}:${response.productId}:${response.questionId}:${index}`,
+        firmCompanyId: briefing.company.id,
+        firmCompanyName: briefing.company.name,
+        productId: response.productId,
+        productName: response.productName,
+        questionLabel: response.sectionTitle || response.questionPrompt,
+        response: response.responseText,
+        submittedAt: response.submittedAt
+          ? response.submittedAt.toISOString()
+          : new Date(0).toISOString(),
+      });
+    }
+  }
+  all.sort((a, b) => (a.submittedAt < b.submittedAt ? 1 : a.submittedAt > b.submittedAt ? -1 : 0));
+  return { responses: all.slice(0, limit), totalCount: all.length };
+}
+
+// ---------- Day-14 main aggregation ----------
+
 export async function getEcosystemDetailForConsultant(
   consultantProfileId: string,
   ecosystemId: string
 ): Promise<EcosystemDetailData | null> {
-  void consultantProfileId;
-  void ecosystemId;
-  return null;
+  // Tenancy gate — fail-closed BEFORE any other prisma read so notFound() in
+  // the caller doesn't accidentally surface as 500 from a partial render.
+  const assignment = await prisma.consultantAssignment.findFirst({
+    where: { consultantProfileId, ecosystemId, active: true },
+    select: {
+      Ecosystem: {
+        select: {
+          id: true,
+          name: true,
+          vendorCompanyId: true,
+          VendorCompany: { select: { id: true, name: true } },
+        },
+      },
+    },
+  });
+  if (!assignment || !assignment.Ecosystem) {
+    return null;
+  }
+  const ecosystem = assignment.Ecosystem;
+  if (!ecosystem.vendorCompanyId || !ecosystem.VendorCompany) {
+    return null;
+  }
+  const vendorCompanyId = ecosystem.vendorCompanyId;
+  const vendorCompanyName = ecosystem.VendorCompany.name;
+
+  const firmIds = await getVendorScopedFirms(vendorCompanyId);
+
+  await Promise.all(
+    firmIds.map(async (firmId) => {
+      const ok = await assertEcosystemPair(vendorCompanyId, firmId);
+      if (!ok) {
+        throw new Error(
+          `Tenancy violation in getEcosystemDetailForConsultant: firm ${firmId} is not in ecosystem of vendor ${vendorCompanyId}`
+        );
+      }
+    })
+  );
+
+  const [catalog, briefings, progresses, firmProductCatalogs, vendorCatalog] = await Promise.all([
+    firmIds.length > 0
+      ? getAdminBriefingCatalog({ companyIds: firmIds })
+      : Promise.resolve<BriefingCatalogItem[]>([]),
+    Promise.all(firmIds.map((firmId) => getAdminCompanyBriefing(firmId))).then((results) =>
+      results.filter((briefing): briefing is AdminCompanyBriefing => briefing !== null)
+    ),
+    Promise.all(
+      firmIds.map(async (firmId) => {
+        const modules = await getFirmAssessmentProgress(firmId);
+        return { firmId, summary: summarizeFirmAlignmentProgress(modules) };
+      })
+    ),
+    Promise.all(
+      firmIds.map(async (firmId) => ({
+        firmId,
+        catalog: await getFirmProductCatalog(firmId),
+      }))
+    ),
+    getVendorProductInsightCatalog(vendorCompanyId) as Promise<VendorProductInsightSnapshot[]>,
+  ]);
+
+  const productCount = vendorCatalog.length;
+  const firmReviewCount = vendorCatalog.reduce(
+    (sum, snapshot) => sum + snapshot.firmReviewed.assessmentCount,
+    0
+  );
+
+  const latestActivityAt = catalog
+    .map((item) => item.latestUpdatedAt)
+    .filter((date): date is Date => date !== null)
+    .reduce<Date | null>(
+      (latest, current) => (latest === null || current > latest ? current : latest),
+      null
+    );
+
+  const catalogByFirmId = new Map(catalog.map((item) => [item.companyId, item]));
+  const progressByFirmId = new Map(progresses.map((entry) => [entry.firmId, entry.summary]));
+  const firmProductsByFirmId = new Map(firmProductCatalogs.map((entry) => [entry.firmId, entry.catalog]));
+  const thirtyDayActionsByFirmId = new Map<string, number>();
+  for (const briefing of briefings) {
+    const count = briefing.nextActions.filter((action) => action.window === "30 days").length;
+    thirtyDayActionsByFirmId.set(briefing.company.id, count);
+  }
+
+  const firmGrid: EcosystemDetailFirmRow[] = firmIds
+    .map((firmId): EcosystemDetailFirmRow | null => {
+      const catalogEntry = catalogByFirmId.get(firmId);
+      if (!catalogEntry) return null;
+      const progress = progressByFirmId.get(firmId) ?? null;
+      const firmProducts = firmProductsByFirmId.get(firmId) ?? [];
+      const productReviewCount = firmProducts.filter(
+        (product) => product.latestFirmReviewSubmittedAt !== null
+      ).length;
+      const productsAvailable = firmProducts.filter((product) => product.reviewAvailable).length;
+      return {
+        firmCompanyId: firmId,
+        firmCompanyName: catalogEntry.companyName,
+        canonicalFirmScore: catalogEntry.canonicalFirmScore,
+        confidenceLabel: catalogEntry.confidenceLabel,
+        moduleCompletionPercent: progress ? progress.completionPercent : null,
+        productReviewCount,
+        productsAvailable,
+        latestActivityAt: catalogEntry.latestUpdatedAt
+          ? catalogEntry.latestUpdatedAt.toISOString()
+          : null,
+        thirtyDayActionCount: thirtyDayActionsByFirmId.get(firmId) ?? 0,
+      };
+    })
+    .filter((row): row is EcosystemDetailFirmRow => row !== null);
+
+  const openEnded = openEndedResponsesForEcosystem(briefings, 10);
+
+  return {
+    ecosystemId: ecosystem.id,
+    ecosystemName: ecosystem.name,
+    vendorCompanyId,
+    vendorCompanyName,
+    firmCount: firmIds.length,
+    latestActivityAt: latestActivityAt ? latestActivityAt.toISOString() : null,
+    firmConfidenceCounts: aggregateFirmConfidence(catalog),
+    avgFirmAlignmentScore: avgFirmAlignmentScore(catalog),
+    vendorProductCoverage: { productCount, firmReviewCount },
+    moduleCompletionRate: avgModuleCompletion(progresses.map((entry) => entry.summary)),
+    activeDivergenceCount: countHotDivergences(briefings),
+    thirtyDayActionCount: countThirtyDayActions(briefings),
+    vendorAtAGlance: vendorAtAGlanceForVendor(vendorCatalog),
+    vendorCoverageMap: vendorCoverageMapForVendor(vendorCatalog),
+    firmGrid,
+    openEndedResponses: openEnded.responses,
+    openEndedTotalCount: openEnded.totalCount,
+  };
 }
