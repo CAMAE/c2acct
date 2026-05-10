@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { EcosystemDetailData } from "@/lib/ecosystem";
 
 function formatScoreBadge(score: number | null): string {
@@ -86,6 +87,17 @@ export default function VendorAtAGlance({ data }: { data: EcosystemDetailData })
         <div className="mt-3 text-sm text-[var(--shell-muted)]">
           {glance.functionBucketsCovered} of {glance.functionBucketsTotal} buckets covered
         </div>
+      </div>
+
+      <div className="mt-5 border-t border-[var(--shell-border)] pt-4">
+        <Link
+          href={`/consultants/ecosystems/${data.ecosystemId}/vendor-brief`}
+          data-testid="vendor-brief-link"
+          className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--brand-accent)] hover:underline"
+        >
+          View full vendor brief
+          <span aria-hidden="true">›</span>
+        </Link>
       </div>
     </section>
   );
