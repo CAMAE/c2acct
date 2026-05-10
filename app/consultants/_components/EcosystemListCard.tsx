@@ -58,6 +58,7 @@ export default function EcosystemListCard({ data }: { data: EcosystemListCardDat
     <Link
       href={`/consultants/ecosystems/${data.ecosystemId}`}
       data-testid="ecosystem-list-card"
+      data-ecosystem-id={data.ecosystemId}
       className="flex flex-col rounded-[22px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-5 transition hover:border-[rgba(6,54,116,0.32)]"
     >
       <div className="flex items-start justify-between gap-3">
