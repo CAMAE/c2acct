@@ -70,6 +70,7 @@ const steps = [
   { command: packageManagerCommand, args: ["prisma:migrate:local"], proofKey: "prismaMigrateLocal" },
   { command: packageManagerCommand, args: ["seed:baseline"] },
   { command: packageManagerCommand, args: ["seed:pat-runtime"] },
+  { command: packageManagerCommand, args: ["seed:demo-benchmark"] },
   { command: packageManagerCommand, args: ["lint:test"], proofKey: "lintTest" },
   { command: packageManagerCommand, args: ["validate:db"] },
   { command: packageManagerCommand, args: ["typecheck"], proofKey: "typecheck" },
