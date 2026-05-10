@@ -55,6 +55,7 @@
     "prisma:db:push": "node --import tsx scripts/prisma-safe.ts db push",
     "seed:baseline": "node --import tsx prisma/seed.ts",
     "seed:pat-runtime": "node --import tsx scripts/seed-pat-runtime.ts",
+    "seed:demo-benchmark": "node --import tsx scripts/seed-demo-benchmark.ts",
     "seed:accounting-taxonomy": "node --import tsx scripts/import-accounting-taxonomy.ts --apply",
     "seed:accounting-taxonomy:dry-run": "node --import tsx scripts/import-accounting-taxonomy.ts",
     "ops:mac-mini:status": "bash scripts/mac-mini/status.sh",

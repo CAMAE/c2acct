@@ -62,13 +62,13 @@ import {
 
 type DemoSeedClient = PrismaClient;
 
-type CompanyRecord = {
+export type CompanyRecord = {
   id: string;
   name: string;
   type: CompanyType;
 };
 
-type SeededProduct = {
+export type SeededProduct = {
   id: string;
   companyId: string;
   vendorId: string;
@@ -96,7 +96,7 @@ const PRODUCT_VARIANCE_PATTERNS: Array<{
 
 const FIRM_MODULE_OFFSETS = [0.55, -0.35, 0.2, -0.75, 0.4] as const;
 
-function slugify(value: string) {
+export function slugify(value: string) {
   return value
     .trim()
     .toLowerCase()
@@ -104,7 +104,7 @@ function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-function stableId(prefix: string, key: string) {
+export function stableId(prefix: string, key: string) {
   return `${prefix}-${slugify(key)}`;
 }
 
@@ -151,18 +151,18 @@ function firmModuleAssessmentTarget(firm: DemoFirmInput, firmIndex: number, modu
   return clampTarget(firm.scoreTarget + moduleOffset + firmOffset);
 }
 
-function demoDate(offsetHours: number) {
+export function demoDate(offsetHours: number) {
   return new Date(new Date(DEMO_SEED_BASE_DATE).getTime() + offsetHours * 60 * 60 * 1000);
 }
 
-function maturityTier(scorePct: number) {
+export function maturityTier(scorePct: number) {
   if (scorePct >= 82) return { tier: "ADVANCED", bandMin: 80, bandMax: 100 };
   if (scorePct >= 65) return { tier: "SCALING", bandMin: 65, bandMax: 79 };
   if (scorePct >= 45) return { tier: "FOUNDATIONAL", bandMin: 45, bandMax: 64 };
   return { tier: "EMERGING", bandMin: 0, bandMax: 44 };
 }
 
-async function ensureResearchSource(client: DemoSeedClient) {
+export async function ensureResearchSource(client: DemoSeedClient) {
   return client.researchSource.upsert({
     where: { key: DEMO_PAT_ECOSYSTEM_VERSION },
     update: {
@@ -189,7 +189,7 @@ async function ensureResearchSource(client: DemoSeedClient) {
   });
 }
 
-async function ensureCompany(client: DemoSeedClient, input: {
+export async function ensureCompany(client: DemoSeedClient, input: {
   key: string;
   name: string;
   type: CompanyType;
@@ -221,7 +221,7 @@ async function ensureCompany(client: DemoSeedClient, input: {
   });
 }
 
-async function ensureCompanySubject(client: DemoSeedClient, company: CompanyRecord) {
+export async function ensureCompanySubject(client: DemoSeedClient, company: CompanyRecord) {
   return client.subject.upsert({
     where: { companyId: company.id },
     update: {
@@ -242,7 +242,7 @@ async function ensureCompanySubject(client: DemoSeedClient, company: CompanyReco
   });
 }
 
-async function ensureMembership(client: DemoSeedClient, input: {
+export async function ensureMembership(client: DemoSeedClient, input: {
   subjectId: string;
   membership: { plan: MembershipPlan; status: MembershipStatus };
 }) {
@@ -276,7 +276,7 @@ async function ensureMembership(client: DemoSeedClient, input: {
   });
 }
 
-async function ensureVendor(client: DemoSeedClient, input: {
+export async function ensureVendor(client: DemoSeedClient, input: {
   vendor: DemoVendorInput;
   vendorIndex: number;
   sourceId: string;
@@ -360,7 +360,7 @@ async function ensureVendor(client: DemoSeedClient, input: {
   };
 }
 
-async function ensureProduct(client: DemoSeedClient, input: {
+export async function ensureProduct(client: DemoSeedClient, input: {
   vendor: DemoVendorInput;
   vendorCompanyId: string;
   vendorProfileId: string;
@@ -507,7 +507,7 @@ async function upsertProductAssessmentPlan(client: DemoSeedClient, input: {
   });
 }
 
-async function seedVendorProductAssessment(client: DemoSeedClient, input: {
+export async function seedVendorProductAssessment(client: DemoSeedClient, input: {
   product: SeededProduct;
   moduleId: string;
   moduleVersion: number;
@@ -603,7 +603,7 @@ async function seedVendorProductAssessment(client: DemoSeedClient, input: {
   };
 }
 
-async function ensureFirm(client: DemoSeedClient, firm: DemoFirmInput) {
+export async function ensureFirm(client: DemoSeedClient, firm: DemoFirmInput) {
   const company = await ensureCompany(client, {
     key: firm.key,
     name: firm.displayName,
@@ -702,7 +702,7 @@ async function ensureFirm(client: DemoSeedClient, firm: DemoFirmInput) {
   return { company, subject };
 }
 
-async function seedFirmAlignmentSubmission(client: DemoSeedClient, input: {
+export async function seedFirmAlignmentSubmission(client: DemoSeedClient, input: {
   firm: DemoFirmInput;
   companyId: string;
   subjectId: string;
@@ -812,7 +812,7 @@ async function seedFirmAlignmentSubmission(client: DemoSeedClient, input: {
   }
 }
 
-async function seedFirmProductAssessment(client: DemoSeedClient, input: {
+export async function seedFirmProductAssessment(client: DemoSeedClient, input: {
   firm: DemoFirmInput;
   firmCompanyId: string;
   product: SeededProduct;
@@ -884,7 +884,7 @@ async function seedFirmProductAssessment(client: DemoSeedClient, input: {
   });
 }
 
-async function loadFirmAlignmentModules(client: DemoSeedClient) {
+export async function loadFirmAlignmentModules(client: DemoSeedClient) {
   const records = await client.surveyModule.findMany({
     where: {
       key: {
