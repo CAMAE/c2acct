@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "comment": "Day-13 demo benchmark: 4 accounting-software vendors with deliberate archetype + coverage spread. utilityKeys reference data/research/accounting-software-taxonomy-v1.json. Coverage spans 4-7 of 14 function buckets per vendor with intentional gaps so the Day-14 vendor coverage map shows realistic uncovered areas.",
+  "vendors": [
+    {
+      "id": "demo-bench-vendor-sentinel",
+      "name": "Sentinel Practice Cloud",
+      "tagline": "End-to-end practice operations for the modern firm",
+      "archetype": "large-incumbent",
+      "products": [
+        {
+          "id": "demo-bench-product-sentinel-practice",
+          "name": "Sentinel Practice",
+          "utilityKeys": ["function-practice-management", "function-workflow"],
+          "selfReportedScoreSeed": 78,
+          "narrativeTone": "confident"
+        },
+        {
+          "id": "demo-bench-product-sentinel-tax",
+          "name": "Sentinel Tax",
+          "utilityKeys": ["function-tax", "function-compliance"],
+          "selfReportedScoreSeed": 82,
+          "narrativeTone": "confident"
+        },
+        {
+          "id": "demo-bench-product-sentinel-cas",
+          "name": "Sentinel CAS",
+          "utilityKeys": ["function-cas", "function-billing"],
+          "selfReportedScoreSeed": 71,
+          "narrativeTone": "measured"
+        },
+        {
+          "id": "demo-bench-product-sentinel-clientportal",
+          "name": "Sentinel Client Portal",
+          "utilityKeys": ["function-client-management", "function-document-management"],
+          "selfReportedScoreSeed": 76,
+          "narrativeTone": "measured"
+        },
+        {
+          "id": "demo-bench-product-sentinel-payroll",
+          "name": "Sentinel Payroll",
+          "utilityKeys": ["function-payroll"],
+          "selfReportedScoreSeed": 68,
+          "narrativeTone": "candid"
+        },
+        {
+          "id": "demo-bench-product-sentinel-advisory",
+          "name": "Sentinel Advisory",
+          "utilityKeys": ["function-advisory", "function-analytics"],
+          "selfReportedScoreSeed": 74,
+          "narrativeTone": "confident"
+        }
+      ]
+    },
+    {
+      "id": "demo-bench-vendor-bridgepath",
+      "name": "Bridgepath Suite",
+      "tagline": "Workflow and document discipline for mid-market practices",
+      "archetype": "mid-market-specialist",
+      "products": [
+        {
+          "id": "demo-bench-product-bridgepath-flow",
+          "name": "BridgepathFlow",
+          "utilityKeys": ["function-workflow", "function-practice-management"],
+          "selfReportedScoreSeed": 84,
+          "narrativeTone": "confident"
+        },
+        {
+          "id": "demo-bench-product-bridgepath-docs",
+          "name": "Bridgepath Docs",
+          "utilityKeys": ["function-document-management"],
+          "selfReportedScoreSeed": 81,
+          "narrativeTone": "confident"
+        },
+        {
+          "id": "demo-bench-product-bridgepath-collaborate",
+          "name": "Bridgepath Collaborate",
+          "utilityKeys": ["function-client-management", "function-workflow"],
+          "selfReportedScoreSeed": 77,
+          "narrativeTone": "measured"
+        },
+        {
+          "id": "demo-bench-product-bridgepath-billing",
+          "name": "Bridgepath Billing",
+          "utilityKeys": ["function-billing", "function-payments"],
+          "selfReportedScoreSeed": 72,
+          "narrativeTone": "candid"
+        }
+      ]
+    },
+    {
+      "id": "demo-bench-vendor-lumen",
+      "name": "Lumen Modern",
+      "tagline": "Automation and analytics-first accounting infrastructure",
+      "archetype": "modern-fast-mover",
+      "products": [
+        {
+          "id": "demo-bench-product-lumen-automate",
+          "name": "Lumen Automate",
+          "utilityKeys": ["function-workflow", "function-cas"],
+          "selfReportedScoreSeed": 86,
+          "narrativeTone": "boastful"
+        },
+        {
+          "id": "demo-bench-product-lumen-insights",
+          "name": "Lumen Insights",
+          "utilityKeys": ["function-analytics", "function-advisory"],
+          "selfReportedScoreSeed": 83,
+          "narrativeTone": "boastful"
+        },
+        {
+          "id": "demo-bench-product-lumen-ledger",
+          "name": "Lumen Ledger",
+          "utilityKeys": ["function-erp-gl"],
+          "selfReportedScoreSeed": 79,
+          "narrativeTone": "confident"
+        },
+        {
+          "id": "demo-bench-product-lumen-pay",
+          "name": "Lumen Pay",
+          "utilityKeys": ["function-payments", "function-billing"],
+          "selfReportedScoreSeed": 75,
+          "narrativeTone": "measured"
+        },
+        {
+          "id": "demo-bench-product-lumen-clientstack",
+          "name": "Lumen ClientStack",
+          "utilityKeys": ["function-client-management", "function-document-management"],
+          "selfReportedScoreSeed": 80,
+          "narrativeTone": "confident"
+        }
+      ]
+    },
+    {
+      "id": "demo-bench-vendor-stratabind",
+      "name": "Stratabind Audit & Compliance",
+      "tagline": "Depth-first audit and regulatory compliance tooling",
+      "archetype": "niche-depth",
+      "products": [
+        {
+          "id": "demo-bench-product-stratabind-audit",
+          "name": "Stratabind Audit",
+          "utilityKeys": ["function-audit"],
+          "selfReportedScoreSeed": 88,
+          "narrativeTone": "confident"
+        },
+        {
+          "id": "demo-bench-product-stratabind-comply",
+          "name": "Stratabind Comply",
+          "utilityKeys": ["function-compliance", "function-audit"],
+          "selfReportedScoreSeed": 85,
+          "narrativeTone": "confident"
+        },
+        {
+          "id": "demo-bench-product-stratabind-risk",
+          "name": "Stratabind Risk",
+          "utilityKeys": ["function-compliance", "function-analytics"],
+          "selfReportedScoreSeed": 80,
+          "narrativeTone": "measured"
+        },
+        {
+          "id": "demo-bench-product-stratabind-evidence",
+          "name": "Stratabind Evidence",
+          "utilityKeys": ["function-document-management", "function-audit"],
+          "selfReportedScoreSeed": 76,
+          "narrativeTone": "candid"
+        }
+      ]
+    }
+  ]
+}

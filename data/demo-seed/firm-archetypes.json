@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "comment": "Day-13 demo benchmark archetypes. moduleScoreRanges drive Submission scoring; completionRate decides modules-complete count out of 5. The 6th 'sample-thin' archetype is the ~2-5% sample-thin firms the brief calls out for visual honesty (§6 decision 8) — same scoring shape as mid-tier but truncated module + review coverage.",
+  "archetypes": [
+    {
+      "archetype": "high-performing",
+      "moduleScoreRanges": {
+        "operating-model": [76, 88],
+        "automation-ai": [70, 86],
+        "data-flow": [78, 90],
+        "governance": [72, 84],
+        "strategy": [74, 86]
+      },
+      "completionRate": 1.0,
+      "moduleAnswerProfile": {
+        "default": { "skewToHigh": 0.7, "consistencyVariance": 0.12 }
+      },
+      "productReviewCoverage": 0.85,
+      "openEndedTone": "positive-with-specifics"
+    },
+    {
+      "archetype": "mid-tier",
+      "moduleScoreRanges": {
+        "operating-model": [60, 74],
+        "automation-ai": [58, 72],
+        "data-flow": [62, 76],
+        "governance": [60, 74],
+        "strategy": [60, 74]
+      },
+      "completionRate": 0.95,
+      "moduleAnswerProfile": {
+        "default": { "skewToHigh": 0.5, "consistencyVariance": 0.18 }
+      },
+      "productReviewCoverage": 0.7,
+      "openEndedTone": "balanced"
+    },
+    {
+      "archetype": "struggling",
+      "moduleScoreRanges": {
+        "operating-model": [45, 60],
+        "automation-ai": [42, 58],
+        "data-flow": [46, 60],
+        "governance": [48, 62],
+        "strategy": [44, 58]
+      },
+      "completionRate": 0.75,
+      "moduleAnswerProfile": {
+        "default": { "skewToHigh": 0.3, "consistencyVariance": 0.22 }
+      },
+      "productReviewCoverage": 0.55,
+      "openEndedTone": "frustrated"
+    },
+    {
+      "archetype": "compliance-heavy",
+      "moduleScoreRanges": {
+        "operating-model": [64, 76],
+        "automation-ai": [54, 66],
+        "data-flow": [66, 78],
+        "governance": [78, 90],
+        "strategy": [60, 72]
+      },
+      "completionRate": 0.95,
+      "moduleAnswerProfile": {
+        "default": { "skewToHigh": 0.5, "consistencyVariance": 0.16 },
+        "governance": { "skewToHigh": 0.78, "consistencyVariance": 0.1 },
+        "automation-ai": { "skewToHigh": 0.32, "consistencyVariance": 0.18 }
+      },
+      "productReviewCoverage": 0.75,
+      "openEndedTone": "constructive"
+    },
+    {
+      "archetype": "tech-forward",
+      "moduleScoreRanges": {
+        "operating-model": [66, 80],
+        "automation-ai": [80, 92],
+        "data-flow": [74, 86],
+        "governance": [60, 72],
+        "strategy": [70, 84]
+      },
+      "completionRate": 0.95,
+      "moduleAnswerProfile": {
+        "default": { "skewToHigh": 0.6, "consistencyVariance": 0.14 },
+        "automation-ai": { "skewToHigh": 0.82, "consistencyVariance": 0.1 },
+        "governance": { "skewToHigh": 0.42, "consistencyVariance": 0.2 }
+      },
+      "productReviewCoverage": 0.8,
+      "openEndedTone": "enthusiastic"
+    },
+    {
+      "archetype": "sample-thin",
+      "moduleScoreRanges": {
+        "operating-model": [56, 70],
+        "automation-ai": [52, 66],
+        "data-flow": [58, 70],
+        "governance": [56, 68],
+        "strategy": [54, 66]
+      },
+      "completionRate": 0.4,
+      "moduleAnswerProfile": {
+        "default": { "skewToHigh": 0.45, "consistencyVariance": 0.25 }
+      },
+      "productReviewCoverage": 0.25,
+      "openEndedTone": "balanced"
+    }
+  ]
+}
