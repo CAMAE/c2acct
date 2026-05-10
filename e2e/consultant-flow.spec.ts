@@ -140,6 +140,93 @@ test.describe("consultant flow", () => {
     expect(crossTenantStatus).toBe(404);
   });
 
+  test("vendor brief: consultant sees own ecosystem's brief and 404s on cross-tenant", async ({ page, context }) => {
+    test.skip(
+      !consultantAccessEnabled,
+      "Consultant access flag is off; vendor-brief tenancy test only meaningful when /consultants is reachable."
+    );
+
+    // Detail-aggregator + brief-aggregator both fan out to N firms +
+    // engine fetches; brief is heavier than Mock A detail. Bump per-test
+    // timeout to absorb the dev-server JIT compile on first hit.
+    test.setTimeout(180_000);
+
+    // Sign in as Sentinel consultant
+    const csrfRes = await context.request.get("/api/auth/csrf");
+    const { csrfToken } = await csrfRes.json();
+    await context.request.post("/api/auth/callback/credentials", {
+      form: {
+        csrfToken,
+        email: "review.consultant+sentinel@pat.local",
+        password: DEMO_BENCH_PASSWORD,
+        redirectTo: "/consultants",
+      },
+      maxRedirects: 0,
+      failOnStatusCode: false,
+    });
+
+    // Read the Sentinel consultant's owned ecosystem id off the Mock C list.
+    await page.goto("/consultants", { waitUntil: "networkidle" });
+    const ownEcosystemId = await page
+      .locator('[data-testid="ecosystem-list-card"]')
+      .first()
+      .getAttribute("data-ecosystem-id");
+    expect(ownEcosystemId).toBeTruthy();
+
+    // Pre-warm the dynamic route via a 404 path so the dev-server JIT
+    // compile lands on the cheap notFound() branch before the heavy
+    // aggregator runs against the real ecosystem id.
+    await context.request.get(
+      "/consultants/ecosystems/demo-bench-ecosystem-prewarm/vendor-brief",
+      { failOnStatusCode: false, timeout: 60_000 }
+    );
+
+    // Own vendor brief -> 200
+    const ownResponse = await context.request.get(
+      `/consultants/ecosystems/${ownEcosystemId}/vendor-brief`,
+      { failOnStatusCode: false, timeout: 90_000 }
+    );
+    expect(ownResponse.status()).toBe(200);
+
+    // After the route is warm, page.goto can safely fetch DOM.
+    await page.goto(`/consultants/ecosystems/${ownEcosystemId}/vendor-brief`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="vendor-brief-page"]')).toBeVisible();
+
+    // Non-existent ecosystem id -> 404
+    const nonexistentStatus = await context.request
+      .get("/consultants/ecosystems/demo-bench-ecosystem-nonexistent/vendor-brief", {
+        failOnStatusCode: false,
+        timeout: 30_000,
+      })
+      .then((res) => res.status());
+    expect(nonexistentStatus).toBe(404);
+
+    // Sign in as Bridgepath consultant in the same context; request
+    // Sentinel's vendor brief -> 404.
+    const csrf2 = await context.request.get("/api/auth/csrf");
+    const { csrfToken: token2 } = await csrf2.json();
+    await context.request.post("/api/auth/callback/credentials", {
+      form: {
+        csrfToken: token2,
+        email: "review.consultant+bridgepath@pat.local",
+        password: DEMO_BENCH_PASSWORD,
+        redirectTo: "/consultants",
+      },
+      maxRedirects: 0,
+      failOnStatusCode: false,
+    });
+    const crossTenantStatus = await context.request
+      .get(`/consultants/ecosystems/${ownEcosystemId}/vendor-brief`, {
+        failOnStatusCode: false,
+        timeout: 30_000,
+      })
+      .then((res) => res.status());
+    expect(crossTenantStatus).toBe(404);
+  });
+
   test("demo-bench consultant sees their ecosystem only (Sentinel)", async ({ page, context }) => {
     test.skip(
       !consultantAccessEnabled,
