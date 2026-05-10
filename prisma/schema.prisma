@@ -837,6 +837,7 @@ model ConsultantProfile {
   User                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   ConsultantAssignment ConsultantAssignment?
   Ecosystem            Ecosystem?
+  BriefEditChoice      BriefEditChoice[]
 }
 
 model ConsultantAssignment {
@@ -882,6 +883,23 @@ model EcosystemFirm {
   @@index([ecosystemId])
 }
 
+model BriefEditChoice {
+  id                  String              @id @default(cuid())
+  briefId             String
+  sectionKey          String
+  choiceType          BriefEditChoiceType
+  choiceValue         String
+  consultantProfileId String
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  ConsultantProfile   ConsultantProfile   @relation(fields: [consultantProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([briefId, sectionKey, consultantProfileId, choiceType])
+  @@index([briefId])
+  @@index([consultantProfileId])
+}
+
 model OperatorAuditEvent {
   id         String   @id
   actorUserId String?
@@ -909,6 +927,12 @@ model RateLimitBucket {
 
   @@unique([scope, keyHash])
   @@index([scope, resetAt])
+}
+
+enum BriefEditChoiceType {
+  PHRASING_VARIANT
+  EMPHASIS
+  ORDERING
 }
 
 enum CapabilityLevel {
