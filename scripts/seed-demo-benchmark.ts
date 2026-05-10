@@ -182,8 +182,11 @@ async function main() {
       }
 
       // Firm product reviews against the subset selected by the combinator.
+      // productReviewIds reference the JSON-bank id (catalog slug); the
+      // SeededProduct stores the original DemoProductInput on `.input` whose
+      // `.key` matches.
       for (const [reviewIndex, productId] of firmPlan.productReviewIds.entries()) {
-        const seededProduct = seededProducts.find((entry) => entry.id === productId);
+        const seededProduct = seededProducts.find((entry) => entry.input.key === productId);
         if (!seededProduct) continue;
         await seedFirmProductAssessment(prisma, {
           firm: firmPlan.demoFirmInput,
