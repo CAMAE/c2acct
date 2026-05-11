@@ -25,6 +25,7 @@
     "secrets:scan": "bash scripts/secret-scan-precheck.sh",
     "handoff:checklist": "bash scripts/pre-handoff-checklist.sh",
     "handoff:preflight": "pnpm secrets:scan && pnpm handoff:checklist",
+    "audit:pat": "pnpm secrets:scan && pnpm lint:repo && pnpm typecheck && vitest run tests/tenancy-invariant.test.ts tests/demo-benchmark-seed.contract.test.ts",
     "test": "pnpm test:unit",
     "test:unit": "vitest run",
     "test:e2e": "pnpm db:up && pnpm db:wait && pnpm prisma:migrate:local && PAT_ENABLE_LOCAL_REVIEW_AUTH=1 pnpm seed:baseline && PAT_ENABLE_LOCAL_REVIEW_AUTH=1 pnpm seed:pat-runtime && PLAYWRIGHT_PORT=3001 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3001 AUTH_URL=http://127.0.0.1:3001 NEXTAUTH_URL=http://127.0.0.1:3001 PAT_ENABLE_LOCAL_REVIEW_AUTH=1 PAT_ENABLE_CONSULTANT_ACCESS=1 PAT_LOCAL_REVIEW_PASSWORD=pat-local-review AUTH_SECRET=pat-local-auth-secret playwright test",

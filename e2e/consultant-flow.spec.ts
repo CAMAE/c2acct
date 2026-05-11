@@ -195,6 +195,19 @@ test.describe("consultant flow", () => {
     });
     await expect(page.locator('[data-testid="vendor-brief-page"]')).toBeVisible();
 
+    // Day-16 R1 fix: prove the brief is non-empty, not just that the route
+    // renders. seed:demo-benchmark wires seedVendorProductAssessment for
+    // every product; if a downstream filter drops those rows, the brief
+    // shows empty boxes and the route-renders assertion alone wouldn't
+    // catch it. Each section needs at least one rendered row.
+    await expect(page.locator('[data-testid="delta-row"]').first()).toBeVisible();
+    await expect(page.locator('[data-testid="heatmap-cell"]').first()).toBeVisible();
+    await expect(page.locator('[data-testid="roadmap-panel"]').first()).toBeVisible();
+    const methodologyText = await page
+      .locator('[data-testid="brief-methodology"]')
+      .innerText();
+    expect(methodologyText.trim().length).toBeGreaterThan(0);
+
     // Non-existent ecosystem id -> 404
     const nonexistentStatus = await context.request
       .get("/consultants/ecosystems/demo-bench-ecosystem-nonexistent/vendor-brief", {

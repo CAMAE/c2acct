@@ -58,6 +58,7 @@ async function main() {
     ecosystems: 0,
     vendors: 0,
     products: 0,
+    vendorProductAssessments: 0,
     consultants: 0,
     firms: 0,
     firmModuleSubmissions: 0,
@@ -93,6 +94,7 @@ async function main() {
         moduleVersion: vendorModule.version ?? 1,
         productIndex,
       });
+      counts.vendorProductAssessments += 1;
     }
 
     // 2) Consultant User + ConsultantProfile (uses scrypt-hashed password so
@@ -202,6 +204,18 @@ async function main() {
 
     console.log(
       `Ecosystem "${plan.ecosystemName}": vendor + ${plan.vendor.demoVendorInput.products.length} products, ${plan.firms.length} firms, consultant ${plan.consultant.email}`
+    );
+  }
+
+  // Day-16 audit-hardening: vendorProductAssessments must remain coupled to
+  // products. If a future edit silently drops seedVendorProductAssessment
+  // from the product loop, the demo brief will render with empty Self-vs
+  // -Market Delta / Per-Firm Heatmap and no test will catch it. The
+  // contract test in tests/demo-benchmark-seed.contract.test.ts catches
+  // the static wiring; this runtime check catches the actual count.
+  if (counts.products !== counts.vendorProductAssessments) {
+    throw new Error(
+      `seed:demo-benchmark wiring regression: products=${counts.products} vs vendorProductAssessments=${counts.vendorProductAssessments}. Every product must receive a seedVendorProductAssessment call so getVendorProductInsightCatalog has rows to read.`
     );
   }
 
