@@ -193,34 +193,66 @@ describe("lib/ecosystem helpers", () => {
       } as unknown as VendorProductInsightSnapshot;
     }
 
-    it("renders all 14 buckets with covered cells where utilityKeys hit", () => {
+    it("derives covered buckets via each registry utility's taxonomyBucketKeys", () => {
+      // tax_workflow_compliance covers function-tax + function-compliance.
+      // audit_workflow_workpapers_evidence covers function-audit + function-compliance.
+      // payroll_workforce_support covers function-payroll.
+      // workflow_practice_operations_task_routing covers function-workflow + function-practice-management.
       const cells = vendorCoverageMapForVendor([
-        snapshot("p1", ["function-tax", "function-audit"]),
-        snapshot("p2", ["function-tax", "function-workflow", "function-payroll"]),
+        snapshot("p1", ["tax_workflow_compliance", "audit_workflow_workpapers_evidence"]),
+        snapshot("p2", [
+          "tax_workflow_compliance",
+          "workflow_practice_operations_task_routing",
+          "payroll_workforce_support",
+        ]),
       ]);
       expect(cells).toHaveLength(FUNCTION_BUCKET_KEYS.length);
       const covered = cells.filter((cell) => cell.covered);
+      // Union: tax, compliance, audit (from p1) + tax, compliance, workflow, practice-management, payroll (from p2).
       expect(covered.map((cell) => cell.bucketKey).sort()).toEqual(
-        ["function-audit", "function-payroll", "function-tax", "function-workflow"].sort()
+        [
+          "function-audit",
+          "function-compliance",
+          "function-payroll",
+          "function-practice-management",
+          "function-tax",
+          "function-workflow",
+        ].sort()
       );
-      // tax is in two products, the rest in one
+      // function-tax: derived by both p1 and p2 -> productCount 2.
       const tax = cells.find((cell) => cell.bucketKey === "function-tax");
       expect(tax?.productCount).toBe(2);
+      // function-compliance: derived by p1 (tax_workflow_compliance +
+      // audit_workflow_workpapers_evidence) AND p2 (tax_workflow_compliance).
+      // p1's two utilities both touch function-compliance — productCount
+      // dedupes per product, so this is 2 not 3.
+      const compliance = cells.find((cell) => cell.bucketKey === "function-compliance");
+      expect(compliance?.productCount).toBe(2);
+      // function-audit: only p1 -> 1.
       const audit = cells.find((cell) => cell.bucketKey === "function-audit");
       expect(audit?.productCount).toBe(1);
       // unfilled cells preserved with productCount: 0
       const unfilled = cells.filter((cell) => !cell.covered);
-      expect(unfilled).toHaveLength(FUNCTION_BUCKET_KEYS.length - 4);
+      expect(unfilled).toHaveLength(FUNCTION_BUCKET_KEYS.length - 6);
       expect(unfilled.every((cell) => cell.productCount === 0)).toBe(true);
     });
 
-    it("ignores utility keys outside the 14-bucket taxonomy", () => {
+    it("ignores utility keys outside the registry vocabulary", () => {
+      // function-* keys (the old function-bucket vocabulary) are NOT
+      // valid registry utility keys, so they no longer count toward
+      // coverage. This is the regression that audit-d15-001 surfaced.
       const cells = vendorCoverageMapForVendor([
-        snapshot("p1", ["function-tax", "made-up-bucket", "function-not-a-thing"]),
+        snapshot("p1", [
+          "tax_workflow_compliance",
+          "function-tax",
+          "made-up-bucket",
+        ]),
       ]);
       const covered = cells.filter((cell) => cell.covered);
-      expect(covered).toHaveLength(1);
-      expect(covered[0].bucketKey).toBe("function-tax");
+      // Only tax_workflow_compliance contributes; it covers tax + compliance.
+      expect(covered.map((cell) => cell.bucketKey).sort()).toEqual(
+        ["function-compliance", "function-tax"].sort()
+      );
     });
   });
 
@@ -245,27 +277,34 @@ describe("lib/ecosystem helpers", () => {
     }
 
     it("returns highest and lowest firm-reviewed scores", () => {
+      // tax_workflow_compliance -> function-tax + function-compliance (2 buckets).
+      // workflow_practice_operations_task_routing -> function-workflow +
+      // function-practice-management (2 buckets).
+      // payroll_workforce_support -> function-payroll (1 bucket — the other
+      // entries in its taxonomyBucketKeys are non-function-* values).
       const result = vendorAtAGlanceForVendor([
-        scored("a", 52, ["function-tax"]),
-        scored("b", 84, ["function-workflow"]),
-        scored("c", 70, ["function-payroll"]),
+        scored("a", 52, ["tax_workflow_compliance"]),
+        scored("b", 84, ["workflow_practice_operations_task_routing"]),
+        scored("c", 70, ["payroll_workforce_support"]),
       ]);
       expect(result.productCount).toBe(3);
       expect(result.strongestProduct).toEqual({ id: "b", name: "Product b", score: 84 });
       expect(result.weakestProduct).toEqual({ id: "a", name: "Product a", score: 52 });
-      expect(result.functionBucketsCovered).toBe(3);
+      // Union: tax, compliance, workflow, practice-management, payroll = 5.
+      expect(result.functionBucketsCovered).toBe(5);
       expect(result.functionBucketsTotal).toBe(FUNCTION_BUCKET_KEYS.length);
     });
 
     it("nulls strongest/weakest when every score is null", () => {
       const result = vendorAtAGlanceForVendor([
-        scored("a", null, ["function-tax"]),
+        scored("a", null, ["tax_workflow_compliance"]),
         scored("b", null, []),
       ]);
       expect(result.productCount).toBe(2);
       expect(result.strongestProduct).toBeNull();
       expect(result.weakestProduct).toBeNull();
-      expect(result.functionBucketsCovered).toBe(1);
+      // tax_workflow_compliance covers 2 function buckets.
+      expect(result.functionBucketsCovered).toBe(2);
     });
   });
 

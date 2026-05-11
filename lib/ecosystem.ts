@@ -16,6 +16,7 @@ import {
   getVendorProductInsightCatalog,
   type VendorProductInsightSnapshot,
 } from "@/lib/vendorProductInsightEngine";
+import { PRODUCT_UTILITY_REGISTRY } from "@/lib/productUtilityRegistry";
 
 /**
  * Phase-3 Day-12 ecosystem aggregation layer.
@@ -351,19 +352,41 @@ export type EcosystemDetailData = {
 // ---------- Day-14 helpers (pure; exported for unit tests) ----------
 
 /**
+ * Day-16 audit-d15-001 alignment: the curated `vendor-catalog.json` and the
+ * runtime `getVendorProductInsightCatalog` predicate speak registry-utility
+ * keys (`tax_workflow_compliance`, etc., from `lib/productUtilityRegistry.ts`).
+ * The 14-bucket display vocabulary still uses `function-*` keys from the
+ * accounting-software taxonomy. The bridge is the registry's
+ * `taxonomyBucketKeys` field — each registry utility lists which function
+ * buckets it covers. This map looks each utility's bucket attribution up there
+ * at render time, so the curated data file stays the single source of truth
+ * and the registry-vs-taxonomy translation never has to be duplicated.
+ *
  * Group-by-bucket across vendor product snapshots: a bucket is "covered" if
- * any product in the vendor's catalog declares its utility key.
+ * any product in the vendor's catalog declares a registry utility that maps
+ * to that bucket via taxonomyBucketKeys.
  */
+const REGISTRY_UTILITY_BUCKET_KEYS: Record<string, string[]> = Object.fromEntries(
+  PRODUCT_UTILITY_REGISTRY.map((utility) => [utility.key, utility.taxonomyBucketKeys])
+);
+
 export function vendorCoverageMapForVendor(
   vendorCatalog: VendorProductInsightSnapshot[]
 ): EcosystemDetailCoverageCell[] {
   const productCountByBucket = new Map<string, number>();
   for (const snapshot of vendorCatalog) {
+    const bucketsTouchedByProduct = new Set<string>();
     for (const utilityKey of snapshot.product.utilityKeys) {
-      if (!FUNCTION_BUCKET_LABELS[utilityKey]) continue;
+      const bucketKeys = REGISTRY_UTILITY_BUCKET_KEYS[utilityKey] ?? [];
+      for (const bucketKey of bucketKeys) {
+        if (!FUNCTION_BUCKET_LABELS[bucketKey]) continue;
+        bucketsTouchedByProduct.add(bucketKey);
+      }
+    }
+    for (const bucketKey of bucketsTouchedByProduct) {
       productCountByBucket.set(
-        utilityKey,
-        (productCountByBucket.get(utilityKey) ?? 0) + 1
+        bucketKey,
+        (productCountByBucket.get(bucketKey) ?? 0) + 1
       );
     }
   }
