@@ -71,6 +71,9 @@ async function loadBriefs() {
 async function loadFirmBriefs() {
   return import("@/lib/firmBriefs");
 }
+async function loadBriefEditChoice() {
+  return import("@/lib/briefEditChoice");
+}
 
 describe("Invariant 1: consultant tenancy lookup is the first prisma call", () => {
   beforeEach(() => {
@@ -110,6 +113,32 @@ describe("Invariant 1: consultant tenancy lookup is the first prisma call", () =
       "synthetic-consultant-4",
       "synthetic-ecosystem-z",
       "synthetic-firm-q"
+    );
+    expect(callLog.length).toBeGreaterThan(0);
+    expect(callLog[0]).toEqual(["consultantAssignment", "findFirst"]);
+  });
+
+  it("upsertBriefEditChoiceForConsultant probes consultantAssignment.findFirst first", async () => {
+    const { upsertBriefEditChoiceForConsultant } = await loadBriefEditChoice();
+    await upsertBriefEditChoiceForConsultant("synthetic-consultant-5", {
+      briefKind: "vendor",
+      briefId: "synthetic-vendor-q",
+      ecosystemId: "synthetic-ecosystem-q",
+      sectionKey: "vendor.executive-summary",
+      choiceType: "PHRASING_VARIANT",
+      choiceValue: "v1-measured",
+    });
+    expect(callLog.length).toBeGreaterThan(0);
+    expect(callLog[0]).toEqual(["consultantAssignment", "findFirst"]);
+  });
+
+  it("getBriefEditChoicesForConsultant probes consultantAssignment.findFirst first", async () => {
+    const { getBriefEditChoicesForConsultant } = await loadBriefEditChoice();
+    await getBriefEditChoicesForConsultant(
+      "synthetic-consultant-6",
+      "vendor",
+      "synthetic-vendor-q",
+      "synthetic-ecosystem-q"
     );
     expect(callLog.length).toBeGreaterThan(0);
     expect(callLog[0]).toEqual(["consultantAssignment", "findFirst"]);

@@ -96,3 +96,19 @@ export function renderConfidenceCallout(slots: {
   }
   return `${slots.modulesCompletedCount} of ${slots.modulesTotalCount} base modules complete · ${slots.questionsAnsweredCount} of ${slots.questionsTotalCount} questions answered.`;
 }
+
+/**
+ * Phrasing-variant id allowlist (PAT-5.7 Brief Mocks v2.1 §7). Each
+ * Firm-Brief section ships 2 variants in pilot — same claims and numbers,
+ * different tone. The default render path uses variant index 0; the
+ * BriefEditChoice API (lib/briefEditChoice.ts) validates choiceValue
+ * membership against this allowlist when a consultant picks an alternative.
+ * Block 2 (Day 17) wires the actual VARIANT_BANK render functions; the
+ * allowlist below ships first so Block 1's validator has a single source
+ * of truth.
+ */
+export const FIRM_BRIEF_VARIANT_IDS: Record<string, readonly string[]> = {
+  "firm.alignment-header": ["v1-measured", "v1-pointed"],
+  "firm.stack-fit-analysis": ["v1-measured", "v1-narrative"],
+  "firm.six-quarter-roadmap": ["v1-measured", "v1-pointed"],
+} as const;

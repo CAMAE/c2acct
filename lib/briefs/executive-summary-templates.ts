@@ -132,3 +132,19 @@ export function renderConfidenceCallout(slots: ConfidenceCalloutSlots): string {
   if (slots.noSignalCount > 0) parts.push(`${slots.noSignalCount} no-signal`);
   return `Confidence band across ${slots.firmCount} firm${slots.firmCount === 1 ? "" : "s"}: ${parts.join(", ")}.`;
 }
+
+/**
+ * Phrasing-variant id allowlist (PAT-5.7 Brief Mocks v2.1 §7). Each
+ * Vendor-Brief section ships 2 variants in pilot — same claims and numbers,
+ * different tone. The default render path uses variant index 0; the
+ * BriefEditChoice API (lib/briefEditChoice.ts) validates choiceValue
+ * membership against this allowlist when a consultant picks an alternative.
+ * Block 2 (Day 17) wires the actual VARIANT_BANK render functions; the
+ * allowlist below ships first so Block 1's validator has a single source
+ * of truth.
+ */
+export const VENDOR_BRIEF_VARIANT_IDS: Record<string, readonly string[]> = {
+  "vendor.executive-summary": ["v1-measured", "v1-pointed"],
+  "vendor.self-vs-market-delta": ["v1-measured", "v1-narrative"],
+  "vendor.action-roadmap": ["v1-measured", "v1-pointed"],
+} as const;
