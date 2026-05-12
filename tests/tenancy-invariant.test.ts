@@ -69,23 +69,7 @@ async function loadBriefs() {
   return import("@/lib/briefs");
 }
 async function loadFirmBriefs() {
-  // lib/firmBriefs.ts is added in Day-16 Block 3. Skip its assertion when
-  // the module isn't present yet so this guard test stays green during
-  // the block-by-block landing. Once Block 3 lands the module, the
-  // ts-expect-error directive auto-fires as an error and forces this
-  // shim to be removed.
-  try {
-    // @ts-expect-error — module materializes in Day-16 Block 3.
-    return (await import("@/lib/firmBriefs")) as {
-      getFirmBriefForConsultant: (
-        consultantProfileId: string,
-        ecosystemId: string,
-        firmCompanyId: string
-      ) => Promise<unknown>;
-    };
-  } catch {
-    return null;
-  }
+  return import("@/lib/firmBriefs");
 }
 
 describe("Invariant 1: consultant tenancy lookup is the first prisma call", () => {
@@ -121,13 +105,8 @@ describe("Invariant 1: consultant tenancy lookup is the first prisma call", () =
   });
 
   it("getFirmBriefForConsultant probes consultantAssignment.findFirst first", async () => {
-    const mod = await loadFirmBriefs();
-    if (!mod) {
-      // Module not yet present — Day-16 Block 3 will land it. The other
-      // three assertions still enforce the invariant on the current code.
-      return;
-    }
-    await mod.getFirmBriefForConsultant(
+    const { getFirmBriefForConsultant } = await loadFirmBriefs();
+    await getFirmBriefForConsultant(
       "synthetic-consultant-4",
       "synthetic-ecosystem-z",
       "synthetic-firm-q"
