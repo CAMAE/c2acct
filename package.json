@@ -15,6 +15,7 @@
     "release:smoke": "pnpm build",
     "release:prelaunch": "pnpm release:smoke && node scripts/release/prelaunch-gate.mjs --root .",
     "launch:proof": "node scripts/release/generate-launch-proof-bundle.mjs --root . --run-route-smoke",
+    "release:promote-known-good": "node scripts/release/promote-known-good.mjs --root .",
     "billing:stripe-proof": "node --import tsx scripts/billing/stripe-roundtrip-proof.ts --fixture",
     "validate:release-surfaces": "pnpm release:prelaunch",
     "lint": "eslint --max-warnings=-1",

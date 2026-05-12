@@ -78,6 +78,11 @@ const steps = [
   { command: packageManagerCommand, args: ["build"], proofKey: "build" },
   { command: packageManagerCommand, args: ["standalone:local:check"] },
   { command: packageManagerCommand, args: ["release:prelaunch"], proofKey: "releasePrelaunch" },
+  // AUDIT-D16-001 closer (Day-18 Block 1, option a): always promote
+  // last-known-good after prelaunch — whether prelaunch ran or was
+  // skipped-due-to-freshness. The bug was that a skipped prelaunch
+  // bypassed the promotion path inside prelaunch-gate.mjs.
+  { command: packageManagerCommand, args: ["release:promote-known-good"], proofKey: "releasePromoteKnownGood" },
   { command: packageManagerCommand, args: ["test:e2e:local-review"], proofKey: "localReviewE2e" },
   { command: packageManagerCommand, args: ["test:e2e:release-integrity"] },
   { command: "bash", args: ["scripts/mac-mini/restart-app.sh"] },
