@@ -63,6 +63,17 @@ function isPrelaunchFresh(root: string): { fresh: boolean; reason: string } {
   }
 }
 
+// AUDIT-D18-002 partial closer (Day-19 Block 4): the mac-mini tail
+// steps (restart-app, launchd-check, port-owner-proof) require a live
+// launchd target (`gui/${UID}/com.c2acct.app`) and a clean Git root.
+// On dev workstations neither holds, so the chain used to fail at
+// step 18 even when every meaningful validation step had passed. Gate:
+// set PAT_VALIDATE_LAUNCH_SKIP_MAC_MINI=1 in dev `.env.local` (or
+// inline) to skip these final steps. Mac-mini hosts leave the var
+// unset; the chain runs them.
+const skipMacMiniSteps =
+  process.env.PAT_VALIDATE_LAUNCH_SKIP_MAC_MINI === "1";
+
 const steps = [
   { command: packageManagerCommand, args: ["prisma:generate"], proofKey: "prismaGenerate" },
   { command: packageManagerCommand, args: ["db:recreate"] },
@@ -85,10 +96,20 @@ const steps = [
   { command: packageManagerCommand, args: ["release:promote-known-good"], proofKey: "releasePromoteKnownGood" },
   { command: packageManagerCommand, args: ["test:e2e:local-review"], proofKey: "localReviewE2e" },
   { command: packageManagerCommand, args: ["test:e2e:release-integrity"] },
-  { command: "bash", args: ["scripts/mac-mini/restart-app.sh"] },
-  { command: "bash", args: ["scripts/mac-mini/launchd-check.sh"] },
-  { command: "bash", args: ["scripts/mac-mini/port-owner-proof.sh"] },
+  ...(skipMacMiniSteps
+    ? []
+    : ([
+        { command: "bash", args: ["scripts/mac-mini/restart-app.sh"] },
+        { command: "bash", args: ["scripts/mac-mini/launchd-check.sh"] },
+        { command: "bash", args: ["scripts/mac-mini/port-owner-proof.sh"] },
+      ] as const)),
 ] as const;
+
+if (skipMacMiniSteps) {
+  console.log(
+    "==> PAT_VALIDATE_LAUNCH_SKIP_MAC_MINI=1; skipping mac-mini tail steps (restart-app, launchd-check, port-owner-proof)."
+  );
+}
 
 const commandResults: Record<string, {
   status: "COMPLETE" | "CONFLICTING";

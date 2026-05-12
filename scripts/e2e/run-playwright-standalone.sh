@@ -47,6 +47,16 @@ if [ -f "${ROOT_DIR}/.env.local" ]; then
   set +a
 fi
 
+# .env.local carries GitHub OAuth credentials for the standalone:local
+# proof path. The e2e suite (specifically e2e/release-integrity.spec.ts:43
+# "/login remains compatibility-only") asserts the sign-in page does NOT
+# render the GitHub provider button. Under `next dev` this test passed
+# because dev-mode Auth.js behavior differs; under the standalone server
+# the GitHub provider is fully enabled when AUTH_GITHUB_ID/SECRET are set,
+# breaking the assertion. Strip the GitHub creds from the e2e webServer
+# env to match the local-review-auth-only contract the suite expects.
+unset AUTH_GITHUB_ID AUTH_GITHUB_SECRET
+
 # Now apply the e2e overrides AFTER .env.local so they win. macOS bash
 # sets HOSTNAME to the machine hostname by default ("Camerons-Mini"),
 # which Next.js would bind to a non-loopback interface — force loopback.
