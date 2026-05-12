@@ -139,12 +139,114 @@ export function renderConfidenceCallout(slots: ConfidenceCalloutSlots): string {
  * different tone. The default render path uses variant index 0; the
  * BriefEditChoice API (lib/briefEditChoice.ts) validates choiceValue
  * membership against this allowlist when a consultant picks an alternative.
- * Block 2 (Day 17) wires the actual VARIANT_BANK render functions; the
- * allowlist below ships first so Block 1's validator has a single source
- * of truth.
  */
 export const VENDOR_BRIEF_VARIANT_IDS: Record<string, readonly string[]> = {
   "vendor.executive-summary": ["v1-measured", "v1-pointed"],
   "vendor.self-vs-market-delta": ["v1-measured", "v1-narrative"],
   "vendor.action-roadmap": ["v1-measured", "v1-pointed"],
 } as const;
+
+export type VendorVariantTone = "measured" | "pointed" | "narrative";
+
+export type VendorBriefVariantRender = {
+  id: string;
+  tone: VendorVariantTone;
+  /** Short tone-flavored preamble for the section. Numbers come from slots; tone is the only thing that varies between variants. */
+  render: (slots: VendorBriefVariantSlots) => string;
+};
+
+export type VendorBriefVariantSlots = {
+  ecosystemName: string;
+  firmCount: number;
+  avgFirmScore: number | null;
+  avgVendorSelfReport: number | null;
+  hotDivergences: number;
+  productCount: number;
+  roadmapItemCount: number;
+};
+
+/**
+ * VARIANT_BANK — 2 variants per section, deterministic preamble per tone.
+ * The numeric assertions (firm count, hot-divergence count, etc.) are
+ * identical across variants; only adjectives, sentence structure, and
+ * cadence vary. Tests assert this same-number guarantee.
+ */
+export const VENDOR_BRIEF_VARIANT_BANK: Record<string, readonly VendorBriefVariantRender[]> = {
+  "vendor.executive-summary": [
+    {
+      id: "v1-measured",
+      tone: "measured",
+      render: ({ ecosystemName, firmCount, avgFirmScore, avgVendorSelfReport }) => {
+        if (avgFirmScore === null || avgVendorSelfReport === null) {
+          return `${ecosystemName}: ${firmCount} firm${firmCount === 1 ? "" : "s"} in scope.`;
+        }
+        return `${ecosystemName}'s ${firmCount} firm${firmCount === 1 ? "" : "s"} average ${avgFirmScore} alignment vs ${avgVendorSelfReport} self-report.`;
+      },
+    },
+    {
+      id: "v1-pointed",
+      tone: "pointed",
+      render: ({ ecosystemName, firmCount, avgFirmScore, avgVendorSelfReport }) => {
+        if (avgFirmScore === null || avgVendorSelfReport === null) {
+          return `${ecosystemName} — ${firmCount} firm${firmCount === 1 ? "" : "s"} on the board.`;
+        }
+        const gap = avgVendorSelfReport - avgFirmScore;
+        const direction = gap > 0 ? "below" : gap < 0 ? "above" : "level with";
+        return `${ecosystemName}: ${firmCount} firm${firmCount === 1 ? "" : "s"} land at ${avgFirmScore}, ${direction} a ${avgVendorSelfReport} self-report.`;
+      },
+    },
+  ],
+  "vendor.self-vs-market-delta": [
+    {
+      id: "v1-measured",
+      tone: "measured",
+      render: ({ productCount, hotDivergences }) => {
+        if (productCount === 0) return "No vendor products with completed self-assessment yet.";
+        if (hotDivergences === 0) {
+          return `${productCount} product${productCount === 1 ? "" : "s"} — vendor self-report and firm reviews track within a 10-point band across the catalog.`;
+        }
+        return `${productCount} product${productCount === 1 ? "" : "s"} sorted by absolute delta; ${hotDivergences} flagged as hot divergence.`;
+      },
+    },
+    {
+      id: "v1-narrative",
+      tone: "narrative",
+      render: ({ productCount, hotDivergences }) => {
+        if (productCount === 0) return "Vendor catalog has no completed self-assessments yet — the delta lens unlocks once those land.";
+        if (hotDivergences === 0) {
+          return `Across ${productCount} product${productCount === 1 ? "" : "s"}, vendor and firm scores stay within a 10-point band — the gaps below are conversation-grade, not crisis-grade.`;
+        }
+        return `Of ${productCount} product${productCount === 1 ? "" : "s"} reviewed, ${hotDivergences} carr${hotDivergences === 1 ? "ies" : "y"} a hot-divergence flag — that's where the boardroom conversation should land first.`;
+      },
+    },
+  ],
+  "vendor.action-roadmap": [
+    {
+      id: "v1-measured",
+      tone: "measured",
+      render: ({ roadmapItemCount }) => {
+        if (roadmapItemCount === 0) return "No next actions surfaced from the current briefings.";
+        return `${roadmapItemCount} action${roadmapItemCount === 1 ? "" : "s"} across 30/60/90-day windows, deduplicated and ranked by signal strength.`;
+      },
+    },
+    {
+      id: "v1-pointed",
+      tone: "pointed",
+      render: ({ roadmapItemCount }) => {
+        if (roadmapItemCount === 0) return "Briefings produced no next actions this quarter — nothing to commit to.";
+        return `${roadmapItemCount} commitment-eligible action${roadmapItemCount === 1 ? "" : "s"}; pick the bullet, treat the rest as supporting context.`;
+      },
+    },
+  ],
+} as const;
+
+export function renderVendorVariant(
+  sectionKey: string,
+  variantId: string | undefined,
+  slots: VendorBriefVariantSlots
+): string {
+  const bank = VENDOR_BRIEF_VARIANT_BANK[sectionKey];
+  if (!bank) return "";
+  const chosen = (variantId ? bank.find((v) => v.id === variantId) : null) ?? bank[0];
+  return chosen.render(slots);
+}

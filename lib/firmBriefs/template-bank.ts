@@ -103,12 +103,120 @@ export function renderConfidenceCallout(slots: {
  * different tone. The default render path uses variant index 0; the
  * BriefEditChoice API (lib/briefEditChoice.ts) validates choiceValue
  * membership against this allowlist when a consultant picks an alternative.
- * Block 2 (Day 17) wires the actual VARIANT_BANK render functions; the
- * allowlist below ships first so Block 1's validator has a single source
- * of truth.
  */
 export const FIRM_BRIEF_VARIANT_IDS: Record<string, readonly string[]> = {
   "firm.alignment-header": ["v1-measured", "v1-pointed"],
   "firm.stack-fit-analysis": ["v1-measured", "v1-narrative"],
   "firm.six-quarter-roadmap": ["v1-measured", "v1-pointed"],
 } as const;
+
+export type FirmVariantTone = "measured" | "pointed" | "narrative";
+
+export type FirmBriefVariantSlots = {
+  firmCompanyName: string;
+  canonicalFirmScore: number | null;
+  ecosystemAverageScore: number | null;
+  peerFirmCount: number;
+  reviewedProductCount: number;
+  totalProductCount: number;
+  currentQuarterLabel: string;
+  trajectoryEnd: number | null;
+};
+
+export type FirmBriefVariantRender = {
+  id: string;
+  tone: FirmVariantTone;
+  render: (slots: FirmBriefVariantSlots) => string;
+};
+
+/**
+ * VARIANT_BANK — 2 variants per Firm-Brief section, deterministic preamble
+ * per tone. The numeric assertions (score, peer count, etc.) are identical
+ * across variants; only the framing changes. Tests assert this.
+ */
+export const FIRM_BRIEF_VARIANT_BANK: Record<string, readonly FirmBriefVariantRender[]> = {
+  "firm.alignment-header": [
+    {
+      id: "v1-measured",
+      tone: "measured",
+      render: ({ firmCompanyName, canonicalFirmScore, ecosystemAverageScore, peerFirmCount }) => {
+        if (canonicalFirmScore === null || ecosystemAverageScore === null) {
+          return `${firmCompanyName}: alignment score not yet available.`;
+        }
+        const direction =
+          canonicalFirmScore === ecosystemAverageScore
+            ? "matches"
+            : canonicalFirmScore > ecosystemAverageScore
+              ? "sits above"
+              : "sits below";
+        return `${firmCompanyName} (${canonicalFirmScore}) ${direction} the ${peerFirmCount}-firm ecosystem average of ${ecosystemAverageScore}.`;
+      },
+    },
+    {
+      id: "v1-pointed",
+      tone: "pointed",
+      render: ({ firmCompanyName, canonicalFirmScore, ecosystemAverageScore, peerFirmCount }) => {
+        if (canonicalFirmScore === null || ecosystemAverageScore === null) {
+          return `${firmCompanyName} — alignment score pending.`;
+        }
+        const gap = canonicalFirmScore - ecosystemAverageScore;
+        if (gap === 0) {
+          return `${firmCompanyName} lands at ${canonicalFirmScore} — exactly on the ${peerFirmCount}-firm ecosystem average.`;
+        }
+        const verb = gap > 0 ? "ahead of" : "behind";
+        return `${firmCompanyName} at ${canonicalFirmScore} — ${Math.abs(gap)} point${Math.abs(gap) === 1 ? "" : "s"} ${verb} the ${peerFirmCount}-firm ecosystem average (${ecosystemAverageScore}).`;
+      },
+    },
+  ],
+  "firm.stack-fit-analysis": [
+    {
+      id: "v1-measured",
+      tone: "measured",
+      render: ({ reviewedProductCount, totalProductCount }) => {
+        if (totalProductCount === 0) return "No vendor products in scope yet.";
+        return `${reviewedProductCount} of ${totalProductCount} product${totalProductCount === 1 ? "" : "s"} reviewed.`;
+      },
+    },
+    {
+      id: "v1-narrative",
+      tone: "narrative",
+      render: ({ reviewedProductCount, totalProductCount }) => {
+        if (totalProductCount === 0) return "The stack hasn't been mapped yet — no vendor products in scope.";
+        const remaining = totalProductCount - reviewedProductCount;
+        if (remaining === 0) {
+          return `All ${totalProductCount} stack product${totalProductCount === 1 ? "" : "s"} have a firm review — fit analysis runs against the full inventory.`;
+        }
+        return `${reviewedProductCount} of ${totalProductCount} stack product${totalProductCount === 1 ? "" : "s"} reviewed; ${remaining} review${remaining === 1 ? "" : "s"} would tighten the fit picture.`;
+      },
+    },
+  ],
+  "firm.six-quarter-roadmap": [
+    {
+      id: "v1-measured",
+      tone: "measured",
+      render: ({ currentQuarterLabel, trajectoryEnd }) => {
+        if (trajectoryEnd === null) return `Six-quarter sequence starting ${currentQuarterLabel}.`;
+        return `Six-quarter sequence starting ${currentQuarterLabel}; deterministic gap-closure projects to ${trajectoryEnd}.`;
+      },
+    },
+    {
+      id: "v1-pointed",
+      tone: "pointed",
+      render: ({ currentQuarterLabel, trajectoryEnd }) => {
+        if (trajectoryEnd === null) return `${currentQuarterLabel} is the commitment quarter — the next five carry the plan.`;
+        return `${currentQuarterLabel} forward, six quarters of sequenced action — projected end-state ${trajectoryEnd}.`;
+      },
+    },
+  ],
+} as const;
+
+export function renderFirmVariant(
+  sectionKey: string,
+  variantId: string | undefined,
+  slots: FirmBriefVariantSlots
+): string {
+  const bank = FIRM_BRIEF_VARIANT_BANK[sectionKey];
+  if (!bank) return "";
+  const chosen = (variantId ? bank.find((v) => v.id === variantId) : null) ?? bank[0];
+  return chosen.render(slots);
+}
