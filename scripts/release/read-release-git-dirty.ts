@@ -1,4 +1,12 @@
-import { getReleaseGitState } from "../../lib/release/git-state";
+// AUDIT-D12-001 fix (Day-18 Block 2): explicit .ts extension so bare `node`
+// (with Node 22.6+ native type-stripping) resolves the import. Without it,
+// standalone `node scripts/release/read-release-git-dirty.ts` errors
+// ERR_MODULE_NOT_FOUND because Node's ESM resolver doesn't probe extensions
+// the way tsx does. The production paths in scripts/mac-mini/common.sh and
+// scripts/release/prepare-standalone-runtime.mjs use `node --import tsx`,
+// which accepts both forms. tsconfig moduleResolution=bundler permits the
+// .ts extension, so typecheck stays clean.
+import { getReleaseGitState } from "../../lib/release/git-state.ts";
 
 function parseArgs(argv: string[]) {
   const args = {
