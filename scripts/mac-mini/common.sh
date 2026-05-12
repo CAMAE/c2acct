@@ -154,7 +154,15 @@ mac_mini_git_branch() {
 }
 
 mac_mini_git_commit() {
-  git -C "${MAC_MINI_ROOT}" rev-parse --short HEAD 2>/dev/null || echo unknown
+  # Pinned to 7 chars to match the JS side. lib/release/fingerprint.ts:200
+  # and scripts/release/prepare-standalone-runtime.mjs:96 both compute the
+  # commit short as commitSha.slice(0, 7). `git rev-parse --short HEAD`
+  # without `=7` lets git's auto-extend heuristic return 8+ chars when the
+  # prefix isn't unique enough, which then trips
+  # validate-source-integrity.mjs's release_state_COMMIT_mismatch check
+  # (e.g. expected=fc69af0 actual=fc69af0b). `--short=7` pins both sides
+  # to the same shape.
+  git -C "${MAC_MINI_ROOT}" rev-parse --short=7 HEAD 2>/dev/null || echo unknown
 }
 
 mac_mini_git_commit_full() {
