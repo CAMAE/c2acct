@@ -119,6 +119,25 @@ async function createFirmOrganization(page: Page, name: string) {
 test.describe("local review auth", () => {
   test.setTimeout(120_000);
 
+  // AUDIT-D12-002 closer (Day-18 Block 3): the consultant-assigned-firm
+  // test creates timestamped Solo: firm rows via the admin UI and never
+  // deletes them. Cleanup runs via an external tsx-invoked script because
+  // a dynamic `await import("@/lib/prisma")` inside the spec fails under
+  // Playwright's module loader (SyntaxError: Cannot use import statement
+  // outside a module).
+  test.afterAll(async () => {
+    const { execFileSync } = await import("node:child_process");
+    try {
+      execFileSync(
+        "node",
+        ["--import", "tsx", "scripts/test-cleanup-e2e-fixtures.ts"],
+        { stdio: "inherit" }
+      );
+    } catch {
+      // Cleanup failure must not fail the test run; the next run re-attempts.
+    }
+  });
+
   test("shows deterministic local review entries for vendor, firm, admin, and consultant without shelved individual/invitee entries", async ({ page }) => {
     const roleCases = [
       { view: "vendor", email: "review.vendor@pat.local", landing: "/vendor" },

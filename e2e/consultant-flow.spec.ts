@@ -6,6 +6,23 @@ const DEMO_BENCH_PASSWORD =
 const consultantAccessEnabled = process.env.PAT_ENABLE_CONSULTANT_ACCESS === "1";
 
 test.describe("consultant flow", () => {
+  // AUDIT-D12-002 closer (Day-18 Block 3): the vendor-brief-edit
+  // happy-path test writes BriefEditChoice rows that persist across
+  // runs, biasing the next run's initial active-chip state. Sweep via
+  // an external tsx-invoked script (same pattern as
+  // e2e/local-review-auth.spec.ts:120's afterAll).
+  test.afterAll(async () => {
+    const { execFileSync } = await import("node:child_process");
+    try {
+      execFileSync(
+        "node",
+        ["--import", "tsx", "scripts/test-cleanup-e2e-fixtures.ts"],
+        { stdio: "inherit" }
+      );
+    } catch {
+      // Cleanup failure must not fail the test run; the next run re-attempts.
+    }
+  });
   test("review.consultant@pat.local lands on /consultants and sees their assigned ecosystem", async ({ page, context }) => {
     test.skip(
       !consultantAccessEnabled,
