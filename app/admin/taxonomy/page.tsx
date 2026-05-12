@@ -4,6 +4,7 @@ import {
   PRODUCT_CAPABILITY_COVERAGE_OPTIONS,
   RESEARCH_CONFIDENCE_OPTIONS,
   TAXONOMY_BUCKET_KIND_OPTIONS,
+  requireAdminSession,
 } from "@/lib/adminControlPlane";
 import {
   createTaxonomyBucketAction,
@@ -14,6 +15,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function AdminTaxonomyPage() {
+  await requireAdminSession();
   const [buckets, capabilityNodes] = await Promise.all([
     prisma.taxonomyBucket.findMany({
       orderBy: [{ kind: "asc" }, { title: "asc" }],

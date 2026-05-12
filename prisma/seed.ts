@@ -10,7 +10,7 @@ import {
   TIER1_ALIGNMENT_BADGE_NAME,
   TIER1_INSIGHTS,
 } from "../lib/patUnlocks";
-import { ensureLocalReviewUsers } from "../lib/auth/localReview";
+import { ensureLocalReviewUsers, getLegacyLocalReviewCleanupGuidance } from "../lib/auth/localReview";
 import { ensureFirmAlignmentSystem, FIRM_MODULE_DEFINITIONS } from "../lib/firmPat";
 import { FIRM_CAPABILITY_DEFINITIONS } from "../lib/firmCapabilities";
 
@@ -217,8 +217,13 @@ async function main() {
     demoCompanyName: demoCompany.name,
     subjectId: subject.id,
     portalKey: portal.key,
-    localReviewAuthSeeded: localReviewSeed.seeded,
+    localReviewUsersSeeded: localReviewSeed.seeded,
+    localReviewSeedReason: localReviewSeed.reason,
     localReviewUserEmails: localReviewSeed.userEmails,
+    productionBootstrapUsersSeeded: 0,
+    productionBootstrapSeedReason:
+      "Production bootstrap users are seeded only through the explicit seed:bootstrap-users path.",
+    legacyLocalReviewCleanup: getLegacyLocalReviewCleanupGuidance(),
     taxonomyBuckets: taxonomySummary.taxonomyBuckets,
     taxonomyProducts: taxonomySummary.products,
   });

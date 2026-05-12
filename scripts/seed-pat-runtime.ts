@@ -28,7 +28,10 @@ async function main() {
   console.log("Firm capability graph: seeded for canonical five-module PAT assessment");
   console.log(`Firm product module: ${firmProductModule.key}`);
   console.log("User PAT insight scaffold: ready");
-  console.log(`Local review auth users seeded: ${localReviewSeed.seeded ? localReviewSeed.userEmails.length : 0}`);
+  console.log(`Local review users seeded: ${localReviewSeed.seeded ? localReviewSeed.userEmails.length : 0}`);
+  console.log(`Local review seed reason: ${localReviewSeed.reason}`);
+  console.log("Production bootstrap users seeded: 0");
+  console.log("Production bootstrap users are only created by the explicit seed:bootstrap-users path.");
 }
 
 main()

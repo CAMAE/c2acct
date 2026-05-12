@@ -34,22 +34,22 @@ export const firmWorkspaceCards: PortalSurface[] = [
 
 export const firmAdminHelpCards = [
   {
-    title: "Firm profile",
+    title: "Profile management",
     what: "The editable firm record for company identity, contact details, address, payment notes, and descriptive context.",
     when: "Use it whenever the firm profile changes or when you need the admin surface to reflect the current operating identity cleanly.",
     why: "It keeps the PAT firm record accurate now and keeps the future sync contract honest for later external integration work.",
   },
   {
-    title: "User Insight",
-    what: "The management path for reviewing invited users, current participation, and firm-level visibility into user progress.",
-    when: "Use it when firm leaders need to monitor adoption, open the user insight surface, or review who is active under the firm umbrella.",
-    why: "It keeps people-level PAT activity connected to the firm context instead of leaving user oversight fragmented.",
+    title: "Existing Users",
+    what: "The readable PAT access list for everyone already attached to the firm.",
+    when: "Use it when you need to review role, status, profile readiness, or update a user role cleanly.",
+    why: "It keeps access management explicit and scannable instead of burying users inside a generic blob card.",
   },
   {
-    title: "Invite or update user",
-    what: "The simple user-entry tool for adding or updating firm members and their current PAT role.",
-    when: "Use it when a new user needs access or an existing user needs a role adjustment.",
-    why: "It gives the firm a clean operating path for keeping access current without turning admin into a heavy console.",
+    title: "Add User",
+    what: "The dedicated PAT onboarding form for creating a new firm access record with the profile fields needed for sane setup.",
+    when: "Use it when a new person needs PAT access under the firm and you want the onboarding details captured deliberately.",
+    why: "It makes access creation feel trustworthy and PAT-specific without implying a broader external identity system already exists.",
   },
   {
     title: "Future sync contract",
@@ -105,6 +105,16 @@ export function FirmAdminInlineContent() {
 }
 
 export function FirmHelpInlineContent() {
+  const helpCards = [
+    ...FIRM_HELP_CARDS.slice(0, 3),
+    {
+      title: "Membership",
+      what: "The firm membership panel with Free, Pro, Elite, and Help views plus a direct payment-processing handoff.",
+      why: "Membership should be a first-class firm portal surface instead of a side card buried inside admin clutter.",
+      how: "Review the current tier, compare the next path, and use payment processing when you want to stage a paid-tier move.",
+    },
+  ];
+
   return (
     <section className="space-y-6">
       <section className="pat-card p-8">
@@ -118,7 +128,7 @@ export function FirmHelpInlineContent() {
       </section>
 
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {FIRM_HELP_CARDS.slice(0, 3).map((card) => (
+        {helpCards.map((card) => (
           <div key={card.title} className="pat-card p-6">
             <div className="text-xl font-semibold text-[var(--shell-ink)]">{card.title}</div>
             <div className="mt-4 grid gap-3 text-sm leading-6 text-[var(--shell-muted)]">

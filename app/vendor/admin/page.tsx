@@ -1,11 +1,9 @@
 import { randomUUID } from "crypto";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
-import MembershipCard from "@/app/components/membership/MembershipCard";
 import VendorAdminPanels from "@/app/components/vendor/VendorAdminPanels";
 import { vendorAdminHelpCards } from "@/app/components/vendor/VendorPortalContent";
 import { canAccessPortalAdmin } from "@/lib/authz";
-import { resolveCurrentMembership } from "@/lib/membership";
 import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/profileSettingsStore";
 import prisma from "@/lib/prisma";
 import { buildVendorExternalProfileContract } from "@/lib/vendorProfileAdapter";
@@ -24,7 +22,6 @@ export default async function VendorAdminPage() {
   if (!sessionUser || vendorContext.company?.type !== "VENDOR") {
     redirect("/sign-in/vendor");
   }
-  const membershipState = await resolveCurrentMembership(sessionUser, "vendor");
 
   async function saveProfile(formData: FormData) {
     "use server";
@@ -141,12 +138,14 @@ export default async function VendorAdminPage() {
       </section>
 
       <section className="pat-card p-6">
-        <MembershipCard
-          audienceLabel="vendor"
-          href="/vendor/membership"
-          plan={membershipState.membership.plan}
-          status={membershipState.membership.status}
-        />
+        <div className="pat-label">Membership</div>
+        <p className="mt-4 max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">
+          Membership now lives as a first-class portal panel. Use{" "}
+          <a className="font-semibold text-[var(--shell-accent)]" href="/vendor?panel=membership">
+            vendor membership
+          </a>{" "}
+          when you need current tier, help, or payment-processing actions.
+        </p>
         {canAccessPortalAdmin(sessionUser) ? (
           <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
             Platform-wide operator controls now live in <a className="font-semibold text-[var(--shell-accent)]" href="/admin">/admin</a>. Keep this vendor admin page focused on vendor-owned profile and product tasks.

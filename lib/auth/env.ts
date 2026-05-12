@@ -1,13 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
 import dotenv from "dotenv";
+import { BOOTSTRAP_DEFAULT_PASSWORD_ENV, LOCAL_REVIEW_PASSWORD_ENV } from "@/lib/auth/localReview";
 
 type AuthEnvKey =
   | "baseUrl"
   | "secret"
-  | "githubId"
-  | "githubSecret"
-  | "localReviewPassword";
+  | "localReviewPassword"
+  | "bootstrapDefaultPassword"
+  | "productionDomain";
 
 type CandidateSpec = {
   envNames: string[];
@@ -31,28 +32,26 @@ export type ResolvedAuthEnv = {
   values: {
     baseUrl: string | null;
     secret: string | null;
-    githubId: string | null;
-    githubSecret: string | null;
     localReviewPassword: string | null;
+    bootstrapDefaultPassword: string | null;
+    productionDomain: string | null;
   };
   resolvedBy: {
     baseUrl: ResolvedCandidate;
     secret: ResolvedCandidate;
-    githubId: ResolvedCandidate;
-    githubSecret: ResolvedCandidate;
     localReviewPassword: ResolvedCandidate;
+    bootstrapDefaultPassword: ResolvedCandidate;
+    productionDomain: ResolvedCandidate;
   };
   canonicalLocalOrigin: string;
   normalizedBaseUrl: string | null;
+  expectedProductionOrigin: string;
   missing: string[];
-  callbackUrl: string | null;
-  providerCallbackPath: string;
-  githubProviderReady: boolean;
-  githubAuthEnabled: boolean;
-  githubAvailabilityReason: string | null;
+  credentialsAuthEnabled: boolean;
   localReviewRequested: boolean;
   localReviewEnabled: boolean;
   localReviewProviderReady: boolean;
+  productionAuthReady: boolean;
   ready: boolean;
   warnings: string[];
 };
@@ -66,22 +65,23 @@ const CANDIDATES: Record<AuthEnvKey, CandidateSpec> = {
     envNames: ["AUTH_SECRET", "NEXTAUTH_SECRET"],
     label: "AUTH_SECRET or NEXTAUTH_SECRET",
   },
-  githubId: {
-    envNames: ["AUTH_GITHUB_ID"],
-    label: "AUTH_GITHUB_ID",
-  },
-  githubSecret: {
-    envNames: ["AUTH_GITHUB_SECRET"],
-    label: "AUTH_GITHUB_SECRET",
-  },
   localReviewPassword: {
-    envNames: ["PAT_LOCAL_REVIEW_PASSWORD"],
-    label: "PAT_LOCAL_REVIEW_PASSWORD",
+    envNames: [LOCAL_REVIEW_PASSWORD_ENV],
+    label: LOCAL_REVIEW_PASSWORD_ENV,
+  },
+  bootstrapDefaultPassword: {
+    envNames: [BOOTSTRAP_DEFAULT_PASSWORD_ENV],
+    label: BOOTSTRAP_DEFAULT_PASSWORD_ENV,
+  },
+  productionDomain: {
+    envNames: ["PAT_PRODUCTION_DOMAIN"],
+    label: "PAT_PRODUCTION_DOMAIN",
   },
 };
 
 let cachedEnvSources: EnvSource[] | null = null;
 const DEFAULT_CANONICAL_LOCAL_ORIGIN = "http://127.0.0.1:3001";
+export const DEFAULT_PRODUCTION_DOMAIN = "patalign.com";
 
 function hasValue(value: string | undefined | null) {
   return typeof value === "string" && value.trim().length > 0;
@@ -233,81 +233,70 @@ export function getResolvedAuthEnv(): ResolvedAuthEnv {
   const resolvedBy = {
     baseUrl: resolveFromProcessOrFiles(CANDIDATES.baseUrl.envNames),
     secret: resolveFromProcessOrFiles(CANDIDATES.secret.envNames),
-    githubId: resolveFromProcessOrFiles(CANDIDATES.githubId.envNames),
-    githubSecret: resolveFromProcessOrFiles(CANDIDATES.githubSecret.envNames),
     localReviewPassword: resolveFromProcessOrFiles(CANDIDATES.localReviewPassword.envNames),
+    bootstrapDefaultPassword: resolveFromProcessOrFiles(CANDIDATES.bootstrapDefaultPassword.envNames),
+    productionDomain: resolveFromProcessOrFiles(CANDIDATES.productionDomain.envNames),
   };
 
   const baseUrl = resolvedBy.baseUrl.value;
   const normalizedBaseUrl = normalizeOrigin(baseUrl);
   const secret = resolvedBy.secret.value;
-  const githubId = resolvedBy.githubId.value;
-  const githubSecret = resolvedBy.githubSecret.value;
   const localReviewPassword = resolvedBy.localReviewPassword.value;
+  const bootstrapDefaultPassword = resolvedBy.bootstrapDefaultPassword.value;
+  const productionDomain = resolvedBy.productionDomain.value ?? DEFAULT_PRODUCTION_DOMAIN;
+  const expectedProductionOrigin = `https://${productionDomain}`;
   const localReviewRequested =
     process.env.NODE_ENV !== "production" && process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH === "1";
   const localReviewEnabled = localReviewRequested;
   const canonicalLocalOrigin =
     normalizeOrigin(process.env.PAT_LOCAL_ORIGIN) ?? DEFAULT_CANONICAL_LOCAL_ORIGIN;
-  const localGithubRequested = process.env.PAT_ENABLE_LOCAL_GITHUB_AUTH === "1";
-
-  const callbackPath = "/api/auth/callback/github";
-  const callbackUrl =
-    normalizedBaseUrl && /^https?:\/\//.test(normalizedBaseUrl)
-      ? `${normalizedBaseUrl}${callbackPath}`
-      : null;
 
   const missing: string[] = [];
   if (!baseUrl) missing.push(CANDIDATES.baseUrl.label);
   if (!secret) missing.push(CANDIDATES.secret.label);
-  if (!githubId) missing.push(CANDIDATES.githubId.label);
-  if (!githubSecret) missing.push(CANDIDATES.githubSecret.label);
-
-  const githubProviderReady = Boolean(githubId && githubSecret);
-  const localGithubOriginAligned =
-    process.env.NODE_ENV === "production" || normalizedBaseUrl === canonicalLocalOrigin;
-  const githubAuthEnabled = Boolean(
-    githubProviderReady &&
-      (process.env.NODE_ENV === "production" || (localGithubOriginAligned && localGithubRequested))
-  );
-  const githubAvailabilityReason = !githubProviderReady
-    ? "GitHub provider env is incomplete."
-    : process.env.NODE_ENV === "production"
-      ? null
-      : !localGithubOriginAligned
-        ? `Local GitHub sign-in is blocked until AUTH_URL and NEXTAUTH_URL are both set to ${canonicalLocalOrigin}.`
-        : !localGithubRequested
-          ? `Local GitHub sign-in stays hidden until the OAuth app allows ${callbackUrl ?? `${canonicalLocalOrigin}${callbackPath}`} and PAT_ENABLE_LOCAL_GITHUB_AUTH=1 is set.`
-          : null;
-  const localReviewProviderReady = Boolean(localReviewEnabled && secret && localReviewPassword);
-  const ready = Boolean((normalizedBaseUrl && secret && githubAuthEnabled) || localReviewProviderReady);
-
   if (localReviewEnabled && !localReviewPassword) {
-    missing.push(CANDIDATES.localReviewPassword.label);
+    missing.push(LOCAL_REVIEW_PASSWORD_ENV);
+  }
+
+  const credentialsAuthEnabled = Boolean(normalizedBaseUrl && secret);
+  const productionAuthReady =
+    process.env.NODE_ENV !== "production" ||
+    (normalizedBaseUrl === expectedProductionOrigin && Boolean(secret));
+  const localReviewProviderReady = Boolean(credentialsAuthEnabled && localReviewEnabled && localReviewPassword);
+  const warnings = collectWarnings();
+
+  if (process.env.NODE_ENV === "production") {
+    if (normalizedBaseUrl !== expectedProductionOrigin) {
+      warnings.push(
+        `Production AUTH_URL must be exactly ${expectedProductionOrigin}. Current resolved origin is ${normalizedBaseUrl ?? "missing"}.`
+      );
+    }
+
+    if (normalizedBaseUrl && !normalizedBaseUrl.startsWith("https://")) {
+      warnings.push("Production AUTH_URL must use https.");
+    }
   }
 
   return {
     values: {
       baseUrl,
       secret,
-      githubId,
-      githubSecret,
       localReviewPassword,
+      bootstrapDefaultPassword,
+      productionDomain,
     },
     canonicalLocalOrigin,
     normalizedBaseUrl,
+    expectedProductionOrigin,
     resolvedBy,
     missing,
-    callbackUrl,
-    providerCallbackPath: callbackPath,
-    githubProviderReady,
-    githubAuthEnabled,
-    githubAvailabilityReason,
+    credentialsAuthEnabled,
     localReviewRequested,
     localReviewEnabled,
     localReviewProviderReady,
-    ready,
-    warnings: collectWarnings(),
+    productionAuthReady,
+    ready: credentialsAuthEnabled && productionAuthReady,
+    warnings,
   };
 }
 

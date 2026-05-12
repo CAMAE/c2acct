@@ -31,13 +31,21 @@ describe("vendor product combined signal behavior", () => {
       vendorSelfReported: {
         latestScore: 84,
         submittedAt: new Date("2026-03-30T12:00:00.000Z"),
-        responses: vendorResponses,
+        responses: {
+          answers: vendorResponses,
+          scaleMin: 0,
+          scaleMax: 5,
+        },
       },
       firmReviewed: {
         assessmentCount: 2,
         latestSubmittedAt: new Date("2026-03-30T13:00:00.000Z"),
         averageScore: 34,
-        responseSets: firmResponseSets,
+        responseSets: firmResponseSets.map((answers, index) => ({
+          answers,
+          scaleMin: index === 0 ? 0 : 1,
+          scaleMax: 5,
+        })),
       },
     };
 

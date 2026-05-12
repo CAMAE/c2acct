@@ -6,6 +6,7 @@ import {
 import { randomUUID } from "crypto";
 import prisma from "@/lib/prisma";
 import type { SessionUser } from "@/lib/auth/session";
+import { buildMembershipBillingSummary } from "@/lib/billing";
 import {
   resolveMembershipContext,
   type MembershipAudience,
@@ -22,6 +23,7 @@ export type MembershipSnapshot = {
   compatibilityMode: MembershipResolvedContext["compatibilityMode"];
   checkoutHref: string;
   subscription: MembershipSubscription | null;
+  billingSummary: Awaited<ReturnType<typeof buildMembershipBillingSummary>> | null;
 };
 
 export const MEMBERSHIP_PLAN = {
@@ -80,6 +82,7 @@ export function getVirtualFreeMembershipSnapshot(input: {
     compatibilityMode: input.compatibilityMode,
     checkoutHref: getCheckoutHref(input.audience),
     subscription: null,
+    billingSummary: null,
   };
 }
 
@@ -92,7 +95,7 @@ function getAudiencePrefix(audience: MembershipAudience) {
 }
 
 function getCheckoutHref(audience: MembershipAudience) {
-  return `/${getAudiencePrefix(audience)}/membership/checkout`;
+  return `/${getAudiencePrefix(audience)}/membership/payment-processing`;
 }
 
 export async function getMembershipSnapshotForContext(
@@ -110,6 +113,7 @@ export async function getMembershipSnapshotForContext(
   const subscription = await prisma.membershipSubscription.findUnique({
     where: { subjectId: context.subjectId },
   });
+  const billingSummary = await buildMembershipBillingSummary(context.subjectId);
 
   if (!subscription) {
     return getVirtualFreeMembershipSnapshot({
@@ -130,6 +134,7 @@ export async function getMembershipSnapshotForContext(
     compatibilityMode: context.compatibilityMode,
     checkoutHref: getCheckoutHref(context.audience),
     subscription,
+    billingSummary,
   };
 }
 
@@ -184,60 +189,6 @@ export async function ensureDefaultFreeMembership(
     compatibilityMode: context.compatibilityMode,
     checkoutHref: getCheckoutHref(context.audience),
     subscription,
-  };
-}
-
-export async function startCheckoutPlaceholderFlow(input: {
-  sessionUser: SessionUser;
-  audience: MembershipAudience;
-  requestedPlan: MembershipPlan;
-}) {
-  const context = await resolveMembershipContext(input.sessionUser, input.audience);
-
-  if (!context.subjectId) {
-    return {
-      ok: false as const,
-      reason: "subject-unavailable",
-      checkoutHref: getCheckoutHref(input.audience),
-      membership: await getMembershipSnapshotForContext(context),
-    };
-  }
-
-  const subscription = await prisma.membershipSubscription.upsert({
-    where: { subjectId: context.subjectId },
-    update: {
-      status: MEMBERSHIP_STATUS.PENDING_CHECKOUT,
-      checkoutRequestedPlan: input.requestedPlan,
-      checkoutSessionRef: `placeholder:${context.subjectId}:${Date.now()}`,
-      provider: "pat-placeholder",
-      updatedAt: new Date(),
-    },
-    create: {
-      id: randomUUID(),
-      subjectId: context.subjectId,
-      plan: DEFAULT_FREE_MEMBERSHIP_PLAN,
-      status: MEMBERSHIP_STATUS.PENDING_CHECKOUT,
-      checkoutRequestedPlan: input.requestedPlan,
-      checkoutSessionRef: `placeholder:${context.subjectId}:${Date.now()}`,
-      provider: "pat-placeholder",
-      startedAt: new Date(),
-    },
-  });
-
-  return {
-    ok: true as const,
-    reason: null,
-    checkoutHref: getCheckoutHref(input.audience),
-    membership: {
-      audience: context.audience,
-      subjectId: context.subjectId,
-      displayName: context.displayName,
-      plan: normalizeMembershipPlan(subscription.plan),
-      status: normalizeMembershipStatus(subscription.status),
-      source: "database" as const,
-      compatibilityMode: context.compatibilityMode,
-      checkoutHref: getCheckoutHref(context.audience),
-      subscription,
-    },
+    billingSummary: await buildMembershipBillingSummary(context.subjectId),
   };
 }

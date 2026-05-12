@@ -5,6 +5,14 @@ export const PRODUCT_UTILITY_SCORED_QUESTION_COUNT =
   PRODUCT_UTILITY_SUBCATEGORY_COUNT * PRODUCT_SCORED_QUESTIONS_PER_SUBCATEGORY;
 export const PRODUCT_GENERAL_QUESTION_COUNT = 10;
 export const PRODUCT_OPEN_ENDED_QUESTION_COUNT = 10;
+export const PRODUCT_SCORE_GUIDE = [
+  "0 = no usable support or no credible evidence in this area",
+  "1 = weak or mostly manual support",
+  "2 = limited and uneven support",
+  "3 = workable support with visible gaps",
+  "4 = strong practical support",
+  "5 = strong practical support with clear current-state evidence",
+] as const;
 
 export type ProductQuestionBasisKey =
   | "workflow-fit"
@@ -832,15 +840,15 @@ export const PRODUCT_GENERAL_MODULE = {
   description: "Stable product profile questions that should be captured before utility-specific scoring begins.",
   questions: [
     { key: "product_name", fieldKey: "productName", prompt: "What is the product name?" },
-    { key: "product_description", fieldKey: "productDescription", prompt: "How should the product be described in one grounded operating paragraph?" },
+    { key: "product_description", fieldKey: "productDescription", prompt: "Describe the product in one grounded operating paragraph: what it helps a team do, in what workflow, and with what practical boundary." },
     { key: "logo_reference", fieldKey: "logoReference", prompt: "What logo URL or placeholder asset reference should PAT use for this product?" },
-    { key: "positioning", fieldKey: "positioning", prompt: "How should the product be positioned in practical business terms?" },
-    { key: "target_customer", fieldKey: "targetCustomer", prompt: "Who is the primary target customer or buyer for this product?" },
-    { key: "target_use_context", fieldKey: "targetUseContext", prompt: "What real use context or operating situation is this product meant for?" },
-    { key: "implementation_style", fieldKey: "implementationStyle", prompt: "How is this product typically implemented or rolled out?" },
-    { key: "operating_model_fit", fieldKey: "operatingModelFit", prompt: "How should PAT frame this product's fit to a customer's operating model?" },
-    { key: "primary_buyer", fieldKey: "primaryBuyer", prompt: "Who usually owns the buying or approval decision for this product?" },
-    { key: "integration_posture", fieldKey: "integrationPosture", prompt: "How should PAT describe the product's integration and interoperability posture?" },
+    { key: "positioning", fieldKey: "positioning", prompt: "When a buyer asks what this product actually helps them improve, how should PAT position it in plain operating terms?" },
+    { key: "target_customer", fieldKey: "targetCustomer", prompt: "Who is the primary target customer, buyer, or operator for this product today?" },
+    { key: "target_use_context", fieldKey: "targetUseContext", prompt: "What real use context, workflow pressure, or operating situation is this product meant to handle?" },
+    { key: "implementation_style", fieldKey: "implementationStyle", prompt: "How is this product typically implemented, configured, or rolled out in practice?" },
+    { key: "operating_model_fit", fieldKey: "operatingModelFit", prompt: "What kind of operating model, team maturity, or process discipline does this product fit best right now?" },
+    { key: "primary_buyer", fieldKey: "primaryBuyer", prompt: "Who usually owns the buying, approval, or rollout decision for this product?" },
+    { key: "integration_posture", fieldKey: "integrationPosture", prompt: "How should PAT describe this product's integration posture: native system depth, connector dependence, data handoff burden, or interoperability limits?" },
   ],
 } as const satisfies ProductQuestionModuleDefinition;
 
@@ -849,16 +857,16 @@ export const PRODUCT_OPEN_ENDED_MODULE = {
   title: "Product open-ended",
   description: "Final text questions for nuance, risk, and context that should not be collapsed into a score.",
   questions: [
-    { key: "strongest_workflow", prompt: "Where does this product feel strongest in real use, and why?" },
-    { key: "weakest_workflow", prompt: "Where does this product feel weakest or least ready for real use, and why?" },
-    { key: "implementation_risk", prompt: "What would create the most implementation risk with this product?" },
-    { key: "change_management_risk", prompt: "What user, operator, or customer change-management risk stands out most?" },
-    { key: "integration_gap", prompt: "What integration, data, or interoperability gap matters most right now?" },
-    { key: "control_concern", prompt: "What control, approval, or auditability concern deserves explicit follow-up?" },
-    { key: "best_fit_customer", prompt: "Who seems like the best-fit customer or operator for this product today?" },
-    { key: "poor_fit_customer", prompt: "Who seems like the worst-fit customer or operator for this product today?" },
-    { key: "evidence_needed_next", prompt: "What evidence would most improve confidence in this product next?" },
-    { key: "recommended_next_action", prompt: "What is the most sensible next action after reviewing this product today?" },
+    { key: "strongest_workflow", prompt: "In which workflow or operating situation does this product currently look strongest, and what evidence supports that read?" },
+    { key: "weakest_workflow", prompt: "In which workflow or operating situation does this product currently look weakest, and what evidence gap or operating limit drives that read?" },
+    { key: "implementation_risk", prompt: "What is the most material implementation or rollout risk for this product right now?" },
+    { key: "change_management_risk", prompt: "What user, operator, or buyer-side change-management risk is most likely to slow adoption?" },
+    { key: "integration_gap", prompt: "What integration, data, or interoperability gap matters most before PAT should treat this product as stronger than directional?" },
+    { key: "control_concern", prompt: "What control, approval, auditability, or governance concern deserves explicit follow-up?" },
+    { key: "best_fit_customer", prompt: "Who looks like the best-fit customer or operator for this product today, based on the current evidence rather than aspiration?" },
+    { key: "poor_fit_customer", prompt: "Who looks like the poorest-fit customer or operator for this product today, and why?" },
+    { key: "evidence_needed_next", prompt: "What additional evidence would most improve confidence, calibration, or operator usefulness in this product next?" },
+    { key: "recommended_next_action", prompt: "What is the single most sensible next action after this review: gather evidence, narrow scope, reposition, or continue?" },
   ],
 } as const satisfies ProductQuestionModuleDefinition;
 
@@ -866,10 +874,13 @@ export const PRODUCT_UTILITY_REGISTRY_METADATA = {
   version: PRODUCT_UTILITY_REGISTRY_VERSION,
   sourceArtifacts: [
     "data/research/accounting-software-taxonomy-v1.json",
-    "uploaded utility master direction (implementation-aligned launch brief)",
+    "uploaded utility master direction (implementation-aligned launch brief; original .pages source not present in workspace during 2026-04-01 reconciliation)",
   ],
   notes: [
     "This registry replaces the flat utility v1 question bank with a stable utility-family and subcategory architecture.",
     "Question wording stays audience-reusable so vendor, firm, and individual product assessments can share the same underlying structure.",
+    "Utilities are scope declarations, not product rankings or market-truth claims.",
+    "Product-general and open-ended modules exist to improve operator usefulness and evidence honesty, not to manufacture richer signal than PAT actually has.",
+    "No registry-version bump was taken during the 2026-04-01 reconciliation pass because no artifact-backed question-architecture mismatch was found inside the repo.",
   ],
 } as const;

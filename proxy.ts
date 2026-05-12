@@ -39,6 +39,28 @@ export default async function proxy(req: NextRequest) {
   return NextResponse.redirect(new URL(loginPath, req.nextUrl));
 }
 
+export const PROTECTED_PAT_PROXY_MATCHER = [
+  "/admin/:path*",
+  "/platform/:path*",
+  "/survey/:path*",
+  "/results/:path*",
+  "/outputs/:path*",
+  "/profiles/:path*",
+  "/firm/:path*",
+  "/vendor/:path*",
+  "/user/:path*",
+  "/api/results/:path*",
+  "/api/insights/unlocked/:path*",
+  "/api/badges/earned/:path*",
+  "/api/survey/module/:path*",
+  "/api/survey/draft/:path*",
+  "/api/survey/submit/:path*",
+  "/api/firm/product-assessment/draft/:path*",
+  "/api/firm/product-assessment/submit/:path*",
+  "/api/vendor/product-assessment/draft/:path*",
+  "/api/vendor/product-assessment/submit/:path*",
+] as const;
+
 export const config = {
   matcher: [
     "/admin/:path*",
@@ -56,7 +78,9 @@ export const config = {
     "/api/survey/module/:path*",
     "/api/survey/draft/:path*",
     "/api/survey/submit/:path*",
+    "/api/firm/product-assessment/draft/:path*",
     "/api/firm/product-assessment/submit/:path*",
+    "/api/vendor/product-assessment/draft/:path*",
     "/api/vendor/product-assessment/submit/:path*",
   ],
 };

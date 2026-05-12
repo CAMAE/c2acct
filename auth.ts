@@ -1,44 +1,15 @@
 import NextAuth from "next-auth";
 import type { UserRole } from "@prisma/client";
 import authConfig from "@/auth.config";
-import prisma from "@/lib/prisma";
+import { findAuthUserByEmail, type AuthenticatedUserClaims } from "@/lib/auth/credentials";
 import { getResolvedAuthEnv } from "@/lib/auth/env";
-import { ensureLocalReviewUserByEmail, isLocalReviewAuthRequested } from "@/lib/auth/localReview";
 
 const resolvedAuthEnv = getResolvedAuthEnv();
-
-type DbUserClaims = {
-  id: string;
-  email: string;
-  role: UserRole;
-  companyId: string | null;
-};
 
 function normalizeEmail(email: string | null | undefined) {
   if (!email) return null;
   const normalized = email.trim().toLowerCase();
   return normalized.length > 0 ? normalized : null;
-}
-
-async function findUserByEmail(email: string): Promise<DbUserClaims | null> {
-  return prisma.user.findFirst({
-    where: { email: { equals: email, mode: "insensitive" } },
-    select: { id: true, email: true, role: true, companyId: true },
-  });
-}
-
-async function findOrEnsureUserByEmail(email: string) {
-  const existing = await findUserByEmail(email);
-  if (existing) {
-    return existing;
-  }
-
-  if (!isLocalReviewAuthRequested()) {
-    return null;
-  }
-
-  await ensureLocalReviewUserByEmail(prisma, email);
-  return findUserByEmail(email);
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -51,33 +22,35 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const normalizedEmail = normalizeEmail(user?.email);
       if (!normalizedEmail) return false;
 
-      const dbUser = await findOrEnsureUserByEmail(normalizedEmail);
+      const dbUser = await findAuthUserByEmail(normalizedEmail);
       if (!dbUser) return false;
 
-      (user as typeof user & { dbUser?: DbUserClaims }).dbUser = dbUser;
+      (user as typeof user & { dbUser?: AuthenticatedUserClaims }).dbUser = dbUser;
       return true;
     },
     async jwt({ token, user }) {
-      const userWithClaims = user as typeof user & { dbUser?: DbUserClaims };
+      const userWithClaims = user as typeof user & { dbUser?: AuthenticatedUserClaims };
 
       if (userWithClaims?.dbUser) {
         token.sub = userWithClaims.dbUser.id;
         token.email = userWithClaims.dbUser.email;
         token.role = userWithClaims.dbUser.role;
         token.companyId = userWithClaims.dbUser.companyId;
+        token.companyType = userWithClaims.dbUser.companyType;
         return token;
       }
 
       const normalizedEmail = normalizeEmail(token.email);
       if (!normalizedEmail) return token;
 
-      const dbUser = await findOrEnsureUserByEmail(normalizedEmail);
+      const dbUser = await findAuthUserByEmail(normalizedEmail);
       if (!dbUser) return token;
 
       token.sub = dbUser.id;
       token.email = dbUser.email;
       token.role = dbUser.role;
       token.companyId = dbUser.companyId;
+      token.companyType = dbUser.companyType;
       return token;
     },
     async session({ session, token }) {
@@ -89,6 +62,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         id?: string;
         role?: UserRole;
         companyId?: string | null;
+        companyType?: string | null;
       };
 
       sessionUser.id = typeof token.sub === "string" ? token.sub : "";
@@ -96,6 +70,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       sessionUser.role = (token.role as UserRole | undefined) ?? "MEMBER";
       sessionUser.companyId =
         typeof token.companyId === "string" ? token.companyId : null;
+      sessionUser.companyType =
+        typeof token.companyType === "string" ? token.companyType : null;
 
       return session;
     },

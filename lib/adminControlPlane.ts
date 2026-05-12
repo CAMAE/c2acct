@@ -13,8 +13,19 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { getSessionUser, type SessionUser } from "@/lib/auth/session";
 import { canAccessPortalAdmin } from "@/lib/authz";
+import { deriveBillingAdminMetrics, getBillingConfiguration } from "@/lib/billing";
+import { getAnalyticsConfiguration } from "@/lib/analytics";
+import { getCommercialFeatureFlags } from "@/lib/commercialFlags";
+export {
+  ADMIN_OVERVIEW_UTILITIES,
+  ADMIN_ROUTE_GROUPS,
+  getAdminOverviewUtilityHref,
+  normalizeAdminOverviewUtility,
+  type AdminOverviewUtilityKey,
+} from "@/lib/adminOverview";
 import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
 import { getPatDiagnosticsSnapshot } from "@/lib/patDiagnostics";
+import { getSentryConfiguration } from "@/lib/sentry";
 
 export const ADMIN_NAV_ITEMS = [
   { href: "/admin", label: "Overview" },
@@ -81,11 +92,11 @@ export const PRODUCT_CAPABILITY_COVERAGE_OPTIONS = [
 export async function requireAdminSession(): Promise<SessionUser> {
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
-    redirect("/login?callbackUrl=%2Fadmin");
+    redirect("/sign-in?view=admin&callbackUrl=%2Fadmin");
   }
 
   if (!canAccessPortalAdmin(sessionUser)) {
-    redirect("/admin");
+    redirect("/");
   }
 
   return sessionUser;
@@ -100,6 +111,7 @@ export async function getAdminAccessState() {
 }
 
 export async function getAdminOverviewData() {
+  await requireAdminSession();
   const canonicalFirmModuleKeys = FIRM_MODULE_DEFINITIONS.map((module) => module.key);
   const diagnosticsSnapshot = getPatDiagnosticsSnapshot();
 
@@ -115,6 +127,9 @@ export async function getAdminOverviewData() {
     portals,
     memberships,
     auditEvents,
+    billingSubscriptions,
+    billingCheckouts,
+    billingWebhooks,
   ] = await Promise.all([
     prisma.company.count(),
     prisma.user.count(),
@@ -135,7 +150,49 @@ export async function getAdminOverviewData() {
         },
       },
     }).catch(() => []),
+    prisma.membershipSubscription.findMany({
+      select: {
+        plan: true,
+        status: true,
+        updatedAt: true,
+        createdAt: true,
+      },
+    }).catch(() => []),
+    prisma.billingCheckout.findMany({
+      select: {
+        status: true,
+        requestedPlan: true,
+        createdAt: true,
+        completedAt: true,
+      },
+    }).catch(() => []),
+    prisma.billingWebhookEvent.findMany({
+      select: {
+        status: true,
+        receivedAt: true,
+      },
+    }).catch(() => []),
   ]);
+  const billingMetrics = deriveBillingAdminMetrics({
+    subscriptions: billingSubscriptions,
+    checkouts: billingCheckouts,
+    webhookEvents: billingWebhooks,
+  });
+  const billingConfig = getBillingConfiguration();
+  const commercialFlags = getCommercialFeatureFlags();
+  const analyticsConfig = getAnalyticsConfiguration();
+  const sentryConfig = getSentryConfiguration();
+  const recentPaymentEvents = await prisma.billingWebhookEvent.findMany({
+    orderBy: { receivedAt: "desc" },
+    take: 5,
+    select: {
+      id: true,
+      eventType: true,
+      status: true,
+      receivedAt: true,
+      errorMessage: true,
+    },
+  }).catch(() => []);
 
   const canonicalModules = await prisma.surveyModule.findMany({
     where: { key: { in: canonicalFirmModuleKeys } },
@@ -166,10 +223,19 @@ export async function getAdminOverviewData() {
       capabilityNodes,
       portals,
       memberships,
+      billing: billingMetrics,
+      billingConfigured: billingConfig.enabled,
+      liveBillingMethods: billingConfig.liveMethodKeys,
+      commercialFlags,
+      telemetry: {
+        analyticsConfigured: analyticsConfig.enabled,
+        sentryConfigured: sentryConfig.enabled,
+      },
     },
     canonicalModules,
     diagnosticsSnapshot,
     auditEvents,
+    recentPaymentEvents,
   };
 }
 

@@ -24,13 +24,16 @@ export default async function VendorMembershipPage({
   const { membership } = await resolveCurrentMembership(sessionUser, "vendor");
   const params = searchParams ? await searchParams : undefined;
   const checkoutNotice =
-    params?.checkout === "pro" || params?.checkout === "elite"
-      ? `Vendor ${params.checkout === "pro" ? "Pro" : "Elite"} checkout placeholder started.`
+    params?.checkout === "success"
+      ? "Provider checkout completed. PAT will reflect the final membership state as Stripe webhook events finish reconciling."
+      : params?.checkout === "pro" || params?.checkout === "elite"
+        ? `Vendor ${params.checkout === "pro" ? "Pro" : "Elite"} payment processing has started. Final state comes from provider webhook confirmation.`
       : null;
 
   return (
     <MembershipPageShell
       audience="vendor"
+      billingSummary={membership.billingSummary}
       checkoutNotice={checkoutNotice}
       currentPlan={membership.plan}
       currentStatus={membership.status}

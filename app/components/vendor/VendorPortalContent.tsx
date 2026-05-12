@@ -56,6 +56,14 @@ export const vendorHelpCards = [
     how: "Open the insight group, then inspect each detail page for what, why, and how to use it.",
     href: "/vendor/alignment-insights",
   },
+  {
+    title: "Membership",
+    what: "The vendor membership panel with Free, Pro, Elite, and Help views plus a direct payment-processing handoff.",
+    where: "Routes from the vendor portal toggle or the dedicated vendor membership page.",
+    why: "Membership should be a first-class vendor decision surface instead of clutter inside admin or workspace cards.",
+    how: "Review the current tier, compare the next path, then use payment processing when you are ready to stage an upgrade.",
+    href: "/vendor/membership",
+  },
 ] as const;
 
 export const vendorAdminHelpCards = [

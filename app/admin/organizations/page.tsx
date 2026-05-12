@@ -1,12 +1,18 @@
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
-import { COMPANY_TYPE_OPTIONS, MEMBERSHIP_PLAN_OPTIONS, MEMBERSHIP_STATUS_OPTIONS } from "@/lib/adminControlPlane";
+import {
+  COMPANY_TYPE_OPTIONS,
+  MEMBERSHIP_PLAN_OPTIONS,
+  MEMBERSHIP_STATUS_OPTIONS,
+  requireAdminSession,
+} from "@/lib/adminControlPlane";
 import { createOrganizationAction } from "@/app/admin/actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminOrganizationsPage() {
+  await requireAdminSession();
   const organizations = await prisma.company.findMany({
     orderBy: { createdAt: "desc" },
     include: {

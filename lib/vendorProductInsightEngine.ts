@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { FIRM_PRODUCT_MODULE_KEY, buildFirmProductQuestions } from "@/lib/firmPat";
 import { recordPatDiagnostic } from "@/lib/patDiagnostics";
+import { normalizeAnswerForStoredScale } from "@/lib/productAssessmentRuntime";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import {
   PRODUCT_TIER1_INSIGHTS,
@@ -52,6 +53,7 @@ export type VendorProductInsightSnapshot = {
     summary: string | null;
     utilityKeys: string[];
     utilityLabels: string[];
+    utilityScopeLabel: string;
   };
   vendorSelfReported: {
     latestScore: number | null;
@@ -87,13 +89,21 @@ export type VendorProductInsightSnapshotInput = {
   vendorSelfReported: {
     latestScore: number | null;
     submittedAt: Date | null;
-    responses: Record<string, number>;
+    responses: {
+      answers: Record<string, number>;
+      scaleMin: number;
+      scaleMax: number;
+    };
   };
   firmReviewed: {
     assessmentCount: number;
     latestSubmittedAt: Date | null;
     averageScore?: number | null;
-    responseSets: Record<string, number>[];
+    responseSets: Array<{
+      answers: Record<string, number>;
+      scaleMin: number;
+      scaleMax: number;
+    }>;
   };
 };
 
@@ -106,10 +116,6 @@ function average(values: number[]) {
     return null;
   }
   return round1(values.reduce((sum, value) => sum + value, 0) / values.length);
-}
-
-function normalizeLikertToPercent(value: number) {
-  return round1(((value - 1) / 4) * 100);
 }
 
 function extractResponses(answers: unknown) {
@@ -132,17 +138,41 @@ function extractResponses(answers: unknown) {
   );
 }
 
+function normalizeStoredAnswer(
+  value: number,
+  scaleMin: number,
+  scaleMax: number
+) {
+  const normalized = normalizeAnswerForStoredScale(value, scaleMin, scaleMax);
+  return normalized === null ? null : round1(normalized);
+}
+
 function buildConfidenceCaveats(input: {
+  utilityKeys: string[];
   vendorScore: number | null;
+  vendorSectionCount: number;
   firmAssessmentCount: number;
   firmAverageScore: number | null;
+  firmUtilityCount: number;
   divergencePoints: number | null;
 }) {
   const caveats: string[] = [];
 
+  if (input.utilityKeys.length === 0) {
+    caveats.push(
+      "No product utility declaration is live yet, so PAT cannot treat this as a scoped product-utility readout."
+    );
+  }
+
   if (input.vendorScore === null) {
     caveats.push(
       "No vendor self-assessment has been submitted yet, so current product posture cannot be described from vendor-authored PAT evidence."
+    );
+  } else if (input.vendorSectionCount < 2) {
+    caveats.push(
+      `Vendor self-reported evidence only separates ${input.vendorSectionCount} scored section${
+        input.vendorSectionCount === 1 ? "" : "s"
+      } clearly, so section-level interpretation remains thin.`
     );
   }
 
@@ -157,6 +187,12 @@ function buildConfidenceCaveats(input: {
   } else if (input.firmAssessmentCount < 4) {
     caveats.push(
       `Firm-reviewed signal is based on ${input.firmAssessmentCount} assessments, so it is useful but still sample-thin.`
+    );
+  }
+
+  if (input.firmAssessmentCount > 0 && input.firmUtilityCount < 2) {
+    caveats.push(
+      "Firm-reviewed evidence is not yet rich enough to separate utility-family strengths and weaknesses with much confidence."
     );
   }
 
@@ -179,6 +215,14 @@ function buildConfidenceCaveats(input: {
   }
 
   return caveats;
+}
+
+function describeUtilityScope(utilityKeys: string[], utilityLabels: string[]) {
+  if (utilityKeys.length === 0) {
+    return "No declared utility scope";
+  }
+
+  return `${utilityKeys.length} declared utilit${utilityKeys.length === 1 ? "y" : "ies"}: ${utilityLabels.join(", ")}`;
 }
 
 function getConfidenceBand(input: {
@@ -285,7 +329,11 @@ function describeCombinedReadout(input: {
 
 function buildVendorSectionEvidence(
   utilityKeys: string[],
-  vendorResponses: Record<string, number>,
+  vendorResponses: {
+    answers: Record<string, number>;
+    scaleMin: number;
+    scaleMax: number;
+  },
   basisSectionKeys?: string[]
 ) {
   if (utilityKeys.length === 0) {
@@ -307,8 +355,16 @@ function buildVendorSectionEvidence(
       continue;
     }
 
-    const rawAnswer = vendorResponses[question.id];
+    const rawAnswer = vendorResponses.answers[question.id];
     if (typeof rawAnswer !== "number") {
+      continue;
+    }
+    const normalizedScore = normalizeStoredAnswer(
+      rawAnswer,
+      vendorResponses.scaleMin,
+      vendorResponses.scaleMax
+    );
+    if (normalizedScore === null) {
       continue;
     }
 
@@ -317,7 +373,7 @@ function buildVendorSectionEvidence(
       scores: [],
       questionIds: [],
     };
-    existing.scores.push(normalizeLikertToPercent(rawAnswer));
+    existing.scores.push(normalizedScore);
     existing.questionIds.push(question.id);
     grouped.set(question.section.key, existing);
   }
@@ -332,7 +388,11 @@ function buildVendorSectionEvidence(
 
 function buildFirmUtilityEvidence(
   utilityKeys: string[],
-  firmResponseSets: Record<string, number>[]
+  firmResponseSets: Array<{
+    answers: Record<string, number>;
+    scaleMin: number;
+    scaleMax: number;
+  }>
 ) {
   const questionBank = buildFirmProductQuestions(utilityKeys);
   const scoresByUtility = new Map<string, { label: string; scores: number[] }>();
@@ -346,11 +406,19 @@ function buildFirmUtilityEvidence(
 
   for (const responseSet of firmResponseSets) {
     for (const question of questionBank) {
-      const rawAnswer = responseSet[question.id];
+      const rawAnswer = responseSet.answers[question.id];
       if (typeof rawAnswer !== "number") {
         continue;
       }
-      scoresByUtility.get(question.utilityKey)?.scores.push(normalizeLikertToPercent(rawAnswer));
+      const normalizedScore = normalizeStoredAnswer(
+        rawAnswer,
+        responseSet.scaleMin,
+        responseSet.scaleMax
+      );
+      if (normalizedScore === null) {
+        continue;
+      }
+      scoresByUtility.get(question.utilityKey)?.scores.push(normalizedScore);
     }
   }
 
@@ -386,7 +454,11 @@ function buildInsightRecord(input: {
   confidenceBand: "no_signal" | "directional" | "emerging" | "grounded";
   confidenceLabel: string;
   utilityKeys: string[];
-  vendorResponses: Record<string, number>;
+  vendorResponses: {
+    answers: Record<string, number>;
+    scaleMin: number;
+    scaleMax: number;
+  };
   firmUtilityEvidence: UtilityEvidence[];
   confidenceCaveats: string[];
 }) {
@@ -458,6 +530,7 @@ function buildInsightRecord(input: {
       `Firm-reviewed signal: ${formatScore(input.firmAverageScore)} across ${input.firmAssessmentCount} firm assessment${
         input.firmAssessmentCount === 1 ? "" : "s"
       }.`,
+      `Utility scope: ${describeUtilityScope(input.utilityKeys, getVendorUtilityLabels(input.utilityKeys))}.`,
       `Combined current PAT readout: ${input.divergence.label}.`,
       sectionSummary,
       weakSectionSummary,
@@ -500,11 +573,15 @@ export function buildVendorProductInsightSnapshot(
     firmAssessmentCount: input.firmReviewed.assessmentCount,
   });
   const confidenceCaveats = buildConfidenceCaveats({
+    utilityKeys: input.product.utilityKeys,
     vendorScore: input.vendorSelfReported.latestScore,
+    vendorSectionCount: vendorSectionEvidence.length,
     firmAssessmentCount: input.firmReviewed.assessmentCount,
     firmAverageScore,
+    firmUtilityCount: firmUtilityEvidence.filter((utility) => utility.averageScore !== null).length,
     divergencePoints: divergence.points,
   });
+  const utilityScopeLabel = describeUtilityScope(input.product.utilityKeys, utilityLabels);
 
   const insightRecords = PRODUCT_TIER1_INSIGHTS.map((definition) =>
     buildInsightRecord({
@@ -529,6 +606,7 @@ export function buildVendorProductInsightSnapshot(
       summary: input.product.summary,
       utilityKeys: input.product.utilityKeys,
       utilityLabels,
+      utilityScopeLabel,
     },
     vendorSelfReported: {
       latestScore: input.vendorSelfReported.latestScore,
@@ -622,6 +700,8 @@ export async function getVendorProductInsightSnapshot(companyId: string, product
             score: true,
             createdAt: true,
             answers: true,
+            scaleMin: true,
+            scaleMax: true,
           },
         }).catch(() => null)
       : Promise.resolve(null),
@@ -638,13 +718,23 @@ export async function getVendorProductInsightSnapshot(companyId: string, product
             score: true,
             createdAt: true,
             answers: true,
+            scaleMin: true,
+            scaleMax: true,
           },
         }).catch(() => [])
       : Promise.resolve([]),
   ]);
 
-  const vendorResponses = extractResponses(latestVendorSubmission?.answers);
-  const firmResponseSets = firmSubmissions.map((submission) => extractResponses(submission.answers));
+  const vendorResponses = {
+    answers: extractResponses(latestVendorSubmission?.answers),
+    scaleMin: latestVendorSubmission?.scaleMin ?? 1,
+    scaleMax: latestVendorSubmission?.scaleMax ?? 5,
+  };
+  const firmResponseSets = firmSubmissions.map((submission) => ({
+    answers: extractResponses(submission.answers),
+    scaleMin: submission.scaleMin ?? 1,
+    scaleMax: submission.scaleMax ?? 5,
+  }));
   return buildVendorProductInsightSnapshot({
     product: {
       id: product.id,

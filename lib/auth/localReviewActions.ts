@@ -1,7 +1,7 @@
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
-import { findLocalReviewUserByEmail, isLocalReviewAuthRequested } from "@/lib/auth/localReview";
+import { findAuthUserByEmail, resolveUserHomePath } from "@/lib/auth/credentials";
 import { getResolvedAuthEnv } from "@/lib/auth/env";
 
 function getSingleFormValue(value: FormDataEntryValue | null) {
@@ -18,6 +18,19 @@ function sanitizeView(target: string) {
     : "vendor";
 }
 
+function buildErrorRedirect(source: string, view: string, error: string) {
+  return `/${source}?view=${view}&error=${error}`;
+}
+
+function resolveRequestedRedirect(redirectTo: string, actorHome: string) {
+  const roleHomePaths = new Set(["/vendor", "/firm", "/user", "/admin"]);
+  if (!roleHomePaths.has(redirectTo)) {
+    return redirectTo;
+  }
+
+  return redirectTo === actorHome ? redirectTo : actorHome;
+}
+
 export async function signInWithLocalReviewCredentials(formData: FormData) {
   "use server";
 
@@ -28,39 +41,31 @@ export async function signInWithLocalReviewCredentials(formData: FormData) {
   const view = sanitizeView(getSingleFormValue(formData.get("view")) || "vendor");
   const resolvedAuthEnv = getResolvedAuthEnv();
 
-  if (!findLocalReviewUserByEmail(email)) {
-    redirect(`/${source}?view=${view}&error=local_review_invalid_user`);
+  if (!resolvedAuthEnv.credentialsAuthEnabled) {
+    redirect(buildErrorRedirect(source, view, "auth_unavailable"));
   }
 
-  if (!isLocalReviewAuthRequested()) {
-    redirect(`/${source}?view=${view}&error=local_review_disabled`);
+  if (!email || !password) {
+    redirect(buildErrorRedirect(source, view, "missing_credentials"));
   }
 
-  if (!resolvedAuthEnv.values.secret) {
-    redirect(`/${source}?view=${view}&error=local_review_secret_missing`);
+  const actor = await findAuthUserByEmail(email);
+  if (!actor) {
+    redirect(buildErrorRedirect(source, view, "invalid_credentials"));
   }
 
-  if (!resolvedAuthEnv.values.localReviewPassword) {
-    redirect(`/${source}?view=${view}&error=local_review_password_missing`);
-  }
-
-  if (!password) {
-    redirect(`/${source}?view=${view}&error=local_review_password_missing`);
-  }
-
-  if (password !== resolvedAuthEnv.values.localReviewPassword) {
-    redirect(`/${source}?view=${view}&error=local_review_password_mismatch`);
-  }
+  const fallbackRedirect = resolveUserHomePath(actor);
+  const finalRedirect = redirectTo === "/" ? fallbackRedirect : resolveRequestedRedirect(redirectTo, fallbackRedirect);
 
   try {
     await signIn("credentials", {
       email,
       password,
-      redirectTo,
+      redirectTo: finalRedirect,
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      redirect(`/${source}?view=${view}&error=local_review_invalid`);
+      redirect(buildErrorRedirect(source, view, "invalid_credentials"));
     }
 
     throw error;

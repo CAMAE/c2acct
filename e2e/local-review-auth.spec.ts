@@ -64,14 +64,16 @@ test.describe("local review auth", () => {
   test.setTimeout(60_000);
 
   test("shows deterministic local review entries for vendor, firm, individual, and admin", async ({ page }) => {
-    await page.goto("/login");
-    await expect(page.getByText("Development-only local review auth")).toBeVisible();
+    await page.goto("/sign-in");
+    await expect(page.getByRole("heading", { name: /One credentials path for vendor, firm, individual, and admin/i })).toBeVisible();
     await expect(page.getByText("review.vendor@pat.local")).toBeVisible();
+    await page.getByRole("link", { name: "Firm", exact: true }).click();
     await expect(page.getByText("review.firm@pat.local")).toBeVisible();
+    await page.getByRole("link", { name: "Individual", exact: true }).click();
     await expect(page.getByText("review.individual@pat.local")).toBeVisible();
+    await page.getByRole("link", { name: "Admin", exact: true }).click();
     await expect(page.getByText("review.admin@pat.local")).toBeVisible();
-    await expect(page.getByText("GitHub sign-in is intentionally unavailable in this local runtime.")).toBeVisible();
-    await expect(page.getByText("http://127.0.0.1:3001/api/auth/callback/github", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("PAT now authenticates through first-party credentials backed by provisioned users in the database.")).toBeVisible();
   });
 
   test("covers the vendor signed-in product assessment and membership flow", async ({ browser }) => {
@@ -81,11 +83,26 @@ test.describe("local review auth", () => {
     await signInAsRole(membershipPage, "vendor");
     await membershipPage.waitForURL("**/vendor**");
     await assertNoAuthOrRuntimeFailure(membershipPage);
-    const membershipLink = membershipPage.locator('a[href="/vendor/membership"]').first();
-    await expect(membershipLink).toBeVisible();
-    await gotoStable(membershipPage, "/vendor/membership");
+    await membershipPage.getByRole("link", { name: "Membership", exact: true }).click();
+    await membershipPage.waitForURL("**/vendor?panel=membership");
     await assertNoAuthOrRuntimeFailure(membershipPage);
     await expect(membershipPage.getByRole("button", { name: "Free" })).toHaveClass(/pat-button-primary/);
+    await expect(membershipPage.getByRole("button", { name: "Pro" })).toBeVisible();
+    await expect(membershipPage.getByRole("button", { name: "Elite" })).toBeVisible();
+    await expect(membershipPage.getByRole("button", { name: "Help" })).toBeVisible();
+    await membershipPage.getByRole("button", { name: "Pro" }).click();
+    await expect(
+      membershipPage.getByRole("link", { name: /payment processing/i })
+    ).toHaveAttribute("href", "/vendor/membership/payment-processing?plan=pro");
+
+    await gotoStable(membershipPage, "/vendor/membership/payment-processing?plan=pro");
+    await assertNoAuthOrRuntimeFailure(membershipPage);
+    await expect(
+      membershipPage.getByRole("heading", { name: /Review the billing details before provider handoff/i })
+    ).toBeVisible();
+    await expect(membershipPage.getByText("Cards / wallets", { exact: true })).toBeVisible();
+    await expect(membershipPage.getByText("Bank / ACH", { exact: true })).toBeVisible();
+    await expect(membershipPage.getByText("PayPal", { exact: true })).toBeVisible();
 
     await membershipContext.close();
 
@@ -97,10 +114,14 @@ test.describe("local review auth", () => {
     await expect(assessmentPage.locator('a[href="/vendor/product-assessment"]').first()).toBeVisible();
     await gotoStable(assessmentPage, "/vendor/product-assessment");
     await assertNoAuthOrRuntimeFailure(assessmentPage);
-    await expect(
-      assessmentPage.getByRole("heading", { name: "Per-product assessment, not one generic vendor form" })
-    ).toBeVisible();
-    await expect(assessmentPage.getByRole("heading", { name: "Product list" })).toBeVisible();
+    await expect(assessmentPage.getByRole("link", { name: "Completed", exact: true })).toHaveAttribute(
+      "aria-current",
+      "page"
+    );
+    await expect(assessmentPage.getByRole("link", { name: "New", exact: true })).toBeVisible();
+    await expect(assessmentPage.getByRole("link", { name: "Help", exact: true })).toBeVisible();
+    await expect(assessmentPage.getByRole("heading", { name: "Product-level PAT workspace" })).toBeVisible();
+    await expect(assessmentPage.getByRole("heading", { name: "Completed" })).toBeVisible();
 
     await assessmentContext.close();
   });

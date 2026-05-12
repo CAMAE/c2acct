@@ -213,9 +213,4 @@ export const signInHubCards = [
     label: "User",
     description: "Continue as a user",
   },
-  {
-    href: "/sign-in/invitee",
-    label: "Invitee",
-    description: "Continue with secret code",
-  },
 ] as const;

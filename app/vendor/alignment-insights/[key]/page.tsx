@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import TrackPageEvent from "@/app/components/telemetry/TrackPageEvent";
 import { getVendorAlignmentInsightContent } from "@/lib/insightContent";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import { VENDOR_PRODUCT_TIER2_HOVER } from "@/lib/vendorPat";
@@ -39,6 +40,15 @@ export default async function VendorAlignmentInsightDetailPage({
 
   return (
     <div className="space-y-8">
+      <TrackPageEvent
+        distinctId={`vendor-alignment:${key}`}
+        event="insight_card_open"
+        properties={{
+          surface: "vendor_alignment_insight",
+          cardKey: key,
+        }}
+      />
+
       <section
         className={`p-8 ${
           report.locked
@@ -112,14 +122,8 @@ export default async function VendorAlignmentInsightDetailPage({
             <span className="font-semibold text-[var(--shell-ink)]">{report.sampleSize}</span>.
             Final module submissions in basis set:{" "}
             <span className="font-semibold text-[var(--shell-ink)]">{report.submissionCount}</span>.
-            Current cross-module variance:{" "}
-            <span className="font-semibold text-[var(--shell-ink)]">
-              {report.moduleVariance === null ? "--" : report.moduleVariance}
-            </span>
-            .
-          </p>
-          <p>
-            {messages.insights.shared.freshness}: <span className="font-semibold text-[var(--shell-ink)]">{formatFreshness(report.latestUpdatedAt)}</span>. {messages.insights.shared.confidence}:{" "}
+            Current cross-module variance: <span className="font-semibold text-[var(--shell-ink)]">{report.moduleVariance === null ? "--" : report.moduleVariance}</span>. {messages.insights.shared.freshness}:{" "}
+            <span className="font-semibold text-[var(--shell-ink)]">{formatFreshness(report.latestUpdatedAt)}</span>. {messages.insights.shared.confidence}:{" "}
             <span className="font-semibold text-[var(--shell-ink)]">{report.confidenceLabel}</span>.
           </p>
         </div>
@@ -207,11 +211,11 @@ export default async function VendorAlignmentInsightDetailPage({
         <div className="pat-label">{messages.insights.shared.confidenceAndSampleCaveat}</div>
         <div className="mt-4 space-y-3 text-sm leading-6 text-[var(--shell-muted)]">
           <p>{report.confidenceSummary}</p>
-          <p>{messages.common.liveEvidenceEnglishOnly}</p>
           {content?.confidenceDisclaimerTemplate ? <p>{content.confidenceDisclaimerTemplate}</p> : null}
           {report.confidenceCaveats.map((caveat) => (
             <p key={caveat}>{caveat}</p>
           ))}
+          <p>{messages.common.liveEvidenceEnglishOnly}</p>
         </div>
       </section>
     </div>

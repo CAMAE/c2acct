@@ -1,7 +1,17 @@
 # Active Repo Map
 
+This file is the shortest current-state map for operators and auditors.
+
+Read this as:
+- canonical current truth first
+- compatibility bridges second
+- archive locations last
+
+Do not treat `docs/archive/**` or `scripts/archive/**` as current runtime truth unless an active doc points to a specific archived file on purpose.
+
 ## Runtime path
-- `app/login/page.tsx`: auth entrypoint.
+- `app/sign-in/page.tsx`: canonical auth entrypoint.
+- `app/login/page.tsx`: compatibility redirect to the canonical auth entrypoint.
 - `app/survey/page.tsx`: compatibility redirect to the canonical firm assessment hub.
 - `app/firm/alignment-assessment/page.tsx`: canonical five-module PAT firm assessment entry.
 - `app/survey/[key]/page.tsx`: live survey UI for active modules.
@@ -26,6 +36,15 @@
 - `lib/auth/session.ts`: session-user lookup.
 - `lib/authz.ts`: role and authorization helpers.
 - `app/api/company/select/route.ts` and `app/api/company/default/route.ts`: selected-company context.
+
+## Compatibility bridges still intentionally live
+- `app/login/page.tsx`: compatibility redirect to canonical `/sign-in`.
+- `lib/platformRollout.ts`: explicit launch-phase compatibility bridge markers for legacy company cookie and company-rooted fallback behavior.
+- `lib/subjectContext.ts`: subject-aware routing with legacy company fallback when newer subject-layer schema is missing locally.
+- `app/survey/page.tsx`, `app/results/page.tsx`, `app/outputs/page.tsx`, `app/profiles/page.tsx`: compatibility redirects into canonical role-specific PAT surfaces.
+
+Operator rule:
+- If a route or helper appears in this section, it is still intentionally live but should not be treated as the canonical product surface.
 
 ## Data contract
 - `prisma/schema.prisma`: current source of truth for models and enums.

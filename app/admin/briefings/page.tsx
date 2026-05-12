@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
 import { getAdminBriefingCatalog } from "@/lib/adminBriefingEngine";
-import { buildOperatorBriefings, getAdminOverviewData } from "@/lib/adminControlPlane";
+import { buildOperatorBriefings, getAdminOverviewData, requireAdminSession } from "@/lib/adminControlPlane";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminBriefingsPage() {
+  await requireAdminSession();
   const [catalog, overview] = await Promise.all([
     getAdminBriefingCatalog(),
     getAdminOverviewData(),

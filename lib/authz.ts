@@ -4,7 +4,7 @@ import type { AssessmentSubjectContext } from "@/lib/subjectContext";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
-const PROTECTED_PAT_PAGE_PREFIXES = [
+export const PROTECTED_PAT_PAGE_PREFIXES = [
   "/admin",
   "/platform",
   "/survey",
@@ -16,14 +16,16 @@ const PROTECTED_PAT_PAGE_PREFIXES = [
   "/user",
 ] as const;
 
-const PROTECTED_PAT_API_PREFIXES = [
+export const PROTECTED_PAT_API_PREFIXES = [
   "/api/results",
   "/api/insights/unlocked",
   "/api/badges/earned",
   "/api/survey/module",
   "/api/survey/draft",
   "/api/survey/submit",
+  "/api/firm/product-assessment/draft",
   "/api/firm/product-assessment/submit",
+  "/api/vendor/product-assessment/draft",
   "/api/vendor/product-assessment/submit",
 ] as const;
 
@@ -89,5 +91,5 @@ export function buildLoginRedirectPath(input: {
   search?: string;
 }) {
   const callbackUrl = `${input.pathname}${input.search ?? ""}`;
-  return `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+  return `/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`;
 }

@@ -418,7 +418,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
           typeof window !== "undefined"
             ? `${window.location.pathname}${window.location.search}`
             : `/survey/${data.key}`;
-        window.location.assign(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+        window.location.assign(`/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`);
         return false;
       }
 
@@ -485,7 +485,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
           typeof window !== "undefined"
             ? `${window.location.pathname}${window.location.search}`
             : `/survey/${data.key}`;
-        window.location.assign(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+        window.location.assign(`/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`);
         return;
       }
 

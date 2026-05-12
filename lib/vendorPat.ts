@@ -3,17 +3,17 @@ import { randomUUID } from "crypto";
 import prisma from "@/lib/prisma";
 import { insightContent } from "@/lib/insightContent";
 import {
+  computeProductAssessmentMetrics,
+} from "@/lib/productAssessmentRuntime";
+import {
   matchesPrismaMissingSchemaTarget,
   warnPrismaCompatibilityOnce,
 } from "@/lib/prisma-compat";
-import { computeScore } from "@/lib/scoring";
-import { evaluateSignalIntegrity } from "@/lib/signalIntegrity";
 import { PRODUCT_UTILITY_SCORED_QUESTION_COUNT } from "@/lib/productUtilityRegistry";
 import { buildProductAssessmentPlan, getProductUtilityCatalog } from "@/lib/vendorProductQuestionBank";
 
 export const VENDOR_PRODUCT_MODULE_KEY = "vendor_product_alignment_v1";
 export const VENDOR_PRODUCT_MODULE_TITLE = "Vendor Product Assessment";
-export const VENDOR_PRODUCT_UTILITY_CAP = 4;
 export const VENDOR_PRODUCT_QUESTIONS_PER_UTILITY = PRODUCT_UTILITY_SCORED_QUESTION_COUNT;
 export const VENDOR_PRODUCT_TIER2_HOVER = "Unlock with Elite membership";
 
@@ -67,8 +67,11 @@ export type VendorProductStatus = {
   latestSubmissionId: string | null;
   latestScore: number | null;
   latestSubmittedAt: Date | null;
+  answeredCount: number;
   utilityKeys: string[];
   questionCount: number;
+  progressLabel: string;
+  assessmentSummary: string;
   statusLabel: string;
 };
 
@@ -169,7 +172,6 @@ export function buildVendorProductQuestions(selectedUtilityKeys: string[]) {
   return buildProductAssessmentPlan({
     perspective: "vendor",
     selectedUtilityKeys,
-    utilityCap: VENDOR_PRODUCT_UTILITY_CAP,
     includeProductGeneral: false,
     includeOpenEnded: false,
   }).modules.flatMap((module) => module.questions) as VendorAssessmentQuestion[];
@@ -204,17 +206,34 @@ export function deriveProductStatus(input: {
   const questionCount = buildProductAssessmentPlan({
     perspective: "vendor",
     selectedUtilityKeys: input.utilityKeys,
-    utilityCap: VENDOR_PRODUCT_UTILITY_CAP,
     includeProductGeneral: true,
     includeOpenEnded: true,
   }).modules.reduce((sum, module) => sum + module.questions.length, 0);
+  const answeredCount =
+    questionCount === 0 ? 0 : Math.min(latestSubmission?.answeredCount ?? 0, questionCount);
+
+  const progressLabel =
+    questionCount === 0
+      ? "Waiting for utility declaration"
+      : latestSubmission
+        ? `${answeredCount} of ${questionCount} generated questions captured in the latest assessment`
+        : `0 of ${questionCount} generated questions completed`;
+  const assessmentSummary =
+    questionCount === 0
+      ? "Declare product utilities first so PAT can generate the assessment plan."
+      : latestSubmission
+        ? "The current vendor assessment is recorded and can be reopened, updated, or reviewed in product insight."
+        : "Open the assessment to capture the product profile, utility-aligned scored pages, and the final narrative readout.";
 
   return {
     latestSubmissionId: latestSubmission?.id ?? null,
     latestScore: latestSubmission?.score ?? null,
     latestSubmittedAt: latestSubmission?.createdAt ?? null,
+    answeredCount,
     utilityKeys: input.utilityKeys,
     questionCount,
+    progressLabel,
+    assessmentSummary,
     statusLabel:
       questionCount === 0
         ? "Needs utility declaration"
@@ -406,7 +425,7 @@ export async function upsertVendorProductSignals(
   utilityKeys: string[],
   latestScore: number
 ) {
-  const selectedUtilityKeys = utilityKeys.slice(0, VENDOR_PRODUCT_UTILITY_CAP);
+  const selectedUtilityKeys = [...new Set(utilityKeys)].filter(Boolean);
   const selectedSignalKeys = selectedUtilityKeys.map(productSignalKeyForUtility);
 
   await tx.productSignal.deleteMany({
@@ -468,20 +487,5 @@ export async function upsertVendorProductSignals(
 }
 
 export function computeVendorAssessmentMetrics(answers: Record<string, number>) {
-  const score = computeScore({
-    answers,
-    scaleMin: 1,
-    scaleMax: 5,
-  });
-
-  const integrity = evaluateSignalIntegrity(answers, {
-    expectedQuestionCount: Object.keys(answers).length,
-    scaleMin: 1,
-    scaleMax: 5,
-  });
-
-  return {
-    score,
-    integrity,
-  };
+  return computeProductAssessmentMetrics(answers);
 }

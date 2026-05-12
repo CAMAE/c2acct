@@ -1,10 +1,12 @@
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
+import { requireAdminSession } from "@/lib/adminControlPlane";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminProductsPage() {
+  await requireAdminSession();
   const products = await prisma.product.findMany({
     orderBy: { updatedAt: "desc" },
     include: {

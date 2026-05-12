@@ -37,6 +37,12 @@ export const PAT_COOKIE_KEYS = {
   subjectSelection: "pat_subjectId",
 } as const;
 
+export const PAT_COMPATIBILITY_BRIDGES = {
+  legacyCompanyCookie: `${PAT_COOKIE_KEYS.companySelection} + ${PAT_COOKIE_KEYS.legacyCompanySelection}`,
+  userCompanyFallback: "User.companyId fallback when SubjectMembership is absent",
+  companyRootedWrites: "company-rooted badges, capability scores, FMI, and benchmark tables remain canonical",
+} as const;
+
 export function getPatRollout() {
   const stage: PatRolloutStage = "pat_phase1";
 
@@ -72,9 +78,9 @@ export function getPatRollout() {
       "adding non-company assessment flows to current submit/results routes",
     ],
     compatibilityBridges: [
-      `dual-read company selection cookie (${PAT_COOKIE_KEYS.companySelection} + ${PAT_COOKIE_KEYS.legacyCompanySelection})`,
-      "User.companyId fallback when no SubjectMembership exists",
-      "company-rooted badges, capability scores, FMI, and benchmark tables remain canonical",
+      `dual-read company selection cookie (${PAT_COMPATIBILITY_BRIDGES.legacyCompanyCookie})`,
+      PAT_COMPATIBILITY_BRIDGES.userCompanyFallback,
+      PAT_COMPATIBILITY_BRIDGES.companyRootedWrites,
     ],
   };
 }

@@ -1,10 +1,12 @@
 import prisma from "@/lib/prisma";
 import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
+import { requireAdminSession } from "@/lib/adminControlPlane";
 import { updateInsightAction, upsertInsightCapabilityRuleAction, upsertInsightUnlockRuleAction } from "@/app/admin/actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminInsightsPage() {
+  await requireAdminSession();
   const [insights, capabilityNodes, badges] = await Promise.all([
     prisma.insight.findMany({
       orderBy: { key: "asc" },

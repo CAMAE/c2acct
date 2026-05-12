@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { getVendorAlignmentInsightContent } from "@/lib/insightContent";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
-import { VENDOR_PRODUCT_TIER2_HOVER } from "@/lib/vendorPat";
+import { getVendorAlignmentOverviewCard } from "@/lib/vendorAlignmentInsightCards";
 import { getVendorAlignmentInsightBundle } from "@/lib/vendorAlignmentInsightEngine";
 
 export const dynamic = "force-dynamic";
@@ -10,10 +9,6 @@ export const metadata = {
   title: "Vendor Alignment Insights | C2Acct",
   description: "Vendor alignment insights connected to firm alignment signal.",
 };
-
-function formatFreshness(value: Date | null) {
-  return value ? value.toLocaleDateString() : "No live update yet";
-}
 
 export default async function VendorAlignmentInsightsPage() {
   const messages = await getRequestLocaleMessages();
@@ -51,7 +46,6 @@ export default async function VendorAlignmentInsightsPage() {
           <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
             {messages.insights.vendorAlignment.confidence}:{" "}
             <span className="font-semibold text-[var(--shell-ink)]">{bundle.confidenceLabel}</span>
-            <div className="mt-1 text-xs leading-5">{formatFreshness(bundle.latestUpdatedAt)}</div>
           </div>
         </div>
         <div className="mt-4 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4 text-sm leading-6 text-[var(--shell-muted)]">
@@ -67,30 +61,24 @@ export default async function VendorAlignmentInsightsPage() {
           </p>
         </div>
         <div className="grid gap-5 md:grid-cols-2">
-          {proReports.map((report) => (
-            <Link
-              key={report.key}
-              href={`/vendor/alignment-insights/${report.key}`}
-              className="pat-card pat-card-interactive block p-6"
-            >
+          {proReports.map((report) => {
+            const card = getVendorAlignmentOverviewCard(report);
+
+            return (
+              <Link key={report.key} href={card.href} className="pat-card pat-card-interactive block p-6">
               <div className="flex items-start justify-between gap-4">
-                <div className="text-lg font-semibold text-[var(--shell-ink)]">{report.title}</div>
+                <div className="text-lg font-semibold text-[var(--shell-ink)]">{card.title}</div>
                 <span className="rounded-full bg-[var(--shell-accent)]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--shell-accent)]">
-                  {report.confidenceLabel}
+                  {card.confidenceLabel}
                 </span>
               </div>
               <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-                {report.currentStateSummary}
+                {card.summary}
               </p>
-              <div className="mt-4 space-y-2 text-xs leading-5 text-[var(--shell-muted)]">
-                <p>{messages.insights.vendorAlignment.signalStatus}: {report.confidenceSummary}</p>
-                <p>{messages.insights.vendorAlignment.assessmentBasis}: {report.exactAssessmentBasis}</p>
-                <p>
-                  {messages.insights.shared.freshness}: {formatFreshness(report.latestUpdatedAt)}. {report.confidenceCaveats[0]}
-                </p>
-              </div>
+              <p className="mt-4 text-xs leading-5 text-[var(--shell-muted)]">{card.metaLine}</p>
             </Link>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -103,26 +91,24 @@ export default async function VendorAlignmentInsightsPage() {
         </div>
         <div className="grid gap-5 md:grid-cols-2">
           {eliteReports.map((report) => {
-            const content = getVendorAlignmentInsightContent(report.key);
+            const card = getVendorAlignmentOverviewCard(report);
             return (
               <Link
                 key={report.key}
-                href={`/vendor/alignment-insights/${report.key}`}
-                title={content?.lockedState?.disclaimer ?? VENDOR_PRODUCT_TIER2_HOVER}
+                href={card.href}
+                title={card.lockedTitle ?? undefined}
                 className="block rounded-[24px] border border-[rgba(79,191,226,0.28)] bg-[rgba(79,191,226,0.13)] p-6 transition-colors duration-150 hover:border-[rgba(79,191,226,0.45)]"
               >
                 <div className="flex items-start justify-between gap-4">
-                  <div className="text-lg font-semibold text-[var(--shell-ink)]">{report.title}</div>
+                  <div className="text-lg font-semibold text-[var(--shell-ink)]">{card.title}</div>
                   <span className="rounded-full bg-[rgba(6,54,116,0.1)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--shell-accent)]">
                     Locked
                   </span>
                 </div>
                 <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-                  {content?.lockedState?.summary ?? report.currentStateSummary}
+                  {card.summary}
                 </p>
-                <p className="mt-4 text-xs leading-5 text-[var(--shell-muted)]">
-                  {content?.lockedState?.basis ?? report.exactAssessmentBasis}
-                </p>
+                <p className="mt-4 text-xs leading-5 text-[var(--shell-muted)]">{card.metaLine}</p>
               </Link>
             );
           })}

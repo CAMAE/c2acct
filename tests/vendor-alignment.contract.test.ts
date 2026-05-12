@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { getVendorAlignmentOverviewCard } from "@/lib/vendorAlignmentInsightCards";
+import { getVendorAlignmentInsightContent } from "@/lib/insightContent";
 import { buildVendorAlignmentInsightBundle } from "@/lib/vendorAlignmentInsightEngine";
 
 function buildFixture(input: {
@@ -203,5 +205,108 @@ describe("vendor alignment catalog", () => {
     expect(baselineRisk).toBeTruthy();
     expect(shiftedRisk).toBeTruthy();
     expect(baselineRisk?.exactAssessmentBasis).not.toEqual(shiftedRisk?.exactAssessmentBasis);
+  });
+
+  it("builds concise overview cards with valid detail routes for visible and locked reports", () => {
+    const baseline = buildFixture({
+      sampleSize: 2,
+      submissionCount: 10,
+      moduleScores: {
+        operating: 61,
+        automation: 58,
+        data: 52,
+        governance: 55,
+        strategy: 59,
+      },
+      capabilityScores: {
+        firm_capability_operating_model_discipline: 60,
+        firm_capability_operating_clarity: 58,
+        firm_capability_execution_consistency: 57,
+        firm_capability_measurement_visibility: 51,
+        firm_capability_automation_ai_readiness: 56,
+        firm_capability_change_enablement: 54,
+        firm_capability_strategy_change_alignment: 59,
+        firm_capability_data_flow_integration: 50,
+        firm_capability_control_resilience: 53,
+        firm_capability_governance_controls: 55,
+        firm_capability_strategic_alignment: 57,
+      },
+      clusterScores: {
+        "operating-discipline": 60,
+        "workflow-friction": 48,
+        "automation-change": 57,
+        "data-integration": 50,
+        "controls-risk": 52,
+        "strategy-market": 59,
+      },
+    });
+
+    const visibleCard = getVendorAlignmentOverviewCard(
+      baseline.reports.find((report) => report.key === "implementation-risk-posture")!
+    );
+    const lockedCard = getVendorAlignmentOverviewCard(
+      baseline.reports.find((report) => report.key === "benchmark-comparison")!
+    );
+
+    expect(visibleCard.href).toBe("/vendor/alignment-insights/implementation-risk-posture");
+    expect(visibleCard.summary.length).toBeLessThan(
+      baseline.reports.find((report) => report.key === "implementation-risk-posture")!.currentStateSummary.length + 1
+    );
+    expect(visibleCard.metaLine).toContain("2 firm samples");
+    expect(visibleCard.locked).toBe(false);
+
+    expect(lockedCard.href).toBe("/vendor/alignment-insights/benchmark-comparison");
+    expect(lockedCard.locked).toBe(true);
+    expect(lockedCard.metaLine).toContain("Staged only");
+    expect(lockedCard.lockedTitle).toMatch(/does not imply/i);
+  });
+
+  it("keeps overview and detail content in parity for every report route", () => {
+    const baseline = buildFixture({
+      sampleSize: 4,
+      submissionCount: 20,
+      moduleScores: {
+        operating: 66,
+        automation: 63,
+        data: 58,
+        governance: 60,
+        strategy: 64,
+      },
+      capabilityScores: {
+        firm_capability_operating_model_discipline: 65,
+        firm_capability_operating_clarity: 63,
+        firm_capability_execution_consistency: 61,
+        firm_capability_measurement_visibility: 58,
+        firm_capability_automation_ai_readiness: 62,
+        firm_capability_change_enablement: 60,
+        firm_capability_strategy_change_alignment: 64,
+        firm_capability_data_flow_integration: 57,
+        firm_capability_control_resilience: 59,
+        firm_capability_governance_controls: 60,
+        firm_capability_strategic_alignment: 63,
+      },
+      clusterScores: {
+        "operating-discipline": 65,
+        "workflow-friction": 54,
+        "automation-change": 62,
+        "data-integration": 57,
+        "controls-risk": 59,
+        "strategy-market": 64,
+      },
+    });
+
+    for (const report of baseline.reports) {
+      const card = getVendorAlignmentOverviewCard(report);
+      const content = getVendorAlignmentInsightContent(report.key);
+
+      expect(card.href).toBe(`/vendor/alignment-insights/${report.key}`);
+      expect(card.summary.length).toBeGreaterThan(0);
+      expect(report.exactAssessmentBasis.length).toBeGreaterThan(0);
+      if (report.locked) {
+        expect(content?.lockedState?.summary ?? report.currentStateSummary).toContain(card.summary.slice(0, 10));
+      } else {
+        expect(report.currentStateSummary).toContain(card.summary.slice(0, 10));
+      }
+    }
   });
 });

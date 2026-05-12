@@ -17,6 +17,8 @@ export type AssessmentSubjectContext = {
   subjectId: string | null;
   subjectKind: SubjectKind | null;
   accessMode: AssessmentSubjectAccessMode;
+  // This flag is a launch-phase compatibility marker, not a statement that
+  // subject-native routing has fully replaced company-rooted scope everywhere.
   compatibilityMode?: "native" | "legacy-fallback";
   compatibilityReason?:
     | "subject-membership-missing"

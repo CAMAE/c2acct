@@ -2,7 +2,14 @@ import { ModuleScope, type QuestionInputType, type UserRole } from "@prisma/clie
 import { randomUUID } from "crypto";
 import prisma from "@/lib/prisma";
 import { buildIntegrationEnvelope } from "@/lib/integrations/c2acct";
-import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
+import {
+  getSurveyDraftWhere,
+  getSurveyFinalWhere,
+} from "@/lib/surveyDrafts";
+import {
+  PRODUCT_ASSESSMENT_FINAL_SCORE_VERSION,
+  computeProductAssessmentMetrics,
+} from "@/lib/productAssessmentRuntime";
 import { TIER1_ALIGNMENT_BADGE_ID, TIER1_ALIGNMENT_BADGE_NAME } from "@/lib/patUnlocks";
 import {
   FIRM_CAPABILITY_DEFINITIONS,
@@ -13,12 +20,12 @@ import {
 import {
   type VendorAssessmentQuestion,
   VENDOR_PRODUCT_TIER2_HOVER,
-  VENDOR_PRODUCT_UTILITY_CAP,
   ensureProductSubject,
   extractUtilityKeysFromSignals,
 } from "@/lib/vendorPat";
 import { buildProductAssessmentPlan } from "@/lib/vendorProductQuestionBank";
 import { insightContent } from "@/lib/insightContent";
+import { serializeProductAssessmentPlan } from "@/lib/vendorProductAssessmentPlan";
 
 export const FIRM_MODULE_DEFINITIONS = [
   {
@@ -161,6 +168,14 @@ export type FirmProductCatalogItem = {
   vendorName: string;
   summary: string | null;
   utilityKeys: string[];
+  href: string;
+  questionCount: number;
+  completedCount: number;
+  latestScore: number | null;
+  latestSubmittedAt: Date | null;
+  statusLabel: string;
+  progressLabel: string;
+  description: string;
 };
 
 export const FIRM_PRODUCT_MODULE_KEY = "firm_product_review_v1";
@@ -623,7 +638,6 @@ export function buildFirmProductQuestions(selectedUtilityKeys: string[]): Vendor
   return buildProductAssessmentPlan({
     perspective: "firm",
     selectedUtilityKeys,
-    utilityCap: VENDOR_PRODUCT_UTILITY_CAP,
     includeProductGeneral: false,
     includeOpenEnded: false,
   }).modules.flatMap((module) => module.questions) as VendorAssessmentQuestion[];
@@ -677,8 +691,83 @@ export async function getFirmAssessmentProgress(companyId: string) {
   });
 }
 
-export async function getFirmProductCatalog() {
-  await ensureFirmProductModule();
+function deriveFirmProductAssessmentStatus(input: {
+  utilityKeys: string[];
+  latestDraft?: {
+    answeredCount: number;
+    createdAt: Date;
+  } | null;
+  latestSubmission?: {
+    answeredCount: number;
+    score: number;
+    createdAt: Date;
+  } | null;
+}) {
+  const questionCount = buildProductAssessmentPlan({
+    perspective: "firm",
+    selectedUtilityKeys: input.utilityKeys,
+    includeProductGeneral: false,
+    includeOpenEnded: false,
+  }).modules.reduce((sum, module) => sum + module.questions.length, 0);
+  const latestDraft = input.latestDraft ?? null;
+  const latestSubmission = input.latestSubmission ?? null;
+  const completedCount =
+    questionCount === 0
+      ? 0
+      : Math.min(
+          latestDraft?.answeredCount ?? latestSubmission?.answeredCount ?? 0,
+          questionCount
+        );
+
+  if (questionCount === 0) {
+    return {
+      questionCount,
+      completedCount,
+      latestScore: null,
+      latestSubmittedAt: null,
+      statusLabel: "Needs utility declaration",
+      progressLabel: "0/0",
+      description: "Vendor utilities have not been declared yet, so PAT cannot open a firm product review for this product.",
+    };
+  }
+
+  if (latestSubmission) {
+    return {
+      questionCount,
+      completedCount: Math.max(completedCount, questionCount),
+      latestScore: latestSubmission.score,
+      latestSubmittedAt: latestSubmission.createdAt,
+      statusLabel: "Assessment recorded",
+      progressLabel: `${Math.max(completedCount, questionCount)}/${questionCount}`,
+      description: "Utility-aligned firm review is recorded and available for current-state product intelligence.",
+    };
+  }
+
+  if (latestDraft) {
+    return {
+      questionCount,
+      completedCount,
+      latestScore: null,
+      latestSubmittedAt: latestDraft.createdAt,
+      statusLabel: "In progress",
+      progressLabel: `${completedCount}/${questionCount}`,
+      description: "A saved firm review draft exists for the current vendor-declared utility scope.",
+    };
+  }
+
+  return {
+    questionCount,
+    completedCount: 0,
+    latestScore: null,
+    latestSubmittedAt: null,
+    statusLabel: "Not started",
+    progressLabel: `0/${questionCount}`,
+    description: "Open the review to score this product inside the vendor-declared utility scope only.",
+  };
+}
+
+export async function getFirmProductCatalog(companyId: string) {
+  const moduleRecord = await ensureFirmProductModule();
 
   const products = await prisma.product.findMany({
     where: { active: true },
@@ -698,12 +787,88 @@ export async function getFirmProductCatalog() {
     },
   }).catch(() => []);
 
+  const productIds = products.map((product) => product.id);
+  const [draftSubmissions, finalSubmissions] = productIds.length
+    ? await Promise.all([
+        prisma.surveySubmission.findMany({
+          where: getSurveyDraftWhere({
+            companyId,
+            moduleId: moduleRecord.id,
+            Subject: {
+              productId: { in: productIds },
+            },
+          }),
+          orderBy: { createdAt: "desc" },
+          select: {
+            answeredCount: true,
+            createdAt: true,
+            Subject: {
+              select: { productId: true },
+            },
+          },
+        }),
+        prisma.surveySubmission.findMany({
+          where: getSurveyFinalWhere({
+            companyId,
+            moduleId: moduleRecord.id,
+            Subject: {
+              productId: { in: productIds },
+            },
+          }),
+          orderBy: { createdAt: "desc" },
+          select: {
+            answeredCount: true,
+            score: true,
+            createdAt: true,
+            Subject: {
+              select: { productId: true },
+            },
+          },
+        }),
+      ])
+    : [[], []];
+
+  const latestDraftByProductId = new Map<string, (typeof draftSubmissions)[number]>();
+  for (const submission of draftSubmissions) {
+    const productId = submission.Subject?.productId;
+    if (productId && !latestDraftByProductId.has(productId)) {
+      latestDraftByProductId.set(productId, submission);
+    }
+  }
+
+  const latestFinalByProductId = new Map<string, (typeof finalSubmissions)[number]>();
+  for (const submission of finalSubmissions) {
+    const productId = submission.Subject?.productId;
+    if (productId && !latestFinalByProductId.has(productId)) {
+      latestFinalByProductId.set(productId, submission);
+    }
+  }
+
   return products.map((product) => ({
-    id: product.id,
-    name: product.name,
-    vendorName: product.Company?.name ?? "Vendor",
-    summary: product.summary,
-    utilityKeys: extractUtilityKeysFromSignals(product.ProductSignal),
+    ...(() => {
+      const utilityKeys = extractUtilityKeysFromSignals(product.ProductSignal);
+      const status = deriveFirmProductAssessmentStatus({
+        utilityKeys,
+        latestDraft: latestDraftByProductId.get(product.id),
+        latestSubmission: latestFinalByProductId.get(product.id),
+      });
+
+      return {
+        id: product.id,
+        name: product.name,
+        vendorName: product.Company?.name ?? "Vendor",
+        summary: product.summary,
+        utilityKeys,
+        href: `/firm/product-assessments/${product.id}`,
+        questionCount: status.questionCount,
+        completedCount: status.completedCount,
+        latestScore: status.latestScore,
+        latestSubmittedAt: status.latestSubmittedAt,
+        statusLabel: status.statusLabel,
+        progressLabel: status.progressLabel,
+        description: status.description,
+      };
+    })(),
   })) satisfies FirmProductCatalogItem[];
 }
 
@@ -723,32 +888,102 @@ export async function submitFirmProductAssessment(input: {
   }
 
   const subject = await ensureProductSubject(product);
+  const { score, integrity } = computeProductAssessmentMetrics(input.answers);
 
-  const values = Object.values(input.answers);
-  const average = values.length === 0 ? 0 : Math.round(values.reduce((sum, value) => sum + value, 0) / values.length / 5 * 100);
-
-  return prisma.surveySubmission.create({
-    data: {
-      id: randomUUID(),
-      companyId: input.companyId,
-      subjectId: subject.id,
-      moduleId: moduleRecord.id,
-      version: 1,
-      answers: {
-        responses: input.answers,
+  return prisma.$transaction(async (tx) => {
+    const productRecord = await tx.product.findUnique({
+      where: { id: input.productId },
+      select: {
+        ProductSignal: {
+          where: { signalKey: { startsWith: "pat.utility." } },
+          select: { signalKey: true, valueNumber: true },
+        },
       },
-      score: average,
-      weightedAvg: values.length === 0 ? null : values.reduce((sum, value) => sum + value, 0) / values.length,
-      scoreVersion: 1,
-      scaleMin: 1,
-      scaleMax: 5,
-      totalWeight: values.length,
-      answeredCount: values.length,
-      signalIntegrityScore: 1,
-      integrityFlags: [],
-    },
+    });
+    const selectedUtilityKeys = extractUtilityKeysFromSignals(productRecord?.ProductSignal);
+    const persistedPlan = serializeProductAssessmentPlan({
+      perspective: "firm",
+      selectedUtilityKeys,
+      includeProductGeneral: false,
+      includeOpenEnded: false,
+    });
+
+    await tx.productAssessmentPlan.upsert({
+      where: {
+        productId_perspective: {
+          productId: input.productId,
+          perspective: "FIRM",
+        },
+      },
+      update: {
+        registryVersion: persistedPlan.registryVersion,
+        selectedUtilityKeys: persistedPlan.selectedUtilityKeys,
+        generatedQuestionIds: persistedPlan.generatedQuestionIds,
+        profileQuestionIds: persistedPlan.profileQuestionIds,
+        scoredQuestionIds: persistedPlan.scoredQuestionIds,
+        openEndedQuestionIds: persistedPlan.openEndedQuestionIds,
+        moduleOrder: persistedPlan.moduleOrder,
+        sectionOrder: persistedPlan.sectionOrder,
+        modulePlan: persistedPlan.modulePlan,
+        sectionPlan: persistedPlan.sectionPlan,
+        updatedAt: new Date(),
+      },
+      create: {
+        id: `product-plan-${input.productId}-firm`,
+        productId: input.productId,
+        perspective: "FIRM",
+        registryVersion: persistedPlan.registryVersion,
+        selectedUtilityKeys: persistedPlan.selectedUtilityKeys,
+        generatedQuestionIds: persistedPlan.generatedQuestionIds,
+        profileQuestionIds: persistedPlan.profileQuestionIds,
+        scoredQuestionIds: persistedPlan.scoredQuestionIds,
+        openEndedQuestionIds: persistedPlan.openEndedQuestionIds,
+        moduleOrder: persistedPlan.moduleOrder,
+        sectionOrder: persistedPlan.sectionOrder,
+        modulePlan: persistedPlan.modulePlan,
+        sectionPlan: persistedPlan.sectionPlan,
+      },
+    });
+
+    const submission = await tx.surveySubmission.create({
+      data: {
+        id: randomUUID(),
+        companyId: input.companyId,
+        subjectId: subject.id,
+        moduleId: moduleRecord.id,
+        version: moduleRecord.version ?? 1,
+        answers: {
+          responses: input.answers,
+        },
+        score: score.rawScorePct,
+        weightedAvg: score.rawWeightedAvg,
+        scoreVersion: PRODUCT_ASSESSMENT_FINAL_SCORE_VERSION,
+        scaleMin: score.scaleMin,
+        scaleMax: score.scaleMax,
+        totalWeight: score.totalWeight,
+        answeredCount: score.answeredCount,
+        signalIntegrityScore: integrity.score,
+        integrityFlags: integrity.flags,
+      },
+    });
+
+    const existingDraft = await tx.surveySubmission.findFirst({
+      where: getSurveyDraftWhere({
+        companyId: input.companyId,
+        subjectId: subject.id,
+        moduleId: moduleRecord.id,
+      }),
+      select: { id: true },
+    });
+    if (existingDraft) {
+      await tx.surveySubmission.delete({ where: { id: existingDraft.id } });
+    }
+
+    return submission;
   });
 }
+
+export { deriveFirmProductAssessmentStatus };
 
 export const FIRM_HELP_CARDS = [
   {

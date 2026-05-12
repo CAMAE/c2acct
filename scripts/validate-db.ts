@@ -8,6 +8,7 @@ const steps = [
   ["node", ["scripts/check-question-count.js"]],
   ["node", ["--import", "tsx", "scripts/check-pat-runtime-consistency.ts"]],
   ["node", ["--import", "tsx", "scripts/check-capability-mappings.ts"]],
+  ["node", ["--import", "tsx", "scripts/check-product-commercial-contracts.ts"]],
   ["node", ["scripts/verify-firm-capability-mappings.js"]],
   ["node", ["scripts/verify-firm-capability-submit.js"]],
   ["node", ["--import", "tsx", "scripts/verify-firm-insight-unlocks.ts"]],

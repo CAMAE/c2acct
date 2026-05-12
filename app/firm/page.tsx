@@ -1,7 +1,6 @@
-import { randomUUID } from "crypto";
 import { redirect } from "next/navigation";
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
-import MembershipCard from "@/app/components/membership/MembershipCard";
+import MembershipPageShell from "@/app/components/membership/MembershipPageShell";
 import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
 import FirmAdminPanels from "@/app/components/firm/FirmAdminPanels";
 import {
@@ -12,12 +11,14 @@ import {
 } from "@/app/components/firm/FirmPortalContent";
 import { getSessionUser } from "@/lib/auth/session";
 import { buildFirmExternalProfileContract, getFirmAssessmentProgress } from "@/lib/firmPat";
-import { getInviteeAccessContext } from "@/lib/invitee/access";
+import { canAccessPortalAdmin } from "@/lib/authz";
 import { resolveCurrentMembership } from "@/lib/membership";
+import { getDefaultMembershipTab } from "@/lib/membershipContent";
+import { buildPortalPanelOptions, normalizePortalPanel } from "@/lib/portalPanels";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/profileSettingsStore";
 import prisma from "@/lib/prisma";
-import { ensureUserPatScaffold, getFirmManagedUserRecords } from "@/lib/userPat";
+import { ensureUserPatScaffold } from "@/lib/userPat";
 
 export const dynamic = "force-dynamic";
 
@@ -30,10 +31,6 @@ type SearchParams = {
   panel?: string;
 };
 
-function getPanelHref(panel: "workspace" | "pat" | "admin" | "help") {
-  return panel === "workspace" ? "/firm" : `/firm?panel=${panel}`;
-}
-
 export default async function FirmPage({
   searchParams,
 }: {
@@ -41,12 +38,9 @@ export default async function FirmPage({
 }) {
   const params = searchParams ? await searchParams : undefined;
   const messages = await getRequestLocaleMessages();
-  const activePanel =
-    params?.panel === "pat" || params?.panel === "admin" || params?.panel === "help" ? params.panel : "workspace";
+  const activePanel = normalizePortalPanel(params?.panel);
   const sessionUser = await getSessionUser();
-  const inviteeAccess = !sessionUser ? await getInviteeAccessContext() : null;
-  const companyId =
-    sessionUser?.companyId ?? (inviteeAccess?.audience === "firm" ? inviteeAccess.companyId : null);
+  const companyId = sessionUser?.companyId ?? null;
   const company = companyId
     ? await prisma.company
         .findUnique({
@@ -74,16 +68,21 @@ export default async function FirmPage({
 
   const moduleProgress = company?.type === "FIRM" ? await getFirmAssessmentProgress(company.id) : [];
   const completedModules = moduleProgress.filter((module) => module.latestSubmittedAt).length;
-  const panelOptions = [
-    { key: "workspace", label: messages.common.workspace, href: getPanelHref("workspace") },
-    { key: "pat", label: messages.nav.meet_pat, href: getPanelHref("pat") },
-    { key: "admin", label: messages.common.admin, href: getPanelHref("admin") },
-    { key: "help", label: messages.common.help, href: getPanelHref("help") },
-  ] as const;
+  const panelOptions = buildPortalPanelOptions({
+    basePath: "/firm",
+    workspaceLabel: messages.common.workspace,
+    meetPatLabel: messages.nav.meet_pat,
+    adminLabel: messages.common.admin,
+    helpLabel: messages.common.help,
+    membershipLabel: "Membership",
+  });
   const needsAdminContent = activePanel === "admin" && company?.type === "FIRM";
   const adminCompany = company?.type === "FIRM" ? company : null;
-  const membershipState =
-    sessionUser && company?.type === "FIRM" ? await resolveCurrentMembership(sessionUser, "firm") : null;
+  const membershipState = sessionUser ? await resolveCurrentMembership(sessionUser, "firm") : null;
+
+  if (activePanel === "membership" && !sessionUser) {
+    redirect("/sign-in/firm");
+  }
 
   async function saveFirmProfile(formData: FormData) {
     "use server";
@@ -128,52 +127,10 @@ export default async function FirmPage({
     redirect("/firm?panel=admin");
   }
 
-  async function inviteUser(formData: FormData) {
-    "use server";
-
-    const actor = await getSessionUser();
-    if (!actor?.companyId) {
-      redirect("/sign-in/firm");
-    }
-
-    const liveCompany = await prisma.company.findUnique({
-      where: { id: actor.companyId },
-      select: { id: true, type: true },
-    }).catch(() => null);
-    if (!liveCompany || liveCompany.type !== "FIRM") {
-      redirect("/sign-in/firm");
-    }
-
-    const email = String(formData.get("email") ?? "").trim().toLowerCase();
-    const role = String(formData.get("role") ?? "").trim();
-    if (!email || !["OWNER", "ADMIN", "MEMBER"].includes(role)) {
-      redirect("/firm?panel=admin");
-    }
-
-    await prisma.user.upsert({
-      where: { email },
-      update: {
-        companyId: liveCompany.id,
-        role: role as "OWNER" | "ADMIN" | "MEMBER",
-        updatedAt: new Date(),
-      },
-      create: {
-        id: randomUUID(),
-        email,
-        role: role as "OWNER" | "ADMIN" | "MEMBER",
-        companyId: liveCompany.id,
-        updatedAt: new Date(),
-      },
-    });
-
-    redirect("/firm?panel=admin");
-  }
-
   if (needsAdminContent) {
     await ensureUserPatScaffold();
   }
 
-  const userInsight = needsAdminContent && adminCompany ? await getFirmManagedUserRecords(adminCompany.id, null) : [];
   const profileSettings = needsAdminContent
     && adminCompany
     ? await getCompanyProfileSettings(`firm:${adminCompany.id}`, {
@@ -229,35 +186,38 @@ export default async function FirmPage({
       {activePanel === "pat" ? (
         <FirmMeetPatContent />
       ) : activePanel === "admin" ? (
+        !canAccessPortalAdmin(sessionUser) ? (
+          redirect("/firm")
+        ) : (
         <div className="space-y-6">
           <FirmAdminInlineContent />
-          {membershipState ? (
-            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              <MembershipCard
-                audienceLabel="firm"
-                href="/firm/membership"
-                plan={membershipState.membership.plan}
-                status={membershipState.membership.status}
-              />
-            </section>
-          ) : null}
           {profileSettings && contract ? (
             <FirmAdminPanels
               contract={contract}
-              inviteUser={inviteUser}
               profileSettings={profileSettings}
               saveFirmProfile={saveFirmProfile}
-              userInsight={userInsight}
+              userCount={adminCompany?.User.length ?? 0}
+              activeUserCount={adminCompany?.User.filter((user) => Boolean(user.name)).length ?? 0}
             />
           ) : null}
         </div>
+        )
+      ) : activePanel === "membership" && membershipState ? (
+        <MembershipPageShell
+          audience="firm"
+          billingSummary={membershipState.membership.billingSummary}
+          currentPlan={membershipState.membership.plan}
+          currentStatus={membershipState.membership.status}
+          displayName={membershipState.membership.displayName}
+          initialTab={getDefaultMembershipTab(membershipState.membership.plan)}
+        />
       ) : activePanel === "help" ? (
         <FirmHelpInlineContent />
       ) : (
         <>
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-              {messages.portal.firm.account}: <span className="font-semibold text-[var(--shell-ink)]">{company?.name ?? inviteeAccess?.companyName ?? messages.common.unbound}</span>
+              {messages.portal.firm.account}: <span className="font-semibold text-[var(--shell-ink)]">{company?.name ?? messages.common.unbound}</span>
             </div>
             <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
               {messages.portal.firm.modulesCompleted}: <span className="font-semibold text-[var(--shell-ink)]">{completedModules} / 5</span>
@@ -265,14 +225,9 @@ export default async function FirmPage({
             <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
               {messages.portal.firm.productReviewLoop}: <span className="font-semibold text-[var(--shell-ink)]">{messages.portal.firm.live}</span>
             </div>
-            {membershipState ? (
-              <MembershipCard
-                audienceLabel="firm"
-                href="/firm/membership"
-                plan={membershipState.membership.plan}
-                status={membershipState.membership.status}
-              />
-            ) : null}
+            <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+              {messages.common.admin}: <span className="font-semibold text-[var(--shell-ink)]">PAT firm profile and access management</span>
+            </div>
           </section>
 
           <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">

@@ -45,11 +45,11 @@ function getReturnTo(formData: FormData, fallback: string) {
 async function requireAdminActor() {
   const actor = await getSessionUser();
   if (!actor) {
-    redirect("/login?callbackUrl=%2Fadmin");
+    redirect("/sign-in?view=admin&callbackUrl=%2Fadmin");
   }
 
   if (!canAccessPortalAdmin(actor)) {
-    redirect("/admin");
+    redirect("/");
   }
 
   return actor;

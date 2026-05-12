@@ -41,6 +41,30 @@ export function AdminPanel({
   );
 }
 
+export function AdminUtilitySelector({
+  activeKey,
+  options,
+}: {
+  activeKey: string;
+  options: ReadonlyArray<{ key: string; label: string; href: string }>;
+}) {
+  return (
+    <section className="pat-card p-4">
+      <div className="flex flex-wrap gap-3">
+        {options.map((option) => (
+          <Link
+            key={option.key}
+            href={option.href}
+            className={option.key === activeKey ? "pat-button-primary" : "pat-button-secondary"}
+          >
+            {option.label}
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function AdminMetricCard({
   label,
   value,
@@ -55,6 +79,21 @@ export function AdminMetricCard({
       <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">{label}</div>
       <div className="mt-3 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">{value}</div>
       <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{detail}</div>
+    </div>
+  );
+}
+
+export function AdminEmptyState({
+  title,
+  body,
+}: {
+  title: string;
+  body: string;
+}) {
+  return (
+    <div className="rounded-[20px] border border-dashed border-[var(--shell-border)] bg-white/70 p-5">
+      <div className="text-lg font-semibold text-[var(--shell-ink)]">{title}</div>
+      <div className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{body}</div>
     </div>
   );
 }

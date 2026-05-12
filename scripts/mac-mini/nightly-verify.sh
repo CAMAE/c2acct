@@ -41,6 +41,7 @@ run_and_capture() {
   printf 'git_dirty=%s\n' "$(mac_mini_git_dirty)"
   printf 'host=%s\n' "${MAC_MINI_HOST}"
   printf 'port=%s\n' "${PORT}"
+  printf 'public_origin=%s\n' "${MAC_MINI_PUBLIC_ORIGIN}"
   printf '%s\n' "$(mac_mini_preflight_summary)"
 } > "${summary_file}"
 
@@ -70,6 +71,7 @@ mac_mini_load_release_state || true
 printf 'release_build_id=%s\n' "${BUILD_ID:-missing}" >> "${summary_file}"
 printf 'release_build_time=%s\n' "${BUILD_TIME_UTC:-unknown}" >> "${summary_file}"
 printf 'release_build_reason=%s\n' "${BUILD_REASON:-unknown}" >> "${summary_file}"
+printf 'release_drift=%s\n' "$([ "${COMMIT:-unknown}" = "$(mac_mini_git_commit)" ] && echo in-sync || echo drifted)" >> "${summary_file}"
 printf 'failures=%s\n' "${failure_count}" >> "${summary_file}"
 if [ "${#failed_steps[@]}" -gt 0 ]; then
   printf 'failed_steps=%s\n' "$(IFS=,; printf '%s' "${failed_steps[*]}")" >> "${summary_file}"

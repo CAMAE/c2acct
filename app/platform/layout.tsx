@@ -11,7 +11,7 @@ export default async function PlatformLayout({
 }) {
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
-    redirect("/login?callbackUrl=%2Fplatform");
+    redirect("/sign-in?callbackUrl=%2Fplatform");
   }
 
   const experience = await resolvePortalExperience(sessionUser);

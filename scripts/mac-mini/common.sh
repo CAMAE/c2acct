@@ -10,14 +10,26 @@ MAC_MINI_STATE_DIR="${MAC_MINI_ARTIFACTS_DIR}/state"
 MAC_MINI_LAUNCHD_DIR="${MAC_MINI_ARTIFACTS_DIR}/launchd"
 MAC_MINI_DEFAULT_PORT="${MAC_MINI_PORT:-${PORT:-3000}}"
 MAC_MINI_DEFAULT_HOST="${MAC_MINI_HOST:-127.0.0.1}"
+MAC_MINI_PUBLIC_DOMAIN="${PAT_PRODUCTION_DOMAIN:-patalign.com}"
+MAC_MINI_PUBLIC_ORIGIN="${MAC_MINI_PUBLIC_ORIGIN:-https://${MAC_MINI_PUBLIC_DOMAIN}}"
 MAC_MINI_APP_LABEL="${MAC_MINI_APP_LABEL:-com.c2acct.app}"
 MAC_MINI_VERIFY_LABEL="${MAC_MINI_VERIFY_LABEL:-com.c2acct.verify}"
+MAC_MINI_CHATOPS_LABEL="${MAC_MINI_CHATOPS_LABEL:-com.c2acct.chatops}"
+MAC_MINI_WATCHDOG_LABEL="${MAC_MINI_WATCHDOG_LABEL:-com.c2acct.watchdog}"
 MAC_MINI_RELEASE_FILE="${MAC_MINI_STATE_DIR}/release-state.env"
+MAC_MINI_CHATOPS_AUDIT_FILE="${MAC_MINI_STATE_DIR}/chatops-audit.jsonl"
+MAC_MINI_CHATOPS_FAILURE_FILE="${MAC_MINI_STATE_DIR}/chatops-last-failure.txt"
+MAC_MINI_CHATOPS_WATCHDOG_FILE="${MAC_MINI_STATE_DIR}/watchdog-state.env"
+MAC_MINI_CHATOPS_MAX_LOG_LINES="${MAC_MINI_CHATOPS_MAX_LOG_LINES:-40}"
+MAC_MINI_CHATOPS_REQUIRED_ENV_VARS=(
+  TELEGRAM_BOT_TOKEN
+  TELEGRAM_ALLOWED_CHAT_ID
+)
 MAC_MINI_REQUIRED_ENV_VARS=(
   DATABASE_URL
-  NEXTAUTH_SECRET
-  AUTH_GITHUB_ID
-  AUTH_GITHUB_SECRET
+  AUTH_SECRET
+  AUTH_URL
+  PAT_BOOTSTRAP_DEFAULT_PASSWORD
 )
 
 mac_mini_now_utc() {
@@ -54,6 +66,8 @@ mac_mini_load_env() {
   export PORT="${PORT:-${MAC_MINI_DEFAULT_PORT}}"
   export MAC_MINI_PORT="${PORT}"
   export MAC_MINI_HOST="${MAC_MINI_HOST:-${MAC_MINI_DEFAULT_HOST}}"
+  export PAT_PRODUCTION_DOMAIN="${PAT_PRODUCTION_DOMAIN:-${MAC_MINI_PUBLIC_DOMAIN}}"
+  export MAC_MINI_PUBLIC_ORIGIN="${MAC_MINI_PUBLIC_ORIGIN:-https://${PAT_PRODUCTION_DOMAIN}}"
 }
 
 mac_mini_log() {
@@ -102,6 +116,43 @@ mac_mini_launch_agent_path() {
   printf '%s/Library/LaunchAgents/%s.plist' "${HOME}" "$1"
 }
 
+mac_mini_print_release_summary() {
+  mac_mini_load_release_state || true
+  printf 'branch=%s\n' "${BRANCH:-$(mac_mini_git_branch)}"
+  printf 'commit=%s\n' "${COMMIT:-$(mac_mini_git_commit)}"
+  printf 'build_id=%s\n' "${BUILD_ID:-missing}"
+  printf 'build_time=%s\n' "${BUILD_TIME_UTC:-unknown}"
+  printf 'build_reason=%s\n' "${BUILD_REASON:-unknown}"
+  printf 'git_dirty=%s\n' "$(mac_mini_git_dirty)"
+}
+
+mac_mini_print_recent_failures() {
+  local latest_summary
+  latest_summary="$(mac_mini_latest_verify_summary)"
+  if [ -n "${latest_summary}" ] && [ -f "${latest_summary}" ]; then
+    printf 'latest_verify=%s\n' "${latest_summary}"
+    grep -E '^(failures|failed_steps|health_summary|status_summary)=' "${latest_summary}" || true
+  else
+    printf 'latest_verify=missing\n'
+  fi
+
+  if [ -f "${MAC_MINI_CHATOPS_FAILURE_FILE}" ]; then
+    printf 'watchdog_failure=%s\n' "$(tr '\n' ' ' < "${MAC_MINI_CHATOPS_FAILURE_FILE}" | sed 's/[[:space:]]\+/ /g')"
+  else
+    printf 'watchdog_failure=none\n'
+  fi
+}
+
+mac_mini_record_watchdog_state() {
+  local status="$1"
+  local reason="$2"
+  cat > "${MAC_MINI_CHATOPS_WATCHDOG_FILE}" <<EOF
+UPDATED_AT=$(mac_mini_now_utc)
+STATUS=${status}
+REASON=${reason}
+EOF
+}
+
 mac_mini_has_launchctl() {
   command -v launchctl >/dev/null 2>&1
 }
@@ -136,11 +187,48 @@ mac_mini_missing_env_vars() {
   fi
 }
 
+mac_mini_missing_chatops_env_vars() {
+  local missing=()
+  local var_name
+  for var_name in "${MAC_MINI_CHATOPS_REQUIRED_ENV_VARS[@]}"; do
+    if [ -z "${!var_name:-}" ]; then
+      missing+=("${var_name}")
+    fi
+  done
+
+  if [ "${#missing[@]}" -gt 0 ]; then
+    printf '%s\n' "${missing[@]}"
+  fi
+}
+
 mac_mini_assert_env_ready() {
   local missing
   missing="$(mac_mini_missing_env_vars || true)"
   if [ -n "${missing}" ]; then
     echo "Missing required environment variables:" >&2
+    printf '%s\n' "${missing}" >&2
+    exit 1
+  fi
+
+  if [ "${AUTH_URL}" != "${MAC_MINI_PUBLIC_ORIGIN}" ]; then
+    echo "AUTH_URL must exactly match MAC_MINI_PUBLIC_ORIGIN for production launch." >&2
+    printf 'AUTH_URL=%s\n' "${AUTH_URL}" >&2
+    printf 'MAC_MINI_PUBLIC_ORIGIN=%s\n' "${MAC_MINI_PUBLIC_ORIGIN}" >&2
+    exit 1
+  fi
+
+  if [ "${MAC_MINI_HOST}" != "127.0.0.1" ]; then
+    echo "MAC_MINI_HOST must stay 127.0.0.1 for reverse-proxy deployment." >&2
+    printf 'MAC_MINI_HOST=%s\n' "${MAC_MINI_HOST}" >&2
+    exit 1
+  fi
+}
+
+mac_mini_assert_chatops_env_ready() {
+  local missing
+  missing="$(mac_mini_missing_chatops_env_vars || true)"
+  if [ -n "${missing}" ]; then
+    echo "Missing required chatops environment variables:" >&2
     printf '%s\n' "${missing}" >&2
     exit 1
   fi
@@ -206,6 +294,8 @@ mac_mini_build_if_needed() {
 mac_mini_preflight_summary() {
   local missing
   missing="$(mac_mini_missing_env_vars || true)"
+  local chatops_missing
+  chatops_missing="$(mac_mini_missing_chatops_env_vars || true)"
   if [ -f "${MAC_MINI_ROOT}/.env.local" ] || [ -f "${MAC_MINI_ROOT}/.env" ]; then
     printf 'env_file=present\n'
   else
@@ -228,5 +318,11 @@ mac_mini_preflight_summary() {
     printf 'env_ready=no missing=%s\n' "$(printf '%s' "${missing}" | tr '\n' ',' | sed 's/,$//')"
   else
     printf 'env_ready=yes\n'
+  fi
+
+  if [ -n "${chatops_missing}" ]; then
+    printf 'chatops_env_ready=no missing=%s\n' "$(printf '%s' "${chatops_missing}" | tr '\n' ',' | sed 's/,$//')"
+  else
+    printf 'chatops_env_ready=yes\n'
   fi
 }

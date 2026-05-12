@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AdminPageIntro } from "@/app/components/admin/AdminShell";
 import { CompanyBriefingView } from "@/app/components/admin/briefings/BriefingBoard";
 import { getAdminCompanyBriefing } from "@/lib/adminBriefingEngine";
+import { requireAdminSession } from "@/lib/adminControlPlane";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,7 @@ export default async function AdminCompanyBriefingPage({
 }: {
   params: Promise<{ companyId: string }>;
 }) {
+  await requireAdminSession();
   const { companyId } = await params;
   const briefing = await getAdminCompanyBriefing(companyId);
 

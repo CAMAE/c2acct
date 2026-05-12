@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
-import MembershipCard from "@/app/components/membership/MembershipCard";
+import MembershipPageShell from "@/app/components/membership/MembershipPageShell";
 import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
 import VendorAdminPanels from "@/app/components/vendor/VendorAdminPanels";
 import {
@@ -10,8 +10,9 @@ import {
   vendorWorkspaceCards,
 } from "@/app/components/vendor/VendorPortalContent";
 import { getSessionUser } from "@/lib/auth/session";
-import { getInviteeAccessContext } from "@/lib/invitee/access";
 import { resolveCurrentMembership } from "@/lib/membership";
+import { formatMembershipValue, getDefaultMembershipTab } from "@/lib/membershipContent";
+import { buildPortalPanelOptions, normalizePortalPanel } from "@/lib/portalPanels";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/profileSettingsStore";
 import prisma from "@/lib/prisma";
@@ -30,10 +31,6 @@ type SearchParams = {
   panel?: string;
 };
 
-function getPanelHref(panel: "workspace" | "pat" | "admin" | "help") {
-  return panel === "workspace" ? "/vendor" : `/vendor?panel=${panel}`;
-}
-
 export default async function VendorPage({
   searchParams,
 }: {
@@ -41,30 +38,29 @@ export default async function VendorPage({
 }) {
   const params = searchParams ? await searchParams : undefined;
   const messages = await getRequestLocaleMessages();
-  const activePanel =
-    params?.panel === "pat" || params?.panel === "admin" || params?.panel === "help" ? params.panel : "workspace";
+  const activePanel = normalizePortalPanel(params?.panel);
   const sessionUser = await getSessionUser();
-  const inviteeAccess = !sessionUser ? await getInviteeAccessContext() : null;
-  const vendorContext = await getVendorCompanyContext(
-    sessionUser?.companyId ?? (inviteeAccess?.audience === "vendor" ? inviteeAccess.companyId : null)
-  );
-  const panelOptions = [
-    { key: "workspace", label: messages.common.workspace, href: getPanelHref("workspace") },
-    { key: "pat", label: messages.nav.meet_pat, href: getPanelHref("pat") },
-    { key: "admin", label: messages.common.admin, href: getPanelHref("admin") },
-    { key: "help", label: messages.common.help, href: getPanelHref("help") },
-  ] as const;
+  const vendorContext = await getVendorCompanyContext(sessionUser?.companyId ?? null);
+  const panelOptions = buildPortalPanelOptions({
+    basePath: "/vendor",
+    workspaceLabel: messages.common.workspace,
+    meetPatLabel: messages.nav.meet_pat,
+    adminLabel: messages.common.admin,
+    helpLabel: messages.common.help,
+    membershipLabel: "Membership",
+  });
   const needsAdminContent = activePanel === "admin";
   const membershipState = sessionUser ? await resolveCurrentMembership(sessionUser, "vendor") : null;
+
+  if (activePanel === "membership" && !sessionUser) {
+    redirect("/sign-in/vendor");
+  }
 
   async function saveProfile(formData: FormData) {
     "use server";
 
     const actor = await getSessionUser();
-    const liveInviteeAccess = !actor ? await getInviteeAccessContext() : null;
-    const liveContext = await getVendorCompanyContext(
-      actor?.companyId ?? (liveInviteeAccess?.audience === "vendor" ? liveInviteeAccess.companyId : null)
-    );
+    const liveContext = await getVendorCompanyContext(actor?.companyId ?? null);
     if (!actor || liveContext.company?.type !== "VENDOR") {
       redirect("/sign-in/vendor");
     }
@@ -107,10 +103,7 @@ export default async function VendorPage({
     "use server";
 
     const actor = await getSessionUser();
-    const liveInviteeAccess = !actor ? await getInviteeAccessContext() : null;
-    const liveContext = await getVendorCompanyContext(
-      actor?.companyId ?? (liveInviteeAccess?.audience === "vendor" ? liveInviteeAccess.companyId : null)
-    );
+    const liveContext = await getVendorCompanyContext(actor?.companyId ?? null);
     if (!actor || liveContext.company?.type !== "VENDOR") {
       redirect("/sign-in/vendor");
     }
@@ -199,16 +192,6 @@ export default async function VendorPage({
       ) : activePanel === "admin" ? (
         <div className="space-y-6">
           <VendorAdminInlineContent />
-          {membershipState ? (
-            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              <MembershipCard
-                audienceLabel="vendor"
-                href="/vendor/membership"
-                plan={membershipState.membership.plan}
-                status={membershipState.membership.status}
-              />
-            </section>
-          ) : null}
           {profileSettings && contract ? (
             <VendorAdminPanels
               contract={contract}
@@ -219,6 +202,15 @@ export default async function VendorPage({
             />
           ) : null}
         </div>
+      ) : activePanel === "membership" && membershipState ? (
+        <MembershipPageShell
+          audience="vendor"
+          billingSummary={membershipState.membership.billingSummary}
+          currentPlan={membershipState.membership.plan}
+          currentStatus={membershipState.membership.status}
+          displayName={membershipState.membership.displayName}
+          initialTab={getDefaultMembershipTab(membershipState.membership.plan)}
+        />
       ) : activePanel === "help" ? (
         <VendorHelpInlineContent />
       ) : (
@@ -233,7 +225,7 @@ export default async function VendorPage({
             <div className="pat-label">{messages.portal.vendor.currentVendorContext}</div>
             <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-                {messages.portal.vendor.account}: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser?.email ?? inviteeAccess?.label ?? messages.common.notSignedIn}</span>
+                {messages.portal.vendor.account}: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser?.email ?? messages.common.notSignedIn}</span>
               </div>
               <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
                 {messages.portal.vendor.vendorCompany}: <span className="font-semibold text-[var(--shell-ink)]">{vendorContext.company?.name ?? messages.common.unbound}</span>
@@ -241,14 +233,9 @@ export default async function VendorPage({
               <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
                 {messages.portal.vendor.products}: <span className="font-semibold text-[var(--shell-ink)]">{vendorContext.products.length}</span>
               </div>
-              {membershipState ? (
-                <MembershipCard
-                  audienceLabel="vendor"
-                  href="/vendor/membership"
-                  plan={membershipState.membership.plan}
-                  status={membershipState.membership.status}
-                />
-              ) : null}
+              <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+                Membership: <span className="font-semibold text-[var(--shell-ink)]">{membershipState ? `${formatMembershipValue(membershipState.membership.plan)} / ${formatMembershipValue(membershipState.membership.status)}` : "Sign in to view"}</span>
+              </div>
             </div>
           </section>
         </>

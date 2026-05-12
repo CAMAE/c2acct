@@ -7,7 +7,6 @@ import {
   individualWorkspaceCards,
 } from "@/app/components/individual/IndividualPortalContent";
 import { getSessionUser } from "@/lib/auth/session";
-import { getInviteeAccessContext } from "@/lib/invitee/access";
 import { resolveCurrentMembership } from "@/lib/membership";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import { resolvePortalExperience } from "@/lib/portalVisibility";
@@ -42,7 +41,6 @@ export default async function UserPage({
   const activePanel =
     params?.panel === "pat" || params?.panel === "profile" || params?.panel === "help" ? params.panel : "workspace";
   const sessionUser = await getSessionUser();
-  const inviteeAccess = !sessionUser ? await getInviteeAccessContext() : null;
   const experience = sessionUser ? await resolvePortalExperience(sessionUser) : null;
   const userPatContext = sessionUser ? await getUserPatContext(sessionUser) : null;
   const alignmentProgress = sessionUser ? await getUserAlignmentProgress(sessionUser) : null;
@@ -179,13 +177,13 @@ export default async function UserPage({
         <>
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-              {messages.portal.individual.account}: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser?.email ?? inviteeAccess?.label ?? messages.common.notSignedIn}</span>
+              {messages.portal.individual.account}: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser?.email ?? messages.common.notSignedIn}</span>
             </div>
             <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
               {messages.portal.individual.role}: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser?.role ?? messages.common.guest}</span>
             </div>
             <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-              {messages.portal.individual.audience}: <span className="font-semibold text-[var(--shell-ink)]">{experience?.audience ?? inviteeAccess?.audience ?? messages.common.unbound}</span>
+              {messages.portal.individual.audience}: <span className="font-semibold text-[var(--shell-ink)]">{experience?.audience ?? messages.common.unbound}</span>
             </div>
             <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
               {messages.portal.individual.personPatSubject}: <span className="font-semibold text-[var(--shell-ink)]">{userPatContext ? (userPatContext.subjectMembershipReady ? messages.portal.individual.ready : messages.portal.individual.fallback) : messages.portal.individual.unavailable}</span>

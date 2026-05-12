@@ -16,7 +16,7 @@ export default async function SurveyModulePage({
 
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
-    redirect(`/login?callbackUrl=${encodeURIComponent(`/survey/${key}`)}`);
+    redirect(`/sign-in?callbackUrl=${encodeURIComponent(`/survey/${key}`)}`);
   }
 
   return (

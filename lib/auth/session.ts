@@ -87,18 +87,18 @@ function shouldLogAuthFallback(authError: SessionReadResult["authError"]) {
 
 function buildAuthFallbackMessage(authError: Exclude<SessionReadResult["authError"], null>) {
   if (authError === "stale_session") {
-    return "[auth] session read fallback (stale_session). Treating request as signed out. Reset local auth state from /login if a local secret changed or a stale session cookie persists.";
+    return "[auth] session read fallback (stale_session). Treating request as signed out. Reset auth state from /sign-in if a secret changed or a stale session cookie persists.";
   }
 
   if (authError === "stale_pkce") {
-    return "[auth] session read fallback (stale_pkce). Treating request as signed out. Reset local auth state from /login if an interrupted GitHub callback left PKCE cookies behind.";
+    return "[auth] session read fallback (stale_pkce). Treating request as signed out. Reset auth state from /sign-in if interrupted sign-in left verifier cookies behind.";
   }
 
   if (authError === "auth_misconfigured") {
-    return "[auth] session read fallback (auth_misconfigured). Treating request as signed out. Check AUTH_SECRET or NEXTAUTH_SECRET before retrying local sign-in.";
+    return "[auth] session read fallback (auth_misconfigured). Treating request as signed out. Check AUTH_SECRET or NEXTAUTH_SECRET before retrying sign-in.";
   }
 
-  return "[auth] session read fallback (unknown). Treating request as signed out. If this persists on live requests, inspect auth logs and reset local auth state from /login.";
+  return "[auth] session read fallback (unknown). Treating request as signed out. If this persists on live requests, inspect auth logs and reset auth state from /sign-in.";
 }
 
 const readSessionResult = cache(async (): Promise<SessionReadResult> => {

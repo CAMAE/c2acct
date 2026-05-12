@@ -1,6 +1,10 @@
 import prisma from "@/lib/prisma";
 import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
-import { MODULE_SCOPE_OPTIONS, QUESTION_INPUT_TYPE_OPTIONS } from "@/lib/adminControlPlane";
+import {
+  MODULE_SCOPE_OPTIONS,
+  QUESTION_INPUT_TYPE_OPTIONS,
+  requireAdminSession,
+} from "@/lib/adminControlPlane";
 import {
   updateModuleAction,
   upsertModuleCapabilityAction,
@@ -12,6 +16,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function AdminModulesPage() {
+  await requireAdminSession();
   const [modules, capabilityNodes] = await Promise.all([
     prisma.surveyModule.findMany({
       orderBy: { key: "asc" },

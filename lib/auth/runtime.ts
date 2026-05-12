@@ -3,16 +3,15 @@ import { getResolvedAuthEnv } from "@/lib/auth/env";
 
 export type AuthRuntimeStatus = {
   ready: boolean;
-  githubProviderReady: boolean;
-  githubAuthEnabled: boolean;
-  githubUnavailableReason: string | null;
+  credentialsAuthEnabled: boolean;
   localReviewEnabled: boolean;
   localReviewProviderReady: boolean;
   authUrlReady: boolean;
   canonicalLocalOrigin: string;
   resolvedBaseUrl: string | null;
+  expectedProductionOrigin: string;
+  productionAuthReady: boolean;
   missing: string[];
-  callbackUrl: string | null;
   warnings: string[];
   localReviewUsers: Array<{
     key: string;
@@ -26,33 +25,30 @@ export type AuthRuntimeStatus = {
 
 export function getAuthRuntimeStatus(): AuthRuntimeStatus {
   const resolved = getResolvedAuthEnv();
-  const callbackExample =
-    resolved.callbackUrl ?? `${resolved.canonicalLocalOrigin}/api/auth/callback/github`;
 
   return {
     ready: resolved.ready,
-    githubProviderReady: resolved.githubProviderReady,
-    githubAuthEnabled: resolved.githubAuthEnabled,
-    githubUnavailableReason: resolved.githubAvailabilityReason,
+    credentialsAuthEnabled: resolved.credentialsAuthEnabled,
     localReviewEnabled: resolved.localReviewEnabled,
     localReviewProviderReady: resolved.localReviewProviderReady,
     authUrlReady: Boolean(resolved.values.baseUrl),
     canonicalLocalOrigin: resolved.canonicalLocalOrigin,
     resolvedBaseUrl: resolved.normalizedBaseUrl,
+    expectedProductionOrigin: resolved.expectedProductionOrigin,
+    productionAuthReady: resolved.productionAuthReady,
     missing: resolved.missing,
-    callbackUrl: resolved.callbackUrl,
     warnings: resolved.warnings,
     localReviewUsers: getLocalReviewUsersForUi(),
     operatorSteps: [
-      `Use one canonical local origin everywhere. The repo default is ${resolved.canonicalLocalOrigin}.`,
-      "Set AUTH_URL and NEXTAUTH_URL to that same local app origin and use the same origin in the browser.",
-      "Set AUTH_SECRET or NEXTAUTH_SECRET once and keep it stable for local Auth.js session decryption.",
-      "Set AUTH_GITHUB_ID and AUTH_GITHUB_SECRET from the GitHub OAuth app.",
-      `Register ${callbackExample} as the GitHub callback URL.`,
-      "Keep local GitHub sign-in off until that exact callback is registered, then opt in with PAT_ENABLE_LOCAL_GITHUB_AUTH=1.",
-      "Set PAT_ENABLE_LOCAL_REVIEW_AUTH=1 and PAT_LOCAL_REVIEW_PASSWORD only for local development when you need deterministic review sign-in without GitHub.",
-      "If .env.local contains blank auth values, remove them or set real values. The local auth resolver now ignores those blanks and falls back to configured values in .env.",
-      "If local sign-in fails after a secret change or a broken callback, reset local auth cookies and try again.",
+      `Use one canonical app origin everywhere. The repo default is ${resolved.canonicalLocalOrigin}.`,
+      "Set AUTH_URL and NEXTAUTH_URL to that same app origin.",
+      "Set AUTH_SECRET once and keep it stable for Auth.js session decryption.",
+      `Production launch requires AUTH_URL=${resolved.expectedProductionOrigin} behind HTTPS.`,
+      "Run the app on loopback and let the reverse proxy own public TLS and host termination.",
+      "Set PAT_BOOTSTRAP_DEFAULT_PASSWORD or the role-specific PAT_BOOTSTRAP_*_PASSWORD vars before running the explicit seed:bootstrap-users path.",
+      "For local QA, PAT_ENABLE_LOCAL_REVIEW_AUTH=1 and PAT_LOCAL_REVIEW_PASSWORD are both required before deterministic review identities seed.",
+      "If .env.local contains blank auth values, remove them or set real values. The auth resolver ignores blank local values and falls back to configured values in .env.",
+      "If sign-in fails after a secret change or stale session cookie, reset auth cookies and try again.",
     ],
     resetPath: "/api/auth/local-reset",
   };

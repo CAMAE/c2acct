@@ -57,7 +57,7 @@ Validation helpers:
 - Keep optional `companyId` hint out of client payload by default (session is authority server-side).
 
 2. Handle protected responses explicitly in survey UI.
-- 401: redirect to `/login?callbackUrl=<current survey path>`.
+- 401: redirect to `/sign-in?callbackUrl=<current survey path>`.
 - 403: show clear message (signed in but no company / not allowed).
 - 400/404: surface API error details safely for debugging and user guidance.
 
@@ -100,7 +100,7 @@ Validation helpers:
 - Run `scripts/smoke-golden-path.ps1` for seed + module fetch + auth-required reminders.
 
 2. Browser signed-in validation (manual, session-real).
-- Sign in via `/login` (approved beta user with mapped `User.email`).
+- Sign in via `/sign-in` (approved beta user with mapped `User.email`).
 - Navigate `/firm/alignment-assessment` and open one of the five PAT firm modules.
 - Submit answers successfully.
 - Confirm redirect/navigation to results state and latest submission visibility.

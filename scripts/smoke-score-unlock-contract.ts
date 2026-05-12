@@ -1,6 +1,12 @@
 import { computeScore, summarizeSubmissionScores } from "../lib/scoring";
 import { resolveUnlockedInsights } from "../lib/insights/evaluateUnlocked";
 import { TIER1_ALIGNMENT_BADGE_ID } from "../lib/patUnlocks";
+import {
+  PRODUCT_ASSESSMENT_FINAL_SCORE_VERSION,
+  PRODUCT_ASSESSMENT_SCALE_MAX,
+  PRODUCT_ASSESSMENT_SCALE_MIN,
+  computeProductAssessmentMetrics,
+} from "../lib/productAssessmentRuntime";
 
 function assert(condition: unknown, message: string) {
   if (!condition) {
@@ -12,13 +18,13 @@ const score = computeScore({
   answers: {
     q1: 5,
     q2: 4,
-    q3: 3,
+    q3: 0,
   },
-  scaleMin: 1,
+  scaleMin: 0,
   scaleMax: 5,
 });
 
-assert(score.rawScorePct === 75, `expected rawScorePct=75, got ${score.rawScorePct}`);
+assert(score.rawScorePct === 60, `expected rawScorePct=60, got ${score.rawScorePct}`);
 assert(score.score === score.rawScorePct, "legacy score alias must match rawScorePct");
 
 const summary = summarizeSubmissionScores({
@@ -27,8 +33,32 @@ const summary = summarizeSubmissionScores({
   signalIntegrityScore: 0.8,
 });
 
-assert(summary.unlockBasisScorePct === 75, "unlock basis should remain raw score");
-assert(summary.confidenceAdjustedScorePct === 60, "confidence-adjusted score should be derived separately");
+assert(summary.unlockBasisScorePct === 60, "unlock basis should remain raw score");
+assert(summary.confidenceAdjustedScorePct === 48, "confidence-adjusted score should be derived separately");
+
+const productMetrics = computeProductAssessmentMetrics({
+  q1: 0,
+  q2: 5,
+  q3: 4,
+});
+
+assert(
+  productMetrics.score.answeredCount === 3,
+  `expected product answeredCount=3, got ${productMetrics.score.answeredCount}`
+);
+assert(
+  productMetrics.score.rawWeightedAvg === 3,
+  `expected product rawWeightedAvg=3, got ${productMetrics.score.rawWeightedAvg}`
+);
+assert(
+  productMetrics.score.scaleMin === PRODUCT_ASSESSMENT_SCALE_MIN &&
+    productMetrics.score.scaleMax === PRODUCT_ASSESSMENT_SCALE_MAX,
+  "product paths must stay on the canonical 0-5 scale"
+);
+assert(
+  PRODUCT_ASSESSMENT_FINAL_SCORE_VERSION === 2,
+  `expected product final score version 2, got ${PRODUCT_ASSESSMENT_FINAL_SCORE_VERSION}`
+);
 
 const gatedInsight = {
   id: "insight-1",
@@ -96,6 +126,7 @@ console.log(
     {
       ok: true,
       rawScorePct: score.rawScorePct,
+      productRawScorePct: productMetrics.score.rawScorePct,
       confidenceAdjustedScorePct: summary.confidenceAdjustedScorePct,
       lockedWithoutCapability: lockedWithoutCapability.map((insight) => insight.key),
       unlockedKeys: unlocked.map((insight) => insight.key),

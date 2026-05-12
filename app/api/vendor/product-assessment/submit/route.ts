@@ -6,15 +6,18 @@ import prisma from "@/lib/prisma";
 import { unauthorizedResponse, forbiddenResponse } from "@/lib/authz";
 import { getSessionUser } from "@/lib/auth/session";
 import {
+  PRODUCT_ASSESSMENT_FINAL_SCORE_VERSION,
+  computeProductAssessmentMetrics,
+} from "@/lib/productAssessmentRuntime";
+import { getSurveyDraftWhere } from "@/lib/surveyDrafts";
+import {
   normalizeVendorProductProfileInput,
-  serializeVendorProductAssessmentPlan,
+  serializeProductAssessmentPlan,
 } from "@/lib/vendorProductAssessmentPlan";
 import {
   VENDOR_PRODUCT_MODULE_KEY,
   VENDOR_PRODUCT_QUESTIONS_PER_UTILITY,
-  VENDOR_PRODUCT_UTILITY_CAP,
   buildVendorProductQuestions,
-  computeVendorAssessmentMetrics,
   ensureProductSubject,
   ensureVendorProductModule,
   upsertVendorProductSignals,
@@ -24,7 +27,7 @@ const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
 const SubmitVendorAssessmentSchema = z.object({
   productId: z.string().min(1),
-  utilityKeys: z.array(z.string().min(1)).min(1).max(VENDOR_PRODUCT_UTILITY_CAP),
+  utilityKeys: z.array(z.string().min(1)).min(1),
   profile: z.object({
     productName: z.string().trim().min(1),
     productDescription: z.string().trim().min(1),
@@ -38,7 +41,7 @@ const SubmitVendorAssessmentSchema = z.object({
     integrationPosture: z.string().trim().min(1),
   }),
   openEndedResponses: z.record(z.string(), z.string()),
-  answers: z.record(z.string(), z.number().min(1).max(5)),
+  answers: z.record(z.string(), z.number().int().min(0).max(5)),
 });
 
 function isUrl(value: string) {
@@ -129,9 +132,14 @@ export async function POST(request: Request) {
 
   const moduleRecord = await ensureVendorProductModule();
   const subject = await ensureProductSubject(product);
-  const { score, integrity } = computeVendorAssessmentMetrics(answers);
+  const { score, integrity } = computeProductAssessmentMetrics(answers);
   const normalizedProfile = normalizeVendorProductProfileInput(profile);
-  const assessmentPlan = serializeVendorProductAssessmentPlan(utilityKeys);
+  const assessmentPlan = serializeProductAssessmentPlan({
+    perspective: "vendor",
+    selectedUtilityKeys: utilityKeys,
+    includeProductGeneral: true,
+    includeOpenEnded: true,
+  });
   const openEndedQuestionIds = assessmentPlan.plan.modules
     .filter((module) => module.kind === "open-ended")
     .flatMap((module) => module.questions.map((question) => question.id));
@@ -247,7 +255,7 @@ export async function POST(request: Request) {
         version: moduleRecord.version ?? 1,
         answers: {
           utilitySelection: utilityKeys,
-          profile,
+          profile: normalizedProfile,
           openEndedResponses,
           assessmentPlanId: persistedPlan.id,
           registryVersion: assessmentPlan.registryVersion,
@@ -255,7 +263,7 @@ export async function POST(request: Request) {
         },
         score: score.rawScorePct,
         weightedAvg: score.rawWeightedAvg,
-        scoreVersion: 1,
+        scoreVersion: PRODUCT_ASSESSMENT_FINAL_SCORE_VERSION,
         scaleMin: score.scaleMin,
         scaleMax: score.scaleMax,
         totalWeight: score.totalWeight,
@@ -264,6 +272,20 @@ export async function POST(request: Request) {
         integrityFlags: integrity.flags,
       },
     });
+
+    const existingDraft = await tx.surveySubmission.findFirst({
+      where: getSurveyDraftWhere({
+        companyId: company.id,
+        subjectId: subject.id,
+        moduleId: moduleRecord.id,
+      }),
+      select: { id: true },
+    });
+    if (existingDraft) {
+      await tx.surveySubmission.delete({
+        where: { id: existingDraft.id },
+      });
+    }
 
     await upsertVendorProductSignals(tx, product.id, utilityKeys, score.rawScorePct);
     return createdSubmission;

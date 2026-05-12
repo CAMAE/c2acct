@@ -48,14 +48,14 @@ describe("membership resolver contracts", () => {
 
     expect(vendor.plan).toBe(DEFAULT_FREE_MEMBERSHIP_PLAN);
     expect(vendor.status).toBe(DEFAULT_FREE_MEMBERSHIP_STATUS);
-    expect(vendor.checkoutHref).toBe("/vendor/membership/checkout");
+    expect(vendor.checkoutHref).toBe("/vendor/membership/payment-processing");
 
     expect(firm.plan).toBe(DEFAULT_FREE_MEMBERSHIP_PLAN);
     expect(firm.status).toBe(DEFAULT_FREE_MEMBERSHIP_STATUS);
-    expect(firm.checkoutHref).toBe("/firm/membership/checkout");
+    expect(firm.checkoutHref).toBe("/firm/membership/payment-processing");
 
     expect(individual.plan).toBe(DEFAULT_FREE_MEMBERSHIP_PLAN);
     expect(individual.status).toBe(DEFAULT_FREE_MEMBERSHIP_STATUS);
-    expect(individual.checkoutHref).toBe("/user/membership/checkout");
+    expect(individual.checkoutHref).toBe("/user/membership/payment-processing");
   });
 });

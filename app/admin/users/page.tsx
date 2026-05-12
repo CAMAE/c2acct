@@ -1,11 +1,16 @@
 import prisma from "@/lib/prisma";
 import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
-import { MEMBERSHIP_PLAN_OPTIONS, MEMBERSHIP_STATUS_OPTIONS } from "@/lib/adminControlPlane";
+import {
+  MEMBERSHIP_PLAN_OPTIONS,
+  MEMBERSHIP_STATUS_OPTIONS,
+  requireAdminSession,
+} from "@/lib/adminControlPlane";
 import { updateUserContextAction, updateUserMembershipAction } from "@/app/admin/actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminUsersPage() {
+  await requireAdminSession();
   const [users, organizations, personSubjects] = await Promise.all([
     prisma.user.findMany({
       orderBy: [{ role: "asc" }, { email: "asc" }],

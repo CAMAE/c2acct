@@ -6,7 +6,7 @@ C2Acct is the current AAE institutional alignment application. The live product 
 
 The protected golden path is:
 
-1. `login`
+1. `sign-in`
 2. `survey`
 3. `submit`
 4. `results`
@@ -14,7 +14,8 @@ The protected golden path is:
 
 Current active runtime entrypoints:
 
-- `/login`
+- `/sign-in`
+- `/login` -> compatibility redirect to `/sign-in`
 - `/survey` -> compatibility redirect to `/firm/alignment-assessment`
 - `/firm/alignment-assessment`
 - `/survey/[key]`
@@ -53,7 +54,7 @@ Intentional explicit 404 placeholders remain in place for future surfaces that a
 
 ## Auth and company boundary
 
-Authentication is allow-list based, not self-service. A user must already exist in the `User` table for the normalized email returned by the auth provider.
+Authentication is first-party credentials based, not self-service. A user must already exist in the `User` table with a provisioned `passwordHash`.
 
 Authorization is company-bound:
 
@@ -62,7 +63,7 @@ Authorization is company-bound:
 - submit/results/badges/insights are scoped to the session company
 - company selection is persisted in the `aae_companyId` cookie but cannot cross the session company boundary
 
-If you are bootstrapping a new environment, create the operator `User` row directly in the database after seeding baseline data.
+If you are bootstrapping a new environment, seed the bootstrap users with explicit passwords before handing the runtime to operators or reviewers.
 
 ## Canonical data bootstrap
 
@@ -115,6 +116,11 @@ pnpm typecheck
 pnpm build
 ```
 
+Canonical sign-in route:
+
+- `/sign-in`
+- `/login` remains compatibility-only for older inbound links and immediately redirects to `/sign-in`
+
 Deterministic local PAT validation against Docker Postgres on `localhost:5433`:
 
 ```bash
@@ -142,18 +148,37 @@ What `validate:db` covers:
 
 If the DB is unavailable, the DB validation scripts fail with an explicit `db:up` and `db:wait` recovery path instead of ambiguous Prisma output.
 
-`validate:launch` now includes build, typecheck, unit tests, and Playwright local-review browser coverage after the DB-backed PAT runtime checks.
+`validate:launch` now includes build, typecheck, unit tests, production-style auth boundary checks, production seed-hygiene checks, and local-review browser coverage after the DB-backed PAT runtime checks.
 
-## Local review auth
+## Auth bootstrap and local review
 
-GitHub remains the primary production auth provider.
+PAT now uses the same credentials provider in local and production.
 
-For deterministic local manual review, PAT can expose a development-only Auth.js Credentials path when all of the following are true:
+Required auth env:
+
+- `AUTH_URL`
+- `AUTH_SECRET`
+
+Bootstrap password env:
+
+- `PAT_BOOTSTRAP_DEFAULT_PASSWORD` for one shared bootstrap password
+- or role-specific `PAT_BOOTSTRAP_VENDOR_PASSWORD`, `PAT_BOOTSTRAP_FIRM_PASSWORD`, `PAT_BOOTSTRAP_INDIVIDUAL_PASSWORD`, `PAT_BOOTSTRAP_ADMIN_PASSWORD`
+
+Explicit production bootstrap user path:
+
+- `PAT_ENABLE_BOOTSTRAP_USERS=1`
+- one or more explicit emails:
+  - `PAT_BOOTSTRAP_VENDOR_EMAIL`
+  - `PAT_BOOTSTRAP_FIRM_EMAIL`
+  - `PAT_BOOTSTRAP_INDIVIDUAL_EMAIL`
+  - `PAT_BOOTSTRAP_ADMIN_EMAIL`
+- then run `npm run seed:bootstrap-users`
+
+Deterministic local review mode remains available when:
 
 - `NODE_ENV !== "production"`
 - `PAT_ENABLE_LOCAL_REVIEW_AUTH=1`
 - `PAT_LOCAL_REVIEW_PASSWORD` is set
-- `AUTH_SECRET` or `NEXTAUTH_SECRET` is set so Auth.js can sign a real session
 
 Deterministic local review identities:
 
@@ -162,23 +187,28 @@ Deterministic local review identities:
 - `review.individual@pat.local`
 - `review.admin@pat.local`
 
-Seed with the flag enabled so those users exist in the local DB with canonical role/company bindings:
+Seed so those users exist in the local DB with canonical role/company bindings:
 
 ```bash
-PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:baseline
-PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:pat-runtime
+PAT_ENABLE_LOCAL_REVIEW_AUTH=1 PAT_LOCAL_REVIEW_PASSWORD=pat-local-review npm run seed:baseline
+PAT_ENABLE_LOCAL_REVIEW_AUTH=1 PAT_LOCAL_REVIEW_PASSWORD=pat-local-review npm run seed:pat-runtime
 ```
-
-This local review path is never exposed in production and does not replace GitHub auth there.
 
 Exact local manual review sequence:
 
 ```bash
 npm run db:recreate
 npm run prisma:migrate:local
-PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:baseline
-PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:pat-runtime
+PAT_ENABLE_LOCAL_REVIEW_AUTH=1 PAT_LOCAL_REVIEW_PASSWORD=pat-local-review npm run seed:baseline
+PAT_ENABLE_LOCAL_REVIEW_AUTH=1 PAT_LOCAL_REVIEW_PASSWORD=pat-local-review npm run seed:pat-runtime
 PAT_ENABLE_LOCAL_REVIEW_AUTH=1 PAT_LOCAL_REVIEW_PASSWORD=pat-local-review AUTH_SECRET=pat-local-auth-secret npm run dev
+```
+
+Legacy cleanup guidance for environments that already contain deterministic review users:
+
+```sql
+SELECT "email" FROM "User" WHERE "email" LIKE 'review.%@pat.local';
+DELETE FROM "User" WHERE "email" LIKE 'review.%@pat.local';
 ```
 
 Then review these browser paths with the seeded local review identities:
@@ -195,6 +225,8 @@ Then review these browser paths with the seeded local review identities:
 4. `/sign-in?view=admin`
    Use `review.admin@pat.local` and `pat-local-review`
    Verify `/admin`
+
+Invitee access is no longer part of the live production sign-in path.
 
 ## Safe repo handoff
 

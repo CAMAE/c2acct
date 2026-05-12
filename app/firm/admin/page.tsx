@@ -1,21 +1,19 @@
-import { randomUUID } from "crypto";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
-import MembershipCard from "@/app/components/membership/MembershipCard";
 import FirmAdminPanels from "@/app/components/firm/FirmAdminPanels";
 import { firmAdminHelpCards } from "@/app/components/firm/FirmPortalContent";
 import { canAccessPortalAdmin } from "@/lib/authz";
+import { requireFirmAdminActor } from "@/lib/firmAdminAccess";
 import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/profileSettingsStore";
-import { resolveCurrentMembership } from "@/lib/membership";
 import prisma from "@/lib/prisma";
 import { buildFirmExternalProfileContract } from "@/lib/firmPat";
-import { ensureUserPatScaffold, getFirmManagedUserRecords } from "@/lib/userPat";
+import { ensureUserPatScaffold } from "@/lib/userPat";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Firm Admin | C2Acct",
-  description: "Simple firm admin, profile, and user insight surface.",
+  description: "Firm PAT profile and access-management surface.",
 };
 
 export default async function FirmAdminPage() {
@@ -23,30 +21,15 @@ export default async function FirmAdminPage() {
   if (!sessionUser?.companyId) {
     redirect("/sign-in/firm");
   }
+  if (!canAccessPortalAdmin(sessionUser)) {
+    redirect("/firm");
+  }
 
   await ensureUserPatScaffold();
-
-  const company = await prisma.company.findUnique({
-    where: { id: sessionUser.companyId },
-    select: {
-      id: true,
-      name: true,
-      type: true,
-      User: {
-        orderBy: { email: "asc" },
-        select: { id: true, email: true, role: true, name: true },
-      },
-      Product: {
-        orderBy: { name: "asc" },
-        select: { id: true, name: true },
-      },
-    },
-  }).catch(() => null);
-
-  if (!company || company.type !== "FIRM") {
+  const adminCompany = await requireFirmAdminActor(sessionUser);
+  if (!adminCompany) {
     redirect("/sign-in/firm");
   }
-  const membershipState = await resolveCurrentMembership(sessionUser, "firm");
 
   async function saveFirmProfile(formData: FormData) {
     "use server";
@@ -91,48 +74,25 @@ export default async function FirmAdminPage() {
     redirect("/firm/admin");
   }
 
-  async function inviteUser(formData: FormData) {
-    "use server";
-
-    const actor = await getSessionUser();
-    if (!actor?.companyId) {
-      redirect("/sign-in/firm");
-    }
-
-    const liveCompany = await prisma.company.findUnique({
-      where: { id: actor.companyId },
-      select: { id: true, type: true },
-    }).catch(() => null);
-    if (!liveCompany || liveCompany.type !== "FIRM") {
-      redirect("/sign-in/firm");
-    }
-
-    const email = String(formData.get("email") ?? "").trim().toLowerCase();
-    const role = String(formData.get("role") ?? "").trim();
-    if (!email || !["OWNER", "ADMIN", "MEMBER"].includes(role)) {
-      redirect("/firm/admin");
-    }
-
-    await prisma.user.upsert({
-      where: { email },
-      update: {
-        companyId: liveCompany.id,
-        role: role as "OWNER" | "ADMIN" | "MEMBER",
-        updatedAt: new Date(),
+  const company = await prisma.company.findUnique({
+    where: { id: adminCompany.id },
+    select: {
+      id: true,
+      name: true,
+      User: {
+        orderBy: { email: "asc" },
+        select: { id: true, email: true, role: true, name: true },
       },
-      create: {
-        id: randomUUID(),
-        email,
-        role: role as "OWNER" | "ADMIN" | "MEMBER",
-        companyId: liveCompany.id,
-        updatedAt: new Date(),
+      Product: {
+        orderBy: { name: "asc" },
+        select: { id: true, name: true },
       },
-    });
-
-    redirect("/firm/admin");
+    },
+  }).catch(() => null);
+  if (!company) {
+    redirect("/firm");
   }
 
-  const userInsight = await getFirmManagedUserRecords(company.id, null);
   const profileSettings = await getCompanyProfileSettings(`firm:${company.id}`, {
     companyName: company.name,
     contactName: "",
@@ -158,6 +118,8 @@ export default async function FirmAdminPage() {
     })),
     productsUnderReview: company.Product.map((product) => product.name),
   });
+  const userCount = company.User.length;
+  const activeUserCount = company.User.filter((user) => Boolean(user.name)).length;
 
   return (
     <div className="space-y-8">
@@ -167,22 +129,8 @@ export default async function FirmAdminPage() {
           Profile and management without operator clutter
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          This page blends simple profile management, team entry, and future integration readiness into one restrained firm admin surface.
+          This page keeps firm profile management, PAT access management, and future integration readiness together without turning admin into a generic back office.
         </p>
-      </section>
-
-      <section className="pat-card p-6">
-        <MembershipCard
-          audienceLabel="firm"
-          href="/firm/membership"
-          plan={membershipState.membership.plan}
-          status={membershipState.membership.status}
-        />
-        {canAccessPortalAdmin(sessionUser) ? (
-          <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Platform-wide operator controls now live in <a className="font-semibold text-[var(--shell-accent)]" href="/admin">/admin</a>. Keep this firm admin page focused on firm-owned profile and team tasks.
-          </p>
-        ) : null}
       </section>
 
       <section className="pat-card p-6">
@@ -211,10 +159,10 @@ export default async function FirmAdminPage() {
       </section>
       <FirmAdminPanels
         contract={contract}
-        inviteUser={inviteUser}
         profileSettings={profileSettings}
         saveFirmProfile={saveFirmProfile}
-        userInsight={userInsight}
+        userCount={userCount}
+        activeUserCount={activeUserCount}
       />
     </div>
   );

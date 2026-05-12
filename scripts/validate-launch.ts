@@ -22,4 +22,4 @@ for (const [command, args] of steps) {
   }
 }
 
-console.log("\nPASS validate-launch: PAT launch validation completed.");
+console.log("\nPASS validate-launch: PAT launch validation completed, including production-style auth boundaries and local-review role coverage.");

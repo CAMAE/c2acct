@@ -5,6 +5,7 @@ import {
   PRODUCT_CAPABILITY_COVERAGE_OPTIONS,
   PRODUCT_TAXONOMY_FIT_OPTIONS,
   RESEARCH_CONFIDENCE_OPTIONS,
+  requireAdminSession,
 } from "@/lib/adminControlPlane";
 import {
   updateProductAction,
@@ -19,6 +20,7 @@ export default async function AdminProductDetailPage({
 }: {
   params: Promise<{ productId: string }>;
 }) {
+  await requireAdminSession();
   const { productId } = await params;
   const [product, buckets, capabilityNodes] = await Promise.all([
     prisma.product.findUnique({

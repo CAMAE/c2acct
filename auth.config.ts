@@ -1,8 +1,9 @@
 import type { NextAuthConfig } from "next-auth";
-import GitHub from "next-auth/providers/github";
 import Credentials from "next-auth/providers/credentials";
+import { findAuthUserByEmail } from "@/lib/auth/credentials";
+import { verifyPassword } from "@/lib/auth/passwords";
 import { getResolvedAuthEnv } from "@/lib/auth/env";
-import { findLocalReviewUserByEmail } from "@/lib/auth/localReview";
+import prisma from "@/lib/prisma";
 
 const resolvedAuthEnv = getResolvedAuthEnv();
 
@@ -15,7 +16,7 @@ const authConfig: NextAuthConfig = {
 
       if (codeText === "JWTSessionError" || codeText === "InvalidCheck") {
         console.warn(
-          `[auth] ${codeText}: treating local auth state as stale. Use /login to clear session, callback, and PKCE cookies before retrying.`
+          `[auth] ${codeText}: treating auth state as stale. Use /sign-in to clear session cookies before retrying.`
         );
         return;
       }
@@ -24,46 +25,46 @@ const authConfig: NextAuthConfig = {
     },
   },
   providers: [
-    ...(resolvedAuthEnv.githubAuthEnabled
-      ? [
-          GitHub({
-            clientId: resolvedAuthEnv.values.githubId!,
-            clientSecret: resolvedAuthEnv.values.githubSecret!,
-          }),
-        ]
-      : []),
-    ...(resolvedAuthEnv.localReviewProviderReady
-      ? [
-          Credentials({
-            credentials: {
-              email: { label: "Email", type: "email" },
-              password: { label: "Password", type: "password" },
-            },
-            async authorize(credentials) {
-              const email = typeof credentials?.email === "string" ? credentials.email.trim().toLowerCase() : "";
-              const password = typeof credentials?.password === "string" ? credentials.password : "";
-              const reviewUser = findLocalReviewUserByEmail(email);
+    Credentials({
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const email = typeof credentials?.email === "string" ? credentials.email.trim().toLowerCase() : "";
+        const password = typeof credentials?.password === "string" ? credentials.password : "";
 
-              if (!reviewUser || !resolvedAuthEnv.values.localReviewPassword) {
-                return null;
-              }
+        if (!email || !password || !resolvedAuthEnv.credentialsAuthEnabled) {
+          return null;
+        }
 
-              if (password !== resolvedAuthEnv.values.localReviewPassword) {
-                return null;
-              }
+        const userWithPassword = await findAuthUserByEmail(email);
+        if (!userWithPassword) {
+          return null;
+        }
 
-              return {
-                id: reviewUser.email,
-                email: reviewUser.email,
-                name: reviewUser.label,
-              };
-            },
-          }),
-        ]
-      : []),
+        const userRecord = await prisma.user.findUnique({
+          where: { id: userWithPassword.id },
+          select: { passwordHash: true },
+        });
+
+        if (!(await verifyPassword(password, userRecord?.passwordHash))) {
+          return null;
+        }
+
+        return {
+          id: userWithPassword.id,
+          email: userWithPassword.email,
+          name: userWithPassword.name ?? userWithPassword.email,
+          role: userWithPassword.role,
+          companyId: userWithPassword.companyId,
+          companyType: userWithPassword.companyType,
+        };
+      },
+    }),
   ],
   pages: {
-    signIn: "/login",
+    signIn: "/sign-in",
   },
 };
 

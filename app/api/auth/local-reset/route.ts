@@ -3,7 +3,7 @@ import { clearLocalAuthCookies } from "@/lib/auth/cookies";
 
 function sanitizeRedirect(target: string | null) {
   if (!target || !target.startsWith("/")) {
-    return "/login";
+    return "/sign-in";
   }
 
   return target;
@@ -29,7 +29,7 @@ function buildResetResponse(request: NextRequest, redirectTarget: string, reason
 export async function POST(request: NextRequest) {
   const formData = await request.formData().catch(() => null);
   const redirectTo = sanitizeRedirect(
-    typeof formData?.get("redirectTo") === "string" ? String(formData.get("redirectTo")) : "/login"
+    typeof formData?.get("redirectTo") === "string" ? String(formData.get("redirectTo")) : "/sign-in"
   );
   const reason = typeof formData?.get("reason") === "string" ? String(formData.get("reason")) : null;
 

@@ -125,9 +125,14 @@ export type UserAssessmentProgress = {
 export type FirmManagedUserRecord = {
   id: string;
   email: string;
+  name: string | null;
   role: UserRole;
   status: "invited" | "active";
   companyId: string | null;
+  phone: string | null;
+  title: string | null;
+  department: string | null;
+  onboardingNote: string | null;
   personSubjectId: string | null;
   subjectMembershipReady: boolean;
   assessmentCount: number;
@@ -494,6 +499,14 @@ export async function getFirmManagedUserRecords(companyId: string, search: strin
       name: true,
       role: true,
       companyId: true,
+      Profile: {
+        select: {
+          phone: true,
+          title: true,
+          department: true,
+          onboardingNote: true,
+        },
+      },
     },
   });
 
@@ -553,9 +566,14 @@ export async function getFirmManagedUserRecords(companyId: string, search: strin
     return {
       id: user.id,
       email: user.email,
+      name: user.name,
       role: user.role,
       status: user.name ? "active" : "invited",
       companyId: user.companyId,
+      phone: user.Profile?.phone ?? null,
+      title: user.Profile?.title ?? null,
+      department: user.Profile?.department ?? null,
+      onboardingNote: user.Profile?.onboardingNote ?? null,
       personSubjectId: subjectId,
       subjectMembershipReady: Boolean(subjectId),
       assessmentCount: userSubmissions.length,

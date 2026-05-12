@@ -6,6 +6,7 @@ import {
   COMPANY_TYPE_OPTIONS,
   MEMBERSHIP_PLAN_OPTIONS,
   MEMBERSHIP_STATUS_OPTIONS,
+  requireAdminSession,
 } from "@/lib/adminControlPlane";
 import { updateOrganizationAction, updateOrganizationMembershipAction } from "@/app/admin/actions";
 
@@ -16,6 +17,7 @@ export default async function AdminOrganizationDetailPage({
 }: {
   params: Promise<{ companyId: string }>;
 }) {
+  await requireAdminSession();
   const { companyId } = await params;
   const organization = await prisma.company.findUnique({
     where: { id: companyId },

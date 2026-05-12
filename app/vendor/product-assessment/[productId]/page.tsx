@@ -3,7 +3,12 @@ import { ProductAssessmentPerspective } from "@prisma/client";
 import { redirect } from "next/navigation";
 import VendorProductAssessmentClient from "@/app/components/vendor/VendorProductAssessmentClient";
 import { getSessionUser } from "@/lib/auth/session";
+import {
+  buildProductAssessmentResumeState,
+  parseStoredProductAssessmentState,
+} from "@/lib/productAssessmentRuntime";
 import prisma from "@/lib/prisma";
+import { getSurveyDraftWhere, getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import {
   getInitialVendorProductProfile,
   serializeVendorProductAssessmentPlan,
@@ -81,13 +86,13 @@ export default async function VendorProductAssessmentDetailPage({
 
   const latestSubmission = moduleRecord
     ? await prisma.surveySubmission.findFirst({
-        where: {
+        where: getSurveyFinalWhere({
           companyId: vendorContext.company.id,
           moduleId: moduleRecord.id,
           Subject: {
             productId: product.id,
           },
-        },
+        }),
         orderBy: { createdAt: "desc" },
         select: {
           id: true,
@@ -98,35 +103,55 @@ export default async function VendorProductAssessmentDetailPage({
       }).catch(() => null)
     : null;
 
-  const persistedAnswerPayload =
-    latestSubmission &&
-    typeof latestSubmission.answers === "object" &&
-    latestSubmission.answers !== null
-      ? (latestSubmission.answers as {
-          utilitySelection?: string[];
-          responses?: Record<string, number>;
-          openEndedResponses?: Record<string, string>;
-        })
-      : null;
+  const draftSubmission = moduleRecord
+    ? await prisma.surveySubmission.findFirst({
+        where: getSurveyDraftWhere({
+          companyId: vendorContext.company.id,
+          moduleId: moduleRecord.id,
+          Subject: {
+            productId: product.id,
+          },
+        }),
+        orderBy: { createdAt: "desc" },
+        select: {
+          answers: true,
+          integrityFlags: true,
+        },
+      }).catch(() => null)
+    : null;
+
+  const latestSubmissionState = parseStoredProductAssessmentState(latestSubmission?.answers);
+  const draftSubmissionState = parseStoredProductAssessmentState(draftSubmission?.answers);
 
   const initialUtilityKeys =
-    persistedAnswerPayload?.utilitySelection && persistedAnswerPayload.utilitySelection.length > 0
-      ? persistedAnswerPayload.utilitySelection
+    draftSubmissionState.selectedUtilityKeys.length > 0
+      ? draftSubmissionState.selectedUtilityKeys
+      : latestSubmissionState.selectedUtilityKeys.length > 0
+        ? latestSubmissionState.selectedUtilityKeys
       : productRecord?.ProductAssessmentPlan[0]?.selectedUtilityKeys.length
         ? productRecord.ProductAssessmentPlan[0].selectedUtilityKeys
       : extractUtilityKeysFromSignals(product.signals);
 
-  const initialAnswers = persistedAnswerPayload?.responses ?? {};
-  const initialOpenEndedAnswers = persistedAnswerPayload?.openEndedResponses ?? {};
-  const initialProfile = getInitialVendorProductProfile({
+  const defaultProfile = getInitialVendorProductProfile({
     product: {
       name: productRecord?.name ?? product.name,
       summary: productRecord?.summary ?? product.summary,
     },
     profile: productRecord?.ProductProfile ?? null,
   });
+  const resumeState = buildProductAssessmentResumeState({
+    perspective: "vendor",
+    selectedUtilityKeys: initialUtilityKeys,
+    draftAnswers: draftSubmission?.answers,
+    draftCurrentPage:
+      typeof (draftSubmission?.integrityFlags as { currentStep?: unknown } | null)?.currentStep === "number"
+        ? ((draftSubmission?.integrityFlags as { currentStep?: number }).currentStep ?? 1)
+        : 1,
+    fallbackAnswers: latestSubmission?.answers,
+    defaultProfile,
+  });
 
-  const persistedPlanSnapshot = serializeVendorProductAssessmentPlan(initialUtilityKeys);
+  const persistedPlanSnapshot = serializeVendorProductAssessmentPlan(resumeState.selectedUtilityKeys);
   await prisma.productAssessmentPlan.upsert({
     where: {
       productId_perspective: {
@@ -172,7 +197,7 @@ export default async function VendorProductAssessmentDetailPage({
           {product.name}
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          Declare the utilities this product solves, then answer the per-product PAT assessment. The submission persists as product-specific vendor self-signal, not a generic company submission.
+          Declare the utilities this product materially supports today, then answer the per-product PAT assessment. PAT treats utilities as the scope boundary for what it is allowed to assess, and the finished submission persists as product-specific vendor self-signal rather than a generic company claim.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link className="pat-button-secondary" href="/vendor/product-assessment">
@@ -199,10 +224,13 @@ export default async function VendorProductAssessmentDetailPage({
         productId={product.id}
         productName={productRecord?.name ?? product.name}
         utilityCatalog={VENDOR_UTILITY_CATALOG}
-        initialUtilityKeys={initialUtilityKeys}
-        initialAnswers={initialAnswers}
-        initialOpenEndedAnswers={initialOpenEndedAnswers}
-        initialProfile={initialProfile}
+        initialUtilityKeys={resumeState.selectedUtilityKeys}
+        initialAnswers={resumeState.responses}
+        initialOpenEndedAnswers={resumeState.openEndedResponses}
+        initialProfile={resumeState.profile ?? defaultProfile}
+        initialCurrentPage={resumeState.currentPage}
+        initialStaleDraft={resumeState.staleDraft}
+        initialDroppedResponseIds={resumeState.droppedResponseIds}
       />
     </div>
   );

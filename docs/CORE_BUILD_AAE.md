@@ -6,8 +6,8 @@ This file is the repo-level build order and launch-readiness guide for the curre
 
 The current launch truth is:
 
-- GitHub remains the strict production auth provider.
-- Dev-only local review auth is the intended manual QA path.
+- First-party credentials is the production auth provider.
+- Deterministic bootstrap users remain the intended manual QA path.
 - Firm PAT uses the canonical five-module model.
 - Vendor product assessment, taxonomy, dynamic assessment plans, and product insights are live enough for review.
 - Membership pages and cards exist for vendor, firm, and individual audiences.
@@ -20,11 +20,18 @@ The current launch truth is:
 - Repo entrypoint: `README.md`
 - Active repo map: `docs/active-repo-map.md`
 - Build guide source note: `docs/architecture/core-build-guide-source-of-truth.md`
+- Historical guide artifact check: `docs/audit/Core_Build_AAE_Guide_Artifact_Check_2026-04-01.md`
 - Portal visibility matrix: `docs/architecture/pat-portal-visibility-matrix-phase1.md`
 - PAT assessment architecture: `docs/architecture/pat-assessment-engine-phase1.md`
 - Auth contract: `docs/architecture/auth-env-contract.md`
 - Runtime hardening snapshot: `docs/architecture/runtime-hardening-status-2026-03-08.md`
 - Audit summary: `docs/audit/AAE_Codebase_Audit_and_Platform_Hardening_Report_2026-03-05.md`
+
+Operator note:
+
+- Treat this file and `docs/active-repo-map.md` as the canonical current-state truth.
+- Treat `Core Build AAE Guide.pages` as historical-only if and when the actual file is available and identity-verified.
+- Treat `docs/archive/**`, `scripts/archive/**`, and older planning notes as historical context only unless this file points back to them explicitly.
 
 ## Final recommended build order
 
@@ -33,23 +40,24 @@ The current launch truth is:
 Auth is the first real dependency because every protected PAT page, submit path, admin surface, and briefing depends on a valid Auth.js session.
 
 - Production path:
-  - GitHub provider remains primary.
-  - Non-provisioned GitHub users may still be denied by design.
+  - Credentials provider remains primary.
+  - Non-provisioned or passwordless users are denied by design.
 - Local QA path:
   - Enable only when `NODE_ENV !== "production"` and `PAT_ENABLE_LOCAL_REVIEW_AUTH=1`.
-  - Requires `PAT_LOCAL_REVIEW_PASSWORD` and `AUTH_SECRET` or `NEXTAUTH_SECRET`.
+  - Requires `AUTH_SECRET` plus `PAT_LOCAL_REVIEW_PASSWORD`.
   - Deterministic local review users:
     - `review.vendor@pat.local`
     - `review.firm@pat.local`
     - `review.individual@pat.local`
     - `review.admin@pat.local`
 - Canonical sign-in surfaces:
-  - `/login`
   - `/sign-in`
   - `/sign-in/vendor`
   - `/sign-in/firm`
   - `/sign-in/user`
   - `/sign-in?view=admin`
+- Compatibility-only sign-in alias:
+  - `/login` -> redirect to `/sign-in`
 - Local reset path:
   - `/api/auth/local-reset`
 
@@ -60,7 +68,13 @@ After auth works, PAT depends on company/subject context being resolved correctl
 - Company-backed firm and vendor paths remain the canonical operating model.
 - Subject-aware compatibility exists where needed, but company-rooted records still remain canonical for several write paths.
 - Membership is now a real model with audience-aware resolution and free-tier fallback.
-- Do not treat invitee access as the main authenticated review path.
+- Do not treat invitee access as the live authenticated production path.
+
+Compatibility bridge note:
+
+- The dual-read company cookie, `User.companyId` fallback, and subject/company scope fallback are still live launch bridges.
+- They are intentional compatibility behavior, not the desired long-term steady-state model.
+- Do not document them as retired until the runtime and migrations no longer depend on them.
 
 ### 3. Portal and role surfaces
 
@@ -245,8 +259,8 @@ Use this order for clean-machine validation:
 1. `npm install`
 2. `npm run db:recreate`
 3. `npm run prisma:migrate:local`
-4. `PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:baseline`
-5. `PAT_ENABLE_LOCAL_REVIEW_AUTH=1 npm run seed:pat-runtime`
+4. `PAT_ENABLE_LOCAL_REVIEW_AUTH=1 PAT_LOCAL_REVIEW_PASSWORD=pat-local-review npm run seed:baseline`
+5. `PAT_ENABLE_LOCAL_REVIEW_AUTH=1 PAT_LOCAL_REVIEW_PASSWORD=pat-local-review npm run seed:pat-runtime`
 6. `npm run build`
 7. `npm run typecheck`
 8. `npm run test`
@@ -258,6 +272,13 @@ Manual operator QA should then verify:
 
 - local review sign-in for vendor, firm, individual, admin
 - protected route access after local review sign-in
+- production-style sign-in for vendor, firm, individual, and admin bootstrap users
+- non-admin redirect away from `/admin`
+- no deterministic `review.*@pat.local` identities in production-style launch validation
+- production auth origin exactly `https://patalign.com`
+- reverse proxy forwarding `Host`, `X-Forwarded-Host`, `X-Forwarded-Proto=https`, and `X-Forwarded-For`
+- Mac mini app bound to `127.0.0.1:3000`
+- public health at `https://patalign.com/api/health/db`
 - firm assessment completion and insight unlock behavior
 - vendor product assessment and product insight behavior
 - membership page defaulting and checkout placeholder routing
@@ -274,6 +295,8 @@ These paths may stay for compatibility, but they are not canonical product surfa
 - `/profiles`
 - `lib/patDashboard.ts`
 - `lib/patUnlocks.ts`
+- dual-read company cookie bridging (`pat_companyId` + `aae_companyId`)
+- subject/company fallback helpers used when newer subject-layer schema is missing locally
 
 Rules for these paths:
 

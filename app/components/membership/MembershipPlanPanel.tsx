@@ -12,12 +12,12 @@ export default function MembershipPlanPanel({ model }: MembershipPlanPanelProps)
     return (
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.85fr]">
         <article className="pat-card p-6">
-          <div className="pat-label">{model.activeTab === "MEET_PAT" ? "Meet PAT" : "Help"}</div>
+          <div className="pat-label">Help</div>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">{model.panel.title}</h2>
           <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">{model.panel.summary}</p>
         </article>
         <article className="pat-card p-6">
-          <div className="pat-label">Inline notes</div>
+          <div className="pat-label">Decision notes</div>
           <div className="mt-4 space-y-3 text-sm leading-6 text-[var(--shell-muted)]">
             {model.panel.bullets.map((bullet) => (
               <p key={bullet}>{bullet}</p>
@@ -50,7 +50,7 @@ export default function MembershipPlanPanel({ model }: MembershipPlanPanelProps)
         <h3 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">{model.panel.ctaTitle}</h3>
         <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">{model.panel.ctaBody}</p>
         <Link className="pat-button-primary mt-6 inline-flex" href={model.panel.ctaHref}>
-          {model.panel.ownsPlan ? "Continue" : "Open checkout placeholder"}
+          {model.panel.ctaLabel}
         </Link>
       </article>
     </section>

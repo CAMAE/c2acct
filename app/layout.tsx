@@ -1,5 +1,6 @@
 ﻿import "./globals.css";
 import { cookies } from "next/headers";
+import ClientTelemetryBootstrap from "@/app/components/telemetry/ClientTelemetryBootstrap";
 import AppHeader, { type HeaderNavItem } from "@/app/components/header/AppHeader";
 import { barlowFontClassName } from "@/app/fonts/barlow";
 import { getSessionUser } from "@/lib/auth/session";
@@ -58,6 +59,7 @@ export default async function RootLayout({
       <body
         className={`${barlowFontClassName} pat-shell flex min-h-screen flex-col bg-[var(--shell-bg)] text-[var(--shell-ink)] antialiased`}
       >
+        <ClientTelemetryBootstrap />
         <AppHeader currentLocale={locale} navItems={translatedNavItems} uiText={headerUiText} />
 
         <main className="mx-auto flex w-full max-w-6xl flex-1 px-6 py-12">{children}</main>

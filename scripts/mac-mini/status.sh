@@ -11,14 +11,20 @@ mac_mini_load_env
 
 app_agent_status="unavailable"
 verify_agent_status="unavailable"
+chatops_agent_status="unavailable"
+watchdog_agent_status="unavailable"
 launchd_mode="unsupported"
 app_launchd_target="gui/${UID}/${MAC_MINI_APP_LABEL}"
 verify_launchd_target="gui/${UID}/${MAC_MINI_VERIFY_LABEL}"
+chatops_launchd_target="gui/${UID}/${MAC_MINI_CHATOPS_LABEL}"
+watchdog_launchd_target="gui/${UID}/${MAC_MINI_WATCHDOG_LABEL}"
 
 if mac_mini_has_launchctl; then
   launchd_mode="available"
   app_agent_status="not-loaded"
   verify_agent_status="not-loaded"
+  chatops_agent_status="not-loaded"
+  watchdog_agent_status="not-loaded"
 
   if launchctl print "${app_launchd_target}" >/dev/null 2>&1; then
     app_agent_status="loaded"
@@ -26,6 +32,14 @@ if mac_mini_has_launchctl; then
 
   if launchctl print "${verify_launchd_target}" >/dev/null 2>&1; then
     verify_agent_status="loaded"
+  fi
+
+  if launchctl print "${chatops_launchd_target}" >/dev/null 2>&1; then
+    chatops_agent_status="loaded"
+  fi
+
+  if launchctl print "${watchdog_launchd_target}" >/dev/null 2>&1; then
+    watchdog_agent_status="loaded"
   fi
 fi
 
@@ -57,10 +71,15 @@ printf 'commit=%s\n' "${commit}"
 printf 'git_dirty=%s\n' "${dirty}"
 printf 'app_label=%s\n' "${MAC_MINI_APP_LABEL}"
 printf 'verify_label=%s\n' "${MAC_MINI_VERIFY_LABEL}"
+printf 'chatops_label=%s\n' "${MAC_MINI_CHATOPS_LABEL}"
+printf 'watchdog_label=%s\n' "${MAC_MINI_WATCHDOG_LABEL}"
 printf 'launchd_mode=%s\n' "${launchd_mode}"
 printf 'launchd_app=%s\n' "${app_agent_status}"
 printf 'launchd_verify=%s\n' "${verify_agent_status}"
+printf 'launchd_chatops=%s\n' "${chatops_agent_status}"
+printf 'launchd_watchdog=%s\n' "${watchdog_agent_status}"
 printf 'listen=%s host=%s port=%s\n' "${listening}" "${MAC_MINI_HOST}" "${PORT}"
+printf 'public_origin=%s\n' "${MAC_MINI_PUBLIC_ORIGIN}"
 printf 'health=%s %s\n' "${health_status}" "${health_details}"
 printf 'app_url=%s\n' "$(mac_mini_app_url)"
 printf 'build_id=%s\n' "${BUILD_ID:-missing}"
@@ -72,4 +91,7 @@ printf 'build_age=%s\n' "$(mac_mini_build_age_human)"
 printf '%s\n' "${preflight_output}"
 if [ -n "${last_verify}" ]; then
   printf 'last_verify=%s\n' "${last_verify}"
+fi
+if [ -f "${MAC_MINI_CHATOPS_WATCHDOG_FILE}" ]; then
+  printf 'watchdog_state=%s\n' "$(tr '\n' ' ' < "${MAC_MINI_CHATOPS_WATCHDOG_FILE}" | sed 's/[[:space:]]\+/ /g')"
 fi
