@@ -240,6 +240,171 @@ test.describe("consultant flow", () => {
     expect(crossTenantStatus).toBe(404);
   });
 
+  test("firm brief: happy path renders all surfaces with non-empty content", async ({ page, context }) => {
+    test.skip(
+      !consultantAccessEnabled,
+      "Consultant access flag is off; firm-brief render test only meaningful when /consultants is reachable."
+    );
+
+    test.setTimeout(180_000);
+
+    // Sign in as Sentinel consultant
+    const csrfRes = await context.request.get("/api/auth/csrf");
+    const { csrfToken } = await csrfRes.json();
+    await context.request.post("/api/auth/callback/credentials", {
+      form: {
+        csrfToken,
+        email: "review.consultant+sentinel@pat.local",
+        password: DEMO_BENCH_PASSWORD,
+        redirectTo: "/consultants",
+      },
+      maxRedirects: 0,
+      failOnStatusCode: false,
+    });
+
+    // Read Sentinel ecosystem id + a Sentinel firm id off the Mock A
+    // detail page (Day-14 FirmGrid carries data-firm-id).
+    await page.goto("/consultants", { waitUntil: "networkidle" });
+    const ownEcosystemId = await page
+      .locator('[data-testid="ecosystem-list-card"]')
+      .first()
+      .getAttribute("data-ecosystem-id");
+    expect(ownEcosystemId).toBeTruthy();
+
+    await page.goto(`/consultants/ecosystems/${ownEcosystemId}`, {
+      waitUntil: "networkidle",
+    });
+    const ownFirmId = await page
+      .locator('[data-testid="firm-grid-row"]')
+      .first()
+      .getAttribute("data-firm-id");
+    expect(ownFirmId).toBeTruthy();
+
+    // Pre-warm the dynamic route via a 404 path so the dev-server's
+    // JIT compile lands on the cheap notFound() branch before the
+    // heavy aggregator runs against real ids.
+    await context.request.get(
+      `/consultants/ecosystems/${ownEcosystemId}/firm/demo-firm-prewarm`,
+      { failOnStatusCode: false, timeout: 60_000 }
+    );
+
+    // Own firm brief -> 200
+    const ownResponse = await context.request.get(
+      `/consultants/ecosystems/${ownEcosystemId}/firm/${ownFirmId}`,
+      { failOnStatusCode: false, timeout: 90_000 }
+    );
+    expect(ownResponse.status()).toBe(200);
+
+    // Navigate for DOM assertions
+    await page.goto(`/consultants/ecosystems/${ownEcosystemId}/firm/${ownFirmId}`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="firm-brief-page"]')).toBeVisible();
+
+    // Non-empty content per Day-16 R1 fix: prove the brief sections
+    // actually rendered against real demo data, not just that the
+    // route returned 200.
+    await expect(page.locator('[data-testid="firm-alignment-header"]')).toBeVisible();
+    const radarAxes = await page.locator('[data-testid^="radar-axis-"]').count();
+    expect(radarAxes).toBeGreaterThanOrEqual(1);
+    await expect(page.locator('[data-testid="stack-fit-row"]').first()).toBeVisible();
+    await expect(page.locator('[data-testid="roadmap-quarter"]').first()).toBeVisible();
+    const methodologyText = await page
+      .locator('[data-testid="firm-brief-methodology"]')
+      .innerText();
+    expect(methodologyText.trim().length).toBeGreaterThan(0);
+  });
+
+  test("firm brief: 404 on cross-tenant ecosystem and on cross-ecosystem firm probe", async ({
+    page,
+    context,
+  }) => {
+    test.skip(
+      !consultantAccessEnabled,
+      "Consultant access flag is off; firm-brief tenancy test only meaningful when /consultants is reachable."
+    );
+
+    test.setTimeout(180_000);
+
+    // Sign in as Sentinel consultant, read own ecosystem + own firm id.
+    const csrfRes = await context.request.get("/api/auth/csrf");
+    const { csrfToken } = await csrfRes.json();
+    await context.request.post("/api/auth/callback/credentials", {
+      form: {
+        csrfToken,
+        email: "review.consultant+sentinel@pat.local",
+        password: DEMO_BENCH_PASSWORD,
+        redirectTo: "/consultants",
+      },
+      maxRedirects: 0,
+      failOnStatusCode: false,
+    });
+
+    await page.goto("/consultants", { waitUntil: "networkidle" });
+    const ownEcosystemId = await page
+      .locator('[data-testid="ecosystem-list-card"]')
+      .first()
+      .getAttribute("data-ecosystem-id");
+    expect(ownEcosystemId).toBeTruthy();
+
+    await page.goto(`/consultants/ecosystems/${ownEcosystemId}`, {
+      waitUntil: "networkidle",
+    });
+    const ownFirmId = await page
+      .locator('[data-testid="firm-grid-row"]')
+      .first()
+      .getAttribute("data-firm-id");
+    expect(ownFirmId).toBeTruthy();
+
+    // Sign in as Bridgepath consultant, request Sentinel's firm via
+    // Sentinel's ecosystem id -> 404 (assignment lookup rejects:
+    // Bridgepath consultant doesn't own Sentinel's ecosystem).
+    const csrf2 = await context.request.get("/api/auth/csrf");
+    const { csrfToken: token2 } = await csrf2.json();
+    await context.request.post("/api/auth/callback/credentials", {
+      form: {
+        csrfToken: token2,
+        email: "review.consultant+bridgepath@pat.local",
+        password: DEMO_BENCH_PASSWORD,
+        redirectTo: "/consultants",
+      },
+      maxRedirects: 0,
+      failOnStatusCode: false,
+    });
+    const crossTenantStatus = await context.request
+      .get(`/consultants/ecosystems/${ownEcosystemId}/firm/${ownFirmId}`, {
+        failOnStatusCode: false,
+        timeout: 30_000,
+      })
+      .then((res) => res.status());
+    expect(crossTenantStatus).toBe(404);
+
+    // Sign back in as Sentinel; try a firm from Bridgepath's ecosystem
+    // under Sentinel's ecosystem id. This is the cross-ecosystem
+    // firm-id probe: assignment lookup passes but the firm-in-
+    // ecosystem check rejects.
+    const csrf3 = await context.request.get("/api/auth/csrf");
+    const { csrfToken: token3 } = await csrf3.json();
+    await context.request.post("/api/auth/callback/credentials", {
+      form: {
+        csrfToken: token3,
+        email: "review.consultant+sentinel@pat.local",
+        password: DEMO_BENCH_PASSWORD,
+        redirectTo: "/consultants",
+      },
+      maxRedirects: 0,
+      failOnStatusCode: false,
+    });
+    const crossFirmStatus = await context.request
+      .get(
+        `/consultants/ecosystems/${ownEcosystemId}/firm/demo-firm-company-demo-bench-firm-holloway-whitcomb-llp-1-0`,
+        { failOnStatusCode: false, timeout: 30_000 }
+      )
+      .then((res) => res.status());
+    expect(crossFirmStatus).toBe(404);
+  });
+
   test("demo-bench consultant sees their ecosystem only (Sentinel)", async ({ page, context }) => {
     test.skip(
       !consultantAccessEnabled,
