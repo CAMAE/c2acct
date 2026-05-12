@@ -1,9 +1,12 @@
 ﻿import { NextResponse } from "next/server";
 
 export async function GET() {
-  // Intentionally unavailable in the current build.
   return NextResponse.json(
-    { ok: false, error: "Not found" },
+    {
+      ok: false,
+      error: "Not found",
+      detail: "This generic users API is quarantined and not part of the live PAT product surface.",
+    },
     { status: 404, headers: { "Cache-Control": "no-store" } }
   );
 }

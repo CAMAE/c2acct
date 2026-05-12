@@ -2,6 +2,13 @@
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
+import {
+  requiresCompanyBackedAssessment,
+  resolveAssessmentSubjectContext,
+  withCompanyScopeFallback,
+} from "@/lib/subjectContext";
+import { evaluateUnlocked } from "@/lib/insights/evaluateUnlocked";
+import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
@@ -11,18 +18,90 @@ export async function GET() {
     return unauthorizedResponse();
   }
 
-  const companyId = sessionUser.companyId;
-  if (!companyId) {
-    return forbiddenResponse("No company assigned");
+  const assessmentContext = await resolveAssessmentSubjectContext(sessionUser);
+  if (!requiresCompanyBackedAssessment(assessmentContext)) {
+    return forbiddenResponse("Current assessment flow requires a company-backed subject");
   }
 
   try {
-    const result = await prisma.surveySubmission.findFirst({
-      where: { companyId },
-      orderBy: { createdAt: "desc" },
-    });
+    const [recentSubmissionsResult, submissionCountResult, badgeCountResult, unlockedInsights] = await Promise.all([
+      withCompanyScopeFallback(assessmentContext, {
+        label: "results recent submissions",
+        run: (where) =>
+          prisma.surveySubmission.findMany({
+            where: getSurveyFinalWhere(where),
+            orderBy: { createdAt: "desc" },
+            take: 6,
+            include: {
+              SurveyModule: {
+                select: {
+                  key: true,
+                  title: true,
+                },
+              },
+            },
+          }),
+      }),
+      withCompanyScopeFallback(assessmentContext, {
+        label: "results submission count",
+        run: (where) =>
+          prisma.surveySubmission.count({
+            where: getSurveyFinalWhere(where),
+          }),
+      }),
+      withCompanyScopeFallback(assessmentContext, {
+        label: "results badge count",
+        run: (where) =>
+          prisma.companyBadge.count({
+            where,
+          }),
+      }),
+      evaluateUnlocked({
+        companyId: assessmentContext.companyId,
+        subjectId: assessmentContext.subjectId,
+      }),
+    ]);
+    const recentSubmissions = recentSubmissionsResult.value;
+    const submissionCount = submissionCountResult.value;
+    const badgeCount = badgeCountResult.value;
 
-    return NextResponse.json({ ok: true, result }, { headers: NO_STORE_HEADERS });
+    const latestSubmission = recentSubmissions[0] ?? null;
+    const result = latestSubmission
+      ? {
+          ...latestSubmission,
+          moduleKey: latestSubmission.SurveyModule?.key ?? null,
+          moduleTitle: latestSubmission.SurveyModule?.title ?? null,
+        }
+      : null;
+
+    const history = recentSubmissions.map((submission) => ({
+      id: submission.id,
+      createdAt: submission.createdAt,
+      score: submission.score,
+      weightedAvg: submission.weightedAvg,
+      signalIntegrityScore: submission.signalIntegrityScore,
+      answeredCount: submission.answeredCount,
+      moduleId: submission.moduleId,
+      moduleKey: submission.SurveyModule?.key ?? submission.moduleId,
+      moduleTitle: submission.SurveyModule?.title ?? "Assessment module",
+    }));
+
+    return NextResponse.json(
+      {
+        ok: true,
+        result,
+        history,
+        summary: {
+          submissionCount,
+          badgeCount,
+          unlockedInsightCount: unlockedInsights.length,
+          latestSubmittedAt: latestSubmission?.createdAt ?? null,
+        },
+        unlockedInsights,
+        scope: assessmentContext,
+      },
+      { headers: NO_STORE_HEADERS }
+    );
   } catch {
     return NextResponse.json(
       { ok: false, error: "Unable to load results" },

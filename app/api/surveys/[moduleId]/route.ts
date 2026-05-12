@@ -5,9 +5,12 @@ export async function GET(
   { params }: { params: Promise<{ moduleId: string }> }
 ) {
   await params;
-  // Intentionally unavailable in the current build.
   return NextResponse.json(
-    { ok: false, error: "Not found" },
+    {
+      ok: false,
+      error: "Not found",
+      detail: "This generic survey lookup API is quarantined outside the live PAT assessment runtime.",
+    },
     { status: 404, headers: { "Cache-Control": "no-store" } }
   );
 }

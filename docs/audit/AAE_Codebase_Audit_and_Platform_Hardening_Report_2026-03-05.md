@@ -45,7 +45,7 @@ Existential: enforce the **data boundary** (who can read/write which company’s
 
 Auth options:
 - Managed auth with org primitives + org slugs in URLs + org switching
-- Auth.js + Prisma adapter + middleware protection
+- Auth.js + Prisma adapter + proxy protection
 
 Must-have:
 - Once authenticated, every request referencing companyId must verify membership/role for that company.

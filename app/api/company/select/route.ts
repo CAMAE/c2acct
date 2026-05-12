@@ -6,6 +6,7 @@ import {
   hasCompany,
   unauthorizedResponse,
 } from "@/lib/authz";
+import { applySelectedCompanyCookies } from "@/lib/platformRollout";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
@@ -51,12 +52,6 @@ export async function POST(req: Request) {
 
   const res = NextResponse.json({ ok: true, companyId });
   res.headers.set("Cache-Control", "no-store");
-  res.cookies.set("aae_companyId", companyId, {
-    path: "/",
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 24 * 30, // 30d
-  });
+  applySelectedCompanyCookies(res, companyId);
   return res;
 }

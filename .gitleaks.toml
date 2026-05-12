@@ -10,7 +10,10 @@ paths = [
   "app/api/modules/progress/route\\.ts",
   "app/outputs/page\\.tsx",
   "payload\\.json",
-  ".*\\.bak_.*"
+  ".*\\.bak_.*",
+  "playwright-report/.*",
+  "test-results/.*",
+  "blob-report/.*"
 ]
 
 regexes = [

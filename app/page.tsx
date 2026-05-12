@@ -1,47 +1,72 @@
-﻿import Link from "next/link";
+import Link from "next/link";
+import { getSessionUser } from "@/lib/auth/session";
+import { getRequestLocaleMessages } from "@/lib/requestLocale";
 
-export default function Home() {
+export default async function Home() {
+  const sessionUser = await getSessionUser();
+  const messages = await getRequestLocaleMessages();
+  const signedIn = Boolean(sessionUser);
+  const signInHref = "/sign-in";
+  const signInTitle = messages.home.signInTitle;
+  const signInCtaLabel = messages.common.continueToSignIn;
+  const signInCopy = signedIn
+    ? messages.home.signedInCopy
+    : messages.home.signedOutCopy;
+
   return (
-    <main>
-      <section className="mb-24">
-        <h1 className="text-6xl font-bold mb-6">AAE</h1>
-        <p className="text-2xl text-gray-600">
-          Autonomous Alignment Infrastructure for Accounting Firms.
+    <div className="space-y-8">
+      <section className="pat-card px-7 py-8 sm:px-10 sm:py-10">
+        <div className="flex flex-wrap items-center gap-3 text-left sm:gap-4">
+          <div className="brand-pat-wordmark text-[2rem] leading-none text-[var(--shell-ink)] sm:text-[2.5rem]">
+            PAT
+          </div>
+          <div className="h-10 w-px bg-[rgba(12,33,66,0.12)] sm:h-12" aria-hidden="true" />
+          <div className="text-sm font-medium tracking-[0.08em] text-[var(--shell-ink)] sm:text-base">
+            {messages.home.productName}
+          </div>
+        </div>
+        <div className="pat-label mt-6">{messages.home.eyebrow}</div>
+        <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-tight text-[var(--shell-ink)] sm:text-5xl">
+          {messages.home.heroTitle}
+        </h1>
+        <p className="mt-5 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
+          {messages.home.heroBody}
         </p>
       </section>
 
-      <section className="grid md:grid-cols-3 gap-10">
+      <section className="grid gap-6 lg:grid-cols-2">
         <Link
-          href="/profiles"
-          className="border rounded-2xl p-10 hover:shadow-lg transition"
+          href="/pat"
+          className="pat-card pat-card-interactive block px-7 py-8 sm:px-8 sm:py-9"
         >
-          <h2 className="text-2xl font-bold mb-4">Profiles</h2>
-          <p className="text-gray-600">
-            Institutional capability scoring and firm visibility.
+          <div className="pat-label">{messages.home.welcomeLabel}</div>
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
+            {messages.home.meetPatTitle}
+          </h2>
+          <p className="mt-4 text-base leading-7 text-[var(--shell-muted)]">
+            {messages.home.meetPatBody}
           </p>
+          <span className="mt-6 inline-flex items-center rounded-full border border-[var(--shell-border)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] shadow-[0_6px_18px_rgba(15,23,42,0.04)]">
+            {messages.home.meetPatCta}
+          </span>
         </Link>
 
         <Link
-          href="/outputs"
-          className="border rounded-2xl p-10 hover:shadow-lg transition"
+          href={signInHref}
+          className="pat-card pat-card-interactive block px-7 py-8 sm:px-8 sm:py-9"
         >
-          <h2 className="text-2xl font-bold mb-4">Top Seven Outputs</h2>
-          <p className="text-gray-600">
-            Core institutional deliverables of aligned firms.
+          <div className="pat-label">{messages.home.signInLabel}</div>
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
+            {signInTitle}
+          </h2>
+          <p className="mt-4 text-base leading-7 text-[var(--shell-muted)]">
+            {signInCopy}
           </p>
-        </Link>
-
-        <Link
-          href="/survey"
-          className="border rounded-2xl p-10 hover:shadow-lg transition"
-        >
-          <h2 className="text-2xl font-bold mb-4">Start Survey</h2>
-          <p className="text-gray-600">
-            Generate your institutional alignment profile.
-          </p>
+          <span className="mt-6 inline-flex items-center rounded-full border border-[var(--shell-border)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] shadow-[0_6px_18px_rgba(15,23,42,0.04)]">
+            {signInCtaLabel}
+          </span>
         </Link>
       </section>
-    </main>
+    </div>
   );
 }
-

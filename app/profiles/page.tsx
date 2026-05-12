@@ -1,18 +1,17 @@
-﻿export default function Profiles() {
-  return (
-    <main className="min-h-screen px-10 py-24 text-white">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-5xl font-bold mb-8">Firm Profiles</h1>
+import { redirect } from "next/navigation";
+import { getSessionUser } from "@/lib/auth/session";
+import { resolvePortalExperience } from "@/lib/portalVisibility";
+import { getCanonicalPatHref, type PatNavigationAudience } from "@/lib/patNavigation";
 
-        <p className="text-xl text-white/70 mb-12">
-          Institutional capability scoring and operational alignment metrics for modern accounting firms.
-        </p>
+export const dynamic = "force-dynamic";
 
-        <div className="border border-white/15 rounded-2xl p-8 bg-white/5">
-          <p className="text-white/70">Profile visualization system coming next.</p>
-        </div>
-      </div>
-    </main>
-  )
+export default async function ProfilesPage() {
+  const sessionUser = await getSessionUser();
+  const experience = await resolvePortalExperience(sessionUser);
+  const audience: PatNavigationAudience =
+    experience.audience === "firm" || experience.audience === "vendor"
+      ? experience.audience
+      : "individual";
+
+  redirect(getCanonicalPatHref(audience, "profile"));
 }
-

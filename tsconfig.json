@@ -38,7 +38,8 @@
                 ],
     "exclude":  [
                     "node_modules",
-                    "prisma/**/*",
-                    "scripts/**/*"
+                    "prisma/migrations/**/*",
+                    "scripts/archive/**/*",
+                    "docs/archive/**/*"
                 ]
 }

@@ -14,11 +14,11 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // AAE ignores:
     "node_modules/**",
-    "prisma/**",
-    "scripts/**",
+    "prisma/migrations/**",
+    "scripts/archive/**",
+    "docs/archive/**",
     "tmp/**",
     "agent-work/**",
-    "*.js",
 ]),
 
   { rules: { "@typescript-eslint/no-explicit-any": "warn" } },

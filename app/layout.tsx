@@ -1,47 +1,82 @@
 ﻿import "./globals.css";
-import Link from "next/link";
+import { cookies } from "next/headers";
+import ClientTelemetryBootstrap from "@/app/components/telemetry/ClientTelemetryBootstrap";
+import AppHeader, { type HeaderNavItem } from "@/app/components/header/AppHeader";
+import { barlowFontClassName } from "@/app/fonts/barlow";
+import { getSessionUser } from "@/lib/auth/session";
+import {
+  APP_LOCALE_COOKIE,
+  getLocaleMessages,
+  resolveLocale,
+  type HeaderNavLabelKey,
+} from "@/lib/locale";
+import { resolvePortalExperience } from "@/lib/portalVisibility";
 
 export const metadata = {
-  title: "AAE",
-  description: "Autonomous Alignment Infrastructure for Accounting Firms.",
+  title: "C2Acct | PAT",
+  description: "C2Acct corporate surface for the PAT platform workspace.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const locale = resolveLocale(cookieStore.get(APP_LOCALE_COOKIE)?.value);
+  const messages = getLocaleMessages(locale);
+  const sessionUser = await getSessionUser();
+  const experience = await resolvePortalExperience(sessionUser);
+  const enabledHrefs = new Set(
+    experience.surfaces
+      .filter((surface) => surface.availability === "enabled" && surface.href)
+      .map((surface) => surface.href!)
+  );
+  const navItems: Array<{ href: string; key: HeaderNavLabelKey }> = [
+    { href: "/", key: "home" },
+    { href: "/pat", key: "meet_pat" },
+    { href: "/sign-in", key: "sign_in" },
+    { href: "/vendor", key: "vendor" },
+    { href: "/firm", key: "firm" },
+    { href: "/user", key: "individual" },
+    ...(enabledHrefs.has("/admin") ? [{ href: "/admin", key: "c2core" as const }] : []),
+  ];
+  const translatedNavItems: HeaderNavItem[] = navItems.map((item) => ({
+    href: item.href,
+    label: messages.nav[item.key],
+  }));
+  const headerUiText = {
+    closeNavigationMenu: messages.chrome.close_navigation_menu,
+    homeAriaLabel: messages.chrome.home_aria,
+    language: messages.chrome.language,
+    navigation: messages.chrome.navigation,
+    openLanguageMenu: messages.chrome.open_language_menu,
+    openNavigationMenu: messages.chrome.open_navigation_menu,
+  };
+
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-[#070A10] text-white antialiased">
-        {/* top glow */}
-        <div className="pointer-events-none fixed inset-0 -z-10">
-          <div className="absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.22),transparent_60%)] blur-2xl" />
-          <div className="absolute bottom-[-220px] right-[-260px] h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.16),transparent_60%)] blur-2xl" />
-        </div>
+    <html lang={locale}>
+      <body
+        className={`${barlowFontClassName} pat-shell flex min-h-screen flex-col bg-[var(--shell-bg)] text-[var(--shell-ink)] antialiased`}
+      >
+        <ClientTelemetryBootstrap />
+        <AppHeader currentLocale={locale} navItems={translatedNavItems} uiText={headerUiText} />
 
-        <header className="sticky top-0 z-50 border-b border-white/10 bg-[#070A10]/70 backdrop-blur">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-            <Link href="/" className="text-sm tracking-[0.25em] text-white/90">
-              AAE
-            </Link>
-            <nav className="flex items-center gap-6 text-sm text-white/70">
-              <Link className="hover:text-white" href="/profiles">Profiles</Link>
-              <Link className="hover:text-white" href="/outputs">Top Seven Outputs</Link>
-              <Link className="hover:text-white" href="/survey">Alignment Survey</Link>
-            </nav>
-          </div>
-        </header>
+        <main className="mx-auto flex w-full max-w-6xl flex-1 px-6 py-12">{children}</main>
 
-        <main className="mx-auto max-w-6xl px-6 py-16">{children}</main>
-
-        <footer className="border-t border-white/10 py-10">
-          <div className="mx-auto max-w-6xl px-6 text-xs text-white/50">
-            Â© {new Date().getFullYear()} AAE â€” Autonomous Alignment Infrastructure
+        <footer className="mt-auto border-t border-[var(--shell-border)] py-5">
+          <div className="mx-auto flex max-w-6xl items-center justify-center px-6 text-[11px] text-[var(--shell-muted)]">
+            <div className="pat-sans inline-flex items-center gap-3">
+              <span>{messages.chrome.copyright}</span>
+              <span
+                aria-hidden="true"
+                className="h-3.5 w-px rounded-full bg-[var(--shell-border-strong)]"
+              />
+              <span>{messages.chrome.pat}</span>
+            </div>
           </div>
         </footer>
       </body>
     </html>
   );
 }
-

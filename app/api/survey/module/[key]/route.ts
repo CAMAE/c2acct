@@ -1,5 +1,13 @@
 ﻿import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { buildAssessmentModulePayload } from "@/lib/assessmentRuntime";
+import { getSessionUser } from "@/lib/auth/session";
+import {
+  requiresCompanyBackedAssessment,
+  resolveAssessmentSubjectContext,
+} from "@/lib/subjectContext";
+import { getSurveyDraftWhere } from "@/lib/surveyDrafts";
+import { USER_ALIGNMENT_MODULE_KEY, ensureUserAlignmentSystem } from "@/lib/userPat";
 
 export async function GET(
   _req: Request,
@@ -7,6 +15,10 @@ export async function GET(
 ) {
   try {
     const { key } = await params;
+    if (key === USER_ALIGNMENT_MODULE_KEY) {
+      await ensureUserAlignmentSystem();
+    }
+
     const mod = await prisma.surveyModule.findUnique({
       where: { key },
       select: {
@@ -33,10 +45,89 @@ export async function GET(
         inputType: true,
         weight: true,
         order: true,
+        required: true,
+        meta: true,
+        sectionId: true,
+        SurveySection: {
+          select: {
+            id: true,
+            key: true,
+            title: true,
+            description: true,
+            order: true,
+            utilityFamily: true,
+            utilityKey: true,
+            utilityLabel: true,
+            subcategoryKey: true,
+            subcategoryTitle: true,
+            basisKey: true,
+          },
+        },
       },
     });
 
-    return NextResponse.json({ ...mod, questions });
+    const sections = await prisma.surveySection.findMany({
+      where: { moduleId: mod.id },
+      orderBy: { order: "asc" },
+      select: {
+        id: true,
+        key: true,
+        title: true,
+        description: true,
+        order: true,
+        utilityFamily: true,
+        utilityKey: true,
+        utilityLabel: true,
+        subcategoryKey: true,
+        subcategoryTitle: true,
+        basisKey: true,
+      },
+    });
+
+    const payload = buildAssessmentModulePayload(mod, questions, sections);
+    const sessionUser = await getSessionUser();
+
+    if (!sessionUser) {
+      return NextResponse.json(payload);
+    }
+
+    const assessmentContext = await resolveAssessmentSubjectContext(sessionUser);
+    if (!requiresCompanyBackedAssessment(assessmentContext)) {
+      return NextResponse.json(payload);
+    }
+
+    const draftSubmission = await prisma.surveySubmission
+      .findFirst({
+        where: getSurveyDraftWhere({
+          companyId: assessmentContext.companyId,
+          subjectId: assessmentContext.subjectId,
+          moduleId: mod.id,
+        }),
+        orderBy: { createdAt: "desc" },
+        select: {
+          answers: true,
+          integrityFlags: true,
+          createdAt: true,
+        },
+      })
+      .catch(() => null);
+
+    return NextResponse.json({
+      ...payload,
+      draft: draftSubmission
+        ? {
+            answers:
+              draftSubmission.answers && typeof draftSubmission.answers === "object"
+                ? (draftSubmission.answers as Record<string, unknown>)
+                : {},
+            currentStep:
+              typeof (draftSubmission.integrityFlags as { currentStep?: unknown } | null)?.currentStep === "number"
+                ? ((draftSubmission.integrityFlags as { currentStep?: number }).currentStep ?? 1)
+                : 1,
+            updatedAt: draftSubmission.createdAt.toISOString(),
+          }
+        : null,
+    });
   } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }

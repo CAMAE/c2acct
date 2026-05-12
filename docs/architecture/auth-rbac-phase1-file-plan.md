@@ -106,5 +106,5 @@ Runtime envs already present and still required:
 
 ## Smallest-correct-path recommendation
 - Use Auth.js v5 JWT sessions without Prisma adapter for this pass.
-- Keep middleware coarse and route handlers authoritative for authorization.
+- Keep proxy protection coarse and route handlers authoritative for authorization.
 - Implement only Task 1 surfaces listed above; defer auth UX polish and broader IAM complexity.
