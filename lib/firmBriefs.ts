@@ -16,10 +16,13 @@ import {
   type FirmProductCatalogItem,
 } from "@/lib/firmPat";
 import {
+  FIRM_BRIEF_VARIANT_BANK,
   HEADLINE_PATTERNS,
   PEER_LINE_PATTERNS,
   renderConfidenceCallout,
+  type FirmBriefVariantSlots,
 } from "@/lib/firmBriefs/template-bank";
+import { getBriefEditChoicesForConsultant } from "@/lib/briefEditChoice";
 import prisma from "@/lib/prisma";
 import { assertEcosystemPair } from "@/lib/tenancy";
 import {
@@ -123,6 +126,19 @@ export type FirmBriefMethodology = {
   };
 };
 
+export type FirmBriefVariantOption = {
+  id: string;
+  tone: string;
+  label: string;
+  rendered: string;
+};
+
+export type FirmBriefEditChoices = {
+  variants: Record<string, string>;
+  emphasis: Record<string, string[]>;
+  ordering: Record<string, string[]>;
+};
+
 export type FirmBriefData = {
   briefId: string;
   ecosystemId: string;
@@ -139,6 +155,9 @@ export type FirmBriefData = {
   sixQuarterRoadmap: FirmBriefRoadmapQuarter[];
 
   methodology: FirmBriefMethodology;
+
+  editVariants: Record<string, FirmBriefVariantOption[]>;
+  editChoices: FirmBriefEditChoices;
 };
 
 // ---------- Band thresholds ----------
@@ -380,6 +399,48 @@ export function buildSixQuarterRoadmap(input: {
   });
 }
 
+// ---------- Edit-choice composition (pure helpers; exported for tests) ----------
+
+export function composeFirmEditChoices(
+  choicesMap: Map<string, { choiceType: string; choiceValue: string }>
+): FirmBriefEditChoices {
+  const out: FirmBriefEditChoices = { variants: {}, emphasis: {}, ordering: {} };
+  for (const [key, entry] of choicesMap.entries()) {
+    if (entry.choiceValue === "") continue;
+    const [sectionKey, choiceType] = key.split("::");
+    if (!sectionKey || !choiceType) continue;
+    if (choiceType === "PHRASING_VARIANT") {
+      out.variants[sectionKey] = entry.choiceValue;
+    } else if (choiceType === "EMPHASIS") {
+      out.emphasis[sectionKey] = entry.choiceValue
+        .split(",")
+        .map((t) => t.trim())
+        .filter((t) => t !== "");
+    } else if (choiceType === "ORDERING") {
+      out.ordering[sectionKey] = entry.choiceValue
+        .split(",")
+        .map((t) => t.trim())
+        .filter((t) => t !== "");
+    }
+  }
+  return out;
+}
+
+export function buildFirmEditVariants(
+  slots: FirmBriefVariantSlots
+): Record<string, FirmBriefVariantOption[]> {
+  const out: Record<string, FirmBriefVariantOption[]> = {};
+  for (const [sectionKey, variants] of Object.entries(FIRM_BRIEF_VARIANT_BANK)) {
+    out[sectionKey] = variants.map((variant) => ({
+      id: variant.id,
+      tone: variant.tone,
+      label: variant.tone,
+      rendered: variant.render(slots),
+    }));
+  }
+  return out;
+}
+
 // ---------- Main aggregation ----------
 
 export async function getFirmBriefForConsultant(
@@ -553,6 +614,36 @@ export async function getFirmBriefForConsultant(
     },
   };
 
+  // Pre-compute variant slots once and pre-render every variant for every
+  // section so the picker can flip inline without a server round-trip.
+  const reviewedProductCount = stackFitAnalysis.filter(
+    (row) => row.status !== "not-reviewed"
+  ).length;
+  const trajectoryEnd =
+    sixQuarterRoadmap.length > 0
+      ? sixQuarterRoadmap[sixQuarterRoadmap.length - 1].projectedAlignment
+      : null;
+  const variantSlots: FirmBriefVariantSlots = {
+    firmCompanyName: focalCatalogEntry?.companyName ?? firmCompanyId,
+    canonicalFirmScore: focalCatalogEntry?.canonicalFirmScore ?? null,
+    ecosystemAverageScore,
+    peerFirmCount: peerFirmIds.length,
+    reviewedProductCount,
+    totalProductCount: stackFitAnalysis.length,
+    currentQuarterLabel: sixQuarterRoadmap[0]?.quarterLabel ?? "",
+    trajectoryEnd,
+  };
+
+  const editVariants = buildFirmEditVariants(variantSlots);
+
+  const choicesMap = await getBriefEditChoicesForConsultant(
+    consultantProfileId,
+    "firm",
+    firmCompanyId,
+    ecosystem.id
+  );
+  const editChoices = composeFirmEditChoices(choicesMap);
+
   return {
     briefId: `firm-${firmCompanyId}`,
     ecosystemId: ecosystem.id,
@@ -567,5 +658,7 @@ export async function getFirmBriefForConsultant(
     stackFitAnalysis,
     sixQuarterRoadmap,
     methodology,
+    editVariants,
+    editChoices,
   };
 }

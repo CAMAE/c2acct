@@ -1,4 +1,9 @@
+import EmphasisToggle from "@/app/components/consultants/briefEdits/EmphasisToggle";
+import PhrasingVariantPicker from "@/app/components/consultants/briefEdits/PhrasingVariantPicker";
 import type { VendorBriefData, VendorBriefDeltaRow } from "@/lib/briefs";
+
+const SECTION_KEY = "vendor.self-vs-market-delta" as const;
+const EMPHASIS_TARGETS = ["row-0", "row-1", "row-2"];
 
 function formatScore(value: number | null): string {
   return value === null ? "--" : String(value);
@@ -33,6 +38,9 @@ function barWidthPercent(value: number | null): number {
 
 export default function SelfVsMarketDelta({ data }: { data: VendorBriefData }) {
   const rows = data.selfVsMarketDelta;
+  const variants = data.editVariants[SECTION_KEY] ?? [];
+  const activeVariantId = data.editChoices.variants[SECTION_KEY];
+  const activeEmphasis = data.editChoices.emphasis[SECTION_KEY] ?? [];
 
   return (
     <section
@@ -51,6 +59,19 @@ export default function SelfVsMarketDelta({ data }: { data: VendorBriefData }) {
         </div>
       </div>
 
+      {variants.length > 0 ? (
+        <div className="mb-4">
+          <PhrasingVariantPicker
+            briefKind="vendor"
+            briefId={data.vendorCompanyId}
+            ecosystemId={data.ecosystemId}
+            sectionKey={SECTION_KEY}
+            variants={variants}
+            activeVariantId={activeVariantId}
+          />
+        </div>
+      ) : null}
+
       {rows.length === 0 ? (
         <p className="text-sm text-[var(--shell-muted)]">
           No vendor products with completed self-assessment yet. Delta unlocks when the
@@ -58,12 +79,17 @@ export default function SelfVsMarketDelta({ data }: { data: VendorBriefData }) {
         </p>
       ) : (
         <div className="space-y-3">
-          {rows.map((row) => (
+          {rows.map((row, rowIndex) => {
+            const emphasisId = `row-${rowIndex}`;
+            const isEmphasized = activeEmphasis.includes(emphasisId);
+            return (
             <div
               key={row.productId}
               data-testid="delta-row"
               data-product-id={row.productId}
               data-hot-divergence={row.isHotDivergence ? "1" : "0"}
+              data-emphasis-id={emphasisId}
+              data-emphasis-active={isEmphasized ? "true" : "false"}
               className="grid grid-cols-1 gap-3 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4 md:grid-cols-[1.2fr_1.8fr_1fr]"
             >
               <div>
@@ -126,9 +152,21 @@ export default function SelfVsMarketDelta({ data }: { data: VendorBriefData }) {
                 ) : null}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
+
+      <div className="mt-4">
+        <EmphasisToggle
+          briefKind="vendor"
+          briefId={data.vendorCompanyId}
+          ecosystemId={data.ecosystemId}
+          sectionKey={SECTION_KEY}
+          targetElementIds={EMPHASIS_TARGETS}
+          activeEmphasisIds={activeEmphasis}
+        />
+      </div>
     </section>
   );
 }

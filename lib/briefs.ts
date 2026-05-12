@@ -9,7 +9,10 @@ import {
   BODY_PATTERNS,
   HEADLINE_PATTERNS,
   renderConfidenceCallout,
+  VENDOR_BRIEF_VARIANT_BANK,
+  type VendorBriefVariantSlots,
 } from "@/lib/briefs/executive-summary-templates";
+import { getBriefEditChoicesForConsultant } from "@/lib/briefEditChoice";
 import {
   HOT_DIVERGENCE_THRESHOLD,
   aggregateFirmConfidence,
@@ -106,6 +109,22 @@ export type VendorBriefMethodology = {
   };
 };
 
+export type VendorBriefVariantOption = {
+  id: string;
+  tone: string;
+  label: string;
+  rendered: string;
+};
+
+export type VendorBriefEditChoices = {
+  /** sectionKey → chosen variant id (empty string or missing = use default index 0). */
+  variants: Record<string, string>;
+  /** sectionKey → set of active emphasis target ids. */
+  emphasis: Record<string, string[]>;
+  /** sectionKey → consultant-preferred id order; stale ids drop, missing ids append. */
+  ordering: Record<string, string[]>;
+};
+
 export type VendorBriefData = {
   briefId: string;
   ecosystemId: string;
@@ -122,6 +141,11 @@ export type VendorBriefData = {
   actionRoadmap: VendorBriefRoadmap;
 
   methodology: VendorBriefMethodology;
+
+  /** Pre-rendered variants per section so the picker can swap text inline without a server round-trip. */
+  editVariants: Record<string, VendorBriefVariantOption[]>;
+  /** Consultant's chosen edits composed onto the brief; empty-default for new briefs. */
+  editChoices: VendorBriefEditChoices;
 };
 
 // ---------- Heatmap band thresholds ----------
@@ -357,6 +381,59 @@ export function generateExecutiveSummary(
   return { headline, body, confidenceCallout };
 }
 
+// ---------- Edit-choice composition (pure helpers; exported for tests) ----------
+
+/**
+ * Turn the raw choice Map (sectionKey::choiceType → entry) into the
+ * shape the brief render layer consumes. Empty-string sentinels are
+ * dropped — the read layer treats empty as "no choice applied" so the
+ * brief falls back to the default render.
+ */
+export function composeVendorEditChoices(
+  choicesMap: Map<string, { choiceType: string; choiceValue: string }>
+): VendorBriefEditChoices {
+  const out: VendorBriefEditChoices = { variants: {}, emphasis: {}, ordering: {} };
+  for (const [key, entry] of choicesMap.entries()) {
+    if (entry.choiceValue === "") continue;
+    const [sectionKey, choiceType] = key.split("::");
+    if (!sectionKey || !choiceType) continue;
+    if (choiceType === "PHRASING_VARIANT") {
+      out.variants[sectionKey] = entry.choiceValue;
+    } else if (choiceType === "EMPHASIS") {
+      out.emphasis[sectionKey] = entry.choiceValue
+        .split(",")
+        .map((t) => t.trim())
+        .filter((t) => t !== "");
+    } else if (choiceType === "ORDERING") {
+      out.ordering[sectionKey] = entry.choiceValue
+        .split(",")
+        .map((t) => t.trim())
+        .filter((t) => t !== "");
+    }
+  }
+  return out;
+}
+
+/**
+ * Pre-render every variant for every section so the picker can flip text
+ * inline without a server round-trip. Default render (no consultant
+ * choice) is variant index 0; tested upstream in tests/briefs.template-bank.test.ts.
+ */
+export function buildVendorEditVariants(
+  slots: VendorBriefVariantSlots
+): Record<string, VendorBriefVariantOption[]> {
+  const out: Record<string, VendorBriefVariantOption[]> = {};
+  for (const [sectionKey, variants] of Object.entries(VENDOR_BRIEF_VARIANT_BANK)) {
+    out[sectionKey] = variants.map((variant) => ({
+      id: variant.id,
+      tone: variant.tone,
+      label: variant.tone,
+      rendered: variant.render(slots),
+    }));
+  }
+  return out;
+}
+
 // ---------- Main aggregation ----------
 
 export async function getVendorBriefForConsultant(
@@ -448,6 +525,45 @@ export async function getVendorBriefForConsultant(
     },
   };
 
+  // Pre-compute variant slots once and pre-render every variant for every
+  // section so the picker can flip inline without a server round-trip.
+  const hotDivergenceCount = selfVsMarketDelta.filter((r) => r.isHotDivergence).length;
+  const roadmapItemCount =
+    actionRoadmap.thirtyDay.length +
+    actionRoadmap.sixtyDay.length +
+    actionRoadmap.ninetyDay.length;
+  const avgFirmScore = avgFirmAlignmentScore(catalog);
+  const vendorScores = vendorCatalog
+    .map((snapshot) => snapshot.vendorSelfReported.latestScore)
+    .filter((value): value is number => value !== null);
+  const avgVendorSelfReport =
+    vendorScores.length > 0
+      ? Math.round(vendorScores.reduce((sum, value) => sum + value, 0) / vendorScores.length)
+      : null;
+
+  const variantSlots: VendorBriefVariantSlots = {
+    ecosystemName: ecosystem.name,
+    firmCount: firmIds.length,
+    avgFirmScore,
+    avgVendorSelfReport,
+    hotDivergences: hotDivergenceCount,
+    productCount: vendorCatalog.length,
+    roadmapItemCount,
+  };
+
+  const editVariants = buildVendorEditVariants(variantSlots);
+
+  // Compose consultant edit choices on read. Tenancy is already enforced
+  // by this aggregator's own assignment lookup at the top of the function;
+  // getBriefEditChoicesForConsultant re-checks for defense-in-depth.
+  const choicesMap = await getBriefEditChoicesForConsultant(
+    consultantProfileId,
+    "vendor",
+    vendorCompanyId,
+    ecosystem.id
+  );
+  const editChoices = composeVendorEditChoices(choicesMap);
+
   return {
     briefId: `vendor-${ecosystem.id}`,
     ecosystemId: ecosystem.id,
@@ -462,5 +578,7 @@ export async function getVendorBriefForConsultant(
     perFirmHeatmap,
     actionRoadmap,
     methodology,
+    editVariants,
+    editChoices,
   };
 }

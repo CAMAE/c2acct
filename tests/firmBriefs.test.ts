@@ -409,3 +409,116 @@ describe("lib/firmBriefs helpers", () => {
     });
   });
 });
+
+import {
+  buildFirmEditVariants,
+  composeFirmEditChoices,
+  type FirmBriefEditChoices,
+} from "@/lib/firmBriefs";
+import type { FirmBriefVariantSlots } from "@/lib/firmBriefs/template-bank";
+
+describe("Firm Brief edit-choice composition (Day 17 Block 4)", () => {
+  const sampleSlots: FirmBriefVariantSlots = {
+    firmCompanyName: "Northstar CPA",
+    canonicalFirmScore: 72,
+    ecosystemAverageScore: 68,
+    peerFirmCount: 9,
+    reviewedProductCount: 4,
+    totalProductCount: 6,
+    currentQuarterLabel: "Q2'26",
+    trajectoryEnd: 80,
+  };
+
+  it("buildFirmEditVariants returns 2 variants per eligible section, all rendered", () => {
+    const editVariants = buildFirmEditVariants(sampleSlots);
+    expect(Object.keys(editVariants)).toEqual([
+      "firm.alignment-header",
+      "firm.stack-fit-analysis",
+      "firm.six-quarter-roadmap",
+    ]);
+    for (const sectionKey of Object.keys(editVariants)) {
+      expect(editVariants[sectionKey]).toHaveLength(2);
+      for (const option of editVariants[sectionKey]) {
+        expect(option.id).toMatch(/^v\d+-/);
+        expect(option.rendered.length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("composeFirmEditChoices on an empty Map returns the empty-default editChoices shape", () => {
+    const editChoices = composeFirmEditChoices(new Map());
+    expect(editChoices).toEqual({ variants: {}, emphasis: {}, ordering: {} });
+  });
+
+  it("PHRASING_VARIANT choice composes into editChoices.variants[sectionKey] = variantId", () => {
+    const map = new Map<string, { choiceType: string; choiceValue: string }>([
+      [
+        "firm.alignment-header::PHRASING_VARIANT",
+        { choiceType: "PHRASING_VARIANT", choiceValue: "v1-pointed" },
+      ],
+    ]);
+    const editChoices = composeFirmEditChoices(map);
+    expect(editChoices.variants["firm.alignment-header"]).toBe("v1-pointed");
+  });
+
+  it("EMPHASIS choice composes the comma-joined target ids into editChoices.emphasis[sectionKey]", () => {
+    const map = new Map<string, { choiceType: string; choiceValue: string }>([
+      [
+        "firm.alignment-header::EMPHASIS",
+        { choiceType: "EMPHASIS", choiceValue: "score,headline" },
+      ],
+    ]);
+    const editChoices = composeFirmEditChoices(map);
+    expect(editChoices.emphasis["firm.alignment-header"]).toEqual(["score", "headline"]);
+  });
+
+  it("ORDERING choice carries through; stale id resolution happens in the render layer", () => {
+    const map = new Map<string, { choiceType: string; choiceValue: string }>([
+      [
+        "firm.six-quarter-roadmap::ORDERING",
+        {
+          choiceType: "ORDERING",
+          choiceValue: "2026-Q2__1,2026-Q2__0,stale-action-id",
+        },
+      ],
+    ]);
+    const editChoices = composeFirmEditChoices(map);
+    expect(editChoices.ordering["firm.six-quarter-roadmap"]).toEqual([
+      "2026-Q2__1",
+      "2026-Q2__0",
+      "stale-action-id",
+    ]);
+  });
+
+  it("empty-string choiceValue (clear-choice sentinel) is dropped — render falls back to default variant", () => {
+    const map = new Map<string, { choiceType: string; choiceValue: string }>([
+      [
+        "firm.alignment-header::PHRASING_VARIANT",
+        { choiceType: "PHRASING_VARIANT", choiceValue: "" },
+      ],
+    ]);
+    const editChoices = composeFirmEditChoices(map);
+    expect(editChoices.variants["firm.alignment-header"]).toBeUndefined();
+  });
+
+  it("fully-populated choice map produces a fully-populated editChoices shape", () => {
+    const map = new Map<string, { choiceType: string; choiceValue: string }>([
+      [
+        "firm.alignment-header::PHRASING_VARIANT",
+        { choiceType: "PHRASING_VARIANT", choiceValue: "v1-pointed" },
+      ],
+      [
+        "firm.stack-fit-analysis::EMPHASIS",
+        { choiceType: "EMPHASIS", choiceValue: "top-row" },
+      ],
+      [
+        "firm.six-quarter-roadmap::ORDERING",
+        { choiceType: "ORDERING", choiceValue: "a,b,c" },
+      ],
+    ]);
+    const editChoices: FirmBriefEditChoices = composeFirmEditChoices(map);
+    expect(editChoices.variants["firm.alignment-header"]).toBe("v1-pointed");
+    expect(editChoices.emphasis["firm.stack-fit-analysis"]).toEqual(["top-row"]);
+    expect(editChoices.ordering["firm.six-quarter-roadmap"]).toEqual(["a", "b", "c"]);
+  });
+});

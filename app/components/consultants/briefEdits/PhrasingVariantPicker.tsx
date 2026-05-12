@@ -26,6 +26,8 @@ export type PhrasingVariantOption = {
   id: string;
   tone: string;
   label: string;
+  /** Server-pre-rendered text for this variant; swaps inline on chip click. */
+  rendered: string;
 };
 
 export default function PhrasingVariantPicker(props: {
@@ -43,6 +45,9 @@ export default function PhrasingVariantPicker(props: {
   const [, startTransition] = useTransition();
 
   if (props.variants.length === 0) return null;
+
+  const activeVariant =
+    props.variants.find((v) => v.id === activeId) ?? props.variants[0];
 
   function pickVariant(variantId: string) {
     if (variantId === activeId) return;
@@ -70,37 +75,41 @@ export default function PhrasingVariantPicker(props: {
   }
 
   return (
-    <div
-      className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]"
-      data-testid="phrasing-variant-picker"
-      data-section-key={props.sectionKey}
-    >
-      <span>Tone</span>
-      {props.variants.map((variant) => {
-        const isActive = variant.id === activeId;
-        return (
-          <button
-            key={variant.id}
-            type="button"
-            onClick={() => pickVariant(variant.id)}
-            data-testid="phrasing-variant-chip"
-            data-variant-id={variant.id}
-            data-active={isActive ? "true" : "false"}
-            className={
-              isActive
-                ? "rounded-full bg-[var(--brand-accent)] px-3 py-1 text-white"
-                : "rounded-full border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] px-3 py-1 text-[var(--shell-ink)]"
-            }
-          >
-            {variant.label}
-          </button>
-        );
-      })}
-      {status ? (
-        <span role="status" className="normal-case text-[var(--brand-accent)]">
-          {status}
-        </span>
-      ) : null}
+    <div data-testid="phrasing-variant-picker" data-section-key={props.sectionKey}>
+      <p
+        className="text-sm leading-6 text-[var(--shell-ink)]"
+        data-testid="phrasing-variant-active-text"
+      >
+        {activeVariant.rendered}
+      </p>
+      <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+        <span>Tone</span>
+        {props.variants.map((variant) => {
+          const isActive = variant.id === activeId;
+          return (
+            <button
+              key={variant.id}
+              type="button"
+              onClick={() => pickVariant(variant.id)}
+              data-testid="phrasing-variant-chip"
+              data-variant-id={variant.id}
+              data-active={isActive ? "true" : "false"}
+              className={
+                isActive
+                  ? "rounded-full bg-[var(--brand-accent)] px-3 py-1 text-white"
+                  : "rounded-full border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] px-3 py-1 text-[var(--shell-ink)]"
+              }
+            >
+              {variant.label}
+            </button>
+          );
+        })}
+        {status ? (
+          <span role="status" className="normal-case text-[var(--brand-accent)]">
+            {status}
+          </span>
+        ) : null}
+      </div>
     </div>
   );
 }

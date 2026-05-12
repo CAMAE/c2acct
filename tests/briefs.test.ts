@@ -345,3 +345,118 @@ describe("lib/briefs helpers", () => {
     });
   });
 });
+
+import {
+  buildVendorEditVariants,
+  composeVendorEditChoices,
+  type VendorBriefEditChoices,
+} from "@/lib/briefs";
+import type { VendorBriefVariantSlots } from "@/lib/briefs/executive-summary-templates";
+
+describe("Vendor Brief edit-choice composition (Day 17 Block 4)", () => {
+  const sampleSlots: VendorBriefVariantSlots = {
+    ecosystemName: "Ecosystem A",
+    firmCount: 10,
+    avgFirmScore: 68,
+    avgVendorSelfReport: 76,
+    hotDivergences: 3,
+    productCount: 7,
+    roadmapItemCount: 9,
+  };
+
+  it("buildVendorEditVariants returns 2 variants per eligible section, all rendered", () => {
+    const editVariants = buildVendorEditVariants(sampleSlots);
+    expect(Object.keys(editVariants)).toEqual([
+      "vendor.executive-summary",
+      "vendor.self-vs-market-delta",
+      "vendor.action-roadmap",
+    ]);
+    for (const sectionKey of Object.keys(editVariants)) {
+      expect(editVariants[sectionKey]).toHaveLength(2);
+      for (const option of editVariants[sectionKey]) {
+        expect(option.id).toMatch(/^v\d+-/);
+        expect(option.rendered.length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("composeVendorEditChoices on an empty Map returns the empty-default editChoices shape", () => {
+    const editChoices = composeVendorEditChoices(new Map());
+    expect(editChoices).toEqual({ variants: {}, emphasis: {}, ordering: {} });
+  });
+
+  it("PHRASING_VARIANT choice composes into editChoices.variants[sectionKey] = variantId", () => {
+    const map = new Map<string, { choiceType: string; choiceValue: string }>([
+      [
+        "vendor.executive-summary::PHRASING_VARIANT",
+        { choiceType: "PHRASING_VARIANT", choiceValue: "v1-pointed" },
+      ],
+    ]);
+    const editChoices = composeVendorEditChoices(map);
+    expect(editChoices.variants["vendor.executive-summary"]).toBe("v1-pointed");
+    expect(editChoices.emphasis).toEqual({});
+    expect(editChoices.ordering).toEqual({});
+  });
+
+  it("EMPHASIS choice composes the comma-joined target ids into editChoices.emphasis[sectionKey] as a list", () => {
+    const map = new Map<string, { choiceType: string; choiceValue: string }>([
+      [
+        "vendor.executive-summary::EMPHASIS",
+        { choiceType: "EMPHASIS", choiceValue: "headline,confidence-callout" },
+      ],
+    ]);
+    const editChoices = composeVendorEditChoices(map);
+    expect(editChoices.emphasis["vendor.executive-summary"]).toEqual([
+      "headline",
+      "confidence-callout",
+    ]);
+  });
+
+  it("ORDERING choice with stale ids still composes; the render layer is responsible for dropping unknowns", () => {
+    const map = new Map<string, { choiceType: string; choiceValue: string }>([
+      [
+        "vendor.action-roadmap::ORDERING",
+        { choiceType: "ORDERING", choiceValue: "item-7,item-2,stale-id,item-1" },
+      ],
+    ]);
+    const editChoices = composeVendorEditChoices(map);
+    expect(editChoices.ordering["vendor.action-roadmap"]).toEqual([
+      "item-7",
+      "item-2",
+      "stale-id",
+      "item-1",
+    ]);
+  });
+
+  it("empty-string choiceValue is dropped (clear-choice sentinel) so the render falls back to default variant index 0", () => {
+    const map = new Map<string, { choiceType: string; choiceValue: string }>([
+      [
+        "vendor.executive-summary::PHRASING_VARIANT",
+        { choiceType: "PHRASING_VARIANT", choiceValue: "" },
+      ],
+    ]);
+    const editChoices = composeVendorEditChoices(map);
+    expect(editChoices.variants["vendor.executive-summary"]).toBeUndefined();
+  });
+
+  it("fully-populated choice map produces a fully-populated editChoices shape", () => {
+    const map = new Map<string, { choiceType: string; choiceValue: string }>([
+      [
+        "vendor.executive-summary::PHRASING_VARIANT",
+        { choiceType: "PHRASING_VARIANT", choiceValue: "v1-pointed" },
+      ],
+      [
+        "vendor.self-vs-market-delta::EMPHASIS",
+        { choiceType: "EMPHASIS", choiceValue: "row-0,row-2" },
+      ],
+      [
+        "vendor.action-roadmap::ORDERING",
+        { choiceType: "ORDERING", choiceValue: "i1,i2" },
+      ],
+    ]);
+    const editChoices: VendorBriefEditChoices = composeVendorEditChoices(map);
+    expect(editChoices.variants["vendor.executive-summary"]).toBe("v1-pointed");
+    expect(editChoices.emphasis["vendor.self-vs-market-delta"]).toEqual(["row-0", "row-2"]);
+    expect(editChoices.ordering["vendor.action-roadmap"]).toEqual(["i1", "i2"]);
+  });
+});
