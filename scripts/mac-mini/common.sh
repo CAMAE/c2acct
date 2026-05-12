@@ -357,7 +357,16 @@ EOF
 mac_mini_write_canonical_state() {
   local build_reason="$1"
   mac_mini_ensure_dirs
-  cat > "${MAC_MINI_CANONICAL_STATE_FILE}" <<EOF
+  # Atomic write via tmp+mv. The heredoc body invokes mac_mini_git_dirty
+  # and mac_mini_release_fingerprint_seed, both of which spawn
+  # `node --import tsx ...` (1-3s each). Redirecting `cat > "$FILE"`
+  # truncates the destination before the body finishes evaluating, which
+  # leaves the file briefly empty on disk — a launchd-restart's RootLayout
+  # render landing inside that window reads "" and JSON.parse throws.
+  # Writing to a sibling temp file and renaming makes the publish atomic
+  # so concurrent readers never see a truncated state file.
+  local tmp_file="${MAC_MINI_CANONICAL_STATE_FILE}.tmp.$$"
+  cat > "${tmp_file}" <<EOF
 {
   "schemaVersion": 1,
   "canonicalRoot": "${MAC_MINI_CANONICAL_ROOT}",
@@ -372,14 +381,20 @@ mac_mini_write_canonical_state() {
   "buildReason": "${build_reason}"
 }
 EOF
+  mv -f "${tmp_file}" "${MAC_MINI_CANONICAL_STATE_FILE}"
 }
 
 mac_mini_write_expected_live_release() {
   mac_mini_ensure_dirs
+  # Same atomic-publish discipline as mac_mini_write_canonical_state: the
+  # redirected node invocation can take 1-2s to emit JSON, so writing
+  # directly to the destination exposes a truncated-file race.
+  local tmp_file="${MAC_MINI_STATE_DIR}/expected-live-release.json.tmp.$$"
   (
     cd "${MAC_MINI_ROOT}"
     node --import tsx scripts/release/read-release-fingerprint.ts
-  ) > "${MAC_MINI_STATE_DIR}/expected-live-release.json"
+  ) > "${tmp_file}"
+  mv -f "${tmp_file}" "${MAC_MINI_STATE_DIR}/expected-live-release.json"
   mac_mini_sync_release_proof_to_standalone
 }
 
