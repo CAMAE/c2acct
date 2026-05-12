@@ -214,13 +214,49 @@ export function canUseLocalReviewEmail(email: string | null | undefined, env: No
   return isLocalReviewAuthRequested(env);
 }
 
+/**
+ * AUDIT-D19-001 (Day-20 Block 2A): pattern-match for per-run unique
+ * consultant identities that `e2e/local-review-auth.spec.ts:386` creates
+ * for the admin-create-and-assignment test. The pattern is narrowly
+ * scoped to the `+admincreate-` suffix so canonical demo-bench consultants
+ * (`review.consultant+sentinel@pat.local`, `review.consultant+bridgepath@pat.local`)
+ * keep going through their existing pilot-password-hash path
+ * (auth.config.ts pilotUser fallback) and aren't reclassified as
+ * local-review users.
+ *
+ * The pattern accepts emails the e2e suite generates per-run, e.g.:
+ *   review.consultant+admincreate-1778615432-abcdef@pat.local
+ *
+ * Suffix character class is `[a-z0-9.-]` to match the e2e test's
+ * `Date.now()` + `Math.random().toString(36)` outputs without permitting
+ * characters that would slip past `normalizeEmail`'s `.trim().toLowerCase()`.
+ * Length cap of 64 keeps the match bounded so this doesn't accidentally
+ * grow into a general escape hatch.
+ *
+ * Locked in by `tests/local-review-pattern.test.ts`.
+ */
+const LOCAL_REVIEW_CONSULTANT_ADMINCREATE_PATTERN =
+  /^review\.consultant\+admincreate-[a-z0-9.-]{1,64}@pat\.local$/;
+
 export function findLocalReviewUserByEmail(email: string | null | undefined) {
   const normalized = normalizeEmail(email);
   if (!normalized) {
     return null;
   }
 
-  return LOCAL_REVIEW_USERS.find((entry) => entry.email === normalized) ?? null;
+  const exact = LOCAL_REVIEW_USERS.find((entry) => entry.email === normalized);
+  if (exact) {
+    return exact;
+  }
+
+  if (LOCAL_REVIEW_CONSULTANT_ADMINCREATE_PATTERN.test(normalized)) {
+    const canonical = LOCAL_REVIEW_USERS.find((entry) => entry.key === "consultant");
+    if (canonical) {
+      return { ...canonical, email: normalized };
+    }
+  }
+
+  return null;
 }
 
 export function getLocalReviewUsersForUi(env: NodeJS.ProcessEnv = process.env) {

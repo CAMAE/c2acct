@@ -32,15 +32,23 @@ async function main() {
   //    would have to be re-introduced via the seed scripts (none today).
   await prisma.briefEditChoice.deleteMany({});
 
-  // 2. Day-12 e2e leak: timestamped firm Companies created by the
+  // 2. Day-20 e2e leak (AUDIT-D19-001 closer): admin-created consultant
+  //    User rows the local-review-auth.spec.ts admin-create-and-assignment
+  //    test generates per-run with timestamped emails. Schema cascades
+  //    ConsultantProfile + ConsultantAssignment via the FK chain.
+  await prisma.user.deleteMany({
+    where: { email: { startsWith: "review.consultant+admincreate-" } },
+  });
+
+  // 3. Day-12 e2e leak: timestamped firm Companies created by the
   //    consultant-assigned-firm spec. Schema cascades EcosystemFirm; the
-  //    Solo: ecosystem cascade is handled in step 3.
+  //    Solo: ecosystem cascade is handled in step 4.
   await prisma.company.deleteMany({
     where: { name: { startsWith: "Consultant ", contains: " Firm " } },
   });
 
-  // 3. Orphaned Solo: ecosystems left behind after the Company delete in
-  //    step 2 (Ecosystem.vendorCompanyId is onDelete: SetNull, not Cascade).
+  // 4. Orphaned Solo: ecosystems left behind after the Company delete in
+  //    step 3 (Ecosystem.vendorCompanyId is onDelete: SetNull, not Cascade).
   //    Cascades ConsultantAssignment via Ecosystem -> Assignment Cascade.
   await prisma.ecosystem.deleteMany({
     where: { name: { startsWith: "Solo: Consultant " } },

@@ -51,7 +51,7 @@ async function expectScaffoldCheckout(page: Page) {
   await expect(page.getByLabel(/routing number|account number/i)).toHaveCount(0);
 }
 
-async function signInAsRole(page: Page, role: LocalReviewRole) {
+async function signInAsRole(page: Page, role: LocalReviewRole, overrideEmail?: string) {
   const roleRedirect =
     role === "vendor"
       ? "/vendor"
@@ -60,14 +60,21 @@ async function signInAsRole(page: Page, role: LocalReviewRole) {
         : role === "consultant"
           ? "/consultants"
           : "/admin";
+  // AUDIT-D19-001 (Day-20): the admin-create-and-assignment test passes
+  // a per-run unique consultant identity here so it doesn't share state
+  // with the consultant-flow.spec.ts "review.consultant@pat.local" test.
+  // The override flows through the credentials POST below; the pattern
+  // match in lib/auth/localReview.ts accepts review.consultant+admincreate-*
+  // emails as local-review users.
   const reviewEmail =
-    role === "vendor"
+    overrideEmail ??
+    (role === "vendor"
       ? "review.vendor@pat.local"
       : role === "firm"
         ? "review.firm@pat.local"
         : role === "consultant"
           ? "review.consultant@pat.local"
-          : "review.admin@pat.local";
+          : "review.admin@pat.local");
   const csrfResponse = await page.context().request.get("/api/auth/csrf");
   expect(csrfResponse.ok()).toBeTruthy();
   const csrfBody = (await csrfResponse.json()) as { csrfToken?: string };
@@ -377,6 +384,14 @@ test.describe("local review auth", () => {
 
     const assignedFirmName = buildUniqueFirmName("Assigned");
     const unassignedFirmName = buildUniqueFirmName("Unassigned");
+    // AUDIT-D19-001 (Day-20): per-run unique consultant identity so this
+    // test no longer shares state with consultant-flow.spec.ts's
+    // review.consultant@pat.local sign-in. The +admincreate- prefix is
+    // the only pattern the lib/auth/localReview.ts matcher accepts as a
+    // local-review user (verified by tests/local-review-pattern.test.ts).
+    const adminCreatedConsultantEmail = `review.consultant+admincreate-${Date.now()}-${Math.random()
+      .toString(36)
+      .slice(2, 8)}@pat.local`;
 
     const adminContext = await browser.newContext();
     const adminPage = await adminContext.newPage();
@@ -388,8 +403,8 @@ test.describe("local review auth", () => {
     const unassignedCompanyId = await createFirmOrganization(adminPage, unassignedFirmName);
 
     await gotoStable(adminPage, "/admin/consultants");
-    await adminPage.getByPlaceholder("consultant@company.com").fill("review.consultant@pat.local");
-    await adminPage.getByPlaceholder("Consultant name").fill("Consultant review");
+    await adminPage.getByPlaceholder("consultant@company.com").fill(adminCreatedConsultantEmail);
+    await adminPage.getByPlaceholder("Consultant name").fill("Consultant admincreate review");
     await Promise.all([
       adminPage.waitForURL("**/admin/consultants"),
       adminPage.getByRole("button", { name: "Add consultant", exact: true }).click(),
@@ -398,7 +413,7 @@ test.describe("local review auth", () => {
 
     const consultantCard = adminPage
       .locator("div.rounded-\\[22px\\].border")
-      .filter({ hasText: "review.consultant@pat.local" })
+      .filter({ hasText: adminCreatedConsultantEmail })
       .first();
     await expect(consultantCard).toBeVisible();
     await consultantCard.locator('select[name="companyId"]').selectOption({ label: assignedFirmName });
@@ -419,7 +434,7 @@ test.describe("local review auth", () => {
     const consultantContext = await browser.newContext();
     const consultantPage = await consultantContext.newPage();
 
-    await signInAsRole(consultantPage, "consultant");
+    await signInAsRole(consultantPage, "consultant", adminCreatedConsultantEmail);
     await consultantPage.waitForURL("**/consultants");
     await assertNoAuthOrRuntimeFailure(consultantPage);
     // Phase-3 Day-12 (Mock C list view): the list view shows ecosystem-level
