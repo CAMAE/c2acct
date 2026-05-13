@@ -64,7 +64,7 @@ export default function VendorBriefExecutiveSummary({ data }: { data: VendorBrie
           data-emphasis-id="confidence-callout"
           data-emphasis-active={activeEmphasis.includes("confidence-callout") ? "true" : "false"}
         >
-          Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {executiveSummary.confidenceCallout} · scoring methodology: see Section 3 (lands Day 22).
+          Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {executiveSummary.confidenceCallout} · scoring methodology: see Section 3 below.
         </span>
       </div>
 

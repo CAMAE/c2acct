@@ -152,7 +152,7 @@ export default function SelfVsMarketDelta({ data }: { data: VendorBriefData }) {
         className="mt-10 border-t border-[var(--shell-border)] pt-5 text-xs leading-6 text-[var(--shell-muted)]"
         data-testid="self-vs-market-methodology-footer"
       >
-        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {rows.length} product{rows.length === 1 ? "" : "s"} compared · hot-divergence threshold ≥10 points · scoring methodology: see Section 3 (lands Day 22).
+        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {rows.length} product{rows.length === 1 ? "" : "s"} compared · hot-divergence threshold ≥10 points · scoring methodology: see Section 3 above.
       </div>
 
       {variants.length > 0 || EMPHASIS_TARGETS.length > 0 ? (

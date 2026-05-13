@@ -134,7 +134,7 @@ function WhyFitsBlock({
                 </span>
                 <span className="text-[var(--shell-muted)]">
                   {" "}
-                  &mdash; mid-band fit (score {cell.score ?? "&mdash;"})
+                  &mdash; mid-band fit (score {cell.score ?? "—"})
                 </span>
               </span>
             </li>
@@ -160,7 +160,7 @@ function WhyFitsBlock({
             </span>
             <span className="text-[var(--shell-muted)]">
               {" "}
-              &mdash; high-band fit (score {cell.score ?? "&mdash;"})
+              &mdash; high-band fit (score {cell.score ?? "—"})
             </span>
           </span>
         </li>
@@ -458,7 +458,7 @@ export default function PerFirmStrengthsCautions({
         className="mt-10 border-t border-[var(--shell-border)] pt-5 text-xs leading-6 text-[var(--shell-muted)]"
         data-testid="strengths-cautions-methodology-footer"
       >
-        Based on responses from {data.firmCount} {firmLabel} in your network &middot; last refreshed {refreshedDate} &middot; {totalCellCount} firm &times; product cell{totalCellCount === 1 ? "" : "s"} analyzed &middot; scoring methodology: see Section 3.
+        Based on responses from {data.firmCount} {firmLabel} in your network &middot; last refreshed {refreshedDate} &middot; {totalCellCount} firm &times; product cell{totalCellCount === 1 ? "" : "s"} analyzed &middot; scoring methodology: see Section 3 above.
       </div>
     </section>
   );
