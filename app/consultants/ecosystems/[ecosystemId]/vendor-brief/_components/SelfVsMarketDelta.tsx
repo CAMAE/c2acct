@@ -66,7 +66,8 @@ export default function SelfVsMarketDelta({ data }: { data: VendorBriefData }) {
 
   return (
     <section
-      className="rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8"
+      id="section-4-positioning-visual"
+      className="scroll-mt-8 rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8"
       data-testid="self-vs-market-delta"
     >
       <div className="pat-label">Section 4 · Positioning visual</div>

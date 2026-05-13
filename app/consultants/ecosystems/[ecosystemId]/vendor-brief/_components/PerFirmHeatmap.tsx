@@ -22,26 +22,24 @@ export default function PerFirmHeatmap({ data }: { data: VendorBriefData }) {
   );
 
   return (
-    <section
-      className="rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-6"
-      data-testid="per-firm-heatmap"
-    >
-      <div className="mb-4 flex items-baseline justify-between gap-3">
-        <div>
-          <div className="pat-label">Per-firm heatmap</div>
-          <h2 className="mt-2 text-xl font-semibold tracking-tight text-[var(--shell-ink)]">
-            Firm × product review scores
-          </h2>
-        </div>
-        <div className="text-sm text-[var(--shell-muted)]">
-          {firms.length} × {products.length} = {cells.length} cell{cells.length === 1 ? "" : "s"}
-        </div>
+    <div data-testid="per-firm-heatmap">
+      <div className="mb-3 text-xs text-[var(--shell-muted)]">
+        {firms.length} firm{firms.length === 1 ? "" : "s"} &times; {products.length} product
+        {products.length === 1 ? "" : "s"} = {cells.length} cell{cells.length === 1 ? "" : "s"}
       </div>
 
       {firms.length === 0 || products.length === 0 ? (
-        <p className="text-sm text-[var(--shell-muted)]">
-          Heatmap unlocks when the vendor catalog and firm reviews both have data.
-        </p>
+        <div
+          className="border-t border-dashed border-[var(--shell-border)] pt-4"
+          data-testid="per-firm-heatmap-empty"
+        >
+          <div className="text-base font-semibold leading-snug text-[var(--shell-ink)]">
+            Awaiting capability response from firms to populate the coverage matrix.
+          </div>
+          <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+            The matrix populates when the vendor catalog and at least one firm-side review are both on file.
+          </p>
+        </div>
       ) : (
         <>
           <div className="overflow-x-auto">
@@ -111,6 +109,6 @@ export default function PerFirmHeatmap({ data }: { data: VendorBriefData }) {
           </div>
         </>
       )}
-    </section>
+    </div>
   );
 }

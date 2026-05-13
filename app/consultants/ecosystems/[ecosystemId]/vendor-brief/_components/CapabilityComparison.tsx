@@ -1,0 +1,190 @@
+import type { VendorBriefData, VendorBriefDeltaRow } from "@/lib/briefs";
+import PerFirmHeatmap from "./PerFirmHeatmap";
+
+function formatGeneratedDate(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toISOString().slice(0, 10);
+}
+
+function formatScore(value: number | null): string {
+  return value === null ? "—" : String(value);
+}
+
+function deltaCellNumber(row: VendorBriefDeltaRow): string {
+  if (row.delta === null) return "—";
+  if (row.delta === 0) return "0";
+  const sign = row.delta > 0 ? "+" : "−";
+  return `${sign}${Math.abs(row.delta)}`;
+}
+
+function deltaCellColorClass(row: VendorBriefDeltaRow): string {
+  if (row.delta === null) return "text-[var(--shell-muted)]";
+  if (row.isHotDivergence) return "text-[var(--brand-orange)]";
+  if (row.deltaDirection === "neutral") return "text-[var(--shell-muted)]";
+  return "text-[var(--brand-c2-blue)]";
+}
+
+function directionLabel(row: VendorBriefDeltaRow): string {
+  if (row.delta === null) return "Awaiting firm review";
+  if (row.isHotDivergence) return "Hot divergence";
+  if (row.deltaDirection === "neutral") return "Matched";
+  if (row.deltaDirection === "vendor-higher") return "Vendor leads";
+  if (row.deltaDirection === "firm-higher") return "Firms lead";
+  return "—";
+}
+
+function directionColorClass(row: VendorBriefDeltaRow): string {
+  if (row.delta === null) return "text-[var(--shell-muted)]";
+  if (row.isHotDivergence) return "text-[var(--brand-orange)]";
+  if (row.deltaDirection === "vendor-higher") return "text-[var(--brand-c2-blue)]";
+  if (row.deltaDirection === "firm-higher") return "text-[var(--brand-orange)]";
+  return "text-[var(--shell-muted)]";
+}
+
+function actionTitleFromRows(rows: VendorBriefDeltaRow[], vendorName: string): string {
+  if (rows.length === 0) {
+    return `Capability comparison populates once ${vendorName} publishes a product catalog.`;
+  }
+  const scored = rows.filter((r) => r.delta !== null);
+  if (scored.length === 0) {
+    return `Capability comparison populates as firm responses land — 0 of ${rows.length} capability scores in.`;
+  }
+  const leads = scored.filter(
+    (r) => r.deltaDirection === "vendor-higher" && !r.isHotDivergence
+  ).length;
+  const trails = scored.filter(
+    (r) => r.deltaDirection === "firm-higher" || r.isHotDivergence
+  ).length;
+  if (leads + trails === 0) {
+    return `Across ${scored.length} scored ${scored.length === 1 ? "capability" : "capabilities"}, ${vendorName} tracks the network average within the conversation-grade band.`;
+  }
+  if (trails === 0) {
+    return `Across ${scored.length} scored ${scored.length === 1 ? "capability" : "capabilities"}, ${vendorName} leads on ${leads} and matches the network on the rest.`;
+  }
+  if (leads === 0) {
+    return `Across ${scored.length} scored ${scored.length === 1 ? "capability" : "capabilities"}, ${vendorName} trails the network on ${trails}.`;
+  }
+  return `Across ${scored.length} scored ${scored.length === 1 ? "capability" : "capabilities"}, ${vendorName} leads on ${leads} and trails on ${trails}.`;
+}
+
+export default function CapabilityComparison({ data }: { data: VendorBriefData }) {
+  const rows = data.selfVsMarketDelta;
+  const firmLabel = data.firmCount === 1 ? "firm" : "firms";
+  const refreshedDate = formatGeneratedDate(data.generatedAt);
+  const actionTitle = actionTitleFromRows(rows, data.vendorCompanyName);
+  const firmsNeeded = Math.max(2 - data.firmCount, 1);
+
+  return (
+    <section
+      id="section-6-capability-comparison"
+      className="scroll-mt-8 rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8"
+      data-testid="capability-comparison"
+    >
+      <div className="pat-label">Section 6 &middot; Capability comparison</div>
+
+      <h2
+        className="mt-4 font-semibold tracking-tight text-[var(--shell-ink)]"
+        style={{ fontSize: "var(--pat-hero-title-size)", lineHeight: 1.15 }}
+      >
+        {actionTitle}
+      </h2>
+
+      <p className="mt-3 text-sm text-[var(--shell-muted)]">
+        Scorecard view across all capability areas. Vendor self-report vs the firm-reviewed average. Sorted by absolute delta.
+      </p>
+
+      {rows.length === 0 ? (
+        <div className="mt-8 border-t border-dashed border-[var(--shell-border)] pt-6">
+          <div
+            className="text-base font-semibold leading-snug text-[var(--shell-ink)]"
+            data-testid="capability-comparison-empty"
+          >
+            Awaiting capability response from {firmsNeeded} more firm{firmsNeeded === 1 ? "" : "s"} to surface peer-grounded comparisons.
+          </div>
+          <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+            The capability table populates once {data.vendorCompanyName} publishes a product catalog AND at least one firm-side review lands. Vendor self-report alone is not enough — peer grounding is the whole point of the section.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-8 overflow-x-auto">
+          <table
+            className="min-w-full text-left text-sm"
+            data-testid="capability-comparison-table"
+          >
+            <thead>
+              <tr className="border-b border-[var(--shell-border)] text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+                <th scope="col" className="py-3 pr-4">
+                  Capability area
+                </th>
+                <th scope="col" className="py-3 pr-4 text-right tabular-nums">
+                  Vendor self-report
+                </th>
+                <th scope="col" className="py-3 pr-4 text-right tabular-nums">
+                  Firm avg
+                </th>
+                <th scope="col" className="py-3 pr-4 text-right tabular-nums">
+                  Delta
+                </th>
+                <th scope="col" className="py-3">
+                  Direction
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--shell-border)]">
+              {rows.map((row) => (
+                <tr
+                  key={row.productId}
+                  data-testid="capability-row"
+                  data-product-id={row.productId}
+                  data-hot-divergence={row.isHotDivergence ? "1" : "0"}
+                  className="align-baseline"
+                >
+                  <td className="py-4 pr-4">
+                    <div className="text-base font-semibold text-[var(--shell-ink)]">
+                      {row.productName}
+                    </div>
+                    <div className="mt-1 text-xs text-[var(--shell-muted)]">
+                      {row.firmReviewCount} firm review{row.firmReviewCount === 1 ? "" : "s"}
+                    </div>
+                  </td>
+                  <td className="py-4 pr-4 text-right text-base font-semibold tabular-nums text-[var(--shell-ink)]">
+                    {formatScore(row.vendorSelfReported)}
+                  </td>
+                  <td className="py-4 pr-4 text-right text-base font-semibold tabular-nums text-[var(--shell-ink)]">
+                    {formatScore(row.firmReviewedAverage)}
+                  </td>
+                  <td
+                    className={`py-4 pr-4 text-right text-2xl font-bold tabular-nums tracking-tight ${deltaCellColorClass(row)}`}
+                  >
+                    {deltaCellNumber(row)}
+                  </td>
+                  <td className={`py-4 text-sm font-medium ${directionColorClass(row)}`}>
+                    {directionLabel(row)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div className="mt-10 border-t border-dashed border-[var(--shell-border)] pt-6">
+        <div className="pat-label text-[11px]">Per-firm coverage matrix</div>
+        <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+          Firm-by-product cells using the Section 3 bands (high &ge; 75, mid 50&ndash;74, low &lt; 50, not yet reviewed). Use this view to spot the firms that haven&apos;t yet reviewed a given capability.
+        </p>
+        <div className="mt-4">
+          <PerFirmHeatmap data={data} />
+        </div>
+      </div>
+
+      <div
+        className="mt-10 border-t border-[var(--shell-border)] pt-5 text-xs leading-6 text-[var(--shell-muted)]"
+        data-testid="capability-comparison-methodology-footer"
+      >
+        Based on responses from {data.firmCount} {firmLabel} in your network &middot; last refreshed {refreshedDate} &middot; {rows.length} capability {rows.length === 1 ? "area" : "areas"} tracked &middot; hot-divergence threshold &ge; 10 points &middot; scoring methodology: see Section 3 above.
+      </div>
+    </section>
+  );
+}

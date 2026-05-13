@@ -177,7 +177,8 @@ export default function ActionRoadmap({ data }: { data: VendorBriefData }) {
 
   return (
     <section
-      className="rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8"
+      id="section-7-action-roadmap"
+      className="scroll-mt-8 rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8"
       data-testid="action-roadmap"
     >
       <div className="pat-label">Section 7 · Action roadmap</div>

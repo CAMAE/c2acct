@@ -21,7 +21,8 @@ export default function VendorBriefExecutiveSummary({ data }: { data: VendorBrie
 
   return (
     <section
-      className="rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8"
+      id="section-1-executive-summary"
+      className="scroll-mt-8 rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8"
       data-testid="vendor-brief-executive-summary"
     >
       <div className="pat-label">Section 1 · Executive summary</div>
