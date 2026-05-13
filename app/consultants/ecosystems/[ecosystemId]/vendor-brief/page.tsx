@@ -3,7 +3,6 @@ import { AdminPageIntro } from "@/app/components/admin/AdminShell";
 import { requireConsultantSession } from "@/lib/consultantAccess";
 import { getVendorBriefForConsultant } from "@/lib/briefs";
 import ActionRoadmap from "./_components/ActionRoadmap";
-import BriefMethodology from "./_components/BriefMethodology";
 import BriefTOC from "./_components/BriefTOC";
 import CapabilityComparison from "./_components/CapabilityComparison";
 import EvaluationMethodology from "./_components/EvaluationMethodology";
@@ -52,7 +51,6 @@ export default async function VendorBriefPage({
         <PerFirmStrengthsCautions data={brief} />
         <CapabilityComparison data={brief} />
         <ActionRoadmap data={brief} />
-        <BriefMethodology data={brief} />
       </div>
     </div>
   );

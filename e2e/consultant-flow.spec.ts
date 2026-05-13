@@ -221,7 +221,7 @@ test.describe("consultant flow", () => {
     await expect(page.locator('[data-testid="heatmap-cell"]').first()).toBeVisible();
     await expect(page.locator('[data-testid="roadmap-panel"]').first()).toBeVisible();
     const methodologyText = await page
-      .locator('[data-testid="brief-methodology"]')
+      .locator('[data-testid="evaluation-methodology"]')
       .innerText();
     expect(methodologyText.trim().length).toBeGreaterThan(0);
 
