@@ -12,89 +12,128 @@ import type {
 const SECTION_KEY = "vendor.action-roadmap" as const;
 const EMPHASIS_TARGETS = ["bullet-commitment", "thirty-day", "sixty-day", "ninety-day"];
 
-const SIGNAL_BADGE_CLASSES: Record<VendorBriefSignalStrength, string> = {
-  high: "bg-[var(--brand-accent)] text-white",
-  medium: "border border-[var(--brand-accent)] text-[var(--brand-accent)]",
-  low: "border border-[var(--shell-border)] text-[var(--shell-muted)]",
+const SIGNAL_LABEL: Record<VendorBriefSignalStrength, string> = {
+  high: "High signal",
+  medium: "Medium signal",
+  low: "Low signal",
 };
 
-function RoadmapItemCard({
+const SIGNAL_COLOR: Record<VendorBriefSignalStrength, string> = {
+  high: "text-[var(--brand-c2-blue)]",
+  medium: "text-[var(--shell-ink)]",
+  low: "text-[var(--shell-muted)]",
+};
+
+function formatGeneratedDate(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toISOString().slice(0, 10);
+}
+
+function roadmapActionTitle(
+  vendorName: string,
+  total: number,
+  q1Count: number,
+  q2Count: number
+): string {
+  if (total === 0) {
+    return `No commitments surfaced from current briefings — actions populate once firms complete capability responses.`;
+  }
+  const nearTerm = q1Count + q2Count;
+  if (nearTerm >= 3) {
+    return `${nearTerm} moves ${vendorName} can make in the next two quarters to close its top capability gaps.`;
+  }
+  if (nearTerm > 0) {
+    return `${nearTerm} near-term move${nearTerm === 1 ? "" : "s"} for ${vendorName} across Q1–Q2, with deeper work scheduled into Q3.`;
+  }
+  return `${total} commitment${total === 1 ? "" : "s"} queued for ${vendorName} across Q3 once the near-term board clears.`;
+}
+
+function RoadmapItem({
   item,
   totalFirms,
 }: {
   item: VendorBriefRoadmapItem;
   totalFirms: number;
 }) {
+  const firmFraction =
+    totalFirms > 0
+      ? `${item.affectedFirmIds.length} of ${totalFirms} firm${totalFirms === 1 ? "" : "s"}`
+      : "—";
   return (
-    <div
-      data-testid="roadmap-item"
-      data-signal-strength={item.signalStrength}
-      className="rounded-[14px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-3"
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="text-sm font-medium text-[var(--shell-ink)]">{item.text}</div>
-        <span
-          className={`shrink-0 rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] ${SIGNAL_BADGE_CLASSES[item.signalStrength]}`}
-        >
-          {item.signalStrength}
-        </span>
+    <div data-testid="roadmap-item" data-signal-strength={item.signalStrength} className="py-4">
+      <div className="text-base font-semibold leading-snug text-[var(--shell-ink)]">
+        {item.text}
       </div>
       {item.detail ? (
-        <div className="mt-2 text-xs leading-5 text-[var(--shell-muted)]">
-          {item.detail}
-        </div>
+        <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{item.detail}</p>
       ) : null}
       <div className="mt-2 text-xs text-[var(--shell-muted)]">
-        {item.affectedFirmIds.length} of {totalFirms} firm
-        {totalFirms === 1 ? "" : "s"}
+        <span className={`font-semibold uppercase tracking-[0.14em] ${SIGNAL_COLOR[item.signalStrength]}`}>
+          {SIGNAL_LABEL[item.signalStrength]}
+        </span>
+        <span className="mx-2 text-[var(--shell-border)]">·</span>
+        {firmFraction}
       </div>
     </div>
   );
 }
 
-function RoadmapPanel({
-  title,
+function AwaitingItem({ firmsNeeded }: { firmsNeeded: number }) {
+  return (
+    <div data-testid="roadmap-item" data-signal-strength="awaiting" className="py-4">
+      <div className="text-base font-semibold leading-snug text-[var(--shell-ink)]">
+        Awaiting capability response from {firmsNeeded} more firm{firmsNeeded === 1 ? "" : "s"} to surface peer-grounded actions.
+      </div>
+      <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+        The action roadmap pads with this honest credibility frame rather than padding with low-signal generics. Submissions raise the surface count.
+      </p>
+    </div>
+  );
+}
+
+function Quarter({
+  label,
   emphasisId,
   items,
   totalFirms,
   isEmphasized,
   reorderable,
   data,
+  fallbackText,
 }: {
-  title: string;
+  label: string;
   emphasisId: string;
   items: VendorBriefRoadmapItem[];
   totalFirms: number;
   isEmphasized: boolean;
   reorderable: boolean;
   data: VendorBriefData;
+  fallbackText: string;
 }) {
   const activeOrder = data.editChoices.ordering[SECTION_KEY];
-
   const reorderItems: ReorderItem[] = items.map((item) => ({
     id: item.itemId,
     label: item.text,
-    content: <RoadmapItemCard item={item} totalFirms={totalFirms} />,
+    content: <RoadmapItem item={item} totalFirms={totalFirms} />,
   }));
 
   return (
     <div
-      className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4"
       data-testid="roadmap-panel"
-      data-window-title={title}
+      data-window-title={label}
       data-emphasis-id={emphasisId}
       data-emphasis-active={isEmphasized ? "true" : "false"}
+      className="pt-6"
     >
-      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-        {title}
+      <div className="pat-label text-[11px]">{label}</div>
+      <div className="mt-3 text-sm font-medium text-[var(--shell-ink)]">
+        {items.length === 0
+          ? fallbackText
+          : `${items.length} action${items.length === 1 ? "" : "s"}`}
       </div>
-      <div className="mt-2 text-sm font-semibold text-[var(--shell-ink)]">
-        {items.length} action{items.length === 1 ? "" : "s"}
-      </div>
-      {items.length === 0 ? (
-        <p className="mt-3 text-sm text-[var(--shell-muted)]">No actions in this window.</p>
-      ) : reorderable ? (
-        <div className="mt-3">
+      {items.length === 0 ? null : reorderable ? (
+        <div className="mt-2 divide-y divide-[var(--shell-border)]">
           <ReorderHandle
             briefKind="vendor"
             briefId={data.vendorCompanyId}
@@ -105,13 +144,11 @@ function RoadmapPanel({
           />
         </div>
       ) : (
-        <ul className="mt-3 space-y-3">
+        <div className="divide-y divide-[var(--shell-border)]">
           {items.map((item) => (
-            <li key={item.itemId}>
-              <RoadmapItemCard item={item} totalFirms={totalFirms} />
-            </li>
+            <RoadmapItem key={item.itemId} item={item} totalFirms={totalFirms} />
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
@@ -121,72 +158,119 @@ export default function ActionRoadmap({ data }: { data: VendorBriefData }) {
   const variants = data.editVariants[SECTION_KEY] ?? [];
   const activeVariantId = data.editChoices.variants[SECTION_KEY];
   const activeEmphasis = data.editChoices.emphasis[SECTION_KEY] ?? [];
+  const firmLabel = data.firmCount === 1 ? "firm" : "firms";
+  const refreshedDate = formatGeneratedDate(data.generatedAt);
+
+  const q1 = data.actionRoadmap.thirtyDay;
+  const q2 = data.actionRoadmap.sixtyDay;
+  const q3 = data.actionRoadmap.ninetyDay;
+  const totalActions = q1.length + q2.length + q3.length;
+  const padWithAwaiting = totalActions < 2;
+  const firmsNeeded = Math.max(2 - data.firmCount, 1);
+
+  const actionTitle = roadmapActionTitle(
+    data.vendorCompanyName,
+    totalActions,
+    q1.length,
+    q2.length
+  );
 
   return (
     <section
-      className="rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-6"
+      className="rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8"
       data-testid="action-roadmap"
     >
-      <div className="mb-4">
-        <div className="pat-label">Action roadmap</div>
-        <h2 className="mt-2 text-xl font-semibold tracking-tight text-[var(--shell-ink)]">
-          What this ecosystem is committing to next
-        </h2>
-      </div>
+      <div className="pat-label">Section 7 · Action roadmap</div>
 
-      {variants.length > 0 ? (
-        <div className="mb-4">
-          <PhrasingVariantPicker
-            briefKind="vendor"
-            briefId={data.vendorCompanyId}
-            ecosystemId={data.ecosystemId}
-            sectionKey={SECTION_KEY}
-            variants={variants}
-            activeVariantId={activeVariantId}
-          />
-        </div>
-      ) : null}
+      <h2
+        className="mt-4 font-semibold tracking-tight text-[var(--shell-ink)]"
+        style={{ fontSize: "var(--pat-hero-title-size)", lineHeight: 1.15 }}
+      >
+        {actionTitle}
+      </h2>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <RoadmapPanel
-          title="30 days"
+      <p className="mt-3 text-sm text-[var(--shell-muted)]">
+        Quarterly cadence; near-term commitments at the top. 30/60/90-day sub-rhythm preserved inside each quarter for the existing template outputs.
+      </p>
+
+      <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
+        <Quarter
+          label="Q1 · near-term (≤30 days)"
           emphasisId="thirty-day"
-          items={data.actionRoadmap.thirtyDay}
+          items={q1}
           totalFirms={data.firmCount}
           isEmphasized={activeEmphasis.includes("thirty-day")}
           reorderable={true}
           data={data}
+          fallbackText="No Q1 commitments surfaced."
         />
-        <RoadmapPanel
-          title="60 days"
+        <Quarter
+          label="Q2 · next quarter (≤60 days)"
           emphasisId="sixty-day"
-          items={data.actionRoadmap.sixtyDay}
+          items={q2}
           totalFirms={data.firmCount}
           isEmphasized={activeEmphasis.includes("sixty-day")}
           reorderable={false}
           data={data}
+          fallbackText="No Q2 commitments surfaced."
         />
-        <RoadmapPanel
-          title="90 days"
+        <Quarter
+          label="Q3 · long-range (≤90 days)"
           emphasisId="ninety-day"
-          items={data.actionRoadmap.ninetyDay}
+          items={q3}
           totalFirms={data.firmCount}
           isEmphasized={activeEmphasis.includes("ninety-day")}
           reorderable={false}
           data={data}
+          fallbackText="No Q3 commitments surfaced."
         />
+        <div className="pt-6" data-testid="roadmap-panel" data-window-title="Q4 · post-pilot">
+          <div className="pat-label text-[11px]">Q4 · post-pilot</div>
+          <div className="mt-3 text-sm font-medium text-[var(--shell-ink)]">
+            Unlocks after the June 1 pilot cohort completes round-one capability responses.
+          </div>
+          <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+            Q4 actions surface from cross-firm pattern recognition that requires more submissions than today&apos;s sample carries.
+          </p>
+        </div>
       </div>
 
-      <div className="mt-4">
-        <EmphasisToggle
-          briefKind="vendor"
-          briefId={data.vendorCompanyId}
-          ecosystemId={data.ecosystemId}
-          sectionKey={SECTION_KEY}
-          targetElementIds={EMPHASIS_TARGETS}
-          activeEmphasisIds={activeEmphasis}
-        />
+      {padWithAwaiting && totalActions > 0 ? (
+        <div className="mt-4 border-t border-dashed border-[var(--shell-border)] pt-4">
+          <AwaitingItem firmsNeeded={firmsNeeded} />
+        </div>
+      ) : null}
+
+      <div
+        className="mt-10 border-t border-[var(--shell-border)] pt-5 text-xs leading-6 text-[var(--shell-muted)]"
+        data-testid="action-roadmap-methodology-footer"
+      >
+        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {totalActions} commitment{totalActions === 1 ? "" : "s"} aggregated across Q1–Q3 · signal strength reflects firm-count consensus · scoring methodology: see Section 3 (lands Day 22).
       </div>
+
+      {variants.length > 0 || EMPHASIS_TARGETS.length > 0 ? (
+        <div className="mt-4 space-y-3 border-t border-dashed border-[var(--shell-border)] pt-4">
+          <div className="pat-label text-[10px]">Editorial controls</div>
+          {variants.length > 0 ? (
+            <PhrasingVariantPicker
+              briefKind="vendor"
+              briefId={data.vendorCompanyId}
+              ecosystemId={data.ecosystemId}
+              sectionKey={SECTION_KEY}
+              variants={variants}
+              activeVariantId={activeVariantId}
+            />
+          ) : null}
+          <EmphasisToggle
+            briefKind="vendor"
+            briefId={data.vendorCompanyId}
+            ecosystemId={data.ecosystemId}
+            sectionKey={SECTION_KEY}
+            targetElementIds={EMPHASIS_TARGETS}
+            activeEmphasisIds={activeEmphasis}
+          />
+        </div>
+      ) : null}
     </section>
   );
 }

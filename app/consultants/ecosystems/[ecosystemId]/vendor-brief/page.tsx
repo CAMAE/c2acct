@@ -28,7 +28,7 @@ export default async function VendorBriefPage({
 
   return (
     <div
-      className="space-y-8"
+      className="space-y-12"
       data-testid="vendor-brief-page"
       data-brief-id={brief.briefId}
     >
