@@ -18,7 +18,6 @@ const TOC_ENTRIES: readonly TOCEntry[] = [
     id: "section-5-strengths-cautions",
     number: 5,
     label: "Strengths / cautions",
-    comingSoon: "Day 23",
   },
   { id: "section-6-capability-comparison", number: 6, label: "Capability comparison" },
   { id: "section-7-action-roadmap", number: 7, label: "Action roadmap" },

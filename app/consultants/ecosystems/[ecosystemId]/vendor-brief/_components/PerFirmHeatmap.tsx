@@ -1,11 +1,10 @@
 import type { VendorBriefData, VendorBriefHeatmapBand } from "@/lib/briefs";
 
 const BAND_CELL_CLASSES: Record<VendorBriefHeatmapBand, string> = {
-  high: "bg-[var(--brand-accent)] text-white",
+  high: "bg-[var(--brand-c2-blue)] text-white",
   mid: "bg-[var(--shell-panel-soft)] text-[var(--shell-ink)] border border-[var(--shell-border)]",
-  low: "bg-white text-[var(--shell-muted)] border border-[var(--brand-accent)]",
-  unreviewed:
-    "bg-[var(--shell-panel-soft)] text-[var(--shell-muted)] border border-dashed border-[var(--shell-border)]",
+  low: "bg-white text-[var(--shell-muted)] border border-dashed border-[var(--shell-border)]",
+  unreviewed: "bg-white text-[var(--shell-muted)]",
 };
 
 const BAND_LEGEND: Array<{ band: VendorBriefHeatmapBand; label: string }> = [

@@ -33,6 +33,10 @@ const roleCases = [
 test.describe("public PAT onboarding", () => {
   for (const role of roleCases) {
     test(`routes ${role.audience} from homepage to onboarding and first assessment sign-in`, async ({ page }) => {
+      test.skip(
+        role.audience === "user" && !process.env.PAT_ENABLE_INDIVIDUAL_SURFACES,
+        "Individual onboarding surface requires PAT_ENABLE_INDIVIDUAL_SURFACES=1 (pilot flag off by default)."
+      );
       await page.goto("/");
 
       await expect(page.getByRole("heading", { name: "Choose your path", exact: true }).first()).toBeVisible();

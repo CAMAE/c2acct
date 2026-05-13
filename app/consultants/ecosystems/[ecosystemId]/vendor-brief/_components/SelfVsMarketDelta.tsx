@@ -19,12 +19,15 @@ function bigNumber(row: VendorBriefDeltaRow): string {
 }
 
 function bigNumberLabel(row: VendorBriefDeltaRow): string {
-  if (row.delta === null) return "No comparable score";
+  if (row.delta === null) return "Awaiting firm review";
   if (row.deltaDirection === "neutral") return "Matched";
   if (row.deltaDirection === "vendor-higher") return "Vendor higher";
   if (row.deltaDirection === "firm-higher") return "Firms higher";
   return "—";
 }
+
+const AWAITING_REVIEW_HELPER =
+  "Score unlocks at N≥2 firm responses for this product.";
 
 function bigNumberColorClass(row: VendorBriefDeltaRow): string {
   if (row.delta === null) return "text-[var(--shell-muted)]";
@@ -116,17 +119,27 @@ export default function SelfVsMarketDelta({ data }: { data: VendorBriefData }) {
                 >
                   {bigNumber(row)}
                 </div>
-                <div className="flex flex-wrap items-baseline gap-3">
-                  <div className="text-sm font-medium text-[var(--shell-ink)]">
-                    {bigNumberLabel(row)}
+                <div className="flex flex-col gap-1">
+                  <div className="flex flex-wrap items-baseline gap-3">
+                    <div className="text-sm font-medium text-[var(--shell-ink)]">
+                      {bigNumberLabel(row)}
+                    </div>
+                    {row.isHotDivergence ? (
+                      <span
+                        className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-orange)]"
+                        data-testid="hot-divergence-flag"
+                      >
+                        Hot divergence
+                      </span>
+                    ) : null}
                   </div>
-                  {row.isHotDivergence ? (
-                    <span
-                      className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-orange)]"
-                      data-testid="hot-divergence-flag"
+                  {row.delta === null ? (
+                    <div
+                      className="text-xs leading-5 text-[var(--shell-muted)]"
+                      data-testid="delta-row-awaiting-helper"
                     >
-                      Hot divergence
-                    </span>
+                      {AWAITING_REVIEW_HELPER}
+                    </div>
                   ) : null}
                 </div>
               </div>

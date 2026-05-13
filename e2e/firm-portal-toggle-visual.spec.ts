@@ -133,6 +133,17 @@ test.describe("firm portal selector visual proof", () => {
     await gotoStable(firmPage, "/firm");
     await assertNoAuthOrRuntimeFailure(firmPage);
 
+    // AUDIT-D21-001(c) closure: disable the 160ms background-color transition
+    // on toggle buttons so getComputedStyle reads the final resolved color
+    // rather than a mid-transition interpolated value. Without this, snapshot
+    // reads taken right after click can return e.g. rgb(34,34,34) while the
+    // background animates from white(rgb(255,255,255)) to --shell-ink
+    // (rgb(32,32,32)) over 160ms. Visual snapshots in screenshots() also
+    // become deterministic.
+    await firmPage.addStyleTag({
+      content: ".pat-mode-toggle__option { transition: none !important; }",
+    });
+
     const workspaceButton = getToggleButton(firmPage, "Workspace");
     const meetPatButton = getToggleButton(firmPage, "Meet PAT");
 
@@ -180,6 +191,9 @@ test.describe("firm portal selector visual proof", () => {
     await signInAsRole(vendorPage, "vendor");
     await gotoStable(vendorPage, "/vendor/product-assessment");
     await assertNoAuthOrRuntimeFailure(vendorPage);
+    await vendorPage.addStyleTag({
+      content: ".pat-mode-toggle__option { transition: none !important; }",
+    });
     await expect(vendorPage.getByText("Existing products still in progress", { exact: true })).toBeVisible();
 
     const vendorExisting = await readToggleSnapshot(getToggleButton(vendorPage, "Existing"), "Existing");

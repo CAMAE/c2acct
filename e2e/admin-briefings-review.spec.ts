@@ -38,6 +38,10 @@ async function gotoStable(page: Page, url: string) {
 }
 
 test("admin briefing routes render board-ready structure from live PAT data", async ({ page }) => {
+  test.skip(
+    !process.env.PAT_ENABLE_INDIVIDUAL_SURFACES,
+    "Individual layer asserts require PAT_ENABLE_INDIVIDUAL_SURFACES=1 (pilot flag off by default)."
+  );
   await signInAsAdmin(page);
 
   await gotoStable(page, "/admin/briefings");

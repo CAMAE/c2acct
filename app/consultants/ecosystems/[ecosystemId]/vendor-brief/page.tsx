@@ -8,6 +8,7 @@ import BriefTOC from "./_components/BriefTOC";
 import CapabilityComparison from "./_components/CapabilityComparison";
 import EvaluationMethodology from "./_components/EvaluationMethodology";
 import MarketContext from "./_components/MarketContext";
+import PerFirmStrengthsCautions from "./_components/PerFirmStrengthsCautions";
 import SelfVsMarketDelta from "./_components/SelfVsMarketDelta";
 import VendorBriefExecutiveSummary from "./_components/VendorBriefExecutiveSummary";
 
@@ -48,6 +49,7 @@ export default async function VendorBriefPage({
         <MarketContext data={brief} />
         <EvaluationMethodology data={brief} />
         <SelfVsMarketDelta data={brief} />
+        <PerFirmStrengthsCautions data={brief} />
         <CapabilityComparison data={brief} />
         <ActionRoadmap data={brief} />
         <BriefMethodology data={brief} />
