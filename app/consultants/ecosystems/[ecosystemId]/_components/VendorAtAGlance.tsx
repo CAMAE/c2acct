@@ -29,7 +29,7 @@ export default function VendorAtAGlance({ data }: { data: EcosystemDetailData })
             <dd className="text-sm font-semibold text-[var(--shell-ink)]">
               {glance.strongestProduct.name}{" "}
               <span
-                className="ml-1 inline-flex items-center rounded-md bg-[var(--brand-accent)] px-2 py-0.5 text-xs font-semibold text-white"
+                className="ml-1 inline-flex items-center rounded-md bg-[var(--brand-c2-blue)] px-2 py-0.5 text-xs font-semibold text-white"
                 aria-label={`firm-review average ${formatScoreBadge(glance.strongestProduct.score)}`}
               >
                 {formatScoreBadge(glance.strongestProduct.score)}
@@ -71,7 +71,7 @@ export default function VendorAtAGlance({ data }: { data: EcosystemDetailData })
               data-bucket-covered={cell.covered ? "1" : "0"}
               className={
                 cell.covered
-                  ? "rounded-md bg-[var(--brand-accent)] px-2 py-1.5 text-xs font-semibold text-white"
+                  ? "rounded-md bg-[var(--brand-c2-blue)] px-2 py-1.5 text-xs font-semibold text-white"
                   : "rounded-md border border-[var(--shell-border)] px-2 py-1.5 text-xs text-[var(--shell-muted)]"
               }
               title={
@@ -93,7 +93,7 @@ export default function VendorAtAGlance({ data }: { data: EcosystemDetailData })
         <Link
           href={`/consultants/ecosystems/${data.ecosystemId}/vendor-brief`}
           data-testid="vendor-brief-link"
-          className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--brand-accent)] hover:underline"
+          className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--brand-c2-blue)] hover:underline"
         >
           View full vendor brief
           <span aria-hidden="true">›</span>

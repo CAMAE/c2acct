@@ -134,9 +134,9 @@ export default function FiveModuleRadar({ data }: { data: FirmBriefData }) {
           {/* Firm shape — solid, brand accent fill at low opacity */}
           <path
             d={firmPath}
-            fill="var(--brand-accent)"
+            fill="var(--brand-c2-blue)"
             fillOpacity="0.18"
-            stroke="var(--brand-accent)"
+            stroke="var(--brand-c2-blue)"
             strokeWidth="2"
           />
 

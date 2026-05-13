@@ -17,9 +17,9 @@ const STATUS_LABEL: Record<FirmBriefStackFitStatus, string> = {
 };
 
 const STATUS_BADGE_CLASS: Record<FirmBriefStackFitStatus, string> = {
-  strong: "bg-[var(--brand-accent)] text-white",
+  strong: "bg-[var(--brand-c2-blue)] text-white",
   aligned: "border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] text-[var(--shell-ink)]",
-  gap: "border border-[var(--brand-accent)] text-[var(--brand-accent)]",
+  gap: "border border-[var(--brand-orange)] text-[var(--brand-orange)]",
   "not-reviewed": "border border-dashed border-[var(--shell-border)] text-[var(--shell-muted)]",
 };
 
@@ -120,7 +120,7 @@ export default function StackFitAnalysis({ data }: { data: FirmBriefData }) {
                   <td className="py-2 pr-3 text-[var(--shell-muted)]">
                     {deltaLabel(row)}
                     {row.isHotDivergence ? (
-                      <span className="ml-2 inline-flex items-center rounded-md border border-[var(--brand-accent)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--brand-accent)]">
+                      <span className="ml-2 inline-flex items-center rounded-md border border-[var(--brand-orange)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--brand-orange)]">
                         Hot
                       </span>
                     ) : null}

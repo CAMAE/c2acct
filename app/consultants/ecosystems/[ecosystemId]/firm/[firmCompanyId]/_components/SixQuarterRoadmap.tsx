@@ -20,8 +20,8 @@ const SOURCE_LABEL: Record<FirmBriefRoadmapAction["source"], string> = {
 };
 
 const SOURCE_CHIP_CLASS: Record<FirmBriefRoadmapAction["source"], string> = {
-  "next-action": "bg-[var(--brand-accent)] text-white",
-  "stack-gap": "border border-[var(--brand-accent)] text-[var(--brand-accent)]",
+  "next-action": "bg-[var(--brand-c2-blue)] text-white",
+  "stack-gap": "border border-[var(--brand-orange)] text-[var(--brand-orange)]",
   "module-completion":
     "border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] text-[var(--shell-ink)]",
   "peer-gap": "border border-[var(--shell-border)] text-[var(--shell-muted)]",
@@ -91,7 +91,7 @@ function QuarterColumn({
     <div
       className={`rounded-[18px] border ${
         quarter.isCurrent
-          ? "border-[var(--brand-accent)] bg-[var(--shell-panel-soft)]"
+          ? "border-[var(--brand-c2-blue)] bg-[var(--shell-panel-soft)]"
           : "border-[var(--shell-border)] bg-[var(--shell-panel-soft)]"
       } p-4`}
       data-testid="roadmap-quarter"

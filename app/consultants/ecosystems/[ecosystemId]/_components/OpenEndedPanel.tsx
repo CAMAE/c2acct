@@ -31,7 +31,7 @@ export default function OpenEndedPanel({ data }: { data: EcosystemDetailData }) 
             <blockquote
               key={response.responseId}
               data-testid="openended-response"
-              className="border-l-4 border-[var(--brand-accent)] py-2 pl-4"
+              className="border-l-4 border-[var(--brand-c2-blue)] py-2 pl-4"
             >
               <p className="text-sm leading-6 text-[var(--shell-ink)]">&ldquo;{response.response}&rdquo;</p>
               <footer className="mt-1 text-xs text-[var(--shell-muted)]">
@@ -43,7 +43,7 @@ export default function OpenEndedPanel({ data }: { data: EcosystemDetailData }) 
             <button
               type="button"
               onClick={() => setShowAll(true)}
-              className="text-sm font-semibold text-[var(--brand-accent)] hover:underline"
+              className="text-sm font-semibold text-[var(--brand-c2-blue)] hover:underline"
             >
               Show all ({total})
             </button>
