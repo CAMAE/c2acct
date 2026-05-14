@@ -548,11 +548,35 @@ export async function seedVendorProductAssessment(client: DemoSeedClient, input:
     profile,
     answers,
   });
+  // Day-27 P1j (RK6 / R145): rotate 12 template variants per question so the
+  // "Recent firm responses" surface shows varied text instead of the same
+  // sentence repeated across every response. Rotation is deterministic
+  // (questionId modulo template count) so re-seeds are stable. The slot fills
+  // pull from the product's risk flags + operating-model-fit so each variant
+  // still grounds in the product's profile.
+  const openEndedTemplates = [
+    (riskFlag: string) => `${product.name} is strongest where ${product.profile.operatingModelFit.toLowerCase()} The current review evidence flags ${riskFlag} as the condition to monitor.`,
+    (riskFlag: string) => `Across our use of ${product.name}, the integration depth has held up over the rollout period. ${riskFlag.charAt(0).toUpperCase() + riskFlag.slice(1)} remains the open question for the next quarter.`,
+    (riskFlag: string) => `${product.name} delivers on the core ${product.profile.operatingModelFit.toLowerCase().split(" ")[0]} promise. Where it shows wear is on ${riskFlag}, which we've worked around but track quarterly.`,
+    (riskFlag: string) => `We chose ${product.name} primarily for operational fit. ${product.profile.operatingModelFit} The current evidence on ${riskFlag} suggests we should keep monitoring.`,
+    (riskFlag: string) => `The reliability of ${product.name} has been a positive surprise. The team flagged ${riskFlag} as a condition to revisit at renewal.`,
+    (riskFlag: string) => `${product.name}'s ${product.profile.operatingModelFit.toLowerCase().split(" ").slice(0, 4).join(" ")} aligns with how we operate. The single watch-item is ${riskFlag}.`,
+    (riskFlag: string) => `After working with ${product.name}, the team has consistent confidence in the platform's day-to-day execution. Forward attention belongs on ${riskFlag}.`,
+    (riskFlag: string) => `${product.name} fits our operating context. ${product.profile.operatingModelFit} Open evidence on ${riskFlag} stays on the review docket.`,
+    (riskFlag: string) => `The strongest signal from our ${product.name} deployment is around integration steadiness. The opening for improvement is ${riskFlag}.`,
+    (riskFlag: string) => `${product.name} earns its keep on the operating-model fit dimension. The team's call-out on ${riskFlag} is the only flag we're carrying forward.`,
+    (riskFlag: string) => `We continue to see value from ${product.name}. The structural risk we monitor is ${riskFlag}; everything else tracks our pre-rollout expectations.`,
+    (riskFlag: string) => `${product.name} reliably supports ${product.profile.operatingModelFit.toLowerCase().split(" ").slice(0, 5).join(" ")} The condition that remains uncertain is ${riskFlag}.`,
+  ];
   const openEndedResponses = Object.fromEntries(
-    openEndedPlan.map((question, index) => [
-      question.id,
-      `${product.name} is strongest where ${product.profile.operatingModelFit.toLowerCase()} The current review evidence flags ${product.riskFlags[index % product.riskFlags.length] ?? "implementation governance"} as the condition to monitor.`,
-    ])
+    openEndedPlan.map((question, index) => {
+      const riskFlag = product.riskFlags[index % product.riskFlags.length] ?? "implementation governance";
+      // Deterministic rotation: questionId hash modulo template-count. Falls
+      // back to position-based rotation if the question id is short or empty.
+      const idSum = question.id.split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+      const template = openEndedTemplates[(idSum + index) % openEndedTemplates.length] ?? openEndedTemplates[0];
+      return [question.id, template(riskFlag)];
+    })
   );
 
   const createdAt = demoDate(24 + input.productIndex);

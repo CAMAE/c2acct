@@ -129,7 +129,12 @@ describe("membership page contracts", () => {
     expect(model.summary.processingNote).toMatch(/No live payment processor/i);
     expect(model.paymentPanels.card.fields).not.toContain("Card number");
     expect(model.paymentPanels.card.fields).not.toContain("Security code");
-    expect(model.paymentPanels.card.fields).toContain("Billing contact name");
+    // Day-27 P1e (R137): "Billing contact name" + "Billing contact email"
+    // dropped from the card method panel because the main checkout form
+    // already collects them. Card panel now only carries the future-provider
+    // + internal-note slots.
+    expect(model.paymentPanels.card.fields).not.toContain("Billing contact name");
+    expect(model.paymentPanels.card.fields).toContain("Future provider customer reference");
     expect(model.paymentPanels.bank.fields).toContain("Future bank customer reference");
     expect(model.paymentPanels.paypal.detail).toMatch(/does not open a PayPal session/i);
     expect(model.paymentPanels.stripe.detail).toMatch(/does not store raw card numbers/i);

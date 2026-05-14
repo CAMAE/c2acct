@@ -222,63 +222,38 @@ export default function MembershipCheckoutShell({
               {model.billing.truthLabel}
             </span>
           </div>
+          <p className="mt-3 text-xs text-[var(--shell-muted)]">
+            Review your order and submit. Confirmation arrives by email.
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-3 border-t border-[var(--shell-border)] pt-5">
+            <Link className="pat-button-secondary" href={model.navigation.membershipHref}>
+              {model.navigation.membershipLabel}
+            </Link>
+            <Link className="pat-button-secondary" href={model.navigation.workspaceHref}>
+              {model.navigation.workspaceLabel}
+            </Link>
+            {model.billingPortal.enabled ? (
+              <form action="/api/billing/portal" method="post" className="grid gap-3">
+                <input type="hidden" name="audience" value={model.audience} />
+                <input type="hidden" name="returnTo" value={model.navigation.membershipHref} />
+                <label className="flex gap-3 rounded-[16px] border border-[var(--shell-border)] bg-white/80 p-3 text-xs leading-5 text-[var(--shell-muted)]">
+                  <input
+                    required
+                    type="checkbox"
+                    name={ELEVATED_CONFIRMATION_FIELD}
+                    value={ELEVATED_ACTION.BILLING_PORTAL}
+                    className="mt-0.5 h-4 w-4"
+                  />
+                  <span>Confirm account-holder access to billing portal management.</span>
+                </label>
+                <button type="submit" className="pat-button-secondary">
+                  {model.billingPortal.label}
+                </button>
+              </form>
+            ) : null}
+          </div>
         </form>
-
-        <aside className="space-y-6">
-          <article className="pat-card p-6">
-            <div className="pat-label">What it is</div>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
-              {model.explanation.title}
-            </h2>
-            <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">{model.explanation.whatItIs}</p>
-            <div className="mt-5 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
-              <div className="pat-label">What&apos;s available today</div>
-              <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{model.explanation.liveNow}</p>
-            </div>
-            <div className="mt-4 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
-              <div className="pat-label">What&apos;s coming next</div>
-              <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{model.explanation.staged}</p>
-            </div>
-          </article>
-
-          <article className="pat-card p-6">
-            <div className="pat-label">Checkout truth</div>
-            <h3 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">
-              {model.explanation.afterSubmitTitle}
-            </h3>
-            <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">{model.explanation.afterSubmitBody}</p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link className="pat-button-secondary" href={model.navigation.membershipHref}>
-                {model.navigation.membershipLabel}
-              </Link>
-              <Link className="pat-button-secondary" href={model.navigation.workspaceHref}>
-                {model.navigation.workspaceLabel}
-              </Link>
-              {model.billingPortal.enabled ? (
-                <form action="/api/billing/portal" method="post" className="grid gap-3">
-                  <input type="hidden" name="audience" value={model.audience} />
-                  <input type="hidden" name="returnTo" value={model.navigation.membershipHref} />
-                  <label className="flex gap-3 rounded-[16px] border border-[var(--shell-border)] bg-white/80 p-3 text-xs leading-5 text-[var(--shell-muted)]">
-                    <input
-                      required
-                      type="checkbox"
-                      name={ELEVATED_CONFIRMATION_FIELD}
-                      value={ELEVATED_ACTION.BILLING_PORTAL}
-                      className="mt-0.5 h-4 w-4"
-                    />
-                    <span>Confirm account-holder access to billing portal management.</span>
-                  </label>
-                  <button type="submit" className="pat-button-secondary">
-                    {model.billingPortal.label}
-                  </button>
-                </form>
-              ) : null}
-            </div>
-            <p className="mt-4 text-xs uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-              {model.billingPortal.note}
-            </p>
-          </article>
-        </aside>
       </section>
     </div>
   );

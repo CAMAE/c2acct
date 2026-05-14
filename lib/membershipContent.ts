@@ -646,14 +646,12 @@ function getMembershipPaymentMethodPanel(
 
   return {
     title: "Credit/Debit billing scaffold",
-    summary: "Collect non-sensitive billing contact details only while staying explicit that PAT is not charging a card here.",
+    summary: "No card processor, tokenization step, card number, or live charge is accepted on this page.",
     detail:
       audience === "individual"
-        ? "PAT records individual membership checkout intent only. No card processor, tokenization step, card number, or live charge is accepted on this page."
-        : "PAT records organization-level membership checkout intent only. No card processor, tokenization step, card number, or live charge is accepted on this page.",
+        ? "PAT records individual membership checkout intent only. Stripe-hosted card processing activates once provider keys are configured."
+        : "PAT records organization-level membership checkout intent only. Stripe-hosted card processing activates once provider keys are configured.",
     fields: [
-      "Billing contact name",
-      "Billing contact email",
       "Future provider customer reference",
       "Internal billing note",
     ],
