@@ -72,9 +72,21 @@ export default function PerFirmHeatmap({ data }: { data: VendorBriefData }) {
                       {firm.name}
                     </th>
                     {products.map((product) => {
-                      const cell = cellByKey.get(`${firm.id}:${product.id}`);
-                      if (!cell) return null;
+                      // Day-27 P1i (RK7): never drop a cell silently. If the
+                      // composer didn't emit a cell for this (firm, product)
+                      // pair, render the credibility-frame "Awaiting" cell so
+                      // the matrix doesn't show a hole.
+                      const cell = cellByKey.get(`${firm.id}:${product.id}`) ?? {
+                        firmCompanyId: firm.id,
+                        productId: product.id,
+                        score: null,
+                        band: "unreviewed" as const,
+                      };
                       const scoreLabel = cell.score === null ? "—" : String(cell.score);
+                      const titleText =
+                        cell.score === null
+                          ? `${firm.name} · ${product.name} · Awaiting capability response`
+                          : `${firm.name} · ${product.name} · ${scoreLabel}`;
                       return (
                         <td key={product.id} className="py-1.5 pr-2">
                           <div
@@ -82,7 +94,7 @@ export default function PerFirmHeatmap({ data }: { data: VendorBriefData }) {
                             data-firm-id={firm.id}
                             data-product-id={product.id}
                             data-band={cell.band}
-                            title={`${firm.name} · ${product.name} · ${scoreLabel}`}
+                            title={titleText}
                             className={`flex h-9 min-w-[3.5rem] items-center justify-center rounded-md px-2 text-xs font-semibold ${BAND_CELL_CLASSES[cell.band]}`}
                           >
                             {scoreLabel}

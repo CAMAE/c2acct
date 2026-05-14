@@ -109,7 +109,7 @@ describe("membership page contracts", () => {
     expect(model.summary.paymentStateLabel).toBe("Scaffold only");
     expect(model.billing.truthLabel).toBe("No live charge will be created.");
     expect(model.paymentMethods).toEqual([
-      { key: "card", label: "Card readiness", state: "default", statusLabel: "Scaffold" },
+      { key: "card", label: "Credit/Debit", state: "default", statusLabel: "Scaffold" },
       { key: "bank", label: "Billing contact", state: "default", statusLabel: "Scaffold" },
       { key: "paypal", label: "PayPal", state: "locked", statusLabel: "Future" },
       { key: "stripe", label: "Stripe", state: "locked", statusLabel: "Future" },

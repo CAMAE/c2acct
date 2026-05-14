@@ -575,7 +575,7 @@ function getMembershipPaymentMethodOptions(billingMode: MembershipCheckoutBillin
   }
 
   return [
-    { key: "card" as const, label: "Card readiness", state: "default" as const, statusLabel: "Scaffold" },
+    { key: "card" as const, label: "Credit/Debit", state: "default" as const, statusLabel: "Scaffold" },
     { key: "bank" as const, label: "Billing contact", state: "default" as const, statusLabel: "Scaffold" },
     { key: "paypal" as const, label: "PayPal", state: "locked" as const, statusLabel: "Future" },
     { key: "stripe" as const, label: "Stripe", state: "locked" as const, statusLabel: "Future" },
@@ -645,7 +645,7 @@ function getMembershipPaymentMethodPanel(
   }
 
   return {
-    title: "Card readiness scaffold",
+    title: "Credit/Debit billing scaffold",
     summary: "Collect non-sensitive billing contact details only while staying explicit that PAT is not charging a card here.",
     detail:
       audience === "individual"

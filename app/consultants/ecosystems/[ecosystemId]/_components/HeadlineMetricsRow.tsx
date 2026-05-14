@@ -2,11 +2,11 @@ import { AdminMetricCard } from "@/app/components/admin/AdminShell";
 import type { EcosystemDetailData } from "@/lib/ecosystem";
 
 function formatScore(value: number | null): string {
-  return value === null ? "--" : String(value);
+  return value === null ? "—" : `${value}%`;
 }
 
 function formatPercent(value: number | null): string {
-  return value === null ? "--" : `${value}%`;
+  return value === null ? "—" : `${value}%`;
 }
 
 export default function HeadlineMetricsRow({ data }: { data: EcosystemDetailData }) {
@@ -17,29 +17,29 @@ export default function HeadlineMetricsRow({ data }: { data: EcosystemDetailData
       style={{ gap: "var(--shell-grid-gap, 12px)" }}
     >
       <AdminMetricCard
-        label="Avg alignment"
+        label="Average alignment score"
         value={formatScore(data.avgFirmAlignmentScore)}
         detail={`across ${data.firmCount} firm${data.firmCount === 1 ? "" : "s"}`}
       />
       <AdminMetricCard
-        label="Vendor coverage"
-        value={`${data.vendorProductCoverage.productCount} / ${data.vendorProductCoverage.firmReviewCount}`}
-        detail="products / firm reviews"
+        label="Coverage"
+        value={`${data.vendorProductCoverage.productCount} products`}
+        detail={`evaluated by ${data.vendorProductCoverage.firmReviewCount} firm${data.vendorProductCoverage.firmReviewCount === 1 ? "" : "s"}`}
       />
       <AdminMetricCard
         label="Modules"
         value={formatPercent(data.moduleCompletionRate)}
-        detail="completion rate"
+        detail="complete"
       />
       <AdminMetricCard
         label="Hot divergences"
         value={String(data.activeDivergenceCount)}
-        detail=">10 pt vendor / firm gap"
+        detail="capabilities where vendor and firm scores differ by more than 10 points"
       />
       <AdminMetricCard
-        label="30-day actions"
+        label="30-day priority actions"
         value={String(data.thirtyDayActionCount)}
-        detail="across ecosystem"
+        detail="across this ecosystem"
       />
     </section>
   );

@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import MembershipCard from "@/app/components/membership/MembershipCard";
@@ -64,37 +63,6 @@ export default async function VendorAdminPage() {
       paymentDetails: String(formData.get("paymentDetails") ?? "").trim(),
       companyDescription: String(formData.get("companyDescription") ?? "").trim(),
       website: String(formData.get("website") ?? "").trim(),
-    });
-
-    redirect("/vendor/admin");
-  }
-
-  async function createProduct(formData: FormData) {
-    "use server";
-
-    const actor = await getSessionUser();
-    const liveContext = await getVendorCompanyContext(actor?.companyId);
-    if (!actor || liveContext.company?.type !== "VENDOR") {
-      redirect("/sign-in/vendor");
-    }
-
-    const name = String(formData.get("name") ?? "").trim();
-    if (!name) {
-      redirect("/vendor/admin");
-    }
-
-    const profile = await ensureVendorProfileForCompany(liveContext.company);
-    await prisma.product.create({
-      data: {
-        id: randomUUID(),
-        companyId: liveContext.company.id,
-        vendorId: profile.id,
-        name,
-        slug: `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "product"}-${Date.now().toString().slice(-5)}`,
-        website: String(formData.get("website") ?? "").trim() || null,
-        summary: String(formData.get("summary") ?? "").trim() || null,
-        updatedAt: new Date(),
-      },
     });
 
     redirect("/vendor/admin");
@@ -179,15 +147,11 @@ export default async function VendorAdminPage() {
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
-        <VendorAdminPanels
-          contract={contract}
-          createProduct={createProduct}
-          profileSettings={profileSettings}
-          products={vendorContext.products}
-          saveProfile={saveProfile}
-        />
-      </section>
+      <VendorAdminPanels
+        contract={contract}
+        profileSettings={profileSettings}
+        saveProfile={saveProfile}
+      />
     </div>
   );
 }

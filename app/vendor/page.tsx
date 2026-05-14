@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
@@ -103,40 +102,6 @@ export default async function VendorPage({
     redirect("/vendor?panel=admin");
   }
 
-  async function createProduct(formData: FormData) {
-    "use server";
-
-    const actor = await getSessionUser();
-    const liveInviteeAccess = !actor ? await getInviteeAccessContext() : null;
-    const liveContext = await getVendorCompanyContext(
-      actor?.companyId ?? (liveInviteeAccess?.audience === "vendor" ? liveInviteeAccess.companyId : null)
-    );
-    if (!actor || liveContext.company?.type !== "VENDOR") {
-      redirect("/sign-in/vendor");
-    }
-
-    const name = String(formData.get("name") ?? "").trim();
-    if (!name) {
-      redirect("/vendor?panel=admin");
-    }
-
-    const profile = await ensureVendorProfileForCompany(liveContext.company);
-    await prisma.product.create({
-      data: {
-        id: randomUUID(),
-        companyId: liveContext.company.id,
-        vendorId: profile.id,
-        name,
-        slug: `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "product"}-${Date.now().toString().slice(-5)}`,
-        website: String(formData.get("website") ?? "").trim() || null,
-        summary: String(formData.get("summary") ?? "").trim() || null,
-        updatedAt: new Date(),
-      },
-    });
-
-    redirect("/vendor?panel=admin");
-  }
-
   const profileSettings = needsAdminContent
     ? await getCompanyProfileSettings(`vendor:${vendorContext.company?.id ?? "unbound"}`, {
         companyName: vendorContext.vendorProfile?.displayName ?? vendorContext.company?.name ?? "Vendor",
@@ -210,9 +175,7 @@ export default async function VendorPage({
           {profileSettings && contract ? (
             <VendorAdminPanels
               contract={contract}
-              createProduct={createProduct}
               profileSettings={profileSettings}
-              products={vendorContext.products}
               saveProfile={saveProfile}
             />
           ) : null}

@@ -43,7 +43,7 @@ export default function VendorAtAGlance({ data }: { data: EcosystemDetailData })
             <dd className="text-sm font-semibold text-[var(--shell-ink)]">
               {glance.weakestProduct.name}{" "}
               <span
-                className="ml-1 inline-flex items-center rounded-md border border-[var(--shell-border)] px-2 py-0.5 text-xs font-semibold text-[var(--shell-ink)]"
+                className="ml-1 inline-flex items-center rounded-md bg-[var(--brand-orange)] px-2 py-0.5 text-xs font-semibold text-white"
                 aria-label={`firm-review average ${formatScoreBadge(glance.weakestProduct.score)}`}
               >
                 {formatScoreBadge(glance.weakestProduct.score)}

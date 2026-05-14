@@ -43,11 +43,15 @@ function formatRelative(iso: string | null): string {
 }
 
 function shortConfidence(label: string): string {
-  if (label.includes("Grounded")) return "Grounded";
-  if (label.includes("Emerging")) return "Emerging";
-  if (label.includes("Sample-thin")) return "Sample-thin";
-  if (label.includes("Early")) return "Early";
-  return "No signal";
+  // Day-27 P1a/RK10: 4/22-banned terms (grounded, emerging, sample-thin,
+  // early-signal) replaced with plain-language tiers reflecting submission
+  // depth. The upstream confidenceLabel still uses the old vocabulary; this
+  // helper maps to the consultant-facing language.
+  if (label.includes("Grounded")) return "Full";
+  if (label.includes("Emerging")) return "Building";
+  if (label.includes("Sample-thin")) return "Limited";
+  if (label.includes("Early")) return "Initial";
+  return "Pending";
 }
 
 export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
@@ -104,33 +108,33 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
         <table className="min-w-full text-left text-sm">
           <thead>
             <tr className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-              <th className="pb-2 pr-3">
+              <th className="pb-2 pr-3 text-left">
                 <button type="button" onClick={() => toggleSort("firmCompanyName", "asc")} className="font-inherit">
                   Firm{sortIndicator("firmCompanyName")}
                 </button>
               </th>
-              <th className="pb-2 pr-3">
+              <th className="pb-2 pr-3 text-center">
                 <button type="button" onClick={() => toggleSort("canonicalFirmScore", "asc")} className="font-inherit">
                   Score{sortIndicator("canonicalFirmScore")}
                 </button>
               </th>
-              <th className="pb-2 pr-3">Confidence</th>
-              <th className="pb-2 pr-3">
+              <th className="pb-2 pr-3 text-center">Confidence</th>
+              <th className="pb-2 pr-3 text-center">
                 <button type="button" onClick={() => toggleSort("moduleCompletionPercent", "desc")} className="font-inherit">
                   Modules{sortIndicator("moduleCompletionPercent")}
                 </button>
               </th>
-              <th className="pb-2 pr-3">
+              <th className="pb-2 pr-3 text-center">
                 <button type="button" onClick={() => toggleSort("productReviewCount", "desc")} className="font-inherit">
                   Reviews{sortIndicator("productReviewCount")}
                 </button>
               </th>
-              <th className="pb-2 pr-3">
+              <th className="pb-2 pr-3 text-left">
                 <button type="button" onClick={() => toggleSort("latestActivityAt", "desc")} className="font-inherit">
                   Last activity{sortIndicator("latestActivityAt")}
                 </button>
               </th>
-              <th className="pb-2 pr-3">30-d</th>
+              <th className="pb-2 pr-3 text-center">30-day actions</th>
             </tr>
           </thead>
           <tbody>
@@ -149,14 +153,14 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
                     {row.firmCompanyName}
                   </Link>
                 </td>
-                <td className="py-2 pr-3 text-[var(--shell-ink)]">{formatScore(row.canonicalFirmScore)}</td>
-                <td className="py-2 pr-3 text-[var(--shell-muted)]">{shortConfidence(row.confidenceLabel)}</td>
-                <td className="py-2 pr-3 text-[var(--shell-ink)]">{formatPercent(row.moduleCompletionPercent)}</td>
-                <td className="py-2 pr-3 text-[var(--shell-ink)]">
+                <td className="py-2 pr-3 text-center tabular-nums text-[var(--shell-ink)]">{formatScore(row.canonicalFirmScore)}</td>
+                <td className="py-2 pr-3 text-center text-[var(--shell-muted)]">{shortConfidence(row.confidenceLabel)}</td>
+                <td className="py-2 pr-3 text-center tabular-nums text-[var(--shell-ink)]">{formatPercent(row.moduleCompletionPercent)}</td>
+                <td className="py-2 pr-3 text-center tabular-nums text-[var(--shell-ink)]">
                   {row.productReviewCount} / {row.productsAvailable}
                 </td>
-                <td className="py-2 pr-3 text-[var(--shell-muted)]">{formatRelative(row.latestActivityAt)}</td>
-                <td className="py-2 pr-3 text-[var(--shell-muted)]">{row.thirtyDayActionCount}</td>
+                <td className="py-2 pr-3 text-left text-[var(--shell-muted)]">{formatRelative(row.latestActivityAt)}</td>
+                <td className="py-2 pr-3 text-center tabular-nums text-[var(--shell-muted)]">{row.thirtyDayActionCount}</td>
               </tr>
             ))}
           </tbody>

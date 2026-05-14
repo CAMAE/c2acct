@@ -228,11 +228,11 @@ export default function AppHeader({
               aria-label={uiText.openNavigationMenu}
             >
               <span className="sr-only">{uiText.openNavigationMenu}</span>
-              <span className="flex flex-col gap-[4.5px]" aria-hidden="true">
-                <span className="block h-[2px] w-[24px] rounded-full bg-current" />
-                <span className="block h-[2px] w-[24px] rounded-full bg-current" />
-                <span className="block h-[2px] w-[24px] rounded-full bg-current" />
-              </span>
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5.5 w-5.5 stroke-current" fill="none" strokeWidth="1.8">
+                <path d="M4 7.5h16" strokeLinecap="round" />
+                <path d="M4 12h16" strokeLinecap="round" />
+                <path d="M4 16.5h16" strokeLinecap="round" />
+              </svg>
             </button>
           </div>
         </div>

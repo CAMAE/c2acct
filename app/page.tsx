@@ -11,7 +11,6 @@ export default async function Home() {
   const individualSurfacesEnabled = isIndividualSurfacesEnabled();
   const signedIn = Boolean(sessionUser);
   const signInHref = "/sign-in";
-  const signInTitle = messages.home.signInTitle;
   const signInCtaLabel = messages.common.continueToSignIn;
   const onboardingCards = getPublicOnboardingHomeCards();
   const signInCopy = signedIn
@@ -54,9 +53,9 @@ export default async function Home() {
           href={signInHref}
           className="pat-card pat-card-interactive block px-7 py-8 sm:px-8 sm:py-9"
         >
-          <div className="pat-label">{messages.home.signInLabel}</div>
+          <div className="pat-label">Sign in</div>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
-            {signInTitle}
+            Continue to your workspace
           </h2>
           <p className="mt-4 text-base leading-7 text-[var(--shell-muted)]">
             {signInCopy}

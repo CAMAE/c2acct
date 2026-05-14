@@ -40,7 +40,7 @@ async function expectScaffoldCheckout(page: Page) {
   await expect(page.getByRole("heading", { name: /checkout scaffold/i }).first()).toBeVisible();
   await expect(page.getByText("Payment state: Scaffold only", { exact: true })).toBeVisible();
   await expect(page.getByText(/No live charge will be created/i).first()).toBeVisible();
-  await expect(page.getByRole("button", { name: /Card readiness/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Credit\/Debit/i })).toBeVisible();
   await expect(page.getByRole("button", { name: /Billing contact/i })).toBeVisible();
   await expect(page.getByRole("button", { name: /PayPal/i })).toBeVisible();
   await expect(page.getByRole("button", { name: /Stripe/i })).toBeVisible();
