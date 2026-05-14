@@ -11,7 +11,6 @@ export async function expectConsultantSignInRouteState(
     const consultantCard = page
       .locator("section")
       .filter({ hasText: "Assigned briefing access" })
-      .filter({ hasText: "/consultants" })
       .first();
 
     await expect(consultantCard).toBeVisible();
@@ -24,8 +23,7 @@ export async function expectConsultantSignInRouteState(
 
   const vendorCard = page
     .locator("section")
-    .filter({ hasText: "Landing route:" })
-    .filter({ hasText: "/vendor" })
+    .filter({ hasText: "Enter PAT through the vendor path" })
     .first();
 
   await expect(vendorCard).toBeVisible();

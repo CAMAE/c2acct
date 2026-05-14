@@ -61,7 +61,7 @@ export type MembershipEntitlementSnapshot = {
 };
 
 export type LocalReviewCompatibilityMembership = {
-  audience: Extract<MembershipAudience, "vendor" | "firm">;
+  audience: MembershipAudience;
   plan: MembershipPlan;
   status: MembershipStatus;
 };
@@ -178,6 +178,17 @@ export function resolveLocalReviewCompatibilityMembership(
   }
 
   if (audience === "firm" && reviewUser?.key === "firm") {
+    return {
+      audience,
+      plan: MEMBERSHIP_PLAN.PRO,
+      status: MEMBERSHIP_STATUS.ACTIVE,
+    };
+  }
+
+  // Day-26 P0a (RK1): individual audience also needs PRO compatibility for
+  // demo. Previously fell through to virtual-FREE which locked Product
+  // Intelligence + alignment insights during the pilot walkthrough.
+  if (audience === "individual" && reviewUser?.key === "individual") {
     return {
       audience,
       plan: MEMBERSHIP_PLAN.PRO,

@@ -96,7 +96,7 @@ export default function PhrasingVariantPicker(props: {
               data-active={isActive ? "true" : "false"}
               className={
                 isActive
-                  ? "rounded-full bg-[var(--brand-accent)] px-3 py-1 text-white"
+                  ? "rounded-full bg-[var(--brand-c2-blue)] px-3 py-1 text-white"
                   : "rounded-full border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] px-3 py-1 text-[var(--shell-ink)]"
               }
             >
@@ -105,7 +105,7 @@ export default function PhrasingVariantPicker(props: {
           );
         })}
         {status ? (
-          <span role="status" className="normal-case text-[var(--brand-accent)]">
+          <span role="status" className="normal-case text-[var(--brand-c2-blue)]">
             {status}
           </span>
         ) : null}

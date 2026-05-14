@@ -136,10 +136,12 @@ test.describe("firm portal selector visual proof", () => {
     // AUDIT-D21-001(c) closure: disable the 160ms background-color transition
     // on toggle buttons so getComputedStyle reads the final resolved color
     // rather than a mid-transition interpolated value. Without this, snapshot
-    // reads taken right after click can return e.g. rgb(34,34,34) while the
-    // background animates from white(rgb(255,255,255)) to --shell-ink
-    // (rgb(32,32,32)) over 160ms. Visual snapshots in screenshots() also
-    // become deterministic.
+    // reads taken right after click can return mid-transition rgba values
+    // while the background animates from rgba(255,255,255,0.72) to the
+    // canonical brand-c2-blue active state (rgba(6,54,116,0.92)) over 160ms.
+    // (Day-26 P0g: active state changed from --shell-ink to brand-c2-blue to
+    // match the sign-in canonical pattern.) Visual snapshots also become
+    // deterministic.
     await firmPage.addStyleTag({
       content: ".pat-mode-toggle__option { transition: none !important; }",
     });

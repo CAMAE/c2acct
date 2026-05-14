@@ -234,7 +234,7 @@ export const VENDOR_BRIEF_VARIANT_BANK: Record<string, readonly VendorBriefVaria
       tone: "pointed",
       render: ({ roadmapItemCount }) => {
         if (roadmapItemCount === 0) return "Briefings produced no next actions this quarter — nothing to commit to.";
-        return `${roadmapItemCount} commitment-eligible action${roadmapItemCount === 1 ? "" : "s"}; pick the bullet, treat the rest as supporting context.`;
+        return `${roadmapItemCount} action${roadmapItemCount === 1 ? "" : "s"} surfaced. Pick the top bullet; treat the rest as supporting context.`;
       },
     },
   ],

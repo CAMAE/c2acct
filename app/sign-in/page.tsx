@@ -134,11 +134,7 @@ function RoleAccessCard({
   signInLabel,
   accessCodeLabel,
   localAuthLabel,
-  modeLabel,
   githubReady,
-  githubUnavailableReason,
-  callbackUrl,
-  canonicalLocalOrigin,
   localReviewEnabled,
   localReviewRequested,
   localReviewEmail,
@@ -153,11 +149,7 @@ function RoleAccessCard({
   signInLabel: string;
   accessCodeLabel: string;
   localAuthLabel: string;
-  modeLabel: string;
   githubReady: boolean;
-  githubUnavailableReason: string | null;
-  callbackUrl: string | null;
-  canonicalLocalOrigin: string;
   localReviewEnabled: boolean;
   localReviewRequested: boolean;
   localReviewEmail: string | null;
@@ -173,18 +165,6 @@ function RoleAccessCard({
       <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
         {body}
       </p>
-      <div className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-        Landing route: <span className="font-semibold text-[var(--shell-ink)]">{roleRedirect}</span>
-      </div>
-      <div className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
-        Active sign-in mode: <span className="font-semibold text-[var(--shell-ink)]">{modeLabel}</span>
-      </div>
-      <div className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-        GitHub remains strict and seeded-user only. If a non-provisioned GitHub account is denied, use the deterministic local review identity for this role when local review mode is enabled.
-      </div>
-      <div className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
-        Canonical local origin: <span className="font-semibold text-[var(--shell-ink)]">{canonicalLocalOrigin}</span>
-      </div>
 
       <div className="mt-6 flex flex-wrap gap-3">
         {!localReviewEnabled && githubReady ? (
@@ -211,16 +191,10 @@ function RoleAccessCard({
 
       {localReviewEnabled && localReviewEmail ? (
         <div className="mt-6 rounded-[18px] border border-sky-200 bg-sky-50/90 p-5 text-sm leading-6 text-sky-950">
-            <div className="font-semibold">Development-only local review auth</div>
+            <div className="font-semibold">Local review access</div>
             <div className="mt-2">
-            This route can create a real local Auth.js session without GitHub only in loopback local review mode. It is never a public production sign-in path.
+            Demo identity: <span className="font-semibold text-[var(--shell-ink)]">{localReviewEmail}</span>
             </div>
-          <div className="mt-3">
-            Review identity: <span className="font-semibold text-[var(--shell-ink)]">{localReviewEmail}</span>
-          </div>
-          <div className="mt-2">
-            Successful sign-in returns directly to <span className="font-semibold text-[var(--shell-ink)]">{roleRedirect}</span>.
-          </div>
           <form className="mt-4 grid gap-3 md:max-w-md" action={signInWithLocalReviewCredentials}>
             <input type="hidden" name="email" value={localReviewEmail} />
             <input type="hidden" name="redirectTo" value={roleRedirect} />
@@ -251,21 +225,6 @@ function RoleAccessCard({
                   Continue with GitHub
                 </button>
               </form>
-              <div className="mt-2 text-xs leading-5 text-[var(--shell-muted)]">
-                GitHub is kept here for production-style checks, but only PAT users already provisioned in the local database are allowed through.
-              </div>
-            </div>
-          ) : null}
-          <div className="mt-3 text-xs leading-5 text-[var(--shell-muted)]">
-            Requires `PAT_ENABLE_LOCAL_REVIEW_AUTH=1`, a stable `AUTH_SECRET`, `PAT_LOCAL_REVIEW_PASSWORD`, and loopback-only auth origins. The documented default local-review password is `pat-local-review` with hyphens.
-          </div>
-          {!githubReady && githubUnavailableReason ? (
-            <div className="mt-3 rounded-[16px] border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">
-              <div className="font-semibold">GitHub is intentionally unavailable here.</div>
-              <div className="mt-1">{githubUnavailableReason}</div>
-              <div className="mt-1">
-                Required callback: <span className="font-semibold text-[var(--shell-ink)]">{callbackUrl ?? `${canonicalLocalOrigin}/api/auth/callback/github`}</span>
-              </div>
             </div>
           ) : null}
         </div>
@@ -469,24 +428,11 @@ export default async function SignInHubPage({
       <section className="pat-card p-8">
         <div className="pat-label">{messages.signIn.eyebrow}</div>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
-          {authRuntime.localReviewProviderReady ? "Choose a PAT role and sign in with the path this runtime actually supports." : messages.signIn.heroTitle}
+          Sign in to your PAT workspace.
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          {authRuntime.localReviewProviderReady
-            ? `Local review mode is active, so vendor, firm${authRuntime.localReviewEnabled ? ", and admin" : ""} routes expose deterministic seeded identities that create real Auth.js sessions. Shelved pilot entry paths stay hidden unless their flags are explicitly enabled. GitHub remains available where configured, but only already-provisioned PAT users are admitted.`
-            : authRuntime.localReviewEnabled
-              ? "Local review mode was requested but is not fully configured. PAT is hiding broken role-entry controls until the missing local auth pieces are fixed."
-              : messages.signIn.heroBody}
+          Choose your role below and continue with your provisioned credentials.
         </p>
-        <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-          Canonical local origin: <span className="font-semibold text-[var(--shell-ink)]">{authRuntime.canonicalLocalOrigin}</span>
-          {authRuntime.resolvedBaseUrl ? (
-            <>
-              {" "}
-              · Resolved auth origin: <span className="font-semibold text-[var(--shell-ink)]">{authRuntime.resolvedBaseUrl}</span>
-            </>
-          ) : null}
-        </div>
         {authReset ? (
           <div className="mt-5 rounded-[18px] border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm leading-6 text-emerald-900">
             {authResetReason === "stale_callback"
@@ -524,11 +470,7 @@ export default async function SignInHubPage({
           signInLabel={messages.common.continueWithGitHub}
           accessCodeLabel={messages.common.continueWithAccessCode}
           localAuthLabel={messages.common.reviewLocalAuthSetup}
-          modeLabel={authRuntime.localReviewProviderReady ? "Deterministic local vendor review" : authRuntime.githubAuthEnabled ? "GitHub" : inviteeAccessEnabled ? "Access code compatibility path" : "GitHub setup required"}
           githubReady={authRuntime.githubAuthEnabled}
-          githubUnavailableReason={authRuntime.githubUnavailableReason}
-          callbackUrl={authRuntime.callbackUrl}
-          canonicalLocalOrigin={authRuntime.canonicalLocalOrigin}
           localReviewEnabled={authRuntime.localReviewProviderReady}
           localReviewRequested={authRuntime.localReviewEnabled}
           localReviewEmail={localReviewEmailByKey.get("vendor") ?? null}
@@ -547,11 +489,7 @@ export default async function SignInHubPage({
           signInLabel={messages.common.continueWithGitHub}
           accessCodeLabel={messages.common.continueWithAccessCode}
           localAuthLabel={messages.common.reviewLocalAuthSetup}
-          modeLabel={authRuntime.localReviewProviderReady ? "Deterministic local firm review" : authRuntime.githubAuthEnabled ? "GitHub" : inviteeAccessEnabled ? "Access code compatibility path" : "GitHub setup required"}
           githubReady={authRuntime.githubAuthEnabled}
-          githubUnavailableReason={authRuntime.githubUnavailableReason}
-          callbackUrl={authRuntime.callbackUrl}
-          canonicalLocalOrigin={authRuntime.canonicalLocalOrigin}
           localReviewEnabled={authRuntime.localReviewProviderReady}
           localReviewRequested={authRuntime.localReviewEnabled}
           localReviewEmail={localReviewEmailByKey.get("firm") ?? null}
@@ -570,11 +508,7 @@ export default async function SignInHubPage({
           signInLabel={messages.common.continueWithGitHub}
           accessCodeLabel={messages.common.continueWithAccessCode}
           localAuthLabel={messages.common.reviewLocalAuthSetup}
-          modeLabel={authRuntime.localReviewProviderReady ? "Deterministic local individual review" : authRuntime.githubAuthEnabled ? "GitHub" : inviteeAccessEnabled ? "Access code compatibility path" : "GitHub setup required"}
           githubReady={authRuntime.githubAuthEnabled}
-          githubUnavailableReason={authRuntime.githubUnavailableReason}
-          callbackUrl={authRuntime.callbackUrl}
-          canonicalLocalOrigin={authRuntime.canonicalLocalOrigin}
           localReviewEnabled={authRuntime.localReviewProviderReady}
           localReviewRequested={authRuntime.localReviewEnabled}
           localReviewEmail={localReviewEmailByKey.get("individual") ?? null}
@@ -593,11 +527,7 @@ export default async function SignInHubPage({
           signInLabel={messages.common.continueWithGitHub}
           accessCodeLabel={messages.common.continueWithAccessCode}
           localAuthLabel={messages.common.reviewLocalAuthSetup}
-          modeLabel={authRuntime.localReviewProviderReady ? "Deterministic local admin review" : authRuntime.githubAuthEnabled ? "GitHub" : "Local admin review not ready"}
           githubReady={authRuntime.githubAuthEnabled}
-          githubUnavailableReason={authRuntime.githubUnavailableReason}
-          callbackUrl={authRuntime.callbackUrl}
-          canonicalLocalOrigin={authRuntime.canonicalLocalOrigin}
           localReviewEnabled={authRuntime.localReviewProviderReady}
           localReviewRequested={authRuntime.localReviewEnabled}
           localReviewEmail={localReviewEmailByKey.get("admin") ?? null}
@@ -616,11 +546,7 @@ export default async function SignInHubPage({
           signInLabel={messages.common.continueWithGitHub}
           accessCodeLabel={messages.common.continueWithAccessCode}
           localAuthLabel={messages.common.reviewLocalAuthSetup}
-          modeLabel={authRuntime.localReviewProviderReady ? "Deterministic local consultant account review" : authRuntime.githubAuthEnabled ? "GitHub" : "GitHub setup required"}
           githubReady={authRuntime.githubAuthEnabled}
-          githubUnavailableReason={authRuntime.githubUnavailableReason}
-          callbackUrl={authRuntime.callbackUrl}
-          canonicalLocalOrigin={authRuntime.canonicalLocalOrigin}
           localReviewEnabled={authRuntime.localReviewProviderReady}
           localReviewRequested={authRuntime.localReviewEnabled}
           localReviewEmail={localReviewEmailByKey.get("consultant") ?? null}

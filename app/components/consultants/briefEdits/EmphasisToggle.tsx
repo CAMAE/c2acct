@@ -81,7 +81,7 @@ export default function EmphasisToggle(props: {
             data-active={isActive ? "true" : "false"}
             className={
               isActive
-                ? "rounded-md bg-[var(--brand-accent)] px-2 py-0.5 text-white"
+                ? "rounded-md bg-[var(--brand-c2-blue)] px-2 py-0.5 text-white"
                 : "rounded-md border border-[var(--shell-border)] bg-[var(--shell-panel)] px-2 py-0.5 text-[var(--shell-ink)]"
             }
           >
@@ -90,7 +90,7 @@ export default function EmphasisToggle(props: {
         );
       })}
       {status ? (
-        <span role="status" className="normal-case text-[var(--brand-accent)]">
+        <span role="status" className="normal-case text-[var(--brand-c2-blue)]">
           {status}
         </span>
       ) : null}

@@ -115,7 +115,7 @@ describe("membership resolver contracts", () => {
     expect(getMembershipUpgradeHref("individual", MEMBERSHIP_PLAN.FREE)).toBe("/user/membership/checkout?plan=pro");
   });
 
-  it("defines explicit local-review compatibility membership only for vendor and firm review identities", () => {
+  it("defines explicit local-review compatibility membership for vendor, firm, and individual review identities (Day-26 P0a)", () => {
     const previousFlag = process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH;
 
     process.env.PAT_ENABLE_LOCAL_REVIEW_AUTH = "1";
@@ -131,9 +131,17 @@ describe("membership resolver contracts", () => {
         plan: MEMBERSHIP_PLAN.PRO,
         status: MEMBERSHIP_STATUS.ACTIVE,
       });
+      // Day-26 P0a (RK1): individual audience now returns PRO so the demo
+      // walkthrough doesn't see locked Product Intelligence / alignment
+      // insights on the individual surface. Previously fell through to
+      // virtual-FREE.
+      expect(resolveLocalReviewCompatibilityMembership("individual", "review.individual@pat.local")).toEqual({
+        audience: "individual",
+        plan: MEMBERSHIP_PLAN.PRO,
+        status: MEMBERSHIP_STATUS.ACTIVE,
+      });
       expect(resolveLocalReviewCompatibilityMembership("vendor", "review.firm@pat.local")).toBeNull();
       expect(resolveLocalReviewCompatibilityMembership("firm", "review.vendor@pat.local")).toBeNull();
-      expect(resolveLocalReviewCompatibilityMembership("individual", "review.individual@pat.local")).toBeNull();
       expect(resolveLocalReviewCompatibilityMembership("firm", "review.admin@pat.local")).toBeNull();
     } finally {
       if (typeof previousFlag === "string") {

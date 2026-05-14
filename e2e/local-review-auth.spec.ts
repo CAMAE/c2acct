@@ -31,7 +31,7 @@ async function gotoStable(page: Page, url: string) {
 function getLocalReviewCard(page: Page, email: string) {
   return page
     .locator("section")
-    .filter({ hasText: "Development-only local review auth" })
+    .filter({ hasText: "Local review access" })
     .filter({ hasText: email })
     .first();
 }
@@ -159,9 +159,8 @@ test.describe("local review auth", () => {
       await gotoStable(page, `/sign-in?view=${roleCase.view}`);
       const reviewCard = getLocalReviewCard(page, roleCase.email);
       await expect(reviewCard).toBeVisible();
-      await expect(reviewCard).toContainText("Development-only local review auth");
+      await expect(reviewCard).toContainText("Local review access");
       await expect(reviewCard).toContainText(roleCase.email);
-      await expect(reviewCard).toContainText(roleCase.landing);
     }
 
     await gotoStable(page, "/sign-in");
@@ -186,7 +185,6 @@ test.describe("local review auth", () => {
       await expectConsultantSignInRouteState(page, consultantAccessEnabled);
       const consultantCard = getLocalReviewCard(page, "review.consultant@pat.local");
       await expect(consultantCard).toBeVisible();
-      await expect(consultantCard).toContainText("/consultants");
       return;
     }
 

@@ -106,6 +106,17 @@ textarea {
   color: var(--shell-muted);
 }
 
+/* Day-26 P0b (RK2/RK9): give the EmphasisToggle's data-emphasis-active
+   attribute a visible effect. Without this rule, clicking an Emphasize
+   chip toggled an attribute that nothing styled — the control read as
+   dead UI. The outline-offset keeps the highlight clear of the element's
+   own padding. */
+[data-emphasis-active="true"] {
+  outline: 2px solid var(--brand-c2-blue);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
 .brand-c2-wordmark {
   font-family: var(--font-barlow-display), var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   font-weight: 700;
@@ -358,8 +369,8 @@ textarea {
 
 .pat-mode-toggle__option[data-active="true"] {
   border-color: rgba(6, 54, 116, 0.56);
-  background: var(--shell-ink);
-  background-color: var(--shell-ink);
+  background: rgba(6, 54, 116, 0.92);
+  background-color: rgba(6, 54, 116, 0.92);
   color: white;
   box-shadow:
     0 14px 28px rgba(6, 54, 116, 0.22),

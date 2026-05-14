@@ -6,6 +6,7 @@ import { barlowFontClassName } from "@/app/fonts/barlow";
 import { getSessionUser } from "@/lib/auth/session";
 import { getMembershipPathPrefix } from "@/lib/membershipContent";
 import { getPublicReleaseFingerprint } from "@/lib/release/fingerprint";
+import { isConsultantAccessEnabled } from "@/lib/consultantAccess";
 import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import { TRUST_FOOTER_LINKS } from "@/lib/trustContent";
 import {
@@ -31,6 +32,7 @@ export default async function RootLayout({
   const messages = getLocaleMessages(locale);
   const sessionUser = await getSessionUser();
   const individualSurfacesEnabled = isIndividualSurfacesEnabled();
+  const consultantAccessEnabled = isConsultantAccessEnabled();
   const releaseFingerprint = getPublicReleaseFingerprint();
   const experience = await resolvePortalExperience(sessionUser);
   const enabledHrefs = new Set(
@@ -52,6 +54,9 @@ export default async function RootLayout({
       href: item.href,
       label: messages.nav[item.key],
     })),
+    ...(consultantAccessEnabled
+      ? [{ href: "/consultants", label: "Consultant" }]
+      : []),
     { href: "/trust", label: "Trust" },
   ];
   const membershipHref =

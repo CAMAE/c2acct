@@ -125,7 +125,7 @@ export default function ReorderHandle(props: {
         })}
       </ul>
       {status ? (
-        <p role="status" className="mt-2 text-xs text-[var(--brand-accent)]">
+        <p role="status" className="mt-2 text-xs text-[var(--brand-c2-blue)]">
           {status}
         </p>
       ) : null}
