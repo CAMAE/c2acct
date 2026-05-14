@@ -16,7 +16,7 @@ export default function MarketContext({ data }: { data: VendorBriefData }) {
       className="scroll-mt-8 rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8"
       data-testid="market-context"
     >
-      <div className="pat-label">Section 2 &middot; Market context</div>
+      <div className="pat-label">Section 2 · Market context</div>
 
       <h2
         className="mt-4 font-semibold tracking-tight text-[var(--shell-ink)]"
@@ -39,7 +39,7 @@ export default function MarketContext({ data }: { data: VendorBriefData }) {
         className="mt-10 border-t border-[var(--shell-border)] pt-5 text-xs leading-6 text-[var(--shell-muted)]"
         data-testid="market-context-methodology-footer"
       >
-        Based on responses from {data.firmCount} {firmLabel} in your network &middot; last refreshed {refreshedDate} &middot; category framing applies network-wide &middot; scoring methodology: see Section 3 below.
+        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · category framing applies network-wide · scoring methodology: see Section 3 below.
       </div>
     </section>
   );

@@ -19,7 +19,7 @@ export default function EvaluationMethodology({ data }: { data: VendorBriefData 
       className="scroll-mt-8 rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8"
       data-testid="evaluation-methodology"
     >
-      <div className="pat-label">Section 3 &middot; Evaluation methodology</div>
+      <div className="pat-label">Section 3 · Evaluation methodology</div>
 
       <h2
         className="mt-4 font-semibold tracking-tight text-[var(--shell-ink)]"
@@ -55,7 +55,7 @@ export default function EvaluationMethodology({ data }: { data: VendorBriefData 
                         className="shrink-0 select-none text-[var(--brand-c2-blue)]"
                         aria-hidden="true"
                       >
-                        &middot;
+                        ·
                       </span>
                       <span>
                         <span className="font-semibold">{row.productName}</span>
@@ -110,7 +110,7 @@ export default function EvaluationMethodology({ data }: { data: VendorBriefData 
         className="mt-10 border-t border-[var(--shell-border)] pt-5 text-xs leading-6 text-[var(--shell-muted)]"
         data-testid="evaluation-methodology-methodology-footer"
       >
-        This methodology applies to all sections in this brief &middot; last revised on the canonical 5.7 audit baseline &middot; based on responses from {data.firmCount} {firmLabel} in your network &middot; feedback: file as a Day-N ticket.
+        This methodology applies to all sections in this brief · last revised on the canonical 5.7 audit baseline · based on responses from {data.firmCount} {firmLabel} in your network · feedback: file as a Day-N ticket.
       </div>
     </section>
   );

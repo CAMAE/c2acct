@@ -81,7 +81,7 @@ export default function CapabilityComparison({ data }: { data: VendorBriefData }
       className="scroll-mt-8 rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8"
       data-testid="capability-comparison"
     >
-      <div className="pat-label">Section 6 &middot; Capability comparison</div>
+      <div className="pat-label">Section 6 · Capability comparison</div>
 
       <h2
         className="mt-4 font-semibold tracking-tight text-[var(--shell-ink)]"
@@ -91,7 +91,7 @@ export default function CapabilityComparison({ data }: { data: VendorBriefData }
       </h2>
 
       <p className="mt-3 text-sm text-[var(--shell-muted)]">
-        Scorecard view across all capability areas. Vendor self-report vs the firm-reviewed average. Sorted by absolute delta.
+        Scorecard table — every capability area at a glance. Use Section 4 for the headline divergences; this section is the full scoreboard.
       </p>
 
       {rows.length === 0 ? (
@@ -183,7 +183,7 @@ export default function CapabilityComparison({ data }: { data: VendorBriefData }
         className="mt-10 border-t border-[var(--shell-border)] pt-5 text-xs leading-6 text-[var(--shell-muted)]"
         data-testid="capability-comparison-methodology-footer"
       >
-        Based on responses from {data.firmCount} {firmLabel} in your network &middot; last refreshed {refreshedDate} &middot; {rows.length} capability {rows.length === 1 ? "area" : "areas"} tracked &middot; hot-divergence threshold &ge; 10 points &middot; scoring methodology: see Section 3 above.
+        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {rows.length} capability {rows.length === 1 ? "area" : "areas"} tracked · hot-divergence threshold &ge; 10 points · scoring methodology: see Section 3 above.
       </div>
     </section>
   );

@@ -126,7 +126,7 @@ function WhyFitsBlock({
                 className="shrink-0 select-none text-[var(--brand-c2-blue)]"
                 aria-hidden="true"
               >
-                &middot;
+                ·
               </span>
               <span>
                 <span className="font-semibold">
@@ -152,7 +152,7 @@ function WhyFitsBlock({
             className="shrink-0 select-none text-[var(--brand-c2-blue)]"
             aria-hidden="true"
           >
-            &middot;
+            ·
           </span>
           <span>
             <span className="font-semibold">
@@ -221,7 +221,7 @@ function StrugglesBlock({
             className="shrink-0 select-none text-[var(--brand-orange)]"
             aria-hidden="true"
           >
-            &middot;
+            ·
           </span>
           <span>
             <span className="font-semibold">{bullet.productName}</span>
@@ -316,7 +316,7 @@ function DisqualifiersBlock({ card }: { card: FirmCardData }) {
             className="shrink-0 select-none text-[var(--brand-orange)]"
             aria-hidden="true"
           >
-            &middot;
+            ·
           </span>
           <span>
             <span className="font-semibold">{action.text}</span>
@@ -416,7 +416,7 @@ export default function PerFirmStrengthsCautions({
       className="scroll-mt-8 rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8"
       data-testid="per-firm-strengths-cautions"
     >
-      <div className="pat-label">Section 5 &middot; Per-firm strengths / cautions</div>
+      <div className="pat-label">Section 5 · Per-firm strengths / cautions</div>
 
       <h2
         className="mt-4 font-semibold tracking-tight text-[var(--shell-ink)]"
@@ -426,7 +426,7 @@ export default function PerFirmStrengthsCautions({
       </h2>
 
       <p className="mt-3 text-sm text-[var(--shell-muted)]">
-        Battlecard view per firm. Why fit &middot; where struggle &middot; questions to ask &middot; quick disqualifiers.
+        Battlecard view per firm. Why fit · where struggle · questions to ask · quick disqualifiers.
       </p>
 
       {firmCards.length === 0 ? (
@@ -458,7 +458,7 @@ export default function PerFirmStrengthsCautions({
         className="mt-10 border-t border-[var(--shell-border)] pt-5 text-xs leading-6 text-[var(--shell-muted)]"
         data-testid="strengths-cautions-methodology-footer"
       >
-        Based on responses from {data.firmCount} {firmLabel} in your network &middot; last refreshed {refreshedDate} &middot; {totalCellCount} firm &times; product cell{totalCellCount === 1 ? "" : "s"} analyzed &middot; scoring methodology: see Section 3 above.
+        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {totalCellCount} firm &times; product cell{totalCellCount === 1 ? "" : "s"} analyzed · scoring methodology: see Section 3 above.
       </div>
     </section>
   );
