@@ -1,10 +1,13 @@
-import type { ReactNode } from "react";
 import type {
   VendorBriefData,
   VendorBriefDeltaRow,
   VendorBriefHeatmapCell,
   VendorBriefRoadmapItem,
 } from "@/lib/briefs";
+import {
+  selectQuestions,
+  type QuestionScopeCell,
+} from "@/lib/perFirmQuestionLibrary";
 
 function formatGeneratedDate(iso: string): string {
   const d = new Date(iso);
@@ -236,44 +239,65 @@ function StrugglesBlock({
   );
 }
 
+function buildScopeCellsForCard(
+  card: FirmCardData,
+  data: VendorBriefData,
+  productNames: Map<string, string>
+): QuestionScopeCell[] {
+  const deltaByProductId = new Map<string, VendorBriefDeltaRow>();
+  for (const row of data.selfVsMarketDelta) {
+    deltaByProductId.set(row.productId, row);
+  }
+  const out: QuestionScopeCell[] = [];
+  const seen = new Set<string>();
+  const ranked: VendorBriefHeatmapCell[] = [
+    ...card.hotDivergenceRows
+      .map((row) =>
+        card.highBandCells
+          .concat(card.midBandCells, card.lowBandCells)
+          .find((cell) => cell.productId === row.productId)
+      )
+      .filter((cell): cell is VendorBriefHeatmapCell => Boolean(cell)),
+    ...card.highBandCells,
+    ...card.midBandCells,
+    ...card.lowBandCells,
+  ];
+  for (const cell of ranked) {
+    if (seen.has(cell.productId)) continue;
+    if (cell.score === null) continue;
+    seen.add(cell.productId);
+    const deltaRow = deltaByProductId.get(cell.productId) ?? null;
+    out.push({
+      productId: cell.productId,
+      productName: productNames.get(cell.productId) ?? cell.productId,
+      capabilityArea: productNames.get(cell.productId) ?? cell.productId,
+      firmScore: cell.score,
+      vendorScore: deltaRow?.vendorSelfReported ?? null,
+      delta: deltaRow?.delta ?? null,
+    });
+  }
+  return out;
+}
+
 function QuestionsBlock({
   card,
   productNames,
   vendorName,
+  data,
 }: {
   card: FirmCardData;
   productNames: Map<string, string>;
   vendorName: string;
+  data: VendorBriefData;
 }) {
-  const questions: ReactNode[] = [];
+  const scopeCells = buildScopeCellsForCard(card, data, productNames);
+  const candidates = selectQuestions(
+    scopeCells,
+    { vendorName, firmName: card.firmName },
+    MAX_QUESTIONS
+  );
 
-  for (const cell of card.highBandCells.slice(0, 2)) {
-    const productName = productNames.get(cell.productId) ?? cell.productId;
-    questions.push(
-      <>
-        Confirm {vendorName}&apos;s {productName} integration depth with your existing stack &mdash; high-band fit indicates strong baseline alignment.
-      </>
-    );
-  }
-  for (const row of card.hotDivergenceRows.slice(0, 2)) {
-    const magnitude = row.delta === null ? "the observed gap" : `${Math.abs(row.delta)} points`;
-    questions.push(
-      <>
-        Probe why {vendorName}&apos;s self-assessment on {row.productName} diverges from peer-firm reviews by {magnitude}.
-      </>
-    );
-  }
-  if (questions.length < MAX_QUESTIONS) {
-    for (const action of card.disqualifierActions.slice(0, MAX_QUESTIONS - questions.length)) {
-      questions.push(
-        <>
-          Validate {vendorName}&apos;s near-term commitment: &ldquo;{action.text}&rdquo; &mdash; this is a high-signal action shared by other firms in your network.
-        </>
-      );
-    }
-  }
-
-  if (questions.length === 0) {
+  if (candidates.length === 0) {
     return (
       <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
         Questions populate as the firm&apos;s high-band or hot-divergence signals land.
@@ -281,18 +305,26 @@ function QuestionsBlock({
     );
   }
 
-  const trimmed = questions.slice(0, MAX_QUESTIONS);
   return (
-    <ol className="mt-3 space-y-2 text-sm leading-6 text-[var(--shell-ink)]">
-      {trimmed.map((question, index) => (
-        <li key={index} className="flex gap-3">
+    <ol
+      className="mt-3 space-y-2 text-sm leading-6 text-[var(--shell-ink)]"
+      data-testid="strengths-cautions-questions-list"
+    >
+      {candidates.map((candidate, index) => (
+        <li
+          key={candidate.template.id}
+          className="flex gap-3"
+          data-testid="strengths-cautions-question"
+          data-template-id={candidate.template.id}
+          data-product-id={candidate.cell.productId}
+        >
           <span
             className="w-5 shrink-0 select-none text-right font-semibold tabular-nums text-[var(--brand-c2-blue)]"
             aria-hidden="true"
           >
             {index + 1}.
           </span>
-          <span>{question}</span>
+          <span>{candidate.rendered}</span>
         </li>
       ))}
     </ol>
@@ -334,10 +366,12 @@ function FirmCard({
   card,
   productNames,
   vendorName,
+  data,
 }: {
   card: FirmCardData;
   productNames: Map<string, string>;
   vendorName: string;
+  data: VendorBriefData;
 }) {
   if (!card.hasAnySignal) {
     return (
@@ -384,7 +418,7 @@ function FirmCard({
 
         <div data-testid="strengths-cautions-block" data-block="questions">
           <div className="pat-label text-[11px]">Questions to ask in evaluation</div>
-          <QuestionsBlock card={card} productNames={productNames} vendorName={vendorName} />
+          <QuestionsBlock card={card} productNames={productNames} vendorName={vendorName} data={data} />
         </div>
 
         <div data-testid="strengths-cautions-block" data-block="disqualifiers">
@@ -449,6 +483,7 @@ export default function PerFirmStrengthsCautions({
               card={card}
               productNames={productNames}
               vendorName={data.vendorCompanyName}
+              data={data}
             />
           ))}
         </div>
