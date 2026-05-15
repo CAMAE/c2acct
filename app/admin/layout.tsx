@@ -1,13 +1,33 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import type { ReactNode } from "react";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import PatModeToggle from "@/app/components/pat/PatModeToggle";
 import { getAdminAccessState, getAdminNavItems } from "@/lib/adminControlPlane";
 
 export const dynamic = "force-dynamic";
 
+function resolveActiveAdminKey(
+  navItems: ReadonlyArray<{ href: string; label: string }>,
+  pathname: string | null
+): string {
+  if (!pathname) return navItems[0]?.href ?? "/admin";
+  const best = navItems
+    .filter((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
+    .sort((a, b) => b.href.length - a.href.length)[0];
+  return best?.href ?? navItems[0]?.href ?? "/admin";
+}
+
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const { sessionUser, isAdmin } = await getAdminAccessState();
   const navItems = getAdminNavItems();
+  const requestHeaders = await headers();
+  const requestPath =
+    requestHeaders.get("x-pathname") ??
+    requestHeaders.get("x-invoke-path") ??
+    requestHeaders.get("next-url") ??
+    null;
+  const activeAdminKey = resolveActiveAdminKey(navItems, requestPath);
 
   if (!sessionUser || !isAdmin) {
     return (
@@ -37,17 +57,15 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   return (
     <div className="space-y-8">
       <section className="pat-card p-5">
-        <div className="flex flex-wrap gap-2">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded-full border border-[var(--shell-border)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition hover:border-[rgba(6,54,116,0.32)]"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
+        <PatModeToggle
+          ariaLabel="Admin control plane navigation"
+          activeKey={activeAdminKey}
+          options={navItems.map((item) => ({
+            key: item.href,
+            label: item.label,
+            href: item.href,
+          }))}
+        />
       </section>
       {children}
     </div>

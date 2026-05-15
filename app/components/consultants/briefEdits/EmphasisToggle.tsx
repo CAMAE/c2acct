@@ -19,6 +19,14 @@ import type {
  * for the section — single row per (section, EMPHASIS) by design. The
  * server-side validator (lib/briefEditChoice.ts) enforces target ids
  * against a per-section allowlist.
+ *
+ * AUDIT-WS5-A-001 (DEFERRED): this is a multi-select tag-chip pattern,
+ * not the mutually-exclusive `.pat-mode-toggle` pill row. Per WS5 prompt
+ * (Block A halt rule on structural differences), do not invent a new
+ * .pat-mode-toggle variant to accommodate multi-select semantics. Awaits
+ * Cam adjudication: (a) convert to canonical with multi-select shape,
+ * (b) keep the chip pattern as a separate sanctioned family, or (c) ship
+ * a new sanctioned class for editorial multi-select chips.
  */
 
 export default function EmphasisToggle(props: {

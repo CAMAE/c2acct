@@ -82,28 +82,27 @@ export default function PhrasingVariantPicker(props: {
       >
         {activeVariant.rendered}
       </p>
-      <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+      <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
         <span>Tone</span>
-        {props.variants.map((variant) => {
-          const isActive = variant.id === activeId;
-          return (
-            <button
-              key={variant.id}
-              type="button"
-              onClick={() => pickVariant(variant.id)}
-              data-testid="phrasing-variant-chip"
-              data-variant-id={variant.id}
-              data-active={isActive ? "true" : "false"}
-              className={
-                isActive
-                  ? "rounded-full bg-[var(--brand-c2-blue)] px-3 py-1 text-white"
-                  : "rounded-full border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] px-3 py-1 text-[var(--shell-ink)]"
-              }
-            >
-              {variant.label}
-            </button>
-          );
-        })}
+        <div className="pat-mode-toggle">
+          {props.variants.map((variant) => {
+            const isActive = variant.id === activeId;
+            return (
+              <button
+                key={variant.id}
+                type="button"
+                onClick={() => pickVariant(variant.id)}
+                data-testid="phrasing-variant-chip"
+                data-variant-id={variant.id}
+                data-active={isActive ? "true" : "false"}
+                aria-pressed={isActive}
+                className="pat-mode-toggle__option"
+              >
+                <span>{variant.label}</span>
+              </button>
+            );
+          })}
+        </div>
         {status ? (
           <span role="status" className="normal-case text-[var(--brand-c2-blue)]">
             {status}

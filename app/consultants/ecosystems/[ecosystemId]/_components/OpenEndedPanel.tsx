@@ -76,22 +76,35 @@ export default function OpenEndedPanel({ data }: { data: EcosystemDetailData }) 
 
       {productOptions.length > 1 ? (
         <div className="mb-4">
-          <label className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+          <div className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
             Filter by product
-          </label>
-          <select
+          </div>
+          <div
+            className="pat-mode-toggle mt-2"
             data-testid="openended-product-filter"
-            className="mt-2 w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-3 py-2 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[rgba(6,54,116,0.32)]"
-            value={selectedProduct}
-            onChange={(event) => selectProduct(event.target.value)}
+            role="group"
+            aria-label="Filter open-ended responses by product"
           >
-            <option value={ALL_PRODUCTS_VALUE}>All products</option>
-            {productOptions.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
+            {[
+              { key: ALL_PRODUCTS_VALUE, label: "All products" },
+              ...productOptions.map((name) => ({ key: name, label: name })),
+            ].map((opt) => {
+              const isActive = opt.key === selectedProduct;
+              return (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => selectProduct(opt.key)}
+                  data-active={isActive ? "true" : "false"}
+                  data-key={opt.key}
+                  aria-pressed={isActive}
+                  className="pat-mode-toggle__option"
+                >
+                  <span>{opt.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       ) : null}
 
