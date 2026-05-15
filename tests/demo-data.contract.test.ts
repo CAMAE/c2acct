@@ -25,7 +25,7 @@ describe("PAT deterministic demo ecosystem", () => {
 
     expect(minimums.vendorCount).toBeGreaterThanOrEqual(DEMO_VENDOR_COUNT_MINIMUM);
     expect(minimums.productCount).toBeGreaterThanOrEqual(DEMO_PRODUCT_COUNT_MINIMUM);
-    expect(minimums.firmCount).toBe(10);
+    expect(minimums.firmCount).toBe(15);
     expect(minimums.firmVendorRelationshipCount).toBeGreaterThanOrEqual(DEMO_FIRM_VENDOR_RELATIONSHIP_MINIMUM);
 
     for (const vendor of DEMO_PAT_VENDORS) {
@@ -55,7 +55,7 @@ describe("PAT deterministic demo ecosystem", () => {
           .filter((relationship) => relationship.vendor.key === vendor.key)
           .map((relationship) => relationship.firm.key)
       );
-      expect(firmsForVendor.size).toBe(10);
+      expect(firmsForVendor.size).toBe(15);
     }
 
     const productTargets = products.map(({ product }) => product.scoreTarget);
@@ -93,7 +93,7 @@ describe("PAT deterministic demo ecosystem", () => {
     expect(health.error).toBeNull();
     expect(health.vendorCount).toBeGreaterThanOrEqual(DEMO_VENDOR_COUNT_MINIMUM);
     expect(health.productCount).toBeGreaterThanOrEqual(DEMO_PRODUCT_COUNT_MINIMUM);
-    expect(health.firmCount).toBe(10);
+    expect(health.firmCount).toBe(15);
     expect(health.productProfileCount).toBeGreaterThanOrEqual(health.productCount);
     expect(health.vendorProductPlanCount).toBeGreaterThanOrEqual(health.productCount);
     expect(health.firmProductPlanCount).toBeGreaterThanOrEqual(health.productCount);
@@ -125,7 +125,7 @@ describe("PAT deterministic demo ecosystem", () => {
     const minimums = getPilotCohortMinimums();
 
     expect(demoHealth.vendorCount).toBeGreaterThanOrEqual(DEMO_VENDOR_COUNT_MINIMUM);
-    expect(demoHealth.firmCount).toBe(10);
+    expect(demoHealth.firmCount).toBe(15);
     expect(pilotHealth.error).toBeNull();
     expect(pilotHealth.expectedJune1CohortKey).toBe(JUNE_1_PILOT_COHORT.key);
     expect(pilotHealth.cohortCount).toBeGreaterThanOrEqual(minimums.cohortCount);

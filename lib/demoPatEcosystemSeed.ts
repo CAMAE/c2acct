@@ -548,12 +548,13 @@ export async function seedVendorProductAssessment(client: DemoSeedClient, input:
     profile,
     answers,
   });
-  // Day-27 P1j (RK6 / R145): rotate 12 template variants per question so the
-  // "Recent firm responses" surface shows varied text instead of the same
-  // sentence repeated across every response. Rotation is deterministic
-  // (questionId modulo template count) so re-seeds are stable. The slot fills
-  // pull from the product's risk flags + operating-model-fit so each variant
-  // still grounds in the product's profile.
+  // WS3-D (manual-review item 29): rotation array grown from 12 → 25 variants
+  // so the "Recent firm responses" surface shows more visible diversity at
+  // the new 60-response scale (15 firms × 4 products). Rotation mechanism
+  // unchanged from Day-27 P1j: (idSum + index) % templates.length, keyed on
+  // questionId character-code sum + position for stable re-seeds. Every
+  // template interpolates at least one of {product.name,
+  // product.profile.operatingModelFit, riskFlag}.
   const openEndedTemplates = [
     (riskFlag: string) => `${product.name} is strongest where ${product.profile.operatingModelFit.toLowerCase()} The current review evidence flags ${riskFlag} as the condition to monitor.`,
     (riskFlag: string) => `Across our use of ${product.name}, the integration depth has held up over the rollout period. ${riskFlag.charAt(0).toUpperCase() + riskFlag.slice(1)} remains the open question for the next quarter.`,
@@ -567,6 +568,20 @@ export async function seedVendorProductAssessment(client: DemoSeedClient, input:
     (riskFlag: string) => `${product.name} earns its keep on the operating-model fit dimension. The team's call-out on ${riskFlag} is the only flag we're carrying forward.`,
     (riskFlag: string) => `We continue to see value from ${product.name}. The structural risk we monitor is ${riskFlag}; everything else tracks our pre-rollout expectations.`,
     (riskFlag: string) => `${product.name} reliably supports ${product.profile.operatingModelFit.toLowerCase().split(" ").slice(0, 5).join(" ")} The condition that remains uncertain is ${riskFlag}.`,
+    // WS3-D new templates 13-25:
+    (riskFlag: string) => `Adoption pace for ${product.name} has been steady; the main thing we're watching is ${riskFlag}.`,
+    (riskFlag: string) => `${product.name} earns its keep on the daily work. The rough edge is around ${riskFlag}.`,
+    (riskFlag: string) => `Our renewal conversation around ${product.name} will hinge on how the vendor handles ${riskFlag}.`,
+    (riskFlag: string) => `${product.name} sits at the center of the workflow now; the single thing we'd improve is ${riskFlag}.`,
+    (riskFlag: string) => `Compared to what we used before, ${product.name} closes the gap on ${product.profile.operatingModelFit.toLowerCase().split(" ")[0]} cleanly. ${riskFlag.charAt(0).toUpperCase() + riskFlag.slice(1)} is the only standing question.`,
+    (riskFlag: string) => `Day-to-day, ${product.name} is reliable. ${riskFlag.charAt(0).toUpperCase() + riskFlag.slice(1)} comes up in every quarterly retrospective but never tips us over.`,
+    (riskFlag: string) => `The partners view ${product.name} as a quiet workhorse — it doesn't make headlines, and it doesn't break. The ongoing watch-item is ${riskFlag}.`,
+    (riskFlag: string) => `${product.name} replaces three tools we used to stitch together. The remaining concern, mostly minor, is ${riskFlag}.`,
+    (riskFlag: string) => `Our team's confidence in ${product.name} climbed sharply after the first full quarter. The single area we still flag is ${riskFlag}.`,
+    (riskFlag: string) => `${product.name} pairs well with our existing stack — ${product.profile.operatingModelFit.toLowerCase().split(" ").slice(0, 3).join(" ")} fits cleanly. The open piece is ${riskFlag}.`,
+    (riskFlag: string) => `If we had to argue for keeping ${product.name} at renewal, the case writes itself on operational fit. The counter-argument lives in ${riskFlag}.`,
+    (riskFlag: string) => `${product.name}'s release cadence has been a pleasant surprise. The team's ongoing concern is just ${riskFlag}, which the vendor has acknowledged.`,
+    (riskFlag: string) => `Trust in ${product.name} grew faster than we expected. The remaining wrinkle is ${riskFlag} — solvable, but worth tracking.`,
   ];
   const openEndedResponses = Object.fromEntries(
     openEndedPlan.map((question, index) => {
@@ -1144,7 +1159,10 @@ export async function ensureConsultantEcosystemForReview(client: DemoSeedClient)
     return null;
   }
 
-  const firmKeys = DEMO_PAT_FIRMS.slice(0, 3).map((firm) => firm.key);
+  // WS3-B (manual-review item 26/27): consultant ecosystem now scopes to all
+  // 15 demo firms (was 3). Firm-side alignment submissions scale linearly:
+  // 15 firms × 5 modules = 75 submissions.
+  const firmKeys = DEMO_PAT_FIRMS.map((firm) => firm.key);
   const firmCompanyIds = firmKeys.map((firmKey) => stableId("demo-firm-company", firmKey));
   const firmCompanies = await client.company.findMany({
     where: { id: { in: firmCompanyIds }, type: CompanyType.FIRM },

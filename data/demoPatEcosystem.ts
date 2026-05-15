@@ -1065,6 +1065,64 @@ export const DEMO_PAT_FIRMS: DemoFirmInput[] = [
     scoreTarget: 3.4,
     membership: PRO_ACTIVE,
   },
+  // WS3-A (manual-review item 26): 5 new firms added to take the
+  // consultant ecosystem from 10 → 15 firms. Names verified unique
+  // against existing entries.
+  {
+    key: "marquam-stone-audit",
+    displayName: "Marquam & Stone Audit Group",
+    industry: "Mid-market assurance",
+    sizeBand: "51-200 employees",
+    maturityLevel: "Process-disciplined",
+    integrationNeeds: ["audit workpapers", "evidence management", "PBC tracking"],
+    riskFlags: ["partner-review cycle time"],
+    scoreTarget: 4.0,
+    membership: PRO_ACTIVE,
+  },
+  {
+    key: "tideland-cpas",
+    displayName: "Tideland CPAs",
+    industry: "Coastal regional CPA",
+    sizeBand: "11-50 employees",
+    maturityLevel: "Owner-operator stable",
+    integrationNeeds: ["tax prep", "engagement workflow", "client portal"],
+    riskFlags: ["seasonality concentration"],
+    scoreTarget: 3.6,
+    membership: PRO_ACTIVE,
+  },
+  {
+    key: "granite-slope-advisors",
+    displayName: "Granite Slope Advisors",
+    industry: "Wealth-adjacent CPA",
+    sizeBand: "11-50 employees",
+    maturityLevel: "Advisory-led",
+    integrationNeeds: ["CFO dashboards", "client deliverables", "scheduling"],
+    riskFlags: ["advisory deliverable inconsistency"],
+    scoreTarget: 3.8,
+    membership: ELITE_ACTIVE,
+  },
+  {
+    key: "northford-tax-partners",
+    displayName: "Northford Tax Partners",
+    industry: "High-volume tax compliance",
+    sizeBand: "201-500 employees",
+    maturityLevel: "Industrialized",
+    integrationNeeds: ["return preparation", "signature workflow", "document automation"],
+    riskFlags: ["volume surge management"],
+    scoreTarget: 3.9,
+    membership: ELITE_ACTIVE,
+  },
+  {
+    key: "fernwood-cas-group",
+    displayName: "Fernwood CAS Group",
+    industry: "Client accounting services",
+    sizeBand: "51-200 employees",
+    maturityLevel: "Scaling onboarding muscle",
+    integrationNeeds: ["AR collection", "month-end close", "client onboarding"],
+    riskFlags: ["onboarding velocity vs quality tradeoff"],
+    scoreTarget: 3.7,
+    membership: PRO_ACTIVE,
+  },
 ];
 
 export function getDemoProducts() {
@@ -1076,19 +1134,26 @@ export function getDemoProducts() {
   );
 }
 
+// WS3-C (manual-review item 28): per-(vendor, firm, product) relationship
+// matrix. Previously emitted one row per (vendor, firm) pair via modulo
+// product-pick — meant each firm only reviewed a single product per vendor.
+// Now emits the full Cartesian product so each firm has a relationship for
+// every product the vendor sells. For the consultant ecosystem (1 vendor ×
+// 15 firms × 4 products) this produces 60 firm-side product reviews.
 export function getDemoFirmVendorRelationships() {
-  return DEMO_PAT_VENDORS.flatMap((vendor, vendorIndex) =>
-    DEMO_PAT_FIRMS.map((firm, firmIndex) => {
-      const product = vendor.products[(firmIndex + vendorIndex) % vendor.products.length];
-
-      return {
+  return DEMO_PAT_VENDORS.flatMap((vendor) =>
+    DEMO_PAT_FIRMS.flatMap((firm) =>
+      vendor.products.map((product) => ({
         vendor,
         firm,
         product,
         relationshipKey: `${firm.key}__${vendor.key}__${product.key}`,
-        confidence: firm.scoreTarget >= 4 && product.scoreTarget >= 4 ? ResearchConfidence.HIGH : ResearchConfidence.MEDIUM,
-      };
-    })
+        confidence:
+          firm.scoreTarget >= 4 && product.scoreTarget >= 4
+            ? ResearchConfidence.HIGH
+            : ResearchConfidence.MEDIUM,
+      }))
+    )
   );
 }
 
