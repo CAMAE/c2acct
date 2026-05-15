@@ -1,33 +1,109 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { EcosystemDetailData } from "@/lib/ecosystem";
 
+const DEFAULT_VISIBLE_COUNT = 10;
+const ALL_PRODUCTS_VALUE = "all";
+
+/**
+ * WS2-D (manual-review item 15): per-product filter + lifted slice cap.
+ * The lib layer now returns all responses; this panel filters client-side
+ * by selected product name. URL-state via ?product= for shareable links.
+ */
 export default function OpenEndedPanel({ data }: { data: EcosystemDetailData }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [showAll, setShowAll] = useState(false);
-  const total = data.openEndedTotalCount;
-  const hasResponses = data.openEndedResponses.length > 0;
-  const responses = showAll ? data.openEndedResponses : data.openEndedResponses.slice(0, 10);
+
+  const productOptions = useMemo(() => {
+    const names = new Set<string>();
+    for (const response of data.openEndedResponses) {
+      names.add(response.productName);
+    }
+    return Array.from(names).sort();
+  }, [data.openEndedResponses]);
+
+  const requestedProduct = searchParams.get("product") ?? ALL_PRODUCTS_VALUE;
+  const selectedProduct = productOptions.includes(requestedProduct)
+    ? requestedProduct
+    : ALL_PRODUCTS_VALUE;
+
+  const filteredResponses = useMemo(() => {
+    if (selectedProduct === ALL_PRODUCTS_VALUE) return data.openEndedResponses;
+    return data.openEndedResponses.filter(
+      (response) => response.productName === selectedProduct
+    );
+  }, [data.openEndedResponses, selectedProduct]);
+
+  const visibleResponses = showAll
+    ? filteredResponses
+    : filteredResponses.slice(0, DEFAULT_VISIBLE_COUNT);
+  const hasResponses = filteredResponses.length > 0;
+
+  function selectProduct(next: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (next === ALL_PRODUCTS_VALUE) {
+      params.delete("product");
+    } else {
+      params.set("product", next);
+    }
+    setShowAll(false);
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }
 
   return (
     <section
       className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-5"
       data-testid="ecosystem-detail-openended"
     >
-      <div className="mb-4 flex items-baseline justify-between gap-3">
+      <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
         <h2 className="text-xl font-semibold tracking-tight text-[var(--shell-ink)]">
           Recent firm responses
         </h2>
         <div className="text-sm text-[var(--shell-muted)]">
-          {responses.length} of {total} total
+          {visibleResponses.length} of {filteredResponses.length} shown
+          {selectedProduct !== ALL_PRODUCTS_VALUE ? (
+            <span className="ml-2 text-xs text-[var(--shell-muted)]">
+              · filtered from {data.openEndedTotalCount} total
+            </span>
+          ) : null}
         </div>
       </div>
 
+      {productOptions.length > 1 ? (
+        <div className="mb-4">
+          <label className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+            Filter by product
+          </label>
+          <select
+            data-testid="openended-product-filter"
+            className="mt-2 w-full rounded-[16px] border border-[var(--shell-border)] bg-white px-3 py-2 text-sm text-[var(--shell-ink)] outline-none transition focus:border-[rgba(6,54,116,0.32)]"
+            value={selectedProduct}
+            onChange={(event) => selectProduct(event.target.value)}
+          >
+            <option value={ALL_PRODUCTS_VALUE}>All products</option>
+            {productOptions.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
+
       {!hasResponses ? (
-        <p className="text-sm text-[var(--shell-muted)]">No open-ended responses yet.</p>
+        <p className="text-sm text-[var(--shell-muted)]">
+          {selectedProduct === ALL_PRODUCTS_VALUE
+            ? "No open-ended responses yet."
+            : `No responses on file for ${selectedProduct} yet.`}
+        </p>
       ) : (
         <div className="space-y-4">
-          {responses.map((response) => (
+          {visibleResponses.map((response) => (
             <blockquote
               key={response.responseId}
               data-testid="openended-response"
@@ -39,13 +115,13 @@ export default function OpenEndedPanel({ data }: { data: EcosystemDetailData }) 
               </footer>
             </blockquote>
           ))}
-          {total > data.openEndedResponses.length && !showAll ? (
+          {filteredResponses.length > visibleResponses.length && !showAll ? (
             <button
               type="button"
               onClick={() => setShowAll(true)}
               className="text-sm font-semibold text-[var(--brand-c2-blue)] hover:underline"
             >
-              Show all ({total})
+              Show all ({filteredResponses.length})
             </button>
           ) : null}
         </div>

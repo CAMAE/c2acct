@@ -7,12 +7,20 @@ import { getSessionUser } from "@/lib/auth/session";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { getVendorUtilityLabels } from "@/lib/vendorPat";
 import { getFirmProductCatalog } from "@/lib/firmPat";
+import AvailableCompletedToggle, {
+  type ProductFilterValue,
+} from "./_components/AvailableCompletedToggle";
 
 export const dynamic = "force-dynamic";
 
 type SearchParams = {
   blockedProductId?: string;
+  filter?: string;
 };
+
+function resolveFilter(raw: string | undefined): ProductFilterValue {
+  return raw === "completed" ? "completed" : "available";
+}
 
 export default async function FirmProductAssessmentsPage({
   searchParams,
@@ -47,6 +55,18 @@ export default async function FirmProductAssessmentsPage({
   const params = searchParams ? await searchParams : undefined;
   const products = await getFirmProductCatalog(sessionUser.companyId);
   const reviewableProducts = products.filter((product) => product.reviewAvailable);
+  // WS2-B (manual-review items 8/9): card-level Available|Completed toggle
+  // replaces the per-card status pill. Completion is keyed on
+  // latestFirmReviewSubmittedAt being non-null.
+  const activeFilter = resolveFilter(params?.filter);
+  const availableProducts = reviewableProducts.filter(
+    (product) => product.latestFirmReviewSubmittedAt === null
+  );
+  const completedProducts = reviewableProducts.filter(
+    (product) => product.latestFirmReviewSubmittedAt !== null
+  );
+  const visibleProducts =
+    activeFilter === "completed" ? completedProducts : availableProducts;
   const blockedProduct =
     params?.blockedProductId ? products.find((product) => product.id === params.blockedProductId) : null;
 
@@ -78,32 +98,36 @@ export default async function FirmProductAssessmentsPage({
       ) : null}
 
       <section className="space-y-4">
-        <div>
-          <h2 className="text-2xl font-semibold text-[var(--shell-ink)]">Available product reviews</h2>
-          <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
-            Open one product to add your firm-side review to the current PAT evidence set.
-          </p>
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-2xl font-semibold text-[var(--shell-ink)]">Product reviews</h2>
+            <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
+              Open one product to add your firm-side review to the current PAT evidence set.
+            </p>
+          </div>
+          <AvailableCompletedToggle
+            currentFilter={activeFilter}
+            availableCount={availableProducts.length}
+            completedCount={completedProducts.length}
+          />
         </div>
         <div className="grid gap-5 md:grid-cols-2">
-          {reviewableProducts.length === 0 ? (
+          {visibleProducts.length === 0 ? (
             <div className="pat-card p-6 text-sm leading-6 text-[var(--shell-muted)]">
-              No products are reviewable yet. Firm review opens only after the vendor completes the full product assessment.
+              {activeFilter === "completed"
+                ? "No firm reviews have been submitted yet. Switch to Available to start one."
+                : "No products are reviewable yet. Firm review opens only after the vendor completes the full product assessment."}
             </div>
           ) : (
-            reviewableProducts.map((product) => (
+            visibleProducts.map((product) => (
               <Link
                 key={product.id}
                 href={`/firm/product-assessments/${product.id}`}
                 className="pat-card pat-card-interactive block rounded-[24px] p-6 shadow-[0_24px_60px_rgba(15,23,42,0.06)]"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="text-xl font-semibold text-[var(--shell-ink)]">{product.name}</div>
-                    <div className="mt-2 text-sm text-[var(--shell-muted)]">{product.vendorName}</div>
-                  </div>
-                  <span className="rounded-full bg-[var(--shell-accent)]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--shell-accent)]">
-                    {product.firmReviewStatusLabel}
-                  </span>
+                <div>
+                  <div className="text-xl font-semibold text-[var(--shell-ink)]">{product.name}</div>
+                  <div className="mt-2 text-sm text-[var(--shell-muted)]">{product.vendorName}</div>
                 </div>
                 <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
                   {product.summary ?? "No summary added yet."}

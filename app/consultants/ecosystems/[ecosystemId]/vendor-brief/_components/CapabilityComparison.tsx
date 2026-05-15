@@ -108,10 +108,22 @@ export default function CapabilityComparison({ data }: { data: VendorBriefData }
         </div>
       ) : (
         <div className="mt-8 overflow-x-auto">
+          {/* WS2-E (manual-review item 24): table-fixed + colgroup widths
+              spread the columns across the full card width instead of
+              jamming on the left. Capability area gets the biggest slice
+              (35%) since it carries multi-line text; numeric columns each
+              get 15%; Direction gets 20% for the longest label. */}
           <table
-            className="min-w-full text-left text-sm"
+            className="w-full table-fixed text-left text-sm"
             data-testid="capability-comparison-table"
           >
+            <colgroup>
+              <col className="w-[35%]" />
+              <col className="w-[15%]" />
+              <col className="w-[15%]" />
+              <col className="w-[15%]" />
+              <col className="w-[20%]" />
+            </colgroup>
             <thead>
               <tr className="border-b border-[var(--shell-border)] text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
                 <th scope="col" className="py-3 pr-4">

@@ -104,8 +104,21 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
         <div className="text-sm text-[var(--shell-muted)]">{data.firmGrid.length} firm{data.firmGrid.length === 1 ? "" : "s"}</div>
       </div>
 
+      {/* WS2-C (manual-review items 13/14): 30-day actions column dropped
+          from the per-firm row (the ecosystem-level HeadlineMetricsRow
+          still surfaces the aggregate). Remaining 6 columns redistributed
+          to fill the card width: Firm gets the auto-flexible remainder
+          (~30%), each numeric column gets ~12%, Last activity gets ~12%. */}
       <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
+        <table className="w-full table-fixed text-left text-sm">
+          <colgroup>
+            <col />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "14%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "14%" }} />
+            <col style={{ width: "16%" }} />
+          </colgroup>
           <thead>
             <tr className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
               <th className="pb-2 pr-3 text-left">
@@ -134,7 +147,6 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
                   Last activity{sortIndicator("latestActivityAt")}
                 </button>
               </th>
-              <th className="pb-2 pr-3 text-center">30-day actions</th>
             </tr>
           </thead>
           <tbody>
@@ -160,7 +172,6 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
                   {row.productReviewCount} / {row.productsAvailable}
                 </td>
                 <td className="py-2 pr-3 text-left text-[var(--shell-muted)]">{formatRelative(row.latestActivityAt)}</td>
-                <td className="py-2 pr-3 text-center tabular-nums text-[var(--shell-muted)]">{row.thirtyDayActionCount}</td>
               </tr>
             ))}
           </tbody>

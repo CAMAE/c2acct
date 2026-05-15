@@ -41,8 +41,11 @@ export default function PerFirmHeatmap({ data }: { data: VendorBriefData }) {
         </div>
       ) : (
         <>
+          {/* WS2-E (manual-review item 25): widen the per-firm matrix to use
+              the full Section 5 card width. min-w-full → w-full so columns
+              stretch to fill available width instead of jamming on the left. */}
           <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-xs">
+            <table className="w-full text-left text-xs">
               <thead>
                 <tr>
                   <th

@@ -149,6 +149,46 @@ export function avgModuleCompletion(progressList: FirmAlignmentProgressSummary[]
   return Math.round(sum / progressList.length);
 }
 
+// ---------- WS2 thin metadata helper ----------
+
+/**
+ * Lightweight ecosystem metadata for the consultant layout top card.
+ * Returns only {ecosystemName, firmCount, productCount}. Tenancy gate:
+ * Invariant 1 — first prisma call is the consultantAssignment lookup.
+ */
+export async function getEcosystemMetadataForConsultant(
+  consultantProfileId: string,
+  ecosystemId: string
+): Promise<{ ecosystemName: string; firmCount: number; productCount: number } | null> {
+  const assignment = await prisma.consultantAssignment.findFirst({
+    where: { consultantProfileId, ecosystemId, active: true },
+    select: {
+      Ecosystem: {
+        select: {
+          id: true,
+          name: true,
+          vendorCompanyId: true,
+          EcosystemFirm: { select: { firmCompanyId: true } },
+        },
+      },
+    },
+  });
+  if (!assignment || !assignment.Ecosystem) return null;
+  const ecosystem = assignment.Ecosystem;
+
+  const productCount = ecosystem.vendorCompanyId
+    ? await prisma.product.count({
+        where: { companyId: ecosystem.vendorCompanyId },
+      })
+    : 0;
+
+  return {
+    ecosystemName: ecosystem.name,
+    firmCount: ecosystem.EcosystemFirm.length,
+    productCount,
+  };
+}
+
 // ---------- Day-12 main aggregation ----------
 
 export async function getEcosystemListForConsultant(
@@ -446,8 +486,13 @@ export function vendorAtAGlanceForVendor(
  */
 export function openEndedResponsesForEcosystem(
   briefings: AdminCompanyBriefing[],
-  limit = 10
+  limit?: number
 ): { responses: EcosystemDetailOpenEndedResponse[]; totalCount: number } {
+  // WS2-D (manual-review item 15): the cap is now optional. Callers that
+  // need all responses for client-side filtering pass no limit and get the
+  // full sorted list. Estimate at scale (4 ecosystems × ~80 responses
+  // = ~320 records × ~200 chars ≈ 64KB JSON) is well under the halt
+  // threshold.
   const all: EcosystemDetailOpenEndedResponse[] = [];
   for (const briefing of briefings) {
     for (const [index, response] of briefing.productLayer.openEndedResponses.entries()) {
@@ -467,7 +512,8 @@ export function openEndedResponsesForEcosystem(
     }
   }
   all.sort((a, b) => (a.submittedAt < b.submittedAt ? 1 : a.submittedAt > b.submittedAt ? -1 : 0));
-  return { responses: all.slice(0, limit), totalCount: all.length };
+  const responses = typeof limit === "number" ? all.slice(0, limit) : all;
+  return { responses, totalCount: all.length };
 }
 
 // ---------- Day-14 main aggregation ----------
@@ -585,7 +631,9 @@ export async function getEcosystemDetailForConsultant(
     })
     .filter((row): row is EcosystemDetailFirmRow => row !== null);
 
-  const openEnded = openEndedResponsesForEcosystem(briefings, 10);
+  // WS2-D: lift the slice cap so the OpenEndedPanel can client-side filter
+  // across all responses by product. Payload estimated <100KB at demo scale.
+  const openEnded = openEndedResponsesForEcosystem(briefings);
 
   return {
     ecosystemId: ecosystem.id,
