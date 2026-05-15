@@ -412,11 +412,11 @@ export default function PerFirmStrengthsCautions({
 
   return (
     <section
-      id="section-5-strengths-cautions"
+      id="section-4-strengths-cautions"
       className="scroll-mt-8 rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8"
       data-testid="per-firm-strengths-cautions"
     >
-      <div className="pat-label">Section 5 · Per-firm strengths / cautions</div>
+      <div className="pat-label">Section 4 · Per-firm strengths / cautions</div>
 
       <h2
         className="mt-4 font-semibold tracking-tight text-[var(--shell-ink)]"
@@ -458,7 +458,7 @@ export default function PerFirmStrengthsCautions({
         className="mt-10 border-t border-[var(--shell-border)] pt-5 text-xs leading-6 text-[var(--shell-muted)]"
         data-testid="strengths-cautions-methodology-footer"
       >
-        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {totalCellCount} firm &times; product cell{totalCellCount === 1 ? "" : "s"} analyzed · scoring methodology: see Section 3 above.
+        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {totalCellCount} firm &times; product cell{totalCellCount === 1 ? "" : "s"} analyzed · scoring methodology: see Section 2 above.
       </div>
     </section>
   );

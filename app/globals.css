@@ -311,20 +311,20 @@ textarea {
   color: var(--shell-ink);
 }
 
+/* WS1-A (manual-review items 1/2/3): match the canonical sign-in pill design
+   (app/sign-in/page.tsx:99-126 InlineAccessSelectorWithOptions). Flat
+   rounded-full container with subtle border + soft-panel bg. Options are
+   flat pills, no chiclet shadow, no transform-on-hover. Active state uses
+   a faint brand-tinted fill instead of solid dark navy. */
 .pat-mode-toggle {
   display: inline-flex;
   max-width: 100%;
   flex-wrap: wrap;
-  gap: 0.45rem;
-  border: 1px solid rgba(6, 54, 116, 0.16);
-  border-radius: 1.45rem;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(238, 244, 250, 0.94)),
-    var(--shell-panel-soft);
-  padding: 0.42rem;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 12px 32px rgba(15, 23, 42, 0.07);
+  gap: 0.5rem;
+  border: 1px solid var(--shell-border);
+  border-radius: 999px;
+  background: var(--shell-panel-soft);
+  padding: 0.375rem;
 }
 
 .pat-mode-toggle__option {
@@ -332,34 +332,27 @@ textarea {
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  min-height: 2.8rem;
-  border: 1px solid rgba(6, 54, 116, 0.12);
-  border-radius: 1.05rem;
-  background: rgba(255, 255, 255, 0.72);
-  background-color: rgba(255, 255, 255, 0.72);
-  padding: 0.76rem 1.05rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  padding: 0.625rem 1rem;
   font-family: var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  font-size: 0.92rem;
-  font-weight: 700;
+  font-size: 0.875rem;
+  font-weight: 500;
   line-height: 1;
-  color: var(--shell-ink);
+  color: var(--shell-muted);
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.035);
   transition:
     background-color 160ms ease,
     border-color 160ms ease,
-    box-shadow 160ms ease,
-    color 160ms ease,
-    transform 160ms ease;
+    color 160ms ease;
 }
 
 .pat-mode-toggle__option:hover {
-  border-color: rgba(6, 54, 116, 0.26);
+  border-color: rgba(6, 54, 116, 0.18);
   background: white;
-  background-color: white;
-  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.09);
-  transform: translateY(-1px);
+  color: var(--shell-ink);
 }
 
 .pat-mode-toggle__option:focus-visible {
@@ -368,14 +361,9 @@ textarea {
 }
 
 .pat-mode-toggle__option[data-active="true"] {
-  border-color: rgba(6, 54, 116, 0.56);
-  background: rgba(6, 54, 116, 0.92);
-  background-color: rgba(6, 54, 116, 0.92);
-  color: white;
-  box-shadow:
-    0 14px 28px rgba(6, 54, 116, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.16);
-  transform: none;
+  border-color: rgba(6, 54, 116, 0.16);
+  background: rgba(6, 54, 116, 0.06);
+  color: var(--shell-ink);
 }
 
 .pat-mode-toggle__option[data-state="locked"] {
@@ -391,19 +379,21 @@ textarea {
 
 .pat-mode-toggle__option[data-state="locked"][data-active="true"] {
   border-color: rgba(210, 161, 91, 0.34);
-  background: #5f431c;
-  color: white;
+  background: rgba(255, 247, 234, 0.95);
+  color: #5f431c;
 }
 
 .pat-mode-toggle__option[data-state="disabled"] {
-  border-color: rgba(92, 108, 128, 0.16);
-  background: rgba(248, 250, 252, 0.92);
+  border-color: transparent;
+  background: transparent;
   color: var(--shell-muted);
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .pat-mode-toggle__option[data-state="disabled"]:hover {
-  background: white;
-  color: var(--shell-ink);
+  background: transparent;
+  color: var(--shell-muted);
 }
 
 .pat-mode-toggle__status {
@@ -419,9 +409,9 @@ textarea {
 }
 
 .pat-mode-toggle__option[data-active="true"] .pat-mode-toggle__status {
-  border-color: rgba(255, 255, 255, 0.28);
-  background: rgba(255, 255, 255, 0.14);
-  color: white;
+  border-color: rgba(6, 54, 116, 0.18);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--shell-ink);
 }
 
 .pat-mode-toggle__status[data-state="locked"] {

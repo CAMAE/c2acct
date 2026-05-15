@@ -9,18 +9,22 @@ type TOCEntry = {
   comingSoon?: string;
 };
 
+// WS1-D (manual-review item 23): Section 2 Market Context dropped entirely.
+// Cascade renumber: old 3→2 (Methodology), 4→3 (Positioning), 5→4 (Strengths),
+// 6→5 (Capability), 7→6 (Action Roadmap). Section IDs retain their semantic
+// slug component so deep links / anchors keep meaningful URLs across the
+// rename.
 const TOC_ENTRIES: readonly TOCEntry[] = [
   { id: "section-1-executive-summary", number: 1, label: "Executive summary" },
-  { id: "section-2-market-context", number: 2, label: "Market context" },
-  { id: "section-3-methodology", number: 3, label: "Evaluation methodology" },
-  { id: "section-4-positioning-visual", number: 4, label: "Positioning visual" },
+  { id: "section-2-methodology", number: 2, label: "Evaluation methodology" },
+  { id: "section-3-positioning-visual", number: 3, label: "Positioning visual" },
   {
-    id: "section-5-strengths-cautions",
-    number: 5,
+    id: "section-4-strengths-cautions",
+    number: 4,
     label: "Strengths / cautions",
   },
-  { id: "section-6-capability-comparison", number: 6, label: "Capability comparison" },
-  { id: "section-7-action-roadmap", number: 7, label: "Action roadmap" },
+  { id: "section-5-capability-comparison", number: 5, label: "Capability comparison" },
+  { id: "section-6-action-roadmap", number: 6, label: "Action roadmap" },
 ] as const;
 
 export default function BriefTOC() {

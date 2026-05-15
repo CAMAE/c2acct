@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
+import { getConsultantAccessStateForUser } from "@/lib/consultantAccess";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import {
   getVendorProductInsightCatalog,
@@ -35,8 +36,10 @@ export default async function VendorProductInsightPage() {
   if (!sessionUser) {
     redirect("/sign-in/vendor");
   }
+  // WS1-B (manual-review item 6): consultants bypass the vendor Pro gate.
+  const consultantAccess = await getConsultantAccessStateForUser(sessionUser);
   const entitlement = await resolveMembershipEntitlement(sessionUser, "vendor", MEMBERSHIP_PLAN.PRO);
-  if (!entitlement.allowed) {
+  if (!consultantAccess && !entitlement.allowed) {
     return (
       <MembershipSurfaceGate
         audience="vendor"

@@ -1,9 +1,6 @@
-import EmphasisToggle from "@/app/components/consultants/briefEdits/EmphasisToggle";
-import PhrasingVariantPicker from "@/app/components/consultants/briefEdits/PhrasingVariantPicker";
 import type { VendorBriefData, VendorBriefDeltaRow } from "@/lib/briefs";
 
 const SECTION_KEY = "vendor.self-vs-market-delta" as const;
-const EMPHASIS_TARGETS = ["row-0", "row-1", "row-2"];
 
 function formatGeneratedDate(iso: string): string {
   const d = new Date(iso);
@@ -60,8 +57,6 @@ function actionTitleFromDelta(rows: VendorBriefDeltaRow[], vendorName: string): 
 
 export default function SelfVsMarketDelta({ data }: { data: VendorBriefData }) {
   const rows = data.selfVsMarketDelta;
-  const variants = data.editVariants[SECTION_KEY] ?? [];
-  const activeVariantId = data.editChoices.variants[SECTION_KEY];
   const activeEmphasis = data.editChoices.emphasis[SECTION_KEY] ?? [];
   const firmLabel = data.firmCount === 1 ? "firm" : "firms";
   const refreshedDate = formatGeneratedDate(data.generatedAt);
@@ -69,11 +64,11 @@ export default function SelfVsMarketDelta({ data }: { data: VendorBriefData }) {
 
   return (
     <section
-      id="section-4-positioning-visual"
+      id="section-3-positioning-visual"
       className="scroll-mt-8 rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8"
       data-testid="self-vs-market-delta"
     >
-      <div className="pat-label">Section 4 · Positioning visual</div>
+      <div className="pat-label">Section 3 · Positioning visual</div>
 
       <h2
         className="mt-4 font-semibold tracking-tight text-[var(--shell-ink)]"
@@ -152,32 +147,9 @@ export default function SelfVsMarketDelta({ data }: { data: VendorBriefData }) {
         className="mt-10 border-t border-[var(--shell-border)] pt-5 text-xs leading-6 text-[var(--shell-muted)]"
         data-testid="self-vs-market-methodology-footer"
       >
-        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {rows.length} product{rows.length === 1 ? "" : "s"} compared · hot-divergence threshold ≥10 points · scoring methodology: see Section 3 above.
+        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {rows.length} product{rows.length === 1 ? "" : "s"} compared · hot-divergence threshold ≥10 points · scoring methodology: see Section 2 above.
       </div>
 
-      {variants.length > 0 || EMPHASIS_TARGETS.length > 0 ? (
-        <div className="mt-4 space-y-3 border-t border-dashed border-[var(--shell-border)] pt-4">
-          <div className="pat-label text-[10px]">Editorial controls</div>
-          {variants.length > 0 ? (
-            <PhrasingVariantPicker
-              briefKind="vendor"
-              briefId={data.vendorCompanyId}
-              ecosystemId={data.ecosystemId}
-              sectionKey={SECTION_KEY}
-              variants={variants}
-              activeVariantId={activeVariantId}
-            />
-          ) : null}
-          <EmphasisToggle
-            briefKind="vendor"
-            briefId={data.vendorCompanyId}
-            ecosystemId={data.ecosystemId}
-            sectionKey={SECTION_KEY}
-            targetElementIds={EMPHASIS_TARGETS}
-            activeEmphasisIds={activeEmphasis}
-          />
-        </div>
-      ) : null}
     </section>
   );
 }

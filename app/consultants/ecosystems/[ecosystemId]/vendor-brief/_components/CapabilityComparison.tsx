@@ -77,11 +77,11 @@ export default function CapabilityComparison({ data }: { data: VendorBriefData }
 
   return (
     <section
-      id="section-6-capability-comparison"
+      id="section-5-capability-comparison"
       className="scroll-mt-8 rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8"
       data-testid="capability-comparison"
     >
-      <div className="pat-label">Section 6 · Capability comparison</div>
+      <div className="pat-label">Section 5 · Capability comparison</div>
 
       <h2
         className="mt-4 font-semibold tracking-tight text-[var(--shell-ink)]"
@@ -91,7 +91,7 @@ export default function CapabilityComparison({ data }: { data: VendorBriefData }
       </h2>
 
       <p className="mt-3 text-sm text-[var(--shell-muted)]">
-        Scorecard table — every capability area at a glance. Use Section 4 for the headline divergences; this section is the full scoreboard.
+        Scorecard table — every capability area at a glance. Use Section 3 for the headline divergences; this section is the full scoreboard.
       </p>
 
       {rows.length === 0 ? (
@@ -172,7 +172,7 @@ export default function CapabilityComparison({ data }: { data: VendorBriefData }
       <div className="mt-10 border-t border-dashed border-[var(--shell-border)] pt-6">
         <div className="pat-label text-[11px]">Per-firm coverage matrix</div>
         <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-          Firm-by-product cells using the Section 3 bands (high &ge; 75, mid 50&ndash;74, low &lt; 50, not yet reviewed). Use this view to spot the firms that haven&apos;t yet reviewed a given capability.
+          Firm-by-product cells using the Section 2 bands (high &ge; 75, mid 50&ndash;74, low &lt; 50, not yet reviewed). Use this view to spot the firms that haven&apos;t yet reviewed a given capability.
         </p>
         <div className="mt-4">
           <PerFirmHeatmap data={data} />
@@ -183,7 +183,7 @@ export default function CapabilityComparison({ data }: { data: VendorBriefData }
         className="mt-10 border-t border-[var(--shell-border)] pt-5 text-xs leading-6 text-[var(--shell-muted)]"
         data-testid="capability-comparison-methodology-footer"
       >
-        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {rows.length} capability {rows.length === 1 ? "area" : "areas"} tracked · hot-divergence threshold &ge; 10 points · scoring methodology: see Section 3 above.
+        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {rows.length} capability {rows.length === 1 ? "area" : "areas"} tracked · hot-divergence threshold &ge; 10 points · scoring methodology: see Section 2 above.
       </div>
     </section>
   );

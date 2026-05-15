@@ -10,6 +10,7 @@ import {
   replaceUtilityTermsForDisplay,
 } from "@/lib/displayCopy";
 import { getSessionUser } from "@/lib/auth/session";
+import { getConsultantAccessStateForUser } from "@/lib/consultantAccess";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import prisma from "@/lib/prisma";
 import {
@@ -165,8 +166,13 @@ export default async function VendorProductAssessmentPage({
   if (!sessionUser) {
     redirect("/sign-in/vendor");
   }
+  // WS1-B (manual-review item 5): consultants reviewing assigned ecosystems
+  // bypass the vendor membership gate. Membership entitlement is for
+  // vendor-OWNED surfaces; consultants are read-only viewers across the
+  // demo for tier-gated vendor content.
+  const consultantAccess = await getConsultantAccessStateForUser(sessionUser);
   const entitlement = await resolveMembershipEntitlement(sessionUser, "vendor", MEMBERSHIP_PLAN.PRO);
-  if (!entitlement.allowed) {
+  if (!consultantAccess && !entitlement.allowed) {
     return (
       <MembershipSurfaceGate
         audience="vendor"

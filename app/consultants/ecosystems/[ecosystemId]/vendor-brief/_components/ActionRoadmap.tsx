@@ -1,5 +1,3 @@
-import EmphasisToggle from "@/app/components/consultants/briefEdits/EmphasisToggle";
-import PhrasingVariantPicker from "@/app/components/consultants/briefEdits/PhrasingVariantPicker";
 import ReorderHandle, {
   type ReorderItem,
 } from "@/app/components/consultants/briefEdits/ReorderHandle";
@@ -10,7 +8,6 @@ import type {
 } from "@/lib/briefs";
 
 const SECTION_KEY = "vendor.action-roadmap" as const;
-const EMPHASIS_TARGETS = ["bullet-commitment", "thirty-day", "sixty-day", "ninety-day"];
 
 const SIGNAL_LABEL: Record<VendorBriefSignalStrength, string> = {
   high: "High signal",
@@ -155,8 +152,6 @@ function Quarter({
 }
 
 export default function ActionRoadmap({ data }: { data: VendorBriefData }) {
-  const variants = data.editVariants[SECTION_KEY] ?? [];
-  const activeVariantId = data.editChoices.variants[SECTION_KEY];
   const activeEmphasis = data.editChoices.emphasis[SECTION_KEY] ?? [];
   const firmLabel = data.firmCount === 1 ? "firm" : "firms";
   const refreshedDate = formatGeneratedDate(data.generatedAt);
@@ -177,11 +172,11 @@ export default function ActionRoadmap({ data }: { data: VendorBriefData }) {
 
   return (
     <section
-      id="section-7-action-roadmap"
+      id="section-6-action-roadmap"
       className="scroll-mt-8 rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8"
       data-testid="action-roadmap"
     >
-      <div className="pat-label">Section 7 · Action roadmap</div>
+      <div className="pat-label">Section 6 · Action roadmap</div>
 
       <h2
         className="mt-4 font-semibold tracking-tight text-[var(--shell-ink)]"
@@ -246,32 +241,9 @@ export default function ActionRoadmap({ data }: { data: VendorBriefData }) {
         className="mt-10 border-t border-[var(--shell-border)] pt-5 text-xs leading-6 text-[var(--shell-muted)]"
         data-testid="action-roadmap-methodology-footer"
       >
-        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {totalActions} commitment{totalActions === 1 ? "" : "s"} aggregated across Q1–Q3 · signal strength reflects firm-count consensus · scoring methodology: see Section 3 above.
+        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {totalActions} commitment{totalActions === 1 ? "" : "s"} aggregated across Q1–Q3 · signal strength reflects firm-count consensus · scoring methodology: see Section 2 above.
       </div>
 
-      {variants.length > 0 || EMPHASIS_TARGETS.length > 0 ? (
-        <div className="mt-4 space-y-3 border-t border-dashed border-[var(--shell-border)] pt-4">
-          <div className="pat-label text-[10px]">Editorial controls</div>
-          {variants.length > 0 ? (
-            <PhrasingVariantPicker
-              briefKind="vendor"
-              briefId={data.vendorCompanyId}
-              ecosystemId={data.ecosystemId}
-              sectionKey={SECTION_KEY}
-              variants={variants}
-              activeVariantId={activeVariantId}
-            />
-          ) : null}
-          <EmphasisToggle
-            briefKind="vendor"
-            briefId={data.vendorCompanyId}
-            ecosystemId={data.ecosystemId}
-            sectionKey={SECTION_KEY}
-            targetElementIds={EMPHASIS_TARGETS}
-            activeEmphasisIds={activeEmphasis}
-          />
-        </div>
-      ) : null}
     </section>
   );
 }

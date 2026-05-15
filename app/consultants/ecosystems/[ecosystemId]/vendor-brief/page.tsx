@@ -6,7 +6,6 @@ import ActionRoadmap from "./_components/ActionRoadmap";
 import BriefTOC from "./_components/BriefTOC";
 import CapabilityComparison from "./_components/CapabilityComparison";
 import EvaluationMethodology from "./_components/EvaluationMethodology";
-import MarketContext from "./_components/MarketContext";
 import PerFirmStrengthsCautions from "./_components/PerFirmStrengthsCautions";
 import SelfVsMarketDelta from "./_components/SelfVsMarketDelta";
 import VendorBriefExecutiveSummary from "./_components/VendorBriefExecutiveSummary";
@@ -45,7 +44,6 @@ export default async function VendorBriefPage({
           description={`${brief.ecosystemName} · ${brief.firmCount} firm${brief.firmCount === 1 ? "" : "s"} · ${brief.productCount} product${brief.productCount === 1 ? "" : "s"}`}
         />
         <VendorBriefExecutiveSummary data={brief} />
-        <MarketContext data={brief} />
         <EvaluationMethodology data={brief} />
         <SelfVsMarketDelta data={brief} />
         <PerFirmStrengthsCautions data={brief} />

@@ -468,95 +468,13 @@ test.describe("consultant flow", () => {
     );
   });
 
-  test("vendor brief edit: phrasing-variant pick swaps text inline and persists across reload", async ({
-    page,
-    context,
-  }) => {
-    test.skip(
-      !consultantAccessEnabled,
-      "Consultant access flag is off; edit-flow test only meaningful when /consultants is reachable."
-    );
-
-    test.setTimeout(180_000);
-
-    // Sign in as Sentinel consultant.
-    const csrfRes = await context.request.get("/api/auth/csrf");
-    const { csrfToken } = await csrfRes.json();
-    await context.request.post("/api/auth/callback/credentials", {
-      form: {
-        csrfToken,
-        email: "review.consultant+sentinel@pat.local",
-        password: DEMO_BENCH_PASSWORD,
-        redirectTo: "/consultants",
-      },
-      maxRedirects: 0,
-      failOnStatusCode: false,
-    });
-
-    // Read Sentinel ecosystem id.
-    await page.goto("/consultants", { waitUntil: "networkidle" });
-    const ownEcosystemId = await page
-      .locator('[data-testid="ecosystem-list-card"]')
-      .first()
-      .getAttribute("data-ecosystem-id");
-    expect(ownEcosystemId).toBeTruthy();
-
-    // Pre-warm vendor-brief route via a 404-path hit (cheap JIT compile).
-    await context.request.get(
-      "/consultants/ecosystems/demo-bench-ecosystem-prewarm/vendor-brief",
-      { failOnStatusCode: false, timeout: 60_000 }
-    );
-
-    // Navigate to own vendor brief. networkidle waits for client hydration
-    // to settle so the chip's React click handler is bound before we
-    // click it.
-    await page.goto(`/consultants/ecosystems/${ownEcosystemId}/vendor-brief`, {
-      waitUntil: "networkidle",
-      timeout: 120_000,
-    });
-    await expect(page.locator('[data-testid="vendor-brief-page"]')).toBeVisible();
-
-    // Locate the executive-summary picker. Chip strip carries 2 chips
-    // (v1-measured + v1-pointed). The first is active by default.
-    const picker = page
-      .locator('[data-testid="phrasing-variant-picker"][data-section-key="vendor.executive-summary"]')
-      .first();
-    await expect(picker).toBeVisible();
-    const chips = picker.locator('[data-testid="phrasing-variant-chip"]');
-    await expect(chips).toHaveCount(2);
-
-    const firstActive = await chips.nth(0).getAttribute("data-active");
-    expect(firstActive).toBe("true");
-
-    const initialText = await picker
-      .locator('[data-testid="phrasing-variant-active-text"]')
-      .innerText();
-
-    // Click the second chip — optimistic flip + server-action call.
-    // Generous timeout because the server-action POST traverses the dev
-    // server's JIT compile path on first hit + a prisma upsert.
-    await chips.nth(1).click();
-    await expect(chips.nth(1)).toHaveAttribute("data-active", "true", { timeout: 15_000 });
-    await expect(chips.nth(0)).toHaveAttribute("data-active", "false", { timeout: 15_000 });
-
-    const swappedText = await picker
-      .locator('[data-testid="phrasing-variant-active-text"]')
-      .innerText();
-    expect(swappedText).not.toBe(initialText);
-
-    // Reload — the variant choice persisted via the DB read path.
-    await page.reload({ waitUntil: "domcontentloaded", timeout: 90_000 });
-    const reloadedPicker = page
-      .locator('[data-testid="phrasing-variant-picker"][data-section-key="vendor.executive-summary"]')
-      .first();
-    const reloadedChips = reloadedPicker.locator('[data-testid="phrasing-variant-chip"]');
-    await expect(reloadedChips.nth(1)).toHaveAttribute("data-active", "true");
-    await expect(reloadedChips.nth(0)).toHaveAttribute("data-active", "false");
-    const reloadedText = await reloadedPicker
-      .locator('[data-testid="phrasing-variant-active-text"]')
-      .innerText();
-    expect(reloadedText).toBe(swappedText);
-  });
+  // WS1-C (manual-review items 18/19/20): the inline phrasing-variant picker
+  // + emphasis-toggle controls were stripped from Sections 1/4/7. Cam
+  // confirmed they didn't render meaningfully and added visual clutter. The
+  // BriefEditChoice API surface remains for future-defer; the e2e contract
+  // that exercised chip clicks + reload-persistence is removed here.
+  // (The cross-consultant tenancy test below now verifies brief route 404
+  // alone — sufficient to prove the consultant boundary.)
 
   test("vendor brief edit: cross-consultant denial — Bridgepath cannot reach Sentinel's brief edit surface", async ({
     page,
@@ -618,16 +536,17 @@ test.describe("consultant flow", () => {
       .then((res) => res.status());
     expect(crossStatus).toBe(404);
 
-    // Navigate the page in Bridgepath's session — assert no edit
-    // picker is reachable on Sentinel's surface (the brief page would
-    // have rendered them; the 404 means they don't exist in DOM).
+    // Navigate the page in Bridgepath's session — the route 404s, so the
+    // vendor brief content is never rendered. (WS1-C dropped the inline
+    // phrasing-variant picker; the 404 contract alone now proves the
+    // consultant boundary holds.)
     const response = await page.goto(
       `/consultants/ecosystems/${sentinelEcosystemId}/vendor-brief`,
       { waitUntil: "domcontentloaded", timeout: 60_000 }
     );
     expect(response?.status()).toBe(404);
     await expect(
-      page.locator('[data-testid="phrasing-variant-picker"]')
+      page.locator('[data-testid="vendor-brief-page"]')
     ).toHaveCount(0);
   });
 });
