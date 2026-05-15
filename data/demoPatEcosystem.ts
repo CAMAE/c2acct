@@ -948,7 +948,7 @@ export const DEMO_PAT_VENDORS: DemoVendorInput[] = [
           primaryBuyer: "Compliance advisory manager",
           integrationPosture: "Portal and workflow links are strong; GRC depth is selective.",
         },
-        riskFlags: ["Weak policy ownership reduces value"],
+        riskFlags: ["unclear policy ownership at the client side"],
       },
     ],
   },

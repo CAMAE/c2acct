@@ -58,8 +58,12 @@ test.describe("consultant flow", () => {
     const cardCount = await cards.count();
     if (cardCount > 0) {
       await expect(cards.first()).toContainText(/avg/i);
+      // WS6.5 Block G — Day-27 P1a banned vocab swept in EcosystemListCard:
+      // "grounded/emerging/sample-thin/early-signal/no-signal" → "Full /
+      // Building / Limited / Initial / Pending". Old regex retained as an
+      // alternation safety net only.
       await expect(cards.first()).toContainText(
-        /firms? grounded|firms? emerging|firms? sample-thin|firms? early-signal|firms? no-signal|no firm signal/i
+        /firms? at Full confidence|firms? Building|firms? Limited|firms? Initial|firms? Pending|firms? grounded|firms? emerging|firms? sample-thin|firms? early-signal|firms? no-signal|no firm signal/i
       );
     } else {
       await expect(page.locator("main")).toContainText(

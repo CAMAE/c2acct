@@ -5,6 +5,7 @@ import { getEcosystemDetailForConsultant } from "@/lib/ecosystem";
 import EcosystemHeader from "./_components/EcosystemHeader";
 import FirmGrid from "./_components/FirmGrid";
 import HeadlineMetricsRow from "./_components/HeadlineMetricsRow";
+import LowestEngagementFirmsCard from "./_components/LowestEngagementFirmsCard";
 import OpenEndedPanel from "./_components/OpenEndedPanel";
 import VendorAtAGlance from "./_components/VendorAtAGlance";
 
@@ -44,6 +45,7 @@ export default async function EcosystemDetailPage({
         <VendorAtAGlance data={detail} />
         <FirmGrid data={detail} />
       </div>
+      <LowestEngagementFirmsCard data={detail} />
       <OpenEndedPanel data={detail} />
     </div>
   );

@@ -299,7 +299,7 @@ export default async function VendorProductAssessmentPage({
           className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]"
         />
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          Open each product on its own PAT assessment, declare the features it supports, and complete the paced questions that turn vendor input into grounded product signal.
+          Open each product on its own PAT assessment, declare the features it supports, and complete the paced questions that turn vendor input into current-state product signal.
         </p>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">

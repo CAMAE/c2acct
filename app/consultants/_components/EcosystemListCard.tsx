@@ -1,12 +1,15 @@
 import Link from "next/link";
 import type { EcosystemListCardData, FirmConfidenceCounts } from "@/lib/ecosystem";
 
+// WS6.5 Block G — Day-27 P1a banned-vocab leak repair. Was rendering
+// "X of Y firms grounded"; the consultant-facing word list per WS5 is
+// Full / Building / Limited / Initial / Pending.
 const CONFIDENCE_BUCKET_LABELS: Record<keyof FirmConfidenceCounts, string> = {
-  grounded: "grounded",
-  emerging: "emerging",
-  sampleThin: "sample-thin",
-  earlySignal: "early-signal",
-  noSignal: "no-signal",
+  grounded: "at Full confidence",
+  emerging: "Building",
+  sampleThin: "Limited",
+  earlySignal: "Initial",
+  noSignal: "Pending",
 };
 
 function formatConfidenceDistribution(counts: FirmConfidenceCounts): string {

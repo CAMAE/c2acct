@@ -381,7 +381,7 @@ export default function VendorProductAssessmentClient({
               </div>
               <div>
                 <span className="font-semibold text-[var(--shell-ink)]">Why to take it:</span> your responses give PAT a
-                grounded view of this product that can support the current vendor product-intelligence flow.
+                current-state view of this product that can support the current vendor product-intelligence flow.
               </div>
               <div>
                 <span className="font-semibold text-[var(--shell-ink)]">What happens next:</span> after submission, PAT

@@ -80,7 +80,7 @@ function AwaitingItem({ firmsNeeded }: { firmsNeeded: number }) {
   return (
     <div data-testid="roadmap-item" data-signal-strength="awaiting" className="py-4">
       <div className="text-base font-semibold leading-snug text-[var(--shell-ink)]">
-        Awaiting capability response from {firmsNeeded} more firm{firmsNeeded === 1 ? "" : "s"} to surface peer-grounded actions.
+        Awaiting capability response from {firmsNeeded} more firm{firmsNeeded === 1 ? "" : "s"} to surface peer-validated actions.
       </div>
       <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
         The action roadmap pads with this honest credibility frame rather than padding with low-signal generics. Submissions raise the surface count.

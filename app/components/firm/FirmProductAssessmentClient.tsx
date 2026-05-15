@@ -234,7 +234,7 @@ export default function FirmProductAssessmentClient({
                 <span className="font-semibold text-[var(--shell-ink)]">How to take it:</span> Score each prompt with the slider, move page by page through the review, and submit once every active question is complete.
               </div>
               <div>
-                <span className="font-semibold text-[var(--shell-ink)]">Why it matters:</span> Your answers add grounded firm-side evidence about how this product performs in real operating conditions.
+                <span className="font-semibold text-[var(--shell-ink)]">Why it matters:</span> Your answers add current-state firm-side evidence about how this product performs in real operating conditions.
               </div>
               <div>
                 <span className="font-semibold text-[var(--shell-ink)]">What happens next:</span> After submission, PAT carries this review into the current product and firm insight surfaces.
