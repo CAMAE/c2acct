@@ -1,4 +1,5 @@
 import type { VendorBriefData } from "@/lib/briefs";
+import AlignmentDeltaChart from "./AlignmentDeltaChart";
 
 function formatGeneratedDate(iso: string): string {
   const d = new Date(iso);
@@ -45,6 +46,13 @@ export default function VendorBriefExecutiveSummary({ data }: { data: VendorBrie
           ))}
         </ul>
       ) : null}
+
+      <div className="mt-8">
+        <AlignmentDeltaChart
+          firmAvg={executiveSummary.firmAvg}
+          vendorSelfReport={executiveSummary.vendorSelfReport}
+        />
+      </div>
 
       <div
         className="mt-10 border-t border-[var(--shell-border)] pt-5 text-xs leading-6 text-[var(--shell-muted)]"

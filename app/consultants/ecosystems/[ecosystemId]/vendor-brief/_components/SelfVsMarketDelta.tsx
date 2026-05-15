@@ -33,6 +33,38 @@ function bigNumberColorClass(row: VendorBriefDeltaRow): string {
   return "text-[var(--brand-c2-blue)]";
 }
 
+function clampPct(value: number | null): number {
+  if (value === null || Number.isNaN(value)) return 0;
+  if (value < 0) return 0;
+  if (value > 100) return 100;
+  return value;
+}
+
+type PairedBarTone = "green" | "red" | "neutral" | "muted";
+
+function pairedBarFillClass(tone: PairedBarTone): string {
+  if (tone === "green") return "bg-green-600/80";
+  if (tone === "red") return "bg-[var(--brand-orange)]";
+  if (tone === "muted") return "bg-[var(--shell-muted)]/40";
+  return "bg-[var(--brand-c2-blue)]/60";
+}
+
+function vendorBarTone(row: VendorBriefDeltaRow): PairedBarTone {
+  if (row.vendorSelfReported === null) return "muted";
+  if (row.isHotDivergence) return "red";
+  if (row.deltaDirection === "vendor-higher") return "green";
+  if (row.deltaDirection === "neutral") return "neutral";
+  return "red";
+}
+
+function firmBarTone(row: VendorBriefDeltaRow): PairedBarTone {
+  if (row.firmReviewedAverage === null) return "muted";
+  if (row.isHotDivergence) return "red";
+  if (row.deltaDirection === "firm-higher") return "green";
+  if (row.deltaDirection === "neutral") return "neutral";
+  return "red";
+}
+
 function actionTitleFromDelta(rows: VendorBriefDeltaRow[], vendorName: string): string {
   if (rows.length === 0) {
     return `${vendorName} has no completed product self-assessments yet — the delta lens unlocks once those land.`;
@@ -109,10 +141,50 @@ export default function SelfVsMarketDelta({ data }: { data: VendorBriefData }) {
                     {row.firmReviewCount} firm review{row.firmReviewCount === 1 ? "" : "s"} · vendor self-report {row.vendorSelfReported === null ? "—" : row.vendorSelfReported} · firm avg {row.firmReviewedAverage === null ? "—" : row.firmReviewedAverage}
                   </div>
                 </div>
-                <div
-                  className={`text-6xl font-bold tabular-nums tracking-tight ${bigNumberColorClass(row)}`}
-                >
-                  {bigNumber(row)}
+                {/* WS4 Block B (manual-review item 22): replace the giant 6xl
+                    delta number with paired bars — vendor self-report stacked
+                    over firm-reviewed average, proportional to a 0-100 scale,
+                    tinted green/red/neutral per the row's delta direction. The
+                    numeric delta stays as a smaller right-aligned label. */}
+                <div className="w-full md:w-[260px]" data-testid="delta-paired-bars">
+                  <div data-testid="delta-bar-vendor">
+                    <div className="flex items-baseline justify-between text-[11px] text-[var(--shell-muted)]">
+                      <span>Vendor</span>
+                      <span className="font-semibold tabular-nums text-[var(--shell-ink)]">
+                        {row.vendorSelfReported === null ? "—" : row.vendorSelfReported}
+                      </span>
+                    </div>
+                    <div className="mt-1 h-2.5 w-full overflow-hidden rounded-full bg-[var(--shell-panel-soft)]">
+                      <div
+                        className={`h-full rounded-full ${pairedBarFillClass(vendorBarTone(row))}`}
+                        style={{ width: `${clampPct(row.vendorSelfReported)}%` }}
+                        data-tone={vendorBarTone(row)}
+                        aria-hidden="true"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-2" data-testid="delta-bar-firm">
+                    <div className="flex items-baseline justify-between text-[11px] text-[var(--shell-muted)]">
+                      <span>Firm</span>
+                      <span className="font-semibold tabular-nums text-[var(--shell-ink)]">
+                        {row.firmReviewedAverage === null ? "—" : row.firmReviewedAverage}
+                      </span>
+                    </div>
+                    <div className="mt-1 h-2.5 w-full overflow-hidden rounded-full bg-[var(--shell-panel-soft)]">
+                      <div
+                        className={`h-full rounded-full ${pairedBarFillClass(firmBarTone(row))}`}
+                        style={{ width: `${clampPct(row.firmReviewedAverage)}%` }}
+                        data-tone={firmBarTone(row)}
+                        aria-hidden="true"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    className={`mt-2 text-right text-sm font-semibold tabular-nums ${bigNumberColorClass(row)}`}
+                    data-testid="delta-bar-value"
+                  >
+                    {bigNumber(row)}
+                  </div>
                 </div>
                 <div className="flex flex-col gap-1">
                   <div className="flex flex-wrap items-baseline gap-3">

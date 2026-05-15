@@ -49,6 +49,8 @@ export type VendorBriefExecutiveSummary = {
   headline: string;
   body: string[];
   confidenceCallout: string;
+  firmAvg: number | null;
+  vendorSelfReport: number | null;
 };
 
 export type VendorBriefDeltaDirection =
@@ -378,7 +380,13 @@ export function generateExecutiveSummary(
     firmCount: catalog.length,
   });
 
-  return { headline, body, confidenceCallout };
+  return {
+    headline,
+    body,
+    confidenceCallout,
+    firmAvg: avgFirmScore,
+    vendorSelfReport: avgVendorSelfReport,
+  };
 }
 
 // ---------- Edit-choice composition (pure helpers; exported for tests) ----------
