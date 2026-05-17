@@ -993,7 +993,13 @@ export function buildFirmProductQuestions(selectedUtilityKeys: string[]): Vendor
 }
 
 export async function getFirmAssessmentProgress(companyId: string) {
-  await ensureFirmAlignmentSystem();
+  // WS9-EMERGENCY: ensureFirmAlignmentSystem moved out of the read path.
+  // Seed scripts (scripts/seed-pat-runtime.ts, lib/demoPatEcosystemSeed.ts:1026)
+  // run it at provisioning time. Running it per-read fans out ~720 upserts
+  // when the consultant ecosystem detail or vendor-brief page loads against
+  // 15 firms, which exhausts the Prisma connection pool and surfaces as
+  // "Cannot read properties of undefined (reading 'findMany')". See
+  // PAT-5.7-WS9-EMERGENCY-Prompt.md.
 
   const [modules, submissions, drafts] = await Promise.all([
     prisma.surveyModule.findMany({
@@ -1087,7 +1093,8 @@ export async function getFirmAssessmentProgress(companyId: string) {
 }
 
 export async function getFirmProductCatalog(companyId?: string | null) {
-  await ensureFirmProductModule();
+  // WS9-EMERGENCY: ensureFirmProductModule moved out of the read path
+  // for the same reason as ensureFirmAlignmentSystem above.
 
   // Phase 1 / Day-10 tenancy: when called with a firm companyId, restrict the
   // catalog to products owned by vendors in the firm's ecosystem (per Q6 of

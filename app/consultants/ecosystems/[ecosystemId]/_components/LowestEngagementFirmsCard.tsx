@@ -21,7 +21,15 @@ const MIN_CARD_ROWS = 2;
 function bottomQuartileFirms(
   rows: readonly EcosystemDetailFirmRow[]
 ): EcosystemDetailFirmRow[] {
-  const ranked = [...rows].sort((a, b) => {
+  // WS9-EMERGENCY: only surface firms that are actually below 100%
+  // completion. Without this filter, a fully-engaged ecosystem still
+  // renders 3-4 ceiling-bound firms under a "Firms below median engagement"
+  // header — falsely flagging firms that are doing fine.
+  const belowCeiling = rows.filter(
+    (row) => row.moduleCompletionPercent !== null && row.moduleCompletionPercent < 100
+  );
+  if (belowCeiling.length === 0) return [];
+  const ranked = [...belowCeiling].sort((a, b) => {
     const av = a.moduleCompletionPercent ?? -1;
     const bv = b.moduleCompletionPercent ?? -1;
     return av - bv;
@@ -51,6 +59,10 @@ export default function LowestEngagementFirmsCard({
     return null;
   }
   const targetFirms = bottomQuartileFirms(data.firmGrid);
+  if (targetFirms.length === 0) {
+    // WS9-EMERGENCY: hide the card when every firm is at the ceiling.
+    return null;
+  }
 
   return (
     <section
