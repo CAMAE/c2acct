@@ -362,71 +362,96 @@ function DisqualifiersBlock({ card }: { card: FirmCardData }) {
   );
 }
 
+function firmCardSummaryLine(card: FirmCardData): string {
+  if (!card.hasAnySignal) {
+    return "Capability responses pending";
+  }
+  const hot = card.hotDivergenceRows.length;
+  const strengths = card.highBandCells.length;
+  const cautions = card.lowBandCells.length;
+  if (hot > 0) {
+    return `${hot} hot divergence${hot === 1 ? "" : "s"} · ${strengths} strength${strengths === 1 ? "" : "s"}`;
+  }
+  return `${strengths} strength${strengths === 1 ? "" : "s"} · ${cautions} caution${cautions === 1 ? "" : "s"}`;
+}
+
 function FirmCard({
   card,
   productNames,
   vendorName,
   data,
+  defaultOpen,
 }: {
   card: FirmCardData;
   productNames: Map<string, string>;
   vendorName: string;
   data: VendorBriefData;
+  defaultOpen: boolean;
 }) {
-  if (!card.hasAnySignal) {
-    return (
-      <div
-        className="py-6"
-        data-testid="strengths-cautions-firm-card"
-        data-firm-id={card.firmId}
-        data-signal="empty"
-      >
-        <h3 className="text-lg font-semibold tracking-tight text-[var(--shell-ink)]">
-          {card.firmName}
-        </h3>
-        <p className="mt-2 text-base font-semibold leading-snug text-[var(--shell-ink)]">
-          {card.firmName} &mdash; capability responses pending.
-        </p>
-        <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-          Per-firm battlecard unlocks once {card.firmName} completes the round-one capability review.
-        </p>
-      </div>
-    );
-  }
-
+  const summaryLine = firmCardSummaryLine(card);
+  // WS8: HTML <details>/<summary>. Zero JS, server-render-friendly,
+  // keyboard-navigable. Top-3 by hotDivergenceRows.length render open
+  // (defaultOpen=true); the rest collapse closed.
   return (
-    <div
-      className="py-6"
+    <details
+      open={defaultOpen}
       data-testid="strengths-cautions-firm-card"
       data-firm-id={card.firmId}
-      data-signal="populated"
+      data-signal={card.hasAnySignal ? "populated" : "empty"}
+      data-default-open={defaultOpen ? "true" : "false"}
+      className="group py-6 [&[open]>summary>.chevron]:rotate-90"
     >
-      <h3 className="text-lg font-semibold tracking-tight text-[var(--shell-ink)]">
-        {card.firmName}
-      </h3>
-
-      <div className="mt-4 grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
-        <div data-testid="strengths-cautions-block" data-block="why-fits">
-          <div className="pat-label text-[11px]">Why this vendor fits this firm</div>
-          <WhyFitsBlock card={card} productNames={productNames} />
+      <summary
+        className="flex cursor-pointer items-center justify-between gap-4 list-none [&::-webkit-details-marker]:hidden"
+        data-testid="strengths-cautions-firm-summary"
+      >
+        <div>
+          <h3 className="text-lg font-semibold tracking-tight text-[var(--shell-ink)]">
+            {card.firmName}
+          </h3>
+          <p className="mt-1 text-sm text-[var(--shell-muted)]">{summaryLine}</p>
         </div>
+        <span
+          className="chevron shrink-0 text-[var(--shell-muted)] transition-transform"
+          aria-hidden="true"
+        >
+          &#9656;
+        </span>
+      </summary>
 
-        <div data-testid="strengths-cautions-block" data-block="where-struggles">
-          <div className="pat-label text-[11px]">Where it struggles for this firm</div>
-          <StrugglesBlock card={card} productNames={productNames} />
-        </div>
+      {card.hasAnySignal ? (
+        <div className="mt-4 grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
+          <div data-testid="strengths-cautions-block" data-block="why-fits">
+            <div className="pat-label text-[11px]">Why this vendor fits this firm</div>
+            <WhyFitsBlock card={card} productNames={productNames} />
+          </div>
 
-        <div data-testid="strengths-cautions-block" data-block="questions">
-          <div className="pat-label text-[11px]">Questions to ask in evaluation</div>
-          <QuestionsBlock card={card} productNames={productNames} vendorName={vendorName} data={data} />
-        </div>
+          <div data-testid="strengths-cautions-block" data-block="where-struggles">
+            <div className="pat-label text-[11px]">Where it struggles for this firm</div>
+            <StrugglesBlock card={card} productNames={productNames} />
+          </div>
 
-        <div data-testid="strengths-cautions-block" data-block="disqualifiers">
-          <div className="pat-label text-[11px]">Quick disqualifiers</div>
-          <DisqualifiersBlock card={card} />
+          <div data-testid="strengths-cautions-block" data-block="questions">
+            <div className="pat-label text-[11px]">Questions to ask in evaluation</div>
+            <QuestionsBlock card={card} productNames={productNames} vendorName={vendorName} data={data} />
+          </div>
+
+          <div data-testid="strengths-cautions-block" data-block="disqualifiers">
+            <div className="pat-label text-[11px]">Quick disqualifiers</div>
+            <DisqualifiersBlock card={card} />
+          </div>
         </div>
-      </div>
-    </div>
+      ) : (
+        <div className="mt-4">
+          <p className="text-base font-semibold leading-snug text-[var(--shell-ink)]">
+            {card.firmName} &mdash; capability responses pending.
+          </p>
+          <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+            Per-firm battlecard unlocks once {card.firmName} completes the round-one capability review.
+          </p>
+        </div>
+      )}
+    </details>
   );
 }
 
@@ -443,6 +468,16 @@ export default function PerFirmStrengthsCautions({
     buildFirmCardData(firm, data)
   );
   const actionTitle = actionTitleFromData(data, firmCards);
+
+  // WS8: auto-expand the top-3 firms by hot-divergence count. JS stable
+  // sort falls through to insertion order on ties (effectively
+  // alphabetical via the upstream firms axis), which is acceptable.
+  const autoExpandFirmIds = new Set(
+    [...firmCards]
+      .sort((a, b) => b.hotDivergenceRows.length - a.hotDivergenceRows.length)
+      .slice(0, 3)
+      .map((card) => card.firmId)
+  );
 
   return (
     <section
@@ -484,6 +519,7 @@ export default function PerFirmStrengthsCautions({
               productNames={productNames}
               vendorName={data.vendorCompanyName}
               data={data}
+              defaultOpen={autoExpandFirmIds.has(card.firmId)}
             />
           ))}
         </div>
