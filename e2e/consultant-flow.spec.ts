@@ -70,6 +70,17 @@ test.describe("consultant flow", () => {
         /don.t have any ecosystems assigned/i
       );
     }
+
+    // WS11-A: portal-shaped landing with Ecosystems / Meet PAT / Help toggle.
+    // The hero card always renders; Ecosystems is the default panel.
+    await expect(page.locator('[data-testid="consultant-portal-hero"]').first()).toBeVisible();
+    await expect(page.locator('[data-testid="consultant-ecosystems-panel"]').first()).toBeVisible();
+
+    await page.goto("/consultants?panel=pat", { waitUntil: "networkidle" });
+    await expect(page.locator('[data-testid="consultant-meetpat-panel"]').first()).toBeVisible();
+
+    await page.goto("/consultants?panel=help", { waitUntil: "networkidle" });
+    await expect(page.locator('[data-testid="consultant-help-panel"]').first()).toBeVisible();
   });
 
   test("tenancy: consultant cannot reach /consultants/ecosystems/<other-ecosystem-id>", async ({ page, context }) => {
