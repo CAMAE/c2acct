@@ -650,6 +650,16 @@ textarea {
   background: rgba(240, 247, 255, 0.98);
 }
 
+/* WS10-B Block A: canonical bold-number utility. Apply to every percentage,
+   score, delta, count, and module-completion render so the eye lands on
+   numeric data first. font-variant-numeric: tabular-nums keeps numbers
+   monospaced within their column for clean vertical alignment in tables. */
+.pat-stat-number {
+  font-weight: 700;
+  color: var(--shell-ink);
+  font-variant-numeric: tabular-nums;
+}
+
 /* WS10-A Block J: navigation loading cursor band-aid. Active during route
    transitions; cleared once the new pathname commits. */
 body.nav-loading,

@@ -1,13 +1,8 @@
-import ReorderHandle, {
-  type ReorderItem,
-} from "@/app/components/consultants/briefEdits/ReorderHandle";
 import type {
   FirmBriefData,
   FirmBriefRoadmapAction,
   FirmBriefRoadmapQuarter,
 } from "@/lib/firmBriefs";
-
-const SECTION_KEY = "firm.six-quarter-roadmap" as const;
 
 const SOURCE_LABEL: Record<FirmBriefRoadmapAction["source"], string> = {
   "next-action": "Next action",
@@ -48,36 +43,7 @@ function ActionCard({ action }: { action: FirmBriefRoadmapAction }) {
   );
 }
 
-function actionIdFor(quarterKey: string, index: number): string {
-  return `${quarterKey}__${index}`;
-}
-
-function QuarterColumn({
-  quarter,
-  data,
-}: {
-  quarter: FirmBriefRoadmapQuarter;
-  data: FirmBriefData;
-}) {
-  const activeOrder = data.editChoices.ordering[SECTION_KEY];
-
-  const quarterActionIds = quarter.actions.map((_, idx) =>
-    actionIdFor(quarter.quarterKey, idx)
-  );
-  const quarterActionMap = new Map<string, FirmBriefRoadmapAction>(
-    quarter.actions.map((action, idx) => [actionIdFor(quarter.quarterKey, idx), action])
-  );
-  const quarterActiveOrder = activeOrder?.filter((id) => quarterActionIds.includes(id));
-
-  const reorderItems: ReorderItem[] = quarterActionIds.map((id) => {
-    const action = quarterActionMap.get(id)!;
-    return {
-      id,
-      label: action.text,
-      content: <ActionCard action={action} />,
-    };
-  });
-
+function QuarterColumn({ quarter }: { quarter: FirmBriefRoadmapQuarter }) {
   return (
     <div
       className={`rounded-[18px] border ${
@@ -97,24 +63,21 @@ function QuarterColumn({
           ) : null}
         </div>
         {quarter.projectedAlignment !== null ? (
-          <div className="text-xs font-semibold text-[var(--shell-ink)]">
-            Proj {quarter.projectedAlignment}
+          <div className="text-xs text-[var(--shell-ink)]">
+            Proj <span className="pat-stat-number">{quarter.projectedAlignment}</span>
           </div>
         ) : null}
       </div>
       {quarter.actions.length === 0 ? (
         <div className="mt-3 text-xs text-[var(--shell-muted)]">No actions.</div>
       ) : (
-        <div className="mt-3">
-          <ReorderHandle
-            briefKind="firm"
-            briefId={data.firmCompanyId}
-            ecosystemId={data.ecosystemId}
-            sectionKey={SECTION_KEY}
-            items={reorderItems}
-            activeOrder={quarterActiveOrder}
-          />
-        </div>
+        <ul className="mt-3 space-y-2">
+          {quarter.actions.map((action, idx) => (
+            <li key={`${quarter.quarterKey}__${idx}`}>
+              <ActionCard action={action} />
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );
@@ -142,20 +105,16 @@ export default function SixQuarterRoadmap({ data }: { data: FirmBriefData }) {
         {trajectoryStart !== null && trajectoryEnd !== null ? (
           <div className="text-sm text-[var(--shell-muted)]">
             Trajectory:{" "}
-            <span className="font-semibold text-[var(--shell-ink)]">{trajectoryStart}</span>
+            <span className="pat-stat-number">{trajectoryStart}</span>
             <span aria-hidden="true"> → </span>
-            <span className="font-semibold text-[var(--shell-ink)]">{trajectoryEnd}</span>
+            <span className="pat-stat-number">{trajectoryEnd}</span>
           </div>
         ) : null}
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {data.sixQuarterRoadmap.map((quarter) => (
-          <QuarterColumn
-            key={quarter.quarterKey}
-            quarter={quarter}
-            data={data}
-          />
+          <QuarterColumn key={quarter.quarterKey} quarter={quarter} />
         ))}
       </div>
     </section>

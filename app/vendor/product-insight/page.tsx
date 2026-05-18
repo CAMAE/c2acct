@@ -24,9 +24,9 @@ function ProductInsightCard({ snapshot }: { snapshot: VendorProductInsightSnapsh
       className="pat-card pat-card-interactive block p-6"
     >
       <h2 className="text-xl font-semibold text-[var(--shell-ink)]">{snapshot.product.name}</h2>
-      <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+      <div className="mt-3 inline-flex items-center rounded-full bg-[rgba(6,54,116,0.06)] px-3 py-1.5 text-xs font-medium text-[var(--shell-ink)]">
         Click to access product intelligence insights
-      </p>
+      </div>
     </Link>
   );
 }

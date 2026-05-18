@@ -29,6 +29,15 @@ function deltaLabel(row: FirmBriefStackFitRow): string {
   return `↑ +${Math.abs(row.delta)} firm higher`;
 }
 
+// WS10-B Block B: row.delta is (vendor - firm). Positive = vendor over-
+// promised (bad), negative = firms rate vendor above self-report (good).
+function deltaColorClass(row: FirmBriefStackFitRow): string {
+  if (row.delta === null) return "text-[var(--shell-muted)]";
+  if (row.delta > 0) return "text-[var(--brand-orange)]";
+  if (row.delta < 0) return "text-green-600";
+  return "text-[var(--shell-ink)]";
+}
+
 export default function StackFitAnalysis({ data }: { data: FirmBriefData }) {
   const rows = data.stackFitAnalysis;
   const reviewedCount = rows.filter((row) => row.status !== "not-reviewed").length;
@@ -82,13 +91,13 @@ export default function StackFitAnalysis({ data }: { data: FirmBriefData }) {
                   <td className="py-2 pr-3 text-[var(--shell-muted)]">
                     {row.utilityLabels.length > 0 ? row.utilityLabels.join(", ") : "—"}
                   </td>
-                  <td className="py-2 pr-3 text-[var(--shell-ink)]">
+                  <td className="pat-stat-number py-2 pr-3">
                     {formatScore(row.firmReviewedScore)}
                   </td>
-                  <td className="py-2 pr-3 text-[var(--shell-ink)]">
+                  <td className="pat-stat-number py-2 pr-3">
                     {formatScore(row.vendorSelfReportedScore)}
                   </td>
-                  <td className="py-2 pr-3 text-[var(--shell-muted)]">
+                  <td className={`pat-stat-number py-2 pr-3 ${deltaColorClass(row)}`}>
                     {deltaLabel(row)}
                     {row.isHotDivergence ? (
                       <span className="ml-2 inline-flex items-center rounded-md border border-[var(--brand-orange)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--brand-orange)]">

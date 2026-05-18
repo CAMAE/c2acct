@@ -27,10 +27,15 @@ const AWAITING_REVIEW_HELPER =
   "Score unlocks at N≥2 firm responses for this product.";
 
 function bigNumberColorClass(row: VendorBriefDeltaRow): string {
+  // WS10-B Block B: canonical delta-color semantics.
+  // vendor-higher (vendor overpromised) → orange (bad for vendor).
+  // firm-higher (firms rate above vendor self-report) → green (good).
+  // neutral → ink (no directional signal).
+  // no-signal (null delta) → muted (awaiting data).
   if (row.delta === null) return "text-[var(--shell-muted)]";
-  if (row.isHotDivergence) return "text-[var(--brand-orange)]";
-  if (row.deltaDirection === "neutral") return "text-[var(--shell-muted)]";
-  return "text-[var(--brand-c2-blue)]";
+  if (row.deltaDirection === "vendor-higher") return "text-[var(--brand-orange)]";
+  if (row.deltaDirection === "firm-higher") return "text-green-600";
+  return "text-[var(--shell-ink)]";
 }
 
 function clampPct(value: number | null): number {
@@ -138,7 +143,7 @@ export default function SelfVsMarketDelta({ data }: { data: VendorBriefData }) {
                     {row.productName}
                   </div>
                   <div className="mt-1 text-xs text-[var(--shell-muted)]">
-                    {row.firmReviewCount} firm review{row.firmReviewCount === 1 ? "" : "s"} · vendor self-report {row.vendorSelfReported === null ? "—" : row.vendorSelfReported} · firm avg {row.firmReviewedAverage === null ? "—" : row.firmReviewedAverage}
+                    <span className="pat-stat-number">{row.firmReviewCount}</span> firm review{row.firmReviewCount === 1 ? "" : "s"} · vendor self-report <span className="pat-stat-number">{row.vendorSelfReported === null ? "—" : row.vendorSelfReported}</span> · firm avg <span className="pat-stat-number">{row.firmReviewedAverage === null ? "—" : row.firmReviewedAverage}</span>
                   </div>
                 </div>
                 {/* WS4 Block B (manual-review item 22): replace the giant 6xl
@@ -150,7 +155,7 @@ export default function SelfVsMarketDelta({ data }: { data: VendorBriefData }) {
                   <div data-testid="delta-bar-vendor">
                     <div className="flex items-baseline justify-between text-[11px] text-[var(--shell-muted)]">
                       <span>Vendor</span>
-                      <span className="font-semibold tabular-nums text-[var(--shell-ink)]">
+                      <span className="pat-stat-number">
                         {row.vendorSelfReported === null ? "—" : row.vendorSelfReported}
                       </span>
                     </div>
@@ -166,7 +171,7 @@ export default function SelfVsMarketDelta({ data }: { data: VendorBriefData }) {
                   <div className="mt-2" data-testid="delta-bar-firm">
                     <div className="flex items-baseline justify-between text-[11px] text-[var(--shell-muted)]">
                       <span>Firm</span>
-                      <span className="font-semibold tabular-nums text-[var(--shell-ink)]">
+                      <span className="pat-stat-number">
                         {row.firmReviewedAverage === null ? "—" : row.firmReviewedAverage}
                       </span>
                     </div>

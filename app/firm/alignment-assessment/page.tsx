@@ -123,7 +123,7 @@ export default async function FirmAlignmentAssessmentPage() {
       <section className="grid gap-4 md:grid-cols-4">
         <div className="pat-soft-panel p-5">
           <div className="pat-label">Overall Progress</div>
-          <div className="mt-3 text-3xl font-semibold text-[var(--shell-ink)]">
+          <div className="pat-stat-number mt-3 text-3xl">
             {progress.completionPercent}%
           </div>
           <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
@@ -132,7 +132,7 @@ export default async function FirmAlignmentAssessmentPage() {
         </div>
         <div className="pat-soft-panel p-5">
           <div className="pat-label">Completed</div>
-          <div className="mt-3 text-3xl font-semibold text-[var(--shell-ink)]">
+          <div className="pat-stat-number mt-3 text-3xl">
             {progress.completedModules}/{progress.totalModules}
           </div>
           <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
@@ -141,7 +141,7 @@ export default async function FirmAlignmentAssessmentPage() {
         </div>
         <div className="pat-soft-panel p-5">
           <div className="pat-label">In Progress</div>
-          <div className="mt-3 text-3xl font-semibold text-[var(--shell-ink)]">
+          <div className="pat-stat-number mt-3 text-3xl">
             {progress.inProgressModules}
           </div>
           <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">

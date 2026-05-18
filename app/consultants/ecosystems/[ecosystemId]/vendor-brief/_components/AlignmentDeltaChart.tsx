@@ -48,7 +48,7 @@ export default function AlignmentDeltaChart({
       <div className="flex items-baseline justify-between">
         <div className="pat-label text-[11px]">Alignment delta</div>
         <div
-          className={`text-sm font-semibold tabular-nums ${deltaColorClass}`}
+          className={`pat-stat-number text-sm ${deltaColorClass}`}
           data-testid="alignment-delta-indicator"
         >
           {deltaLabel}
@@ -59,7 +59,7 @@ export default function AlignmentDeltaChart({
         <div data-testid="alignment-delta-bar-firm">
           <div className="flex items-baseline justify-between text-xs text-[var(--shell-muted)]">
             <span>Firm average</span>
-            <span className="font-semibold tabular-nums text-[var(--shell-ink)]">
+            <span className="pat-stat-number">
               {formatScoreLabel(firmAvg)}
               {firmAvg !== null ? "%" : ""}
             </span>
@@ -76,7 +76,7 @@ export default function AlignmentDeltaChart({
         <div data-testid="alignment-delta-bar-vendor">
           <div className="flex items-baseline justify-between text-xs text-[var(--shell-muted)]">
             <span>Vendor self-report</span>
-            <span className="font-semibold tabular-nums text-[var(--shell-ink)]">
+            <span className="pat-stat-number">
               {formatScoreLabel(vendorSelfReport)}
               {vendorSelfReport !== null ? "%" : ""}
             </span>

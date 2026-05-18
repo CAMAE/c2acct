@@ -99,9 +99,9 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
     >
       <div className="mb-4 flex items-baseline justify-between gap-3">
         <h2 className="text-xl font-semibold tracking-tight text-[var(--shell-ink)]">
-          Firms in ecosystem
+          Firm briefings &middot; <span className="pat-stat-number">{data.firmGrid.length}</span> firm{data.firmGrid.length === 1 ? "" : "s"}
         </h2>
-        <div className="text-sm text-[var(--shell-muted)]">{data.firmGrid.length} firm{data.firmGrid.length === 1 ? "" : "s"}</div>
+        <div className="text-sm text-[var(--shell-muted)]">click a firm to drill into its brief</div>
       </div>
 
       {/* WS2-C (manual-review items 13/14): 30-day actions column dropped
@@ -112,12 +112,12 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
       <div className="overflow-x-auto">
         <table className="w-full table-fixed text-left text-sm">
           <colgroup>
-            <col />
+            <col style={{ width: "32%" }} />
+            <col style={{ width: "10%" }} />
             <col style={{ width: "12%" }} />
-            <col style={{ width: "14%" }} />
             <col style={{ width: "12%" }} />
-            <col style={{ width: "14%" }} />
-            <col style={{ width: "16%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "22%" }} />
           </colgroup>
           <thead>
             <tr className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
@@ -157,18 +157,20 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
                 data-firm-id={row.firmCompanyId}
                 className="border-t border-[var(--shell-border)]"
               >
-                <td className="py-2 pr-3 font-medium text-[var(--shell-ink)]">
+                <td className="py-2 pr-3">
                   <Link
                     href={`/consultants/ecosystems/${data.ecosystemId}/firm/${row.firmCompanyId}`}
-                    className="hover:underline"
+                    className="inline-flex items-center gap-1 -mx-2 rounded-md px-2 py-1 text-sm font-medium text-[var(--brand-c2-blue)] hover:bg-[rgba(6,54,116,0.06)] hover:underline"
+                    data-testid="firm-grid-firm-link"
                   >
                     {row.firmCompanyName}
+                    <span aria-hidden="true" className="text-xs">›</span>
                   </Link>
                 </td>
-                <td className="py-2 pr-3 text-center tabular-nums text-[var(--shell-ink)]">{formatScore(row.canonicalFirmScore)}</td>
+                <td className="pat-stat-number py-2 pr-3 text-center">{formatScore(row.canonicalFirmScore)}</td>
                 <td className="py-2 pr-3 text-center text-[var(--shell-muted)]">{shortConfidence(row.confidenceLabel)}</td>
-                <td className="py-2 pr-3 text-center tabular-nums text-[var(--shell-ink)]">{formatPercent(row.moduleCompletionPercent)}</td>
-                <td className="py-2 pr-3 text-center tabular-nums text-[var(--shell-ink)]">
+                <td className="pat-stat-number py-2 pr-3 text-center">{formatPercent(row.moduleCompletionPercent)}</td>
+                <td className="pat-stat-number py-2 pr-3 text-center">
                   {row.productReviewCount} / {row.productsAvailable}
                 </td>
                 <td className="py-2 pr-3 text-left text-[var(--shell-muted)]">{formatRelative(row.latestActivityAt)}</td>

@@ -10,7 +10,7 @@ export default function VendorAtAGlance({ data }: { data: EcosystemDetailData })
 
   return (
     <section
-      className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-5"
+      className="self-start rounded-[22px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-5"
       data-testid="ecosystem-detail-vendor-glance"
     >
       <div className="mb-4 flex items-baseline justify-between gap-3">
@@ -29,7 +29,7 @@ export default function VendorAtAGlance({ data }: { data: EcosystemDetailData })
             <dd className="text-sm font-semibold text-[var(--shell-ink)]">
               {glance.strongestProduct.name}{" "}
               <span
-                className="ml-1 inline-flex items-center rounded-md bg-[var(--brand-c2-blue)] px-2 py-0.5 text-xs font-semibold text-white"
+                className="ml-1 inline-flex items-center rounded-md bg-[var(--brand-c2-blue)] px-2 py-0.5 text-base font-bold tabular-nums text-white"
                 aria-label={`firm-review average ${formatScoreBadge(glance.strongestProduct.score)}`}
               >
                 {formatScoreBadge(glance.strongestProduct.score)}
@@ -43,7 +43,7 @@ export default function VendorAtAGlance({ data }: { data: EcosystemDetailData })
             <dd className="text-sm font-semibold text-[var(--shell-ink)]">
               {glance.weakestProduct.name}{" "}
               <span
-                className="ml-1 inline-flex items-center rounded-md bg-[var(--brand-orange)] px-2 py-0.5 text-xs font-semibold text-white"
+                className="ml-1 inline-flex items-center rounded-md bg-[var(--brand-orange)] px-2 py-0.5 text-base font-bold tabular-nums text-white"
                 aria-label={`firm-review average ${formatScoreBadge(glance.weakestProduct.score)}`}
               >
                 {formatScoreBadge(glance.weakestProduct.score)}
@@ -62,10 +62,10 @@ export default function VendorAtAGlance({ data }: { data: EcosystemDetailData })
           descriptor + a subtle panel-soft sub-card to differentiate from
           the strongest/weakest header above. */}
       <div className="mt-6 rounded-[18px] bg-[var(--shell-panel-soft)]/40 p-4">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+        <div className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
           Coverage map
         </div>
-        <p className="mt-1 mb-3 text-xs leading-5 text-[var(--shell-muted)]">
+        <p className="mt-1 mb-3 text-sm leading-5 text-[var(--shell-muted)]">
           Vendor&apos;s product catalog coverage across the {data.vendorCoverageMap.length} PAT capability function buckets. Filled tiles indicate the vendor sells a product in that bucket.
         </p>
         <div className="grid grid-cols-2 gap-1.5 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
@@ -77,8 +77,8 @@ export default function VendorAtAGlance({ data }: { data: EcosystemDetailData })
               data-bucket-covered={cell.covered ? "1" : "0"}
               className={
                 cell.covered
-                  ? "rounded-md bg-[var(--brand-c2-blue)] px-2 py-1.5 text-xs font-semibold text-white"
-                  : "rounded-md border border-[var(--shell-border)] px-2 py-1.5 text-xs text-[var(--shell-muted)]"
+                  ? "rounded-md bg-[var(--brand-c2-blue)] px-2 py-1.5 text-sm font-semibold text-white"
+                  : "rounded-md border border-[var(--shell-border)] px-2 py-1.5 text-sm text-[var(--shell-muted)]"
               }
               title={
                 cell.covered
@@ -91,7 +91,10 @@ export default function VendorAtAGlance({ data }: { data: EcosystemDetailData })
           ))}
         </div>
         <div className="mt-3 text-sm text-[var(--shell-muted)]">
-          {glance.functionBucketsCovered} of {glance.functionBucketsTotal} buckets covered
+          <span className="pat-stat-number">
+            {glance.functionBucketsCovered} of {glance.functionBucketsTotal}
+          </span>{" "}
+          buckets covered
         </div>
       </div>
 

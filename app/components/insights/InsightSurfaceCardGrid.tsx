@@ -49,7 +49,9 @@ export default function InsightSurfaceCardGrid({
               {compactInsightSummary(card.summary)}
             </p>
             {card.supportingText ? (
-              <div className="mt-4 text-xs leading-5 text-[var(--shell-muted)]">{card.supportingText}</div>
+              <div className="mt-4 inline-flex items-center rounded-full bg-[rgba(6,54,116,0.06)] px-3 py-1.5 text-xs font-medium text-[var(--shell-ink)]">
+                {card.supportingText}
+              </div>
             ) : null}
           </>
         );

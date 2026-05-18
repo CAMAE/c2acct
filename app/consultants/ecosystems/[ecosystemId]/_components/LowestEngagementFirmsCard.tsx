@@ -99,11 +99,11 @@ export default function LowestEngagementFirmsCard({
                 {row.firmCompanyName}
               </div>
               <div className="mt-1 text-xs text-[var(--shell-muted)]">
-                {row.productReviewCount} product review{row.productReviewCount === 1 ? "" : "s"} &middot; {row.thirtyDayActionCount} thirty-day action{row.thirtyDayActionCount === 1 ? "" : "s"}
+                <span className="pat-stat-number">{row.productReviewCount}</span> product review{row.productReviewCount === 1 ? "" : "s"} &middot; <span className="pat-stat-number">{row.thirtyDayActionCount}</span> thirty-day action{row.thirtyDayActionCount === 1 ? "" : "s"}
               </div>
             </div>
             <div
-              className="text-sm font-semibold tabular-nums text-[var(--brand-c2-blue)] md:text-right"
+              className="pat-stat-number text-sm !text-[var(--brand-c2-blue)] md:text-right"
               data-testid="lowest-engagement-completion"
             >
               {formatCompletion(row.moduleCompletionPercent)}

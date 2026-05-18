@@ -4,14 +4,20 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
 /**
- * WS10-A Block J: click-feedback band-aid for slow route transitions.
- * Sets `cursor: progress` on the document body while a route transition
- * is in flight, cleared once the new pathname is committed. Without it,
- * dev-mode renders of 4-6 seconds leave the user unsure whether their
- * click registered, prompting double-clicks that pop the history stack.
+ * WS10-A Block J + WS10-B Block H: click-feedback band-aid for slow route
+ * transitions. Sets `cursor: progress` on the document body while a route
+ * transition is in flight, cleared once the new pathname is committed.
  *
- * Safety timeout: cursor releases after 10 seconds if a navigation
- * hangs (404, redirect loop) so the page does not get stuck.
+ * WS10-B Block H tightens the click filter:
+ *   - same-URL anchor clicks (pathname + search both match current) do not
+ *     fire a navigation, so the cursor would otherwise sit in progress
+ *     state until the safety timeout. Skipped.
+ *   - form-submit buttons are dropped: nearly every form-like interaction
+ *     in this app is React state (filter chips, toggles), not a real form
+ *     POST + redirect. The pat-stat-number useEffect on usePathname never
+ *     fires for those, so the cursor sat on. Now only opt-in via
+ *     `data-nav="true"` triggers the cursor for buttons.
+ *   - safety timeout dropped from 10s to 5s.
  */
 export default function NavigationLoadingCursor() {
   const pathname = usePathname();
@@ -28,7 +34,7 @@ export default function NavigationLoadingCursor() {
       if (safetyTimeout) clearTimeout(safetyTimeout);
       safetyTimeout = setTimeout(() => {
         document.body.classList.remove("nav-loading");
-      }, 10000);
+      }, 5000);
     }
 
     function onClick(event: MouseEvent) {
@@ -51,18 +57,34 @@ export default function NavigationLoadingCursor() {
         if (href.startsWith("#")) return;
         if (href.startsWith("mailto:") || href.startsWith("tel:")) return;
         if (anchor.target === "_blank") return;
+
+        // WS10-B Block H: skip same-URL clicks. They don't fire a navigation
+        // and the cursor would otherwise hang until the safety timeout.
+        // Search-param changes (e.g. /vendor → /vendor?panel=admin) still
+        // trigger correctly because url.search will differ.
+        try {
+          const url = new URL(anchor.href, window.location.href);
+          if (
+            url.pathname === window.location.pathname &&
+            url.search === window.location.search
+          ) {
+            return;
+          }
+        } catch {
+          // Malformed href — fall through and let startLoading() run; the
+          // safety timeout will release if no navigation occurs.
+        }
+
         startLoading();
         return;
       }
 
       if (button) {
-        if (button.type === "submit") {
-          startLoading();
-          return;
-        }
+        // WS10-B Block H: form-submit branch removed; only buttons that
+        // explicitly opt into navigation feedback via data-nav="true"
+        // trigger the cursor.
         if (button.dataset.nav === "true") {
           startLoading();
-          return;
         }
       }
     }

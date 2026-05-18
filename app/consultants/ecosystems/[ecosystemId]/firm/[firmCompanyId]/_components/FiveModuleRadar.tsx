@@ -47,6 +47,16 @@ function shortenLabel(title: string): string {
   return stripped.length <= 22 ? stripped : `${title.slice(0, 20)}…`;
 }
 
+// WS10-B Block B: axis.delta is firmScore - ecosystemAverage. For the
+// firm-brief consultant lens, firm above peers reads green (this firm is
+// doing well), below peers reads orange (areas to improve). Matched = ink.
+function deltaColorClass(delta: number | null): string {
+  if (delta === null) return "text-[var(--shell-muted)]";
+  if (delta > 0) return "text-green-600";
+  if (delta < 0) return "text-[var(--brand-orange)]";
+  return "text-[var(--shell-ink)]";
+}
+
 export default function FiveModuleRadar({ data }: { data: FirmBriefData }) {
   const axes = data.fiveModuleRadar;
   const axisCount = axes.length;
@@ -201,11 +211,21 @@ export default function FiveModuleRadar({ data }: { data: FirmBriefData }) {
                   <span>{axis.moduleTitle}</span>
                 </span>
                 <span className="text-xs text-[var(--shell-muted)]">
-                  {axis.firmScore === null
-                    ? "--"
-                    : axis.ecosystemAverage === null
-                      ? `${axis.firmScore}`
-                      : `${axis.firmScore} vs ${axis.ecosystemAverage} (Δ ${axis.delta && axis.delta >= 0 ? "+" : ""}${axis.delta ?? "--"})`}
+                  {axis.firmScore === null ? (
+                    "--"
+                  ) : axis.ecosystemAverage === null ? (
+                    <span className="pat-stat-number">{axis.firmScore}</span>
+                  ) : (
+                    <>
+                      <span className="pat-stat-number">{axis.firmScore}</span> vs{" "}
+                      <span className="pat-stat-number">{axis.ecosystemAverage}</span> (Δ{" "}
+                      <span className={`pat-stat-number ${deltaColorClass(axis.delta)}`}>
+                        {axis.delta !== null && axis.delta >= 0 ? "+" : ""}
+                        {axis.delta ?? "--"}
+                      </span>
+                      )
+                    </>
+                  )}
                 </span>
               </li>
             ))}

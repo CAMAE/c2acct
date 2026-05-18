@@ -36,7 +36,7 @@ export default function FirmAlignmentHeader({ data }: { data: FirmBriefData }) {
       <div className="mt-3 flex flex-wrap items-end gap-6">
         <div>
           <div
-            className="font-semibold tracking-tight text-[var(--shell-ink)]"
+            className="pat-stat-number tracking-tight"
             style={{ fontSize: "var(--pat-hero-title-size)" }}
           >
             {formatScore(header.canonicalFirmScore)}

@@ -55,7 +55,7 @@ export function AdminMetricCard({
   return (
     <div className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-4">
       <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">{label}</div>
-      <div className="mt-2 text-[2rem] font-semibold tracking-tight text-[var(--shell-ink)] md:text-[2.15rem]">{value}</div>
+      <div className="pat-stat-number mt-2 text-[2rem] tracking-tight md:text-[2.15rem]">{value}</div>
       <div className="mt-2.5 text-sm leading-6 text-[var(--shell-muted)]">{detail}</div>
     </div>
   );

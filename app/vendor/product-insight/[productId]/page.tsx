@@ -98,7 +98,7 @@ export default async function VendorProductInsightDetailPage({
         <section className="grid gap-4 lg:grid-cols-2">
           <div className="pat-soft-panel p-5">
             <div className="pat-label">{messages.insights.vendorProduct.vendorSelfReportedSignal}</div>
-            <div className="mt-3 text-3xl font-semibold text-[var(--shell-ink)]">
+            <div className="pat-stat-number mt-3 text-3xl">
               {formatScore(snapshot.vendorSelfReported.latestScore)}
             </div>
             <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
@@ -111,7 +111,7 @@ export default async function VendorProductInsightDetailPage({
           </div>
           <div className="pat-soft-panel p-5">
             <div className="pat-label">{messages.insights.vendorProduct.firmReviewedSignal}</div>
-            <div className="mt-3 text-3xl font-semibold text-[var(--shell-ink)]">
+            <div className="pat-stat-number mt-3 text-3xl">
               {formatScore(snapshot.firmReviewed.averageScore)}
             </div>
             <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">

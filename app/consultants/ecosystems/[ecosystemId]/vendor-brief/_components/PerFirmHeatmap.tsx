@@ -23,8 +23,8 @@ export default function PerFirmHeatmap({ data }: { data: VendorBriefData }) {
   return (
     <div data-testid="per-firm-heatmap">
       <div className="mb-3 text-xs text-[var(--shell-muted)]">
-        {firms.length} firm{firms.length === 1 ? "" : "s"} &times; {products.length} product
-        {products.length === 1 ? "" : "s"} = {cells.length} cell{cells.length === 1 ? "" : "s"}
+        <span className="pat-stat-number">{firms.length}</span> firm{firms.length === 1 ? "" : "s"} &times; <span className="pat-stat-number">{products.length}</span> product
+        {products.length === 1 ? "" : "s"} = <span className="pat-stat-number">{cells.length}</span> cell{cells.length === 1 ? "" : "s"}
       </div>
 
       {firms.length === 0 || products.length === 0 ? (
@@ -98,7 +98,7 @@ export default function PerFirmHeatmap({ data }: { data: VendorBriefData }) {
                             data-product-id={product.id}
                             data-band={cell.band}
                             title={titleText}
-                            className={`flex h-9 min-w-[3.5rem] items-center justify-center rounded-md px-2 text-xs font-semibold ${BAND_CELL_CLASSES[cell.band]}`}
+                            className={`pat-stat-number flex h-9 min-w-[3.5rem] items-center justify-center rounded-md px-2 text-sm ${BAND_CELL_CLASSES[cell.band]}`}
                           >
                             {scoreLabel}
                           </div>

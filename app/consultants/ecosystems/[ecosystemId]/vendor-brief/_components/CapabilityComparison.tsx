@@ -19,10 +19,11 @@ function deltaCellNumber(row: VendorBriefDeltaRow): string {
 }
 
 function deltaCellColorClass(row: VendorBriefDeltaRow): string {
+  // WS10-B Block B: canonical delta-color semantics — see SelfVsMarketDelta.
   if (row.delta === null) return "text-[var(--shell-muted)]";
-  if (row.isHotDivergence) return "text-[var(--brand-orange)]";
-  if (row.deltaDirection === "neutral") return "text-[var(--shell-muted)]";
-  return "text-[var(--brand-c2-blue)]";
+  if (row.deltaDirection === "vendor-higher") return "text-[var(--brand-orange)]";
+  if (row.deltaDirection === "firm-higher") return "text-green-600";
+  return "text-[var(--shell-ink)]";
 }
 
 function directionLabel(row: VendorBriefDeltaRow): string {
@@ -35,11 +36,13 @@ function directionLabel(row: VendorBriefDeltaRow): string {
 }
 
 function directionColorClass(row: VendorBriefDeltaRow): string {
+  // WS10-B Block B: align Direction label color with the Delta cell color
+  // semantics: vendor-higher = orange, firm-higher = green, neutral = ink,
+  // null = muted.
   if (row.delta === null) return "text-[var(--shell-muted)]";
-  if (row.isHotDivergence) return "text-[var(--brand-orange)]";
-  if (row.deltaDirection === "vendor-higher") return "text-[var(--brand-c2-blue)]";
-  if (row.deltaDirection === "firm-higher") return "text-[var(--brand-orange)]";
-  return "text-[var(--shell-muted)]";
+  if (row.deltaDirection === "vendor-higher") return "text-[var(--brand-orange)]";
+  if (row.deltaDirection === "firm-higher") return "text-green-600";
+  return "text-[var(--shell-ink)]";
 }
 
 function actionTitleFromRows(rows: VendorBriefDeltaRow[], vendorName: string): string {
@@ -118,24 +121,24 @@ export default function CapabilityComparison({ data }: { data: VendorBriefData }
             data-testid="capability-comparison-table"
           >
             <colgroup>
-              <col className="w-[35%]" />
-              <col className="w-[15%]" />
-              <col className="w-[15%]" />
-              <col className="w-[15%]" />
-              <col className="w-[20%]" />
+              <col className="w-[30%]" />
+              <col className="w-[18%]" />
+              <col className="w-[14%]" />
+              <col className="w-[14%]" />
+              <col className="w-[24%]" />
             </colgroup>
             <thead>
               <tr className="border-b border-[var(--shell-border)] text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
                 <th scope="col" className="py-3 pr-4">
                   Capability area
                 </th>
-                <th scope="col" className="py-3 pr-4 text-right tabular-nums">
+                <th scope="col" className="py-3 pr-4 text-right tabular-nums whitespace-nowrap">
                   Vendor self-report
                 </th>
-                <th scope="col" className="py-3 pr-4 text-right tabular-nums">
+                <th scope="col" className="py-3 pr-4 text-right tabular-nums whitespace-nowrap">
                   Firm avg
                 </th>
-                <th scope="col" className="py-3 pr-4 text-right tabular-nums">
+                <th scope="col" className="py-3 pr-4 text-right tabular-nums whitespace-nowrap">
                   Delta
                 </th>
                 <th scope="col" className="py-3">
@@ -157,17 +160,17 @@ export default function CapabilityComparison({ data }: { data: VendorBriefData }
                       {row.productName}
                     </div>
                     <div className="mt-1 text-xs text-[var(--shell-muted)]">
-                      {row.firmReviewCount} firm review{row.firmReviewCount === 1 ? "" : "s"}
+                      <span className="pat-stat-number">{row.firmReviewCount}</span> firm review{row.firmReviewCount === 1 ? "" : "s"}
                     </div>
                   </td>
-                  <td className="py-4 pr-4 text-right text-base font-semibold tabular-nums text-[var(--shell-ink)]">
+                  <td className="pat-stat-number py-4 pr-4 text-right text-base">
                     {formatScore(row.vendorSelfReported)}
                   </td>
-                  <td className="py-4 pr-4 text-right text-base font-semibold tabular-nums text-[var(--shell-ink)]">
+                  <td className="pat-stat-number py-4 pr-4 text-right text-base">
                     {formatScore(row.firmReviewedAverage)}
                   </td>
                   <td
-                    className={`py-4 pr-4 text-right text-2xl font-bold tabular-nums tracking-tight ${deltaCellColorClass(row)}`}
+                    className={`pat-stat-number py-4 pr-4 text-right text-2xl tracking-tight ${deltaCellColorClass(row)}`}
                   >
                     {deltaCellNumber(row)}
                   </td>
