@@ -140,6 +140,16 @@ test.describe("consultant flow", () => {
     });
     await expect(page.locator('[data-testid="ecosystem-detail-page"]')).toBeVisible();
 
+    // WS11-E: each of the 5 headline stat tiles is a Link to its explainer
+    // page. Count assertion only — the explainer pages themselves are
+    // verified via curl gates in the WS11-E close-out; clicking through
+    // here would compile a new dynamic route mid-suite and starve parallel
+    // tests of dev-server cycles.
+    const headlineLinks = await page
+      .locator('[data-testid="headline-metric-link"]')
+      .count();
+    expect(headlineLinks).toBe(5);
+
     // Non-existent ecosystem id -> 404
     const nonexistentStatus = await context.request
       .get("/consultants/ecosystems/demo-bench-ecosystem-nonexistent", {

@@ -40,7 +40,7 @@ export default async function EcosystemDetailPage({
         description={`${detail.vendorCompanyName} · ${detail.firmCount} firm${detail.firmCount === 1 ? "" : "s"}`}
       />
       <EcosystemHeader data={detail} />
-      <HeadlineMetricsRow data={detail} />
+      <HeadlineMetricsRow data={detail} ecosystemId={detail.ecosystemId} />
       <div className="grid gap-6 lg:grid-cols-2">
         <VendorAtAGlance data={detail} />
         <FirmGrid data={detail} />
