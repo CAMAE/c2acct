@@ -1,0 +1,74 @@
+export default function VendorBriefHelpContent() {
+  return (
+    <section className="pat-card p-8">
+      <div className="pat-label">Vendor brief · Help</div>
+      <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
+        How to read this brief
+      </h2>
+      <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
+        The vendor brief shows how a single vendor lines up across every firm in
+        this ecosystem: where they over-claim, where they under-claim, which
+        capabilities are battle-tested, which are gap-able.
+      </p>
+
+      <div className="mt-8 grid gap-6 md:grid-cols-2">
+        <div className="pat-soft-panel p-5">
+          <h3 className="text-base font-semibold text-[var(--shell-ink)]">
+            Section-by-section
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+            <span className="font-semibold">Executive summary</span> — headline + body
+            bullets framing the alignment story.{" "}
+            <span className="font-semibold">Evaluation methodology</span> — how scores
+            are computed, the 10-pt hot-divergence threshold, confidence bands.{" "}
+            <span className="font-semibold">Positioning visual</span> — vendor
+            self-report vs firm-reviewed average per product.{" "}
+            <span className="font-semibold">Strengths / cautions</span> — per-firm
+            battlecards.{" "}
+            <span className="font-semibold">Capability comparison</span> — the
+            full scoreboard plus the per-firm coverage heatmap.
+          </p>
+        </div>
+
+        <div className="pat-soft-panel p-5">
+          <h3 className="text-base font-semibold text-[var(--shell-ink)]">
+            Reading the deltas
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+            <span className="font-semibold text-[var(--brand-orange)]">Orange</span>{" "}
+            means the vendor self-reported above the firm-reviewed average — the
+            vendor is over-claiming.{" "}
+            <span className="font-semibold text-green-600">Green</span> means firms
+            rate the vendor higher than the vendor&apos;s self-report — the vendor
+            is under-claiming. Neutral ink means no directional signal yet.
+          </p>
+        </div>
+
+        <div className="pat-soft-panel p-5">
+          <h3 className="text-base font-semibold text-[var(--shell-ink)]">
+            Hot divergence
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+            A row is flagged hot when the gap between vendor self-report and
+            firm-reviewed average is at least 10 points in either direction.
+            Hot divergences are the highest-signal places to start a conversation
+            — they usually point at a specific feature, a specific implementation
+            gap, or a specific firm cohort.
+          </p>
+        </div>
+
+        <div className="pat-soft-panel p-5">
+          <h3 className="text-base font-semibold text-[var(--shell-ink)]">
+            What is hidden right now
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+            Section 6 (Action Roadmap) is muted for this release. The current
+            library renders PAT-meta actions rather than vendor-actionable next
+            steps; the rebuild is queued as AUDIT-WS11-001 and will return as a
+            vendor-focused action library.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}

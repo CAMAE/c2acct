@@ -227,21 +227,33 @@ test.describe("consultant flow", () => {
     });
     await expect(page.locator('[data-testid="vendor-brief-page"]')).toBeVisible();
 
-    // Day-16 R1 fix: prove the brief is non-empty, not just that the route
-    // renders. seed:demo-benchmark wires seedVendorProductAssessment for
-    // every product; if a downstream filter drops those rows, the brief
-    // shows empty boxes and the route-renders assertion alone wouldn't
-    // catch it. Each section needs at least one rendered row.
+    // WS11-B: vendor-brief sections are panel-gated. Navigate to each panel
+    // to assert its signature element renders. Day-16 R1 fix still applies:
+    // prove the brief is non-empty, not just that the route renders.
+    await page.goto(`/consultants/ecosystems/${ownEcosystemId}/vendor-brief?panel=positioning`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60_000,
+    });
     await expect(page.locator('[data-testid="delta-row"]').first()).toBeVisible();
+
+    await page.goto(`/consultants/ecosystems/${ownEcosystemId}/vendor-brief?panel=capability`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60_000,
+    });
     await expect(page.locator('[data-testid="heatmap-cell"]').first()).toBeVisible();
-    // WS10-A Block G: Section 6 (Action Roadmap) is muted for demo while
-    // AUDIT-WS11-001 rebuilds the vendor-actionable library. Re-enable the
-    // roadmap-panel assertion below when that ticket lands.
-    // await expect(page.locator('[data-testid="roadmap-panel"]').first()).toBeVisible();
+
+    await page.goto(`/consultants/ecosystems/${ownEcosystemId}/vendor-brief?panel=method`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60_000,
+    });
     const methodologyText = await page
       .locator('[data-testid="evaluation-methodology"]')
       .innerText();
     expect(methodologyText.trim().length).toBeGreaterThan(0);
+
+    // WS10-A Block G: Section 6 (Action Roadmap) is muted for demo while
+    // AUDIT-WS11-001 rebuilds the vendor-actionable library. Re-enable the
+    // roadmap-panel assertion when that ticket lands.
 
     // Non-existent ecosystem id -> 404
     const nonexistentStatus = await context.request
@@ -337,14 +349,35 @@ test.describe("consultant flow", () => {
     });
     await expect(page.locator('[data-testid="firm-brief-page"]')).toBeVisible();
 
-    // Non-empty content per Day-16 R1 fix: prove the brief sections
-    // actually rendered against real demo data, not just that the
-    // route returned 200.
+    // WS11-B: firm-brief sections are panel-gated. The default landing is
+    // the Operating alignment panel (firm-alignment-header). Other sections
+    // are reached via ?panel= search params. Each panel asserts its
+    // signature element to confirm real demo data renders.
     await expect(page.locator('[data-testid="firm-alignment-header"]')).toBeVisible();
+
+    await page.goto(`/consultants/ecosystems/${ownEcosystemId}/firm/${ownFirmId}?panel=radar`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60_000,
+    });
     const radarAxes = await page.locator('[data-testid^="radar-axis-"]').count();
     expect(radarAxes).toBeGreaterThanOrEqual(1);
+
+    await page.goto(`/consultants/ecosystems/${ownEcosystemId}/firm/${ownFirmId}?panel=stack-fit`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60_000,
+    });
     await expect(page.locator('[data-testid="stack-fit-row"]').first()).toBeVisible();
+
+    await page.goto(`/consultants/ecosystems/${ownEcosystemId}/firm/${ownFirmId}?panel=roadmap`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60_000,
+    });
     await expect(page.locator('[data-testid="roadmap-quarter"]').first()).toBeVisible();
+
+    await page.goto(`/consultants/ecosystems/${ownEcosystemId}/firm/${ownFirmId}?panel=method`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60_000,
+    });
     const methodologyText = await page
       .locator('[data-testid="firm-brief-methodology"]')
       .innerText();
@@ -566,5 +599,103 @@ test.describe("consultant flow", () => {
     await expect(
       page.locator('[data-testid="vendor-brief-page"]')
     ).toHaveCount(0);
+  });
+
+  // WS11-B: vendor-brief and firm-brief landings now render a portal-shaped
+  // hero with a PortalPanelSelector toggle (7 options each). These tests
+  // assert the hero structure independently of the section content tests
+  // above.
+  test("vendor-brief portal hero renders 7 toggle options", async ({ page, context }) => {
+    test.skip(
+      !consultantAccessEnabled,
+      "Consultant access flag is off; hero-card test only meaningful when /consultants is reachable."
+    );
+    test.setTimeout(120_000);
+
+    const csrfRes = await context.request.get("/api/auth/csrf");
+    const { csrfToken } = await csrfRes.json();
+    await context.request.post("/api/auth/callback/credentials", {
+      form: {
+        csrfToken,
+        email: "review.consultant+sentinel@pat.local",
+        password: DEMO_BENCH_PASSWORD,
+        redirectTo: "/consultants",
+      },
+      maxRedirects: 0,
+      failOnStatusCode: false,
+    });
+
+    await page.goto("/consultants", { waitUntil: "networkidle" });
+    const ownEcosystemId = await page
+      .locator('[data-testid="ecosystem-list-card"]')
+      .first()
+      .getAttribute("data-ecosystem-id");
+    expect(ownEcosystemId).toBeTruthy();
+
+    await page.goto(`/consultants/ecosystems/${ownEcosystemId}/vendor-brief`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="vendor-brief-portal-hero"]')).toBeVisible();
+    await expect(page.locator('[data-testid="vendor-brief-exec-panel"]')).toBeVisible();
+
+    const toggleLabels = await page
+      .locator('[data-testid="vendor-brief-portal-hero"] .pat-mode-toggle__option')
+      .allInnerTexts();
+    expect(toggleLabels.length).toBe(7);
+  });
+
+  test("firm-brief portal hero renders 7 toggle options", async ({ page, context }) => {
+    test.skip(
+      !consultantAccessEnabled,
+      "Consultant access flag is off; hero-card test only meaningful when /consultants is reachable."
+    );
+    test.setTimeout(120_000);
+
+    const csrfRes = await context.request.get("/api/auth/csrf");
+    const { csrfToken } = await csrfRes.json();
+    await context.request.post("/api/auth/callback/credentials", {
+      form: {
+        csrfToken,
+        email: "review.consultant+sentinel@pat.local",
+        password: DEMO_BENCH_PASSWORD,
+        redirectTo: "/consultants",
+      },
+      maxRedirects: 0,
+      failOnStatusCode: false,
+    });
+
+    await page.goto("/consultants", { waitUntil: "networkidle" });
+    const ownEcosystemId = await page
+      .locator('[data-testid="ecosystem-list-card"]')
+      .first()
+      .getAttribute("data-ecosystem-id");
+    expect(ownEcosystemId).toBeTruthy();
+
+    // The Sentinel ecosystem detail page exposes the first firm via the firm-
+    // grid links rendered by WS10-B Block C. Grab the first firm's id off
+    // the link href.
+    await page.goto(`/consultants/ecosystems/${ownEcosystemId}`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60_000,
+    });
+    const firmHref = await page
+      .locator('[data-testid="firm-grid-firm-link"]')
+      .first()
+      .getAttribute("href");
+    expect(firmHref).toMatch(/\/firm\//);
+    const firmCompanyId = firmHref!.split("/firm/")[1];
+
+    await page.goto(`/consultants/ecosystems/${ownEcosystemId}/firm/${firmCompanyId}`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60_000,
+    });
+    await expect(page.locator('[data-testid="firm-brief-portal-hero"]')).toBeVisible();
+    await expect(page.locator('[data-testid="firm-brief-operating-panel"]')).toBeVisible();
+
+    const toggleLabels = await page
+      .locator('[data-testid="firm-brief-portal-hero"] .pat-mode-toggle__option')
+      .allInnerTexts();
+    expect(toggleLabels.length).toBe(7);
   });
 });
