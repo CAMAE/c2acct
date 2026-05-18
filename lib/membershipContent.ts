@@ -1,5 +1,5 @@
 import type { MembershipPlan, MembershipStatus } from "@prisma/client";
-import { DEFAULT_FREE_MEMBERSHIP_PLAN, MEMBERSHIP_PLAN, normalizeMembershipPlan } from "@/lib/membership";
+import { MEMBERSHIP_PLAN, normalizeMembershipPlan } from "@/lib/membership";
 import type { MembershipAudience } from "@/lib/membershipContext";
 
 export type MembershipTabKey = typeof MEMBERSHIP_PLAN.PRO | typeof MEMBERSHIP_PLAN.ELITE | "HELP";
@@ -57,9 +57,7 @@ export type MembershipPageModel = {
       ownsPlan: boolean;
       ctaTitle: string;
       ctaBody: string;
-        ctaHref: string;
-        detailHref: string;
-        detailLabel: string;
+      ctaHref: string;
       }
     | {
         kind: "help";
@@ -67,30 +65,6 @@ export type MembershipPageModel = {
         summary: string;
         cards: MembershipHelpCard[];
       };
-};
-
-export type MembershipTierDetailModel = {
-  audience: MembershipAudience;
-  plan: MembershipPlan;
-  currentPlan: MembershipPlan;
-  currentStatus: MembershipStatus;
-  hero: {
-    eyebrow: string;
-    title: string;
-    body: string;
-  };
-  sections: Array<{
-    title: string;
-    body: string;
-  }>;
-  ownsPlan: boolean;
-  actionTitle: string;
-  actionBody: string;
-  actionLabel: string;
-  actionHref: string;
-  backHref: string;
-  workspaceHref: string;
-  workspaceLabel: string;
 };
 
 export type MembershipCheckoutModel = {
@@ -359,10 +333,6 @@ export function buildMembershipCheckoutHref(audience: MembershipAudience, plan: 
   return `${getMembershipPathPrefix(audience)}/membership/checkout?plan=${plan.toLowerCase()}`;
 }
 
-export function buildMembershipTierDetailHref(audience: MembershipAudience, plan: MembershipPlan) {
-  return `${getMembershipPathPrefix(audience)}/membership/${plan.toLowerCase()}`;
-}
-
 export function getRequestedMembershipTab(
   rawTab: string | undefined,
   currentPlan: MembershipPlan
@@ -378,20 +348,6 @@ export function getRequestedMembershipTab(
   }
 
   return getDefaultMembershipTab(currentPlan);
-}
-
-export function parseMembershipPlanSegment(rawSegment: string | undefined) {
-  const normalizedSegment = rawSegment?.trim().toUpperCase();
-
-  if (
-    normalizedSegment === MEMBERSHIP_PLAN.FREE ||
-    normalizedSegment === MEMBERSHIP_PLAN.PRO ||
-    normalizedSegment === MEMBERSHIP_PLAN.ELITE
-  ) {
-    return normalizedSegment;
-  }
-
-  return null;
 }
 
 export function getMembershipTabs() {
@@ -682,82 +638,6 @@ function getMembershipHelpCards(
   ];
 }
 
-export function getMembershipTierDetailModel(input: {
-  audience: MembershipAudience;
-  plan: MembershipPlan;
-  currentPlan: MembershipPlan;
-  currentStatus: MembershipStatus;
-}): MembershipTierDetailModel {
-  const content = MEMBERSHIP_PAGE_CONTENT[input.audience];
-  const selectedPlan = normalizeMembershipPlan(input.plan);
-  const currentPlan = normalizeMembershipPlan(input.currentPlan);
-  const ownsPlan = selectedPlan === currentPlan;
-  const checkoutPlan =
-    selectedPlan === MEMBERSHIP_PLAN.FREE
-      ? currentPlan === DEFAULT_FREE_MEMBERSHIP_PLAN
-        ? MEMBERSHIP_PLAN.PRO
-        : currentPlan
-      : selectedPlan;
-  const planContent = content.plans[selectedPlan];
-  const workspaceLink = getMembershipWorkspaceLink(input.audience);
-
-  return {
-    audience: input.audience,
-    plan: selectedPlan,
-    currentPlan,
-    currentStatus: input.currentStatus,
-    hero: {
-      eyebrow: `${content.eyebrow} · ${formatMembershipValue(selectedPlan)}`,
-      title: planContent.title,
-      body: `${planContent.summary} ${getMembershipScopeNote(input.audience, selectedPlan)}`,
-    },
-    sections: [
-      {
-        title: "What it is",
-        body: planContent.what,
-      },
-      {
-        title: "What's available today",
-        body: getMembershipLiveNowNote(input.audience, selectedPlan),
-      },
-      {
-        title: "What's coming next",
-        body: getMembershipStagedNote(input.audience, selectedPlan),
-      },
-      {
-        title: "Why it helps",
-        body: planContent.why,
-      },
-    ],
-    ownsPlan,
-    actionTitle:
-      ownsPlan && selectedPlan === MEMBERSHIP_PLAN.FREE
-        ? "Stage Pro membership"
-        : ownsPlan
-          ? `Continue with ${formatMembershipValue(selectedPlan)}`
-          : `Stage ${formatMembershipValue(checkoutPlan)} membership`,
-    actionBody:
-      ownsPlan && selectedPlan === MEMBERSHIP_PLAN.FREE
-        ? "Free remains the current baseline. Move into the Pro checkout scaffold only when you want the live paid tier PAT can support now."
-        : ownsPlan
-          ? `This audience is already on ${formatMembershipValue(selectedPlan)}. The checkout scaffold remains non-live and records intent only so PAT can keep the payment handoff honest.`
-          : `${planContent.ctaBody} The checkout remains a scaffold only and does not create a live charge yet.`,
-    actionLabel:
-      ownsPlan && selectedPlan === MEMBERSHIP_PLAN.FREE
-        ? "Open Pro checkout scaffold"
-        : ownsPlan
-          ? "Open current tier checkout scaffold"
-          : `Open ${formatMembershipValue(checkoutPlan)} checkout scaffold`,
-    actionHref: buildMembershipCheckoutHref(input.audience, checkoutPlan),
-    backHref:
-      selectedPlan === MEMBERSHIP_PLAN.PRO || selectedPlan === MEMBERSHIP_PLAN.ELITE
-        ? `${getMembershipPathPrefix(input.audience)}/membership?tab=${selectedPlan.toLowerCase()}`
-        : `${getMembershipPathPrefix(input.audience)}/membership?tab=pro`,
-    workspaceHref: workspaceLink.href,
-    workspaceLabel: workspaceLink.label,
-  };
-}
-
 export function getMembershipPageModel(input: {
   audience: MembershipAudience;
   currentPlan: MembershipPlan;
@@ -814,8 +694,6 @@ export function getMembershipPageModel(input: {
         ? `Open the ${formatMembershipValue(ctaPlan)} checkout scaffold to continue the current membership handoff cleanly.`
         : planContent.ctaBody,
       ctaHref: buildMembershipCheckoutHref(input.audience, ctaPlan),
-      detailHref: buildMembershipTierDetailHref(input.audience, activeTab),
-      detailLabel: `Open ${formatMembershipValue(activeTab)} detail`,
     },
   };
 }

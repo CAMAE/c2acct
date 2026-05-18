@@ -6,7 +6,6 @@ import {
   getDefaultMembershipTab,
   getMembershipPageModel,
   getMembershipTabs,
-  getMembershipTierDetailModel,
   getRequestedCheckoutPlan,
   getRequestedMembershipPaymentMethod,
 } from "@/lib/membershipContent";
@@ -166,21 +165,12 @@ describe("membership page contracts", () => {
     expect(model.submitLabel).toBe("Continue to Stripe checkout");
   });
 
-  it("keeps the tier detail view focused on honest plan detail rather than live-route cards", () => {
-    const model = getMembershipTierDetailModel({
-      audience: "vendor",
-      plan: MEMBERSHIP_PLAN.PRO,
-      currentPlan: MEMBERSHIP_PLAN.FREE,
-      currentStatus: MEMBERSHIP_STATUS.ACTIVE,
-    });
-
-    expect(model.sections.map((section) => section.title)).toEqual([
-      "What it is",
-      "What's available today",
-      "What's coming next",
-      "Why it helps",
-    ]);
-    expect(model.actionHref).toBe("/vendor/membership/checkout?plan=pro");
-    expect(model.workspaceHref).toBe("/vendor");
-  });
+  // WS11-G: getMembershipTierDetailModel + the standalone /membership/[plan]
+  // tier-detail route were deleted when discovery showed the detail view
+  // duplicated the parent membership page. The four section titles ("What it
+  // is" / "What's available today" / "What's coming next" / "Why it helps")
+  // continue to render — now inline on the parent via MembershipPlanPanel's
+  // model.panel.{what,liveNowNote,stagedNote,why} fields. The
+  // /membership/checkout?plan=pro destination is preserved (still tested in
+  // the checkout contract above).
 });

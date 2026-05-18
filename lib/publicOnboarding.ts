@@ -2,7 +2,7 @@ import type { MembershipPlan } from "@prisma/client";
 import { buildCanonicalSignInPath } from "@/lib/auth/routes";
 import { getBillingConfig, getBillingModeForPlan } from "@/lib/billing/config";
 import { MEMBERSHIP_PLAN } from "@/lib/membership";
-import { buildMembershipCheckoutHref, buildMembershipTierDetailHref } from "@/lib/membershipContent";
+import { buildMembershipCheckoutHref, getMembershipPathPrefix } from "@/lib/membershipContent";
 import type { MembershipAudience } from "@/lib/membershipContext";
 import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 
@@ -275,9 +275,13 @@ function buildCheckoutHref(audience: MembershipAudience, plan: PublicOnboardingP
 }
 
 function buildDetailHref(audience: MembershipAudience, plan: PublicOnboardingPlan) {
+  // WS11-G: the standalone /membership/{plan} tier-detail route was deleted
+  // when its content was found to be a duplicate of the parent membership
+  // page. Onboarding's "Plan detail" button now lands on the parent with
+  // the plan tab pre-selected — same content, no click-through.
   const membershipPlan = membershipPlanForPublicPlan(plan);
   if (!membershipPlan) return null;
-  return buildMembershipTierDetailHref(audience, membershipPlan);
+  return `${getMembershipPathPrefix(audience)}/membership?tab=${membershipPlan.toLowerCase()}`;
 }
 
 export function getPublicOnboardingPageModel(input: {

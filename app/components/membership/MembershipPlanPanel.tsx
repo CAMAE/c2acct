@@ -41,11 +41,6 @@ export default function MembershipPlanPanel({ model }: MembershipPlanPanelProps)
             <div className="pat-label">Current truthful scope</div>
             <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{model.panel.scopeNote}</p>
           </div>
-          <div className="mt-6">
-            <Link className="pat-button-secondary inline-flex" href={model.panel.detailHref}>
-              {model.panel.detailLabel}
-            </Link>
-          </div>
         </article>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
