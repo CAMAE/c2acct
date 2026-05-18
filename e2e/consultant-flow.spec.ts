@@ -235,8 +235,18 @@ test.describe("consultant flow", () => {
       timeout: 60_000,
     });
     await expect(page.locator('[data-testid="delta-row"]').first()).toBeVisible();
+    // WS11-C: Positioning panel opens with the product-positioning radar
+    // above the per-product paired bars. Assert the radar renders against
+    // real demo data with at least 3 axes (minimum for a polygon).
+    await expect(
+      page.locator('[data-testid="vendor-product-positioning-radar"]').first()
+    ).toBeVisible();
+    const radarAxisCount = await page
+      .locator('[data-testid^="vendor-product-radar-axis-"]')
+      .count();
+    expect(radarAxisCount).toBeGreaterThanOrEqual(3);
 
-    await page.goto(`/consultants/ecosystems/${ownEcosystemId}/vendor-brief?panel=capability`, {
+    await page.goto(`/consultants/ecosystems/${ownEcosystemId}/vendor-brief?panel=product`, {
       waitUntil: "domcontentloaded",
       timeout: 60_000,
     });

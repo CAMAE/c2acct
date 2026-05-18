@@ -29,8 +29,10 @@ import { describe, expect, it } from "vitest";
  *   - sign-in InlineAccessSelectorWithOptions — IS the design source
  *     and uses the same Tailwind constants the .pat-mode-toggle CSS
  *     encodes.
- *   - Vertical TOC nav (BriefTOC.tsx) — sidebar nav list, not a
- *     mutually-exclusive choice row.
+ *
+ * Removed entries:
+ *   - BriefTOC.tsx (vertical TOC nav): deleted in WS11-C when the vendor
+ *     brief switched to the canonical PortalPanelSelector toggle pattern.
  */
 
 const ROOT = "/Users/camerongarrett/work/c2acct-live";
@@ -55,7 +57,6 @@ const SANCTIONED_NON_CANONICAL = [
   "app/sign-in/page.tsx",
   "app/components/consultants/briefEdits/EmphasisToggle.tsx",
   "app/components/assessment/AssessmentModuleClient.tsx",
-  "app/consultants/ecosystems/[ecosystemId]/vendor-brief/_components/BriefTOC.tsx",
 ] as const;
 
 describe("WS5 Block A — toggle consistency contract", () => {

@@ -10,12 +10,13 @@ import { getVendorBriefForConsultant } from "@/lib/briefs";
 // library renders PAT-meta actions ("Get more individual PAT submissions")
 // instead of vendor-actionable next steps. AUDIT-WS11-001 queues the rebuild.
 // import ActionRoadmap from "./_components/ActionRoadmap";
-import CapabilityComparison from "./_components/CapabilityComparison";
 import EvaluationMethodology from "./_components/EvaluationMethodology";
 import PerFirmStrengthsCautions from "./_components/PerFirmStrengthsCautions";
+import ProductComparison from "./_components/ProductComparison";
 import SelfVsMarketDelta from "./_components/SelfVsMarketDelta";
 import VendorBriefExecutiveSummary from "./_components/VendorBriefExecutiveSummary";
 import VendorBriefHelpContent from "./_components/VendorBriefHelpContent";
+import VendorProductPositioningRadar from "./_components/VendorProductPositioningRadar";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ type VendorBriefPanelKey =
   | "method"
   | "positioning"
   | "strengths"
-  | "capability"
+  | "product"
   | "pat"
   | "help";
 
@@ -35,7 +36,7 @@ const VENDOR_BRIEF_PANELS: ReadonlyArray<VendorBriefPanelKey> = [
   "method",
   "positioning",
   "strengths",
-  "capability",
+  "product",
   "pat",
   "help",
 ];
@@ -78,7 +79,7 @@ export default async function VendorBriefPage({
     { key: "method", label: "Evaluation methodology", href: getPanelHref(ecosystemId, "method") },
     { key: "positioning", label: "Positioning visual", href: getPanelHref(ecosystemId, "positioning") },
     { key: "strengths", label: "Strengths / cautions", href: getPanelHref(ecosystemId, "strengths") },
-    { key: "capability", label: "Capability comparison", href: getPanelHref(ecosystemId, "capability") },
+    { key: "product", label: "Product comparison", href: getPanelHref(ecosystemId, "product") },
     { key: "pat", label: "Meet PAT", href: getPanelHref(ecosystemId, "pat") },
     { key: "help", label: "Help", href: getPanelHref(ecosystemId, "help") },
   ] as const;
@@ -122,7 +123,8 @@ export default async function VendorBriefPage({
         </section>
       ) : null}
       {activePanel === "positioning" ? (
-        <section data-testid="vendor-brief-positioning-panel">
+        <section data-testid="vendor-brief-positioning-panel" className="space-y-8">
+          <VendorProductPositioningRadar data={brief} />
           <SelfVsMarketDelta data={brief} />
         </section>
       ) : null}
@@ -131,9 +133,9 @@ export default async function VendorBriefPage({
           <PerFirmStrengthsCautions data={brief} />
         </section>
       ) : null}
-      {activePanel === "capability" ? (
-        <section data-testid="vendor-brief-capability-panel">
-          <CapabilityComparison data={brief} />
+      {activePanel === "product" ? (
+        <section data-testid="vendor-brief-product-panel">
+          <ProductComparison data={brief} />
         </section>
       ) : null}
       {activePanel === "pat" ? (

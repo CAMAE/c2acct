@@ -21,11 +21,14 @@ export default function VendorBriefHelpContent() {
             bullets framing the alignment story.{" "}
             <span className="font-semibold">Evaluation methodology</span> — how scores
             are computed, the 10-pt hot-divergence threshold, confidence bands.{" "}
-            <span className="font-semibold">Positioning visual</span> — vendor
-            self-report vs firm-reviewed average per product.{" "}
+            <span className="font-semibold">Positioning visual</span> — opens with a
+            capability radar (orange polygon is what the vendor says about themselves,
+            blue polygon is what firms say; where orange extends past blue, the vendor
+            is over-claiming), followed by the per-product paired bars for the
+            granular drill-down.{" "}
             <span className="font-semibold">Strengths / cautions</span> — per-firm
             battlecards.{" "}
-            <span className="font-semibold">Capability comparison</span> — the
+            <span className="font-semibold">Product comparison</span> — the
             full scoreboard plus the per-firm coverage heatmap.
           </p>
         </div>

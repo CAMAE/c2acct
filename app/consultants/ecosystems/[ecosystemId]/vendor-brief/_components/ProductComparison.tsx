@@ -47,11 +47,11 @@ function directionColorClass(row: VendorBriefDeltaRow): string {
 
 function actionTitleFromRows(rows: VendorBriefDeltaRow[], vendorName: string): string {
   if (rows.length === 0) {
-    return `Capability comparison populates once ${vendorName} publishes a product catalog.`;
+    return `Product comparison populates once ${vendorName} publishes a product catalog.`;
   }
   const scored = rows.filter((r) => r.delta !== null);
   if (scored.length === 0) {
-    return `Capability comparison populates as firm responses land — 0 of ${rows.length} capability scores in.`;
+    return `Product comparison populates as firm responses land — 0 of ${rows.length} product scores in.`;
   }
   const leads = scored.filter(
     (r) => r.deltaDirection === "vendor-higher" && !r.isHotDivergence
@@ -60,18 +60,18 @@ function actionTitleFromRows(rows: VendorBriefDeltaRow[], vendorName: string): s
     (r) => r.deltaDirection === "firm-higher" || r.isHotDivergence
   ).length;
   if (leads + trails === 0) {
-    return `Across ${scored.length} scored ${scored.length === 1 ? "capability" : "capabilities"}, ${vendorName} tracks the network average within the conversation-grade band.`;
+    return `Across ${scored.length} scored ${scored.length === 1 ? "product" : "products"}, ${vendorName} tracks the network average within the conversation-grade band.`;
   }
   if (trails === 0) {
-    return `Across ${scored.length} scored ${scored.length === 1 ? "capability" : "capabilities"}, ${vendorName} leads on ${leads} and matches the network on the rest.`;
+    return `Across ${scored.length} scored ${scored.length === 1 ? "product" : "products"}, ${vendorName} leads on ${leads} and matches the network on the rest.`;
   }
   if (leads === 0) {
-    return `Across ${scored.length} scored ${scored.length === 1 ? "capability" : "capabilities"}, ${vendorName} trails the network on ${trails}.`;
+    return `Across ${scored.length} scored ${scored.length === 1 ? "product" : "products"}, ${vendorName} trails the network on ${trails}.`;
   }
-  return `Across ${scored.length} scored ${scored.length === 1 ? "capability" : "capabilities"}, ${vendorName} leads on ${leads} and trails on ${trails}.`;
+  return `Across ${scored.length} scored ${scored.length === 1 ? "product" : "products"}, ${vendorName} leads on ${leads} and trails on ${trails}.`;
 }
 
-export default function CapabilityComparison({ data }: { data: VendorBriefData }) {
+export default function ProductComparison({ data }: { data: VendorBriefData }) {
   const rows = data.selfVsMarketDelta;
   const firmLabel = data.firmCount === 1 ? "firm" : "firms";
   const refreshedDate = formatGeneratedDate(data.generatedAt);
@@ -80,11 +80,11 @@ export default function CapabilityComparison({ data }: { data: VendorBriefData }
 
   return (
     <section
-      id="section-5-capability-comparison"
+      id="section-5-product-comparison"
       className="scroll-mt-8 rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-8"
-      data-testid="capability-comparison"
+      data-testid="product-comparison"
     >
-      <div className="pat-label">Section 5 · Capability comparison</div>
+      <div className="pat-label">Section 5 · Product comparison</div>
 
       <h2
         className="mt-4 font-semibold tracking-tight text-[var(--shell-ink)]"
@@ -94,31 +94,31 @@ export default function CapabilityComparison({ data }: { data: VendorBriefData }
       </h2>
 
       <p className="mt-3 text-sm text-[var(--shell-muted)]">
-        Scorecard table — every capability area at a glance. Use Section 3 for the headline divergences; this section is the full scoreboard.
+        Scorecard table — every product at a glance. Use Section 3 for the headline divergences; this section is the full scoreboard.
       </p>
 
       {rows.length === 0 ? (
         <div className="mt-8 border-t border-dashed border-[var(--shell-border)] pt-6">
           <div
             className="text-base font-semibold leading-snug text-[var(--shell-ink)]"
-            data-testid="capability-comparison-empty"
+            data-testid="product-comparison-empty"
           >
-            Awaiting capability response from {firmsNeeded} more firm{firmsNeeded === 1 ? "" : "s"} to surface peer-validated comparisons.
+            Awaiting product responses from {firmsNeeded} more firm{firmsNeeded === 1 ? "" : "s"} to surface peer-validated comparisons.
           </div>
           <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-            The capability table populates once {data.vendorCompanyName} publishes a product catalog AND at least one firm-side review lands. Vendor self-report alone is not enough — peer grounding is the whole point of the section.
+            The product table populates once {data.vendorCompanyName} publishes a product catalog AND at least one firm-side review lands. Vendor self-report alone is not enough — peer grounding is the whole point of the section.
           </p>
         </div>
       ) : (
         <div className="mt-8 overflow-x-auto">
           {/* WS2-E (manual-review item 24): table-fixed + colgroup widths
               spread the columns across the full card width instead of
-              jamming on the left. Capability area gets the biggest slice
-              (35%) since it carries multi-line text; numeric columns each
-              get 15%; Direction gets 20% for the longest label. */}
+              jamming on the left. Product gets the biggest slice (30%) since
+              it carries multi-line text; numeric columns each get 14-18%;
+              Direction gets 24% for the longest label. */}
           <table
             className="w-full table-fixed text-left text-sm"
-            data-testid="capability-comparison-table"
+            data-testid="product-comparison-table"
           >
             <colgroup>
               <col className="w-[30%]" />
@@ -130,7 +130,7 @@ export default function CapabilityComparison({ data }: { data: VendorBriefData }
             <thead>
               <tr className="border-b border-[var(--shell-border)] text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
                 <th scope="col" className="py-3 pr-4">
-                  Capability area
+                  Product
                 </th>
                 <th scope="col" className="py-3 pr-4 text-right tabular-nums whitespace-nowrap">
                   Vendor self-report
@@ -150,7 +150,7 @@ export default function CapabilityComparison({ data }: { data: VendorBriefData }
               {rows.map((row) => (
                 <tr
                   key={row.productId}
-                  data-testid="capability-row"
+                  data-testid="product-row"
                   data-product-id={row.productId}
                   data-hot-divergence={row.isHotDivergence ? "1" : "0"}
                   className="align-baseline"
@@ -187,7 +187,7 @@ export default function CapabilityComparison({ data }: { data: VendorBriefData }
       <div className="mt-10 border-t border-dashed border-[var(--shell-border)] pt-6">
         <div className="pat-label text-[11px]">Per-firm coverage matrix</div>
         <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-          Firm-by-product cells using the Section 2 bands (high &ge; 75, mid 50&ndash;74, low &lt; 50, not yet reviewed). Use this view to spot the firms that haven&apos;t yet reviewed a given capability.
+          Firm-by-product cells using the Section 2 bands (high &ge; 75, mid 50&ndash;74, low &lt; 50, not yet reviewed). Use this view to spot the firms that haven&apos;t yet reviewed a given product.
         </p>
         <div className="mt-4">
           <PerFirmHeatmap data={data} />
@@ -196,9 +196,9 @@ export default function CapabilityComparison({ data }: { data: VendorBriefData }
 
       <div
         className="mt-10 border-t border-[var(--shell-border)] pt-5 text-xs leading-6 text-[var(--shell-muted)]"
-        data-testid="capability-comparison-methodology-footer"
+        data-testid="product-comparison-methodology-footer"
       >
-        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {rows.length} capability {rows.length === 1 ? "area" : "areas"} tracked · hot-divergence threshold &ge; 10 points · scoring methodology: see Section 2 above.
+        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {rows.length} {rows.length === 1 ? "product" : "products"} tracked · hot-divergence threshold &ge; 10 points · scoring methodology: see Section 2 above.
       </div>
     </section>
   );
