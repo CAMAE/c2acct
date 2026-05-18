@@ -6,10 +6,7 @@ import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
 import MeetPatContent from "@/app/components/pat/MeetPatContent";
 import { requireConsultantSession } from "@/lib/consultantAccess";
 import { getVendorBriefForConsultant } from "@/lib/briefs";
-// WS10-A Block G: ActionRoadmap (Section 6) is muted for demo. The current
-// library renders PAT-meta actions ("Get more individual PAT submissions")
-// instead of vendor-actionable next steps. AUDIT-WS11-001 queues the rebuild.
-// import ActionRoadmap from "./_components/ActionRoadmap";
+import ActionRoadmap from "./_components/ActionRoadmap";
 import EvaluationMethodology from "./_components/EvaluationMethodology";
 import PerFirmStrengthsCautions from "./_components/PerFirmStrengthsCautions";
 import ProductComparison from "./_components/ProductComparison";
@@ -28,6 +25,7 @@ type VendorBriefPanelKey =
   | "positioning"
   | "strengths"
   | "product"
+  | "roadmap"
   | "pat"
   | "help";
 
@@ -37,6 +35,7 @@ const VENDOR_BRIEF_PANELS: ReadonlyArray<VendorBriefPanelKey> = [
   "positioning",
   "strengths",
   "product",
+  "roadmap",
   "pat",
   "help",
 ];
@@ -80,6 +79,7 @@ export default async function VendorBriefPage({
     { key: "positioning", label: "Positioning visual", href: getPanelHref(ecosystemId, "positioning") },
     { key: "strengths", label: "Strengths / cautions", href: getPanelHref(ecosystemId, "strengths") },
     { key: "product", label: "Product comparison", href: getPanelHref(ecosystemId, "product") },
+    { key: "roadmap", label: "Action roadmap", href: getPanelHref(ecosystemId, "roadmap") },
     { key: "pat", label: "Meet PAT", href: getPanelHref(ecosystemId, "pat") },
     { key: "help", label: "Help", href: getPanelHref(ecosystemId, "help") },
   ] as const;
@@ -136,6 +136,11 @@ export default async function VendorBriefPage({
       {activePanel === "product" ? (
         <section data-testid="vendor-brief-product-panel">
           <ProductComparison data={brief} />
+        </section>
+      ) : null}
+      {activePanel === "roadmap" ? (
+        <section data-testid="vendor-brief-roadmap-panel">
+          <ActionRoadmap data={brief} />
         </section>
       ) : null}
       {activePanel === "pat" ? (

@@ -644,6 +644,14 @@ function buildNarrative(input: {
   ].join(" ");
 }
 
+// WS11-F (AUDIT-WS11-001): vendor-actionable next-step library. Voice is
+// second-person to the vendor — what should THE VENDOR do next to better
+// align their product with the firms in this ecosystem. Each title is a
+// vendor verb (Schedule, Refresh, Stage); each detail names the specific
+// product or capability driving the action so the consultant has a real
+// talking point for the next operating review. The 4 input fields (weakest
+// module, weakest product, missing-user coverage, ecosystem caveat) are
+// reused from the prior PAT-meta library — no aggregator changes needed.
 export function buildBriefingActionPlan(input: {
   weakestModuleTitle: string | null;
   weakestProductTitle: string | null;
@@ -654,31 +662,33 @@ export function buildBriefingActionPlan(input: {
     {
       window: "30 days",
       title: input.missingUserCoverage
-        ? "Close the person-level evidence gap"
-        : "Stabilize the weakest operating section",
+        ? "Schedule firm-side individual evidence outreach"
+        : `Refresh self-report on ${input.weakestModuleTitle ?? "the weakest capability area"}`,
       detail: input.missingUserCoverage
-        ? "Get more individual PAT submissions in place so the briefing stops relying only on firm-level operating evidence."
-        : `Use the weakest firm module, ${input.weakestModuleTitle ?? "the current constraint module"}, as the first operating workstream.`,
+        ? "Reach out to firm contacts to capture individual operating evidence. The current alignment readout stops at the firm layer; person-level signal is what closes the loop between product claims and how firms actually use the product day-to-day."
+        : `Firms are rating your product below your stated position on ${input.weakestModuleTitle ?? "the weakest capability"}. Calibrate the self-report before the next operating review so the public claim set tracks firm experience, not the vendor's internal benchmark.`,
       evidence: input.missingUserCoverage
         ? "Individual layer sample size is currently thin."
         : `Firm layer weakness is concentrated in ${input.weakestModuleTitle ?? "the weakest module"}.`,
     },
     {
       window: "60 days",
-      title: "Work through product-stack friction",
+      title: input.weakestProductTitle
+        ? `Stage a product review on ${input.weakestProductTitle}`
+        : "Open a firm-side product review channel",
       detail: input.weakestProductTitle
-        ? `Use ${input.weakestProductTitle} as the priority product review and remediation track, then compare the next firm review against the current PAT readout.`
-        : "Add at least one firm-side product review so the product layer becomes decision-usable.",
+        ? `Bring ${input.weakestProductTitle} into the next quarterly operating review with the firms reviewing it now. Current firm-side feedback shows it is the weakest signal in your stack — vendor-side prep here pays back across the rest of the network because adjacent firms will see the calibration land.`
+        : "Open a firm-side product review channel for at least one product in your catalog. The vendor brief currently operates on vendor self-report alone for product-level signal; firm-reviewed product data is what makes the alignment readout decision-grade for renewals and roadmap conversations.",
       evidence: input.weakestProductTitle
         ? `${input.weakestProductTitle} is the weakest current product signal in the stack.`
         : "No reviewed products are currently available.",
     },
     {
       window: "90 days",
-      title: "Re-run the integrated PAT briefing",
+      title: "Refresh public positioning after remediation lands",
       detail: input.ecosystemCaveat
-        ? "Refresh the briefing after the next round of firm, user, and product submissions so ecosystem interpretation becomes less directional."
-        : "Refresh the briefing after action owners complete the first remediation cycle and check whether the same risks still dominate.",
+        ? "Once the next round of firm responses arrives, restate your public position on the products and capabilities that have shifted. Today's ecosystem evidence is directional rather than grounded — re-anchor messaging, technical claims, and case-study language after the next cohort lands so the public claim set matches the new firm consensus."
+        : "Bring the cleaner post-remediation evidence to your messaging and product-marketing teams. Update product positioning, capability claims, and case-study language so the external story matches the firm consensus the network now reflects.",
       evidence: input.ecosystemCaveat ?? "The current evidence set is strong enough for a post-remediation re-read.",
     },
   ] satisfies BriefingActionItem[];

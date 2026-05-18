@@ -262,6 +262,16 @@ test.describe("consultant flow", () => {
     });
     await expect(page.locator('[data-testid="heatmap-cell"]').first()).toBeVisible();
 
+    // WS11-F: Section 6 (Action Roadmap) re-enabled with vendor-actionable
+    // template library (AUDIT-WS11-001 closed). Assert the panel renders.
+    await page.goto(`/consultants/ecosystems/${ownEcosystemId}/vendor-brief?panel=roadmap`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60_000,
+    });
+    await expect(
+      page.locator('[data-testid="vendor-brief-roadmap-panel"]').first()
+    ).toBeVisible();
+
     await page.goto(`/consultants/ecosystems/${ownEcosystemId}/vendor-brief?panel=method`, {
       waitUntil: "domcontentloaded",
       timeout: 60_000,
@@ -270,10 +280,6 @@ test.describe("consultant flow", () => {
       .locator('[data-testid="evaluation-methodology"]')
       .innerText();
     expect(methodologyText.trim().length).toBeGreaterThan(0);
-
-    // WS10-A Block G: Section 6 (Action Roadmap) is muted for demo while
-    // AUDIT-WS11-001 rebuilds the vendor-actionable library. Re-enable the
-    // roadmap-panel assertion when that ticket lands.
 
     // Non-existent ecosystem id -> 404
     const nonexistentStatus = await context.request
@@ -622,10 +628,10 @@ test.describe("consultant flow", () => {
   });
 
   // WS11-B: vendor-brief and firm-brief landings now render a portal-shaped
-  // hero with a PortalPanelSelector toggle (7 options each). These tests
-  // assert the hero structure independently of the section content tests
-  // above.
-  test("vendor-brief portal hero renders 7 toggle options", async ({ page, context }) => {
+  // hero with a PortalPanelSelector toggle. WS11-F bumped the vendor-brief
+  // count from 7 to 8 when Section 6 (Action Roadmap) re-mounted. Firm-brief
+  // stays at 7.
+  test("vendor-brief portal hero renders 8 toggle options", async ({ page, context }) => {
     test.skip(
       !consultantAccessEnabled,
       "Consultant access flag is off; hero-card test only meaningful when /consultants is reachable."
@@ -662,7 +668,7 @@ test.describe("consultant flow", () => {
     const toggleLabels = await page
       .locator('[data-testid="vendor-brief-portal-hero"] .pat-mode-toggle__option')
       .allInnerTexts();
-    expect(toggleLabels.length).toBe(7);
+    expect(toggleLabels.length).toBe(8);
   });
 
   test("firm-brief portal hero renders 7 toggle options", async ({ page, context }) => {

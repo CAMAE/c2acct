@@ -29,7 +29,12 @@ export default function VendorBriefHelpContent() {
             <span className="font-semibold">Strengths / cautions</span> — per-firm
             battlecards.{" "}
             <span className="font-semibold">Product comparison</span> — the
-            full scoreboard plus the per-firm coverage heatmap.
+            full scoreboard plus the per-firm coverage heatmap.{" "}
+            <span className="font-semibold">Action roadmap</span> — vendor-actionable
+            next steps grounded in the divergence data above. Each row names a
+            specific product or capability gap and pairs it with a concrete next
+            step (Schedule, Refresh, Stage). Use this as the talking-point list
+            for the vendor&apos;s next operating review.
           </p>
         </div>
 
@@ -62,13 +67,15 @@ export default function VendorBriefHelpContent() {
 
         <div className="pat-soft-panel p-5">
           <h3 className="text-base font-semibold text-[var(--shell-ink)]">
-            What is hidden right now
+            How the action roadmap reads
           </h3>
           <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-            Section 6 (Action Roadmap) is muted for this release. The current
-            library renders PAT-meta actions rather than vendor-actionable next
-            steps; the rebuild is queued as AUDIT-WS11-001 and will return as a
-            vendor-focused action library.
+            Each action row is a vendor verb plus a specific data anchor (a
+            weak module, a low-rated product, an ecosystem caveat). PAT
+            aggregates per-firm action plans into a single Q1/Q2/Q3 board
+            and surfaces signal strength based on how many firms triggered
+            the same action. Read it as a talking-point queue for the
+            vendor&apos;s next operating review, not as a PAT to-do list.
           </p>
         </div>
       </div>

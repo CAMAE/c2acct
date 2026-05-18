@@ -16,7 +16,12 @@ describe("admin briefing engine contracts", () => {
 
     expect(actions).toHaveLength(3);
     expect(actions[0].window).toBe("30 days");
-    expect(actions[0].detail).toMatch(/individual PAT submissions/i);
+    // WS11-F (AUDIT-WS11-001): 30-day detail rewritten from PAT-meta
+    // ("Get more individual PAT submissions in place...") to vendor-actionable
+    // ("Reach out to firm contacts to capture individual operating evidence...").
+    // The missingUserCoverage branch is still identifiable by referencing the
+    // firm layer and person-level / individual evidence.
+    expect(actions[0].detail).toMatch(/individual operating evidence|person-level/i);
     expect(actions[1].detail).toMatch(/LedgerFlow/);
     expect(actions[2].evidence).toMatch(/directional/i);
   });
