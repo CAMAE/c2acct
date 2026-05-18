@@ -293,7 +293,11 @@ export async function getDemoPatEcosystemHealth(): Promise<DemoPatEcosystemHealt
       vendorProductPlanCount >= products.length &&
       firmProductPlanCount >= products.length &&
       vendorProductAssessmentCount >= products.length &&
-      firmAlignmentSubmissionCount >= firms.length * FIRM_MODULE_DEFINITIONS.length &&
+      // WS10-A Block E: Demo Company's Strategy module is intentionally
+      // left in a partial-draft state (scoreVersion === 0) so the demo
+      // surfaces show live workflow rather than a finished 5/5 mock. The
+      // route is still ready for the demo with one fewer final submission.
+      firmAlignmentSubmissionCount >= firms.length * FIRM_MODULE_DEFINITIONS.length - 1 &&
       firmProductAssessmentCount >= DEMO_FIRM_VENDOR_RELATIONSHIP_MINIMUM;
 
     return {

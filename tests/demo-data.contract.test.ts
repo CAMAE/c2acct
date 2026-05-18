@@ -98,8 +98,13 @@ describe("PAT deterministic demo ecosystem", () => {
     expect(health.vendorProductPlanCount).toBeGreaterThanOrEqual(health.productCount);
     expect(health.firmProductPlanCount).toBeGreaterThanOrEqual(health.productCount);
     expect(health.vendorProductAssessmentCount).toBeGreaterThanOrEqual(health.productCount);
+    // WS10-A Block E: the demo seed intentionally leaves Demo Company's
+    // Strategy module in a partial-draft state (scoreVersion === 0) so the
+    // demo screen shows live workflow rather than a finished 5/5 mock.
+    // firmAlignmentSubmissionCount counts only finals (scoreVersion > 0),
+    // so the expected floor is one below firmCount * moduleCount.
     expect(health.firmAlignmentSubmissionCount).toBeGreaterThanOrEqual(
-      health.firmCount * EXPECTED_FIRM_ALIGNMENT_MODULE_COUNT
+      health.firmCount * EXPECTED_FIRM_ALIGNMENT_MODULE_COUNT - 1
     );
     expect(health.firmProductAssessmentCount).toBeGreaterThanOrEqual(DEMO_FIRM_VENDOR_RELATIONSHIP_MINIMUM);
     expect(health.firmVendorRelationshipCount).toBeGreaterThanOrEqual(DEMO_FIRM_VENDOR_RELATIONSHIP_MINIMUM);

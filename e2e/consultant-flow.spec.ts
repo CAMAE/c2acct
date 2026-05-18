@@ -223,7 +223,10 @@ test.describe("consultant flow", () => {
     // catch it. Each section needs at least one rendered row.
     await expect(page.locator('[data-testid="delta-row"]').first()).toBeVisible();
     await expect(page.locator('[data-testid="heatmap-cell"]').first()).toBeVisible();
-    await expect(page.locator('[data-testid="roadmap-panel"]').first()).toBeVisible();
+    // WS10-A Block G: Section 6 (Action Roadmap) is muted for demo while
+    // AUDIT-WS11-001 rebuilds the vendor-actionable library. Re-enable the
+    // roadmap-panel assertion below when that ticket lands.
+    // await expect(page.locator('[data-testid="roadmap-panel"]').first()).toBeVisible();
     const methodologyText = await page
       .locator('[data-testid="evaluation-methodology"]')
       .innerText();

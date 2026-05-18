@@ -2,7 +2,10 @@ import { notFound } from "next/navigation";
 import { AdminPageIntro } from "@/app/components/admin/AdminShell";
 import { requireConsultantSession } from "@/lib/consultantAccess";
 import { getVendorBriefForConsultant } from "@/lib/briefs";
-import ActionRoadmap from "./_components/ActionRoadmap";
+// WS10-A Block G: ActionRoadmap (Section 6) is muted for demo. The current
+// library renders PAT-meta actions ("Get more individual PAT submissions")
+// instead of vendor-actionable next steps. AUDIT-WS11-001 queues the rebuild.
+// import ActionRoadmap from "./_components/ActionRoadmap";
 import BriefTOC from "./_components/BriefTOC";
 import CapabilityComparison from "./_components/CapabilityComparison";
 import EvaluationMethodology from "./_components/EvaluationMethodology";
@@ -48,7 +51,7 @@ export default async function VendorBriefPage({
         <SelfVsMarketDelta data={brief} />
         <PerFirmStrengthsCautions data={brief} />
         <CapabilityComparison data={brief} />
-        <ActionRoadmap data={brief} />
+        {/* <ActionRoadmap data={brief} /> — WS10-A Block G: muted; see AUDIT-WS11-001 */}
       </div>
     </div>
   );

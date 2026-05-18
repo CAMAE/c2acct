@@ -1,13 +1,8 @@
-import EmphasisToggle from "@/app/components/consultants/briefEdits/EmphasisToggle";
-import PhrasingVariantPicker from "@/app/components/consultants/briefEdits/PhrasingVariantPicker";
 import type {
   FirmBriefData,
   FirmBriefStackFitRow,
   FirmBriefStackFitStatus,
 } from "@/lib/firmBriefs";
-
-const SECTION_KEY = "firm.stack-fit-analysis" as const;
-const EMPHASIS_TARGETS = ["top-row", "reviewed-count"];
 
 const STATUS_LABEL: Record<FirmBriefStackFitStatus, string> = {
   strong: "Strong",
@@ -37,9 +32,6 @@ function deltaLabel(row: FirmBriefStackFitRow): string {
 export default function StackFitAnalysis({ data }: { data: FirmBriefData }) {
   const rows = data.stackFitAnalysis;
   const reviewedCount = rows.filter((row) => row.status !== "not-reviewed").length;
-  const variants = data.editVariants[SECTION_KEY] ?? [];
-  const activeVariantId = data.editChoices.variants[SECTION_KEY];
-  const activeEmphasis = data.editChoices.emphasis[SECTION_KEY] ?? [];
 
   return (
     <section
@@ -53,27 +45,10 @@ export default function StackFitAnalysis({ data }: { data: FirmBriefData }) {
             Your current vendor products
           </h2>
         </div>
-        <div
-          className="text-sm text-[var(--shell-muted)]"
-          data-emphasis-id="reviewed-count"
-          data-emphasis-active={activeEmphasis.includes("reviewed-count") ? "true" : "false"}
-        >
+        <div className="text-sm text-[var(--shell-muted)]">
           {reviewedCount} of {rows.length} reviewed
         </div>
       </div>
-
-      {variants.length > 0 ? (
-        <div className="mb-4">
-          <PhrasingVariantPicker
-            briefKind="firm"
-            briefId={data.firmCompanyId}
-            ecosystemId={data.ecosystemId}
-            sectionKey={SECTION_KEY}
-            variants={variants}
-            activeVariantId={activeVariantId}
-          />
-        </div>
-      ) : null}
 
       {rows.length === 0 ? (
         <p className="text-sm text-[var(--shell-muted)]">No vendor products in scope yet.</p>
@@ -91,17 +66,13 @@ export default function StackFitAnalysis({ data }: { data: FirmBriefData }) {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row, rowIndex) => (
+              {rows.map((row) => (
                 <tr
                   key={row.productId}
                   data-testid="stack-fit-row"
                   data-product-id={row.productId}
                   data-status={row.status}
                   data-hot-divergence={row.isHotDivergence ? "1" : "0"}
-                  data-emphasis-id={rowIndex === 0 ? "top-row" : undefined}
-                  data-emphasis-active={
-                    rowIndex === 0 && activeEmphasis.includes("top-row") ? "true" : "false"
-                  }
                   className="border-t border-[var(--shell-border)]"
                 >
                   <td className="py-2 pr-3 font-medium text-[var(--shell-ink)]">
@@ -138,17 +109,6 @@ export default function StackFitAnalysis({ data }: { data: FirmBriefData }) {
           </table>
         </div>
       )}
-
-      <div className="mt-4">
-        <EmphasisToggle
-          briefKind="firm"
-          briefId={data.firmCompanyId}
-          ecosystemId={data.ecosystemId}
-          sectionKey={SECTION_KEY}
-          targetElementIds={EMPHASIS_TARGETS}
-          activeEmphasisIds={activeEmphasis}
-        />
-      </div>
     </section>
   );
 }

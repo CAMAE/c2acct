@@ -80,7 +80,7 @@ export default function OpenEndedPanel({ data }: { data: EcosystemDetailData }) 
             Filter by product
           </div>
           <div
-            className="pat-mode-toggle mt-2"
+            className="mt-2 flex flex-wrap items-center gap-2"
             data-testid="openended-product-filter"
             role="group"
             aria-label="Filter open-ended responses by product"

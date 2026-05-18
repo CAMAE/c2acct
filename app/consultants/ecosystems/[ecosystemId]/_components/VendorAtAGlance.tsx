@@ -99,10 +99,10 @@ export default function VendorAtAGlance({ data }: { data: EcosystemDetailData })
         <Link
           href={`/consultants/ecosystems/${data.ecosystemId}/vendor-brief`}
           data-testid="vendor-brief-link"
-          className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--brand-c2-blue)] hover:underline"
+          className="inline-flex items-center gap-2 rounded-full border border-[rgba(6,54,116,0.16)] bg-[rgba(6,54,116,0.06)] px-4 py-2.5 text-sm font-semibold text-[var(--shell-ink)] transition-colors hover:bg-[rgba(6,54,116,0.1)]"
         >
           View full vendor brief
-          <span aria-hidden="true">›</span>
+          <span aria-hidden="true">→</span>
         </Link>
       </div>
     </section>

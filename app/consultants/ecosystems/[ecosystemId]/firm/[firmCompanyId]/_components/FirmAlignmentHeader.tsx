@@ -1,9 +1,4 @@
-import EmphasisToggle from "@/app/components/consultants/briefEdits/EmphasisToggle";
-import PhrasingVariantPicker from "@/app/components/consultants/briefEdits/PhrasingVariantPicker";
 import type { FirmBriefData } from "@/lib/firmBriefs";
-
-const SECTION_KEY = "firm.alignment-header" as const;
-const EMPHASIS_TARGETS = ["score", "headline", "confidence-callout"];
 
 function formatScore(value: number | null): string {
   return value === null ? "--" : String(value);
@@ -31,9 +26,6 @@ function shortConfidence(label: string): string {
 
 export default function FirmAlignmentHeader({ data }: { data: FirmBriefData }) {
   const header = data.firmAlignmentHeader;
-  const variants = data.editVariants[SECTION_KEY] ?? [];
-  const activeVariantId = data.editChoices.variants[SECTION_KEY];
-  const activeEmphasis = data.editChoices.emphasis[SECTION_KEY] ?? [];
 
   return (
     <section
@@ -42,10 +34,7 @@ export default function FirmAlignmentHeader({ data }: { data: FirmBriefData }) {
     >
       <div className="pat-label">Operating alignment score</div>
       <div className="mt-3 flex flex-wrap items-end gap-6">
-        <div
-          data-emphasis-id="score"
-          data-emphasis-active={activeEmphasis.includes("score") ? "true" : "false"}
-        >
+        <div>
           <div
             className="font-semibold tracking-tight text-[var(--shell-ink)]"
             style={{ fontSize: "var(--pat-hero-title-size)" }}
@@ -57,18 +46,10 @@ export default function FirmAlignmentHeader({ data }: { data: FirmBriefData }) {
           </div>
         </div>
         <div className="flex-1 min-w-[16rem]">
-          <h2
-            className="text-base font-semibold tracking-tight text-[var(--shell-ink)]"
-            data-emphasis-id="headline"
-            data-emphasis-active={activeEmphasis.includes("headline") ? "true" : "false"}
-          >
+          <h2 className="text-base font-semibold tracking-tight text-[var(--shell-ink)]">
             {header.headline}
           </h2>
-          <div
-            className="mt-2 text-sm leading-6 text-[var(--shell-muted)]"
-            data-emphasis-id="confidence-callout"
-            data-emphasis-active={activeEmphasis.includes("confidence-callout") ? "true" : "false"}
-          >
+          <div className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
             {header.confidenceCallout}
           </div>
           <div className="mt-1 text-xs text-[var(--shell-muted)]">
@@ -76,19 +57,6 @@ export default function FirmAlignmentHeader({ data }: { data: FirmBriefData }) {
           </div>
         </div>
       </div>
-
-      {variants.length > 0 ? (
-        <div className="mt-4">
-          <PhrasingVariantPicker
-            briefKind="firm"
-            briefId={data.firmCompanyId}
-            ecosystemId={data.ecosystemId}
-            sectionKey={SECTION_KEY}
-            variants={variants}
-            activeVariantId={activeVariantId}
-          />
-        </div>
-      ) : null}
 
       {header.peerLines.length > 0 ? (
         <div className="mt-5 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] px-4 py-3">
@@ -104,17 +72,6 @@ export default function FirmAlignmentHeader({ data }: { data: FirmBriefData }) {
           </ul>
         </div>
       ) : null}
-
-      <div className="mt-4">
-        <EmphasisToggle
-          briefKind="firm"
-          briefId={data.firmCompanyId}
-          ecosystemId={data.ecosystemId}
-          sectionKey={SECTION_KEY}
-          targetElementIds={EMPHASIS_TARGETS}
-          activeEmphasisIds={activeEmphasis}
-        />
-      </div>
     </section>
   );
 }

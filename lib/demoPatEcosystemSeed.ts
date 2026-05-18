@@ -40,7 +40,11 @@ import {
 } from "@/lib/productAssessmentRuntime";
 import { computeScore } from "@/lib/scoring";
 import { evaluateSignalIntegrity } from "@/lib/signalIntegrity";
-import { SURVEY_FINAL_SCORE_VERSION } from "@/lib/surveyDrafts";
+import {
+  SURVEY_DRAFT_SCORE_VERSION,
+  SURVEY_FINAL_SCORE_VERSION,
+  buildSurveyDraftIntegrityFlags,
+} from "@/lib/surveyDrafts";
 import {
   buildVendorProductQuestions,
   computeVendorAssessmentMetrics,
@@ -851,6 +855,85 @@ export async function seedFirmAlignmentSubmission(client: DemoSeedClient, input:
   }
 }
 
+// WS10-A Block E: seed a partial-draft firm alignment submission so the demo
+// firm can show "4 of 5 completed + 1 in progress" workflow state instead of
+// a finished 5/5 mock. Writes a SurveySubmission row with scoreVersion=0
+// (draft) and answers populated for only the first half of the question
+// list. No capability scores or badges — those only land on a final submit.
+export async function seedFirmAlignmentDraft(client: DemoSeedClient, input: {
+  firm: DemoFirmInput;
+  companyId: string;
+  subjectId: string;
+  module: {
+    id: string;
+    key: string;
+    version: number;
+    questions: ReturnType<typeof normalizeQuestionRuntime>[];
+  };
+  moduleIndex: number;
+  firmIndex: number;
+}) {
+  const draftAnswerCount = Math.floor(input.module.questions.length / 2);
+  const answers: Record<string, NormalizedAnswer> = {};
+  for (const [questionIndex, question] of input.module.questions.slice(0, draftAnswerCount).entries()) {
+    if (question.inputType === QuestionInputType.SLIDER) {
+      answers[question.id] = deterministicAnswer(
+        firmModuleAssessmentTarget(input.firm, input.firmIndex, input.moduleIndex),
+        questionIndex,
+        input.firmIndex + input.moduleIndex,
+        0.34
+      );
+      continue;
+    }
+    answers[question.id] = `${input.firm.displayName} draft response for ${DEMO_PAT_ECOSYSTEM_VERSION}.`;
+  }
+
+  const submissionId = stableId(
+    "demo-firm-alignment-submission",
+    `${input.firm.key}-${input.module.key}`
+  );
+
+  const draftIntegrity = buildSurveyDraftIntegrityFlags({
+    currentStep: draftAnswerCount,
+    totalSteps: input.module.questions.length,
+    questionCount: input.module.questions.length,
+  });
+
+  // Schema requires non-null score / signalIntegrityScore / totalWeight /
+  // scale columns; drafts use zero/default values. The aggregator filters
+  // drafts via getSurveyDraftWhere (scoreVersion === 0) and never surfaces
+  // their `score` as a completed value.
+  const submissionData = {
+    companyId: input.companyId,
+    subjectId: input.subjectId,
+    moduleId: input.module.id,
+    version: input.module.version,
+    answers,
+    score: 0,
+    weightedAvg: null,
+    scoreVersion: SURVEY_DRAFT_SCORE_VERSION,
+    scaleMin: 0,
+    scaleMax: 100,
+    totalWeight: 0,
+    answeredCount: draftAnswerCount,
+    signalIntegrityScore: 1.0,
+    integrityFlags: draftIntegrity,
+    // Anchor the draft a few hours after the latest final submission for
+    // Demo Company (other modules land at demoDate(96..100)) so the demo
+    // story reads as "finished the first four, started Strategy today".
+    createdAt: demoDate(108),
+  };
+
+  await client.surveySubmission.upsert({
+    where: { id: submissionId },
+    update: submissionData,
+    create: {
+      id: submissionId,
+      ...submissionData,
+    },
+  });
+}
+
 export async function seedFirmProductAssessment(client: DemoSeedClient, input: {
   firm: DemoFirmInput;
   firmCompanyId: string;
@@ -1074,6 +1157,21 @@ export async function ensureDemoPatEcosystem(client: DemoSeedClient) {
     if (!seededFirm) continue;
 
     for (const [moduleIndex, module] of firmAlignmentModules.entries()) {
+      // WS10-A Block E: leave Demo Company's Strategy module in a partial-
+      // draft state (4/5 complete + 1 in progress) so the demo screen shows
+      // live workflow rather than a finished 5/5 mock.
+      if (firm.key === "demo-company" && module.key === "firm_alignment_strategy_v1") {
+        await seedFirmAlignmentDraft(client, {
+          firm,
+          companyId: seededFirm.company.id,
+          subjectId: seededFirm.subject.id,
+          module,
+          moduleIndex,
+          firmIndex,
+        });
+        firmAlignmentSubmissionCount += 1;
+        continue;
+      }
       await seedFirmAlignmentSubmission(client, {
         firm,
         companyId: seededFirm.company.id,

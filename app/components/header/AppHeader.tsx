@@ -17,7 +17,6 @@ type AppHeaderProps = {
   membershipHref: string | null;
   navItems: HeaderNavItem[];
   uiText: {
-    closeNavigationMenu: string;
     homeAriaLabel: string;
     language: string;
     membership: string;
@@ -245,20 +244,10 @@ export default function AppHeader({
             id="global-nav-card"
             className="pointer-events-auto absolute right-4 top-[4.55rem] w-[min(17rem,calc(100vw-1.5rem))] rounded-[1.55rem] border border-[var(--shell-border)] bg-white/98 p-3 sm:right-6 sm:top-[4.8rem] sm:w-[18rem]"
           >
-            <div className="flex items-center justify-between gap-4 border-b border-[var(--shell-border)] px-3 pb-3">
+            <div className="border-b border-[var(--shell-border)] px-3 pb-3">
               <div id="global-nav-title" className="text-[0.82rem] font-semibold uppercase tracking-[0.22em] text-[var(--shell-muted)]">
                 {uiText.navigation}
               </div>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="ml-auto inline-flex h-10 w-10 items-center justify-center text-[var(--shell-ink)] hover:text-[var(--shell-accent)] focus:outline-none focus:ring-2 focus:ring-[rgba(6,54,116,0.18)]"
-                aria-label={uiText.closeNavigationMenu}
-              >
-                <span aria-hidden="true" className="text-[1.8rem] leading-none">
-                  ×
-                </span>
-              </button>
             </div>
 
             <nav className="px-1 pt-3">

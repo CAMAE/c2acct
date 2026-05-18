@@ -649,3 +649,10 @@ textarea {
   border-color: rgba(11, 92, 255, 0.24);
   background: rgba(240, 247, 255, 0.98);
 }
+
+/* WS10-A Block J: navigation loading cursor band-aid. Active during route
+   transitions; cleared once the new pathname commits. */
+body.nav-loading,
+body.nav-loading * {
+  cursor: progress !important;
+}

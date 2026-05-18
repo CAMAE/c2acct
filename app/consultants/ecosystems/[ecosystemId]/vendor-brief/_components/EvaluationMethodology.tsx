@@ -81,7 +81,7 @@ export default function EvaluationMethodology({ data }: { data: VendorBriefData 
             <p>
               A delta of <span className="font-semibold tabular-nums">&ge; 10 points</span> in either direction flags as a <span className="font-semibold text-[var(--brand-orange)]">hot divergence</span>. Below 10 points the delta is treated as conversation-grade noise. Bands for capability-cell color in Section 5: <span className="font-semibold">high &ge; 75</span>, <span className="font-semibold">mid 50&ndash;74</span>, <span className="font-semibold">low &lt; 50</span>, <span className="font-semibold">not yet reviewed</span> for null cells.
             </p>
-            <p className="text-sm text-[var(--shell-muted)]">
+            <p>
               Confidence reflects how many firms have submitted responses for each capability. The Executive Summary in Section 1 surfaces the ecosystem-wide coverage. A brief built primarily from limited firm responses should be read as preliminary; expect resolution to sharpen as more firms respond.
             </p>
           </div>

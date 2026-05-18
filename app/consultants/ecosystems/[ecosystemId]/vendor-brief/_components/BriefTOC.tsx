@@ -24,7 +24,9 @@ const TOC_ENTRIES: readonly TOCEntry[] = [
     label: "Strengths / cautions",
   },
   { id: "section-5-capability-comparison", number: 5, label: "Capability comparison" },
-  { id: "section-6-action-roadmap", number: 6, label: "Action roadmap" },
+  // WS10-A Block G: Section 6 "Action roadmap" muted; the library currently
+  // renders PAT-meta actions instead of vendor-actionable next steps.
+  // AUDIT-WS11-001 queues the rebuild.
 ] as const;
 
 export default function BriefTOC() {
