@@ -1,8 +1,15 @@
 # AUDIT-WS9-001 — Batch per-firm aggregators
 
-**Status:** Open. Block A drafted and reverted during WS10-C 2026-05-18.
+**Status:** Open — Block A re-applied and re-reverted during WS11-J 2026-05-19.
+Production-build measurement was clean (no bimodal noise) but the batched
+function delivered only a small win (~5–10% at p50) that didn't clear the 60%
+ship threshold. Dominant cost on the focal pages lives elsewhere — see
+"WS11-J production-build measurement" below.
 **Filed:** 2026-05-17 during WS9-EMERGENCY.
-**Last touched:** 2026-05-18 (WS10-C halt — see "WS10-C attempt and halt").
+**Last touched:** 2026-05-19 (WS11-J revert — production-build measurement
+inconclusive at p50; structural argument valid but Postgres + Prisma absorb
+the parallel-transaction overhead well enough that batching doesn't show at
+warm-render scale on a single-machine demo bench).
 **Branch where filed:** fix/local-review-signin-hotfix at HEAD 74d4712b + WS9 deltas.
 
 ## Problem
@@ -197,21 +204,99 @@ Migrate fan-out sites to this batched function (see WS10-C session
 prompt for the exact call-site replacements; pattern is `Promise.all(ids.map(...))`
 → `(async () => { const map = await getFirmAssessmentProgressByCompanyIds(ids); return ids.map(id => derive(map.get(id) ?? [])); })()`).
 
+## WS11-J production-build measurement (2026-05-19)
+
+WS11-J resurrected Block A from "Resurrecting Block A" above and migrated
+the fan-out call sites in `lib/ecosystem.ts` (×2) and `lib/firmBriefs.ts`
+(×1). Tenancy invariants held (both `companyId in companyIdList` and
+`SurveyModule.key in firmModuleKeys` filters preserved on both
+`surveySubmission.findMany` calls — `grep` verified 4 hits). Typecheck +
+lint + production build all clean.
+
+Measurement methodology was the WS10-C recommendation: production build
+(`pnpm build` then `node .next/standalone/server.js` via `startup-guard`,
+port 3002), warm 3 + measure 17 per route, report p10/p50/p90. Server
+host: Mac mini, 42-day uptime, load avg 6.19 (steady-state for this
+machine — fseventsd / TCC / FileProvider / Metadata indexing are the
+top CPU consumers, not anything from Node).
+
+Results (n=17 per row):
+
+| Route                                       | Baseline p50 | Block A p50 | % of baseline |
+|---|---|---|---|
+| `/consultants/ecosystems/[id]`              | 1.533s       | 1.403s      | **91.5%**     |
+| `/consultants/ecosystems/[id]/firm/[firmId]`| 0.663s       | 0.625s      | **94.3%**     |
+
+Full distribution:
+
+| Route       | min   | p10   | p50   | p90   | max   |
+|---|---|---|---|---|---|
+| Eco — base  | 1.220 | 1.357 | 1.533 | 1.939 | 2.202 |
+| Eco — A     | 1.285 | 1.299 | 1.403 | 1.617 | 1.619 |
+| Firm — base | 0.573 | 0.598 | 0.663 | 0.785 | 0.879 |
+| Firm — A    | 0.572 | 0.585 | 0.625 | 0.847 | 0.854 |
+
+Block A's p90 on the ecosystem route is meaningfully tighter (1.617 vs
+1.939) — the batched function does smooth the tail. But p10 and p50 are
+near-identical to baseline, and neither route clears the prompt's ≤60%
+ship threshold. Both routes sit comfortably inside the prompt's ±20%
+"inconclusive — revert" band. Reverted via `git restore` per the
+WS11-J prompt's "no commit if perf doesn't win" rule.
+
+### Why the structural win didn't materialize
+
+WS9 measured ecosystem detail at 4.4–5.6s warm in dev mode (median ~4.7s).
+By WS11-J the same route measured 1.533s p50 in production build — a
+3× improvement was already in the bag before Block A ran. Likely sources
+of the missing latency: the WS9 `ensureFirmAlignmentSystem` removal from
+the read path, plus the WS10/11 round of additional read-path cleanups
+(briefings + insights split). The remaining ~1.5s is probably dominated
+by `getAdminCompanyBriefing` (called 15× per ecosystem detail render, each
+firm building its own briefing snapshot through several subqueries) and
+`getVendorProductInsightCatalog` (the vendor-side aggregator that builds
+a snapshot per product). Neither is touched by Block A.
+
+The 47-firm benchmark ecosystem cited in the original problem statement
+may still benefit from batching — at 15 firms the fan-out overhead is
+~2-3× smaller than the actual aggregator work. A future session that
+exercises the larger ecosystem scale (or measures a single firm with
+heavier briefing data) could re-test.
+
 ## Next-session recommendations
 
-1. **Measure against production build, not dev.** Run `pnpm build && pnpm start`
-   and time warm renders with the same curl harness. Dev-mode webpack +
-   HMR + background bundling fights for CPU and makes timing bimodal on
-   loaded machines. Production renders are stable.
-2. **If load on the Mac mini is unavoidable, run 20-pass measurements and
-   compare p50 *and* p10**, not just median. The p10 is closer to "real
-   warm" timing and is less sensitive to noise.
-3. **Block B (`getFirmProductCatalog`) is straightforward IF Block A
-   actually wins.** Block C (`getAdminCompanyBriefing`) is the largest
-   and riskiest — defer until A+B are proven.
+1. **Profile the briefing aggregator before touching it.** WS9 + WS10 +
+   WS11 collectively already cut the dominant read-path cost by ~3×. The
+   remaining ~1.5s on `/consultants/ecosystems/[id]` and ~0.66s on
+   `/consultants/.../firm/[firmId]` is the cost to beat. Add a
+   `Performance.now()`-style trace around `getAdminCompanyBriefing`
+   (15× calls per ecosystem detail) and `getVendorProductInsightCatalog`
+   to identify the actual bottleneck. Don't batch what isn't slow.
+2. **Re-test at 47-firm benchmark ecosystem scale.** WS9 cited 47 firms
+   across all benchmark ecosystems. WS11-J only measured against the
+   15-firm focal ecosystem. The fan-out overhead grows linearly while
+   the per-firm work is constant — at 3× the firm count, batching
+   should show more clearly. If a 47-firm benchmark page exists in
+   the seed (or can be added without polluting the demo seed), re-run
+   the harness there.
+3. **Block A code is archived above, ready to re-apply.** It's known-
+   working and tenancy-safe. If a future measurement justifies the
+   refactor, the function body and call-site migration pattern don't
+   need to be re-derived.
+4. **Block B (`getFirmProductCatalog`)** — skip. WS11-J would have
+   gated Block B on Block A's win materializing; it didn't, so
+   batching `getFirmProductCatalog` (also a per-firm × 15 fan-out)
+   would face the same wall.
+5. **Block C (`getAdminCompanyBriefing`)** — this remains the
+   highest-impact target. It does materially more work per call than
+   the assessment-progress function. A batched variant would need
+   careful tenancy review since `AdminCompanyBriefing` carries vendor-
+   side product layer data joined per firm. Defer to a session with
+   profiling data in hand.
 
 ## Estimated effort to ship cleanly
 
-2–3 hours: re-apply Block A from this doc, build+start production locally,
-measure with `pnpm start` + curl, commit if win is real, then Block B
-following the same pattern. Block C remains a separate session.
+Post-WS11-J: not estimated. The ship decision depends on profiling data
+that doesn't exist yet (which aggregator is actually hot) and on whether
+the larger benchmark-ecosystem scale changes the calculus. If neither
+condition materializes, leaving the per-firm fan-out as-is is the
+correct call — the demo bench runs comfortably under 2s warm.
