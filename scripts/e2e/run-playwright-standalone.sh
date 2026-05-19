@@ -24,6 +24,20 @@ set -euo pipefail
 # Capture the Playwright-requested port BEFORE sourcing .env.local
 # (which has PORT=3000 for dev-mode local-standalone and would clobber).
 PLAYWRIGHT_PORT_VALUE="${PLAYWRIGHT_PORT:-3001}"
+
+# AUDIT-WS11-H-001: Capture AUTH_URL / NEXTAUTH_URL from the inherited
+# Playwright env BEFORE sourcing .env.local. .env.local carries dev-mode
+# values (http://127.0.0.1:3000) and `set -a` below would otherwise
+# export those into our shell, overriding the test:e2e:local-review
+# values from package.json. The defensive `${AUTH_URL:-default}` below
+# only fires when AUTH_URL is empty/unset; if .env.local has made it
+# non-empty, the defaults are skipped and the standalone server
+# advertises port 3000 while binding port 3001 — ECONNREFUSED for any
+# test using browser.newContext() (which doesn't inherit Playwright's
+# baseURL and follows the auth-callback cookie to localhost:3000).
+PLAYWRIGHT_AUTH_URL_VALUE="${AUTH_URL:-}"
+PLAYWRIGHT_NEXTAUTH_URL_VALUE="${NEXTAUTH_URL:-}"
+
 ROOT_DIR="${PWD}"
 STANDALONE_SERVER="${ROOT_DIR}/.next/standalone/server.js"
 
@@ -63,8 +77,8 @@ unset AUTH_GITHUB_ID AUTH_GITHUB_SECRET
 export PORT="${PLAYWRIGHT_PORT_VALUE}"
 export HOSTNAME="127.0.0.1"
 export NODE_ENV="production"
-export AUTH_URL="${AUTH_URL:-http://127.0.0.1:${PORT}}"
-export NEXTAUTH_URL="${NEXTAUTH_URL:-http://127.0.0.1:${PORT}}"
+export AUTH_URL="${PLAYWRIGHT_AUTH_URL_VALUE:-http://127.0.0.1:${PORT}}"
+export NEXTAUTH_URL="${PLAYWRIGHT_NEXTAUTH_URL_VALUE:-http://127.0.0.1:${PORT}}"
 export AUTH_SECRET="${AUTH_SECRET:-pat-local-auth-secret}"
 export PAT_ENABLE_LOCAL_REVIEW_AUTH="${PAT_ENABLE_LOCAL_REVIEW_AUTH:-1}"
 export PAT_LOCAL_REVIEW_PASSWORD="${PAT_LOCAL_REVIEW_PASSWORD:-pat-local-review}"
