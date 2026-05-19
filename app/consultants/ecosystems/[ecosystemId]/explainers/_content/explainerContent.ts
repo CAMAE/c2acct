@@ -31,6 +31,18 @@ export type ExplainerBand = {
   note: string;
 };
 
+export type ExplainerDrilldownRow = {
+  firmCompanyId: string;
+  firmCompanyName: string;
+  value: string;
+  sortKey: number;
+};
+
+export type ExplainerPerFirmDrilldown = {
+  columnLabel: string;
+  rowsFrom: (ecosystem: EcosystemDetailData) => ExplainerDrilldownRow[];
+};
+
 export type ExplainerContent = {
   title: string;
   unitLabel: string;
@@ -40,6 +52,10 @@ export type ExplainerContent = {
   bands?: ExplainerBand[];
   whereToDrill?: string;
   valueFrom: (ecosystem: EcosystemDetailData) => string;
+  // WS11-I: optional per-firm drilldown rendered as a sortable table below
+  // the bands. Each row is precomputed against EcosystemDetailData so the
+  // explainer page performs no fetches beyond getEcosystemDetailForConsultant.
+  perFirmDrilldown?: ExplainerPerFirmDrilldown;
 };
 
 export const EXPLAINER_CONTENT: Record<MetricKey, ExplainerContent> = {
@@ -91,6 +107,16 @@ export const EXPLAINER_CONTENT: Record<MetricKey, ExplainerContent> = {
       "The Firm briefings table's Modules column shows per-firm completion percentages. On the firm side, /firm/alignment-assessment surfaces the same data with module-level draft state and resume links.",
     valueFrom: (ecosystem) =>
       ecosystem.moduleCompletionRate === null ? "—" : `${ecosystem.moduleCompletionRate}%`,
+    perFirmDrilldown: {
+      columnLabel: "% complete",
+      rowsFrom: (ecosystem) =>
+        ecosystem.firmGrid.map((row) => ({
+          firmCompanyId: row.firmCompanyId,
+          firmCompanyName: row.firmCompanyName,
+          value: row.moduleCompletionPercent === null ? "—" : `${row.moduleCompletionPercent}%`,
+          sortKey: row.moduleCompletionPercent ?? -1,
+        })),
+    },
   },
 
   "hot-divergences": {
@@ -110,6 +136,17 @@ export const EXPLAINER_CONTENT: Record<MetricKey, ExplainerContent> = {
     whereToDrill:
       "Open the vendor brief, switch to the Positioning visual panel for the radar (where polygons diverge most), then the Product comparison panel for the per-row delta scoreboard with the orange/green direction colors.",
     valueFrom: (ecosystem) => String(ecosystem.activeDivergenceCount),
+    perFirmDrilldown: {
+      columnLabel: "Hot divergences",
+      rowsFrom: (ecosystem) =>
+        ecosystem.firmGrid.map((row) => ({
+          firmCompanyId: row.firmCompanyId,
+          firmCompanyName: row.firmCompanyName,
+          value: String(row.hotDivergenceCount),
+          // Most divergences first.
+          sortKey: -row.hotDivergenceCount,
+        })),
+    },
   },
 
   "priority-actions": {
@@ -124,5 +161,16 @@ export const EXPLAINER_CONTENT: Record<MetricKey, ExplainerContent> = {
     whereToDrill:
       "The firm-side Six-quarter roadmap panel (firm-brief, roadmap panel) shows each firm's full 6-quarter action sequence. The 30-day cohort is Q1 of each firm's roadmap.",
     valueFrom: (ecosystem) => String(ecosystem.thirtyDayActionCount),
+    perFirmDrilldown: {
+      columnLabel: "30-day actions",
+      rowsFrom: (ecosystem) =>
+        ecosystem.firmGrid.map((row) => ({
+          firmCompanyId: row.firmCompanyId,
+          firmCompanyName: row.firmCompanyName,
+          value: String(row.thirtyDayActionCount),
+          // Most pending actions first.
+          sortKey: -row.thirtyDayActionCount,
+        })),
+    },
   },
 };

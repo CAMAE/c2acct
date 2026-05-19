@@ -339,6 +339,7 @@ export type EcosystemDetailFirmRow = {
   productsAvailable: number;
   latestActivityAt: string | null;
   thirtyDayActionCount: number;
+  hotDivergenceCount: number;
 };
 
 export type EcosystemDetailOpenEndedResponse = {
@@ -600,9 +601,18 @@ export async function getEcosystemDetailForConsultant(
   const progressByFirmId = new Map(progresses.map((entry) => [entry.firmId, entry.summary]));
   const firmProductsByFirmId = new Map(firmProductCatalogs.map((entry) => [entry.firmId, entry.catalog]));
   const thirtyDayActionsByFirmId = new Map<string, number>();
+  const hotDivergencesByFirmId = new Map<string, number>();
   for (const briefing of briefings) {
     const count = briefing.nextActions.filter((action) => action.window === "30 days").length;
     thirtyDayActionsByFirmId.set(briefing.company.id, count);
+    let hotCount = 0;
+    for (const product of briefing.productLayer.products) {
+      const firmScore = product.canonicalFirmReviewScore;
+      const vendorScore = product.vendorSelfReportedScore;
+      if (firmScore === null || vendorScore === null) continue;
+      if (Math.abs(firmScore - vendorScore) >= HOT_DIVERGENCE_THRESHOLD) hotCount += 1;
+    }
+    hotDivergencesByFirmId.set(briefing.company.id, hotCount);
   }
 
   const firmGrid: EcosystemDetailFirmRow[] = firmIds
@@ -627,6 +637,7 @@ export async function getEcosystemDetailForConsultant(
           ? catalogEntry.latestUpdatedAt.toISOString()
           : null,
         thirtyDayActionCount: thirtyDayActionsByFirmId.get(firmId) ?? 0,
+        hotDivergenceCount: hotDivergencesByFirmId.get(firmId) ?? 0,
       };
     })
     .filter((row): row is EcosystemDetailFirmRow => row !== null);

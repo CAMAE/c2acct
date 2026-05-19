@@ -116,6 +116,52 @@ export default async function MetricExplainerPage({
           </>
         ) : null}
       </section>
+
+      {content.perFirmDrilldown ? (
+        <section className="pat-card p-8" data-testid="explainer-drilldown">
+          <div className="pat-label">Per-firm breakdown</div>
+          <h2 className="mt-2 text-xl font-semibold tracking-tight text-[var(--shell-ink)]">
+            How each firm contributes
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+            Sorted lowest to highest. Click any firm name to drill into its brief.
+          </p>
+          <div className="mt-6 overflow-x-auto">
+            <table className="w-full text-left text-sm" data-testid="explainer-drilldown-table">
+              <colgroup>
+                <col className="w-[60%]" />
+                <col className="w-[40%]" />
+              </colgroup>
+              <thead>
+                <tr className="border-b border-[var(--shell-border)] text-xs font-semibold text-[var(--shell-muted)]">
+                  <th className="py-3">Firm</th>
+                  <th className="py-3 text-right">{content.perFirmDrilldown.columnLabel}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--shell-border)]">
+                {content.perFirmDrilldown
+                  .rowsFrom(ecosystem)
+                  .slice()
+                  .sort((a, b) => a.sortKey - b.sortKey)
+                  .map((row) => (
+                    <tr key={row.firmCompanyId} data-testid="explainer-drilldown-row">
+                      <td className="py-3">
+                        <Link
+                          href={`/consultants/ecosystems/${ecosystemId}/firm/${row.firmCompanyId}`}
+                          className="inline-flex items-center gap-1 text-[var(--brand-c2-blue)] hover:underline"
+                        >
+                          {row.firmCompanyName}
+                          <span aria-hidden="true" className="text-xs">›</span>
+                        </Link>
+                      </td>
+                      <td className="pat-stat-number py-3 text-right">{row.value}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

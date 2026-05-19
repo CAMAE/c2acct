@@ -1029,6 +1029,76 @@ export async function seedFirmProductAssessment(client: DemoSeedClient, input: {
   });
 }
 
+// WS11-I Block C: in-progress firm product review for Demo Company's
+// MetricBoard FP&A. Mirrors seedFirmAlignmentDraft — answers stop at the
+// halfway mark, scoreVersion is DRAFT, schema-required numeric columns
+// zeroed. Aggregator filters via getSurveyDraftWhere so this row never
+// surfaces as a completed firm review (it counts as in_progress on the
+// /firm/product-assessments status derivation).
+export async function seedFirmProductAssessmentDraft(client: DemoSeedClient, input: {
+  firm: DemoFirmInput;
+  firmCompanyId: string;
+  product: SeededProduct;
+  moduleId: string;
+  moduleVersion: number;
+  relationshipIndex: number;
+}) {
+  const reviewTarget = firmProductReviewTarget(input);
+  const subject = await ensureProductSubject({ id: input.product.id, name: input.product.input.name });
+  const questions = buildFirmProductQuestions(input.product.input.utilityKeys);
+  const draftAnswerCount = Math.floor(questions.length / 2);
+  const answers: Record<string, NormalizedAnswer> = {};
+  for (const [questionIndex, question] of questions.slice(0, draftAnswerCount).entries()) {
+    answers[question.id] = deterministicAnswer(
+      reviewTarget,
+      questionIndex,
+      input.relationshipIndex,
+      0.36
+    );
+  }
+  const draftIntegrity = buildSurveyDraftIntegrityFlags({
+    currentStep: draftAnswerCount,
+    totalSteps: questions.length,
+    questionCount: questions.length,
+  });
+  const submissionId = stableId(
+    "demo-firm-product-submission",
+    `${input.firm.key}-${input.product.vendor.key}-${input.product.input.key}`
+  );
+  const submissionData = {
+    companyId: input.firmCompanyId,
+    subjectId: subject.id,
+    moduleId: input.moduleId,
+    version: input.moduleVersion,
+    answers: {
+      responses: answers,
+      reviewedVendorKey: input.product.vendor.key,
+      reviewedProductKey: input.product.input.key,
+      demoSource: DEMO_PAT_ECOSYSTEM_VERSION,
+      demoState: "in-progress",
+    },
+    score: 0,
+    weightedAvg: null,
+    scoreVersion: SURVEY_DRAFT_SCORE_VERSION,
+    scaleMin: PRODUCT_ASSESSMENT_SCALE_MIN,
+    scaleMax: PRODUCT_ASSESSMENT_SCALE_MAX,
+    totalWeight: 0,
+    answeredCount: draftAnswerCount,
+    signalIntegrityScore: 1.0,
+    integrityFlags: draftIntegrity,
+    createdAt: demoDate(240 + input.relationshipIndex),
+  };
+
+  await client.surveySubmission.upsert({
+    where: { id: submissionId },
+    update: submissionData,
+    create: {
+      id: submissionId,
+      ...submissionData,
+    },
+  });
+}
+
 export async function loadFirmAlignmentModules(client: DemoSeedClient) {
   const records = await client.surveyModule.findMany({
     where: {
@@ -1213,6 +1283,41 @@ export async function ensureDemoPatEcosystem(client: DemoSeedClient) {
     const seededFirm = seededFirms.get(relationship.firm.key);
     const product = seededProducts.get(`${relationship.vendor.key}:${relationship.product.key}`);
     if (!seededFirm || !product) continue;
+
+    // WS11-I Block C: shape Demo Company's pat-demo-vendor reviews to a
+    // realistic in-workflow distribution — 2 completed (LedgerFlow Close,
+    // APStream Control) + 1 in-progress draft (MetricBoard FP&A) + 1
+    // not-started (ClientVault Requests). All other firm×vendor
+    // relationships keep the default completed-submission seed.
+    const isDemoCompanyDemoVendor =
+      relationship.firm.key === "demo-company" && relationship.vendor.key === "pat-demo-vendor";
+    if (isDemoCompanyDemoVendor) {
+      if (relationship.product.key === "clientvault-requests") {
+        // Not-started: ensure no submission row exists. Pre-WS11-I runs
+        // upserted a completed submission here; delete it so the
+        // re-seed is idempotent into the not-started target.
+        const staleId = stableId(
+          "demo-firm-product-submission",
+          `${relationship.firm.key}-${relationship.vendor.key}-${relationship.product.key}`
+        );
+        await client.surveySubmission.deleteMany({ where: { id: staleId } });
+        continue;
+      }
+      if (relationship.product.key === "metricboard-fpa") {
+        await seedFirmProductAssessmentDraft(client, {
+          firm: relationship.firm,
+          firmCompanyId: seededFirm.company.id,
+          product,
+          moduleId: firmProductModule.id,
+          moduleVersion: firmProductModule.version ?? 1,
+          relationshipIndex,
+        });
+        firmProductSubmissionCount += 1;
+        continue;
+      }
+      // ledgerflow-close + apstream-control fall through to the default
+      // completed seed below.
+    }
 
     await seedFirmProductAssessment(client, {
       firm: relationship.firm,
