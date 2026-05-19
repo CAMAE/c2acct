@@ -1,15 +1,13 @@
 import type { VendorBriefData, VendorBriefHeatmapBand } from "@/lib/briefs";
 
-// WS11-D Block E.2: 5-step color ramp. Darkest blue reserved for the top
-// decile (≥85) so the dark-on-white contrast issue Cam flagged only affects
-// the genuine standouts. Mid-dark blue (75-84) keeps white text legible.
-// Mid (50-74) keeps light blue + ink. Low (<50) uses amber with orange text
-// so it pops as "needs attention." Unreviewed stays neutral.
+// WS11-H Block B7: cap shifted from solid c2-blue to mid-blue. Even the
+// top band ("≥ 85") now sits at 0.62 alpha so white text stays legible
+// against projector contrast; ink text on lighter bands stays sharp.
 const BAND_CELL_CLASSES: Record<VendorBriefHeatmapBand, string> = {
-  "high-strong": "bg-[var(--brand-c2-blue)] text-white",
-  high: "bg-[rgba(6,54,116,0.45)] text-white",
-  mid: "bg-[rgba(6,54,116,0.18)] text-[var(--shell-ink)] border border-[var(--shell-border)]",
-  low: "bg-[rgba(229,109,4,0.16)] text-[var(--brand-orange)] border border-[rgba(229,109,4,0.24)]",
+  "high-strong": "bg-[rgba(6,54,116,0.62)] text-white",
+  high: "bg-[rgba(6,54,116,0.32)] text-[var(--shell-ink)]",
+  mid: "bg-[rgba(160,160,160,0.18)] text-[var(--shell-ink)] border border-[var(--shell-border)]",
+  low: "bg-[rgba(229,109,4,0.16)] text-[var(--brand-orange)] border border-[rgba(229,109,4,0.28)]",
   unreviewed: "bg-white text-[var(--shell-muted)] border border-dashed border-[var(--shell-border)]",
 };
 

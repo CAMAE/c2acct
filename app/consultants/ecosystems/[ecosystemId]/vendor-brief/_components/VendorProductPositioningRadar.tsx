@@ -167,10 +167,10 @@ export default function VendorProductPositioningRadar({
         vendor&apos;s self-report.
       </p>
 
-      <div className="mt-4 flex flex-wrap items-start gap-6">
+      <div className="mt-4 flex flex-col items-stretch gap-6 sm:items-center">
         <svg
-          viewBox={`-30 -30 ${VIEWBOX + 60} ${VIEWBOX + 60}`}
-          className="h-72 w-72 shrink-0"
+          viewBox={`-70 -40 ${VIEWBOX + 140} ${VIEWBOX + 80}`}
+          className="mx-auto h-[24rem] w-full max-w-[26rem]"
           role="img"
           aria-label="Vendor product positioning radar"
           data-testid="vendor-product-positioning-radar"
@@ -248,7 +248,7 @@ export default function VendorProductPositioningRadar({
           })}
         </svg>
 
-        <ul className="flex-1 min-w-[14rem] space-y-2 text-sm">
+        <ul className="w-full space-y-2 text-base">
           {axes.map((axis) => (
             <li
               key={axis.slug}

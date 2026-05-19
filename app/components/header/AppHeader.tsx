@@ -217,68 +217,71 @@ export default function AppHeader({
               ) : null}
             </div>
 
-            <button
-              ref={triggerRef}
-              type="button"
-              onClick={() => setOpen((current) => !current)}
-              className={iconButtonClassName}
-              aria-expanded={open}
-              aria-controls="global-nav-card"
-              aria-label={uiText.openNavigationMenu}
-            >
-              <span className="sr-only">{uiText.openNavigationMenu}</span>
-              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5.5 w-5.5 stroke-current" fill="none" strokeWidth="1.8">
-                <path d="M4 7.5h16" strokeLinecap="round" />
-                <path d="M4 12h16" strokeLinecap="round" />
-                <path d="M4 16.5h16" strokeLinecap="round" />
-              </svg>
-            </button>
+            <div className="relative">
+              <button
+                ref={triggerRef}
+                type="button"
+                onClick={() => setOpen((current) => !current)}
+                className={iconButtonClassName}
+                aria-expanded={open}
+                aria-controls="global-nav-card"
+                aria-label={uiText.openNavigationMenu}
+              >
+                <span className="sr-only">{uiText.openNavigationMenu}</span>
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5.5 w-5.5 stroke-current" fill="none" strokeWidth="1.8">
+                  <path d="M4 7.5h16" strokeLinecap="round" />
+                  <path d="M4 12h16" strokeLinecap="round" />
+                  <path d="M4 16.5h16" strokeLinecap="round" />
+                </svg>
+              </button>
+
+              {open ? (
+                <div
+                  ref={cardRef}
+                  id="global-nav-card"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="global-nav-title"
+                  className="absolute right-0 top-[3.55rem] z-[60] w-[18rem] max-w-[calc(100vw-1.5rem)] rounded-[1.55rem] border border-[var(--shell-border)] bg-white/98 p-3"
+                >
+                  <div className="border-b border-[var(--shell-border)] px-3 pb-3">
+                    <div id="global-nav-title" className="text-[0.82rem] font-semibold uppercase tracking-[0.22em] text-[var(--shell-muted)]">
+                      {uiText.navigation}
+                    </div>
+                  </div>
+
+                  <nav className="px-1 pt-3">
+                    <ul className="space-y-1.5">
+                      {navItems.map((item) => {
+                        const active =
+                          item.href === "/"
+                            ? pathname === "/"
+                            : pathname === item.href || pathname?.startsWith(`${item.href}/`);
+
+                        return (
+                          <li key={item.href}>
+                            <Link
+                              href={item.href}
+                              onClick={() => setOpen(false)}
+                              className={`flex items-center rounded-[1.15rem] border px-4 py-3 text-[0.95rem] font-medium leading-none ${
+                                active
+                                  ? "border-[rgba(6,54,116,0.14)] bg-[rgba(6,54,116,0.05)] text-[var(--shell-ink)]"
+                                  : "border-transparent text-[var(--shell-ink)] hover:border-[var(--shell-border)] hover:bg-[rgba(6,54,116,0.025)]"
+                              }`}
+                            >
+                              <span>{item.label}</span>
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </nav>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       </header>
-
-      {open ? (
-        <div className="pointer-events-none fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-labelledby="global-nav-title">
-          <div
-            ref={cardRef}
-            id="global-nav-card"
-            className="pointer-events-auto absolute right-4 top-[4.55rem] w-[min(17rem,calc(100vw-1.5rem))] rounded-[1.55rem] border border-[var(--shell-border)] bg-white/98 p-3 sm:right-6 sm:top-[4.8rem] sm:w-[18rem]"
-          >
-            <div className="border-b border-[var(--shell-border)] px-3 pb-3">
-              <div id="global-nav-title" className="text-[0.82rem] font-semibold uppercase tracking-[0.22em] text-[var(--shell-muted)]">
-                {uiText.navigation}
-              </div>
-            </div>
-
-            <nav className="px-1 pt-3">
-              <ul className="space-y-1.5">
-                {navItems.map((item) => {
-                  const active =
-                    item.href === "/"
-                      ? pathname === "/"
-                      : pathname === item.href || pathname?.startsWith(`${item.href}/`);
-
-                  return (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        onClick={() => setOpen(false)}
-                        className={`flex items-center rounded-[1.15rem] border px-4 py-3 text-[0.95rem] font-medium leading-none ${
-                          active
-                            ? "border-[rgba(6,54,116,0.14)] bg-[rgba(6,54,116,0.05)] text-[var(--shell-ink)]"
-                            : "border-transparent text-[var(--shell-ink)] hover:border-[var(--shell-border)] hover:bg-[rgba(6,54,116,0.025)]"
-                        }`}
-                      >
-                        <span>{item.label}</span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </nav>
-          </div>
-        </div>
-      ) : null}
     </>
   );
 }

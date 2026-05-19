@@ -112,15 +112,15 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
       <div className="overflow-x-auto">
         <table className="w-full table-fixed text-left text-sm">
           <colgroup>
-            <col style={{ width: "30%" }} />
-            <col style={{ width: "10%" }} />
+            <col style={{ width: "28%" }} />
+            <col style={{ width: "11%" }} />
             <col style={{ width: "14%" }} />
-            <col style={{ width: "12%" }} />
+            <col style={{ width: "13%" }} />
             <col style={{ width: "12%" }} />
             <col style={{ width: "22%" }} />
           </colgroup>
           <thead>
-            <tr className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+            <tr className="text-xs font-semibold text-[var(--shell-muted)]">
               <th className="whitespace-nowrap pb-2 pr-3 text-left">
                 <button type="button" onClick={() => toggleSort("firmCompanyName", "asc")} className="font-inherit">
                   Firm{sortIndicator("firmCompanyName")}
@@ -144,7 +144,7 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
               </th>
               <th className="whitespace-nowrap pb-2 pr-3 text-left">
                 <button type="button" onClick={() => toggleSort("latestActivityAt", "desc")} className="font-inherit">
-                  Last activity{sortIndicator("latestActivityAt")}
+                  Activity{sortIndicator("latestActivityAt")}
                 </button>
               </th>
             </tr>

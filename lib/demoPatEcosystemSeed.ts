@@ -88,7 +88,7 @@ const PRODUCT_VARIANCE_PATTERNS: Array<{
   vendorOffset: number;
   firmOffset: number;
 }> = [
-  { kind: "high-alignment", vendorOffset: 0.55, firmOffset: 0.35 },
+  { kind: "vendor-over-firm", vendorOffset: 0.7, firmOffset: -0.4 },
   { kind: "high-alignment", vendorOffset: 0.35, firmOffset: 0.2 },
   { kind: "low-alignment", vendorOffset: -1.2, firmOffset: -1.15 },
   { kind: "low-alignment", vendorOffset: -1, firmOffset: -0.95 },

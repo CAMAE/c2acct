@@ -42,9 +42,9 @@ function pointAtRadius(axisIndex: number, axisCount: number, ringFraction: numbe
 
 function shortenLabel(title: string): string {
   // Module titles are long; pull the first 1-2 meaningful words.
-  if (title.length <= 22) return title;
+  if (title.length <= 18) return title;
   const stripped = title.replace(/^[A-Z][a-z]+ /, "");
-  return stripped.length <= 22 ? stripped : `${title.slice(0, 20)}…`;
+  return stripped.length <= 18 ? stripped : `${title.slice(0, 16)}…`;
 }
 
 // WS10-B Block B: axis.delta is firmScore - ecosystemAverage. For the
@@ -89,10 +89,10 @@ export default function FiveModuleRadar({ data }: { data: FirmBriefData }) {
         Module score vs ecosystem peers
       </h2>
 
-      <div className="mt-4 flex flex-wrap items-start gap-6">
+      <div className="mt-4 flex flex-col items-stretch gap-6 sm:items-center">
         <svg
-          viewBox={`-30 -30 ${VIEWBOX + 60} ${VIEWBOX + 60}`}
-          className="h-72 w-72 shrink-0"
+          viewBox={`-70 -40 ${VIEWBOX + 140} ${VIEWBOX + 80}`}
+          className="mx-auto h-[24rem] w-full max-w-[26rem]"
           role="img"
           aria-label="Five-module maturity radar"
         >
@@ -195,8 +195,8 @@ export default function FiveModuleRadar({ data }: { data: FirmBriefData }) {
           })}
         </svg>
 
-        <div className="flex-1 min-w-[14rem] space-y-2">
-          <ul className="space-y-1.5 text-sm leading-6 text-[var(--shell-ink)]">
+        <div className="w-full space-y-2">
+          <ul className="space-y-2 text-base leading-7 text-[var(--shell-ink)]">
             {axes.map((axis) => (
               <li
                 key={`row-${axis.moduleKey}`}
@@ -210,7 +210,7 @@ export default function FiveModuleRadar({ data }: { data: FirmBriefData }) {
                   />
                   <span>{axis.moduleTitle}</span>
                 </span>
-                <span className="text-xs text-[var(--shell-muted)]">
+                <span className="text-sm text-[var(--shell-muted)]">
                   {axis.firmScore === null ? (
                     "--"
                   ) : axis.ecosystemAverage === null ? (
