@@ -14,7 +14,12 @@ import type { EcosystemDetailData, EcosystemDetailFirmRow } from "@/lib/ecosyste
  * by the WS6.5 prompt for this session.
  */
 
-const GOAL_TARGET_PCT = 80;
+// WS11-D Block A.3: goal target raised to 100% so the suggested-goal text
+// reads as "Get {firm} from {currentPct}% to 100%" — the natural direction
+// (close the remaining gap), not "decrease to 80%". The bottomQuartileFirms
+// filter already constrains the card to firms below 100% completion, so a
+// 100% target is always strictly higher than current.
+const GOAL_TARGET_PCT = 100;
 const GOAL_DUE_DATE = "2026-06-01";
 const MIN_CARD_ROWS = 2;
 

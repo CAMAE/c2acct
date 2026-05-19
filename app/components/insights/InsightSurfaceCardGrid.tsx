@@ -48,11 +48,11 @@ export default function InsightSurfaceCardGrid({
             <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
               {compactInsightSummary(card.summary)}
             </p>
-            {card.supportingText ? (
-              <div className="mt-4 inline-flex items-center rounded-full bg-[rgba(6,54,116,0.06)] px-3 py-1.5 text-xs font-medium text-[var(--shell-ink)]">
-                {card.supportingText}
-              </div>
-            ) : null}
+            {/* WS11-D Block H.4: supportingText pill removed per Cam's review.
+                The pill rendered overflow text ("Strongest current sections:
+                Document capture, document management, e-signature") that did
+                not fit cleanly. The supportingText field stays on the type
+                for backwards compatibility but no longer renders. */}
           </>
         );
 

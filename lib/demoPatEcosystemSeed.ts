@@ -149,7 +149,30 @@ function firmProductReviewTarget(input: {
   );
 }
 
+// WS11-D Block A.1: Demo Company gets a deliberately varied per-module
+// score distribution so the firm-brief radar visibly demonstrates PAT's
+// band color ramp (deep-red / red / amber / green) on stage. Modules
+// returned by loadFirmAlignmentModules are sorted alphabetically by key:
+//   0: firm_alignment_automation_ai_v1
+//   1: firm_alignment_data_flow_v1
+//   2: firm_alignment_governance_v1
+//   3: firm_alignment_operating_model_v1
+//   4: firm_alignment_strategy_v1   ← left as draft by WS10-A (no signal)
+// Target scoreTarget values on the 0–5 scale; scorePct = target*20.
+const DEMO_COMPANY_MODULE_TARGETS: ReadonlyArray<number> = [
+  3.0, // automation-ai      → ~60% (red band, >15 below ~82% peer avg)
+  3.0, // data-flow          → ~60% (red band)
+  3.5, // governance         → ~70% (amber-red, 6-15 below)
+  4.4, // operating-model    → ~88% (green, 6+ above peer avg)
+  4.0, // strategy           → ~80% (won't render — WS10-A leaves Strategy
+       //                              in draft state; no-signal on radar)
+];
+
 function firmModuleAssessmentTarget(firm: DemoFirmInput, firmIndex: number, moduleIndex: number) {
+  if (firm.key === "demo-company") {
+    const target = DEMO_COMPANY_MODULE_TARGETS[moduleIndex] ?? firm.scoreTarget;
+    return clampTarget(target);
+  }
   const moduleOffset = FIRM_MODULE_OFFSETS[moduleIndex % FIRM_MODULE_OFFSETS.length] ?? 0;
   const firmOffset = ((firmIndex % 5) - 2) * 0.18;
   return clampTarget(firm.scoreTarget + moduleOffset + firmOffset);

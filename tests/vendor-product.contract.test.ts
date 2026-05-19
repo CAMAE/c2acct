@@ -61,7 +61,8 @@ describe("vendor product combined signal behavior", () => {
     expect(snapshot.vendorAssessmentStatus.completed).toBe(true);
     expect(snapshot.firmReviewed.assessmentCount).toBe(2);
     expect(snapshot.firmReviewed.averageScore).toBe(34);
-    expect(snapshot.product.utilityScopeLabel).toContain("2 declared utilities");
+    // WS11-D Block H.1: user-visible "utilities" → "features".
+    expect(snapshot.product.utilityScopeLabel).toContain("2 declared features");
     expect(snapshot.divergence.points).toBe(50);
     expect(snapshot.divergence.label).toMatch(/Vendor self-view is running above firm-reviewed signal/);
     expect(snapshot.combinedCurrentPatReadout).toMatch(

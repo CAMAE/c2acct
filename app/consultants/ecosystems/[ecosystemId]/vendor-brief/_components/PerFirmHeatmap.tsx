@@ -1,14 +1,21 @@
 import type { VendorBriefData, VendorBriefHeatmapBand } from "@/lib/briefs";
 
+// WS11-D Block E.2: 5-step color ramp. Darkest blue reserved for the top
+// decile (≥85) so the dark-on-white contrast issue Cam flagged only affects
+// the genuine standouts. Mid-dark blue (75-84) keeps white text legible.
+// Mid (50-74) keeps light blue + ink. Low (<50) uses amber with orange text
+// so it pops as "needs attention." Unreviewed stays neutral.
 const BAND_CELL_CLASSES: Record<VendorBriefHeatmapBand, string> = {
-  high: "bg-[var(--brand-c2-blue)] text-white",
-  mid: "bg-[var(--shell-panel-soft)] text-[var(--shell-ink)] border border-[var(--shell-border)]",
-  low: "bg-white text-[var(--shell-muted)] border border-dashed border-[var(--shell-border)]",
-  unreviewed: "bg-white text-[var(--shell-muted)]",
+  "high-strong": "bg-[var(--brand-c2-blue)] text-white",
+  high: "bg-[rgba(6,54,116,0.45)] text-white",
+  mid: "bg-[rgba(6,54,116,0.18)] text-[var(--shell-ink)] border border-[var(--shell-border)]",
+  low: "bg-[rgba(229,109,4,0.16)] text-[var(--brand-orange)] border border-[rgba(229,109,4,0.24)]",
+  unreviewed: "bg-white text-[var(--shell-muted)] border border-dashed border-[var(--shell-border)]",
 };
 
 const BAND_LEGEND: Array<{ band: VendorBriefHeatmapBand; label: string }> = [
-  { band: "high", label: "≥ 75" },
+  { band: "high-strong", label: "≥ 85" },
+  { band: "high", label: "75–84" },
   { band: "mid", label: "50–74" },
   { band: "low", label: "< 50" },
   { band: "unreviewed", label: "Not yet reviewed" },

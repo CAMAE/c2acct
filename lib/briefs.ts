@@ -70,7 +70,12 @@ export type VendorBriefDeltaRow = {
   firmReviewCount: number;
 };
 
-export type VendorBriefHeatmapBand = "high" | "mid" | "low" | "unreviewed";
+export type VendorBriefHeatmapBand =
+  | "high-strong"
+  | "high"
+  | "mid"
+  | "low"
+  | "unreviewed";
 
 export type VendorBriefHeatmapCell = {
   firmCompanyId: string;
@@ -156,11 +161,13 @@ export type VendorBriefData = {
  * Per PAT-5.7-Brief-Mocks-Vendor-and-Firm.md Page 3:
  *   Green ≥ 75, Amber 50-74, Red < 50, Not yet reviewed.
  */
+export const HEATMAP_BAND_STRONG_THRESHOLD = 85;
 export const HEATMAP_BAND_HIGH_THRESHOLD = 75;
 export const HEATMAP_BAND_MID_THRESHOLD = 50;
 
 export function heatmapBandForScore(score: number | null): VendorBriefHeatmapBand {
   if (score === null) return "unreviewed";
+  if (score >= HEATMAP_BAND_STRONG_THRESHOLD) return "high-strong";
   if (score >= HEATMAP_BAND_HIGH_THRESHOLD) return "high";
   if (score >= HEATMAP_BAND_MID_THRESHOLD) return "mid";
   return "low";

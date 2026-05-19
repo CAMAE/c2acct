@@ -158,7 +158,9 @@ describe("lib/briefs helpers", () => {
         briefingWithProducts({
           companyId: "f1",
           products: [
-            { productId: "p1", score: 85 }, // high
+            // WS11-D Block E.2: heatmap gained a 5th band ("high-strong" for
+            // scores ≥85). 85 now maps there; 80 stays in "high".
+            { productId: "p1", score: 85 }, // high-strong
             { productId: "p2", score: 50 }, // mid (boundary)
           ],
         }),
@@ -180,7 +182,7 @@ describe("lib/briefs helpers", () => {
       const cell = (firmId: string, productId: string) =>
         heatmap.cells.find((c) => c.firmCompanyId === firmId && c.productId === productId);
 
-      expect(cell("f1", "p1")?.band).toBe("high");
+      expect(cell("f1", "p1")?.band).toBe("high-strong");
       expect(cell("f1", "p2")?.band).toBe("mid");
       expect(cell("f2", "p1")?.band).toBe("low");
       expect(cell("f2", "p2")?.band).toBe("unreviewed");

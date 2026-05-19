@@ -81,12 +81,14 @@ export default async function FirmProductAssessmentsPage({
           className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]"
         />
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          Review the products already available for firm-side input. PAT keeps each review tied to the product’s completed vendor assessment so your feedback stays inside the current product scope and carries forward into the broader insight layer.
+          Review the products that are available for firm-side input.
         </p>
-        <div className="mt-6 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4 text-sm leading-6 text-[var(--shell-muted)]">
-          Only products with a completed vendor product assessment appear here. If this list is empty,
-          the vendor dependency has not been met yet; firms cannot review products until vendors finish
-          their scoped product assessment.
+        <div className="mt-6">
+          <AvailableCompletedToggle
+            currentFilter={activeFilter}
+            availableCount={availableProducts.length}
+            completedCount={completedProducts.length}
+          />
         </div>
       </section>
 
@@ -98,19 +100,6 @@ export default async function FirmProductAssessmentsPage({
       ) : null}
 
       <section className="space-y-4">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="text-2xl font-semibold text-[var(--shell-ink)]">Product reviews</h2>
-            <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
-              Open one product to add your firm-side review to the current PAT evidence set.
-            </p>
-          </div>
-          <AvailableCompletedToggle
-            currentFilter={activeFilter}
-            availableCount={availableProducts.length}
-            completedCount={completedProducts.length}
-          />
-        </div>
         <div className="grid gap-5 md:grid-cols-2">
           {visibleProducts.length === 0 ? (
             <div className="pat-card p-6 text-sm leading-6 text-[var(--shell-muted)]">

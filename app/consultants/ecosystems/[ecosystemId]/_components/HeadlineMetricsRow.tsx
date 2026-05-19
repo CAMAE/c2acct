@@ -25,7 +25,7 @@ function MetricTileLink({
   return (
     <Link
       href={`/consultants/ecosystems/${ecosystemId}/explainers/${metricKey}`}
-      className="block rounded-[22px] outline-none transition-colors hover:bg-[rgba(6,54,116,0.04)] focus-visible:ring-2 focus-visible:ring-[rgba(6,54,116,0.3)]"
+      className="block h-full rounded-[22px] outline-none transition-colors hover:bg-[rgba(6,54,116,0.04)] focus-visible:ring-2 focus-visible:ring-[rgba(6,54,116,0.3)]"
       data-testid="headline-metric-link"
       data-metric-key={metricKey}
       aria-label={`Open ${label} explainer`}

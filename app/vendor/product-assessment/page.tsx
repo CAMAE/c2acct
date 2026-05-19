@@ -143,8 +143,12 @@ function ProductAssessmentCard({
         ) : null}
       </div>
       <div className="mt-5 flex flex-wrap gap-3">
-        <Link href={`/vendor/product-assessment/${entry.product.id}`} className="pat-button-primary">
+        <Link
+          href={`/vendor/product-assessment/${entry.product.id}`}
+          className="inline-flex items-center gap-2 rounded-full border border-[rgba(6,54,116,0.16)] bg-[rgba(6,54,116,0.06)] px-4 py-2.5 text-sm font-semibold text-[var(--shell-ink)] transition-colors hover:bg-[rgba(6,54,116,0.1)]"
+        >
           Open assessment
+          <span aria-hidden="true">→</span>
         </Link>
         {productUrl ? (
           <a href={productUrl} target="_blank" rel="noreferrer" className="pat-button-secondary">

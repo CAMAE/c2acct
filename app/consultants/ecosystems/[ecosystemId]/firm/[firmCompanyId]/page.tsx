@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
@@ -92,7 +93,14 @@ export default async function FirmBriefPage({
       data-testid="firm-brief-page"
       data-brief-id={brief.briefId}
     >
-      <section className="pat-card p-8" data-testid="firm-brief-portal-hero">
+      <section className="pat-card relative p-8" data-testid="firm-brief-portal-hero">
+        <Link
+          href={`/consultants/ecosystems/${ecosystemId}`}
+          className="absolute right-6 top-6 inline-flex items-center gap-2 rounded-full border border-[rgba(6,54,116,0.16)] bg-[rgba(6,54,116,0.06)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition-colors hover:bg-[rgba(6,54,116,0.1)]"
+          data-testid="firm-brief-back-to-ecosystem"
+        >
+          <span aria-hidden="true">←</span> Ecosystem
+        </Link>
         <PatLogoLockup mode="hero" tone="light" />
         <PortalAudienceEyebrow
           className="pat-label mt-6"

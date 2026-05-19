@@ -112,37 +112,37 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
       <div className="overflow-x-auto">
         <table className="w-full table-fixed text-left text-sm">
           <colgroup>
-            <col style={{ width: "32%" }} />
+            <col style={{ width: "30%" }} />
             <col style={{ width: "10%" }} />
-            <col style={{ width: "12%" }} />
+            <col style={{ width: "14%" }} />
             <col style={{ width: "12%" }} />
             <col style={{ width: "12%" }} />
             <col style={{ width: "22%" }} />
           </colgroup>
           <thead>
             <tr className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-              <th className="pb-2 pr-3 text-left">
+              <th className="whitespace-nowrap pb-2 pr-3 text-left">
                 <button type="button" onClick={() => toggleSort("firmCompanyName", "asc")} className="font-inherit">
                   Firm{sortIndicator("firmCompanyName")}
                 </button>
               </th>
-              <th className="pb-2 pr-3 text-center">
+              <th className="whitespace-nowrap pb-2 pr-3 text-center">
                 <button type="button" onClick={() => toggleSort("canonicalFirmScore", "asc")} className="font-inherit">
                   Score{sortIndicator("canonicalFirmScore")}
                 </button>
               </th>
-              <th className="pb-2 pr-3 text-center">Confidence</th>
-              <th className="pb-2 pr-3 text-center">
+              <th className="whitespace-nowrap pb-2 pr-3 text-center">Confidence</th>
+              <th className="whitespace-nowrap pb-2 pr-3 text-center">
                 <button type="button" onClick={() => toggleSort("moduleCompletionPercent", "desc")} className="font-inherit">
                   Modules{sortIndicator("moduleCompletionPercent")}
                 </button>
               </th>
-              <th className="pb-2 pr-3 text-center">
+              <th className="whitespace-nowrap pb-2 pr-3 text-center">
                 <button type="button" onClick={() => toggleSort("productReviewCount", "desc")} className="font-inherit">
                   Reviews{sortIndicator("productReviewCount")}
                 </button>
               </th>
-              <th className="pb-2 pr-3 text-left">
+              <th className="whitespace-nowrap pb-2 pr-3 text-left">
                 <button type="button" onClick={() => toggleSort("latestActivityAt", "desc")} className="font-inherit">
                   Last activity{sortIndicator("latestActivityAt")}
                 </button>

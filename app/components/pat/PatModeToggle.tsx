@@ -41,7 +41,12 @@ export default function PatModeToggle({
   ariaLabel,
   options,
   onChange,
-  navigationMode = "push",
+  // WS11-D Block K: default flipped from "push" to "replace" site-wide.
+  // Every in-page toggle (Workspace/Pat/Admin/Help, Available/Completed,
+  // Existing/Add New, brief panel toggles, etc.) should not pollute the
+  // browser-history stack. Pressing Back should return the user to the
+  // page they came from, not walk through prior toggle states.
+  navigationMode = "replace",
 }: PatModeToggleProps) {
   return (
     <div aria-label={ariaLabel} className="pat-mode-toggle">

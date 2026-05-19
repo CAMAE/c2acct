@@ -82,8 +82,12 @@ describe("firm product assessment catalog", () => {
     );
 
     expect(pageText).toContain("reviewableProducts");
-    expect(pageText).toContain("Only products with a completed vendor product assessment appear here");
-    expect(pageText).toContain("the vendor dependency has not been met yet");
+    // WS11-D Block I.3: the verbose "Only products with a completed vendor
+    // product assessment appear here..." copy was stripped per Cam's review
+    // ("Just have the title and the couple sentences underneath... we don't
+    // need that text under there"). Replaced with the shorter
+    // "Review the products that are available for firm-side input."
+    expect(pageText).toContain("Review the products that are available for firm-side input");
     expect(pageText).toContain("No products are reviewable yet");
     expect(pageText).toContain("blockedProductId");
     expect(pageText).toContain("firmReviewStatusLabel");

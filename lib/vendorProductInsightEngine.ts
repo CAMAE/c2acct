@@ -295,10 +295,10 @@ function buildConfidenceCaveats(input: {
 
 function describeUtilityScope(utilityKeys: string[], utilityLabels: string[]) {
   if (utilityKeys.length === 0) {
-    return "No declared utility scope";
+    return "No declared feature scope";
   }
 
-  return `${utilityKeys.length} declared utilit${utilityKeys.length === 1 ? "y" : "ies"}: ${utilityLabels.join(", ")}`;
+  return `${utilityKeys.length} declared feature${utilityKeys.length === 1 ? "" : "s"}: ${utilityLabels.join(", ")}`;
 }
 
 function getConfidenceBand(input: {
@@ -599,7 +599,7 @@ function buildInsightRecord(input: {
         ? `${input.definition.how} Use the vendor self-reported sections as a current posture readout, then wait for more firm reviews before treating the picture as externally confirmed.`
         : `${input.definition.how} The current divergence is ${Math.abs(
             input.divergence.points
-          )} points, so use the section evidence and firm utility evidence together when deciding whether the current product story is calibrated.`,
+          )} points, so use the section evidence and firm feature evidence together when deciding whether the current product story is calibrated.`,
     currentStateSummary,
     exactAssessmentBasis: [
       `Vendor self-reported signal: ${formatScore(input.vendorScore)} from the latest vendor product assessment.`,
@@ -811,7 +811,7 @@ export function buildVendorProductInsightDetailSurfaceCards(input: {
       title: "Evidence",
       summary:
         input.record || vendorEvidenceCount > 0 || firmEvidenceCount > 0
-          ? "Review the vendor section evidence alongside the firm-reviewed utility evidence behind this readout."
+          ? "Review the vendor section evidence alongside the firm-reviewed feature evidence behind this readout."
           : input.snapshot.combinedCurrentPatReadout,
       href: `${baseHref}?surface=evidence`,
       interactive: true,
@@ -860,7 +860,7 @@ function summarizeFirmEvidence(snapshot: VendorProductInsightSnapshot, record: V
   }
 
   if (!groundedUtilities.length) {
-    return "Insufficient firm-reviewed evidence: firm product assessments exist, but the scored utility evidence is still too thin to separate utility-level strengths and weaknesses cleanly.";
+    return "Insufficient firm-reviewed evidence: firm product assessments exist, but the scored feature evidence is still too thin to separate feature-level strengths and weaknesses cleanly.";
   }
 
   const strongest =
@@ -908,7 +908,7 @@ function buildEvidenceProvenanceItem(snapshot: VendorProductInsightSnapshot) {
     body: [
       `Vendor source: completed final vendor product assessment submitted ${vendorSubmittedAt}.`,
       `Firm-reviewed source: ${firmEvidence}.`,
-      `Product utility scope: ${snapshot.product.utilityScopeLabel}.`,
+      `Product feature scope: ${snapshot.product.utilityScopeLabel}.`,
       "PAT uses only these current assessment records for this detail page; it is not claiming benchmark, projection, or market-comparison proof.",
     ].join(" "),
   };

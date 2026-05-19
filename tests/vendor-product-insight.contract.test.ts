@@ -79,7 +79,8 @@ describe("vendor product insight runtime", () => {
 
     const snapshot = buildVendorProductInsightSnapshot(fixture);
 
-    expect(snapshot.product.utilityScopeLabel).toContain("2 declared utilities");
+    // WS11-D Block H.1: user-visible "utilities" → "features".
+    expect(snapshot.product.utilityScopeLabel).toContain("2 declared features");
     expect(snapshot.vendorAssessmentStatus.completed).toBe(true);
     expect(snapshot.confidenceCaveats.some((caveat) => caveat.includes("2 assessments"))).toBe(true);
     expect(snapshot.confidenceCaveats.some((caveat) => caveat.includes("50 points apart"))).toBe(true);
@@ -482,7 +483,7 @@ describe("vendor product insight runtime", () => {
     expect(proCards.every((card) => card.interactive && card.href?.includes(`surface=${card.key}`))).toBe(true);
     expect(proCards.every((card) => card.href?.startsWith(`/vendor/product-insight/${snapshot.product.id}/${record.key}?surface=`))).toBe(true);
     expect(proCards.find((card) => card.key === "evidence")?.summary).toBe(
-      "Review the vendor section evidence alongside the firm-reviewed utility evidence behind this readout."
+      "Review the vendor section evidence alongside the firm-reviewed feature evidence behind this readout."
     );
     expect(eliteCards.map((card) => card.key)).toEqual(["help", "evidence"]);
     expect(eliteCards.every((card) => card.interactive && card.href?.includes(`surface=${card.key}`))).toBe(

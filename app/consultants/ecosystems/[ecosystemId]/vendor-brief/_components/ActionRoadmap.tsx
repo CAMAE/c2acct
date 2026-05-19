@@ -1,13 +1,8 @@
-import ReorderHandle, {
-  type ReorderItem,
-} from "@/app/components/consultants/briefEdits/ReorderHandle";
 import type {
   VendorBriefData,
   VendorBriefRoadmapItem,
   VendorBriefSignalStrength,
 } from "@/lib/briefs";
-
-const SECTION_KEY = "vendor.action-roadmap" as const;
 
 const SIGNAL_LABEL: Record<VendorBriefSignalStrength, string> = {
   high: "High signal",
@@ -91,36 +86,19 @@ function AwaitingItem({ firmsNeeded }: { firmsNeeded: number }) {
 
 function Quarter({
   label,
-  emphasisId,
   items,
   totalFirms,
-  isEmphasized,
-  reorderable,
-  data,
   fallbackText,
 }: {
   label: string;
-  emphasisId: string;
   items: VendorBriefRoadmapItem[];
   totalFirms: number;
-  isEmphasized: boolean;
-  reorderable: boolean;
-  data: VendorBriefData;
   fallbackText: string;
 }) {
-  const activeOrder = data.editChoices.ordering[SECTION_KEY];
-  const reorderItems: ReorderItem[] = items.map((item) => ({
-    id: item.itemId,
-    label: item.text,
-    content: <RoadmapItem item={item} totalFirms={totalFirms} />,
-  }));
-
   return (
     <div
       data-testid="roadmap-panel"
       data-window-title={label}
-      data-emphasis-id={emphasisId}
-      data-emphasis-active={isEmphasized ? "true" : "false"}
       className="pt-6"
     >
       <div className="pat-label text-[11px]">{label}</div>
@@ -129,18 +107,7 @@ function Quarter({
           ? fallbackText
           : `${items.length} action${items.length === 1 ? "" : "s"}`}
       </div>
-      {items.length === 0 ? null : reorderable ? (
-        <div className="mt-2 divide-y divide-[var(--shell-border)]">
-          <ReorderHandle
-            briefKind="vendor"
-            briefId={data.vendorCompanyId}
-            ecosystemId={data.ecosystemId}
-            sectionKey={SECTION_KEY}
-            items={reorderItems}
-            activeOrder={activeOrder}
-          />
-        </div>
-      ) : (
+      {items.length === 0 ? null : (
         <div className="divide-y divide-[var(--shell-border)]">
           {items.map((item) => (
             <RoadmapItem key={item.itemId} item={item} totalFirms={totalFirms} />
@@ -152,7 +119,6 @@ function Quarter({
 }
 
 export default function ActionRoadmap({ data }: { data: VendorBriefData }) {
-  const activeEmphasis = data.editChoices.emphasis[SECTION_KEY] ?? [];
   const firmLabel = data.firmCount === 1 ? "firm" : "firms";
   const refreshedDate = formatGeneratedDate(data.generatedAt);
 
@@ -192,32 +158,20 @@ export default function ActionRoadmap({ data }: { data: VendorBriefData }) {
       <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
         <Quarter
           label="Q1 · near-term (≤30 days)"
-          emphasisId="thirty-day"
           items={q1}
           totalFirms={data.firmCount}
-          isEmphasized={activeEmphasis.includes("thirty-day")}
-          reorderable={true}
-          data={data}
           fallbackText="No Q1 commitments surfaced."
         />
         <Quarter
           label="Q2 · next quarter (≤60 days)"
-          emphasisId="sixty-day"
           items={q2}
           totalFirms={data.firmCount}
-          isEmphasized={activeEmphasis.includes("sixty-day")}
-          reorderable={false}
-          data={data}
           fallbackText="No Q2 commitments surfaced."
         />
         <Quarter
           label="Q3 · long-range (≤90 days)"
-          emphasisId="ninety-day"
           items={q3}
           totalFirms={data.firmCount}
-          isEmphasized={activeEmphasis.includes("ninety-day")}
-          reorderable={false}
-          data={data}
           fallbackText="No Q3 commitments surfaced."
         />
         <div className="pt-6" data-testid="roadmap-panel" data-window-title="Q4 · post-pilot">

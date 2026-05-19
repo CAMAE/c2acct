@@ -169,7 +169,7 @@ export default function VendorProductPositioningRadar({
 
       <div className="mt-4 flex flex-wrap items-start gap-6">
         <svg
-          viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
+          viewBox={`-30 -30 ${VIEWBOX + 60} ${VIEWBOX + 60}`}
           className="h-72 w-72 shrink-0"
           role="img"
           aria-label="Vendor product positioning radar"

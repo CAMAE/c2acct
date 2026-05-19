@@ -141,7 +141,7 @@ export default function ProductComparison({ data }: { data: VendorBriefData }) {
                 <th scope="col" className="py-3 pr-4 text-right tabular-nums whitespace-nowrap">
                   Delta
                 </th>
-                <th scope="col" className="py-3">
+                <th scope="col" className="py-3 pl-4">
                   Direction
                 </th>
               </tr>
@@ -174,7 +174,7 @@ export default function ProductComparison({ data }: { data: VendorBriefData }) {
                   >
                     {deltaCellNumber(row)}
                   </td>
-                  <td className={`py-4 text-sm font-medium ${directionColorClass(row)}`}>
+                  <td className={`py-4 pl-4 text-sm font-medium ${directionColorClass(row)}`}>
                     {directionLabel(row)}
                   </td>
                 </tr>

@@ -99,3 +99,28 @@ need."
   for the new roadmap panel.
 
 No new aggregator additions. No new brief fields. No new Prisma queries.
+
+## Re-edit (2026-05-18, WS11-D Block H.2)
+
+Cam: "Q2'26 current, the next action is to get individual evidence outreach.
+We're tabling that for now. We're only doing firms and vendors. So if we could
+revise this slightly to not necessarily mention individuals."
+
+The 30-day missingUserCoverage branch was re-edited to drop "individual" and
+"person-level" entirely:
+
+- title: "Schedule firm-side individual evidence outreach" →
+  "Schedule firm-side evidence outreach"
+- detail: "Reach out to firm contacts to capture individual operating
+  evidence. The current alignment readout stops at the firm layer;
+  person-level signal is what closes the loop between product claims and
+  how firms actually use the product day-to-day." →
+  "Reach out to firm contacts to capture additional operating evidence.
+  The current alignment readout is thin on firm-side signal — broader
+  firm responses are what take the brief from directional to grounded
+  across products and capabilities."
+- evidence: "Individual layer sample size is currently thin." →
+  "Firm-side sample size is currently thin."
+
+The other 5 branches (30-day else, 60-day × 2, 90-day × 2) were already
+firm/vendor-focused and required no change.

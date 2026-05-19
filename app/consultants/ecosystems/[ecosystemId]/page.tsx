@@ -42,10 +42,12 @@ export default async function EcosystemDetailPage({
       <EcosystemHeader data={detail} />
       <HeadlineMetricsRow data={detail} ecosystemId={detail.ecosystemId} />
       <div className="grid gap-6 lg:grid-cols-2">
-        <VendorAtAGlance data={detail} />
         <FirmGrid data={detail} />
+        <div className="space-y-6">
+          <VendorAtAGlance data={detail} />
+          <LowestEngagementFirmsCard data={detail} />
+        </div>
       </div>
-      <LowestEngagementFirmsCard data={detail} />
       <OpenEndedPanel data={detail} />
     </div>
   );

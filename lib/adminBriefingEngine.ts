@@ -662,13 +662,13 @@ export function buildBriefingActionPlan(input: {
     {
       window: "30 days",
       title: input.missingUserCoverage
-        ? "Schedule firm-side individual evidence outreach"
+        ? "Schedule firm-side evidence outreach"
         : `Refresh self-report on ${input.weakestModuleTitle ?? "the weakest capability area"}`,
       detail: input.missingUserCoverage
-        ? "Reach out to firm contacts to capture individual operating evidence. The current alignment readout stops at the firm layer; person-level signal is what closes the loop between product claims and how firms actually use the product day-to-day."
+        ? "Reach out to firm contacts to capture additional operating evidence. The current alignment readout is thin on firm-side signal — broader firm responses are what take the brief from directional to grounded across products and capabilities."
         : `Firms are rating your product below your stated position on ${input.weakestModuleTitle ?? "the weakest capability"}. Calibrate the self-report before the next operating review so the public claim set tracks firm experience, not the vendor's internal benchmark.`,
       evidence: input.missingUserCoverage
-        ? "Individual layer sample size is currently thin."
+        ? "Firm-side sample size is currently thin."
         : `Firm layer weakness is concentrated in ${input.weakestModuleTitle ?? "the weakest module"}.`,
     },
     {
@@ -1462,7 +1462,7 @@ export async function getAdminProductBriefing(
       detail:
         product.utilityLabels.length > 0
           ? `${product.productName} is already tied to ${product.utilityLabels.join(", ")} in the PAT utility model, so the next product cycle can stay inside declared scope.`
-          : `${product.productName} still needs clearer utility evidence before the next product cycle becomes richer.`,
+          : `${product.productName} still needs clearer feature evidence before the next product cycle becomes richer.`,
     },
   ];
 

@@ -531,7 +531,7 @@ export async function ensureVendorProductModule() {
       update: {
         title: VENDOR_PRODUCT_MODULE_TITLE,
         description:
-          "Per-product vendor assessment for declared utility coverage, implementation readiness, and current PAT Pro membership intelligence.",
+          "Per-product vendor assessment for declared feature coverage, implementation readiness, and current PAT Pro membership intelligence.",
         scope: ModuleScope.PRODUCT,
         active: true,
         version: 1,
@@ -542,7 +542,7 @@ export async function ensureVendorProductModule() {
         key: VENDOR_PRODUCT_MODULE_KEY,
         title: VENDOR_PRODUCT_MODULE_TITLE,
         description:
-          "Per-product vendor assessment for declared utility coverage, implementation readiness, and current PAT Pro membership intelligence.",
+          "Per-product vendor assessment for declared feature coverage, implementation readiness, and current PAT Pro membership intelligence.",
         scope: ModuleScope.PRODUCT,
         active: true,
         version: 1,
