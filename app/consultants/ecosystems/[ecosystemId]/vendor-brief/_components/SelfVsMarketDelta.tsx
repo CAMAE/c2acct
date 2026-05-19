@@ -34,7 +34,7 @@ function bigNumberColorClass(row: VendorBriefDeltaRow): string {
   // no-signal (null delta) → muted (awaiting data).
   if (row.delta === null) return "text-[var(--shell-muted)]";
   if (row.deltaDirection === "vendor-higher") return "text-[var(--brand-orange)]";
-  if (row.deltaDirection === "firm-higher") return "text-green-600";
+  if (row.deltaDirection === "firm-higher") return "text-[var(--shell-positive)]";
   return "text-[var(--shell-ink)]";
 }
 
@@ -48,7 +48,7 @@ function clampPct(value: number | null): number {
 type PairedBarTone = "green" | "red" | "neutral" | "muted";
 
 function pairedBarFillClass(tone: PairedBarTone): string {
-  if (tone === "green") return "bg-green-600/80";
+  if (tone === "green") return "bg-[var(--shell-positive)]/80";
   if (tone === "red") return "bg-[var(--brand-orange)]";
   if (tone === "muted") return "bg-[var(--shell-muted)]/40";
   return "bg-[var(--brand-c2-blue)]/60";

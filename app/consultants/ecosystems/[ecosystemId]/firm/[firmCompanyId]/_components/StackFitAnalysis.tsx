@@ -34,7 +34,7 @@ function deltaLabel(row: FirmBriefStackFitRow): string {
 function deltaColorClass(row: FirmBriefStackFitRow): string {
   if (row.delta === null) return "text-[var(--shell-muted)]";
   if (row.delta > 0) return "text-[var(--brand-orange)]";
-  if (row.delta < 0) return "text-green-600";
+  if (row.delta < 0) return "text-[var(--shell-positive)]";
   return "text-[var(--shell-ink)]";
 }
 

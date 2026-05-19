@@ -22,7 +22,7 @@ function deltaCellColorClass(row: VendorBriefDeltaRow): string {
   // WS10-B Block B: canonical delta-color semantics — see SelfVsMarketDelta.
   if (row.delta === null) return "text-[var(--shell-muted)]";
   if (row.deltaDirection === "vendor-higher") return "text-[var(--brand-orange)]";
-  if (row.deltaDirection === "firm-higher") return "text-green-600";
+  if (row.deltaDirection === "firm-higher") return "text-[var(--shell-positive)]";
   return "text-[var(--shell-ink)]";
 }
 
@@ -41,7 +41,7 @@ function directionColorClass(row: VendorBriefDeltaRow): string {
   // null = muted.
   if (row.delta === null) return "text-[var(--shell-muted)]";
   if (row.deltaDirection === "vendor-higher") return "text-[var(--brand-orange)]";
-  if (row.deltaDirection === "firm-higher") return "text-green-600";
+  if (row.deltaDirection === "firm-higher") return "text-[var(--shell-positive)]";
   return "text-[var(--shell-ink)]";
 }
 

@@ -31,6 +31,18 @@
   --shell-success: #166534;
   --shell-warning: #9a3412;
   --shell-danger: #7f1d1d;
+  /* WS11-K (design system reconcile): additive tokens documenting current
+     visual semantics. --shell-positive replaces hardcoded text-green-600
+     utility usages; the radar band tokens document the colors currently
+     inlined in FiveModuleRadar.tsx and VendorProductPositioningRadar.tsx
+     so a future refactor can reference them by name instead of by hex. */
+  --shell-positive: #16a34a;
+  --radar-deep-green: #0e7c3a;
+  --radar-green: #3aab66;
+  --radar-amber: #b58420;
+  --radar-red: #c25441;
+  --radar-deep-red: #8a2f24;
+  --radar-no-signal: rgba(6, 54, 116, 0.18);
   --shell-max-width: 84rem;
   --shell-gutter: clamp(1.1rem, 0.95rem + 0.9vw, 1.7rem);
   --shell-main-pad-y: clamp(2.1rem, 1.75rem + 1.05vw, 2.85rem);

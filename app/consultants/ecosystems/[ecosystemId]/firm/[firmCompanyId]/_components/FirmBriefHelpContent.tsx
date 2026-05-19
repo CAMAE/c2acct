@@ -37,7 +37,7 @@ export default function FirmBriefHelpContent() {
           <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
             On the firm brief, the delta on the radar is{" "}
             <span className="font-semibold">firm score minus peer average</span>.{" "}
-            <span className="font-semibold text-green-600">Green</span> means this
+            <span className="font-semibold text-[var(--shell-positive)]">Green</span> means this
             firm is above peers — doing well in that module.{" "}
             <span className="font-semibold text-[var(--brand-orange)]">Orange</span>{" "}
             means this firm is below peers — areas to improve. Matched ink means
@@ -56,7 +56,7 @@ export default function FirmBriefHelpContent() {
             <span className="font-semibold text-[var(--brand-orange)]">Orange</span>{" "}
             means the vendor self-reported above what this firm experiences —
             the vendor over-claims for this firm.{" "}
-            <span className="font-semibold text-green-600">Green</span> means this
+            <span className="font-semibold text-[var(--shell-positive)]">Green</span> means this
             firm rates the vendor above the vendor&apos;s own self-report — the
             vendor is under-claiming for this firm.
           </p>

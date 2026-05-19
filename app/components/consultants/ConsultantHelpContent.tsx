@@ -43,7 +43,7 @@ export default function ConsultantHelpContent() {
             <span className="font-semibold text-[var(--brand-orange)]">Orange</span>{" "}
             means the vendor self-reported above the firm-reviewed average — the
             vendor is over-claiming.{" "}
-            <span className="font-semibold text-green-600">Green</span> means firms
+            <span className="font-semibold text-[var(--shell-positive)]">Green</span> means firms
             rate the vendor higher than the vendor&apos;s self-report — the vendor
             is under-claiming. Neutral ink means no directional signal yet.
           </p>

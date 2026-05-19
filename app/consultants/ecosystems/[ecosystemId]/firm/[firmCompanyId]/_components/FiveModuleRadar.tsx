@@ -52,7 +52,7 @@ function shortenLabel(title: string): string {
 // doing well), below peers reads orange (areas to improve). Matched = ink.
 function deltaColorClass(delta: number | null): string {
   if (delta === null) return "text-[var(--shell-muted)]";
-  if (delta > 0) return "text-green-600";
+  if (delta > 0) return "text-[var(--shell-positive)]";
   if (delta < 0) return "text-[var(--brand-orange)]";
   return "text-[var(--shell-ink)]";
 }
