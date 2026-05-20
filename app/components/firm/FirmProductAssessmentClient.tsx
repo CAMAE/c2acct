@@ -192,7 +192,7 @@ export default function FirmProductAssessmentClient({
             </span>
           </div>
           <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Progress: <span className="font-semibold text-[var(--shell-ink)]">{progress}%</span>
+            Progress: <strong className="font-semibold text-[var(--shell-ink)]">{progress}%</strong>
           </div>
           <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
             Answered:{" "}

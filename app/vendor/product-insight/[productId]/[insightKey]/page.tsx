@@ -77,17 +77,28 @@ export default async function VendorProductInsightSlicePage({
     label: card.title,
     href: card.href ?? `/vendor/product-insight/${snapshot.product.id}/${insightKey}?surface=${card.key}`,
   }));
-  const combinedEvidenceText = isTier2
-    ? `Current product evidence remains limited to ${snapshot.product.utilityScopeLabel}, vendor signal ${
-        snapshot.vendorSelfReported.latestScore === null ? "--" : `${Math.round(snapshot.vendorSelfReported.latestScore)}%`
-      }, and firm-reviewed signal ${
-        snapshot.firmReviewed.averageScore === null ? "--" : `${Math.round(snapshot.firmReviewed.averageScore)}%`
-      } across ${snapshot.firmReviewed.assessmentCount} assessment${snapshot.firmReviewed.assessmentCount === 1 ? "" : "s"}.`
-    : `Current evidence combines ${snapshot.product.utilityScopeLabel}, vendor self-reported signal ${
-        snapshot.vendorSelfReported.latestScore === null ? "--" : `${Math.round(snapshot.vendorSelfReported.latestScore)}%`
-      }, and firm-reviewed signal ${
-        snapshot.firmReviewed.averageScore === null ? "--" : `${Math.round(snapshot.firmReviewed.averageScore)}%`
-      } across ${snapshot.firmReviewed.assessmentCount} assessment${snapshot.firmReviewed.assessmentCount === 1 ? "" : "s"}.`;
+  const vendorSignalNode =
+    snapshot.vendorSelfReported.latestScore === null ? (
+      "--"
+    ) : (
+      <strong className="font-semibold text-[var(--shell-ink)]">{Math.round(snapshot.vendorSelfReported.latestScore)}%</strong>
+    );
+  const firmSignalNode =
+    snapshot.firmReviewed.averageScore === null ? (
+      "--"
+    ) : (
+      <strong className="font-semibold text-[var(--shell-ink)]">{Math.round(snapshot.firmReviewed.averageScore)}%</strong>
+    );
+  const assessmentSuffix = `${snapshot.firmReviewed.assessmentCount} assessment${snapshot.firmReviewed.assessmentCount === 1 ? "" : "s"}.`;
+  const combinedEvidenceText = isTier2 ? (
+    <>
+      Current product evidence remains limited to {snapshot.product.utilityScopeLabel}, vendor signal {vendorSignalNode}, and firm-reviewed signal {firmSignalNode} across {assessmentSuffix}
+    </>
+  ) : (
+    <>
+      Current evidence combines {snapshot.product.utilityScopeLabel}, vendor self-reported signal {vendorSignalNode}, and firm-reviewed signal {firmSignalNode} across {assessmentSuffix}
+    </>
+  );
 
   return (
     <InsightDetailShell

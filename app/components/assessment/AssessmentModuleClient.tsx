@@ -721,7 +721,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
             Page: <span className="font-semibold text-[var(--shell-ink)]">{currentStep} / {totalSteps}</span>
           </div>
           <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Progress: <span className="font-semibold text-[var(--shell-ink)]">{completionPct}%</span>
+            Progress: <strong className="font-semibold text-[var(--shell-ink)]">{completionPct}%</strong>
           </div>
           <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
             Questions: <span className="font-semibold text-[var(--shell-ink)]">{data.questions.length}</span>

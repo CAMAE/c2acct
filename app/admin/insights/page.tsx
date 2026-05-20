@@ -70,7 +70,7 @@ export default async function AdminInsightsPage() {
                   <div className="mt-3 grid gap-2 text-sm text-[var(--shell-muted)]">
                     {insight.InsightCapabilityRule.map((rule) => (
                       <div key={rule.id}>
-                        {rule.CapabilityNode.title} · min {rule.minScore}% · {rule.required ? "required" : "optional"}
+                        {rule.CapabilityNode.title} · min <strong className="font-semibold text-[var(--shell-ink)]">{rule.minScore}%</strong> · {rule.required ? "required" : "optional"}
                       </div>
                     ))}
                   </div>

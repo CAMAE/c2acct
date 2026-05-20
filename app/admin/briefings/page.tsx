@@ -53,7 +53,13 @@ export default async function AdminBriefingsPage() {
                   </div>
                 </div>
                 <div className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-                  Canonical firm score {item.canonicalFirmScore === null ? "--" : `${Math.round(item.canonicalFirmScore)}%`} · latest update{" "}
+                  Canonical firm score{" "}
+                  {item.canonicalFirmScore === null ? (
+                    "--"
+                  ) : (
+                    <strong className="font-semibold text-[var(--shell-ink)]">{Math.round(item.canonicalFirmScore)}%</strong>
+                  )}
+                  {" "}· latest update{" "}
                   {item.latestUpdatedAt ? item.latestUpdatedAt.toLocaleDateString() : "not yet available"}
                 </div>
               </Link>

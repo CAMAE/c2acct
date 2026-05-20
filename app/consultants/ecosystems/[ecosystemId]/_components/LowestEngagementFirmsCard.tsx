@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { EcosystemDetailData, EcosystemDetailFirmRow } from "@/lib/ecosystem";
 
 /**
@@ -48,11 +49,17 @@ function formatCompletion(pct: number | null): string {
   return `${Math.round(pct)}%`;
 }
 
-function suggestedGoal(row: EcosystemDetailFirmRow): string {
-  const current = row.moduleCompletionPercent === null
-    ? "0%"
-    : `${Math.round(row.moduleCompletionPercent)}%`;
-  return `Get ${row.firmCompanyName} from ${current} to ${GOAL_TARGET_PCT}% by ${GOAL_DUE_DATE}`;
+function suggestedGoal(row: EcosystemDetailFirmRow): ReactNode {
+  const currentPct = row.moduleCompletionPercent === null ? 0 : Math.round(row.moduleCompletionPercent);
+  return (
+    <>
+      Get {row.firmCompanyName} from{" "}
+      <strong className="font-semibold text-[var(--shell-ink)]">{currentPct}%</strong>
+      {" "}to{" "}
+      <strong className="font-semibold text-[var(--shell-ink)]">{GOAL_TARGET_PCT}%</strong>
+      {" "}by {GOAL_DUE_DATE}
+    </>
+  );
 }
 
 export default function LowestEngagementFirmsCard({
@@ -86,7 +93,7 @@ export default function LowestEngagementFirmsCard({
         </div>
       </div>
       <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-        The lowest-engaged quartile of the ecosystem. Each row carries a suggested goal you can carry into a follow-up — closing the gap to the {GOAL_TARGET_PCT}% completion line by {GOAL_DUE_DATE}.
+        The lowest-engaged quartile of the ecosystem. Each row carries a suggested goal you can carry into a follow-up — closing the gap to the <strong className="font-semibold text-[var(--shell-ink)]">{GOAL_TARGET_PCT}%</strong> completion line by {GOAL_DUE_DATE}.
       </p>
       <ol
         className="mt-4 divide-y divide-[var(--shell-border)]"

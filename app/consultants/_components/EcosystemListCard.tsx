@@ -44,9 +44,14 @@ function formatActions(count: number): string {
   return `${count} action${count === 1 ? "" : "s"}`;
 }
 
-function formatModuleRate(rate: number | null): string {
-  if (rate === null) return "-- modules";
-  return `${rate}% modules`;
+function ModuleRate({ rate }: { rate: number | null }) {
+  if (rate === null) return <>-- modules</>;
+  return (
+    <>
+      <strong className="font-semibold text-[var(--shell-ink)]">{rate}%</strong>
+      {" "}modules
+    </>
+  );
 }
 
 function formatAvgScore(score: number | null): string {
@@ -94,7 +99,7 @@ export default function EcosystemListCard({ data }: { data: EcosystemListCardDat
           />
         </div>
         <div className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-          {formatModuleRate(data.moduleCompletionRate)} · {formatActions(data.thirtyDayActionCount)}
+          <ModuleRate rate={data.moduleCompletionRate} /> · {formatActions(data.thirtyDayActionCount)}
         </div>
         <div className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
           {formatHotDivergences(data.activeDivergenceCount)}

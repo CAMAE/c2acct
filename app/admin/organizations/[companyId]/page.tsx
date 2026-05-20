@@ -215,7 +215,7 @@ export default async function AdminOrganizationDetailPage({
               <div key={submission.id} className="rounded-[18px] border border-[var(--shell-border)] bg-white/75 p-4">
                 <div className="font-semibold text-[var(--shell-ink)]">{submission.SurveyModule.title}</div>
                 <div className="mt-1 text-sm text-[var(--shell-muted)]">
-                  Raw score {submission.score}% · {submission.createdAt.toLocaleString()}
+                  Raw score <strong className="font-semibold text-[var(--shell-ink)]">{submission.score}%</strong> · {submission.createdAt.toLocaleString()}
                 </div>
               </div>
             ))}

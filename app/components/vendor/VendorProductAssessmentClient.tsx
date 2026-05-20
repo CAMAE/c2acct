@@ -335,7 +335,7 @@ export default function VendorProductAssessmentClient({
             Page: <span className="font-semibold text-[var(--shell-ink)]">{visibleCurrentPageIndex} / {totalPages}</span>
           </div>
           <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Progress: <span className="font-semibold text-[var(--shell-ink)]">{progress}%</span>
+            Progress: <strong className="font-semibold text-[var(--shell-ink)]">{progress}%</strong>
           </div>
         </div>
         <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
