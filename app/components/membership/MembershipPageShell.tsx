@@ -2,7 +2,9 @@
 
 import type { MembershipPlan, MembershipStatus } from "@prisma/client";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import MembershipComparisonTable from "@/app/components/membership/MembershipComparisonTable";
 import MembershipPlanPanel from "@/app/components/membership/MembershipPlanPanel";
+import MembershipTierGrid from "@/app/components/membership/MembershipTierGrid";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import PatModeToggle from "@/app/components/pat/PatModeToggle";
 import {
@@ -88,9 +90,13 @@ export default function MembershipPageShell({
         </div>
       </section>
 
+      <MembershipTierGrid model={model} />
+
       <section className="space-y-6" key={activeTab}>
         <MembershipPlanPanel model={model} />
       </section>
+
+      <MembershipComparisonTable model={model} />
     </div>
   );
 }

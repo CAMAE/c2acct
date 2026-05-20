@@ -173,4 +173,60 @@ describe("membership page contracts", () => {
   // model.panel.{what,liveNowNote,stagedNote,why} fields. The
   // /membership/checkout?plan=pro destination is preserved (still tested in
   // the checkout contract above).
+
+  // WS11-L: getMembershipPageModel now also returns tiers[] (FREE/PRO/ELITE
+  // tier cards for the hero grid) and comparisonTable[] (feature comparison
+  // rows grouped by category). These power MembershipTierGrid +
+  // MembershipComparisonTable in the membership page shell.
+  it("returns three tier cards in FREE/PRO/ELITE order with Pro recommended", () => {
+    const model = getMembershipPageModel({
+      audience: "vendor",
+      currentPlan: MEMBERSHIP_PLAN.FREE,
+    });
+
+    expect(model.tiers.map((t) => t.plan)).toEqual([
+      MEMBERSHIP_PLAN.FREE,
+      MEMBERSHIP_PLAN.PRO,
+      MEMBERSHIP_PLAN.ELITE,
+    ]);
+    expect(model.tiers.filter((t) => t.isRecommended).map((t) => t.plan)).toEqual([
+      MEMBERSHIP_PLAN.PRO,
+    ]);
+    expect(model.tiers.find((t) => t.plan === MEMBERSHIP_PLAN.FREE)?.isCurrent).toBe(true);
+    expect(model.tiers.find((t) => t.plan === MEMBERSHIP_PLAN.PRO)?.isCurrent).toBe(false);
+  });
+
+  it("marks the user's current plan with a disabled CTA on the tier grid", () => {
+    const model = getMembershipPageModel({
+      audience: "firm",
+      currentPlan: MEMBERSHIP_PLAN.PRO,
+    });
+    const proTier = model.tiers.find((t) => t.plan === MEMBERSHIP_PLAN.PRO);
+    const eliteTier = model.tiers.find((t) => t.plan === MEMBERSHIP_PLAN.ELITE);
+
+    expect(proTier?.isCurrent).toBe(true);
+    expect(proTier?.ctaLabel).toBe("Current plan");
+    expect(proTier?.ctaHref).toBeNull();
+    expect(eliteTier?.ctaHref).toBe("/firm/membership/checkout?plan=elite");
+    expect(eliteTier?.ctaLabel).toBe("Upgrade to Elite");
+  });
+
+  it("exposes a feature comparison table grouped by category with audience-specific rows", () => {
+    const vendorModel = getMembershipPageModel({
+      audience: "vendor",
+      currentPlan: MEMBERSHIP_PLAN.FREE,
+    });
+    const firmModel = getMembershipPageModel({
+      audience: "firm",
+      currentPlan: MEMBERSHIP_PLAN.FREE,
+    });
+
+    expect(vendorModel.comparisonTable.length).toBeGreaterThan(0);
+    expect(vendorModel.comparisonTable.length).toBeLessThanOrEqual(12);
+    expect(vendorModel.comparisonTable.some((r) => r.feature.toLowerCase().includes("product slots"))).toBe(true);
+    expect(firmModel.comparisonTable.some((r) => r.feature.toLowerCase().includes("vendor reviews"))).toBe(true);
+    const categories = new Set(vendorModel.comparisonTable.map((r) => r.category));
+    expect(categories.has("Core signal")).toBe(true);
+    expect(categories.has("Support")).toBe(true);
+  });
 });

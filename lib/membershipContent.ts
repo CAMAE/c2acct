@@ -26,6 +26,11 @@ type MembershipHelpCard = {
   body: string;
 };
 
+type TierSeedContent = {
+  tagline: string;
+  features: string[];
+};
+
 type MembershipAudienceContent = {
   eyebrow: string;
   title: string;
@@ -33,6 +38,31 @@ type MembershipAudienceContent = {
   plans: Record<MembershipPlan, PlanPanelContent>;
   meetPat: NarrativePanelContent;
   help: NarrativePanelContent;
+  tierSeed: Record<MembershipPlan, TierSeedContent>;
+  comparisonRows: MembershipComparisonRow[];
+};
+
+export type MembershipTierCardData = {
+  plan: MembershipPlan;
+  label: string;
+  priceDisplay: string;
+  cadence: string;
+  tagline: string;
+  features: string[];
+  ctaLabel: string;
+  ctaHref: string | null;
+  isCurrent: boolean;
+  isRecommended: boolean;
+};
+
+export type MembershipComparisonValue = string | boolean;
+
+export type MembershipComparisonRow = {
+  category: string;
+  feature: string;
+  freeValue: MembershipComparisonValue;
+  proValue: MembershipComparisonValue;
+  eliteValue: MembershipComparisonValue;
 };
 
 export type MembershipPageModel = {
@@ -44,6 +74,8 @@ export type MembershipPageModel = {
     title: string;
     body: string;
   };
+  tiers: [MembershipTierCardData, MembershipTierCardData, MembershipTierCardData];
+  comparisonTable: MembershipComparisonRow[];
   panel:
     | {
         kind: "plan";
@@ -146,6 +178,41 @@ function normalizeMembershipTabKey(
   return getDefaultMembershipTab(currentPlan);
 }
 
+const VENDOR_COMPARISON_ROWS: MembershipComparisonRow[] = [
+  { category: "Core signal", feature: "Vendor self-assessment", freeValue: true, proValue: true, eliteValue: true },
+  { category: "Core signal", feature: "Capability scoring", freeValue: "Baseline", proValue: "Full", eliteValue: "Full" },
+  { category: "Core signal", feature: "Hot-divergence alerts", freeValue: false, proValue: true, eliteValue: true },
+  { category: "Network access", feature: "Product slots", freeValue: "1", proValue: "5", eliteValue: "Unlimited" },
+  { category: "Network access", feature: "Firm review aggregation", freeValue: false, proValue: true, eliteValue: "Priority queue" },
+  { category: "Briefings", feature: "Brief depth", freeValue: "Public", proValue: "Full", eliteValue: "Custom schedule" },
+  { category: "Briefings", feature: "Action roadmap", freeValue: false, proValue: true, eliteValue: true },
+  { category: "Support", feature: "Email support", freeValue: true, proValue: true, eliteValue: true },
+  { category: "Support", feature: "Dedicated success manager", freeValue: false, proValue: false, eliteValue: true },
+];
+
+const FIRM_COMPARISON_ROWS: MembershipComparisonRow[] = [
+  { category: "Core signal", feature: "Firm self-assessment", freeValue: true, proValue: true, eliteValue: true },
+  { category: "Core signal", feature: "Capability scoring", freeValue: "Baseline", proValue: "Full", eliteValue: "Full" },
+  { category: "Core signal", feature: "Hot-divergence detection", freeValue: false, proValue: true, eliteValue: true },
+  { category: "Network access", feature: "Vendor reviews", freeValue: "1", proValue: "10", eliteValue: "Unlimited" },
+  { category: "Network access", feature: "Consultant collaboration", freeValue: false, proValue: false, eliteValue: true },
+  { category: "Briefings", feature: "Brief depth", freeValue: "Basic", proValue: "Full", eliteValue: "Audit-grade history" },
+  { category: "Briefings", feature: "Six-quarter roadmap", freeValue: false, proValue: true, eliteValue: true },
+  { category: "Briefings", feature: "Custom assessment templates", freeValue: false, proValue: false, eliteValue: true },
+  { category: "Support", feature: "Email support", freeValue: true, proValue: true, eliteValue: true },
+  { category: "Support", feature: "Dedicated success manager", freeValue: false, proValue: false, eliteValue: true },
+];
+
+const INDIVIDUAL_COMPARISON_ROWS: MembershipComparisonRow[] = [
+  { category: "Core signal", feature: "Personal alignment assessment", freeValue: true, proValue: true, eliteValue: true },
+  { category: "Core signal", feature: "Insight depth", freeValue: "Basic", proValue: "Full Pro Insights", eliteValue: "Priority queue" },
+  { category: "Briefings", feature: "Recommendation engine", freeValue: false, proValue: true, eliteValue: true },
+  { category: "Briefings", feature: "Quarterly progress tracking", freeValue: false, proValue: true, eliteValue: true },
+  { category: "Briefings", feature: "Personal scorecard archive", freeValue: false, proValue: false, eliteValue: true },
+  { category: "Support", feature: "Email support", freeValue: true, proValue: true, eliteValue: true },
+  { category: "Support", feature: "Coaching session credits", freeValue: false, proValue: false, eliteValue: true },
+];
+
 const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceContent> = {
   vendor: {
     eyebrow: "Vendor membership",
@@ -202,6 +269,38 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
         "Choose Elite only when you are intentionally staging advanced intelligence that is not yet fully live.",
       ],
     },
+    tierSeed: {
+      FREE: {
+        tagline: "Get on the map",
+        features: [
+          "Vendor self-assessment",
+          "1 product slot",
+          "Public catalog presence",
+          "Email support",
+        ],
+      },
+      PRO: {
+        tagline: "Run alignment cycles with your firms",
+        features: [
+          "Full vendor brief access",
+          "5 product slots",
+          "Firm review aggregation",
+          "Hot-divergence alerts",
+          "Action roadmap",
+        ],
+      },
+      ELITE: {
+        tagline: "Operate alignment at scale",
+        features: [
+          "Unlimited products",
+          "Multi-ecosystem participation",
+          "Priority firm reviews",
+          "Custom briefing schedule",
+          "Dedicated success manager",
+        ],
+      },
+    },
+    comparisonRows: VENDOR_COMPARISON_ROWS,
   },
   firm: {
     eyebrow: "Firm membership",
@@ -258,6 +357,38 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
         "Choose Elite only when you are deliberately preparing for a more advanced intelligence tier.",
       ],
     },
+    tierSeed: {
+      FREE: {
+        tagline: "Map your operating stack",
+        features: [
+          "Firm alignment assessment",
+          "Review up to 1 vendor",
+          "Basic firm brief",
+          "Email support",
+        ],
+      },
+      PRO: {
+        tagline: "Make procurement decisions with evidence",
+        features: [
+          "Review up to 10 vendors",
+          "Full firm brief",
+          "Six-quarter roadmap",
+          "Per-firm coverage matrix",
+          "Module deep-dives",
+        ],
+      },
+      ELITE: {
+        tagline: "Govern vendor alignment continuously",
+        features: [
+          "Unlimited vendor reviews",
+          "Consultant collaboration",
+          "Custom assessment templates",
+          "Audit-grade history",
+          "Dedicated success manager",
+        ],
+      },
+    },
+    comparisonRows: FIRM_COMPARISON_ROWS,
   },
   individual: {
     eyebrow: "Individual membership",
@@ -314,6 +445,33 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
         "Choose Elite only if you are intentionally staging a future premium path rather than expecting it to be fully live today.",
       ],
     },
+    tierSeed: {
+      FREE: {
+        tagline: "See where you stand",
+        features: [
+          "Personal alignment assessment",
+          "Basic insights",
+          "Email support",
+        ],
+      },
+      PRO: {
+        tagline: "Operate with clarity",
+        features: [
+          "Full Pro Insights catalog",
+          "Custom recommendation engine",
+          "Quarterly progress tracking",
+        ],
+      },
+      ELITE: {
+        tagline: "Compound your edge",
+        features: [
+          "Coaching session credits",
+          "Priority insight queue",
+          "Personal scorecard archive",
+        ],
+      },
+    },
+    comparisonRows: INDIVIDUAL_COMPARISON_ROWS,
   },
 };
 
@@ -638,6 +796,58 @@ function getMembershipHelpCards(
   ];
 }
 
+const MEMBERSHIP_TIER_ORDER: readonly MembershipPlan[] = [
+  MEMBERSHIP_PLAN.FREE,
+  MEMBERSHIP_PLAN.PRO,
+  MEMBERSHIP_PLAN.ELITE,
+];
+
+function buildMembershipTierCard(
+  audience: MembershipAudience,
+  plan: MembershipPlan,
+  currentPlan: MembershipPlan,
+  content: MembershipAudienceContent
+): MembershipTierCardData {
+  const seed = content.tierSeed[plan];
+  const isCurrent = plan === currentPlan;
+  const isRecommended = plan === MEMBERSHIP_PLAN.PRO;
+  let ctaLabel: string;
+  let ctaHref: string | null;
+  if (isCurrent) {
+    ctaLabel = "Current plan";
+    ctaHref = null;
+  } else if (plan === MEMBERSHIP_PLAN.FREE) {
+    ctaLabel = "Get started";
+    ctaHref = `${getMembershipPathPrefix(audience)}/membership?tab=pro`;
+  } else {
+    ctaLabel = `Upgrade to ${formatMembershipValue(plan)}`;
+    ctaHref = buildMembershipCheckoutHref(audience, plan);
+  }
+  return {
+    plan,
+    label: formatMembershipValue(plan),
+    priceDisplay: "$—",
+    cadence: "annual",
+    tagline: seed.tagline,
+    features: seed.features,
+    ctaLabel,
+    ctaHref,
+    isCurrent,
+    isRecommended,
+  };
+}
+
+function buildMembershipTiers(
+  audience: MembershipAudience,
+  currentPlan: MembershipPlan,
+  content: MembershipAudienceContent
+): [MembershipTierCardData, MembershipTierCardData, MembershipTierCardData] {
+  const [free, pro, elite] = MEMBERSHIP_TIER_ORDER.map((plan) =>
+    buildMembershipTierCard(audience, plan, currentPlan, content)
+  );
+  return [free, pro, elite];
+}
+
 export function getMembershipPageModel(input: {
   audience: MembershipAudience;
   currentPlan: MembershipPlan;
@@ -646,6 +856,8 @@ export function getMembershipPageModel(input: {
   const content = MEMBERSHIP_PAGE_CONTENT[input.audience];
   const currentPlan = normalizeMembershipPlan(input.currentPlan);
   const activeTab = normalizeMembershipTabKey(input.activeTab, currentPlan);
+  const tiers = buildMembershipTiers(input.audience, currentPlan, content);
+  const comparisonTable = content.comparisonRows;
 
   if (activeTab === "HELP") {
     return {
@@ -657,6 +869,8 @@ export function getMembershipPageModel(input: {
         title: content.title,
         body: content.body,
       },
+      tiers,
+      comparisonTable,
       panel: {
         kind: "help",
         title: content.help.title,
@@ -679,6 +893,8 @@ export function getMembershipPageModel(input: {
       title: content.title,
       body: content.body,
     },
+    tiers,
+    comparisonTable,
     panel: {
       kind: "plan",
       title: planContent.title,
