@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import InsightsModeShell from "@/app/components/insights/InsightsModeShell";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
-import { getConsultantAccessStateForUser } from "@/lib/consultantAccess";
+import { resolveVendorSurfaceAccess } from "@/lib/consultantAccess";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import {
@@ -39,9 +39,11 @@ export default async function VendorAlignmentInsightsPage({
     redirect("/sign-in/vendor");
   }
   // WS1-B (manual-review item 7): consultants bypass the vendor Pro gate.
-  const consultantAccess = await getConsultantAccessStateForUser(sessionUser);
+  // Block E (WS-PERF-TENANCY-AUDIT-001): routing folded into
+  // resolveVendorSurfaceAccess; see lib/consultantAccess.ts.
   const entitlement = await resolveMembershipEntitlement(sessionUser, "vendor", MEMBERSHIP_PLAN.PRO);
-  if (!consultantAccess && !entitlement.allowed) {
+  const access = await resolveVendorSurfaceAccess(sessionUser, entitlement);
+  if (access.kind === "denied") {
     return (
       <MembershipSurfaceGate
         audience="vendor"

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { buildCanonicalSignInPath } from "@/lib/auth/routes";
 import { getSessionUser, type SessionUser } from "@/lib/auth/session";
+import type { MembershipEntitlementSnapshot } from "@/lib/membership";
 import prisma from "@/lib/prisma";
 import {
   matchesPrismaMissingSchemaTarget,
@@ -160,6 +161,37 @@ export async function requireConsultantSession(callbackUrl = "/consultants") {
   }
 
   return getConsultantAccessStateForUser(sessionUser);
+}
+
+// Block E (WS-PERF-TENANCY-AUDIT-001, audit Should-Fix #1 + Opportunity #2):
+// consolidate the consultant-bypass-or-membership-gate pattern that ships in
+// three vendor surface routes (product-assessment, product-insight,
+// alignment-insights). Returns a discriminated union the call site can switch
+// on:
+//   - { kind: "consultant", consultantAccess } — consultant reviewer; bypass gate
+//   - { kind: "vendor-allowed", entitlement } — vendor with active entitlement
+//   - { kind: "denied", entitlement } — neither; render MembershipSurfaceGate
+//
+// Vendor pages call this helper instead of branching by hand so any future
+// audience-gating policy change is a one-file edit. The pre-resolved
+// entitlement is taken as input so the caller controls audience + requiredPlan.
+export type VendorSurfaceAccess =
+  | { kind: "consultant"; consultantAccess: ConsultantAccessState }
+  | { kind: "vendor-allowed"; entitlement: MembershipEntitlementSnapshot }
+  | { kind: "denied"; entitlement: MembershipEntitlementSnapshot };
+
+export async function resolveVendorSurfaceAccess(
+  sessionUser: SessionUser,
+  entitlement: MembershipEntitlementSnapshot
+): Promise<VendorSurfaceAccess> {
+  const consultantAccess = await getConsultantAccessStateForUser(sessionUser);
+  if (consultantAccess) {
+    return { kind: "consultant", consultantAccess };
+  }
+  if (entitlement.allowed) {
+    return { kind: "vendor-allowed", entitlement };
+  }
+  return { kind: "denied", entitlement };
 }
 
 export async function requireConsultantCompanyAccess(

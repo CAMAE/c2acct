@@ -10,7 +10,7 @@ import {
   replaceUtilityTermsForDisplay,
 } from "@/lib/displayCopy";
 import { getSessionUser } from "@/lib/auth/session";
-import { getConsultantAccessStateForUser } from "@/lib/consultantAccess";
+import { resolveVendorSurfaceAccess } from "@/lib/consultantAccess";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import prisma from "@/lib/prisma";
 import {
@@ -174,9 +174,11 @@ export default async function VendorProductAssessmentPage({
   // bypass the vendor membership gate. Membership entitlement is for
   // vendor-OWNED surfaces; consultants are read-only viewers across the
   // demo for tier-gated vendor content.
-  const consultantAccess = await getConsultantAccessStateForUser(sessionUser);
+  // Block E (WS-PERF-TENANCY-AUDIT-001): routing folded into
+  // resolveVendorSurfaceAccess; see lib/consultantAccess.ts.
   const entitlement = await resolveMembershipEntitlement(sessionUser, "vendor", MEMBERSHIP_PLAN.PRO);
-  if (!consultantAccess && !entitlement.allowed) {
+  const access = await resolveVendorSurfaceAccess(sessionUser, entitlement);
+  if (access.kind === "denied") {
     return (
       <MembershipSurfaceGate
         audience="vendor"
