@@ -159,9 +159,9 @@ export function ExecutiveSummaryCard({
         <div className="mt-6 flex flex-wrap gap-3 text-sm text-[var(--shell-muted)]">
           <span>
             Canonical firm score:{" "}
-            <span className="font-semibold text-[var(--shell-ink)]">
+            <strong className="font-semibold text-[var(--shell-ink)]">
               {formatPercent(briefing.executiveSummary.canonicalFirmScore)}
-            </span>
+            </strong>
           </span>
           <span>
             Confidence:{" "}
@@ -223,7 +223,7 @@ export function ModuleHeatmap({ modules }: { modules: BriefingModuleHeatmapItem[
               <div>
                 <div className="text-lg font-semibold text-[var(--shell-ink)]">{module.title}</div>
                 <div className="mt-1 text-sm text-[var(--shell-muted)]">
-                  Raw score {formatPercent(module.canonicalScore)} · confidence {formatConfidence(module.confidenceScore)} · {formatDate(module.latestSubmittedAt)}
+                  Raw score <strong className="font-semibold text-[var(--shell-ink)]">{formatPercent(module.canonicalScore)}</strong> · confidence {formatConfidence(module.confidenceScore)} · {formatDate(module.latestSubmittedAt)}
                 </div>
               </div>
             </div>
@@ -282,7 +282,7 @@ export function ProductStackSummary({
                   <div className="mt-1 text-sm text-[var(--shell-muted)]">{product.vendorName}</div>
                 </div>
                 <div className="text-right text-sm text-[var(--shell-muted)]">
-                  <div>Firm raw score {formatPercent(product.canonicalFirmReviewScore)}</div>
+                  <div>Firm raw score <strong className="font-semibold text-[var(--shell-ink)]">{formatPercent(product.canonicalFirmReviewScore)}</strong></div>
                   <div>{product.confidenceLabel}</div>
                 </div>
               </div>
@@ -357,7 +357,7 @@ export function ConfidenceEvidencePanel({
               <div>
                 <div className="text-lg font-semibold text-[var(--shell-ink)]">{entry.layer}</div>
                 <div className="mt-1 text-sm text-[var(--shell-muted)]">
-                  Sample {entry.sampleSize} · raw score {formatPercent(entry.canonicalScore)} · latest {formatDate(entry.latestUpdatedAt)}
+                  Sample {entry.sampleSize} · raw score <strong className="font-semibold text-[var(--shell-ink)]">{formatPercent(entry.canonicalScore)}</strong> · latest {formatDate(entry.latestUpdatedAt)}
                 </div>
               </div>
               <div className="rounded-full border border-[var(--shell-border)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--shell-ink)]">
@@ -521,9 +521,9 @@ export function ProductBriefingView({
           {briefing.narrative}
         </p>
         <div className="mt-6 flex flex-wrap gap-4 text-sm text-[var(--shell-muted)]">
-          <span>Firm raw score <span className="font-semibold text-[var(--shell-ink)]">{formatPercent(briefing.latestCompanyReview.canonicalScore)}</span></span>
+          <span>Firm raw score <strong className="font-semibold text-[var(--shell-ink)]">{formatPercent(briefing.latestCompanyReview.canonicalScore)}</strong></span>
           <span>Review confidence <span className="font-semibold text-[var(--shell-ink)]">{formatConfidence(briefing.latestCompanyReview.confidenceScore)}</span></span>
-          <span>Vendor self-report <span className="font-semibold text-[var(--shell-ink)]">{formatPercent(briefing.product.vendorSelfReportedScore)}</span></span>
+          <span>Vendor self-report <strong className="font-semibold text-[var(--shell-ink)]">{formatPercent(briefing.product.vendorSelfReportedScore)}</strong></span>
         </div>
       </section>
 
