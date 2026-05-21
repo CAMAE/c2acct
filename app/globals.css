@@ -43,6 +43,20 @@
   --radar-red: #c25441;
   --radar-deep-red: #8a2f24;
   --radar-no-signal: rgba(6, 54, 116, 0.18);
+  /* Block G (WS-DESIGN-TOKEN-002, audit Opportunity #4): promote heatmap
+     band colors from inline strings in PerFirmHeatmap.tsx to named tokens.
+     Behavior unchanged — values copied verbatim from the WS11-H Block B7
+     alpha-shifted ramp. The "unreviewed" band stays inline (dashed border
+     + white background, not a fill). */
+  --shell-heatmap-high-strong-bg: rgba(6, 54, 116, 0.62);
+  --shell-heatmap-high-strong-fg: #ffffff;
+  --shell-heatmap-high-bg: rgba(6, 54, 116, 0.32);
+  --shell-heatmap-high-fg: var(--shell-ink);
+  --shell-heatmap-mid-bg: rgba(160, 160, 160, 0.18);
+  --shell-heatmap-mid-fg: var(--shell-ink);
+  --shell-heatmap-low-bg: rgba(229, 109, 4, 0.16);
+  --shell-heatmap-low-fg: var(--brand-orange);
+  --shell-heatmap-low-border: rgba(229, 109, 4, 0.28);
   --shell-max-width: 84rem;
   --shell-gutter: clamp(1.1rem, 0.95rem + 0.9vw, 1.7rem);
   --shell-main-pad-y: clamp(2.1rem, 1.75rem + 1.05vw, 2.85rem);

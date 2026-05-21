@@ -3,11 +3,19 @@ import type { VendorBriefData, VendorBriefHeatmapBand } from "@/lib/briefs";
 // WS11-H Block B7: cap shifted from solid c2-blue to mid-blue. Even the
 // top band ("≥ 85") now sits at 0.62 alpha so white text stays legible
 // against projector contrast; ink text on lighter bands stays sharp.
+// Block G (WS-DESIGN-TOKEN-002, audit Opportunity #4): band class strings
+// now reference named --shell-heatmap-* tokens defined in app/globals.css.
+// Behavior unchanged from the WS11-H Block B7 ramp; only the indirection
+// is new so future palette tweaks happen in one place.
 const BAND_CELL_CLASSES: Record<VendorBriefHeatmapBand, string> = {
-  "high-strong": "bg-[rgba(6,54,116,0.62)] text-white",
-  high: "bg-[rgba(6,54,116,0.32)] text-[var(--shell-ink)]",
-  mid: "bg-[rgba(160,160,160,0.18)] text-[var(--shell-ink)] border border-[var(--shell-border)]",
-  low: "bg-[rgba(229,109,4,0.16)] text-[var(--brand-orange)] border border-[rgba(229,109,4,0.28)]",
+  "high-strong":
+    "bg-[var(--shell-heatmap-high-strong-bg)] text-[var(--shell-heatmap-high-strong-fg)]",
+  high:
+    "bg-[var(--shell-heatmap-high-bg)] text-[var(--shell-heatmap-high-fg)]",
+  mid:
+    "bg-[var(--shell-heatmap-mid-bg)] text-[var(--shell-heatmap-mid-fg)] border border-[var(--shell-border)]",
+  low:
+    "bg-[var(--shell-heatmap-low-bg)] text-[var(--shell-heatmap-low-fg)] border border-[var(--shell-heatmap-low-border)]",
   unreviewed: "bg-white text-[var(--shell-muted)] border border-dashed border-[var(--shell-border)]",
 };
 
