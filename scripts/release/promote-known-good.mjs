@@ -87,6 +87,28 @@ try {
   const current = readCurrentFingerprint();
   result.current = shortReleaseId(current);
 
+  // Block C (WS-LAUNCH-PREP-002, audit Hole #2): guard against LKG drift —
+  // the fingerprint's commitSha MUST match git HEAD at write time. If a
+  // developer runs release:promote-known-good with build artifacts that
+  // disagree with HEAD (e.g., the build was produced from a prior commit
+  // and a later commit landed without rebuilding), fail loud rather than
+  // silently writing a misleading LKG record. The fingerprint is the
+  // single source of truth shared with the runtime reader, so any
+  // mismatch is a real authoring drift that should halt the chain.
+  const headSha = execFileSync("git", ["rev-parse", "HEAD"], {
+    cwd: root,
+    encoding: "utf8",
+  }).trim();
+  if (current.commitSha && headSha !== current.commitSha) {
+    console.error(
+      `[promote-known-good] LKG write guard: fingerprint commitSha (${current.commitSha}) does not match git HEAD (${headSha}). Refusing to write a stale LKG record.`
+    );
+    result.ok = false;
+    result.error = `commitSha/HEAD mismatch: fingerprint=${current.commitSha} head=${headSha}`;
+    console.log(JSON.stringify(result, null, 2));
+    process.exit(1);
+  }
+
   const existing = readJsonOrNull(lastKnownGoodPath);
   result.previous = existing ? shortReleaseId(existing) : null;
 
