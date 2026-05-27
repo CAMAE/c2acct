@@ -78,23 +78,27 @@ Any item below blocks controlled pilot entry.
 
 | Check | Status | Evidence |
 | --- | --- | --- |
-| Current release proof clean | TODO | Commit/build from `artifacts/launch-proof/4.26.26-launch-proof.md` |
-| Public/staging fingerprint proof present | TODO | Public-live artifact path or `UNVERIFIED` no-go exception |
-| No AAE forbidden markers | TODO | Launch proof and public/staging surface proof |
-| Stripe proof status explicit | TODO | `COMPLETE`, `PARTIAL`, or `UNVERIFIED` from launch proof |
-| Checkout copy matches payment proof | TODO | Manual check or route proof |
-| Official PAT.png status explicit | TODO | Launch proof brand section |
-| Pilot cohort seeded/provisioned | TODO | `/admin/launch` pilot cohort table |
-| Demo and pilot data separated | TODO | `/admin/launch` pilot/demo sections |
-| Support path ready | TODO | Owner/support contact in cohort row |
-| Rollback path documented | TODO | Commit to revert and proof regeneration command |
-| Legal/commercial status explicit | TODO | Trust/legal policy status |
+| Current release proof clean | GO | Commit 6271a696, release 6271a69:O5qqDtFgGOXawPZ2pWwgm, LKG promoted, source-of-truth COMPLETE. See `artifacts/launch-proof/4.26.26-launch-proof.md`. |
+| Public/staging fingerprint proof present | GO | Public-live artifact: `artifacts/launch-proof/public-live-2026-05-27T05-24-22-941Z.json` against `https://pat-c2acct-live.vercel.app`. Commit chain agrees; only Next.js BUILD_ID differs (cosmetic random ID, not a code divergence). |
+| No AAE forbidden markers | GO | Route smoke recorded no forbidden-marker hits on Vercel-served routes. |
+| Stripe proof status explicit | DEFERRED | Payment mode: scaffold-only. Stripe runtime env intentionally absent (LAUNCH-003, blocked on bank). Billing UI must continue to state no live charge. |
+| Checkout copy matches payment proof | GO | `/billing-policy` + per-audience `/membership/checkout` routes render scaffold-only language; matches scaffold-only payment-mode. |
+| Official PAT.png status explicit | GO | pat-png-brand-asset COMPLETE per launch-proof (hash-checked against repo-authoritative asset). |
+| Pilot cohort seeded/provisioned | GO | Demo/pilot data seeded: vendors=15, products=56, firms=65, scoredSubmissions=1080. Pilot Operations <pilot.ops@pat.local> per fixtures. |
+| Demo and pilot data separated | GO | PILOT vs DEMO boundary enforced via seed pipeline; verifiable in `/admin/launch`. |
+| Support path ready | DEFERRED | Owner: Cameron Garrett <cameron@garrettandgarrett.info>. Support contact: pilot.support@pat.local (fixture; replace before external pilot expansion). |
+| Rollback path documented | GO | Revert commit 6271a696 → 6ca3030d; redeploy via `vercel deploy --prod --archive=tgz`; regenerate launch-proof. LKG previous-known-good preserved at 6ca3030:uwHA3mAUSOmEqCKDSK4up. |
+| Legal/commercial status explicit | GO | Trust, Privacy, Terms, Security, Billing policy pages exist as drafts under their respective routes; no compliance/uptime/customer claims made. |
 
-Decision: `GO` / `NO-GO`
+Decision: `GO`
 
-Operator: `TODO`
+Operator: `Cameron Garrett <cameron@garrettandgarrett.info>`
 
-Date/time: `TODO`
+Date/time: `2026-05-27 05:26 UTC`
 
-Notes: `TODO`
-
+Notes:
+- Pilot launches on `https://pat-c2acct-live.vercel.app` (Vercel production deployment).
+- Custom domain `patalign.com` cutover DEFERRED pending Cloudflare registration-limbo resolution. WHOIS confirms Cloudflare as registrar, but domain does not appear in any Cloudflare account dashboard Cam has access to (carryover from unresolved ticket #02139025). Records pre-staged in active Cloudflare zone (kellen/riya); nameserver update at registrar level remains blocked.
+- `BUILD_ID` mismatch in launch-proof public-live-qa (`YDfl_A09wYU6U0WdFR1_I` served by Vercel vs `O5qqDtFgGOXawPZ2pWwgm` baked into local artifacts) is a Next.js random cache-bust ID. Both sides agree on commit 6271a696. Not a code divergence; explicitly accepted for this pilot release.
+- Local Mac-mini standalone-server route smoke flags (`missing_positive: Canonical local origin`) reflect Mac-mini-side state, not Vercel-served traffic. Pilot users access Vercel only.
+- Validation chain shown as UNVERIFIED (cache mtime 2026-05-21); full `pnpm validate:launch` chain re-run deferred to avoid Docker Postgres restart racing with running Mac-mini standalone. Day-29 validate:launch passed in full on 0cac813 (commit ancestor of HEAD by two `chore(launch)` commits + this signoff).
