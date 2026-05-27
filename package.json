@@ -46,6 +46,8 @@
     "check:repo": "pnpm lint:repo && pnpm typecheck && pnpm build",
     "validate:db": "node --import tsx scripts/validate-db.ts",
     "validate:launch": "node --import tsx scripts/validate-launch.ts",
+    "agent:run": "node --import tsx scripts/agents/run-agent.ts",
+    "agent:eval:qa-smoke": "node --import tsx scripts/agents/eval/qa-smoke.ts",
     "standalone:local": "node --import tsx scripts/local-standalone.ts",
     "standalone:local:check": "node --import tsx scripts/local-standalone.ts --check",
     "smoke:score-unlock-contract": "node --import tsx scripts/smoke-score-unlock-contract.ts",

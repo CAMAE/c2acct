@@ -197,7 +197,7 @@ function createRunContext(
     ...hookCtx,
     trigger: input.trigger,
     async useTool<T>(toolName: string, toolArgs: ToolArgs, exec: (args: ToolArgs) => Promise<T>): Promise<T> {
-      const allowed = await canUseTool(hookCtx, toolName);
+      const allowed = await canUseTool(hookCtx, toolName, toolArgs);
       if (!allowed) {
         throw new AgentError("tool_not_allowed", `Tool "${toolName}" is not in ${config.key}'s allowlist.`);
       }

@@ -1,0 +1,60 @@
+key: qa-smoke
+name: QA + Smoke Agent
+description: Hourly health checks on production. Alerts on drift.
+vertical_id: accounting          # default vertical for Phase 1; will become per-tenant later
+enabled: true
+
+# Cadence
+schedule:
+  type: cron
+  expression: "0 * * * *"        # top of every hour
+  jitter_seconds: 60             # randomize start by up to 60s
+
+# Model routing (Phase 1a is deterministic; routing reserved for future triage)
+model:
+  default: claude-sonnet-4-6
+  triage: claude-haiku-4-5       # routing decisions
+  deep: null                     # not needed for QA
+
+# Hard caps (enforced by lib/agents/budget.ts)
+limits:
+  max_turns: 12
+  max_budget_usd: 0.25
+  max_runtime_seconds: 180
+  circuit_breaker:
+    consecutive_failures: 3
+    cooldown_minutes: 30
+
+# Tools available (server names + per-tool allowlists). http_fetch allow entries
+# are "<VERB> <url-glob>" — enforced by the can_use_tool allowlist hook, which is
+# what keeps this agent strictly read-only on production.
+tools:
+  - server: http_fetch
+    allow:
+      - GET https://pat-c2acct-live.vercel.app/*
+      - GET https://patalign.com/*
+  - server: neon
+    allow:
+      - read                     # NO write access for QA
+    scope:
+      tables:
+        - AgentRun
+        - AgentAuditLogEntry
+  - server: telegram
+    allow:
+      - send_message
+  - server: vercel
+    allow:
+      - list_deployments
+      - get_deployment_status
+
+# Hooks
+hooks:
+  pre_tool_use:
+    - audit                      # always log
+    - budget_check               # enforce limits
+  post_tool_use:
+    - audit
+    - cost_track
+  can_use_tool:
+    - allowlist                  # only tools in `tools:` allowed

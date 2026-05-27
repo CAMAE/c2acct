@@ -1,0 +1,20 @@
+name: fingerprint-missing
+description: /api/release-fingerprint 200 + ok:true but no fingerprint in body. Drift — fingerprint missing.
+expected_commit: "6271a69"
+github_button_allowed: false
+probes:
+  - route: sign-in
+    status: 200
+    github_button_present: false
+  - route: health-db
+    status: 200
+    ok: true
+  - route: release-fingerprint
+    status: 200
+    ok: true
+    fingerprint_present: false
+expect:
+  drift: true
+  should_alert: true
+  findings:
+    - fingerprint_missing

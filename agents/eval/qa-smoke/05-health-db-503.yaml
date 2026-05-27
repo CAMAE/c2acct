@@ -1,0 +1,22 @@
+name: health-db-503
+description: /api/health/db returns 503. Drift — DB health bad status.
+expected_commit: "6271a69"
+github_button_allowed: false
+probes:
+  - route: sign-in
+    status: 200
+    github_button_present: false
+  - route: health-db
+    status: 503
+    ok: false
+  - route: release-fingerprint
+    status: 200
+    ok: true
+    fingerprint_present: true
+    commit_short: "6271a69"
+    release_header_matches: true
+expect:
+  drift: true
+  should_alert: true
+  findings:
+    - health_db_bad_status

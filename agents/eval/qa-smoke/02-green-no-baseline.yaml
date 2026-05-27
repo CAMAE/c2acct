@@ -1,0 +1,21 @@
+name: green-no-baseline
+description: First run, no baseline commit yet. Routes healthy; commit check skipped. No drift.
+expected_commit: null
+github_button_allowed: false
+probes:
+  - route: sign-in
+    status: 200
+    github_button_present: false
+  - route: health-db
+    status: 200
+    ok: true
+  - route: release-fingerprint
+    status: 200
+    ok: true
+    fingerprint_present: true
+    commit_short: "6271a69"
+    release_header_matches: true
+expect:
+  drift: false
+  should_alert: false
+  findings: []

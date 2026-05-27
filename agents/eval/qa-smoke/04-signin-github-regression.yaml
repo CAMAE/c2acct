@@ -1,0 +1,22 @@
+name: signin-github-regression
+description: /sign-in 200 but a GitHub OAuth button is present (LAUNCH-002 not shipped). Drift — regression.
+expected_commit: "6271a69"
+github_button_allowed: false
+probes:
+  - route: sign-in
+    status: 200
+    github_button_present: true
+  - route: health-db
+    status: 200
+    ok: true
+  - route: release-fingerprint
+    status: 200
+    ok: true
+    fingerprint_present: true
+    commit_short: "6271a69"
+    release_header_matches: true
+expect:
+  drift: true
+  should_alert: true
+  findings:
+    - signin_github_button_regression

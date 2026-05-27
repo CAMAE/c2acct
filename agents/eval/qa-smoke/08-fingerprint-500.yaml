@@ -1,0 +1,20 @@
+name: fingerprint-500
+description: /api/release-fingerprint returns 500. Drift — fingerprint bad status.
+expected_commit: "6271a69"
+github_button_allowed: false
+probes:
+  - route: sign-in
+    status: 200
+    github_button_present: false
+  - route: health-db
+    status: 200
+    ok: true
+  - route: release-fingerprint
+    status: 500
+    ok: false
+    fingerprint_present: false
+expect:
+  drift: true
+  should_alert: true
+  findings:
+    - fingerprint_bad_status

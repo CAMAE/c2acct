@@ -1,0 +1,22 @@
+name: fingerprint-commit-mismatch
+description: /api/release-fingerprint healthy but live commit != expected baseline. Drift — commit mismatch.
+expected_commit: "6271a69"
+github_button_allowed: false
+probes:
+  - route: sign-in
+    status: 200
+    github_button_present: false
+  - route: health-db
+    status: 200
+    ok: true
+  - route: release-fingerprint
+    status: 200
+    ok: true
+    fingerprint_present: true
+    commit_short: "deadbee"
+    release_header_matches: true
+expect:
+  drift: true
+  should_alert: true
+  findings:
+    - fingerprint_commit_mismatch

@@ -92,11 +92,16 @@ export async function loadAgentConfigs(dir: string): Promise<AgentConfig[]> {
 
 /**
  * Allowlist check for the `can_use_tool` hook. Tool names are `<server>.<action>`
- * (e.g. "noop.log", "telegram.send_message"). Phase 0 matches on server + action
- * membership; per-tool argument matching (HTTP verb/URL globs, table scopes) is
- * layered on in Phase 1 alongside the real MCP tool wiring.
+ * (e.g. "noop.log", "telegram.send_message"). When `toolArgs` are supplied the
+ * check is argument-aware (Phase 1):
+ *   - `http_fetch`: the allow entries are `"<VERB> <url-glob>"` (e.g.
+ *     "GET https://pat-c2acct-live.vercel.app/*"); the candidate `<method> <url>`
+ *     must match one of them. This is what keeps QA read-only on production.
+ *   - `neon`: when `tools[].scope.tables` is declared and the call names a
+ *     `table`, that table must be in scope.
+ * Without args, it falls back to server + action membership (e.g. "noop.log").
  */
-export function isToolAllowed(config: AgentConfig, toolName: string): boolean {
+export function isToolAllowed(config: AgentConfig, toolName: string, toolArgs?: unknown): boolean {
   const separator = toolName.indexOf(".");
   const server = separator === -1 ? toolName : toolName.slice(0, separator);
   const action = separator === -1 ? "" : toolName.slice(separator + 1);
@@ -107,8 +112,34 @@ export function isToolAllowed(config: AgentConfig, toolName: string): boolean {
   if (entry.allow.includes("*")) {
     return true;
   }
+
+  const args = (toolArgs ?? {}) as Record<string, unknown>;
+
+  if (server === "http_fetch") {
+    const method = String(args.method ?? "GET").toUpperCase();
+    const url = typeof args.url === "string" ? args.url : "";
+    if (!url) {
+      return false;
+    }
+    const candidate = `${method} ${url}`;
+    return entry.allow.some((pattern) => globToRegExp(pattern).test(candidate));
+  }
+
+  if (server === "neon" && args.table !== undefined) {
+    const tables = entry.scope?.tables;
+    if (Array.isArray(tables) && !tables.map(String).includes(String(args.table))) {
+      return false;
+    }
+  }
+
   if (action === "") {
     return entry.allow.length > 0;
   }
   return entry.allow.includes(action);
+}
+
+/** Compile a glob (only `*` is special) into an anchored RegExp. */
+function globToRegExp(glob: string): RegExp {
+  const escaped = glob.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*");
+  return new RegExp(`^${escaped}$`);
 }

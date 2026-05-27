@@ -59,14 +59,18 @@ export async function preToolUse(
   return { block: false };
 }
 
-/** canUseTool — allowlist gate. Tools not declared in the config are blocked. */
-export async function canUseTool(ctx: HookCtx, toolName: string): Promise<boolean> {
-  if (!isToolAllowed(ctx.config, toolName)) {
+/**
+ * canUseTool — allowlist gate. Tools not declared in the config are blocked.
+ * `toolArgs` enable argument-aware matching (HTTP verb/URL globs, neon table
+ * scope); see isToolAllowed.
+ */
+export async function canUseTool(ctx: HookCtx, toolName: string, toolArgs?: ToolArgs): Promise<boolean> {
+  if (!isToolAllowed(ctx.config, toolName, toolArgs)) {
     await auditLog({
       runId: ctx.runId,
       agentKey: ctx.agentKey,
       hookPhase: "can_use_tool",
-      payload: { toolName },
+      payload: { toolName, toolArgs: toolArgs ?? null },
       outcome: "blocked",
     });
     return false;
