@@ -1077,7 +1077,7 @@ export async function updateInsightAction(formData: FormData) {
   const body = getString(formData, "body");
   const tier = getNumber(formData, "tier", 1);
   const active = getBoolean(formData, "active");
-  const returnTo = getReturnTo(formData, "/admin/insights");
+  const returnTo = getReturnTo(formData, "/admin/insights/rules");
   if (!insightId || !title || !body) {
     redirect(returnTo);
   }
@@ -1111,7 +1111,7 @@ export async function upsertInsightCapabilityRuleAction(formData: FormData) {
   const nodeId = getString(formData, "nodeId");
   const minScore = getNumber(formData, "minScore", 0);
   const required = getBoolean(formData, "required");
-  const returnTo = getReturnTo(formData, "/admin/insights");
+  const returnTo = getReturnTo(formData, "/admin/insights/rules");
   if (!insightId || !nodeId) {
     redirect(returnTo);
   }
@@ -1155,7 +1155,7 @@ export async function upsertInsightUnlockRuleAction(formData: FormData) {
   const insightId = getString(formData, "insightId");
   const badgeId = getString(formData, "badgeId");
   const required = getBoolean(formData, "required");
-  const returnTo = getReturnTo(formData, "/admin/insights");
+  const returnTo = getReturnTo(formData, "/admin/insights/rules");
   if (!insightId || !badgeId) {
     redirect(returnTo);
   }

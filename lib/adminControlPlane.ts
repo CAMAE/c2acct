@@ -18,24 +18,24 @@ import { isConsultantAccessEnabled } from "@/lib/consultantAccess";
 import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
 import { getPatDiagnosticsSnapshot } from "@/lib/patDiagnostics";
 
+// Phase 1e: /admin is now the agent ops console. Legacy operator surfaces
+// (organizations, users, taxonomy, modules, products, briefings, insight rules,
+// consultants) are preserved and reachable from the operator hub at
+// /admin/insights — they are no longer in the primary nav.
 export const ADMIN_NAV_ITEMS = [
-  { href: "/admin", label: "Overview" },
-  { href: "/admin/launch", label: "Launch" },
-  { href: "/admin/organizations", label: "Organizations" },
-  { href: "/admin/users", label: "Users" },
-  { href: "/admin/consultants", label: "Consultants" },
-  { href: "/admin/taxonomy", label: "Taxonomy" },
-  { href: "/admin/modules", label: "Modules" },
+  { href: "/admin", label: "Agents" },
+  { href: "/admin/approvals", label: "Approvals" },
+  { href: "/admin/runs", label: "Runs" },
+  { href: "/admin/audit", label: "Audit" },
   { href: "/admin/insights", label: "Insights" },
-  { href: "/admin/products", label: "Products" },
-  { href: "/admin/briefings", label: "Briefings" },
+  { href: "/admin/launch", label: "Launch" },
   { href: "/admin/runtime", label: "Runtime" },
 ] as const;
 
 export function getAdminNavItems() {
-  return isConsultantAccessEnabled()
-    ? ADMIN_NAV_ITEMS
-    : ADMIN_NAV_ITEMS.filter((item) => item.href !== "/admin/consultants");
+  // Legacy operator surfaces (incl. consultants) are reached from the /admin/insights
+  // hub now, not the primary nav, so the nav is the same regardless of the flag.
+  return ADMIN_NAV_ITEMS;
 }
 
 export const COMPANY_TYPE_OPTIONS = [CompanyType.FIRM, CompanyType.VENDOR] as const;

@@ -1,224 +1,124 @@
 import Link from "next/link";
-import {
-  AdminActionLink,
-  AdminMetricCard,
-  AdminPageIntro,
-  AdminPanel,
-} from "@/app/components/admin/AdminShell";
-import {
-  buildOperatorBriefings,
-  getAdminOverviewData,
-} from "@/lib/adminControlPlane";
+import { getAgentsOverview, getHealthBanner, getPendingApprovals } from "@/lib/agents/adminConsole";
+import { signApproval } from "@/ops/telegram-bot/hmac";
+import { Sparkline, StatusBadge, StatusDot, relativeTime, untilTime } from "@/app/components/agents/AgentVisuals";
+import CommandBar from "@/app/components/agents/CommandBar";
+import ApprovalActions from "@/app/components/agents/ApprovalActions";
+import LiveActionStream from "@/app/components/agents/LiveActionStream";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminOverviewPage() {
-  const overview = await getAdminOverviewData();
-  const latestSubmitStatus =
-    overview.diagnosticsSnapshot.latestByArea.get("survey_submit")?.status ?? null;
-  const briefings = buildOperatorBriefings({
-    canonicalModules: overview.canonicalModules,
-    recentAuditCount: overview.auditEvents.length,
-    latestSubmitStatus,
-  });
+const CARD = "rounded-2xl border border-[var(--shell-border)] bg-white/50 p-4";
+
+export default async function AdminAgentDashboard() {
+  const [banner, agents, approvals] = await Promise.all([
+    getHealthBanner(),
+    getAgentsOverview(),
+    getPendingApprovals(),
+  ]);
+  const topApprovals = approvals.slice(0, 5);
 
   return (
-    <div className="space-y-8">
-      <AdminPageIntro
-        title="C2Core operator control plane"
-        description={`Use this overview to move into the live operator work areas: organizations, users${overview.consultantAccessEnabled ? ", consultants" : ""}, taxonomy, modules, insights, products, briefings, and runtime controls. This remains the canonical admin surface for PAT.`}
-      />
-
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-        <AdminMetricCard
-          label="Organizations"
-          value={String(overview.metrics.organizations)}
-          detail="Companies under operator oversight"
-        />
-        <AdminMetricCard
-          label="Users"
-          value={String(overview.metrics.users)}
-          detail="Accounts across PAT audiences"
-        />
-        {overview.consultantAccessEnabled ? (
-          <AdminMetricCard
-            label="Consultants"
-            value={String(overview.metrics.consultants)}
-            detail="Active consultant profiles with scoped briefing access"
-          />
-        ) : null}
-        <AdminMetricCard
-          label="Products"
-          value={String(overview.metrics.products)}
-          detail="Vendor and firm-linked product records"
-        />
-        <AdminMetricCard
-          label="Modules / Sections"
-          value={`${overview.metrics.modules} / ${overview.metrics.sections}`}
-          detail="Assessment runtime structure"
-        />
-        <AdminMetricCard
-          label="Insights / Memberships"
-          value={`${overview.metrics.insights} / ${overview.metrics.memberships}`}
-          detail="Insight inventory and active membership rows"
-        />
+    <div className="space-y-6">
+      {/* Global status banner */}
+      <section className={CARD}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">Agent ops</h1>
+          <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--shell-muted)]">
+            <span className="inline-flex items-center gap-2">
+              <span className="inline-block h-2.5 w-2.5 rounded-full bg-green-500" />
+              {banner.healthy}/{banner.enabled} enabled healthy
+            </span>
+            <span>{banner.pendingApprovals} approvals pending</span>
+            <span>
+              last event: {banner.lastEventSummary ?? "—"} ({relativeTime(banner.lastEventAt)})
+            </span>
+          </div>
+        </div>
       </section>
 
-      <AdminPanel
-        title="Operator work areas"
-        description="Each route below is data-backed and focused on a specific operator responsibility."
-      >
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <AdminActionLink
-            href="/admin/launch"
-            title="Launch control"
-            body="Launch health, customer and membership state, billing reconciliation, demo readiness, local review state, and release identity."
-          />
-          <AdminActionLink
-            href="/admin/organizations"
-            title="Organizations"
-            body="Company oversight, company-backed membership controls, linked users, and product context."
-          />
-          <AdminActionLink
-            href="/admin/users"
-            title="Users"
-            body="Role assignment, company linkage, and pilot account controls."
-          />
-          {overview.consultantAccessEnabled ? (
-            <AdminActionLink
-              href="/admin/consultants"
-              title="Consultants"
-              body="Consultant roster, assigned firm scopes, and briefing access management without changing PAT audience roles."
-            />
-          ) : null}
-          <AdminActionLink
-            href="/admin/taxonomy"
-            title="Taxonomy"
-            body="Category and subcategory management, plus bucket-to-capability mappings."
-          />
-          <AdminActionLink
-            href="/admin/modules"
-            title="Modules"
-            body="Module, section, question, and assessment mapping management."
-          />
-          <AdminActionLink
-            href="/admin/insights"
-            title="Insights"
-            body="Insight text, unlock rules, capability thresholds, and visibility state."
-          />
-          <AdminActionLink
-            href="/admin/products"
-            title="Products"
-            body="Product oversight, taxonomy assignments, and capability mappings."
-          />
-          <AdminActionLink
-            href="/admin/briefings"
-            title="Briefings"
-            body="Operator-ready summaries of readiness gaps, audit activity, and recent pipeline state."
-          />
-          <AdminActionLink
-            href="/admin/runtime"
-            title="Runtime"
-            body="Portal visibility, runtime consistency, diagnostics, and recent audit events."
-          />
-        </div>
-      </AdminPanel>
+      {/* Command bar */}
+      <CommandBar />
 
-      <AdminPanel
-        title="Canonical PAT firm runtime"
-        description="The five-module firm model remains the canonical assessment runtime."
-      >
-        <div className="grid gap-4">
-          {overview.canonicalModules.map((module) => (
-            <div
-              key={module.key}
-              className="rounded-[20px] border border-[var(--shell-border)] bg-white/80 p-5"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <div className="text-lg font-semibold text-[var(--shell-ink)]">
-                    {module.title}
-                  </div>
-                  <div className="mt-1 text-sm text-[var(--shell-muted)]">{module.key}</div>
-                </div>
-                <div className="rounded-full border border-[var(--shell-border)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
-                  {module.active ? "Active" : "Inactive"}
-                </div>
-              </div>
-              <div className="mt-4 flex flex-wrap gap-3 text-sm text-[var(--shell-muted)]">
-                <span>{module._count.SurveyQuestion} questions</span>
-                <span>{module._count.SurveySection} sections</span>
-                <span>{module._count.SurveySubmission} submissions</span>
-              </div>
-            </div>
-          ))}
+      {/* Pending approvals */}
+      <section className={CARD}>
+        <div className="mb-3 text-sm font-semibold text-[var(--shell-ink)]">
+          Pending approvals ({approvals.length})
         </div>
-      </AdminPanel>
-
-      <AdminPanel
-        title="Operator briefings"
-        description="Short summaries built from live admin data, not placeholder prose."
-      >
-        <div className="grid gap-4 md:grid-cols-3">
-          {briefings.map((briefing) => (
-            <div
-              key={briefing.key}
-              className="rounded-[20px] border border-[var(--shell-border)] bg-white/80 p-5"
-            >
-              <div className="text-lg font-semibold text-[var(--shell-ink)]">
-                {briefing.title}
-              </div>
-              <div className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-                {briefing.summary}
-              </div>
-            </div>
-          ))}
-        </div>
-      </AdminPanel>
-
-      <AdminPanel
-        title="Recent operator audit activity"
-        description="Recent admin mutations recorded in the operator audit feed."
-      >
-        <div className="grid gap-3">
-          {overview.auditEvents.length > 0 ? (
-            overview.auditEvents.map((event) => (
+        {topApprovals.length === 0 ? (
+          <div className="text-sm text-[var(--shell-muted)]">No approvals pending.</div>
+        ) : (
+          <div className="grid gap-3">
+            {topApprovals.map((approval) => (
               <div
-                key={event.id}
-                className="rounded-[18px] border border-[var(--shell-border)] bg-white/75 p-4"
+                key={approval.id}
+                className="rounded-xl border border-amber-200 bg-amber-50/40 p-4"
               >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <div className="font-semibold text-[var(--shell-ink)]">
-                      {event.summary}
-                    </div>
-                    <div className="mt-1 text-sm text-[var(--shell-muted)]">
-                      {event.action} · {event.entityType} · {event.Actor?.email ?? "Unknown operator"}
-                    </div>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="font-semibold text-[var(--shell-ink)]">
+                    {approval.agentKey} — {approval.proposedAction}
                   </div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
-                    {event.createdAt.toLocaleString()}
+                  <div className="text-xs uppercase tracking-[0.14em] text-[var(--shell-muted)]">
+                    {approval.blastRadius ?? "?"} · {relativeTime(approval.createdAt)}
                   </div>
                 </div>
+                <pre className="mt-2 overflow-auto rounded-lg bg-white/60 p-2 text-xs text-[var(--shell-muted)]">
+                  {JSON.stringify(approval.proposedArgs, null, 2)}
+                </pre>
+                <ApprovalActions
+                  id={approval.id}
+                  hmac={signApproval(approval.id, new Date(approval.createdAt).getTime())}
+                />
               </div>
-            ))
-          ) : (
-            <div className="rounded-[18px] border border-[var(--shell-border)] bg-white/75 p-4 text-sm text-[var(--shell-muted)]">
-              No operator audit events have been recorded yet.
-            </div>
-          )}
-        </div>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Link className="pat-button-secondary" href="/admin/runtime">
-            Open runtime and audit feed
+            ))}
+          </div>
+        )}
+        <div className="mt-3">
+          <Link className="text-sm text-[var(--shell-ink)] underline" href="/admin/approvals">
+            View all approvals →
           </Link>
-          {overview.consultantAccessEnabled ? (
-            <Link className="pat-button-secondary" href="/admin/consultants">
-              Open consultant management
-            </Link>
-          ) : null}
         </div>
-      </AdminPanel>
+      </section>
+
+      {/* Agent grid */}
+      <section>
+        <div className="mb-3 text-sm font-semibold text-[var(--shell-ink)]">Agents</div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {agents.map((agent) => (
+            <Link key={agent.key} href={`/admin/agents/${agent.key}`} className={`${CARD} block hover:bg-white/70`}>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <StatusDot health={agent.health} />
+                  <span className="font-semibold text-[var(--shell-ink)]">{agent.key}</span>
+                </div>
+                <span className="text-xs uppercase tracking-[0.14em] text-[var(--shell-muted)]">
+                  {agent.enabled ? agent.health : "disabled"}
+                </span>
+              </div>
+              <div className="mt-3 flex items-center justify-between gap-2">
+                <div className="text-sm text-[var(--shell-muted)]">
+                  {agent.runs24h} runs / 24h
+                  {agent.pendingApprovals > 0 ? ` · ${agent.pendingApprovals} pending` : ""}
+                </div>
+                <Sparkline data={agent.sparkline} />
+              </div>
+              <div className="mt-2 flex items-center justify-between gap-2 text-xs text-[var(--shell-muted)]">
+                <span>
+                  last: {agent.lastRunStatus ? <StatusBadge status={agent.lastRunStatus} /> : "never"}{" "}
+                  {agent.lastRunAt ? `· ${relativeTime(agent.lastRunAt)}` : ""}
+                </span>
+                <span>next: {agent.nextScheduled ? untilTime(agent.nextScheduled) : agent.scheduleLabel}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Recent activity (live) */}
+      <section>
+        <div className="mb-3 text-sm font-semibold text-[var(--shell-ink)]">Recent activity</div>
+        <LiveActionStream agentKey="_all" />
+      </section>
     </div>
   );
 }
