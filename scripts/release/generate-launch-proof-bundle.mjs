@@ -8,7 +8,7 @@ import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
 import { pathToFileURL } from "node:url";
 import { runSourceIntegrityValidation } from "./validate-source-integrity.mjs";
-import { runPatSurfaceValidation } from "./validate-pat-surfaces.mjs";
+import { loadManifest, runPatSurfaceValidation } from "./validate-pat-surfaces.mjs";
 
 export const LAUNCH_PROOF_STATUSES = Object.freeze([
   "COMPLETE",
