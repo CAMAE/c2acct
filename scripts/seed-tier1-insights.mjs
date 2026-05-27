@@ -7,10 +7,10 @@ async function main() {
   const now = new Date();
 
   const tier1 = [
-    { key: "tier1_alignment_baseline", title: "Alignment Baseline", body: "Where the firm is now, in practical terms." },
-    { key: "tier1_operating_system_map", title: "Operating System Map", body: "A map of how work actually flows today." },
-    { key: "tier1_risk_control_posture", title: "Risk & Control Posture", body: "Top risk/control gaps implied by your answers." },
-    { key: "tier1_implementation_roadmap", title: "Implementation Roadmap", body: "A phased plan to increase alignment." },
+    { key: "tier1_alignment_baseline", title: "Alignment Baseline", body: "Where the firm is now, in practical operating terms." },
+    { key: "tier1_operating_system_map", title: "Operating System Map", body: "How work moves through the firm today and where operating friction concentrates." },
+    { key: "tier1_risk_control_posture", title: "Risk & Control Posture", body: "The control posture implied by the current operating discipline and score pattern." },
+    { key: "tier1_implementation_roadmap", title: "Implementation Roadmap", body: "The next practical steps to move from baseline alignment to institutional repeatability." },
   ];
 
   for (const it of tier1) {

@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "comment": "Day-13 demo benchmark: 4 accounting-software vendors with deliberate archetype + coverage spread. utilityKeys reference top-level keys in lib/productUtilityRegistry.ts:PRODUCT_UTILITY_REGISTRY (the vocabulary that getVendorProductInsightCatalog's completion predicate validates against). Coverage spans 4-7 of 14 function buckets per vendor; bucket attribution is derived from each registry utility's taxonomyBucketKeys field by lib/ecosystem.ts:vendorCoverageMapForVendor (so 'utility -> function bucket' mapping stays a single-source-of-truth at the registry, not duplicated in the curated bank).",
+  "vendors": [
+    {
+      "id": "demo-bench-vendor-sentinel",
+      "name": "Sentinel Practice Cloud",
+      "tagline": "End-to-end practice operations for the modern firm",
+      "archetype": "large-incumbent",
+      "products": [
+        {
+          "id": "demo-bench-product-sentinel-practice",
+          "name": "Sentinel Practice",
+          "utilityKeys": ["workflow_practice_operations_task_routing"],
+          "selfReportedScoreSeed": 78,
+          "narrativeTone": "confident"
+        },
+        {
+          "id": "demo-bench-product-sentinel-tax",
+          "name": "Sentinel Tax",
+          "utilityKeys": ["tax_workflow_compliance"],
+          "selfReportedScoreSeed": 82,
+          "narrativeTone": "confident"
+        },
+        {
+          "id": "demo-bench-product-sentinel-cas",
+          "name": "Sentinel CAS",
+          "utilityKeys": ["close_reconciliation_consolidation", "ar_billing_collections"],
+          "selfReportedScoreSeed": 71,
+          "narrativeTone": "measured"
+        },
+        {
+          "id": "demo-bench-product-sentinel-clientportal",
+          "name": "Sentinel Client Portal",
+          "utilityKeys": ["client_collaboration_portal_requests", "document_capture_management_esignature"],
+          "selfReportedScoreSeed": 76,
+          "narrativeTone": "measured"
+        },
+        {
+          "id": "demo-bench-product-sentinel-payroll",
+          "name": "Sentinel Payroll",
+          "utilityKeys": ["payroll_workforce_support"],
+          "selfReportedScoreSeed": 68,
+          "narrativeTone": "candid"
+        },
+        {
+          "id": "demo-bench-product-sentinel-advisory",
+          "name": "Sentinel Advisory",
+          "utilityKeys": ["reporting_analytics_fpa"],
+          "selfReportedScoreSeed": 74,
+          "narrativeTone": "confident"
+        }
+      ]
+    },
+    {
+      "id": "demo-bench-vendor-bridgepath",
+      "name": "Bridgepath Suite",
+      "tagline": "Workflow and document discipline for mid-market practices",
+      "archetype": "mid-market-specialist",
+      "products": [
+        {
+          "id": "demo-bench-product-bridgepath-flow",
+          "name": "BridgepathFlow",
+          "utilityKeys": ["workflow_practice_operations_task_routing"],
+          "selfReportedScoreSeed": 84,
+          "narrativeTone": "confident"
+        },
+        {
+          "id": "demo-bench-product-bridgepath-docs",
+          "name": "Bridgepath Docs",
+          "utilityKeys": ["document_capture_management_esignature"],
+          "selfReportedScoreSeed": 81,
+          "narrativeTone": "confident"
+        },
+        {
+          "id": "demo-bench-product-bridgepath-collaborate",
+          "name": "Bridgepath Collaborate",
+          "utilityKeys": ["client_collaboration_portal_requests"],
+          "selfReportedScoreSeed": 77,
+          "narrativeTone": "measured"
+        },
+        {
+          "id": "demo-bench-product-bridgepath-billing",
+          "name": "Bridgepath Billing",
+          "utilityKeys": ["ar_billing_collections"],
+          "selfReportedScoreSeed": 72,
+          "narrativeTone": "candid"
+        }
+      ]
+    },
+    {
+      "id": "demo-bench-vendor-lumen",
+      "name": "Lumen Modern",
+      "tagline": "Automation and analytics-first accounting infrastructure",
+      "archetype": "modern-fast-mover",
+      "products": [
+        {
+          "id": "demo-bench-product-lumen-automate",
+          "name": "Lumen Automate",
+          "utilityKeys": ["automation_orchestration_ai_assistance", "close_reconciliation_consolidation"],
+          "selfReportedScoreSeed": 86,
+          "narrativeTone": "boastful"
+        },
+        {
+          "id": "demo-bench-product-lumen-insights",
+          "name": "Lumen Insights",
+          "utilityKeys": ["reporting_analytics_fpa"],
+          "selfReportedScoreSeed": 83,
+          "narrativeTone": "boastful"
+        },
+        {
+          "id": "demo-bench-product-lumen-ledger",
+          "name": "Lumen Ledger",
+          "utilityKeys": ["erp_gl_core_ledger"],
+          "selfReportedScoreSeed": 79,
+          "narrativeTone": "confident"
+        },
+        {
+          "id": "demo-bench-product-lumen-pay",
+          "name": "Lumen Pay",
+          "utilityKeys": ["payments_treasury_cash_application_commerce_connectivity"],
+          "selfReportedScoreSeed": 75,
+          "narrativeTone": "measured"
+        },
+        {
+          "id": "demo-bench-product-lumen-clientstack",
+          "name": "Lumen ClientStack",
+          "utilityKeys": ["client_collaboration_portal_requests", "document_capture_management_esignature"],
+          "selfReportedScoreSeed": 80,
+          "narrativeTone": "confident"
+        }
+      ]
+    },
+    {
+      "id": "demo-bench-vendor-stratabind",
+      "name": "Stratabind Audit & Compliance",
+      "tagline": "Depth-first audit and regulatory compliance tooling",
+      "archetype": "niche-depth",
+      "products": [
+        {
+          "id": "demo-bench-product-stratabind-audit",
+          "name": "Stratabind Audit",
+          "utilityKeys": ["audit_workflow_workpapers_evidence"],
+          "selfReportedScoreSeed": 88,
+          "narrativeTone": "confident"
+        },
+        {
+          "id": "demo-bench-product-stratabind-comply",
+          "name": "Stratabind Comply",
+          "utilityKeys": ["audit_workflow_workpapers_evidence", "controls_compliance_audit_trail_approvals"],
+          "selfReportedScoreSeed": 85,
+          "narrativeTone": "confident"
+        },
+        {
+          "id": "demo-bench-product-stratabind-risk",
+          "name": "Stratabind Risk",
+          "utilityKeys": ["controls_compliance_audit_trail_approvals", "reporting_analytics_fpa"],
+          "selfReportedScoreSeed": 80,
+          "narrativeTone": "measured"
+        },
+        {
+          "id": "demo-bench-product-stratabind-evidence",
+          "name": "Stratabind Evidence",
+          "utilityKeys": ["audit_workflow_workpapers_evidence", "document_capture_management_esignature"],
+          "selfReportedScoreSeed": 76,
+          "narrativeTone": "candid"
+        }
+      ]
+    }
+  ]
+}

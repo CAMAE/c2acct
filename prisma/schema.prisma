@@ -7,13 +7,15 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model Badge {
-  id           String         @id
-  name         String
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  BadgeRule    BadgeRule[]
-  CompanyBadge CompanyBadge[]
+  id                String              @id
+  name              String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  BadgeRule         BadgeRule[]
+  CompanyBadge      CompanyBadge[]
+  InsightUnlockRule InsightUnlockRule[]
 }
 
 model BadgeRule {
@@ -36,7 +38,7 @@ model BenchmarkCohort {
   title                  String
   companyType            CompanyType
   createdAt              DateTime                 @default(now())
-  updatedAt    DateTime       @updatedAt
+  updatedAt              DateTime                 @updatedAt
   BenchmarkRun           BenchmarkRun[]
   CompanyBenchmark       CompanyBenchmark[]
   CompanyBenchmarkCohort CompanyBenchmarkCohort[]
@@ -95,6 +97,8 @@ model CapabilityNode {
   InsightCapabilityRule                                InsightCapabilityRule[]
   ModuleCapability                                     ModuleCapability[]
   SurveyQuestionCapability                             SurveyQuestionCapability[]
+  TaxonomyBucketCapability                             TaxonomyBucketCapability[]
+  ProductCapabilityMap                                 ProductCapabilityMap[]
 }
 
 model Company {
@@ -111,22 +115,30 @@ model Company {
   FirmMaturityMomentum   FirmMaturityMomentum[]
   FirmMaturitySnapshot   FirmMaturitySnapshot[]
   Product                Product[]
+  PilotCohortMember      PilotCohortMember[]
+  Subject                Subject?
   SurveySubmission       SurveySubmission[]
   User                   User[]
+  VendorProfile          VendorProfile?
+  EcosystemAsVendor      Ecosystem?               @relation("EcosystemVendor")
+  EcosystemFirm          EcosystemFirm[]          @relation("EcosystemFirmCompany")
 }
 
 model CompanyBadge {
   id        String   @id
   companyId String
+  subjectId String?
   badgeId   String
   moduleId  String
   awardedAt DateTime @default(now())
   Badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
   Company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  Subject   Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
 
   @@unique([companyId, badgeId, moduleId])
   @@index([badgeId])
   @@index([companyId])
+  @@index([subjectId])
 }
 
 model CompanyBenchmark {
@@ -234,6 +246,7 @@ model Insight {
   createdAt             DateTime                @default(now())
   updatedAt             DateTime
   InsightCapabilityRule InsightCapabilityRule[]
+  InsightUnlockRule     InsightUnlockRule[]
 }
 
 model InsightCapabilityRule {
@@ -252,6 +265,21 @@ model InsightCapabilityRule {
   @@index([nodeId])
 }
 
+model InsightUnlockRule {
+  id        String   @id
+  insightId String
+  badgeId   String
+  required  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Insight   Insight  @relation(fields: [insightId], references: [id], onDelete: Cascade)
+  Badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([insightId, badgeId])
+  @@index([insightId])
+  @@index([badgeId])
+}
+
 model ModuleCapability {
   id             String         @id
   moduleId       String
@@ -267,16 +295,416 @@ model ModuleCapability {
 }
 
 model Product {
-  id          String   @id
-  companyId   String
-  name        String
-  category    String?
-  apiEndpoint String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime
-  Company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  id                        String                      @id
+  companyId                 String?
+  vendorId                  String?
+  name                      String
+  slug                      String?                     @unique
+  category                  String?
+  website                   String?
+  summary                   String?
+  apiEndpoint               String?
+  deploymentModel           ProductDeploymentModel?
+  active                    Boolean                     @default(true)
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime
+  Company                   Company?                    @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  Subject                   Subject?
+  ProductAssessmentPlan     ProductAssessmentPlan[]
+  ProductProfile            ProductProfile?
+  Vendor                    VendorProfile?              @relation(fields: [vendorId], references: [id], onDelete: SetNull)
+  ProductCapabilityMap      ProductCapabilityMap[]
+  ProductSignal             ProductSignal[]
+  ProductTaxonomyAssignment ProductTaxonomyAssignment[]
 
   @@index([companyId])
+  @@index([vendorId])
+}
+
+model ProductProfile {
+  id                  String   @id
+  productId           String   @unique
+  logoUrl             String?
+  logoAssetRef        String?
+  positioning         String?
+  targetCustomer      String?
+  targetUseContext    String?
+  implementationStyle String?
+  operatingModelFit   String?
+  primaryBuyer        String?
+  integrationPosture  String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  Product             Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductAssessmentPlan {
+  id                   String                       @id
+  productId            String
+  perspective          ProductAssessmentPerspective
+  registryVersion      String
+  selectedUtilityKeys  String[]
+  generatedQuestionIds String[]
+  profileQuestionIds   String[]
+  scoredQuestionIds    String[]
+  openEndedQuestionIds String[]
+  moduleOrder          String[]
+  sectionOrder         String[]
+  modulePlan           Json
+  sectionPlan          Json
+  createdAt            DateTime                     @default(now())
+  updatedAt            DateTime                     @updatedAt
+  Product              Product                      @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, perspective])
+  @@index([perspective])
+  @@index([productId])
+}
+
+model Portal {
+  id          String       @id
+  key         String       @unique
+  title       String
+  subjectKind SubjectKind?
+  active      Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Subject {
+  id                     String                   @id
+  key                    String                   @unique
+  displayName            String
+  kind                   SubjectKind
+  companyId              String?                  @unique
+  productId              String?                  @unique
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  Company                Company?                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  BillingCustomer        BillingCustomer[]
+  BillingInvoice         BillingInvoice[]
+  MembershipSubscription MembershipSubscription[]
+  PilotCohortMember      PilotCohortMember[]
+  Product                Product?                 @relation(fields: [productId], references: [id], onDelete: Cascade)
+  CompanyBadge           CompanyBadge[]
+  SubjectMembership      SubjectMembership[]
+  SurveySubmission       SurveySubmission[]
+  VendorProfile          VendorProfile?
+}
+
+model PilotCohort {
+  id                    String              @id
+  key                   String              @unique
+  name                  String
+  dataBoundary          DataBoundary        @default(PILOT)
+  startsAt              DateTime?
+  ownerContactName      String?
+  ownerContactEmail     String?
+  supportContactName    String?
+  supportContactEmail   String?
+  notes                 String?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  PilotCohortMember     PilotCohortMember[]
+
+  @@index([dataBoundary])
+  @@index([startsAt])
+}
+
+model PilotCohortMember {
+  id                  String                 @id
+  cohortId            String
+  memberKind          PilotCohortMemberKind
+  dataBoundary        DataBoundary           @default(PILOT)
+  provisioningState   PilotProvisioningState @default(INVITED)
+  companyId           String?
+  subjectId           String?
+  userId              String?
+  inviteEmail         String?
+  ownerContactName    String?
+  ownerContactEmail   String?
+  supportContactName  String?
+  supportContactEmail String?
+  notes               String?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+  Company             Company?               @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  PilotCohort         PilotCohort            @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  Subject             Subject?               @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  User                User?                  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([cohortId])
+  @@index([memberKind, dataBoundary])
+  @@index([provisioningState])
+  @@index([companyId])
+  @@index([subjectId])
+  @@index([userId])
+}
+
+model MembershipSubscription {
+  id                      String           @id
+  subjectId               String
+  plan                    MembershipPlan
+  status                  MembershipStatus
+  provider                String?
+  externalCustomerRef     String?
+  externalSubscriptionRef String?
+  providerPriceRef        String?
+  providerStatus          String?
+  providerCancelAtPeriodEnd Boolean        @default(false)
+  checkoutSessionRef      String?
+  checkoutRequestedPlan   MembershipPlan?
+  startedAt               DateTime?
+  trialEndsAt             DateTime?
+  currentPeriodStart      DateTime?
+  currentPeriodEnd        DateTime?
+  canceledAt              DateTime?
+  lastBillingEventType    String?
+  lastBillingEventAt      DateTime?
+  lastWebhookEventId      String?
+  lastReconciledAt        DateTime?
+  paymentActionRequiredAt DateTime?
+  metadata                Json?
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+  Subject                 Subject          @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([subjectId])
+  @@index([plan, status])
+  @@index([subjectId, status])
+  @@index([provider, externalCustomerRef])
+  @@index([provider, externalSubscriptionRef])
+}
+
+model BillingCustomer {
+  id                 String   @id
+  subjectId          String
+  provider           String
+  providerCustomerId String
+  email              String?
+  name               String?
+  metadata           Json?
+  lastSyncedAt       DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  Subject            Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([subjectId, provider])
+  @@unique([provider, providerCustomerId])
+  @@index([subjectId])
+}
+
+model BillingWebhookEvent {
+  id              String    @id
+  provider        String
+  providerEventId String
+  eventType       String
+  apiVersion      String?
+  livemode        Boolean   @default(false)
+  payload         Json
+  processingStatus String   @default("received")
+  processingError String?
+  processedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([provider, providerEventId])
+  @@index([provider, eventType, createdAt])
+  @@index([processingStatus, createdAt])
+}
+
+model BillingInvoice {
+  id                         String   @id
+  subjectId                  String?
+  provider                   String
+  providerInvoiceId          String
+  providerCustomerId         String?
+  providerSubscriptionId     String?
+  status                     String
+  amountDue                  Int?
+  amountPaid                 Int?
+  currency                   String?
+  hostedInvoiceUrl           String?
+  invoicePdf                 String?
+  paymentIntentRef           String?
+  lastPaymentError           String?
+  raw                        Json?
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+  Subject                    Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+
+  @@unique([provider, providerInvoiceId])
+  @@index([subjectId])
+  @@index([provider, providerSubscriptionId])
+  @@index([provider, providerCustomerId])
+  @@index([status, updatedAt])
+}
+
+model VendorProfile {
+  id             String               @id
+  key            String               @unique
+  displayName    String
+  companyId      String?              @unique
+  subjectId      String?              @unique
+  website        String?
+  status         VendorStatus         @default(ACTIVE)
+  researchStatus ResearchSourceStatus @default(PENDING)
+  notes          String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  Company        Company?             @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  Subject        Subject?             @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  Product        Product[]
+  VendorSignal   VendorSignal[]
+}
+
+model ResearchSource {
+  id                        String                      @id
+  key                       String                      @unique
+  title                     String
+  sourceType                ResearchSourceType
+  status                    ResearchSourceStatus        @default(PENDING)
+  artifactPath              String?
+  notes                     String?
+  publishedAt               DateTime?
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
+  ProductCapabilityMap      ProductCapabilityMap[]
+  ProductSignal             ProductSignal[]
+  ProductTaxonomyAssignment ProductTaxonomyAssignment[]
+  TaxonomyBucketCapability  TaxonomyBucketCapability[]
+  VendorSignal              VendorSignal[]
+}
+
+model TaxonomyBucket {
+  id                        String                      @id
+  key                       String                      @unique
+  title                     String
+  description               String?
+  kind                      TaxonomyBucketKind
+  parentId                  String?
+  active                    Boolean                     @default(true)
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
+  Parent                    TaxonomyBucket?             @relation("TaxonomyBucketTree", fields: [parentId], references: [id], onDelete: SetNull)
+  Children                  TaxonomyBucket[]            @relation("TaxonomyBucketTree")
+  ProductTaxonomyAssignment ProductTaxonomyAssignment[]
+  TaxonomyBucketCapability  TaxonomyBucketCapability[]
+
+  @@index([kind])
+  @@index([parentId])
+}
+
+model ProductTaxonomyAssignment {
+  id         String             @id
+  productId  String
+  bucketId   String
+  fit        ProductTaxonomyFit @default(PRIMARY)
+  confidence ResearchConfidence @default(UNKNOWN)
+  sourceId   String?
+  notes      String?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  Product    Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  Bucket     TaxonomyBucket     @relation(fields: [bucketId], references: [id], onDelete: Cascade)
+  Source     ResearchSource?    @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@unique([productId, bucketId])
+  @@index([bucketId, fit])
+  @@index([sourceId])
+}
+
+model TaxonomyBucketCapability {
+  id             String                    @id
+  bucketId       String
+  nodeId         String?
+  capabilityKey  String
+  coverage       ProductCapabilityCoverage @default(SUPPORTING)
+  confidence     ResearchConfidence        @default(UNKNOWN)
+  sourceId       String?
+  notes          String?
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  Bucket         TaxonomyBucket            @relation(fields: [bucketId], references: [id], onDelete: Cascade)
+  CapabilityNode CapabilityNode?           @relation(fields: [nodeId], references: [id], onDelete: SetNull)
+  Source         ResearchSource?           @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@unique([bucketId, capabilityKey])
+  @@index([nodeId])
+  @@index([sourceId])
+}
+
+model ProductCapabilityMap {
+  id             String                    @id
+  productId      String
+  nodeId         String?
+  capabilityKey  String
+  coverage       ProductCapabilityCoverage @default(CORE)
+  confidence     ResearchConfidence        @default(UNKNOWN)
+  sourceId       String?
+  notes          String?
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  Product        Product                   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  CapabilityNode CapabilityNode?           @relation(fields: [nodeId], references: [id], onDelete: SetNull)
+  Source         ResearchSource?           @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@unique([productId, capabilityKey])
+  @@index([nodeId])
+  @@index([sourceId])
+}
+
+model VendorSignal {
+  id          String             @id
+  vendorId    String
+  signalKey   String
+  valueText   String?
+  valueNumber Float?
+  confidence  ResearchConfidence @default(UNKNOWN)
+  sourceId    String?
+  notes       String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  Vendor      VendorProfile      @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  Source      ResearchSource?    @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@unique([vendorId, signalKey])
+  @@index([sourceId])
+}
+
+model ProductSignal {
+  id          String             @id
+  productId   String
+  signalKey   String
+  valueText   String?
+  valueNumber Float?
+  confidence  ResearchConfidence @default(UNKNOWN)
+  sourceId    String?
+  notes       String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  Product     Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  Source      ResearchSource?    @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@unique([productId, signalKey])
+  @@index([sourceId])
+}
+
+model SubjectMembership {
+  id             String                @id
+  subjectId      String
+  userId         String
+  membershipRole SubjectMembershipRole @default(MEMBER)
+  isPrimary      Boolean               @default(false)
+  active         Boolean               @default(true)
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  Subject        Subject               @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  User           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([subjectId, userId])
+  @@index([subjectId, active])
+  @@index([userId, active, isPrimary])
 }
 
 model SurveyModule {
@@ -292,13 +720,37 @@ model SurveyModule {
   updatedAt        DateTime
   BadgeRule        BadgeRule[]
   ModuleCapability ModuleCapability[]
+  SurveySection    SurveySection[]
   SurveyQuestion   SurveyQuestion[]
   SurveySubmission SurveySubmission[]
+}
+
+model SurveySection {
+  id               String           @id
+  moduleId         String
+  key              String
+  title            String
+  description      String?
+  order            Int
+  utilityFamily    String?
+  utilityKey       String?
+  utilityLabel     String?
+  subcategoryKey   String?
+  subcategoryTitle String?
+  basisKey         String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  SurveyModule     SurveyModule     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  SurveyQuestion   SurveyQuestion[]
+
+  @@unique([moduleId, key])
+  @@index([moduleId, order])
 }
 
 model SurveyQuestion {
   id                       String                     @id
   moduleId                 String
+  sectionId                String?
   key                      String
   prompt                   String
   inputType                QuestionInputType
@@ -309,7 +761,12 @@ model SurveyQuestion {
   meta                     Json?
   updatedAt                DateTime
   SurveyModule             SurveyModule               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  SurveySection            SurveySection?             @relation(fields: [sectionId], references: [id], onDelete: SetNull)
   SurveyQuestionCapability SurveyQuestionCapability[]
+
+  @@unique([moduleId, key])
+  @@index([moduleId, order])
+  @@index([sectionId, order])
 }
 
 model SurveyQuestionCapability {
@@ -327,38 +784,155 @@ model SurveyQuestionCapability {
 }
 
 model SurveySubmission {
-  id            String       @id
-  version       Int          @default(1)
-  answers       Json
-  score         Int          @default(0)
-  signalIntegrityScore Float @default(1.0)
-  integrityFlags Json?
-  createdAt     DateTime     @default(now())
-  moduleId      String
-  companyId     String
-  scoreVersion  Int          @default(1)
-  weightedAvg   Float?
-  answeredCount Int          @default(0)
-  scaleMax      Int          @default(100)
-  scaleMin      Int          @default(0)
-  totalWeight   Float        @default(0)
-  Company       Company      @relation(fields: [companyId], references: [id])
-  SurveyModule  SurveyModule @relation(fields: [moduleId], references: [id])
+  id                   String       @id
+  version              Int          @default(1)
+  answers              Json
+  score                Int          @default(0)
+  signalIntegrityScore Float        @default(1.0)
+  integrityFlags       Json?
+  createdAt            DateTime     @default(now())
+  moduleId             String
+  companyId            String
+  subjectId            String?
+  scoreVersion         Int          @default(1)
+  weightedAvg          Float?
+  answeredCount        Int          @default(0)
+  scaleMax             Int          @default(100)
+  scaleMin             Int          @default(0)
+  totalWeight          Float        @default(0)
+  Company              Company      @relation(fields: [companyId], references: [id])
+  Subject              Subject?     @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  SurveyModule         SurveyModule @relation(fields: [moduleId], references: [id])
 
   @@index([companyId, moduleId, createdAt])
+  @@index([subjectId, moduleId, createdAt])
 }
 
 model User {
-  id        String   @id
-  email     String   @unique
-  name      String?
-  role      UserRole @default(MEMBER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-  companyId String?
-  Company   Company? @relation(fields: [companyId], references: [id])
+  id                String              @id
+  email             String              @unique
+  name              String?
+  role              UserRole            @default(MEMBER)
+  passwordHash      String?
+  mustChangePassword Boolean            @default(false)
+  passwordUpdatedAt DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  companyId         String?
+  Company           Company?            @relation(fields: [companyId], references: [id])
+  ConsultantProfile ConsultantProfile?
+  OperatorAuditEvent OperatorAuditEvent[]
+  PilotCohortMember PilotCohortMember[]
+  SubjectMembership SubjectMembership[]
 
   @@index([companyId])
+}
+
+model ConsultantProfile {
+  id                   String                 @id
+  userId               String                 @unique
+  active               Boolean                @default(true)
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  User                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ConsultantAssignment ConsultantAssignment?
+  Ecosystem            Ecosystem?
+  BriefEditChoice      BriefEditChoice[]
+}
+
+model ConsultantAssignment {
+  id                  String            @id
+  consultantProfileId String            @unique
+  ecosystemId         String            @unique
+  active              Boolean           @default(true)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  Ecosystem           Ecosystem         @relation(fields: [ecosystemId], references: [id], onDelete: Cascade)
+  ConsultantProfile   ConsultantProfile @relation(fields: [consultantProfileId], references: [id], onDelete: Cascade)
+
+  @@index([consultantProfileId])
+  @@index([ecosystemId])
+}
+
+model Ecosystem {
+  id                  String                @id
+  name                String
+  vendorCompanyId     String?               @unique
+  consultantProfileId String?               @unique
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+
+  VendorCompany       Company?              @relation("EcosystemVendor", fields: [vendorCompanyId], references: [id], onDelete: SetNull)
+  ConsultantProfile   ConsultantProfile?    @relation(fields: [consultantProfileId], references: [id], onDelete: SetNull)
+  EcosystemFirm       EcosystemFirm[]
+  ConsultantAssignment ConsultantAssignment?
+
+  @@index([vendorCompanyId])
+  @@index([consultantProfileId])
+}
+
+model EcosystemFirm {
+  ecosystemId   String
+  firmCompanyId String   @unique
+  joinedAt      DateTime @default(now())
+
+  Ecosystem     Ecosystem @relation(fields: [ecosystemId], references: [id], onDelete: Cascade)
+  FirmCompany   Company   @relation("EcosystemFirmCompany", fields: [firmCompanyId], references: [id], onDelete: Cascade)
+
+  @@id([ecosystemId, firmCompanyId])
+  @@index([ecosystemId])
+}
+
+model BriefEditChoice {
+  id                  String              @id @default(cuid())
+  briefId             String
+  sectionKey          String
+  choiceType          BriefEditChoiceType
+  choiceValue         String
+  consultantProfileId String
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  ConsultantProfile   ConsultantProfile   @relation(fields: [consultantProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([briefId, sectionKey, consultantProfileId, choiceType])
+  @@index([briefId])
+  @@index([consultantProfileId])
+}
+
+model OperatorAuditEvent {
+  id         String   @id
+  actorUserId String?
+  action     String
+  entityType String
+  entityId   String?
+  summary    String
+  details    Json?
+  createdAt  DateTime @default(now())
+  Actor      User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([actorUserId, createdAt])
+  @@index([entityType, createdAt])
+  @@index([action, createdAt])
+}
+
+model RateLimitBucket {
+  id        String   @id
+  scope     String
+  keyHash   String
+  count     Int      @default(0)
+  resetAt   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([scope, keyHash])
+  @@index([scope, resetAt])
+}
+
+enum BriefEditChoiceType {
+  PHRASING_VARIANT
+  EMPHASIS
+  ORDERING
 }
 
 enum CapabilityLevel {
@@ -379,11 +953,34 @@ enum CompanyType {
   VENDOR
 }
 
+enum DataBoundary {
+  DEMO
+  PILOT
+  PRODUCTION
+}
+
 enum ModuleScope {
   FIRM
   VENDOR
   PRODUCT
   ENTERPRISE
+}
+
+enum MembershipPlan {
+  FREE
+  PRO
+  ELITE
+}
+
+enum MembershipStatus {
+  ACTIVE
+  TRIAL
+  PENDING_CHECKOUT
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+  UNPAID
+  PAYMENT_ACTION_REQUIRED
 }
 
 enum QuestionInputType {
@@ -395,8 +992,98 @@ enum QuestionInputType {
   TEXT
 }
 
+enum ProductDeploymentModel {
+  CLOUD
+  DESKTOP
+  HYBRID
+  MANAGED_SERVICE
+}
+
+enum ProductAssessmentPerspective {
+  VENDOR
+  FIRM
+  INDIVIDUAL
+}
+
+enum ProductTaxonomyFit {
+  PRIMARY
+  SECONDARY
+  ADJACENT
+}
+
+enum ProductCapabilityCoverage {
+  CORE
+  SUPPORTING
+  ADJACENT
+}
+
+enum PilotCohortMemberKind {
+  VENDOR
+  FIRM
+  USER
+}
+
+enum PilotProvisioningState {
+  INVITED
+  PROVISIONING
+  ACTIVE
+  BLOCKED
+  ARCHIVED
+}
+
+enum ResearchConfidence {
+  UNKNOWN
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum ResearchSourceType {
+  MANUAL_TAXONOMY
+  SPREADSHEET
+  CSV
+  INTERVIEW
+  WEB_RESEARCH
+}
+
+enum ResearchSourceStatus {
+  PENDING
+  STAGED
+  IMPORTED
+  SEEDED
+  REVIEW_REQUIRED
+}
+
+enum SubjectKind {
+  ORGANIZATION
+  PRODUCT
+  PERSON
+  PORTAL
+}
+
+enum SubjectMembershipRole {
+  OWNER
+  ADMIN
+  MEMBER
+  REVIEWER
+}
+
+enum TaxonomyBucketKind {
+  FUNCTION
+  WORKFLOW_STAGE
+  COMPLIANCE_DOMAIN
+  DELIVERY_MODEL
+}
+
 enum UserRole {
   OWNER
   ADMIN
   MEMBER
+}
+
+enum VendorStatus {
+  ACTIVE
+  EMERGING
+  DISPLACED
+  UNKNOWN
 }

@@ -1,7 +1,11 @@
 ﻿import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, unauthorizedResponse } from "@/lib/authz";
+import {
+  requiresCompanyBackedAssessment,
+  resolveAssessmentSubjectContext,
+} from "@/lib/subjectContext";
+import { evaluateUnlocked } from "@/lib/insights/evaluateUnlocked";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
@@ -11,33 +15,18 @@ export async function GET() {
     return unauthorizedResponse();
   }
 
-  const companyId = sessionUser.companyId;
-  if (!companyId) {
-    return forbiddenResponse("No company assigned");
+  const assessmentContext = await resolveAssessmentSubjectContext(sessionUser);
+  if (!requiresCompanyBackedAssessment(assessmentContext)) {
+    return forbiddenResponse("Current assessment flow requires a company-backed subject");
   }
 
   try {
-    const badge = await prisma.badge.findFirst({
-      where: { name: "Tier 1 Unlocked" },
-      select: { id: true },
+    const unlocked = await evaluateUnlocked({
+      companyId: assessmentContext.companyId,
+      subjectId: assessmentContext.subjectId,
     });
 
-    if (!badge) return NextResponse.json({ ok: true, unlocked: [] }, { headers: NO_STORE_HEADERS });
-
-    const earned = await prisma.companyBadge.findFirst({
-      where: { companyId, badgeId: badge.id },
-      select: { id: true },
-    });
-
-    if (!earned) return NextResponse.json({ ok: true, unlocked: [] }, { headers: NO_STORE_HEADERS });
-
-    const insights = await prisma.insight.findMany({
-      where: { tier: 1, active: true },
-      orderBy: { key: "asc" },
-      select: { id: true, key: true, title: true, body: true, tier: true },
-    });
-
-    return NextResponse.json({ ok: true, unlocked: insights }, { headers: NO_STORE_HEADERS });
+    return NextResponse.json({ ok: true, unlocked }, { headers: NO_STORE_HEADERS });
   } catch {
     return NextResponse.json(
       { ok: false, error: "Unable to load unlocked insights" },

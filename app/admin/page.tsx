@@ -1,128 +1,224 @@
-﻿export const dynamic = "force-dynamic";
+import Link from "next/link";
+import {
+  AdminActionLink,
+  AdminMetricCard,
+  AdminPageIntro,
+  AdminPanel,
+} from "@/app/components/admin/AdminShell";
+import {
+  buildOperatorBriefings,
+  getAdminOverviewData,
+} from "@/lib/adminControlPlane";
 
-import { prisma } from "@/lib/prisma"
-import { getSessionUser } from "@/lib/auth/session"
-import { isAdminRole } from "@/lib/authz"
-import { redirect } from "next/navigation"
+export const dynamic = "force-dynamic";
 
-type SearchParams = Record<string, string | string[] | undefined>
-
-function getSingleParam(value: string | string[] | undefined) {
-  if (typeof value === "string") return value
-  if (Array.isArray(value) && typeof value[0] === "string") return value[0]
-  return null
-}
-
-export default async function AdminPage({
-  searchParams,
-}: {
-  searchParams?: Promise<SearchParams>
-}) {
-  const sessionUser = await getSessionUser()
-  if (!sessionUser) {
-    redirect("/login?callbackUrl=%2Fadmin")
-  }
-
-  const isAdmin = isAdminRole(sessionUser.role)
-  const resolvedSearchParams = searchParams ? await searchParams : undefined
-  const actionError = getSingleParam(resolvedSearchParams?.error)
-
-async function createOrganization(formData: FormData) {
-  'use server'
-
-  const actor = await getSessionUser()
-  if (!actor) {
-    redirect("/login?callbackUrl=%2Fadmin")
-  }
-
-  if (!isAdminRole(actor.role)) {
-    redirect("/admin?error=forbidden_action")
-  }
-
-  const name = formData.get("name") as string
-  const type = formData.get("type") as "FIRM" | "VENDOR"
-
-  if (!name || !type) return
-
-  await prisma.company.create({
-    data: {
-      id: crypto.randomUUID(),
-      name,
-      type,
-      updatedAt: new Date(),
-    },
-  })
-}
-
-  if (!isAdmin) {
-    return (
-      <div style={{ padding: "40px" }}>
-        <h1>Admin Panel</h1>
-        <div style={{ marginTop: "16px", opacity: 0.8 }}>
-          Access denied. Admin or owner role required.
-        </div>
-      </div>
-    )
-  }
-
-  const orgs = await prisma.company.findMany()
+export default async function AdminOverviewPage() {
+  const overview = await getAdminOverviewData();
+  const latestSubmitStatus =
+    overview.diagnosticsSnapshot.latestByArea.get("survey_submit")?.status ?? null;
+  const briefings = buildOperatorBriefings({
+    canonicalModules: overview.canonicalModules,
+    recentAuditCount: overview.auditEvents.length,
+    latestSubmitStatus,
+  });
 
   return (
+    <div className="space-y-8">
+      <AdminPageIntro
+        title="C2Core operator control plane"
+        description={`Use this overview to move into the live operator work areas: organizations, users${overview.consultantAccessEnabled ? ", consultants" : ""}, taxonomy, modules, insights, products, briefings, and runtime controls. This remains the canonical admin surface for PAT.`}
+      />
 
-    <div style={{ padding: "40px" }}>
-      <h1>Admin Panel</h1>
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+        <AdminMetricCard
+          label="Organizations"
+          value={String(overview.metrics.organizations)}
+          detail="Companies under operator oversight"
+        />
+        <AdminMetricCard
+          label="Users"
+          value={String(overview.metrics.users)}
+          detail="Accounts across PAT audiences"
+        />
+        {overview.consultantAccessEnabled ? (
+          <AdminMetricCard
+            label="Consultants"
+            value={String(overview.metrics.consultants)}
+            detail="Active consultant profiles with scoped briefing access"
+          />
+        ) : null}
+        <AdminMetricCard
+          label="Products"
+          value={String(overview.metrics.products)}
+          detail="Vendor and firm-linked product records"
+        />
+        <AdminMetricCard
+          label="Modules / Sections"
+          value={`${overview.metrics.modules} / ${overview.metrics.sections}`}
+          detail="Assessment runtime structure"
+        />
+        <AdminMetricCard
+          label="Insights / Memberships"
+          value={`${overview.metrics.insights} / ${overview.metrics.memberships}`}
+          detail="Insight inventory and active membership rows"
+        />
+      </section>
 
-      {actionError ? (
-        <div style={{ marginTop: "12px", color: "crimson" }}>
-          Action denied: insufficient permissions.
+      <AdminPanel
+        title="Operator work areas"
+        description="Each route below is data-backed and focused on a specific operator responsibility."
+      >
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <AdminActionLink
+            href="/admin/launch"
+            title="Launch control"
+            body="Launch health, customer and membership state, billing reconciliation, demo readiness, local review state, and release identity."
+          />
+          <AdminActionLink
+            href="/admin/organizations"
+            title="Organizations"
+            body="Company oversight, company-backed membership controls, linked users, and product context."
+          />
+          <AdminActionLink
+            href="/admin/users"
+            title="Users"
+            body="Role assignment, company linkage, and pilot account controls."
+          />
+          {overview.consultantAccessEnabled ? (
+            <AdminActionLink
+              href="/admin/consultants"
+              title="Consultants"
+              body="Consultant roster, assigned firm scopes, and briefing access management without changing PAT audience roles."
+            />
+          ) : null}
+          <AdminActionLink
+            href="/admin/taxonomy"
+            title="Taxonomy"
+            body="Category and subcategory management, plus bucket-to-capability mappings."
+          />
+          <AdminActionLink
+            href="/admin/modules"
+            title="Modules"
+            body="Module, section, question, and assessment mapping management."
+          />
+          <AdminActionLink
+            href="/admin/insights"
+            title="Insights"
+            body="Insight text, unlock rules, capability thresholds, and visibility state."
+          />
+          <AdminActionLink
+            href="/admin/products"
+            title="Products"
+            body="Product oversight, taxonomy assignments, and capability mappings."
+          />
+          <AdminActionLink
+            href="/admin/briefings"
+            title="Briefings"
+            body="Operator-ready summaries of readiness gaps, audit activity, and recent pipeline state."
+          />
+          <AdminActionLink
+            href="/admin/runtime"
+            title="Runtime"
+            body="Portal visibility, runtime consistency, diagnostics, and recent audit events."
+          />
         </div>
-      ) : null}
+      </AdminPanel>
 
-      <h2>Create Company</h2>
-      <form action={createOrganization}>
-        <input name="name" placeholder="Company Name" required />
-        <select name="type">
-          <option value="FIRM">FIRM</option>
-          <option value="VENDOR">VENDOR</option>
-        </select>
-        <button type="submit">Create</button>
-      </form>
-
-      <h2 style={{ marginTop: "40px" }}>Organizations</h2>
-
-      {orgs.map((org: any) => (
-        <div
-          key={org.id}
-          style={{
-            border: "1px solid #ccc",
-            padding: "16px",
-            marginBottom: "12px",
-            borderRadius: "8px"
-          }}
-        >
-          <strong>{org.name}</strong>
-          <div>Type: {org.type}</div>
-
+      <AdminPanel
+        title="Canonical PAT firm runtime"
+        description="The five-module firm model remains the canonical assessment runtime."
+      >
+        <div className="grid gap-4">
+          {overview.canonicalModules.map((module) => (
+            <div
+              key={module.key}
+              className="rounded-[20px] border border-[var(--shell-border)] bg-white/80 p-5"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="text-lg font-semibold text-[var(--shell-ink)]">
+                    {module.title}
+                  </div>
+                  <div className="mt-1 text-sm text-[var(--shell-muted)]">{module.key}</div>
+                </div>
+                <div className="rounded-full border border-[var(--shell-border)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
+                  {module.active ? "Active" : "Inactive"}
+                </div>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-3 text-sm text-[var(--shell-muted)]">
+                <span>{module._count.SurveyQuestion} questions</span>
+                <span>{module._count.SurveySection} sections</span>
+                <span>{module._count.SurveySubmission} submissions</span>
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
+      </AdminPanel>
+
+      <AdminPanel
+        title="Operator briefings"
+        description="Short summaries built from live admin data, not placeholder prose."
+      >
+        <div className="grid gap-4 md:grid-cols-3">
+          {briefings.map((briefing) => (
+            <div
+              key={briefing.key}
+              className="rounded-[20px] border border-[var(--shell-border)] bg-white/80 p-5"
+            >
+              <div className="text-lg font-semibold text-[var(--shell-ink)]">
+                {briefing.title}
+              </div>
+              <div className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+                {briefing.summary}
+              </div>
+            </div>
+          ))}
+        </div>
+      </AdminPanel>
+
+      <AdminPanel
+        title="Recent operator audit activity"
+        description="Recent admin mutations recorded in the operator audit feed."
+      >
+        <div className="grid gap-3">
+          {overview.auditEvents.length > 0 ? (
+            overview.auditEvents.map((event) => (
+              <div
+                key={event.id}
+                className="rounded-[18px] border border-[var(--shell-border)] bg-white/75 p-4"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <div className="font-semibold text-[var(--shell-ink)]">
+                      {event.summary}
+                    </div>
+                    <div className="mt-1 text-sm text-[var(--shell-muted)]">
+                      {event.action} · {event.entityType} · {event.Actor?.email ?? "Unknown operator"}
+                    </div>
+                  </div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
+                    {event.createdAt.toLocaleString()}
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="rounded-[18px] border border-[var(--shell-border)] bg-white/75 p-4 text-sm text-[var(--shell-muted)]">
+              No operator audit events have been recorded yet.
+            </div>
+          )}
+        </div>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link className="pat-button-secondary" href="/admin/runtime">
+            Open runtime and audit feed
+          </Link>
+          {overview.consultantAccessEnabled ? (
+            <Link className="pat-button-secondary" href="/admin/consultants">
+              Open consultant management
+            </Link>
+          ) : null}
+        </div>
+      </AdminPanel>
     </div>
-  )
+  );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

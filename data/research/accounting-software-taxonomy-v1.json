@@ -1,0 +1,248 @@
+{
+  "version": 1,
+  "source": {
+    "key": "accounting-software-taxonomy-v1",
+    "title": "Accounting Software Taxonomy v1",
+    "sourceType": "MANUAL_TAXONOMY",
+    "status": "SEEDED",
+    "artifactPath": "data/research/accounting-software-taxonomy-v1.json",
+    "notes": "Canonical taxonomy substrate for PAT. This artifact now anchors the research-backed product utility registry implemented in lib/productUtilityRegistry.ts. Vendor and product arrays remain intentionally empty until grounded market/vendor data is added."
+  },
+  "patProductUtilityRegistry": {
+    "key": "product-utility-registry-v2",
+    "version": "2026-03-product-utility-v2",
+    "artifactPath": "lib/productUtilityRegistry.ts",
+    "notes": "Canonical PAT utility-family coverage for reusable vendor, firm, and individual product assessments.",
+    "utilityFamilyKeys": [
+      "erp_gl_core_ledger",
+      "ap_payables_spend",
+      "ar_billing_collections",
+      "expense_management",
+      "close_reconciliation_consolidation",
+      "reporting_analytics_fpa",
+      "forecasting_planning",
+      "tax_workflow_compliance",
+      "audit_workflow_workpapers_evidence",
+      "payroll_workforce_support",
+      "document_capture_management_esignature",
+      "workflow_practice_operations_task_routing",
+      "client_collaboration_portal_requests",
+      "payments_treasury_cash_application_commerce_connectivity",
+      "crm_revenue_workflow",
+      "controls_compliance_audit_trail_approvals",
+      "integration_interoperability_data_sync",
+      "automation_orchestration_ai_assistance"
+    ]
+  },
+  "taxonomyBuckets": [
+    {
+      "key": "function-tax",
+      "title": "Tax",
+      "kind": "FUNCTION",
+      "description": "Tax preparation, planning, compliance, filing, and tax workflow products."
+    },
+    {
+      "key": "function-audit",
+      "title": "Audit",
+      "kind": "FUNCTION",
+      "description": "Audit execution, workpapers, evidence handling, and audit methodology products."
+    },
+    {
+      "key": "function-client-management",
+      "title": "Client Management",
+      "kind": "FUNCTION",
+      "description": "Client record, communication, onboarding, and relationship orchestration products."
+    },
+    {
+      "key": "function-practice-management",
+      "title": "Practice Management",
+      "kind": "FUNCTION",
+      "description": "Firm operations, resourcing, internal execution, and practice-level control products."
+    },
+    {
+      "key": "function-workflow",
+      "title": "Workflow",
+      "kind": "FUNCTION",
+      "description": "Task routing, process orchestration, approvals, and deadline management products."
+    },
+    {
+      "key": "function-document-management",
+      "title": "Document Management",
+      "kind": "FUNCTION",
+      "description": "Document storage, retrieval, routing, e-signature, and records control products."
+    },
+    {
+      "key": "function-payroll",
+      "title": "Payroll",
+      "kind": "FUNCTION",
+      "description": "Payroll processing, payroll compliance, and payroll operations products."
+    },
+    {
+      "key": "function-cas",
+      "title": "CAS",
+      "kind": "FUNCTION",
+      "description": "Client accounting services, outsourced accounting, close, and controller-stack products."
+    },
+    {
+      "key": "function-erp-gl",
+      "title": "ERP / GL",
+      "kind": "FUNCTION",
+      "description": "General ledger, ERP, close infrastructure, and core financial system products."
+    },
+    {
+      "key": "function-analytics",
+      "title": "Analytics",
+      "kind": "FUNCTION",
+      "description": "Reporting, dashboards, FP&A, BI, KPI, and data analysis products."
+    },
+    {
+      "key": "function-compliance",
+      "title": "Compliance",
+      "kind": "FUNCTION",
+      "description": "Regulatory, policy, control, and monitoring products that support formal compliance obligations."
+    },
+    {
+      "key": "function-billing",
+      "title": "Billing",
+      "kind": "FUNCTION",
+      "description": "Time, billing, invoicing, collections, and revenue operations products."
+    },
+    {
+      "key": "function-payments",
+      "title": "Payments",
+      "kind": "FUNCTION",
+      "description": "Payment collection, AP automation, payment rails, and cash movement products."
+    },
+    {
+      "key": "function-advisory",
+      "title": "Advisory",
+      "kind": "FUNCTION",
+      "description": "Strategic advisory, scenario planning, and client decision-support products."
+    },
+    {
+      "key": "workflow-acquire",
+      "title": "Acquire",
+      "kind": "WORKFLOW_STAGE",
+      "description": "Lead, prospect, and initial client capture stage."
+    },
+    {
+      "key": "workflow-onboard",
+      "title": "Onboard",
+      "kind": "WORKFLOW_STAGE",
+      "description": "Client setup, data intake, and onboarding stage."
+    },
+    {
+      "key": "workflow-deliver",
+      "title": "Deliver",
+      "kind": "WORKFLOW_STAGE",
+      "description": "Service execution and operational delivery stage."
+    },
+    {
+      "key": "workflow-review",
+      "title": "Review",
+      "kind": "WORKFLOW_STAGE",
+      "description": "Quality review, approval, and sign-off stage."
+    },
+    {
+      "key": "workflow-file",
+      "title": "File / Close",
+      "kind": "WORKFLOW_STAGE",
+      "description": "Filing, close, completion, and formal submission stage."
+    },
+    {
+      "key": "workflow-bill-collect",
+      "title": "Bill / Collect",
+      "kind": "WORKFLOW_STAGE",
+      "description": "Billing, payment, and collection stage."
+    },
+    {
+      "key": "workflow-advise",
+      "title": "Advise",
+      "kind": "WORKFLOW_STAGE",
+      "description": "Reporting, analysis, and advisory follow-through stage."
+    },
+    {
+      "key": "compliance-tax",
+      "title": "Tax Compliance",
+      "kind": "COMPLIANCE_DOMAIN",
+      "description": "Compliance exposure and workflow tied to tax obligations."
+    },
+    {
+      "key": "compliance-payroll",
+      "title": "Payroll Compliance",
+      "kind": "COMPLIANCE_DOMAIN",
+      "description": "Compliance exposure and workflow tied to payroll obligations."
+    },
+    {
+      "key": "compliance-audit",
+      "title": "Audit Compliance",
+      "kind": "COMPLIANCE_DOMAIN",
+      "description": "Compliance exposure and workflow tied to audit controls and evidence discipline."
+    },
+    {
+      "key": "delivery-cloud",
+      "title": "Cloud Delivery",
+      "kind": "DELIVERY_MODEL",
+      "description": "Cloud-native or browser-based product delivery model."
+    },
+    {
+      "key": "delivery-hybrid",
+      "title": "Hybrid Delivery",
+      "kind": "DELIVERY_MODEL",
+      "description": "Mixed local and cloud product delivery model."
+    },
+    {
+      "key": "delivery-managed",
+      "title": "Managed Service",
+      "kind": "DELIVERY_MODEL",
+      "description": "Vendor-managed service or outsourced delivery model."
+    }
+  ],
+  "bucketCapabilityMappings": [
+    {
+      "bucketKey": "function-workflow",
+      "capabilityKey": "workflow_orchestration",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Capability key not yet confirmed against seeded node inventory."
+    },
+    {
+      "bucketKey": "function-document-management",
+      "capabilityKey": "document_control",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Capability key not yet confirmed against seeded node inventory."
+    },
+    {
+      "bucketKey": "function-client-management",
+      "capabilityKey": "client_service_delivery",
+      "coverage": "SUPPORTING",
+      "confidence": "LOW",
+      "notes": "Capability key not yet confirmed against seeded node inventory."
+    },
+    {
+      "bucketKey": "function-analytics",
+      "capabilityKey": "decision_support",
+      "coverage": "SUPPORTING",
+      "confidence": "LOW",
+      "notes": "Capability key not yet confirmed against seeded node inventory."
+    },
+    {
+      "bucketKey": "function-compliance",
+      "capabilityKey": "control_assurance",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Capability key not yet confirmed against seeded node inventory."
+    },
+    {
+      "bucketKey": "function-advisory",
+      "capabilityKey": "advisory_execution",
+      "coverage": "SUPPORTING",
+      "confidence": "LOW",
+      "notes": "Capability key not yet confirmed against seeded node inventory."
+    }
+  ],
+  "vendors": [],
+  "products": [],
+  "vendorSignals": []
+}

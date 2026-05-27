@@ -1,11 +1,13 @@
 param(
   [string]$CompanyId = "746b2c20-4487-4da7-a76d-cc60cb546c9c",
-  [string]$ModuleKey = "firm_alignment_v1",
+  [string]$ModuleKey = "firm_alignment_operating_model_v1",
   [string]$BaseUrl   = "http://localhost:3000"
 )
 
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path $PSScriptRoot -Parent)
+
+Write-Host "COMPATIBILITY_ONLY: this helper is not the canonical firm smoke path; use scripts/smoke-golden-path.ps1 for the five-module PAT flow." -ForegroundColor Yellow
 
 # --- ensure dev server is healthy (probe ports) ---
 $ports = @(

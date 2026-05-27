@@ -12,7 +12,7 @@ From `docs/audit/AAE_Codebase_Audit_and_Platform_Hardening_Report_2026-03-05.md`
 - `app/api/auth/[...nextauth]/route.ts`
 - `lib/auth/session.ts`
 - `lib/authz.ts`
-- `middleware.ts`
+- `proxy.ts`
 - `app/login/page.tsx`
 - `docs/architecture/auth-rbac-test-matrix.md` (optional but recommended for repeatable gate checks)
 
@@ -117,7 +117,7 @@ Company boundary rules:
 - Protected route access requires authenticated user with non-null `companyId` unless endpoint is global admin-only by design.
 - Company-scoped endpoints must enforce `targetCompanyId === session.companyId`.
 - Cookie/query company selectors are hints, never authority.
-- Server-side checks in each handler are mandatory even if middleware is present.
+- Server-side checks in each handler are mandatory even if proxy protection is present.
 
 ## 8. Must be production-correct now vs can be stubbed temporarily
 Must be production-correct now:
@@ -136,7 +136,7 @@ Can be stubbed temporarily:
 ## 9. Ordered implementation sequence
 1. Add auth foundation files (`auth.config.ts`, `auth.ts`, `app/api/auth/[...nextauth]/route.ts`, `app/login/page.tsx`).
 2. Add centralized session/authorization helpers (`lib/auth/session.ts`, `lib/authz.ts`).
-3. Add `middleware.ts` for broad path protection (`/admin`, protected API prefixes).
+3. Add `proxy.ts` for broad path protection (`/admin`, protected API prefixes).
 4. Enforce route-level guards in company-scoped APIs:
    - `app/api/results/route.ts`
    - `app/api/badges/earned/route.ts`

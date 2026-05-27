@@ -25,21 +25,25 @@ jobs:
   build:
     name: Build Check
     runs-on: ubuntu-latest
+    env:
+      BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+      HEAD_SHA: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 10.32.1
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: "pnpm"
       - run: pnpm install
-
       - name: Prisma generate
-
-        run: pnpm exec prisma generate --generator client
+        run: pnpm prisma:generate
+      - name: Release-critical change detection
+        run: node scripts/release/check-release-critical-changes.mjs --base "$BASE_SHA" --head "$HEAD_SHA"
+      - name: Approved PAT marker verification
+        run: node scripts/release/verify-approved-pat-markers.mjs --root .
       - run: pnpm build
-
-
-

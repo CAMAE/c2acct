@@ -1,11 +1,10 @@
-﻿require("dotenv").config();
-const { PrismaClient } = require("@prisma/client");
-const p = new PrismaClient();
-
+// Compatibility shim for older Node-only callers.
+// Canonical runtime entrypoint: scripts/check-question-count.ts
 (async () => {
-  const m = await p.surveyModule.findUnique({ where: { key: "firm_alignment_v1" }, select: { id: true } });
-  if (!m) throw new Error("Module firm_alignment_v1 not found");
-  const n = await p.surveyQuestion.count({ where: { moduleId: m.id } });
-  console.log("question_count=", n);
-  await p.$disconnect();
-})().catch(async (e) => { console.error(e); try { await p.$disconnect(); } catch {} process.exit(1); });
+  const { spawnSync } = await import("node:child_process");
+  const result = spawnSync(process.execPath, ["--import", "tsx", "scripts/check-question-count.ts"], {
+    stdio: "inherit",
+    env: process.env,
+  });
+  process.exit(result.status ?? 1);
+})();

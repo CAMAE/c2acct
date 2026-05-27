@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 2,
+  "sourceOfTruth": {
+    "canonicalRootName": "c2acct-live",
+    "baselineCommit": "078a41f6816e81e599b94423faf501d10c2aa70c",
+    "reconciledCommit": "2e0a56af79e45056ea45650a68ee7a1252110ead"
+  },
+  "globalForbiddenMarkers": [
+    "AAE",
+    "Autonomous Alignment Infrastructure for Accounting Firms.",
+    "EXECUTIVE DASHBOARD SYSTEM",
+    "Premium top-level routing with local drilldowns",
+    "Quick Actions",
+    "Insights Bridge",
+    "Profiles",
+    "Top Seven Outputs",
+    "Alignment Survey",
+    "pre-approved GitHub accounts"
+  ],
+  "validationArtifacts": [
+    "ops/release/pat-surface-manifest.json",
+    "ops/release/release-critical-files.json",
+    "scripts/release/validate-pat-surfaces.mjs",
+    "scripts/release/verify-approved-pat-markers.mjs",
+    "scripts/release/check-release-critical-changes.mjs",
+    "scripts/release/prelaunch-gate.mjs",
+    "e2e/release-integrity.spec.ts",
+    "tests/trust-surfaces.contract.test.ts",
+    "tests/release-surface-validator.test.ts"
+  ],
+  "routes": {
+    "/": {
+      "sourceFiles": [
+        "app/page.tsx",
+        "lib/publicOnboarding.ts",
+        "lib/locale.ts"
+      ],
+      "positiveMarkers": [
+        "PAT",
+        "Performance Alignment Technology",
+        "The intelligence layer inside C2Acct",
+        "Meet PAT",
+        "Choose your path"
+      ]
+    },
+    "/onboarding": {
+      "sourceFiles": [
+        "app/onboarding/page.tsx",
+        "lib/publicOnboarding.ts"
+      ],
+      "positiveMarkers": [
+        "Public onboarding",
+        "Choose a role",
+        "Checkout is explicit"
+      ]
+    },
+    "/onboarding/vendor": {
+      "sourceFiles": [
+        "app/onboarding/[audience]/page.tsx",
+        "lib/publicOnboarding.ts"
+      ],
+      "positiveMarkers": [
+        "Vendor onboarding",
+        "First PAT value",
+        "Payment state:",
+        "Vendor insights stay pending"
+      ]
+    },
+    "/onboarding/firm": {
+      "sourceFiles": [
+        "app/onboarding/[audience]/page.tsx",
+        "lib/publicOnboarding.ts"
+      ],
+      "positiveMarkers": [
+        "Firm onboarding",
+        "First PAT value",
+        "Payment state:",
+        "Firm insights stay pending"
+      ]
+    },
+    "/onboarding/user": {
+      "sourceFiles": [
+        "app/onboarding/[audience]/page.tsx",
+        "lib/publicOnboarding.ts"
+      ],
+      "individualSurfacesGate": {
+        "envVar": "PAT_ENABLE_INDIVIDUAL_SURFACES",
+        "enabledValue": "1",
+        "enabled": {
+          "expectedStatus": 200,
+          "positiveMarkers": [
+            "Individual onboarding",
+            "First PAT value",
+            "Payment state:",
+            "Individual insights stay pending"
+          ]
+        },
+        "disabled": {
+          "expectedStatus": 404
+        }
+      }
+    },
+    "/trust": {
+      "sourceFiles": [
+        "app/trust/page.tsx",
+        "app/components/trust/TrustSurfacePage.tsx",
+        "lib/trustContent.ts"
+      ],
+      "positiveMarkers": [
+        "PAT trust center",
+        "Launch-readiness information",
+        "No unsupported claims"
+      ]
+    },
+    "/privacy": {
+      "sourceFiles": [
+        "app/privacy/page.tsx",
+        "app/components/trust/TrustSurfacePage.tsx",
+        "lib/trustContent.ts"
+      ],
+      "positiveMarkers": [
+        "Privacy policy draft",
+        "PAT privacy policy draft.",
+        "Payment data"
+      ]
+    },
+    "/terms": {
+      "sourceFiles": [
+        "app/terms/page.tsx",
+        "app/components/trust/TrustSurfacePage.tsx",
+        "lib/trustContent.ts"
+      ],
+      "positiveMarkers": [
+        "Terms of service draft",
+        "PAT terms of service draft.",
+        "Product output"
+      ]
+    },
+    "/security": {
+      "sourceFiles": [
+        "app/security/page.tsx",
+        "app/components/trust/TrustSurfacePage.tsx",
+        "lib/trustContent.ts"
+      ],
+      "positiveMarkers": [
+        "Security posture",
+        "PAT security posture.",
+        "Authentication boundaries"
+      ]
+    },
+    "/support": {
+      "sourceFiles": [
+        "app/support/page.tsx",
+        "app/components/trust/TrustSurfacePage.tsx",
+        "lib/trustContent.ts"
+      ],
+      "positiveMarkers": [
+        "Support and contact",
+        "How to contact PAT support",
+        "Billing support"
+      ]
+    },
+    "/billing-policy": {
+      "sourceFiles": [
+        "app/billing-policy/page.tsx",
+        "app/components/trust/TrustSurfacePage.tsx",
+        "lib/trustContent.ts"
+      ],
+      "positiveMarkers": [
+        "Billing policy draft",
+        "PAT billing policy draft.",
+        "Scaffold mode"
+      ]
+    },
+    "/release": {
+      "sourceFiles": [
+        "app/release/page.tsx",
+        "app/components/trust/TrustSurfacePage.tsx",
+        "lib/trustContent.ts",
+        "lib/release/fingerprint.ts"
+      ],
+      "positiveMarkers": [
+        "Release transparency",
+        "Current PAT release and build transparency.",
+        "Runtime fingerprint",
+        "Public-live status"
+      ]
+    },
+    "header": {
+      "sourceFiles": [
+        "app/layout.tsx",
+        "app/components/header/AppHeader.tsx",
+        "lib/locale.ts",
+        "lib/trustContent.ts"
+      ],
+      "positiveMarkers": [
+        "Meet PAT",
+        "Sign in",
+        "Vendor",
+        "Firm"
+      ]
+    },
+    "/sign-in": {
+      "sourceFiles": [
+        "app/sign-in/page.tsx",
+        "lib/locale.ts"
+      ],
+      "positiveMarkers": [
+        "SIGN-IN",
+        "Canonical local origin:",
+        "Landing route:"
+      ]
+    },
+    "/vendor": {
+      "sourceFiles": [
+        "app/vendor/page.tsx",
+        "lib/locale.ts"
+      ],
+      "positiveMarkers": [
+        "Vendor portal",
+        "Your vendor workspace in PAT"
+      ]
+    },
+    "/firm": {
+      "sourceFiles": [
+        "app/firm/page.tsx",
+        "lib/locale.ts"
+      ],
+      "positiveMarkers": [
+        "Firm portal",
+        "Your firm workspace in PAT"
+      ]
+    },
+    "/user": {
+      "sourceFiles": [
+        "app/user/page.tsx",
+        "lib/locale.ts"
+      ],
+      "positiveMarkers": [
+        "Individual portal",
+        "Your individual workspace for PAT"
+      ]
+    },
+    "/admin": {
+      "sourceFiles": [
+        "app/admin/page.tsx"
+      ],
+      "positiveMarkers": [
+        "C2Core operator control plane",
+        "Canonical PAT firm runtime"
+      ]
+    },
+    "/login": {
+      "sourceFiles": [
+        "app/login/page.tsx",
+        "lib/auth/routes.ts"
+      ],
+      "mode": "compatibility-only",
+      "expectedRedirectPrefix": "/sign-in",
+      "positiveMarkers": [
+        "buildCanonicalSignInPath",
+        "redirect("
+      ],
+      "forbiddenMarkers": [
+        "Continue with GitHub",
+        "pre-approved GitHub accounts",
+        "Top Seven Outputs",
+        "Alignment Survey",
+        "Autonomous Alignment Infrastructure for Accounting Firms.",
+        "Profiles",
+        "AAE"
+      ]
+    },
+    "/sign-in?view=consultant": {
+      "sourceFiles": [
+        "app/sign-in/page.tsx",
+        "lib/auth/routes.ts"
+      ],
+      "consultantAccessGate": {
+        "envVar": "PAT_ENABLE_CONSULTANT_ACCESS",
+        "enabledValue": "1",
+        "enabled": {
+          "positiveMarkers": [
+            "Consultant",
+            "Assigned briefing access",
+            "Landing route:",
+            "/consultants"
+          ],
+          "forbiddenMarkers": [
+            "Consultant access is disabled in this runtime"
+          ]
+        },
+        "disabled": {
+          "positiveMarkers": [
+            "Consultant access is disabled in this runtime",
+            "Landing route:",
+            "/vendor"
+          ],
+          "forbiddenMarkers": [
+            "Assigned briefing access"
+          ]
+        }
+      }
+    },
+    "/consultants": {
+      "sourceFiles": [
+        "app/consultants/page.tsx",
+        "app/consultants/layout.tsx",
+        "lib/consultantAccess.ts"
+      ],
+      "positiveMarkers": [
+        "Assigned PAT briefings",
+        "Assigned company briefings"
+      ]
+    }
+  }
+}

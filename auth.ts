@@ -2,12 +2,19 @@ import NextAuth from "next-auth";
 import type { UserRole } from "@prisma/client";
 import authConfig from "@/auth.config";
 import prisma from "@/lib/prisma";
+import { getResolvedAuthEnv } from "@/lib/auth/env";
+import {
+  canUseLocalReviewEmail,
+  ensureLocalReviewUserByEmail,
+  isLocalReviewAuthRequested,
+} from "@/lib/auth/localReview";
 
 type DbUserClaims = {
   id: string;
   email: string;
   role: UserRole;
   companyId: string | null;
+  mustChangePassword: boolean;
 };
 
 function normalizeEmail(email: string | null | undefined) {
@@ -17,21 +24,41 @@ function normalizeEmail(email: string | null | undefined) {
 }
 
 async function findUserByEmail(email: string): Promise<DbUserClaims | null> {
+  if (!canUseLocalReviewEmail(email)) {
+    return null;
+  }
+
   return prisma.user.findFirst({
     where: { email: { equals: email, mode: "insensitive" } },
-    select: { id: true, email: true, role: true, companyId: true },
+    select: { id: true, email: true, role: true, companyId: true, mustChangePassword: true },
   });
+}
+
+async function findOrEnsureUserByEmail(email: string) {
+  const existing = await findUserByEmail(email);
+  if (existing) {
+    return existing;
+  }
+
+  if (!isLocalReviewAuthRequested()) {
+    return null;
+  }
+
+  await ensureLocalReviewUserByEmail(prisma, email);
+  return findUserByEmail(email);
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  secret: getResolvedAuthEnv().values.secret ?? undefined,
+  trustHost: true,
   session: { strategy: "jwt" },
   callbacks: {
     async signIn({ user }) {
       const normalizedEmail = normalizeEmail(user?.email);
       if (!normalizedEmail) return false;
 
-      const dbUser = await findUserByEmail(normalizedEmail);
+      const dbUser = await findOrEnsureUserByEmail(normalizedEmail);
       if (!dbUser) return false;
 
       (user as typeof user & { dbUser?: DbUserClaims }).dbUser = dbUser;
@@ -45,19 +72,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.email = userWithClaims.dbUser.email;
         token.role = userWithClaims.dbUser.role;
         token.companyId = userWithClaims.dbUser.companyId;
+        token.mustChangePassword = userWithClaims.dbUser.mustChangePassword;
         return token;
       }
 
       const normalizedEmail = normalizeEmail(token.email);
       if (!normalizedEmail) return token;
 
-      const dbUser = await findUserByEmail(normalizedEmail);
+      const dbUser = await findOrEnsureUserByEmail(normalizedEmail);
       if (!dbUser) return token;
 
       token.sub = dbUser.id;
       token.email = dbUser.email;
       token.role = dbUser.role;
       token.companyId = dbUser.companyId;
+      token.mustChangePassword = dbUser.mustChangePassword;
       return token;
     },
     async session({ session, token }) {
@@ -69,6 +98,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         id?: string;
         role?: UserRole;
         companyId?: string | null;
+        mustChangePassword?: boolean;
       };
 
       sessionUser.id = typeof token.sub === "string" ? token.sub : "";
@@ -76,6 +106,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       sessionUser.role = (token.role as UserRole | undefined) ?? "MEMBER";
       sessionUser.companyId =
         typeof token.companyId === "string" ? token.companyId : null;
+      sessionUser.mustChangePassword = token.mustChangePassword === true;
+      delete (sessionUser as typeof sessionUser & { name?: unknown }).name;
+      delete (sessionUser as typeof sessionUser & { image?: unknown }).image;
 
       return session;
     },

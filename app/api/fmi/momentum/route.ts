@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-	// Intentionally unavailable in the current build.
 	return NextResponse.json(
-		{ ok: false, error: "Not found" },
+		{
+			ok: false,
+			error: "Not found",
+			detail: "FMI momentum is quarantined until the PAT launch surface includes supported FMI delivery.",
+		},
 		{ status: 404, headers: { "Cache-Control": "no-store" } }
 	);
 }

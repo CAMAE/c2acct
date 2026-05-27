@@ -2,6 +2,7 @@
 import { cookies } from "next/headers";
 import { getSessionUser } from "@/lib/auth/session";
 import { forbiddenResponse, hasCompany, unauthorizedResponse } from "@/lib/authz";
+import { readSelectedCompanyId } from "@/lib/platformRollout";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
@@ -16,7 +17,7 @@ export async function GET() {
   }
 
   const cookieStore = await cookies();
-  const existing = cookieStore.get("aae_companyId")?.value;
+  const existing = readSelectedCompanyId(cookieStore);
 
   // If already selected, don't trigger client auto-select/reload loop
   if (existing && existing === sessionUser.companyId) {

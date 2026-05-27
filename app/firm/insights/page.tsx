@@ -1,0 +1,139 @@
+import { redirect } from "next/navigation";
+import InsightsModeShell from "@/app/components/insights/InsightsModeShell";
+import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
+import { getSessionUser } from "@/lib/auth/session";
+import {
+  buildFirmEliteInsightCards,
+  buildFirmProInsightCards,
+  getFirmInsightReports,
+  getRequestedFirmInsightOverviewMode,
+} from "@/lib/firmInsightEngine";
+import { evaluateUnlocked } from "@/lib/insights/evaluateUnlocked";
+import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
+import { getRequestLocaleMessages } from "@/lib/requestLocale";
+import {
+  ensureFirmAlignmentSystem,
+  getFirmAssessmentProgress,
+} from "@/lib/firmPat";
+
+export const dynamic = "force-dynamic";
+
+export const metadata = {
+  title: "Firm Alignment Insights | C2Acct",
+  description: "Firm-facing alignment insights grounded in PAT module and capability evidence.",
+};
+
+type SearchParams = {
+  mode?: string;
+};
+
+function getModeHref(mode: "pro" | "elite" | "help") {
+  return `/firm/insights?mode=${mode}`;
+}
+
+export default async function FirmInsightsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<SearchParams>;
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const messages = await getRequestLocaleMessages();
+  const sessionUser = await getSessionUser();
+  if (!sessionUser?.companyId) {
+    redirect("/sign-in/firm");
+  }
+  const entitlement = await resolveMembershipEntitlement(sessionUser, "firm", MEMBERSHIP_PLAN.PRO);
+  if (!entitlement.allowed) {
+    return (
+      <MembershipSurfaceGate
+        audience="firm"
+        surfaceLabel="Firm alignment insights"
+        title="Firm alignment insights require Pro membership"
+        body="Firm alignment insights are part of the current Pro firm tier. PAT keeps this route visible so the membership path stays explicit, but the insight catalog opens only after Pro is active."
+        displayName={entitlement.membership.displayName}
+        currentPlan={entitlement.membership.plan}
+        currentStatus={entitlement.membership.status}
+        requiredPlan={entitlement.requiredPlan}
+        membershipHref={entitlement.membershipHref}
+        upgradeHref={entitlement.upgradeHref}
+        workspaceHref="/firm"
+        workspaceLabel="Open firm workspace"
+        availableNow="The baseline firm state still keeps workspace entry, help, and membership routing available."
+        stagedNote="This catalog is the current Pro packaging layer around firm alignment evidence, so PAT does not open it from the baseline state."
+      />
+    );
+  }
+
+  await ensureFirmAlignmentSystem();
+
+  const [moduleProgress, unlocked, insightReports] = await Promise.all([
+    getFirmAssessmentProgress(sessionUser.companyId),
+    evaluateUnlocked({ companyId: sessionUser.companyId }),
+    getFirmInsightReports(sessionUser.companyId),
+  ]);
+
+  const unlockedKeys = new Set(unlocked.map((item) => item.key));
+  const activeMode = getRequestedFirmInsightOverviewMode(resolvedSearchParams?.mode);
+  const completedModules = moduleProgress.filter((module) => module.latestSubmittedAt).length;
+  const proCards = buildFirmProInsightCards({
+    reports: insightReports,
+    unlockedKeys,
+  });
+  const eliteCards = buildFirmEliteInsightCards();
+  const toggleOptions = [
+    { key: "pro", label: "Pro Insights", href: getModeHref("pro") },
+    { key: "elite", label: "Elite Insights", href: getModeHref("elite") },
+    { key: "help", label: "Help", href: getModeHref("help") },
+  ] as const;
+
+  const currentStateSummary =
+    completedModules === 0
+      ? "PAT needs completed firm alignment modules before it can open a grounded firm insight readout."
+      : "PAT is summarizing current firm alignment and product-review evidence so you can review the operating picture in one place.";
+
+  return (
+    <InsightsModeShell
+      activeMode={activeMode}
+      eyebrow="Firm alignment insights"
+      title={messages.insights.firm.heroTitle}
+      audienceTerms={["Firm"]}
+      heroBody={messages.insights.firm.heroBody}
+      currentStateSummary={currentStateSummary}
+      toggleAriaLabel="Firm alignment insight modes"
+      toggleOptions={toggleOptions}
+      proPanel={{
+        title: messages.insights.firm.proTitle,
+        intro: messages.insights.firm.proBody,
+        cards: proCards,
+        columnsClassName: "md:grid-cols-2",
+      }}
+      elitePanel={{
+        title: messages.insights.firm.eliteTitle,
+        intro: messages.insights.firm.eliteBody,
+        cards: eliteCards,
+        columnsClassName: "md:grid-cols-2 xl:grid-cols-3",
+      }}
+      helpPanel={{
+        title: "Help",
+        intro: "Use this page to review the current firm-side operating picture, then open the insight that best matches the decision you need to make next.",
+        infoCards: [
+          {
+            title: "Pro insights",
+            body: "Open these cards for grounded current-state readouts built from current module, capability, and question-pattern evidence.",
+          },
+          {
+            title: "Elite insights",
+            body: "Coming soon. Unlock with Elite membership.",
+            tone: "muted",
+            badgeLabel: "Coming soon",
+            badgeTone: "locked",
+          },
+          {
+            title: "How to use it",
+            body: "Start with the insight that matches your biggest current operating question, then use the insight page to review the grounded Pro evidence or the Help view in simpler PAT language.",
+          },
+        ],
+      }}
+    />
+  );
+}

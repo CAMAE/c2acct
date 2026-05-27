@@ -1,0 +1,246 @@
+import prisma from "@/lib/prisma";
+import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
+import { MEMBERSHIP_PLAN_OPTIONS, MEMBERSHIP_STATUS_OPTIONS } from "@/lib/adminControlPlane";
+import {
+  createPilotUserAction,
+  updatePilotUserPasswordAction,
+  updateUserContextAction,
+  updateUserMembershipAction,
+} from "@/app/admin/actions";
+import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
+
+export const dynamic = "force-dynamic";
+
+export default async function AdminUsersPage() {
+  const individualSurfacesEnabled = isIndividualSurfacesEnabled();
+  const [users, organizations, personSubjects] = await Promise.all([
+    prisma.user.findMany({
+      orderBy: [{ role: "asc" }, { email: "asc" }],
+      include: {
+        Company: {
+          select: { id: true, name: true, type: true },
+        },
+        ConsultantProfile: {
+          select: { id: true, active: true },
+        },
+        PilotCohortMember: {
+          orderBy: { createdAt: "asc" },
+          select: {
+            dataBoundary: true,
+            provisioningState: true,
+            PilotCohort: {
+              select: { name: true },
+            },
+          },
+        },
+      },
+    }),
+    prisma.company.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, type: true },
+    }),
+    prisma.subject.findMany({
+      where: { kind: "PERSON" },
+      select: {
+        key: true,
+        MembershipSubscription: {
+          select: {
+            plan: true,
+            status: true,
+            provider: true,
+            providerStatus: true,
+            lastBillingEventType: true,
+            lastReconciledAt: true,
+          },
+        },
+      },
+    }).catch(() => []),
+  ]);
+
+  const personSubjectByKey = new Map(personSubjects.map((subject) => [subject.key, subject]));
+
+  return (
+    <div className="space-y-8">
+      <AdminPageIntro
+        title="Users"
+        description={
+          individualSurfacesEnabled
+            ? "Operator controls for role assignment, company linkage, and individual membership state."
+            : "Operator controls for role assignment and company linkage. Person-level membership controls are hidden for the current vendor/firm pilot."
+        }
+      />
+
+      <AdminPanel title="User oversight">
+        <form action={createPilotUserAction} className="mb-6 grid gap-4 rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
+          <div>
+            <div className="text-lg font-semibold text-[var(--shell-ink)]">Provision pilot account</div>
+            <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+              Creates or updates a vendor, firm, consultant, or admin account with a stored salted password hash. Do not enter live card, bank, or shared production secrets here.
+            </p>
+          </div>
+          <div className="grid gap-3 lg:grid-cols-2">
+            <input name="email" type="email" className="pat-input" placeholder="pilot.user@example.com" required />
+            <input name="name" type="text" className="pat-input" placeholder="Display name" />
+            <select name="accountKind" defaultValue="firm" className="pat-select">
+              <option value="vendor">Vendor pilot user</option>
+              <option value="firm">Firm pilot user</option>
+              <option value="consultant">Consultant pilot user</option>
+              <option value="admin">Admin/operator pilot user</option>
+            </select>
+            <select name="role" defaultValue="MEMBER" className="pat-select">
+              <option value="OWNER">OWNER</option>
+              <option value="ADMIN">ADMIN</option>
+              <option value="MEMBER">MEMBER</option>
+            </select>
+            <select name="companyId" defaultValue="__none__" className="pat-select">
+              <option value="__none__">No company</option>
+              {organizations.map((organization) => (
+                <option key={organization.id} value={organization.id}>
+                  {organization.name} ({organization.type})
+                </option>
+              ))}
+            </select>
+            <input
+              name="temporaryPassword"
+              type="password"
+              className="pat-input"
+              placeholder="Temporary password"
+              autoComplete="new-password"
+            />
+            <input
+              name="importedPasswordHash"
+              type="text"
+              className="pat-input lg:col-span-2"
+              placeholder="Optional PAT-compatible imported password hash"
+              autoComplete="off"
+            />
+          </div>
+          <label className="flex items-center gap-3 text-sm font-semibold text-[var(--shell-ink)]">
+            <input name="mustChangePassword" type="checkbox" defaultChecked className="h-4 w-4" />
+            Require password update on first login
+          </label>
+          <div className="text-xs leading-5 text-[var(--shell-muted)]">
+            Temporary passwords must be at least 12 characters and include lowercase, uppercase, and numeric characters. PAT stores only hashes and records provisioning in the operator audit log.
+          </div>
+          <button type="submit" className="pat-button-primary w-fit">
+            Provision account
+          </button>
+        </form>
+        <div className="grid gap-4">
+          {users.map((user) => {
+            const individualMembership =
+              personSubjectByKey.get(`person:${user.id}`)?.MembershipSubscription[0] ?? null;
+            const pilotBoundary = user.PilotCohortMember.length
+              ? user.PilotCohortMember.map(
+                  (membership) =>
+                    `${membership.PilotCohort.name}: ${membership.dataBoundary} / ${membership.provisioningState}`
+                ).join(" · ")
+              : "No pilot cohort";
+            return (
+              <div key={user.id} className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
+                <div className="mb-4">
+                  <div className="text-lg font-semibold text-[var(--shell-ink)]">{user.email}</div>
+                  <div className="mt-1 text-sm text-[var(--shell-muted)]">
+                    {user.role} · {user.Company ? `${user.Company.name} (${user.Company.type})` : "No company linked"}
+                    {user.ConsultantProfile?.active ? " · Consultant access active" : ""}
+                  </div>
+                  <div className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
+                    Password {user.passwordHash ? "provisioned" : "not provisioned"} · First-login update {user.mustChangePassword ? "required" : "not required"} · Updated {user.passwordUpdatedAt ? user.passwordUpdatedAt.toLocaleString() : "never"}
+                  </div>
+                  {individualSurfacesEnabled ? (
+                    <>
+                      <div className="mt-1 text-sm text-[var(--shell-muted)]">
+                        Individual membership {individualMembership ? `${individualMembership.plan} / ${individualMembership.status}` : "FREE / ACTIVE"}
+                      </div>
+                      <div className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
+                        Billing {individualMembership?.provider ?? "none"} · Provider status {individualMembership?.providerStatus ?? "unreconciled"} · Last event {individualMembership?.lastBillingEventType ?? "none"} · Reconciled {individualMembership?.lastReconciledAt ? individualMembership.lastReconciledAt.toLocaleString() : "never"}
+                      </div>
+                    </>
+                  ) : null}
+                  <div className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
+                    Pilot boundary {pilotBoundary}
+                  </div>
+                </div>
+                <div className={`grid gap-4 ${individualSurfacesEnabled ? "xl:grid-cols-2" : ""}`}>
+                  <form action={updateUserContextAction} className="grid gap-3 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
+                    <input type="hidden" name="userId" value={user.id} />
+                    <input type="hidden" name="returnTo" value="/admin/users" />
+                    <div className="text-sm font-semibold text-[var(--shell-ink)]">Role and company</div>
+                    <select name="role" defaultValue={user.role} className="pat-select">
+                      <option value="OWNER">OWNER</option>
+                      <option value="ADMIN">ADMIN</option>
+                      <option value="MEMBER">MEMBER</option>
+                    </select>
+                    <select name="companyId" defaultValue={user.companyId ?? "__none__"} className="pat-select">
+                      <option value="__none__">No company</option>
+                      {organizations.map((organization) => (
+                        <option key={organization.id} value={organization.id}>
+                          {organization.name}
+                        </option>
+                      ))}
+                    </select>
+                    <button type="submit" className="pat-button-primary">
+                      Save user context
+                    </button>
+                  </form>
+
+                  <form action={updatePilotUserPasswordAction} className="grid gap-3 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
+                    <input type="hidden" name="userId" value={user.id} />
+                    <input type="hidden" name="returnTo" value="/admin/users" />
+                    <div className="text-sm font-semibold text-[var(--shell-ink)]">Pilot password</div>
+                    <input
+                      name="temporaryPassword"
+                      type="password"
+                      className="pat-input"
+                      placeholder="New temporary password"
+                      autoComplete="new-password"
+                    />
+                    <input
+                      name="importedPasswordHash"
+                      type="text"
+                      className="pat-input"
+                      placeholder="Optional PAT-compatible imported hash"
+                      autoComplete="off"
+                    />
+                    <label className="flex items-center gap-3 text-sm font-semibold text-[var(--shell-ink)]">
+                      <input name="mustChangePassword" type="checkbox" defaultChecked className="h-4 w-4" />
+                      Require password update on next login
+                    </label>
+                    <button type="submit" className="pat-button-secondary">
+                      Reset pilot password
+                    </button>
+                  </form>
+
+                  {individualSurfacesEnabled ? (
+                    <form action={updateUserMembershipAction} className="grid gap-3 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
+                      <input type="hidden" name="userId" value={user.id} />
+                      <input type="hidden" name="returnTo" value="/admin/users" />
+                      <div className="text-sm font-semibold text-[var(--shell-ink)]">Individual membership</div>
+                      <select name="plan" defaultValue={individualMembership?.plan ?? "FREE"} className="pat-select">
+                        {MEMBERSHIP_PLAN_OPTIONS.map((plan) => (
+                          <option key={plan} value={plan}>
+                            {plan}
+                          </option>
+                        ))}
+                      </select>
+                      <select name="status" defaultValue={individualMembership?.status ?? "ACTIVE"} className="pat-select">
+                        {MEMBERSHIP_STATUS_OPTIONS.map((status) => (
+                          <option key={status} value={status}>
+                            {status}
+                          </option>
+                        ))}
+                      </select>
+                      <button type="submit" className="pat-button-secondary">
+                        Save individual membership
+                      </button>
+                    </form>
+                  ) : null}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </AdminPanel>
+    </div>
+  );
+}

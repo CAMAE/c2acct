@@ -13,6 +13,7 @@
                             "esModuleInterop":  true,
                             "module":  "esnext",
                             "moduleResolution":  "bundler",
+                            "allowImportingTsExtensions":  true,
                             "resolveJsonModule":  true,
                             "isolatedModules":  true,
                             "jsx":  "react-jsx",
@@ -38,7 +39,10 @@
                 ],
     "exclude":  [
                     "node_modules",
-                    "prisma/**/*",
-                    "scripts/**/*"
+                    "prisma/migrations/**/*",
+                    "scripts/archive/**/*",
+                    "docs/archive/**/*",
+                    ".venv/**/*",
+                    ".venv311/**/*"
                 ]
 }

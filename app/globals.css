@@ -2,11 +2,75 @@
 
 
 :root {
-  --bg: #ffffff;
-  --fg: #0a0a0a;
-  --muted: #6b7280;
-  --border: rgba(10, 10, 10, 0.12);
-  --card: rgba(255, 255, 255, 0.92);
+  --brand-c2-blue: #063674;
+  --brand-light-blue: #4fbfe2;
+  --brand-division-accent: #33e573;
+  --brand-orange: #fc4713;
+  --brand-charcoal: #202020;
+  --brand-cream: #f1f2ee;
+  --brand-white: #ffffff;
+  --shell-bg: #ffffff;
+  --shell-ink: var(--brand-charcoal);
+  --shell-muted: #5c6c80;
+  --shell-border: rgba(12, 33, 66, 0.12);
+  --shell-panel: #ffffff;
+  --shell-panel-strong: #ffffff;
+  --shell-panel-soft: rgba(244, 248, 252, 0.94);
+  --shell-accent: var(--brand-c2-blue);
+  --shell-accent-strong: #052a59;
+  --shell-deep: var(--brand-c2-blue);
+  --shell-teal: var(--brand-light-blue);
+  --pat-blue: var(--brand-c2-blue);
+  --pat-lime: var(--brand-division-accent);
+  --dark-surface-ink: rgba(255, 255, 255, 0.98);
+  --dark-surface-copy: rgba(248, 251, 255, 0.96);
+  --dark-surface-muted: rgba(235, 243, 255, 0.9);
+  --dark-surface-soft: rgba(255, 255, 255, 0.11);
+  --dark-surface-soft-strong: rgba(255, 255, 255, 0.16);
+  --dark-surface-border: rgba(255, 255, 255, 0.22);
+  --shell-success: #166534;
+  --shell-warning: #9a3412;
+  --shell-danger: #7f1d1d;
+  /* WS11-K (design system reconcile): additive tokens documenting current
+     visual semantics. --shell-positive replaces hardcoded text-green-600
+     utility usages; the radar band tokens document the colors currently
+     inlined in FiveModuleRadar.tsx and VendorProductPositioningRadar.tsx
+     so a future refactor can reference them by name instead of by hex. */
+  --shell-positive: #16a34a;
+  --radar-deep-green: #0e7c3a;
+  --radar-green: #3aab66;
+  --radar-amber: #b58420;
+  --radar-red: #c25441;
+  --radar-deep-red: #8a2f24;
+  --radar-no-signal: rgba(6, 54, 116, 0.18);
+  /* Block G (WS-DESIGN-TOKEN-002, audit Opportunity #4): promote heatmap
+     band colors from inline strings in PerFirmHeatmap.tsx to named tokens.
+     Behavior unchanged — values copied verbatim from the WS11-H Block B7
+     alpha-shifted ramp. The "unreviewed" band stays inline (dashed border
+     + white background, not a fill). */
+  --shell-heatmap-high-strong-bg: rgba(6, 54, 116, 0.62);
+  --shell-heatmap-high-strong-fg: #ffffff;
+  --shell-heatmap-high-bg: rgba(6, 54, 116, 0.32);
+  --shell-heatmap-high-fg: var(--shell-ink);
+  --shell-heatmap-mid-bg: rgba(160, 160, 160, 0.18);
+  --shell-heatmap-mid-fg: var(--shell-ink);
+  --shell-heatmap-low-bg: rgba(229, 109, 4, 0.16);
+  --shell-heatmap-low-fg: var(--brand-orange);
+  --shell-heatmap-low-border: rgba(229, 109, 4, 0.28);
+  --shell-max-width: 84rem;
+  --shell-gutter: clamp(1.1rem, 0.95rem + 0.9vw, 1.7rem);
+  --shell-main-pad-y: clamp(2.1rem, 1.75rem + 1.05vw, 2.85rem);
+  --pat-card-pad-xl: clamp(1.55rem, 1.35rem + 0.6vw, 1.85rem);
+  --pat-card-pad-lg: clamp(1.2rem, 1.08rem + 0.4vw, 1.42rem);
+  --pat-card-pad-md: clamp(1rem, 0.92rem + 0.22vw, 1.12rem);
+  --pat-card-pad-sm: clamp(0.92rem, 0.86rem + 0.14vw, 0.98rem);
+  --pat-hero-title-size: clamp(1.82rem, 1.7rem + 0.35vw, 2.12rem);
+  --pat-section-title-size: clamp(1.42rem, 1.34rem + 0.22vw, 1.72rem);
+  --pat-subsection-title-size: clamp(1.16rem, 1.1rem + 0.18vw, 1.4rem);
+}
+
+html {
+  font-size: 11.5px;
 }
 
 html,
@@ -15,59 +79,616 @@ body {
 }
 
 body {
-  font-family: var(--font-inter), system-ui, -apple-system, Segoe UI, Roboto, Arial,
-    sans-serif;
-  color: var(--fg);
-  background: radial-gradient(
-      900px 500px at 20% 5%,
-      rgba(0, 0, 0, 0.04),
-      transparent 60%
-    ),
-    radial-gradient(
-      900px 500px at 80% 15%,
-      rgba(0, 0, 0, 0.03),
-      transparent 60%
-    ),
-    var(--bg);
+  font-family: var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: var(--shell-ink);
+  background: var(--shell-bg);
 }
 
-/* Layout helpers */
-.container {
-  @apply mx-auto max-w-6xl px-6;
+a,
+button,
+input,
+select,
+textarea {
+  transition:
+    color 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
 }
 
-/* Header */
-.site-header {
-  @apply sticky top-0 z-50 bg-white/80 backdrop-blur border-b;
-  border-color: var(--border);
+::selection {
+  background: rgba(210, 161, 91, 0.28);
 }
 
-.brand {
-  @apply inline-flex items-center gap-3 font-semibold tracking-tight;
+.pat-sans {
+  font-family: var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
-.brand-mark {
-  @apply inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm;
-  border-color: var(--border);
+.pat-shell {
+  color: var(--shell-ink);
 }
 
-/* Nav */
-.nav {
-  @apply flex items-center gap-8 text-sm;
+.pat-shell-frame {
+  width: 100%;
+  max-width: var(--shell-max-width);
+  margin-inline: auto;
+  padding-inline: var(--shell-gutter);
 }
 
-.navlink {
-  @apply text-neutral-700 hover:text-black transition;
+.pat-shell-main {
+  width: 100%;
+  max-width: var(--shell-max-width);
+  margin-inline: auto;
+  padding-inline: var(--shell-gutter);
+  padding-block: var(--shell-main-pad-y);
 }
 
-/* Cards */
-.card {
-  @apply rounded-2xl border p-10 transition;
-  border-color: var(--border);
-  background: var(--card);
+.pat-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--shell-muted);
 }
 
-.card:hover {
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+/* Day-26 P0b (RK2/RK9): give the EmphasisToggle's data-emphasis-active
+   attribute a visible effect. Without this rule, clicking an Emphasize
+   chip toggled an attribute that nothing styled — the control read as
+   dead UI. The outline-offset keeps the highlight clear of the element's
+   own padding. */
+[data-emphasis-active="true"] {
+  outline: 2px solid var(--brand-c2-blue);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+.brand-c2-wordmark {
+  font-family: var(--font-barlow-display), var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--shell-ink);
+}
+
+.brand-c2-accounting {
+  font-family: var(--font-barlow-display), var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: -0.015em;
+  color: var(--pat-lime);
+}
+
+.brand-pat-wordmark {
+  font-family: var(--font-barlow-display), var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--shell-ink);
+}
+
+.brand-pat-submark {
+  margin-top: 0.22rem;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--shell-muted);
+}
+
+.pat-card {
+  border: 1px solid var(--shell-border);
+  border-radius: 28px;
+  background: var(--shell-panel);
+}
+
+.pat-card.p-8 {
+  padding: var(--pat-card-pad-xl);
+}
+
+.pat-card.p-6,
+.pat-soft-panel.p-5,
+.pat-subpanel.p-5 {
+  padding: var(--pat-card-pad-lg);
+}
+
+.pat-card.p-5,
+.pat-soft-panel.p-4,
+.pat-subpanel.p-4 {
+  padding: var(--pat-card-pad-md);
+}
+
+.pat-card.p-4 {
+  padding: var(--pat-card-pad-sm);
+}
+
+.pat-card h1.text-4xl,
+.pat-card h2.text-4xl {
+  font-size: var(--pat-hero-title-size);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+}
+
+.pat-card h2.text-3xl {
+  font-size: var(--pat-section-title-size);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.pat-card h3.text-2xl {
+  font-size: var(--pat-subsection-title-size);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+}
+
+.pat-card-interactive {
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.pat-card-interactive:hover {
+  border-color: rgba(6, 54, 116, 0.32);
+  background-color: rgba(6, 54, 116, 0.025);
+}
+
+.pat-card-tinted-interactive {
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.pat-card-tinted-interactive:hover {
+  border-color: rgba(79, 191, 226, 0.45);
+  background-color: rgba(79, 191, 226, 0.17);
+}
+
+.pat-card-muted {
+  border-color: rgba(148, 163, 184, 0.28);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(241, 245, 249, 0.98));
+}
+
+.pat-card-muted-interactive {
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.pat-card-muted-interactive:hover {
+  border-color: rgba(100, 116, 139, 0.34);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(241, 245, 249, 1));
+}
+
+.pat-range-unanswered {
+  accent-color: rgba(92, 108, 128, 0.22);
+  opacity: 0.72;
+}
+
+.pat-range-unanswered::-webkit-slider-thumb {
+  opacity: 0.2;
+}
+
+.pat-range-unanswered::-moz-range-thumb {
+  opacity: 0.2;
+}
+
+.pat-card-strong {
+  border: 1px solid var(--dark-surface-border);
+  border-radius: 30px;
+  background: linear-gradient(180deg, rgba(6, 54, 116, 0.985), rgba(12, 83, 159, 0.965));
+  box-shadow: 0 28px 72px rgba(15, 23, 42, 0.14);
+  color: var(--dark-surface-ink);
+}
+
+.pat-card-strong .pat-label {
+  color: var(--dark-surface-muted);
+}
+
+.pat-card-strong h1,
+.pat-card-strong h2,
+.pat-card-strong h3,
+.pat-card-strong h4,
+.pat-card-strong strong {
+  color: var(--dark-surface-ink);
+}
+
+.pat-card-strong .brand-c2-wordmark,
+.pat-card-strong .brand-pat-wordmark {
+  color: var(--dark-surface-ink);
+}
+
+.pat-card-strong .brand-pat-submark {
+  color: var(--dark-surface-muted);
+}
+
+.pat-card-strong .pat-link {
+  color: var(--dark-surface-ink);
+  text-decoration-color: rgba(255, 255, 255, 0.28);
+}
+
+.pat-card-strong .pat-link:hover {
+  text-decoration-color: rgba(255, 255, 255, 0.52);
+}
+
+.pat-subpanel {
+  border: 1px solid var(--shell-border);
+  border-radius: 20px;
+  background: var(--shell-panel-strong);
+}
+
+.pat-soft-panel {
+  border: 1px solid var(--shell-border);
+  border-radius: 20px;
+  background: var(--shell-panel-soft);
+}
+
+.pat-soft-panel-interactive {
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.pat-soft-panel-interactive:hover {
+  border-color: rgba(6, 54, 116, 0.32);
+  background-color: rgba(6, 54, 116, 0.025);
+  color: var(--shell-ink);
+}
+
+/* WS1-A (manual-review items 1/2/3): match the canonical sign-in pill design
+   (app/sign-in/page.tsx:99-126 InlineAccessSelectorWithOptions). Flat
+   rounded-full container with subtle border + soft-panel bg. Options are
+   flat pills, no chiclet shadow, no transform-on-hover. Active state uses
+   a faint brand-tinted fill instead of solid dark navy. */
+.pat-mode-toggle {
+  display: inline-flex;
+  max-width: 100%;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  border: 1px solid var(--shell-border);
+  border-radius: 999px;
+  background: var(--shell-panel-soft);
+  padding: 0.375rem;
+}
+
+.pat-mode-toggle__option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  padding: 0.625rem 1rem;
+  font-family: var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--shell-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.pat-mode-toggle__option:hover {
+  border-color: rgba(6, 54, 116, 0.18);
+  background: white;
+  color: var(--shell-ink);
+}
+
+.pat-mode-toggle__option:focus-visible {
+  outline: 3px solid rgba(79, 191, 226, 0.32);
+  outline-offset: 3px;
+}
+
+.pat-mode-toggle__option[data-active="true"] {
+  border-color: rgba(6, 54, 116, 0.16);
+  background: rgba(6, 54, 116, 0.06);
+  color: var(--shell-ink);
+}
+
+.pat-mode-toggle__option[data-state="locked"] {
+  border-color: rgba(210, 161, 91, 0.2);
+  background: rgba(255, 250, 240, 0.78);
+  color: #75552a;
+}
+
+.pat-mode-toggle__option[data-state="locked"]:hover {
+  background: rgba(255, 250, 240, 0.96);
+  color: #5f431c;
+}
+
+.pat-mode-toggle__option[data-state="locked"][data-active="true"] {
+  border-color: rgba(210, 161, 91, 0.34);
+  background: rgba(255, 247, 234, 0.95);
+  color: #5f431c;
+}
+
+.pat-mode-toggle__option[data-state="disabled"] {
+  border-color: transparent;
+  background: transparent;
+  color: var(--shell-muted);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pat-mode-toggle__option[data-state="disabled"]:hover {
+  background: transparent;
+  color: var(--shell-muted);
+}
+
+.pat-mode-toggle__status {
+  border: 1px solid rgba(12, 33, 66, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.62);
+  padding: 0.18rem 0.45rem;
+  font-family: var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pat-mode-toggle__option[data-active="true"] .pat-mode-toggle__status {
+  border-color: rgba(6, 54, 116, 0.18);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--shell-ink);
+}
+
+.pat-mode-toggle__status[data-state="locked"] {
+  border-color: rgba(210, 161, 91, 0.2);
+  background: rgba(255, 247, 234, 0.95);
+  color: #8c5b18;
+}
+
+.pat-mode-toggle__status[data-state="disabled"] {
+  background: rgba(148, 163, 184, 0.12);
+  color: rgba(92, 108, 128, 0.92);
+}
+
+.pat-label-emphasis {
+  font-weight: 800;
+  color: var(--shell-ink);
+}
+
+.pat-button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--shell-ink);
+  padding: 0.85rem 1.4rem;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: white;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+.pat-button-primary:hover {
+  opacity: 0.94;
+}
+
+.pat-button-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.pat-button-accent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--shell-accent);
+  padding: 0.85rem 1.4rem;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--shell-ink);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.pat-button-accent:hover {
+  background: var(--shell-accent-strong);
+  color: white;
+}
+
+.pat-button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--shell-border);
+  padding: 0.85rem 1.4rem;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--shell-ink);
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.pat-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.pat-card-strong .pat-button-secondary {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--dark-surface-ink);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
+}
+
+.pat-card-strong .pat-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--dark-surface-ink);
+}
+
+.pat-card-strong .pat-button-accent {
+  background: var(--pat-lime);
+  color: var(--brand-c2-blue);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+}
+
+.pat-card-strong .pat-button-accent:hover {
+  background: #24d764;
+  color: var(--brand-c2-blue);
+}
+
+.pat-link {
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--shell-ink);
+  text-decoration: underline;
+  text-decoration-color: rgba(22, 33, 44, 0.18);
+  text-underline-offset: 0.3rem;
+}
+
+.pat-link:hover {
+  text-decoration-color: var(--shell-accent);
+}
+
+.pat-input,
+.pat-select,
+.pat-textarea {
+  width: 100%;
+  border: 1px solid rgba(22, 33, 44, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  padding: 0.9rem 1rem;
+  font-family: var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.95rem;
+  color: var(--shell-ink);
+}
+
+.pat-input:focus,
+.pat-select:focus,
+.pat-textarea:focus {
+  outline: none;
+  border-color: rgba(185, 134, 68, 0.55);
+  box-shadow: 0 0 0 4px rgba(210, 161, 91, 0.14);
+}
+
+.pat-banner {
+  border-radius: 18px;
+  border: 1px solid var(--shell-border);
+  padding: 0.9rem 1rem;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.pat-banner-info {
+  background: rgba(255, 252, 248, 0.86);
+  color: var(--shell-ink);
+}
+
+.pat-banner-success {
+  border-color: rgba(34, 197, 94, 0.22);
+  background: rgba(236, 253, 245, 0.95);
+  color: var(--shell-success);
+}
+
+.pat-banner-warning {
+  border-color: rgba(251, 146, 60, 0.26);
+  background: rgba(255, 247, 237, 0.95);
+  color: var(--shell-warning);
+}
+
+.pat-banner-danger {
+  border-color: rgba(248, 113, 113, 0.22);
+  background: rgba(254, 242, 242, 0.96);
+  color: var(--shell-danger);
+}
+
+.pat-dark-copy {
+  color: var(--dark-surface-copy);
+}
+
+.pat-dark-copy-soft {
+  color: var(--dark-surface-muted);
+}
+
+.pat-dark-panel {
+  border: 1px solid var(--dark-surface-border);
+  border-radius: 22px;
+  background: var(--dark-surface-soft-strong);
+  color: var(--dark-surface-ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.pat-dark-panel .pat-label {
+  color: var(--dark-surface-muted);
+}
+
+.pat-dark-chip {
+  border: 1px solid var(--dark-surface-border);
+  border-radius: 999px;
+  background: var(--dark-surface-soft-strong);
+  color: var(--dark-surface-copy);
+}
+
+.pat-question-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border: 1px solid rgba(22, 33, 44, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.94);
+  padding: 0.9rem 1rem;
+}
+
+.pat-question-choice[data-active="true"] {
+  border-color: rgba(11, 92, 255, 0.24);
+  background: rgba(240, 247, 255, 0.98);
+  box-shadow: 0 10px 24px rgba(11, 92, 255, 0.08);
+}
+
+.pat-question-choice-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(22, 33, 44, 0.12);
+  background: rgba(255, 255, 255, 0.94);
+  padding: 0.7rem 1rem;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--shell-ink);
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.pat-question-choice-button:hover {
+  border-color: rgba(6, 54, 116, 0.34);
+}
+
+.pat-question-choice-button[data-active="true"] {
+  border-color: rgba(11, 92, 255, 0.24);
+  background: rgba(240, 247, 255, 0.98);
+}
+
+/* WS10-B Block A: canonical bold-number utility. Apply to every percentage,
+   score, delta, count, and module-completion render so the eye lands on
+   numeric data first. font-variant-numeric: tabular-nums keeps numbers
+   monospaced within their column for clean vertical alignment in tables. */
+.pat-stat-number {
+  font-weight: 700;
+  color: var(--shell-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* WS10-A Block J: navigation loading cursor band-aid. Active during route
+   transitions; cleared once the new pathname commits. */
+body.nav-loading,
+body.nav-loading * {
+  cursor: progress !important;
 }

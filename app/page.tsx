@@ -1,47 +1,103 @@
-﻿import Link from "next/link";
+import Link from "next/link";
+import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import { getSessionUser } from "@/lib/auth/session";
+import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
+import { getPublicOnboardingHomeCards } from "@/lib/publicOnboarding";
+import { getRequestLocaleMessages } from "@/lib/requestLocale";
 
-export default function Home() {
+export default async function Home() {
+  const sessionUser = await getSessionUser();
+  const messages = await getRequestLocaleMessages();
+  const individualSurfacesEnabled = isIndividualSurfacesEnabled();
+  const signedIn = Boolean(sessionUser);
+  const signInHref = "/sign-in";
+  const signInCtaLabel = messages.common.continueToSignIn;
+  const onboardingCards = getPublicOnboardingHomeCards();
+  const signInCopy = signedIn
+    ? messages.home.signedInCopy
+    : individualSurfacesEnabled
+      ? messages.home.signedOutCopy
+      : "Vendors and firms sign in here to access their PAT workspace. Person-level and access-code paths are shelved for the current pilot.";
+
   return (
-    <main>
-      <section className="mb-24">
-        <h1 className="text-6xl font-bold mb-6">AAE</h1>
-        <p className="text-2xl text-gray-600">
-          Autonomous Alignment Infrastructure for Accounting Firms.
+    <div className="space-y-8">
+      <section className="pat-card px-7 py-8 sm:px-10 sm:py-10">
+        <PatLogoLockup mode="hero" tone="light" />
+        <div className="pat-label mt-6">{messages.home.eyebrow}</div>
+        <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-tight text-[var(--shell-ink)] sm:text-5xl">
+          {messages.home.heroTitle}
+        </h1>
+        <p className="mt-5 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
+          {messages.home.heroBody}
         </p>
       </section>
 
-      <section className="grid md:grid-cols-3 gap-10">
+      <section className="grid gap-6 lg:grid-cols-2">
         <Link
-          href="/profiles"
-          className="border rounded-2xl p-10 hover:shadow-lg transition"
+          href="/pat"
+          className="pat-card pat-card-interactive block px-7 py-8 sm:px-8 sm:py-9"
         >
-          <h2 className="text-2xl font-bold mb-4">Profiles</h2>
-          <p className="text-gray-600">
-            Institutional capability scoring and firm visibility.
+          <div className="pat-label">{messages.home.welcomeLabel}</div>
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
+            {messages.home.meetPatTitle}
+          </h2>
+          <p className="mt-4 text-base leading-7 text-[var(--shell-muted)]">
+            {messages.home.meetPatBody}
           </p>
+          <span className="mt-6 inline-flex items-center rounded-full border border-[var(--shell-border)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] shadow-[0_6px_18px_rgba(15,23,42,0.04)]">
+            {messages.home.meetPatCta}
+          </span>
         </Link>
 
         <Link
-          href="/outputs"
-          className="border rounded-2xl p-10 hover:shadow-lg transition"
+          href={signInHref}
+          className="pat-card pat-card-interactive block px-7 py-8 sm:px-8 sm:py-9"
         >
-          <h2 className="text-2xl font-bold mb-4">Top Seven Outputs</h2>
-          <p className="text-gray-600">
-            Core institutional deliverables of aligned firms.
+          <div className="pat-label">Sign in</div>
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
+            Continue to your workspace
+          </h2>
+          <p className="mt-4 text-base leading-7 text-[var(--shell-muted)]">
+            {signInCopy}
           </p>
-        </Link>
-
-        <Link
-          href="/survey"
-          className="border rounded-2xl p-10 hover:shadow-lg transition"
-        >
-          <h2 className="text-2xl font-bold mb-4">Start Survey</h2>
-          <p className="text-gray-600">
-            Generate your institutional alignment profile.
-          </p>
+          <span className="mt-6 inline-flex items-center rounded-full border border-[var(--shell-border)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] shadow-[0_6px_18px_rgba(15,23,42,0.04)]">
+            {signInCtaLabel}
+          </span>
         </Link>
       </section>
-    </main>
+
+      <section className="pat-card px-7 py-8 sm:px-8 sm:py-9">
+        <div className="pat-label">{messages.home.signInLabel}</div>
+        <div>
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
+            Choose your path
+          </h2>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
+            Pick the role that matches your work, compare the first-value path, and start the assessment that creates real PAT signal. Paid conversion stays clearly staged unless Stripe billing is configured.
+          </p>
+        </div>
+
+        <div className="mt-7 grid gap-5 lg:grid-cols-3" aria-label="PAT public onboarding paths">
+          {onboardingCards.map((card) => (
+            <Link
+              key={card.audience}
+              href={card.href}
+              className="rounded-[24px] border border-[var(--shell-border)] bg-white/75 p-5 transition hover:-translate-y-0.5 hover:border-[rgba(6,54,116,0.22)] hover:shadow-[0_18px_50px_rgba(15,23,42,0.08)]"
+            >
+              <div className="pat-label">{card.label}</div>
+              <h3 className="mt-3 text-xl font-semibold tracking-tight text-[var(--shell-ink)]">
+                {card.title}
+              </h3>
+              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+                {card.body}
+              </p>
+              <span className="mt-5 inline-flex rounded-full border border-[var(--shell-border)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] shadow-[0_6px_18px_rgba(15,23,42,0.04)]">
+                {card.ctaLabel}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+    </div>
   );
 }
-
