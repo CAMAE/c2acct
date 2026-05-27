@@ -1087,3 +1087,132 @@ enum VendorStatus {
   DISPLACED
   UNKNOWN
 }
+
+// =========================================================
+// Agent system tables (Phase 0)
+// See PATALIGN-AGENT-PHASE-1-IMPL-SPEC.md §2. The supervisor process
+// (scripts/agents/supervisor.ts) syncs AgentDefinition rows from agents/*.yaml,
+// records each invocation as an AgentRun, and writes every hook event to
+// AgentAuditLogEntry. AgentApproval backs the Phase 1d Telegram round-trip.
+// verticalId carries the future Vertical Pack key; defaults to "accounting".
+// =========================================================
+
+model AgentDefinition {
+  id          String          @id @default(cuid())
+  key         String          @unique // e.g. "qa-smoke", "pilot-ops", "cloudflare-watcher"
+  name        String // human-readable
+  description String?
+  enabled     Boolean         @default(true)
+  configYaml  String // serialized YAML config (model, tools, hard caps, cadence)
+  verticalId  String          @default("accounting") // vertical pack key (future cross-industry)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  runs        AgentRun[]
+  approvals   AgentApproval[]
+
+  @@index([key])
+  @@index([verticalId])
+}
+
+model AgentRun {
+  id            String               @id @default(cuid())
+  agentKey      String // FK shape (denormalized for query speed)
+  agent         AgentDefinition      @relation(fields: [agentKey], references: [key])
+  trigger       String // "scheduled" | "manual" | "approval-resume" | "test"
+  triggerSource String? // user id, scheduler name, etc.
+  status        AgentRunStatus       @default(running)
+  startedAt     DateTime             @default(now())
+  finishedAt    DateTime?
+  durationMs    Int?
+  tokensInput   Int?
+  tokensOutput  Int?
+  estCostUsd    Decimal?             @db.Decimal(10, 6)
+  finalSummary  String? // short markdown summary
+  errorClass    String? // structured failure category
+  errorMessage  String?
+  steps         AgentStep[]
+  auditLog      AgentAuditLogEntry[]
+  approvals     AgentApproval[]
+
+  @@index([agentKey, startedAt(sort: Desc)])
+  @@index([status])
+}
+
+enum AgentRunStatus {
+  running
+  awaiting_approval
+  completed
+  failed
+  cancelled
+  timeout
+  budget_exceeded
+  circuit_open
+}
+
+model AgentStep {
+  id           String    @id @default(cuid())
+  runId        String
+  run          AgentRun  @relation(fields: [runId], references: [id], onDelete: Cascade)
+  stepIdx      Int // monotonic within run
+  kind         String // "thought" | "tool_call" | "tool_result" | "approval_request" | "approval_granted" | "approval_denied" | "summary"
+  toolName     String?
+  toolArgs     Json?
+  toolResult   Json?
+  modelUsed    String? // "claude-sonnet-4-6", "claude-haiku-4-5", etc.
+  tokensInput  Int?
+  tokensOutput Int?
+  startedAt    DateTime  @default(now())
+  finishedAt   DateTime?
+
+  @@index([runId, stepIdx])
+}
+
+model AgentAuditLogEntry {
+  id        String    @id @default(cuid())
+  runId     String?
+  run       AgentRun? @relation(fields: [runId], references: [id], onDelete: SetNull)
+  agentKey  String?
+  hookPhase String // "pre_tool_use" | "post_tool_use" | "can_use_tool" | "user_message" | "agent_message" | "approval_decision"
+  payload   Json
+  outcome   String? // "allowed" | "blocked" | "approved" | "denied" | "edited" | "error"
+  createdAt DateTime  @default(now())
+
+  @@index([agentKey, createdAt(sort: Desc)])
+  @@index([runId])
+  @@index([hookPhase])
+}
+
+model AgentApproval {
+  id             String              @id @default(cuid())
+  runId          String
+  run            AgentRun            @relation(fields: [runId], references: [id], onDelete: Cascade)
+  agentKey       String
+  agent          AgentDefinition     @relation(fields: [agentKey], references: [key])
+  proposedAction String // "send_email" | "post_forum" | "provision_user" | etc.
+  proposedArgs   Json
+  rationale      String? // agent's explanation
+  blastRadius    String? // "low" | "medium" | "high"
+  estCostUsd     Decimal?            @db.Decimal(10, 6)
+  status         AgentApprovalStatus @default(pending)
+  decidedBy      String? // operator email / chat id
+  decidedAt      DateTime?
+  decision       String? // "approve" | "deny" | "edit"
+  editedArgs     Json? // when decision = "edit", what the operator changed to
+  decisionNote   String?
+  telegramMsgId  String? // for inline button updates
+  telegramHmac   String? // anti-replay
+  createdAt      DateTime            @default(now())
+
+  @@index([status, createdAt])
+  @@index([agentKey])
+  @@index([runId])
+}
+
+enum AgentApprovalStatus {
+  pending
+  approved
+  denied
+  edited
+  expired
+  cancelled
+}

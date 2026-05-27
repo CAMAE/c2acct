@@ -1,0 +1,39 @@
+key: hello-world
+name: Hello World Agent
+description: Phase 0 smoke test. Logs one no-op tool call and exits.
+vertical_id: accounting
+enabled: true
+
+# Manual cadence: the supervisor runs it once on start (run_on_start) and never
+# on a clock. The standalone runner (scripts/agents/hello-world.ts) also runs it
+# once. This is the trivial agent that proves the supervisor → hooks → audit →
+# Neon loop works end to end.
+schedule:
+  type: manual
+  run_on_start: true
+  jitter_seconds: 0
+
+model:
+  default: claude-haiku-4-5
+
+# Hard caps (enforced by lib/agents/budget.ts).
+limits:
+  max_turns: 4
+  max_budget_usd: 0.01
+  max_runtime_seconds: 30
+
+# The only tool it may use is the in-process no-op logger.
+tools:
+  - server: noop
+    allow:
+      - log
+
+hooks:
+  pre_tool_use:
+    - audit
+    - budget_check
+  post_tool_use:
+    - audit
+    - cost_track
+  can_use_tool:
+    - allowlist
