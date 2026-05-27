@@ -39,8 +39,13 @@ export interface ApprovalDecision {
  * detects it, restores the run to `running`, and returns the decision shape.
  *
  * Note: the wait counts against the agent's max_runtime_seconds. Long-lived
- * approvals (Pilot Ops, Phase 1b) should raise that cap or adopt the
- * pause/approval-resume pattern.
+ * approvals (Pilot Ops, Phase 1b) raise that cap as a stopgap.
+ *
+ * TODO(approval-resume): replace this blocking wait with the async pause/resume
+ * pattern (terminate the run as awaiting_approval; the decision handler enqueues
+ * an "approval-resume" run). Decouples human latency from process runtime. See
+ * docs/agents/approval-architecture.md. Target: 2nd approval-gated agent or any
+ * multi-tenant deploy, whichever first.
  */
 export async function requestApproval(request: ApprovalRequest): Promise<ApprovalDecision> {
   const approval = await prisma.agentApproval.create({

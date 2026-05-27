@@ -1,0 +1,18 @@
+name: health-stalled
+kind: health
+now_ms: 1780000000000
+stalled_threshold_days: 7
+members:
+  - state: ACTIVE
+    created_ms: 1779000000000
+    name: active-firm
+  - state: INVITED
+    created_ms: 1779000000000
+    name: stalled-firm
+expect:
+  alert: true
+  active: 1
+  provisioning: 0
+  invited: 1
+  stalled: 1
+  blocked: 0

@@ -1,0 +1,9 @@
+name: invite-edit-subject
+kind: invitation
+firm: Test Firm 1
+to: test-firm-1@example.com
+decision: edited
+edited_subject: "TEST INVITE EDIT"
+expect:
+  executed: true
+  subject: "TEST INVITE EDIT"

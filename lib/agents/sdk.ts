@@ -206,7 +206,8 @@ function createRunContext(
       if (pre.block) {
         throw new AgentError("approval_denied", pre.reason ?? `Tool "${toolName}" blocked by approval gate.`);
       }
-      const effectiveArgs = pre.editedArgs ?? toolArgs;
+      // Operator edits overlay the original args (change one field, keep the rest).
+      const effectiveArgs = pre.editedArgs ? { ...toolArgs, ...pre.editedArgs } : toolArgs;
 
       await prisma.agentStep.create({
         data: {

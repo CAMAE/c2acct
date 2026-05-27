@@ -149,6 +149,34 @@ export function isToolAllowed(config: AgentConfig, toolName: string, toolArgs?: 
   return entry.allow.includes(action);
 }
 
+export interface ApprovalRule {
+  required: boolean;
+  blastRadius: string;
+  /** The matched rule key (e.g. "gmail.draft" or "neon.write:User"). */
+  ruleKey: string;
+}
+
+/**
+ * Resolve whether a tool call needs operator approval. Matches `always_require_approval`
+ * against the plain tool name AND, when the call names a `table`, the table-qualified
+ * key `${toolName}:${table}` — so a rule like "neon.write:User" gates a
+ * `neon.write` call with `{ table: "User" }`.
+ */
+export function resolveApprovalRule(config: AgentConfig, toolName: string, toolArgs?: unknown): ApprovalRule {
+  const rules = config.approval_rules;
+  const list = rules?.always_require_approval ?? [];
+  const args = (toolArgs ?? {}) as Record<string, unknown>;
+  const tableKey = typeof args.table === "string" ? `${toolName}:${args.table}` : null;
+
+  const ruleKey = list.includes(toolName) ? toolName : tableKey && list.includes(tableKey) ? tableKey : null;
+  if (!ruleKey) {
+    return { required: false, blastRadius: "low", ruleKey: toolName };
+  }
+  const blastRadius =
+    rules?.approval_blast_radius?.[ruleKey] ?? rules?.approval_blast_radius?.[toolName] ?? "medium";
+  return { required: true, blastRadius, ruleKey };
+}
+
 /** Compile a glob (only `*` is special) into an anchored RegExp. */
 function globToRegExp(glob: string): RegExp {
   const escaped = glob.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*");

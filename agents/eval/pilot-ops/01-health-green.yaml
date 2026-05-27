@@ -1,0 +1,21 @@
+name: health-green
+kind: health
+now_ms: 1780000000000
+stalled_threshold_days: 7
+members:
+  - state: ACTIVE
+    created_ms: 1779000000000
+    name: active-firm
+  - state: PROVISIONING
+    created_ms: 1779900000000
+    name: provisioning-firm
+  - state: INVITED
+    created_ms: 1779900000000
+    name: recent-invite
+expect:
+  alert: false
+  active: 1
+  provisioning: 1
+  invited: 1
+  stalled: 0
+  blocked: 0

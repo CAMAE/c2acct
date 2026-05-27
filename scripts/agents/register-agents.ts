@@ -2,7 +2,7 @@
 // (see lib/agents/registry.ts). The supervisor imports this barrel once at
 // startup so every handler is available before it dispatches a run.
 //
-// Phase 1 appends: import "./pilot-ops";
 import "./hello-world";
 import "./qa-smoke";
 import "./cloudflare-watcher";
+import "./pilot-ops";

@@ -1,0 +1,7 @@
+name: invite-deny
+kind: invitation
+firm: Test Firm 1
+to: test-firm-1@example.com
+decision: denied
+expect:
+  executed: false

@@ -1,0 +1,8 @@
+name: invite-approve
+kind: invitation
+firm: Test Firm 1
+to: test-firm-1@example.com
+decision: approved
+expect:
+  executed: true
+  subject: "Welcome to the PAT pilot, Test Firm 1"

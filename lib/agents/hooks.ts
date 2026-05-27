@@ -1,7 +1,7 @@
 import { auditLog } from "./audit";
 import { checkBudget, recordCost } from "./budget";
 import { requestApproval } from "./approvals";
-import { isToolAllowed } from "./config";
+import { isToolAllowed, resolveApprovalRule } from "./config";
 import type { HookCtx, ToolArgs, TokenUsage } from "./types";
 
 export interface PreToolUseResult {
@@ -30,17 +30,17 @@ export async function preToolUse(
 
   await checkBudget(ctx);
 
-  const rules = ctx.config.approval_rules;
-  if (rules?.always_require_approval?.includes(toolName)) {
+  const rule = resolveApprovalRule(ctx.config, toolName, toolArgs);
+  if (rule.required) {
     // requestApproval blocks until the operator decides (recorded by the Telegram
     // bot via the shared DB) or it times out. The bot writes the canonical
     // approval_decision audit row, so we don't duplicate it here.
     const decision = await requestApproval({
       runId: ctx.runId,
       agentKey: ctx.agentKey,
-      proposedAction: toolName,
+      proposedAction: rule.ruleKey,
       proposedArgs: toolArgs,
-      blastRadius: rules.approval_blast_radius?.[toolName] ?? "medium",
+      blastRadius: rule.blastRadius,
     });
 
     if (decision.outcome === "denied" || decision.outcome === "timeout") {

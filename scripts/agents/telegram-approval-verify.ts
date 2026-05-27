@@ -9,6 +9,8 @@
 import prisma from "@/lib/prisma";
 import { toJsonValue } from "@/lib/agents/json";
 import { onCallbackQuery, sendApprovalToTelegram } from "@/ops/telegram-bot/approvals";
+import { signApproval } from "@/ops/telegram-bot/hmac";
+import { editMessageText } from "@/lib/agents/telegram";
 import { loadEnv } from "../_shared/prismaScript";
 
 const DEMO_AGENT = "pilot-ops";
@@ -108,6 +110,73 @@ async function selftestBadmac(): Promise<void> {
   await badmac(approval.id);
 }
 
+// Tap a non-pending (stale) approval with a VALID HMAC, to confirm it is rejected
+// by the status guard (no new decision recorded). The HMAC stays valid for a
+// cancelled/expired row — rejection comes from status != pending, not HMAC.
+async function staletap(approvalId: string): Promise<void> {
+  const before = await prisma.agentApproval.findUnique({ where: { id: approvalId } });
+  if (!before) {
+    console.error(`No approval ${approvalId}`);
+    process.exit(1);
+    return;
+  }
+  const validHmac = signApproval(before.id, before.createdAt.getTime());
+  const decisionsBefore = await prisma.agentAuditLogEntry.count({
+    where: { hookPhase: "approval_decision", payload: { path: ["approvalId"], equals: approvalId } },
+  });
+
+  await onCallbackQuery({
+    id: "synthetic-stale-tap",
+    data: `approve:${approvalId}:${validHmac}`,
+    from: { username: "cam" },
+    message: { message_id: 1, chat: { id: process.env.TELEGRAM_ALLOWED_CHAT_ID ?? "0" } },
+  });
+
+  const after = await prisma.agentApproval.findUnique({ where: { id: approvalId } });
+  const decisionsAfter = await prisma.agentAuditLogEntry.count({
+    where: { hookPhase: "approval_decision", payload: { path: ["approvalId"], equals: approvalId } },
+  });
+  console.log(
+    JSON.stringify(
+      {
+        approvalId,
+        hmacValid: true,
+        statusBefore: before.status,
+        statusAfter: after?.status,
+        decisionRecorded: after?.decision ?? null,
+        newDecisionAudits: decisionsAfter - decisionsBefore,
+        rejectedByStatusGuard: before.status !== "pending" && after?.status === before.status && after?.decision === null,
+      },
+      null,
+      2
+    )
+  );
+}
+
+// Edit any stale (cancelled/expired) pilot-ops cards still in Telegram so the
+// operator knows not to tap them.
+async function expireCards(): Promise<void> {
+  const token = process.env.TELEGRAM_BOT_TOKEN ?? "";
+  const chatId = process.env.TELEGRAM_ALLOWED_CHAT_ID ?? "";
+  const rows = await prisma.agentApproval.findMany({
+    where: { agentKey: DEMO_AGENT, status: { in: ["cancelled", "expired"] }, telegramMsgId: { not: null } },
+  });
+  let edited = 0;
+  for (const row of rows) {
+    const messageId = row.telegramMsgId ? Number(row.telegramMsgId) : null;
+    if (messageId === null || Number.isNaN(messageId)) {
+      continue;
+    }
+    await editMessageText(token, {
+      chat_id: chatId,
+      message_id: messageId,
+      text: `⏱ Expired — run timed out before a decision. Do not tap. (${row.proposedArgs && typeof row.proposedArgs === "object" ? "" : ""}ref ${row.id})`,
+    });
+    edited += 1;
+  }
+  console.log(`Edited ${edited} stale card(s) to show expired.`);
+}
+
 async function status(approvalId?: string): Promise<void> {
   const rows = approvalId
     ? await prisma.agentApproval.findMany({ where: { id: approvalId } })
@@ -156,8 +225,18 @@ async function main() {
     case "selftest-badmac":
       await selftestBadmac();
       break;
+    case "staletap":
+      if (!arg) {
+        console.error("usage: staletap <approvalId>");
+        process.exit(2);
+      }
+      await staletap(arg);
+      break;
+    case "expire-cards":
+      await expireCards();
+      break;
     default:
-      console.error("usage: telegram-approval-verify <seed|badmac <id>|selftest-badmac|status [id]>");
+      console.error("usage: telegram-approval-verify <seed|badmac <id>|selftest-badmac|staletap <id>|expire-cards|status [id]>");
       process.exit(2);
   }
   process.exit(0);

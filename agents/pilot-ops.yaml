@@ -1,0 +1,67 @@
+key: pilot-ops
+name: Pilot Ops Agent
+description: Pilot user provisioning, invites, health summary, re-engagement nudges.
+vertical_id: accounting
+enabled: true
+
+schedule:
+  type: cron
+  expression: "0 8 * * *"        # daily 8am local
+  jitter_seconds: 0
+
+model:
+  default: claude-sonnet-4-6
+  triage: claude-haiku-4-5
+
+limits:
+  max_turns: 20
+  max_budget_usd: 0.50
+  max_runtime_seconds: 1800
+
+# NOTE: the spec named tables User/PilotInvitation/PilotMembership, but the real
+# pilot schema is User + PilotCohort + PilotCohortMember (no PilotInvitation/
+# PilotMembership models exist). Scoped to the real tables here.
+tools:
+  - server: neon
+    allow:
+      - read
+      - write
+    scope:
+      tables:
+        - User
+        - PilotCohort
+        - PilotCohortMember
+  - server: gmail
+    allow:
+      - draft  # cannot send directly
+  - server: telegram
+    allow:
+      - send_message
+      - send_approval_card
+  - server: vercel
+    allow:
+      - read_logs
+
+hooks:
+  pre_tool_use:
+    - audit
+    - budget_check
+    - approval_required  # any write/draft requires approval
+  post_tool_use:
+    - audit
+    - cost_track
+
+# gmail.draft is gated in Phase 1b (the invitation-draft proof routes through the
+# approval round-trip). neon writes to User / PilotCohortMember are gated too.
+approval_rules:
+  always_require_approval:
+    - gmail.draft                  # invitation drafts require approval (Phase 1b proof)
+    - gmail.send                   # cannot send email without approval
+    - gmail.draft_then_send        # even drafting that auto-sends
+    - neon.write:User              # cannot create/modify users
+    - neon.write:PilotCohortMember # cannot create/modify pilot membership / invites
+  approval_blast_radius:
+    gmail.send: high
+    gmail.draft: medium
+    neon.write:User: high
+    neon.write:PilotCohortMember: medium
