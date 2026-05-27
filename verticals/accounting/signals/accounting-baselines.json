@@ -1,0 +1,6 @@
+{
+  "verticalId": "accounting",
+  "schemaVersion": 1,
+  "description": "Accounting reference signals / calibration baselines (V1 scaffold).",
+  "baselines": []
+}

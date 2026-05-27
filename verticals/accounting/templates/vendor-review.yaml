@@ -1,0 +1,13 @@
+# Accounting vendor-review workflow template (V1 scaffold).
+# Structural steps are shared; the descriptive labels/criteria are accounting-specific.
+key: vendor-review
+name: Vendor review (accounting)
+steps:
+  - id: intake
+    label: Capture vendor + product under review
+  - id: taxonomy-fit
+    label: Map product to accounting taxonomy buckets (Tax Prep, Audit Workpapers, …)
+  - id: capability-scan
+    label: Score capability coverage against the firm's needs
+  - id: alignment-summary
+    label: Produce the alignment brief for the firm

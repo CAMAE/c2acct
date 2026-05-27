@@ -19,6 +19,7 @@ import {
 } from "@/lib/agents/qa-smoke/probe";
 import { decideAlert, evaluate } from "@/lib/agents/qa-smoke/evaluator";
 import { buildTelegramSendPayload, sendTelegramMessage } from "@/lib/agents/telegram";
+import { loadVerticalPack } from "@/lib/verticals/loader";
 import type { AgentHandler, AgentRunContext } from "@/lib/agents/types";
 import type { ProbeResult, RoutePlan } from "@/lib/agents/qa-smoke/types";
 
@@ -29,6 +30,17 @@ const QA_OBSERVED_MARKER = "qa-observed-commit";
 
 const qaSmokeHandler: AgentHandler = async (ctx) => {
   const baseUrl = process.env.PAT_QA_BASE_URL ?? DEFAULT_BASE_URL;
+
+  // Vertical Pack resolution (proof of pattern). QA is not vertical-aware
+  // functionally; this just demonstrates loading the pack for the agent's
+  // configured verticalId so every agent has a uniform pack-resolution path.
+  const verticalId = ctx.config.vertical_id ?? "accounting";
+  const pack = await loadVerticalPack(verticalId);
+  await ctx.log("vertical pack loaded", {
+    vertical: pack.id,
+    version: pack.version,
+    taxonomySource: pack.taxonomy.source,
+  });
 
   // PLANNER
   const plan = planRoutes(baseUrl);

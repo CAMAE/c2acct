@@ -4,6 +4,12 @@
 
 This is the repo-level build order and launch-readiness guide for the current PAT implementation.
 
+> **PAT is Vertical Pack-aware (Phase 2).** Descriptive/industry-specific data
+> carries a `verticalId` (default `"accounting"`); structural entities and the
+> scoring engine are shared. Accounting is the V1 reference Pack at
+> `verticals/accounting/`. See `docs/agents/vertical-packs.md` for the format and
+> how to add a new vertical (manufacturing/finance/…).
+
 The filename is historical. It does not mean the live product or runtime is AAE.
 
 This guide still references dated 2026-04-02 rollback and launch artifacts. Treat any branch or commit values from those sections as historical evidence from that date, not as guaranteed current checkout truth.

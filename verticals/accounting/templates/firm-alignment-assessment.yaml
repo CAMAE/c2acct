@@ -1,0 +1,12 @@
+# Accounting firm-alignment-assessment workflow template (V1 scaffold).
+key: firm-alignment-assessment
+name: Firm alignment assessment (accounting)
+steps:
+  - id: firm-profile
+    label: Establish firm size, service lines, and operating model
+  - id: capability-baseline
+    label: Baseline the firm's current capability scores
+  - id: gap-analysis
+    label: Identify alignment gaps against accounting reference signals
+  - id: recommendations
+    label: Recommend vendor/product moves to close gaps

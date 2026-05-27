@@ -1,0 +1,26 @@
+id: accounting
+name: Accounting
+version: 1
+description: Accounting firm + vendor alignment pack (V1 reference Vertical Pack)
+
+# Taxonomy (descriptive layer): vendor categories live in the TaxonomyBucket
+# table, filtered by verticalId. Structural entities (Company, Product, Vendor,
+# scores) are shared across verticals.
+taxonomy:
+  source: db
+  filter:
+    verticalId: accounting
+
+workflows:
+  - templates/vendor-review.yaml
+  - templates/firm-alignment-assessment.yaml
+
+agent_prompts:
+  vendor-review-assistant: prompts/vendor-review.md
+
+compliance:
+  audit_retention_days: 365
+  data_residency: us-east
+
+reference_signals: signals/accounting-baselines.json
+eval_set: evals/accounting/

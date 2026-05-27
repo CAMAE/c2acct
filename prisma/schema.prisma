@@ -11,11 +11,14 @@ datasource db {
 model Badge {
   id                String              @id
   name              String
+  verticalId        String              @default("accounting")
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   BadgeRule         BadgeRule[]
   CompanyBadge      CompanyBadge[]
   InsightUnlockRule InsightUnlockRule[]
+
+  @@index([verticalId])
 }
 
 model BadgeRule {
@@ -24,12 +27,14 @@ model BadgeRule {
   moduleId     String
   minScore     Float?
   required     Boolean      @default(true)
+  verticalId   String       @default("accounting")
   Badge        Badge        @relation(fields: [badgeId], references: [id], onDelete: Cascade)
   SurveyModule SurveyModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
   @@unique([badgeId, moduleId])
   @@index([badgeId])
   @@index([moduleId])
+  @@index([verticalId])
 }
 
 model BenchmarkCohort {
@@ -105,6 +110,7 @@ model Company {
   id                     String                   @id
   name                   String
   type                   CompanyType
+  verticalId             String                   @default("accounting")
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime
   CompanyBadge           CompanyBadge[]
@@ -122,6 +128,8 @@ model Company {
   VendorProfile          VendorProfile?
   EcosystemAsVendor      Ecosystem?               @relation("EcosystemVendor")
   EcosystemFirm          EcosystemFirm[]          @relation("EcosystemFirmCompany")
+
+  @@index([verticalId])
 }
 
 model CompanyBadge {
@@ -131,6 +139,7 @@ model CompanyBadge {
   badgeId   String
   moduleId  String
   awardedAt DateTime @default(now())
+  verticalId String  @default("accounting")
   Badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
   Company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   Subject   Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
@@ -139,6 +148,7 @@ model CompanyBadge {
   @@index([badgeId])
   @@index([companyId])
   @@index([subjectId])
+  @@index([verticalId])
 }
 
 model CompanyBenchmark {
@@ -243,10 +253,13 @@ model Insight {
   body                  String
   tier                  Int                     @default(1)
   active                Boolean                 @default(true)
+  verticalId            String                  @default("accounting")
   createdAt             DateTime                @default(now())
   updatedAt             DateTime
   InsightCapabilityRule InsightCapabilityRule[]
   InsightUnlockRule     InsightUnlockRule[]
+
+  @@index([verticalId])
 }
 
 model InsightCapabilityRule {
@@ -270,6 +283,7 @@ model InsightUnlockRule {
   insightId String
   badgeId   String
   required  Boolean  @default(true)
+  verticalId String  @default("accounting")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   Insight   Insight  @relation(fields: [insightId], references: [id], onDelete: Cascade)
@@ -278,6 +292,7 @@ model InsightUnlockRule {
   @@unique([insightId, badgeId])
   @@index([insightId])
   @@index([badgeId])
+  @@index([verticalId])
 }
 
 model ModuleCapability {
@@ -306,6 +321,7 @@ model Product {
   apiEndpoint               String?
   deploymentModel           ProductDeploymentModel?
   active                    Boolean                     @default(true)
+  verticalId                String                      @default("accounting")
   createdAt                 DateTime                    @default(now())
   updatedAt                 DateTime
   Company                   Company?                    @relation(fields: [companyId], references: [id], onDelete: SetNull)
@@ -319,6 +335,7 @@ model Product {
 
   @@index([companyId])
   @@index([vendorId])
+  @@index([verticalId])
 }
 
 model ProductProfile {
@@ -550,12 +567,15 @@ model VendorProfile {
   status         VendorStatus         @default(ACTIVE)
   researchStatus ResearchSourceStatus @default(PENDING)
   notes          String?
+  verticalId     String               @default("accounting")
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
   Company        Company?             @relation(fields: [companyId], references: [id], onDelete: SetNull)
   Subject        Subject?             @relation(fields: [subjectId], references: [id], onDelete: SetNull)
   Product        Product[]
   VendorSignal   VendorSignal[]
+
+  @@index([verticalId])
 }
 
 model ResearchSource {
@@ -584,6 +604,7 @@ model TaxonomyBucket {
   kind                      TaxonomyBucketKind
   parentId                  String?
   active                    Boolean                     @default(true)
+  verticalId                String                      @default("accounting")
   createdAt                 DateTime                    @default(now())
   updatedAt                 DateTime                    @updatedAt
   Parent                    TaxonomyBucket?             @relation("TaxonomyBucketTree", fields: [parentId], references: [id], onDelete: SetNull)
@@ -593,6 +614,7 @@ model TaxonomyBucket {
 
   @@index([kind])
   @@index([parentId])
+  @@index([verticalId, kind])
 }
 
 model ProductTaxonomyAssignment {
@@ -716,6 +738,7 @@ model SurveyModule {
   version          Int                @default(1)
   weight           Float              @default(1.0)
   active           Boolean            @default(true)
+  verticalId       String             @default("accounting")
   createdAt        DateTime           @default(now())
   updatedAt        DateTime
   BadgeRule        BadgeRule[]
@@ -723,6 +746,8 @@ model SurveyModule {
   SurveySection    SurveySection[]
   SurveyQuestion   SurveyQuestion[]
   SurveySubmission SurveySubmission[]
+
+  @@index([verticalId])
 }
 
 model SurveySection {
@@ -757,6 +782,7 @@ model SurveyQuestion {
   weight                   Float                      @default(1.0)
   order                    Int
   required                 Boolean                    @default(true)
+  verticalId               String                     @default("accounting")
   createdAt                DateTime                   @default(now())
   meta                     Json?
   updatedAt                DateTime
@@ -767,6 +793,7 @@ model SurveyQuestion {
   @@unique([moduleId, key])
   @@index([moduleId, order])
   @@index([sectionId, order])
+  @@index([verticalId])
 }
 
 model SurveyQuestionCapability {
