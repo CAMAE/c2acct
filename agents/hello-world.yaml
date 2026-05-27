@@ -2,7 +2,10 @@ key: hello-world
 name: Hello World Agent
 description: Phase 0 smoke test. Logs one no-op tool call and exits.
 vertical_id: accounting
-enabled: true
+# Disabled after Phase 0: the smoke test served its purpose; the supervisor no
+# longer runs it. Kept (disabled) as the reference trivial agent and so /agents
+# still lists it.
+enabled: false
 
 # Manual cadence: the supervisor runs it once on start (run_on_start) and never
 # on a clock. The standalone runner (scripts/agents/hello-world.ts) also runs it

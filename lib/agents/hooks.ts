@@ -32,6 +32,9 @@ export async function preToolUse(
 
   const rules = ctx.config.approval_rules;
   if (rules?.always_require_approval?.includes(toolName)) {
+    // requestApproval blocks until the operator decides (recorded by the Telegram
+    // bot via the shared DB) or it times out. The bot writes the canonical
+    // approval_decision audit row, so we don't duplicate it here.
     const decision = await requestApproval({
       runId: ctx.runId,
       agentKey: ctx.agentKey,
@@ -40,20 +43,13 @@ export async function preToolUse(
       blastRadius: rules.approval_blast_radius?.[toolName] ?? "medium",
     });
 
-    await auditLog({
-      runId: ctx.runId,
-      agentKey: ctx.agentKey,
-      hookPhase: "approval_decision",
-      payload: { toolName, toolArgs, decision },
-      outcome: decision.outcome,
-    });
-
-    if (decision.outcome === "denied") {
-      return { block: true, reason: decision.reason ?? "operator denied" };
+    if (decision.outcome === "denied" || decision.outcome === "timeout") {
+      return { block: true, reason: decision.outcome === "timeout" ? "approval timed out" : "operator denied" };
     }
     if (decision.outcome === "edited") {
       return { block: false, editedArgs: decision.editedArgs };
     }
+    // approved → fall through and proceed
   }
 
   return { block: false };
