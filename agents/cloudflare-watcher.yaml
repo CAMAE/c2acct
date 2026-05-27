@@ -1,0 +1,46 @@
+key: cloudflare-watcher
+name: Cloudflare / Domain Watcher
+description: Watches patalign.com DNS state and Cloudflare ticket #02139025. Alert-only in Phase 1.
+vertical_id: accounting          # n/a — internal ops; default for now
+enabled: true
+
+schedule:
+  type: cron
+  expression: "0 */2 * * *"      # every 2 hours
+  jitter_seconds: 120
+
+model:
+  default: claude-haiku-4-5      # cheap, fast — only reasoning is "did state change?"
+
+limits:
+  max_turns: 6
+  max_budget_usd: 0.05
+  max_runtime_seconds: 60
+
+tools:
+  - server: shell
+    allow:
+      - dig +short NS patalign.com
+      - dig +short A patalign.com
+      - dig +short A www.patalign.com
+  - server: cloudflare
+    allow:
+      - read  # zone state, DNS records (NO write in Phase 1)
+  - server: telegram
+    allow:
+      - send_message
+
+hooks:
+  pre_tool_use:
+    - audit
+    - allowlist_strict  # NO actions outside the allowlist; no community forum posting
+  post_tool_use:
+    - audit
+    - cost_track
+
+# Phase 2 enhancement (commented out for now):
+# approval_rules:
+#   always_require_approval:
+#     - web.post_forum
+#   approval_blast_radius:
+#     web.post_forum: medium

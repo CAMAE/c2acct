@@ -1216,3 +1216,18 @@ enum AgentApprovalStatus {
   expired
   cancelled
 }
+
+// Per-agent key/value state store. Runtime plumbing (like AgentRun/audit), not a
+// tool: agents persist baselines here between runs (e.g. the Cloudflare watcher's
+// last-known DNS snapshot) via lib/agents/state.ts. Not production business data.
+model AgentState {
+  id        String   @id @default(cuid())
+  agentKey  String
+  key       String
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([agentKey, key])
+  @@index([agentKey])
+}

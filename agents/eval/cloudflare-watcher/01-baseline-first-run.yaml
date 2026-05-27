@@ -1,0 +1,10 @@
+name: baseline-first-run
+description: First run, no prior snapshot. Baseline captured; no alert regardless of state.
+has_previous: false
+current_ns: [dolly.ns.cloudflare.com., major.ns.cloudflare.com.]
+current_a: []
+current_www_a: []
+current_zone_status: null
+expect:
+  changed: false
+  findings: []

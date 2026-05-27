@@ -1,0 +1,15 @@
+name: zone-state-transition
+description: Cloudflare zone moves pending → active (ticket #02139025 resolved). Alert — cloudflare_zone_changed.
+has_previous: true
+previous_ns: [dolly.ns.cloudflare.com., major.ns.cloudflare.com.]
+previous_a: []
+previous_www_a: []
+previous_zone_status: pending
+current_ns: [dolly.ns.cloudflare.com., major.ns.cloudflare.com.]
+current_a: []
+current_www_a: []
+current_zone_status: active
+expect:
+  changed: true
+  findings:
+    - cloudflare_zone_changed

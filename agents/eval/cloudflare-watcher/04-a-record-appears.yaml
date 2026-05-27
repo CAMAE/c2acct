@@ -1,0 +1,15 @@
+name: a-record-appears
+description: An A record appears for patalign.com (site started resolving). Alert — a_changed.
+has_previous: true
+previous_ns: [dolly.ns.cloudflare.com., major.ns.cloudflare.com.]
+previous_a: []
+previous_www_a: []
+previous_zone_status: null
+current_ns: [dolly.ns.cloudflare.com., major.ns.cloudflare.com.]
+current_a: [104.21.0.1]
+current_www_a: []
+current_zone_status: null
+expect:
+  changed: true
+  findings:
+    - a_changed

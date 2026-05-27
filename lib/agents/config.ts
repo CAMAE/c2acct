@@ -125,6 +125,17 @@ export function isToolAllowed(config: AgentConfig, toolName: string, toolArgs?: 
     return entry.allow.some((pattern) => globToRegExp(pattern).test(candidate));
   }
 
+  if (server === "shell") {
+    // The allow entries are exact commands (e.g. "dig +short NS patalign.com").
+    // The call's `command` must match one of them — deny-by-default keeps the
+    // Cloudflare watcher to dig-only and rejects anything else (allowlist_strict).
+    const command = typeof args.command === "string" ? args.command.trim() : "";
+    if (!command) {
+      return false;
+    }
+    return entry.allow.some((pattern) => globToRegExp(pattern.trim()).test(command));
+  }
+
   if (server === "neon" && args.table !== undefined) {
     const tables = entry.scope?.tables;
     if (Array.isArray(tables) && !tables.map(String).includes(String(args.table))) {

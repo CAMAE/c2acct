@@ -48,6 +48,7 @@
     "validate:launch": "node --import tsx scripts/validate-launch.ts",
     "agent:run": "node --import tsx scripts/agents/run-agent.ts",
     "agent:eval:qa-smoke": "node --import tsx scripts/agents/eval/qa-smoke.ts",
+    "agent:eval:cloudflare-watcher": "node --import tsx scripts/agents/eval/cloudflare-watcher.ts",
     "standalone:local": "node --import tsx scripts/local-standalone.ts",
     "standalone:local:check": "node --import tsx scripts/local-standalone.ts --check",
     "smoke:score-unlock-contract": "node --import tsx scripts/smoke-score-unlock-contract.ts",

@@ -1,0 +1,14 @@
+name: no-change
+description: State identical to last run. No alert.
+has_previous: true
+previous_ns: [dolly.ns.cloudflare.com., major.ns.cloudflare.com.]
+previous_a: []
+previous_www_a: []
+previous_zone_status: null
+current_ns: [major.ns.cloudflare.com., dolly.ns.cloudflare.com.]
+current_a: []
+current_www_a: []
+current_zone_status: null
+expect:
+  changed: false
+  findings: []
