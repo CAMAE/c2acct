@@ -4,6 +4,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 
+if (process.env.VERCEL === "1") {
+  console.log("[prepare-standalone-runtime] skipping on Vercel — Mac-mini-only standalone packaging not applicable");
+  process.exit(0);
+}
+
 const root = process.cwd();
 const standaloneDir = path.join(root, ".next", "standalone");
 const standaloneNextDir = path.join(standaloneDir, ".next");
