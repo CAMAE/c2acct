@@ -13,6 +13,11 @@
   </array>
   <key>WorkingDirectory</key>
   <string>/Users/camerongarrett/work/c2acct-live</string>
+  <!-- Secrets are placeholders here. Do NOT commit real values. Render a local
+       copy with real values from .env.prod (DATABASE_URL/DIRECT_URL) and
+       .env.local (secrets) before launchctl load — see docs/agents/operations.md.
+       applyRepoEnv() only fills ABSENT vars, so these launchd values win over
+       .env.local at runtime (production points at Neon, not docker). -->
   <key>EnvironmentVariables</key>
   <dict>
     <key>NODE_ENV</key>
@@ -21,6 +26,18 @@
     <string>/Users/camerongarrett</string>
     <key>PATH</key>
     <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <key>DATABASE_URL</key>
+    <string>__DATABASE_URL__</string>
+    <key>DIRECT_URL</key>
+    <string>__DIRECT_URL__</string>
+    <key>AUTH_SECRET</key>
+    <string>__AUTH_SECRET__</string>
+    <key>AGENT_APPROVAL_HMAC_SECRET</key>
+    <string>__AGENT_APPROVAL_HMAC_SECRET__</string>
+    <key>TELEGRAM_BOT_TOKEN</key>
+    <string>__TELEGRAM_BOT_TOKEN__</string>
+    <key>TELEGRAM_ALLOWED_CHAT_ID</key>
+    <string>__TELEGRAM_ALLOWED_CHAT_ID__</string>
   </dict>
   <key>RunAtLoad</key>
   <true/>
