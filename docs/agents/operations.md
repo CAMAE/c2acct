@@ -115,13 +115,18 @@ to the same `AgentApproval` table.
   `.env.local` + the launchd plist + Vercel env.
 
 ### Phase 2.5 cleanup backlog (consolidated)
-1. ~~Prod /admin sign-in Server-Action bug.~~ **RESOLVED / not a bug (2026-05-29).**
-   The Server Action POST fires correctly in prod (Playwright capture: POST →
-   303 → session → role redirect). The "click does nothing" report was the role
-   account being rejected by the role-specific sign-in path, plus the error banner
-   being missed during rapid retries. `serverActions.allowedOrigins` was added
-   defensively (next.config.ts) for the Cloudflare-proxy/patalign.com origin; keep
-   it. Demo role accounts (`demo-*@patalign.test`) were provisioned to Neon prod.
+1. ~~Prod /admin sign-in Server-Action bug.~~ **RESOLVED (2026-05-29, commits
+   9a55060e + e0e650fd).** Two distinct things were tangled here:
+   (a) The Server Action POST itself works (Playwright: POST → 303 → session
+   cookie set). The "click does nothing" report was an ADMIN account rejected by
+   the role-specific paths + a missed error banner. `serverActions.allowedOrigins`
+   added defensively for the Cloudflare/patalign.com origin (keep it).
+   (b) **The real bug:** `proxy.ts` (Routing Middleware) called `getToken()`
+   without `secureCookie`, so under https it couldn't decode
+   `__Secure-authjs.session-token` (Auth.js v5 salts the JWE with the cookie
+   name) → returned null → 307-bounced every authenticated user back to /sign-in.
+   Fixed by deriving `secureCookie` from the request protocol. All four demo
+   roles (`demo-*@patalign.test`, provisioned to Neon) now render their portals.
 9. **Sign-in error banner is too easy to miss (UX polish).** On a failed pilot
    sign-in the server 303-redirects back to `/sign-in?...&error=pilot_password_invalid`
    and an inline rose banner renders (app/sign-in/page.tsx `describeAuthError`),
