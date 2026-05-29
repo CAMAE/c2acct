@@ -1,0 +1,44 @@
+key: internal-knowledge
+name: Internal Knowledge Agent
+description: Lexical search over operational knowledge (repo docs + agent audit log). Returns cited passages.
+vertical_id: accounting          # loaded for the pattern; v1 retrieval is cross-vertical (operational knowledge)
+enabled: true
+
+# On-demand only — no cron. Triggered with a query via Telegram /knowledge,
+# /admin command bar, or `PAT_KNOWLEDGE_QUERY=... pnpm agent:run internal-knowledge`.
+schedule:
+  type: manual
+
+model:
+  default: claude-sonnet-4-6     # reserved for the Phase 3 LLM-synthesis upgrade
+  triage: claude-haiku-4-5       # v1 is deterministic (FTS); no model calls yet
+
+limits:
+  max_turns: 15
+  max_budget_usd: 0.30
+  max_runtime_seconds: 120
+
+# Read-only. No approval gates.
+tools:
+  - server: knowledge
+    allow:
+      - retrieve
+  - server: telegram
+    allow:
+      - send_message
+  - server: neon
+    allow:
+      - read
+    scope:
+      tables:
+        - AgentAuditLogEntry
+
+hooks:
+  pre_tool_use:
+    - audit
+    - budget_check
+  post_tool_use:
+    - audit
+    - cost_track
+  can_use_tool:
+    - allowlist

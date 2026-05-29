@@ -16,6 +16,8 @@ export async function handleCommand(text: string): Promise<string> {
       return agentList();
     case "/qa":
       return qaCommand(args[0]);
+    case "/knowledge":
+      return knowledgeQuery(args.join(" "));
     case "/audit":
       return auditTail(args[0]);
     case "/help":
@@ -111,6 +113,22 @@ async function auditTail(agentKey: string | undefined): Promise<string> {
   return [`Audit (last ${rows.length}${agentKey ? ` for ${agentKey}` : ""}):`, ...lines].join("\n");
 }
 
+async function knowledgeQuery(query: string): Promise<string> {
+  const q = query.trim();
+  if (!q) {
+    return "Usage: /knowledge <question>";
+  }
+  // The Internal Knowledge agent reads its query from PAT_KNOWLEDGE_QUERY and
+  // returns the cited answer in its run summary (audited like every agent).
+  process.env.PAT_KNOWLEDGE_QUERY = q;
+  try {
+    const outcome = await runAgentByKey("internal-knowledge", { trigger: "manual", triggerSource: "telegram" });
+    return outcome.summary ?? outcome.error ?? "(no answer)";
+  } finally {
+    delete process.env.PAT_KNOWLEDGE_QUERY;
+  }
+}
+
 function helpText(): string {
   return [
     "Commands:",
@@ -119,6 +137,7 @@ function helpText(): string {
     "/agents — registered agents + last run",
     "/qa run — trigger a QA smoke run",
     "/qa status — last QA run summary",
+    "/knowledge <question> — search operational knowledge (cited)",
     "/audit [agent] — last 10 audit entries",
     "/help — this list",
   ].join("\n");

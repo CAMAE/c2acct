@@ -1258,3 +1258,42 @@ model AgentState {
   @@unique([agentKey, key])
   @@index([agentKey])
 }
+
+// Internal Knowledge corpus (Phase 2 #2). Zero-dependency lexical search:
+// KnowledgeChunk has a generated tsvector column ("tsv") + GIN index created in
+// the migration SQL (omitted here — DB-generated, never written via Prisma;
+// queried via $queryRaw). Vector RAG (pgvector) is the future upgrade — see
+// docs/agents/internal-knowledge.md. verticalId is carried for future per-vertical
+// knowledge; v1 retrieval is cross-vertical (operational knowledge).
+model KnowledgeSource {
+  id            String              @id @default(cuid())
+  kind          KnowledgeSourceKind
+  path          String              @unique
+  contentHash   String
+  lastIndexedAt DateTime
+  verticalId    String              @default("accounting")
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  chunks        KnowledgeChunk[]
+
+  @@index([kind])
+  @@index([verticalId])
+}
+
+enum KnowledgeSourceKind {
+  repo_doc
+  audit_log
+  dream_state
+}
+
+model KnowledgeChunk {
+  id        String          @id @default(cuid())
+  sourceId  String
+  source    KnowledgeSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  chunkIdx  Int
+  text      String
+  tokens    Int
+  createdAt DateTime        @default(now())
+
+  @@index([sourceId, chunkIdx])
+}

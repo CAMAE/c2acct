@@ -34,6 +34,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ age
     if (parsed.task) env.PAT_PILOT_TASK = parsed.task;
     if (parsed.firm) env.PAT_PILOT_FIRM = parsed.firm;
   }
+  if (agentKey === "internal-knowledge" && message) {
+    env.PAT_KNOWLEDGE_QUERY = message;
+  }
 
   // Fire-and-forget: a detached process runs the agent so the request returns
   // immediately (a gated agent may then block on approval for minutes). Phase 1

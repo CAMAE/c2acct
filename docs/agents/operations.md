@@ -107,3 +107,19 @@ to the same `AgentApproval` table.
   uploads no `.git`, so `/api/release-fingerprint` falls back to the state-file
   commit and may not reflect the just-deployed commit. qa-smoke's commit-drift
   check is limited accordingly until fingerprint resolves the real deployed commit.
+- **Phase 3 preliminary — provision `ANTHROPIC_API_KEY`.** No LLM key is configured
+  anywhere, so every agent is deterministic. Provisioning Claude unlocks: LLM
+  *synthesis* for the Internal Knowledge agent (generative cited answers instead of
+  extractive passages — see docs/agents/internal-knowledge.md) AND Claude reasoning
+  for all future agents (Customer Comms drafts, Support Triage, etc.). Add to
+  `.env.local` + the launchd plist + Vercel env.
+
+### Phase 2.5 cleanup backlog (consolidated)
+1. Prod /admin sign-in Server-Action bug (above).
+2. Visible /admin agent-tab UX gap.
+3. Telegram bot consolidation (approval poller owns the token; chatops stopped).
+4. Command-bar manual-trigger in prod → Neon-backed trigger queue.
+5. Async-resume approval pattern (docs/agents/approval-architecture.md).
+6. Revert `AUTH_URL` to patalign.com once Cloudflare DNS resolves.
+7. Provision `ANTHROPIC_API_KEY` (Phase 3 preliminary — above).
+8. Index Dream State once extracted to text (`dream_state` knowledge source).

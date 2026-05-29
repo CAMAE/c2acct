@@ -50,6 +50,8 @@
     "agent:eval:qa-smoke": "node --import tsx scripts/agents/eval/qa-smoke.ts",
     "agent:eval:cloudflare-watcher": "node --import tsx scripts/agents/eval/cloudflare-watcher.ts",
     "agent:eval:pilot-ops": "node --import tsx scripts/agents/eval/pilot-ops.ts",
+    "agent:eval:internal-knowledge": "node --import tsx scripts/agents/eval/internal-knowledge.ts",
+    "agent:index-knowledge": "node --import tsx scripts/agents/index-knowledge.ts",
     "telegram-bot": "node --import tsx scripts/agents/telegram-bot.ts",
     "agent:approval-verify": "node --import tsx scripts/agents/telegram-approval-verify.ts",
     "standalone:local": "node --import tsx scripts/local-standalone.ts",

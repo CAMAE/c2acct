@@ -6,3 +6,4 @@ import "./hello-world";
 import "./qa-smoke";
 import "./cloudflare-watcher";
 import "./pilot-ops";
+import "./internal-knowledge";
