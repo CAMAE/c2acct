@@ -19,9 +19,22 @@ export default async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Auth.js v5 names the session cookie `__Secure-authjs.session-token` under
+  // https and derives the JWE encryption salt from that exact name. getToken
+  // must be told the cookie is secure, otherwise it looks for the non-secure
+  // `authjs.session-token` with the wrong salt, fails to decode, and returns
+  // null — which bounces every authenticated user back to /sign-in (the prod
+  // "sign in, land on /vendor, but see the sign-in form" loop). Derive secure
+  // from the request protocol / forwarded proto (Vercel + Cloudflare both set
+  // https for the deployed origin); locally over http this stays false so the
+  // non-secure cookie name + salt are used.
+  const secureCookie =
+    req.nextUrl.protocol === "https:" ||
+    req.headers.get("x-forwarded-proto") === "https";
   const token = await getToken({
     req,
     secret: resolvedAuthSecret ?? undefined,
+    secureCookie,
   }).catch(() => null);
 
   if (token?.sub) {
