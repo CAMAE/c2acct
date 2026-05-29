@@ -115,7 +115,20 @@ to the same `AgentApproval` table.
   `.env.local` + the launchd plist + Vercel env.
 
 ### Phase 2.5 cleanup backlog (consolidated)
-1. Prod /admin sign-in Server-Action bug (above).
+1. ~~Prod /admin sign-in Server-Action bug.~~ **RESOLVED / not a bug (2026-05-29).**
+   The Server Action POST fires correctly in prod (Playwright capture: POST →
+   303 → session → role redirect). The "click does nothing" report was the role
+   account being rejected by the role-specific sign-in path, plus the error banner
+   being missed during rapid retries. `serverActions.allowedOrigins` was added
+   defensively (next.config.ts) for the Cloudflare-proxy/patalign.com origin; keep
+   it. Demo role accounts (`demo-*@patalign.test`) were provisioned to Neon prod.
+9. **Sign-in error banner is too easy to miss (UX polish).** On a failed pilot
+   sign-in the server 303-redirects back to `/sign-in?...&error=pilot_password_invalid`
+   and an inline rose banner renders (app/sign-in/page.tsx `describeAuthError`),
+   but on a quick retry cycle users don't notice it (this caused a false "sign-in
+   is broken" alarm on 2026-05-29). Make the failure unmissable: a toast/sticky
+   banner, and/or persist the submitted email across the redirect so the user sees
+   their input wasn't silently cleared. Low-risk, demo-facing.
 2. Visible /admin agent-tab UX gap.
 3. Telegram bot consolidation (approval poller owns the token; chatops stopped).
 4. Command-bar manual-trigger in prod → Neon-backed trigger queue.
