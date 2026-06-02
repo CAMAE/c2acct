@@ -134,10 +134,46 @@ to the same `AgentApproval` table.
    is broken" alarm on 2026-05-29). Make the failure unmissable: a toast/sticky
    banner, and/or persist the submitted email across the redirect so the user sees
    their input wasn't silently cleared. Low-risk, demo-facing.
-2. Visible /admin agent-tab UX gap.
+2. ~~Visible Admin tab missing from the /sign-in role chooser.~~ **RESOLVED
+   (Sprint 1 Task A, commit ce57b217).** The Admin tab was gated on
+   `authRuntime.localReviewEnabled` (false in prod). Now unconditional, positioned
+   Vendor / Firm / Consultant / **Admin** / Meet PAT / Help.
 3. Telegram bot consolidation (approval poller owns the token; chatops stopped).
 4. Command-bar manual-trigger in prod → Neon-backed trigger queue.
 5. Async-resume approval pattern (docs/agents/approval-architecture.md).
 6. Revert `AUTH_URL` to patalign.com once Cloudflare DNS resolves.
 7. Provision `ANTHROPIC_API_KEY` (Phase 3 preliminary — above).
 8. Index Dream State once extracted to text (`dream_state` knowledge source).
+
+### Sprint 1 outcomes (2026-06-02)
+
+- **Task A — Admin tab on /sign-in (commit ce57b217, deployed):** see backlog #2.
+  Verified headless: 6 role tabs, clicking Admin → `?view=admin` → operator card.
+- **Task B — Synthetic demo-account activity (Neon prod, additive-only):** populated
+  the 4 demo accounts so their dashboards reflect realistic customer activity. Run
+  via a now-deleted one-shot (`scripts/_seed-demo-accounts-synthetic.tmp.ts`) that
+  reused the `lib/demoPatEcosystemSeed.ts` helpers (`ensureVendor/Product/Firm`,
+  `seedVendorProductAssessment`, `seedFirmAlignmentSubmission/Draft`,
+  `seedFirmProductAssessment`). Companies are matched **by name** so the existing
+  `Demo Vendor Inc` / `Demo Firm LLP` are augmented in place — the demo users'
+  `companyId` and sign-in are untouched. Applied deltas (additive, nothing removed):
+  **+4 products, +16 survey submissions, +3 FirmMaturityIndex, +1 Ecosystem, +2
+  companies** (2 new ecosystem firms). The existing benchmark data (vendors /
+  products / firms / scored submissions) was not mutated.
+  - **demo-vendor** → 4 products in mixed states: *Demo Tax Tool* + *Demo Advisory
+    Suite* = "Completed final vendor assessment"; *Demo Audit Workpapers* = "In
+    progress, final evidence incomplete" (a `scoreVersion=0` draft — there is no
+    vendor-draft helper, so this one state is a light custom `SurveySubmission`
+    write); *Demo Bookkeeping Pro* = "Needs feature declaration" (untouched —
+    product created with no assessment plan declared).
+  - **demo-firm** → FirmMaturityIndex/Momentum/Snapshot + 3/5 alignment modules
+    completed, 1 partial draft, 1 queued; insight surfaces populated.
+  - **demo-consultant** → one "Demo Accounting Ecosystem" (vendor Demo Vendor Inc +
+    3 firms: Demo Firm LLP, Northway Accounting Partners, Cedar & Vale CPAs), Avg
+    75 / "Building", **2 hot divergences** populated. (One ecosystem, not two —
+    `ConsultantAssignment` is strictly 1:1; multi-ecosystem is a future schema item.)
+  - **demo-admin-2** → unchanged (global aggregate `/admin` agent-ops view; confirmed
+    intact).
+- **Carryover polish (optional):** *Demo Bookkeeping Pro* reads "Needs feature
+  declaration" rather than "Ready to assess" because its utility keys aren't
+  registered via the assessment-plan layer; both are pre-assessment states.
