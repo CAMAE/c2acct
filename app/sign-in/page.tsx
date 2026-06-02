@@ -412,7 +412,11 @@ export default async function SignInHubPage({
     { id: "firm", label: messages.signIn.firm },
     ...(individualSurfacesEnabled ? [{ id: "individual" as const, label: messages.signIn.individual }] : []),
     ...(consultantAccessEnabled ? [{ id: "consultant" as const, label: "Consultant" }] : []),
-    ...(authRuntime.localReviewEnabled ? [{ id: "admin" as const, label: "Admin" }] : []),
+    // Admin tab is always shown (operators sign in via the provisioned-account
+    // form in the admin card; the form renders regardless of local-review state).
+    // Previously gated on authRuntime.localReviewEnabled, which is false in
+    // production, so the tab was invisible and admins had no way in — Phase 2.5 #2.
+    { id: "admin", label: "Admin" },
     ...(inviteeSurfacesEnabled ? [{ id: "invitee" as const, label: messages.signIn.invitee }] : []),
     { id: "pat", label: messages.signIn.meetPat },
     { id: "help", label: messages.signIn.help },
