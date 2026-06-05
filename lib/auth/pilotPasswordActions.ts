@@ -28,6 +28,16 @@ function passwordUpdatePath(returnTo: string) {
   return `/sign-in/password-update?returnTo=${encodeURIComponent(returnTo)}`;
 }
 
+/**
+ * Carry the submitted email back through an error redirect so the sign-in
+ * form can re-fill it (Phase 2.5 backlog #1: users should not have to retype
+ * their email after a failed attempt). Length-capped; encoded at usage.
+ */
+function emailRedirectParam(email: string) {
+  if (!email || email.length > 254) return "";
+  return `&email=${encodeURIComponent(email)}`;
+}
+
 export async function signInWithPilotCredentials(formData: FormData) {
   "use server";
 
@@ -38,7 +48,7 @@ export async function signInWithPilotCredentials(formData: FormData) {
   const view = sanitizeView(getSingleFormValue(formData.get("view")) || "vendor");
 
   if (!email || !password) {
-    redirect(`/${source}?view=${view}&error=pilot_password_missing`);
+    redirect(`/${source}?view=${view}&error=pilot_password_missing${emailRedirectParam(email)}`);
   }
 
   const user = await prisma.user.findFirst({
@@ -55,7 +65,7 @@ export async function signInWithPilotCredentials(formData: FormData) {
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      redirect(`/${source}?view=${view}&error=pilot_password_invalid`);
+      redirect(`/${source}?view=${view}&error=pilot_password_invalid${emailRedirectParam(email)}`);
     }
 
     throw error;

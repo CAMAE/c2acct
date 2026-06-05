@@ -140,6 +140,7 @@ function RoleAccessCard({
   localReviewEmail,
   inviteeAccessEnabled,
   hubHref,
+  submittedEmail,
 }: {
   title: string;
   subtitle: string;
@@ -155,6 +156,7 @@ function RoleAccessCard({
   localReviewEmail: string | null;
   inviteeAccessEnabled: boolean;
   hubHref: string;
+  submittedEmail: string | null;
 }) {
   return (
     <section className="pat-card p-8">
@@ -203,7 +205,7 @@ function RoleAccessCard({
             <input
               name="password"
               type="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
               placeholder="Local review password"
               className="pat-input"
             />
@@ -239,10 +241,20 @@ function RoleAccessCard({
           <input type="hidden" name="redirectTo" value={roleRedirect} />
           <input type="hidden" name="source" value="sign-in" />
           <input type="hidden" name="view" value={view} />
+          {/*
+            Phase 2.5 #11: defeat browser credential autofill. Saved-password
+            managers were substituting the operator's own email/password into
+            pilot-user sign-ins. autoComplete="off" on the email plus
+            "new-password" on the password suppresses the credential-pair
+            autofill heuristics in Chrome/Safari/Firefox.
+            Phase 2.5 #1: defaultValue re-fills the submitted email after a
+            failed attempt (carried back via the error redirect).
+          */}
           <input
             name="email"
             type="email"
-            autoComplete="username"
+            autoComplete="off"
+            defaultValue={submittedEmail ?? undefined}
             placeholder="Provisioned pilot email"
             className="pat-input"
             required
@@ -250,7 +262,7 @@ function RoleAccessCard({
           <input
             name="password"
             type="password"
-            autoComplete="current-password"
+            autoComplete="new-password"
             placeholder="Provisioned pilot password"
             className="pat-input"
             required
@@ -375,6 +387,9 @@ export default async function SignInHubPage({
   const activeView: AccessView =
     consultantViewDisabled || requestedSurfaceDisabled ? "vendor" : rawRequestedAccessView;
   const authError = getSingleParam(resolvedSearchParams?.error);
+  const rawSubmittedEmail = getSingleParam(resolvedSearchParams?.email);
+  const submittedEmail =
+    rawSubmittedEmail && rawSubmittedEmail.length <= 254 ? rawSubmittedEmail : null;
   const authReset = getSingleParam(resolvedSearchParams?.authReset) === "1";
   const authResetReason = getSingleParam(resolvedSearchParams?.authResetReason);
   const authRuntime = getAuthRuntimeStatus();
@@ -480,6 +495,7 @@ export default async function SignInHubPage({
           localReviewEmail={localReviewEmailByKey.get("vendor") ?? null}
           inviteeAccessEnabled={inviteeAccessEnabled}
           hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.vendor, view: "vendor" })}
+          submittedEmail={submittedEmail}
         />
       ) : null}
 
@@ -499,6 +515,7 @@ export default async function SignInHubPage({
           localReviewEmail={localReviewEmailByKey.get("firm") ?? null}
           inviteeAccessEnabled={inviteeAccessEnabled}
           hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.firm, view: "firm" })}
+          submittedEmail={submittedEmail}
         />
       ) : null}
 
@@ -518,6 +535,7 @@ export default async function SignInHubPage({
           localReviewEmail={localReviewEmailByKey.get("individual") ?? null}
           inviteeAccessEnabled={inviteeAccessEnabled}
           hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.individual, view: "individual" })}
+          submittedEmail={submittedEmail}
         />
       ) : null}
 
@@ -537,6 +555,7 @@ export default async function SignInHubPage({
           localReviewEmail={localReviewEmailByKey.get("admin") ?? null}
           inviteeAccessEnabled={inviteeAccessEnabled}
           hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.admin, view: "admin" })}
+          submittedEmail={submittedEmail}
         />
       ) : null}
 
@@ -556,6 +575,7 @@ export default async function SignInHubPage({
           localReviewEmail={localReviewEmailByKey.get("consultant") ?? null}
           inviteeAccessEnabled={inviteeAccessEnabled}
           hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.consultant, view: "consultant" })}
+          submittedEmail={submittedEmail}
         />
       ) : null}
 
