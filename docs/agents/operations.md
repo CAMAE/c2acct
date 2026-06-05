@@ -51,13 +51,20 @@ DATABASE_URL="$(grep '^DATABASE_URL=' .env.prod | cut -d= -f2- | tr -d '"')" \
 pnpm agent:run qa-smoke
 ```
 
-**Production via /admin command bar — NOT wired yet (TODO, Phase 1.5).** The
-`POST /api/agents/[key]/run` route spawns `scripts/agents/run-agent.ts`, which only
-works when the server runs from the repo (dev). On Vercel serverless there is no
-repo/scripts dir, so the command bar can't spawn runs in prod. The fix is a
-**Neon-backed trigger queue**: the API enqueues a row; the Mac-mini supervisor polls
-and runs it. Until then, production manual runs are done on the Mac mini via the
-command above; the supervisor drives all scheduled runs.
+**Production via /admin command bar — WIRED (Phase 2.5 #5, Neon-backed trigger
+queue).** In production, `POST /api/agents/[key]/run` enqueues an
+`AgentTriggerRequest` row (status `pending`) instead of spawning; the Mac-mini
+supervisor polls Neon every `PAT_TRIGGER_POLL_MS` (default 5s), claims the row
+(conditional update — never double-runs), applies the per-run env overrides
+from `taskEnv` (PAT_PILOT_TASK / PAT_PILOT_FIRM / PAT_KNOWLEDGE_QUERY), runs
+the agent in-process, and marks the trigger `completed` / `failed`. Pending
+triggers older than `PAT_TRIGGER_TTL_MS` (default 15 min) are marked `expired`
+so a supervisor outage never replays a stale backlog. Local dev keeps the
+direct spawn for instant feedback; set `PAT_AGENT_TRIGGER_QUEUE=1` to exercise
+the queue path locally. Code: `lib/agents/triggerQueue.ts`,
+`app/api/agents/[agentKey]/run/route.ts`, `scripts/agents/supervisor.ts`.
+Requires migration `20260605030000_add_agent_trigger_queue` and a supervisor
+restart after deploy (`launchctl kickstart -k gui/$UID/com.patalign.agent-supervisor`).
 
 ## Approvals
 

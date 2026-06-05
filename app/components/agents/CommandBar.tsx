@@ -35,9 +35,13 @@ export default function CommandBar() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ message }),
       });
-      const data = (await res.json()) as { ok?: boolean; task?: string | null; error?: string };
+      const data = (await res.json()) as { ok?: boolean; task?: string | null; queued?: boolean; error?: string };
       if (res.ok && data.ok) {
-        setStatus(`Triggered ${agentKey}${data.task ? ` (${data.task})` : ""}. Watch the activity feed / approvals.`);
+        setStatus(
+          data.queued
+            ? `Queued for ${agentKey}${data.task ? ` (${data.task})` : ""}. The supervisor picks it up within ~5s — watch the activity feed / approvals.`
+            : `Triggered ${agentKey}${data.task ? ` (${data.task})` : ""}. Watch the activity feed / approvals.`
+        );
         setValue("");
         setTimeout(() => router.refresh(), 1500);
       } else {

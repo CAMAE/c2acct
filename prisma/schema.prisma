@@ -1259,6 +1259,36 @@ model AgentState {
   @@index([agentKey])
 }
 
+// Production trigger queue (Phase 2.5 #5). The Vercel-served /admin command bar
+// cannot spawn agent processes (agents run on the Mac mini supervisor), so the
+// run endpoint enqueues a row here and the supervisor polls + claims it.
+// taskEnv carries the parsed per-run env overrides (PAT_PILOT_TASK,
+// PAT_PILOT_FIRM, PAT_KNOWLEDGE_QUERY) as a plain JSON object.
+model AgentTriggerRequest {
+  id          String             @id @default(cuid())
+  agentKey    String
+  message     String?
+  taskEnv     Json?
+  requestedBy String? // admin user email/id from the session
+  status      AgentTriggerStatus @default(pending)
+  createdAt   DateTime           @default(now())
+  claimedAt   DateTime?
+  finishedAt  DateTime?
+  runId       String? // AgentRun id once the supervisor starts the run
+  error       String?
+
+  @@index([status, createdAt])
+  @@index([agentKey, createdAt(sort: Desc)])
+}
+
+enum AgentTriggerStatus {
+  pending
+  claimed
+  completed
+  failed
+  expired
+}
+
 // Internal Knowledge corpus (Phase 2 #2). Zero-dependency lexical search:
 // KnowledgeChunk has a generated tsvector column ("tsv") + GIN index created in
 // the migration SQL (omitted here — DB-generated, never written via Prisma;
