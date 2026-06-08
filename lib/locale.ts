@@ -267,7 +267,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
       open_navigation_menu: "Open navigation menu",
       close_navigation_menu: "Close navigation menu",
       copyright: "Copyright 2026 C2Acct",
-      pat: "PAT",
+      pat: "PAT — Performance Alignment Technology · a Patalign\u2122 product",
     },
     common: {
       scoped: "Scoped",
@@ -579,7 +579,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
       open_navigation_menu: "Abrir menú de navegación",
       close_navigation_menu: "Cerrar menú de navegación",
       copyright: "Copyright 2026 C2Acct",
-      pat: "PAT",
+      pat: "PAT — Performance Alignment Technology · a Patalign\u2122 product",
     },
     common: {
       scoped: "Acotado",
@@ -892,7 +892,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
       open_navigation_menu: "Ouvrir le menu de navigation",
       close_navigation_menu: "Fermer le menu de navigation",
       copyright: "Copyright 2026 C2Acct",
-      pat: "PAT",
+      pat: "PAT — Performance Alignment Technology · a Patalign\u2122 product",
     },
     common: {
       scoped: "Cadré",
