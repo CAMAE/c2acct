@@ -10,13 +10,20 @@ import {
   VendorMeetPatContent,
   vendorWorkspaceCards,
 } from "@/app/components/vendor/VendorPortalContent";
+import Link from "next/link";
 import { getSessionUser } from "@/lib/auth/session";
 import { getInviteeAccessContext } from "@/lib/invitee/access";
+import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/profileSettingsStore";
 import prisma from "@/lib/prisma";
 import { buildVendorExternalProfileContract } from "@/lib/vendorProfileAdapter";
 import { ensureVendorProfileForCompany, getVendorCompanyContext } from "@/lib/vendorPat";
+import {
+  buildVendorProductGapCallout,
+  getVendorProductInsightCatalog,
+  type VendorProductInsightSnapshot,
+} from "@/lib/vendorProductInsightEngine";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -139,6 +146,17 @@ export default async function VendorPage({
     description: messages.portal.cards.vendor[card.id]?.description ?? card.description,
   }));
 
+  // Products-at-a-glance numbers are Pro-packaged signal, so the strip only
+  // renders for an entitled vendor session — baseline vendors keep the
+  // count-only context card and the explicit upgrade path.
+  let glanceSnapshots: VendorProductInsightSnapshot[] = [];
+  if (activePanel === "workspace" && sessionUser?.companyId) {
+    const entitlement = await resolveMembershipEntitlement(sessionUser, "vendor", MEMBERSHIP_PLAN.PRO);
+    if (entitlement.allowed) {
+      glanceSnapshots = await getVendorProductInsightCatalog(sessionUser.companyId);
+    }
+  }
+
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
@@ -189,6 +207,45 @@ export default async function VendorPage({
               <PortalSurfaceCard key={card.id} surface={card} />
             ))}
           </section>
+
+          {glanceSnapshots.length > 0 ? (
+            <section className="pat-card p-6">
+              <div className="pat-label">Products at a glance</div>
+              <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {glanceSnapshots.map((snapshot) => {
+                  const vendorScore = snapshot.vendorSelfReported.latestScore;
+                  const firmScore = snapshot.firmReviewed.averageScore;
+                  const gapCallout = buildVendorProductGapCallout(snapshot);
+                  return (
+                    <Link
+                      key={snapshot.product.id}
+                      href={`/vendor/product-insight/${snapshot.product.id}`}
+                      className="pat-soft-panel pat-soft-panel-interactive block p-4"
+                    >
+                      <div className="font-semibold text-[var(--shell-ink)]">{snapshot.product.name}</div>
+                      <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm tabular-nums text-[var(--shell-muted)]">
+                        <span>
+                          <span className="pat-stat-number">
+                            {vendorScore === null ? "—" : `${Math.round(vendorScore)}%`}
+                          </span>{" "}
+                          self-reported
+                        </span>
+                        <span>
+                          <span className="pat-stat-number">
+                            {firmScore === null ? "—" : `${Math.round(firmScore)}%`}
+                          </span>{" "}
+                          firm-reviewed
+                        </span>
+                      </div>
+                      {gapCallout.points !== null ? (
+                        <p className="mt-2 text-xs leading-5 text-[var(--shell-muted)]">{gapCallout.label}</p>
+                      ) : null}
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
+          ) : null}
 
           <section className="pat-card p-6">
             <div className="pat-label">{messages.portal.vendor.currentVendorContext}</div>

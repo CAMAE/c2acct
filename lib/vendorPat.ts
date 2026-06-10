@@ -277,6 +277,7 @@ export type VendorCompanyContext = {
     id: string;
     name: string;
     slug: string | null;
+    category: string | null;
     summary: string | null;
     website: string | null;
     active: boolean;
@@ -598,6 +599,7 @@ export async function getVendorCompanyContext(companyId: string | null | undefin
             id: true,
             name: true,
             slug: true,
+            category: true,
             summary: true,
             website: true,
             active: true,
@@ -633,6 +635,7 @@ export async function getVendorCompanyContext(companyId: string | null | undefin
         id: product.id,
         name: product.name,
         slug: product.slug,
+        category: product.category,
         summary: product.summary,
         website: product.website,
         active: product.active,

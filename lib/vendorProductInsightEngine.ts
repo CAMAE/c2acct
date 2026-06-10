@@ -87,6 +87,7 @@ export type VendorProductInsightSnapshot = {
   product: {
     id: string;
     name: string;
+    category: string | null;
     summary: string | null;
     utilityKeys: string[];
     utilityLabels: string[];
@@ -126,6 +127,7 @@ export type VendorProductInsightSnapshotInput = {
   product: {
     id: string;
     name: string;
+    category?: string | null;
     summary: string | null;
     utilityKeys: string[];
   };
@@ -679,6 +681,7 @@ export function buildVendorProductInsightSnapshot(
     product: {
       id: input.product.id,
       name: input.product.name,
+      category: input.product.category ?? null,
       summary: input.product.summary,
       utilityKeys: input.product.utilityKeys,
       utilityLabels,
@@ -730,6 +733,118 @@ export function buildVendorProductInsightSnapshot(
   });
 
   return snapshot;
+}
+
+export type VendorProductGapCallout = {
+  points: number | null;
+  label: string;
+};
+
+/**
+ * Divergence chip copy for the DivergenceBar hero and product cards, e.g.
+ * "9.5 pt divergence · firms read this product lower than the vendor story".
+ */
+export function buildVendorProductGapCallout(
+  snapshot: Pick<VendorProductInsightSnapshot, "divergence">
+): VendorProductGapCallout {
+  const points = snapshot.divergence.points;
+  if (points === null) {
+    return { points: null, label: "Not enough shared signal yet" };
+  }
+  const magnitude = Math.round(Math.abs(points) * 10) / 10;
+  if (Math.abs(points) < 5) {
+    return { points, label: `${magnitude} pt divergence · vendor story and firm reviews closely aligned` };
+  }
+  if (points > 0) {
+    return { points, label: `${magnitude} pt divergence · firms read this product lower than the vendor story` };
+  }
+  return { points, label: `${magnitude} pt divergence · firms read this product higher than the vendor story` };
+}
+
+export type VendorProductPlainLanguage = {
+  summary: string;
+  nextSteps: string[];
+};
+
+/**
+ * Zero-context "What this means for your product" copy, vendor point of view.
+ * Stays on current-state evidence only — no benchmark, percentile, market
+ * ranking, projection, or forecast claims (CLAUDE.md hard rule).
+ */
+export function buildVendorProductPlainLanguage(
+  snapshot: VendorProductInsightSnapshot,
+  record: VendorProductInsightRecord | null
+): VendorProductPlainLanguage | null {
+  const vendorScore = snapshot.vendorSelfReported.latestScore;
+  const firmScore = snapshot.firmReviewed.averageScore;
+  if (vendorScore === null && firmScore === null) {
+    return null;
+  }
+
+  const productName = snapshot.product.name;
+  const assessmentCount = snapshot.firmReviewed.assessmentCount;
+  const assessmentNoun = `${assessmentCount} firm review${assessmentCount === 1 ? "" : "s"}`;
+  const sections = record?.vendorSectionEvidence ?? snapshot.vendorSelfReported.sectionEvidence;
+  const weakestSection = sortScoredSections(sections).at(-1) ?? null;
+  const sentences: string[] = [];
+
+  if (vendorScore !== null && firmScore !== null) {
+    const points = snapshot.divergence.points ?? round1(vendorScore - firmScore);
+    const magnitude = Math.round(Math.abs(points) * 10) / 10;
+    sentences.push(
+      `${productName} reads ${Math.round(vendorScore)}% in your self-assessment and ${Math.round(firmScore)}% across ${assessmentNoun} — a ${magnitude}-point divergence.`
+    );
+    if (Math.abs(points) < 5) {
+      sentences.push(
+        "Firms are broadly confirming the self-view, which means the current product story is holding up in front of the people using it."
+      );
+    } else if (points > 0) {
+      sentences.push(
+        "Firms are currently reading the product lower than the vendor story, which means the self-view is running ahead of what reviewers can see in day-to-day operation."
+      );
+    } else {
+      sentences.push(
+        "Firms are currently reading the product higher than the vendor story — reviewers are confirming more operational value than the self-assessment claims."
+      );
+    }
+  } else if (vendorScore !== null) {
+    sentences.push(
+      `${productName} reads ${Math.round(vendorScore)}% in your self-assessment, and no firm has reviewed it yet.`
+    );
+    sentences.push(
+      "Until firm reviews arrive, this is a vendor-authored story without buyer confirmation, so treat every claim in it as unconfirmed rather than wrong."
+    );
+  } else if (firmScore !== null) {
+    sentences.push(
+      `${productName} reads ${Math.round(firmScore)}% across ${assessmentNoun}, while your own self-assessment signal is still missing.`
+    );
+    sentences.push(
+      "Firms are describing the product without a vendor self-view to compare against, so the calibration question cannot be answered yet."
+    );
+  }
+
+  if (weakestSection && weakestSection.averageScore !== null) {
+    sentences.push(
+      `${weakestSection.title} is your softest self-reported section at ${Math.round(weakestSection.averageScore)}%, which makes it the most likely place the gap is being decided.`
+    );
+  }
+
+  sentences.push(
+    "Closing the distance between the self-view and the firm-reviewed view generally strengthens your product-market evidence, because every later conversation can point at confirmed signal instead of claims."
+  );
+  sentences.push(
+    assessmentCount > 0
+      ? `Each additional firm review either confirms the story or shows exactly where it needs recalibrating — ${assessmentNoun} currently stand behind the firm-reviewed signal.`
+      : "The fastest way to firm this picture up is getting the product in front of firm reviewers, because that is the only source of buyer-side signal PAT will count."
+  );
+
+  return {
+    summary: sentences.join(" "),
+    nextSteps:
+      weakestSection && weakestSection.averageScore !== null
+        ? [`Strengthen the ${weakestSection.title.toLowerCase()} story before the next round of firm reviews.`]
+        : [],
+  };
 }
 
 export function canOpenVendorProductInsight(
@@ -1144,6 +1259,7 @@ export async function getVendorProductInsightSnapshot(companyId: string, product
     product: {
       id: product.id,
       name: product.name,
+      category: product.category,
       summary: product.summary,
       utilityKeys:
         vendorAssessmentStatus.utilityKeys.length > 0

@@ -685,10 +685,3 @@ textarea {
   color: var(--shell-ink);
   font-variant-numeric: tabular-nums;
 }
-
-/* WS10-A Block J: navigation loading cursor band-aid. Active during route
-   transitions; cleared once the new pathname commits. */
-body.nav-loading,
-body.nav-loading * {
-  cursor: progress !important;
-}

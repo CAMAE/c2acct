@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import DivergenceBar from "@/app/components/charts/DivergenceBar";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
 import { resolveVendorSurfaceAccess } from "@/lib/consultantAccess";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import {
+  buildVendorProductGapCallout,
   getVendorProductInsightCatalog,
   type VendorProductInsightSnapshot,
 } from "@/lib/vendorProductInsightEngine";
@@ -18,6 +20,19 @@ export const metadata = {
 };
 
 function ProductInsightCard({ snapshot }: { snapshot: VendorProductInsightSnapshot }) {
+  const vendorScore = snapshot.vendorSelfReported.latestScore;
+  const firmScore = snapshot.firmReviewed.averageScore;
+  const gapCallout = buildVendorProductGapCallout(snapshot);
+  const featureCount = snapshot.product.utilityKeys.length;
+  const assessmentCount = snapshot.firmReviewed.assessmentCount;
+  const descriptor = [
+    snapshot.product.category,
+    `${featureCount} declared feature${featureCount === 1 ? "" : "s"}`,
+    `${assessmentCount} firm assessment${assessmentCount === 1 ? "" : "s"}`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
     <Link
       href={`/vendor/product-insight/${snapshot.product.id}`}
@@ -26,6 +41,33 @@ function ProductInsightCard({ snapshot }: { snapshot: VendorProductInsightSnapsh
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-xl font-semibold text-[var(--shell-ink)]">{snapshot.product.name}</h2>
         <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
+      </div>
+      <p className="mt-1 text-xs leading-5 text-[var(--shell-muted)]">{descriptor}</p>
+      <div className="mt-4">
+        {vendorScore !== null && firmScore !== null ? (
+          <DivergenceBar
+            title={`${snapshot.product.name}: vendor self-reported vs firm-reviewed signal`}
+            a={{ label: "Vendor self-reported", value: vendorScore }}
+            b={{ label: "Firm-reviewed", value: firmScore }}
+            gapLabel={gapCallout.label}
+          />
+        ) : vendorScore !== null ? (
+          <div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-semibold leading-none tracking-tight tabular-nums text-[var(--shell-ink)]">
+                {Math.round(vendorScore)}%
+              </span>
+              <span className="text-xs text-[var(--shell-muted)]">self-reported signal</span>
+            </div>
+            <p className="mt-2 text-xs leading-5 text-[var(--shell-muted)]">
+              No firm-reviewed signal yet — the divergence view opens with the first firm review.
+            </p>
+          </div>
+        ) : (
+          <p className="text-xs leading-5 text-[var(--shell-muted)]">
+            No scored signal is available for this product yet.
+          </p>
+        )}
       </div>
     </Link>
   );

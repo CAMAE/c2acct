@@ -15,6 +15,7 @@ import {
   type InsightSurfaceContent,
 } from "@/lib/insightSurface";
 import { recordPatDiagnostic } from "@/lib/patDiagnostics";
+import { getScoreBand } from "@/lib/scoreBands";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import {
   ALIGNMENT_INSIGHT_DEFINITIONS,
@@ -651,6 +652,82 @@ export function buildVendorAlignmentInsightBundle(
   });
 
   return bundle;
+}
+
+export type VendorAlignmentPlainLanguage = {
+  summary: string;
+};
+
+/** What each maturity band of aggregated firm signal generally means for a
+ * vendor selling into those firms — general, current-state framing only. */
+const VENDOR_BAND_CLAUSE: Record<ReturnType<typeof getScoreBand>["key"], string> = {
+  emerging:
+    "expect buyers to need more implementation support than the product pitch assumes, because their operating foundations are still forming",
+  building:
+    "buyers can absorb new tooling, but rollouts still depend on individual champions rather than settled process",
+  established:
+    "buyers generally have the operating discipline to evaluate structured tooling and put it to work",
+  optimizing:
+    "buyers are operating cleanly enough to evaluate tooling quickly — and to notice gaps in it just as quickly",
+};
+
+/** Vendor-voiced positioning consequence of the softest firm-side module. */
+const VENDOR_MODULE_CLAUSE: Record<string, string> = {
+  firm_alignment_data_flow_v1:
+    "onboarding plans should assume longer connection work and more data cleanup than a demo environment shows",
+  firm_alignment_operating_model_v1:
+    "rollout plans should name owners and review steps explicitly, because the firms will not supply that structure themselves",
+  firm_alignment_automation_ai_v1:
+    "automation features should ship with oversight defaults, because the firms are not yet set up to supervise automated steps on their own",
+  firm_alignment_governance_v1:
+    "expect security and vendor-risk reviews to run slowly and unevenly, so evidence packs shorten the path more than feature demos do",
+  firm_alignment_strategy_v1:
+    "adoption will compete with shifting priorities inside the firms, so smaller phased rollouts tend to survive better than big-bang launches",
+};
+
+/**
+ * Zero-context "What this means for your positioning" copy for the vendor
+ * alignment detail pages. Current-state evidence only — no benchmark,
+ * percentile, peer-comparison, projection, or forecast claims.
+ */
+export function buildVendorAlignmentPlainLanguage(
+  report: VendorAlignmentInsightReport
+): VendorAlignmentPlainLanguage | null {
+  if (report.locked || report.averageModuleScore === null) {
+    return null;
+  }
+
+  const band = getScoreBand(report.averageModuleScore);
+  const strongest = report.strongestModules[0];
+  const weakest = report.weakestModules[0];
+  const sentences = [
+    `Firms in your current evidence base average ${Math.round(report.averageModuleScore)} — ${band.label} — on the modules behind this view.`,
+  ];
+
+  if (strongest && weakest && typeof weakest.averageScore === "number") {
+    if (strongest.key === weakest.key) {
+      sentences.push(`All current firm-side signal comes from ${strongest.title}.`);
+    } else {
+      sentences.push(
+        `The strongest firm-side signal is ${strongest.title}; the softest is ${weakest.title} at ${Math.round(weakest.averageScore)}%.`
+      );
+    }
+  }
+
+  sentences.push(`In practical terms, ${VENDOR_BAND_CLAUSE[band.key]}.`);
+
+  if (weakest) {
+    const moduleClause =
+      VENDOR_MODULE_CLAUSE[weakest.key] ??
+      "plan for the softest firm-side area to slow adoption until the firms strengthen it";
+    sentences.push(`Because ${weakest.title} is the soft spot, ${moduleClause}.`);
+  }
+
+  sentences.push(
+    `This stays current-state evidence from ${report.submissionCount} module submission${report.submissionCount === 1 ? "" : "s"} across the firms PAT can see for you; more submissions firm the picture up.`
+  );
+
+  return { summary: sentences.join(" ") };
 }
 
 export function buildVendorAlignmentProInsightCards(

@@ -2,7 +2,6 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
 import AppHeader, { type HeaderNavItem } from "@/app/components/header/AppHeader";
-import NavigationLoadingCursor from "@/app/components/NavigationLoadingCursor";
 import { barlowFontClassName } from "@/app/fonts/barlow";
 import { getSessionUser } from "@/lib/auth/session";
 import { getMembershipPathPrefix } from "@/lib/membershipContent";
@@ -80,7 +79,6 @@ export default async function RootLayout({
       <body
         className={`${barlowFontClassName} pat-shell flex min-h-screen flex-col bg-[var(--shell-bg)] text-[var(--shell-ink)] antialiased`}
       >
-        <NavigationLoadingCursor />
         <AppHeader
           currentLocale={locale}
           membershipHref={membershipHref}
