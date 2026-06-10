@@ -28,6 +28,7 @@ export const ADMIN_NAV_ITEMS = [
   { href: "/admin/runs", label: "Runs" },
   { href: "/admin/audit", label: "Audit" },
   { href: "/admin/insights", label: "Insights" },
+  { href: "/admin/reports", label: "Reports" },
   { href: "/admin/launch", label: "Launch" },
   { href: "/admin/runtime", label: "Runtime" },
 ] as const;

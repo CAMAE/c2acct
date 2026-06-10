@@ -56,7 +56,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
   return (
     <div className="space-y-8">
-      <section className="pat-card p-5">
+      <section className="pat-card p-5 print:hidden">
         <PatModeToggle
           ariaLabel="Admin control plane navigation"
           activeKey={activeAdminKey}

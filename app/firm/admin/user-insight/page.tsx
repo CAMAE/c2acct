@@ -12,13 +12,11 @@ export default async function FirmUserInsightPage({
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
-  if (!isIndividualSurfacesEnabled()) {
-    redirect(getPilotDisabledSignInPath("individual"));
-  }
-
   const sessionUser = await getSessionUser();
   if (!sessionUser?.companyId) {
-    redirect("/sign-in/firm");
+    redirect(
+      isIndividualSurfacesEnabled() ? "/sign-in/firm" : getPilotDisabledSignInPath("individual")
+    );
   }
 
   const company = await prisma.company.findUnique({
@@ -27,6 +25,35 @@ export default async function FirmUserInsightPage({
   }).catch(() => null);
   if (!company || company.type !== "FIRM") {
     redirect("/sign-in/firm");
+  }
+
+  // 6/9 audit bug 1: a signed-in firm admin used to get bounced to
+  // /sign-in?pilotDisabled=individual here. Keep them in the workspace with
+  // a shelved-surface notice instead; only anonymous visitors redirect.
+  if (!isIndividualSurfacesEnabled()) {
+    return (
+      <div className="space-y-8">
+        <section className="pat-card p-8">
+          <div className="pat-label">User Insight</div>
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
+            Shelved for the current pilot
+          </h1>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
+            Person-level user insight for {company.name} is part of the individual surface set,
+            which is shelved for the current vendor/firm pilot. Your firm workspace, alignment
+            assessment, and insights remain fully available.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link className="pat-button-primary" href="/firm/admin">
+              Back to firm admin
+            </Link>
+            <Link className="pat-button-secondary" href="/firm">
+              Open firm workspace
+            </Link>
+          </div>
+        </section>
+      </div>
+    );
   }
 
   await ensureUserPatScaffold();

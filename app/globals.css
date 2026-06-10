@@ -73,6 +73,20 @@ html {
   font-size: 11.5px;
 }
 
+/* Demo-week reports catalog: print views drop the app chrome and keep the
+   band colors (SVG charts print as vector). PDF export = browser print. */
+@media print {
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  body header.sticky,
+  body > footer,
+  body footer {
+    display: none !important;
+  }
+}
+
 html,
 body {
   height: 100%;
