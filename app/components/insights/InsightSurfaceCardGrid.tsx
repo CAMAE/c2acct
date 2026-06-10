@@ -11,6 +11,7 @@ export type InsightSurfaceGridCard = {
   statusLabel?: string;
   supportingText?: string | null;
   tone?: "active" | "muted" | "locked";
+  metric?: { value: string; caption: string };
 };
 
 type InsightSurfaceCardGridProps = {
@@ -45,6 +46,14 @@ export default function InsightSurfaceCardGrid({
               <div className="text-lg font-semibold text-[var(--shell-ink)]">{card.title}</div>
               {hasStatusLabel ? <InsightStatusBadge label={card.statusLabel!} tone={tone} /> : null}
             </div>
+            {card.metric ? (
+              <div className="mt-3 flex flex-wrap items-baseline gap-2">
+                <span className="text-3xl font-semibold leading-none tracking-tight tabular-nums text-[var(--shell-ink)]">
+                  {card.metric.value}
+                </span>
+                <span className="text-xs text-[var(--shell-muted)]">{card.metric.caption}</span>
+              </div>
+            ) : null}
             <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
               {compactInsightSummary(card.summary)}
             </p>

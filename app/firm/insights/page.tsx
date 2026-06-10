@@ -1,4 +1,7 @@
 import { redirect } from "next/navigation";
+import ChartEmptyState from "@/app/components/charts/ChartEmptyState";
+import RadarChart from "@/app/components/charts/RadarChart";
+import ScoreLockup from "@/app/components/charts/ScoreLockup";
 import InsightsModeShell from "@/app/components/insights/InsightsModeShell";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
@@ -91,6 +94,73 @@ export default async function FirmInsightsPage({
       ? "PAT needs completed firm alignment modules before it can open a grounded firm insight readout."
       : "PAT is summarizing current firm alignment and product-review evidence so you can review the operating picture in one place.";
 
+  const moduleScores = moduleProgress
+    .map((module) => module.latestScore)
+    .filter((score): score is number => typeof score === "number");
+  const alignmentIndex = moduleScores.length
+    ? Math.round(moduleScores.reduce((sum, score) => sum + score, 0) / moduleScores.length)
+    : null;
+  const radarAxes = moduleProgress.map((module) => ({
+    key: module.key,
+    label: module.title,
+    value: module.latestScore,
+  }));
+  const capabilityByKey = new Map<string, { meetsThreshold: boolean }>();
+  for (const report of insightReports.values()) {
+    for (const capability of report.contributingCapabilities) {
+      const existing = capabilityByKey.get(capability.key);
+      capabilityByKey.set(capability.key, {
+        meetsThreshold: (existing?.meetsThreshold ?? false) || capability.meetsThreshold,
+      });
+    }
+  }
+  const capabilitiesTotal = capabilityByKey.size;
+  const capabilitiesMet = Array.from(capabilityByKey.values()).filter(
+    (capability) => capability.meetsThreshold
+  ).length;
+  const radarTitle = `Five-module maturity profile: ${radarAxes
+    .map((axis) => `${axis.label} ${typeof axis.value === "number" ? `${Math.round(axis.value)}%` : "not scored"}`)
+    .join(", ")}`;
+
+  const operatingPicture = (
+    <section className="pat-card p-8">
+      <div className="pat-label">Current operating picture</div>
+      {completedModules === 0 ? (
+        <div className="mt-5">
+          <ChartEmptyState
+            variant="radar"
+            message="The maturity profile draws from final module submissions. Complete the first alignment module to open the five-module readout."
+            ctaHref="/firm/alignment-assessment"
+            ctaLabel="Start the alignment assessment"
+          />
+        </div>
+      ) : (
+        <div className="mt-5 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] lg:items-center">
+          <div className="grid gap-8 sm:grid-cols-3">
+            <ScoreLockup
+              label="Alignment index"
+              score={alignmentIndex}
+              context="Average of final module scores · current-state evidence only"
+            />
+            <ScoreLockup
+              label="Modules complete"
+              score={null}
+              displayValue={`${completedModules}/${moduleProgress.length}`}
+              context="Final submissions across the five PAT modules"
+            />
+            <ScoreLockup
+              label="Capabilities met"
+              score={null}
+              displayValue={capabilitiesTotal ? `${capabilitiesMet}/${capabilitiesTotal}` : "—"}
+              context="Distinct capabilities at or above the 60% unlock threshold"
+            />
+          </div>
+          <RadarChart axes={radarAxes} title={radarTitle} />
+        </div>
+      )}
+    </section>
+  );
+
   return (
     <InsightsModeShell
       activeMode={activeMode}
@@ -99,6 +169,7 @@ export default async function FirmInsightsPage({
       audienceTerms={["Firm"]}
       heroBody={messages.insights.firm.heroBody}
       currentStateSummary={currentStateSummary}
+      heroSupplement={activeMode === "pro" ? operatingPicture : undefined}
       toggleAriaLabel="Firm alignment insight modes"
       toggleOptions={toggleOptions}
       proPanel={{

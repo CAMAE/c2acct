@@ -17,6 +17,10 @@ type InsightDetailShellProps = {
   combinedEvidenceNote?: ReactNode;
   muted?: boolean;
   subtitle?: ReactNode;
+  /** Chart-led summary rendered between the hero and the prose surface. */
+  visualLead?: ReactNode;
+  /** Collapse the prose surface behind a disclosure (used when a visual lead carries the page). */
+  surfaceCollapsed?: boolean;
 };
 
 export default function InsightDetailShell({
@@ -33,7 +37,26 @@ export default function InsightDetailShell({
   combinedEvidenceNote,
   muted = false,
   subtitle,
+  visualLead,
+  surfaceCollapsed = false,
 }: InsightDetailShellProps) {
+  const surfaceBody = (
+    <>
+      <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">{surfaceContent.intro}</p>
+      <div className="mt-4 grid gap-3">
+        {surfaceContent.items.map((item) => (
+          <article
+            key={`${surfaceContent.key}-${item.title}`}
+            className="rounded-[18px] border border-[var(--shell-border)] bg-white/70 p-4"
+          >
+            <div className="font-semibold text-[var(--shell-ink)]">{item.title}</div>
+            <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{item.body}</p>
+          </article>
+        ))}
+      </div>
+    </>
+  );
+
   return (
     <div className="space-y-8">
       <section className={`${muted ? "pat-card pat-card-muted" : "pat-card"} p-8`}>
@@ -60,21 +83,38 @@ export default function InsightDetailShell({
         </div>
       </section>
 
-      <section className="pat-card p-6">
-        <div className="pat-label">{surfaceContent.title}</div>
-        <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">{surfaceContent.intro}</p>
-        <div className="mt-4 grid gap-3">
-          {surfaceContent.items.map((item) => (
-            <article
-              key={`${surfaceContent.key}-${item.title}`}
-              className="rounded-[18px] border border-[var(--shell-border)] bg-white/70 p-4"
-            >
-              <div className="font-semibold text-[var(--shell-ink)]">{item.title}</div>
-              <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{item.body}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+      {visualLead}
+
+      {surfaceCollapsed ? (
+        <details className="group pat-card p-6">
+          <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-4 [&::-webkit-details-marker]:hidden">
+            <span className="pat-label">{surfaceContent.title} · evidence detail</span>
+            <span className="pat-button-secondary gap-2">
+              Full prose readout
+              <svg
+                viewBox="0 0 16 16"
+                className="h-3.5 w-3.5 transition-transform duration-200 group-open:rotate-180"
+                aria-hidden="true"
+              >
+                <path
+                  d="M3.5 6 8 10.5 12.5 6"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+          </summary>
+          {surfaceBody}
+        </details>
+      ) : (
+        <section className="pat-card p-6">
+          <div className="pat-label">{surfaceContent.title}</div>
+          {surfaceBody}
+        </section>
+      )}
 
       {children}
     </div>

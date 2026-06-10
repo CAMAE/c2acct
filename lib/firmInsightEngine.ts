@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { normalizeQuestionRuntime, type NormalizedAnswer } from "@/lib/assessmentRuntime";
+import { getScoreBand } from "@/lib/scoreBands";
 import {
   FIRM_CAPABILITY_DEFINITIONS,
   FIRM_TIER1_INSIGHT_CAPABILITY_RULES,
@@ -75,6 +76,11 @@ export type FirmInsightReport = {
 
 export type FirmInsightOverviewMode = "pro" | "elite" | "help";
 
+export type FirmInsightOverviewCardMetric = {
+  value: string;
+  caption: string;
+};
+
 export type FirmInsightOverviewCard = {
   key: string;
   title: string;
@@ -84,6 +90,7 @@ export type FirmInsightOverviewCard = {
   href: string | null;
   interactive: boolean;
   supportingText: string | null;
+  metric?: FirmInsightOverviewCardMetric;
 };
 
 export type FirmInsightDetailSurfaceKey = "pro" | "elite" | "help";
@@ -307,6 +314,218 @@ function buildNarrative(input: {
   };
 }
 
+export function averageContributingModuleScore(report: FirmInsightReport): number | null {
+  const scores = report.contributingModules
+    .map((module) => module.score)
+    .filter((score): score is number => typeof score === "number");
+  if (!scores.length) {
+    return null;
+  }
+  return Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
+}
+
+/**
+ * One real number per overview card, varied by insight theme so the four
+ * cards stop reading as the same auto-generated readout (5.7 audit §1.4).
+ */
+export function buildFirmInsightCardMetric(
+  key: InsightKey,
+  report: FirmInsightReport
+): FirmInsightOverviewCardMetric | undefined {
+  const average = averageContributingModuleScore(report);
+  const averageMetric: FirmInsightOverviewCardMetric | undefined =
+    average === null ? undefined : { value: `${average}%`, caption: "average module score" };
+  const scoredModules = report.contributingModules.filter(
+    (module): module is ModuleEvidence & { score: number } => typeof module.score === "number"
+  );
+
+  switch (key) {
+    case "firm_tier1_automation_readiness": {
+      const automationModule = scoredModules.find(
+        (module) => module.key === "firm_alignment_automation_ai_v1"
+      );
+      return automationModule
+        ? { value: `${Math.round(automationModule.score)}%`, caption: "Automation and AI module score" }
+        : averageMetric;
+    }
+    case "firm_tier1_data_and_controls": {
+      const scoredCapabilities = report.contributingCapabilities.filter(
+        (capability) => capability.score !== null
+      );
+      if (!report.contributingCapabilities.length || !scoredCapabilities.length) {
+        return averageMetric;
+      }
+      const met = report.contributingCapabilities.filter((capability) => capability.meetsThreshold).length;
+      return {
+        value: `${met} of ${report.contributingCapabilities.length}`,
+        caption: "capabilities at or above the 60% threshold",
+      };
+    }
+    case "firm_tier1_change_alignment": {
+      if (scoredModules.length < 2) {
+        return averageMetric;
+      }
+      const strongest = report.strongestModules[0];
+      const weakest = report.weakestModules[0];
+      if (typeof strongest?.score !== "number" || typeof weakest?.score !== "number") {
+        return averageMetric;
+      }
+      return {
+        value: `${Math.round(strongest.score - weakest.score)} pts`,
+        caption: "spread between strongest and weakest modules",
+      };
+    }
+    case "firm_tier1_operating_baseline":
+    default:
+      return averageMetric;
+  }
+}
+
+/**
+ * Varied single-sentence card copy per insight theme. Replaces the repeated
+ * "X shows the current operating picture, with the strongest support in…"
+ * boilerplate the 5.7 audit flagged 4x on /firm/insights.
+ */
+export function buildFirmInsightCardSummary(key: InsightKey, report: FirmInsightReport): string | null {
+  const strongest = report.strongestModules[0];
+  const weakest = report.weakestModules[0];
+  if (typeof strongest?.score !== "number" || typeof weakest?.score !== "number") {
+    return null;
+  }
+  const strongScore = Math.round(strongest.score);
+  const weakScore = Math.round(weakest.score);
+
+  if (strongest.key === weakest.key) {
+    return `Current evidence rests on ${strongest.title} at ${strongScore}%; completing the remaining modules widens this readout.`;
+  }
+
+  switch (key) {
+    case "firm_tier1_automation_readiness":
+      return `Automation readiness runs strongest through ${strongest.title} (${strongScore}%), while ${weakest.title} (${weakScore}%) paces how fast adoption can widen.`;
+    case "firm_tier1_data_and_controls": {
+      const scoredCapabilities = report.contributingCapabilities.filter(
+        (capability) => capability.score !== null
+      );
+      if (scoredCapabilities.length) {
+        const met = report.contributingCapabilities.filter((capability) => capability.meetsThreshold).length;
+        return `${met} of ${report.contributingCapabilities.length} supporting capabilities clear the 60% threshold; ${weakest.title} carries the most control-side pressure.`;
+      }
+      return `Control posture rests on ${strongest.title} (${strongScore}%), with ${weakest.title} (${weakScore}%) holding the most pressure.`;
+    }
+    case "firm_tier1_change_alignment":
+      return `A ${strongScore - weakScore}-point spread separates ${strongest.title} (${strongScore}%) from ${weakest.title} (${weakScore}%).`;
+    case "firm_tier1_operating_baseline":
+    default: {
+      const average = averageContributingModuleScore(report);
+      return average === null
+        ? null
+        : `The operating floor averages ${average}% across scored modules, anchored by ${strongest.title} at ${strongScore}%.`;
+    }
+  }
+}
+
+export type FirmInsightPlainLanguage = {
+  summary: string;
+  nextSteps: string[];
+};
+
+/** What each maturity band generally means for software decisions — general,
+ * current-state framing only; never comparative. */
+const BAND_STACK_CLAUSE: Record<ReturnType<typeof getScoreBand>["key"], string> = {
+  emerging: "foundations are still forming and buying decisions tend to outpace the processes that have to support them",
+  building: "core workflows are taking shape but still lean on individual effort",
+  established: "core workflows hold up under day-to-day load",
+  optimizing: "core workflows hold up well enough to absorb new tooling quickly",
+};
+
+/** Per-module friction/benefit framing so the tech-stack sentences vary with
+ * whichever module is currently weakest. */
+const MODULE_STACK_THEME: Record<string, { friction: string; benefit: string }> = {
+  firm_alignment_data_flow_v1: {
+    friction:
+      "integration work becomes the friction point when new tools enter your stack — connections take longer to stand up and data needs manual reconciliation",
+    benefit: "each new tool inherits cleaner data flows and clearer ownership",
+  },
+  firm_alignment_operating_model_v1: {
+    friction:
+      "unclear workflow ownership becomes the friction point when new tools enter your stack — rollouts stall where handoffs and review steps are undefined",
+    benefit: "each new tool lands on defined workflows instead of creating new exceptions",
+  },
+  firm_alignment_automation_ai_v1: {
+    friction:
+      "automation oversight becomes the friction point when new tools enter your stack — automated steps multiply faster than the checks around them",
+    benefit: "each new automation arrives with oversight already in place",
+  },
+  firm_alignment_governance_v1: {
+    friction:
+      "vendor and control discipline becomes the friction point when new tools enter your stack — evaluations run long and exceptions accumulate without clear owners",
+    benefit: "each new vendor passes through a consistent evaluation and control path",
+  },
+  firm_alignment_strategy_v1: {
+    friction:
+      "change absorption becomes the friction point when new tools enter your stack — adoption competes with shifting priorities and rollouts lose momentum",
+    benefit: "each new rollout starts with clearer priorities and more absorbed capacity",
+  },
+};
+
+/**
+ * Zero-context "What this means for your firm" copy for the insight detail
+ * pages. Stays on current-state evidence only — no benchmark, percentile,
+ * peer-comparison, projection, or recommendation claims (CLAUDE.md hard rule).
+ */
+export function buildFirmInsightPlainLanguage(report: FirmInsightReport): FirmInsightPlainLanguage | null {
+  const average = averageContributingModuleScore(report);
+  if (average === null) {
+    return null;
+  }
+
+  const band = getScoreBand(average);
+  const strongest = report.strongestModules[0];
+  const weakest = report.weakestModules[0];
+  const scoredCount = report.contributingModules.filter(
+    (module) => typeof module.score === "number"
+  ).length;
+  const remaining = report.contributingModules.length - scoredCount;
+
+  const sentences = [`Your firm scores ${average} — ${band.label}.`];
+  if (strongest && weakest && typeof weakest.score === "number") {
+    if (strongest.key === weakest.key) {
+      sentences.push(`All current evidence comes from ${strongest.title}.`);
+    } else {
+      sentences.push(
+        `Your strongest area is ${strongest.title}; your biggest opportunity is ${weakest.title} at ${Math.round(weakest.score)}%.`
+      );
+    }
+  }
+  if (remaining > 0) {
+    sentences.push(`Completing the remaining ${remaining} module${remaining === 1 ? "" : "s"} sharpens this picture.`);
+  }
+
+  if (weakest && typeof weakest.score === "number") {
+    const theme = MODULE_STACK_THEME[weakest.key] ?? {
+      friction: `${weakest.title} becomes the friction point when new tools enter your stack — rollouts take longer and need more manual support`,
+      benefit: "each new tool starts from a stronger operating base",
+    };
+    sentences.push(
+      `A score in the ${band.label.toLowerCase()} range generally means ${BAND_STACK_CLAUSE[band.key]}, but ${theme.friction}.`
+    );
+    sentences.push(
+      `Raising ${weakest.title} first typically increases the return on every later software decision, because ${theme.benefit}.`
+    );
+  }
+  sentences.push(
+    remaining > 0
+      ? "As more modules reach final submission, this readout firms up from partial evidence into a complete current-state picture."
+      : "With every relevant module at final submission, this is a complete current-state picture to evaluate new software against."
+  );
+
+  const nextSteps = report.contributingCapabilities
+    .filter((capability) => !capability.meetsThreshold)
+    .map((capability) => `Bring ${capability.title} above ${capability.threshold}% to unlock the full readout.`);
+
+  return { summary: sentences.join(" "), nextSteps };
+}
+
 export function buildFirmProInsightCards(input: {
   reports: Map<InsightKey, FirmInsightReport>;
   unlockedKeys: Set<string>;
@@ -315,11 +534,13 @@ export function buildFirmProInsightCards(input: {
     const report = input.reports.get(insight.key as InsightKey);
     const visible = input.unlockedKeys.has(insight.key);
     const content = getFirmInsightContent(insight.key);
+    const variedSummary = report ? buildFirmInsightCardSummary(insight.key as InsightKey, report) : null;
 
     return {
       key: insight.key,
       title: insight.title,
-      summary: report?.currentStateSummary ?? content?.summary ?? insight.body,
+      summary: variedSummary ?? report?.currentStateSummary ?? content?.summary ?? insight.body,
+      metric: report ? buildFirmInsightCardMetric(insight.key as InsightKey, report) : undefined,
       tone: visible ? "active" : "muted",
       href: `/firm/insights/${insight.key}`,
       interactive: true,
