@@ -292,7 +292,10 @@ test.describe("local review auth", () => {
     await signInAsRole(adminPage, "admin");
     await adminPage.waitForURL("**/admin**");
     await assertNoAuthOrRuntimeFailure(adminPage);
-    await expect(adminPage.getByRole("heading", { name: /C2Core operator control plane/i })).toBeVisible();
+    // Phase 1e replaced the C2Core operator control plane with the agent ops
+    // console; demo-week adds the Platform picture band above it. Pin both.
+    await expect(adminPage.getByRole("heading", { name: /Platform picture/i })).toBeVisible();
+    await expect(adminPage.getByRole("heading", { name: /Agent ops/i })).toBeVisible();
 
     await gotoStable(adminPage, "/admin/launch");
     await assertNoAuthOrRuntimeFailure(adminPage);

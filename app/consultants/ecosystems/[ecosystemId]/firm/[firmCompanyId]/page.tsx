@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import RadarChart from "@/app/components/charts/RadarChart";
+import RankedBars from "@/app/components/charts/RankedBars";
+import ScoreLockup from "@/app/components/charts/ScoreLockup";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
@@ -122,7 +125,60 @@ export default async function FirmBriefPage({
       </section>
 
       {activePanel === "operating" ? (
-        <section data-testid="firm-brief-operating-panel">
+        <section data-testid="firm-brief-operating-panel" className="space-y-8">
+          {(() => {
+            const scoredAxes = brief.fiveModuleRadar.filter(
+              (axis) => typeof axis.firmScore === "number"
+            );
+            if (!scoredAxes.length) return null;
+            const alignmentIndex = Math.round(
+              scoredAxes.reduce((sum, axis) => sum + (axis.firmScore ?? 0), 0) / scoredAxes.length
+            );
+            return (
+              <section className="pat-card p-6" data-testid="firm-brief-visual-band">
+                <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-center">
+                  <div>
+                    <ScoreLockup
+                      label="Alignment index"
+                      score={alignmentIndex}
+                      context={`Average of ${scoredAxes.length} of ${brief.fiveModuleRadar.length} scored modules for ${brief.firmCompanyName} · use the softest module below as the engagement opening`}
+                    />
+                    <div className="mt-6">
+                      <div className="pat-label">Module signal · strongest to softest</div>
+                      <div className="mt-3">
+                        <RankedBars
+                          title={`${brief.firmCompanyName} module scores, ranked strongest to softest`}
+                          items={[...scoredAxes]
+                            .sort((left, right) => (right.firmScore ?? 0) - (left.firmScore ?? 0))
+                            .map((axis) => ({
+                              key: axis.moduleKey,
+                              label: axis.moduleTitle,
+                              value: axis.firmScore,
+                            }))}
+                          colorByBand
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <RadarChart
+                      title={`${brief.firmCompanyName} five-module maturity profile vs ecosystem average`}
+                      axes={brief.fiveModuleRadar.map((axis) => ({
+                        key: axis.moduleKey,
+                        label: axis.moduleTitle,
+                        value: axis.firmScore,
+                        benchmark: axis.ecosystemAverage,
+                      }))}
+                      benchmarkLabel="ecosystem average"
+                    />
+                    <p className="mt-2 text-center text-xs leading-5 text-[var(--shell-muted)]">
+                      Where the firm shape sits inside the dashed ecosystem outline is where this firm trails its peers in your book.
+                    </p>
+                  </div>
+                </div>
+              </section>
+            );
+          })()}
           <FirmAlignmentHeader data={brief} />
         </section>
       ) : null}

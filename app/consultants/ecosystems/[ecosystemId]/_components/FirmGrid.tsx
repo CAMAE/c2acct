@@ -3,28 +3,9 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { EcosystemDetailData, EcosystemDetailFirmRow } from "@/lib/ecosystem";
-
-type SortKey =
-  | "firmCompanyName"
-  | "canonicalFirmScore"
-  | "moduleCompletionPercent"
-  | "productReviewCount"
-  | "latestActivityAt";
+import { TRACK_COLOR, getScoreBand } from "@/lib/scoreBands";
 
 type SortDir = "asc" | "desc";
-
-function compareNullable<T extends number | string | null>(a: T, b: T, dir: SortDir): number {
-  if (a === null && b === null) return 0;
-  if (a === null) return 1;
-  if (b === null) return -1;
-  if (a < b) return dir === "asc" ? -1 : 1;
-  if (a > b) return dir === "asc" ? 1 : -1;
-  return 0;
-}
-
-function formatScore(value: number | null): string {
-  return value === null ? "--" : String(value);
-}
 
 function formatPercent(value: number | null): string {
   return value === null ? "--" : `${value}%`;
@@ -54,29 +35,24 @@ function shortConfidence(label: string): string {
   return "Pending";
 }
 
+/**
+ * League-table view: firms ranked by alignment index as horizontal bars so
+ * the consultant sees who needs attention at a glance. Lowest-first by
+ * default (needs-attention order); unscored firms always sink to the bottom.
+ */
 export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
-  const [sortKey, setSortKey] = useState<SortKey>("canonicalFirmScore");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
   const rows = useMemo(() => {
-    const arr = [...data.firmGrid];
-    arr.sort((a, b) => compareNullable(a[sortKey], b[sortKey], sortDir));
-    return arr;
-  }, [data.firmGrid, sortKey, sortDir]);
-
-  function toggleSort(key: SortKey, defaultDir: SortDir = "asc") {
-    if (sortKey === key) {
-      setSortDir((dir) => (dir === "asc" ? "desc" : "asc"));
-    } else {
-      setSortKey(key);
-      setSortDir(defaultDir);
-    }
-  }
-
-  const sortIndicator = (key: SortKey) => {
-    if (sortKey !== key) return null;
-    return <span aria-hidden="true">{sortDir === "asc" ? " ↑" : " ↓"}</span>;
-  };
+    const scored = data.firmGrid.filter((row) => row.canonicalFirmScore !== null);
+    const unscored = data.firmGrid.filter((row) => row.canonicalFirmScore === null);
+    scored.sort((a, b) =>
+      sortDir === "asc"
+        ? (a.canonicalFirmScore ?? 0) - (b.canonicalFirmScore ?? 0)
+        : (b.canonicalFirmScore ?? 0) - (a.canonicalFirmScore ?? 0)
+    );
+    return [...scored, ...unscored];
+  }, [data.firmGrid, sortDir]);
 
   if (data.firmGrid.length === 0) {
     return (
@@ -97,88 +73,81 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
       className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-5"
       data-testid="ecosystem-detail-firm-grid"
     >
-      <div className="mb-4 flex items-baseline justify-between gap-3">
+      <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
         <h2 className="text-xl font-semibold tracking-tight text-[var(--shell-ink)]">
           Firm briefings &middot; <span className="pat-stat-number">{data.firmGrid.length}</span> firm{data.firmGrid.length === 1 ? "" : "s"}
         </h2>
-        <div className="text-sm text-[var(--shell-muted)]">click a firm to drill into its brief</div>
+        <button
+          type="button"
+          onClick={() => setSortDir((dir) => (dir === "asc" ? "desc" : "asc"))}
+          className="text-sm text-[var(--shell-muted)] underline-offset-2 hover:underline"
+        >
+          {sortDir === "asc" ? "Needs attention first ↑" : "Strongest first ↓"}
+        </button>
       </div>
 
-      {/* WS2-C (manual-review items 13/14): 30-day actions column dropped
-          from the per-firm row (the ecosystem-level HeadlineMetricsRow
-          still surfaces the aggregate). Remaining 6 columns redistributed
-          to fill the card width: Firm gets the auto-flexible remainder
-          (~30%), each numeric column gets ~12%, Last activity gets ~12%. */}
-      <div className="overflow-x-auto">
-        <table className="w-full table-fixed text-left text-sm">
-          <colgroup>
-            <col style={{ width: "28%" }} />
-            <col style={{ width: "11%" }} />
-            <col style={{ width: "14%" }} />
-            <col style={{ width: "13%" }} />
-            <col style={{ width: "12%" }} />
-            <col style={{ width: "22%" }} />
-          </colgroup>
-          <thead>
-            <tr className="text-xs font-semibold text-[var(--shell-muted)]">
-              <th className="whitespace-nowrap pb-2 pr-3 text-left">
-                <button type="button" onClick={() => toggleSort("firmCompanyName", "asc")} className="font-inherit">
-                  Firm{sortIndicator("firmCompanyName")}
-                </button>
-              </th>
-              <th className="whitespace-nowrap pb-2 pr-3 text-center">
-                <button type="button" onClick={() => toggleSort("canonicalFirmScore", "asc")} className="font-inherit">
-                  Score{sortIndicator("canonicalFirmScore")}
-                </button>
-              </th>
-              <th className="whitespace-nowrap pb-2 pr-3 text-center">Confidence</th>
-              <th className="whitespace-nowrap pb-2 pr-3 text-center">
-                <button type="button" onClick={() => toggleSort("moduleCompletionPercent", "desc")} className="font-inherit">
-                  Modules{sortIndicator("moduleCompletionPercent")}
-                </button>
-              </th>
-              <th className="whitespace-nowrap pb-2 pr-3 text-center">
-                <button type="button" onClick={() => toggleSort("productReviewCount", "desc")} className="font-inherit">
-                  Reviews{sortIndicator("productReviewCount")}
-                </button>
-              </th>
-              <th className="whitespace-nowrap pb-2 pr-3 text-left">
-                <button type="button" onClick={() => toggleSort("latestActivityAt", "desc")} className="font-inherit">
-                  Activity{sortIndicator("latestActivityAt")}
-                </button>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row: EcosystemDetailFirmRow) => (
-              <tr
-                key={row.firmCompanyId}
-                data-testid="firm-grid-row"
-                data-firm-id={row.firmCompanyId}
-                className="border-t border-[var(--shell-border)]"
-              >
-                <td className="py-2 pr-3">
+      <ol className="space-y-3">
+        {rows.map((row: EcosystemDetailFirmRow, index) => {
+          const score = row.canonicalFirmScore;
+          const band = score === null ? null : getScoreBand(score);
+          return (
+            <li
+              key={row.firmCompanyId}
+              data-testid="firm-grid-row"
+              data-firm-id={row.firmCompanyId}
+              className="border-t border-[var(--shell-border)] pt-3 first:border-t-0 first:pt-0"
+            >
+              <div className="flex items-baseline justify-between gap-3">
+                <div className="flex min-w-0 items-baseline gap-2">
+                  <span className="w-6 shrink-0 text-xs tabular-nums text-[var(--shell-muted)]">
+                    {index + 1}
+                  </span>
                   <Link
                     href={`/consultants/ecosystems/${data.ecosystemId}/firm/${row.firmCompanyId}`}
-                    className="inline-flex items-center gap-1 -mx-2 rounded-md px-2 py-1 text-sm font-medium text-[var(--brand-c2-blue)] hover:bg-[rgba(6,54,116,0.06)] hover:underline"
+                    className="-mx-2 inline-flex min-w-0 items-center gap-1 truncate rounded-md px-2 py-1 text-sm font-medium text-[var(--brand-c2-blue)] hover:bg-[rgba(6,54,116,0.06)] hover:underline"
                     data-testid="firm-grid-firm-link"
                   >
-                    {row.firmCompanyName}
+                    <span className="truncate">{row.firmCompanyName}</span>
                     <span aria-hidden="true" className="text-xs">›</span>
                   </Link>
-                </td>
-                <td className="pat-stat-number py-2 pr-3 text-center">{formatScore(row.canonicalFirmScore)}</td>
-                <td className="py-2 pr-3 text-center text-[var(--shell-muted)]">{shortConfidence(row.confidenceLabel)}</td>
-                <td className="pat-stat-number py-2 pr-3 text-center">{formatPercent(row.moduleCompletionPercent)}</td>
-                <td className="pat-stat-number py-2 pr-3 text-center">
-                  {row.productReviewCount} / {row.productsAvailable}
-                </td>
-                <td className="py-2 pr-3 text-left text-[var(--shell-muted)]">{formatRelative(row.latestActivityAt)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                </div>
+                <span className="pat-stat-number shrink-0 text-sm">
+                  {score === null ? "--" : score}
+                </span>
+              </div>
+              <div className="mt-1.5 pl-6">
+                <svg
+                  width="100%"
+                  height="10"
+                  viewBox="0 0 100 10"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                  className="block"
+                >
+                  <rect x="0" y="0" width="100" height="10" rx="3" fill={TRACK_COLOR} />
+                  {score !== null && band ? (
+                    <rect
+                      x="0"
+                      y="0"
+                      width={Math.max(0, Math.min(100, score)).toFixed(1)}
+                      height="10"
+                      rx="3"
+                      fill={band.colorVar}
+                    />
+                  ) : null}
+                </svg>
+              </div>
+              <div className="mt-1.5 pl-6 text-xs leading-5 text-[var(--shell-muted)]">
+                {shortConfidence(row.confidenceLabel)} confidence · {formatPercent(row.moduleCompletionPercent)} modules ·{" "}
+                <span className="tabular-nums">
+                  {row.productReviewCount}/{row.productsAvailable}
+                </span>{" "}
+                reviews · {formatRelative(row.latestActivityAt)}
+              </div>
+            </li>
+          );
+        })}
+      </ol>
     </section>
   );
 }

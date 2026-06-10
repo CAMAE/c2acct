@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getAgentsOverview, getHealthBanner, getPendingApprovals } from "@/lib/agents/adminConsole";
+import { getPlatformPicture } from "@/lib/adminPlatformPicture";
 import { signApproval } from "@/ops/telegram-bot/hmac";
+import ScoreLockup from "@/app/components/charts/ScoreLockup";
 import { Sparkline, StatusBadge, StatusDot, relativeTime, untilTime } from "@/app/components/agents/AgentVisuals";
 import CommandBar from "@/app/components/agents/CommandBar";
 import ApprovalActions from "@/app/components/agents/ApprovalActions";
@@ -10,16 +12,84 @@ export const dynamic = "force-dynamic";
 
 const CARD = "rounded-2xl border border-[var(--shell-border)] bg-white/50 p-4";
 
+function PlatformTile({
+  href,
+  label,
+  score,
+  displayValue,
+  context,
+}: {
+  href: string;
+  label: string;
+  score?: number | null;
+  displayValue?: string;
+  context: string;
+}) {
+  return (
+    <Link href={href} className="pat-card pat-card-interactive block p-5">
+      <ScoreLockup label={label} score={score ?? null} displayValue={displayValue} context={context} />
+    </Link>
+  );
+}
+
 export default async function AdminAgentDashboard() {
-  const [banner, agents, approvals] = await Promise.all([
+  const [banner, agents, approvals, picture] = await Promise.all([
     getHealthBanner(),
     getAgentsOverview(),
     getPendingApprovals(),
+    getPlatformPicture(),
   ]);
   const topApprovals = approvals.slice(0, 5);
 
   return (
     <div className="space-y-6">
+      {/* Platform picture (admin vision phase 1) */}
+      <section>
+        <h2 className="mb-3 text-sm font-semibold text-[var(--shell-ink)]">Platform picture</h2>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <PlatformTile
+            href="/admin/organizations"
+            label="Firms"
+            displayValue={String(picture.firmCount)}
+            context="Firm organizations on the platform · open the organization catalog"
+          />
+          <PlatformTile
+            href="/admin/organizations"
+            label="Vendors"
+            displayValue={String(picture.vendorCount)}
+            context="Vendor organizations on the platform · open the organization catalog"
+          />
+          <PlatformTile
+            href="/admin/modules"
+            label="Firm module submissions"
+            displayValue={String(picture.firmModuleSubmissionCount)}
+            context="Final alignment-module submissions across all firms · open the module catalog"
+          />
+          <PlatformTile
+            href="/admin/products"
+            label="Product assessments"
+            displayValue={String(picture.productAssessmentCount)}
+            context="Final vendor self-assessments and firm product reviews · open the product catalog"
+          />
+          <PlatformTile
+            href="/admin/insights"
+            label="Avg alignment index"
+            score={picture.averageAlignmentIndex}
+            context={
+              picture.averageAlignmentIndex === null
+                ? "No scored firm evidence yet · open the insight catalog"
+                : `Average of latest final module scores across ${picture.scoredFirmCount} scored firm${picture.scoredFirmCount === 1 ? "" : "s"} · open the insight catalog`
+            }
+          />
+          <PlatformTile
+            href="/admin/products"
+            label="Hot divergences"
+            displayValue={String(picture.hotDivergenceCount)}
+            context="Products where vendor self-view and firm reviews sit more than 10 points apart"
+          />
+        </div>
+      </section>
+
       {/* Global status banner */}
       <section className={CARD}>
         <div className="flex flex-wrap items-center justify-between gap-3">
