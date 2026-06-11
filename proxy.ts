@@ -45,7 +45,11 @@ export default async function proxy(req: NextRequest) {
       return NextResponse.redirect(passwordUpdateUrl);
     }
 
-    return NextResponse.next();
+    // Server components cannot read the request path; the /admin layout reads
+    // x-pathname to highlight the active nav tab.
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set("x-pathname", pathname);
+    return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
   if (isProtectedApi) {

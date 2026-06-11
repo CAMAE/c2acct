@@ -53,6 +53,12 @@ const approvalRulesSchema = z.object({
   approval_blast_radius: z.record(z.string(), z.string()).optional(),
 });
 
+// LLM backing opt-in (see lib/agents/llm.ts). The flag alone does nothing —
+// ANTHROPIC_API_KEY must also be present in the supervisor env at runtime.
+const llmSchema = z.object({
+  enabled: z.boolean().default(false),
+});
+
 export const agentConfigSchema = z.object({
   key: z.string().min(1),
   name: z.string().min(1),
@@ -61,6 +67,7 @@ export const agentConfigSchema = z.object({
   enabled: z.boolean().default(true),
   schedule: scheduleSchema,
   model: modelSchema.optional(),
+  llm: llmSchema.optional(),
   limits: limitsSchema,
   tools: z.array(toolSchema).default([]),
   hooks: hooksSchema.optional(),

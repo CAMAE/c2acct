@@ -19,14 +19,17 @@ import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
 import { getPatDiagnosticsSnapshot } from "@/lib/patDiagnostics";
 
 // Phase 1e: /admin is now the agent ops console. Legacy operator surfaces
-// (organizations, users, taxonomy, modules, products, briefings, insight rules,
-// consultants) are preserved and reachable from the operator hub at
-// /admin/insights — they are no longer in the primary nav.
+// (taxonomy, modules, products, briefings, insight rules, consultants) are
+// preserved and reachable from the operator hub at /admin/insights — they are
+// no longer in the primary nav. Organizations and Users were promoted back
+// into the nav on 2026-06-10 alongside the account-provisioning form.
 export const ADMIN_NAV_ITEMS = [
   { href: "/admin", label: "Agents" },
   { href: "/admin/approvals", label: "Approvals" },
   { href: "/admin/runs", label: "Runs" },
   { href: "/admin/audit", label: "Audit" },
+  { href: "/admin/organizations", label: "Organizations" },
+  { href: "/admin/users", label: "Users" },
   { href: "/admin/insights", label: "Insights" },
   { href: "/admin/reports", label: "Reports" },
   { href: "/admin/launch", label: "Launch" },

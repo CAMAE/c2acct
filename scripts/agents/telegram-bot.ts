@@ -67,7 +67,12 @@ async function handleUpdate(token: string, allowedChatId: string, update: Telegr
   if (text === "") {
     return;
   }
-  const reply = text.startsWith("/") ? await handleCommand(text) : await routeMessage(text);
+  const requestedBy = message.from?.username
+    ? `telegram:${message.from.username}`
+    : message.from?.id !== undefined
+      ? `telegram:${message.from.id}`
+      : "telegram:unknown";
+  const reply = text.startsWith("/") ? await handleCommand(text, requestedBy) : await routeMessage(text);
   await sendMessage(token, chatId, reply.slice(0, 3500));
 }
 

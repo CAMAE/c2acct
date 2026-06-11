@@ -2,12 +2,20 @@
 // act on operator approval via the Phase 1d Telegram round-trip.
 //
 // Sub-tasks (selected by PAT_PILOT_TASK; default "health-summary"):
-//   - health-summary   : read-only. Counts pilot members by provisioning state
-//                        and sends a digest to Telegram. No approval.
-//   - draft-invitation : drafts a pilot welcome email and calls the gmail.draft
-//                        tool, which is approval-gated. On approve it creates a
-//                        SANDBOX draft (never sends); on deny it halts; on edit
-//                        it applies the edited fields. (PAT_PILOT_FIRM / PAT_PILOT_TO)
+//   - health-summary    : read-only. Counts pilot members by provisioning state
+//                         and sends a digest to Telegram. No approval.
+//   - draft-invitation  : drafts a pilot welcome email and calls the gmail.draft
+//                         tool, which is approval-gated. On approve it creates a
+//                         SANDBOX draft (never sends); on deny it halts; on edit
+//                         it applies the edited fields. (PAT_PILOT_FIRM / PAT_PILOT_TO)
+//   - provision-account : creates a firm/vendor organization + owner user through
+//                         the shared lib/provisioning/account seam (same code path
+//                         as the /admin/organizations form). Gated by the
+//                         provisioning.create_account approval rule; the generated
+//                         temporary credential is delivered to the operator chat
+//                         directly and never written to audit rows.
+//                         (PAT_PROVISION_ORG_KIND / PAT_PROVISION_ORG_NAME /
+//                          PAT_PROVISION_OWNER_EMAIL / PAT_PROVISION_OWNER_NAME)
 //
 // Stubs (provisioning / invitation write / re-engagement) demonstrate the gated
 // call shape but are not wired into the default flow in Phase 1b.
@@ -19,6 +27,11 @@ import { AgentError } from "@/lib/agents/sdk";
 import { computeHealth, formatHealthSummary } from "@/lib/agents/pilot-ops/health";
 import { buildInvitationDraft } from "@/lib/agents/pilot-ops/invitation";
 import { buildTelegramSendPayload, sendTelegramMessage } from "@/lib/agents/telegram";
+import {
+  generateTemporaryPassword,
+  provisionOrganizationAccount,
+  validateProvisionAccountRequest,
+} from "@/lib/provisioning/account";
 import type { AgentHandler, AgentRunContext } from "@/lib/agents/types";
 import type { PilotMemberSnapshot, ProvisioningState } from "@/lib/agents/pilot-ops/types";
 
@@ -30,6 +43,9 @@ const pilotOpsHandler: AgentHandler = async (ctx) => {
 
   if (task === "draft-invitation") {
     return draftInvitation(ctx);
+  }
+  if (task === "provision-account") {
+    return provisionAccount(ctx);
   }
   return healthSummary(ctx);
 };
@@ -73,6 +89,100 @@ async function draftInvitation(ctx: AgentRunContext): Promise<{ summary: string 
     if (error instanceof AgentError && error.code === "approval_denied") {
       // Clean halt — operator denied (or it timed out). No draft created.
       return { summary: `Invitation draft for ${firm} halted: ${error.message}` };
+    }
+    throw error;
+  }
+}
+
+/**
+ * provision-account: org + owner through the shared seam, behind the
+ * provisioning.create_account approval gate. The temporary password is
+ * generated here, kept OUT of the gated tool args (which land in AgentStep +
+ * audit rows), and delivered to the operator chat directly after success.
+ */
+async function provisionAccount(ctx: AgentRunContext): Promise<{ summary: string }> {
+  const request = {
+    orgKind: process.env.PAT_PROVISION_ORG_KIND ?? "",
+    orgName: process.env.PAT_PROVISION_ORG_NAME ?? "",
+    ownerEmail: process.env.PAT_PROVISION_OWNER_EMAIL ?? "",
+    ownerName: process.env.PAT_PROVISION_OWNER_NAME || null,
+  };
+
+  // Validate before requesting approval so malformed requests halt without
+  // bothering the operator. The seam re-validates the (possibly edited) args.
+  const validation = validateProvisionAccountRequest(request);
+  if (!validation.ok) {
+    return { summary: `Provisioning halted before approval: ${validation.message}` };
+  }
+
+  const temporaryPassword = generateTemporaryPassword();
+
+  try {
+    const result = await ctx.useTool(
+      "provisioning.create_account",
+      {
+        orgKind: validation.orgKind,
+        orgName: validation.orgName,
+        ownerEmail: validation.ownerEmail,
+        ownerName: request.ownerName ?? "",
+      },
+      async (args) => {
+        const outcome = await provisionOrganizationAccount({
+          orgKind: String(args.orgKind),
+          orgName: String(args.orgName),
+          ownerEmail: String(args.ownerEmail),
+          ownerName: String(args.ownerName ?? "") || null,
+          temporaryPassword,
+          actorUserId: null,
+          requestedVia: "pilot-ops-agent",
+        });
+        if (!outcome.ok) {
+          throw new AgentError(`provisioning_${outcome.code}`, outcome.message);
+        }
+        // No credential material in the result — it is persisted to AgentStep.
+        return {
+          companyId: outcome.companyId,
+          userId: outcome.userId,
+          orgName: outcome.orgName,
+          orgType: String(outcome.orgType),
+          ownerEmail: outcome.ownerEmail,
+        };
+      }
+    );
+
+    // Deliver the temp credential straight to the operator chat — deliberately
+    // NOT via the telegram.send_message tool, so the secret never lands in
+    // AgentStep/audit payloads. First-login password update is enforced.
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_ALLOWED_CHAT_ID;
+    let credentialNote = "temp credential NOT delivered (telegram env missing) — reset it via /admin/users.";
+    if (token && chatId) {
+      const delivery = await sendTelegramMessage(
+        token,
+        buildTelegramSendPayload(
+          chatId,
+          [
+            `Provisioned ${result.orgType} "${result.orgName}" with owner ${result.ownerEmail}.`,
+            `Temporary password: ${temporaryPassword}`,
+            "Hand this to the owner over a trusted channel. It must be changed at first sign-in.",
+          ].join("\n")
+        )
+      );
+      credentialNote = delivery.sent
+        ? "temp credential delivered via Telegram (value not logged)."
+        : `temp credential delivery failed (${delivery.reason ?? delivery.status}) — reset it via /admin/users.`;
+    }
+    await ctx.log("provision-account credential delivery", { note: credentialNote });
+
+    return {
+      summary: `Provisioned ${result.orgType} "${result.orgName}" + owner ${result.ownerEmail} (company ${result.companyId}, user ${result.userId}); ${credentialNote}`,
+    };
+  } catch (error) {
+    if (error instanceof AgentError && error.code === "approval_denied") {
+      return { summary: `Provisioning of "${validation.orgName}" halted: ${error.message}` };
+    }
+    if (error instanceof AgentError && error.code.startsWith("provisioning_")) {
+      return { summary: `Provisioning of "${validation.orgName}" failed: ${error.message}` };
     }
     throw error;
   }

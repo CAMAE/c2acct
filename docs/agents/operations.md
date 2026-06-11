@@ -39,6 +39,18 @@ tail -f ~/Library/Logs/patalign-agent-supervisor.err.log   # stderr
 Cadence: qa-smoke `0 * * * *`, cloudflare-watcher `0 */2 * * *`, pilot-ops `0 8 * * *`
 (hello-world disabled). The scheduler fires crons in local time.
 
+**Heartbeat / silent-DB watchdog (2026-06-10, after the June 9 17-hour silent
+DB-auth outage).** Every trigger-poll cycle that successfully reaches Neon
+records a heartbeat (in-memory + `artifacts/agents/supervisor-heartbeat.json`).
+A watchdog tick (every 60s) sends a Telegram alert when the heartbeat has been
+silent longer than `PAT_HEARTBEAT_ALERT_AFTER_MS` (default 15 min), re-alerts
+every `PAT_HEARTBEAT_REALERT_MS` (default 60 min) while the outage continues,
+and sends a recovery message when polls succeed again. Telegram does not depend
+on the DB, so the alert path survives exactly the failure it watches for. While
+a claimed trigger is running (e.g. blocked hours on an approval card) the
+supervisor counts as healthy. Code: `lib/agents/heartbeat.ts` +
+`scripts/agents/supervisor.ts`.
+
 ## Manual agent run
 
 **Dev / Mac mini (works today):**
@@ -68,10 +80,24 @@ restart after deploy (`launchctl kickstart -k gui/$UID/com.patalign.agent-superv
 
 ## Approvals
 
-Gated tools (e.g. pilot-ops `gmail.draft`, `neon.write:User`) raise an approval. The
-**Telegram poller** (separate process, owns the bot token — see
-`project_telegram_bot_ownership` memory) and the `/admin/approvals` page both write
-to the same `AgentApproval` table.
+Gated tools (e.g. pilot-ops `gmail.draft`, `neon.write:User`,
+`provisioning.create_account`) raise an approval. The **Telegram poller**
+(separate process, owns the bot token — see `project_telegram_bot_ownership`
+memory) and the `/admin/approvals` page both write to the same `AgentApproval`
+table.
+
+**Account provisioning (2026-06-10).** One shared seam,
+`lib/provisioning/account.ts` (`provisionOrganizationAccount`), creates a firm or
+vendor Company + Subject + OWNER user with a temporary credential
+(`mustChangePassword: true`, first-login update enforced by proxy.ts). Two
+surfaces call it:
+- `/admin/organizations` → "Provision account" form (admin types the temp
+  password; operator audit records the actor).
+- Telegram `/provision <firm|vendor> <owner-email> <Org Name> [| Owner Name]` →
+  enqueues a pilot-ops `provision-account` trigger; the supervisor runs it behind
+  the `provisioning.create_account` approval card (blast radius high). The agent
+  generates the temp password, keeps it out of all audit/step rows, and delivers
+  it to the operator chat directly after approval.
 
 > **TODO (prod /admin approvals):** the browser approve/deny path verifies an HMAC
 > using `AGENT_APPROVAL_HMAC_SECRET`. That secret is **not yet in Vercel's env**, so
@@ -120,6 +146,11 @@ to the same `AgentApproval` table.
   extractive passages — see docs/agents/internal-knowledge.md) AND Claude reasoning
   for all future agents (Customer Comms drafts, Support Triage, etc.). Add to
   `.env.local` + the launchd plist + Vercel env.
+  *Plumbing landed 2026-06-10:* `lib/agents/llm.ts` reads the key from the
+  supervisor env (presence-only logging — the value is never logged or persisted);
+  agents opt in per-config with `llm: { enabled: true }` in their YAML. Flag
+  without key (or vice versa) degrades to scripted behavior, so the credential
+  can be provisioned without a code change.
 
 ### Phase 2.5 cleanup backlog (consolidated)
 1. ~~Prod /admin sign-in Server-Action bug.~~ **RESOLVED (2026-05-29, commits

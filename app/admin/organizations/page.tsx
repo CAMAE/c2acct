@@ -2,11 +2,27 @@ import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
 import { COMPANY_TYPE_OPTIONS, MEMBERSHIP_PLAN_OPTIONS, MEMBERSHIP_STATUS_OPTIONS } from "@/lib/adminControlPlane";
-import { createOrganizationAction } from "@/app/admin/actions";
+import { createOrganizationAction, provisionOrganizationAccountAction } from "@/app/admin/actions";
+import { PROVISION_ORG_KINDS } from "@/lib/provisioning/account";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminOrganizationsPage() {
+const PROVISION_ERROR_COPY: Record<string, string> = {
+  invalid_org_name: "Organization name is required.",
+  invalid_org_kind: 'Organization kind must be "firm" or "vendor".',
+  invalid_email: "Owner email is not a valid email address.",
+  password_policy: "Temporary password must be at least 12 characters with lowercase, uppercase, and a number.",
+  email_exists: "A user with that email already exists — manage it from /admin/users instead.",
+};
+
+export default async function AdminOrganizationsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ provisioned?: string; provisionError?: string }>;
+}) {
+  const params = (await searchParams) ?? {};
+  const provisionedEmail = params.provisioned ?? null;
+  const provisionError = params.provisionError ? (PROVISION_ERROR_COPY[params.provisionError] ?? "Provisioning failed.") : null;
   const organizations = await prisma.company.findMany({
     orderBy: { createdAt: "desc" },
     include: {
@@ -52,6 +68,46 @@ export default async function AdminOrganizationsPage() {
         title="Organizations"
         description="Operator oversight for firm and vendor companies, including company-backed membership state, linked users, and product activity."
       />
+
+      <AdminPanel
+        title="Provision account"
+        description="Create a firm or vendor organization together with its owner user. The temporary credential must be rotated at first sign-in."
+      >
+        {provisionedEmail ? (
+          <div className="mb-4 rounded-[12px] border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+            Provisioned organization and owner account for {provisionedEmail}. First-login password update is enforced.
+          </div>
+        ) : null}
+        {provisionError ? (
+          <div className="mb-4 rounded-[12px] border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-900">
+            {provisionError}
+          </div>
+        ) : null}
+        <form action={provisionOrganizationAccountAction} className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <input type="hidden" name="returnTo" value="/admin/organizations" />
+          <input name="orgName" placeholder="Organization name" required className="pat-input" />
+          <select name="orgKind" defaultValue="firm" className="pat-select">
+            {PROVISION_ORG_KINDS.map((kind) => (
+              <option key={kind} value={kind}>
+                {kind === "firm" ? "Firm" : "Vendor"}
+              </option>
+            ))}
+          </select>
+          <input name="ownerEmail" type="email" placeholder="owner@example.com" required className="pat-input" />
+          <input name="ownerName" placeholder="Owner display name (optional)" className="pat-input" />
+          <input
+            name="temporaryPassword"
+            type="password"
+            placeholder="Temporary password (12+ chars, Aa1)"
+            required
+            className="pat-input"
+            autoComplete="new-password"
+          />
+          <button type="submit" className="pat-button-primary">
+            Provision organization + owner
+          </button>
+        </form>
+      </AdminPanel>
 
       <AdminPanel title="Create organization" description="Create a new firm or vendor company record.">
         <form action={createOrganizationAction} className="grid gap-4 md:grid-cols-[1.4fr_0.8fr_auto]">

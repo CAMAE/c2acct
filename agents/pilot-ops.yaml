@@ -13,6 +13,11 @@ model:
   default: claude-sonnet-4-6
   triage: claude-haiku-4-5
 
+# LLM backing opt-in (lib/agents/llm.ts). Requires ANTHROPIC_API_KEY in the
+# supervisor env at runtime; the key value is never committed or logged.
+llm:
+  enabled: false
+
 limits:
   max_turns: 20
   max_budget_usd: 0.50
@@ -34,6 +39,9 @@ tools:
   - server: gmail
     allow:
       - draft  # cannot send directly
+  - server: provisioning
+    allow:
+      - create_account  # org + owner via lib/provisioning/account (always gated below)
   - server: telegram
     allow:
       - send_message
@@ -60,8 +68,10 @@ approval_rules:
     - gmail.draft_then_send        # even drafting that auto-sends
     - neon.write:User              # cannot create/modify users
     - neon.write:PilotCohortMember # cannot create/modify pilot membership / invites
+    - provisioning.create_account  # org + owner provisioning always needs an operator
   approval_blast_radius:
     gmail.send: high
     gmail.draft: medium
     neon.write:User: high
     neon.write:PilotCohortMember: medium
+    provisioning.create_account: high

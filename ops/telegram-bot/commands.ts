@@ -1,11 +1,13 @@
 import prisma from "@/lib/prisma";
 import { loadAgentConfigs } from "@/lib/agents/config";
 import { runAgentByKey } from "@/lib/agents/sdk";
+import { enqueueTrigger } from "@/lib/agents/triggerQueue";
+import { validateProvisionAccountRequest } from "@/lib/provisioning/account";
 
 const AGENTS_DIR = "agents";
 
 /** Dispatch a slash command to its handler. Returns the text reply. */
-export async function handleCommand(text: string): Promise<string> {
+export async function handleCommand(text: string, requestedBy?: string): Promise<string> {
   const [command, ...args] = text.trim().split(/\s+/);
   switch (command) {
     case "/status":
@@ -18,6 +20,8 @@ export async function handleCommand(text: string): Promise<string> {
       return qaCommand(args[0]);
     case "/knowledge":
       return knowledgeQuery(args.join(" "));
+    case "/provision":
+      return provisionCommand(args.join(" "), requestedBy);
     case "/audit":
       return auditTail(args[0]);
     case "/help":
@@ -25,6 +29,95 @@ export async function handleCommand(text: string): Promise<string> {
     default:
       return `Unknown command ${command}.\n\n${helpText()}`;
   }
+}
+
+export interface ParsedProvisionCommand {
+  ok: boolean;
+  error?: string;
+  orgKind?: string;
+  ownerEmail?: string;
+  orgName?: string;
+  ownerName?: string;
+}
+
+const PROVISION_USAGE =
+  'Usage: /provision <firm|vendor> <owner-email> <Org Name> [| Owner Name]\nExample: /provision firm jane@acmecpa.com Acme CPA Group | Jane Smith';
+
+/**
+ * Parse "/provision firm jane@acme.com Acme CPA Group | Jane Smith" args.
+ * Org name is everything after the email; an optional " | " suffix names the owner.
+ */
+export function parseProvisionCommand(argsText: string): ParsedProvisionCommand {
+  const trimmed = argsText.trim();
+  if (!trimmed) {
+    return { ok: false, error: PROVISION_USAGE };
+  }
+  const [head, rest] = splitOnce(trimmed);
+  const orgKind = head.toLowerCase();
+  const [email, nameText] = splitOnce(rest);
+  const [orgNameRaw, ownerNameRaw] = nameText.split("|", 2);
+
+  const candidate = {
+    orgKind,
+    ownerEmail: email,
+    orgName: orgNameRaw?.trim() ?? "",
+    ownerName: ownerNameRaw?.trim() || undefined,
+  };
+  const validation = validateProvisionAccountRequest({
+    orgKind: candidate.orgKind,
+    orgName: candidate.orgName,
+    ownerEmail: candidate.ownerEmail,
+  });
+  if (!validation.ok) {
+    return { ok: false, error: `${validation.message}\n\n${PROVISION_USAGE}` };
+  }
+  return {
+    ok: true,
+    orgKind: validation.orgKind,
+    ownerEmail: validation.ownerEmail,
+    orgName: validation.orgName,
+    ownerName: candidate.ownerName,
+  };
+}
+
+function splitOnce(text: string): [string, string] {
+  const match = text.match(/^(\S+)\s*([\s\S]*)$/);
+  return match ? [match[1], match[2]] : [text, ""];
+}
+
+/**
+ * /provision — enqueue an approval-gated Pilot Ops provisioning run. The bot
+ * must NOT run the agent inline: the run blocks on the approval card, and this
+ * same process handles the card's callback — running inline would deadlock.
+ * The supervisor claims the trigger from the queue instead.
+ */
+async function provisionCommand(argsText: string, requestedBy?: string): Promise<string> {
+  const parsed = parseProvisionCommand(argsText);
+  if (!parsed.ok) {
+    return parsed.error ?? PROVISION_USAGE;
+  }
+
+  const taskEnv: Record<string, string> = {
+    PAT_PILOT_TASK: "provision-account",
+    PAT_PROVISION_ORG_KIND: parsed.orgKind!,
+    PAT_PROVISION_ORG_NAME: parsed.orgName!,
+    PAT_PROVISION_OWNER_EMAIL: parsed.ownerEmail!,
+  };
+  if (parsed.ownerName) {
+    taskEnv.PAT_PROVISION_OWNER_NAME = parsed.ownerName;
+  }
+
+  const { id } = await enqueueTrigger({
+    agentKey: "pilot-ops",
+    message: `provision ${parsed.orgKind} ${parsed.orgName} (${parsed.ownerEmail})`,
+    taskEnv,
+    requestedBy: requestedBy ?? "telegram",
+  });
+
+  return [
+    `Queued provisioning of ${parsed.orgKind} "${parsed.orgName}" with owner ${parsed.ownerEmail} (trigger ${id}).`,
+    "The supervisor will pick it up and send an approval card here — nothing is created until you approve.",
+  ].join("\n");
 }
 
 async function statusSummary(): Promise<string> {
@@ -138,6 +231,7 @@ function helpText(): string {
     "/qa run — trigger a QA smoke run",
     "/qa status — last QA run summary",
     "/knowledge <question> — search operational knowledge (cited)",
+    "/provision <firm|vendor> <owner-email> <Org Name> [| Owner Name] — provision an org + owner (approval-gated)",
     "/audit [agent] — last 10 audit entries",
     "/help — this list",
   ].join("\n");

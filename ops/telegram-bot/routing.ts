@@ -37,5 +37,5 @@ export async function routeMessage(text: string): Promise<string> {
   if (agent === "cloudflare-watcher") {
     return "That looks like a domain / DNS question (cloudflare-watcher). It runs every 2h; /audit cloudflare-watcher shows recent checks.";
   }
-  return "That looks like a Pilot Ops request. Pilot Ops (Phase 1b) is not online yet.";
+  return "That looks like a Pilot Ops request. Use /provision <firm|vendor> <owner-email> <Org Name> to provision an account (approval-gated), or /help for everything else.";
 }

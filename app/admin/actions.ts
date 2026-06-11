@@ -22,6 +22,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { canAccessPortalAdmin } from "@/lib/authz";
 import { recordOperatorAuditEvent } from "@/lib/operatorAudit";
 import { hashPilotPassword, isSupportedPasswordHash, validatePilotPassword } from "@/lib/auth/passwords";
+import { provisionOrganizationAccount } from "@/lib/provisioning/account";
 
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -136,6 +137,32 @@ export async function createOrganizationAction(formData: FormData) {
   });
 
   await redirectWithRevalidate(returnTo);
+}
+
+export async function provisionOrganizationAccountAction(formData: FormData) {
+  const actor = await requireAdminActor();
+  const orgName = getString(formData, "orgName");
+  const orgKind = getString(formData, "orgKind");
+  const ownerEmail = getEmail(formData, "ownerEmail");
+  const ownerName = getNullableString(formData, "ownerName");
+  const temporaryPassword = getString(formData, "temporaryPassword");
+  const returnTo = getReturnTo(formData, "/admin/organizations");
+
+  const result = await provisionOrganizationAccount({
+    orgName,
+    orgKind,
+    ownerEmail,
+    ownerName,
+    temporaryPassword,
+    actorUserId: actor.id,
+    requestedVia: "admin-form",
+  });
+
+  if (!result.ok) {
+    redirect(`${returnTo}?provisionError=${result.code}`);
+  }
+
+  await redirectWithRevalidate(`${returnTo}?provisioned=${encodeURIComponent(result.ownerEmail)}`);
 }
 
 export async function updateOrganizationAction(formData: FormData) {

@@ -104,7 +104,9 @@ function buildUniqueFirmName(label: string) {
 
 async function createFirmOrganization(page: Page, name: string) {
   await gotoStable(page, "/admin/organizations");
-  await page.getByPlaceholder("Organization name").fill(name);
+  // input[name="name"] scopes to the "Create organization" form — the
+  // "Provision account" form's org field is name="orgName".
+  await page.locator('input[name="name"]').fill(name);
   await page.locator('select[name="type"]').selectOption("FIRM");
   await Promise.all([
     page.waitForURL("**/admin/organizations"),
