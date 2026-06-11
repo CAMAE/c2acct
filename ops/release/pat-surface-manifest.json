@@ -207,8 +207,8 @@
       ],
       "positiveMarkers": [
         "SIGN-IN",
-        "Canonical local origin:",
-        "Landing route:"
+        "Sign in to your PAT workspace.",
+        "Choose your role below and continue with your provisioned credentials."
       ]
     },
     "/vendor": {
@@ -283,7 +283,6 @@
           "positiveMarkers": [
             "Consultant",
             "Assigned briefing access",
-            "Landing route:",
             "/consultants"
           ],
           "forbiddenMarkers": [
@@ -293,7 +292,6 @@
         "disabled": {
           "positiveMarkers": [
             "Consultant access is disabled in this runtime",
-            "Landing route:",
             "/vendor"
           ],
           "forbiddenMarkers": [

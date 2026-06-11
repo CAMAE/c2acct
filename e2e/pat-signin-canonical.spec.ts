@@ -19,14 +19,13 @@ test.describe("PAT canonical sign-in routing", () => {
 
   test("keeps role-targeted sign-in deep links intact on /sign-in", async ({ page }) => {
     await page.goto("/sign-in?callbackUrl=%2Fvendor%2Fproduct-insight%2Fproduct-fixture");
-    const signInCard = page
-      .locator("section")
-      .filter({ hasText: "Landing route:" })
-      .filter({ hasText: "/vendor/product-insight/product-fixture" })
-      .first();
-
-    await expect(signInCard).toBeVisible();
-    await expect(signInCard).toContainText("/vendor/product-insight/product-fixture");
+    // The visible "Landing route:" panel was removed from /sign-in; the deep
+    // link now travels in the credentials form's hidden redirectTo input, so
+    // that is what proves the callback survives the sign-in hop.
+    const redirectCarrier = page.locator(
+      'input[name="redirectTo"][value="/vendor/product-insight/product-fixture"]'
+    );
+    await expect(redirectCarrier.first()).toBeAttached();
   });
 
   test("handles consultant deep links deterministically based on the consultant gate", async ({ page }) => {
