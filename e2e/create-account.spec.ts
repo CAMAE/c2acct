@@ -14,12 +14,49 @@ async function selfSignupIsLive(page: Page) {
   return page.url().includes("/create-account");
 }
 
+const localReviewPassword = process.env.PAT_LOCAL_REVIEW_PASSWORD ?? "pat-local-review";
+
+async function signInAsReviewVendor(page: Page) {
+  const csrfResponse = await page.context().request.get("/api/auth/csrf");
+  expect(csrfResponse.ok()).toBeTruthy();
+  const csrfBody = (await csrfResponse.json()) as { csrfToken?: string };
+
+  const signInResponse = await page.context().request.post("/api/auth/callback/credentials", {
+    form: {
+      csrfToken: csrfBody.csrfToken ?? "",
+      email: "review.vendor@pat.local",
+      password: localReviewPassword,
+      callbackUrl: "/vendor",
+      json: "true",
+    },
+  });
+  expect(signInResponse.ok()).toBeTruthy();
+}
+
 test("flag off: /create-account ships dark and redirects to sign-in", async ({ page }) => {
   const live = await selfSignupIsLive(page);
   test.skip(live, "PAT_ENABLE_SELF_SIGNUP=1 on this server; dark-state redirect is asserted when the flag is off.");
 
   await expect(page).toHaveURL(/\/sign-in/);
   await expect(page.getByText("Which best describes you?")).toHaveCount(0);
+});
+
+test("flag on: signed-in users get an explicit interstitial, not a silent bounce", async ({ page }) => {
+  const live = await selfSignupIsLive(page);
+  test.skip(!live, "PAT_ENABLE_SELF_SIGNUP is off on this server; run with the flag on to exercise the interstitial.");
+
+  await signInAsReviewVendor(page);
+
+  // /create-account: interstitial with both choices instead of a redirect.
+  await page.goto("/create-account");
+  await expect(page.getByRole("heading", { name: "You're already signed in" })).toBeVisible();
+  await expect(page.getByText("review.vendor@pat.local")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Continue to your workspace" })).toHaveAttribute("href", "/vendor");
+  await expect(page.getByRole("button", { name: "Sign out and create a new account" })).toBeVisible();
+
+  // Homepage: the create-account card is hidden for signed-in users.
+  await page.goto("/");
+  await expect(page.locator('a[href="/create-account"]')).toHaveCount(0);
 });
 
 test("flag on: wizard creates a firm account through the seam and lands on checkout", async ({ page }) => {

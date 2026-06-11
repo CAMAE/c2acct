@@ -8,7 +8,9 @@ test("PAT shell shows release fingerprint and blocks historical AAE markers", as
   await expect(page.getByText("Performance Alignment Technology", { exact: true })).toBeVisible();
   await expect(page.getByText("The intelligence layer inside C2Acct")).toBeVisible();
   await expect(page.getByText("Meet PAT")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Create an account", exact: true })).toBeVisible();
+  // Flag-independent sign-in card heading; the "Create an account" card only
+  // renders when PAT_ENABLE_SELF_SIGNUP=1 (card visible ⟺ wizard enabled).
+  await expect(page.getByRole("heading", { name: "Continue to your workspace", exact: true })).toBeVisible();
   await expect(page.getByText("Release", { exact: false })).toBeVisible();
   await expect(page.locator("[data-release-fingerprint]")).toBeVisible();
   await expect(page.getByText("Autonomous Alignment Infrastructure for Accounting Firms.")).toHaveCount(0);
@@ -23,7 +25,7 @@ test("PAT shell shows release fingerprint and blocks historical AAE markers", as
   expect(homeHtml).toContain("Performance Alignment Technology");
   expect(homeHtml).toContain("The intelligence layer inside C2Acct");
   expect(homeHtml).toContain("Meet PAT");
-  expect(homeHtml).toContain("Choose your path");
+  expect(homeHtml).toContain("Continue to your workspace");
   expect(homeHtml).not.toContain("Autonomous Alignment Infrastructure for Accounting Firms.");
   expect(homeHtml).not.toContain("Top Seven Outputs");
   expect(homeHtml).not.toContain("EXECUTIVE DASHBOARD SYSTEM");

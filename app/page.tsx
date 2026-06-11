@@ -4,7 +4,8 @@ import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import { getSessionUser } from "@/lib/auth/session";
 import { getConsultantAccessStateForUser } from "@/lib/consultantAccess";
 import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
-import { getCreateAccountHref } from "@/lib/selfSignup";
+import { resolvePortalExperience } from "@/lib/portalVisibility";
+import { CREATE_ACCOUNT_PATH, isSelfSignupEnabled } from "@/lib/selfSignup";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 
 export default async function Home() {
@@ -23,11 +24,28 @@ export default async function Home() {
   const shelvedSession = Boolean(
     sessionUser && !sessionUser.companyId && !consultantState && !individualSurfacesEnabled
   );
-  const signInHref = "/sign-in";
-  const signInCtaLabel = messages.common.continueToSignIn;
-  // While self-signup ships dark (flag off) the card stays visible but lands
-  // on the canonical sign-in hub; at go-live it points at the wizard.
-  const createAccountHref = getCreateAccountHref();
+  // Active sessions get a label + destination that agree with each other:
+  // "Continue to your workspace" routes to the workspace, not back through
+  // /sign-in. Signed-out keeps the canonical sign-in hub.
+  const experience = sessionUser ? await resolvePortalExperience(sessionUser) : null;
+  const workspaceHref =
+    experience?.audience === "vendor"
+      ? "/vendor"
+      : experience?.audience === "firm"
+        ? "/firm"
+        : experience?.audience === "individual" && individualSurfacesEnabled
+          ? "/user"
+          : consultantState
+            ? "/consultants"
+            : "/sign-in";
+  const signInHref = signedIn ? workspaceHref : "/sign-in";
+  const signInCtaLabel = signedIn ? "Continue to your workspace" : messages.common.continueToSignIn;
+  // Card visible ⟺ wizard enabled AND nobody is signed in. While self-signup
+  // ships dark the card must not render at all — a visible card that bounces
+  // to sign-in is the same dead-end UX the June 9 audit fixes removed. A
+  // signed-in user gets the workspace/sign-in card instead; /create-account
+  // itself shows them an explicit interstitial if they navigate directly.
+  const selfSignupEnabled = isSelfSignupEnabled();
   const signInCopy = signedIn
     ? messages.home.signedInCopy
     : individualSurfacesEnabled
@@ -91,7 +109,7 @@ export default async function Home() {
             href={signInHref}
             className="pat-card pat-card-interactive block px-7 py-8 sm:px-8 sm:py-9"
           >
-            <div className="pat-label">Sign in</div>
+            <div className="pat-label">{signedIn ? "Signed in" : "Sign in"}</div>
             <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
               Continue to your workspace
             </h2>
@@ -105,9 +123,10 @@ export default async function Home() {
         )}
       </section>
 
+      {selfSignupEnabled && !signedIn ? (
       <section>
         <Link
-          href={createAccountHref}
+          href={CREATE_ACCOUNT_PATH}
           className="pat-card pat-card-interactive block px-7 py-8 sm:px-8 sm:py-9"
         >
           <div className="pat-label">{messages.home.signInLabel}</div>
@@ -124,6 +143,7 @@ export default async function Home() {
           </span>
         </Link>
       </section>
+      ) : null}
     </div>
   );
 }

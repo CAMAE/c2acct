@@ -8,7 +8,7 @@ import {
   normalizePublicOnboardingPlan,
   parsePublicOnboardingCookie,
 } from "@/lib/publicOnboarding";
-import { getCreateAccountHref, isSelfSignupEnabled } from "@/lib/selfSignup";
+import { CREATE_ACCOUNT_PATH, isSelfSignupEnabled } from "@/lib/selfSignup";
 
 type Params = {
   audience: string;
@@ -64,7 +64,6 @@ export default async function PublicOnboardingAudiencePage({
   // self-signup is live). The save-intent / start-assessment cluster retired
   // in favor of the /create-account wizard.
   const selfSignupEnabled = isSelfSignupEnabled();
-  const createAccountHref = getCreateAccountHref();
 
   return (
     <div className="space-y-8">
@@ -82,7 +81,7 @@ export default async function PublicOnboardingAudiencePage({
             Sign in to {model.shortLabel} workspace
           </Link>
           {selfSignupEnabled ? (
-            <Link className="pat-button-secondary" href={createAccountHref}>
+            <Link className="pat-button-secondary" href={CREATE_ACCOUNT_PATH}>
               Create an account
             </Link>
           ) : null}
@@ -178,7 +177,7 @@ export default async function PublicOnboardingAudiencePage({
             Sign in to {model.shortLabel} workspace
           </Link>
           {selfSignupEnabled ? (
-            <Link className="pat-button-secondary" href={createAccountHref}>
+            <Link className="pat-button-secondary" href={CREATE_ACCOUNT_PATH}>
               Create an account
             </Link>
           ) : null}

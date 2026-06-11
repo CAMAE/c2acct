@@ -1,6 +1,7 @@
 ﻿import "./globals.css";
 import { cookies } from "next/headers";
 import Link from "next/link";
+import { signOut } from "@/auth";
 import AppHeader, { type HeaderNavItem } from "@/app/components/header/AppHeader";
 import { barlowFontClassName } from "@/app/fonts/barlow";
 import { getSessionUser } from "@/lib/auth/session";
@@ -75,6 +76,11 @@ export default async function RootLayout({
     openNavigationMenu: messages.chrome.open_navigation_menu,
   };
 
+  async function signOutFromFooter() {
+    "use server";
+    await signOut({ redirectTo: "/" });
+  }
+
   return (
     <html lang={locale}>
       <body
@@ -107,6 +113,27 @@ export default async function RootLayout({
                 ))}
               </ul>
             </nav>
+            {sessionUser?.email ? (
+              // Every page tells a signed-in user who they are and gives them
+              // a way out — previously the only sign-out affordances were the
+              // /create-account interstitial and the shelved-session card.
+              <form
+                action={signOutFromFooter}
+                className="pat-sans inline-flex flex-wrap items-center justify-center gap-2"
+              >
+                <span>
+                  Signed in as{" "}
+                  <span className="font-semibold text-[var(--shell-ink)]">{sessionUser.email}</span>
+                </span>
+                <span aria-hidden="true">·</span>
+                <button
+                  type="submit"
+                  className="font-semibold text-[var(--shell-muted)] underline-offset-4 hover:text-[var(--shell-ink)] hover:underline"
+                >
+                  Sign out
+                </button>
+              </form>
+            ) : null}
             <div className="pat-sans inline-flex flex-wrap items-center justify-center gap-3">
               <span>{messages.chrome.copyright}</span>
               <span

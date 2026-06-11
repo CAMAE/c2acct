@@ -20,7 +20,8 @@ import {
  * for the pilot. PAT_ENABLE_SELF_SIGNUP defaults OFF: demo/pilot accounts stay
  * operator-provisioned and the wizard ships dark until go-live. With the flag
  * off, /create-account redirects to /sign-in and every "Create an account"
- * entry point falls back to the sign-in hub.
+ * entry point (homepage card, landing-page buttons) is NOT rendered — card
+ * visible ⟺ wizard enabled, one flag, no dead-end bounce to sign-in.
  *
  * The client-safe wizard core (steps, gates, question content) lives in
  * lib/selfSignupWizard.ts.
@@ -33,11 +34,6 @@ export function isSelfSignupEnabled(env: NodeJS.ProcessEnv = process.env) {
 }
 
 export const CREATE_ACCOUNT_PATH = "/create-account";
-
-/** Entry-point href: the wizard when self-signup is live, the sign-in hub while it ships dark. */
-export function getCreateAccountHref(env: NodeJS.ProcessEnv = process.env) {
-  return isSelfSignupEnabled(env) ? CREATE_ACCOUNT_PATH : "/sign-in";
-}
 
 export function getSelfSignupMembershipAudience(role: SelfSignupRole): MembershipAudience {
   if (role === "vendor") return "vendor";

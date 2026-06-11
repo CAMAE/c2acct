@@ -5,10 +5,10 @@ import { expect, test } from "@playwright/test";
  * Meet PAT, Sign in, and a single "Create an account" card (label "Choose
  * your path"); the vendor/firm onboarding landing pages funnel to Sign in or
  * Create an account only (the save-intent / start-assessment cluster is
- * retired). While PAT_ENABLE_SELF_SIGNUP is off the create-account entry
- * points fall back to /sign-in — both states are asserted here by following
- * the link and accepting either destination, then pinning the dark-state
- * redirect in create-account.spec.ts.
+ * retired). Card visible ⟺ wizard enabled, one flag: while
+ * PAT_ENABLE_SELF_SIGNUP is off the create-account entry points do not render
+ * at all (no dead-end bounce to sign-in); direct URL hits are pinned to the
+ * sign-in redirect in create-account.spec.ts.
  */
 
 const roleCases = [
@@ -29,16 +29,23 @@ const roleCases = [
 ] as const;
 
 test.describe("public PAT funnel", () => {
-  test("homepage funnels through the Create an account card", async ({ page }) => {
+  test("homepage Create-an-account card is visible ⟺ the wizard is enabled", async ({ page }) => {
     await page.goto("/");
+    await expect(page.getByRole("heading", { name: "Continue to your workspace" })).toBeVisible();
 
-    await expect(page.getByText("Choose your path").first()).toBeVisible();
-    const createAccountCard = page.getByRole("link", { name: /Create an account/ }).first();
-    await expect(createAccountCard).toBeVisible();
-    await createAccountCard.click();
-
-    // Flag on → the wizard; flag off (ships dark) → the canonical sign-in hub.
-    await page.waitForURL(/\/(create-account|sign-in)/);
+    const createAccountCard = page.getByRole("link", { name: /Create an account/ });
+    if ((await createAccountCard.count()) > 0) {
+      // Flag on: the card exists and leads straight into the wizard.
+      await expect(createAccountCard.first()).toBeVisible();
+      await createAccountCard.first().click();
+      await page.waitForURL("**/create-account");
+      await expect(page.getByRole("heading", { name: "Which best describes you?" })).toBeVisible();
+    } else {
+      // Flag off (ships dark): no dead-end card that bounces to sign-in —
+      // the June 9 audit class of bug. No link on the page may target the wizard.
+      await expect(page.locator('a[href="/create-account"]')).toHaveCount(0);
+      await expect(page.getByText("Choose your path")).toHaveCount(0);
+    }
   });
 
   for (const role of roleCases) {

@@ -32,7 +32,7 @@
     "/": {
       "sourceFiles": [
         "app/page.tsx",
-        "lib/publicOnboarding.ts",
+        "lib/selfSignup.ts",
         "lib/locale.ts"
       ],
       "positiveMarkers": [
@@ -40,7 +40,7 @@
         "Performance Alignment Technology",
         "The intelligence layer inside C2Acct",
         "Meet PAT",
-        "Choose your path"
+        "Continue to your workspace"
       ]
     },
     "/onboarding": {
