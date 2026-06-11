@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.patalign.telegram-bot</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/node</string>
+    <string>--import</string>
+    <string>tsx</string>
+    <string>/Users/camerongarrett/work/c2acct-live/scripts/agents/telegram-bot.ts</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/Users/camerongarrett/work/c2acct-live</string>
+  <!-- Secrets are placeholders here. Do NOT commit real values. Render a local
+       copy with real values from .env.prod (DATABASE_URL/DIRECT_URL) and
+       .env.local (secrets) before launchctl load — see docs/agents/operations.md.
+       applyRepoEnv() only fills ABSENT vars, so these launchd values win over
+       .env.local at runtime (production points at Neon, not docker).
+       NOTE: only ONE process may long-poll the bot token — stop any ad-hoc
+       `pnpm telegram-bot` process before bootstrapping this agent. -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>NODE_ENV</key>
+    <string>production</string>
+    <key>HOME</key>
+    <string>/Users/camerongarrett</string>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <key>DATABASE_URL</key>
+    <string>__DATABASE_URL__</string>
+    <key>DIRECT_URL</key>
+    <string>__DIRECT_URL__</string>
+    <key>AUTH_SECRET</key>
+    <string>__AUTH_SECRET__</string>
+    <key>AGENT_APPROVAL_HMAC_SECRET</key>
+    <string>__AGENT_APPROVAL_HMAC_SECRET__</string>
+    <key>TELEGRAM_BOT_TOKEN</key>
+    <string>__TELEGRAM_BOT_TOKEN__</string>
+    <key>TELEGRAM_ALLOWED_CHAT_ID</key>
+    <string>__TELEGRAM_ALLOWED_CHAT_ID__</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <dict>
+    <key>SuccessfulExit</key>
+    <false/>
+  </dict>
+  <key>ProcessType</key>
+  <string>Background</string>
+  <key>StandardOutPath</key>
+  <string>/Users/camerongarrett/Library/Logs/patalign-telegram-bot.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/camerongarrett/Library/Logs/patalign-telegram-bot.err.log</string>
+</dict>
+</plist>

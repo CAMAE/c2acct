@@ -51,6 +51,28 @@ a claimed trigger is running (e.g. blocked hours on an approval card) the
 supervisor counts as healthy. Code: `lib/agents/heartbeat.ts` +
 `scripts/agents/supervisor.ts`.
 
+## Telegram poller (Mac mini, launchd)
+
+Service: `com.patalign.telegram-bot` → `scripts/agents/telegram-bot.ts`.
+Same placeholder/render pattern as the supervisor: repo plist is
+`ops/launchd/com.patalign.telegram-bot.plist`, rendered copy lives in
+`~/Library/LaunchAgents/`. Env keys mirror the supervisor's (Neon
+DATABASE_URL/DIRECT_URL win over `.env.local`; ANTHROPIC_API_KEY comes from
+`.env.local` via `loadEnv` when needed). **Only one process may long-poll the
+bot token** — stop any ad-hoc `pnpm telegram-bot` before bootstrapping, and
+expect a few transient `Conflict: terminated by other getUpdates request` log
+lines while Telegram releases the old long-poll.
+
+```bash
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.patalign.telegram-bot.plist   # start
+launchctl bootout   gui/$(id -u)/com.patalign.telegram-bot                                # stop
+launchctl kickstart -k gui/$(id -u)/com.patalign.telegram-bot                             # restart
+tail -f ~/Library/Logs/patalign-telegram-bot.log                                          # logs
+```
+
+Like the supervisor, Neon credential rotations require re-rendering this plist
+and a `bootout`/`bootstrap` cycle (kickstart does not reload env).
+
 ## Manual agent run
 
 **Dev / Mac mini (works today):**
