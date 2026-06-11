@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import BrandLockup from "@/app/components/brand/BrandLockup";
+import type { HeaderWordmarkVariant } from "@/lib/brand/wordmark";
 import { localeOptions, type AppLocale } from "@/lib/locale";
 
 export type HeaderNavItem = {
@@ -16,6 +17,7 @@ type AppHeaderProps = {
   individualSurfacesEnabled: boolean;
   membershipHref: string | null;
   navItems: HeaderNavItem[];
+  wordmarkVariant?: HeaderWordmarkVariant;
   uiText: {
     homeAriaLabel: string;
     language: string;
@@ -67,6 +69,7 @@ export default function AppHeader({
   individualSurfacesEnabled,
   membershipHref,
   navItems,
+  wordmarkVariant = "pat",
   uiText,
 }: AppHeaderProps) {
   const pathname = usePathname();
@@ -143,7 +146,7 @@ export default function AppHeader({
       <header className="sticky top-0 z-50 border-b border-[var(--shell-border)] bg-white/92 backdrop-blur-[10px]">
         <div className="pat-shell-frame flex items-center justify-between gap-3.5 py-1 sm:py-1.5">
           <Link href="/" className="min-w-0 shrink-0" aria-label={uiText.homeAriaLabel}>
-            <BrandLockup mode="header" />
+            <BrandLockup mode="header" wordmarkVariant={wordmarkVariant} />
           </Link>
 
           <div className="flex items-center gap-2">

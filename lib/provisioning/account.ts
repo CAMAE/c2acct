@@ -6,18 +6,22 @@ import { recordOperatorAuditEvent } from "@/lib/operatorAudit";
 
 /**
  * Shared account-provisioning seam: create a firm or vendor organization plus
- * its owner user (temporary credential, first-login password update enforced)
- * in one transaction. Both the /admin/organizations form and the Pilot Ops
- * agent's approval-gated `provisioning.create_account` tool call run through
- * this function, so the two surfaces can never drift.
+ * its owner user in one transaction. The /admin/organizations form, the Pilot
+ * Ops agent's approval-gated `provisioning.create_account` tool call, and the
+ * public /create-account wizard all run through this function, so the surfaces
+ * can never drift. `credentialMode` decides the password semantics: "temporary"
+ * (admin/agent) enforces a first-login password update; "user-chosen"
+ * (self-signup) keeps the password the owner typed.
  *
- * Secret discipline: the temporary password enters as an argument and leaves
- * only as a hash on User.passwordHash. It is never returned, logged, or written
- * to the operator audit trail by this module.
+ * Secret discipline: the password enters as an argument and leaves only as a
+ * hash on User.passwordHash. It is never returned, logged, or written to the
+ * operator audit trail by this module.
  */
 
 export const PROVISION_ORG_KINDS = ["firm", "vendor"] as const;
 export type ProvisionOrgKind = (typeof PROVISION_ORG_KINDS)[number];
+
+export type ProvisionCredentialMode = "temporary" | "user-chosen";
 
 export interface ProvisionAccountRequest {
   orgName: string;
@@ -27,10 +31,13 @@ export interface ProvisionAccountRequest {
 }
 
 export interface ProvisionAccountInput extends ProvisionAccountRequest {
-  temporaryPassword: string;
-  /** Admin user id for the web form; null for the agent path. */
+  password: string;
+  credentialMode: ProvisionCredentialMode;
+  /** Admin user id for the web form; null for the agent and self-signup paths. */
   actorUserId: string | null;
-  requestedVia: "admin-form" | "pilot-ops-agent";
+  requestedVia: "admin-form" | "pilot-ops-agent" | "self-signup";
+  /** Optional onboarding answers (self-signup wizard) recorded on the audit event. */
+  profile?: { orgSize?: string | null; primaryGoal?: string | null };
 }
 
 export type ProvisionAccountErrorCode =
@@ -83,14 +90,15 @@ export async function provisionOrganizationAccount(
     return validated;
   }
 
-  const passwordCheck = validatePilotPassword(input.temporaryPassword);
+  const passwordCheck = validatePilotPassword(input.password);
   if (!passwordCheck.ok) {
-    return { ok: false, code: "password_policy", message: passwordCheck.reason ?? "Temporary password rejected." };
+    return { ok: false, code: "password_policy", message: passwordCheck.reason ?? "Password rejected." };
   }
 
-  const passwordHash = await hashPilotPassword(input.temporaryPassword);
+  const passwordHash = await hashPilotPassword(input.password);
   const orgType = validated.orgKind === "firm" ? CompanyType.FIRM : CompanyType.VENDOR;
   const ownerName = input.ownerName?.trim() || null;
+  const mustChangePassword = input.credentialMode === "temporary";
   const now = new Date();
 
   const existing = await prisma.user.findUnique({
@@ -135,7 +143,7 @@ export async function provisionOrganizationAccount(
         role: UserRole.OWNER,
         companyId: company.id,
         passwordHash,
-        mustChangePassword: true,
+        mustChangePassword,
         passwordUpdatedAt: now,
         updatedAt: now,
       },
@@ -154,8 +162,10 @@ export async function provisionOrganizationAccount(
           ownerUserId: user.id,
           ownerEmail: user.email,
           requestedVia: input.requestedVia,
-          passwordSource: "temporary-password",
-          mustChangePassword: true,
+          passwordSource: input.credentialMode === "temporary" ? "temporary-password" : "user-chosen-password",
+          mustChangePassword,
+          ...(input.profile?.orgSize ? { orgSize: input.profile.orgSize } : {}),
+          ...(input.profile?.primaryGoal ? { primaryGoal: input.profile.primaryGoal } : {}),
         },
       },
       tx

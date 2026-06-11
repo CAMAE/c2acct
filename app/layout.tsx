@@ -5,6 +5,7 @@ import AppHeader, { type HeaderNavItem } from "@/app/components/header/AppHeader
 import { barlowFontClassName } from "@/app/fonts/barlow";
 import { getSessionUser } from "@/lib/auth/session";
 import { getMembershipPathPrefix } from "@/lib/membershipContent";
+import { getHeaderWordmarkVariant } from "@/lib/brand/wordmark";
 import { getPublicReleaseFingerprint } from "@/lib/release/fingerprint";
 import { isConsultantAccessEnabled } from "@/lib/consultantAccess";
 import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
@@ -84,6 +85,7 @@ export default async function RootLayout({
           membershipHref={membershipHref}
           individualSurfacesEnabled={individualSurfacesEnabled}
           navItems={translatedNavItems}
+          wordmarkVariant={getHeaderWordmarkVariant()}
           uiText={headerUiText}
         />
 

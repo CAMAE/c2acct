@@ -132,7 +132,8 @@ async function provisionAccount(ctx: AgentRunContext): Promise<{ summary: string
           orgName: String(args.orgName),
           ownerEmail: String(args.ownerEmail),
           ownerName: String(args.ownerName ?? "") || null,
-          temporaryPassword,
+          password: temporaryPassword,
+          credentialMode: "temporary",
           actorUserId: null,
           requestedVia: "pilot-ops-agent",
         });

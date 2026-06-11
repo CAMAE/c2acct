@@ -1,11 +1,15 @@
 import Image from "next/image";
 
+import PatalignWordmark from "@/app/components/brand/PatalignWordmark";
 import { activeDivision, brandAssets } from "@/lib/brand/assets";
+import type { HeaderWordmarkVariant } from "@/lib/brand/wordmark";
 
 type BrandMarksProps = {
   mode?: "header" | "hero";
   tone?: "light" | "dark";
   className?: string;
+  /** Header wordmark experiment (PAT_HEADER_WORDMARK). Hero lockups ignore it. */
+  wordmarkVariant?: HeaderWordmarkVariant;
 };
 
 type MarkProps = {
@@ -70,6 +74,7 @@ export function PatLogoLockup({
   mode = "header",
   tone = mode === "hero" ? "dark" : "light",
   className = "",
+  wordmarkVariant = "pat",
 }: BrandMarksProps) {
   const size = getMarkSize(mode);
   const textTone = tone === "dark" ? "text-white" : "text-[var(--shell-ink)]";
@@ -78,7 +83,11 @@ export function PatLogoLockup({
   if (mode === "header") {
     return (
       <div className={`flex flex-wrap items-center gap-3 text-left sm:gap-4 ${className}`}>
-        <PatBrandMark mode={mode} />
+        {wordmarkVariant === "patalign" ? (
+          <PatalignWordmark className="h-5 w-auto sm:h-6" />
+        ) : (
+          <PatBrandMark mode={mode} />
+        )}
       </div>
     );
   }
@@ -94,12 +103,13 @@ export function PatLogoLockup({
   );
 }
 
-export function BrandLockup({ mode = "header", tone = mode === "hero" ? "dark" : "light", className }: BrandMarksProps) {
-  if (mode === "header") {
-    return <PatLogoLockup mode={mode} tone={tone} className={className} />;
-  }
-
-  return <PatLogoLockup mode={mode} tone={tone} className={className} />;
+export function BrandLockup({
+  mode = "header",
+  tone = mode === "hero" ? "dark" : "light",
+  className,
+  wordmarkVariant,
+}: BrandMarksProps) {
+  return <PatLogoLockup mode={mode} tone={tone} className={className} wordmarkVariant={wordmarkVariant} />;
 }
 
 export default BrandLockup;

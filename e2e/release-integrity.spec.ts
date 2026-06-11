@@ -3,10 +3,12 @@ import { expect, test } from "@playwright/test";
 test("PAT shell shows release fingerprint and blocks historical AAE markers", async ({ page, request }) => {
   await page.goto("/");
 
-  await expect(page.getByText("Performance Alignment Technology")).toBeVisible();
+  // exact:true pins the hero lockup; the footer's "PAT — Performance Alignment
+  // Technology · a Patalign™ product" (commit 6544e80e) also contains the phrase.
+  await expect(page.getByText("Performance Alignment Technology", { exact: true })).toBeVisible();
   await expect(page.getByText("The intelligence layer inside C2Acct")).toBeVisible();
   await expect(page.getByText("Meet PAT")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Choose your path", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Create an account", exact: true })).toBeVisible();
   await expect(page.getByText("Release", { exact: false })).toBeVisible();
   await expect(page.locator("[data-release-fingerprint]")).toBeVisible();
   await expect(page.getByText("Autonomous Alignment Infrastructure for Accounting Firms.")).toHaveCount(0);

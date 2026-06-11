@@ -37,7 +37,9 @@ describe("PAT brand asset contract", () => {
   it("keeps the app header on the official PAT lockup instead of the old C2/PAT combo", () => {
     const source = readFileSync(path.join(ROOT, "app/components/header/AppHeader.tsx"), "utf8");
 
-    expect(source).toContain('<BrandLockup mode="header" />');
+    // wordmarkVariant is the PAT_HEADER_WORDMARK experiment seam; the default
+    // ("pat") still renders the official PAT mark.
+    expect(source).toContain('<BrandLockup mode="header" wordmarkVariant={wordmarkVariant} />');
     expect(source).not.toContain("C2BrandMark");
   });
 });

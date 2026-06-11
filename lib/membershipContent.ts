@@ -475,6 +475,21 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
   },
 };
 
+/**
+ * Tier copy reused outside the membership pages (e.g. the /create-account
+ * wizard's plan step) so plan descriptions never fork from the membership
+ * surface.
+ */
+export function getMembershipTierSeed(audience: MembershipAudience, plan: MembershipPlan) {
+  const seed = MEMBERSHIP_PAGE_CONTENT[audience].tierSeed[plan];
+  return {
+    plan,
+    label: formatMembershipValue(plan),
+    tagline: seed.tagline,
+    features: seed.features,
+  };
+}
+
 export function formatMembershipValue(value: string) {
   return value
     .toLowerCase()

@@ -153,7 +153,8 @@ export async function provisionOrganizationAccountAction(formData: FormData) {
     orgKind,
     ownerEmail,
     ownerName,
-    temporaryPassword,
+    password: temporaryPassword,
+    credentialMode: "temporary",
     actorUserId: actor.id,
     requestedVia: "admin-form",
   });

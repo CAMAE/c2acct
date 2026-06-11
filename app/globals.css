@@ -690,6 +690,77 @@ textarea {
   background: rgba(240, 247, 255, 0.98);
 }
 
+/* /create-account wizard: card-shaped choice buttons (role / goal / plan).
+   .pat-question-choice-button stays the pill for short chips (size buckets);
+   these are full content cards with the same hover/active treatment. */
+.pat-wizard-choice-card {
+  display: block;
+  width: 100%;
+  border-radius: 20px;
+  border: 1px solid var(--shell-border);
+  background: rgba(255, 255, 255, 0.85);
+  text-align: left;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.pat-wizard-choice-card:hover {
+  border-color: rgba(6, 54, 116, 0.34);
+}
+
+.pat-wizard-choice-card[data-active="true"] {
+  border-color: rgba(11, 92, 255, 0.28);
+  background: rgba(240, 247, 255, 0.98);
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.06);
+}
+
+.pat-wizard-choice-card--stack {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* /create-account wizard: one-question-per-screen step transitions. Forward
+   and back get mirrored slides so motion always matches navigation direction. */
+@keyframes pat-wizard-step-forward {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pat-wizard-step-back {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.pat-wizard-step-forward {
+  animation: pat-wizard-step-forward 260ms ease both;
+}
+
+.pat-wizard-step-back {
+  animation: pat-wizard-step-back 260ms ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pat-wizard-step-forward,
+  .pat-wizard-step-back {
+    animation: none;
+  }
+}
+
 /* WS10-B Block A: canonical bold-number utility. Apply to every percentage,
    score, delta, count, and module-completion render so the eye lands on
    numeric data first. font-variant-numeric: tabular-nums keeps numbers

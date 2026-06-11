@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { savePublicOnboardingIntent } from "@/app/onboarding/actions";
-import { getSessionUser } from "@/lib/auth/session";
 import {
   PUBLIC_ONBOARDING_COOKIE,
   getPublicOnboardingPageModel,
@@ -10,6 +8,7 @@ import {
   normalizePublicOnboardingPlan,
   parsePublicOnboardingCookie,
 } from "@/lib/publicOnboarding";
+import { getCreateAccountHref, isSelfSignupEnabled } from "@/lib/selfSignup";
 
 type Params = {
   audience: string;
@@ -17,7 +16,6 @@ type Params = {
 
 type SearchParams = {
   plan?: string;
-  started?: string;
 };
 
 export const dynamic = "force-dynamic";
@@ -44,10 +42,9 @@ export default async function PublicOnboardingAudiencePage({
   params: Promise<Params>;
   searchParams?: Promise<SearchParams>;
 }) {
-  const [{ audience }, resolvedSearchParams, sessionUser, cookieStore] = await Promise.all([
+  const [{ audience }, resolvedSearchParams, cookieStore] = await Promise.all([
     params,
     searchParams,
-    getSessionUser(),
     cookies(),
   ]);
 
@@ -63,9 +60,11 @@ export default async function PublicOnboardingAudiencePage({
     audience,
     selectedPlan: requestedPlan,
   });
-  const signedIn = Boolean(sessionUser);
-  const firstAssessmentHref = signedIn ? model.assessmentHref : model.signInAssessmentHref;
-  const started = resolvedSearchParams?.started === "1" || savedState?.audience === audience;
+  // Public funnel is two doors only: Sign in, or Create an account (when
+  // self-signup is live). The save-intent / start-assessment cluster retired
+  // in favor of the /create-account wizard.
+  const selfSignupEnabled = isSelfSignupEnabled();
+  const createAccountHref = getCreateAccountHref();
 
   return (
     <div className="space-y-8">
@@ -79,26 +78,15 @@ export default async function PublicOnboardingAudiencePage({
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          <form action={savePublicOnboardingIntent}>
-            <input type="hidden" name="audience" value={model.audience} />
-            <input type="hidden" name="plan" value={model.selectedPlan} />
-            <button type="submit" className="pat-button-primary">
-              Save {model.shortLabel} onboarding intent
-            </button>
-          </form>
-          <Link className="pat-button-secondary" href={firstAssessmentHref}>
-            {model.firstAssessmentLabel}
-          </Link>
-          <Link className="pat-button-secondary" href={model.signInWorkspaceHref}>
+          <Link className="pat-button-primary" href={model.signInWorkspaceHref}>
             Sign in to {model.shortLabel} workspace
           </Link>
+          {selfSignupEnabled ? (
+            <Link className="pat-button-secondary" href={createAccountHref}>
+              Create an account
+            </Link>
+          ) : null}
         </div>
-
-        {started ? (
-          <div className="mt-5 rounded-[18px] border border-sky-200 bg-sky-50/90 p-4 text-sm leading-6 text-sky-950">
-            Saved onboarding intent: {model.label} path, {model.selectedPlanLabel} plan. This pre-auth state is stored locally for 30 days and does not create an account or payment.
-          </div>
-        ) : null}
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">
@@ -186,12 +174,14 @@ export default async function PublicOnboardingAudiencePage({
           {model.emptyStateBody}
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <Link className="pat-button-primary" href={firstAssessmentHref}>
-            {model.firstAssessmentLabel}
+          <Link className="pat-button-primary" href={model.signInWorkspaceHref}>
+            Sign in to {model.shortLabel} workspace
           </Link>
-          <Link className="pat-button-secondary" href={model.insightHref}>
-            Preview insight route
-          </Link>
+          {selfSignupEnabled ? (
+            <Link className="pat-button-secondary" href={createAccountHref}>
+              Create an account
+            </Link>
+          ) : null}
         </div>
       </section>
     </div>
