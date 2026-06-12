@@ -80,6 +80,7 @@
     "ops:mac-mini:validate-runtime": "bash scripts/mac-mini/validate-runtime-contract.sh --check"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.104.1",
     "@prisma/client": "^5.22.0",
     "next": "16.1.6",
     "next-auth": "^5.0.0-beta.29",

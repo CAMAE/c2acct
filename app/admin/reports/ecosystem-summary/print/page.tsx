@@ -1,7 +1,9 @@
 import ScoreLockup from "@/app/components/charts/ScoreLockup";
 import RankedBars from "@/app/components/charts/RankedBars";
+import ExecutiveNarrative from "@/app/components/admin/reports/ExecutiveNarrative";
 import ReportPrintHeader from "@/app/components/admin/reports/ReportPrintHeader";
 import { getPlatformReportData } from "@/lib/adminPlatformPicture";
+import { buildReportNarrative } from "@/lib/reportNarrative";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +13,13 @@ export const metadata = {
 
 export default async function EcosystemSummaryPrintPage() {
   const { picture, firmLeague, hotDivergences } = await getPlatformReportData();
+  // The narrative input is exactly the computed payload rendered below —
+  // never credentials, emails, or env.
+  const narrative = await buildReportNarrative({
+    reportKey: "ecosystem-summary",
+    reportTitle: "Ecosystem summary",
+    payload: { picture, firmLeague, hotDivergences },
+  });
 
   return (
     <div className="space-y-8">
@@ -20,6 +29,8 @@ export default async function EcosystemSummaryPrintPage() {
         backHref="/admin/reports"
         backLabel="Back to report catalog"
       />
+
+      <ExecutiveNarrative narrative={narrative} />
 
       <section className="pat-card p-6 print:break-inside-avoid">
         <h2 className="pat-label">Platform counts</h2>

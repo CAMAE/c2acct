@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import DivergenceBar from "@/app/components/charts/DivergenceBar";
 import RankedBars from "@/app/components/charts/RankedBars";
+import ExecutiveNarrative from "@/app/components/admin/reports/ExecutiveNarrative";
 import ReportPrintHeader from "@/app/components/admin/reports/ReportPrintHeader";
 import prisma from "@/lib/prisma";
+import { buildReportNarrative } from "@/lib/reportNarrative";
 import {
   buildVendorProductGapCallout,
   getVendorProductInsightCatalog,
@@ -29,6 +31,25 @@ export default async function VendorProductSummaryPrintPage({
   }
 
   const snapshots = await getVendorProductInsightCatalog(vendor.id);
+  // Exactly the computed evidence rendered below (names, scores, gaps,
+  // section evidence) — never credentials, emails, or env.
+  const narrative = await buildReportNarrative({
+    reportKey: `vendor-product-summary:${vendor.id}`,
+    reportTitle: `Vendor product summary · ${vendor.name}`,
+    payload: {
+      vendorName: vendor.name,
+      products: snapshots.map((snapshot) => ({
+        name: snapshot.product.name,
+        vendorSelfReported: snapshot.vendorSelfReported.latestScore,
+        firmReviewedAverage: snapshot.firmReviewed.averageScore,
+        firmReviewCount: snapshot.firmReviewed.assessmentCount,
+        gapCallout: buildVendorProductGapCallout(snapshot),
+        sectionEvidence: snapshot.vendorSelfReported.sectionEvidence
+          .filter((section) => section.averageScore !== null)
+          .map((section) => ({ title: section.title, averageScore: section.averageScore })),
+      })),
+    },
+  });
 
   return (
     <div className="space-y-8">
@@ -38,6 +59,8 @@ export default async function VendorProductSummaryPrintPage({
         backHref="/admin/reports"
         backLabel="Back to report catalog"
       />
+
+      <ExecutiveNarrative narrative={narrative} />
 
       {snapshots.length === 0 ? (
         <section className="pat-card p-6 text-sm leading-6 text-[var(--shell-muted)]">

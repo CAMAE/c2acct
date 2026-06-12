@@ -1327,3 +1327,17 @@ model KnowledgeChunk {
 
   @@index([sourceId, chunkIdx])
 }
+
+// Block 3 (2026-06-11): cached agent-written executive narratives for
+// /admin/reports. One row per report; regenerated only when the underlying
+// computed payload's fingerprint changes (cost guard — re-renders never
+// re-call the API). The narrative is derived display copy, never evidence.
+model ReportNarrative {
+  id              String   @id @default(cuid())
+  reportKey       String   @unique
+  dataFingerprint String
+  narrative       String
+  model           String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
