@@ -8,6 +8,7 @@ import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
 import MeetPatContent from "@/app/components/pat/MeetPatContent";
+import NudgeButtonMount from "@/app/components/notifications/NudgeButtonMount";
 import { requireConsultantSession } from "@/lib/consultantAccess";
 import { getFirmBriefForConsultant } from "@/lib/firmBriefs";
 import FirmAlignmentHeader from "./_components/FirmAlignmentHeader";
@@ -119,6 +120,9 @@ export default async function FirmBriefPage({
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           {brief.ecosystemName} · {brief.vendorCompanyName}
         </p>
+        <div className="mt-6">
+          <NudgeButtonMount companyId={firmCompanyId} audience="firm" />
+        </div>
         <div className="mt-6">
           <PortalPanelSelector activeKey={activePanel} options={panelOptions} />
         </div>
