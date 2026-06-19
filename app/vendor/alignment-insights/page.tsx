@@ -15,7 +15,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Vendor Alignment Insights | C2Acct",
+  title: "Vendor Alignment Insights | Patalign",
   description: "Vendor alignment insights connected to firm alignment signal.",
 };
 

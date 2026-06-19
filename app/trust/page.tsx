@@ -3,7 +3,7 @@ import TrustSurfacePage from "@/app/components/trust/TrustSurfacePage";
 import { getTrustSurface, getTrustSurfaceCards } from "@/lib/trustContent";
 
 export const metadata = {
-  title: "PAT Trust Center | C2Acct",
+  title: "PAT Trust Center | Patalign",
   description: "Launch-readiness, policy, support, billing, and release transparency for PAT.",
 };
 

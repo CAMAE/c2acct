@@ -1,7 +1,7 @@
 import { IndividualHelpInlineContent } from "@/app/components/individual/IndividualPortalContent";
 
 export const metadata = {
-  title: "Individual Help | C2Acct",
+  title: "Individual Help | Patalign",
   description: "Individual PAT help and route explainer.",
 };
 

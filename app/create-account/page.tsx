@@ -19,7 +19,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Create an account | C2Acct",
+  title: "Create an account | Patalign",
   description: "Create a PAT vendor or firm account and choose your plan.",
 };
 

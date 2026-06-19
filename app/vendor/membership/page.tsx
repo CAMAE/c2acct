@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Vendor Membership | C2Acct",
+  title: "Vendor Membership | Patalign",
   description: "Vendor membership state for PAT.",
 };
 

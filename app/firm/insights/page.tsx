@@ -22,7 +22,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Firm Alignment Insights | C2Acct",
+  title: "Firm Alignment Insights | Patalign",
   description: "Firm-facing alignment insights grounded in PAT module and capability evidence.",
 };
 

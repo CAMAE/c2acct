@@ -7,7 +7,7 @@ import { resolveCurrentMembership } from "@/lib/membership";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Firm Membership | C2Acct",
+  title: "Firm Membership | Patalign",
   description: "Firm membership state for PAT.",
 };
 

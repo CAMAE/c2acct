@@ -20,7 +20,7 @@ import {
 import { resolvePortalExperience } from "@/lib/portalVisibility";
 
 export const metadata = {
-  title: "C2Acct | PAT",
+  title: "Patalign",
   description: "C2Acct corporate surface for the PAT platform workspace.",
 };
 

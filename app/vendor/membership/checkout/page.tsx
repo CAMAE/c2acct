@@ -14,7 +14,7 @@ import { ELEVATED_ACTION, hasElevatedConfirmation } from "@/lib/security/elevate
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Vendor Membership Checkout | C2Acct",
+  title: "Vendor Membership Checkout | Patalign",
   description: "Vendor checkout for PAT membership.",
 };
 

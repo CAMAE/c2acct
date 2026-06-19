@@ -105,6 +105,12 @@ export function buildStripeCheckoutSessionParams(input: {
     "line_items[0][price]": input.priceId,
     "line_items[0][quantity]": "1",
     allow_promotion_codes: "true",
+    // Payment methods are intentionally NOT hardcoded. By omitting
+    // payment_method_types, Stripe Checkout dynamically offers every method you've
+    // enabled in the Dashboard (Settings → Payment methods) that supports
+    // subscriptions — cards, wallets (Link, Cash App Pay, Amazon Pay), and US
+    // business bank accounts via ACH Direct Debit. Control acceptance from the
+    // Dashboard, no code change needed.
   });
 
   for (const [key, value] of Object.entries(input.metadata)) {

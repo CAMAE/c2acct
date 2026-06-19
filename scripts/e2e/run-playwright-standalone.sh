@@ -71,6 +71,18 @@ fi
 # env to match the local-review-auth-only contract the suite expects.
 unset AUTH_GITHUB_ID AUTH_GITHUB_SECRET
 
+# The local-review e2e suite asserts the no-live-charge "scaffold" checkout
+# (lib/billing — billing disabled). A developer's .env.local may carry Stripe
+# TEST keys (PAT_BILLING_ENABLED=1 + STRIPE_SECRET_KEY/PRICE_*) for manual
+# provider-path testing; sourced above, those would flip the served checkout
+# into provider mode and break the scaffold assertions. Force the billing-OFF
+# production posture for the gate — same idea as the GitHub-creds strip above.
+unset PAT_BILLING_ENABLED STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET
+unset STRIPE_PRICE_VENDOR_PRO STRIPE_PRICE_VENDOR_ELITE
+unset STRIPE_PRICE_FIRM_PRO STRIPE_PRICE_FIRM_ELITE
+unset STRIPE_PRICE_INDIVIDUAL_PRO STRIPE_PRICE_INDIVIDUAL_ELITE
+unset STRIPE_PRICE_USER_PRO STRIPE_PRICE_USER_ELITE
+
 # Now apply the e2e overrides AFTER .env.local so they win. macOS bash
 # sets HOSTNAME to the machine hostname by default ("Camerons-Mini"),
 # which Next.js would bind to a non-loopback interface — force loopback.

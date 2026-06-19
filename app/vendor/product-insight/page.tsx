@@ -15,7 +15,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Vendor Product Insight | C2Acct",
+  title: "Vendor Product Insight | Patalign",
   description: "Completed vendor product assessment catalog for product intelligence.",
 };
 

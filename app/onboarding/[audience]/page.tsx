@@ -24,13 +24,13 @@ export async function generateMetadata({ params }: { params: Promise<Params> }) 
   const { audience } = await params;
   if (!isPublicOnboardingAudienceEnabled(audience)) {
     return {
-      title: "PAT Onboarding | C2Acct",
+      title: "PAT Onboarding | Patalign",
     };
   }
 
   const model = getPublicOnboardingPageModel({ audience });
   return {
-    title: `${model.label} Onboarding | C2Acct`,
+    title: `${model.label} Onboarding | Patalign`,
     description: model.heroBody,
   };
 }

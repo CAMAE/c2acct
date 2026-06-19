@@ -68,7 +68,7 @@ export default function MembershipPlanPanel({ model }: MembershipPlanPanelProps)
         <h3 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">{model.panel.ctaTitle}</h3>
         <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">{model.panel.ctaBody}</p>
         <Link className="pat-button-primary mt-6 inline-flex" href={model.panel.ctaHref}>
-          {model.panel.ownsPlan ? "Continue in checkout scaffold" : "Open checkout scaffold"}
+          {model.panel.ownsPlan ? "Manage your membership" : "Continue to checkout"}
         </Link>
       </article>
     </section>

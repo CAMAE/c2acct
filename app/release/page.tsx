@@ -8,7 +8,7 @@ import { getTrustSurface, TRUST_RELEASE_FIELDS } from "@/lib/trustContent";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "PAT Release Transparency | C2Acct",
+  title: "PAT Release Transparency | Patalign",
   description: "Current PAT release fingerprint, build identity, and runtime proof fields.",
 };
 

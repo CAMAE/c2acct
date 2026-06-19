@@ -5,7 +5,7 @@ import { getInviteeCodeConfigs, isInviteeAccessEnabled } from "@/lib/invitee/acc
 import { getPilotDisabledSignInPath, isInviteeSurfacesEnabled } from "@/lib/pilotSurfaces";
 
 export const metadata = {
-  title: "Invitee Access | C2Acct",
+  title: "Invitee Access | Patalign",
   description: "Secret-code access shell for PAT invitees.",
 };
 

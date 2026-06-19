@@ -8,7 +8,7 @@ import { buildReportNarrative } from "@/lib/reportNarrative";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Ecosystem Summary Report | C2Acct",
+  title: "Ecosystem Summary Report | Patalign",
 };
 
 export default async function EcosystemSummaryPrintPage() {

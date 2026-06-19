@@ -2,7 +2,7 @@ import TrustSurfacePage from "@/app/components/trust/TrustSurfacePage";
 import { getTrustSurface } from "@/lib/trustContent";
 
 export const metadata = {
-  title: "PAT Security Posture | C2Acct",
+  title: "PAT Security Posture | Patalign",
   description: "Security posture and launch boundaries for PAT.",
 };
 

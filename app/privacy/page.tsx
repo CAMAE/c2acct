@@ -2,7 +2,7 @@ import TrustSurfacePage from "@/app/components/trust/TrustSurfacePage";
 import { getTrustSurface } from "@/lib/trustContent";
 
 export const metadata = {
-  title: "PAT Privacy Policy Draft | C2Acct",
+  title: "PAT Privacy Policy Draft | Patalign",
   description: "Draft privacy policy for PAT launch review.",
 };
 

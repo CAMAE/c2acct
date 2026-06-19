@@ -10,7 +10,7 @@ import { ensureVendorProfileForCompany, getVendorCompanyContext } from "@/lib/ve
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Vendor Profile | C2Acct",
+  title: "Vendor Profile | Patalign",
   description: "Editable vendor profile and future integration contract.",
 };
 

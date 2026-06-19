@@ -3,7 +3,7 @@ import { buildCanonicalSignInPath } from "@/lib/auth/routes";
 import { isConsultantAccessEnabled } from "@/lib/consultantAccess";
 
 export const metadata = {
-  title: "Consultant Sign In | C2Acct",
+  title: "Consultant Sign In | Patalign",
   description: "Consultant entry route for PAT.",
 };
 

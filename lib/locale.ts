@@ -306,7 +306,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         "Vendors, firms, and individuals sign in here to access their PAT workspace. Role-based dashboards and assessments begin after sign-in.",
     },
     signIn: {
-      metaTitle: "Sign In | C2Acct",
+      metaTitle: "Sign In | Patalign",
       eyebrow: "SIGN-IN",
       heroTitle: "SIGN-IN",
       heroBody: "Select the path that aligns with your role. Access the insights that matter most to you.",
@@ -491,7 +491,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
           "Current-state evidence summaries may still render in English while broader insight localization is completed.",
       },
       firm: {
-        title: "Firm Alignment Insights | C2Acct",
+        title: "Firm Alignment Insights | Patalign",
         heroTitle: "Firm alignment insights",
         heroBody:
           "Use this page to review what your current PAT alignment evidence says about operating strength, automation readiness, data and controls, and change readiness.",
@@ -516,7 +516,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         openAlignmentAssessment: "Open alignment assessment",
       },
       vendorAlignment: {
-        title: "Vendor Alignment Insights | C2Acct",
+        title: "Vendor Alignment Insights | Patalign",
         heroTitle: "Vendor alignment insights",
         heroBody:
           "Use this page to understand what the current firm alignment signal says about the operating conditions vendors are likely walking into right now.",
@@ -532,7 +532,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         backToAlignmentInsights: "Back to alignment insights",
       },
       vendorProduct: {
-        title: "Vendor Product Insight | C2Acct",
+        title: "Vendor Product Insight | Patalign",
         heroTitle: "Product intelligence catalog",
         heroBody:
           "Only products with a completed vendor product assessment appear here. Open one product to review its current product intelligence.",
@@ -618,7 +618,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         "Proveedores, firmas e individuos ingresan aquí para acceder a su espacio de trabajo PAT. Los paneles y evaluaciones por rol comienzan después del acceso.",
     },
     signIn: {
-      metaTitle: "Ingresar | C2Acct",
+      metaTitle: "Ingresar | Patalign",
       eyebrow: "ACCESO",
       heroTitle: "ACCESO",
       heroBody: "Selecciona la ruta que corresponde a tu rol. Accede a los insights que más importan.",
@@ -803,7 +803,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
           "Los resúmenes de evidencia del estado actual todavía pueden mostrarse en inglés mientras se completa la localización más amplia de insights.",
       },
       firm: {
-        title: "Insights de alineación de firma | C2Acct",
+        title: "Insights de alineación de firma | Patalign",
         heroTitle: "Insights de alineación de firma basados en datos de alineación de firma y producto",
         heroBody:
           "Los insights Pro se desbloquean cuando la firma tiene cobertura completa de los cinco módulos y la fortaleza de capacidad que exige cada tema. Elite sigue visible como tarjetas restringidas para mostrar dónde se amplía la capa de inteligencia PAT.",
@@ -828,7 +828,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         openAlignmentAssessment: "Abrir evaluación de alineación",
       },
       vendorAlignment: {
-        title: "Insights de alineación de proveedor | C2Acct",
+        title: "Insights de alineación de proveedor | Patalign",
         heroTitle: "Señal PAT del lado proveedor basada en evidencia actual de evaluación de firmas",
         heroBody:
           "El catálogo Pro visible lee módulos PAT completados por firmas, dispersión entre módulos, clústeres de respuestas almacenadas y puntajes de capacidad cuando existen. Elite queda reservado donde el repositorio aún no tiene soporte honesto de benchmark, pronóstico o simulación.",
@@ -844,7 +844,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         backToAlignmentInsights: "Volver a insights de alineación",
       },
       vendorProduct: {
-        title: "Insight de producto del proveedor | C2Acct",
+        title: "Insight de producto del proveedor | Patalign",
         heroTitle: "Catálogo de inteligencia de producto",
         heroBody:
           "Cada página de producto separa la señal autodeclarada del proveedor de la señal revisada por firmas y muestra la lectura PAT combinada solo cuando la evidencia realmente la respalda.",
@@ -931,7 +931,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         "Les vendeurs, cabinets et individus se connectent ici pour accéder à leur espace de travail PAT. Les tableaux de bord et évaluations par rôle commencent après la connexion.",
     },
     signIn: {
-      metaTitle: "Connexion | C2Acct",
+      metaTitle: "Connexion | Patalign",
       eyebrow: "CONNEXION",
       heroTitle: "CONNEXION",
       heroBody: "Sélectionnez le parcours adapté à votre rôle. Accédez aux insights qui comptent le plus.",
@@ -1116,7 +1116,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
           "Les résumés de preuve de l’état actuel peuvent encore s’afficher en anglais pendant la finalisation d’une localisation plus large des insights.",
       },
       firm: {
-        title: "Insights d’alignement cabinet | C2Acct",
+        title: "Insights d’alignement cabinet | Patalign",
         heroTitle: "Insights d’alignement cabinet fondés sur les données d’alignement cabinet et produit",
         heroBody:
           "Les insights Pro se débloquent lorsque le cabinet dispose à la fois d’une couverture complète des cinq modules et de la force de capacité requise par chaque thème. Elite reste visible sous forme de cartes restreintes pour montrer où la couche d’intelligence PAT s’étendra ensuite.",
@@ -1141,7 +1141,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         openAlignmentAssessment: "Ouvrir l’évaluation d’alignement",
       },
       vendorAlignment: {
-        title: "Insights d’alignement vendeur | C2Acct",
+        title: "Insights d’alignement vendeur | Patalign",
         heroTitle: "Signal PAT côté vendeur fondé sur des preuves actuelles d’évaluation cabinet",
         heroBody:
           "Le catalogue Pro visible s’appuie sur les modules PAT cabinet terminés, la dispersion inter-modules, les groupes de réponses stockés et les scores de capacité lorsqu’ils existent. Elite reste réservé là où le dépôt ne dispose pas encore d’un support honnête de benchmark, projection ou simulation.",
@@ -1158,7 +1158,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         backToAlignmentInsights: "Retour aux insights d’alignement",
       },
       vendorProduct: {
-        title: "Insight produit vendeur | C2Acct",
+        title: "Insight produit vendeur | Patalign",
         heroTitle: "Catalogue d’intelligence produit",
         heroBody:
           "Chaque page produit distingue le signal auto-déclaré vendeur du signal revu par les cabinets, puis n’affiche la lecture PAT combinée que lorsque les preuves la soutiennent réellement.",

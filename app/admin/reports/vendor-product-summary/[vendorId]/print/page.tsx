@@ -13,7 +13,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Vendor Product Summary Report | C2Acct",
+  title: "Vendor Product Summary Report | Patalign",
 };
 
 export default async function VendorProductSummaryPrintPage({

@@ -3,7 +3,7 @@ import RoleSignInPage from "@/app/components/pat/RoleSignInPage";
 import { getPilotDisabledSignInPath, isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 
 export const metadata = {
-  title: "User Sign In | C2Acct",
+  title: "User Sign In | Patalign",
   description: "User entry route for PAT.",
 };
 

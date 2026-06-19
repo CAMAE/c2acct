@@ -3,7 +3,7 @@ import MeetPatContent from "@/app/components/pat/MeetPatContent";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 
 export const metadata = {
-  title: "Meet PAT | C2Acct",
+  title: "Meet PAT | Patalign",
   description: "PAT explainer and product framing.",
 };
 

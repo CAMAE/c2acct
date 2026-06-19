@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getPublicOnboardingHomeCards } from "@/lib/publicOnboarding";
 
 export const metadata = {
-  title: "PAT Onboarding | C2Acct",
+  title: "PAT Onboarding | Patalign",
   description: "Choose a PAT role and start the first assessment path.",
 };
 

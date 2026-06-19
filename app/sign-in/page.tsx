@@ -25,7 +25,7 @@ import {
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 
 export const metadata = {
-  title: "Sign In | C2Acct",
+  title: "Sign In | Patalign",
   description: "Role-oriented sign-in hub for PAT.",
 };
 

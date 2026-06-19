@@ -4,7 +4,7 @@ import { resolvePortalExperience } from "@/lib/portalVisibility";
 import { getCanonicalPatHref, type PatNavigationAudience } from "@/lib/patNavigation";
 
 export const metadata = {
-  title: "Assessment Help | C2Acct",
+  title: "Assessment Help | Patalign",
   description: "How to take PAT assessments cleanly and confidently.",
 };
 

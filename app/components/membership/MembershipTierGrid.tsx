@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { MEMBERSHIP_PLAN } from "@/lib/membership";
 import type { MembershipPageModel } from "@/lib/membershipContent";
 
 type MembershipTierGridProps = {
@@ -10,11 +11,13 @@ type MembershipTierGridProps = {
 export default function MembershipTierGrid({ model }: MembershipTierGridProps) {
   return (
     <section
-      className="grid gap-4 md:grid-cols-3"
+      className="grid gap-4 md:grid-cols-2"
       data-testid="membership-tier-grid"
       aria-label="Membership tier comparison"
     >
-      {model.tiers.map((tier) => {
+      {model.tiers
+        .filter((tier) => tier.plan !== MEMBERSHIP_PLAN.FREE)
+        .map((tier) => {
         const ariaLabel = tier.isRecommended
           ? `${tier.label} tier (Recommended)`
           : `${tier.label} tier`;

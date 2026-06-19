@@ -15,7 +15,7 @@ import { ensureUserPatScaffold, getFirmManagedUserRecords } from "@/lib/userPat"
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Firm Admin | C2Acct",
+  title: "Firm Admin | Patalign",
   description: "Simple firm admin, profile, and user insight surface.",
 };
 

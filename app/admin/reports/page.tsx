@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Admin Reports | C2Acct",
+  title: "Admin Reports | Patalign",
   description: "One-click print-ready PAT reports for operators.",
 };
 

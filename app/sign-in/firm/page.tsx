@@ -1,7 +1,7 @@
 import RoleSignInPage from "@/app/components/pat/RoleSignInPage";
 
 export const metadata = {
-  title: "Firm Sign In | C2Acct",
+  title: "Firm Sign In | Patalign",
   description: "Firm entry route for PAT.",
 };
 

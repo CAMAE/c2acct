@@ -21,7 +21,7 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Individual | C2Acct",
+  title: "Individual | Patalign",
   description: "Individual PAT homepage scaffold and route entry.",
 };
 
