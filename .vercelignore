@@ -1,0 +1,9 @@
+# Local-only release/runtime state and test output. None of these are Vercel
+# build inputs (the build runs `prisma generate && next build`; the release
+# fingerprint is computed from git state, not from artifacts/). artifacts/
+# in particular is written continuously by the mac-mini launchd runtime
+# (canonical-root.json.tmp.* etc.), so including it in `vercel deploy
+# --archive=tgz` races the tar against live temp-file churn → ENOENT.
+artifacts/
+test-results/
+playwright-report/
