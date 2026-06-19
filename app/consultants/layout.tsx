@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import PatAssistantMount from "@/app/components/pat/PatAssistantMount";
 import { isConsultantAccessEnabled, requireConsultantSession } from "@/lib/consultantAccess";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +46,7 @@ export default async function ConsultantLayout({
   return (
     <div className="space-y-8">
       {children}
+      <PatAssistantMount />
     </div>
   );
 }

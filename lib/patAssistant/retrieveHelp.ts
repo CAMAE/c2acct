@@ -23,7 +23,7 @@ export async function retrieveHelp(
   query: string,
   audience: string,
   k = 5,
-  opts?: { verticalId?: string }
+  opts?: { verticalId?: string; unrestricted?: boolean }
 ): Promise<RetrievedChunk[]> {
   const q = query.trim();
   const aud = audience.trim();
@@ -39,6 +39,17 @@ export async function retrieveHelp(
     ? Prisma.sql`AND s."verticalId" = ${opts.verticalId}`
     : Prisma.empty;
 
+  // Audience scoping. Strict by default: a vendor/firm caller only sees help
+  // tagged for their audience (or untagged/global). `unrestricted` is reserved
+  // for consultant/admin callers who, per spec, may ask anything across the help
+  // corpus — it drops the roleAccess predicate but STILL never leaves kind =
+  // 'help_doc', so the internal repo_doc/audit_log/dream_state corpus remains
+  // unreachable. The caller (lib/patAssistant/audience.ts) decides this from the
+  // server session, never the client.
+  const roleFilter = opts?.unrestricted
+    ? Prisma.empty
+    : Prisma.sql`AND (cardinality(s."roleAccess") = 0 OR ${aud} = ANY(s."roleAccess"))`;
+
   // roleAccess scoping: empty array = help visible to every authenticated audience;
   // otherwise the caller's audience must be a member. Enforced here, in SQL.
   const rows = await prisma.$queryRaw<
@@ -52,7 +63,7 @@ export async function retrieveHelp(
     FROM "KnowledgeChunk" c
     JOIN "KnowledgeSource" s ON s."id" = c."sourceId"
     WHERE s."kind" = 'help_doc'
-      AND (cardinality(s."roleAccess") = 0 OR ${aud} = ANY(s."roleAccess"))
+      ${roleFilter}
       AND c."tsv" @@ websearch_to_tsquery('english', ${tsquery})
       ${verticalFilter}
     ORDER BY "rank" DESC, c."chunkIdx" ASC
