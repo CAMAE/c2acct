@@ -1,0 +1,33 @@
+key: ping-sweep
+name: Ping Sweep Agent
+description: "Daily automated notification sweep: gather firm/vendor progress facts, run the deterministic trigger engine, write reminders + consultant escalations through the notification store. No-op while PAT_ENABLE_PINGS is off."
+vertical_id: accounting
+enabled: true
+
+# Cadence: once a day at 13:00 UTC (about 09:00 ET) - a morning send window.
+schedule:
+  type: cron
+  expression: "0 13 * * *"
+  jitter_seconds: 300
+
+# Deterministic backbone - the "should we ping?" decision is rules-driven
+# (lib/notifications/triggers.ts). No model call anywhere in the sweep.
+llm:
+  enabled: false
+
+# Hard caps (enforced by lib/agents/budget.ts).
+limits:
+  max_turns: 4
+  max_budget_usd: 0.01
+  max_runtime_seconds: 120
+
+# The handler reads/writes through the notification store directly (the store
+# enforces the preference + dedupe gate); it does not route tool calls, so no
+# tool allowlist is required.
+tools: []
+
+hooks:
+  pre_tool_use:
+    - audit
+  post_tool_use:
+    - audit

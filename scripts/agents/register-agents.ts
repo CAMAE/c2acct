@@ -7,3 +7,4 @@ import "./qa-smoke";
 import "./cloudflare-watcher";
 import "./pilot-ops";
 import "./internal-knowledge";
+import "./ping-sweep";
