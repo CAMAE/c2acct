@@ -843,6 +843,7 @@ model User {
   passwordHash      String?
   mustChangePassword Boolean            @default(false)
   passwordUpdatedAt DateTime?
+  lastLoginAt       DateTime?
   createdAt         DateTime            @default(now())
   updatedAt         DateTime
   companyId         String?
@@ -851,6 +852,8 @@ model User {
   OperatorAuditEvent OperatorAuditEvent[]
   PilotCohortMember PilotCohortMember[]
   SubjectMembership SubjectMembership[]
+  Notification           Notification[]
+  NotificationPreference NotificationPreference?
 
   @@index([companyId])
 }
@@ -1302,6 +1305,11 @@ model KnowledgeSource {
   contentHash   String
   lastIndexedAt DateTime
   verticalId    String              @default("accounting")
+  // Customer-facing scoping for help_doc sources. Empty array = visible to every
+  // authenticated portal audience; otherwise lists the audiences allowed to
+  // retrieve these chunks (e.g. ["vendor"], ["firm","consultant"]). Enforced in
+  // the SQL WHERE of lib/patAssistant/retrieveHelp.ts — never by prompting.
+  roleAccess    String[]            @default([])
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
   chunks        KnowledgeChunk[]
@@ -1314,6 +1322,7 @@ enum KnowledgeSourceKind {
   repo_doc
   audit_log
   dream_state
+  help_doc
 }
 
 model KnowledgeChunk {
@@ -1340,4 +1349,117 @@ model ReportNarrative {
   model           String
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+// ── Pat notification / ping system (Phase 0 foundation, 2026-06-18) ────────────
+// Additive + flag-gated. Renders nothing until PAT_ENABLE_PINGS=1. See
+// lib/notifications/ (Phase B) and the ping-system design doc. The in-app
+// notification center reads Notification; NotificationDelivery tracks per-channel
+// fan-out; NotificationPreference is the per-user preference center / cadence
+// governor input; NudgeEvent is the user-facing audit log (mirrors
+// OperatorAuditEvent). EngagementQuarter carries the quarterly completion target
+// that deadline-based reminders fire against.
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+}
+
+enum NotificationDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+  SUPPRESSED
+}
+
+enum DigestFrequency {
+  OFF
+  DAILY
+  WEEKLY
+}
+
+model Notification {
+  id              String                 @id @default(cuid())
+  recipientUserId String
+  recipient       User                   @relation(fields: [recipientUserId], references: [id], onDelete: Cascade)
+  audience        String
+  kind            String
+  title           String
+  body            String
+  ctaLabel        String?
+  ctaHref         String?
+  // Trigger source for dedupe + re-surfacing (e.g. sourceType="SurveyModule").
+  sourceType      String?
+  sourceId        String?
+  // Who triggered it; null = automated/system nudge.
+  actorUserId     String?
+  readAt          DateTime?
+  createdAt       DateTime               @default(now())
+  deliveries      NotificationDelivery[]
+
+  // One live notification per (recipient, source, kind) — the dedupe key that
+  // stops double-sends for the same stalled task.
+  @@unique([recipientUserId, sourceType, sourceId, kind])
+  @@index([recipientUserId, readAt])
+  @@index([audience])
+}
+
+model NotificationDelivery {
+  id             String                     @id @default(cuid())
+  notificationId String
+  notification   Notification               @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  channel        NotificationChannel
+  status         NotificationDeliveryStatus @default(PENDING)
+  sentAt         DateTime?
+  error          String?
+  createdAt      DateTime                   @default(now())
+
+  @@unique([notificationId, channel])
+  @@index([status])
+}
+
+model NotificationPreference {
+  id              String          @id @default(cuid())
+  userId          String          @unique
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inAppEnabled    Boolean         @default(true)
+  emailEnabled    Boolean         @default(true)
+  quietHoursStart Int?            // minutes from local midnight, e.g. 1320 = 22:00
+  quietHoursEnd   Int?            // minutes from local midnight, e.g. 480 = 08:00
+  timezone        String          @default("America/New_York")
+  digestFrequency DigestFrequency @default(OFF)
+  // Per-kind opt-outs: { "CONSULTANT_FIRM_NUDGE": false, ... }
+  kindOptOuts     Json            @default("{}")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model NudgeEvent {
+  id              String   @id @default(cuid())
+  actorUserId     String?
+  recipientUserId String
+  kind            String
+  sourceType      String?
+  sourceId        String?
+  manual          Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  @@index([recipientUserId, createdAt])
+  @@index([actorUserId, createdAt])
+}
+
+model EngagementQuarter {
+  id               String   @id @default(cuid())
+  companyId        String
+  // Quarter label, e.g. "2026-Q3".
+  quarter          String
+  // Target completion (0–100) of assessment modules by quarter end — the bar for
+  // "good data" that deadline reminders push elite-tier firms/vendors toward.
+  targetPercent    Int      @default(100)
+  dueDate          DateTime
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([companyId, quarter])
+  @@index([dueDate])
 }
