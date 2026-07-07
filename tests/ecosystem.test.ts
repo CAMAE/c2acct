@@ -122,6 +122,22 @@ describe("lib/ecosystem helpers", () => {
         noSignal: 1,
       });
     });
+
+    it("counts assigned-but-unbriefed firms as no-signal so the band totals all firms", () => {
+      // 2 briefed firms, but the ecosystem has 7 assigned — the other 5 have no
+      // briefing yet. The band total must equal the card's "7 firms" subtitle.
+      const counts = aggregateFirmConfidence(
+        [
+          catalogEntry({ confidenceLabel: "Emerging signal" }),
+          catalogEntry({ companyId: "f2", confidenceLabel: "Emerging signal" }),
+        ],
+        7
+      );
+      expect(counts.emerging).toBe(2);
+      expect(counts.noSignal).toBe(5);
+      const total = Object.values(counts).reduce((sum, value) => sum + value, 0);
+      expect(total).toBe(7);
+    });
   });
 
   describe("countHotDivergences", () => {

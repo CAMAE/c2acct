@@ -756,7 +756,11 @@ export async function getAdminLaunchControlData(): Promise<AdminLaunchControlVie
         vendorProductCompleted,
         firmAlignmentExpected: firms * firmModules.length,
         firmAlignmentCompleted,
-        firmProductExpected: DEMO_FIRM_VENDOR_RELATIONSHIP_MINIMUM,
+        // Expected = the firm × product review universe (mirrors firmAlignment's
+        // firms × modules). A hardcoded minimum (100) produced >100% coverage
+        // (e.g. 734/100) whenever real reviews exceeded it — never show a
+        // coverage stat above its own ceiling.
+        firmProductExpected: firms * products,
         firmProductCompleted,
       },
       insights: {

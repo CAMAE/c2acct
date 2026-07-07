@@ -211,6 +211,14 @@ export default async function VendorPage({
           {glanceSnapshots.length > 0 ? (
             <section className="pat-card p-6">
               <div className="pat-label">Products at a glance</div>
+              {vendorContext.products.length > glanceSnapshots.length ? (
+                // Reconcile with the "Products: N" context count — the glance
+                // only shows products with a completed self-assessment, so the
+                // remainder isn't dropped, it just hasn't been assessed yet.
+                <p className="mt-2 text-xs leading-5 text-[var(--shell-muted)]">
+                  {glanceSnapshots.length} of {vendorContext.products.length} products have a completed self-assessment. The rest appear here once assessed.
+                </p>
+              ) : null}
               <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {glanceSnapshots.map((snapshot) => {
                   const vendorScore = snapshot.vendorSelfReported.latestScore;

@@ -95,7 +95,10 @@ export function avgFirmAlignmentScore(catalog: BriefingCatalogItem[]): number | 
   return Math.round(sum / scores.length);
 }
 
-export function aggregateFirmConfidence(catalog: BriefingCatalogItem[]): FirmConfidenceCounts {
+export function aggregateFirmConfidence(
+  catalog: BriefingCatalogItem[],
+  totalFirmCount?: number
+): FirmConfidenceCounts {
   const counts: FirmConfidenceCounts = {
     grounded: 0,
     emerging: 0,
@@ -108,6 +111,12 @@ export function aggregateFirmConfidence(catalog: BriefingCatalogItem[]): FirmCon
     if (bucket) {
       counts[bucket] += 1;
     }
+  }
+  // Assigned firms with no briefing entry yet are "no signal" — otherwise the
+  // band total (only briefed firms) disagreed with the card's "N firms"
+  // subtitle (all assigned firms), e.g. "7 firms" vs "4 of 4". Count all of them.
+  if (totalFirmCount !== undefined) {
+    counts.noSignal += Math.max(0, totalFirmCount - catalog.length);
   }
   return counts;
 }
@@ -290,7 +299,7 @@ async function buildEcosystemCard(input: {
     moduleCompletionRate: avgModuleCompletion(progresses),
     activeDivergenceCount: countHotDivergences(briefings),
     thirtyDayActionCount: countThirtyDayActions(briefings),
-    firmConfidenceCounts: aggregateFirmConfidence(catalog),
+    firmConfidenceCounts: aggregateFirmConfidence(catalog, firmIds.length),
     latestActivityAt: latestActivityAt ? latestActivityAt.toISOString() : null,
   };
 }
@@ -653,7 +662,7 @@ export async function getEcosystemDetailForConsultant(
     vendorCompanyName,
     firmCount: firmIds.length,
     latestActivityAt: latestActivityAt ? latestActivityAt.toISOString() : null,
-    firmConfidenceCounts: aggregateFirmConfidence(catalog),
+    firmConfidenceCounts: aggregateFirmConfidence(catalog, firmIds.length),
     avgFirmAlignmentScore: avgFirmAlignmentScore(catalog),
     vendorProductCoverage: { productCount, firmReviewCount },
     moduleCompletionRate: avgModuleCompletion(progresses.map((entry) => entry.summary)),
