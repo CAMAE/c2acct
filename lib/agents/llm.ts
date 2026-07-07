@@ -45,8 +45,8 @@ export const NARRATIVE_TIMEOUT_MS = 20_000;
 /**
  * One short-text generation call through the official SDK. Throws on any
  * failure (missing key, timeout, API error) — callers own degradation.
- * Thinking disabled + low effort: this is a fast prose-synthesis call with a
- * 20s budget, not a reasoning task.
+ * Thinking disabled: this is a fast prose-synthesis call with a 20s budget, not
+ * a reasoning task.
  */
 export async function generateNarrativeText(input: {
   system: string;
@@ -69,7 +69,6 @@ export async function generateNarrativeText(input: {
     model: NARRATIVE_MODEL,
     max_tokens: input.maxTokens ?? 800,
     thinking: { type: "disabled" },
-    output_config: { effort: "low" },
     system: input.system,
     messages: [{ role: "user", content: input.prompt }],
   });

@@ -87,7 +87,6 @@ async function callModel(input: {
     model: input.model,
     max_tokens: input.maxTokens,
     thinking: { type: "disabled" },
-    output_config: { effort: "low" },
     system: input.system,
     messages: [{ role: "user", content: userContent }],
   });
