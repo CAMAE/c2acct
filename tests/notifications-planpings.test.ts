@@ -13,6 +13,7 @@ const NOW = Date.UTC(2026, 5, 18, 12, 0, 0); // fixed reference instant
 function target(overrides: Partial<PingTarget> = {}): PingTarget {
   return {
     companyId: "firm1",
+    companyName: "Firm One",
     audience: "firm",
     completionPercent: 40,
     lastActivityMs: NOW, // active by default

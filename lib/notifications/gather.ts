@@ -89,23 +89,31 @@ async function recipientUserIds(companyId: string): Promise<string[]> {
   return users.map((u) => u.id);
 }
 
+/** Company display name, so Pat can name the account in a consultant escalation. */
+async function companyName(companyId: string): Promise<string> {
+  const company = await prisma.company.findUnique({ where: { id: companyId }, select: { name: true } });
+  return company?.name ?? "";
+}
+
 async function buildTarget(
   companyId: string,
   audience: Audience,
   consultantUserId: string | null,
   nowMs: number
 ): Promise<PingTarget> {
-  const [completionPercent, lastMs, quarter, sends, ignored, recipients] = await Promise.all([
+  const [completionPercent, lastMs, quarter, sends, ignored, recipients, name] = await Promise.all([
     audience === "firm" ? firmCompletionPercent(companyId) : vendorCompletionPercent(companyId),
     lastActivityMs(companyId),
     nearestQuarter(companyId, nowMs),
     priorSends(companyId, audience),
     ignoredCount(companyId, audience),
     recipientUserIds(companyId),
+    companyName(companyId),
   ]);
 
   return {
     companyId,
+    companyName: name,
     audience,
     completionPercent,
     lastActivityMs: lastMs,

@@ -1,4 +1,5 @@
 import { evaluateNudge, shouldEscalateToConsultant, type NudgeReason } from "@/lib/notifications/triggers";
+import { composePatPingCopy } from "@/lib/notifications/patPingCopy";
 
 /**
  * Ping run planner (Phase B3b-1, 2026-06-18). Pure, side-effect-free: given a
@@ -27,6 +28,8 @@ export const ESCALATION_KIND = "ESCALATION_TO_CONSULTANT";
 
 export type PingTarget = {
   companyId: string;
+  /** Display name of the company, so Pat can name the account in escalations. */
+  companyName: string;
   audience: "firm" | "vendor";
   completionPercent: number;
   /** Epoch-ms of the target's most recent activity/submission. */
@@ -62,27 +65,6 @@ export type PingPlan = {
   escalated: number;
 };
 
-function autoMessage(
-  reason: Exclude<NudgeReason, "none">,
-  audience: "firm" | "vendor"
-): { title: string; body: string; ctaLabel: string; ctaHref: string } {
-  const assessment = audience === "vendor" ? "product self-assessment" : "alignment assessment";
-  const ctaHref = audience === "vendor" ? "/vendor/product-assessment" : "/firm/alignment-assessment";
-  const ctaLabel = audience === "vendor" ? "Open your product assessment" : "Open your alignment assessment";
-  const body =
-    reason === "deadline"
-      ? `Your quarter close is coming up — please finish your ${assessment} so your data is complete.`
-      : `It's been a little while — when you have a moment, please continue your ${assessment} so your briefing stays current.`;
-  return { title: "A reminder from Patalign", body, ctaLabel, ctaHref };
-}
-
-function escalationMessage(audience: "firm" | "vendor"): { title: string; body: string } {
-  return {
-    title: "A managed account needs a personal nudge",
-    body: `A ${audience} you manage hasn't responded to recent reminders. Consider reaching out directly.`,
-  };
-}
-
 /** Build the notification plan for a sweep. Pure: no DB, no clock, no sends. */
 export function planPings(targets: PingTarget[], nowMs: number): PingPlan {
   const notifications: PlannedNotification[] = [];
@@ -103,7 +85,12 @@ export function planPings(targets: PingTarget[], nowMs: number): PingPlan {
     });
 
     if (decision.fire && decision.reason !== "none") {
-      const msg = autoMessage(decision.reason, target.audience);
+      const msg = composePatPingCopy({
+        kind: "reminder",
+        reason: decision.reason,
+        audience: target.audience,
+        completionPercent: target.completionPercent,
+      });
       for (const recipientUserId of target.recipientUserIds) {
         notifications.push({
           recipientUserId,
@@ -122,7 +109,12 @@ export function planPings(targets: PingTarget[], nowMs: number): PingPlan {
     }
 
     if (target.consultantUserId && shouldEscalateToConsultant(target.ignoredCount)) {
-      const msg = escalationMessage(target.audience);
+      const msg = composePatPingCopy({
+        kind: "escalation",
+        audience: target.audience,
+        completionPercent: target.completionPercent,
+        companyName: target.companyName,
+      });
       notifications.push({
         recipientUserId: target.consultantUserId,
         audience: "consultant",
@@ -130,8 +122,8 @@ export function planPings(targets: PingTarget[], nowMs: number): PingPlan {
         reason: "escalation",
         title: msg.title,
         body: msg.body,
-        ctaLabel: null,
-        ctaHref: null,
+        ctaLabel: msg.ctaLabel,
+        ctaHref: msg.ctaHref,
         sourceType: "Company",
         sourceId: target.companyId,
       });

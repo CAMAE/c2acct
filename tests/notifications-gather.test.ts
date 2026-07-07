@@ -18,6 +18,7 @@ const { db } = vi.hoisted(() => ({
     nudgeEvent: { count: vi.fn() },
     notification: { count: vi.fn() },
     user: { findMany: vi.fn() },
+    company: { findUnique: vi.fn() },
   },
 }));
 
@@ -51,6 +52,7 @@ beforeEach(() => {
   db.nudgeEvent.count.mockResolvedValue(1);
   db.notification.count.mockResolvedValue(2);
   db.user.findMany.mockResolvedValue([{ id: "u1" }, { id: "u2" }]);
+  db.company.findUnique.mockResolvedValue({ name: "Firm One" });
 });
 
 describe("gatherPingTargets", () => {
@@ -70,6 +72,7 @@ describe("gatherPingTargets", () => {
     const firm = targets.find((t) => t.companyId === "firm1");
     expect(firm).toEqual({
       companyId: "firm1",
+      companyName: "Firm One",
       audience: "firm",
       completionPercent: 40, // from summarizeFirmAlignmentProgress
       lastActivityMs: NOW - 3 * DAY, // createdAt.getTime()
