@@ -37,6 +37,9 @@ async function main() {
   // when review.consultant@pat.local signs in. Runs after ensureLocalReviewUsers
   // so the consultant User row exists. Phase 6 expands this to 4 ecosystems.
   const consultantEcosystem = await ensureConsultantEcosystemForReview(prisma);
+  // Customer-facing Pat help corpus so Ask Pat retrieves locally (help_doc FTS).
+  const { indexHelpDocs } = await import("./index-help");
+  const helpIndex = await indexHelpDocs(prisma);
   const firmSectionCount = await prisma.surveySection.count({
     where: {
       moduleId: {
@@ -56,6 +59,7 @@ async function main() {
   console.log("PAT pilot cohort:", pilotCohort);
   console.log(`Local review auth users seeded: ${localReviewSeed.seeded ? localReviewSeed.userEmails.length : 0}`);
   console.log("Consultant ecosystem (Phase 2 minimal):", consultantEcosystem);
+  console.log(`Pat help corpus: ${helpIndex.indexed} indexed, ${helpIndex.skipped} unchanged, ${helpIndex.total} total`);
 }
 
 main()
