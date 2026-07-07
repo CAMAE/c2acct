@@ -121,11 +121,11 @@ export const EXPLAINER_CONTENT: Record<MetricKey, ExplainerContent> = {
 
   "hot-divergences": {
     title: "Hot divergences",
-    unitLabel: "rows",
+    unitLabel: "gaps",
     headline:
       "How many vendor-vs-firm capability gaps exceed the 10-point conversation threshold across products in this ecosystem.",
     whatItMeasures:
-      "Count of (firm × product) review pairs where the absolute gap between firm-reviewed score and vendor self-reported score is at least 10 points. These are the rows worth raising on a quarterly review call — the vendor either over-promised or the firms are seeing more value than the vendor claims.",
+      "Assessment-identified capability gaps where the vendor's stated capabilities and the firm's experienced capabilities are not in alignment — surfaced here when the gap exceeds 10 points.",
     howComputed:
       "Filter AdminCompanyBriefing.productLayer.products for |canonicalFirmReviewScore − vendorSelfReportedScore| ≥ HOT_DIVERGENCE_THRESHOLD (10). Sum across all firm briefings. Source: lib/ecosystem.ts:countHotDivergences.",
     bands: [
@@ -134,7 +134,7 @@ export const EXPLAINER_CONTENT: Record<MetricKey, ExplainerContent> = {
       { range: "3+", label: "Action required", note: "Vendor-side calibration session indicated." },
     ],
     whereToDrill:
-      "Open the vendor brief, switch to the Positioning visual panel for the radar (where polygons diverge most), then the Product comparison panel for the per-row delta scoreboard with the orange/green direction colors.",
+      "Open the vendor brief, switch to the Positioning visual panel for the radar (where polygons diverge most), then the Product comparison panel for the per-gap delta scoreboard with the orange/green direction colors.",
     valueFrom: (ecosystem) => String(ecosystem.activeDivergenceCount),
     perFirmDrilldown: {
       columnLabel: "Hot divergences",
@@ -151,15 +151,15 @@ export const EXPLAINER_CONTENT: Record<MetricKey, ExplainerContent> = {
 
   "priority-actions": {
     title: "30-day priority actions",
-    unitLabel: "rows",
+    unitLabel: "actions",
     headline:
       "How many near-term actions PAT has surfaced across firms in this ecosystem — the 30-day cohort from each firm's deterministic action roadmap.",
     whatItMeasures:
-      "Sum of BriefingActionItem rows where window === \"30 days\" across every firm in the ecosystem. These are the highest-priority recommendations from PAT's deterministic action builder, scoped to immediate (sub-monthly) execution.",
+      "As invited firms complete their modular assessments in PAT Pro, PAT generates a detailed list of near-term priority actions for consideration.",
     howComputed:
       "For each firm's AdminCompanyBriefing, count nextActions[].window === \"30 days\"; sum across firms. Source: lib/ecosystem.ts:countThirtyDayActions.",
     whereToDrill:
-      "The firm-side Six-quarter roadmap panel (firm-brief, roadmap panel) shows each firm's full 6-quarter action sequence. The 30-day cohort is Q1 of each firm's roadmap.",
+      "The firm-side 6-quarter roadmap panel (firm-brief, roadmap panel) shows each firm's full 6-quarter action sequence. The 30-day cohort is Q1 of each firm's roadmap.",
     valueFrom: (ecosystem) => String(ecosystem.thirtyDayActionCount),
     perFirmDrilldown: {
       columnLabel: "30-day actions",

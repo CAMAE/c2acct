@@ -76,6 +76,9 @@ export default async function ConsultantOverviewPage({
           audienceTerms={["ecosystems"]}
           className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]"
         />
+        <p className="mt-3 max-w-3xl text-sm font-medium leading-6 text-[var(--shell-muted)]">
+          An ecosystem is a software vendor and the firms invited to assess its products.
+        </p>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           Review the ecosystems you have been assigned to, drill into vendor and firm
           briefings, and use Meet PAT for context on what each surface is doing under

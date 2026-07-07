@@ -31,7 +31,7 @@ export default function ConsultantHelpContent() {
             The vendor brief looks across the whole ecosystem: capability comparison,
             per-firm strengths and cautions, positioning visual. The firm brief drills
             into one firm: operating alignment score, stack fit per product,
-            six-quarter roadmap.
+            6-quarter roadmap.
           </p>
         </div>
 

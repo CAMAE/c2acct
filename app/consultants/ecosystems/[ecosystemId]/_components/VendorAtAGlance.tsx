@@ -63,10 +63,10 @@ export default function VendorAtAGlance({ data }: { data: EcosystemDetailData })
           the strongest/weakest header above. */}
       <div className="mt-6 rounded-[18px] bg-[var(--shell-panel-soft)]/40 p-4">
         <div className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-          Coverage map
+          Primary software categories
         </div>
         <p className="mt-1 mb-3 text-sm leading-5 text-[var(--shell-muted)]">
-          Vendor&apos;s product catalog coverage across the {data.vendorCoverageMap.length} PAT capability function buckets. Filled tiles indicate the vendor sells a product in that bucket.
+          Vendor&apos;s product catalog coverage across the {data.vendorCoverageMap.length} PAT capability function areas. Filled tiles indicate the vendor sells a product in that area.
         </p>
         <div className="grid grid-cols-2 gap-1.5 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
           {data.vendorCoverageMap.map((cell) => (
@@ -94,7 +94,7 @@ export default function VendorAtAGlance({ data }: { data: EcosystemDetailData })
           <span className="pat-stat-number">
             {glance.functionBucketsCovered} of {glance.functionBucketsTotal}
           </span>{" "}
-          buckets covered
+          areas covered
         </div>
       </div>
 

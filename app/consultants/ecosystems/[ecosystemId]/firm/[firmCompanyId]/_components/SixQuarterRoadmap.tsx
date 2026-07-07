@@ -97,7 +97,7 @@ export default function SixQuarterRoadmap({ data }: { data: FirmBriefData }) {
     >
       <div className="mb-4 flex items-baseline justify-between gap-3">
         <div>
-          <div className="pat-label">Six-quarter roadmap</div>
+          <div className="pat-label">6-quarter roadmap</div>
           <h2 className="mt-2 text-xl font-semibold tracking-tight text-[var(--shell-ink)]">
             Deterministic gap-closure sequencing
           </h2>

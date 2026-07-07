@@ -85,7 +85,7 @@ export default async function FirmBriefPage({
     { key: "operating", label: "Operating alignment", href: getPanelHref(ecosystemId, firmCompanyId, "operating") },
     { key: "radar", label: "Five-module radar", href: getPanelHref(ecosystemId, firmCompanyId, "radar") },
     { key: "stack-fit", label: "Stack fit", href: getPanelHref(ecosystemId, firmCompanyId, "stack-fit") },
-    { key: "roadmap", label: "Six-quarter roadmap", href: getPanelHref(ecosystemId, firmCompanyId, "roadmap") },
+    { key: "roadmap", label: "6-quarter roadmap", href: getPanelHref(ecosystemId, firmCompanyId, "roadmap") },
     { key: "method", label: "Methodology", href: getPanelHref(ecosystemId, firmCompanyId, "method") },
     { key: "pat", label: "Meet PAT", href: getPanelHref(ecosystemId, firmCompanyId, "pat") },
     { key: "help", label: "Help", href: getPanelHref(ecosystemId, firmCompanyId, "help") },

@@ -62,6 +62,7 @@ export default async function RootLayout({
       ? [{ href: "/consultants", label: "Consultant" }]
       : []),
     { href: "/trust", label: "Trust" },
+    { href: "https://www.c2acct.com", label: "Return to C2Acct" },
   ];
   const membershipHref =
     experience.audience === "vendor" ||

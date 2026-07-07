@@ -348,10 +348,10 @@ const messages: Record<AppLocale, LocaleMessages> = {
       localAuthCookies: "Local auth cookies",
     },
     meetPat: {
-      eyebrow: "Meet PAT",
-      heroTitle: "PAT is the intelligence layer for structured performance alignment.",
+      eyebrow: "The Analytical Core Inside C2Acct",
+      heroTitle: "PAT Intelligence Layer",
       heroBody:
-        "PAT turns assessments, capability signal, and product evidence into reflective current-state insight, then expands responsibly as the model and evidence deepen.",
+        "PAT is the insight layer within C2Acct, built to convert structured signals into decision-grade direction with minimal friction and full contextual continuity.",
       sections: [
         {
           title: "What PAT does",

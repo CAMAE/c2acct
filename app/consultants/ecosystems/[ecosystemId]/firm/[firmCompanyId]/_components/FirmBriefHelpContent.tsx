@@ -8,7 +8,7 @@ export default function FirmBriefHelpContent() {
       <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
         The firm brief drills into a single firm&apos;s relationship with this
         vendor: where the firm aligns, where it diverges from peers, what the
-        current stack looks like, what to plan over the next six quarters.
+        current stack looks like, what to plan over the next 6 quarters.
       </p>
 
       <div className="mt-8 grid gap-6 md:grid-cols-2">
@@ -23,7 +23,7 @@ export default function FirmBriefHelpContent() {
             firm sits vs the peer average across the five firm modules.{" "}
             <span className="font-semibold">Stack fit</span> — product-by-product
             alignment between firm-reviewed scores and vendor self-report.{" "}
-            <span className="font-semibold">Six-quarter roadmap</span> — forward-
+            <span className="font-semibold">6-quarter roadmap</span> — forward-
             looking actions across Q1 through Q6.{" "}
             <span className="font-semibold">Methodology</span> — data sources and
             sample sizes feeding this brief.
@@ -69,7 +69,7 @@ export default function FirmBriefHelpContent() {
           <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
             The Stack fit table feeds the vendor brief&apos;s Section 4
             (Strengths / cautions) per-firm battlecard for this firm. The
-            Six-quarter roadmap will pull from the vendor brief&apos;s Action
+            6-quarter roadmap will pull from the vendor brief&apos;s Action
             Roadmap once the rebuild lands (AUDIT-WS11-001); for now the roadmap
             is populated by the deterministic builder in lib/firmBriefs.ts.
           </p>

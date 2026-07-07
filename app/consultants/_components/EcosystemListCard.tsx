@@ -6,7 +6,7 @@ import type { EcosystemListCardData, FirmConfidenceCounts } from "@/lib/ecosyste
 // Full / Building / Limited / Initial / Pending.
 const CONFIDENCE_BUCKET_LABELS: Record<keyof FirmConfidenceCounts, string> = {
   grounded: "at Full confidence",
-  emerging: "Building",
+  emerging: "actively assessing",
   sampleThin: "Limited",
   earlySignal: "Initial",
   noSignal: "Pending",
@@ -26,7 +26,7 @@ function formatConfidenceDistribution(counts: FirmConfidenceCounts): string {
     const value = counts[bucket];
     if (value === 0) continue;
     if (isFirst) {
-      parts.push(`${value} of ${total} firms ${label}`);
+      parts.push(`${value} of ${total} invited firms ${label}`);
       isFirst = false;
     } else {
       parts.push(`${value} ${label}`);
@@ -73,7 +73,7 @@ export default function EcosystemListCard({ data }: { data: EcosystemListCardDat
         <div>
           <div className="text-lg font-semibold text-[var(--shell-ink)]">{data.ecosystemName}</div>
           <div className="mt-1 text-sm text-[var(--shell-muted)]">
-            {data.vendorCompanyName} · {data.firmCount} firm{data.firmCount === 1 ? "" : "s"}
+            {data.vendorCompanyName} · {data.firmCount} invited firm{data.firmCount === 1 ? "" : "s"}
           </div>
         </div>
       </div>

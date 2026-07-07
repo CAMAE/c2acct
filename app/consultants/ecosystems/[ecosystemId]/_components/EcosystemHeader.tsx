@@ -4,7 +4,7 @@ import type { EcosystemDetailData, FirmConfidenceCounts } from "@/lib/ecosystem"
 // Full / Building / Limited / Initial / Pending.
 const CONFIDENCE_BUCKET_LABELS: Record<keyof FirmConfidenceCounts, string> = {
   grounded: "at Full confidence",
-  emerging: "Building",
+  emerging: "actively assessing",
   sampleThin: "Limited",
   earlySignal: "Initial",
   noSignal: "Pending",
@@ -22,7 +22,7 @@ function formatConfidenceDistribution(counts: FirmConfidenceCounts): string {
     const value = counts[bucket];
     if (value === 0) continue;
     if (isFirst) {
-      parts.push(`${value} of ${total} firms ${label}`);
+      parts.push(`${value} of ${total} invited firms ${label}`);
       isFirst = false;
     } else {
       parts.push(`${value} ${label}`);
@@ -53,7 +53,7 @@ export default function EcosystemHeader({ data }: { data: EcosystemDetailData })
         <div>
           <div className="text-lg font-semibold text-[var(--shell-ink)]">{data.vendorCompanyName}</div>
           <div className="mt-1 text-sm text-[var(--shell-muted)]">
-            {data.firmCount} firm{data.firmCount === 1 ? "" : "s"} in this ecosystem
+            {data.firmCount} invited firm{data.firmCount === 1 ? "" : "s"} in this ecosystem
           </div>
         </div>
         <div className="text-sm text-[var(--shell-muted)]">{formatRelativeTimestamp(data.latestActivityAt)}</div>

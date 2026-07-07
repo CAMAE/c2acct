@@ -1402,12 +1402,12 @@ export async function ensureConsultantEcosystemForReview(client: DemoSeedClient)
     where: { vendorCompanyId: vendorCompany.id },
     update: {
       consultantProfileId: consultantProfile.id,
-      name: `${vendorCompany.name} Ecosystem`,
+      name: "Demo Vendor Ecosystem",
       updatedAt: new Date(),
     },
     create: {
       id: stableId("demo-ecosystem", vendorKey),
-      name: `${vendorCompany.name} Ecosystem`,
+      name: "Demo Vendor Ecosystem",
       vendorCompanyId: vendorCompany.id,
       consultantProfileId: consultantProfile.id,
       updatedAt: new Date(),
