@@ -9,6 +9,8 @@ import { getMembershipPathPrefix } from "@/lib/membershipContent";
 import { getHeaderWordmarkVariant } from "@/lib/brand/wordmark";
 import { getPublicReleaseFingerprint } from "@/lib/release/fingerprint";
 import { isConsultantAccessEnabled } from "@/lib/consultantAccess";
+import { isPatAssistantEnabled } from "@/lib/patAssistant/flags";
+import { hasPatConsent } from "@/lib/patAssistant/consent";
 import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import { TRUST_FOOTER_LINKS } from "@/lib/trustContent";
 import {
@@ -67,6 +69,10 @@ export default async function RootLayout({
     (individualSurfacesEnabled && experience.audience === "individual")
       ? `${getMembershipPathPrefix(experience.audience)}/membership`
       : null;
+  // Pat top bar rides the same flag + per-user consent gate as the old floating
+  // launcher: only a signed-in, opted-in user sees it while the flag is on.
+  const showPatTopBar =
+    isPatAssistantEnabled() && !!sessionUser && (await hasPatConsent(sessionUser.id));
   const headerUiText = {
     homeAriaLabel: messages.chrome.home_aria,
     language: messages.chrome.language,
@@ -92,6 +98,7 @@ export default async function RootLayout({
           individualSurfacesEnabled={individualSurfacesEnabled}
           navItems={translatedNavItems}
           wordmarkVariant={getHeaderWordmarkVariant()}
+          showPatTopBar={showPatTopBar}
           uiText={headerUiText}
         />
 

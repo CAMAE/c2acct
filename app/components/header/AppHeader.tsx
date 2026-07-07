@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import BrandLockup from "@/app/components/brand/BrandLockup";
+import PatTopBar from "@/app/components/pat/PatTopBar";
 import type { HeaderWordmarkVariant } from "@/lib/brand/wordmark";
 import { localeOptions, type AppLocale } from "@/lib/locale";
 
@@ -18,6 +19,8 @@ type AppHeaderProps = {
   membershipHref: string | null;
   navItems: HeaderNavItem[];
   wordmarkVariant?: HeaderWordmarkVariant;
+  /** Show the Pat top-bar input (caller has cleared the flag + consent gate). */
+  showPatTopBar?: boolean;
   uiText: {
     homeAriaLabel: string;
     language: string;
@@ -70,6 +73,7 @@ export default function AppHeader({
   membershipHref,
   navItems,
   wordmarkVariant = "pat",
+  showPatTopBar = false,
   uiText,
 }: AppHeaderProps) {
   const pathname = usePathname();
@@ -149,7 +153,9 @@ export default function AppHeader({
             <BrandLockup mode="header" wordmarkVariant={wordmarkVariant} />
           </Link>
 
-          <div className="flex items-center gap-2">
+          {showPatTopBar ? <PatTopBar /> : null}
+
+          <div className="flex items-center gap-2 shrink-0">
             {resolvedMembershipHref ? (
               <Link
                 href={resolvedMembershipHref}
