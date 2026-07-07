@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { anthropicApiKeyPresent } from "@/lib/agents/llm";
 import { isPatAssistantEnabled } from "@/lib/patAssistant/flags";
+import { hasPatConsent } from "@/lib/patAssistant/consent";
 import { resolvePatAudience } from "@/lib/patAssistant/audience";
 import { buildHelpContext, retrieveHelp } from "@/lib/patAssistant/retrieveHelp";
 import { generatePatReply, type PatReply } from "@/lib/patAssistant/model";
@@ -36,6 +37,12 @@ export async function POST(req: Request) {
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+  }
+
+  // Consent gate: Pat is opt-in. Without it, the endpoint is invisible (404), the
+  // same as the flag being off — never a 403 that would confirm the surface exists.
+  if (!(await hasPatConsent(sessionUser.id))) {
+    return NextResponse.json({ ok: false, error: "consent_required" }, { status: 404 });
   }
 
   let body: unknown = null;

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import PatConsentPanelMount from "@/app/components/pat/PatConsentPanelMount";
 import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 
@@ -29,6 +30,10 @@ export default async function MeetPatContent({ actions }: MeetPatContentProps) {
           {pilotBody(messages.meetPat.heroBody)}
         </p>
       </section>
+
+      {/* Renders only for a signed-in user while PAT_ENABLE_PAT_ASSISTANT is on;
+          null on public views and while the flag is off. */}
+      <PatConsentPanelMount />
 
       <section className="grid gap-5">
         {messages.meetPat.sections.map((section) => (
