@@ -290,7 +290,10 @@ export function getPublicOnboardingPageModel(input: {
   env?: NodeJS.ProcessEnv;
 }): PublicOnboardingPageModel {
   const config = getPublicOnboardingConfig(input.audience);
-  const selectedPlan = normalizePublicOnboardingPlan(input.selectedPlan);
+  // FREE stays a technical plan key but is never rendered: coerce a free
+  // selection up to pro so no "Free" copy reaches the onboarding surface.
+  const requestedPlan = normalizePublicOnboardingPlan(input.selectedPlan);
+  const selectedPlan = requestedPlan === "free" ? "pro" : requestedPlan;
   const membershipHref = `${config.routeHref}/membership`;
   const selectedBilling = getBillingLabels({
     audience: config.membershipAudience,
@@ -314,7 +317,7 @@ export function getPublicOnboardingPageModel(input: {
     signInWorkspaceHref,
     membershipHref,
     selectedBilling,
-    planCards: PUBLIC_ONBOARDING_PLANS.map((plan) => {
+    planCards: PUBLIC_ONBOARDING_PLANS.filter((plan) => plan !== "free").map((plan) => {
       const planCopy = PLAN_COPY[plan];
       const planBilling = getBillingLabels({
         audience: config.membershipAudience,

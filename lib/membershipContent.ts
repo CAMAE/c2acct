@@ -74,7 +74,9 @@ export type MembershipPageModel = {
     title: string;
     body: string;
   };
-  tiers: [MembershipTierCardData, MembershipTierCardData, MembershipTierCardData];
+  // Only paid tiers are ever rendered. FREE remains a rank-0 technical artifact
+  // (normalizeMembershipPlan default, admin tooling) but never appears here.
+  tiers: MembershipTierCardData[];
   comparisonTable: MembershipComparisonRow[];
   panel:
     | {
@@ -811,8 +813,9 @@ function getMembershipHelpCards(
   ];
 }
 
+// FREE is intentionally absent: it is never rendered as a tier (Cam has killed
+// the FREE tier repeatedly — the no-free-copy contract test keeps it dead).
 const MEMBERSHIP_TIER_ORDER: readonly MembershipPlan[] = [
-  MEMBERSHIP_PLAN.FREE,
   MEMBERSHIP_PLAN.PRO,
   MEMBERSHIP_PLAN.ELITE,
 ];
@@ -831,9 +834,6 @@ function buildMembershipTierCard(
   if (isCurrent) {
     ctaLabel = "Current plan";
     ctaHref = null;
-  } else if (plan === MEMBERSHIP_PLAN.FREE) {
-    ctaLabel = "Get started";
-    ctaHref = `${getMembershipPathPrefix(audience)}/membership?tab=pro`;
   } else {
     ctaLabel = `Upgrade to ${formatMembershipValue(plan)}`;
     ctaHref = buildMembershipCheckoutHref(audience, plan);
@@ -856,11 +856,10 @@ function buildMembershipTiers(
   audience: MembershipAudience,
   currentPlan: MembershipPlan,
   content: MembershipAudienceContent
-): [MembershipTierCardData, MembershipTierCardData, MembershipTierCardData] {
-  const [free, pro, elite] = MEMBERSHIP_TIER_ORDER.map((plan) =>
+): MembershipTierCardData[] {
+  return MEMBERSHIP_TIER_ORDER.map((plan) =>
     buildMembershipTierCard(audience, plan, currentPlan, content)
   );
-  return [free, pro, elite];
 }
 
 export function getMembershipPageModel(input: {

@@ -1,11 +1,22 @@
 "use client";
 
 import { Fragment } from "react";
-import type { MembershipComparisonValue, MembershipPageModel } from "@/lib/membershipContent";
+import { MEMBERSHIP_PLAN } from "@/lib/membership";
+import type {
+  MembershipComparisonRow,
+  MembershipComparisonValue,
+  MembershipPageModel,
+} from "@/lib/membershipContent";
+import type { MembershipPlan } from "@prisma/client";
 
 type MembershipComparisonTableProps = {
   model: MembershipPageModel;
 };
+
+// Value cells follow the rendered tiers (PRO, ELITE). FREE is never a column.
+function valueForPlan(row: MembershipComparisonRow, plan: MembershipPlan): MembershipComparisonValue {
+  return plan === MEMBERSHIP_PLAN.ELITE ? row.eliteValue : row.proValue;
+}
 
 function renderCell(value: MembershipComparisonValue) {
   if (value === true) {
@@ -80,7 +91,7 @@ export default function MembershipComparisonTable({ model }: MembershipCompariso
                 <tr className="bg-[var(--shell-panel-soft)]">
                   <th
                     scope="colgroup"
-                    colSpan={4}
+                    colSpan={model.tiers.length + 1}
                     className="pat-label py-3 pl-2 text-left text-[var(--shell-ink)]"
                   >
                     {group.category}
@@ -97,9 +108,11 @@ export default function MembershipComparisonTable({ model }: MembershipCompariso
                     >
                       {row.feature}
                     </th>
-                    <td className="py-3 pr-4 text-center">{renderCell(row.freeValue)}</td>
-                    <td className="py-3 pr-4 text-center">{renderCell(row.proValue)}</td>
-                    <td className="py-3 pr-4 text-center">{renderCell(row.eliteValue)}</td>
+                    {model.tiers.map((tier) => (
+                      <td key={tier.plan} className="py-3 pr-4 text-center">
+                        {renderCell(valueForPlan(row, tier.plan))}
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </Fragment>

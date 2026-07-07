@@ -51,7 +51,8 @@ describe("public onboarding contracts", () => {
     expect(model.selectedBilling.mode).toBe("scaffold");
     expect(model.selectedBilling.stateLabel).toBe("Scaffold only");
     expect(model.selectedBilling.truthLabel).toMatch(/No live charge will be created/i);
-    expect(model.planCards.find((plan) => plan.key === "free")?.checkoutHref).toBeNull();
+    // FREE is never rendered as a plan card (Block C purge).
+    expect(model.planCards.some((plan) => plan.key === "free")).toBe(false);
     expect(model.planCards.find((plan) => plan.key === "pro")?.checkoutHref).toBe("/vendor/membership/checkout?plan=pro&from=onboarding");
   });
 

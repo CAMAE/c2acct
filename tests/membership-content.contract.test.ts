@@ -178,22 +178,23 @@ describe("membership page contracts", () => {
   // tier cards for the hero grid) and comparisonTable[] (feature comparison
   // rows grouped by category). These power MembershipTierGrid +
   // MembershipComparisonTable in the membership page shell.
-  it("returns three tier cards in FREE/PRO/ELITE order with Pro recommended", () => {
+  it("renders only PRO/ELITE tier cards (FREE never rendered) with Pro recommended", () => {
     const model = getMembershipPageModel({
       audience: "vendor",
       currentPlan: MEMBERSHIP_PLAN.FREE,
     });
 
+    // FREE is a rank-0 technical artifact only — it is never a rendered tier.
     expect(model.tiers.map((t) => t.plan)).toEqual([
-      MEMBERSHIP_PLAN.FREE,
       MEMBERSHIP_PLAN.PRO,
       MEMBERSHIP_PLAN.ELITE,
     ]);
+    expect(model.tiers.some((t) => t.plan === MEMBERSHIP_PLAN.FREE)).toBe(false);
     expect(model.tiers.filter((t) => t.isRecommended).map((t) => t.plan)).toEqual([
       MEMBERSHIP_PLAN.PRO,
     ]);
-    expect(model.tiers.find((t) => t.plan === MEMBERSHIP_PLAN.FREE)?.isCurrent).toBe(true);
-    expect(model.tiers.find((t) => t.plan === MEMBERSHIP_PLAN.PRO)?.isCurrent).toBe(false);
+    // A FREE current plan still resolves the page, but marks no rendered tier current.
+    expect(model.tiers.some((t) => t.isCurrent)).toBe(false);
   });
 
   it("marks the user's current plan with a disabled CTA on the tier grid", () => {
