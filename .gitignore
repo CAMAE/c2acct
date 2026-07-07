@@ -97,3 +97,9 @@ artifacts/brand-screenshots/
 # Block-2 runtime-proof probe scratchpad (Day 16; never committed)
 scripts/dev/
 
+
+# pilot login reset output (plaintext credentials — never commit)
+pilot-login-reset.local.md
+
+# Elite-sprint planning/spec docs (local reference — strategy + pricing, keep out of git)
+docs/elite-sprint/
