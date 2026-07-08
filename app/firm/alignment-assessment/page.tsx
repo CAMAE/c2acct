@@ -5,6 +5,7 @@ import MembershipSurfaceGate from "@/app/components/membership/MembershipSurface
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import { getSessionUser } from "@/lib/auth/session";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
+import { orderModulesForUser } from "@/lib/moduleOrderRotation";
 import {
   getFirmAssessmentProgress,
   summarizeFirmAlignmentProgress,
@@ -102,7 +103,10 @@ export default async function FirmAlignmentAssessmentPage() {
     );
   }
 
-  const modules = await getFirmAssessmentProgress(sessionUser.companyId);
+  const canonicalModules = await getFirmAssessmentProgress(sessionUser.companyId);
+  // Presentation-only per-user rotation (flag off by default). Scoring/benchmarks
+  // key modules by id and are unaffected; nextModule follows the visible order.
+  const modules = orderModulesForUser(canonicalModules, sessionUser.id);
   const progress = summarizeFirmAlignmentProgress(modules);
 
   return (
