@@ -1486,3 +1486,140 @@ model EngagementQuarter {
   @@unique([companyId, quarter])
   @@index([dueDate])
 }
+
+// ---------------------------------------------------------------------------
+// Adaptive firm modules (Sprint 4 M1, 2026-07-08).
+// Per PATALIGN-ADAPTIVE-MODULES-SPEC + PATALIGN-MODULE-METHODOLOGY-OUTLINE.
+// Hard rules baked into the schema:
+//   1. Every ModuleItem MUST carry >= 1 ModuleSource (sourced-content bar) —
+//      enforced by lib/modules/serving.ts + contract tests. "Tier C does not
+//      exist": no scraped/unlicensed/unsourced content ever serves.
+//   2. A ModuleTemplate serves to customers ONLY when reviewStatus = APPROVED
+//      (two-signature publish gate: CPA accuracy + clarity). Nothing serves
+//      until the CPA-certified founder flips the status.
+// All additive; dark until wired to surfaces in a later phase.
+// ---------------------------------------------------------------------------
+
+model ModuleTemplate {
+  id                String             @id @default(cuid())
+  key               String             @unique
+  category          String
+  // Scoring-pattern subset this module is authored for (AAE pattern discipline).
+  targetPattern     String
+  moduleType        ModuleType
+  title             String
+  // Measurable learning objectives (>= 75% must be measured by the assessment).
+  objectives        Json?
+  reviewStatus      ModuleReviewStatus @default(DRAFT)
+  // Two-signature publish gate (methodology redline, locked 2026-07-08):
+  // CPA-certified founder signs content accuracy; clarity reviewer (Leslie)
+  // signs readability. APPROVED requires both.
+  cpaReviewedBy     String?
+  cpaReviewedAt     DateTime?
+  clarityReviewedBy String?
+  clarityReviewedAt DateTime?
+  verticalId        String             @default("accounting")
+  active            Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  ModuleItem        ModuleItem[]
+  ModuleUnlockRule  ModuleUnlockRule[]
+
+  @@index([category])
+  @@index([moduleType, reviewStatus])
+  @@index([verticalId])
+}
+
+model ModuleItem {
+  id                 String           @id @default(cuid())
+  key                String           @unique
+  templateId         String
+  category           String
+  itemKind           ModuleItemKind
+  difficulty         ModuleDifficulty
+  // Anchor items appear unchanged for every firm — the cross-firm benchmark
+  // thread that keeps scores comparable while the rest of the bank rotates.
+  isAnchor           Boolean          @default(false)
+  stem               String
+  // Answer choices: array of { key, label }.
+  choices            Json
+  correctKey         String
+  // Per-choice rationale — why wrong answers are wrong, per QAS feedback rule.
+  feedback           Json?
+  // Calibration placeholders until real sitting data accrues (methodology §6):
+  // discrimination = do high scorers get it right more than low scorers.
+  discriminationSeed Float            @default(0.3)
+  pValueSeed         Float?
+  order              Int              @default(0)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  ModuleTemplate     ModuleTemplate   @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  ModuleSource       ModuleSource[]
+
+  @@index([templateId, itemKind])
+  @@index([category])
+  @@index([difficulty])
+}
+
+model ModuleSource {
+  id          String              @id @default(cuid())
+  itemId      String
+  sourceOrg   String
+  sourceDoc   String
+  sourceUrl   String?
+  licenseType ModuleSourceLicense
+  accessedAt  DateTime
+  createdAt   DateTime            @default(now())
+  ModuleItem  ModuleItem          @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([itemId])
+  @@index([licenseType])
+}
+
+model ModuleUnlockRule {
+  id             String         @id @default(cuid())
+  // Scoring-pattern subset key that triggers this unlock.
+  patternSubset  String
+  templateId     String
+  // Quarters after the trigger before the module opens (EngagementQuarter drip).
+  quarterOffset  Int            @default(0)
+  active         Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  ModuleTemplate ModuleTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@unique([patternSubset, templateId])
+  @@index([templateId])
+}
+
+enum ModuleType {
+  DIAGNOSTIC
+  STRENGTH
+  REMEDIATION
+}
+
+enum ModuleReviewStatus {
+  DRAFT
+  CLARITY_REVIEW
+  CPA_REVIEW
+  APPROVED
+  RETIRED
+}
+
+enum ModuleItemKind {
+  ENTRY
+  REVIEW
+  FINAL
+}
+
+enum ModuleDifficulty {
+  EASY
+  MODERATE
+  HARD
+}
+
+enum ModuleSourceLicense {
+  PUBLIC_DOMAIN
+  CITED
+  LICENSED
+}
