@@ -6,6 +6,7 @@ import { QuestionInputType } from "@prisma/client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import { buildCanonicalSignInPath } from "@/lib/auth/routes";
+import { sliderValueFromPointer } from "@/lib/scoreSlider";
 import {
   getDefaultAnswer,
   isAnswerPresent,
@@ -164,10 +165,17 @@ function renderQuestionInput(
           max={slider.max}
           step={slider.step}
           value={selectedValue}
-          onInput={(event) => setAnswer(Number(event.currentTarget.value))}
           onChange={(event) => setAnswer(Number(event.currentTarget.value))}
-          onPointerUp={(event) => setAnswer(Number(event.currentTarget.value))}
-          onKeyUp={(event) => setAnswer(Number(event.currentTarget.value))}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            event.currentTarget.focus();
+            setAnswer(sliderValueFromPointer(event, slider.min, slider.max, slider.step));
+          }}
+          onPointerMove={(event) => {
+            if ((event.buttons & 1) === 1) {
+              setAnswer(sliderValueFromPointer(event, slider.min, slider.max, slider.step));
+            }
+          }}
           className={`w-full ${hasAnswer ? "accent-[var(--shell-accent)]" : "pat-range-unanswered"}`}
           aria-describedby={`${question.id}-range-state`}
         />

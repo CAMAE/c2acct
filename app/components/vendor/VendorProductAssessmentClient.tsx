@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
+import { sliderValueFromPointer } from "@/lib/scoreSlider";
 import {
   VENDOR_PRODUCT_TIER2_HOVER,
   type UtilityDefinition,
@@ -33,6 +34,8 @@ type Props = {
   initialAnswers: Record<string, number>;
   initialOpenEndedAnswers: Record<string, string>;
   initialProfile: VendorProductProfileInput;
+  /** Resume position from a saved draft (1-based page). Defaults to page 1. */
+  initialCurrentPage?: number;
 };
 
 type QuestionGroup = {
@@ -90,15 +93,17 @@ export default function VendorProductAssessmentClient({
   initialAnswers,
   initialOpenEndedAnswers,
   initialProfile,
+  initialCurrentPage,
 }: Props) {
   const router = useRouter();
   const topCardRef = useRef<HTMLElement | null>(null);
   const hasMountedRef = useRef(false);
+  const autosaveMountRef = useRef(false);
   const [selectedUtilityKeys, setSelectedUtilityKeys] = useState<string[]>(initialUtilityKeys);
   const [answers, setAnswers] = useState<Record<string, number>>(initialAnswers);
   const [openEndedAnswers, setOpenEndedAnswers] = useState<Record<string, string>>(initialOpenEndedAnswers);
   const [profile, setProfile] = useState<VendorProductProfileInput>(initialProfile);
-  const [currentPageIndex, setCurrentPageIndex] = useState(1);
+  const [currentPageIndex, setCurrentPageIndex] = useState(initialCurrentPage ?? 1);
   const [submitState, setSubmitState] = useState<"idle" | "submitting" | "error">("idle");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [pageError, setPageError] = useState<string | null>(null);
@@ -197,6 +202,19 @@ export default function VendorProductAssessmentClient({
     }));
   }
 
+  // Score slider: drive value from the pointer's X position so a track click
+  // lands on the clicked value (the native track-click was jumping to max
+  // regardless of position). Keyboard stays on the native onChange path.
+  function setScoredAnswerFromPointer(
+    questionId: string,
+    event: React.PointerEvent<HTMLInputElement>
+  ) {
+    setScoredAnswer(
+      questionId,
+      String(sliderValueFromPointer(event, PRODUCT_ASSESSMENT_SCALE_MIN, PRODUCT_ASSESSMENT_SCALE_MAX))
+    );
+  }
+
   function getScoredAnswerBadge(questionId: string) {
     const value = answers[questionId];
     return typeof value === "number" ? String(value) : "Not answered";
@@ -222,6 +240,47 @@ export default function VendorProductAssessmentClient({
     setSubmitError(null);
   }
 
+  // Persist the full in-progress state server-side so a reload resumes exactly
+  // here (P1 fix — the assessment used to keep everything in client state only).
+  const saveDraft = useCallback(
+    async (pageOverride?: number) => {
+      try {
+        await fetch("/api/vendor/product-assessment/draft", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productId,
+            utilityKeys: selectedUtilityKeys,
+            profile: normalizeVendorProductProfileInput(profile),
+            openEndedResponses: openEndedAnswers,
+            answers,
+            currentPage: clampPageIndex(pageOverride ?? visibleCurrentPageIndex, totalPages),
+            totalPages,
+          }),
+        });
+      } catch {
+        // Best-effort autosave — a failed draft write never blocks the user.
+      }
+    },
+    [answers, openEndedAnswers, productId, profile, selectedUtilityKeys, totalPages, visibleCurrentPageIndex]
+  );
+
+  // Debounced per-answer autosave; skips the mount so loading a draft doesn't
+  // immediately re-POST it.
+  useEffect(() => {
+    if (!autosaveMountRef.current) {
+      autosaveMountRef.current = true;
+      return;
+    }
+    if (submitState === "submitting") {
+      return;
+    }
+    const timeout = window.setTimeout(() => {
+      void saveDraft();
+    }, 700);
+    return () => window.clearTimeout(timeout);
+  }, [answers, openEndedAnswers, profile, selectedUtilityKeys, saveDraft, submitState]);
+
   function continueToNextPage() {
     if (!questionLoadSafe) {
       setPageError(
@@ -239,7 +298,11 @@ export default function VendorProductAssessmentClient({
       return;
     }
 
-    goToPage(visibleCurrentPageIndex + 1);
+    const nextPage = visibleCurrentPageIndex + 1;
+    // Persist before advancing so a reload resumes on the page we just moved to
+    // with the answers intact — the core P1 guarantee.
+    void saveDraft(nextPage);
+    goToPage(nextPage);
   }
 
   async function submitAssessment() {
@@ -522,10 +585,17 @@ export default function VendorProductAssessmentClient({
                           max={PRODUCT_ASSESSMENT_SCALE_MAX}
                           step={1}
                           value={answers[question.id] ?? PRODUCT_ASSESSMENT_SCALE_MIN}
-                          onInput={(event) => setScoredAnswer(question.id, event.currentTarget.value)}
                           onChange={(event) => setScoredAnswer(question.id, event.currentTarget.value)}
-                          onPointerUp={(event) => setScoredAnswer(question.id, event.currentTarget.value)}
-                          onKeyUp={(event) => setScoredAnswer(question.id, event.currentTarget.value)}
+                          onPointerDown={(event) => {
+                            event.preventDefault();
+                            event.currentTarget.focus();
+                            setScoredAnswerFromPointer(question.id, event);
+                          }}
+                          onPointerMove={(event) => {
+                            if ((event.buttons & 1) === 1) {
+                              setScoredAnswerFromPointer(question.id, event);
+                            }
+                          }}
                           className={`w-full ${hasScoredAnswer(question.id) ? "accent-[var(--shell-accent)]" : "pat-range-unanswered"}`}
                           aria-describedby={`${question.id}-range-state`}
                         />

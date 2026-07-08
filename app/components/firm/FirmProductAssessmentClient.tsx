@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import { sliderValueFromPointer } from "@/lib/scoreSlider";
 import {
   PRODUCT_ASSESSMENT_SCALE_MAX,
   PRODUCT_ASSESSMENT_SCALE_MIN,
@@ -283,10 +284,23 @@ export default function FirmProductAssessmentClient({
                         max={PRODUCT_ASSESSMENT_SCALE_MAX}
                         step={1}
                         value={answers[question.id] ?? PRODUCT_ASSESSMENT_SCALE_MIN}
-                        onInput={(event) => setScoredAnswer(question.id, event.currentTarget.value)}
                         onChange={(event) => setScoredAnswer(question.id, event.currentTarget.value)}
-                        onPointerUp={(event) => setScoredAnswer(question.id, event.currentTarget.value)}
-                        onKeyUp={(event) => setScoredAnswer(question.id, event.currentTarget.value)}
+                        onPointerDown={(event) => {
+                          event.preventDefault();
+                          event.currentTarget.focus();
+                          setScoredAnswer(
+                            question.id,
+                            String(sliderValueFromPointer(event, PRODUCT_ASSESSMENT_SCALE_MIN, PRODUCT_ASSESSMENT_SCALE_MAX))
+                          );
+                        }}
+                        onPointerMove={(event) => {
+                          if ((event.buttons & 1) === 1) {
+                            setScoredAnswer(
+                              question.id,
+                              String(sliderValueFromPointer(event, PRODUCT_ASSESSMENT_SCALE_MIN, PRODUCT_ASSESSMENT_SCALE_MAX))
+                            );
+                          }
+                        }}
                         className={`w-full ${hasScoredAnswer(question.id) ? "accent-[var(--shell-accent)]" : "pat-range-unanswered"}`}
                         aria-describedby={`${question.id}-range-state`}
                       />

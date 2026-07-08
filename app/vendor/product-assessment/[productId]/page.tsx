@@ -9,6 +9,7 @@ import prisma from "@/lib/prisma";
 import {
   getInitialVendorProductProfile,
   serializeVendorProductAssessmentPlan,
+  type VendorProductProfileInput,
 } from "@/lib/vendorProductAssessmentPlan";
 import {
   VENDOR_PRODUCT_MODULE_KEY,
@@ -117,6 +118,7 @@ export default async function VendorProductAssessmentDetailPage({
           createdAt: true,
           score: true,
           answers: true,
+          integrityFlags: true,
         },
       }).catch(() => null)
     : null;
@@ -129,8 +131,22 @@ export default async function VendorProductAssessmentDetailPage({
           utilitySelection?: string[];
           responses?: Record<string, number>;
           openEndedResponses?: Record<string, string>;
+          profile?: VendorProductProfileInput;
         })
       : null;
+
+  // Resume position from a saved draft (P1 fix). integrityFlags.currentStep is
+  // written by /api/vendor/product-assessment/draft on every page-continue.
+  const draftIntegrityFlags =
+    latestSubmission &&
+    typeof latestSubmission.integrityFlags === "object" &&
+    latestSubmission.integrityFlags !== null
+      ? (latestSubmission.integrityFlags as { currentStep?: number })
+      : null;
+  const initialCurrentPage =
+    typeof draftIntegrityFlags?.currentStep === "number" && draftIntegrityFlags.currentStep >= 1
+      ? draftIntegrityFlags.currentStep
+      : 1;
 
   const initialUtilityKeys =
     persistedAnswerPayload?.utilitySelection && persistedAnswerPayload.utilitySelection.length > 0
@@ -142,13 +158,16 @@ export default async function VendorProductAssessmentDetailPage({
   const initialAnswers = persistedAnswerPayload?.responses ?? {};
   const initialOpenEndedAnswers = persistedAnswerPayload?.openEndedResponses ?? {};
   const resolvedProductName = productRecord?.name ?? product.name;
-  const initialProfile = getInitialVendorProductProfile({
-    product: {
-      name: resolvedProductName,
-      summary: productRecord?.summary ?? product.summary,
-    },
-    profile: productRecord?.ProductProfile ?? null,
-  });
+  // Prefer the draft's saved profile (P1 resume) over the persisted ProductProfile.
+  const initialProfile =
+    persistedAnswerPayload?.profile ??
+    getInitialVendorProductProfile({
+      product: {
+        name: resolvedProductName,
+        summary: productRecord?.summary ?? product.summary,
+      },
+      profile: productRecord?.ProductProfile ?? null,
+    });
 
   const persistedPlanSnapshot = serializeVendorProductAssessmentPlan(initialUtilityKeys);
   await prisma.productAssessmentPlan.upsert({
@@ -199,6 +218,7 @@ export default async function VendorProductAssessmentDetailPage({
       initialAnswers={initialAnswers}
       initialOpenEndedAnswers={initialOpenEndedAnswers}
       initialProfile={initialProfile}
+      initialCurrentPage={initialCurrentPage}
     />
   );
 }
