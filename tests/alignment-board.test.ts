@@ -11,18 +11,15 @@ vi.mock("@/lib/prisma", () => ({
   default: { company: { findMany: vi.fn() } },
 }));
 vi.mock("@/lib/adminBriefingEngine", () => ({ getAdminCompanyBriefing: vi.fn() }));
-vi.mock("@/lib/tenancy", () => ({ getFirmScopedVendors: vi.fn() }));
 vi.mock("@/lib/vendorProductInsightEngine", () => ({ getVendorProductInsightCatalog: vi.fn() }));
 
 import prisma from "@/lib/prisma";
 import { getAdminCompanyBriefing } from "@/lib/adminBriefingEngine";
-import { getFirmScopedVendors } from "@/lib/tenancy";
 import { getVendorProductInsightCatalog } from "@/lib/vendorProductInsightEngine";
 import { getAlignmentBoardData, recomputeProjectedAlignment } from "@/lib/alignmentBoard";
 
 const findMany = vi.mocked(prisma.company.findMany);
 const briefing = vi.mocked(getAdminCompanyBriefing);
-const scopedVendors = vi.mocked(getFirmScopedVendors);
 const vendorCatalog = vi.mocked(getVendorProductInsightCatalog);
 
 function snapshot(id: string, name: string, opts: { firmAvg?: number | null; vendor?: number | null } = {}) {
@@ -56,7 +53,6 @@ describe("recomputeProjectedAlignment", () => {
 describe("getAlignmentBoardData", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    scopedVendors.mockResolvedValue(["vendorA"]);
     findMany.mockResolvedValue([{ id: "vendorA", name: "Northwind Systems" }] as never);
   });
 
@@ -73,24 +69,37 @@ describe("getAlignmentBoardData", () => {
         reviewedProductCount: 1,
         products: [{ productId: "p1", productName: "P1", vendorName: "Northwind Systems", canonicalFirmReviewScore: 72 }],
       },
+      firmLayer: {
+        moduleHeatmap: [
+          { key: "firm_alignment_operating_model_v1", title: "Operating Model", canonicalScore: 70 },
+          { key: "firm_alignment_governance_v1", title: "Governance", canonicalScore: 55 },
+        ],
+      },
     } as never);
     vendorCatalog.mockResolvedValue([
       snapshot("p1", "Practice Pro"),
       snapshot("p2", "Ledger Plus", { firmAvg: 58 }),
+      snapshot("p3", "Automate X", { firmAvg: 88 }),
     ] as never);
 
     const data = await getAlignmentBoardData("firm1");
-    expect(scopedVendors).toHaveBeenCalledWith("firm1");
     expect(data).not.toBeNull();
     expect(data!.firmName).toBe("Demo Firm");
-    // stack = firm-reviewed (p1 has canonicalFirmReviewScore 72); candidate = p2
+    // stack = firm-reviewed (p1 has canonicalFirmReviewScore 72)
     expect(data!.stack.map((s) => s.productId)).toEqual(["p1"]);
     expect(data!.stack[0].scoreVsFirm).toBe(72);
     expect(data!.stack[0].vendorName).toBe("Northwind Systems");
-    expect(data!.candidates.map((c) => c.productId)).toEqual(["p2"]);
-    // candidate projected fit falls back to the cross-firm benchmark average
-    expect(data!.candidates[0].projectedScore).toBe(58);
+    // candidates = the rest, ranked by projected score desc (winner p3 first) + fitRank
+    expect(data!.candidates.map((c) => c.productId)).toEqual(["p3", "p2"]);
+    expect(data!.candidates[0].projectedScore).toBe(88);
+    expect(data!.candidates.map((c) => c.fitRank)).toEqual([1, 2]);
     // board baseline = mean of stack scores (just p1 here)
     expect(data!.currentAlignment).toBe(72);
+    // moduleShape carries all 5 canonical modules; scores filled where present
+    expect(data!.moduleShape).toHaveLength(5);
+    const opModel = data!.moduleShape.find((m) => m.key === "firm_alignment_operating_model_v1");
+    expect(opModel?.score).toBe(70);
+    const automationModule = data!.moduleShape.find((m) => m.key === "firm_alignment_automation_ai_v1");
+    expect(automationModule?.score).toBeNull(); // not in the heatmap → null
   });
 });

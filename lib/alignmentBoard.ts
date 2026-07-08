@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { getAdminCompanyBriefing } from "@/lib/adminBriefingEngine";
-import { getFirmScopedVendors } from "@/lib/tenancy";
+import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
 import { getVendorProductInsightCatalog } from "@/lib/vendorProductInsightEngine";
 
 /**
@@ -54,6 +54,15 @@ export type BoardCandidate = {
   projectedScore: number | null;
   confidence: BoardConfidence;
   priceBand: string;
+  /** Sandbox Fit rank (1 = best projected alignment), assigned across the pool. */
+  fitRank: number;
+};
+
+/** One axis of the firm's 5-module alignment shape (for the positioning radar). */
+export type BoardModuleAxis = {
+  key: string;
+  title: string;
+  score: number | null;
 };
 
 export type AlignmentBoardData = {
@@ -65,7 +74,12 @@ export type AlignmentBoardData = {
   confidenceLabel: string;
   stack: BoardPiece[];
   candidates: BoardCandidate[];
+  /** Five firm-module scores driving the current-shape radar polygon. */
+  moduleShape: BoardModuleAxis[];
 };
+
+/** How many ranked Secret candidates the sandbox rail offers (R13.2). */
+export const SANDBOX_CANDIDATE_COUNT = 12;
 
 /**
  * Deterministic projected firm alignment = mean of the (non-null) piece scores.
@@ -118,23 +132,29 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
     firmReviewByProductId.set(product.productId, product.canonicalFirmReviewScore);
   }
 
-  const vendorIds = await getFirmScopedVendors(firmCompanyId);
-  const vendors = vendorIds.length
-    ? await prisma.company.findMany({ where: { id: { in: vendorIds } }, select: { id: true, name: true } })
-    : [];
-  const vendorNameById = new Map(vendors.map((vendor) => [vendor.id, vendor.name]));
-
+  // Sandbox candidate pool (R13.2): draw across ALL vendor catalogs, not just the
+  // firm's ecosystem vendor, so the rail is deep (~12) and winnable — the firm's
+  // own reviewed products still form the stack; everything else is a candidate.
+  // Candidate data is aggregate/vendor-side (name-gated for Pro), never another
+  // firm's private review, so the broader pool respects tenancy.
+  const vendors = await prisma.company.findMany({
+    where: { type: "VENDOR" },
+    select: { id: true, name: true },
+  });
   const catalogs = await Promise.all(
-    vendorIds.map(async (vendorId) => ({
-      vendorName: vendorNameById.get(vendorId) ?? "Vendor",
-      snapshots: await getVendorProductInsightCatalog(vendorId),
+    vendors.map(async (vendor) => ({
+      vendorName: vendor.name,
+      snapshots: await getVendorProductInsightCatalog(vendor.id),
     }))
   );
 
   const stack: BoardPiece[] = [];
-  const candidates: BoardCandidate[] = [];
+  const candidatePool: Array<Omit<BoardCandidate, "fitRank">> = [];
+  const seen = new Set<string>();
   for (const { vendorName, snapshots } of catalogs) {
     for (const snapshot of snapshots) {
+      if (seen.has(snapshot.product.id)) continue;
+      seen.add(snapshot.product.id);
       const category = snapshot.product.category ?? snapshot.product.utilityLabels[0] ?? null;
       const firmReview = firmReviewByProductId.get(snapshot.product.id) ?? null;
 
@@ -151,18 +171,54 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
           priceBand: BOARD_PRICE_BAND,
         });
       } else {
-        candidates.push({
+        const projectedScore =
+          snapshot.firmReviewed.averageScore ?? snapshot.vendorSelfReported.latestScore ?? null;
+        if (projectedScore === null) continue; // unscored products can't be played
+        candidatePool.push({
           productId: snapshot.product.id,
           productName: snapshot.product.name,
           vendorName,
           category,
-          projectedScore: snapshot.firmReviewed.averageScore ?? snapshot.vendorSelfReported.latestScore ?? null,
+          projectedScore,
           confidence: snapshot.confidenceBand,
           priceBand: BOARD_PRICE_BAND,
         });
       }
     }
   }
+
+  // Rank by projected alignment, best first (R11.4). Take a realistic mix
+  // (R13.2): mostly strong winners plus a few weaker options so the pool isn't
+  // all-upside. Winners fill most slots; the lowest-projection tail fills the
+  // rest. Then re-rank the combined set so Sandbox Fit #1 is the best play.
+  const ranked = candidatePool.sort((a, b) => (b.projectedScore ?? 0) - (a.projectedScore ?? 0));
+  const realismTail = Math.min(3, Math.max(0, ranked.length - SANDBOX_CANDIDATE_COUNT));
+  const winnerCount = SANDBOX_CANDIDATE_COUNT - realismTail;
+  const chosenIds = new Set<string>();
+  const chosen: Array<Omit<BoardCandidate, "fitRank">> = [];
+  for (const candidate of ranked.slice(0, winnerCount)) {
+    chosen.push(candidate);
+    chosenIds.add(candidate.productId);
+  }
+  for (const candidate of ranked.slice(-realismTail).reverse()) {
+    if (realismTail === 0 || chosenIds.has(candidate.productId)) continue;
+    chosen.push(candidate);
+    chosenIds.add(candidate.productId);
+  }
+  const candidates: BoardCandidate[] = chosen
+    .sort((a, b) => (b.projectedScore ?? 0) - (a.projectedScore ?? 0))
+    .slice(0, SANDBOX_CANDIDATE_COUNT)
+    .map((candidate, index) => ({ ...candidate, fitRank: index + 1 }));
+
+  // Firm's 5-module shape for the positioning radar (R12.2), canonical order.
+  const heatmapByKey = new Map(
+    (briefing.firmLayer?.moduleHeatmap ?? []).map((module) => [module.key, module])
+  );
+  const moduleShape: BoardModuleAxis[] = FIRM_MODULE_DEFINITIONS.map((definition) => ({
+    key: definition.key,
+    title: definition.title,
+    score: heatmapByKey.get(definition.key)?.canonicalScore ?? null,
+  }));
 
   return {
     firmCompanyId,
@@ -172,5 +228,6 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
     confidenceLabel: briefing.executiveSummary.confidenceLabel,
     stack,
     candidates,
+    moduleShape,
   };
 }
