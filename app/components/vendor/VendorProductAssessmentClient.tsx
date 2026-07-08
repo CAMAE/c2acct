@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import DraftSavedIndicator, { type DraftSaveState } from "@/app/components/assessment/DraftSavedIndicator";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import { sliderValueFromPointer } from "@/lib/scoreSlider";
 import {
@@ -107,6 +108,8 @@ export default function VendorProductAssessmentClient({
   const [submitState, setSubmitState] = useState<"idle" | "submitting" | "error">("idle");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [pageError, setPageError] = useState<string | null>(null);
+  const [draftState, setDraftState] = useState<DraftSaveState>("idle");
+  const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
 
   const assessmentPlan = useMemo(
     () =>
@@ -244,6 +247,7 @@ export default function VendorProductAssessmentClient({
   // here (P1 fix — the assessment used to keep everything in client state only).
   const saveDraft = useCallback(
     async (pageOverride?: number) => {
+      setDraftState("saving");
       try {
         await fetch("/api/vendor/product-assessment/draft", {
           method: "POST",
@@ -258,8 +262,12 @@ export default function VendorProductAssessmentClient({
             totalPages,
           }),
         });
+        // R9: surface autosave so persistence is visible ("Draft saved · HH:MM").
+        setDraftSavedAt(new Date());
+        setDraftState("saved");
       } catch {
         // Best-effort autosave — a failed draft write never blocks the user.
+        setDraftState("error");
       }
     },
     [answers, openEndedAnswers, productId, profile, selectedUtilityKeys, totalPages, visibleCurrentPageIndex]
@@ -427,6 +435,9 @@ export default function VendorProductAssessmentClient({
                   {formatFeatureCountLabel(selectedUtilityKeys.length)}
                 </span>
               </div>
+            </div>
+            <div className="mt-4">
+              <DraftSavedIndicator state={draftState} savedAt={draftSavedAt} />
             </div>
           </section>
           <section className="pat-soft-panel p-5">

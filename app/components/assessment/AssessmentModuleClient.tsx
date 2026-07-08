@@ -5,6 +5,7 @@ import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { QuestionInputType } from "@prisma/client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import DraftSavedIndicator from "@/app/components/assessment/DraftSavedIndicator";
 import { buildCanonicalSignInPath } from "@/lib/auth/routes";
 import { sliderValueFromPointer } from "@/lib/scoreSlider";
 import {
@@ -347,6 +348,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [autosaveState, setAutosaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [autosaveError, setAutosaveError] = useState<string | null>(null);
+  const [autosaveSavedAt, setAutosaveSavedAt] = useState<Date | null>(null);
   const [pageError, setPageError] = useState<string | null>(null);
   const assessmentLandingHref = getAssessmentLandingHref(moduleKey);
   const resultsLandingHref = data ? getPostSubmitHref(data.key).replace(/\?submitted=1$/, "") : assessmentLandingHref;
@@ -556,6 +558,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
       }
 
       setAutosaveState("saved");
+      setAutosaveSavedAt(new Date()); // R9: visible "Draft saved · HH:MM"
       return true;
     } catch (saveFailure) {
       setAutosaveState("error");
@@ -734,17 +737,13 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
           <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
             Questions: <span className="font-semibold text-[var(--shell-ink)]">{data.questions.length}</span>
           </div>
-          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+          <div className="pat-soft-panel flex items-center gap-2 p-4 text-sm leading-6 text-[var(--shell-muted)]">
             Autosave:{" "}
-            <span className="font-semibold text-[var(--shell-ink)]">
-              {autosaveState === "saving"
-                ? "Saving"
-                : autosaveState === "saved"
-                  ? "Saved"
-                  : autosaveState === "error"
-                    ? "Issue"
-                    : "Ready"}
-            </span>
+            {autosaveState === "idle" && !autosaveSavedAt ? (
+              <span className="font-semibold text-[var(--shell-ink)]">Ready</span>
+            ) : (
+              <DraftSavedIndicator state={autosaveState} savedAt={autosaveSavedAt} />
+            )}
           </div>
         </div>
 

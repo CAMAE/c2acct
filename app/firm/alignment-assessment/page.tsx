@@ -5,7 +5,11 @@ import MembershipSurfaceGate from "@/app/components/membership/MembershipSurface
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import { getSessionUser } from "@/lib/auth/session";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
-import { orderModulesForUser } from "@/lib/moduleOrderRotation";
+import {
+  isModuleOrderRotationEnabled,
+  moduleRotationOffset,
+  orderModulesForUser,
+} from "@/lib/moduleOrderRotation";
 import {
   getFirmAssessmentProgress,
   summarizeFirmAlignmentProgress,
@@ -109,6 +113,18 @@ export default async function FirmAlignmentAssessmentPage() {
   const modules = orderModulesForUser(canonicalModules, sessionUser.id);
   const progress = summarizeFirmAlignmentProgress(modules);
 
+  // R10: module-order rotation is invisible by eye. When PAT_DEBUG_MODULE_ROTATION=1
+  // (dev only) surface the deterministic offset + the served order so it can be
+  // verified in one place instead of comparing two accounts.
+  const rotationDebug =
+    process.env.PAT_DEBUG_MODULE_ROTATION === "1"
+      ? {
+          enabled: isModuleOrderRotationEnabled(),
+          offset: moduleRotationOffset(sessionUser.id, canonicalModules.length),
+          order: modules.map((module) => module.title),
+        }
+      : null;
+
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
@@ -122,6 +138,12 @@ export default async function FirmAlignmentAssessmentPage() {
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           This is the modular PAT firm alignment assessment. Each module carries 20 scored questions on a 0 to 5 current-state scale plus five open-ended follow-up prompts, progress is tracked independently, and submissions flow directly into the existing results and insight unlock system. Complete the alignment assessment to unlock insights that help improve firm productivity.
         </p>
+        {rotationDebug ? (
+          <p className="mt-4 rounded-lg border border-dashed border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-3 font-mono text-xs text-[var(--shell-muted)]">
+            [debug] module-order rotation {rotationDebug.enabled ? "ON" : "OFF"} · offset{" "}
+            {rotationDebug.offset} · order: {rotationDebug.order.join(" → ")}
+          </p>
+        ) : null}
       </section>
 
       <section className="grid gap-4 md:grid-cols-4">
