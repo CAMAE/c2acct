@@ -40,6 +40,15 @@ export default function InsightDetailShell({
   visualLead,
   surfaceCollapsed = false,
 }: InsightDetailShellProps) {
+  // Elite-stacking guard: on the locked Elite boundary surface (?surface=elite),
+  // the Pro visual lead ("Current readout" + real module scores) must NOT render
+  // — it would stack real Pro data behind the locked Elite teaser and leak the
+  // paywalled readout. The elite surface carries key "elite" across every insight
+  // surface (firm, vendor alignment, vendor product), so gating here fixes all of
+  // them at the shared component. Keyboard/other surfaces are unaffected.
+  const isEliteBoundarySurface = activeKey === "elite" || surfaceContent.key === "elite";
+  const visibleVisualLead = isEliteBoundarySurface ? null : visualLead;
+
   const surfaceBody = (
     <>
       <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">{surfaceContent.intro}</p>
@@ -83,7 +92,7 @@ export default function InsightDetailShell({
         </div>
       </section>
 
-      {visualLead}
+      {visibleVisualLead}
 
       {surfaceCollapsed ? (
         <details className="group pat-card p-6">
