@@ -70,6 +70,8 @@
     "seed:pat-runtime": "node --import tsx scripts/seed-pat-runtime.ts",
     "index:help": "node --import tsx scripts/index-help.ts",
     "seed:demo-benchmark": "node --import tsx scripts/seed-demo-benchmark.ts",
+    "seed:demo-expand:dry-run": "node --import tsx scripts/demo/expand-demo-ecosystem.ts",
+    "seed:demo-expand": "node --import tsx scripts/demo/expand-demo-ecosystem.ts --apply",
     "seed:accounting-taxonomy": "node --import tsx scripts/import-accounting-taxonomy.ts --apply",
     "seed:accounting-taxonomy:dry-run": "node --import tsx scripts/import-accounting-taxonomy.ts",
     "ops:mac-mini:status": "bash scripts/mac-mini/status.sh",

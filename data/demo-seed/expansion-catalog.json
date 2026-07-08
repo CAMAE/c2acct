@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "comment": "Demo-ecosystem EXPANSION bank (2026-07-08). Consumed ONLY by scripts/demo/expand-demo-ecosystem.ts via lib/demo-seed/expansion.ts — NEVER by the canonical seed chain (seed:demo-benchmark stays at its ~64-firm footprint). Vendor ids are namespaced demo-expand-vendor-* and firms are seeded under the demo-expand-firm-* key prefix, so every row this bank produces sits inside the demo boundary and can never collide with the demo-bench-* cohort or the pilot cohort. utilityKeys are drawn only from keys already present in vendor-catalog.json, which the productUtilityRegistry validates. Archetype + coverage spread deliberately mirrors the canonical bank so every insight surface renders fully populated (divergence, heatmap, positioning radar, benchmark bands). schemaVersion matches the FirmRosterEntry / VendorBankEntry shapes in lib/demo-seed/combinator.ts.",
+  "ecosystemSizes": [6, 5, 6, 5, 6, 5, 6, 5],
+  "vendors": [
+    {
+      "id": "demo-expand-vendor-northwind",
+      "name": "Northwind Practice OS",
+      "tagline": "The operating system incumbent for multi-office firms",
+      "archetype": "large-incumbent",
+      "products": [
+        { "id": "demo-expand-product-northwind-practice", "name": "Northwind Practice", "utilityKeys": ["workflow_practice_operations_task_routing"], "selfReportedScoreSeed": 77, "narrativeTone": "confident" },
+        { "id": "demo-expand-product-northwind-tax", "name": "Northwind Tax", "utilityKeys": ["tax_workflow_compliance"], "selfReportedScoreSeed": 80, "narrativeTone": "confident" },
+        { "id": "demo-expand-product-northwind-close", "name": "Northwind Close", "utilityKeys": ["close_reconciliation_consolidation", "erp_gl_core_ledger"], "selfReportedScoreSeed": 70, "narrativeTone": "measured" },
+        { "id": "demo-expand-product-northwind-portal", "name": "Northwind Client Portal", "utilityKeys": ["client_collaboration_portal_requests", "document_capture_management_esignature"], "selfReportedScoreSeed": 73, "narrativeTone": "measured" },
+        { "id": "demo-expand-product-northwind-billing", "name": "Northwind Billing", "utilityKeys": ["ar_billing_collections"], "selfReportedScoreSeed": 66, "narrativeTone": "candid" }
+      ]
+    },
+    {
+      "id": "demo-expand-vendor-tessera",
+      "name": "Tessera Tax Suite",
+      "tagline": "Tax-season depth for mid-market practices",
+      "archetype": "mid-market-specialist",
+      "products": [
+        { "id": "demo-expand-product-tessera-prep", "name": "Tessera Prep", "utilityKeys": ["tax_workflow_compliance"], "selfReportedScoreSeed": 85, "narrativeTone": "confident" },
+        { "id": "demo-expand-product-tessera-review", "name": "Tessera Review", "utilityKeys": ["controls_compliance_audit_trail_approvals"], "selfReportedScoreSeed": 79, "narrativeTone": "measured" },
+        { "id": "demo-expand-product-tessera-docs", "name": "Tessera Docs", "utilityKeys": ["document_capture_management_esignature"], "selfReportedScoreSeed": 82, "narrativeTone": "confident" },
+        { "id": "demo-expand-product-tessera-collect", "name": "Tessera Collect", "utilityKeys": ["client_collaboration_portal_requests"], "selfReportedScoreSeed": 74, "narrativeTone": "candid" }
+      ]
+    },
+    {
+      "id": "demo-expand-vendor-cadence",
+      "name": "Cadence Close",
+      "tagline": "Automation-first month-end for growing CAS teams",
+      "archetype": "modern-fast-mover",
+      "products": [
+        { "id": "demo-expand-product-cadence-automate", "name": "Cadence Automate", "utilityKeys": ["automation_orchestration_ai_assistance", "close_reconciliation_consolidation"], "selfReportedScoreSeed": 87, "narrativeTone": "boastful" },
+        { "id": "demo-expand-product-cadence-ledger", "name": "Cadence Ledger", "utilityKeys": ["erp_gl_core_ledger"], "selfReportedScoreSeed": 81, "narrativeTone": "confident" },
+        { "id": "demo-expand-product-cadence-insights", "name": "Cadence Insights", "utilityKeys": ["reporting_analytics_fpa"], "selfReportedScoreSeed": 84, "narrativeTone": "boastful" },
+        { "id": "demo-expand-product-cadence-pay", "name": "Cadence Pay", "utilityKeys": ["payments_treasury_cash_application_commerce_connectivity"], "selfReportedScoreSeed": 76, "narrativeTone": "measured" },
+        { "id": "demo-expand-product-cadence-clientstack", "name": "Cadence ClientStack", "utilityKeys": ["client_collaboration_portal_requests", "document_capture_management_esignature"], "selfReportedScoreSeed": 78, "narrativeTone": "confident" }
+      ]
+    },
+    {
+      "id": "demo-expand-vendor-ironclad",
+      "name": "Ironclad Assurance",
+      "tagline": "Depth-first audit and controls tooling",
+      "archetype": "niche-depth",
+      "products": [
+        { "id": "demo-expand-product-ironclad-audit", "name": "Ironclad Audit", "utilityKeys": ["audit_workflow_workpapers_evidence"], "selfReportedScoreSeed": 89, "narrativeTone": "confident" },
+        { "id": "demo-expand-product-ironclad-controls", "name": "Ironclad Controls", "utilityKeys": ["controls_compliance_audit_trail_approvals", "audit_workflow_workpapers_evidence"], "selfReportedScoreSeed": 84, "narrativeTone": "confident" },
+        { "id": "demo-expand-product-ironclad-evidence", "name": "Ironclad Evidence", "utilityKeys": ["audit_workflow_workpapers_evidence", "document_capture_management_esignature"], "selfReportedScoreSeed": 77, "narrativeTone": "candid" }
+      ]
+    },
+    {
+      "id": "demo-expand-vendor-vellum",
+      "name": "Vellum Docs & Portal",
+      "tagline": "Client collaboration and document discipline",
+      "archetype": "mid-market-specialist",
+      "products": [
+        { "id": "demo-expand-product-vellum-portal", "name": "Vellum Portal", "utilityKeys": ["client_collaboration_portal_requests"], "selfReportedScoreSeed": 83, "narrativeTone": "confident" },
+        { "id": "demo-expand-product-vellum-sign", "name": "Vellum Sign", "utilityKeys": ["document_capture_management_esignature"], "selfReportedScoreSeed": 80, "narrativeTone": "confident" },
+        { "id": "demo-expand-product-vellum-requests", "name": "Vellum Requests", "utilityKeys": ["client_collaboration_portal_requests", "workflow_practice_operations_task_routing"], "selfReportedScoreSeed": 75, "narrativeTone": "measured" },
+        { "id": "demo-expand-product-vellum-billing", "name": "Vellum Billing", "utilityKeys": ["ar_billing_collections"], "selfReportedScoreSeed": 71, "narrativeTone": "candid" }
+      ]
+    },
+    {
+      "id": "demo-expand-vendor-quanta",
+      "name": "Quanta Analytics",
+      "tagline": "Reporting and FP&A for data-forward firms",
+      "archetype": "modern-fast-mover",
+      "products": [
+        { "id": "demo-expand-product-quanta-board", "name": "Quanta Board", "utilityKeys": ["reporting_analytics_fpa"], "selfReportedScoreSeed": 86, "narrativeTone": "boastful" },
+        { "id": "demo-expand-product-quanta-forecast", "name": "Quanta Forecast", "utilityKeys": ["reporting_analytics_fpa", "automation_orchestration_ai_assistance"], "selfReportedScoreSeed": 82, "narrativeTone": "boastful" },
+        { "id": "demo-expand-product-quanta-ledger", "name": "Quanta Ledger", "utilityKeys": ["erp_gl_core_ledger", "close_reconciliation_consolidation"], "selfReportedScoreSeed": 78, "narrativeTone": "confident" },
+        { "id": "demo-expand-product-quanta-flow", "name": "Quanta Flow", "utilityKeys": ["workflow_practice_operations_task_routing"], "selfReportedScoreSeed": 74, "narrativeTone": "measured" }
+      ]
+    },
+    {
+      "id": "demo-expand-vendor-meridian",
+      "name": "Meridian Practice Cloud",
+      "tagline": "Broad-coverage platform for national firms",
+      "archetype": "large-incumbent",
+      "products": [
+        { "id": "demo-expand-product-meridian-practice", "name": "Meridian Practice", "utilityKeys": ["workflow_practice_operations_task_routing"], "selfReportedScoreSeed": 76, "narrativeTone": "confident" },
+        { "id": "demo-expand-product-meridian-tax", "name": "Meridian Tax", "utilityKeys": ["tax_workflow_compliance"], "selfReportedScoreSeed": 79, "narrativeTone": "confident" },
+        { "id": "demo-expand-product-meridian-audit", "name": "Meridian Audit", "utilityKeys": ["audit_workflow_workpapers_evidence"], "selfReportedScoreSeed": 69, "narrativeTone": "measured" },
+        { "id": "demo-expand-product-meridian-cas", "name": "Meridian CAS", "utilityKeys": ["close_reconciliation_consolidation", "ar_billing_collections"], "selfReportedScoreSeed": 72, "narrativeTone": "measured" },
+        { "id": "demo-expand-product-meridian-payroll", "name": "Meridian Payroll", "utilityKeys": ["payroll_workforce_support"], "selfReportedScoreSeed": 67, "narrativeTone": "candid" },
+        { "id": "demo-expand-product-meridian-portal", "name": "Meridian Portal", "utilityKeys": ["client_collaboration_portal_requests", "document_capture_management_esignature"], "selfReportedScoreSeed": 74, "narrativeTone": "confident" }
+      ]
+    },
+    {
+      "id": "demo-expand-vendor-forthright",
+      "name": "Forthright Payroll",
+      "tagline": "Payroll and workforce depth for accounting practices",
+      "archetype": "niche-depth",
+      "products": [
+        { "id": "demo-expand-product-forthright-payroll", "name": "Forthright Payroll", "utilityKeys": ["payroll_workforce_support"], "selfReportedScoreSeed": 88, "narrativeTone": "confident" },
+        { "id": "demo-expand-product-forthright-time", "name": "Forthright Time", "utilityKeys": ["payroll_workforce_support", "workflow_practice_operations_task_routing"], "selfReportedScoreSeed": 81, "narrativeTone": "measured" },
+        { "id": "demo-expand-product-forthright-pay", "name": "Forthright Pay", "utilityKeys": ["payments_treasury_cash_application_commerce_connectivity"], "selfReportedScoreSeed": 76, "narrativeTone": "candid" }
+      ]
+    }
+  ],
+  "firms": [
+    { "name": "Alderwood CPAs", "size": "mid", "archetype": "high-performing", "regionalFlavor": "northeast", "userCountSeed": 9 },
+    { "name": "Brightmoor LLP", "size": "large", "archetype": "high-performing", "regionalFlavor": "national", "userCountSeed": 14 },
+    { "name": "Copperfield Advisory", "size": "mid", "archetype": "mid-tier", "regionalFlavor": "midwest", "userCountSeed": 8 },
+    { "name": "Delmar & Voss", "size": "small", "archetype": "tech-forward", "regionalFlavor": "west", "userCountSeed": 6 },
+    { "name": "Eastgate Tax Partners", "size": "large", "archetype": "compliance-heavy", "regionalFlavor": "southeast", "userCountSeed": 13 },
+    { "name": "Fairhaven Group", "size": "mid", "archetype": "mid-tier", "regionalFlavor": "northeast", "userCountSeed": 10 },
+    { "name": "Glenmore Partners", "size": "mid", "archetype": "high-performing", "regionalFlavor": "west", "userCountSeed": 9 },
+    { "name": "Harlow & Pike", "size": "small", "archetype": "mid-tier", "regionalFlavor": "midwest", "userCountSeed": 5 },
+    { "name": "Inglewood Audit Co.", "size": "mid", "archetype": "compliance-heavy", "regionalFlavor": "west", "userCountSeed": 11 },
+    { "name": "Junction Accounting", "size": "small", "archetype": "struggling", "regionalFlavor": "midwest", "userCountSeed": 4 },
+    { "name": "Kirkland Reyes LLP", "size": "large", "archetype": "high-performing", "regionalFlavor": "national", "userCountSeed": 15 },
+    { "name": "Larkspur Advisory", "size": "mid", "archetype": "mid-tier", "regionalFlavor": "southeast", "userCountSeed": 9 },
+    { "name": "Maple Ridge CPAs", "size": "small", "archetype": "struggling", "regionalFlavor": "midwest", "userCountSeed": 4 },
+    { "name": "Nolan & Frost", "size": "mid", "archetype": "high-performing", "regionalFlavor": "northeast", "userCountSeed": 10 },
+    { "name": "Overlook Advisory", "size": "small", "archetype": "mid-tier", "regionalFlavor": "west", "userCountSeed": 7 },
+    { "name": "Pembroke Hale & Co.", "size": "large", "archetype": "compliance-heavy", "regionalFlavor": "northeast", "userCountSeed": 14 },
+    { "name": "Quarry Lane Tax", "size": "small", "archetype": "tech-forward", "regionalFlavor": "west", "userCountSeed": 6 },
+    { "name": "Redgrove CPAs", "size": "mid", "archetype": "mid-tier", "regionalFlavor": "southeast", "userCountSeed": 8 },
+    { "name": "Stonebrook Partners", "size": "large", "archetype": "high-performing", "regionalFlavor": "national", "userCountSeed": 15 },
+    { "name": "Thornbury Group", "size": "mid", "archetype": "compliance-heavy", "regionalFlavor": "midwest", "userCountSeed": 11 },
+    { "name": "Underhill Advisory", "size": "small", "archetype": "sample-thin", "regionalFlavor": "northeast", "userCountSeed": 3 },
+    { "name": "Vandenberg CPAs", "size": "mid", "archetype": "mid-tier", "regionalFlavor": "west", "userCountSeed": 9 },
+    { "name": "Westbrook & Lyle", "size": "large", "archetype": "high-performing", "regionalFlavor": "national", "userCountSeed": 13 },
+    { "name": "Yardley Tax Group", "size": "small", "archetype": "struggling", "regionalFlavor": "southeast", "userCountSeed": 4 },
+    { "name": "Ashford Bell CPAs", "size": "mid", "archetype": "tech-forward", "regionalFlavor": "west", "userCountSeed": 8 },
+    { "name": "Belmont Crossing Advisory", "size": "mid", "archetype": "mid-tier", "regionalFlavor": "midwest", "userCountSeed": 9 },
+    { "name": "Cypress Hollow CPAs", "size": "small", "archetype": "mid-tier", "regionalFlavor": "southeast", "userCountSeed": 6 },
+    { "name": "Dunmore & Kell", "size": "large", "archetype": "compliance-heavy", "regionalFlavor": "northeast", "userCountSeed": 14 },
+    { "name": "Elkhorn Partners", "size": "mid", "archetype": "high-performing", "regionalFlavor": "west", "userCountSeed": 10 },
+    { "name": "Foxglen Accounting", "size": "small", "archetype": "sample-thin", "regionalFlavor": "midwest", "userCountSeed": 3 },
+    { "name": "Grantham Vale CPAs", "size": "mid", "archetype": "mid-tier", "regionalFlavor": "northeast", "userCountSeed": 8 },
+    { "name": "Hollis & Marsh", "size": "large", "archetype": "high-performing", "regionalFlavor": "national", "userCountSeed": 15 },
+    { "name": "Ivywood Advisory", "size": "small", "archetype": "struggling", "regionalFlavor": "west", "userCountSeed": 4 },
+    { "name": "Jasper Field CPAs", "size": "mid", "archetype": "tech-forward", "regionalFlavor": "southeast", "userCountSeed": 9 },
+    { "name": "Kingsley Roth Group", "size": "mid", "archetype": "compliance-heavy", "regionalFlavor": "midwest", "userCountSeed": 11 },
+    { "name": "Lowell Barrett CPAs", "size": "small", "archetype": "mid-tier", "regionalFlavor": "northeast", "userCountSeed": 6 },
+    { "name": "Montrose Partners", "size": "large", "archetype": "high-performing", "regionalFlavor": "national", "userCountSeed": 14 },
+    { "name": "Newland Tax & Advisory", "size": "mid", "archetype": "mid-tier", "regionalFlavor": "west", "userCountSeed": 9 },
+    { "name": "Oakmere CPAs", "size": "small", "archetype": "struggling", "regionalFlavor": "midwest", "userCountSeed": 4 },
+    { "name": "Prescott Lane Group", "size": "mid", "archetype": "compliance-heavy", "regionalFlavor": "southeast", "userCountSeed": 10 },
+    { "name": "Quill & Harrow", "size": "small", "archetype": "tech-forward", "regionalFlavor": "west", "userCountSeed": 6 },
+    { "name": "Rowan Sterling CPAs", "size": "large", "archetype": "high-performing", "regionalFlavor": "national", "userCountSeed": 13 },
+    { "name": "Saltmarsh Advisory", "size": "mid", "archetype": "mid-tier", "regionalFlavor": "northeast", "userCountSeed": 8 },
+    { "name": "Tanager Group", "size": "small", "archetype": "sample-thin", "regionalFlavor": "west", "userCountSeed": 3 }
+  ]
+}

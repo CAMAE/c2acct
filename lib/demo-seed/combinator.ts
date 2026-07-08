@@ -125,7 +125,7 @@ function stringToSeedNumber(input: string): number {
   return hash >>> 0;
 }
 
-function createMulberry32(seedString: string) {
+export function createMulberry32(seedString: string) {
   let state = stringToSeedNumber(seedString);
   return function next(): number {
     state = (state + 0x6d2b79f5) >>> 0;
@@ -136,7 +136,7 @@ function createMulberry32(seedString: string) {
   };
 }
 
-function shuffle<T>(items: readonly T[], rng: () => number): T[] {
+export function shuffle<T>(items: readonly T[], rng: () => number): T[] {
   const result = items.slice();
   for (let i = result.length - 1; i > 0; i -= 1) {
     const j = Math.floor(rng() * (i + 1));
@@ -313,7 +313,7 @@ function averageOfRanges(ranges: Record<string, [number, number]>): number {
   return Math.round(values.reduce((acc, [low, high]) => acc + (low + high) / 2, 0) / values.length);
 }
 
-function buildVendorPlan(vendor: VendorBankEntry): DemoBenchmarkVendorPlan {
+export function buildVendorPlan(vendor: VendorBankEntry): DemoBenchmarkVendorPlan {
   const productInputs: DemoProductInput[] = vendor.products.map((product) => ({
     key: product.id,
     name: product.name,
@@ -353,7 +353,7 @@ function buildVendorPlan(vendor: VendorBankEntry): DemoBenchmarkVendorPlan {
   return { bankEntry: vendor, demoVendorInput };
 }
 
-function buildFirmPlan(input: {
+export function buildFirmPlan(input: {
   firm: FirmRosterEntry;
   ecosystemIndex: number;
   firmIndex: number;
@@ -361,6 +361,13 @@ function buildFirmPlan(input: {
   vendorPlan: DemoBenchmarkVendorPlan;
   templates: OpenEndedTemplate[];
   rng: () => number;
+  /**
+   * Firm key namespace. Defaults to the canonical benchmark prefix so
+   * planEcosystems() output stays byte-identical. The expansion planner
+   * (lib/demo-seed/expansion.ts) passes "demo-expand-firm-" so its rows can
+   * never collide with — or be mistaken for — the canonical demo cohort.
+   */
+  firmKeyPrefix?: string;
 }): DemoBenchmarkFirmPlan {
   const { firm, archetypeProfile, vendorPlan, templates, rng } = input;
 
@@ -384,7 +391,8 @@ function buildFirmPlan(input: {
   const perturbation = Math.floor(rng() * 7) - 3;
   const userCount = Math.max(2, firm.userCountSeed + perturbation);
 
-  const firmKey = `demo-bench-firm-${slugifyFirmName(firm.name)}-${input.ecosystemIndex}-${input.firmIndex}`;
+  const firmKeyPrefix = input.firmKeyPrefix ?? "demo-bench-firm-";
+  const firmKey = `${firmKeyPrefix}${slugifyFirmName(firm.name)}-${input.ecosystemIndex}-${input.firmIndex}`;
   const demoFirmInput: DemoFirmInput = {
     key: firmKey,
     displayName: firm.name,
