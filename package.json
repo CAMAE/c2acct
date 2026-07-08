@@ -72,6 +72,8 @@
     "seed:demo-benchmark": "node --import tsx scripts/seed-demo-benchmark.ts",
     "seed:demo-expand:dry-run": "node --import tsx scripts/demo/expand-demo-ecosystem.ts",
     "seed:demo-expand": "node --import tsx scripts/demo/expand-demo-ecosystem.ts --apply",
+    "modules:import-qbank:dry-run": "node --import tsx scripts/modules/import-qbank.ts",
+    "modules:import-qbank": "node --import tsx scripts/modules/import-qbank.ts --apply",
     "seed:accounting-taxonomy": "node --import tsx scripts/import-accounting-taxonomy.ts --apply",
     "seed:accounting-taxonomy:dry-run": "node --import tsx scripts/import-accounting-taxonomy.ts",
     "ops:mac-mini:status": "bash scripts/mac-mini/status.sh",
