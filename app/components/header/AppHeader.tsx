@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import BrandLockup from "@/app/components/brand/BrandLockup";
+import HeaderNotificationBell from "@/app/components/notifications/HeaderNotificationBell";
 import PatTopBar from "@/app/components/pat/PatTopBar";
 import type { HeaderWordmarkVariant } from "@/lib/brand/wordmark";
 import { localeOptions, type AppLocale } from "@/lib/locale";
@@ -21,6 +22,8 @@ type AppHeaderProps = {
   wordmarkVariant?: HeaderWordmarkVariant;
   /** Show the Pat top-bar input (caller has cleared the flag + consent gate). */
   showPatTopBar?: boolean;
+  /** Show the notification bell (caller has cleared PAT_ENABLE_PINGS + auth). */
+  showNotificationBell?: boolean;
   uiText: {
     homeAriaLabel: string;
     language: string;
@@ -74,6 +77,7 @@ export default function AppHeader({
   navItems,
   wordmarkVariant = "pat",
   showPatTopBar = false,
+  showNotificationBell = false,
   uiText,
 }: AppHeaderProps) {
   const pathname = usePathname();
@@ -156,6 +160,10 @@ export default function AppHeader({
           {showPatTopBar ? <PatTopBar /> : null}
 
           <div className="flex items-center gap-2 shrink-0">
+            {showNotificationBell ? (
+              <HeaderNotificationBell buttonClassName={iconButtonClassName} />
+            ) : null}
+
             {resolvedMembershipHref ? (
               <Link
                 href={resolvedMembershipHref}

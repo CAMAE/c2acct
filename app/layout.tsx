@@ -9,7 +9,7 @@ import { getMembershipPathPrefix } from "@/lib/membershipContent";
 import { getHeaderWordmarkVariant } from "@/lib/brand/wordmark";
 import { getPublicReleaseFingerprint } from "@/lib/release/fingerprint";
 import { isConsultantAccessEnabled } from "@/lib/consultantAccess";
-import { isPatAssistantEnabled } from "@/lib/patAssistant/flags";
+import { isPatAssistantEnabled, isPingsEnabled } from "@/lib/patAssistant/flags";
 import { hasPatConsent } from "@/lib/patAssistant/consent";
 import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import { TRUST_FOOTER_LINKS } from "@/lib/trustContent";
@@ -74,6 +74,9 @@ export default async function RootLayout({
   // launcher: only a signed-in, opted-in user sees it while the flag is on.
   const showPatTopBar =
     isPatAssistantEnabled() && !!sessionUser && (await hasPatConsent(sessionUser.id));
+  // The header bell rides PAT_ENABLE_PINGS (same gate as the old floating
+  // launcher and /api/notifications) and only shows to a signed-in user.
+  const showNotificationBell = isPingsEnabled() && !!sessionUser;
   const headerUiText = {
     homeAriaLabel: messages.chrome.home_aria,
     language: messages.chrome.language,
@@ -100,6 +103,7 @@ export default async function RootLayout({
           navItems={translatedNavItems}
           wordmarkVariant={getHeaderWordmarkVariant()}
           showPatTopBar={showPatTopBar}
+          showNotificationBell={showNotificationBell}
           uiText={headerUiText}
         />
 
