@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { formatDelta } from "@/lib/formatDelta";
 import type { RankedFirm, VendorSalesCardData } from "@/lib/salesCard";
 
 /**
@@ -29,8 +30,7 @@ function firmLabel(firm: RankedFirm, entitled: boolean): string {
 }
 
 function deltaText(delta: number | null): string {
-  if (delta === null) return "—";
-  return `${delta >= 0 ? "+" : ""}${delta}`;
+  return formatDelta(delta);
 }
 
 export default function VendorSalesCardClient({

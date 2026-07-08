@@ -270,24 +270,42 @@ export default function AppHeader({
                   <nav className="px-1 pt-3">
                     <ul className="space-y-1.5">
                       {navItems.map((item) => {
+                        // R3: external links (e.g. "Return to C2Acct") must leave
+                        // the app entirely. A Next <Link> to an absolute URL can be
+                        // intercepted as a client navigation inside a portal — render
+                        // a plain <a> so it hard-navigates in every portal.
+                        const isExternal = /^https?:\/\//i.test(item.href);
                         const active =
-                          item.href === "/"
+                          !isExternal &&
+                          (item.href === "/"
                             ? pathname === "/"
-                            : pathname === item.href || pathname?.startsWith(`${item.href}/`);
+                            : pathname === item.href || pathname?.startsWith(`${item.href}/`));
+                        const linkClassName = `flex items-center rounded-[1.15rem] border px-4 py-3 text-[0.95rem] font-medium leading-none ${
+                          active
+                            ? "border-[rgba(6,54,116,0.14)] bg-[rgba(6,54,116,0.05)] text-[var(--shell-ink)]"
+                            : "border-transparent text-[var(--shell-ink)] hover:border-[var(--shell-border)] hover:bg-[rgba(6,54,116,0.025)]"
+                        }`;
 
                         return (
                           <li key={item.href}>
-                            <Link
-                              href={item.href}
-                              onClick={() => setOpen(false)}
-                              className={`flex items-center rounded-[1.15rem] border px-4 py-3 text-[0.95rem] font-medium leading-none ${
-                                active
-                                  ? "border-[rgba(6,54,116,0.14)] bg-[rgba(6,54,116,0.05)] text-[var(--shell-ink)]"
-                                  : "border-transparent text-[var(--shell-ink)] hover:border-[var(--shell-border)] hover:bg-[rgba(6,54,116,0.025)]"
-                              }`}
-                            >
-                              <span>{item.label}</span>
-                            </Link>
+                            {isExternal ? (
+                              <a
+                                href={item.href}
+                                rel="noreferrer"
+                                onClick={() => setOpen(false)}
+                                className={linkClassName}
+                              >
+                                <span>{item.label}</span>
+                              </a>
+                            ) : (
+                              <Link
+                                href={item.href}
+                                onClick={() => setOpen(false)}
+                                className={linkClassName}
+                              >
+                                <span>{item.label}</span>
+                              </Link>
+                            )}
                           </li>
                         );
                       })}

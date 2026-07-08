@@ -1,3 +1,4 @@
+import { formatDelta, roundHundredths } from "@/lib/formatDelta";
 import type { VendorBriefData, VendorBriefDeltaRow } from "@/lib/briefs";
 
 const SECTION_KEY = "vendor.self-vs-market-delta" as const;
@@ -9,10 +10,7 @@ function formatGeneratedDate(iso: string): string {
 }
 
 function bigNumber(row: VendorBriefDeltaRow): string {
-  if (row.delta === null) return "—";
-  if (row.delta === 0) return "0";
-  const sign = row.delta > 0 ? "+" : "−";
-  return `${sign}${Math.abs(row.delta)}`;
+  return formatDelta(row.delta);
 }
 
 function bigNumberLabel(row: VendorBriefDeltaRow): string {
@@ -88,7 +86,7 @@ function actionTitleFromDelta(rows: VendorBriefDeltaRow[], vendorName: string): 
       : top.deltaDirection === "firm-higher"
         ? "below"
         : "level with";
-  const magnitude = Math.abs(top.delta);
+  const magnitude = roundHundredths(Math.abs(top.delta));
   return `${vendorName}'s ${top.productName} self-report sits ${direction} firm-reviewed scores by ${magnitude} point${magnitude === 1 ? "" : "s"}${hotCount > 0 ? ` · ${hotCount} hot divergence${hotCount === 1 ? "" : "s"} across the catalog` : ""}.`;
 }
 

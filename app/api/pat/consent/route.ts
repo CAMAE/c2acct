@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { isPatAssistantEnabled } from "@/lib/patAssistant/flags";
@@ -51,6 +52,10 @@ export async function POST(req: Request) {
   }
 
   const state = await setConsent(sessionUser.id, optedIn);
+  // R1: invalidate the root layout so the next render (the client's
+  // router.refresh()) re-evaluates showPatTopBar with the new consent state —
+  // the Ask Pat bar then appears/disappears on the same page load.
+  revalidatePath("/", "layout");
   return NextResponse.json(
     { ok: true, optedIn: state.optedIn },
     { headers: { "cache-control": "no-store" } }

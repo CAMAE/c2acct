@@ -1,3 +1,4 @@
+import { formatDelta } from "@/lib/formatDelta";
 import type { FirmBriefData, FirmBriefRadarBand } from "@/lib/firmBriefs";
 
 const RADIUS = 110;
@@ -220,8 +221,7 @@ export default function FiveModuleRadar({ data }: { data: FirmBriefData }) {
                       <span className="pat-stat-number">{axis.firmScore}</span> vs{" "}
                       <span className="pat-stat-number">{axis.ecosystemAverage}</span> (Δ{" "}
                       <span className={`pat-stat-number ${deltaColorClass(axis.delta)}`}>
-                        {axis.delta !== null && axis.delta >= 0 ? "+" : ""}
-                        {axis.delta ?? "--"}
+                        {formatDelta(axis.delta, { empty: "--" })}
                       </span>
                       )
                     </>

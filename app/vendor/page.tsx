@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import { getSessionUser } from "@/lib/auth/session";
 import { getInviteeAccessContext } from "@/lib/invitee/access";
+import { isSalesCardEnabled } from "@/lib/salesCard";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/profileSettingsStore";
@@ -140,11 +141,14 @@ export default async function VendorPage({
       })
     : null;
 
-  const localizedCards = vendorWorkspaceCards.map((card) => ({
-    ...card,
-    title: messages.portal.cards.vendor[card.id]?.title ?? card.title,
-    description: messages.portal.cards.vendor[card.id]?.description ?? card.description,
-  }));
+  const localizedCards = vendorWorkspaceCards
+    // R5: the Sales Card entry only appears while the sales-card flag is on.
+    .filter((card) => card.id !== "vendor-sales-card" || isSalesCardEnabled())
+    .map((card) => ({
+      ...card,
+      title: messages.portal.cards.vendor[card.id]?.title ?? card.title,
+      description: messages.portal.cards.vendor[card.id]?.description ?? card.description,
+    }));
 
   // Products-at-a-glance numbers are Pro-packaged signal, so the strip only
   // renders for an entitled vendor session — baseline vendors keep the

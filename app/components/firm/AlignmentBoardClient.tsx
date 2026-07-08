@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { formatDelta } from "@/lib/formatDelta";
 import type { AlignmentBoardData, BoardCandidate, BoardPiece } from "@/lib/alignmentBoard";
 
 /**
@@ -87,8 +88,7 @@ export default function AlignmentBoardClient({
                 {projected}%
               </div>
               <div className="text-sm text-[var(--shell-muted)]">
-                projected after swap ({projectedDelta >= 0 ? "+" : ""}
-                {projectedDelta})
+                projected after swap ({formatDelta(projectedDelta)})
               </div>
             </div>
           ) : null}
@@ -197,7 +197,7 @@ export default function AlignmentBoardClient({
                     {candidate.category ? ` · ${candidate.category}` : ""}
                   </div>
                   <div className="mt-3 text-sm text-[var(--shell-muted)]">
-                    Projected alignment {delta === null ? "—" : `${delta >= 0 ? "+" : ""}${delta}`}
+                    Projected alignment {formatDelta(delta)}
                   </div>
                 </button>
                 <button
@@ -261,7 +261,7 @@ export default function AlignmentBoardClient({
                   label="Projected delta"
                   value={
                     detailCandidate.projectedScore !== null && baseline !== null
-                      ? `${detailCandidate.projectedScore - baseline >= 0 ? "+" : ""}${detailCandidate.projectedScore - baseline}`
+                      ? formatDelta(detailCandidate.projectedScore - baseline)
                       : "—"
                   }
                 />

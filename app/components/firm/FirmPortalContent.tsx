@@ -31,6 +31,17 @@ export const firmWorkspaceCards: PortalSurface[] = [
     section: "operate",
     availability: "enabled",
   },
+  {
+    // R4: entry point to the Alignment Board. Filtered out in app/firm/page.tsx
+    // unless PAT_ENABLE_ALIGNMENT_BOARD is on. Cam's naming: "Alignment Sandbox".
+    id: "firm-alignment-sandbox",
+    title: "Alignment Sandbox",
+    description: "Play with your product stack as interactive pieces — swap candidates in and watch your projected firm alignment recompute live.",
+    href: "/firm/alignment-board",
+    audience: ["firm"],
+    section: "operate",
+    availability: "enabled",
+  },
 ];
 
 export const firmAdminHelpCards = [

@@ -1,3 +1,4 @@
+import { formatDelta } from "@/lib/formatDelta";
 import { getScoreBand } from "@/lib/scoreBands";
 
 type ScoreLockupProps = {
@@ -53,8 +54,7 @@ export default function ScoreLockup({
               delta > 0 ? "text-[var(--shell-positive)]" : "text-[var(--brand-orange)]"
             }`}
           >
-            {delta > 0 ? "+" : ""}
-            {Math.round(delta * 10) / 10}
+            {formatDelta(delta)}
           </span>
         ) : null}
       </div>

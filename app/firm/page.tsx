@@ -12,6 +12,7 @@ import {
   FirmMeetPatContent,
   firmWorkspaceCards,
 } from "@/app/components/firm/FirmPortalContent";
+import { isAlignmentBoardEnabled } from "@/lib/alignmentBoard";
 import { getSessionUser } from "@/lib/auth/session";
 import { buildFirmExternalProfileContract, getFirmAssessmentProgress } from "@/lib/firmPat";
 import { getInviteeAccessContext } from "@/lib/invitee/access";
@@ -206,11 +207,14 @@ export default async function FirmPage({
       })
     : null;
 
-  const localizedCards = firmWorkspaceCards.map((card) => ({
-    ...card,
-    title: messages.portal.cards.firm[card.id]?.title ?? card.title,
-    description: messages.portal.cards.firm[card.id]?.description ?? card.description,
-  }));
+  const localizedCards = firmWorkspaceCards
+    // R4: the Alignment Sandbox card only appears while the board flag is on.
+    .filter((card) => card.id !== "firm-alignment-sandbox" || isAlignmentBoardEnabled())
+    .map((card) => ({
+      ...card,
+      title: messages.portal.cards.firm[card.id]?.title ?? card.title,
+      description: messages.portal.cards.firm[card.id]?.description ?? card.description,
+    }));
 
   return (
     <div className="space-y-8">

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 /**
@@ -10,6 +11,7 @@ import { useState } from "react";
  * aggregated benchmarks are covered by the Terms of Service / Privacy Policy.
  */
 export default function PatConsentPanel({ initialOptedIn }: { initialOptedIn: boolean }) {
+  const router = useRouter();
   const [optedIn, setOptedIn] = useState(initialOptedIn);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,6 +32,10 @@ export default function PatConsentPanel({ initialOptedIn }: { initialOptedIn: bo
       }
       const data = (await res.json()) as { optedIn?: boolean };
       setOptedIn(Boolean(data.optedIn));
+      // R1: re-run the root layout so the Ask Pat top bar mounts/unmounts
+      // immediately (showPatTopBar re-reads consent). The route also
+      // revalidatePath("/", "layout") so this refresh sees fresh data.
+      router.refresh();
     } catch {
       setOptedIn(previous);
       setError("We couldn't save that just now. Please try again.");
