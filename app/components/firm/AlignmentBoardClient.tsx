@@ -6,6 +6,7 @@ import AlignmentRadar, { type RadarAxis } from "@/app/components/firm/AlignmentR
 import { formatDelta, formatScoreValue } from "@/lib/formatDelta";
 import { fitHeatColor, fitTierLabel } from "@/lib/fitHeat";
 import type { AlignmentBoardData, BoardCandidate, BoardPiece } from "@/lib/alignmentBoard";
+import type { ProductFitDimensionScore } from "@/lib/productFitDimensions";
 
 /**
  * Alignment Sandbox v3 (Redlines R3-Board). Two changes from v2, nothing else:
@@ -154,14 +155,61 @@ export default function AlignmentBoardClient({
   const projectedDelta =
     projected !== null && baseline !== null && swapStaged ? projected - baseline : null;
 
-  const radarAxes: RadarAxis[] = data.moduleShape.map((axis) => ({
-    title: axis.title,
-    current: axis.score,
-    projected:
-      swapStaged && projectedDelta !== null && axis.score !== null
-        ? Math.max(0, Math.min(100, axis.score + projectedDelta))
-        : axis.score,
-  }));
+  // P0 radar — real per-dimension recompute. Each axis is the MEAN of the stack
+  // pieces' own per-dimension review scores; the projected polygon swaps the
+  // lifted piece for the candidate and re-means per axis. No uniform delta.
+  // Axes with no firm signal (or where the candidate carries no evidence) are
+  // flagged thin and rendered with the confidence-band treatment, never faked.
+  const radarAxes: RadarAxis[] = useMemo(() => {
+    const projectedStack = swapStaged
+      ? data.stack.map((piece) =>
+          piece.productId === swapOutId && swapCandidate ? swapCandidate : piece
+        )
+      : data.stack;
+
+    return data.dimensionAxes.map((axis, index) => {
+      const meanAt = (products: Array<{ dimensionScores: ProductFitDimensionScore[] }>) => {
+        let sum = 0;
+        let count = 0;
+        let sample = 0;
+        for (const product of products) {
+          const dimension = product.dimensionScores[index];
+          if (dimension && dimension.score !== null) {
+            sum += dimension.score;
+            count += 1;
+            sample += dimension.sampleSize;
+          }
+        }
+        return { score: count > 0 ? Math.round(sum / count) : null, sample };
+      };
+
+      const current = meanAt(data.stack);
+      const projectedAxis = swapStaged ? meanAt(projectedStack) : current;
+      const candidateDimension = swapCandidate?.dimensionScores[index] ?? null;
+      const thin =
+        current.score === null ||
+        current.sample < 2 ||
+        (swapStaged && (candidateDimension === null || candidateDimension.score === null));
+
+      return {
+        title: axis.title,
+        current: current.score,
+        projected: projectedAxis.score,
+        thin,
+      };
+    });
+  }, [data.stack, data.dimensionAxes, swapStaged, swapOutId, swapCandidate]);
+
+  const radarEvidenceNote = useMemo(() => {
+    if (!swapStaged || !swapCandidate) return null;
+    if (swapCandidate.evidenceBasis === "vendor_reported") {
+      return "This candidate's projected axes use vendor self-reported evidence — no firm review of it yet.";
+    }
+    if (swapCandidate.evidenceBasis === "none") {
+      return "This candidate has no per-dimension evidence yet; the projection reflects only lifting your current piece.";
+    }
+    return null;
+  }, [swapStaged, swapCandidate]);
 
   function pickPiece(piece: BoardPiece) {
     setSwapOutId((current) => (current === piece.productId ? null : piece.productId));
@@ -246,7 +294,7 @@ export default function AlignmentBoardClient({
             ) : null}
           </div>
           <div className="lg:justify-self-end">
-            <AlignmentRadar axes={radarAxes} showProjected={swapStaged} />
+            <AlignmentRadar axes={radarAxes} showProjected={swapStaged} evidenceNote={radarEvidenceNote} />
           </div>
         </div>
       </section>

@@ -11,23 +11,40 @@ vi.mock("@/lib/prisma", () => ({
   default: { company: { findMany: vi.fn() } },
 }));
 vi.mock("@/lib/adminBriefingEngine", () => ({ getAdminCompanyBriefing: vi.fn() }));
-vi.mock("@/lib/vendorProductInsightEngine", () => ({ getVendorProductInsightCatalog: vi.fn() }));
+vi.mock("@/lib/vendorProductInsightEngine", () => ({
+  getVendorProductInsightCatalog: vi.fn(),
+  getFirmProductFitDimensionsByProduct: vi.fn(),
+}));
 
 import prisma from "@/lib/prisma";
 import { getAdminCompanyBriefing } from "@/lib/adminBriefingEngine";
-import { getVendorProductInsightCatalog } from "@/lib/vendorProductInsightEngine";
+import {
+  getFirmProductFitDimensionsByProduct,
+  getVendorProductInsightCatalog,
+} from "@/lib/vendorProductInsightEngine";
 import { getAlignmentBoardData, recomputeProjectedAlignment } from "@/lib/alignmentBoard";
+import { PRODUCT_FIT_DIMENSIONS } from "@/lib/productFitDimensions";
 
 const findMany = vi.mocked(prisma.company.findMany);
 const briefing = vi.mocked(getAdminCompanyBriefing);
 const vendorCatalog = vi.mocked(getVendorProductInsightCatalog);
+const firmDimensions = vi.mocked(getFirmProductFitDimensionsByProduct);
+
+function dimensionScores(scores?: Partial<Record<string, number>>) {
+  return PRODUCT_FIT_DIMENSIONS.map((dimension) => ({
+    key: dimension.key,
+    title: dimension.title,
+    score: scores?.[dimension.key] ?? null,
+    sampleSize: scores?.[dimension.key] != null ? 3 : 0,
+  }));
+}
 
 function snapshot(id: string, name: string, opts: { firmAvg?: number | null; vendor?: number | null } = {}) {
   return {
     product: { id, name, category: "Practice management", summary: null, utilityKeys: [], utilityLabels: ["Practice management"], utilityScopeLabel: "" },
     vendorAssessmentStatus: { completed: true, latestSubmittedAt: null, statusLabel: "", reason: "" },
-    vendorSelfReported: { latestScore: opts.vendor ?? 70, submittedAt: null, sectionEvidence: [] },
-    firmReviewed: { assessmentCount: 5, averageScore: opts.firmAvg ?? 66, latestSubmittedAt: null, utilityEvidence: [] },
+    vendorSelfReported: { latestScore: opts.vendor ?? 70, submittedAt: null, sectionEvidence: [], dimensionEvidence: dimensionScores({ workflow: opts.vendor ?? 70 }) },
+    firmReviewed: { assessmentCount: 5, averageScore: opts.firmAvg ?? 66, latestSubmittedAt: null, utilityEvidence: [], dimensionEvidence: dimensionScores({ workflow: opts.firmAvg ?? 66 }) },
     divergence: { points: 4, label: "Aligned" },
     latestUpdatedAt: null,
     confidenceBand: "grounded" as const,
@@ -54,6 +71,7 @@ describe("getAlignmentBoardData", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     findMany.mockResolvedValue([{ id: "vendorA", name: "Northwind Systems" }] as never);
+    firmDimensions.mockResolvedValue(new Map() as never);
   });
 
   it("returns null when the firm has no briefing (caller 404s)", async () => {
@@ -95,11 +113,36 @@ describe("getAlignmentBoardData", () => {
     expect(data!.candidates.map((c) => c.fitRank)).toEqual([1, 2]);
     // board baseline = mean of stack scores (just p1 here)
     expect(data!.currentAlignment).toBe(72);
-    // moduleShape carries all 5 canonical modules; scores filled where present
-    expect(data!.moduleShape).toHaveLength(5);
-    const opModel = data!.moduleShape.find((m) => m.key === "firm_alignment_operating_model_v1");
-    expect(opModel?.score).toBe(70);
-    const automationModule = data!.moduleShape.find((m) => m.key === "firm_alignment_automation_ai_v1");
-    expect(automationModule?.score).toBeNull(); // not in the heatmap → null
+    // P0 radar axes = the five product-fit dimensions, canonical order
+    expect(data!.dimensionAxes.map((axis) => axis.key)).toEqual(
+      PRODUCT_FIT_DIMENSIONS.map((dimension) => dimension.key)
+    );
+    // candidate carries a projected per-dimension shape + its evidence basis
+    const winner = data!.candidates.find((c) => c.productId === "p3");
+    expect(winner?.dimensionScores).toHaveLength(5);
+    expect(winner?.evidenceBasis).toBe("firm_reviewed"); // firmReviewed had signal
+  });
+
+  it("fills each stack piece's per-dimension shape from THIS firm's own review", async () => {
+    briefing.mockResolvedValue({
+      company: { name: "Demo Firm" },
+      executiveSummary: { canonicalFirmScore: 72, confidenceLabel: "Building" },
+      productLayer: {
+        reviewedProductCount: 1,
+        products: [{ productId: "p1", productName: "P1", vendorName: "Northwind Systems", canonicalFirmReviewScore: 72 }],
+      },
+      firmLayer: { moduleHeatmap: [] },
+    } as never);
+    vendorCatalog.mockResolvedValue([snapshot("p1", "Practice Pro")] as never);
+    firmDimensions.mockResolvedValue(
+      new Map([["p1", dimensionScores({ workflow: 80, value: 60 })]]) as never
+    );
+
+    const data = await getAlignmentBoardData("firm1");
+    // this-firm dimension fetch is scoped to the shown stack products
+    expect(firmDimensions).toHaveBeenCalledWith("firm1", [{ id: "p1", utilityKeys: [] }]);
+    const piece = data!.stack.find((s) => s.productId === "p1");
+    const workflow = piece?.dimensionScores.find((d) => d.key === "workflow");
+    expect(workflow?.score).toBe(80);
   });
 });

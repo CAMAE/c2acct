@@ -15,6 +15,11 @@ import {
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { getVendorScopedFirms } from "@/lib/tenancy";
 import {
+  DIMENSION_KEY_BY_BASIS,
+  PRODUCT_FIT_DIMENSIONS,
+  type ProductFitDimensionScore,
+} from "@/lib/productFitDimensions";
+import {
   PRODUCT_TIER1_INSIGHTS,
   PRODUCT_TIER2_INSIGHTS,
   VENDOR_PRODUCT_MODULE_KEY,
@@ -103,12 +108,16 @@ export type VendorProductInsightSnapshot = {
     latestScore: number | null;
     submittedAt: Date | null;
     sectionEvidence: VendorSectionEvidence[];
+    /** Vendor self-reported answers rolled into the five product-fit dimensions. */
+    dimensionEvidence: ProductFitDimensionScore[];
   };
   firmReviewed: {
     assessmentCount: number;
     averageScore: number | null;
     latestSubmittedAt: Date | null;
     utilityEvidence: UtilityEvidence[];
+    /** Firm-review answers (cross-scoped-firm) rolled into the product-fit dimensions. */
+    dimensionEvidence: ProductFitDimensionScore[];
   };
   divergence: {
     points: number | null;
@@ -511,6 +520,133 @@ function buildFirmUtilityEvidence(
   });
 }
 
+type ProductResponseSet = {
+  answers: Record<string, number>;
+  scaleMin: number;
+  scaleMax: number;
+};
+
+/**
+ * Roll a product's per-question review answers into the five product-fit
+ * dimensions (P0 radar). Each question carries a `basisKey`; we normalize each
+ * answered response to 0–100 and average it into the dimension its basis rolls
+ * up to. `perspective` selects the firm-side or vendor-side question bank so the
+ * question ids match the stored answer keys. Dimensions with no answered
+ * questions come back `score: null, sampleSize: 0` — the caller renders those as
+ * a confidence-band ("no signal") axis, never a fabricated movement.
+ */
+export function buildProductFitDimensions(
+  utilityKeys: string[],
+  responseSets: ProductResponseSet[],
+  perspective: "firm" | "vendor"
+): ProductFitDimensionScore[] {
+  const questions =
+    perspective === "firm"
+      ? buildFirmProductQuestions(utilityKeys)
+      : buildVendorProductQuestions(utilityKeys);
+
+  const scoresByDimension = new Map<string, number[]>(
+    PRODUCT_FIT_DIMENSIONS.map((dimension) => [dimension.key, [] as number[]])
+  );
+
+  for (const question of questions) {
+    const basisKey = question.section?.basisKey;
+    if (!basisKey) continue;
+    const dimensionKey = DIMENSION_KEY_BY_BASIS[basisKey];
+    if (!dimensionKey) continue;
+    const bucket = scoresByDimension.get(dimensionKey);
+    if (!bucket) continue;
+    for (const responseSet of responseSets) {
+      const rawAnswer = responseSet.answers[question.id];
+      if (typeof rawAnswer !== "number") continue;
+      const normalizedScore = normalizeStoredAnswer(
+        rawAnswer,
+        responseSet.scaleMin,
+        responseSet.scaleMax
+      );
+      if (normalizedScore === null) continue;
+      bucket.push(normalizedScore);
+    }
+  }
+
+  return PRODUCT_FIT_DIMENSIONS.map((dimension) => {
+    const scores = scoresByDimension.get(dimension.key) ?? [];
+    return {
+      key: dimension.key,
+      title: dimension.title,
+      score: average(scores),
+      sampleSize: scores.length,
+    };
+  });
+}
+
+/**
+ * This-firm product-fit dimensions for a set of the firm's own reviewed
+ * products (Alignment Sandbox stack). Unlike the snapshot's cross-scoped-firm
+ * `firmReviewed.dimensionEvidence`, this is scoped to a single firm's own review
+ * submissions, so the stack radar reflects THIS firm's posture. Returns a map
+ * keyed by productId; products the firm hasn't reviewed are simply absent.
+ *
+ * Tenancy: the caller MUST authorize `firmCompanyId` first; every submission
+ * queried here is keyed by that company id.
+ */
+export async function getFirmProductFitDimensionsByProduct(
+  firmCompanyId: string,
+  products: Array<{ id: string; utilityKeys: string[] }>
+): Promise<Map<string, ProductFitDimensionScore[]>> {
+  const result = new Map<string, ProductFitDimensionScore[]>();
+  if (products.length === 0) {
+    return result;
+  }
+
+  const firmModule = await prisma.surveyModule
+    .findUnique({ where: { key: FIRM_PRODUCT_MODULE_KEY }, select: { id: true } })
+    .catch(() => null);
+  if (!firmModule) {
+    return result;
+  }
+
+  const productIds = products.map((product) => product.id);
+  const submissions = await prisma.surveySubmission
+    .findMany({
+      where: getSurveyFinalWhere({
+        moduleId: firmModule.id,
+        companyId: firmCompanyId,
+        Subject: { productId: { in: productIds } },
+      }),
+      select: {
+        answers: true,
+        scaleMin: true,
+        scaleMax: true,
+        Subject: { select: { productId: true } },
+      },
+    })
+    .catch(() => []);
+
+  const responsesByProduct = new Map<string, ProductResponseSet[]>();
+  for (const submission of submissions) {
+    const productId = submission.Subject?.productId;
+    if (!productId) continue;
+    const storedScale = resolveStoredProductAssessmentScale(submission.scaleMin, submission.scaleMax);
+    const set: ProductResponseSet = {
+      answers: extractResponses(submission.answers),
+      scaleMin: storedScale.scaleMin,
+      scaleMax: storedScale.scaleMax,
+    };
+    const existing = responsesByProduct.get(productId) ?? [];
+    existing.push(set);
+    responsesByProduct.set(productId, existing);
+  }
+
+  for (const product of products) {
+    const responseSets = responsesByProduct.get(product.id);
+    if (!responseSets || responseSets.length === 0) continue;
+    result.set(product.id, buildProductFitDimensions(product.utilityKeys, responseSets, "firm"));
+  }
+
+  return result;
+}
+
 function sortScoredSections(sections: VendorSectionEvidence[]) {
   return [...sections]
     .filter((section) => section.averageScore !== null)
@@ -637,6 +773,16 @@ export function buildVendorProductInsightSnapshot(
     input.product.utilityKeys,
     input.firmReviewed.responseSets
   );
+  const firmDimensionEvidence = buildProductFitDimensions(
+    input.product.utilityKeys,
+    input.firmReviewed.responseSets,
+    "firm"
+  );
+  const vendorDimensionEvidence = buildProductFitDimensions(
+    input.product.utilityKeys,
+    [input.vendorSelfReported.responses],
+    "vendor"
+  );
   const firmAverageScore =
     typeof input.firmReviewed.averageScore === "number"
       ? input.firmReviewed.averageScore
@@ -692,12 +838,14 @@ export function buildVendorProductInsightSnapshot(
       latestScore: input.vendorSelfReported.latestScore,
       submittedAt: input.vendorSelfReported.submittedAt,
       sectionEvidence: vendorSectionEvidence,
+      dimensionEvidence: vendorDimensionEvidence,
     },
     firmReviewed: {
       assessmentCount: input.firmReviewed.assessmentCount,
       averageScore: firmAverageScore,
       latestSubmittedAt: input.firmReviewed.latestSubmittedAt,
       utilityEvidence: firmUtilityEvidence,
+      dimensionEvidence: firmDimensionEvidence,
     },
     divergence,
     latestUpdatedAt:

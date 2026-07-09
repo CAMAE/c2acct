@@ -35,10 +35,11 @@ function ComingSoon() {
           Your stack, as a board you can play with
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          Your current products will render as pieces, each carrying its live alignment score against
-          your firm&rsquo;s five-module shape. Swap a piece for a candidate and watch your projected
-          alignment recompute — with a confidence band whenever the sample is thin. This Elite
-          surface is unlocked for your firm; the interactive board is landing shortly.
+          Your current products will render as pieces, each carrying its live alignment score. A
+          product-fit radar plots your stack across five evidence-backed dimensions. Swap a piece for
+          a candidate and watch your projected shape recompute — with a confidence band whenever the
+          sample is thin. This Elite surface is unlocked for your firm; the interactive board is
+          landing shortly.
         </p>
       </section>
     </div>

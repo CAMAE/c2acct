@@ -42,12 +42,14 @@ function productSnapshotFixture(overrides: {
         { key: "adoption-ease", title: "Adoption ease", averageScore: 79, questionCount: 4 },
         { key: "value-clarity", title: "Measurable value", averageScore: 72, questionCount: 4 },
       ],
+      dimensionEvidence: [],
     },
     firmReviewed: {
       assessmentCount: overrides.assessmentCount,
       averageScore: overrides.firmScore,
       latestSubmittedAt: overrides.assessmentCount > 0 ? new Date("2026-06-05T12:00:00.000Z") : null,
       utilityEvidence: [],
+      dimensionEvidence: [],
     },
     divergence: {
       points: overrides.divergencePoints,

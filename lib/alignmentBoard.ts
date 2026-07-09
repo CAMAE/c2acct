@@ -1,7 +1,14 @@
 import prisma from "@/lib/prisma";
 import { getAdminCompanyBriefing } from "@/lib/adminBriefingEngine";
-import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
-import { getVendorProductInsightCatalog } from "@/lib/vendorProductInsightEngine";
+import {
+  getFirmProductFitDimensionsByProduct,
+  getVendorProductInsightCatalog,
+  type VendorProductInsightSnapshot,
+} from "@/lib/vendorProductInsightEngine";
+import {
+  PRODUCT_FIT_DIMENSIONS,
+  type ProductFitDimensionScore,
+} from "@/lib/productFitDimensions";
 
 /**
  * Alignment Board data layer (Elite Sprint Block D, v1). The firm's product
@@ -43,6 +50,8 @@ export type BoardPiece = {
   topStrength: string;
   topGap: string;
   priceBand: string;
+  /** This firm's per-dimension review shape (P0 radar). Real answers, per axis. */
+  dimensionScores: ProductFitDimensionScore[];
 };
 
 export type BoardCandidate = {
@@ -56,13 +65,19 @@ export type BoardCandidate = {
   priceBand: string;
   /** Sandbox Fit rank (1 = best projected alignment), assigned across the pool. */
   fitRank: number;
+  /**
+   * Projected per-dimension shape: cross-firm firm-review evidence where it
+   * exists, otherwise vendor self-report. `evidenceBasis` says which. Axes with
+   * no signal come back score:null and are held (not fabricated) on the radar.
+   */
+  dimensionScores: ProductFitDimensionScore[];
+  evidenceBasis: "firm_reviewed" | "vendor_reported" | "none";
 };
 
-/** One axis of the firm's 5-module alignment shape (for the positioning radar). */
-export type BoardModuleAxis = {
+/** One radar axis (product-fit dimension key + title), canonical order. */
+export type BoardDimensionAxis = {
   key: string;
   title: string;
-  score: number | null;
 };
 
 export type AlignmentBoardData = {
@@ -76,8 +91,13 @@ export type AlignmentBoardData = {
   /** Total reviewed products (the board shows at most SANDBOX_STACK_LIMIT). */
   totalStackCount: number;
   candidates: BoardCandidate[];
-  /** Five firm-module scores driving the current-shape radar polygon. */
-  moduleShape: BoardModuleAxis[];
+  /**
+   * Radar axes (P0): the five PRODUCT-FIT dimensions, not the firm's assessment
+   * modules. The current-shape polygon is the mean of the stack pieces'
+   * `dimensionScores`; the client recomputes the projected polygon per axis on
+   * each swap. See docs/elite-sprint/ROADMAP-PRODUCT-SECTION-TO-FIRM-MODULE-MAPPING.md.
+   */
+  dimensionAxes: BoardDimensionAxis[];
 };
 
 /** How many ranked Secret candidates the sandbox rail offers (R13.2). */
@@ -121,6 +141,38 @@ function pieceGap(score: number | null, divergence: { points: number | null; lab
   return "No material gap";
 }
 
+/** All axes present but empty — used when a product carries no dimension signal. */
+function emptyDimensionScores(): ProductFitDimensionScore[] {
+  return PRODUCT_FIT_DIMENSIONS.map((dimension) => ({
+    key: dimension.key,
+    title: dimension.title,
+    score: null,
+    sampleSize: 0,
+  }));
+}
+
+function dimensionsHaveSignal(dimensions: ProductFitDimensionScore[]): boolean {
+  return dimensions.some((dimension) => dimension.score !== null);
+}
+
+/**
+ * A candidate's projected per-dimension shape: prefer cross-firm firm-review
+ * evidence; fall back to the vendor's self-report; else no signal. Mirrors the
+ * scalar projectedScore fallback (firm average ?? vendor self-report).
+ */
+function pickCandidateDimensions(snapshot: VendorProductInsightSnapshot): {
+  dimensionScores: ProductFitDimensionScore[];
+  evidenceBasis: BoardCandidate["evidenceBasis"];
+} {
+  if (dimensionsHaveSignal(snapshot.firmReviewed.dimensionEvidence)) {
+    return { dimensionScores: snapshot.firmReviewed.dimensionEvidence, evidenceBasis: "firm_reviewed" };
+  }
+  if (dimensionsHaveSignal(snapshot.vendorSelfReported.dimensionEvidence)) {
+    return { dimensionScores: snapshot.vendorSelfReported.dimensionEvidence, evidenceBasis: "vendor_reported" };
+  }
+  return { dimensionScores: emptyDimensionScores(), evidenceBasis: "none" };
+}
+
 /**
  * Assemble the board for one firm. Returns null when the firm has no briefing
  * (e.g. not a firm company) so the caller can 404. Tenancy is the caller's job;
@@ -154,6 +206,7 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
   );
 
   const stack: BoardPiece[] = [];
+  const stackUtilityKeys = new Map<string, string[]>();
   const candidatePool: Array<Omit<BoardCandidate, "fitRank">> = [];
   const seen = new Set<string>();
   for (const { vendorName, snapshots } of catalogs) {
@@ -164,6 +217,7 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
       const firmReview = firmReviewByProductId.get(snapshot.product.id) ?? null;
 
       if (firmReview !== null) {
+        stackUtilityKeys.set(snapshot.product.id, snapshot.product.utilityKeys);
         stack.push({
           productId: snapshot.product.id,
           productName: snapshot.product.name,
@@ -174,11 +228,13 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
           topStrength: pieceStrength(firmReview),
           topGap: pieceGap(firmReview, snapshot.divergence),
           priceBand: BOARD_PRICE_BAND,
+          dimensionScores: emptyDimensionScores(), // filled from this-firm review below
         });
       } else {
         const projectedScore =
           snapshot.firmReviewed.averageScore ?? snapshot.vendorSelfReported.latestScore ?? null;
         if (projectedScore === null) continue; // unscored products can't be played
+        const { dimensionScores, evidenceBasis } = pickCandidateDimensions(snapshot);
         candidatePool.push({
           productId: snapshot.product.id,
           productName: snapshot.product.name,
@@ -187,6 +243,8 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
           projectedScore,
           confidence: snapshot.confidenceBand,
           priceBand: BOARD_PRICE_BAND,
+          dimensionScores,
+          evidenceBasis,
         });
       }
     }
@@ -215,22 +273,30 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
     .slice(0, SANDBOX_CANDIDATE_COUNT)
     .map((candidate, index) => ({ ...candidate, fitRank: index + 1 }));
 
-  // Firm's 5-module shape for the positioning radar (R12.2), canonical order.
-  const heatmapByKey = new Map(
-    (briefing.firmLayer?.moduleHeatmap ?? []).map((module) => [module.key, module])
-  );
-  const moduleShape: BoardModuleAxis[] = FIRM_MODULE_DEFINITIONS.map((definition) => ({
-    key: definition.key,
-    title: definition.title,
-    score: heatmapByKey.get(definition.key)?.canonicalScore ?? null,
-  }));
-
   // Cap the board stack (R3.2): show the firm's strongest 6-8 pieces so it reads
   // like a real tech stack; the baseline + swap math run over the shown set.
   const totalStackCount = stack.length;
   const boardStack = [...stack]
     .sort((a, b) => (b.scoreVsFirm ?? 0) - (a.scoreVsFirm ?? 0))
     .slice(0, SANDBOX_STACK_LIMIT);
+
+  // P0 radar: fill each board piece's per-dimension shape from THIS firm's own
+  // product-review answers (not the cross-firm snapshot). The current radar
+  // polygon is the mean of these; the projected polygon recomputes per axis on
+  // swap. Only fetched for the shown stack.
+  const firmDimensionsByProduct = await getFirmProductFitDimensionsByProduct(
+    firmCompanyId,
+    boardStack.map((piece) => ({
+      id: piece.productId,
+      utilityKeys: stackUtilityKeys.get(piece.productId) ?? [],
+    }))
+  );
+  for (const piece of boardStack) {
+    const dimensions = firmDimensionsByProduct.get(piece.productId);
+    if (dimensions) {
+      piece.dimensionScores = dimensions;
+    }
+  }
 
   return {
     firmCompanyId,
@@ -241,6 +307,9 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
     stack: boardStack,
     totalStackCount,
     candidates,
-    moduleShape,
+    dimensionAxes: PRODUCT_FIT_DIMENSIONS.map((dimension) => ({
+      key: dimension.key,
+      title: dimension.title,
+    })),
   };
 }
