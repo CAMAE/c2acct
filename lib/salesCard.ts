@@ -67,13 +67,32 @@ export type RankedFirm = {
   nextActions: string[];
 };
 
+/**
+ * Evidence grade for a displayed strength/fit number (P2-pre lineage policy):
+ *  - firm_reviewed  → every contributing product carries firm-review evidence
+ *  - vendor_reported → NO firm reviews exist; the number is vendor self-report only
+ *  - blended        → a mix (some products firm-reviewed, some self-report-only)
+ * firm_reviewed is primary whenever it exists; blended/vendor_reported MUST carry
+ * a visible provenance label in the UI (nothing renders self-report as verified).
+ */
+export type EvidenceGrade = "firm_reviewed" | "vendor_reported" | "blended";
+
 export type VendorSalesCardData = {
   vendorCompanyId: string;
   vendorName: string;
-  /** Mean of the vendor's product scores — the "product strengths" baseline. */
+  /**
+   * The "product strengths" baseline. FIRM-REVIEWED PRIMARY: this is the mean of
+   * the vendor's FIRM-REVIEWED product scores whenever any exist; it falls back
+   * to vendor self-report ONLY when no product has a firm review. The fit/headroom
+   * calc derives from this, so it inherits the same grade.
+   */
   vendorStrength: number | null;
-  /** How many of the vendor's products backed the strength baseline (evidence count). */
-  vendorProductCount: number;
+  /** Evidence grade of vendorStrength (drives the UI provenance label). */
+  vendorStrengthGrade: EvidenceGrade;
+  /** Products with firm-review evidence (backed the firm-reviewed strength). */
+  firmReviewedProductCount: number;
+  /** Products with ONLY vendor self-report — excluded from a firm-reviewed strength. */
+  selfReportedOnlyProductCount: number;
   rankedFirms: RankedFirm[];
 };
 
@@ -128,10 +147,33 @@ export async function getVendorSalesCardData(vendorCompanyId: string): Promise<V
   }
 
   const catalog = await getVendorProductInsightCatalog(vendorCompanyId);
-  const vendorProductScores = catalog
-    .map((snapshot) => snapshot.firmReviewed.averageScore ?? snapshot.vendorSelfReported.latestScore)
+  // Evidence-lineage policy (P2-pre): firm-reviewed is PRIMARY. The product
+  // strength is the mean of firm-reviewed product scores whenever any exist;
+  // self-report-only products are excluded from that headline (counted, not
+  // blended in silently). Only when NO product has a firm review do we fall back
+  // to a vendor-self-reported strength — and grade it so the UI labels it.
+  const firmReviewedScores = catalog
+    .map((snapshot) => snapshot.firmReviewed.averageScore)
     .filter((score): score is number => score !== null);
-  const vendorStrength = mean(vendorProductScores);
+  const selfReportedOnlyScores = catalog
+    .filter((snapshot) => snapshot.firmReviewed.averageScore === null)
+    .map((snapshot) => snapshot.vendorSelfReported.latestScore)
+    .filter((score): score is number => score !== null);
+
+  let vendorStrength: number | null;
+  let vendorStrengthGrade: EvidenceGrade;
+  if (firmReviewedScores.length > 0) {
+    // Pure firm-reviewed number (self-report-only products excluded, disclosed
+    // via selfReportedOnlyProductCount) → grade firm_reviewed.
+    vendorStrength = mean(firmReviewedScores);
+    vendorStrengthGrade = "firm_reviewed";
+  } else {
+    // No firm reviews anywhere → the only signal is vendor self-report.
+    vendorStrength = mean(selfReportedOnlyScores);
+    vendorStrengthGrade = "vendor_reported";
+  }
+  const firmReviewedProductCount = firmReviewedScores.length;
+  const selfReportedOnlyProductCount = selfReportedOnlyScores.length;
 
   const firms: Array<Omit<RankedFirm, "fitRank">> = [];
   for (const firmCompanyId of firmIds) {
@@ -206,7 +248,9 @@ export async function getVendorSalesCardData(vendorCompanyId: string): Promise<V
     vendorCompanyId,
     vendorName: vendorCompany.name,
     vendorStrength,
-    vendorProductCount: vendorProductScores.length,
+    vendorStrengthGrade,
+    firmReviewedProductCount,
+    selfReportedOnlyProductCount,
     rankedFirms: rankFirmsByFit(firms),
   };
 }

@@ -140,7 +140,12 @@ export default function AlignmentBoardClient({
     entitled ? candidate.productName : `Secret Product ${candidate.fitRank}`;
 
   const baseline = data.currentAlignment;
-  const swapCandidate = swapInId ? data.candidates.find((c) => c.productId === swapInId) ?? null : null;
+  // Both rails are swappable; look up across the ranked + not-yet-reviewed lists.
+  const allCandidates = useMemo(
+    () => [...data.candidates, ...data.unreviewedCandidates],
+    [data.candidates, data.unreviewedCandidates]
+  );
+  const swapCandidate = swapInId ? allCandidates.find((c) => c.productId === swapInId) ?? null : null;
   const swapPiece = swapOutId ? data.stack.find((p) => p.productId === swapOutId) ?? null : null;
   const swapStaged = Boolean(swapOutId && swapInId && swapCandidate);
 
@@ -232,7 +237,7 @@ export default function AlignmentBoardClient({
   const detailPiece =
     detail?.kind === "piece" ? data.stack.find((p) => p.productId === detail.id) ?? null : null;
   const detailCandidate =
-    detail?.kind === "candidate" ? data.candidates.find((c) => c.productId === detail.id) ?? null : null;
+    detail?.kind === "candidate" ? allCandidates.find((c) => c.productId === detail.id) ?? null : null;
 
   // Breakdown: swapped piece first (the only real mover), then the rest; collapse
   // to the top 6 by default with a "Show all" expander (R3.1).
@@ -408,11 +413,11 @@ export default function AlignmentBoardClient({
         </section>
       ) : null}
 
-      {/* Candidate rail — ranked wrapping grid */}
+      {/* Ranked candidate rail — FIRM-REVIEWED only (P2-pre) */}
       <section className="pat-card p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="pat-label">
-            Secret candidates — {swapOutId ? "click one to swap it in" : "lift a stack piece first"}
+            Secret candidates · ranked fits — {swapOutId ? "click one to swap it in" : "lift a stack piece first"}
           </div>
           {!entitled && data.candidates[0] ? (
             <span className="text-xs text-[var(--shell-muted)]">
@@ -423,38 +428,65 @@ export default function AlignmentBoardClient({
             </span>
           ) : null}
         </div>
-        <div className="mt-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(168px,1fr))]">
-          {data.candidates.map((candidate) => {
-            const delta =
-              candidate.projectedScore !== null && baseline !== null
-                ? candidate.projectedScore - baseline
-                : null;
-            const isSwappedIn = swapStaged && candidate.productId === swapInId;
-            const heat = fitHeatColor(delta);
-            return (
-              <PuzzlePiece
+        <p className="mt-1 text-xs text-[var(--shell-muted)]">
+          Ranked by projected fit — every rank is backed by real firm reviews.
+        </p>
+        {data.candidates.length === 0 ? (
+          <p className="mt-4 text-sm text-[var(--shell-muted)]">
+            No firm-reviewed candidates yet — see the not-yet-reviewed set below.
+          </p>
+        ) : (
+          <div className="mt-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(168px,1fr))]">
+            {data.candidates.map((candidate) => (
+              <CandidatePiece
                 key={candidate.productId}
-                edges={looseEdges(candidate.fitRank)}
-                zIndex={0}
-                fill={isSwappedIn ? STACK_FILL : heat}
-                stroke={isSwappedIn ? "var(--shell-border)" : heat}
-                lifted={swapInId === candidate.productId}
-                textClass={isSwappedIn ? "text-[var(--shell-ink)]" : "text-white"}
-                mutedClass={isSwappedIn ? "text-[var(--shell-muted)]" : "text-white/80"}
-                disabled={!swapOutId && !isSwappedIn}
-                onClick={() => pickCandidate(candidate)}
-                testId="board-candidate"
-                dataAnonymized={entitled ? "0" : "1"}
-                rank={candidate.fitRank}
-                tierLabel={isSwappedIn ? undefined : fitTierLabel(delta)}
-                title={isSwappedIn && swapPiece ? swapPiece.productName : candidateLabel(candidate)}
-                subtitle={isSwappedIn ? "⇄ lifted from your stack" : entitled ? candidate.vendorName : "Vendor hidden"}
-                scoreText={formatDelta(delta)}
+                candidate={candidate}
+                baseline={baseline}
+                swapOutId={swapOutId}
+                swapInId={swapInId}
+                swapStaged={swapStaged}
+                swapPiece={swapPiece}
+                entitled={entitled}
+                candidateLabel={candidateLabel}
+                onPick={pickCandidate}
               />
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
+
+      {/* "Not yet firm-reviewed" section — VENDOR-REPORTED only, floored (P2-pre) */}
+      {data.unreviewedCandidates.length > 0 ? (
+        <section className="pat-card border-dashed border-[var(--brand-orange)]/40 p-6">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <div className="pat-label text-[var(--brand-orange)]">Not yet firm-reviewed</div>
+            <span className="text-xs text-[var(--brand-orange)]">
+              Vendor self-reported · needs firm reviews to enter ranked fits
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-[var(--shell-muted)]">
+            Swappable to explore, but the projection is the vendor&rsquo;s own claim — not firm-verified,
+            so these carry wider confidence bands and never rank against the fits above.
+          </p>
+          <div className="mt-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(168px,1fr))]">
+            {data.unreviewedCandidates.map((candidate) => (
+              <CandidatePiece
+                key={candidate.productId}
+                candidate={candidate}
+                baseline={baseline}
+                swapOutId={swapOutId}
+                swapInId={swapInId}
+                swapStaged={swapStaged}
+                swapPiece={swapPiece}
+                entitled={entitled}
+                candidateLabel={candidateLabel}
+                onPick={pickCandidate}
+                unreviewed
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {/* Detail — full width beneath candidates */}
       {detailPiece ? (
@@ -476,7 +508,11 @@ export default function AlignmentBoardClient({
 
       {detailCandidate ? (
         <DetailCard
-          title={`Sandbox Fit #${detailCandidate.fitRank} · ${candidateLabel(detailCandidate)}`}
+          title={
+            detailCandidate.grade === "vendor_reported"
+              ? `Not yet firm-reviewed · ${candidateLabel(detailCandidate)}`
+              : `Sandbox Fit #${detailCandidate.fitRank} · ${candidateLabel(detailCandidate)}`
+          }
           onClose={() => setDetail(null)}
           cta={
             !entitled ? (
@@ -486,12 +522,20 @@ export default function AlignmentBoardClient({
             ) : null
           }
         >
+          {detailCandidate.grade === "vendor_reported" ? (
+            <div className="sm:col-span-2 lg:col-span-3">
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--brand-orange)]">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--brand-orange)]" />
+                Vendor self-reported — no firm reviews yet; needs firm reviews to enter the ranked fits.
+              </span>
+            </div>
+          ) : null}
           {entitled ? (
             <>
               <Fact label="Product · vendor" value={`${detailCandidate.productName} · ${detailCandidate.vendorName}`} />
               <Fact label="Price band" value={detailCandidate.priceBand} />
               <Fact
-                label="Projected fit vs. your firm"
+                label={detailCandidate.grade === "vendor_reported" ? "Vendor self-reported fit" : "Projected fit vs. your firm"}
                 value={
                   detailCandidate.projectedScore !== null
                     ? `${formatScoreValue(detailCandidate.projectedScore)}% · ${CONFIDENCE_LABEL[detailCandidate.confidence]}`
@@ -501,7 +545,14 @@ export default function AlignmentBoardClient({
             </>
           ) : (
             <>
-              <Fact label="Sandbox Fit rank" value={`#${detailCandidate.fitRank} of ${data.candidates.length}`} />
+              <Fact
+                label={detailCandidate.grade === "vendor_reported" ? "Status" : "Sandbox Fit rank"}
+                value={
+                  detailCandidate.grade === "vendor_reported"
+                    ? "Not yet firm-reviewed"
+                    : `#${detailCandidate.fitRank} of ${data.candidates.length}`
+                }
+              />
               <Fact label="Category" value={detailCandidate.category ?? "—"} />
               <Fact
                 label="Projected delta"
@@ -519,6 +570,63 @@ export default function AlignmentBoardClient({
   );
 }
 
+/**
+ * One candidate puzzle piece — shared by the ranked (firm-reviewed) rail and the
+ * "Not yet firm-reviewed" (vendor-reported) section. `unreviewed` marks the
+ * vendor-reported treatment: a dashed orange outline and a "self-reported" tier
+ * label instead of a fit tier, so the grade reads at a glance.
+ */
+function CandidatePiece({
+  candidate,
+  baseline,
+  swapOutId,
+  swapInId,
+  swapStaged,
+  swapPiece,
+  entitled,
+  candidateLabel,
+  onPick,
+  unreviewed = false,
+}: {
+  candidate: BoardCandidate;
+  baseline: number | null;
+  swapOutId: string | null;
+  swapInId: string | null;
+  swapStaged: boolean;
+  swapPiece: BoardPiece | null;
+  entitled: boolean;
+  candidateLabel: (candidate: BoardCandidate) => string;
+  onPick: (candidate: BoardCandidate) => void;
+  unreviewed?: boolean;
+}) {
+  const delta =
+    candidate.projectedScore !== null && baseline !== null ? candidate.projectedScore - baseline : null;
+  const isSwappedIn = swapStaged && candidate.productId === swapInId;
+  const heat = fitHeatColor(delta);
+  return (
+    <PuzzlePiece
+      edges={looseEdges(candidate.fitRank)}
+      zIndex={0}
+      fill={isSwappedIn ? STACK_FILL : unreviewed ? "#f7efe6" : heat}
+      stroke={isSwappedIn ? "var(--shell-border)" : unreviewed ? "var(--brand-orange)" : heat}
+      strokeDashed={unreviewed && !isSwappedIn}
+      lifted={swapInId === candidate.productId}
+      textClass={isSwappedIn || unreviewed ? "text-[var(--shell-ink)]" : "text-white"}
+      mutedClass={isSwappedIn || unreviewed ? "text-[var(--shell-muted)]" : "text-white/80"}
+      disabled={!swapOutId && !isSwappedIn}
+      onClick={() => onPick(candidate)}
+      testId="board-candidate"
+      dataAnonymized={entitled ? "0" : "1"}
+      dataGrade={candidate.grade}
+      rank={candidate.fitRank}
+      tierLabel={isSwappedIn ? undefined : unreviewed ? "Self-reported" : fitTierLabel(delta)}
+      title={isSwappedIn && swapPiece ? swapPiece.productName : candidateLabel(candidate)}
+      subtitle={isSwappedIn ? "⇄ lifted from your stack" : entitled ? candidate.vendorName : "Vendor hidden"}
+      scoreText={formatDelta(delta)}
+    />
+  );
+}
+
 function PuzzlePiece({
   edges,
   tile = false,
@@ -533,11 +641,13 @@ function PuzzlePiece({
   testId,
   dataProductName,
   dataAnonymized,
+  dataGrade,
   rank,
   tierLabel,
   title,
   subtitle,
   scoreText,
+  strokeDashed = false,
 }: {
   edges: PieceEdges;
   tile?: boolean;
@@ -552,11 +662,13 @@ function PuzzlePiece({
   testId: string;
   dataProductName?: string;
   dataAnonymized?: string;
+  dataGrade?: string;
   rank?: number;
   tierLabel?: string;
   title: string;
   subtitle: string;
   scoreText: string;
+  strokeDashed?: boolean;
 }) {
   // Stack tiles: no inset so tabs overflow into neighbours (connected board).
   // Loose candidates: inset so the piece is self-contained.
@@ -569,6 +681,7 @@ function PuzzlePiece({
       data-testid={testId}
       data-product-name={dataProductName}
       data-anonymized={dataAnonymized}
+      data-grade={dataGrade}
       className="relative block w-full text-left transition-transform duration-200 hover:-translate-y-[3px] disabled:cursor-not-allowed disabled:opacity-55"
       style={{
         aspectRatio: `${VB_W} / ${VB_H}`,
@@ -583,7 +696,13 @@ function PuzzlePiece({
         style={{ overflow: "visible" }}
         aria-hidden="true"
       >
-        <path d={path} fill={fill} stroke={stroke} strokeWidth={1.5} />
+        <path
+          d={path}
+          fill={fill}
+          stroke={stroke}
+          strokeWidth={1.5}
+          strokeDasharray={strokeDashed ? "5 4" : undefined}
+        />
       </svg>
       {/* Centered text block; padding clears the tab/blank zones on every edge. */}
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 px-[16%] py-[15%] text-center">

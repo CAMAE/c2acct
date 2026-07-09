@@ -6,7 +6,7 @@ import PatModeToggle from "@/app/components/pat/PatModeToggle";
 import SalesFitRadar from "@/app/components/vendor/SalesFitRadar";
 import { formatDelta, formatScoreValue } from "@/lib/formatDelta";
 import { fitBarPct, fitHeatColor, fitTierKey, fitTierLabel, type FitTierKey } from "@/lib/fitHeat";
-import type { RankedFirm, SalesModuleGap, VendorSalesCardData } from "@/lib/salesCard";
+import type { EvidenceGrade, RankedFirm, SalesModuleGap, VendorSalesCardData } from "@/lib/salesCard";
 
 /**
  * Vendor Sales Card v3 (Redlines R15/R16 + P1 finishers). Consultant-brief
@@ -82,6 +82,13 @@ export default function VendorSalesCardClient({
             </div>
             <div className="mt-1 text-sm text-[var(--shell-muted)]">
               {data.vendorName} · product strength across your catalog
+            </div>
+            <div className="mt-2">
+              <EvidenceProvenance
+                grade={data.vendorStrengthGrade}
+                firmReviewed={data.firmReviewedProductCount}
+                selfReported={data.selfReportedOnlyProductCount}
+              />
             </div>
             <p className="mt-4 max-w-xl text-sm leading-6 text-[var(--shell-muted)]">
               <strong className="text-[var(--shell-ink)]">Alignment delta</strong> is how much your
@@ -196,7 +203,15 @@ export default function VendorSalesCardClient({
             <div className="mt-1.5 text-xs text-[var(--shell-muted)]">
               Their alignment {detail.firmAlignment !== null ? `${detail.firmAlignment}%` : "— (thin)"} · your product
               strength {data.vendorStrength !== null ? `${data.vendorStrength}%` : "—"} across{" "}
-              {data.vendorProductCount} product{data.vendorProductCount === 1 ? "" : "s"}
+              {data.firmReviewedProductCount || data.selfReportedOnlyProductCount} product
+              {(data.firmReviewedProductCount || data.selfReportedOnlyProductCount) === 1 ? "" : "s"}
+            </div>
+            <div className="mt-1.5">
+              <EvidenceProvenance
+                grade={data.vendorStrengthGrade}
+                firmReviewed={data.firmReviewedProductCount}
+                selfReported={data.selfReportedOnlyProductCount}
+              />
             </div>
           </div>
 
@@ -289,6 +304,44 @@ function ModuleGapRow({ gap }: { gap: SalesModuleGap }) {
         )}
       </td>
     </tr>
+  );
+}
+
+/**
+ * Evidence-lineage provenance chip (P2-pre policy). firm_reviewed = neutral
+ * "Firm-reviewed" tag; vendor_reported = the same red-caption treatment the
+ * Sandbox uses for self-report, so a self-reported number never reads as
+ * firm-verified. When firm-reviewed products carry the number but self-report-
+ * only products exist, we disclose the excluded count (not blended in).
+ */
+function EvidenceProvenance({
+  grade,
+  firmReviewed,
+  selfReported,
+}: {
+  grade: EvidenceGrade;
+  firmReviewed: number;
+  selfReported: number;
+}) {
+  if (grade === "vendor_reported") {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--brand-orange)]">
+        <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--brand-orange)]" />
+        Vendor self-reported — no firm reviews yet; not firm-verified.
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex flex-wrap items-center gap-1.5 text-xs text-[var(--shell-muted)]">
+      <span className="inline-flex items-center gap-1 font-medium text-[var(--shell-positive)]">
+        <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--shell-positive)]" />
+        Firm-reviewed
+      </span>
+      · {firmReviewed} product{firmReviewed === 1 ? "" : "s"}
+      {selfReported > 0
+        ? ` · ${selfReported} self-reported-only product${selfReported === 1 ? "" : "s"} excluded`
+        : ""}
+    </span>
   );
 }
 

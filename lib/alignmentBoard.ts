@@ -63,8 +63,22 @@ export type BoardCandidate = {
   projectedScore: number | null;
   confidence: BoardConfidence;
   priceBand: string;
-  /** Sandbox Fit rank (1 = best projected alignment), assigned across the pool. */
+  /**
+   * Rank within its OWN pool. For firm-reviewed candidates this is the Sandbox
+   * Fit (1 = best projected alignment). For vendor-reported candidates it is a
+   * display index only — they are never ranked against firm-reviewed candidates
+   * (ranking floor: a vendor-reported candidate can never outrank a firm-reviewed
+   * one, because the two live in separate lists).
+   */
   fitRank: number;
+  /**
+   * Evidence grade of the projected score (P2-pre policy). firm_reviewed = the
+   * projection is backed by cross-firm firm reviews; vendor_reported = the
+   * product has NO firm reviews and the projection is vendor self-report only
+   * (rendered in the separate "Not yet firm-reviewed" section, never as a ranked
+   * fit). Kept in sync with `evidenceBasis` below.
+   */
+  grade: "firm_reviewed" | "vendor_reported";
   /**
    * Projected per-dimension shape: cross-firm firm-review evidence where it
    * exists, otherwise vendor self-report. `evidenceBasis` says which. Axes with
@@ -90,7 +104,15 @@ export type AlignmentBoardData = {
   stack: BoardPiece[];
   /** Total reviewed products (the board shows at most SANDBOX_STACK_LIMIT). */
   totalStackCount: number;
+  /** Ranked rail (P2-pre): FIRM-REVIEWED candidates only, best projected fit first. */
   candidates: BoardCandidate[];
+  /**
+   * Separate "Not yet firm-reviewed" section (P2-pre): candidates whose projection
+   * is vendor self-report only. Swappable and visually distinct, wider confidence
+   * bands, and floored below every ranked (firm-reviewed) candidate — they need
+   * firm reviews to enter the ranked fits.
+   */
+  unreviewedCandidates: BoardCandidate[];
   /**
    * Radar axes (P0): the five PRODUCT-FIT dimensions, not the firm's assessment
    * modules. The current-shape polygon is the mean of the stack pieces'
@@ -231,6 +253,12 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
           dimensionScores: emptyDimensionScores(), // filled from this-firm review below
         });
       } else {
+        // Evidence-lineage policy (P2-pre): firm-review is PRIMARY. A candidate
+        // is firm_reviewed only when cross-firm firm reviews exist; otherwise its
+        // projection is vendor self-report only (vendor_reported) and it is
+        // floored into the separate "Not yet firm-reviewed" section.
+        const grade: BoardCandidate["grade"] =
+          snapshot.firmReviewed.averageScore !== null ? "firm_reviewed" : "vendor_reported";
         const projectedScore =
           snapshot.firmReviewed.averageScore ?? snapshot.vendorSelfReported.latestScore ?? null;
         if (projectedScore === null) continue; // unscored products can't be played
@@ -243,6 +271,7 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
           projectedScore,
           confidence: snapshot.confidenceBand,
           priceBand: BOARD_PRICE_BAND,
+          grade,
           dimensionScores,
           evidenceBasis,
         });
@@ -250,11 +279,16 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
     }
   }
 
-  // Rank by projected alignment, best first (R11.4). Take a realistic mix
-  // (R13.2): mostly strong winners plus a few weaker options so the pool isn't
-  // all-upside. Winners fill most slots; the lowest-projection tail fills the
-  // rest. Then re-rank the combined set so Sandbox Fit #1 is the best play.
-  const ranked = candidatePool.sort((a, b) => (b.projectedScore ?? 0) - (a.projectedScore ?? 0));
+  // Split by evidence grade (P2-pre). The RANKED rail is firm-reviewed only;
+  // vendor-reported candidates are floored into their own section and can never
+  // outrank a firm-reviewed candidate (they live in separate lists).
+  const firmReviewedPool = candidatePool.filter((candidate) => candidate.grade === "firm_reviewed");
+  const vendorReportedPool = candidatePool.filter((candidate) => candidate.grade === "vendor_reported");
+
+  // Ranked firm-reviewed rail (R11.4 + R13.2): best projected fit first, with a
+  // realistic mix — winners fill most slots, the lowest-projection tail fills the
+  // rest — then re-ranked so Sandbox Fit #1 is the best play.
+  const ranked = firmReviewedPool.sort((a, b) => (b.projectedScore ?? 0) - (a.projectedScore ?? 0));
   const realismTail = Math.min(3, Math.max(0, ranked.length - SANDBOX_CANDIDATE_COUNT));
   const winnerCount = SANDBOX_CANDIDATE_COUNT - realismTail;
   const chosenIds = new Set<string>();
@@ -269,6 +303,14 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
     chosenIds.add(candidate.productId);
   }
   const candidates: BoardCandidate[] = chosen
+    .sort((a, b) => (b.projectedScore ?? 0) - (a.projectedScore ?? 0))
+    .slice(0, SANDBOX_CANDIDATE_COUNT)
+    .map((candidate, index) => ({ ...candidate, fitRank: index + 1 }));
+
+  // "Not yet firm-reviewed" section: vendor-reported candidates, sorted by their
+  // (self-reported) projection, capped, given a display index only. Never mixed
+  // into the ranked rail above.
+  const unreviewedCandidates: BoardCandidate[] = vendorReportedPool
     .sort((a, b) => (b.projectedScore ?? 0) - (a.projectedScore ?? 0))
     .slice(0, SANDBOX_CANDIDATE_COUNT)
     .map((candidate, index) => ({ ...candidate, fitRank: index + 1 }));
@@ -307,6 +349,7 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
     stack: boardStack,
     totalStackCount,
     candidates,
+    unreviewedCandidates,
     dimensionAxes: PRODUCT_FIT_DIMENSIONS.map((dimension) => ({
       key: dimension.key,
       title: dimension.title,
