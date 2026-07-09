@@ -1,6 +1,7 @@
 import { getAdminCompanyBriefing } from "@/lib/adminBriefingEngine";
 import { getVendorProductInsightCatalog } from "@/lib/vendorProductInsightEngine";
 import { getVendorScopedFirms } from "@/lib/tenancy";
+import { confidenceBandForSampleSize } from "@/lib/confidenceBands";
 import prisma from "@/lib/prisma";
 
 /**
@@ -96,12 +97,8 @@ export type VendorSalesCardData = {
   rankedFirms: RankedFirm[];
 };
 
-function bandForSampleSize(sampleSize: number): SalesCardConfidence {
-  if (sampleSize <= 0) return "no_signal";
-  if (sampleSize < 3) return "sample_thin";
-  if (sampleSize < 6) return "emerging";
-  return "grounded";
-}
+// CLASS 3: bands come from the ONE shared definition (lib/confidenceBands.ts).
+const bandForSampleSize = confidenceBandForSampleSize;
 
 function mean(scores: Array<number | null>): number | null {
   const known = scores.filter((score): score is number => score !== null);

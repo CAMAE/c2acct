@@ -4,6 +4,7 @@ import { FIRM_CAPABILITY_DEFINITIONS } from "@/lib/firmCapabilities";
 import { FIRM_MODULE_DEFINITIONS, FIRM_MODULE_QUESTION_STEMS } from "@/lib/firmPat";
 import { getVendorScopedFirms } from "@/lib/tenancy";
 import { CUSTOMER_FACING_BOUNDARIES } from "@/lib/dataBoundary";
+import { confidenceBandForSampleSize } from "@/lib/confidenceBands";
 import {
   ELITE_PLACEHOLDER_CTA,
   ELITE_PLACEHOLDER_MESSAGE,
@@ -383,32 +384,35 @@ function describeSampleSignal(sampleSize: number) {
 }
 
 function getConfidenceBand(sampleSize: number) {
-  if (sampleSize <= 0) {
+  // CLASS 3: band boundaries come from the ONE shared definition
+  // (lib/confidenceBands.ts); the copy below is alignment-engine-specific.
+  const band = confidenceBandForSampleSize(sampleSize);
+  if (band === "no_signal") {
     return {
-      band: "no_signal" as const,
+      band,
       label: "No current-state signal",
       summary:
         "No completed firm PAT submissions are available yet, so this remains a placeholder for future current-state signal.",
     };
   }
-  if (sampleSize === 1) {
+  if (band === "sample_thin") {
+    if (sampleSize === 1) {
+      return {
+        band,
+        label: "Early current-state signal",
+        summary:
+          "This readout is based on one firm only and should be treated as early current-state signal rather than strong confirmation.",
+      };
+    }
     return {
-      band: "sample_thin" as const,
-      label: "Early current-state signal",
-      summary:
-        "This readout is based on one firm only and should be treated as early current-state signal rather than strong confirmation.",
-    };
-  }
-  if (sampleSize < 5) {
-    return {
-      band: "sample_thin" as const,
+      band,
       label: "Sample-thin current-state signal",
       summary: `This readout is based on ${sampleSize} firms and remains sample-thin rather than broad market signal.`,
     };
   }
-  if (sampleSize < 10) {
+  if (band === "emerging") {
     return {
-      band: "emerging" as const,
+      band,
       label: "Emerging current-state signal",
       summary: `This readout is based on ${sampleSize} firms and is useful for current-state interpretation, but still not broad enough to read as strong market intelligence.`,
     };

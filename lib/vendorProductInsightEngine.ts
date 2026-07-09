@@ -19,6 +19,7 @@ import {
   PRODUCT_FIT_DIMENSIONS,
   type ProductFitDimensionScore,
 } from "@/lib/productFitDimensions";
+import { confidenceBandForSampleSize } from "@/lib/confidenceBands";
 import {
   PRODUCT_TIER1_INSIGHTS,
   PRODUCT_TIER2_INSIGHTS,
@@ -329,6 +330,8 @@ function getConfidenceBand(input: {
         "Neither vendor self-reported signal nor firm-reviewed signal is available yet, so this remains an ungrounded placeholder.",
     };
   }
+  // Vendor-only or a single firm review is always early-signal sample_thin —
+  // there IS vendor signal (past the both-null guard), so it is never no_signal.
   if (input.firmAssessmentCount <= 1) {
     return {
       band: "sample_thin" as const,
@@ -337,16 +340,19 @@ function getConfidenceBand(input: {
         "Firm-reviewed signal is absent or very thin, so the combined readout should be treated as early current-state signal rather than strong confirmation.",
     };
   }
-  if (input.firmAssessmentCount < 4) {
+  // CLASS 3: band boundaries (for ≥2 firm reviews) come from the ONE shared
+  // definition; the copy below is product-engine-specific but keyed off the band.
+  const band = confidenceBandForSampleSize(input.firmAssessmentCount);
+  if (band === "sample_thin") {
     return {
-      band: "sample_thin" as const,
+      band,
       label: "Sample-thin current-state signal",
       summary: `Firm-reviewed signal is based on ${input.firmAssessmentCount} assessments, so this remains sample-thin rather than broadly confirmed.`,
     };
   }
-  if (input.firmAssessmentCount < 8) {
+  if (band === "emerging") {
     return {
-      band: "emerging" as const,
+      band,
       label: "Emerging signal",
       summary: `Firm-reviewed signal is based on ${input.firmAssessmentCount} assessments and is useful for current-state interpretation, but still sample-thin.`,
     };

@@ -10,6 +10,7 @@ import {
   type ProductFitDimensionScore,
 } from "@/lib/productFitDimensions";
 import { poolForViewerBoundary, resolveCompanyBoundary } from "@/lib/dataBoundary";
+import { confidenceBandForSampleSize } from "@/lib/confidenceBands";
 
 /**
  * Alignment Board data layer (Elite Sprint Block D, v1). The firm's product
@@ -142,12 +143,8 @@ export function recomputeProjectedAlignment(scores: Array<number | null>): numbe
   return Math.round(known.reduce((sum, score) => sum + score, 0) / known.length);
 }
 
-function bandForSampleSize(sampleSize: number): BoardConfidence {
-  if (sampleSize <= 0) return "no_signal";
-  if (sampleSize < 3) return "sample_thin";
-  if (sampleSize < 6) return "emerging";
-  return "grounded";
-}
+// CLASS 3: bands come from the ONE shared definition (lib/confidenceBands.ts).
+const bandForSampleSize = confidenceBandForSampleSize;
 
 function pieceStrength(score: number | null): string {
   if (score === null) return "Not yet reviewed";
