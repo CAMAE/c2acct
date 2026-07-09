@@ -149,7 +149,8 @@ const strainedFixture = buildFixture({
 
 const proReports = steadyFixture.reports.filter((report) => report.tier === 1);
 assert.equal(proReports.length, 8, "Expected expanded Pro catalog with 8 insights.");
-assert.equal(steadyFixture.confidenceBand, "emerging", "Eight firms should register as emerging signal.");
+// CLASS 3 unified confidence bands (grounded ≥ 6): eight firms → grounded.
+assert.equal(steadyFixture.confidenceBand, "grounded", "Eight firms should register as grounded signal.");
 
 const eliteReports = steadyFixture.reports.filter((report) => report.tier === 2);
 assert.equal(eliteReports.length, 3, "Expected 3 staged Elite cards.");
