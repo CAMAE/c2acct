@@ -1,6 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 
 import { applyRepoEnv } from "@/lib/env/repoEnv";
+import { classifyCompanyBoundaries } from "@/lib/dataBoundaryBackfill";
 import {
   EXPANSION_ECOSYSTEM_PREFIX,
   EXPANSION_FIRM_PREFIX,
@@ -344,7 +345,10 @@ async function applyExpansion(plans: ReturnType<typeof planExpansionEcosystems>)
     );
   }
 
-  console.log("\nExpand demo ecosystem complete:", counts);
+  // Data-integrity wall (CLASS 1): mark every demo-expand company DEMO so a
+  // standalone seed:demo-expand never leaves rows defaulting to PRODUCTION.
+  const boundaryClassified = await classifyCompanyBoundaries(prisma);
+  console.log("\nExpand demo ecosystem complete:", { ...counts, boundaryClassified });
   console.log(
     `Demo-expand consultants sign in via the credentials provider with password "${DEMO_EXPAND_PASSWORD}". Re-run without --apply to verify counts held steady.`
   );
