@@ -73,6 +73,8 @@ export type AlignmentBoardData = {
   confidence: BoardConfidence;
   confidenceLabel: string;
   stack: BoardPiece[];
+  /** Total reviewed products (the board shows at most SANDBOX_STACK_LIMIT). */
+  totalStackCount: number;
   candidates: BoardCandidate[];
   /** Five firm-module scores driving the current-shape radar polygon. */
   moduleShape: BoardModuleAxis[];
@@ -80,6 +82,9 @@ export type AlignmentBoardData = {
 
 /** How many ranked Secret candidates the sandbox rail offers (R13.2). */
 export const SANDBOX_CANDIDATE_COUNT = 12;
+
+/** Board stack is capped so it reads like a real tech stack, not a wall (R3.2). */
+export const SANDBOX_STACK_LIMIT = 8;
 
 /**
  * Deterministic projected firm alignment = mean of the (non-null) piece scores.
@@ -220,13 +225,21 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
     score: heatmapByKey.get(definition.key)?.canonicalScore ?? null,
   }));
 
+  // Cap the board stack (R3.2): show the firm's strongest 6-8 pieces so it reads
+  // like a real tech stack; the baseline + swap math run over the shown set.
+  const totalStackCount = stack.length;
+  const boardStack = [...stack]
+    .sort((a, b) => (b.scoreVsFirm ?? 0) - (a.scoreVsFirm ?? 0))
+    .slice(0, SANDBOX_STACK_LIMIT);
+
   return {
     firmCompanyId,
     firmName: briefing.company.name,
-    currentAlignment: recomputeProjectedAlignment(stack.map((piece) => piece.scoreVsFirm)),
+    currentAlignment: recomputeProjectedAlignment(boardStack.map((piece) => piece.scoreVsFirm)),
     confidence: bandForSampleSize(briefing.productLayer.reviewedProductCount),
     confidenceLabel: briefing.executiveSummary.confidenceLabel,
-    stack,
+    stack: boardStack,
+    totalStackCount,
     candidates,
     moduleShape,
   };
