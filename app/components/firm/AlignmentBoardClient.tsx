@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState, type ReactNode } from "react";
 import AlignmentRadar, { type RadarAxis } from "@/app/components/firm/AlignmentRadar";
 import { formatDelta, formatScoreValue } from "@/lib/formatDelta";
+import { fitHeatColor, fitTierLabel } from "@/lib/fitHeat";
 import type { AlignmentBoardData, BoardCandidate, BoardPiece } from "@/lib/alignmentBoard";
 
 /**
@@ -29,33 +30,6 @@ const CONFIDENCE_LABEL: Record<BoardPiece["confidence"], string> = {
 const C2_BLUE = "#063674";
 const STACK_FILL = "#ffffff";
 const STACK_FILL_LIFTED = "#e9f0fb";
-
-// Fit-tier heat for Secret candidates: warmest/most-saturated = strongest fit,
-// fading through amber to a cool tone for weak/negative projections. Delta-driven,
-// so the same tiering holds whether names are hidden (Pro) or revealed (Elite).
-function fitTierLabel(delta: number | null): string {
-  if (delta === null) return "Pending";
-  if (delta >= 12) return "Strong fit";
-  if (delta >= 0) return "Good fit";
-  return "Weak fit";
-}
-
-// Heat gradient stops (warm → amber → cool) the fill fades along by rank/delta.
-const HEAT_STOPS: Array<[number, number, number]> = [
-  [181, 69, 27], // warm, saturated (strongest)
-  [196, 122, 44], // amber (mid)
-  [91, 107, 133], // cool, muted (weakest)
-];
-function heatColor(t: number): string {
-  const clamped = Math.max(0, Math.min(1, t));
-  const scaled = clamped * (HEAT_STOPS.length - 1);
-  const i = Math.min(HEAT_STOPS.length - 2, Math.floor(scaled));
-  const f = scaled - i;
-  const a = HEAT_STOPS[i]!;
-  const b = HEAT_STOPS[i + 1]!;
-  const mix = (x: number, y: number) => Math.round(x + (y - x) * f);
-  return `rgb(${mix(a[0], b[0])}, ${mix(a[1], b[1])}, ${mix(a[2], b[2])})`;
-}
 
 // ---- Classic puzzle-piece path (viewBox 200x150) ----
 const VB_W = 200;
@@ -222,17 +196,6 @@ export default function AlignmentBoardClient({
   const visibleMovers = showAllMovers ? breakdownPieces : breakdownPieces.slice(0, 6);
   const stackCols = stackColumns(data.stack.length);
 
-  // Delta range for the candidate heat gradient (warmest = biggest projected gain).
-  const candidateDeltas = data.candidates
-    .map((c) => (c.projectedScore !== null && baseline !== null ? c.projectedScore - baseline : null))
-    .filter((d): d is number => d !== null);
-  const maxDelta = candidateDeltas.length ? Math.max(...candidateDeltas) : 0;
-  const minDelta = candidateDeltas.length ? Math.min(...candidateDeltas) : 0;
-  const heatFor = (delta: number | null): string => {
-    if (delta === null) return "#5b6b85";
-    if (maxDelta === minDelta) return heatColor(0);
-    return heatColor((maxDelta - delta) / (maxDelta - minDelta));
-  };
 
   return (
     <div className="space-y-6">
@@ -419,7 +382,7 @@ export default function AlignmentBoardClient({
                 ? candidate.projectedScore - baseline
                 : null;
             const isSwappedIn = swapStaged && candidate.productId === swapInId;
-            const heat = heatFor(delta);
+            const heat = fitHeatColor(delta);
             return (
               <PuzzlePiece
                 key={candidate.productId}
