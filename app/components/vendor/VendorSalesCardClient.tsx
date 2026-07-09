@@ -231,7 +231,8 @@ export default function VendorSalesCardClient({
                 </table>
                 <p className="mt-2 text-xs text-[var(--shell-muted)]">
                   Headroom = your overall product strength minus the firm&rsquo;s module score. Evidence
-                  is answered vs total assessment questions behind each module.
+                  is answered vs total assessment questions behind each module (&ldquo;scored&rdquo; = a
+                  completed module without per-question answers recorded).
                 </p>
               </div>
             </div>
@@ -279,7 +280,13 @@ function ModuleGapRow({ gap }: { gap: SalesModuleGap }) {
         {gap.headroom !== null ? formatDelta(gap.headroom) : "—"}
       </td>
       <td className="py-2 text-right tabular-nums text-[var(--shell-muted)]">
-        {gap.answeredCount}/{gap.questionCount}
+        {gap.answeredCount > 0 ? (
+          `${gap.answeredCount}/${gap.questionCount}`
+        ) : gap.score !== null ? (
+          <span title="Module scored; per-question answers not individually recorded">scored</span>
+        ) : (
+          "—"
+        )}
       </td>
     </tr>
   );
