@@ -31,8 +31,8 @@ function briefingFor(id: string, alignment: number, weakestScore: number) {
       averageScore: alignment,
       completedModuleCount: 5,
       moduleHeatmap: [
-        { key: "m1", title: "Automation", canonicalScore: 80 },
-        { key: "m2", title: "Governance", canonicalScore: weakestScore },
+        { key: "m1", title: "Automation", canonicalScore: 80, sectionScores: [{ key: "s1", title: "S1", score: 80, answeredCount: 4, questionCount: 4 }] },
+        { key: "m2", title: "Governance", canonicalScore: weakestScore, sectionScores: [{ key: "s2", title: "S2", score: weakestScore, answeredCount: 3, questionCount: 4 }] },
       ],
     },
     productLayer: { reviewedProductCount: 2, products: [] },
@@ -53,9 +53,9 @@ function vendorSnapshot(firmAvg: number) {
 describe("rankFirmsByFit", () => {
   it("ranks bigger alignment deltas first; null deltas last", () => {
     const ranked = rankFirmsByFit([
-      { firmCompanyId: "b", firmName: "B", alignmentDelta: -4, firmAlignment: 70, confidence: "grounded", gapArea: "x", gapScore: 60, nextAction: "" },
-      { firmCompanyId: "a", firmName: "A", alignmentDelta: 26, firmAlignment: 40, confidence: "grounded", gapArea: "x", gapScore: 30, nextAction: "" },
-      { firmCompanyId: "c", firmName: "C", alignmentDelta: null, firmAlignment: null, confidence: "no_signal", gapArea: "x", gapScore: null, nextAction: "" },
+      { firmCompanyId: "b", firmName: "B", alignmentDelta: -4, firmAlignment: 70, confidence: "grounded", gapArea: "x", gapScore: 60, moduleShape: [], nextActions: [] },
+      { firmCompanyId: "a", firmName: "A", alignmentDelta: 26, firmAlignment: 40, confidence: "grounded", gapArea: "x", gapScore: 30, moduleShape: [], nextActions: [] },
+      { firmCompanyId: "c", firmName: "C", alignmentDelta: null, firmAlignment: null, confidence: "no_signal", gapArea: "x", gapScore: null, moduleShape: [], nextActions: [] },
     ]);
     expect(ranked.map((f) => f.firmCompanyId)).toEqual(["a", "b", "c"]);
     expect(ranked.map((f) => f.fitRank)).toEqual([1, 2, 3]);

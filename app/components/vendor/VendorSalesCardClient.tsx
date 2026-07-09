@@ -3,19 +3,21 @@
 import Link from "next/link";
 import { useState } from "react";
 import PatModeToggle from "@/app/components/pat/PatModeToggle";
+import SalesFitRadar from "@/app/components/vendor/SalesFitRadar";
 import { formatDelta, formatScoreValue } from "@/lib/formatDelta";
 import { fitBarPct, fitHeatColor, fitTierKey, fitTierLabel, type FitTierKey } from "@/lib/fitHeat";
-import type { RankedFirm, VendorSalesCardData } from "@/lib/salesCard";
+import type { RankedFirm, SalesModuleGap, VendorSalesCardData } from "@/lib/salesCard";
 
 /**
- * Vendor Sales Card v2 (Redlines R15/R16 + R-fixes). Consultant-brief visual
- * standard, inheriting the Alignment Board language: a stat-lockup header + an
- * alignment-delta explainer; a fit-tier pill toggle (All / Strong / Good / Weak)
- * that filters the ranked firm rows in place (rank order preserved); each row a
- * colored fit bar + a heat delta chip on the SHARED semantic scale (green =
- * strong, amber = middle, red = weak). Elite rows click into a detail card
- * (named firm, the module gap this vendor closes, suggested action); Pro sees
- * "Secret Firm N" + Reveal.
+ * Vendor Sales Card v3 (Redlines R15/R16 + P1 finishers). Consultant-brief
+ * visual standard: a stat-lockup header + alignment-delta explainer; a fit-tier
+ * pill toggle — exactly Strong / Good / Weak, no "All" (clearing the active pill
+ * shows every firm) — that filters the ranked rows in place (rank order kept);
+ * each row a colored fit bar + heat delta chip on the SHARED semantic scale.
+ * Elite rows click into a consultant-brief detail card: a mini radar (firm's
+ * alignment shape vs the vendor's product-strength ring), a per-module gap table
+ * with evidence counts, the fit bar, and ranked next actions — all real data.
+ * Pro sees "Secret Firm N" + Reveal.
  */
 
 const CONFIDENCE_LABEL: Record<RankedFirm["confidence"], string> = {
@@ -29,7 +31,8 @@ function firmLabel(firm: RankedFirm, entitled: boolean): string {
   return entitled ? firm.firmName : `Secret Firm ${firm.fitRank}`;
 }
 
-type TierFilter = "all" | FitTierKey;
+/** "" = no active tier → every firm shown (replaces the old "All" pill). */
+type TierFilter = "" | FitTierKey;
 
 export default function VendorSalesCardClient({
   data,
@@ -41,7 +44,7 @@ export default function VendorSalesCardClient({
   membershipHref: string;
 }) {
   const [detailId, setDetailId] = useState<string | null>(null);
-  const [tierFilter, setTierFilter] = useState<TierFilter>("all");
+  const [tierFilter, setTierFilter] = useState<TierFilter>("");
   const detail = data.rankedFirms.find((firm) => firm.firmCompanyId === detailId) ?? null;
 
   const tierCounts = data.rankedFirms.reduce(
@@ -52,14 +55,15 @@ export default function VendorSalesCardClient({
     { strong: 0, good: 0, weak: 0, pending: 0 } as Record<FitTierKey, number>
   );
 
-  // Rank order is already sorted; filtering preserves it.
+  // Rank order is already sorted; filtering preserves it. No active tier = all.
   const visibleFirms =
-    tierFilter === "all"
+    tierFilter === ""
       ? data.rankedFirms
       : data.rankedFirms.filter((firm) => fitTierKey(firm.alignmentDelta) === tierFilter);
 
+  // Exactly three tiers — Strong / Good / Weak. Clicking the active pill clears
+  // it back to "all firms" (which is why there is no "All" pill).
   const tierOptions = [
-    { key: "all", label: `All · ${data.rankedFirms.length}` },
     { key: "strong", label: `Strong fit · ${tierCounts.strong}`, state: tierCounts.strong === 0 ? ("disabled" as const) : undefined },
     { key: "good", label: `Good fit · ${tierCounts.good}`, state: tierCounts.good === 0 ? ("disabled" as const) : undefined },
     { key: "weak", label: `Weak fit · ${tierCounts.weak}`, state: tierCounts.weak === 0 ? ("disabled" as const) : undefined },
@@ -99,13 +103,20 @@ export default function VendorSalesCardClient({
         </div>
       ) : (
         <>
-          {/* Fit-tier filter — standard portal pill toggle */}
-          <PatModeToggle
-            activeKey={tierFilter}
-            ariaLabel="Filter firms by fit tier"
-            options={tierOptions}
-            onChange={(key) => setTierFilter(key as TierFilter)}
-          />
+          {/* Fit-tier filter — Strong / Good / Weak; click active to clear to all */}
+          <div className="flex flex-wrap items-center gap-3">
+            <PatModeToggle
+              activeKey={tierFilter}
+              ariaLabel="Filter firms by fit tier"
+              options={tierOptions}
+              onChange={(key) => setTierFilter((current) => (current === key ? "" : (key as TierFilter)))}
+            />
+            <span className="text-xs text-[var(--shell-muted)]">
+              {tierFilter === ""
+                ? `All ${data.rankedFirms.length} firm${data.rankedFirms.length === 1 ? "" : "s"}`
+                : "Tap the active tier to show all"}
+            </span>
+          </div>
 
           {visibleFirms.length === 0 ? (
             <div className="pat-card p-6 text-sm text-[var(--shell-muted)]">
@@ -169,10 +180,11 @@ export default function VendorSalesCardClient({
             </button>
           </div>
 
+          {/* Fit lockup */}
           <div className="mt-4">
             <div className="flex items-baseline justify-between">
               <span className="text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: fitHeatColor(detail.alignmentDelta) }}>
-                {fitTierLabel(detail.alignmentDelta)}
+                {fitTierLabel(detail.alignmentDelta)} · headroom over their alignment
               </span>
               <span className="pat-stat-number text-2xl" style={{ color: fitHeatColor(detail.alignmentDelta) }}>
                 {formatDelta(detail.alignmentDelta)}
@@ -181,38 +193,95 @@ export default function VendorSalesCardClient({
             <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-[rgba(6,54,116,0.08)]">
               <div className="h-full rounded-full" style={{ width: `${fitBarPct(detail.alignmentDelta)}%`, background: fitHeatColor(detail.alignmentDelta) }} />
             </div>
+            <div className="mt-1.5 text-xs text-[var(--shell-muted)]">
+              Their alignment {detail.firmAlignment !== null ? `${detail.firmAlignment}%` : "— (thin)"} · your product
+              strength {data.vendorStrength !== null ? `${data.vendorStrength}%` : "—"} across{" "}
+              {data.vendorProductCount} product{data.vendorProductCount === 1 ? "" : "s"}
+            </div>
           </div>
 
-          <dl className="mt-5 grid gap-3 sm:grid-cols-2">
-            {entitled ? (
-              <>
-                <Fact
-                  label="Where you close their gap"
-                  value={detail.gapScore !== null ? `${detail.gapArea} — currently ${detail.gapScore}%` : detail.gapArea}
+          {entitled ? (
+            <div className="mt-6 grid gap-6 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start">
+              {/* Mini radar: firm shape vs your product-strength ring */}
+              <div>
+                <div className="pat-label mb-2">Alignment shape</div>
+                <SalesFitRadar
+                  axes={detail.moduleShape.map((gap) => ({ title: gap.title, score: gap.score }))}
+                  vendorStrength={data.vendorStrength}
                 />
-                <Fact
-                  label="Their current alignment"
-                  value={detail.firmAlignment !== null ? `${detail.firmAlignment}%` : "Sample too thin"}
-                />
-                <div className="sm:col-span-2">
-                  <Fact label="Suggested next action" value={detail.nextAction} />
-                </div>
-              </>
-            ) : (
-              <>
-                <Fact label="Gap category" value={detail.gapArea} />
-                <Fact label="Alignment delta" value={formatDelta(detail.alignmentDelta)} />
-              </>
-            )}
-          </dl>
-          {!entitled ? (
+              </div>
+
+              {/* Per-module gap table with evidence counts */}
+              <div>
+                <div className="pat-label mb-2">Module gaps you could close</div>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-[10px] uppercase tracking-[0.14em] text-[var(--shell-muted)]">
+                      <th className="pb-1.5 font-semibold">Module</th>
+                      <th className="pb-1.5 text-right font-semibold">Firm</th>
+                      <th className="pb-1.5 text-right font-semibold">Headroom</th>
+                      <th className="pb-1.5 text-right font-semibold">Evidence</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {detail.moduleShape.map((gap) => (
+                      <ModuleGapRow key={gap.key} gap={gap} />
+                    ))}
+                  </tbody>
+                </table>
+                <p className="mt-2 text-xs text-[var(--shell-muted)]">
+                  Headroom = your overall product strength minus the firm&rsquo;s module score. Evidence
+                  is answered vs total assessment questions behind each module.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <dl className="mt-5 grid gap-3 sm:grid-cols-2">
+              <Fact label="Gap category" value={detail.gapArea} />
+              <Fact label="Alignment delta" value={formatDelta(detail.alignmentDelta)} />
+            </dl>
+          )}
+
+          {entitled ? (
+            <div className="mt-6">
+              <div className="pat-label mb-2">Suggested next actions</div>
+              <ol className="space-y-2">
+                {detail.nextActions.map((action, index) => (
+                  <li key={index} className="flex gap-2.5 text-sm leading-6 text-[var(--shell-ink)]">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--shell-panel-soft)] text-[11px] font-semibold text-[var(--shell-muted)]">
+                      {index + 1}
+                    </span>
+                    <span>{action}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ) : (
             <Link className="pat-button-primary mt-5 inline-flex text-sm" href={membershipHref}>
               Reveal with Elite
             </Link>
-          ) : null}
+          )}
         </section>
       ) : null}
     </div>
+  );
+}
+
+function ModuleGapRow({ gap }: { gap: SalesModuleGap }) {
+  const headroomColor = gap.headroom === null ? "var(--shell-muted)" : fitHeatColor(gap.headroom);
+  return (
+    <tr className="border-t border-[var(--shell-border)]">
+      <td className="py-2 pr-2 text-[var(--shell-ink)]">{gap.title}</td>
+      <td className="py-2 text-right tabular-nums text-[var(--shell-ink)]">
+        {gap.score !== null ? `${gap.score}%` : "—"}
+      </td>
+      <td className="py-2 text-right tabular-nums font-semibold" style={{ color: headroomColor }}>
+        {gap.headroom !== null ? formatDelta(gap.headroom) : "—"}
+      </td>
+      <td className="py-2 text-right tabular-nums text-[var(--shell-muted)]">
+        {gap.answeredCount}/{gap.questionCount}
+      </td>
+    </tr>
   );
 }
 

@@ -29,6 +29,26 @@ export function isSalesCardEnabled(): boolean {
 
 export type SalesCardConfidence = "no_signal" | "sample_thin" | "emerging" | "grounded";
 
+/**
+ * One firm alignment-module row for the consultant-brief detail card: the firm's
+ * own module score (real, from its assessment), the evidence behind it, and the
+ * headroom the vendor's overall product strength sits above it. `headroom` is a
+ * comparison against the vendor's OVERALL strength — an honest reference, not a
+ * fabricated per-module vendor strength (that awaits the product-section →
+ * firm-module mapping; see the roadmap ticket).
+ */
+export type SalesModuleGap = {
+  key: string;
+  title: string;
+  /** Firm's canonical module score (0–100), or null when unassessed. */
+  score: number | null;
+  /** Answered vs total questions behind this module — the evidence count. */
+  answeredCount: number;
+  questionCount: number;
+  /** vendorStrength − score: positive = headroom the vendor could lift. */
+  headroom: number | null;
+};
+
 export type RankedFirm = {
   firmCompanyId: string;
   /** Real firm name — the CLIENT anonymizes to "Secret Firm N" for a Pro vendor. */
@@ -41,8 +61,10 @@ export type RankedFirm = {
   /** The firm's weakest module — "where you close their gap". */
   gapArea: string;
   gapScore: number | null;
-  /** One suggested next action (Bullet Theory: one claim, one evidence, one action). */
-  nextAction: string;
+  /** The firm's full alignment-module shape (radar + gap table), weakest-first. */
+  moduleShape: SalesModuleGap[];
+  /** Suggested next actions, ranked (the two widest gaps + a close). */
+  nextActions: string[];
 };
 
 export type VendorSalesCardData = {
@@ -50,6 +72,8 @@ export type VendorSalesCardData = {
   vendorName: string;
   /** Mean of the vendor's product scores — the "product strengths" baseline. */
   vendorStrength: number | null;
+  /** How many of the vendor's products backed the strength baseline (evidence count). */
+  vendorProductCount: number;
   rankedFirms: RankedFirm[];
 };
 
@@ -104,9 +128,10 @@ export async function getVendorSalesCardData(vendorCompanyId: string): Promise<V
   }
 
   const catalog = await getVendorProductInsightCatalog(vendorCompanyId);
-  const vendorStrength = mean(
-    catalog.map((snapshot) => snapshot.firmReviewed.averageScore ?? snapshot.vendorSelfReported.latestScore)
-  );
+  const vendorProductScores = catalog
+    .map((snapshot) => snapshot.firmReviewed.averageScore ?? snapshot.vendorSelfReported.latestScore)
+    .filter((score): score is number => score !== null);
+  const vendorStrength = mean(vendorProductScores);
 
   const firms: Array<Omit<RankedFirm, "fitRank">> = [];
   for (const firmCompanyId of firmIds) {
@@ -120,21 +145,49 @@ export async function getVendorSalesCardData(vendorCompanyId: string): Promise<V
     const alignmentDelta =
       vendorStrength !== null && firmAlignment !== null ? vendorStrength - firmAlignment : null;
 
-    // Weakest scored module = the gap the vendor can pitch closing.
-    const scoredModules = briefing.firmLayer.moduleHeatmap.filter(
-      (module) => module.canonicalScore !== null
-    );
-    const weakest = scoredModules.reduce<(typeof scoredModules)[number] | null>((lowest, module) => {
-      if (!lowest) return module;
-      return (module.canonicalScore ?? 0) < (lowest.canonicalScore ?? 0) ? module : lowest;
-    }, null);
-    const gapArea = weakest?.title ?? "Assessment in progress";
-    const gapScore = weakest?.canonicalScore ?? null;
+    // The firm's full alignment-module shape (radar + gap table). Evidence count
+    // per module = answered questions across its sections. headroom compares the
+    // firm's module score to the vendor's OVERALL product strength (honest
+    // reference — no fabricated per-module vendor strength). Weakest-first.
+    const moduleShape: SalesModuleGap[] = briefing.firmLayer.moduleHeatmap
+      .map((mod) => {
+        const answeredCount = mod.sectionScores.reduce((sum, section) => sum + section.answeredCount, 0);
+        const questionCount = mod.sectionScores.reduce((sum, section) => sum + section.questionCount, 0);
+        const score = mod.canonicalScore;
+        return {
+          key: mod.key,
+          title: mod.title,
+          score,
+          answeredCount,
+          questionCount,
+          headroom: vendorStrength !== null && score !== null ? vendorStrength - score : null,
+        };
+      })
+      .sort((a, b) => (a.score ?? 999) - (b.score ?? 999));
 
-    const nextAction =
-      gapScore !== null
-        ? `Weakest area is ${gapArea} at ${gapScore}% — a completed assessment sharpens this card.`
-        : "Assessment is still in progress — a completed assessment sharpens this card.";
+    const weakest = moduleShape.find((mod) => mod.score !== null) ?? null;
+    const gapArea = weakest?.title ?? "Assessment in progress";
+    const gapScore = weakest?.score ?? null;
+
+    // Ranked next actions: the two widest positive-headroom gaps, then a close.
+    const nextActions: string[] = [];
+    for (const mod of moduleShape) {
+      if (nextActions.length >= 2) break;
+      if (mod.score !== null && (mod.headroom ?? 0) > 0) {
+        nextActions.push(
+          `Lead with ${mod.title}: firm sits at ${mod.score}%, ~${Math.round(mod.headroom ?? 0)} pts of headroom for your product strength.`
+        );
+      }
+    }
+    if (nextActions.length === 0) {
+      nextActions.push(
+        gapScore !== null
+          ? `Weakest area is ${gapArea} at ${gapScore}% — a completed assessment sharpens this card.`
+          : "Assessment is still in progress — a completed assessment sharpens this card."
+      );
+    } else {
+      nextActions.push("Attach product evidence to these modules before the outreach so the pitch is grounded, not generic.");
+    }
 
     firms.push({
       firmCompanyId,
@@ -144,7 +197,8 @@ export async function getVendorSalesCardData(vendorCompanyId: string): Promise<V
       confidence: bandForSampleSize(briefing.firmLayer.completedModuleCount),
       gapArea,
       gapScore,
-      nextAction,
+      moduleShape,
+      nextActions,
     });
   }
 
@@ -152,6 +206,7 @@ export async function getVendorSalesCardData(vendorCompanyId: string): Promise<V
     vendorCompanyId,
     vendorName: vendorCompany.name,
     vendorStrength,
+    vendorProductCount: vendorProductScores.length,
     rankedFirms: rankFirmsByFit(firms),
   };
 }
