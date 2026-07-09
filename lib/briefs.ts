@@ -23,6 +23,7 @@ import {
 import prisma from "@/lib/prisma";
 import { assertEcosystemPair, getVendorScopedFirms } from "@/lib/tenancy";
 import {
+  DIVERGENCE_MIN_FIRM_REVIEWS,
   getVendorProductInsightCatalog,
   type VendorProductInsightSnapshot,
 } from "@/lib/vendorProductInsightEngine";
@@ -191,7 +192,11 @@ export function buildSelfVsMarketDelta(
       else deltaDirection = "neutral";
     }
 
-    const isHotDivergence = delta !== null && Math.abs(delta) >= HOT_DIVERGENCE_THRESHOLD;
+    // Divergence sample floor (CLASS 2): a hot divergence needs ≥ N firm reviews.
+    const isHotDivergence =
+      delta !== null &&
+      Math.abs(delta) >= HOT_DIVERGENCE_THRESHOLD &&
+      snapshot.firmReviewed.assessmentCount >= DIVERGENCE_MIN_FIRM_REVIEWS;
 
     return {
       productId: snapshot.product.id,

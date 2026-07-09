@@ -54,6 +54,7 @@ function productSnapshotFixture(overrides: {
     divergence: {
       points: overrides.divergencePoints,
       label: "fixture divergence label",
+      belowFloor: false,
     },
     latestUpdatedAt: new Date("2026-06-05T12:00:00.000Z"),
     confidenceBand: "sample_thin",
@@ -104,15 +105,15 @@ function alignmentReportFixture(
 describe("vendor product gap callout", () => {
   it("annotates direction and magnitude of the divergence", () => {
     expect(
-      buildVendorProductGapCallout({ divergence: { points: 9.5, label: "" } }).label
+      buildVendorProductGapCallout({ divergence: { points: 9.5, label: "", belowFloor: false } }).label
     ).toBe("9.5 pt divergence · firms read this product lower than the vendor story");
     expect(
-      buildVendorProductGapCallout({ divergence: { points: -7, label: "" } }).label
+      buildVendorProductGapCallout({ divergence: { points: -7, label: "", belowFloor: false } }).label
     ).toBe("7 pt divergence · firms read this product higher than the vendor story");
     expect(
-      buildVendorProductGapCallout({ divergence: { points: 2.4, label: "" } }).label
+      buildVendorProductGapCallout({ divergence: { points: 2.4, label: "", belowFloor: false } }).label
     ).toBe("2.4 pt divergence · vendor story and firm reviews closely aligned");
-    expect(buildVendorProductGapCallout({ divergence: { points: null, label: "" } })).toEqual({
+    expect(buildVendorProductGapCallout({ divergence: { points: null, label: "", belowFloor: false } })).toEqual({
       points: null,
       label: "Not enough shared signal yet",
     });

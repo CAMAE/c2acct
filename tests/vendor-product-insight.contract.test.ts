@@ -66,7 +66,7 @@ describe("vendor product insight runtime", () => {
         },
       },
       firmReviewed: {
-        assessmentCount: 2,
+        assessmentCount: 3,
         latestSubmittedAt: new Date("2026-03-30T13:00:00.000Z"),
         averageScore: 34,
         responseSets: firmResponseSets.map((answers) => ({
@@ -82,7 +82,9 @@ describe("vendor product insight runtime", () => {
     // WS11-D Block H.1: user-visible "utilities" → "features".
     expect(snapshot.product.utilityScopeLabel).toContain("2 declared features");
     expect(snapshot.vendorAssessmentStatus.completed).toBe(true);
-    expect(snapshot.confidenceCaveats.some((caveat) => caveat.includes("2 assessments"))).toBe(true);
+    // assessmentCount 3 meets the divergence sample floor, so the "points apart"
+    // calibration caveat fires (below the floor it would be suppressed).
+    expect(snapshot.confidenceCaveats.some((caveat) => caveat.includes("3 assessments"))).toBe(true);
     expect(snapshot.confidenceCaveats.some((caveat) => caveat.includes("50 points apart"))).toBe(true);
     expect(snapshot.insightRecords.some((record) => record.exactAssessmentBasis.includes("Utility scope:"))).toBe(
       true
@@ -448,7 +450,7 @@ describe("vendor product insight runtime", () => {
         },
       },
       firmReviewed: {
-        assessmentCount: 2,
+        assessmentCount: 3,
         latestSubmittedAt: new Date("2026-04-10T13:00:00.000Z"),
         averageScore: 63,
         responseSets: [

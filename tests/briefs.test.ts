@@ -38,7 +38,9 @@ function vendorSnapshot(input: {
       sectionEvidence: [],
     },
     firmReviewed: {
-      assessmentCount: input.firmReviewCount ?? 0,
+      // Default at the divergence sample floor so divergence assertions hold;
+      // an explicit firmReviewCount can drop below it to test the floor.
+      assessmentCount: input.firmReviewCount ?? 3,
       averageScore: input.firmScore ?? null,
       latestSubmittedAt: null,
       utilityEvidence: [],

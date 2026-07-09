@@ -63,15 +63,20 @@ describe("vendor product combined signal behavior", () => {
     expect(snapshot.firmReviewed.averageScore).toBe(34);
     // WS11-D Block H.1: user-visible "utilities" → "features".
     expect(snapshot.product.utilityScopeLabel).toContain("2 declared features");
+    // Divergence sample floor (CLASS 2): the 50-pt gap is still computed, but at
+    // 2 firm reviews (< floor) PAT reports it as an early signal, not a divergence.
     expect(snapshot.divergence.points).toBe(50);
-    expect(snapshot.divergence.label).toMatch(/Vendor self-view is running above firm-reviewed signal/);
+    expect(snapshot.divergence.belowFloor).toBe(true);
+    expect(snapshot.divergence.label).toMatch(/Early signal · 2 firm reviews — too few to read divergence/);
     expect(snapshot.combinedCurrentPatReadout).toMatch(
       /vendor self-reported signal at 84% with firm-reviewed signal at 34% across 2 assessments/i
     );
     expect(snapshot.confidenceBand).toBe("sample_thin");
     expect(snapshot.confidenceSummary).toMatch(/sample-thin rather than broadly confirmed/i);
     expect(snapshot.confidenceCaveats.some((caveat) => caveat.includes("2 assessments"))).toBe(true);
-    expect(snapshot.confidenceCaveats.some((caveat) => caveat.includes("50 points apart"))).toBe(true);
+    // Divergence sample floor (CLASS 2): below 3 firm reviews the "points apart"
+    // calibration caveat is suppressed — a 2-review gap is an early signal only.
+    expect(snapshot.confidenceCaveats.some((caveat) => caveat.includes("50 points apart"))).toBe(false);
     expect(
       snapshot.insightRecords.every(
         (record) =>

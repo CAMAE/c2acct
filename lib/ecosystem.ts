@@ -12,6 +12,7 @@ import {
 } from "@/lib/firmPat";
 import prisma from "@/lib/prisma";
 import { assertEcosystemPair, getVendorScopedFirms } from "@/lib/tenancy";
+import { DIVERGENCE_MIN_FIRM_REVIEWS } from "@/lib/vendorProductInsightEngine";
 import {
   getVendorProductInsightCatalog,
   type VendorProductInsightSnapshot,
@@ -128,6 +129,10 @@ export function countHotDivergences(briefings: AdminCompanyBriefing[]): number {
       const firmScore = product.canonicalFirmReviewScore;
       const vendorScore = product.vendorSelfReportedScore;
       if (firmScore === null || vendorScore === null) {
+        continue;
+      }
+      // Divergence sample floor (CLASS 2): need ≥ N firm reviews to assert a gap.
+      if (product.firmReviewCount < DIVERGENCE_MIN_FIRM_REVIEWS) {
         continue;
       }
       if (Math.abs(firmScore - vendorScore) >= HOT_DIVERGENCE_THRESHOLD) {
@@ -619,6 +624,7 @@ export async function getEcosystemDetailForConsultant(
       const firmScore = product.canonicalFirmReviewScore;
       const vendorScore = product.vendorSelfReportedScore;
       if (firmScore === null || vendorScore === null) continue;
+      if (product.firmReviewCount < DIVERGENCE_MIN_FIRM_REVIEWS) continue;
       if (Math.abs(firmScore - vendorScore) >= HOT_DIVERGENCE_THRESHOLD) hotCount += 1;
     }
     hotDivergencesByFirmId.set(briefing.company.id, hotCount);

@@ -35,7 +35,7 @@ function catalogEntry(overrides: Partial<BriefingCatalogItem> = {}): BriefingCat
 }
 
 function briefingWith(input: {
-  products?: Array<{ vendor: number | null; firm: number | null }>;
+  products?: Array<{ vendor: number | null; firm: number | null; reviews?: number }>;
   windows?: Array<"30 days" | "60 days" | "90 days">;
 }): AdminCompanyBriefing {
   return {
@@ -45,7 +45,9 @@ function briefingWith(input: {
         productName: `Product ${index}`,
         vendorName: "Vendor",
         canonicalFirmReviewScore: entry.firm,
-        firmReviewCount: 1,
+        // Default at/above the divergence sample floor so existing divergence
+        // assertions hold; a per-entry `reviews` overrides to test the floor.
+        firmReviewCount: entry.reviews ?? 3,
         vendorSelfReportedScore: entry.vendor,
         combinedCurrentReadout: "",
         divergenceLabel: "",
@@ -164,6 +166,17 @@ describe("lib/ecosystem helpers", () => {
         ],
       });
       expect(countHotDivergences([briefing])).toBe(0);
+    });
+
+    it("respects the divergence sample floor — a big gap on < 3 firm reviews is not counted", () => {
+      const briefing = briefingWith({
+        products: [
+          { vendor: 70, firm: 40, reviews: 1 }, // 30-pt gap but only 1 review → skipped
+          { vendor: 70, firm: 40, reviews: 2 }, // 2 reviews → still below floor → skipped
+          { vendor: 70, firm: 40, reviews: 3 }, // 3 reviews → counted
+        ],
+      });
+      expect(countHotDivergences([briefing])).toBe(1);
     });
   });
 

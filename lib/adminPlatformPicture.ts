@@ -3,6 +3,7 @@ import { FIRM_MODULE_DEFINITIONS, FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat"
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { VENDOR_PRODUCT_MODULE_KEY } from "@/lib/vendorPat";
 import { CUSTOMER_FACING_BOUNDARIES } from "@/lib/dataBoundary";
+import { DIVERGENCE_MIN_FIRM_REVIEWS } from "@/lib/vendorProductInsightEngine";
 
 // Data-integrity wall (CLASS 1): the platform picture is the REAL (+pilot)
 // number — demo/synthetic companies are excluded from every count and average.
@@ -130,7 +131,8 @@ export async function getPlatformPicture(): Promise<PlatformPicture> {
   let hotDivergenceCount = 0;
   for (const [productId, vendorScore] of latestVendorScoreByProduct) {
     const firmScores = firmReviewScoresByProduct.get(productId);
-    if (!firmScores?.length) continue;
+    // Divergence sample floor (CLASS 2): a single reviewer is an anecdote.
+    if (!firmScores || firmScores.length < DIVERGENCE_MIN_FIRM_REVIEWS) continue;
     const firmAverage = firmScores.reduce((sum, score) => sum + score, 0) / firmScores.length;
     if (Math.abs(vendorScore - firmAverage) > HOT_DIVERGENCE_THRESHOLD) {
       hotDivergenceCount += 1;
@@ -236,7 +238,8 @@ export async function getPlatformReportData(): Promise<PlatformReportData> {
   const hotDivergences: PlatformHotDivergenceRow[] = [];
   for (const [productId, vendorScore] of latestVendorScoreByProduct) {
     const firmScores = firmReviewScoresByProduct.get(productId);
-    if (!firmScores?.length) continue;
+    // Divergence sample floor (CLASS 2): need ≥ N firm reviews to assert a gap.
+    if (!firmScores || firmScores.length < DIVERGENCE_MIN_FIRM_REVIEWS) continue;
     const firmAverage = firmScores.reduce((sum, score) => sum + score, 0) / firmScores.length;
     const gap = Math.round(Math.abs(vendorScore - firmAverage) * 10) / 10;
     if (gap <= HOT_DIVERGENCE_THRESHOLD) continue;

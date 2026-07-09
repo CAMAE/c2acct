@@ -122,6 +122,8 @@ export type VendorProductInsightSnapshot = {
   divergence: {
     points: number | null;
     label: string;
+    /** True when firm reviews are below the sample floor — gap is an early signal, not a divergence. */
+    belowFloor: boolean;
   };
   latestUpdatedAt: Date | null;
   confidenceBand: "no_signal" | "sample_thin" | "emerging" | "grounded";
@@ -286,7 +288,10 @@ function buildConfidenceCaveats(input: {
   if (
     input.divergencePoints !== null &&
     Math.abs(input.divergencePoints) >= 15 &&
-    input.firmAverageScore !== null
+    input.firmAverageScore !== null &&
+    // Divergence sample floor (CLASS 2): don't assert a calibration gap on an
+    // anecdote — below the floor the gap is an early signal, not a divergence.
+    input.firmAssessmentCount >= DIVERGENCE_MIN_FIRM_REVIEWS
   ) {
     caveats.push(
       `Vendor self-view and firm-reviewed signal are currently ${Math.abs(
@@ -362,22 +367,47 @@ function formatScore(score: number | null) {
   return `${Math.round(score)}%`;
 }
 
-function summarizeDivergence(vendorScore: number | null, firmAverageScore: number | null) {
+/**
+ * Minimum firm reviews before PAT will assert a divergence (2026-07-09 audit,
+ * CLASS 2). One reviewer is an anecdote, not a divergence — below the floor the
+ * copy says "early signal · N reviews" and no divergence direction is claimed.
+ */
+export const DIVERGENCE_MIN_FIRM_REVIEWS = 3;
+
+function summarizeDivergence(
+  vendorScore: number | null,
+  firmAverageScore: number | null,
+  firmAssessmentCount: number
+) {
   if (vendorScore === null || firmAverageScore === null) {
     return {
       points: null,
       label: "Not enough shared signal yet",
+      belowFloor: false,
     };
   }
 
   const points = round1(vendorScore - firmAverageScore);
+
+  // Sample floor: below the minimum, report the gap as an early signal only —
+  // never as a directional "divergence" assertion.
+  if (firmAssessmentCount < DIVERGENCE_MIN_FIRM_REVIEWS) {
+    return {
+      points,
+      label: `Early signal · ${firmAssessmentCount} firm review${
+        firmAssessmentCount === 1 ? "" : "s"
+      } — too few to read divergence`,
+      belowFloor: true,
+    };
+  }
+
   if (Math.abs(points) < 5) {
-    return { points, label: "Vendor self-view and firm review are closely aligned" };
+    return { points, label: "Vendor self-view and firm review are closely aligned", belowFloor: false };
   }
   if (points > 0) {
-    return { points, label: "Vendor self-view is running above firm-reviewed signal" };
+    return { points, label: "Vendor self-view is running above firm-reviewed signal", belowFloor: false };
   }
-  return { points, label: "Firm-reviewed signal is running above vendor self-view" };
+  return { points, label: "Firm-reviewed signal is running above vendor self-view", belowFloor: false };
 }
 
 function describeCombinedReadout(input: {
@@ -791,7 +821,11 @@ export function buildVendorProductInsightSnapshot(
             typeof utility.averageScore === "number" ? [utility.averageScore] : []
           )
         );
-  const divergence = summarizeDivergence(input.vendorSelfReported.latestScore, firmAverageScore);
+  const divergence = summarizeDivergence(
+    input.vendorSelfReported.latestScore,
+    firmAverageScore,
+    input.firmReviewed.assessmentCount
+  );
   const confidence = getConfidenceBand({
     vendorScore: input.vendorSelfReported.latestScore,
     firmAssessmentCount: input.firmReviewed.assessmentCount,
