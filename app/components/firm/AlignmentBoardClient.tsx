@@ -30,24 +30,50 @@ const C2_BLUE = "#063674";
 const STACK_FILL = "#ffffff";
 const STACK_FILL_LIFTED = "#e9f0fb";
 
-// ---- Classic puzzle-piece path (viewBox 176x150, body inset so tabs fit) ----
-const VB_W = 176;
+// ---- Classic puzzle-piece path (viewBox 200x150) ----
+const VB_W = 200;
 const VB_H = 150;
-const TAB = 17; // tab/blank radius
-const CORNER = 14;
-const INSET = TAB;
+const TAB = 20; // tab/blank radius
+const CORNER = 12;
 
-type EdgeKind = "tab" | "blank";
+type EdgeKind = "tab" | "blank" | "flat";
 type PieceEdges = { top: EdgeKind; right: EdgeKind; bottom: EdgeKind; left: EdgeKind };
 
-// Checkerboard alternation so neighbours read as interlocking.
-function edgesForIndex(index: number): PieceEdges {
+// Loose candidate pieces: self-contained checkerboard alternation (tabs stay
+// inside the viewBox via inset). They read as puzzle pieces but never touch.
+function looseEdges(index: number): PieceEdges {
   return index % 2 === 0
     ? { top: "tab", right: "blank", bottom: "tab", left: "blank" }
     : { top: "blank", right: "tab", bottom: "blank", left: "tab" };
 }
 
+// Stack tiles: complementary edges with neighbours so the grid assembles into a
+// connected puzzle (this piece's tab shares its seam curve with the neighbour's
+// blank). Boundary edges are flat. Row-major over `cols`.
+function tileEdges(index: number, cols: number, count: number): PieceEdges {
+  const row = Math.floor(index / cols);
+  const col = index % cols;
+  const hasRight = col < cols - 1 && index + 1 < count;
+  const hasLeft = col > 0;
+  const hasBelow = index + cols < count;
+  const hasAbove = row > 0;
+  return {
+    right: hasRight ? ((row + col) % 2 === 0 ? "tab" : "blank") : "flat",
+    left: hasLeft ? ((row + col - 1) % 2 === 0 ? "blank" : "tab") : "flat",
+    bottom: hasBelow ? ((row + col) % 2 === 0 ? "tab" : "blank") : "flat",
+    top: hasAbove ? ((row - 1 + col) % 2 === 0 ? "blank" : "tab") : "flat",
+  };
+}
+
+/** Columns for the connected stack — a clean strip/grid, never a ragged single. */
+function stackColumns(count: number): number {
+  if (count <= 5) return Math.max(1, count);
+  if (count === 6) return 3;
+  return 4;
+}
+
 function edgeSeg(x0: number, y0: number, x1: number, y1: number, kind: EdgeKind): string {
+  if (kind === "flat") return `L${x1.toFixed(1)} ${y1.toFixed(1)}`;
   const mx = (x0 + x1) / 2;
   const my = (y0 + y1) / 2;
   const len = Math.hypot(x1 - x0, y1 - y0);
@@ -61,11 +87,16 @@ function edgeSeg(x0: number, y0: number, x1: number, y1: number, kind: EdgeKind)
   return `L${p1x.toFixed(1)} ${p1y.toFixed(1)} A${TAB} ${TAB} 0 0 ${sweep} ${p2x.toFixed(1)} ${p2y.toFixed(1)} L${x1.toFixed(1)} ${y1.toFixed(1)}`;
 }
 
-function puzzlePath(edges: PieceEdges): string {
-  const l = INSET;
-  const t = INSET;
-  const r = VB_W - INSET;
-  const b = VB_H - INSET;
+/**
+ * inset 0 → body fills the viewBox and tabs overflow into neighbours (connected
+ * stack tiles, rendered with overflow visible + gap-0). inset TAB → tabs stay
+ * inside the viewBox (self-contained loose candidate pieces).
+ */
+function puzzlePath(edges: PieceEdges, inset: number): string {
+  const l = inset;
+  const t = inset;
+  const r = VB_W - inset;
+  const b = VB_H - inset;
   const c = CORNER;
   return [
     `M${l + c} ${t}`,
@@ -162,6 +193,7 @@ export default function AlignmentBoardClient({
     return (b.scoreVsFirm ?? 0) - (a.scoreVsFirm ?? 0);
   });
   const visibleMovers = showAllMovers ? breakdownPieces : breakdownPieces.slice(0, 6);
+  const stackCols = stackColumns(data.stack.length);
 
   return (
     <div className="space-y-6">
@@ -232,7 +264,15 @@ export default function AlignmentBoardClient({
             No reviewed products yet. Complete product reviews to place pieces on the board.
           </p>
         ) : (
-          <div className="mt-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(150px,1fr))]">
+          // Connected puzzle board: gap-0 + overflow-visible tabs so pieces
+          // interlock into one assembled stack.
+          <div
+            className="mt-4 grid gap-0"
+            style={{
+              gridTemplateColumns: `repeat(${stackCols}, minmax(0, 1fr))`,
+              maxWidth: `${stackCols * 210}px`,
+            }}
+          >
             {data.stack.map((piece, index) => {
               const isSwapSlot = swapStaged && piece.productId === swapOutId;
               const shown = isSwapSlot && swapCandidate
@@ -242,7 +282,9 @@ export default function AlignmentBoardClient({
               return (
                 <PuzzlePiece
                   key={piece.productId}
-                  index={index}
+                  edges={tileEdges(index, stackCols, data.stack.length)}
+                  tile
+                  zIndex={data.stack.length - index}
                   fill={isSwapSlot ? C2_BLUE : selected ? STACK_FILL_LIFTED : STACK_FILL}
                   stroke="var(--shell-border)"
                   lifted={selected || isSwapSlot}
@@ -331,7 +373,7 @@ export default function AlignmentBoardClient({
             </span>
           ) : null}
         </div>
-        <div className="mt-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(150px,1fr))]">
+        <div className="mt-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(168px,1fr))]">
           {data.candidates.map((candidate) => {
             const delta =
               candidate.projectedScore !== null && baseline !== null
@@ -341,7 +383,8 @@ export default function AlignmentBoardClient({
             return (
               <PuzzlePiece
                 key={candidate.productId}
-                index={candidate.fitRank}
+                edges={looseEdges(candidate.fitRank)}
+                zIndex={0}
                 fill={isSwappedIn ? STACK_FILL : C2_BLUE}
                 stroke={isSwappedIn ? "var(--shell-border)" : C2_BLUE}
                 lifted={swapInId === candidate.productId}
@@ -425,7 +468,9 @@ export default function AlignmentBoardClient({
 }
 
 function PuzzlePiece({
-  index,
+  edges,
+  tile = false,
+  zIndex,
   fill,
   stroke,
   lifted,
@@ -441,7 +486,9 @@ function PuzzlePiece({
   subtitle,
   scoreText,
 }: {
-  index: number;
+  edges: PieceEdges;
+  tile?: boolean;
+  zIndex: number;
   fill: string;
   stroke: string;
   lifted: boolean;
@@ -457,7 +504,9 @@ function PuzzlePiece({
   subtitle: string;
   scoreText: string;
 }) {
-  const path = puzzlePath(edgesForIndex(index));
+  // Stack tiles: no inset so tabs overflow into neighbours (connected board).
+  // Loose candidates: inset so the piece is self-contained.
+  const path = puzzlePath(edges, tile ? 0 : TAB);
   return (
     <button
       type="button"
@@ -466,29 +515,32 @@ function PuzzlePiece({
       data-testid={testId}
       data-product-name={dataProductName}
       data-anonymized={dataAnonymized}
-      className="relative block w-full text-left transition-transform duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-55"
+      className="relative block w-full text-left transition-transform duration-200 hover:-translate-y-[3px] disabled:cursor-not-allowed disabled:opacity-55"
       style={{
         aspectRatio: `${VB_W} / ${VB_H}`,
-        transform: lifted ? "translateY(-6px)" : undefined,
-        filter: lifted ? "drop-shadow(0 12px 20px rgba(6,54,116,0.32))" : undefined,
+        zIndex: lifted ? 50 : zIndex,
+        transform: lifted ? "translateY(-8px)" : undefined,
+        filter: lifted ? "drop-shadow(0 12px 20px rgba(6,54,116,0.34))" : undefined,
       }}
     >
-      <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="absolute inset-0 h-full w-full" aria-hidden="true">
+      <svg
+        viewBox={`0 0 ${VB_W} ${VB_H}`}
+        className="absolute inset-0 h-full w-full"
+        style={{ overflow: "visible" }}
+        aria-hidden="true"
+      >
         <path d={path} fill={fill} stroke={stroke} strokeWidth={1.5} />
       </svg>
-      <div className="absolute inset-0 flex flex-col justify-between px-5 py-4">
-        <div>
-          {typeof rank === "number" ? (
-            <div className={`text-[9px] font-semibold uppercase tracking-[0.16em] ${mutedClass}`}>
-              Sandbox Fit #{rank}
-            </div>
-          ) : null}
-          <div className={`mt-0.5 line-clamp-2 text-[13px] font-semibold leading-tight ${textClass}`}>
-            {title}
+      {/* Centered text block; padding clears the tab/blank zones on every edge. */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 px-[16%] py-[15%] text-center">
+        {typeof rank === "number" ? (
+          <div className={`text-[9px] font-semibold uppercase tracking-[0.14em] ${mutedClass}`}>
+            Sandbox Fit #{rank}
           </div>
-          <div className={`mt-0.5 line-clamp-1 text-[10px] ${mutedClass}`}>{subtitle}</div>
-        </div>
-        <div className={`text-lg font-bold tabular-nums ${textClass}`}>{scoreText}</div>
+        ) : null}
+        <div className={`line-clamp-2 text-[13px] font-semibold leading-tight ${textClass}`}>{title}</div>
+        <div className={`line-clamp-1 text-[10px] ${mutedClass}`}>{subtitle}</div>
+        <div className={`mt-0.5 text-lg font-bold tabular-nums ${textClass}`}>{scoreText}</div>
       </div>
     </button>
   );
