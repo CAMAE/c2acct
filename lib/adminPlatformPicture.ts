@@ -2,6 +2,12 @@ import prisma from "@/lib/prisma";
 import { FIRM_MODULE_DEFINITIONS, FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { VENDOR_PRODUCT_MODULE_KEY } from "@/lib/vendorPat";
+import { CUSTOMER_FACING_BOUNDARIES } from "@/lib/dataBoundary";
+
+// Data-integrity wall (CLASS 1): the platform picture is the REAL (+pilot)
+// number — demo/synthetic companies are excluded from every count and average.
+// (Operator-only; an explicit demo/all cut would have to be labelled.)
+const REAL_POOL = { dataBoundary: { in: [...CUSTOMER_FACING_BOUNDARIES] } };
 
 export type PlatformPicture = {
   firmCount: number;
@@ -53,11 +59,12 @@ export async function getPlatformPicture(): Promise<PlatformPicture> {
   const firmModuleKeys = FIRM_MODULE_DEFINITIONS.map((module) => module.key);
 
   const [firmCount, vendorCount, firmModuleSubmissions, productSubmissions] = await Promise.all([
-    prisma.company.count({ where: { type: "FIRM" } }),
-    prisma.company.count({ where: { type: "VENDOR" } }),
+    prisma.company.count({ where: { type: "FIRM", ...REAL_POOL } }),
+    prisma.company.count({ where: { type: "VENDOR", ...REAL_POOL } }),
     prisma.surveySubmission.findMany({
       where: getSurveyFinalWhere({
         SurveyModule: { key: { in: firmModuleKeys } },
+        Company: { is: REAL_POOL },
       }),
       orderBy: { createdAt: "desc" },
       select: {
@@ -70,6 +77,7 @@ export async function getPlatformPicture(): Promise<PlatformPicture> {
       where: getSurveyFinalWhere({
         SurveyModule: { key: { in: [VENDOR_PRODUCT_MODULE_KEY, FIRM_PRODUCT_MODULE_KEY] } },
         Subject: { productId: { not: null } },
+        Company: { is: REAL_POOL },
       }),
       orderBy: { createdAt: "desc" },
       select: {
@@ -153,6 +161,7 @@ export async function getPlatformReportData(): Promise<PlatformReportData> {
     prisma.surveySubmission.findMany({
       where: getSurveyFinalWhere({
         SurveyModule: { key: { in: firmModuleKeys } },
+        Company: { is: REAL_POOL },
       }),
       orderBy: { createdAt: "desc" },
       select: { companyId: true, moduleId: true, score: true },
@@ -161,6 +170,7 @@ export async function getPlatformReportData(): Promise<PlatformReportData> {
       where: getSurveyFinalWhere({
         SurveyModule: { key: { in: [VENDOR_PRODUCT_MODULE_KEY, FIRM_PRODUCT_MODULE_KEY] } },
         Subject: { productId: { not: null } },
+        Company: { is: REAL_POOL },
       }),
       orderBy: { createdAt: "desc" },
       select: {
@@ -170,10 +180,13 @@ export async function getPlatformReportData(): Promise<PlatformReportData> {
       },
     }),
     prisma.company.findMany({
-      where: { type: "FIRM" },
+      where: { type: "FIRM", ...REAL_POOL },
       select: { id: true, name: true },
     }),
+    // Products scoped to real (+pilot) vendors — demo vendor products never
+    // appear in the operator divergence table.
     prisma.product.findMany({
+      where: { Company: { is: REAL_POOL } },
       select: { id: true, name: true, Company: { select: { name: true } } },
     }),
   ]);

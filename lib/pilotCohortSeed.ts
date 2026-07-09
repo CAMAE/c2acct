@@ -41,12 +41,15 @@ async function ensurePilotCompany(
     update: {
       name: organization.name,
       type: organization.type,
+      // Data-integrity wall (CLASS 1): pilot cohort companies are PILOT.
+      dataBoundary: "PILOT",
       updatedAt: new Date(),
     },
     create: {
       id: stableId("pilot-company", organization.key),
       name: organization.name,
       type: organization.type,
+      dataBoundary: "PILOT",
       updatedAt: new Date(),
     },
     select: { id: true, name: true, type: true },

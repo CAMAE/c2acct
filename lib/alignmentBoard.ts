@@ -9,6 +9,7 @@ import {
   PRODUCT_FIT_DIMENSIONS,
   type ProductFitDimensionScore,
 } from "@/lib/productFitDimensions";
+import { poolForViewerBoundary, resolveCompanyBoundary } from "@/lib/dataBoundary";
 
 /**
  * Alignment Board data layer (Elite Sprint Block D, v1). The firm's product
@@ -211,13 +212,16 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
     firmReviewByProductId.set(product.productId, product.canonicalFirmReviewScore);
   }
 
-  // Sandbox candidate pool (R13.2): draw across ALL vendor catalogs, not just the
+  // Sandbox candidate pool (R13.2): draw across vendor catalogs, not just the
   // firm's ecosystem vendor, so the rail is deep (~12) and winnable — the firm's
   // own reviewed products still form the stack; everything else is a candidate.
   // Candidate data is aggregate/vendor-side (name-gated for Pro), never another
   // firm's private review, so the broader pool respects tenancy.
+  // Data-integrity wall (CLASS 1): scope vendors to the viewing firm's boundary
+  // pool — a real firm's board never draws demo vendor products.
+  const boundaryPool = poolForViewerBoundary(await resolveCompanyBoundary(firmCompanyId));
   const vendors = await prisma.company.findMany({
-    where: { type: "VENDOR" },
+    where: { type: "VENDOR", dataBoundary: { in: boundaryPool } },
     select: { id: true, name: true },
   });
   const catalogs = await Promise.all(

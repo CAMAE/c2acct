@@ -1,6 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 
 import { applyRepoEnv } from "@/lib/env/repoEnv";
+import { classifyCompanyBoundaries } from "@/lib/dataBoundaryBackfill";
 
 let prismaClient: { $disconnect(): Promise<void> } | null = null;
 
@@ -219,7 +220,9 @@ async function main() {
     );
   }
 
-  console.log("\nDemo benchmark seed complete:", counts);
+  // Data-integrity wall (CLASS 1): mark every seeded company DEMO.
+  const boundaryClassified = await classifyCompanyBoundaries(prisma);
+  console.log("\nDemo benchmark seed complete:", { ...counts, boundaryClassified });
   console.log(
     `Demo consultants signed in via the credentials provider with scrypt-hashed password "${DEMO_BENCH_PASSWORD}".`
   );

@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { poolForViewerBoundary, resolveCompanyBoundary } from "@/lib/dataBoundary";
 
 /**
  * Pilot tenancy boundary (5.7 audit §6.4 / Q6 of the locked consultant scope).
@@ -31,9 +32,14 @@ export async function getVendorScopedFirms(
   vendorCompanyId: string,
   env: NodeJS.ProcessEnv = process.env
 ): Promise<string[]> {
+  // Data-integrity wall (CLASS 1): the firm set is scoped to the viewer vendor's
+  // boundary pool — a real vendor never pools demo firms; a demo vendor sees
+  // only demo firms. Applied in BOTH tenancy modes.
+  const pool = poolForViewerBoundary(await resolveCompanyBoundary(vendorCompanyId));
+
   if (getTenancyMode(env) === "open") {
     const firms = await prisma.company.findMany({
-      where: { type: "FIRM" },
+      where: { type: "FIRM", dataBoundary: { in: pool } },
       select: { id: true },
     });
     return firms.map((firm) => firm.id);
@@ -52,7 +58,16 @@ export async function getVendorScopedFirms(
     return [];
   }
 
-  return ecosystem.EcosystemFirm.map((membership) => membership.firmCompanyId);
+  const firmIds = ecosystem.EcosystemFirm.map((membership) => membership.firmCompanyId);
+  if (firmIds.length === 0) {
+    return [];
+  }
+  // Defense-in-depth: drop any ecosystem firm outside the viewer's pool.
+  const inPool = await prisma.company.findMany({
+    where: { id: { in: firmIds }, dataBoundary: { in: pool } },
+    select: { id: true },
+  });
+  return inPool.map((firm) => firm.id);
 }
 
 /**
@@ -66,9 +81,12 @@ export async function getFirmScopedVendors(
   firmCompanyId: string,
   env: NodeJS.ProcessEnv = process.env
 ): Promise<string[]> {
+  // Data-integrity wall (CLASS 1): vendors scoped to the viewer firm's pool.
+  const pool = poolForViewerBoundary(await resolveCompanyBoundary(firmCompanyId));
+
   if (getTenancyMode(env) === "open") {
     const vendors = await prisma.company.findMany({
-      where: { type: "VENDOR" },
+      where: { type: "VENDOR", dataBoundary: { in: pool } },
       select: { id: true },
     });
     return vendors.map((vendor) => vendor.id);
@@ -84,7 +102,15 @@ export async function getFirmScopedVendors(
   });
 
   const vendorId = membership?.Ecosystem.vendorCompanyId ?? null;
-  return vendorId ? [vendorId] : [];
+  if (!vendorId) {
+    return [];
+  }
+  // Defense-in-depth: only if the ecosystem vendor is in the viewer's pool.
+  const vendor = await prisma.company.findFirst({
+    where: { id: vendorId, dataBoundary: { in: pool } },
+    select: { id: true },
+  });
+  return vendor ? [vendor.id] : [];
 }
 
 /**

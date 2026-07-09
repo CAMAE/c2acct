@@ -8,7 +8,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  */
 
 vi.mock("@/lib/prisma", () => ({
-  default: { company: { findMany: vi.fn() } },
+  default: { company: { findMany: vi.fn(), findUnique: vi.fn() } },
 }));
 vi.mock("@/lib/adminBriefingEngine", () => ({ getAdminCompanyBriefing: vi.fn() }));
 vi.mock("@/lib/vendorProductInsightEngine", () => ({
@@ -26,6 +26,7 @@ import { getAlignmentBoardData, recomputeProjectedAlignment } from "@/lib/alignm
 import { PRODUCT_FIT_DIMENSIONS } from "@/lib/productFitDimensions";
 
 const findMany = vi.mocked(prisma.company.findMany);
+const findUnique = vi.mocked(prisma.company.findUnique);
 const briefing = vi.mocked(getAdminCompanyBriefing);
 const vendorCatalog = vi.mocked(getVendorProductInsightCatalog);
 const firmDimensions = vi.mocked(getFirmProductFitDimensionsByProduct);
@@ -72,6 +73,8 @@ describe("getAlignmentBoardData", () => {
     vi.clearAllMocks();
     findMany.mockResolvedValue([{ id: "vendorA", name: "Northwind Systems" }] as never);
     firmDimensions.mockResolvedValue(new Map() as never);
+    // resolveCompanyBoundary(firmCompanyId) — the viewing firm is real.
+    findUnique.mockResolvedValue({ dataBoundary: "PRODUCTION" } as never);
   });
 
   it("returns null when the firm has no briefing (caller 404s)", async () => {
@@ -144,5 +147,43 @@ describe("getAlignmentBoardData", () => {
     const piece = data!.stack.find((s) => s.productId === "p1");
     const workflow = piece?.dimensionScores.find((d) => d.key === "workflow");
     expect(workflow?.score).toBe(80);
+  });
+
+  it("scopes the candidate vendor pool to the viewing firm's boundary (real → no demo vendors)", async () => {
+    // Real (PRODUCTION) firm.
+    findUnique.mockResolvedValue({ dataBoundary: "PRODUCTION" } as never);
+    briefing.mockResolvedValue({
+      company: { name: "Real Firm" },
+      executiveSummary: { canonicalFirmScore: 60, confidenceLabel: "Building" },
+      productLayer: { reviewedProductCount: 0, products: [] },
+      firmLayer: { moduleHeatmap: [] },
+    } as never);
+    vendorCatalog.mockResolvedValue([] as never);
+
+    await getAlignmentBoardData("firm1");
+
+    // Data-integrity wall: the vendor pool query excludes demo vendors.
+    expect(findMany).toHaveBeenCalledWith({
+      where: { type: "VENDOR", dataBoundary: { in: ["PRODUCTION", "PILOT"] } },
+      select: { id: true, name: true },
+    });
+  });
+
+  it("a DEMO firm's board draws from the DEMO vendor pool (demo stays visible to demo)", async () => {
+    findUnique.mockResolvedValue({ dataBoundary: "DEMO" } as never);
+    briefing.mockResolvedValue({
+      company: { name: "Demo Firm" },
+      executiveSummary: { canonicalFirmScore: 60, confidenceLabel: "Building" },
+      productLayer: { reviewedProductCount: 0, products: [] },
+      firmLayer: { moduleHeatmap: [] },
+    } as never);
+    vendorCatalog.mockResolvedValue([] as never);
+
+    await getAlignmentBoardData("demo-firm");
+
+    expect(findMany).toHaveBeenCalledWith({
+      where: { type: "VENDOR", dataBoundary: { in: ["DEMO"] } },
+      select: { id: true, name: true },
+    });
   });
 });

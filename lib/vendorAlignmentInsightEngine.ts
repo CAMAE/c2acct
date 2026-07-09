@@ -3,6 +3,7 @@ import { normalizeQuestionRuntime, type NormalizedAnswer } from "@/lib/assessmen
 import { FIRM_CAPABILITY_DEFINITIONS } from "@/lib/firmCapabilities";
 import { FIRM_MODULE_DEFINITIONS, FIRM_MODULE_QUESTION_STEMS } from "@/lib/firmPat";
 import { getVendorScopedFirms } from "@/lib/tenancy";
+import { CUSTOMER_FACING_BOUNDARIES } from "@/lib/dataBoundary";
 import {
   ELITE_PLACEHOLDER_CTA,
   ELITE_PLACEHOLDER_MESSAGE,
@@ -1031,9 +1032,12 @@ export async function getVendorAlignmentInsightBundle(input?: {
   const scopedFirmIds = vendorCompanyId
     ? await getVendorScopedFirms(vendorCompanyId)
     : null;
+  // Data-integrity wall (CLASS 1): scoped path is already boundary-filtered by
+  // getVendorScopedFirms; the unscoped (admin/global) path pools REAL+PILOT only
+  // so demo firms never inflate a cross-firm module/capability average.
   const firmCompanyFilter = scopedFirmIds
     ? { type: "FIRM" as const, id: { in: scopedFirmIds } }
-    : { type: "FIRM" as const };
+    : { type: "FIRM" as const, dataBoundary: { in: [...CUSTOMER_FACING_BOUNDARIES] } };
 
   const [modules, submissions, capabilityNodes, capabilityScores] = await Promise.all([
     prisma.surveyModule.findMany({

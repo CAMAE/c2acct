@@ -13,11 +13,13 @@ const {
   ecosystemFirmFindUniqueMock,
   companyFindUniqueMock,
   companyFindManyMock,
+  companyFindFirstMock,
 } = vi.hoisted(() => ({
   ecosystemFindUniqueMock: vi.fn(),
   ecosystemFirmFindUniqueMock: vi.fn(),
   companyFindUniqueMock: vi.fn(),
   companyFindManyMock: vi.fn(),
+  companyFindFirstMock: vi.fn(),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -27,9 +29,13 @@ vi.mock("@/lib/prisma", () => ({
     company: {
       findUnique: companyFindUniqueMock,
       findMany: companyFindManyMock,
+      findFirst: companyFindFirstMock,
     },
   },
 }));
+
+// The viewer's data-boundary pool. A PRODUCTION viewer pools over REAL + PILOT.
+const REAL_POOL = { in: ["PRODUCTION", "PILOT"] };
 
 describe("lib/tenancy", () => {
   beforeEach(() => {
@@ -37,6 +43,9 @@ describe("lib/tenancy", () => {
     ecosystemFirmFindUniqueMock.mockReset();
     companyFindUniqueMock.mockReset();
     companyFindManyMock.mockReset();
+    companyFindFirstMock.mockReset();
+    // resolveCompanyBoundary() default: the viewer is a real (PRODUCTION) company.
+    companyFindUniqueMock.mockResolvedValue({ dataBoundary: "PRODUCTION" });
   });
 
   afterEach(() => {
@@ -61,7 +70,7 @@ describe("lib/tenancy", () => {
   });
 
   describe("getVendorScopedFirms", () => {
-    it("bounded mode returns only same-ecosystem firms", async () => {
+    it("bounded mode returns only same-ecosystem firms IN the viewer's boundary pool", async () => {
       vi.stubEnv(TENANCY_MODE_ENV, "ecosystem-bounded");
       ecosystemFindUniqueMock.mockResolvedValue({
         EcosystemFirm: [
@@ -69,19 +78,16 @@ describe("lib/tenancy", () => {
           { firmCompanyId: "firm_2" },
         ],
       });
+      // Boundary wall: ecosystem firms re-filtered to the viewer's pool.
+      companyFindManyMock.mockResolvedValue([{ id: "firm_1" }, { id: "firm_2" }]);
 
       const result = await getVendorScopedFirms("vendor_1");
 
-      expect(ecosystemFindUniqueMock).toHaveBeenCalledWith({
-        where: { vendorCompanyId: "vendor_1" },
-        select: {
-          EcosystemFirm: {
-            select: { firmCompanyId: true },
-          },
-        },
-      });
       expect(result).toEqual(["firm_1", "firm_2"]);
-      expect(companyFindManyMock).not.toHaveBeenCalled();
+      expect(companyFindManyMock).toHaveBeenCalledWith({
+        where: { id: { in: ["firm_1", "firm_2"] }, dataBoundary: REAL_POOL },
+        select: { id: true },
+      });
     });
 
     it("bounded mode returns empty array when vendor has no ecosystem", async () => {
@@ -93,7 +99,7 @@ describe("lib/tenancy", () => {
       expect(result).toEqual([]);
     });
 
-    it("open mode returns all FIRM-type companies", async () => {
+    it("open mode returns all FIRM-type companies IN the viewer's boundary pool", async () => {
       vi.stubEnv(TENANCY_MODE_ENV, "open");
       companyFindManyMock.mockResolvedValue([
         { id: "firm_a" },
@@ -104,7 +110,7 @@ describe("lib/tenancy", () => {
       const result = await getVendorScopedFirms("vendor_irrelevant");
 
       expect(companyFindManyMock).toHaveBeenCalledWith({
-        where: { type: "FIRM" },
+        where: { type: "FIRM", dataBoundary: REAL_POOL },
         select: { id: true },
       });
       expect(result).toEqual(["firm_a", "firm_b", "firm_c"]);
@@ -113,13 +119,18 @@ describe("lib/tenancy", () => {
   });
 
   describe("getFirmScopedVendors", () => {
-    it("bounded mode returns the singleton ecosystem vendor (or empty)", async () => {
+    it("bounded mode returns the singleton ecosystem vendor when it is in-pool (or empty)", async () => {
       vi.stubEnv(TENANCY_MODE_ENV, "ecosystem-bounded");
       ecosystemFirmFindUniqueMock.mockResolvedValue({
         Ecosystem: { vendorCompanyId: "vendor_1" },
       });
+      companyFindFirstMock.mockResolvedValue({ id: "vendor_1" }); // vendor is in-pool
 
       expect(await getFirmScopedVendors("firm_1")).toEqual(["vendor_1"]);
+      expect(companyFindFirstMock).toHaveBeenCalledWith({
+        where: { id: "vendor_1", dataBoundary: REAL_POOL },
+        select: { id: true },
+      });
 
       ecosystemFirmFindUniqueMock.mockResolvedValueOnce({
         Ecosystem: { vendorCompanyId: null },
@@ -130,14 +141,23 @@ describe("lib/tenancy", () => {
       expect(await getFirmScopedVendors("firm_no_ecosystem")).toEqual([]);
     });
 
-    it("open mode returns all VENDOR-type companies", async () => {
+    it("bounded mode drops the ecosystem vendor when it is OUT of the viewer's pool", async () => {
+      vi.stubEnv(TENANCY_MODE_ENV, "ecosystem-bounded");
+      ecosystemFirmFindUniqueMock.mockResolvedValue({
+        Ecosystem: { vendorCompanyId: "demo_vendor" },
+      });
+      companyFindFirstMock.mockResolvedValue(null); // demo vendor not in real pool
+      expect(await getFirmScopedVendors("firm_1")).toEqual([]);
+    });
+
+    it("open mode returns all VENDOR-type companies IN the viewer's boundary pool", async () => {
       vi.stubEnv(TENANCY_MODE_ENV, "open");
       companyFindManyMock.mockResolvedValue([{ id: "v_a" }, { id: "v_b" }]);
 
       const result = await getFirmScopedVendors("firm_irrelevant");
 
       expect(companyFindManyMock).toHaveBeenCalledWith({
-        where: { type: "VENDOR" },
+        where: { type: "VENDOR", dataBoundary: REAL_POOL },
         select: { id: true },
       });
       expect(result).toEqual(["v_a", "v_b"]);

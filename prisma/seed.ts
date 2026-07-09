@@ -13,6 +13,7 @@ import {
 } from "../lib/patUnlocks";
 import { ensureLocalReviewUsers } from "../lib/auth/localReview";
 import { FIRM_CAPABILITY_DEFINITIONS } from "../lib/firmCapabilities";
+import { classifyCompanyBoundaries } from "../lib/dataBoundaryBackfill";
 
 applyRepoEnv();
 
@@ -177,6 +178,10 @@ async function main() {
     apply: true,
   });
 
+  // Data-integrity wall (CLASS 1): classify demo/pilot companies so a reseed
+  // never leaves synthetic rows defaulting to PRODUCTION.
+  const boundaryClassification = await classifyCompanyBoundaries(prisma);
+
   const questionCounts = await Promise.all(
     modules.map(async (module) => ({
       key: module.key,
@@ -225,6 +230,7 @@ async function main() {
     localReviewUserEmails: localReviewSeed.userEmails,
     taxonomyBuckets: taxonomySummary.taxonomyBuckets,
     taxonomyProducts: taxonomySummary.products,
+    boundaryClassified: boundaryClassification,
   });
 }
 

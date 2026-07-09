@@ -117,6 +117,11 @@ model Company {
   name                   String
   type                   CompanyType
   verticalId             String                   @default("accounting")
+  // Data-integrity boundary (2026-07-09 audit, CLASS 1). PRODUCTION = real
+  // customer data; DEMO = seeded/synthetic (demo-benchmark, demo-expand, local
+  // review); PILOT = pilot-cohort. Every cross-entity aggregate filters on this
+  // via lib/dataBoundary.ts so demo rows never contaminate customer-facing pools.
+  dataBoundary           DataBoundary             @default(PRODUCTION)
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime
   CompanyBadge           CompanyBadge[]
@@ -136,6 +141,7 @@ model Company {
   EcosystemFirm          EcosystemFirm[]          @relation("EcosystemFirmCompany")
 
   @@index([verticalId])
+  @@index([type, dataBoundary])
 }
 
 model CompanyBadge {

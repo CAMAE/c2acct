@@ -6,6 +6,7 @@ import {
   FIRM_PRODUCT_MODULE_KEY,
 } from "@/lib/firmPat";
 import prisma from "@/lib/prisma";
+import { CUSTOMER_FACING_BOUNDARIES } from "@/lib/dataBoundary";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { getFirmManagedUserRecords } from "@/lib/userPat";
 import { getVendorAlignmentInsightBundle } from "@/lib/vendorAlignmentInsightEngine";
@@ -1033,7 +1034,13 @@ export async function getAdminBriefingCatalog(input?: {
   const companies = await prisma.company.findMany({
     where: {
       type: "FIRM",
-      ...(input?.companyIds?.length ? { id: { in: input.companyIds } } : {}),
+      // Data-integrity wall (CLASS 1): an EXPLICIT id list is trusted (callers
+      // pass boundary-scoped ids from getVendorScopedFirms, or a single firm's
+      // own id). The UNSCOPED path (no ids = "all firms") pools REAL+PILOT only
+      // so demo firms never enter a customer-facing catalog average.
+      ...(input?.companyIds?.length
+        ? { id: { in: input.companyIds } }
+        : { dataBoundary: { in: [...CUSTOMER_FACING_BOUNDARIES] } }),
     },
     orderBy: { name: "asc" },
     select: {
