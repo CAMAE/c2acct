@@ -14,6 +14,8 @@ import {
 } from "@/app/components/firm/FirmPortalContent";
 import { isAlignmentBoardEnabled } from "@/lib/alignmentBoard";
 import { getSessionUser } from "@/lib/auth/session";
+import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
+import type { PortalSurface } from "@/lib/portalVisibility";
 import { buildFirmExternalProfileContract, getFirmAssessmentProgress } from "@/lib/firmPat";
 import { getInviteeAccessContext } from "@/lib/invitee/access";
 import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
@@ -207,7 +209,7 @@ export default async function FirmPage({
       })
     : null;
 
-  const localizedCards = firmWorkspaceCards
+  const baseCards = firmWorkspaceCards
     // R4: the Alignment Sandbox card only appears while the board flag is on.
     .filter((card) => card.id !== "firm-alignment-sandbox" || isAlignmentBoardEnabled())
     .map((card) => ({
@@ -215,6 +217,27 @@ export default async function FirmPage({
       title: messages.portal.cards.firm[card.id]?.title ?? card.title,
       description: messages.portal.cards.firm[card.id]?.description ?? card.description,
     }));
+
+  // Elite Insights entry on the portal home (Block 4): a live card for Elite
+  // viewers (opens the Elite tab in ≤2 clicks) and an upgrade-tease card for Pro.
+  const firmEliteEntitlement = sessionUser
+    ? await resolveMembershipEntitlement(sessionUser, "firm", MEMBERSHIP_PLAN.ELITE)
+    : null;
+  const eliteInsightsCard: PortalSurface = {
+    id: "firm-elite-insights",
+    audience: ["firm"],
+    section: "intelligence",
+    title: "Elite Insights",
+    description: firmEliteEntitlement?.allowed
+      ? "Live — future-state projection, a peer benchmark, and a recommendation engine, grounded in your firm-reviewed evidence."
+      : "Unlock future-state projection, a peer benchmark, and a recommendation engine, grounded in your firm-reviewed evidence.",
+    href: firmEliteEntitlement?.allowed
+      ? "/firm/insights?mode=elite"
+      : (firmEliteEntitlement?.upgradeHref ?? "/firm/membership"),
+    availability: "enabled",
+    reason: firmEliteEntitlement?.allowed ? "Live with Elite membership" : "Requires Elite membership",
+  };
+  const localizedCards = [...baseCards, eliteInsightsCard];
 
   return (
     <div className="space-y-8">

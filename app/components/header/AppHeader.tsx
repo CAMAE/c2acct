@@ -24,6 +24,10 @@ type AppHeaderProps = {
   showPatTopBar?: boolean;
   /** Show the notification bell (caller has cleared PAT_ENABLE_PINGS + auth). */
   showNotificationBell?: boolean;
+  /** Signed-in user's email (null when signed out). Enables the nav Sign out. */
+  signedInEmail?: string | null;
+  /** Server action that signs the user out (passed from the server layout). */
+  signOutAction?: () => Promise<void>;
   uiText: {
     homeAriaLabel: string;
     language: string;
@@ -78,6 +82,8 @@ export default function AppHeader({
   wordmarkVariant = "pat",
   showPatTopBar = false,
   showNotificationBell = false,
+  signedInEmail = null,
+  signOutAction,
   uiText,
 }: AppHeaderProps) {
   const pathname = usePathname();
@@ -311,6 +317,25 @@ export default function AppHeader({
                       })}
                     </ul>
                   </nav>
+
+                  {signedInEmail && signOutAction ? (
+                    <form
+                      action={signOutAction}
+                      className="mt-2 border-t border-[var(--shell-border)] px-1 pt-3"
+                    >
+                      <div className="px-4 pb-2 text-[0.72rem] leading-4 text-[var(--shell-muted)]">
+                        Signed in as{" "}
+                        <span className="font-semibold text-[var(--shell-ink)]">{signedInEmail}</span>
+                      </div>
+                      <button
+                        type="submit"
+                        onClick={() => setOpen(false)}
+                        className="flex w-full items-center rounded-[1.15rem] border border-transparent px-4 py-3 text-left text-[0.95rem] font-medium leading-none text-[var(--shell-ink)] hover:border-[var(--shell-border)] hover:bg-[rgba(6,54,116,0.025)]"
+                      >
+                        Sign out
+                      </button>
+                    </form>
+                  ) : null}
                 </div>
               ) : null}
             </div>

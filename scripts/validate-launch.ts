@@ -103,6 +103,18 @@ const steps = [
         { command: "bash", args: ["scripts/mac-mini/launchd-check.sh"] },
         { command: "bash", args: ["scripts/mac-mini/port-owner-proof.sh"] },
       ] as const)),
+  // FINAL step (Block 4): the chain wipes + reseeds the DB, so it must never end
+  // with the local preview in a wiped state. Re-seed the expanded demo ecosystem
+  // (adopted by the Elite firm/vendor) and re-run preview-pat-setup so the Elite
+  // demo accounts are always present + signable after any validate:launch.
+  // Guarded on the local (gitignored) preview script existing — a clean checkout
+  // without it simply skips these, so the committed chain stays portable.
+  ...(fs.existsSync(path.join(repoRoot, "scripts/dev/preview-pat-setup.ts"))
+    ? ([
+        { command: packageManagerCommand, args: ["seed:demo-expand"] },
+        { command: packageManagerCommand, args: ["preview:pat-setup"] },
+      ] as const)
+    : []),
 ] as const;
 
 if (skipMacMiniSteps) {

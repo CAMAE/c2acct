@@ -23,14 +23,22 @@ type Turn = {
   fallback?: boolean;
 };
 
-function PatMark({ className = "" }: { className?: string }) {
+/** Neutral chat glyph for the mobile Ask-Pat launcher (R17: the navy "P" avatar
+ *  was removed from the Ask Pat bar; the launcher uses a plain speech bubble). */
+function ChatGlyph({ className = "" }: { className?: string }) {
   return (
-    <span
+    <svg
       aria-hidden="true"
-      className={`inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--brand-c2-blue)] text-[0.7rem] font-bold text-white ${className}`}
+      viewBox="0 0 24 24"
+      className={`h-5 w-5 text-[var(--shell-muted)] ${className}`}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      P
-    </span>
+      <path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 0 1-.9-3.8 8.38 8.38 0 0 1 8.5-8.5A8.5 8.5 0 0 1 21 11.5z" />
+    </svg>
   );
 }
 
@@ -178,7 +186,6 @@ export default function PatTopBar() {
       {/* Desktop: persistent centered input */}
       <form onSubmit={ask} className="hidden w-full max-w-[720px] md:block">
         <div className="relative w-full">
-          <PatMark className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={question}
@@ -186,7 +193,7 @@ export default function PatTopBar() {
             onFocus={() => setOpen(true)}
             placeholder="Ask Pat…"
             aria-label="Ask Pat"
-            className="h-11 w-full rounded-full border border-[var(--shell-border)] bg-white pl-11 pr-4 text-sm text-[var(--shell-ink)] outline-none focus:border-[var(--brand-c2-blue)] focus:ring-2 focus:ring-[rgba(6,54,116,0.14)]"
+            className="h-11 w-full rounded-full border border-[var(--shell-border)] bg-white px-4 text-sm text-[var(--shell-ink)] outline-none focus:border-[var(--brand-c2-blue)] focus:ring-2 focus:ring-[rgba(6,54,116,0.14)]"
           />
         </div>
       </form>
@@ -199,7 +206,7 @@ export default function PatTopBar() {
         aria-expanded={mobileOpen}
         className="inline-flex h-[3.05rem] w-[3.05rem] items-center justify-center rounded-[1.05rem] border border-[var(--shell-border)] bg-white hover:border-[rgba(6,54,116,0.32)] focus:outline-none focus:ring-2 focus:ring-[rgba(6,54,116,0.18)] md:hidden"
       >
-        <PatMark />
+        <ChatGlyph />
       </button>
 
       {/* Desktop dropdown thread panel */}
@@ -222,7 +229,6 @@ export default function PatTopBar() {
         >
           <form onSubmit={ask} className="border-b border-[var(--shell-border)] p-3">
             <div className="relative w-full">
-              <PatMark className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2" />
               <input
                 ref={mobileInputRef}
                 type="text"
@@ -230,7 +236,7 @@ export default function PatTopBar() {
                 onChange={(event) => setQuestion(event.target.value)}
                 placeholder="Ask Pat…"
                 aria-label="Ask Pat"
-                className="h-11 w-full rounded-full border border-[var(--shell-border)] bg-white pl-11 pr-4 text-sm text-[var(--shell-ink)] outline-none focus:border-[var(--brand-c2-blue)]"
+                className="h-11 w-full rounded-full border border-[var(--shell-border)] bg-white px-4 text-sm text-[var(--shell-ink)] outline-none focus:border-[var(--brand-c2-blue)]"
               />
             </div>
           </form>

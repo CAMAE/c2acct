@@ -18,6 +18,7 @@ const steps = [
   ["node", ["--import", "tsx", "scripts/verify-firm-insight-unlocks.ts"]],
   ["node", ["--import", "tsx", "scripts/smoke-score-unlock-contract.ts"]],
   ["node", ["--import", "tsx", "scripts/smoke-vendor-alignment-engine.ts"]],
+  ["node", ["--import", "tsx", "scripts/smoke-ask-pat.ts"]],
 ] as const;
 
 for (const [command, args] of steps) {

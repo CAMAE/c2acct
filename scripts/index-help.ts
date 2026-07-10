@@ -118,6 +118,140 @@ export const HELP_ARTICLES: HelpArticle[] = [
     roleAccess: ["individual"],
     body: "The scaffold for individual PAT profile detail. Review the basic structure and signed-in context presentation. Find it at /user/profile.",
   },
+
+  // ---- Global orientation (Block 4 corpus expansion) ----
+  {
+    path: "help/global/membership-tiers.md",
+    title: "Membership tiers: Free, Pro, and Elite",
+    roleAccess: [],
+    body: "Patalign has three membership tiers. Free keeps workspace entry, help, and the membership path visible. Pro opens the grounded current-state insight catalog. Elite adds the higher-order Elite Insights — directional projection, peer/benchmark comparison, and recommendation or demand surfaces built from firm-reviewed evidence. Manage your plan from your portal's membership page.",
+  },
+  {
+    path: "help/global/sign-out.md",
+    title: "How do I sign out?",
+    roleAccess: [],
+    body: "Open the navigation menu (the menu button at the top right of any page). At the bottom of the menu you'll see 'Signed in as' your email and a Sign out button — select Sign out to end your session. A Sign out link is also available in the page footer. Sign out is available from every portal (firm, vendor, consultant, admin).",
+  },
+  {
+    path: "help/global/methodology.md",
+    title: "How Patalign computes its scores (methodology)",
+    roleAccess: [],
+    body: "Patalign publishes its methodology at /methodology. Scores are plain averages with the sample size shown — never weighted, percentile, or significance-tested statistics. Alignment uses equal-weight module averaging; divergence needs at least three firm reviews before it is asserted; peer benchmarks are suppressed unless at least five firms contribute with no single firm dominating. The page is versioned with a changelog.",
+  },
+  {
+    path: "help/global/directional-not-advice.md",
+    title: "Are Patalign's numbers professional advice?",
+    roleAccess: [],
+    body: "No. Every score, benchmark, recommendation, and projection is directional and informational — not professional advice. You'll see this disclaimer near the numbers, with a link to the methodology. Figures are grounded in real assessment evidence, but they are decision support, not a substitute for professional judgment.",
+  },
+  {
+    path: "help/global/confidence-bands.md",
+    title: "What do the confidence bands mean?",
+    roleAccess: [],
+    body: "Confidence bands keep thin evidence visibly qualified. They are user-experience conventions, not statistical tests: no signal (no current evidence), sample-thin (fewer than 3 data points), emerging (3 to 5), and grounded (6 or more). A band never implies a p-value or significance — it just tells you how much evidence sits behind a reading.",
+  },
+  {
+    path: "help/global/insufficient-peer-data.md",
+    title: "Why does a benchmark say 'insufficient peer data'?",
+    roleAccess: [],
+    body: "Patalign will not publish a cross-firm or peer benchmark unless at least five distinct firms contribute and no single firm supplies more than a quarter of the cut. When a cut falls short, the surface shows an 'insufficient peer data' state instead of a number — the benchmark is withheld, not estimated. This protects you from reading a trend into too little data.",
+  },
+  {
+    path: "help/global/demo-vs-real-data.md",
+    title: "Is demo data mixed into my benchmarks?",
+    roleAccess: [],
+    body: "No. Demo and synthetic accounts are walled out of every customer-facing pool, so a real firm's benchmarks and averages are built only from real customer and pilot data. Demo accounts only ever see demo data. This data-boundary rule is enforced in code across every cross-firm aggregate.",
+  },
+  {
+    path: "help/global/trust-center.md",
+    title: "Where is Patalign's trust and security information?",
+    roleAccess: [],
+    body: "The Trust Center at /trust links the privacy, terms, security, support, billing, methodology, and release-proof pages. The security page lists Patalign's subprocessors (Vercel for hosting, Neon for the database, Stripe for payments, Anthropic for optional AI) and its data practices, including encryption in transit and tested tenant export and deletion paths.",
+  },
+
+  // ---- Firm Elite Insights (Block 3 surfaces) ----
+  {
+    path: "help/firm/elite-insights.md",
+    title: "Firm Elite Insights",
+    roleAccess: ["firm"],
+    body: "Elite Insights are the higher-order firm surfaces, live with Elite membership. Open them from the Elite Insights card on your firm home, or from the Elite Insights tab on /firm/insights. There are three: future-state projection, peer benchmark view, and the recommendation engine — each grounded in your firm-reviewed evidence and clearly labelled directional, not verified.",
+  },
+  {
+    path: "help/firm/future-state-projection.md",
+    title: "Firm future-state projection",
+    roleAccess: ["firm"],
+    body: "The future-state projection models where your alignment could move if you swap a product in your stack. It is computed from your own firm-reviewed evidence, per product-fit dimension, and re-means the stack with the candidate in place. It is a directional projection, not a verified outcome, and carries a confidence band based on how many reviewed products back it.",
+  },
+  {
+    path: "help/firm/peer-benchmark.md",
+    title: "Firm peer benchmark view",
+    roleAccess: ["firm"],
+    body: "The peer benchmark compares your alignment index — overall and per module — to an anonymized platform aggregate of other firms, with the contributing firm count shown. Any cut below the minimum-n safe harbor (five firms, no single firm dominating) is withheld as 'insufficient peer data'. It is a directional aggregate, never a ranking or percentile.",
+  },
+  {
+    path: "help/firm/recommendation-engine.md",
+    title: "Firm recommendation engine",
+    roleAccess: ["firm"],
+    body: "The recommendation engine sequences prioritized next actions across 30, 60, and 90-day windows, ranked by how strongly your firm-reviewed evidence points to each. Recommendations are grounded in your own gaps, not generic advice, and carry a confidence band based on how much alignment evidence you have completed.",
+  },
+
+  // ---- Vendor Elite Insights + Sales Card ----
+  {
+    path: "help/vendor/sales-card-secret-firms.md",
+    title: "How do I unlock Secret Firms on the Sales Card?",
+    roleAccess: ["vendor"],
+    body: "On the vendor Sales Card, the firms that best fit your product are ranked by alignment fit. With Pro membership those firms are shown anonymized as 'Secret Firm 1', 'Secret Firm 2', and so on — you can see the fit and the ranking, but not who they are. Upgrading to Elite membership reveals the real firm names next to each ranked fit, so you can act on the match. To unlock Secret Firms, move from Pro to Elite on your vendor membership page; the ranking itself is the same, Elite simply names the firms.",
+  },
+  {
+    path: "help/vendor/sales-card.md",
+    title: "Vendor Sales Card",
+    roleAccess: ["vendor"],
+    body: "The Sales Card ranks the firms in your ecosystem by how well your product fits them, using firm-reviewed evidence where it exists. Filter by fit tier (Strong, Good, Weak), open a firm to see the per-module gap table and headroom, and review the ranked next actions. Pro shows firms anonymized as Secret Firms; Elite names them. Find it at /vendor/sales-card.",
+  },
+  {
+    path: "help/vendor/elite-insights.md",
+    title: "Vendor Elite Insights",
+    roleAccess: ["vendor"],
+    body: "Vendor Elite Insights are live with Elite membership. Open them from the Elite Insights card on your vendor home, or the Elite Insights tab on /vendor/alignment-insights. There are three: benchmark comparison, future demand, and expansion simulation — each grounded in current firm-reviewed evidence and labelled directional, not verified.",
+  },
+  {
+    path: "help/vendor/benchmark-comparison.md",
+    title: "Vendor benchmark comparison",
+    roleAccess: ["vendor"],
+    body: "Benchmark comparison shows how your products compare to an anonymized platform aggregate of firm reviews, with the contributing firm count. Cuts below the minimum-n safe harbor are withheld rather than estimated. It is a directional aggregate, not a market ranking.",
+  },
+  {
+    path: "help/vendor/future-demand.md",
+    title: "Vendor future demand projection",
+    roleAccess: ["vendor"],
+    body: "Future demand reads where firms are weakest across the platform — the lower a module's firm-side average, the stronger the directional demand for help there. Each signal shows its contributing firm count and confidence band; modules below the minimum-n safe harbor are withheld. It is a directional signal, not a forecast.",
+  },
+  {
+    path: "help/vendor/expansion-simulation.md",
+    title: "Vendor expansion simulation",
+    roleAccess: ["vendor"],
+    body: "Expansion simulation is a sandbox for vendors: it simulates adding or expanding a product across the five product-fit dimensions. Firm-reviewed fits are ranked; products with only vendor self-report are shown separately and floored below — they never outrank firm-reviewed fits until real firm reviews exist. It is directional, not a guaranteed outcome.",
+  },
+  {
+    path: "help/vendor/membership.md",
+    title: "Vendor membership and upgrading",
+    roleAccess: ["vendor"],
+    body: "Your vendor membership controls what opens: Pro unlocks the current-state alignment and product insight catalog and the anonymized Sales Card; Elite adds the Elite Insights and reveals Secret Firm names on the Sales Card. Manage or upgrade your plan at /vendor/membership.",
+  },
+
+  // ---- Consultant ----
+  {
+    path: "help/consultant/vendor-brief.md",
+    title: "Consultant vendor brief",
+    roleAccess: ["consultant"],
+    body: "The consultant vendor brief summarizes a vendor across its ecosystem: firm averages, vendor self-report deltas, a per-firm heatmap, and an action roadmap. Firm-reviewed evidence is primary and self-report is always labelled. Divergence is only asserted once at least three firm reviews exist.",
+  },
+  {
+    path: "help/consultant/ecosystems.md",
+    title: "Consultant ecosystems",
+    roleAccess: ["consultant"],
+    body: "Consultants review one ecosystem per login, with each firm and vendor scoped to that ecosystem. Open an ecosystem to see its firm league table, per-firm alignment detail, and the vendor briefs for products in play. All cross-firm numbers exclude demo data and follow the same methodology as the rest of Patalign.",
+  },
 ];
 
 function sha256(value: string): string {
@@ -129,6 +263,27 @@ function estimateTokens(value: string): number {
 }
 
 type HelpIndexClient = Pick<PrismaClient, "knowledgeSource" | "knowledgeChunk">;
+
+/**
+ * Read-only plan: which articles WOULD be (re)indexed vs. left unchanged, without
+ * writing anything. Backs the dry-run default of scripts/seed-help-prod.ts.
+ */
+export async function planHelpDocs(
+  prisma: Pick<PrismaClient, "knowledgeSource">
+): Promise<{ toIndex: string[]; unchanged: string[]; total: number }> {
+  const toIndex: string[] = [];
+  const unchanged: string[] = [];
+  for (const article of HELP_ARTICLES) {
+    const contentHash = sha256(`${article.title}\n\n${article.body}`);
+    const existing = await prisma.knowledgeSource.findUnique({
+      where: { path: article.path },
+      select: { contentHash: true },
+    });
+    if (existing?.contentHash === contentHash) unchanged.push(article.path);
+    else toIndex.push(article.path);
+  }
+  return { toIndex, unchanged, total: HELP_ARTICLES.length };
+}
 
 /**
  * Idempotently upsert the help_doc corpus. Reusable from seeds (pass the shared

@@ -104,6 +104,8 @@ export default async function RootLayout({
           wordmarkVariant={getHeaderWordmarkVariant()}
           showPatTopBar={showPatTopBar}
           showNotificationBell={showNotificationBell}
+          signedInEmail={sessionUser?.email ?? null}
+          signOutAction={signOutFromFooter}
           uiText={headerUiText}
         />
 

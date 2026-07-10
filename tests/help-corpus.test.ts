@@ -6,12 +6,12 @@ import { HELP_ARTICLES } from "@/scripts/index-help";
  * roleAccess, so a typo'd audience would silently hide or leak an article.
  */
 
-const VALID_AUDIENCES = new Set(["firm", "vendor", "individual"]);
+const VALID_AUDIENCES = new Set(["firm", "vendor", "individual", "consultant", "admin"]);
 
 describe("Pat help corpus", () => {
-  it("ships a starter set of 10-15 articles", () => {
-    expect(HELP_ARTICLES.length).toBeGreaterThanOrEqual(10);
-    expect(HELP_ARTICLES.length).toBeLessThanOrEqual(15);
+  it("ships the expanded corpus of 30-40 articles (Block 4)", () => {
+    expect(HELP_ARTICLES.length).toBeGreaterThanOrEqual(30);
+    expect(HELP_ARTICLES.length).toBeLessThanOrEqual(40);
   });
 
   it("has unique paths and non-empty content", () => {
