@@ -66,6 +66,10 @@ export default async function VendorAlignmentInsightsPage({
   const bundle = await getVendorAlignmentInsightBundle({
     vendorCompanyId: sessionUser.companyId,
   });
+  // Minimum-n benchmark safe harbor (Governance Phase 2). Below n≥5 contributing
+  // firms this cross-firm readout is not a publishable peer benchmark; the surface
+  // tells the vendor so instead of presenting the averages as settled.
+  const peerBenchmarkSuppressed = bundle.benchmarkSuppression.suppressed && bundle.sampleSize > 0;
   const activeMode = getRequestedVendorAlignmentInsightOverviewMode(resolvedSearchParams?.mode);
   const proCards = buildVendorAlignmentProInsightCards(bundle);
   const eliteCards = buildVendorAlignmentEliteInsightCards(bundle);
@@ -85,7 +89,9 @@ export default async function VendorAlignmentInsightsPage({
       currentStateSummary={
         bundle.sampleSize === 0
           ? "PAT does not have enough current firm alignment evidence yet to open a grounded vendor alignment readout."
-          : "PAT is summarizing current firm alignment signal so you can see where vendor-facing demand, friction, and implementation conditions look strongest right now."
+          : peerBenchmarkSuppressed
+            ? "Insufficient peer data — fewer than 5 contributing firms. PAT shows these cross-firm readings as directional only and does not publish them as a peer benchmark until the peer set clears the safe harbor."
+            : "PAT is summarizing current firm alignment signal so you can see where vendor-facing demand, friction, and implementation conditions look strongest right now."
       }
       toggleAriaLabel="Vendor alignment insight modes"
       toggleOptions={toggleOptions}

@@ -50,6 +50,8 @@ artifacts/audit/
 artifacts/launch-proof/
 artifacts/release/
 artifacts/visual/
+# Tenant data-portability exports (contain PII — never commit).
+artifacts/tenant-exports/
 
 # local machine noise
 .DS_Store

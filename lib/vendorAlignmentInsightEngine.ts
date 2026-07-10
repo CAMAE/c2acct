@@ -6,6 +6,10 @@ import { getVendorScopedFirms } from "@/lib/tenancy";
 import { CUSTOMER_FACING_BOUNDARIES } from "@/lib/dataBoundary";
 import { confidenceBandForSampleSize } from "@/lib/confidenceBands";
 import {
+  evaluateBenchmarkSuppressionByCount,
+  type BenchmarkSuppression,
+} from "@/lib/benchmarkSuppression";
+import {
   ELITE_PLACEHOLDER_CTA,
   ELITE_PLACEHOLDER_MESSAGE,
   ELITE_PLACEHOLDER_TITLE,
@@ -98,6 +102,11 @@ export type VendorAlignmentInsightBundle = {
   confidenceBand: "no_signal" | "sample_thin" | "emerging" | "grounded";
   confidenceLabel: string;
   confidenceSummary: string;
+  // Minimum-n benchmark safe harbor (Governance Phase 2). This is a cross-firm
+  // peer readout for a vendor; when it falls below n≥5 contributing firms (or a
+  // single firm dominates) the peer benchmark is not publishable — the surface
+  // shows an insufficient-peer-data state.
+  benchmarkSuppression: BenchmarkSuppression;
   reports: VendorAlignmentInsightReport[];
 };
 
@@ -581,6 +590,7 @@ export function buildVendorAlignmentInsightBundle(
     confidenceBand: getConfidenceBand(input.sampleSize).band,
     confidenceLabel: getConfidenceBand(input.sampleSize).label,
     confidenceSummary: getConfidenceBand(input.sampleSize).summary,
+    benchmarkSuppression: evaluateBenchmarkSuppressionByCount(input.sampleSize),
   };
 
   const reports: VendorAlignmentInsightReport[] = ALIGNMENT_INSIGHT_DEFINITIONS.map((definition) => {

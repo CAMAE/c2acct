@@ -172,6 +172,19 @@
         "Scaffold mode"
       ]
     },
+    "/methodology": {
+      "sourceFiles": [
+        "app/methodology/page.tsx",
+        "app/components/trust/TrustSurfacePage.tsx",
+        "lib/trustContent.ts",
+        "lib/methodology.ts"
+      ],
+      "positiveMarkers": [
+        "Aggregation methodology",
+        "How Patalign computes its scores and benchmarks.",
+        "Changelog"
+      ]
+    },
     "/release": {
       "sourceFiles": [
         "app/release/page.tsx",

@@ -122,6 +122,11 @@ model Company {
   // review); PILOT = pilot-cohort. Every cross-entity aggregate filters on this
   // via lib/dataBoundary.ts so demo rows never contaminate customer-facing pools.
   dataBoundary           DataBoundary             @default(PRODUCTION)
+  // Soft-delete tombstone (Governance Phase 2, A8/B1). A tenant is first
+  // soft-deleted (deletedAt set) — retained for the RETENTION window — then hard
+  // purged by scripts/ops/delete-tenant.ts. Read paths must exclude deletedAt rows.
+  deletedAt              DateTime?
+  deletionReason         String?
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime
   CompanyBadge           CompanyBadge[]
@@ -142,6 +147,30 @@ model Company {
 
   @@index([verticalId])
   @@index([type, dataBoundary])
+  @@index([deletedAt])
+}
+
+// Deletion receipt (Governance Phase 2, A8). A tombstone that OUTLIVES the tenant
+// — deliberately NOT an FK to Company, so the record survives a hard purge. Proves
+// what was deleted, when, by whom, with a per-model row-count cascade map and the
+// list of external touchpoints (Stripe, Blob, logs) that need manual follow-up.
+model TenantDeletionReceipt {
+  id                  String    @id
+  companyId           String
+  companyName         String
+  companyType         String
+  dataBoundary        String
+  requestedBy         String?
+  reason              String?
+  mode                String    // "soft" | "hard"
+  recordCounts        Json      // cascade map: model name -> rows affected
+  externalTouchpoints Json      // Stripe/Blob/log manual follow-ups + status
+  softDeletedAt       DateTime?
+  hardDeletedAt       DateTime?
+  createdAt           DateTime  @default(now())
+
+  @@index([companyId, createdAt])
+  @@index([mode, createdAt])
 }
 
 model CompanyBadge {

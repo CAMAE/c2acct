@@ -7,6 +7,7 @@ export type TrustSurfaceKey =
   | "security"
   | "support"
   | "billingPolicy"
+  | "methodology"
   | "release";
 
 export type TrustSurfaceSection = {
@@ -43,6 +44,7 @@ export const TRUST_SURFACE_ORDER = [
   "security",
   "support",
   "billingPolicy",
+  "methodology",
   "release",
 ] as const satisfies readonly TrustSurfaceKey[];
 
@@ -53,6 +55,7 @@ export const TRUST_FOOTER_LINKS = [
   { href: "/security", label: "Security" },
   { href: "/support", label: "Support" },
   { href: "/billing-policy", label: "Billing policy" },
+  { href: "/methodology", label: "Methodology" },
   { href: "/release", label: "Build proof" },
 ] as const;
 
@@ -290,6 +293,29 @@ export const TRUST_SURFACES = {
         title: "Refunds and cancellation",
         body:
           "Refund and cancellation procedures remain a policy draft until commercial terms are finalized. Provider records remain the source of truth for billing status.",
+      },
+    ],
+  },
+  methodology: {
+    key: "methodology",
+    href: "/methodology",
+    label: "Methodology",
+    eyebrow: "Aggregation methodology",
+    title: "How Patalign computes its scores and benchmarks.",
+    summary:
+      "The stated, versioned methodology behind every alignment score, divergence reading, and peer benchmark: equal-weight averaging, sample floors, confidence bands, minimum-n benchmark suppression, and the integrity walls that keep demo data and vendor self-report out of peer aggregates.",
+    statusLabel: "Versioned · public",
+    lastUpdated: "July 10, 2026",
+    sections: [
+      {
+        title: "Directional, not professional advice",
+        body:
+          "Figures are plain averages with the sample size shown — never weighted, percentile, or significance-tested statistics, and never professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, an insufficient-data state is shown instead of a number.",
+      },
+      {
+        title: "Versioned and changelogged",
+        body:
+          "Material changes to the methodology are versioned with a public changelog. The full detail — averaging, divergence floor, confidence bands, suppression, integrity walls, and rounding — is rendered below and mirrors the source aggregation-methodology document.",
       },
     ],
   },
