@@ -1,7 +1,41 @@
 import type { NextConfig } from "next";
 
+// Security headers (2026-07-09 governance audit B3). CSP ships REPORT-ONLY first
+// so we can observe violations before enforcing (staged rollout); HSTS +
+// frame-ancestors are enforced immediately. Kept in next.config so the policy
+// travels with the app on any host, not just vercel.json.
+const CSP_REPORT_ONLY = [
+  "default-src 'self'",
+  // Next injects inline bootstrap scripts; 'unsafe-inline' stays until a nonce
+  // pass is added. Report-only means this observes, does not block.
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self' data:",
+  "connect-src 'self' https://api.stripe.com",
+  "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "object-src 'none'",
+].join("; ");
+
+const SECURITY_HEADERS = [
+  { key: "Content-Security-Policy-Report-Only", value: CSP_REPORT_ONLY },
+  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+  // frame-ancestors (in CSP above) is the modern control; X-Frame-Options is the
+  // legacy fallback for older browsers.
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+];
+
 const nextConfig: NextConfig = {
   output: "standalone",
+  async headers() {
+    return [{ source: "/:path*", headers: SECURITY_HEADERS }];
+  },
   // Server Actions (the /sign-in "Continue with provisioned account" pilot-credentials
   // form, /admin operator actions, etc.) enforce an Origin === Host check in
   // production. Behind the Cloudflare proxy / while AUTH_URL is split between the

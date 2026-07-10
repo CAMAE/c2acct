@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
 import { findLocalReviewUserByEmail, isLocalReviewAuthRequested } from "@/lib/auth/localReview";
 import { getResolvedAuthEnv } from "@/lib/auth/env";
+import { checkAuthRateLimit } from "@/lib/security/authRateLimit";
 
 function getSingleFormValue(value: FormDataEntryValue | null) {
   return typeof value === "string" ? value.trim() : "";
@@ -27,6 +28,11 @@ export async function signInWithLocalReviewCredentials(formData: FormData) {
   const source = getSingleFormValue(formData.get("source")) || "login";
   const view = sanitizeView(getSingleFormValue(formData.get("view")) || "vendor");
   const resolvedAuthEnv = getResolvedAuthEnv();
+
+  // Rate limit (B6): throttle even the dev/preview local-review credential path.
+  if (email && !(await checkAuthRateLimit("auth.local-review", email))) {
+    redirect(`/${source}?view=${view}&error=rate_limited`);
+  }
 
   if (!findLocalReviewUserByEmail(email)) {
     redirect(`/${source}?view=${view}&error=local_review_invalid_user`);

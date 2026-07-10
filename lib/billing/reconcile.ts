@@ -276,24 +276,42 @@ export async function persistStripeWebhookEvent(input: {
     };
   }
 
-  const record = existing ?? await client.billingWebhookEvent.create({
-    data: {
-      id: randomUUID(),
-      provider: "stripe",
-      providerEventId: input.event.id,
-      eventType: input.event.type,
-      apiVersion: input.event.api_version ?? null,
-      livemode: Boolean(input.event.livemode),
-      payload: input.event as unknown as Prisma.InputJsonValue,
-      processingStatus: "received",
-    },
-  });
+  if (existing) {
+    return { record: existing, duplicate: false, shouldProcess: true };
+  }
 
-  return {
-    record,
-    duplicate: false,
-    shouldProcess: true,
-  };
+  // Idempotency race hardening (B4): findUnique + create is not atomic. Two
+  // concurrent deliveries of the SAME event id can both pass the findUnique
+  // above; the unique [provider, providerEventId] makes the second create throw
+  // P2002. The loser must NOT double-process — re-fetch and defer to the winner.
+  try {
+    const record = await client.billingWebhookEvent.create({
+      data: {
+        id: randomUUID(),
+        provider: "stripe",
+        providerEventId: input.event.id,
+        eventType: input.event.type,
+        apiVersion: input.event.api_version ?? null,
+        livemode: Boolean(input.event.livemode),
+        payload: input.event as unknown as Prisma.InputJsonValue,
+        processingStatus: "received",
+      },
+    });
+    return { record, duplicate: false, shouldProcess: true };
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      const raced = await client.billingWebhookEvent.findUnique({
+        where: {
+          provider_providerEventId: { provider: "stripe", providerEventId: input.event.id },
+        },
+      });
+      // The unique constraint fired, so the row must exist — defer to the winner.
+      if (raced) {
+        return { record: raced, duplicate: true, shouldProcess: false };
+      }
+    }
+    throw error;
+  }
 }
 
 export async function processStripeWebhookEvent(input: {

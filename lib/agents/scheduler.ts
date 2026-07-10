@@ -95,7 +95,13 @@ export class Scheduler {
     try {
       await registration.task(trigger);
     } catch (error) {
-      console.error(`[scheduler] ${registration.config.key} task error:`, error);
+      // PII hygiene (B12): log the message only, never the raw error object
+      // (stack/cause can carry request bodies, tokens, or PII from upstream).
+      console.error(
+        `[scheduler] ${registration.config.key} task error: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
     }
   }
 }

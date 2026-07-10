@@ -5,6 +5,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import prisma from "@/lib/prisma";
 import { hashPilotPassword, validatePilotPassword } from "@/lib/auth/passwords";
 import { recordOperatorAuditEvent } from "@/lib/operatorAudit";
+import { checkAuthRateLimit } from "@/lib/security/authRateLimit";
 
 function getSingleFormValue(value: FormDataEntryValue | null) {
   return typeof value === "string" ? value.trim() : "";
@@ -51,6 +52,11 @@ export async function signInWithPilotCredentials(formData: FormData) {
     redirect(`/${source}?view=${view}&error=pilot_password_missing${emailRedirectParam(email)}`);
   }
 
+  // Rate limit (B6): throttle credential brute-force before any DB/auth work.
+  if (!(await checkAuthRateLimit("auth.signin", email))) {
+    redirect(`/${source}?view=${view}&error=rate_limited${emailRedirectParam(email)}`);
+  }
+
   const user = await prisma.user.findFirst({
     where: { email: { equals: email, mode: "insensitive" } },
     select: { mustChangePassword: true, passwordHash: true },
@@ -87,6 +93,11 @@ export async function updateFirstLoginPasswordAction(formData: FormData) {
   const sessionUser = await getSessionUser();
   if (!sessionUser || sessionUser.id !== userId) {
     redirect("/sign-in?error=pilot_password_invalid");
+  }
+
+  // Rate limit (B6): throttle password-change submissions per user.
+  if (!(await checkAuthRateLimit("auth.password-update", userId))) {
+    redirect(`${passwordUpdatePath(returnTo)}&error=rate_limited`);
   }
 
   if (password !== confirmPassword) {

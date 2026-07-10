@@ -63,8 +63,12 @@ async function requireAdminActor() {
   return actor;
 }
 
-async function ensureCompanySubject(companyId: string, companyName: string) {
-  return prisma.subject.upsert({
+async function ensureCompanySubject(
+  companyId: string,
+  companyName: string,
+  client: Pick<typeof prisma, "subject"> = prisma
+) {
+  return client.subject.upsert({
     where: { companyId },
     update: {
       displayName: companyName,
@@ -83,8 +87,12 @@ async function ensureCompanySubject(companyId: string, companyName: string) {
   });
 }
 
-async function ensurePersonSubject(userId: string, email: string) {
-  return prisma.subject.upsert({
+async function ensurePersonSubject(
+  userId: string,
+  email: string,
+  client: Pick<typeof prisma, "subject"> = prisma
+) {
+  return client.subject.upsert({
     where: { key: `person:${userId}` },
     update: {
       displayName: email,
@@ -118,22 +126,28 @@ export async function createOrganizationAction(formData: FormData) {
     redirect(returnTo);
   }
 
-  const company = await prisma.company.create({
-    data: {
-      id: randomUUID(),
-      name,
-      type: type as CompanyType,
-      updatedAt: new Date(),
-    },
-  });
+  // Transaction boundary (B5): company + audit are one unit.
+  await prisma.$transaction(async (tx) => {
+    const company = await tx.company.create({
+      data: {
+        id: randomUUID(),
+        name,
+        type: type as CompanyType,
+        updatedAt: new Date(),
+      },
+    });
 
-  await recordOperatorAuditEvent({
-    actorUserId: actor.id,
-    action: "create",
-    entityType: "organization",
-    entityId: company.id,
-    summary: `Created organization ${company.name}`,
-    details: { type: company.type },
+    await recordOperatorAuditEvent(
+      {
+        actorUserId: actor.id,
+        action: "create",
+        entityType: "organization",
+        entityId: company.id,
+        summary: `Created organization ${company.name}`,
+        details: { type: company.type },
+      },
+      tx
+    );
   });
 
   await redirectWithRevalidate(returnTo);
@@ -221,31 +235,37 @@ export async function updateOrganizationMembershipAction(formData: FormData) {
     redirect(returnTo);
   }
 
-  const subject = await ensureCompanySubject(company.id, company.name);
-  await prisma.membershipSubscription.upsert({
-    where: { subjectId: subject.id },
-    update: {
-      plan: plan as MembershipPlan,
-      status: status as MembershipStatus,
-      updatedAt: new Date(),
-    },
-    create: {
-      id: randomUUID(),
-      subjectId: subject.id,
-      plan: plan as MembershipPlan,
-      status: status as MembershipStatus,
-      provider: "pat-operator",
-      startedAt: new Date(),
-    },
-  });
+  // Transaction boundary (B5): subject + membership + audit are one unit.
+  await prisma.$transaction(async (tx) => {
+    const subject = await ensureCompanySubject(company.id, company.name, tx);
+    await tx.membershipSubscription.upsert({
+      where: { subjectId: subject.id },
+      update: {
+        plan: plan as MembershipPlan,
+        status: status as MembershipStatus,
+        updatedAt: new Date(),
+      },
+      create: {
+        id: randomUUID(),
+        subjectId: subject.id,
+        plan: plan as MembershipPlan,
+        status: status as MembershipStatus,
+        provider: "pat-operator",
+        startedAt: new Date(),
+      },
+    });
 
-  await recordOperatorAuditEvent({
-    actorUserId: actor.id,
-    action: "update-membership",
-    entityType: "organization",
-    entityId: company.id,
-    summary: `Updated organization membership for ${company.name}`,
-    details: { plan, status },
+    await recordOperatorAuditEvent(
+      {
+        actorUserId: actor.id,
+        action: "update-membership",
+        entityType: "organization",
+        entityId: company.id,
+        summary: `Updated organization membership for ${company.name}`,
+        details: { plan, status },
+      },
+      tx
+    );
   });
 
   await redirectWithRevalidate(returnTo);
@@ -346,52 +366,60 @@ export async function createPilotUserAction(formData: FormData) {
     returnTo,
   });
   const now = new Date();
-  const user = await prisma.user.upsert({
-    where: { email },
-    update: {
-      name,
-      role: role as UserRole,
-      companyId,
-      passwordHash,
-      mustChangePassword,
-      passwordUpdatedAt: now,
-      updatedAt: now,
-    },
-    create: {
-      id: randomUUID(),
-      email,
-      name,
-      role: role as UserRole,
-      companyId,
-      passwordHash,
-      mustChangePassword,
-      passwordUpdatedAt: now,
-      updatedAt: now,
-    },
-    select: { id: true, email: true },
-  });
-
-  if (accountKind === "consultant") {
-    await prisma.consultantProfile.upsert({
-      where: { userId: user.id },
-      update: { active: true, updatedAt: now },
-      create: { id: randomUUID(), userId: user.id, active: true },
+  // Transaction boundary (B5): user + consultant profile + audit are one unit —
+  // a mid-flow failure must not leave a user without its consultant profile.
+  await prisma.$transaction(async (tx) => {
+    const created = await tx.user.upsert({
+      where: { email },
+      update: {
+        name,
+        role: role as UserRole,
+        companyId,
+        passwordHash,
+        mustChangePassword,
+        passwordUpdatedAt: now,
+        updatedAt: now,
+      },
+      create: {
+        id: randomUUID(),
+        email,
+        name,
+        role: role as UserRole,
+        companyId,
+        passwordHash,
+        mustChangePassword,
+        passwordUpdatedAt: now,
+        updatedAt: now,
+      },
+      select: { id: true, email: true },
     });
-  }
 
-  await recordOperatorAuditEvent({
-    actorUserId: actor.id,
-    action: "provision-pilot-user",
-    entityType: "user",
-    entityId: user.id,
-    summary: `Provisioned pilot ${accountKind} account ${user.email}`,
-    details: {
-      accountKind,
-      role,
-      companyId,
-      passwordSource: importedPasswordHash ? "imported-hash" : "temporary-password",
-      mustChangePassword,
-    },
+    if (accountKind === "consultant") {
+      await tx.consultantProfile.upsert({
+        where: { userId: created.id },
+        update: { active: true, updatedAt: now },
+        create: { id: randomUUID(), userId: created.id, active: true },
+      });
+    }
+
+    await recordOperatorAuditEvent(
+      {
+        actorUserId: actor.id,
+        action: "provision-pilot-user",
+        entityType: "user",
+        entityId: created.id,
+        summary: `Provisioned pilot ${accountKind} account ${created.email}`,
+        details: {
+          accountKind,
+          role,
+          companyId,
+          passwordSource: importedPasswordHash ? "imported-hash" : "temporary-password",
+          mustChangePassword,
+        },
+      },
+      tx
+    );
+    return created;
   });
 
   await redirectWithRevalidate(returnTo);
@@ -464,31 +492,37 @@ export async function updateUserMembershipAction(formData: FormData) {
     redirect(returnTo);
   }
 
-  const subject = await ensurePersonSubject(user.id, user.email);
-  await prisma.membershipSubscription.upsert({
-    where: { subjectId: subject.id },
-    update: {
-      plan: plan as MembershipPlan,
-      status: status as MembershipStatus,
-      updatedAt: new Date(),
-    },
-    create: {
-      id: randomUUID(),
-      subjectId: subject.id,
-      plan: plan as MembershipPlan,
-      status: status as MembershipStatus,
-      provider: "pat-operator",
-      startedAt: new Date(),
-    },
-  });
+  // Transaction boundary (B5): subject + membership + audit are one unit.
+  await prisma.$transaction(async (tx) => {
+    const subject = await ensurePersonSubject(user.id, user.email!, tx);
+    await tx.membershipSubscription.upsert({
+      where: { subjectId: subject.id },
+      update: {
+        plan: plan as MembershipPlan,
+        status: status as MembershipStatus,
+        updatedAt: new Date(),
+      },
+      create: {
+        id: randomUUID(),
+        subjectId: subject.id,
+        plan: plan as MembershipPlan,
+        status: status as MembershipStatus,
+        provider: "pat-operator",
+        startedAt: new Date(),
+      },
+    });
 
-  await recordOperatorAuditEvent({
-    actorUserId: actor.id,
-    action: "update-membership",
-    entityType: "user",
-    entityId: user.id,
-    summary: `Updated individual membership for ${user.email}`,
-    details: { plan, status },
+    await recordOperatorAuditEvent(
+      {
+        actorUserId: actor.id,
+        action: "update-membership",
+        entityType: "user",
+        entityId: user.id,
+        summary: `Updated individual membership for ${user.email}`,
+        details: { plan, status },
+      },
+      tx
+    );
   });
 
   await redirectWithRevalidate(returnTo);
@@ -504,43 +538,49 @@ export async function createConsultantAction(formData: FormData) {
     redirect(returnTo);
   }
 
-  const user = await prisma.user.upsert({
-    where: { email },
-    update: {
-      ...(name ? { name } : {}),
-      updatedAt: new Date(),
-    },
-    create: {
-      id: randomUUID(),
-      email,
-      name,
-      role: "MEMBER",
-      updatedAt: new Date(),
-    },
-    select: { id: true, email: true },
-  });
+  // Transaction boundary (B5): user + consultant profile + audit are one unit.
+  await prisma.$transaction(async (tx) => {
+    const user = await tx.user.upsert({
+      where: { email },
+      update: {
+        ...(name ? { name } : {}),
+        updatedAt: new Date(),
+      },
+      create: {
+        id: randomUUID(),
+        email,
+        name,
+        role: "MEMBER",
+        updatedAt: new Date(),
+      },
+      select: { id: true, email: true },
+    });
 
-  const consultantProfile = await prisma.consultantProfile.upsert({
-    where: { userId: user.id },
-    update: {
-      active: true,
-      updatedAt: new Date(),
-    },
-    create: {
-      id: randomUUID(),
-      userId: user.id,
-      active: true,
-    },
-    select: { id: true },
-  });
+    const consultantProfile = await tx.consultantProfile.upsert({
+      where: { userId: user.id },
+      update: {
+        active: true,
+        updatedAt: new Date(),
+      },
+      create: {
+        id: randomUUID(),
+        userId: user.id,
+        active: true,
+      },
+      select: { id: true },
+    });
 
-  await recordOperatorAuditEvent({
-    actorUserId: actor.id,
-    action: "add-consultant",
-    entityType: "consultant",
-    entityId: consultantProfile.id,
-    summary: `Added consultant ${user.email}`,
-    details: { email },
+    await recordOperatorAuditEvent(
+      {
+        actorUserId: actor.id,
+        action: "add-consultant",
+        entityType: "consultant",
+        entityId: consultantProfile.id,
+        summary: `Added consultant ${user.email}`,
+        details: { email },
+      },
+      tx
+    );
   });
 
   revalidatePath("/consultants");
@@ -641,43 +681,53 @@ export async function upsertConsultantAssignmentAction(formData: FormData) {
     select: { ecosystemId: true },
   });
 
-  const ecosystemId =
-    existingMembership?.ecosystemId ??
-    (
-      await prisma.ecosystem.create({
-        data: {
-          id: randomUUID(),
-          name: `Solo: ${company.name}`,
-          updatedAt: new Date(),
-          EcosystemFirm: {
-            create: {
-              firmCompanyId: companyId,
+  // Transaction boundary (B5): ecosystem + reassignment (delete + create) + audit
+  // are one unit — a mid-flow failure must not leave the consultant with zero
+  // assignments (deleteMany succeeded, create failed).
+  // NOTE (Phase 5 / AUDIT-D10-001): this legacy Assign-firm flow still creates a
+  // vendor-less "Solo:" ecosystem; deprecation deferred to Phase 5.
+  await prisma.$transaction(async (tx) => {
+    const ecosystemId =
+      existingMembership?.ecosystemId ??
+      (
+        await tx.ecosystem.create({
+          data: {
+            id: randomUUID(),
+            name: `Solo: ${company.name}`,
+            updatedAt: new Date(),
+            EcosystemFirm: {
+              create: {
+                firmCompanyId: companyId,
+              },
             },
           },
-        },
-        select: { id: true },
-      })
-    ).id;
+          select: { id: true },
+        })
+      ).id;
 
-  await prisma.consultantAssignment.deleteMany({ where: { consultantProfileId } });
+    await tx.consultantAssignment.deleteMany({ where: { consultantProfileId } });
 
-  const assignment = await prisma.consultantAssignment.create({
-    data: {
-      id: randomUUID(),
-      consultantProfileId,
-      ecosystemId,
-      active: true,
-      updatedAt: new Date(),
-    },
-  });
+    const assignment = await tx.consultantAssignment.create({
+      data: {
+        id: randomUUID(),
+        consultantProfileId,
+        ecosystemId,
+        active: true,
+        updatedAt: new Date(),
+      },
+    });
 
-  await recordOperatorAuditEvent({
-    actorUserId: actor.id,
-    action: "assign-consultant",
-    entityType: "consultant-assignment",
-    entityId: assignment.id,
-    summary: `Assigned consultant ${consultantProfile.User.email} to ${company.name}`,
-    details: { companyId: company.id, companyName: company.name, ecosystemId },
+    await recordOperatorAuditEvent(
+      {
+        actorUserId: actor.id,
+        action: "assign-consultant",
+        entityType: "consultant-assignment",
+        entityId: assignment.id,
+        summary: `Assigned consultant ${consultantProfile.User.email} to ${company.name}`,
+        details: { companyId: company.id, companyName: company.name, ecosystemId },
+      },
+      tx
+    );
   });
 
   revalidatePath("/consultants");
