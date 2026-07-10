@@ -70,9 +70,10 @@ export default async function VendorAlignmentInsightsPage({
   // firms this cross-firm readout is not a publishable peer benchmark; the surface
   // tells the vendor so instead of presenting the averages as settled.
   const peerBenchmarkSuppressed = bundle.benchmarkSuppression.suppressed && bundle.sampleSize > 0;
+  const eliteEntitlement = await resolveMembershipEntitlement(sessionUser, "vendor", MEMBERSHIP_PLAN.ELITE);
   const activeMode = getRequestedVendorAlignmentInsightOverviewMode(resolvedSearchParams?.mode);
   const proCards = buildVendorAlignmentProInsightCards(bundle);
-  const eliteCards = buildVendorAlignmentEliteInsightCards(bundle);
+  const eliteCards = buildVendorAlignmentEliteInsightCards(bundle, { elite: eliteEntitlement.allowed });
   const toggleOptions = [
     { key: "pro", label: "Pro Insights", href: getModeHref("pro") },
     { key: "elite", label: "Elite Insights", href: getModeHref("elite") },

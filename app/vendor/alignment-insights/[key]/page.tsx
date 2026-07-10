@@ -13,6 +13,16 @@ import {
   getRequestedVendorAlignmentInsightDetailSurface,
   getVendorAlignmentInsightBundle,
 } from "@/lib/vendorAlignmentInsightEngine";
+import { getVendorProductInsightCatalog } from "@/lib/vendorProductInsightEngine";
+import { getPeerBenchmark, getPlatformProductBenchmark } from "@/lib/adminPlatformPicture";
+import { poolForViewerBoundary, resolveCompanyBoundary } from "@/lib/dataBoundary";
+import {
+  buildVendorMarketComparison,
+  buildVendorFutureDemand,
+  buildVendorExpansionSimulation,
+  type EliteInsightResult,
+} from "@/lib/eliteInsights";
+import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +31,57 @@ type Params = {
 };
 
 type SearchParams = { surface?: string };
+
+/**
+ * Elite Insights v1 (Block 3) — build real, data-grounded content for a vendor
+ * Tier-2 surface. Boundary-scoped to the viewer's pool, confidence-banded, with
+ * minimum-n suppression on peer/benchmark cuts. See lib/eliteInsights.ts.
+ */
+async function buildVendorEliteResult(key: string, companyId: string): Promise<EliteInsightResult | null> {
+  const boundaries = poolForViewerBoundary(await resolveCompanyBoundary(companyId));
+
+  if (key === "benchmark-comparison") {
+    const [catalog, market] = await Promise.all([
+      getVendorProductInsightCatalog(companyId),
+      getPlatformProductBenchmark(boundaries),
+    ]);
+    return buildVendorMarketComparison({
+      rows: catalog.map((snapshot) => ({
+        label: snapshot.product.name,
+        subjectAverage: snapshot.firmReviewed.averageScore,
+        subjectContributorCount: snapshot.firmReviewed.assessmentCount,
+        peerAverage: market.marketAverage,
+        peerContributorCount: market.contributorCount,
+      })),
+    });
+  }
+
+  if (key === "forward-projection") {
+    const peer = await getPeerBenchmark(boundaries);
+    return buildVendorFutureDemand({
+      weakModules: peer.modules.map((m) => ({
+        title: m.title,
+        averageScore: m.averageScore,
+        contributorCount: m.contributorCount,
+      })),
+    });
+  }
+
+  if (key === "scenario-simulation") {
+    const catalog = await getVendorProductInsightCatalog(companyId);
+    return buildVendorExpansionSimulation({
+      candidates: catalog.map((snapshot) => ({
+        productName: snapshot.product.name,
+        grade: snapshot.firmReviewed.assessmentCount > 0 ? "firm_reviewed" : "vendor_reported",
+        projectedScore:
+          snapshot.firmReviewed.averageScore ?? snapshot.vendorSelfReported.latestScore ?? null,
+        dimensions: [],
+      })),
+    });
+  }
+
+  return null;
+}
 
 export default async function VendorAlignmentInsightDetailPage({
   params,
@@ -65,6 +126,31 @@ export default async function VendorAlignmentInsightDetailPage({
 
   if (!report) {
     notFound();
+  }
+
+  // Elite Insights v1 (Block 3): an Elite member opening a Tier-2 vendor surface
+  // gets the real, data-grounded readout; Pro-only members keep "Coming soon".
+  const eliteEntitlement = await resolveMembershipEntitlement(sessionUser, "vendor", MEMBERSHIP_PLAN.ELITE);
+  if (report.tier === 2 && eliteEntitlement.allowed && sessionUser.companyId) {
+    const eliteResult = await buildVendorEliteResult(key, sessionUser.companyId);
+    if (eliteResult) {
+      return (
+        <InsightDetailShell
+          activeKey="elite"
+          eyebrow="Vendor alignment insight · Elite"
+          title={report.title}
+          summary={eliteResult.summary}
+          surfaceContent={eliteResult.content}
+          toggleAriaLabel="Vendor Elite insight views"
+          toggleOptions={[{ key: "elite", label: "Elite", href: `/vendor/alignment-insights/${key}?surface=elite` }]}
+          combinedEvidenceText={`Evidence grade: ${eliteResult.grade}${
+            eliteResult.confidenceLabel ? ` · confidence: ${eliteResult.confidenceLabel}` : ""
+          }.${eliteResult.available ? "" : " Truthful-scope: PAT does not present a number it cannot honestly support yet."}`}
+        >
+          <OutputDisclaimer variant="note" />
+        </InsightDetailShell>
+      );
+    }
   }
 
   const surfaceCards = buildVendorAlignmentInsightDetailSurfaceCards({ report });

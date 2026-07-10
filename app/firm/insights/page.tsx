@@ -46,6 +46,7 @@ export default async function FirmInsightsPage({
     redirect("/sign-in/firm");
   }
   const entitlement = await resolveMembershipEntitlement(sessionUser, "firm", MEMBERSHIP_PLAN.PRO);
+  const eliteEntitlement = await resolveMembershipEntitlement(sessionUser, "firm", MEMBERSHIP_PLAN.ELITE);
   if (!entitlement.allowed) {
     return (
       <MembershipSurfaceGate
@@ -82,7 +83,7 @@ export default async function FirmInsightsPage({
     reports: insightReports,
     unlockedKeys,
   });
-  const eliteCards = buildFirmEliteInsightCards();
+  const eliteCards = buildFirmEliteInsightCards({ elite: eliteEntitlement.allowed });
   const toggleOptions = [
     { key: "pro", label: "Pro Insights", href: getModeHref("pro") },
     { key: "elite", label: "Elite Insights", href: getModeHref("elite") },

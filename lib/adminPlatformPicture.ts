@@ -3,6 +3,7 @@ import { FIRM_MODULE_DEFINITIONS, FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat"
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { VENDOR_PRODUCT_MODULE_KEY } from "@/lib/vendorPat";
 import { CUSTOMER_FACING_BOUNDARIES } from "@/lib/dataBoundary";
+import type { DataBoundary } from "@prisma/client";
 import { DIVERGENCE_MIN_FIRM_REVIEWS } from "@/lib/vendorProductInsightEngine";
 
 // Data-integrity wall (CLASS 1): the platform picture is the REAL (+pilot)
@@ -147,6 +148,117 @@ export async function getPlatformPicture(): Promise<PlatformPicture> {
     averageAlignmentIndex,
     scoredFirmCount: firmIndexes.length,
     hotDivergenceCount,
+  };
+}
+
+export type PeerModuleAverage = {
+  moduleKey: string;
+  title: string;
+  /** Cross-firm mean of the latest final score per firm for this module (0–100). */
+  averageScore: number | null;
+  /** Distinct firms contributing (one latest score each) — the benchmark contributor count. */
+  contributorCount: number;
+};
+
+export type PeerBenchmark = {
+  /** Mean of per-firm alignment indexes across the pool (0–100). */
+  overallAverageIndex: number | null;
+  /** Distinct firms behind the overall index — the suppression contributor count. */
+  overallContributorCount: number;
+  modules: PeerModuleAverage[];
+};
+
+/**
+ * Viewer-scoped peer benchmark (Elite firm surface F2). `boundaries` is the
+ * viewer's pool from `poolForViewerBoundary` — a real firm benchmarks against
+ * REAL+PILOT, a demo firm against DEMO — so demo rows never leak into a real
+ * pool and the demo environment still shows a populated benchmark. One-firm-one-
+ * vote: the latest final score per (firm, module) is averaged across firms;
+ * `contributorCount` feeds the Governance Phase 2 minimum-n suppression rule.
+ */
+export async function getPeerBenchmark(boundaries: DataBoundary[]): Promise<PeerBenchmark> {
+  const submissions = await prisma.surveySubmission.findMany({
+    where: getSurveyFinalWhere({
+      SurveyModule: { key: { in: FIRM_MODULE_DEFINITIONS.map((module) => module.key) } },
+      Company: { is: { dataBoundary: { in: boundaries } } },
+    }),
+    orderBy: { createdAt: "desc" },
+    select: { companyId: true, score: true, SurveyModule: { select: { key: true } } },
+  });
+
+  // Latest final score per (firm, moduleKey) — one vote per firm per module.
+  const latestByFirmModule = new Map<string, number>();
+  for (const submission of submissions) {
+    const moduleKey = submission.SurveyModule?.key;
+    if (!submission.companyId || !moduleKey || typeof submission.score !== "number") continue;
+    const key = `${submission.companyId}::${moduleKey}`;
+    if (!latestByFirmModule.has(key)) latestByFirmModule.set(key, submission.score);
+  }
+
+  const scoresByModule = new Map<string, number[]>();
+  const scoresByFirm = new Map<string, number[]>();
+  for (const [key, score] of latestByFirmModule) {
+    const sep = key.lastIndexOf("::");
+    const companyId = key.slice(0, sep);
+    const moduleKey = key.slice(sep + 2);
+    (scoresByModule.get(moduleKey) ?? scoresByModule.set(moduleKey, []).get(moduleKey)!).push(score);
+    (scoresByFirm.get(companyId) ?? scoresByFirm.set(companyId, []).get(companyId)!).push(score);
+  }
+
+  const firmIndexes = Array.from(scoresByFirm.values()).map(
+    (scores) => scores.reduce((sum, score) => sum + score, 0) / scores.length
+  );
+
+  return {
+    overallAverageIndex: firmIndexes.length
+      ? Math.round(firmIndexes.reduce((sum, index) => sum + index, 0) / firmIndexes.length)
+      : null,
+    overallContributorCount: firmIndexes.length,
+    modules: FIRM_MODULE_DEFINITIONS.map((module) => {
+      const scores = scoresByModule.get(module.key) ?? [];
+      return {
+        moduleKey: module.key,
+        title: module.title,
+        averageScore: scores.length
+          ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
+          : null,
+        contributorCount: scores.length,
+      };
+    }),
+  };
+}
+
+export type PlatformProductBenchmark = {
+  /** Mean of all firm-reviewed product scores across the pool (0–100). */
+  marketAverage: number | null;
+  /** Distinct firms that reviewed any product — the suppression contributor count. */
+  contributorCount: number;
+};
+
+/**
+ * Viewer-scoped market benchmark for firm-reviewed products (Elite vendor surface
+ * V1). Mean of every firm's firm-reviewed product score over the viewer's pool,
+ * with the distinct-firm contributor count that feeds minimum-n suppression.
+ */
+export async function getPlatformProductBenchmark(boundaries: DataBoundary[]): Promise<PlatformProductBenchmark> {
+  const submissions = await prisma.surveySubmission.findMany({
+    where: getSurveyFinalWhere({
+      SurveyModule: { key: FIRM_PRODUCT_MODULE_KEY },
+      Subject: { productId: { not: null } },
+      Company: { is: { dataBoundary: { in: boundaries } } },
+    }),
+    select: { companyId: true, score: true },
+  });
+  const scores: number[] = [];
+  const firms = new Set<string>();
+  for (const submission of submissions) {
+    if (typeof submission.score !== "number") continue;
+    scores.push(submission.score);
+    if (submission.companyId) firms.add(submission.companyId);
+  }
+  return {
+    marketAverage: scores.length ? Math.round(scores.reduce((sum, s) => sum + s, 0) / scores.length) : null,
+    contributorCount: firms.size,
   };
 }
 

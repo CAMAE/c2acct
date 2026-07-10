@@ -20,6 +20,18 @@ import { getFirmInsightContent } from "@/lib/insightContent";
 import { evaluateUnlocked } from "@/lib/insights/evaluateUnlocked";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
+import { getAlignmentBoardData } from "@/lib/alignmentBoard";
+import { getAdminCompanyBriefing } from "@/lib/adminBriefingEngine";
+import { getPeerBenchmark } from "@/lib/adminPlatformPicture";
+import { buildActionRoadmap } from "@/lib/briefs";
+import { poolForViewerBoundary, resolveCompanyBoundary } from "@/lib/dataBoundary";
+import {
+  buildFirmFutureStateProjection,
+  buildFirmPeerBenchmark,
+  buildFirmRecommendations,
+  type EliteInsightResult,
+} from "@/lib/eliteInsights";
+import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import {
   FIRM_MODULE_DEFINITIONS,
   FIRM_TIER1_INSIGHT_DEFINITIONS,
@@ -36,6 +48,86 @@ type Params = {
 type SearchParams = {
   surface?: string;
 };
+
+/**
+ * Elite Insights v1 (Block 3) — build the real, data-grounded content for a
+ * firm Tier-2 surface. Every number is boundary-scoped, confidence-banded, and
+ * (for the peer benchmark) minimum-n suppressed. See lib/eliteInsights.ts.
+ */
+async function buildFirmEliteResult(key: string, companyId: string): Promise<EliteInsightResult | null> {
+  if (key === "firm_tier2_projection") {
+    const board = await getAlignmentBoardData(companyId);
+    if (!board) {
+      return buildFirmFutureStateProjection({
+        currentAlignment: null,
+        stackCount: 0,
+        dimensionAxes: [],
+        currentDimensions: [],
+        bestCandidate: null,
+      });
+    }
+    const currentDimensions = board.dimensionAxes.map((axis) => {
+      const scores = board.stack
+        .map((piece) => piece.dimensionScores.find((d) => d.key === axis.key)?.score)
+        .filter((s): s is number => typeof s === "number");
+      return {
+        key: axis.key,
+        title: axis.title,
+        score: scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null,
+        sampleSize: scores.length,
+      };
+    });
+    const best = board.candidates[0] ?? board.unreviewedCandidates[0] ?? null;
+    return buildFirmFutureStateProjection({
+      currentAlignment: board.currentAlignment,
+      stackCount: board.stack.length,
+      dimensionAxes: board.dimensionAxes,
+      currentDimensions,
+      bestCandidate: best
+        ? { productName: best.productName, projectedScore: best.projectedScore, grade: best.grade }
+        : null,
+    });
+  }
+
+  if (key === "firm_tier2_benchmark") {
+    const viewerBoundary = await resolveCompanyBoundary(companyId);
+    const [briefing, peer] = await Promise.all([
+      getAdminCompanyBriefing(companyId),
+      getPeerBenchmark(poolForViewerBoundary(viewerBoundary)),
+    ]);
+    const firmModules = briefing?.firmLayer.moduleHeatmap ?? [];
+    return buildFirmPeerBenchmark({
+      firmAlignmentIndex: briefing?.firmLayer.averageScore ?? null,
+      platformAverageIndex: peer.overallAverageIndex,
+      platformContributorCount: peer.overallContributorCount,
+      modules: peer.modules.map((m) => ({
+        moduleKey: m.moduleKey,
+        title: m.title,
+        firmScore: firmModules.find((f) => f.key === m.moduleKey)?.canonicalScore ?? null,
+        peerAverage: m.averageScore,
+        peerContributorCount: m.contributorCount,
+      })),
+    });
+  }
+
+  if (key === "firm_tier2_recommendation") {
+    const briefing = await getAdminCompanyBriefing(companyId);
+    if (!briefing) return buildFirmRecommendations({ evidenceCount: 0, windows: [] });
+    const roadmap = buildActionRoadmap([briefing]);
+    const toActions = (items: (typeof roadmap)["thirtyDay"]) =>
+      items.map((a) => ({ text: a.text, detail: a.detail, signalStrength: a.signalStrength }));
+    return buildFirmRecommendations({
+      evidenceCount: briefing.firmLayer.completedModuleCount,
+      windows: [
+        { window: "30 days", actions: toActions(roadmap.thirtyDay) },
+        { window: "60 days", actions: toActions(roadmap.sixtyDay) },
+        { window: "90 days", actions: toActions(roadmap.ninetyDay) },
+      ],
+    });
+  }
+
+  return null;
+}
 
 export default async function FirmInsightDetailPage({
   params,
@@ -83,12 +175,39 @@ export default async function FirmInsightDetailPage({
     notFound();
   }
 
+  const isTier2 = Boolean(tier2Insight);
+
+  // Elite Insights v1 (Block 3): an Elite member opening a Tier-2 surface gets the
+  // real, data-grounded readout; Pro-only members keep the locked "Coming soon".
+  const eliteEntitlement = await resolveMembershipEntitlement(sessionUser, "firm", MEMBERSHIP_PLAN.ELITE);
+  const isElite = eliteEntitlement.allowed;
+  if (isTier2 && isElite) {
+    const eliteResult = await buildFirmEliteResult(key, sessionUser.companyId);
+    if (eliteResult) {
+      return (
+        <InsightDetailShell
+          activeKey="elite"
+          eyebrow="Firm alignment insight · Elite"
+          title={insight.title}
+          summary={eliteResult.summary}
+          surfaceContent={eliteResult.content}
+          toggleAriaLabel="Firm Elite insight views"
+          toggleOptions={[{ key: "elite", label: "Elite", href: `/firm/insights/${key}?surface=elite` }]}
+          combinedEvidenceText={`Evidence grade: ${eliteResult.grade}${
+            eliteResult.confidenceLabel ? ` · confidence: ${eliteResult.confidenceLabel}` : ""
+          }.${eliteResult.available ? "" : " Truthful-scope: PAT does not present a number it cannot honestly support yet."}`}
+        >
+          <OutputDisclaimer variant="note" />
+        </InsightDetailShell>
+      );
+    }
+  }
+
   const [unlockedRecords, insightReports] = await Promise.all([
     evaluateUnlocked({ companyId: sessionUser.companyId }),
     getFirmInsightReports(sessionUser.companyId),
   ]);
   const unlockedKeys = new Set(unlockedRecords.map((item) => item.key));
-  const isTier2 = Boolean(tier2Insight);
   const unlocked = isTier2 ? false : unlockedKeys.has(key);
   const report = !isTier2 ? insightReports.get(key as (typeof FIRM_TIER1_INSIGHT_DEFINITIONS)[number]["key"]) : null;
   const activeSurface = getRequestedFirmInsightDetailSurface(resolvedSearchParams?.surface);

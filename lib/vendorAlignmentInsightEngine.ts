@@ -768,11 +768,29 @@ export function buildVendorAlignmentProInsightCards(
     );
 }
 
-export function buildVendorAlignmentEliteInsightCards(bundle: VendorAlignmentInsightBundle) {
+export function buildVendorAlignmentEliteInsightCards(
+  bundle: VendorAlignmentInsightBundle,
+  { elite = false }: { elite?: boolean } = {}
+) {
   return bundle.reports
     .filter((report) => report.tier === 2)
     .map((report) => {
       const content = getVendorAlignmentInsightContent(report.key);
+
+      // Elite Insights v1 (Block 3): live + interactive for Elite members; the
+      // locked "Coming soon" state is preserved for Pro-only members.
+      if (elite) {
+        return {
+          key: report.key,
+          title: report.title,
+          summary: content?.summary ?? report.currentStateSummary,
+          statusLabel: "Elite",
+          tone: "active",
+          href: `/vendor/alignment-insights/${report.key}?surface=elite`,
+          interactive: true,
+          supportingText: "Grounded in current firm-reviewed evidence — directional, not verified.",
+        } satisfies VendorAlignmentInsightOverviewCard;
+      }
 
       return {
         key: report.key,

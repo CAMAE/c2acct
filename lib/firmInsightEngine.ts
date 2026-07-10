@@ -555,9 +555,24 @@ export function buildFirmProInsightCards(input: {
   });
 }
 
-export function buildFirmEliteInsightCards() {
+export function buildFirmEliteInsightCards({ elite = false }: { elite?: boolean } = {}) {
   return FIRM_TIER2_INSIGHT_DEFINITIONS.map((insight) => {
     const content = getFirmInsightContent(insight.key);
+
+    // Elite Insights v1 (Block 3): live + interactive for Elite members; the
+    // locked "Coming soon" state is preserved for Pro-only members.
+    if (elite) {
+      return {
+        key: insight.key,
+        title: insight.title,
+        summary: content?.summary ?? insight.title,
+        statusLabel: "Elite",
+        tone: "active",
+        href: `/firm/insights/${insight.key}?surface=elite`,
+        interactive: true,
+        supportingText: "Grounded in your firm-reviewed evidence — directional, not verified.",
+      } satisfies FirmInsightOverviewCard;
+    }
 
     return {
       key: insight.key,
