@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import ChartEmptyState from "@/app/components/charts/ChartEmptyState";
 import ProgressMeter from "@/app/components/charts/ProgressMeter";
@@ -377,6 +378,32 @@ export default async function FirmInsightDetailPage({
       visualLead={visualLead}
       surfaceCollapsed={Boolean(visualLead) && scoredModules.length > 0 && visibleSurfaceKey === "pro"}
     >
+      {visibleSurfaceKey === "elite" ? (
+        <section className="pat-card p-6">
+          <div className="pat-label">Elite Insights</div>
+          {isElite ? (
+            <>
+              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+                Your Elite Insights are live — future-state projection, a peer benchmark, and a recommendation
+                engine, each grounded in your firm-reviewed evidence.
+              </p>
+              <Link href="/firm/insights?mode=elite" className="pat-button-secondary mt-4 inline-flex">
+                Open Elite Insights
+              </Link>
+            </>
+          ) : (
+            <>
+              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+                Elite Insights unlock future-state projection, a peer benchmark, and a recommendation engine
+                grounded in your firm-reviewed evidence.
+              </p>
+              <Link href={eliteEntitlement.upgradeHref} className="pat-button-secondary mt-4 inline-flex">
+                Unlock with Elite
+              </Link>
+            </>
+          )}
+        </section>
+      ) : null}
       {!isTier2 && !unlocked ? (
         <section className="pat-card p-6">
           <div className="pat-label">{messages.insights.firm.unlockRequirement}</div>

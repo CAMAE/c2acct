@@ -15,6 +15,49 @@ import {
  * evidence is thin. No number is fabricated; suppressed cuts never print a figure.
  */
 
+describe("reachability — Elite hub cards are live + clickable for Elite viewers", () => {
+  it("firm: Elite viewers get interactive cards linking to each ?surface=elite; Pro stays locked", async () => {
+    const { buildFirmEliteInsightCards } = await import("@/lib/firmInsightEngine");
+    const live = buildFirmEliteInsightCards({ elite: true });
+    expect(live.length).toBe(3);
+    for (const card of live) {
+      expect(card.interactive).toBe(true);
+      expect(card.href).toBe(`/firm/insights/${card.key}?surface=elite`);
+      expect(card.tone).toBe("active");
+    }
+    const locked = buildFirmEliteInsightCards({ elite: false });
+    for (const card of locked) {
+      expect(card.interactive).toBe(false);
+      expect(card.href).toBeNull();
+    }
+  });
+
+  it("vendor: Elite viewers get interactive cards linking to each ?surface=elite; Pro stays locked", async () => {
+    const { buildVendorAlignmentInsightBundle, buildVendorAlignmentEliteInsightCards } = await import(
+      "@/lib/vendorAlignmentInsightEngine"
+    );
+    const bundle = buildVendorAlignmentInsightBundle({
+      sampleSize: 6,
+      submissionCount: 6,
+      moduleAggregates: [],
+      capabilityAggregates: [],
+      questionClusters: [],
+    });
+    const live = buildVendorAlignmentEliteInsightCards(bundle, { elite: true });
+    expect(live.length).toBe(3);
+    for (const card of live) {
+      expect(card.interactive).toBe(true);
+      expect(card.href).toBe(`/vendor/alignment-insights/${card.key}?surface=elite`);
+      expect(card.tone).toBe("active");
+    }
+    const locked = buildVendorAlignmentEliteInsightCards(bundle, { elite: false });
+    for (const card of locked) {
+      expect(card.interactive).toBe(false);
+      expect(card.href).toBeNull();
+    }
+  });
+});
+
 describe("F1 — firm future-state projection", () => {
   it("projects from firm-reviewed stack and labels it a projection", () => {
     const r = buildFirmFutureStateProjection({

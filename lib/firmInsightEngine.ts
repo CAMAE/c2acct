@@ -565,8 +565,8 @@ export function buildFirmEliteInsightCards({ elite = false }: { elite?: boolean 
       return {
         key: insight.key,
         title: insight.title,
-        summary: content?.summary ?? insight.title,
-        statusLabel: "Elite",
+        summary: "Open the live Elite readout — grounded in your firm-reviewed evidence, directional not verified.",
+        statusLabel: "Live · Elite",
         tone: "active",
         href: `/firm/insights/${insight.key}?surface=elite`,
         interactive: true,

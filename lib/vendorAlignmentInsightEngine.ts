@@ -783,8 +783,8 @@ export function buildVendorAlignmentEliteInsightCards(
         return {
           key: report.key,
           title: report.title,
-          summary: content?.summary ?? report.currentStateSummary,
-          statusLabel: "Elite",
+          summary: "Open the live Elite readout — grounded in current firm-reviewed evidence, directional not verified.",
+          statusLabel: "Live · Elite",
           tone: "active",
           href: `/vendor/alignment-insights/${report.key}?surface=elite`,
           interactive: true,

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import RankedBars from "@/app/components/charts/RankedBars";
 import ScoreLockup from "@/app/components/charts/ScoreLockup";
@@ -243,6 +244,33 @@ export default async function VendorAlignmentInsightDetailPage({
       combinedEvidenceNote={report.locked ? "Coming soon. Unlock with Elite membership." : undefined}
       muted={report.locked}
       visualLead={visualLead}
-    />
+    >
+      {activeSurface === "elite" ? (
+        <section className="pat-card p-6">
+          <div className="pat-label">Elite Insights</div>
+          {eliteEntitlement.allowed ? (
+            <>
+              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+                Your Elite Insights are live — benchmark comparison, future demand, and an expansion
+                simulation, each grounded in current firm-reviewed evidence.
+              </p>
+              <Link href="/vendor/alignment-insights?mode=elite" className="pat-button-secondary mt-4 inline-flex">
+                Open Elite Insights
+              </Link>
+            </>
+          ) : (
+            <>
+              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+                Elite Insights unlock benchmark comparison, future demand, and an expansion simulation
+                grounded in current firm-reviewed evidence.
+              </p>
+              <Link href={eliteEntitlement.upgradeHref} className="pat-button-secondary mt-4 inline-flex">
+                Unlock with Elite
+              </Link>
+            </>
+          )}
+        </section>
+      ) : null}
+    </InsightDetailShell>
   );
 }

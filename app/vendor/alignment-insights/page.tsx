@@ -104,7 +104,9 @@ export default async function VendorAlignmentInsightsPage({
       }}
       elitePanel={{
         title: "Elite insights",
-        intro: "Coming soon. Unlock with Elite membership.",
+        intro: eliteEntitlement.allowed
+          ? "Live with your Elite membership. Open any card for the grounded, directional readout built from current firm-reviewed evidence."
+          : "Coming soon. Unlock with Elite membership.",
         cards: eliteCards,
         columnsClassName: "md:grid-cols-2 xl:grid-cols-3",
       }}

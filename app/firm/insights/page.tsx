@@ -181,7 +181,9 @@ export default async function FirmInsightsPage({
       }}
       elitePanel={{
         title: messages.insights.firm.eliteTitle,
-        intro: messages.insights.firm.eliteBody,
+        intro: eliteEntitlement.allowed
+          ? "Live with your Elite membership. Open any card for the grounded, directional readout built from your firm-reviewed evidence."
+          : messages.insights.firm.eliteBody,
         cards: eliteCards,
         columnsClassName: "md:grid-cols-2 xl:grid-cols-3",
       }}
