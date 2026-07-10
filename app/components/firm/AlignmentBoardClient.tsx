@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, type ReactNode } from "react";
 import AlignmentRadar, { type RadarAxis } from "@/app/components/firm/AlignmentRadar";
+import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import { formatDelta, formatScoreValue } from "@/lib/formatDelta";
 import { fitHeatColor, fitTierLabel } from "@/lib/fitHeat";
 import type { AlignmentBoardData, BoardCandidate, BoardPiece } from "@/lib/alignmentBoard";
@@ -566,6 +567,7 @@ export default function AlignmentBoardClient({
           )}
         </DetailCard>
       ) : null}
+      <OutputDisclaimer variant="note" />
     </div>
   );
 }

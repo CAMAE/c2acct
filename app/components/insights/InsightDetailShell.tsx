@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import PatModeToggle, { type PatModeToggleOption } from "@/app/components/pat/PatModeToggle";
+import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import type { InsightSurfaceContent } from "@/lib/insightSurface";
 
 type InsightDetailShellProps = {
@@ -126,6 +127,7 @@ export default function InsightDetailShell({
       )}
 
       {children}
+      <OutputDisclaimer variant="note" />
     </div>
   );
 }

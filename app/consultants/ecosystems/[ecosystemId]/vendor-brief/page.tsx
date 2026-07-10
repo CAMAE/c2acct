@@ -5,6 +5,7 @@ import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
 import MeetPatContent from "@/app/components/pat/MeetPatContent";
+import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import { requireConsultantSession } from "@/lib/consultantAccess";
 import { getVendorBriefForConsultant } from "@/lib/briefs";
 import ActionRoadmap from "./_components/ActionRoadmap";
@@ -161,6 +162,7 @@ export default async function VendorBriefPage({
           <VendorBriefHelpContent />
         </section>
       ) : null}
+      <OutputDisclaimer variant="note" />
     </div>
   );
 }

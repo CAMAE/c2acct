@@ -233,6 +233,22 @@ export const TRUST_SURFACES = {
         body:
           "Card entry is delegated to the payment provider when billing is configured. PAT stores provider identifiers and reconciliation status; it does not store raw card numbers.",
       },
+      {
+        title: "Subprocessors",
+        body:
+          "PAT relies on a small set of infrastructure and service providers to operate. We inherit each provider's own infrastructure controls; PAT does not claim its own external certification.",
+        bullets: [
+          "Vercel — application hosting and edge/serverless compute.",
+          "Neon — managed PostgreSQL database (pooled, with connection management).",
+          "Stripe — payment processing and provider-hosted checkout when billing is configured.",
+          "Anthropic — large-language-model provider powering optional AI-assisted features (no customer data is used to train third-party models).",
+        ],
+      },
+      {
+        title: "Data practices and methodology",
+        body:
+          "Data is transmitted over encrypted connections. Retention is configured per data class with a soft-delete window before hard purge, and tested tenant export and deletion paths exist for contractual data-subject requests. How PAT computes its scores and benchmarks — including the integrity walls that keep demo data and vendor self-report out of peer aggregates — is published on the versioned methodology page at /methodology.",
+      },
     ],
   },
   support: {

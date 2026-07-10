@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import RadarChart from "@/app/components/charts/RadarChart";
 import RankedBars from "@/app/components/charts/RankedBars";
 import ScoreLockup from "@/app/components/charts/ScoreLockup";
@@ -216,6 +217,7 @@ export default async function FirmBriefPage({
           <FirmBriefHelpContent />
         </section>
       ) : null}
+      <OutputDisclaimer variant="note" />
     </div>
   );
 }

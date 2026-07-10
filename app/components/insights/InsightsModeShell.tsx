@@ -4,6 +4,7 @@ import InsightStatusBadge from "@/app/components/insights/InsightStatusBadge";
 import InsightSurfaceCardGrid, { type InsightSurfaceGridCard } from "@/app/components/insights/InsightSurfaceCardGrid";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import PatModeToggle from "@/app/components/pat/PatModeToggle";
+import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 
 export type InsightsModeKey = "pro" | "elite" | "help";
 
@@ -116,6 +117,7 @@ export default function InsightsModeShell({
           </section>
         ) : null}
       </section>
+      <OutputDisclaimer variant="note" />
     </div>
   );
 }

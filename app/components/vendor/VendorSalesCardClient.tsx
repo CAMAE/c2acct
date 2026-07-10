@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import PatModeToggle from "@/app/components/pat/PatModeToggle";
 import SalesFitRadar from "@/app/components/vendor/SalesFitRadar";
+import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import { formatDelta, formatScoreValue } from "@/lib/formatDelta";
 import { fitBarPct, fitHeatColor, fitTierKey, fitTierLabel, type FitTierKey } from "@/lib/fitHeat";
 import type { EvidenceGrade, RankedFirm, SalesModuleGap, VendorSalesCardData } from "@/lib/salesCard";
@@ -279,6 +280,7 @@ export default function VendorSalesCardClient({
           )}
         </section>
       ) : null}
+      <OutputDisclaimer variant="note" />
     </div>
   );
 }
