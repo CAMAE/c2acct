@@ -29,6 +29,7 @@ import {
 import { writeCompanyCapabilityScores } from "@/lib/companyCapabilityScoreWrites";
 import { recordPatDiagnostic } from "@/lib/patDiagnostics";
 import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
+import { writeFirmMaturitySnapshot } from "@/lib/firmMaturity";
 import { SURVEY_FINAL_SCORE_VERSION, getSurveyDraftWhere } from "@/lib/surveyDrafts";
 import { consumeDurableRateLimit, rateLimitJsonResponse } from "@/lib/security/rateLimit";
 
@@ -516,6 +517,24 @@ export async function POST(req: Request) {
         }
 
         reached = true;
+      }
+
+      // B5-5 (F3 Trajectory): on a final FIRM alignment-module submission, append a
+      // maturity snapshot so real firms build honest history over time. Demo firms
+      // are skipped inside the writer (their history is seeded).
+      if (CANONICAL_FIRM_MODULE_KEYS.has(moduleKey)) {
+        try {
+          await writeFirmMaturitySnapshot(tx, effectiveCompanyId);
+        } catch (error) {
+          if (isPrismaMissingSchemaError(error)) {
+            warnPrismaCompatibilityOnce(
+              "survey-submit-maturity-snapshot-missing",
+              "FirmMaturitySnapshot writes are unavailable in the local database. Trajectory history is skipped until local Prisma migrations are applied."
+            );
+          } else {
+            throw error;
+          }
+        }
       }
 
       await tx.surveySubmission.deleteMany({

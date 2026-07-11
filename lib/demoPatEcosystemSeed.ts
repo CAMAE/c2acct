@@ -28,6 +28,7 @@ import {
   getAssessmentScoreScale,
 } from "@/lib/capabilityScoring";
 import { writeCompanyCapabilityScores } from "@/lib/companyCapabilityScoreWrites";
+import { maturityTier } from "@/lib/firmMaturity";
 import {
   FIRM_MODULE_DEFINITIONS,
   ensureFirmAlignmentSystem,
@@ -182,12 +183,8 @@ export function demoDate(offsetHours: number) {
   return new Date(new Date(DEMO_SEED_BASE_DATE).getTime() + offsetHours * 60 * 60 * 1000);
 }
 
-export function maturityTier(scorePct: number) {
-  if (scorePct >= 82) return { tier: "ADVANCED", bandMin: 80, bandMax: 100 };
-  if (scorePct >= 65) return { tier: "SCALING", bandMin: 65, bandMax: 79 };
-  if (scorePct >= 45) return { tier: "FOUNDATIONAL", bandMin: 45, bandMax: 64 };
-  return { tier: "EMERGING", bandMin: 0, bandMax: 44 };
-}
+// Canonical maturity bands now live in lib/firmMaturity.ts (B5-5).
+export { maturityTier };
 
 export async function ensureResearchSource(client: DemoSeedClient) {
   return client.researchSource.upsert({

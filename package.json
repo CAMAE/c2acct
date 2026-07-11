@@ -70,6 +70,8 @@
     "seed:pat-runtime": "node --import tsx scripts/seed-pat-runtime.ts",
     "index:help": "node --import tsx scripts/index-help.ts",
     "compute:benchmarks": "node --import tsx scripts/compute-benchmarks.ts",
+    "backfill:firm-maturity": "node --import tsx scripts/backfill-firm-maturity.ts",
+    "rollup:firm-maturity": "node --import tsx scripts/rollup-firm-maturity.ts",
     "seed:demo-swaps": "node --import tsx scripts/seed-demo-swaps.ts",
     "seed:help-prod:dry-run": "node --import tsx scripts/seed-help-prod.ts",
     "seed:help-prod": "node --import tsx scripts/seed-help-prod.ts --apply",
