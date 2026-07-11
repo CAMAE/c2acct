@@ -54,3 +54,30 @@ describe("banned vocabulary — board + Elite v2 surfaces", () => {
     }
   });
 });
+
+describe("dev-speak sweep (B8-5)", () => {
+  it("the mode toggle never renders the dev-speak label 'Disabled'", () => {
+    const text = readFileSync(path.join(ROOT, "app/components/pat/PatModeToggle.tsx"), "utf8");
+    expect(text).not.toContain('return "Disabled"');
+  });
+
+  // Customer-facing copy surfaces must not leak internal build vocabulary as
+  // rendered text. NOTE: the billing "scaffold / no live charge" copy is a
+  // REQUIRED truthful disclosure (provider proof absent) and is intentionally
+  // not swept here.
+  const devSpeakGuardedFiles = [
+    "app/components/pat/PatModeToggle.tsx",
+    "app/components/vendor/VendorSalesCardClient.tsx",
+    "app/components/firm/AlignmentBoardClient.tsx",
+  ];
+  const devSpeakPhrases = ['>DISABLED<', '>DRAFT<', "demo-bench", "hello-world"];
+
+  it("no guarded customer surface renders internal build vocabulary", () => {
+    for (const relativePath of devSpeakGuardedFiles) {
+      const text = readFileSync(path.join(ROOT, relativePath), "utf8");
+      for (const phrase of devSpeakPhrases) {
+        expect(text, `${relativePath} should not render "${phrase}"`).not.toContain(phrase);
+      }
+    }
+  });
+});

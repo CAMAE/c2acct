@@ -110,8 +110,13 @@ function deriveHealth(config: AgentConfig, lastStatus: string | null, pending: n
   return "healthy";
 }
 
+/** B8-5: internal smoke-test agents that must not appear in the admin registry view. */
+const HIDDEN_AGENT_KEYS = new Set(["hello-world"]);
+
 export async function getAgentsOverview(): Promise<AgentOverview[]> {
-  const configs = await loadAgentConfigs(AGENTS_DIR);
+  const configs = (await loadAgentConfigs(AGENTS_DIR)).filter(
+    (config) => !HIDDEN_AGENT_KEYS.has(config.key)
+  );
   const sinceMs = Date.now() - DAY_MS;
   const since = new Date(sinceMs);
 

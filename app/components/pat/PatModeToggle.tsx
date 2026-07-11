@@ -29,10 +29,8 @@ function getVisibleStatusLabel(option: PatModeToggleOption) {
     return "Locked";
   }
 
-  if (option.state === "disabled") {
-    return "Disabled";
-  }
-
+  // B8-5: a disabled filter chip conveys its state through disabled styling
+  // (data-state="disabled") only — never the dev-speak label "Disabled".
   return null;
 }
 

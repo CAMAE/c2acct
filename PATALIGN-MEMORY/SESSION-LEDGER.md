@@ -66,3 +66,24 @@ next.config.ts redirects(): /consultant and /consultant/:path* → /consultants
 lockup, plain-language copy, cards linking to sign-in + firm/vendor/consultant
 portal homes) replacing Next's dark default. Fast gates: typecheck 0 · lint
 clean · unit 738/738. (redirect + not-found verified live at checkpoint 1.)
+
+### CHECKPOINT 1 (after B8-4) — live proof
+Build 29b2332:kRK4h7Wvs8V10EQknQEQn. Quiesce→build→prep-verify(static+public
+identical)→promote→restart :3000 then :3005→watchdog (restart last). asset-integrity
+PASS both ports (10/10 assets, served==disk==fingerprint). Live: /consultant→308→
+/consultants; branded 404 (http 404, PAT lockup + portal links); vendor alignment
+cards each show own number + band chip (DEVELOPING/GROUNDED) + pressure-point
+caption; firm insights hero reads "Avg of your final module scores — distinct from
+the Alignment Board's stack number" and alignment index chip "69 · Building" (new
+lexicon). Board hero label (B8-3) gated behind active-Elite — no demo account is
+active-Elite (demo-firm-elite = Pending Checkout), so build-verified only.
+Follow-up polish: vendor variance card shows a confidence chip (Grounded) in the
+same slot as sibling score-band chips — minor axis-mix, flagged.
+
+### B8-5 — DEV-SPEAK SWEEP
+Sales-card/mode-toggle disabled chip: dropped the "Disabled" text — disabled state
+now conveyed by styling (data-state="disabled") only. hello-world smoke agent
+filtered from the admin registry view (HIDDEN_AGENT_KEYS in getAgentsOverview).
+Customer-surface grep found no other leaks (billing "scaffold" is required
+truthful copy, left intact). Extended the copy contract test with a dev-speak
+guard. Fast gates: typecheck 0 · lint clean · unit 740/740.
