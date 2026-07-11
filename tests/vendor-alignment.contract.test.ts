@@ -363,7 +363,9 @@ describe("vendor alignment catalog", () => {
         (card) =>
           card.interactive &&
           card.href?.startsWith("/vendor/alignment-insights/") &&
-          card.statusLabel === undefined &&
+          // B8-1: Pro cards now carry their own band chip; only the Elite locked
+          // card uses the "Coming soon" badge.
+          card.statusLabel !== "Coming soon" &&
           !/based on \d+ firm pat sample/i.test(card.summary) &&
           !/sample-thin|emerging signal|grounded current-state signal|no current-state signal/i.test(
             `${card.summary} ${card.supportingText ?? ""}`

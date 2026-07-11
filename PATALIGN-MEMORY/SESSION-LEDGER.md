@@ -34,3 +34,16 @@ Header/FirmGrid/FirmAlignmentHeader "Full confidence"/"Limited"/"Initial"/"Pendi
 scale. Note: FirmMaturity/VendorStatus "EMERGING" enums are internal (not rendered)
 — left as-is. ecosystem reverse-map keeps internal long-form bucket keys (plumbing,
 never rendered). Fast gates: typecheck 0 · lint clean · unit 738/738.
+
+### B8-1 — ONE CARD GRAMMAR
+Vendor product Pro cards: killed the 3× duplicated `currentStateSummary`
+boilerplate — each card now leads with its OWN headline number + band chip + one
+card-specific sentence from its own evidence slice (product-fit → self-vs-firm
+delta; implementation-friction → weakest per-area score; visibility → firm-review
+count + recency). Vendor alignment Pro cards: each leads with its own driver
+signal (weakest driving module = pressure point, card-specific; variance card →
+cross-module spread) as headline number + band chip, keeping the per-card
+sentence. Metric threads through the existing InsightSurfaceCardGrid (no new
+visual system). Firm-pro is the reference grammar — unchanged. Fast gates:
+typecheck 0 · lint clean · unit 738/738 (updated 2 card-shape contracts: Pro
+cards now carry a band chip; only Elite uses "Coming soon").

@@ -412,9 +412,10 @@ describe("vendor product insight runtime", () => {
     expect(getRequestedVendorProductInsightDetailMode("help")).toBe("help");
     expect(getRequestedVendorProductInsightDetailMode("unknown")).toBe("pro");
     const proCards = buildVendorProductProInsightCards(snapshot);
-    expect(proCards.every((card) => card.interactive && card.href && card.statusLabel === undefined)).toBe(
-      true
-    );
+    // B8-1: Pro cards are clickable and now carry their own band chip
+    // (statusLabel) — distinct from the Elite "Coming soon" locked badge.
+    expect(proCards.every((card) => card.interactive && card.href)).toBe(true);
+    expect(proCards.every((card) => card.statusLabel !== "Coming soon")).toBe(true);
     expect(
       buildVendorProductEliteInsightCards().every(
         (card) =>

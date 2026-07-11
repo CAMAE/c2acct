@@ -123,6 +123,7 @@ export type VendorAlignmentInsightOverviewCard = {
   href: string | null;
   interactive: boolean;
   supportingText: string | null;
+  metric?: { value: string; caption: string };
 };
 
 export type VendorAlignmentInsightDetailSurfaceCard = {
@@ -748,27 +749,62 @@ export function buildVendorAlignmentPlainLanguage(
   return { summary: sentences.join(" ") };
 }
 
+/**
+ * B8-1: each Pro alignment card leads with its OWN headline number + band chip
+ * drawn from that card's own driver signal (its weakest driving module = the
+ * pressure point, which is card-specific; the variance card leads with the
+ * cross-module spread). averageModuleScore is snapshot-wide, so it is NOT used
+ * as the per-card metric. The card-specific sentence stays report.currentStateSummary.
+ */
+function buildVendorAlignmentCardMetric(
+  report: VendorAlignmentInsightBundle["reports"][number]
+): { metric?: { value: string; caption: string }; statusLabel?: string } {
+  if (report.key === "uneven-maturity-variance" && report.moduleVariance != null) {
+    return {
+      metric: { value: `${Math.round(report.moduleVariance)} pts`, caption: "spread across modules" },
+      statusLabel: report.confidenceLabel,
+    };
+  }
+  const pressure = report.weakestModules[0];
+  if (pressure?.averageScore != null) {
+    return {
+      metric: { value: `${Math.round(pressure.averageScore)}`, caption: `pressure point: ${pressure.title}` },
+      statusLabel: getScoreBand(pressure.averageScore).label,
+    };
+  }
+  const strong = report.strongestModules[0];
+  if (strong?.averageScore != null) {
+    return {
+      metric: { value: `${Math.round(strong.averageScore)}`, caption: `strongest driver: ${strong.title}` },
+      statusLabel: getScoreBand(strong.averageScore).label,
+    };
+  }
+  return {};
+}
+
 export function buildVendorAlignmentProInsightCards(
   bundle: VendorAlignmentInsightBundle
 ): VendorAlignmentInsightOverviewCard[] {
   return bundle.reports
     .filter((report) => report.tier === 1)
-    .map(
-      (report) =>
-        ({
-          key: report.key,
-          title: report.title,
-          summary: report.currentStateSummary,
-          tone: "active",
-          href: `/vendor/alignment-insights/${report.key}`,
-          interactive: true,
-          supportingText: report.strongestModules.length
-            ? `Strongest support: ${report.strongestModules.map((module) => module.title).join(", ")}.`
-            : report.notableQuestionClusters.length
-              ? `Most visible pattern: ${report.notableQuestionClusters[0]?.title ?? "Current operating evidence"}.`
-              : "Current firm evidence is still taking shape.",
-        }) satisfies VendorAlignmentInsightOverviewCard
-    );
+    .map((report) => {
+      const face = buildVendorAlignmentCardMetric(report);
+      return {
+        key: report.key,
+        title: report.title,
+        summary: report.currentStateSummary,
+        statusLabel: face.statusLabel,
+        metric: face.metric,
+        tone: "active",
+        href: `/vendor/alignment-insights/${report.key}`,
+        interactive: true,
+        supportingText: report.strongestModules.length
+          ? `Strongest support: ${report.strongestModules.map((module) => module.title).join(", ")}.`
+          : report.notableQuestionClusters.length
+            ? `Most visible pattern: ${report.notableQuestionClusters[0]?.title ?? "Current operating evidence"}.`
+            : "Current firm evidence is still taking shape.",
+      } satisfies VendorAlignmentInsightOverviewCard;
+    });
 }
 
 export function buildVendorAlignmentEliteInsightCards(

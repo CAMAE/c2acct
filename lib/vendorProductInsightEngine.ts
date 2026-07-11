@@ -20,6 +20,7 @@ import {
   type ProductFitDimensionScore,
 } from "@/lib/productFitDimensions";
 import { confidenceBandForSampleSize } from "@/lib/confidenceBands";
+import { scoreBandFor } from "@/lib/bandLexicon";
 import {
   PRODUCT_TIER1_INSIGHTS,
   PRODUCT_TIER2_INSIGHTS,
@@ -45,6 +46,7 @@ export type VendorProductInsightDetailCard = {
   href: string | null;
   interactive: boolean;
   supportingText: string | null;
+  metric?: { value: string; caption: string };
 };
 
 export type VendorProductInsightDetailSurfaceCard = {
@@ -1047,23 +1049,126 @@ export function filterVendorProductInsightCatalogToCompleted(
   return snapshots.filter((snapshot) => canOpenVendorProductInsight(snapshot.vendorAssessmentStatus));
 }
 
+function areaLabel(x: UtilityEvidence | VendorSectionEvidence | undefined): string | undefined {
+  if (!x) return undefined;
+  return "utilityLabel" in x ? x.utilityLabel : x.title;
+}
+
+function recencyClause(at: Date | null): string {
+  if (!at) return "";
+  const days = Math.floor((Date.now() - at.getTime()) / 86_400_000);
+  if (days <= 1) return " · updated today";
+  if (days < 30) return ` · updated ${days}d ago`;
+  const months = Math.max(1, Math.round(days / 30));
+  return ` · updated ${months}mo ago`;
+}
+
+/**
+ * B8-1: each Pro product card gets its OWN headline number + band chip + one
+ * card-specific sentence, drawn from that card's own slice of existing evidence
+ * (no new pipelines). Kills the 3× duplicated currentStateSummary boilerplate.
+ */
+function buildVendorProductCardFace(
+  insight: VendorProductInsightRecord,
+  snapshot: VendorProductInsightSnapshot
+): Pick<VendorProductInsightDetailCard, "summary" | "supportingText" | "metric" | "statusLabel"> {
+  const firmScore = snapshot.firmReviewed.averageScore;
+  const vendorScore = snapshot.vendorSelfReported.latestScore;
+
+  if (insight.key === "current-product-fit") {
+    // Self-reported vs firm-reviewed delta.
+    if (firmScore != null && vendorScore != null && !snapshot.divergence.belowFloor) {
+      const band = scoreBandFor(firmScore);
+      const gap = Math.round(Math.abs((snapshot.divergence.points ?? vendorScore - firmScore)));
+      const dir = vendorScore >= firmScore ? "above" : "below";
+      return {
+        metric: { value: `${gap} pts`, caption: `self-report vs firm-reviewed gap` },
+        statusLabel: band.label,
+        summary: `Firms rate this product ${Math.round(firmScore)} · ${band.label}; the vendor self-reports ${Math.round(vendorScore)} — a ${gap}-point gap with self-report ${dir} firm-reviewed evidence.`,
+        supportingText: null,
+      };
+    }
+    if (vendorScore != null) {
+      const band = scoreBandFor(vendorScore);
+      return {
+        metric: { value: `${Math.round(vendorScore)}`, caption: "vendor self-reported fit" },
+        statusLabel: band.label,
+        summary: `Vendor self-reported fit reads ${Math.round(vendorScore)} · ${band.label}. Firm-reviewed evidence is not yet deep enough to confirm a gap.`,
+        supportingText: null,
+      };
+    }
+    return {
+      metric: undefined,
+      summary: "Neither vendor self-report nor firm-reviewed evidence is present yet, so product-fit cannot be grounded.",
+      supportingText: null,
+    };
+  }
+
+  if (insight.key === "implementation-friction") {
+    // Per-feature / per-section bars: surface the weakest and strongest area.
+    const weakest = insight.weakestFirmUtilities[0] ?? insight.weakestVendorSections[0];
+    const strongest = insight.strongestFirmUtilities[0] ?? insight.strongestVendorSections[0];
+    const weakLabel = areaLabel(weakest);
+    const strongLabel = areaLabel(strongest);
+    if (weakest?.averageScore != null) {
+      const band = scoreBandFor(weakest.averageScore);
+      const strongClause =
+        strongest?.averageScore != null && strongLabel
+          ? ` ${strongLabel} carries the least friction at ${Math.round(strongest.averageScore)}.`
+          : "";
+      return {
+        metric: { value: `${Math.round(weakest.averageScore)}`, caption: `weakest area: ${weakLabel}` },
+        statusLabel: band.label,
+        summary: `Implementation weight concentrates in ${weakLabel} at ${Math.round(weakest.averageScore)} · ${band.label}.${strongClause}`,
+        supportingText: null,
+      };
+    }
+    return {
+      metric: undefined,
+      summary: "Not enough per-area evidence yet to separate where implementation friction concentrates.",
+      supportingText: null,
+    };
+  }
+
+  // visibility-and-value: review count + recency.
+  const count = snapshot.firmReviewed.assessmentCount;
+  const clearest = insight.strongestFirmUtilities[0];
+  const faintest = insight.weakestFirmUtilities[0];
+  const valueClause =
+    clearest?.utilityLabel && faintest?.utilityLabel
+      ? ` ${clearest.utilityLabel} is the clearest value signal; ${faintest.utilityLabel} is the least visible.`
+      : "";
+  return {
+    metric: {
+      value: `${count}`,
+      caption: `firm review${count === 1 ? "" : "s"}${recencyClause(snapshot.firmReviewed.latestSubmittedAt)}`,
+    },
+    statusLabel: insight.confidenceLabel,
+    summary:
+      count > 0
+        ? `This readout draws on ${count} firm review${count === 1 ? "" : "s"}.${valueClause}`
+        : "No firm reviews yet, so value visibility rests on vendor self-report alone.",
+    supportingText: null,
+  };
+}
+
 export function buildVendorProductProInsightCards(
   snapshot: VendorProductInsightSnapshot
 ): VendorProductInsightDetailCard[] {
-  return snapshot.insightRecords.map((insight) => ({
-    key: insight.key,
-    title: insight.title,
-    summary: insight.currentStateSummary,
-    tone: "active" as const,
-    href: `/vendor/product-insight/${snapshot.product.id}/${insight.key}`,
-    interactive: true,
-    supportingText:
-      insight.strongestVendorSections.length > 0
-        ? `Strongest current sections: ${insight.strongestVendorSections
-            .map((section) => section.title)
-            .join(", ")}`
-        : "No clear section separation yet.",
-  }));
+  return snapshot.insightRecords.map((insight) => {
+    const face = buildVendorProductCardFace(insight, snapshot);
+    return {
+      key: insight.key,
+      title: insight.title,
+      summary: face.summary,
+      statusLabel: face.statusLabel,
+      metric: face.metric,
+      tone: "active" as const,
+      href: `/vendor/product-insight/${snapshot.product.id}/${insight.key}`,
+      interactive: true,
+      supportingText: face.supportingText,
+    };
+  });
 }
 
 export function buildVendorProductEliteInsightCards() {
