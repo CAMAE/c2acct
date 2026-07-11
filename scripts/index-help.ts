@@ -174,7 +174,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     path: "help/firm/elite-insights.md",
     title: "Firm Elite Insights",
     roleAccess: ["firm"],
-    body: "Elite Insights are the higher-order firm surfaces, live with Elite membership. Open them from the Elite Insights card on your firm home, or from the Elite Insights tab on /firm/insights. There are three: future-state projection, peer benchmark view, and the recommendation engine — each grounded in your firm-reviewed evidence and clearly labelled directional, not verified.",
+    body: "Elite Insights are the higher-order firm surfaces, live with Elite membership. Open them from the Elite Insights tab on /firm/insights. There are three decision products: a Peer Position Report (where you rank against peer firms), a Gap-to-Top-Quartile Plan (ranked fixes with point deficits), and a Trajectory (your alignment over time with a directional projection). Every projection is labelled directional, not verified.",
   },
   {
     path: "help/firm/future-state-projection.md",
@@ -212,7 +212,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     path: "help/vendor/elite-insights.md",
     title: "Vendor Elite Insights",
     roleAccess: ["vendor"],
-    body: "Vendor Elite Insights are live with Elite membership. Open them from the Elite Insights card on your vendor home, or the Elite Insights tab on /vendor/alignment-insights. There are three: benchmark comparison, future demand, and expansion simulation — each grounded in current firm-reviewed evidence and labelled directional, not verified.",
+    body: "Vendor Elite Insights are live with Elite membership. Open them from the Elite Insights tab on /vendor/alignment-insights. There are three decision products: Category Position (where your product ranks in its category distribution), Demand Signals (which firm segments review you, review velocity, and how your products move in and out of simulated stacks), and an Alignment Gap Map (per-module divergence heatmap of where firms confirm or dispute your story). Every projection is labelled directional, not verified.",
   },
   {
     path: "help/vendor/benchmark-comparison.md",

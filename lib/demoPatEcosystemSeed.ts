@@ -765,6 +765,45 @@ export async function ensureFirm(client: DemoSeedClient, firm: DemoFirmInput) {
     },
   });
 
+  // Elite Insights v2 (F3 Trajectory): seed a demo TRAJECTORY — 6 backdated
+  // monthly snapshots ramping up to the current score with deterministic wobble,
+  // so the demo Elite firm charts a real line (never fabricated-live: these are
+  // clearly demo rows on a demo account). The month-0 row above stays the latest.
+  const MONTHS_OF_HISTORY = 6;
+  const totalClimb = 15; // points gained across the window
+  for (let monthsAgo = 1; monthsAgo <= MONTHS_OF_HISTORY; monthsAgo += 1) {
+    // deterministic ±1.5 wobble from the firm key + month (no Math.random in seeds)
+    const seed = (firm.key.charCodeAt(monthsAgo % firm.key.length) + monthsAgo * 7) % 7;
+    const wobble = seed - 3; // -3..+3
+    const historicalScore = Math.max(
+      5,
+      Math.min(100, Math.round(scorePct - (totalClimb * monthsAgo) / MONTHS_OF_HISTORY + wobble))
+    );
+    const historicalTier = maturityTier(historicalScore);
+    const computedAt = new Date(Date.now() - monthsAgo * 30 * 24 * 60 * 60 * 1000);
+    await client.firmMaturitySnapshot.upsert({
+      where: { id: stableId("demo-fmi-snapshot", `${firm.key}:m${monthsAgo}`) },
+      update: {
+        score: historicalScore,
+        tier: historicalTier.tier,
+        bandMin: historicalTier.bandMin,
+        bandMax: historicalTier.bandMax,
+        version: 1,
+        computedAt,
+      },
+      create: {
+        id: stableId("demo-fmi-snapshot", `${firm.key}:m${monthsAgo}`),
+        companyId: company.id,
+        score: historicalScore,
+        tier: historicalTier.tier,
+        bandMin: historicalTier.bandMin,
+        bandMax: historicalTier.bandMax,
+        version: 1,
+        computedAt,
+      },
+    });
+  }
+
   return { company, subject };
 }
 

@@ -15,7 +15,6 @@ import { getSessionUser } from "@/lib/auth/session";
 import { getInviteeAccessContext } from "@/lib/invitee/access";
 import { isSalesCardEnabled } from "@/lib/salesCard";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
-import type { PortalSurface } from "@/lib/portalVisibility";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/profileSettingsStore";
 import prisma from "@/lib/prisma";
@@ -142,7 +141,7 @@ export default async function VendorPage({
       })
     : null;
 
-  const baseCards = vendorWorkspaceCards
+  const localizedCards = vendorWorkspaceCards
     // R5: the Sales Card entry only appears while the sales-card flag is on.
     .filter((card) => card.id !== "vendor-sales-card" || isSalesCardEnabled())
     .map((card) => ({
@@ -150,27 +149,8 @@ export default async function VendorPage({
       title: messages.portal.cards.vendor[card.id]?.title ?? card.title,
       description: messages.portal.cards.vendor[card.id]?.description ?? card.description,
     }));
-
-  // Elite Insights entry on the portal home (Block 4): a live card for Elite
-  // viewers (opens the Elite tab in ≤2 clicks) and an upgrade-tease card for Pro.
-  const vendorEliteEntitlement = sessionUser
-    ? await resolveMembershipEntitlement(sessionUser, "vendor", MEMBERSHIP_PLAN.ELITE)
-    : null;
-  const eliteInsightsCard: PortalSurface = {
-    id: "vendor-elite-insights",
-    audience: ["vendor"],
-    section: "intelligence",
-    title: "Elite Insights",
-    description: vendorEliteEntitlement?.allowed
-      ? "Live — benchmark comparison, future demand, and an expansion simulation, grounded in current firm-reviewed evidence."
-      : "Unlock benchmark comparison, future demand, and an expansion simulation, grounded in current firm-reviewed evidence.",
-    href: vendorEliteEntitlement?.allowed
-      ? "/vendor/alignment-insights?mode=elite"
-      : (vendorEliteEntitlement?.upgradeHref ?? "/vendor/membership"),
-    availability: "enabled",
-    reason: vendorEliteEntitlement?.allowed ? "Live with Elite membership" : "Requires Elite membership",
-  };
-  const localizedCards = [...baseCards, eliteInsightsCard];
+  // Elite Insights v2: reached ONLY via the Alignment Insights tab toggle (no
+  // portal-home card — the v1 duplicate was navigation noise, removed per §4).
 
   // Products-at-a-glance numbers are Pro-packaged signal, so the strip only
   // renders for an entitled vendor session — baseline vendors keep the

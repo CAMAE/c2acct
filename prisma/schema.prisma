@@ -988,6 +988,25 @@ model OperatorAuditEvent {
   @@index([action, createdAt])
 }
 
+// Sandbox swap event log (Elite Insights v2, V2 demand signal). One row per
+// candidate swap staged in the Alignment Sandbox: which product came IN, which
+// went OUT, for which firm, at what boundary. The vendor demand surface reads
+// "your products swapped IN to N stacks / OUT of M" from this. Boundary-tagged so
+// demo swaps never enter a real vendor's signal. First-party intent data.
+model SandboxSwapEvent {
+  id           String   @id
+  companyId    String   // the firm running the sandbox
+  productInId  String   // product swapped IN (the candidate)
+  productOutId String?  // product swapped OUT (the stack piece); null when purely added
+  vendorInId   String?  // vendor company of the swapped-in product (denormalized for V2)
+  boundary     String   // DataBoundary of the firm at event time (DEMO never leaks to real)
+  createdAt    DateTime @default(now())
+
+  @@index([productInId, createdAt])
+  @@index([vendorInId, createdAt])
+  @@index([companyId, createdAt])
+}
+
 model RateLimitBucket {
   id        String   @id
   scope     String

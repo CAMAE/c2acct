@@ -112,6 +112,9 @@ const steps = [
   ...(fs.existsSync(path.join(repoRoot, "scripts/dev/preview-pat-setup.ts"))
     ? ([
         { command: packageManagerCommand, args: ["seed:demo-expand"] },
+        // Elite Insights v2: compute BenchmarkRun/CompanyBenchmark from the full
+        // seeded evidence so F1/V1 have real percentile curves in the preview.
+        { command: packageManagerCommand, args: ["compute:benchmarks"] },
         { command: packageManagerCommand, args: ["preview:pat-setup"] },
       ] as const)
     : []),

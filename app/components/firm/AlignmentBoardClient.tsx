@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import AlignmentRadar, { type RadarAxis } from "@/app/components/firm/AlignmentRadar";
+import { logSandboxSwap } from "@/app/firm/alignment-board/swapActions";
 import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import { formatDelta, formatScoreValue } from "@/lib/formatDelta";
 import { fitHeatColor, fitTierLabel } from "@/lib/fitHeat";
@@ -149,6 +150,18 @@ export default function AlignmentBoardClient({
   const swapCandidate = swapInId ? allCandidates.find((c) => c.productId === swapInId) ?? null : null;
   const swapPiece = swapOutId ? data.stack.find((p) => p.productId === swapOutId) ?? null : null;
   const swapStaged = Boolean(swapOutId && swapInId && swapCandidate);
+
+  // Elite Insights v2 (V2 demand signal): log each unique staged swap once. The
+  // vendor demand surface reads "your products swapped IN to N stacks". Deduped
+  // per (in,out) pair for this session; best-effort (never blocks the UI).
+  const loggedSwaps = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!swapStaged || !swapInId) return;
+    const key = `${swapInId}::${swapOutId ?? ""}`;
+    if (loggedSwaps.current.has(key)) return;
+    loggedSwaps.current.add(key);
+    void logSandboxSwap({ productInId: swapInId, productOutId: swapOutId });
+  }, [swapStaged, swapInId, swapOutId]);
 
   const projected = useMemo(() => {
     if (!swapOutId || !swapCandidate) return baseline;

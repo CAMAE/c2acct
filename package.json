@@ -69,6 +69,7 @@
     "seed:baseline": "node --import tsx prisma/seed.ts",
     "seed:pat-runtime": "node --import tsx scripts/seed-pat-runtime.ts",
     "index:help": "node --import tsx scripts/index-help.ts",
+    "compute:benchmarks": "node --import tsx scripts/compute-benchmarks.ts",
     "seed:help-prod:dry-run": "node --import tsx scripts/seed-help-prod.ts",
     "seed:help-prod": "node --import tsx scripts/seed-help-prod.ts --apply",
     "seed:demo-benchmark": "node --import tsx scripts/seed-demo-benchmark.ts",
