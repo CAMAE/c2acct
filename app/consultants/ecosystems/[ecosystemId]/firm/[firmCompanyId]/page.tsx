@@ -167,17 +167,17 @@ export default async function FirmBriefPage({
                   </div>
                   <div>
                     <RadarChart
-                      title={`${brief.firmCompanyName} five-module maturity profile vs ecosystem average`}
+                      title={`${brief.firmCompanyName} five-module maturity profile vs peer average (${brief.methodology.sampleSizes.peerFirmCount} firm${brief.methodology.sampleSizes.peerFirmCount === 1 ? "" : "s"}, excludes this firm)`}
                       axes={brief.fiveModuleRadar.map((axis) => ({
                         key: axis.moduleKey,
                         label: axis.moduleTitle,
                         value: axis.firmScore,
                         benchmark: axis.ecosystemAverage,
                       }))}
-                      benchmarkLabel="ecosystem average"
+                      benchmarkLabel={`peer average (${brief.methodology.sampleSizes.peerFirmCount}, excl. this firm)`}
                     />
                     <p className="mt-2 text-center text-xs leading-5 text-[var(--shell-muted)]">
-                      Where the firm shape sits inside the dashed ecosystem outline is where this firm trails its peers in your book.
+                      Where the firm shape sits inside the dashed peer-average outline is where this firm trails its peers in your book.
                     </p>
                   </div>
                 </div>

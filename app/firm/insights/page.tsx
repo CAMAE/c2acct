@@ -141,7 +141,7 @@ export default async function FirmInsightsPage({
             <ScoreLockup
               label="Alignment index"
               score={alignmentIndex}
-              context="Average of final module scores · current-state evidence only"
+              context="Avg of your final module scores — distinct from the Alignment Board's stack number"
             />
             <ScoreLockup
               label="Modules complete"

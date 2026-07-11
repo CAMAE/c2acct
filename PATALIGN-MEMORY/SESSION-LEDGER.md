@@ -47,3 +47,15 @@ sentence. Metric threads through the existing InsightSurfaceCardGrid (no new
 visual system). Firm-pro is the reference grammar — unchanged. Fast gates:
 typecheck 0 · lint clean · unit 738/738 (updated 2 card-shape contracts: Pro
 cards now carry a band chip; only Elite uses "Coming soon").
+
+### B8-3 — METRIC LABEL PRECISION (no math)
+Distinguished the two alignment numbers that read as a "62-vs-68 bug": Alignment
+Board hero → "stack alignment · from stored product-review evidence"; firm insights
+hero context → "Avg of your final module scores — distinct from the Alignment
+Board's stack number". Consultant firm brief: relabeled the radar benchmark
+"ecosystem average" → "peer average (N firms, excludes this firm)" — verified the
+math already excludes the firm (peerFirmIds filters id !== firmCompanyId); count
+from methodology.sampleSizes.peerFirmCount; updated the outline caption to match.
+Ecosystem Coverage tile: "evaluated by N firms" → "across N firm assessments"
+(firmReviewCount is a review count, not distinct firms). Fast gates: typecheck 0 ·
+lint clean · unit 738/738.

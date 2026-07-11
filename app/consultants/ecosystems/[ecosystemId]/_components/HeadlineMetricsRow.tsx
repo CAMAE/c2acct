@@ -67,7 +67,7 @@ export default function HeadlineMetricsRow({
         <AdminMetricCard
           label="Coverage"
           value={`${data.vendorProductCoverage.productCount} products`}
-          detail={`evaluated by ${data.vendorProductCoverage.firmReviewCount} firm${data.vendorProductCoverage.firmReviewCount === 1 ? "" : "s"}`}
+          detail={`across ${data.vendorProductCoverage.firmReviewCount} firm assessment${data.vendorProductCoverage.firmReviewCount === 1 ? "" : "s"}`}
         />
       </MetricTileLink>
       <MetricTileLink

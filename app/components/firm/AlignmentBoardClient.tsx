@@ -278,7 +278,7 @@ export default function AlignmentBoardClient({
                   {baseline !== null ? "%" : ""}
                 </div>
                 <div className="text-sm text-[var(--shell-muted)]">
-                  {data.firmName} · current alignment · {data.confidenceLabel}
+                  {data.firmName} · stack alignment · from stored product-review evidence
                 </div>
               </div>
               {swapStaged && projected !== null ? (
