@@ -83,6 +83,7 @@
     "smoke:ask-pat": "node --import tsx scripts/smoke-ask-pat.ts",
     "modules:import-qbank:dry-run": "node --import tsx scripts/modules/import-qbank.ts",
     "modules:import-qbank": "node --import tsx scripts/modules/import-qbank.ts --apply",
+    "modules:approve-qbank": "node --import tsx scripts/modules/approve-qbank.ts",
     "seed:accounting-taxonomy": "node --import tsx scripts/import-accounting-taxonomy.ts --apply",
     "seed:accounting-taxonomy:dry-run": "node --import tsx scripts/import-accounting-taxonomy.ts",
     "ops:mac-mini:status": "bash scripts/mac-mini/status.sh",

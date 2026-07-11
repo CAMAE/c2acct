@@ -129,3 +129,34 @@ copy, no blurred chart); insightContent tier-2 PROSE still carries stale
 "reserved/future/not live" framing that contradicts the v2-live reality;
 flag-off Alignment Board / Sales Card "Coming soon" placeholders left (feature-
 flag-gated, not membership-locked — a different concept).
+
+### CHECKPOINT 2 (after B8-8) — live proof
+Build ca88c79:KVYGyYMEgyZhGZenj5lrq. Quiesce→build→prep(static identical)→promote→
+restart :3000 then :3005→watchdog. asset-integrity PASS both ports (10/10 assets,
+served==disk==fingerprint). Live: /consultant→308→/consultants; unknown route→404;
+firm insights elite index = 0 "Coming soon", 8 "Live with Elite membership"; firm
+elite detail renders locked-elite-preview (v2 name "Peer Position Report" + Elite
+badge + blurred chart + "Live with Elite membership" CTA), 0 "Coming soon". Vendor
+alignment cards show per-card band chips (B8-1/B8-2). Screenshots in
+artifacts/b8-cp2-shots/. Follow-up visible: the stale tier-2 surface prose
+("reserved for future / not available yet") still renders above the honest
+LockedElitePreview — flagged for reconciliation.
+
+### QBANK APPROVAL — mechanism ready, not yet recorded
+New scripts/modules/approve-qbank.ts (+ pnpm modules:approve-qbank): flips DRAFT
+ModuleTemplates → APPROVED transactionally with the two-signature record
+(cpaReviewedBy/At + clarityReviewedBy/At), dry-run default, requires both
+--cpa/--clarity signatories (refuses placeholders). NOT recorded: this DB has
+ZERO ModuleTemplates (qbank not imported here — run pnpm modules:import-qbank
+first), and the sign-off needs Cam's REAL signatory identities (schema names a
+CPA-certified founder + clarity reviewer "Leslie"). Prod --apply is Cam's-go-only.
+
+### B8-7 LIVE NOTE
+The de-clump is committed + unit-proven; the live demo panel de-clumps only after
+the demo seed re-runs (pnpm seed:demo-expand) — not run at this checkpoint.
+
+### BLOCK 8 — CLOSED
+B8-2 eac17e95 · B8-1 e0e1f792 · B8-3 cbdee037 · B8-4 29b23327 · [CP1] · B8-5
+255a4a02 · B8-6 06544275 · B8-7 0fc5ea3a · B8-8 ca88c798 · [CP2] · qbank script.
+Held blocks now unlocked, queued AFTER Block 8: hybrid Elite depth · sandbox
+utility lanes · V2/V3 expansions · Sales Card v2.
