@@ -14,6 +14,7 @@ type SerializedNotification = {
   ctaHref: string | null;
   readAt: string | null;
   createdAt: string;
+  aiGenerated: boolean;
 };
 
 const noStore = { headers: { "cache-control": "no-store" } } as const;
@@ -42,6 +43,7 @@ export async function GET() {
     ctaHref: n.ctaHref,
     readAt: n.readAt ? n.readAt.toISOString() : null,
     createdAt: n.createdAt.toISOString(),
+    aiGenerated: n.aiGenerated,
   }));
 
   return NextResponse.json({ ok: true, unread, notifications }, noStore);

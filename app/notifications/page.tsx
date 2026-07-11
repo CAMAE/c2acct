@@ -33,6 +33,7 @@ export default async function NotificationsPage() {
     ctaHref: n.ctaHref,
     readAt: n.readAt ? n.readAt.toISOString() : null,
     createdAt: n.createdAt.toISOString(),
+    aiGenerated: n.aiGenerated,
   }));
 
   return (

@@ -31,6 +31,8 @@ export type CreateNotificationInput = {
   sourceType?: string | null;
   sourceId?: string | null;
   actorUserId?: string | null;
+  /** Block 9a: true when Pat (AI) drafted the body — drives the disclosure label. */
+  aiGenerated?: boolean;
 };
 
 export type CreateNotificationResult =
@@ -83,6 +85,7 @@ export async function createNotification(
         sourceType: input.sourceType ?? null,
         sourceId: input.sourceId ?? null,
         actorUserId: input.actorUserId ?? null,
+        aiGenerated: input.aiGenerated ?? false,
       },
     });
     return { created: true, notification };

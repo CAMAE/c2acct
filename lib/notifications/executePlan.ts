@@ -40,6 +40,8 @@ export async function executePingPlan(
       sourceType: planned.sourceType,
       sourceId: planned.sourceId,
       actorUserId,
+      // Block 9a: automated Pat pings are AI-drafted ("Hi, it's Pat …").
+      aiGenerated: true,
     });
 
     if (result.created) {

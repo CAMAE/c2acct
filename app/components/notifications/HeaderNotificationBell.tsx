@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PAT_DISCLOSURE_SHORT } from "@/lib/patDisclosure";
 
 /**
  * Header notification bell (Sprint 4 M3, 2026-07-08). Lives in the AppHeader
@@ -23,6 +24,7 @@ type Notification = {
   ctaHref: string | null;
   readAt: string | null;
   createdAt: string;
+  aiGenerated: boolean;
 };
 
 type InboxData = { notifications: Notification[]; unread: number };
@@ -184,6 +186,11 @@ export default function HeaderNotificationBell({ buttonClassName }: { buttonClas
                     <span className="shrink-0 text-[11px] text-[var(--shell-muted)]">{timeAgo(n.createdAt)}</span>
                   </div>
                   <p className="mt-1 text-sm leading-5 text-[var(--shell-muted)]">{n.body}</p>
+                  {n.aiGenerated ? (
+                    <span className="mt-1.5 inline-block text-[11px] text-[var(--shell-muted)]">
+                      {PAT_DISCLOSURE_SHORT}
+                    </span>
+                  ) : null}
                   {n.ctaHref && n.ctaLabel ? (
                     <span className="mt-2 inline-block text-[12px] font-semibold text-[var(--brand-c2-blue)]">
                       {n.ctaLabel} →

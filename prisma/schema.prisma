@@ -1454,6 +1454,9 @@ model Notification {
   sourceId        String?
   // Who triggered it; null = automated/system nudge.
   actorUserId     String?
+  // Block 9a: true when the message body was drafted by Pat (AI). Drives the
+  // AI-disclosure label on every surface that renders it.
+  aiGenerated     Boolean                @default(false)
   readAt          DateTime?
   createdAt       DateTime               @default(now())
   deliveries      NotificationDelivery[]

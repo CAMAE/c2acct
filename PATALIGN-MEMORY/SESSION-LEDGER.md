@@ -160,3 +160,23 @@ B8-2 eac17e95 · B8-1 e0e1f792 · B8-3 cbdee037 · B8-4 29b23327 · [CP1] · B8-
 255a4a02 · B8-6 06544275 · B8-7 0fc5ea3a · B8-8 ca88c798 · [CP2] · qbank script.
 Held blocks now unlocked, queued AFTER Block 8: hybrid Elite depth · sandbox
 utility lanes · V2/V3 expansions · Sales Card v2.
+
+## 2026-07-11 — Block 9: Governance mount + prose reconciliation
+
+Post-B8: ran seed:demo-expand (44 firms / 206 module subs / 133 product reviews)
++ compute:benchmarks (12 firm / 50 vendor runs) + seed:demo-swaps (134 events);
+restarted flagged :3005 with a fresh Prisma client → B8-7 de-clump live, six Elite
+surfaces re-grounded for Mythos. Imported qbank (1 DRAFT DIAGNOSTIC template, 90
+items); approve HELD until Cam names CPA signatory (Brian Tankersley / Randy
+Johnston; clarity = Leslie Garrett).
+
+### B9a — AI DISCLOSURE on Pat-drafted communications
+New lib/patDisclosure.ts (full footer, "Pat (AI) · human-reviewed" short form,
+X-PAT-AI-Generated header helper). Added Notification.aiGenerated Boolean
+(migration 20260711210000) threaded through createNotification; set true on both
+Pat-drafted paths (automated pings executePlan + manual nudge). Bell renders the
+short form, /notifications inbox renders the full footer, API serializes the flag.
+New tests/pat-disclosure.contract.test.ts fails the build if a Pat-drafted create
+path or a render surface drops the disclosure. Email header helper ready for when
+email delivery is wired (currently in-app only). Fast gates: typecheck 0 · lint
+clean · unit 754/754.

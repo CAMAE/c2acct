@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PAT_DISCLOSURE_FOOTER } from "@/lib/patDisclosure";
 
 /**
  * Full-page inbox list (Sprint 4 M3). Server-rendered initial data from
@@ -16,6 +17,7 @@ export type InboxItem = {
   ctaHref: string | null;
   readAt: string | null;
   createdAt: string;
+  aiGenerated: boolean;
 };
 
 function timeAgo(iso: string): string {
@@ -101,6 +103,11 @@ export default function NotificationInboxList({ initialItems }: { initialItems: 
                 <span className="mt-2 inline-block text-[12px] font-semibold text-[var(--brand-c2-blue)]">
                   {n.ctaLabel} →
                 </span>
+              ) : null}
+              {n.aiGenerated ? (
+                <p className="mt-3 border-t border-[var(--shell-border)] pt-2 text-[11px] leading-4 text-[var(--shell-muted)]">
+                  {PAT_DISCLOSURE_FOOTER}
+                </p>
               ) : null}
             </button>
           </li>

@@ -114,6 +114,8 @@ export async function sendCompanyNudge(input: {
       sourceType: "Company",
       sourceId: input.companyId,
       actorUserId: input.actor.id,
+      // Block 9a: the nudge body is a Pat-drafted template a person reviews + sends.
+      aiGenerated: true,
     });
     if (result.created) {
       created += 1;
