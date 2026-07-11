@@ -103,5 +103,5 @@ scripts/dev/
 # pilot login reset output (plaintext credentials — never commit)
 pilot-login-reset.local.md
 
-# Elite-sprint planning/spec docs (local reference — strategy + pricing, keep out of git)
-docs/elite-sprint/
+# Elite-sprint planning/spec docs are now tracked in this private repo (B5-7).
+# Secret scan (B5-7) confirmed no keys/tokens/connection strings in these docs.
