@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import InsightStatusBadge from "@/app/components/insights/InsightStatusBadge";
 import InsightSurfaceCardGrid, { type InsightSurfaceGridCard } from "@/app/components/insights/InsightSurfaceCardGrid";
+import LockedElitePreview, { type LockedElitePreviewProps } from "@/app/components/insights/LockedElitePreview";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import PatModeToggle from "@/app/components/pat/PatModeToggle";
 import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
@@ -22,6 +23,10 @@ type InsightsModePanel = {
   intro: string;
   cards?: readonly InsightSurfaceGridCard[];
   infoCards?: readonly InsightInfoCard[];
+  // B9c: honest locked-Elite previews (v2 name + blurred chart) — one component
+  // for the index cards, matching the detail surfaces. Takes precedence over
+  // `cards` when present (Pro user on the Elite tab).
+  lockedPreviews?: readonly LockedElitePreviewProps[];
   columnsClassName?: string;
 };
 
@@ -98,7 +103,13 @@ export default function InsightsModeShell({
           <h2 className="text-2xl font-semibold text-[var(--shell-ink)]">{activePanel.title}</h2>
           <p className="mt-1 text-sm text-[var(--shell-muted)]">{activePanel.intro}</p>
         </div>
-        {activePanel.cards ? (
+        {activePanel.lockedPreviews && activePanel.lockedPreviews.length > 0 ? (
+          <section className={`grid gap-5 ${activePanel.columnsClassName ?? "md:grid-cols-2 xl:grid-cols-3"}`}>
+            {activePanel.lockedPreviews.map((preview) => (
+              <LockedElitePreview key={preview.title} {...preview} />
+            ))}
+          </section>
+        ) : activePanel.cards ? (
           <InsightSurfaceCardGrid
             cards={activePanel.cards}
             columnsClassName={activePanel.columnsClassName}

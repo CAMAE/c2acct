@@ -9,7 +9,7 @@ import Link from "next/link";
  * callers render NO Elite toggle instead of this.
  */
 
-type LockedElitePreviewProps = {
+export type LockedElitePreviewProps = {
   /** The v2 surface name (from FIRM_ELITE_V2_META / VENDOR_ELITE_V2_META). */
   title: string;
   /** One-line description of what the Elite surface delivers. */

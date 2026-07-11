@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import InsightsModeShell from "@/app/components/insights/InsightsModeShell";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
+import { VENDOR_ELITE_V2_META } from "@/lib/eliteInsightsV2";
 import { getSessionUser } from "@/lib/auth/session";
 import { resolveVendorSurfaceAccess } from "@/lib/consultantAccess";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
@@ -107,7 +108,31 @@ export default async function VendorAlignmentInsightsPage({
         intro: eliteEntitlement.allowed
           ? "Live with your Elite membership. Open any card for the grounded, directional readout built from current firm-reviewed evidence."
           : "Live with Elite membership.",
-        cards: eliteCards,
+        // B9c: Elite members see the live cards; Pro sees one honest
+        // LockedElitePreview per surface (v2 name + blurred chart).
+        cards: eliteEntitlement.allowed ? eliteCards : undefined,
+        lockedPreviews: eliteEntitlement.allowed
+          ? undefined
+          : [
+              {
+                title: VENDOR_ELITE_V2_META["benchmark-comparison"].title,
+                description: VENDOR_ELITE_V2_META["benchmark-comparison"].description,
+                shape: "distribution" as const,
+                upgradeHref: eliteEntitlement.upgradeHref,
+              },
+              {
+                title: VENDOR_ELITE_V2_META["forward-projection"].title,
+                description: VENDOR_ELITE_V2_META["forward-projection"].description,
+                shape: "bars" as const,
+                upgradeHref: eliteEntitlement.upgradeHref,
+              },
+              {
+                title: VENDOR_ELITE_V2_META["scenario-simulation"].title,
+                description: VENDOR_ELITE_V2_META["scenario-simulation"].description,
+                shape: "bars" as const,
+                upgradeHref: eliteEntitlement.upgradeHref,
+              },
+            ],
         columnsClassName: "md:grid-cols-2 xl:grid-cols-3",
       }}
       helpPanel={{

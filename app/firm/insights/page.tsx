@@ -4,6 +4,7 @@ import RadarChart from "@/app/components/charts/RadarChart";
 import ScoreLockup from "@/app/components/charts/ScoreLockup";
 import InsightsModeShell from "@/app/components/insights/InsightsModeShell";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
+import { FIRM_ELITE_V2_META } from "@/lib/eliteInsightsV2";
 import { getSessionUser } from "@/lib/auth/session";
 import {
   buildFirmEliteInsightCards,
@@ -184,7 +185,31 @@ export default async function FirmInsightsPage({
         intro: eliteEntitlement.allowed
           ? "Live with your Elite membership. Open any card for the grounded, directional readout built from your firm-reviewed evidence."
           : messages.insights.firm.eliteBody,
-        cards: eliteCards,
+        // B9c: Elite members see the live cards; Pro sees one honest
+        // LockedElitePreview per surface (v2 name + blurred chart).
+        cards: eliteEntitlement.allowed ? eliteCards : undefined,
+        lockedPreviews: eliteEntitlement.allowed
+          ? undefined
+          : [
+              {
+                title: FIRM_ELITE_V2_META.firm_tier2_benchmark.title,
+                description: FIRM_ELITE_V2_META.firm_tier2_benchmark.description,
+                shape: "distribution" as const,
+                upgradeHref: eliteEntitlement.upgradeHref,
+              },
+              {
+                title: FIRM_ELITE_V2_META.firm_tier2_recommendation.title,
+                description: FIRM_ELITE_V2_META.firm_tier2_recommendation.description,
+                shape: "bars" as const,
+                upgradeHref: eliteEntitlement.upgradeHref,
+              },
+              {
+                title: FIRM_ELITE_V2_META.firm_tier2_projection.title,
+                description: FIRM_ELITE_V2_META.firm_tier2_projection.description,
+                shape: "line" as const,
+                upgradeHref: eliteEntitlement.upgradeHref,
+              },
+            ],
         columnsClassName: "md:grid-cols-2 xl:grid-cols-3",
       }}
       helpPanel={{

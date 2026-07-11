@@ -191,3 +191,15 @@ post-launch). Wired into TRUST_SURFACE_ORDER + TRUST_FOOTER_LINKS + the release
 surface manifest; new app/trust/pat/page.tsx; "Learn how Pat is governed" link
 added to the Pat consent panel. trust-surfaces contract updated. Fast gates:
 typecheck 0 · lint clean · unit 754/754.
+
+### B9c — B8-8 prose reconciliation + one locked-state component
+Rewrote the stale tier-2 prose in insightContent.ts (firm + vendor alignment):
+"reserved for future / not available yet / PAT does not claim … exists yet" →
+v2-live reality with the real names (Trajectory · Peer Position Report ·
+Gap-to-Top-Quartile Plan; Category Position · Demand Signals · Alignment Gap Map)
+and honest lockedState ("live Elite surface … on Pro you see the current-state
+readout instead"). Extended LockedElitePreview to BOTH portals, DETAIL + INDEX:
+vendor alignment detail now uses it (matching firm); InsightsModeShell elite panel
+gained optional lockedPreviews so Pro users see one blurred-chart preview per
+surface on the index (firm + vendor) instead of a plain card. Fast gates:
+typecheck 0 · lint clean · unit 754/754.

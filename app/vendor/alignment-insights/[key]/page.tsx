@@ -23,6 +23,8 @@ import {
   buildVendorGapMap,
 } from "@/lib/eliteInsightsV2";
 import EliteCardShell from "@/app/components/insights/elite/EliteCardShell";
+import LockedElitePreview from "@/app/components/insights/LockedElitePreview";
+import { VENDOR_ELITE_V2_META } from "@/lib/eliteInsightsV2";
 import VendorCategoryPositionCard from "@/app/components/insights/elite/VendorCategoryPositionCard";
 import VendorDemandSignalsCard from "@/app/components/insights/elite/VendorDemandSignalsCard";
 import VendorGapMapCard from "@/app/components/insights/elite/VendorGapMapCard";
@@ -252,15 +254,21 @@ export default async function VendorAlignmentInsightDetailPage({
               </Link>
             </>
           ) : (
-            <>
-              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-                Elite Insights unlock benchmark comparison, future demand, and an expansion simulation
-                grounded in current firm-reviewed evidence.
-              </p>
-              <Link href={eliteEntitlement.upgradeHref} className="pat-button-secondary mt-4 inline-flex">
-                Unlock with Elite
-              </Link>
-            </>
+            <LockedElitePreview
+              title={VENDOR_ELITE_V2_META[report.key as keyof typeof VENDOR_ELITE_V2_META]?.title ?? report.title}
+              description={
+                VENDOR_ELITE_V2_META[report.key as keyof typeof VENDOR_ELITE_V2_META]?.description ??
+                "A deeper, firm-reviewed Elite readout."
+              }
+              shape={
+                report.key === "forward-projection"
+                  ? "bars"
+                  : report.key === "benchmark-comparison"
+                    ? "distribution"
+                    : "bars"
+              }
+              upgradeHref={eliteEntitlement.upgradeHref}
+            />
           )}
         </section>
       ) : null}
