@@ -165,7 +165,7 @@ function getConfidenceBand(sampleSize: number) {
   if (sampleSize < 8) {
     return {
       band: "emerging" as const,
-      label: "Emerging signal",
+      label: "Limited signal",
       summary: `This readout is based on ${sampleSize} relevant module submissions and is useful, but still not broad enough to read as strong signal.`,
     };
   }

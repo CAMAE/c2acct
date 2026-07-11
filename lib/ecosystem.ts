@@ -41,7 +41,7 @@ export const HOT_DIVERGENCE_THRESHOLD = 10;
  */
 const CONFIDENCE_LABEL_BUCKETS: Record<string, keyof FirmConfidenceCounts> = {
   "Grounded current-state signal": "grounded",
-  "Emerging signal": "emerging",
+  "Limited signal": "emerging",
   "Sample-thin current-state signal": "sampleThin",
   "Early current-state signal": "earlySignal",
   "No current-state signal": "noSignal",

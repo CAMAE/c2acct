@@ -340,7 +340,7 @@ describe("lib/briefs helpers", () => {
       const catalog = [
         catalogEntry({ companyId: "a", confidenceLabel: "Grounded current-state signal" }),
         catalogEntry({ companyId: "b", confidenceLabel: "Grounded current-state signal" }),
-        catalogEntry({ companyId: "c", confidenceLabel: "Emerging signal" }),
+        catalogEntry({ companyId: "c", confidenceLabel: "Limited signal" }),
       ];
       const summary = generateExecutiveSummary([], [], catalog, "Test Ecosystem");
       expect(summary.confidenceCallout).toBe(

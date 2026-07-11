@@ -477,7 +477,7 @@ function getConfidenceFromCoverage(sampleSize: number, completeTarget: number, l
   if (sampleSize < completeTarget) {
     return {
       band: "emerging",
-      label: "Emerging signal",
+      label: "Limited signal",
       summary: `${label} covers ${sampleSize} of ${completeTarget} expected data points and is useful, but still incomplete.`,
     };
   }
@@ -510,7 +510,7 @@ function getOverallConfidence(input: {
   if (signalPoints <= 4) {
     return {
       band: "emerging" as const,
-      label: "Emerging signal",
+      label: "Limited signal",
       summary: "The briefing has meaningful evidence, but at least one layer remains sample-thin or incomplete.",
     };
   }

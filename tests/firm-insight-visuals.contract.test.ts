@@ -44,7 +44,7 @@ function reportFixture(key: InsightKey): FirmInsightReport {
     sampleSize: 5,
     latestUpdatedAt: new Date("2026-06-01T12:00:00.000Z"),
     confidenceBand: "emerging",
-    confidenceLabel: "Emerging signal",
+    confidenceLabel: "Limited signal",
     confidenceSummary: "Fixture confidence summary.",
     currentStateSummary:
       "Fixture insight shows the current operating picture, with the strongest support in Operating Model.",

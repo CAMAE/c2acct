@@ -70,7 +70,7 @@ describe("admin briefing engine contracts", () => {
           vendorSelfReportedScore: 85,
           combinedCurrentReadout: "CloseMap is aligned.",
           divergenceLabel: "Vendor self-view and firm review are closely aligned",
-          confidenceLabel: "Emerging signal",
+          confidenceLabel: "Limited signal",
           confidenceSummary: "Signal is useful.",
           latestUpdatedAt: new Date("2026-03-30T00:00:00.000Z"),
           utilityLabels: ["Close"],

@@ -110,7 +110,7 @@ describe("lib/ecosystem helpers", () => {
       const counts = aggregateFirmConfidence([
         catalogEntry({ confidenceLabel: "Grounded current-state signal" }),
         catalogEntry({ companyId: "f2", confidenceLabel: "Grounded current-state signal" }),
-        catalogEntry({ companyId: "f3", confidenceLabel: "Emerging signal" }),
+        catalogEntry({ companyId: "f3", confidenceLabel: "Limited signal" }),
         catalogEntry({ companyId: "f4", confidenceLabel: "Sample-thin current-state signal" }),
         catalogEntry({ companyId: "f5", confidenceLabel: "Early current-state signal" }),
         catalogEntry({ companyId: "f6", confidenceLabel: "No current-state signal" }),
@@ -130,8 +130,8 @@ describe("lib/ecosystem helpers", () => {
       // briefing yet. The band total must equal the card's "7 firms" subtitle.
       const counts = aggregateFirmConfidence(
         [
-          catalogEntry({ confidenceLabel: "Emerging signal" }),
-          catalogEntry({ companyId: "f2", confidenceLabel: "Emerging signal" }),
+          catalogEntry({ confidenceLabel: "Limited signal" }),
+          catalogEntry({ companyId: "f2", confidenceLabel: "Limited signal" }),
         ],
         7
       );

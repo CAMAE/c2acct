@@ -353,7 +353,7 @@ function getConfidenceBand(input: {
   if (band === "emerging") {
     return {
       band,
-      label: "Emerging signal",
+      label: "Limited signal",
       summary: `Firm-reviewed signal is based on ${input.firmAssessmentCount} assessments and is useful for current-state interpretation, but still sample-thin.`,
     };
   }

@@ -81,7 +81,7 @@ function alignmentReportFixture(
     locked: false,
     latestUpdatedAt: null,
     confidenceBand: "emerging",
-    confidenceLabel: "Emerging signal",
+    confidenceLabel: "Limited signal",
     confidenceSummary: "Fixture confidence.",
     currentStateSummary: "Fixture summary.",
     what: "Fixture what.",

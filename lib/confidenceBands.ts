@@ -29,6 +29,6 @@ export function confidenceBandForSampleSize(n: number): ConfidenceBand {
 export const CONFIDENCE_BAND_LABEL: Record<ConfidenceBand, string> = {
   no_signal: "No current-state signal",
   sample_thin: "Sample-thin",
-  emerging: "Emerging signal",
+  emerging: "Limited signal",
   grounded: "Grounded",
 };
