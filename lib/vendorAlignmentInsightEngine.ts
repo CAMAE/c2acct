@@ -9,6 +9,7 @@ import {
   evaluateBenchmarkSuppressionByCount,
   type BenchmarkSuppression,
 } from "@/lib/benchmarkSuppression";
+import { VENDOR_ELITE_V2_META } from "@/lib/eliteInsightsV2";
 import {
   ELITE_PLACEHOLDER_CTA,
   ELITE_PLACEHOLDER_MESSAGE,
@@ -780,15 +781,16 @@ export function buildVendorAlignmentEliteInsightCards(
       // Elite Insights v1 (Block 3): live + interactive for Elite members; the
       // locked "Coming soon" state is preserved for Pro-only members.
       if (elite) {
+        const meta = VENDOR_ELITE_V2_META[report.key];
         return {
           key: report.key,
-          title: report.title,
-          summary: "Open the live Elite readout — grounded in current firm-reviewed evidence, directional not verified.",
-          statusLabel: "Live · Elite",
+          title: meta?.title ?? report.title,
+          summary: meta?.description ?? report.currentStateSummary,
+          statusLabel: "Elite",
           tone: "active",
           href: `/vendor/alignment-insights/${report.key}?surface=elite`,
           interactive: true,
-          supportingText: "Grounded in current firm-reviewed evidence — directional, not verified.",
+          supportingText: null,
         } satisfies VendorAlignmentInsightOverviewCard;
       }
 

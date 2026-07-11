@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { FIRM_ELITE_V2_META } from "@/lib/eliteInsightsV2";
 import { normalizeQuestionRuntime, type NormalizedAnswer } from "@/lib/assessmentRuntime";
 import { getScoreBand } from "@/lib/scoreBands";
 import {
@@ -559,18 +560,19 @@ export function buildFirmEliteInsightCards({ elite = false }: { elite?: boolean 
   return FIRM_TIER2_INSIGHT_DEFINITIONS.map((insight) => {
     const content = getFirmInsightContent(insight.key);
 
-    // Elite Insights v1 (Block 3): live + interactive for Elite members; the
-    // locked "Coming soon" state is preserved for Pro-only members.
+    // Elite Insights v2 (B5-1): live + interactive for Elite members; card title +
+    // description match the interior surface. Locked "Coming soon" for Pro members.
     if (elite) {
+      const meta = FIRM_ELITE_V2_META[insight.key];
       return {
         key: insight.key,
-        title: insight.title,
-        summary: "Open the live Elite readout — grounded in your firm-reviewed evidence, directional not verified.",
-        statusLabel: "Live · Elite",
+        title: meta?.title ?? insight.title,
+        summary: meta?.description ?? insight.title,
+        statusLabel: "Elite",
         tone: "active",
         href: `/firm/insights/${insight.key}?surface=elite`,
         interactive: true,
-        supportingText: "Grounded in your firm-reviewed evidence — directional, not verified.",
+        supportingText: null,
       } satisfies FirmInsightOverviewCard;
     }
 

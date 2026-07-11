@@ -16,6 +16,43 @@ import type { PercentileRow } from "@/app/components/charts/PercentileBand";
 
 const MODULE_TITLE = new Map<string, string>(FIRM_MODULE_DEFINITIONS.map((m) => [m.key, m.title]));
 
+/**
+ * v2 entry-card metadata (B5-1) — title + one specific description per surface,
+ * keyed by the unchanged route key. The Elite tab cards render these so they
+ * match their interior pages exactly (v1 names retired). No boilerplate.
+ */
+export type EliteCardMeta = { title: string; description: string };
+
+export const FIRM_ELITE_V2_META: Record<string, EliteCardMeta> = {
+  firm_tier2_benchmark: {
+    title: "Peer Position Report",
+    description: "Where your firm ranks against peer firms, module by module — a percentile, not an average.",
+  },
+  firm_tier2_recommendation: {
+    title: "Gap-to-Top-Quartile Plan",
+    description: "The capabilities holding your alignment index down, ranked by point deficit — fix these first.",
+  },
+  firm_tier2_projection: {
+    title: "Trajectory",
+    description: "Your alignment index over time, with momentum and a directional projection of where you are heading.",
+  },
+};
+
+export const VENDOR_ELITE_V2_META: Record<string, EliteCardMeta> = {
+  "benchmark-comparison": {
+    title: "Category Position",
+    description: "Where your products rank in their category's distribution of firm-reviewed strength.",
+  },
+  "forward-projection": {
+    title: "Demand Signals",
+    description: "How firms move your products in and out of their simulated stacks — pipeline and churn risk.",
+  },
+  "scenario-simulation": {
+    title: "Alignment Gap Map",
+    description: "Per product-fit dimension, where firms confirm your story and where they read you lower.",
+  },
+};
+
 function suppressed(reading: BenchmarkReading): boolean {
   return reading.n < MIN_CONTRIBUTORS;
 }
