@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_FREE_MEMBERSHIP_PLAN, MEMBERSHIP_PLAN, MEMBERSHIP_STATUS } from "@/lib/membership";
+import { MEMBERSHIP_PLAN, MEMBERSHIP_STATUS } from "@/lib/membership";
 import {
   buildMembershipCheckoutHref,
   getMembershipCheckoutModel,
@@ -76,13 +76,14 @@ describe("membership page contracts", () => {
     ]);
   });
 
-  it("falls back to free when the current plan is missing or invalid", () => {
+  it("falls back to the FREE display baseline when the current plan is missing or invalid", () => {
     const model = getMembershipPageModel({
       audience: "vendor",
       currentPlan: "UNKNOWN" as never,
     });
 
-    expect(model.currentPlan).toBe(DEFAULT_FREE_MEMBERSHIP_PLAN);
+    // FREE is the never-rendered rank-0 display baseline; the toggle still defaults to PRO.
+    expect(model.currentPlan).toBe(MEMBERSHIP_PLAN.FREE);
     expect(model.activeTab).toBe(MEMBERSHIP_PLAN.PRO);
   });
 

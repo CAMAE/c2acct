@@ -13,7 +13,7 @@ export type MembershipResolvedContext = {
   companyId: string | null;
   companyType: CompanyType | null;
   displayName: string;
-  compatibilityMode: "native" | "virtual-free";
+  compatibilityMode: "native" | "no-membership";
 };
 
 async function ensureCompanySubject(input: {
@@ -66,7 +66,7 @@ export async function resolveMembershipContext(
       companyId: sessionUser.companyId,
       companyType: null,
       displayName: sessionUser.email,
-      compatibilityMode: "virtual-free",
+      compatibilityMode: "no-membership",
     };
   }
 
@@ -78,7 +78,7 @@ export async function resolveMembershipContext(
       companyId: null,
       companyType: null,
       displayName: audience === "vendor" ? "Vendor" : "Firm",
-      compatibilityMode: "virtual-free",
+      compatibilityMode: "no-membership",
     };
   }
 
@@ -95,7 +95,7 @@ export async function resolveMembershipContext(
       companyId: sessionUser.companyId,
       companyType: null,
       displayName: audience === "vendor" ? "Vendor" : "Firm",
-      compatibilityMode: "virtual-free",
+      compatibilityMode: "no-membership",
     };
   }
 

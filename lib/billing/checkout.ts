@@ -13,13 +13,13 @@ import {
 } from "@/lib/billing/stripe";
 import { resolveOrCreateBillingCustomer } from "@/lib/billing/customers";
 import {
-  DEFAULT_FREE_MEMBERSHIP_PLAN,
   MEMBERSHIP_PLAN,
   MEMBERSHIP_STATUS,
   getMembershipSnapshotForContext,
   normalizeMembershipPlan,
   normalizeMembershipStatus,
   startCheckoutPlaceholderFlow,
+  toDbMembershipPlan,
 } from "@/lib/membership";
 import type { MembershipAudience } from "@/lib/membershipContext";
 
@@ -202,7 +202,7 @@ export async function startMembershipCheckoutFlow(input: {
     create: {
       id: randomUUID(),
       subjectId,
-      plan: normalizeMembershipPlan(existingMembership.plan) || DEFAULT_FREE_MEMBERSHIP_PLAN,
+      plan: toDbMembershipPlan(existingMembership.plan),
       status: MEMBERSHIP_STATUS.PENDING_CHECKOUT,
       provider: config.provider,
       externalCustomerRef: customerResult.customer.providerCustomerId,

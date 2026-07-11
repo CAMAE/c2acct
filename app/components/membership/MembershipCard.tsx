@@ -1,9 +1,10 @@
 import Link from "next/link";
-import type { MembershipPlan, MembershipStatus } from "@prisma/client";
+import type { MembershipStatus } from "@prisma/client";
+import type { ResolvedMembershipPlan } from "@/lib/membership";
 
 type MembershipCardProps = {
   href: string;
-  plan: MembershipPlan;
+  plan: ResolvedMembershipPlan;
   status: MembershipStatus;
   audienceLabel: string;
 };

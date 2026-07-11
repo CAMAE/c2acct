@@ -1,5 +1,5 @@
 import type { MembershipPlan, MembershipStatus } from "@prisma/client";
-import { MEMBERSHIP_PLAN, normalizeMembershipPlan } from "@/lib/membership";
+import { MEMBERSHIP_PLAN, toDbMembershipPlan, type ResolvedMembershipPlan } from "@/lib/membership";
 import type { MembershipAudience } from "@/lib/membershipContext";
 
 export type MembershipTabKey = typeof MEMBERSHIP_PLAN.PRO | typeof MEMBERSHIP_PLAN.ELITE | "HELP";
@@ -75,7 +75,7 @@ export type MembershipPageModel = {
     body: string;
   };
   // Only paid tiers are ever rendered. FREE remains a rank-0 technical artifact
-  // (normalizeMembershipPlan default, admin tooling) but never appears here.
+  // (toDbMembershipPlan display baseline, admin tooling) but never appears here.
   tiers: MembershipTierCardData[];
   comparisonTable: MembershipComparisonRow[];
   panel:
@@ -510,7 +510,7 @@ export function buildMembershipCheckoutHref(audience: MembershipAudience, plan: 
 
 export function getRequestedMembershipTab(
   rawTab: string | undefined,
-  currentPlan: MembershipPlan
+  currentPlan: ResolvedMembershipPlan
 ): MembershipTabKey {
   const normalizedTab = rawTab?.trim().toUpperCase();
 
@@ -550,16 +550,16 @@ export function getRequestedMembershipPaymentMethod(
   return "card";
 }
 
-export function getDefaultMembershipTab(plan: MembershipPlan): MembershipTabKey {
-  return normalizeMembershipPlan(plan) === MEMBERSHIP_PLAN.ELITE ? MEMBERSHIP_PLAN.ELITE : MEMBERSHIP_PLAN.PRO;
+export function getDefaultMembershipTab(plan: ResolvedMembershipPlan): MembershipTabKey {
+  return toDbMembershipPlan(plan) === MEMBERSHIP_PLAN.ELITE ? MEMBERSHIP_PLAN.ELITE : MEMBERSHIP_PLAN.PRO;
 }
 
 export function getMembershipStatusSummary(status: MembershipStatus) {
   return formatMembershipValue(status);
 }
 
-export function getRequestedCheckoutPlan(rawPlan: string | undefined, currentPlan: MembershipPlan) {
-  const normalizedCurrentPlan = normalizeMembershipPlan(currentPlan);
+export function getRequestedCheckoutPlan(rawPlan: string | undefined, currentPlan: ResolvedMembershipPlan) {
+  const normalizedCurrentPlan = toDbMembershipPlan(currentPlan);
   const normalizedRawPlan = rawPlan?.trim().toUpperCase();
 
   if (normalizedRawPlan === MEMBERSHIP_PLAN.PRO || normalizedRawPlan === MEMBERSHIP_PLAN.ELITE) {
@@ -864,11 +864,11 @@ function buildMembershipTiers(
 
 export function getMembershipPageModel(input: {
   audience: MembershipAudience;
-  currentPlan: MembershipPlan;
+  currentPlan: ResolvedMembershipPlan;
   activeTab?: MembershipTabKey;
 }): MembershipPageModel {
   const content = MEMBERSHIP_PAGE_CONTENT[input.audience];
-  const currentPlan = normalizeMembershipPlan(input.currentPlan);
+  const currentPlan = toDbMembershipPlan(input.currentPlan);
   const activeTab = normalizeMembershipTabKey(input.activeTab, currentPlan);
   const tiers = buildMembershipTiers(input.audience, currentPlan, content);
   const comparisonTable = content.comparisonRows;
@@ -930,15 +930,15 @@ export function getMembershipPageModel(input: {
 
 export function getMembershipCheckoutModel(input: {
   audience: MembershipAudience;
-  selectedPlan: MembershipPlan;
-  currentPlan: MembershipPlan;
+  selectedPlan: ResolvedMembershipPlan;
+  currentPlan: ResolvedMembershipPlan;
   currentStatus: MembershipStatus;
   billingMode?: MembershipCheckoutBillingMode;
   billingDisabledReason?: string | null;
 }): MembershipCheckoutModel {
   const content = MEMBERSHIP_PAGE_CONTENT[input.audience];
-  const selectedPlan = normalizeMembershipPlan(input.selectedPlan);
-  const currentPlan = normalizeMembershipPlan(input.currentPlan);
+  const selectedPlan = toDbMembershipPlan(input.selectedPlan);
+  const currentPlan = toDbMembershipPlan(input.currentPlan);
   const planContent = content.plans[selectedPlan];
   const workspaceLink = getMembershipWorkspaceLink(input.audience);
   const membershipHref = `${getMembershipPathPrefix(input.audience)}/membership?tab=${selectedPlan.toLowerCase()}`;

@@ -13,13 +13,22 @@ import {
   type MembershipResolvedContext,
 } from "@/lib/membershipContext";
 
+/**
+ * Resolved plan (B5-6). The DB enum keeps FREE (not foreclosed — a possible future
+ * individual tier is Cam's decision), but the RESOLVER never surfaces FREE: an
+ * account without a paid membership resolves to the explicit NO_MEMBERSHIP state
+ * (no product access, support/upgrade copy). Nothing is structurally free.
+ */
+export const NO_MEMBERSHIP = "NO_MEMBERSHIP" as const;
+export type ResolvedMembershipPlan = MembershipPlan | typeof NO_MEMBERSHIP;
+
 export type MembershipSnapshot = {
   audience: MembershipAudience;
   subjectId: string | null;
   displayName: string;
-  plan: MembershipPlan;
+  plan: ResolvedMembershipPlan;
   status: MembershipStatus;
-  source: "database" | "virtual-free" | "local-review-compatibility";
+  source: "database" | "no-membership" | "local-review-compatibility";
   compatibilityMode: MembershipResolvedContext["compatibilityMode"];
   checkoutHref: string;
   subscription: MembershipSubscription | null;
@@ -42,10 +51,11 @@ export const MEMBERSHIP_STATUS = {
   PAYMENT_ACTION_REQUIRED: "PAYMENT_ACTION_REQUIRED",
 } as const satisfies Record<string, MembershipStatus>;
 
-export const DEFAULT_FREE_MEMBERSHIP_PLAN = MEMBERSHIP_PLAN.FREE;
-export const DEFAULT_FREE_MEMBERSHIP_STATUS = MEMBERSHIP_STATUS.ACTIVE;
+/** DB placeholder status for a subscription row that carries no entitlement. */
+const NO_MEMBERSHIP_STATUS = MEMBERSHIP_STATUS.CANCELED;
 
-const MEMBERSHIP_PLAN_RANK: Record<MembershipPlan, number> = {
+const MEMBERSHIP_PLAN_RANK: Record<ResolvedMembershipPlan, number> = {
+  [NO_MEMBERSHIP]: -1,
   [MEMBERSHIP_PLAN.FREE]: 0,
   [MEMBERSHIP_PLAN.PRO]: 1,
   [MEMBERSHIP_PLAN.ELITE]: 2,
@@ -66,12 +76,22 @@ export type LocalReviewCompatibilityMembership = {
   status: MembershipStatus;
 };
 
-export function normalizeMembershipPlan(plan: string | MembershipPlan | null | undefined): MembershipPlan {
+/** Resolver plan normalization — never returns FREE (B5-6); FREE/unknown → NO_MEMBERSHIP. */
+export function normalizeMembershipPlan(
+  plan: string | MembershipPlan | null | undefined
+): ResolvedMembershipPlan {
   if (plan === MEMBERSHIP_PLAN.PRO || plan === MEMBERSHIP_PLAN.ELITE) {
     return plan;
   }
+  return NO_MEMBERSHIP;
+}
 
-  return DEFAULT_FREE_MEMBERSHIP_PLAN;
+/** DB-safe plan for subscription writes: NO_MEMBERSHIP → FREE placeholder. */
+export function toDbMembershipPlan(plan: ResolvedMembershipPlan | string | null | undefined): MembershipPlan {
+  if (plan === MEMBERSHIP_PLAN.PRO || plan === MEMBERSHIP_PLAN.ELITE) {
+    return plan;
+  }
+  return MEMBERSHIP_PLAN.FREE;
 }
 
 export function normalizeMembershipStatus(
@@ -89,10 +109,11 @@ export function normalizeMembershipStatus(
     return status;
   }
 
-  return DEFAULT_FREE_MEMBERSHIP_STATUS;
+  return MEMBERSHIP_STATUS.ACTIVE;
 }
 
-export function getVirtualFreeMembershipSnapshot(input: {
+/** B5-6: an account without a paid membership → explicit no-membership state. */
+export function getNoMembershipSnapshot(input: {
   audience: MembershipAudience;
   subjectId: string | null;
   displayName: string;
@@ -102,9 +123,9 @@ export function getVirtualFreeMembershipSnapshot(input: {
     audience: input.audience,
     subjectId: input.subjectId,
     displayName: input.displayName,
-    plan: DEFAULT_FREE_MEMBERSHIP_PLAN,
-    status: DEFAULT_FREE_MEMBERSHIP_STATUS,
-    source: "virtual-free",
+    plan: NO_MEMBERSHIP,
+    status: NO_MEMBERSHIP_STATUS,
+    source: "no-membership",
     compatibilityMode: input.compatibilityMode,
     checkoutHref: getCheckoutHref(input.audience),
     subscription: null,
@@ -220,7 +241,7 @@ export async function getMembershipSnapshotForContext(
   context: MembershipResolvedContext
 ): Promise<MembershipSnapshot> {
   if (!context.subjectId) {
-    return getVirtualFreeMembershipSnapshot({
+    return getNoMembershipSnapshot({
       audience: context.audience,
       subjectId: null,
       displayName: context.displayName,
@@ -233,7 +254,7 @@ export async function getMembershipSnapshotForContext(
   });
 
   if (!subscription) {
-    return getVirtualFreeMembershipSnapshot({
+    return getNoMembershipSnapshot({
       audience: context.audience,
       subjectId: context.subjectId,
       displayName: context.displayName,
@@ -292,55 +313,6 @@ export async function resolveMembershipEntitlement(
   };
 }
 
-export async function ensureDefaultFreeMembership(
-  sessionUser: SessionUser,
-  audience: MembershipAudience
-) {
-  const context = await resolveMembershipContext(sessionUser, audience);
-  if (!context.subjectId) {
-    return getMembershipSnapshotForContext(context);
-  }
-
-  const subscription = await prisma.membershipSubscription.upsert({
-    where: { subjectId: context.subjectId },
-    update: {
-      plan: DEFAULT_FREE_MEMBERSHIP_PLAN,
-      status: DEFAULT_FREE_MEMBERSHIP_STATUS,
-      providerStatus: null,
-      providerPriceRef: null,
-      externalSubscriptionRef: null,
-      checkoutRequestedPlan: null,
-      checkoutSessionRef: null,
-      lastBillingEventType: "membership.free.defaulted",
-      lastBillingEventAt: new Date(),
-      lastWebhookEventId: null,
-      lastReconciledAt: null,
-      paymentActionRequiredAt: null,
-      updatedAt: new Date(),
-    },
-    create: {
-      id: randomUUID(),
-      subjectId: context.subjectId,
-      plan: DEFAULT_FREE_MEMBERSHIP_PLAN,
-      status: DEFAULT_FREE_MEMBERSHIP_STATUS,
-      provider: "pat-placeholder",
-      startedAt: new Date(),
-    },
-  });
-
-  return {
-    audience: context.audience,
-    subjectId: context.subjectId,
-    displayName: context.displayName,
-    plan: normalizeMembershipPlan(subscription.plan),
-    status: normalizeMembershipStatus(subscription.status),
-    source: "database" as const,
-    compatibilityMode: context.compatibilityMode,
-    checkoutHref: getCheckoutHref(context.audience),
-    subscription,
-  };
-}
-
 export async function startCheckoutPlaceholderFlow(input: {
   sessionUser: SessionUser;
   audience: MembershipAudience;
@@ -379,7 +351,8 @@ export async function startCheckoutPlaceholderFlow(input: {
     create: {
       id: randomUUID(),
       subjectId: context.subjectId,
-      plan: DEFAULT_FREE_MEMBERSHIP_PLAN,
+      // DB placeholder row for a not-yet-paid checkout; entitlement gated by status.
+      plan: MEMBERSHIP_PLAN.FREE,
       status: MEMBERSHIP_STATUS.PENDING_CHECKOUT,
       checkoutRequestedPlan: input.requestedPlan,
       checkoutSessionRef: `placeholder:${context.subjectId}:${Date.now()}`,

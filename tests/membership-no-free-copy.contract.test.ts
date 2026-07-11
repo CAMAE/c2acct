@@ -10,7 +10,7 @@ import {
 /**
  * Contract test (Elite Sprint Block C): FREE is dead in every user-facing
  * membership + onboarding surface. The enum keeps FREE as a rank-0 technical
- * artifact (normalizeMembershipPlan default, admin tooling) but it must never
+ * artifact (toDbMembershipPlan display baseline, admin tooling) but it must never
  * render — no "Free" tier, and no "Free tier"/"Free plan" copy anywhere the
  * customer can see. Cam has killed FREE repeatedly; this keeps it dead.
  */

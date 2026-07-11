@@ -3,6 +3,7 @@ import type { MembershipPlan, MembershipStatus } from "@prisma/client";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import { formatMembershipValue, getMembershipStatusSummary } from "@/lib/membershipContent";
+import type { ResolvedMembershipPlan } from "@/lib/membership";
 import type { MembershipAudience } from "@/lib/membershipContext";
 
 type MembershipSurfaceGateProps = {
@@ -11,7 +12,7 @@ type MembershipSurfaceGateProps = {
   title: string;
   body: string;
   displayName: string;
-  currentPlan: MembershipPlan;
+  currentPlan: ResolvedMembershipPlan;
   currentStatus: MembershipStatus;
   requiredPlan: MembershipPlan;
   membershipHref: string;

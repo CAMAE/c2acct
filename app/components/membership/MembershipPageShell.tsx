@@ -1,6 +1,6 @@
 "use client";
 
-import type { MembershipPlan, MembershipStatus } from "@prisma/client";
+import type { MembershipStatus } from "@prisma/client";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import MembershipComparisonTable from "@/app/components/membership/MembershipComparisonTable";
 import MembershipPlanPanel from "@/app/components/membership/MembershipPlanPanel";
@@ -15,11 +15,12 @@ import {
   getMembershipTabs,
   type MembershipTabKey,
 } from "@/lib/membershipContent";
+import type { ResolvedMembershipPlan } from "@/lib/membership";
 import type { MembershipAudience } from "@/lib/membershipContext";
 
 type MembershipPageShellProps = {
   audience: MembershipAudience;
-  currentPlan: MembershipPlan;
+  currentPlan: ResolvedMembershipPlan;
   currentStatus: MembershipStatus;
   displayName: string;
   initialTab: MembershipTabKey;

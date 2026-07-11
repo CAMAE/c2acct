@@ -1,33 +1,47 @@
 import { describe, expect, it } from "vitest";
 import type { MembershipSubscription } from "@prisma/client";
 import {
-  DEFAULT_FREE_MEMBERSHIP_PLAN,
-  DEFAULT_FREE_MEMBERSHIP_STATUS,
   MEMBERSHIP_PLAN,
   MEMBERSHIP_STATUS,
+  NO_MEMBERSHIP,
   getMembershipPlanRank,
   getMembershipUpgradeHref,
   hasMembershipAccess,
-  getVirtualFreeMembershipSnapshot,
+  getNoMembershipSnapshot,
   isMembershipSnapshotEntitled,
   isMembershipStatusEntitled,
   normalizeMembershipPlan,
   normalizeMembershipStatus,
   resolveLocalReviewCompatibilityMembership,
+  toDbMembershipPlan,
 } from "@/lib/membership";
 
 describe("membership resolver contracts", () => {
-  it("normalizes missing or invalid plans to free", () => {
-    expect(normalizeMembershipPlan(undefined)).toBe(DEFAULT_FREE_MEMBERSHIP_PLAN);
-    expect(normalizeMembershipPlan(null)).toBe(DEFAULT_FREE_MEMBERSHIP_PLAN);
-    expect(normalizeMembershipPlan("UNKNOWN")).toBe(DEFAULT_FREE_MEMBERSHIP_PLAN);
+  it("resolves missing, invalid, or FREE plans to NO_MEMBERSHIP — the resolver never returns FREE (B5-6)", () => {
+    expect(normalizeMembershipPlan(undefined)).toBe(NO_MEMBERSHIP);
+    expect(normalizeMembershipPlan(null)).toBe(NO_MEMBERSHIP);
+    expect(normalizeMembershipPlan("UNKNOWN")).toBe(NO_MEMBERSHIP);
+    expect(normalizeMembershipPlan(MEMBERSHIP_PLAN.FREE)).toBe(NO_MEMBERSHIP);
     expect(normalizeMembershipPlan(MEMBERSHIP_PLAN.PRO)).toBe(MEMBERSHIP_PLAN.PRO);
+    expect(normalizeMembershipPlan(MEMBERSHIP_PLAN.ELITE)).toBe(MEMBERSHIP_PLAN.ELITE);
+    // Structural guarantee: no input can ever coerce the resolver back to FREE.
+    for (const input of [undefined, null, "", "FREE", "free", "UNKNOWN", "BASIC", MEMBERSHIP_PLAN.FREE]) {
+      expect(normalizeMembershipPlan(input)).not.toBe(MEMBERSHIP_PLAN.FREE);
+    }
+  });
+
+  it("maps NO_MEMBERSHIP back to a FREE DB placeholder only for subscription writes", () => {
+    expect(toDbMembershipPlan(NO_MEMBERSHIP)).toBe(MEMBERSHIP_PLAN.FREE);
+    expect(toDbMembershipPlan(undefined)).toBe(MEMBERSHIP_PLAN.FREE);
+    expect(toDbMembershipPlan("UNKNOWN")).toBe(MEMBERSHIP_PLAN.FREE);
+    expect(toDbMembershipPlan(MEMBERSHIP_PLAN.PRO)).toBe(MEMBERSHIP_PLAN.PRO);
+    expect(toDbMembershipPlan(MEMBERSHIP_PLAN.ELITE)).toBe(MEMBERSHIP_PLAN.ELITE);
   });
 
   it("normalizes missing or invalid statuses to active", () => {
-    expect(normalizeMembershipStatus(undefined)).toBe(DEFAULT_FREE_MEMBERSHIP_STATUS);
-    expect(normalizeMembershipStatus(null)).toBe(DEFAULT_FREE_MEMBERSHIP_STATUS);
-    expect(normalizeMembershipStatus("UNKNOWN")).toBe(DEFAULT_FREE_MEMBERSHIP_STATUS);
+    expect(normalizeMembershipStatus(undefined)).toBe(MEMBERSHIP_STATUS.ACTIVE);
+    expect(normalizeMembershipStatus(null)).toBe(MEMBERSHIP_STATUS.ACTIVE);
+    expect(normalizeMembershipStatus("UNKNOWN")).toBe(MEMBERSHIP_STATUS.ACTIVE);
     expect(normalizeMembershipStatus(MEMBERSHIP_STATUS.PENDING_CHECKOUT)).toBe(
       MEMBERSHIP_STATUS.PENDING_CHECKOUT
     );
@@ -68,37 +82,42 @@ describe("membership resolver contracts", () => {
     })).toBe(true);
   });
 
-  it("builds a virtual free snapshot for every audience", () => {
-    const vendor = getVirtualFreeMembershipSnapshot({
+  it("builds an explicit no-membership snapshot for every audience (B5-6)", () => {
+    const vendor = getNoMembershipSnapshot({
       audience: "vendor",
       subjectId: null,
       displayName: "Vendor",
-      compatibilityMode: "virtual-free",
+      compatibilityMode: "no-membership",
     });
-    const firm = getVirtualFreeMembershipSnapshot({
+    const firm = getNoMembershipSnapshot({
       audience: "firm",
       subjectId: "subject-firm",
       displayName: "Firm",
       compatibilityMode: "native",
     });
-    const individual = getVirtualFreeMembershipSnapshot({
+    const individual = getNoMembershipSnapshot({
       audience: "individual",
       subjectId: null,
       displayName: "review.individual@pat.local",
-      compatibilityMode: "virtual-free",
+      compatibilityMode: "no-membership",
     });
 
-    expect(vendor.plan).toBe(DEFAULT_FREE_MEMBERSHIP_PLAN);
-    expect(vendor.status).toBe(DEFAULT_FREE_MEMBERSHIP_STATUS);
+    for (const snapshot of [vendor, firm, individual]) {
+      expect(snapshot.plan).toBe(NO_MEMBERSHIP);
+      expect(snapshot.plan).not.toBe(MEMBERSHIP_PLAN.FREE);
+      expect(snapshot.status).toBe(MEMBERSHIP_STATUS.CANCELED);
+      expect(snapshot.source).toBe("no-membership");
+    }
     expect(vendor.checkoutHref).toBe("/vendor/membership/checkout");
-
-    expect(firm.plan).toBe(DEFAULT_FREE_MEMBERSHIP_PLAN);
-    expect(firm.status).toBe(DEFAULT_FREE_MEMBERSHIP_STATUS);
     expect(firm.checkoutHref).toBe("/firm/membership/checkout");
-
-    expect(individual.plan).toBe(DEFAULT_FREE_MEMBERSHIP_PLAN);
-    expect(individual.status).toBe(DEFAULT_FREE_MEMBERSHIP_STATUS);
     expect(individual.checkoutHref).toBe("/user/membership/checkout");
+  });
+
+  it("ranks NO_MEMBERSHIP below every paid tier and denies access", () => {
+    expect(getMembershipPlanRank(NO_MEMBERSHIP)).toBeLessThan(getMembershipPlanRank(MEMBERSHIP_PLAN.PRO));
+    expect(hasMembershipAccess(NO_MEMBERSHIP, MEMBERSHIP_PLAN.PRO)).toBe(false);
+    // An account with no resolvable plan (undefined) must not clear the PRO gate.
+    expect(hasMembershipAccess(undefined, MEMBERSHIP_PLAN.PRO)).toBe(false);
   });
 
   it("keeps the plan ranking and minimum-tier checks explicit", () => {
