@@ -189,7 +189,9 @@ describe("vendor alignment plain language", () => {
 
   it("varies the practical clauses by band and softest module", () => {
     const governanceWeak = alignmentReportFixture({
-      averageModuleScore: 74,
+      // B8-2: 78 sits in the Established band (75-89) so this still exercises
+      // the Established clause after the five-band re-scale.
+      averageModuleScore: 78,
       weakestModules: [
         { key: "firm_alignment_governance_v1", title: "Governance, Controls, and Vendor Risk", averageScore: 49, sampleSize: 5 },
       ],

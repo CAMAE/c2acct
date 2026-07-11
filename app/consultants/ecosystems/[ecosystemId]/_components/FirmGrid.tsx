@@ -28,11 +28,10 @@ function shortConfidence(label: string): string {
   // early-signal) replaced with plain-language tiers reflecting submission
   // depth. The upstream confidenceLabel still uses the old vocabulary; this
   // helper maps to the consultant-facing language.
-  if (label.includes("Grounded")) return "Full";
-  if (label.includes("Emerging")) return "Building";
-  if (label.includes("Sample-thin")) return "Limited";
-  if (label.includes("Early")) return "Initial";
-  return "Pending";
+  // B8-2: one lexicon — Grounded / Early signal / No signal.
+  if (label.includes("Grounded")) return "Grounded";
+  if (label.includes("Early")) return "Early signal";
+  return "No signal";
 }
 
 /**

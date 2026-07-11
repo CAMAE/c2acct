@@ -84,7 +84,7 @@ export const BODY_PATTERNS: ExecutiveSummaryBodyPattern[] = [
     render: ({ groundedCount, firmCount }) => {
       if (firmCount === 0) return null;
       if (groundedCount * 2 < firmCount) return null;
-      return `${groundedCount} of ${firmCount} firm${firmCount === 1 ? "" : "s"} are at Full confidence — the underlying scores carry full evidentiary depth.`;
+      return `${groundedCount} of ${firmCount} firm${firmCount === 1 ? "" : "s"} are Grounded — the underlying scores carry full evidentiary depth.`;
     },
   },
   {

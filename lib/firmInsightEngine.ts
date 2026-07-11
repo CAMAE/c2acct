@@ -144,34 +144,34 @@ function getConfidenceBand(sampleSize: number) {
   if (sampleSize <= 0) {
     return {
       band: "no_signal" as const,
-      label: "No current-state signal",
+      label: "No signal",
       summary: "PAT does not yet have enough completed firm evidence to support a grounded readout.",
     };
   }
   if (sampleSize === 1) {
     return {
       band: "sample_thin" as const,
-      label: "Early current-state signal",
+      label: "Early signal",
       summary: "This readout is based on one completed module submission only and should be treated as early current-state signal.",
     };
   }
   if (sampleSize < 4) {
     return {
       band: "sample_thin" as const,
-      label: "Sample-thin current-state signal",
+      label: "Early signal",
       summary: `This readout is based on ${sampleSize} relevant module submissions and remains sample-thin rather than strong confirmation.`,
     };
   }
   if (sampleSize < 8) {
     return {
       band: "emerging" as const,
-      label: "Limited signal",
+      label: "Early signal",
       summary: `This readout is based on ${sampleSize} relevant module submissions and is useful, but still not broad enough to read as strong signal.`,
     };
   }
   return {
     band: "grounded" as const,
-    label: "Grounded current-state signal",
+    label: "Grounded",
     summary: `This readout is based on ${sampleSize} relevant module submissions and is grounded for current-state interpretation only, not benchmarks or forecasts.`,
   };
 }
@@ -433,10 +433,11 @@ export type FirmInsightPlainLanguage = {
 /** What each maturity band generally means for software decisions — general,
  * current-state framing only; never comparative. */
 const BAND_STACK_CLAUSE: Record<ReturnType<typeof getScoreBand>["key"], string> = {
-  emerging: "foundations are still forming and buying decisions tend to outpace the processes that have to support them",
+  early: "foundations are just being established, so tooling decisions should stay close to what the team can realistically support today",
+  developing: "foundations are still forming and buying decisions tend to outpace the processes that have to support them",
   building: "core workflows are taking shape but still lean on individual effort",
   established: "core workflows hold up under day-to-day load",
-  optimizing: "core workflows hold up well enough to absorb new tooling quickly",
+  leading: "core workflows hold up well enough to absorb new tooling quickly",
 };
 
 /** Per-module friction/benefit framing so the tech-stack sentences vary with

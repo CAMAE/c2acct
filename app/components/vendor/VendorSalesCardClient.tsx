@@ -8,6 +8,7 @@ import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import { formatDelta, formatScoreValue } from "@/lib/formatDelta";
 import { fitBarPct, fitHeatColor, fitTierKey, fitTierLabel, type FitTierKey } from "@/lib/fitHeat";
 import type { EvidenceGrade, RankedFirm, SalesModuleGap, VendorSalesCardData } from "@/lib/salesCard";
+import { CONFIDENCE_BAND_LABEL } from "@/lib/confidenceBands";
 
 /**
  * Vendor Sales Card v3 (Redlines R15/R16 + P1 finishers). Consultant-brief
@@ -21,12 +22,9 @@ import type { EvidenceGrade, RankedFirm, SalesModuleGap, VendorSalesCardData } f
  * Pro sees "Secret Firm N" + Reveal.
  */
 
-const CONFIDENCE_LABEL: Record<RankedFirm["confidence"], string> = {
-  no_signal: "Pending",
-  sample_thin: "Sample-thin",
-  emerging: "Building",
-  grounded: "Grounded",
-};
+// B8-2: confidence renders from the ONE lexicon (Grounded / Early signal / No
+// signal), never score-band words like "Building".
+const CONFIDENCE_LABEL: Record<RankedFirm["confidence"], string> = CONFIDENCE_BAND_LABEL;
 
 function firmLabel(firm: RankedFirm, entitled: boolean): string {
   return entitled ? firm.firmName : `Secret Firm ${firm.fitRank}`;

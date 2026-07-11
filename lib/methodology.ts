@@ -74,8 +74,7 @@ export const METHODOLOGY_SECTIONS: readonly MethodologySection[] = [
     ],
     bullets: [
       "No signal — no current-state evidence yet",
-      "Sample-thin — fewer than 3 data points",
-      "Emerging — 3 to 5 data points",
+      "Early signal — fewer than 6 data points",
       "Grounded — 6 or more data points",
     ],
   },

@@ -463,27 +463,27 @@ function getConfidenceFromCoverage(sampleSize: number, completeTarget: number, l
   if (sampleSize <= 0) {
     return {
       band: "no_signal",
-      label: "No live signal",
+      label: "No signal",
       summary: `${label} has no completed PAT evidence yet.`,
     };
   }
   if (sampleSize < Math.max(1, Math.ceil(completeTarget / 2))) {
     return {
       band: "directional",
-      label: "Directional",
+      label: "Early signal",
       summary: `${label} is based on ${sampleSize} completed data point${sampleSize === 1 ? "" : "s"}, so it remains directional.`,
     };
   }
   if (sampleSize < completeTarget) {
     return {
       band: "emerging",
-      label: "Limited signal",
+      label: "Early signal",
       summary: `${label} covers ${sampleSize} of ${completeTarget} expected data points and is useful, but still incomplete.`,
     };
   }
   return {
     band: "grounded",
-    label: "Grounded current-state signal",
+    label: "Grounded",
     summary: `${label} covers the current expected PAT data points and is grounded for current-state interpretation only.`,
   };
 }
@@ -503,20 +503,20 @@ function getOverallConfidence(input: {
   if (signalPoints <= 1) {
     return {
       band: "directional" as const,
-      label: "Directional",
+      label: "Early signal",
       summary: "The briefing is usable for triage, but multiple evidence layers are still thin.",
     };
   }
   if (signalPoints <= 4) {
     return {
       band: "emerging" as const,
-      label: "Limited signal",
+      label: "Early signal",
       summary: "The briefing has meaningful evidence, but at least one layer remains sample-thin or incomplete.",
     };
   }
   return {
     band: "grounded" as const,
-    label: "Grounded current-state signal",
+    label: "Grounded",
     summary: "The briefing is grounded across the current PAT layers, while still avoiding unsupported benchmark or projection claims.",
   };
 }

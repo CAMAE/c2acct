@@ -2,12 +2,13 @@ import type { EcosystemDetailData, FirmConfidenceCounts } from "@/lib/ecosystem"
 
 // WS6.5 Block G — Day-27 P1a banned-vocab leak repair. Per WS5 word list:
 // Full / Building / Limited / Initial / Pending.
+// B8-2: one lexicon — Grounded / Early signal / No signal.
 const CONFIDENCE_BUCKET_LABELS: Record<keyof FirmConfidenceCounts, string> = {
-  grounded: "at Full confidence",
-  emerging: "actively assessing",
-  sampleThin: "Limited",
-  earlySignal: "Initial",
-  noSignal: "Pending",
+  grounded: "Grounded",
+  emerging: "Early signal",
+  sampleThin: "Early signal",
+  earlySignal: "Early signal",
+  noSignal: "No signal",
 };
 
 function formatConfidenceDistribution(counts: FirmConfidenceCounts): string {

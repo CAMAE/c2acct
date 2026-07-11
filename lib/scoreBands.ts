@@ -1,9 +1,15 @@
 /**
  * Maturity bands for PAT module/capability scores (0-100).
- * Band colors reuse the WS11-K radar tokens (globals.css) so semantic
- * color stays reserved for band meaning across every chart component.
+ *
+ * Block 8 B8-2: the band definitions now live in the ONE lexicon
+ * (lib/bandLexicon.ts, Cam's 2026-07-11 ruling — five bands Early/Developing/
+ * Building/Established/Leading). This module stays as the chart-facing shim so
+ * existing chart components keep the same {key,label,colorVar} shape and the
+ * neutral track/guide color tokens.
  */
-export type ScoreBandKey = "emerging" | "building" | "established" | "optimizing";
+import { SCORE_BANDS, scoreBandFor, type ScoreBandKey } from "@/lib/bandLexicon";
+
+export type { ScoreBandKey } from "@/lib/bandLexicon";
 
 export type ScoreBand = {
   key: ScoreBandKey;
@@ -11,18 +17,15 @@ export type ScoreBand = {
   colorVar: string;
 };
 
-const BANDS: Record<ScoreBandKey, ScoreBand> = {
-  emerging: { key: "emerging", label: "Emerging", colorVar: "var(--radar-red)" },
-  building: { key: "building", label: "Building", colorVar: "var(--radar-amber)" },
-  established: { key: "established", label: "Established", colorVar: "var(--radar-green)" },
-  optimizing: { key: "optimizing", label: "Optimizing", colorVar: "var(--radar-deep-green)" },
-};
-
 export function getScoreBand(score: number): ScoreBand {
-  if (score >= 85) return BANDS.optimizing;
-  if (score >= 70) return BANDS.established;
-  if (score >= 50) return BANDS.building;
-  return BANDS.emerging;
+  const band = scoreBandFor(score);
+  return { key: band.key, label: band.label, colorVar: band.colorVar };
+}
+
+/** Direct access to a band definition by key (chart legends). */
+export function scoreBandByKey(key: ScoreBandKey): ScoreBand {
+  const band = SCORE_BANDS[key];
+  return { key: band.key, label: band.label, colorVar: band.colorVar };
 }
 
 export const NEUTRAL_BAR_COLOR = "rgba(6, 54, 116, 0.38)";

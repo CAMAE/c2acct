@@ -81,15 +81,17 @@ function reportFixture(key: InsightKey): FirmInsightReport {
 const TIER1_KEYS = FIRM_TIER1_INSIGHT_DEFINITIONS.map((insight) => insight.key) as InsightKey[];
 
 describe("score bands", () => {
-  it("maps scores to the four maturity bands at the documented boundaries", () => {
-    expect(getScoreBand(0).label).toBe("Emerging");
-    expect(getScoreBand(49).label).toBe("Emerging");
-    expect(getScoreBand(50).label).toBe("Building");
-    expect(getScoreBand(69).label).toBe("Building");
-    expect(getScoreBand(70).label).toBe("Established");
-    expect(getScoreBand(84).label).toBe("Established");
-    expect(getScoreBand(85).label).toBe("Optimizing");
-    expect(getScoreBand(100).label).toBe("Optimizing");
+  it("maps scores to the five ruled maturity bands (B8-2)", () => {
+    expect(getScoreBand(0).label).toBe("Early");
+    expect(getScoreBand(39).label).toBe("Early");
+    expect(getScoreBand(40).label).toBe("Developing");
+    expect(getScoreBand(59).label).toBe("Developing");
+    expect(getScoreBand(60).label).toBe("Building");
+    expect(getScoreBand(74).label).toBe("Building");
+    expect(getScoreBand(75).label).toBe("Established");
+    expect(getScoreBand(89).label).toBe("Established");
+    expect(getScoreBand(90).label).toBe("Leading");
+    expect(getScoreBand(100).label).toBe("Leading");
   });
 });
 
@@ -148,12 +150,13 @@ describe("plain-language insight summary", () => {
   it("builds the zero-context readout from the same payload, including tech-stack framing", () => {
     const plain = buildFirmInsightPlainLanguage(reportFixture("firm_tier1_operating_baseline"));
 
-    expect(plain?.summary).toContain("Your firm scores 73 — Established.");
+    // B8-2: 73 now falls in the Building band (60-74).
+    expect(plain?.summary).toContain("Your firm scores 73 — Building.");
     expect(plain?.summary).toContain(
       "Your strongest area is Operating Model and Workflow Discipline; your biggest opportunity is Integration and Data Flow Maturity at 65%."
     );
     expect(plain?.summary).toContain(
-      "A score in the established range generally means core workflows hold up under day-to-day load, but integration work becomes the friction point when new tools enter your stack"
+      "A score in the building range generally means core workflows are taking shape but still lean on individual effort, but integration work becomes the friction point when new tools enter your stack"
     );
     expect(plain?.summary).toContain(
       "Raising Integration and Data Flow Maturity first typically increases the return on every later software decision"
@@ -182,7 +185,8 @@ describe("plain-language insight summary", () => {
     expect(governanceSummary).toContain("vendor and control discipline becomes the friction point");
     expect(dataFlowSummary).toContain("integration work becomes the friction point");
     expect(governanceSummary).not.toBe(dataFlowSummary);
-    // average drops to 67 -> Building band clause replaces the Established one
+    // B8-2: both averages sit in the Building band now; the sentences differ by
+    // the weakest-module friction theme, not the band clause.
     expect(governanceSummary).toContain("A score in the building range generally means core workflows are taking shape");
   });
 
@@ -237,7 +241,7 @@ describe("chart component kit", () => {
       })
     );
 
-    expect(html).toContain("74 · Established");
+    expect(html).toContain("74 · Building");
     expect(html).toContain("text-[40px]");
     expect(html).toContain("+3.5");
     expect(html).toContain("Average of final module scores");

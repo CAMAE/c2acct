@@ -11,6 +11,7 @@
  * is applied to whatever count of independent data points a surface has. See
  * docs/elite-sprint/AGGREGATION-METHODOLOGY.md §3.
  */
+import { evidenceConfidenceLabel } from "@/lib/bandLexicon";
 
 export type ConfidenceBand = "no_signal" | "sample_thin" | "emerging" | "grounded";
 
@@ -25,10 +26,16 @@ export function confidenceBandForSampleSize(n: number): ConfidenceBand {
   return "grounded";
 }
 
-/** Canonical short labels (surfaces may add their own descriptive suffix). */
+/**
+ * Canonical short labels. Block 8 B8-2 (Cam's 2026-07-11 ruling): evidence
+ * confidence collapses to THREE public states — Grounded / Early signal /
+ * No signal — sourced from the one lexicon. The four internal keys stay for
+ * threshold logic; thin+emerging both surface as Early signal. Retired the
+ * long-form and sample-thin/limited-signal wording per the ruling.
+ */
 export const CONFIDENCE_BAND_LABEL: Record<ConfidenceBand, string> = {
-  no_signal: "No current-state signal",
-  sample_thin: "Sample-thin",
-  emerging: "Limited signal",
-  grounded: "Grounded",
+  no_signal: evidenceConfidenceLabel("no_signal"),
+  sample_thin: evidenceConfidenceLabel("sample_thin"),
+  emerging: evidenceConfidenceLabel("emerging"),
+  grounded: evidenceConfidenceLabel("grounded"),
 };

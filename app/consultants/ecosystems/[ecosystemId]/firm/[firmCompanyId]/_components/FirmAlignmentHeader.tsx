@@ -17,10 +17,9 @@ function formatRelativeTimestamp(iso: string | null): string {
 }
 
 function shortConfidence(label: string): string {
+  // B8-2: one lexicon — Grounded / Early signal / No signal.
   if (label.includes("Grounded")) return "Grounded";
-  if (label.includes("Emerging")) return "Emerging";
-  if (label.includes("Sample-thin")) return "Sample-thin";
-  if (label.includes("Early")) return "Early";
+  if (label.includes("Early")) return "Early signal";
   return "No signal";
 }
 

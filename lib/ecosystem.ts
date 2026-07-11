@@ -39,7 +39,16 @@ export const HOT_DIVERGENCE_THRESHOLD = 10;
  * buckets. Source labels are produced by getConfidenceFromCoverage() in
  * lib/adminBriefingEngine.ts.
  */
+// B8-2: engines now emit the ONE customer-facing lexicon (Grounded / Early
+// signal / No signal); those three canonical keys are what real data hits. The
+// long-form keys below are INTERNAL bucketing plumbing (never rendered) kept so
+// the five-bucket count granularity and its back-compat with any pre-ruling
+// cached label survive. Customer-facing labels come from the engines/components,
+// not from these map keys.
 const CONFIDENCE_LABEL_BUCKETS: Record<string, keyof FirmConfidenceCounts> = {
+  Grounded: "grounded",
+  "Early signal": "emerging",
+  "No signal": "noSignal",
   "Grounded current-state signal": "grounded",
   "Limited signal": "emerging",
   "Sample-thin current-state signal": "sampleThin",

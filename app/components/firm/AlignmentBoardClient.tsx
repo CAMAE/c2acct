@@ -9,6 +9,7 @@ import { formatDelta, formatScoreValue } from "@/lib/formatDelta";
 import { fitHeatColor, fitTierLabel } from "@/lib/fitHeat";
 import type { AlignmentBoardData, BoardCandidate, BoardPiece } from "@/lib/alignmentBoard";
 import type { ProductFitDimensionScore } from "@/lib/productFitDimensions";
+import { CONFIDENCE_BAND_LABEL } from "@/lib/confidenceBands";
 
 /**
  * Alignment Sandbox v3 (Redlines R3-Board). Two changes from v2, nothing else:
@@ -23,12 +24,9 @@ import type { ProductFitDimensionScore } from "@/lib/productFitDimensions";
  * Pro/Elite split + colors are unchanged.
  */
 
-const CONFIDENCE_LABEL: Record<BoardPiece["confidence"], string> = {
-  no_signal: "Pending",
-  sample_thin: "Sample-thin",
-  emerging: "Building",
-  grounded: "Grounded",
-};
+// B8-2: confidence renders from the ONE lexicon (Grounded / Early signal / No
+// signal), never score-band words like "Building".
+const CONFIDENCE_LABEL: Record<BoardPiece["confidence"], string> = CONFIDENCE_BAND_LABEL;
 
 const C2_BLUE = "#063674";
 const STACK_FILL = "#ffffff";

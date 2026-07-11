@@ -400,7 +400,7 @@ function getConfidenceBand(sampleSize: number) {
   if (band === "no_signal") {
     return {
       band,
-      label: "No current-state signal",
+      label: "No signal",
       summary:
         "No completed firm PAT submissions are available yet, so this remains a placeholder for future current-state signal.",
     };
@@ -409,27 +409,27 @@ function getConfidenceBand(sampleSize: number) {
     if (sampleSize === 1) {
       return {
         band,
-        label: "Early current-state signal",
+        label: "Early signal",
         summary:
           "This readout is based on one firm only and should be treated as early current-state signal rather than strong confirmation.",
       };
     }
     return {
       band,
-      label: "Sample-thin current-state signal",
+      label: "Early signal",
       summary: `This readout is based on ${sampleSize} firms and remains sample-thin rather than broad market signal.`,
     };
   }
   if (band === "emerging") {
     return {
       band,
-      label: "Emerging current-state signal",
+      label: "Early signal",
       summary: `This readout is based on ${sampleSize} firms and is useful for current-state interpretation, but still not broad enough to read as strong market intelligence.`,
     };
   }
   return {
     band: "grounded" as const,
-    label: "Grounded current-state signal",
+    label: "Grounded",
     summary:
       `This readout is grounded in ${sampleSize} firms for current-state interpretation only. ` +
       "PAT is not claiming benchmark or forecast support.",
@@ -677,13 +677,15 @@ export type VendorAlignmentPlainLanguage = {
 /** What each maturity band of aggregated firm signal generally means for a
  * vendor selling into those firms — general, current-state framing only. */
 const VENDOR_BAND_CLAUSE: Record<ReturnType<typeof getScoreBand>["key"], string> = {
-  emerging:
+  early:
+    "expect buyers to need heavy implementation support and a simple first step, because their operating foundations are just being established",
+  developing:
     "expect buyers to need more implementation support than the product pitch assumes, because their operating foundations are still forming",
   building:
     "buyers can absorb new tooling, but rollouts still depend on individual champions rather than settled process",
   established:
     "buyers generally have the operating discipline to evaluate structured tooling and put it to work",
-  optimizing:
+  leading:
     "buyers are operating cleanly enough to evaluate tooling quickly — and to notice gaps in it just as quickly",
 };
 

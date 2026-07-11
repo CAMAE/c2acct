@@ -4,12 +4,14 @@ import type { EcosystemListCardData, FirmConfidenceCounts } from "@/lib/ecosyste
 // WS6.5 Block G — Day-27 P1a banned-vocab leak repair. Was rendering
 // "X of Y firms grounded"; the consultant-facing word list per WS5 is
 // Full / Building / Limited / Initial / Pending.
+// B8-2: one lexicon — Grounded / Early signal / No signal (killed "Full
+// confidence", "Limited", "Initial", "Pending").
 const CONFIDENCE_BUCKET_LABELS: Record<keyof FirmConfidenceCounts, string> = {
-  grounded: "at Full confidence",
-  emerging: "actively assessing",
-  sampleThin: "Limited",
-  earlySignal: "Initial",
-  noSignal: "Pending",
+  grounded: "Grounded",
+  emerging: "Early signal",
+  sampleThin: "Early signal",
+  earlySignal: "Early signal",
+  noSignal: "No signal",
 };
 
 function formatConfidenceDistribution(counts: FirmConfidenceCounts): string {

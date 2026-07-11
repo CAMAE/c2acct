@@ -325,7 +325,7 @@ function getConfidenceBand(input: {
   if (input.vendorScore === null && input.firmAssessmentCount === 0) {
     return {
       band: "no_signal" as const,
-      label: "No current-state signal",
+      label: "No signal",
       summary:
         "Neither vendor self-reported signal nor firm-reviewed signal is available yet, so this remains an ungrounded placeholder.",
     };
@@ -335,7 +335,7 @@ function getConfidenceBand(input: {
   if (input.firmAssessmentCount <= 1) {
     return {
       band: "sample_thin" as const,
-      label: "Early current-state signal",
+      label: "Early signal",
       summary:
         "Firm-reviewed signal is absent or very thin, so the combined readout should be treated as early current-state signal rather than strong confirmation.",
     };
@@ -346,20 +346,20 @@ function getConfidenceBand(input: {
   if (band === "sample_thin") {
     return {
       band,
-      label: "Sample-thin current-state signal",
+      label: "Early signal",
       summary: `Firm-reviewed signal is based on ${input.firmAssessmentCount} assessments, so this remains sample-thin rather than broadly confirmed.`,
     };
   }
   if (band === "emerging") {
     return {
       band,
-      label: "Limited signal",
+      label: "Early signal",
       summary: `Firm-reviewed signal is based on ${input.firmAssessmentCount} assessments and is useful for current-state interpretation, but still sample-thin.`,
     };
   }
   return {
     band: "grounded" as const,
-    label: "Grounded current-state signal",
+    label: "Grounded",
     summary:
       `Firm-reviewed signal is based on ${input.firmAssessmentCount} assessments and is grounded for current-state interpretation only. ` +
       "PAT is not claiming benchmark or forecast support.",
