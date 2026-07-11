@@ -1,0 +1,4 @@
+Rotation-verification proof output (Block 9d). Contents are gitignored; this
+keeps the directory present. Written by `pnpm rotations:verify`, which checks a
+(possibly rotated) DB credential via DIRECT_URL to avoid the pgbouncer
+prepared-statement false error.

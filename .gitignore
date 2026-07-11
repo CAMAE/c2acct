@@ -110,3 +110,7 @@ pilot-login-reset.local.md
 
 # Elite-sprint planning/spec docs are now tracked in this private repo (B5-7).
 # Secret scan (B5-7) confirmed no keys/tokens/connection strings in these docs.
+
+# Block 9d: rotation-verification proof output (keep dir, ignore proofs)
+artifacts/rotations/*
+!artifacts/rotations/.gitkeep

@@ -203,3 +203,15 @@ vendor alignment detail now uses it (matching firm); InsightsModeShell elite pan
 gained optional lockedPreviews so Pro users see one blurred-chart preview per
 surface on the index (firm + vendor) instead of a plain card. Fast gates:
 typecheck 0 · lint clean · unit 754/754.
+
+### B9d — rotation-verification via DIRECT_URL
+New artifacts/rotations/ (proof output; .gitkeep tracked, *.json gitignored) +
+scripts/rotations/verify-rotation.ts (pnpm rotations:verify). After a DB
+credential rotation it connects via DIRECT_URL (Neon non-pooler host) instead of
+the pooled DATABASE_URL — the pooled URL runs pgbouncer in transaction mode,
+which rejects Prisma's prepared statements with a "prepared statement does not
+exist/already exists" error that is a FALSE negative unrelated to the credential.
+The direct connection bypasses pgbouncer, so a PASS means the credential is
+genuinely good. Runs SELECT 1 + current_user + version + now, writes a proof JSON.
+Verified locally: PASS via DATABASE_URL fallback (no pgbouncer locally, warns to
+set DIRECT_URL). Fast gates: typecheck 0 · lint clean · unit 754/754.
