@@ -64,6 +64,12 @@ export default function PatConsentPanel({ initialOptedIn }: { initialOptedIn: bo
         </Link>
         .
       </p>
+      <p className="mt-3 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
+        <Link className="pat-link" href="/trust/pat">
+          Learn how Pat is governed
+        </Link>{" "}
+        — human approval, audit logging, spend caps, a named stop-authority, and AI disclosure.
+      </p>
       <label className="mt-5 flex max-w-3xl items-start gap-3 text-base leading-7 text-[var(--shell-ink)]">
         <input
           type="checkbox"

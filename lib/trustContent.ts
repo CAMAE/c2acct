@@ -8,6 +8,7 @@ export type TrustSurfaceKey =
   | "support"
   | "billingPolicy"
   | "methodology"
+  | "patGovernance"
   | "release";
 
 export type TrustSurfaceSection = {
@@ -45,6 +46,7 @@ export const TRUST_SURFACE_ORDER = [
   "support",
   "billingPolicy",
   "methodology",
+  "patGovernance",
   "release",
 ] as const satisfies readonly TrustSurfaceKey[];
 
@@ -56,6 +58,7 @@ export const TRUST_FOOTER_LINKS = [
   { href: "/support", label: "Support" },
   { href: "/billing-policy", label: "Billing policy" },
   { href: "/methodology", label: "Methodology" },
+  { href: "/trust/pat", label: "How Pat is governed" },
   { href: "/release", label: "Build proof" },
 ] as const;
 
@@ -332,6 +335,64 @@ export const TRUST_SURFACES = {
         title: "Versioned and changelogged",
         body:
           "Material changes to the methodology are versioned with a public changelog. The full detail — averaging, divergence floor, confidence bands, suppression, integrity walls, and rounding — is rendered below and mirrors the source aggregation-methodology document.",
+      },
+    ],
+  },
+  patGovernance: {
+    key: "patGovernance",
+    href: "/trust/pat",
+    label: "How Pat is governed",
+    eyebrow: "AI governance",
+    title: "How Pat is governed.",
+    summary:
+      "Pat is Patalign's AI assistant. It helps with questions, reminders, and reports. Here is exactly how we keep it in bounds — these are system controls, not policies.",
+    statusLabel: "System controls",
+    lastUpdated: TRUST_SURFACE_LAST_UPDATED,
+    sections: [
+      {
+        title: "A person approves what matters.",
+        body:
+          "Pat drafts; designated humans review and approve customer-facing messages before they send. Approval requirements loosen only with a track record, never by default.",
+      },
+      {
+        title: "Everything is logged.",
+        body:
+          "Every Pat action is recorded in an audit log — what ran, what it read, what it produced, and who approved it.",
+      },
+      {
+        title: "Spending is capped.",
+        body:
+          "Every Pat run has hard cost and step limits. Runaway behavior stops itself.",
+      },
+      {
+        title: "A named person can stop it.",
+        body:
+          "A designated owner can pause any Pat function immediately, platform-wide. Owner on file: C. Garrett.",
+      },
+      {
+        title: "Pat says what it is.",
+        body:
+          "Every Pat-drafted message is labeled as AI-drafted and human-reviewed. Pat never poses as a person.",
+      },
+      {
+        title: "Your data stays small.",
+        body:
+          "Pat only sees the minimum data needed for the task at hand, and client assessment answers are never used to train third-party AI models.",
+      },
+      {
+        title: "Versions are pinned and tested.",
+        body:
+          "Pat runs on specific, tested AI model versions. Upgrades happen only after our regression checks pass — never silently.",
+      },
+      {
+        title: "When something goes wrong, there's a procedure.",
+        body:
+          "Detect, pause, notify affected customers, fix, and record the post-mortem in the audit log.",
+      },
+      {
+        title: "Standards alignment.",
+        body:
+          "Our approach is aligned with the NIST AI Risk Management Framework. The math behind every number Pat cites is public on our Methodology page.",
       },
     ],
   },

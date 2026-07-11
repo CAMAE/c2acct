@@ -19,6 +19,7 @@ const expectedRoutePages = {
   "/support": "app/support/page.tsx",
   "/billing-policy": "app/billing-policy/page.tsx",
   "/methodology": "app/methodology/page.tsx",
+  "/trust/pat": "app/trust/pat/page.tsx",
   "/release": "app/release/page.tsx",
 } as const;
 
@@ -54,6 +55,7 @@ describe("PAT trust and launch-readiness surfaces", () => {
       "support",
       "billingPolicy",
       "methodology",
+      "patGovernance",
       "release",
     ]);
   });

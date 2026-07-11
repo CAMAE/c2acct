@@ -323,6 +323,18 @@
         "Assigned PAT briefings",
         "Assigned company briefings"
       ]
+    },
+    "/trust/pat": {
+      "sourceFiles": [
+        "app/trust/pat/page.tsx",
+        "app/components/trust/TrustSurfacePage.tsx",
+        "lib/trustContent.ts"
+      ],
+      "positiveMarkers": [
+        "How Pat is governed.",
+        "A person approves what matters.",
+        "Owner on file: C. Garrett."
+      ]
     }
   }
 }

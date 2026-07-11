@@ -180,3 +180,14 @@ New tests/pat-disclosure.contract.test.ts fails the build if a Pat-drafted creat
 path or a render surface drops the disclosure. Email header helper ready for when
 email delivery is wired (currently in-app only). Fast gates: typecheck 0 · lint
 clean · unit 754/754.
+
+### B9b — "How Pat is governed" trust mount
+New /trust/pat surface (patGovernance) rendering the governance copy pack §2
+verbatim with Cam's two baked edits: stop-authority is PUBLIC ("Owner on file:
+C. Garrett."), and the data sentence is exactly "Pat only sees the minimum data
+needed for the task at hand, and client assessment answers are never used to
+train third-party AI models." (dropped "retains nothing" — zero-retention DPA is
+post-launch). Wired into TRUST_SURFACE_ORDER + TRUST_FOOTER_LINKS + the release
+surface manifest; new app/trust/pat/page.tsx; "Learn how Pat is governed" link
+added to the Pat consent panel. trust-surfaces contract updated. Fast gates:
+typecheck 0 · lint clean · unit 754/754.
