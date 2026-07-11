@@ -14,16 +14,18 @@ import {
   getRequestedVendorAlignmentInsightDetailSurface,
   getVendorAlignmentInsightBundle,
 } from "@/lib/vendorAlignmentInsightEngine";
+import prisma from "@/lib/prisma";
 import { getVendorProductInsightCatalog } from "@/lib/vendorProductInsightEngine";
-import { getPeerBenchmark, getPlatformProductBenchmark } from "@/lib/adminPlatformPicture";
 import { poolForViewerBoundary, resolveCompanyBoundary } from "@/lib/dataBoundary";
 import {
-  buildVendorMarketComparison,
-  buildVendorFutureDemand,
-  buildVendorExpansionSimulation,
-  type EliteInsightResult,
-} from "@/lib/eliteInsights";
-import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
+  buildVendorCategoryPosition,
+  buildVendorDemandSignals,
+  buildVendorGapMap,
+} from "@/lib/eliteInsightsV2";
+import EliteCardShell from "@/app/components/insights/elite/EliteCardShell";
+import VendorCategoryPositionCard from "@/app/components/insights/elite/VendorCategoryPositionCard";
+import VendorDemandSignalsCard from "@/app/components/insights/elite/VendorDemandSignalsCard";
+import VendorGapMapCard from "@/app/components/insights/elite/VendorGapMapCard";
 
 export const dynamic = "force-dynamic";
 
@@ -34,51 +36,59 @@ type Params = {
 type SearchParams = { surface?: string };
 
 /**
- * Elite Insights v1 (Block 3) — build real, data-grounded content for a vendor
- * Tier-2 surface. Boundary-scoped to the viewer's pool, confidence-banded, with
- * minimum-n suppression on peer/benchmark cuts. See lib/eliteInsights.ts.
+ * Elite Insights v2 (verdict §4) — render a vendor Tier-2 decision product: V1
+ * Category Position (benchmark-comparison), V2 Demand Signals (forward-projection),
+ * V3 Alignment Gap Map (scenario-simulation). Rank/distribution/heatmap, not averages.
  */
-async function buildVendorEliteResult(key: string, companyId: string): Promise<EliteInsightResult | null> {
-  const boundaries = poolForViewerBoundary(await resolveCompanyBoundary(companyId));
+async function renderVendorEliteSurface(key: string, companyId: string) {
+  const boundary = await resolveCompanyBoundary(companyId);
 
   if (key === "benchmark-comparison") {
-    const [catalog, market] = await Promise.all([
-      getVendorProductInsightCatalog(companyId),
-      getPlatformProductBenchmark(boundaries),
-    ]);
-    return buildVendorMarketComparison({
-      rows: catalog.map((snapshot) => ({
-        label: snapshot.product.name,
-        subjectAverage: snapshot.firmReviewed.averageScore,
-        subjectContributorCount: snapshot.firmReviewed.assessmentCount,
-        peerAverage: market.marketAverage,
-        peerContributorCount: market.contributorCount,
-      })),
-    });
+    const data = await buildVendorCategoryPosition(prisma, companyId, boundary);
+    return (
+      <EliteCardShell
+        eyebrow="Vendor Elite · Category Position"
+        title="Category Position"
+        summary="Where your products rank in their category's firm-reviewed distribution — a percentile and rank, not an average. Categories below the minimum-n safe harbor are withheld."
+      >
+        <VendorCategoryPositionCard data={data} />
+      </EliteCardShell>
+    );
   }
 
   if (key === "forward-projection") {
-    const peer = await getPeerBenchmark(boundaries);
-    return buildVendorFutureDemand({
-      weakModules: peer.modules.map((m) => ({
-        title: m.title,
-        averageScore: m.averageScore,
-        contributorCount: m.contributorCount,
-      })),
-    });
+    const data = await buildVendorDemandSignals(prisma, companyId, poolForViewerBoundary(boundary));
+    return (
+      <EliteCardShell
+        eyebrow="Vendor Elite · Demand Signals"
+        title="Demand Signals"
+        summary="First-party intent from the Alignment Sandbox: how firms moved your products in and out of their simulated stacks. Direction, not magnitude, until volume clears the early-signal floor."
+      >
+        <VendorDemandSignalsCard data={data} />
+      </EliteCardShell>
+    );
   }
 
   if (key === "scenario-simulation") {
     const catalog = await getVendorProductInsightCatalog(companyId);
-    return buildVendorExpansionSimulation({
-      candidates: catalog.map((snapshot) => ({
+    const data = buildVendorGapMap(
+      catalog.map((snapshot) => ({
+        productId: snapshot.product.id,
         productName: snapshot.product.name,
-        grade: snapshot.firmReviewed.assessmentCount > 0 ? "firm_reviewed" : "vendor_reported",
-        projectedScore:
-          snapshot.firmReviewed.averageScore ?? snapshot.vendorSelfReported.latestScore ?? null,
-        dimensions: [],
-      })),
-    });
+        firmAssessmentCount: snapshot.firmReviewed.assessmentCount,
+        firmDimensions: snapshot.firmReviewed.dimensionEvidence.map((d) => ({ key: d.key, title: d.title, score: d.score })),
+        vendorDimensions: snapshot.vendorSelfReported.dimensionEvidence.map((d) => ({ key: d.key, title: d.title, score: d.score })),
+      }))
+    );
+    return (
+      <EliteCardShell
+        eyebrow="Vendor Elite · Alignment Gap Map"
+        title="Alignment Gap Map"
+        summary="Per product-fit dimension: where firms confirm your story (green) and where they read you lower than you rate yourself (orange). Where to fix the story; where to expand next. Divergence floor applies."
+      >
+        <VendorGapMapCard data={data} />
+      </EliteCardShell>
+    );
   }
 
   return null;
@@ -129,29 +139,12 @@ export default async function VendorAlignmentInsightDetailPage({
     notFound();
   }
 
-  // Elite Insights v1 (Block 3): an Elite member opening a Tier-2 vendor surface
-  // gets the real, data-grounded readout; Pro-only members keep "Coming soon".
+  // Elite Insights v2 (verdict §4): an Elite member opening a Tier-2 vendor
+  // surface gets the chart-led decision product; Pro-only members keep "Coming soon".
   const eliteEntitlement = await resolveMembershipEntitlement(sessionUser, "vendor", MEMBERSHIP_PLAN.ELITE);
   if (report.tier === 2 && eliteEntitlement.allowed && sessionUser.companyId) {
-    const eliteResult = await buildVendorEliteResult(key, sessionUser.companyId);
-    if (eliteResult) {
-      return (
-        <InsightDetailShell
-          activeKey="elite"
-          eyebrow="Vendor alignment insight · Elite"
-          title={report.title}
-          summary={eliteResult.summary}
-          surfaceContent={eliteResult.content}
-          toggleAriaLabel="Vendor Elite insight views"
-          toggleOptions={[{ key: "elite", label: "Elite", href: `/vendor/alignment-insights/${key}?surface=elite` }]}
-          combinedEvidenceText={`Evidence grade: ${eliteResult.grade}${
-            eliteResult.confidenceLabel ? ` · confidence: ${eliteResult.confidenceLabel}` : ""
-          }.${eliteResult.available ? "" : " Truthful-scope: PAT does not present a number it cannot honestly support yet."}`}
-        >
-          <OutputDisclaimer variant="note" />
-        </InsightDetailShell>
-      );
-    }
+    const surface = await renderVendorEliteSurface(key, sessionUser.companyId);
+    if (surface) return surface;
   }
 
   const surfaceCards = buildVendorAlignmentInsightDetailSurfaceCards({ report });

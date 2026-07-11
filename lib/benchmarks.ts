@@ -243,6 +243,7 @@ export type BenchmarkReading = {
   metricKey: string;
   n: number;
   mean: number | null;
+  stdev: number | null;
   p10: number | null;
   p25: number | null;
   p50: number | null;
@@ -268,7 +269,7 @@ async function readCohort(
   const [runs, company] = await Promise.all([
     client.benchmarkRun.findMany({
       where: { cohortId: cohort.id, version: BENCHMARK_VERSION },
-      select: { metricKey: true, n: true, mean: true, p10: true, p25: true, p50: true, p75: true, p90: true },
+      select: { metricKey: true, n: true, mean: true, stdev: true, p10: true, p25: true, p50: true, p75: true, p90: true },
     }),
     client.companyBenchmark.findMany({
       where: { companyId, cohortId: cohort.id, version: BENCHMARK_VERSION },
@@ -285,6 +286,7 @@ async function readCohort(
       metricKey: run.metricKey,
       n: run.n,
       mean: run.mean,
+      stdev: run.stdev,
       p10: run.p10,
       p25: run.p25,
       p50: run.p50,

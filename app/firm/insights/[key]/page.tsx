@@ -21,18 +21,14 @@ import { getFirmInsightContent } from "@/lib/insightContent";
 import { evaluateUnlocked } from "@/lib/insights/evaluateUnlocked";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
+import prisma from "@/lib/prisma";
 import { getAlignmentBoardData } from "@/lib/alignmentBoard";
-import { getAdminCompanyBriefing } from "@/lib/adminBriefingEngine";
-import { getPeerBenchmark } from "@/lib/adminPlatformPicture";
-import { buildActionRoadmap } from "@/lib/briefs";
-import { poolForViewerBoundary, resolveCompanyBoundary } from "@/lib/dataBoundary";
-import {
-  buildFirmFutureStateProjection,
-  buildFirmPeerBenchmark,
-  buildFirmRecommendations,
-  type EliteInsightResult,
-} from "@/lib/eliteInsights";
-import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
+import { resolveCompanyBoundary } from "@/lib/dataBoundary";
+import { buildFirmPeerPosition, buildFirmGapPlan, buildFirmTrajectory } from "@/lib/eliteInsightsV2";
+import EliteCardShell from "@/app/components/insights/elite/EliteCardShell";
+import FirmPeerPositionCard from "@/app/components/insights/elite/FirmPeerPositionCard";
+import FirmGapPlanCard from "@/app/components/insights/elite/FirmGapPlanCard";
+import FirmTrajectoryCard from "@/app/components/insights/elite/FirmTrajectoryCard";
 import {
   FIRM_MODULE_DEFINITIONS,
   FIRM_TIER1_INSIGHT_DEFINITIONS,
@@ -51,80 +47,64 @@ type SearchParams = {
 };
 
 /**
- * Elite Insights v1 (Block 3) — build the real, data-grounded content for a
- * firm Tier-2 surface. Every number is boundary-scoped, confidence-banded, and
- * (for the peer benchmark) minimum-n suppressed. See lib/eliteInsights.ts.
+ * Elite Insights v2 (verdict §4) — render a firm Tier-2 decision product: F1 Peer
+ * Position (firm_tier2_benchmark), F2 Gap-to-Top-Quartile (firm_tier2_recommendation),
+ * F3 Trajectory (firm_tier2_projection). Rank/percentile + charts, not averages.
  */
-async function buildFirmEliteResult(key: string, companyId: string): Promise<EliteInsightResult | null> {
-  if (key === "firm_tier2_projection") {
-    const board = await getAlignmentBoardData(companyId);
-    if (!board) {
-      return buildFirmFutureStateProjection({
-        currentAlignment: null,
-        stackCount: 0,
-        dimensionAxes: [],
-        currentDimensions: [],
-        bestCandidate: null,
-      });
-    }
-    const currentDimensions = board.dimensionAxes.map((axis) => {
-      const scores = board.stack
-        .map((piece) => piece.dimensionScores.find((d) => d.key === axis.key)?.score)
-        .filter((s): s is number => typeof s === "number");
-      return {
-        key: axis.key,
-        title: axis.title,
-        score: scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null,
-        sampleSize: scores.length,
-      };
-    });
-    const best = board.candidates[0] ?? board.unreviewedCandidates[0] ?? null;
-    return buildFirmFutureStateProjection({
-      currentAlignment: board.currentAlignment,
-      stackCount: board.stack.length,
-      dimensionAxes: board.dimensionAxes,
-      currentDimensions,
-      bestCandidate: best
-        ? { productName: best.productName, projectedScore: best.projectedScore, grade: best.grade }
-        : null,
-    });
-  }
+async function renderFirmEliteSurface(key: string, companyId: string) {
+  const boundary = await resolveCompanyBoundary(companyId);
 
   if (key === "firm_tier2_benchmark") {
-    const viewerBoundary = await resolveCompanyBoundary(companyId);
-    const [briefing, peer] = await Promise.all([
-      getAdminCompanyBriefing(companyId),
-      getPeerBenchmark(poolForViewerBoundary(viewerBoundary)),
-    ]);
-    const firmModules = briefing?.firmLayer.moduleHeatmap ?? [];
-    return buildFirmPeerBenchmark({
-      firmAlignmentIndex: briefing?.firmLayer.averageScore ?? null,
-      platformAverageIndex: peer.overallAverageIndex,
-      platformContributorCount: peer.overallContributorCount,
-      modules: peer.modules.map((m) => ({
-        moduleKey: m.moduleKey,
-        title: m.title,
-        firmScore: firmModules.find((f) => f.key === m.moduleKey)?.canonicalScore ?? null,
-        peerAverage: m.averageScore,
-        peerContributorCount: m.contributorCount,
-      })),
-    });
+    const data = await buildFirmPeerPosition(prisma, companyId, boundary);
+    return (
+      <EliteCardShell
+        eyebrow="Firm Elite · Peer Position"
+        title="Peer Position Report"
+        summary="Where your firm ranks against peer firms, module by module — a percentile position, not an average. Cuts below the minimum-n safe harbor are withheld."
+      >
+        <FirmPeerPositionCard data={data} />
+      </EliteCardShell>
+    );
   }
 
   if (key === "firm_tier2_recommendation") {
-    const briefing = await getAdminCompanyBriefing(companyId);
-    if (!briefing) return buildFirmRecommendations({ evidenceCount: 0, windows: [] });
-    const roadmap = buildActionRoadmap([briefing]);
-    const toActions = (items: (typeof roadmap)["thirtyDay"]) =>
-      items.map((a) => ({ text: a.text, detail: a.detail, signalStrength: a.signalStrength }));
-    return buildFirmRecommendations({
-      evidenceCount: briefing.firmLayer.completedModuleCount,
-      windows: [
-        { window: "30 days", actions: toActions(roadmap.thirtyDay) },
-        { window: "60 days", actions: toActions(roadmap.sixtyDay) },
-        { window: "90 days", actions: toActions(roadmap.ninetyDay) },
-      ],
-    });
+    const data = await buildFirmGapPlan({ getFirmInsightReports }, companyId);
+    return (
+      <EliteCardShell
+        eyebrow="Firm Elite · Gap Plan"
+        title="Gap-to-Top-Quartile Plan"
+        summary="The capabilities holding your alignment index down, ranked by point deficit — a prescription (fix this first), not a description. Grounded in your firm-reviewed evidence."
+      >
+        <FirmGapPlanCard data={data} />
+      </EliteCardShell>
+    );
+  }
+
+  if (key === "firm_tier2_projection") {
+    // Percentile-movement link to the Sandbox: map the best swap's projected
+    // alignment to a percentile against the peer alignment-index distribution.
+    const [peer, board] = await Promise.all([
+      buildFirmPeerPosition(prisma, companyId, boundary),
+      getAlignmentBoardData(companyId).catch(() => null),
+    ]);
+    const currentPercentile = peer.overall?.percentile ?? null;
+    let bestSwapPercentile: number | null = null;
+    const best = board?.candidates[0] ?? null;
+    if (best && typeof best.projectedScore === "number" && peer.overall && currentPercentile !== null) {
+      // directional: nudge the current percentile by the swap's projected index gain.
+      const gain = Math.max(0, Math.round(best.projectedScore - peer.overall.score));
+      bestSwapPercentile = Math.min(100, currentPercentile + gain);
+    }
+    const data = await buildFirmTrajectory(prisma, companyId, { currentPercentile, bestSwapPercentile });
+    return (
+      <EliteCardShell
+        eyebrow="Firm Elite · Trajectory"
+        title="Trajectory"
+        summary="Your alignment index over time, with momentum and a clearly-labelled directional projection. Where you've been, where you're heading, and the best available move."
+      >
+        <FirmTrajectoryCard data={data} />
+      </EliteCardShell>
+    );
   }
 
   return null;
@@ -182,26 +162,9 @@ export default async function FirmInsightDetailPage({
   // real, data-grounded readout; Pro-only members keep the locked "Coming soon".
   const eliteEntitlement = await resolveMembershipEntitlement(sessionUser, "firm", MEMBERSHIP_PLAN.ELITE);
   const isElite = eliteEntitlement.allowed;
-  if (isTier2 && isElite) {
-    const eliteResult = await buildFirmEliteResult(key, sessionUser.companyId);
-    if (eliteResult) {
-      return (
-        <InsightDetailShell
-          activeKey="elite"
-          eyebrow="Firm alignment insight · Elite"
-          title={insight.title}
-          summary={eliteResult.summary}
-          surfaceContent={eliteResult.content}
-          toggleAriaLabel="Firm Elite insight views"
-          toggleOptions={[{ key: "elite", label: "Elite", href: `/firm/insights/${key}?surface=elite` }]}
-          combinedEvidenceText={`Evidence grade: ${eliteResult.grade}${
-            eliteResult.confidenceLabel ? ` · confidence: ${eliteResult.confidenceLabel}` : ""
-          }.${eliteResult.available ? "" : " Truthful-scope: PAT does not present a number it cannot honestly support yet."}`}
-        >
-          <OutputDisclaimer variant="note" />
-        </InsightDetailShell>
-      );
-    }
+  if (isTier2 && isElite && sessionUser.companyId) {
+    const surface = await renderFirmEliteSurface(key, sessionUser.companyId);
+    if (surface) return surface;
   }
 
   const [unlockedRecords, insightReports] = await Promise.all([
