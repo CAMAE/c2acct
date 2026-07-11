@@ -87,3 +87,14 @@ filtered from the admin registry view (HIDDEN_AGENT_KEYS in getAgentsOverview).
 Customer-surface grep found no other leaks (billing "scaffold" is required
 truthful copy, left intact). Extended the copy contract test with a dev-speak
 guard. Fast gates: typecheck 0 · lint clean · unit 740/740.
+
+### B8-6 — CONSULTANT SCOPING (component-level COI wall)
+Found + fixed a real COI leak: ecosystem firm briefings are firm-scoped, so
+their productLayer carried the firm's reviews of EVERY vendor — the consultant's
+"Recent firm responses" panel + product filter spanned competitor vendors'
+products. openEndedResponsesForEcosystem now takes allowedProductIds; the
+ecosystem detail passes the ecosystem vendor's own catalog IDs, dropping foreign-
+vendor responses at the data layer. New tests/consultant-openended-scoping.contract
+.test.ts: (1) OpenEndedPanel is only imported under app/consultants (never
+vendor/firm), (2) foreign-vendor product responses are dropped by the allow-set.
+Fast gates: typecheck 0 · lint clean · unit 743/743.

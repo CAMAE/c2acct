@@ -510,17 +510,26 @@ export function vendorAtAGlanceForVendor(
  */
 export function openEndedResponsesForEcosystem(
   briefings: AdminCompanyBriefing[],
-  limit?: number
+  limit?: number,
+  allowedProductIds?: ReadonlySet<string>
 ): { responses: EcosystemDetailOpenEndedResponse[]; totalCount: number } {
   // WS2-D (manual-review item 15): the cap is now optional. Callers that
   // need all responses for client-side filtering pass no limit and get the
   // full sorted list. Estimate at scale (4 ecosystems × ~80 responses
   // = ~320 records × ~200 chars ≈ 64KB JSON) is well under the halt
   // threshold.
+  //
+  // B8-6 COI WALL (component-level): the firm briefings are firm-scoped, so a
+  // firm's productLayer carries its reviews of EVERY vendor's products. When an
+  // allowedProductIds set is supplied (the ecosystem vendor's own catalog), any
+  // response about another vendor's product is dropped here — the consultant's
+  // "Recent firm responses" panel can never surface, or filter to, a competitor
+  // vendor's product.
   const all: EcosystemDetailOpenEndedResponse[] = [];
   for (const briefing of briefings) {
     for (const [index, response] of briefing.productLayer.openEndedResponses.entries()) {
       if (!response.responseText.trim()) continue;
+      if (allowedProductIds && !allowedProductIds.has(response.productId)) continue;
       all.push({
         responseId: `${briefing.company.id}:${response.productId}:${response.questionId}:${index}`,
         firmCompanyId: briefing.company.id,
@@ -668,7 +677,10 @@ export async function getEcosystemDetailForConsultant(
 
   // WS2-D: lift the slice cap so the OpenEndedPanel can client-side filter
   // across all responses by product. Payload estimated <100KB at demo scale.
-  const openEnded = openEndedResponsesForEcosystem(briefings);
+  // B8-6: scope to THIS ecosystem vendor's own catalog so no competitor
+  // vendor's product responses (or filter chips) can leak to the consultant.
+  const vendorProductIds = new Set(vendorCatalog.map((snapshot) => snapshot.product.id));
+  const openEnded = openEndedResponsesForEcosystem(briefings, undefined, vendorProductIds);
 
   return {
     ecosystemId: ecosystem.id,
