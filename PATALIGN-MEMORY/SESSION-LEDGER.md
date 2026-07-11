@@ -59,3 +59,10 @@ from methodology.sampleSizes.peerFirmCount; updated the outline caption to match
 Ecosystem Coverage tile: "evaluated by N firms" → "across N firm assessments"
 (firmReviewCount is a review count, not distinct firms). Fast gates: typecheck 0 ·
 lint clean · unit 738/738.
+
+### B8-4 — ROUTES + 404
+next.config.ts redirects(): /consultant and /consultant/:path* → /consultants
+(301 permanent). New app/not-found.tsx: branded light-theme 404 (PAT hero
+lockup, plain-language copy, cards linking to sign-in + firm/vendor/consultant
+portal homes) replacing Next's dark default. Fast gates: typecheck 0 · lint
+clean · unit 738/738. (redirect + not-found verified live at checkpoint 1.)

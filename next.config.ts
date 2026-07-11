@@ -36,6 +36,14 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },
+  // B8-4: /consultant (singular) is a common mistype of the canonical
+  // /consultants portal — 301 it (and any deeper path) to the plural.
+  async redirects() {
+    return [
+      { source: "/consultant", destination: "/consultants", permanent: true },
+      { source: "/consultant/:path*", destination: "/consultants/:path*", permanent: true },
+    ];
+  },
   // Server Actions (the /sign-in "Continue with provisioned account" pilot-credentials
   // form, /admin operator actions, etc.) enforce an Origin === Host check in
   // production. Behind the Cloudflare proxy / while AUTH_URL is split between the
