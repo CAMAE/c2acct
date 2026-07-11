@@ -27,6 +27,20 @@ import {
   computeCapabilityScores,
   getAssessmentScoreScale,
 } from "@/lib/capabilityScoring";
+
+/**
+ * B8-7 de-clump: pick an open-ended template index as a FULL-CYCLE PERMUTATION.
+ * With a step coprime to the template count, `base + index*step (mod count)`
+ * visits every template before repeating, so consecutive demo responses for a
+ * product never reuse a template within its latest `count` responses (kills the
+ * back-to-back near-duplicate quotes). The per-key base varies the opening
+ * phrase across products. Exported pure for the contract test.
+ */
+export function openEndedTemplateIndex(productKey: string, index: number, count: number): number {
+  const step = 7; // coprime with the 25-template pool (and any count not divisible by 7)
+  const base = productKey.split("").reduce((acc, ch) => (acc + ch.charCodeAt(0)) % count, 0);
+  return (base + index * step) % count;
+}
 import { writeCompanyCapabilityScores } from "@/lib/companyCapabilityScoreWrites";
 import { maturityTier } from "@/lib/firmMaturity";
 import {
@@ -607,13 +621,20 @@ export async function seedVendorProductAssessment(client: DemoSeedClient, input:
     (riskFlag: string) => `${product.name}'s release cadence has been a pleasant surprise. The team's ongoing concern is just ${riskFlag}, which the vendor has acknowledged.`,
     (riskFlag: string) => `Trust in ${product.name} grew faster than we expected. The remaining wrinkle is ${riskFlag} — solvable, but worth tracking.`,
   ];
+  // B8-7 de-clump: rotate templates as a FULL-CYCLE PERMUTATION. With a step
+  // coprime to the template count, `base + index*step (mod N)` visits every
+  // template before repeating, so no firm ever gets the same template twice
+  // within its latest N (=template-count) responses — killing the back-to-back
+  // near-duplicates (e.g. Brightline ×3 PolicyGrid). The per-product base seed
+  // varies the starting phrase across firms/products; the risk flag advances on
+  // its own coprime step so the watch-item also changes response to response.
+  const templateCount = openEndedTemplates.length;
   const openEndedResponses = Object.fromEntries(
     openEndedPlan.map((question, index) => {
-      const riskFlag = product.riskFlags[index % product.riskFlags.length] ?? "implementation governance";
-      // Deterministic rotation: questionId hash modulo template-count. Falls
-      // back to position-based rotation if the question id is short or empty.
-      const idSum = question.id.split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-      const template = openEndedTemplates[(idSum + index) % openEndedTemplates.length] ?? openEndedTemplates[0];
+      const riskCount = product.riskFlags.length || 1;
+      const riskFlag = product.riskFlags[index % riskCount] ?? "implementation governance";
+      const templateIndex = openEndedTemplateIndex(product.key, index, templateCount);
+      const template = openEndedTemplates[templateIndex] ?? openEndedTemplates[0];
       return [question.id, template(riskFlag)];
     })
   );

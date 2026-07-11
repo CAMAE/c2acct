@@ -98,3 +98,14 @@ vendor responses at the data layer. New tests/consultant-openended-scoping.contr
 .test.ts: (1) OpenEndedPanel is only imported under app/consultants (never
 vendor/firm), (2) foreign-vendor product responses are dropped by the allow-set.
 Fast gates: typecheck 0 · lint clean · unit 743/743.
+
+### B8-7 — QUALITATIVE DE-CLUMP
+Demo open-ended rotation was `(idSum + index) % 25`, which could collide and
+reuse a template → back-to-back near-duplicate quotes (Brightline ×3 PolicyGrid).
+Replaced with a full-cycle permutation `openEndedTemplateIndex(productKey, i, count)`
+= `(base + i*7) % count` (7 coprime with 25): every template used once before any
+repeat, so no reuse within a product's latest N responses; per-key base varies the
+opening across products. New tests/qualitative-declump.contract.test.ts (full-cycle,
+no back-to-back, cross-product variety, deterministic). NOTE: live de-clump lands
+when the demo seed re-runs (seed:demo-expand at checkpoint 2). Fast gates:
+typecheck 0 · lint clean · unit 747/747.
