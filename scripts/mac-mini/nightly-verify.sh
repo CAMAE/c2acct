@@ -45,7 +45,12 @@ run_and_capture() {
   printf '%s\n' "$(mac_mini_preflight_summary)"
 } > "${summary_file}"
 
-if ! run_and_capture build pnpm build; then
+# HOTFIX 2026-07-11: build ONLY if the standalone artifact is missing. An
+# unconditional `pnpm build` here rotated BUILD_ID + asset hashes AFTER the
+# app/preview servers were restarted, leaving them serving stale assets (CSS/JS
+# 404s, unstyled pages). build-if-needed is a no-op when a valid build exists,
+# so running the nightly post-restart no longer diverges the live servers.
+if ! run_and_capture build mac_mini_build_if_needed; then
   failure_count=$((failure_count + 1))
 else
   mac_mini_write_release_state "nightly-verify"
@@ -78,6 +83,14 @@ if ! run_and_capture host_cutover_proof bash "${SCRIPT_DIR}/port-owner-proof.sh"
 fi
 
 if ! run_and_capture live_pat_surfaces node scripts/release/validate-pat-surfaces.mjs --root "${MAC_MINI_ROOT}" --base-url "$(mac_mini_app_url | sed 's#/$##')" --allow-stale-last-known-good; then
+  failure_count=$((failure_count + 1))
+fi
+
+# HOTFIX 2026-07-11: asset-integrity proof against the LIVE server — asserts
+# every stylesheet/script on each proof route returns 200 + correct
+# content-type and the served BUILD_ID matches disk + fingerprint. Catches a
+# served!=disk build divergence that a text-grep HTTP proof would miss.
+if ! run_and_capture asset_integrity node scripts/release/asset-integrity-check.mjs --root "${MAC_MINI_ROOT}" --base-url "$(mac_mini_app_url | sed 's#/$##')"; then
   failure_count=$((failure_count + 1))
 fi
 

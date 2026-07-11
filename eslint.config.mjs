@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated build output — never lint (bare `pnpm lint` used to scan these
+    // and fail the nightly with thousands of minified-artifact "errors").
+    ".vercel/**",
     // AAE ignores:
     "node_modules/**",
     "prisma/migrations/**",
