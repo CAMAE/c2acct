@@ -113,8 +113,9 @@ const steps = [
     ? ([
         { command: packageManagerCommand, args: ["seed:demo-expand"] },
         // Elite Insights v2: compute BenchmarkRun/CompanyBenchmark from the full
-        // seeded evidence so F1/V1 have real percentile curves in the preview.
+        // seeded evidence (F1/V1 curves) + seed demo Sandbox swap events (V2 demand).
         { command: packageManagerCommand, args: ["compute:benchmarks"] },
+        { command: packageManagerCommand, args: ["seed:demo-swaps"] },
         { command: packageManagerCommand, args: ["preview:pat-setup"] },
       ] as const)
     : []),
