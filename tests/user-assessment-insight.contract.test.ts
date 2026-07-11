@@ -131,7 +131,7 @@ describe("user assessment and insight contracts", () => {
     expect(evidenceText).toMatch(/insight layer is open/i);
     expect(nextStepText).toMatch(/Review the current alignment assessment results/i);
     expect(eliteSurface.title).toBe("Help");
-    expect(eliteSurface.intro).toMatch(/coming soon/i);
+    expect(eliteSurface.intro).toMatch(/Live with Elite membership/i);
     expect(buildUserCombinedEvidenceText({ insight: eliteInsight!, userPatContext: completedUserContext })).toMatch(
       /reserved for a deeper person-level PAT layer/i
     );

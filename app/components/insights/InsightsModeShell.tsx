@@ -30,7 +30,8 @@ type InsightsModeShellProps = {
   eyebrow: string;
   heroBody: ReactNode;
   proPanel: InsightsModePanel;
-  elitePanel: InsightsModePanel;
+  // B8-8: optional — surfaces with no Elite layer omit it (and render no Elite toggle).
+  elitePanel?: InsightsModePanel;
   helpPanel: InsightsModePanel;
   title: string;
   toggleAriaLabel: string;
@@ -58,7 +59,12 @@ export default function InsightsModeShell({
   currentStateSummary,
   heroSupplement,
 }: InsightsModeShellProps) {
-  const activePanel = activeMode === "pro" ? proPanel : activeMode === "elite" ? elitePanel : helpPanel;
+  const activePanel =
+    activeMode === "pro"
+      ? proPanel
+      : activeMode === "elite" && elitePanel
+        ? elitePanel
+        : helpPanel;
 
   return (
     <div className="space-y-8">

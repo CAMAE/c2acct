@@ -26,6 +26,8 @@ import { getAlignmentBoardData } from "@/lib/alignmentBoard";
 import { resolveCompanyBoundary } from "@/lib/dataBoundary";
 import { buildFirmPeerPosition, buildFirmGapPlan, buildFirmTrajectory } from "@/lib/eliteInsightsV2";
 import EliteCardShell from "@/app/components/insights/elite/EliteCardShell";
+import LockedElitePreview from "@/app/components/insights/LockedElitePreview";
+import { FIRM_ELITE_V2_META } from "@/lib/eliteInsightsV2";
 import FirmPeerPositionCard from "@/app/components/insights/elite/FirmPeerPositionCard";
 import FirmGapPlanCard from "@/app/components/insights/elite/FirmGapPlanCard";
 import FirmTrajectoryCard from "@/app/components/insights/elite/FirmTrajectoryCard";
@@ -330,13 +332,13 @@ export default async function FirmInsightDetailPage({
       summary={
         report
           ? report.currentStateSummary
-          : (content?.lockedState?.summary ?? "Coming soon. Unlock with Elite membership.")
+          : (content?.lockedState?.summary ?? "Live with Elite membership.")
       }
       surfaceContent={surfaceContent}
       toggleAriaLabel="Firm alignment insight views"
       toggleOptions={toggleOptions}
       combinedEvidenceText={combinedEvidenceText}
-      combinedEvidenceNote={isTier2 ? "Coming soon. Unlock with Elite membership." : undefined}
+      combinedEvidenceNote={isTier2 ? "Live with Elite membership." : undefined}
       muted={isTier2}
       visualLead={visualLead}
       surfaceCollapsed={Boolean(visualLead) && scoredModules.length > 0 && visibleSurfaceKey === "pro"}
@@ -355,15 +357,15 @@ export default async function FirmInsightDetailPage({
               </Link>
             </>
           ) : (
-            <>
-              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-                Elite Insights unlock future-state projection, a peer benchmark, and a recommendation engine
-                grounded in your firm-reviewed evidence.
-              </p>
-              <Link href={eliteEntitlement.upgradeHref} className="pat-button-secondary mt-4 inline-flex">
-                Unlock with Elite
-              </Link>
-            </>
+            <LockedElitePreview
+              title={FIRM_ELITE_V2_META[key as keyof typeof FIRM_ELITE_V2_META]?.title ?? insight.title}
+              description={
+                FIRM_ELITE_V2_META[key as keyof typeof FIRM_ELITE_V2_META]?.description ??
+                "A deeper, firm-reviewed Elite readout."
+              }
+              shape={key === "firm_tier2_projection" ? "line" : key === "firm_tier2_benchmark" ? "distribution" : "bars"}
+              upgradeHref={eliteEntitlement.upgradeHref}
+            />
           )}
         </section>
       ) : null}

@@ -234,7 +234,7 @@ export default async function VendorAlignmentInsightDetailPage({
       toggleAriaLabel="Vendor alignment insight views"
       toggleOptions={toggleOptions}
       combinedEvidenceText={combinedEvidenceText}
-      combinedEvidenceNote={report.locked ? "Coming soon. Unlock with Elite membership." : undefined}
+      combinedEvidenceNote={report.locked ? "Live with Elite membership." : undefined}
       muted={report.locked}
       visualLead={visualLead}
     >

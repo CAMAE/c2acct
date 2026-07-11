@@ -197,9 +197,9 @@ export default async function FirmInsightsPage({
           },
           {
             title: "Elite insights",
-            body: "Coming soon. Unlock with Elite membership.",
+            body: "Live with Elite membership.",
             tone: "muted",
-            badgeLabel: "Coming soon",
+            badgeLabel: "Elite",
             badgeTone: "locked",
           },
           {

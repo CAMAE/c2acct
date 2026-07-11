@@ -106,7 +106,7 @@ export default async function VendorAlignmentInsightsPage({
         title: "Elite insights",
         intro: eliteEntitlement.allowed
           ? "Live with your Elite membership. Open any card for the grounded, directional readout built from current firm-reviewed evidence."
-          : "Coming soon. Unlock with Elite membership.",
+          : "Live with Elite membership.",
         cards: eliteCards,
         columnsClassName: "md:grid-cols-2 xl:grid-cols-3",
       }}
@@ -120,9 +120,9 @@ export default async function VendorAlignmentInsightsPage({
           },
           {
             title: "Elite insights",
-            body: "Coming soon. Unlock with Elite membership.",
+            body: "Live with Elite membership.",
             tone: "muted",
-            badgeLabel: "Coming soon",
+            badgeLabel: "Elite",
             badgeTone: "locked",
           },
           {

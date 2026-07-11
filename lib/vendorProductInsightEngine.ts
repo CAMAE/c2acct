@@ -176,11 +176,12 @@ export function getRequestedVendorProductInsightDetailMode(
   rawMode: string | undefined
 ): VendorProductInsightDetailMode {
   switch (rawMode?.trim().toLowerCase()) {
-    case "elite":
-      return "elite";
     case "help":
       return "help";
+    // B8-8: vendor product intelligence has no real Elite layer yet, so there is
+    // no Elite mode — an ?mode=elite URL coerces to Pro (no toggle renders it).
     case "pro":
+    case "elite":
     default:
       return "pro";
   }
@@ -1345,7 +1346,7 @@ export function buildVendorProductInsightDetailSurfaceContent(input: {
           ? lockedState?.summary ?? ELITE_PLACEHOLDER_MESSAGE
           : input.record?.currentStateSummary ?? input.snapshot.combinedCurrentPatReadout,
         what: input.locked
-          ? lockedState?.what ?? content?.what ?? "Coming soon."
+          ? lockedState?.what ?? content?.what ?? "Live with Elite membership."
           : input.record?.what ?? content?.what ?? "No product-intelligence explanation is available yet.",
         why: input.locked
           ? lockedState?.why ?? content?.why ?? ELITE_PLACEHOLDER_CTA
@@ -1407,16 +1408,16 @@ export function buildVendorProductInsightDetailSurfaceContent(input: {
       return buildHelpSurfaceContent<VendorProductInsightDetailSurfaceKey>({
         key: "help",
         intro: input.locked
-          ? lockedState?.summary ?? "Coming soon. Unlock with Elite membership."
+          ? lockedState?.summary ?? "Live with Elite membership."
           : input.record?.currentStateSummary ?? input.snapshot.combinedCurrentPatReadout,
         what: input.locked
-          ? lockedState?.what ?? content?.what ?? "Coming soon."
+          ? lockedState?.what ?? content?.what ?? "Live with Elite membership."
           : input.record?.what ?? content?.what ?? "No product-intelligence explanation is available yet.",
         why: input.locked
-          ? lockedState?.why ?? content?.why ?? "Unlock with Elite membership."
+          ? lockedState?.why ?? content?.why ?? "Live with Elite membership."
           : input.record?.why ?? content?.why ?? "No product-intelligence rationale is available yet.",
         how: input.locked
-          ? lockedState?.how ?? content?.how ?? "Unlock with Elite membership."
+          ? lockedState?.how ?? content?.how ?? "Live with Elite membership."
           : input.record?.how ?? content?.how ?? "No product-intelligence use guidance is available yet.",
       });
   }

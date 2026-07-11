@@ -408,7 +408,7 @@ describe("vendor product insight runtime", () => {
 
     expect(getRequestedVendorProductInsightDetailMode(undefined)).toBe("pro");
     expect(getRequestedVendorProductInsightDetailMode("pro")).toBe("pro");
-    expect(getRequestedVendorProductInsightDetailMode("elite")).toBe("elite");
+    expect(getRequestedVendorProductInsightDetailMode("elite")).toBe("pro");
     expect(getRequestedVendorProductInsightDetailMode("help")).toBe("help");
     expect(getRequestedVendorProductInsightDetailMode("unknown")).toBe("pro");
     const proCards = buildVendorProductProInsightCards(snapshot);
@@ -421,8 +421,8 @@ describe("vendor product insight runtime", () => {
         (card) =>
           !card.interactive &&
           card.href === null &&
-          card.statusLabel === "Coming soon" &&
-          card.supportingText === "Unlock with Elite membership"
+          card.statusLabel === "Elite" &&
+          card.supportingText === "Live with Elite membership"
       )
     ).toBe(true);
   });
@@ -553,7 +553,7 @@ describe("vendor product insight runtime", () => {
     expect(eliteSurface.title).toBe("Evidence and provenance");
     expect(eliteSurfaceText).toMatch(/not a live Elite interpretation/i);
     expect(eliteSurfaceText).toMatch(/Why the deeper view is still locked/i);
-    expect(eliteSurfaceText).toMatch(/Unlock with Elite membership/i);
+    expect(eliteSurfaceText).toMatch(/Live with Elite membership/i);
     expect(eliteSurfaceText).not.toMatch(/Elite insight is live/i);
     expect(eliteSurface.items.some((item) => item.body.includes("Vendor self-reported signal"))).toBe(true);
     expect(

@@ -21,9 +21,12 @@ export type InsightContentDefinition = {
   } | null;
 };
 
-export const ELITE_PLACEHOLDER_TITLE = "Coming soon";
-export const ELITE_PLACEHOLDER_CTA = "Unlock with Elite membership";
-export const ELITE_PLACEHOLDER_MESSAGE = `${ELITE_PLACEHOLDER_TITLE}. ${ELITE_PLACEHOLDER_CTA}.`;
+// B8-8: these surfaces are LIVE for Elite members — locked, not unbuilt. Never
+// "Coming soon". The badge reads "Elite"; the state copy is "Live with Elite
+// membership".
+export const ELITE_PLACEHOLDER_TITLE = "Elite";
+export const ELITE_PLACEHOLDER_CTA = "Live with Elite membership";
+export const ELITE_PLACEHOLDER_MESSAGE = ELITE_PLACEHOLDER_CTA;
 
 const firmInsights = [
   {
@@ -96,11 +99,11 @@ const firmInsights = [
     summary: "Projected operating posture based on stronger benchmark and capability layers.",
     what: "A future projection layer once PAT has enough benchmark and longitudinal depth.",
     why: "Projection is useful only when the evidence base is broad enough to trust.",
-    how: "Unlock with Elite membership.",
+    how: "Live with Elite membership.",
     basisTemplate: "Reserved for future benchmark and projection logic.",
     confidenceDisclaimerTemplate: "PAT does not claim that projection support exists yet.",
     lockedState: {
-      summary: ELITE_PLACEHOLDER_TITLE + ".",
+      summary: ELITE_PLACEHOLDER_MESSAGE,
       what: "A restricted Elite insight reserved for future projection logic.",
       why: "Projection is not honest until broader evidence exists.",
       how: `${ELITE_PLACEHOLDER_CTA}.`,
@@ -118,11 +121,11 @@ const firmInsights = [
     summary: "Comparison against stronger benchmark cohorts and market-observed patterns.",
     what: "A future peer-relative view once PAT has defensible cohort support.",
     why: "Benchmarking without a real cohort frame would overstate what PAT knows.",
-    how: "Unlock with Elite membership.",
+    how: "Live with Elite membership.",
     basisTemplate: "Reserved for future benchmark cohort logic.",
     confidenceDisclaimerTemplate: "PAT does not claim that benchmark support exists yet.",
     lockedState: {
-      summary: ELITE_PLACEHOLDER_TITLE + ".",
+      summary: ELITE_PLACEHOLDER_MESSAGE,
       what: "A restricted Elite insight reserved for future benchmark comparisons.",
       why: "Benchmark claims require a broader evidence base than the current PAT runtime has.",
       how: `${ELITE_PLACEHOLDER_CTA}.`,
@@ -140,11 +143,11 @@ const firmInsights = [
     summary: "Richer PAT recommendation and sequencing once deeper data writes exist.",
     what: "A future recommendation layer for sequencing decisions once PAT has deeper evidence support.",
     why: "Recommendations are only useful when they are grounded in more than thin current-state signal.",
-    how: "Unlock with Elite membership.",
+    how: "Live with Elite membership.",
     basisTemplate: "Reserved for future recommendation logic.",
     confidenceDisclaimerTemplate: "PAT does not claim that recommendation support exists yet.",
     lockedState: {
-      summary: ELITE_PLACEHOLDER_TITLE + ".",
+      summary: ELITE_PLACEHOLDER_MESSAGE,
       what: "A restricted Elite insight reserved for future sequencing guidance.",
       why: "Recommendation claims require deeper evidence than the current PAT runtime has.",
       how: `${ELITE_PLACEHOLDER_CTA}.`,
@@ -289,12 +292,12 @@ const vendorAlignmentInsights = [
     basisTemplate: "Reserved for future benchmark cohort logic.",
     confidenceDisclaimerTemplate: "PAT does not claim that benchmark support exists yet.",
     lockedState: {
-      summary: "Coming soon.",
+      summary: "Live with Elite membership.",
       what: "A restricted Elite insight reserved for future benchmark comparisons.",
       why: "Benchmark claims require broader and more durable evidence than the current PAT runtime has.",
-      how: "Unlock with Elite membership.",
+      how: "Live with Elite membership.",
       basis: "Benchmark evidence is not available in the current PAT product.",
-      disclaimer: "Unlock with Elite membership",
+      disclaimer: "Live with Elite membership",
     },
   },
   {
@@ -311,12 +314,12 @@ const vendorAlignmentInsights = [
     basisTemplate: "Reserved for future projection logic.",
     confidenceDisclaimerTemplate: "PAT does not claim that projection support exists yet.",
     lockedState: {
-      summary: "Coming soon.",
+      summary: "Live with Elite membership.",
       what: "A restricted Elite insight reserved for future forward-looking interpretation.",
       why: "Projection claims require longitudinal evidence the current PAT runtime does not have.",
-      how: "Unlock with Elite membership.",
+      how: "Live with Elite membership.",
       basis: "Projection evidence is not available in the current PAT product.",
-      disclaimer: "Unlock with Elite membership",
+      disclaimer: "Live with Elite membership",
     },
   },
   {
@@ -333,12 +336,12 @@ const vendorAlignmentInsights = [
     basisTemplate: "Reserved for future scenario logic.",
     confidenceDisclaimerTemplate: "PAT does not claim that simulation support exists yet.",
     lockedState: {
-      summary: "Coming soon.",
+      summary: "Live with Elite membership.",
       what: "A restricted Elite insight reserved for future scenario testing.",
       why: "Scenario claims require broader evidence and model stability than the current PAT runtime has.",
-      how: "Unlock with Elite membership.",
+      how: "Live with Elite membership.",
       basis: "Scenario evidence is not available in the current PAT product.",
-      disclaimer: "Unlock with Elite membership",
+      disclaimer: "Live with Elite membership",
     },
   },
 ] as const satisfies readonly InsightContentDefinition[];
@@ -403,12 +406,12 @@ const vendorProductInsights = [
     basisTemplate: "Reserved for future benchmark product logic.",
     confidenceDisclaimerTemplate: "PAT does not claim that product benchmark support exists yet.",
     lockedState: {
-      summary: "Coming soon.",
+      summary: "Live with Elite membership.",
       what: "A restricted Elite insight reserved for future product benchmark comparisons.",
       why: "Benchmark claims require broader market evidence than the current PAT runtime has.",
-      how: "Unlock with Elite membership.",
+      how: "Live with Elite membership.",
       basis: "Product benchmark evidence is not available in the current PAT product.",
-      disclaimer: "Unlock with Elite membership",
+      disclaimer: "Live with Elite membership",
     },
   },
   {
@@ -425,12 +428,12 @@ const vendorProductInsights = [
     basisTemplate: "Reserved for future product projection logic.",
     confidenceDisclaimerTemplate: "PAT does not claim that product projection support exists yet.",
     lockedState: {
-      summary: "Coming soon.",
+      summary: "Live with Elite membership.",
       what: "A restricted Elite insight reserved for future demand projection.",
       why: "Projection claims require more durable evidence than the current PAT runtime has.",
-      how: "Unlock with Elite membership.",
+      how: "Live with Elite membership.",
       basis: "Product projection evidence is not available in the current PAT product.",
-      disclaimer: "Unlock with Elite membership",
+      disclaimer: "Live with Elite membership",
     },
   },
   {
@@ -447,12 +450,12 @@ const vendorProductInsights = [
     basisTemplate: "Reserved for future product scenario logic.",
     confidenceDisclaimerTemplate: "PAT does not claim that product simulation support exists yet.",
     lockedState: {
-      summary: "Coming soon.",
+      summary: "Live with Elite membership.",
       what: "A restricted Elite insight reserved for future expansion simulation.",
       why: "Scenario claims require broader evidence than the current PAT runtime has.",
-      how: "Unlock with Elite membership.",
+      how: "Live with Elite membership.",
       basis: "Product simulation evidence is not available in the current PAT product.",
-      disclaimer: "Unlock with Elite membership",
+      disclaimer: "Live with Elite membership",
     },
   },
 ] as const satisfies readonly InsightContentDefinition[];

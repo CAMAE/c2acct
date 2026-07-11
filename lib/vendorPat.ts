@@ -22,7 +22,7 @@ import {
 export const VENDOR_PRODUCT_MODULE_KEY = "vendor_product_alignment_v1";
 export const VENDOR_PRODUCT_MODULE_TITLE = "Vendor Product Assessment";
 export const VENDOR_PRODUCT_QUESTIONS_PER_UTILITY = PRODUCT_UTILITY_SCORED_QUESTION_COUNT;
-export const VENDOR_PRODUCT_TIER2_HOVER = "Unlock with Elite membership";
+export const VENDOR_PRODUCT_TIER2_HOVER = "Live with Elite membership";
 
 export type UtilityDefinition = {
   key: string;

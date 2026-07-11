@@ -379,8 +379,8 @@ describe("vendor alignment catalog", () => {
           card.interactive === false &&
           card.href === null &&
           card.tone === "locked" &&
-          card.statusLabel === "Coming soon" &&
-          card.supportingText === "Unlock with Elite membership"
+          card.statusLabel === "Elite" &&
+          card.supportingText === "Live with Elite membership"
       )
     ).toBe(true);
   });
@@ -517,7 +517,7 @@ describe("vendor alignment catalog", () => {
       "Locked Elite boundary",
     ]);
     expect(eliteSurfaceText).toContain("not a live Elite interpretation");
-    expect(eliteSurfaceText).toContain("Unlock with Elite membership");
+    expect(eliteSurfaceText).toContain("Live with Elite membership");
     expect(eliteSurfaceText).toContain("not claiming benchmark, projection, scenario, customer, or market-wide proof");
     expect(eliteSurfaceText).not.toMatch(/Elite insight is live/i);
     expect(

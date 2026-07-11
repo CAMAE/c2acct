@@ -504,7 +504,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         proBody:
           "Open these cards for grounded current-state firm readouts tied to current PAT evidence.",
         eliteTitle: "Elite Insights",
-        eliteBody: "Coming soon. Unlock with Elite membership.",
+        eliteBody: "Live with Elite membership.",
         proAvailableLabel:
           "Available now from completed firm alignment coverage plus the required capability signal.",
         proPendingLabel:
@@ -527,7 +527,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         proTitle: "Pro membership",
         proBody: "Grounded current-state vendor intelligence tied to current firm PAT signal.",
         eliteTitle: "Elite membership",
-        eliteBody: "Coming soon. Unlock with Elite membership.",
+        eliteBody: "Live with Elite membership.",
         assessmentBasis: "Assessment basis",
         backToAlignmentInsights: "Back to alignment insights",
       },
@@ -550,7 +550,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         proBody:
           "Each insight keeps vendor self-report, firm review, and combined PAT interpretation distinct.",
         eliteTitle: "Elite membership insights",
-        eliteBody: "Coming soon. Unlock with Elite membership.",
+        eliteBody: "Live with Elite membership.",
         backToProductCatalog: "Back to product catalog",
         basisTemplateLabel: "Basis template",
       },
@@ -816,7 +816,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         proBody:
           "Insight PAT del estado actual que se vuelve visible después de completar los cinco módulos y cumplir los umbrales de capacidad relevantes.",
         eliteTitle: "Insights Elite",
-        eliteBody: "Coming soon. Unlock with Elite membership.",
+        eliteBody: "Live with Elite membership.",
         proAvailableLabel:
           "Disponible ahora a partir de la cobertura completa de alineación de firma y la señal de capacidad requerida.",
         proPendingLabel:
@@ -839,7 +839,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         proTitle: "Membresía Pro",
         proBody: "Inteligencia de proveedor del estado actual, vinculada a la señal PAT actual de firmas.",
         eliteTitle: "Membresía Elite",
-        eliteBody: "Coming soon. Unlock with Elite membership.",
+        eliteBody: "Live with Elite membership.",
         assessmentBasis: "Base de evaluación",
         backToAlignmentInsights: "Volver a insights de alineación",
       },
@@ -1129,7 +1129,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         proBody:
           "Insight PAT de l’état actuel visible après l’achèvement des cinq modules et l’atteinte des seuils de capacité concernés.",
         eliteTitle: "Insights Elite",
-        eliteBody: "Coming soon. Unlock with Elite membership.",
+        eliteBody: "Live with Elite membership.",
         proAvailableLabel:
           "Disponible maintenant grâce à la couverture complète de l’alignement cabinet et au signal de capacité requis.",
         proPendingLabel:
@@ -1153,7 +1153,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         proBody:
           "Intelligence vendeur de l’état actuel, liée au signal PAT cabinet actuel.",
         eliteTitle: "Abonnement Elite",
-        eliteBody: "Coming soon. Unlock with Elite membership.",
+        eliteBody: "Live with Elite membership.",
         assessmentBasis: "Base d’évaluation",
         backToAlignmentInsights: "Retour aux insights d’alignement",
       },

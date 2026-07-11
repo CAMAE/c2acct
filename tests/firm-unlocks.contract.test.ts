@@ -189,8 +189,8 @@ describe("firm pro unlock rules", () => {
         (card) =>
           !card.interactive
           && card.href === null
-          && card.statusLabel === "Coming soon"
-          && card.supportingText === "Unlock with Elite membership"
+          && card.statusLabel === "Elite"
+          && card.supportingText === "Live with Elite membership"
       )
     ).toBe(true);
   });
@@ -283,8 +283,8 @@ describe("firm pro unlock rules", () => {
     expect(proSurfaceText).not.toContain("Sample:");
     expect(proSurfaceText).not.toMatch(/Caveat \d+/);
     expect(eliteSurface.title).toBe("Elite");
-    expect(eliteSurfaceText).toContain("Coming soon");
-    expect(eliteSurfaceText).toContain("Unlock with Elite membership");
+    expect(eliteSurfaceText).toContain("Live with Elite membership");
+    expect(eliteSurfaceText).not.toContain("Coming soon");
     expect(eliteSurfaceText).toContain("Locked Elite boundary");
     expect(eliteSurfaceText).toContain("This is not a live Elite interpretation");
     expect(eliteSurfaceText).toContain("does not expose unavailable findings");

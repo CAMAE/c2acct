@@ -5,7 +5,6 @@ import { getSessionUser } from "@/lib/auth/session";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import {
-  buildVendorProductEliteInsightCards,
   buildVendorProductProInsightCards,
   getRequestedVendorProductInsightDetailMode,
   getVendorProductInsightSnapshot,
@@ -79,13 +78,13 @@ export default async function VendorProductInsightDetailPage({
   }
 
   const activeMode = getRequestedVendorProductInsightDetailMode(resolvedSearchParams?.mode);
+  // B8-8: no Elite layer exists for product intelligence yet — render NO Elite
+  // toggle (honest), only Pro + Help.
   const toggleOptions = [
     { key: "pro", label: "Pro Insights", href: getModeHref(snapshot.product.id, "pro") },
-    { key: "elite", label: "Elite Insights", href: getModeHref(snapshot.product.id, "elite") },
     { key: "help", label: "Help", href: getModeHref(snapshot.product.id, "help") },
   ] as const;
   const proCards = buildVendorProductProInsightCards(snapshot);
-  const eliteCards = buildVendorProductEliteInsightCards();
 
   return (
     <InsightsModeShell
@@ -132,26 +131,13 @@ export default async function VendorProductInsightDetailPage({
         cards: proCards,
         columnsClassName: "md:grid-cols-2 xl:grid-cols-3",
       }}
-      elitePanel={{
-        title: "Elite insights",
-        intro: "Coming soon. Unlock with Elite membership.",
-        cards: eliteCards,
-        columnsClassName: "md:grid-cols-2 xl:grid-cols-3",
-      }}
       helpPanel={{
         title: "Help",
-        intro: "Use Pro Insights for the current grounded readouts. Elite Insights are coming soon and unlock with Elite membership.",
+        intro: "Use Pro Insights for the current grounded product-intelligence readouts.",
         infoCards: [
           {
             title: "Pro insights",
             body: "Open these cards when you want the current product-intelligence slices backed by current vendor self-report and firm-reviewed evidence.",
-          },
-          {
-            title: "Elite insights",
-            body: "Coming soon. Unlock with Elite membership.",
-            tone: "muted",
-            badgeLabel: "Coming soon",
-            badgeTone: "locked",
           },
           {
             title: "Current product view",

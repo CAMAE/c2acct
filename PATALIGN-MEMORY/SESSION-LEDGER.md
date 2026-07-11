@@ -109,3 +109,23 @@ opening across products. New tests/qualitative-declump.contract.test.ts (full-cy
 no back-to-back, cross-product variety, deterministic). NOTE: live de-clump lands
 when the demo seed re-runs (seed:demo-expand at checkpoint 2). Fast gates:
 typecheck 0 · lint clean · unit 747/747.
+
+### B8-8 — HONEST LOCKED STATES
+Killed "Coming soon" for live Elite surfaces: ELITE_PLACEHOLDER_* now = badge
+"Elite" + copy "Live with Elite membership"; swept every remaining literal
+"Coming soon" / "Unlock with Elite membership" across insightContent, locale,
+vendor engines, and the firm/vendor insight pages → "Live with Elite membership".
+New app/components/insights/LockedElitePreview.tsx: v2 surface name + Elite badge
++ REAL chart structure (bars/line/distribution silhouette) with values blurred +
+"Live with Elite membership" CTA; wired into the firm insights detail Pro-locked
+branch with FIRM_ELITE_V2_META names. Vendor product intelligence has no live
+Elite layer → renders NO Elite toggle (mode coerces elite→pro; InsightsModeShell
+elitePanel now optional). Tests updated (statusLabel "Coming soon"→"Elite",
+copy→"Live with Elite membership", vendor-product elite mode→pro). Fast gates:
+typecheck 0 · lint clean · unit 747/747.
+Follow-ups (flagged): LockedElitePreview wired into firm DETAIL only — vendor
+alignment detail + index cards still use the plain locked card (name + honest
+copy, no blurred chart); insightContent tier-2 PROSE still carries stale
+"reserved/future/not live" framing that contradicts the v2-live reality;
+flag-off Alignment Board / Sales Card "Coming soon" placeholders left (feature-
+flag-gated, not membership-locked — a different concept).

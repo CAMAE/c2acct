@@ -471,7 +471,7 @@ function buildLockedReport(
     why: definition.why,
     how: definition.how,
     exactAssessmentBasis:
-      "Current vendor alignment uses current firm PAT submissions, capability scores, and answer patterns for Pro insights only. Unlock with Elite membership when the deeper benchmark, projection, and scenario layer is truly available.",
+      "Current vendor alignment uses current firm PAT submissions, capability scores, and answer patterns for Pro insights only. Live with Elite membership when the deeper benchmark, projection, and scenario layer is truly available.",
     confidenceCaveats: [describeSampleSignal(snapshot.sampleSize)],
     sampleSize: snapshot.sampleSize,
     submissionCount: snapshot.submissionCount,
