@@ -2,6 +2,12 @@ import PercentileBand from "@/app/components/charts/PercentileBand";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
 import { describePercentile, type FirmPeerPosition } from "@/lib/eliteInsightsV2";
 
+function ordinal(n: number): string {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
+}
+
 const VERDICT_CHIP: Record<FirmPeerPosition["reportCard"][number]["verdict"], { label: string; cls: string }> = {
   ahead: { label: "ahead of peers", cls: "bg-[rgba(22,163,74,0.1)] text-[var(--shell-positive)]" },
   "on par": { label: "on par", cls: "bg-[rgba(6,54,116,0.06)] text-[var(--shell-ink)]" },
@@ -78,6 +84,19 @@ export default function FirmPeerPositionCard({ data }: { data: FirmPeerPosition 
           </table>
         </div>
       </section>
+
+      {data.bestAction ? (
+        <section className="pat-card p-6">
+          <div className="pat-label">Your biggest lever</div>
+          <p className="mt-3 text-sm leading-6 text-[var(--shell-ink)]">
+            Closing {data.bestAction.moduleLabel}&rsquo;s {data.bestAction.deficit}-pt gap to the peer top quartile moves
+            you from the{" "}
+            <span className="font-semibold">{ordinal(data.bestAction.fromPercentile)}</span> to about the{" "}
+            <span className="font-semibold text-[var(--shell-positive)]">{ordinal(data.bestAction.toPercentile)}</span>{" "}
+            percentile — a directional estimate, not a guarantee.
+          </p>
+        </section>
+      ) : null}
     </>
   );
 }

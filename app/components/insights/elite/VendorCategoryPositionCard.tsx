@@ -57,6 +57,16 @@ export default function VendorCategoryPositionCard({ data }: { data: VendorCateg
           )}
         </section>
       ))}
+      {data.topAction ? (
+        <section className="pat-card p-6">
+          <div className="pat-label">Where to push first</div>
+          <p className="mt-3 text-sm leading-6 text-[var(--shell-ink)]">
+            {data.topAction.category}: <span className="font-semibold">+{data.topAction.gap} pts</span> to reach the top
+            quartile (Q1) of {data.topAction.n} vendors — your biggest single lever in this category set. Directional,
+            not a guarantee.
+          </p>
+        </section>
+      ) : null}
     </>
   );
 }

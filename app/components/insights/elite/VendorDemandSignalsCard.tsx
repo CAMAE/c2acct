@@ -21,6 +21,17 @@ export default function VendorDemandSignalsCard({ data }: { data: VendorDemandSi
           earlySignal={data.earlySignal}
         />
       </div>
+      {data.swappedOut > 0 ? (
+        <p className="mt-4 rounded-[14px] border border-[var(--shell-border)] bg-white/70 px-4 py-3 text-sm leading-6 text-[var(--shell-ink)]">
+          <span className="font-semibold">{data.swappedOut} swap-out{data.swappedOut === 1 ? "" : "s"}</span> in the{" "}
+          {data.windowLabel} — the firms dropping you are your churn risk. Open the Alignment Gap Map to see which of your
+          dimensions those firms read lowest, and fix the story there first.
+        </p>
+      ) : (
+        <p className="mt-4 rounded-[14px] border border-[var(--shell-border)] bg-white/70 px-4 py-3 text-sm leading-6 text-[var(--shell-ink)]">
+          No swap-outs in the {data.windowLabel} — your pipeline is clean. Keep the Alignment Gap Map green to hold it.
+        </p>
+      )}
     </section>
   );
 }

@@ -65,9 +65,31 @@ function ordinal(n: number): string {
 
 // ── F1 · Peer Position Report ────────────────────────────────────────────────
 
+/** Inverse percentile: approximate percentile rank of value `v` from p-anchors. */
+function percentileForValue(
+  anchors: Array<{ p: number; v: number }>,
+  v: number
+): number {
+  const pts = anchors.filter((a) => typeof a.v === "number").sort((a, b) => a.v - b.v);
+  if (pts.length === 0) return 0;
+  if (v <= pts[0].v) return pts[0].p;
+  if (v >= pts[pts.length - 1].v) return pts[pts.length - 1].p;
+  for (let i = 1; i < pts.length; i += 1) {
+    if (v <= pts[i].v) {
+      const lo = pts[i - 1];
+      const hi = pts[i];
+      const t = hi.v === lo.v ? 0 : (v - lo.v) / (hi.v - lo.v);
+      return Math.round(lo.p + t * (hi.p - lo.p));
+    }
+  }
+  return pts[pts.length - 1].p;
+}
+
 export type FirmPeerPosition = {
   available: boolean;
   overall: { percentile: number; rankFromTop: number; n: number; score: number } | null;
+  /** Largest single lever: closing the biggest module deficit vs the peer top quartile. */
+  bestAction: { moduleLabel: string; deficit: number; fromPercentile: number; toPercentile: number } | null;
   rows: PercentileRow[];
   reportCard: Array<{
     key: string;
@@ -95,6 +117,7 @@ export async function buildFirmPeerPosition(
     return {
       available: false,
       overall: null,
+      bestAction: null,
       rows: [],
       reportCard: [],
       emptyReason:
@@ -133,6 +156,38 @@ export async function buildFirmPeerPosition(
     };
   });
 
+  // Ranked action (B5-2): the module with the largest deficit to the peer top
+  // quartile (p75) is the biggest single lever. Estimate the overall percentile
+  // move by lifting the alignment index by deficit/5 (one of five modules) and
+  // re-reading it against the alignment-index distribution. Directional.
+  let bestAction: FirmPeerPosition["bestAction"] = null;
+  if (!overallSuppressed) {
+    const candidates = moduleReadings
+      .filter((r) => !suppressed(r) && typeof r.score === "number" && typeof r.p75 === "number")
+      .map((r) => ({ r, deficit: Math.round((r.p75 as number) - (r.score as number)) }))
+      .filter((c) => c.deficit > 0)
+      .sort((a, b) => b.deficit - a.deficit);
+    if (candidates.length > 0) {
+      const top = candidates[0];
+      const anchors = [
+        { p: 10, v: overallReading.p10 as number },
+        { p: 25, v: overallReading.p25 as number },
+        { p: 50, v: overallReading.p50 as number },
+        { p: 75, v: overallReading.p75 as number },
+        { p: 90, v: overallReading.p90 as number },
+      ].filter((a) => typeof a.v === "number");
+      const newIndex = overallReading.score + top.deficit / FIRM_MODULE_DEFINITIONS.length;
+      const fromPercentile = overallReading.percentile ?? 0;
+      const toPercentile = Math.max(fromPercentile, percentileForValue(anchors, newIndex));
+      bestAction = {
+        moduleLabel: MODULE_TITLE.get(top.r.metricKey) ?? top.r.metricKey,
+        deficit: top.deficit,
+        fromPercentile,
+        toPercentile,
+      };
+    }
+  }
+
   return {
     available: true,
     overall: overallSuppressed
@@ -143,6 +198,7 @@ export async function buildFirmPeerPosition(
           n: overallReading.n,
           score: overallReading.score,
         },
+    bestAction,
     rows,
     reportCard,
     emptyReason: overallSuppressed
@@ -342,6 +398,8 @@ export type VendorCategoryPosition = {
     quartile: 1 | 2 | 3 | 4;
     suppressed: boolean;
   }>;
+  /** Ranked action: the published category with the largest gap to Q1 (p75). */
+  topAction: { category: string; gap: number; n: number } | null;
   emptyReason: string | null;
 };
 
@@ -363,26 +421,29 @@ export async function buildVendorCategoryPosition(
     return {
       available: false,
       categories: [],
+      topAction: null,
       emptyReason: "Category position opens once firms have reviewed your products enough to place you in a category distribution.",
     };
   }
-  return {
-    available: true,
-    categories: rated.map((r) => ({
-      category: r.metricKey,
-      mean: r.mean ?? r.score ?? 0,
-      stdev: r.stdev ?? 0,
-      p25: r.p25,
-      p75: r.p75,
-      score: r.score as number,
-      percentile: r.percentile ?? 0,
-      rankFromTop: r.rankFromTop ?? 0,
-      n: r.n,
-      quartile: quartileOf(r.percentile ?? 0),
-      suppressed: r.n < MIN_CONTRIBUTORS,
-    })),
-    emptyReason: null,
-  };
+  const categories = rated.map((r) => ({
+    category: r.metricKey,
+    mean: r.mean ?? r.score ?? 0,
+    stdev: r.stdev ?? 0,
+    p25: r.p25,
+    p75: r.p75,
+    score: r.score as number,
+    percentile: r.percentile ?? 0,
+    rankFromTop: r.rankFromTop ?? 0,
+    n: r.n,
+    quartile: quartileOf(r.percentile ?? 0) as 1 | 2 | 3 | 4,
+    suppressed: r.n < MIN_CONTRIBUTORS,
+  }));
+  // Ranked action: published category with the largest gap to Q1 (p75).
+  const topAction = categories
+    .filter((c) => !c.suppressed && typeof c.p75 === "number" && c.score < (c.p75 as number))
+    .map((c) => ({ category: c.category, gap: Math.round((c.p75 as number) - c.score), n: c.n }))
+    .sort((a, b) => b.gap - a.gap)[0] ?? null;
+  return { available: true, categories, topAction, emptyReason: null };
 }
 
 // ── V2 · Demand Signals ──────────────────────────────────────────────────────
