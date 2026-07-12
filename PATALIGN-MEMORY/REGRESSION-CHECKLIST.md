@@ -167,3 +167,24 @@ passed) → LKG 6bf25bd → 0c19939; :3000 came back on the new build. Watchdog
 reloaded (300 s interval, last exit 0). **Checkpoint reproduction note:** always
 `release:promote-known-good` after a local `pnpm build`, or :3000 will refuse to
 restart.
+
+### Block 11 checkpoint — 2026-07-12
+
+- **Build:** BUILD_ID `iJjTwaEH2ZEgRnDl2Pe0U`, HEAD `39481c8` (footer
+  "Release 39481c8:iJjTwaEH2ZEgRnDl2Pe0U"). Both ports serving it.
+- **Build proof:** asset-integrity PASS on :3005 (served == disk == fingerprint).
+- **Validations:** lint clean · tsc clean · test:unit 789/789 · Block-11 contract
+  tests green (insight-click-ux, +updated vendor-product-insight & firm-unlocks).
+- **Demo data:** clean at 176 firms / 32 vendors, all region-tagged, 0 orphans.
+
+| Item | Result | Evidence (running :3005) |
+|---|---|---|
+| F1 card law | ✅ | vendor home PortalSurfaceCards match insight cards |
+| F2 no face-card band chip | ✅ | alignment cards "54 · Operating discipline…", no chip |
+| F3 inline Pro expansion | ✅ | "Open readout" expands Pro pane inline + "Open full view" |
+| F4 percentile band rows | ✅ | Category Position: p25–p75 pack + top-quartile zone + you marker |
+| F5 non-entitled Elite upsell | ✅ | contract-tested; entitled never sees a locked pane |
+| F6 replica naming / elite copy | ✅ | region-tagged names; entitled firm shows live Trajectory |
+| N1 / N2 | ✅ | verified earlier this checkpoint chain |
+
+Screenshots: `artifacts/b11-shots/`, `artifacts/b11cp-shots/`. Mythos live sweep next.
