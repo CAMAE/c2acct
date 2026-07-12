@@ -277,7 +277,14 @@ async function readCohort(
     }),
   ]);
   const companyByMetric = new Map(company.map((c) => [c.metricKey, c]));
-  return runs.map((run) => {
+  // Block 10a: only the categories/metrics this company actually participates in
+  // (has a CompanyBenchmark score for). A vendor's Category Position must show its
+  // OWN categories — never every cohort category, which surfaced suppressed cards
+  // for categories the vendor has no product in (P2 root cause). F1 is unaffected:
+  // a scored firm has a CompanyBenchmark for each of its modules.
+  return runs
+    .filter((run) => companyByMetric.has(run.metricKey))
+    .map((run) => {
     const c = companyByMetric.get(run.metricKey);
     const percentile = c ? Math.round(c.percentile) : null;
     const rankFromTop =
