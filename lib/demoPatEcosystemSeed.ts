@@ -43,6 +43,7 @@ export function openEndedTemplateIndex(productKey: string, index: number, count:
 }
 import { writeCompanyCapabilityScores } from "@/lib/companyCapabilityScoreWrites";
 import { maturityTier } from "@/lib/firmMaturity";
+import { canonicalCategoryForProduct } from "@/lib/productCategoryTaxonomy";
 import {
   FIRM_MODULE_DEFINITIONS,
   ensureFirmAlignmentSystem,
@@ -414,7 +415,8 @@ export async function ensureProduct(client: DemoSeedClient, input: {
       companyId: input.vendorCompanyId,
       vendorId: input.vendorProfileId,
       name: input.product.name,
-      category: input.product.category,
+      // B10a: canonicalize category at the single write point (base + expansion).
+      category: canonicalCategoryForProduct(input.product.utilityKeys),
       website,
       summary: input.product.summary,
       deploymentModel: input.product.deploymentModel,
@@ -427,7 +429,7 @@ export async function ensureProduct(client: DemoSeedClient, input: {
       vendorId: input.vendorProfileId,
       name: input.product.name,
       slug,
-      category: input.product.category,
+      category: canonicalCategoryForProduct(input.product.utilityKeys),
       website,
       summary: input.product.summary,
       deploymentModel: input.product.deploymentModel,
