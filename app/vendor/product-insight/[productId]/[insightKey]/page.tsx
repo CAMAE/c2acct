@@ -3,7 +3,9 @@ import DivergenceBar from "@/app/components/charts/DivergenceBar";
 import RankedBars from "@/app/components/charts/RankedBars";
 import ScoreLockup from "@/app/components/charts/ScoreLockup";
 import InsightDetailShell from "@/app/components/insights/InsightDetailShell";
+import LockedElitePreview from "@/app/components/insights/LockedElitePreview";
 import { getSessionUser } from "@/lib/auth/session";
+import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import {
   ELITE_PLACEHOLDER_CTA,
   ELITE_PLACEHOLDER_MESSAGE,
@@ -54,11 +56,21 @@ export default async function VendorProductInsightSlicePage({
   const tier2Definition = PRODUCT_TIER2_INSIGHTS.find((insight) => insight.key === insightKey);
   const tier1Record = snapshot.insightRecords.find((insight) => insight.key === insightKey);
   const isTier2 = content?.tier === 2;
-  const activeSurface = getRequestedVendorProductInsightDetailSurface(resolvedSearchParams?.surface);
+  const requestedSurface = getRequestedVendorProductInsightDetailSurface(resolvedSearchParams?.surface);
 
   if (!content || (!isTier2 && !tier1Record) || (isTier2 && !tier2Definition)) {
     notFound();
   }
+
+  // Block 11e: the Pro product-insight surface offers an Elite upsell toggle to
+  // NON-entitled vendors only (honest blurred preview, zero data). Entitled Elite
+  // vendors never see it — there is no live product Elite layer to gate yet.
+  const eliteEntitlement = await resolveMembershipEntitlement(sessionUser, "vendor", MEMBERSHIP_PLAN.ELITE);
+  const showEliteUpsell = !isTier2 && !eliteEntitlement.allowed;
+  // A direct ?surface=elite hit by someone who can't see the toggle (entitled, or
+  // a tier-2 route) falls back to the data pane — never the locked teaser.
+  const activeSurface =
+    requestedSurface === "elite" && !showEliteUpsell ? "evidence" : requestedSurface;
 
   const pageTitle = isTier2 ? tier2Definition?.title ?? content.title : tier1Record?.title ?? content.title;
   const heroBody = isTier2
@@ -69,6 +81,7 @@ export default async function VendorProductInsightSlicePage({
     insightKey,
     record: tier1Record ?? null,
     locked: isTier2,
+    showElite: showEliteUpsell,
   });
   const surfaceContent = buildVendorProductInsightDetailSurfaceContent({
     snapshot,
@@ -194,6 +207,18 @@ export default async function VendorProductInsightSlicePage({
       combinedEvidenceNote={isTier2 ? `${ELITE_PLACEHOLDER_CTA}.` : undefined}
       muted={isTier2}
       visualLead={visualLead}
-    />
+    >
+      {showEliteUpsell && activeSurface === "elite" ? (
+        <section className="pat-card p-6">
+          <div className="pat-label">Elite Insights</div>
+          <LockedElitePreview
+            title="Elite product intelligence"
+            description="A market-comparison view and a forward demand projection for this product — live with Elite membership."
+            shape="distribution"
+            upgradeHref={eliteEntitlement.upgradeHref}
+          />
+        </section>
+      ) : null}
+    </InsightDetailShell>
   );
 }

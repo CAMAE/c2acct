@@ -35,7 +35,7 @@ import {
 type ProductInsightDefinition = (typeof PRODUCT_TIER1_INSIGHTS)[number];
 
 export type VendorProductInsightDetailMode = "pro" | "elite" | "help";
-export type VendorProductInsightDetailSurfaceKey = "help" | "evidence";
+export type VendorProductInsightDetailSurfaceKey = "help" | "evidence" | "elite";
 
 export type VendorProductInsightDetailCard = {
   key: string;
@@ -193,6 +193,8 @@ export function getRequestedVendorProductInsightDetailSurface(
   switch (rawSurface?.trim().toLowerCase()) {
     case "help":
       return "help";
+    case "elite":
+      return "elite";
     case "evidence":
     case "basis":
     case "vendor-evidence":
@@ -1205,6 +1207,11 @@ export function buildVendorProductInsightDetailSurfaceCards(input: {
   insightKey: string;
   record: VendorProductInsightRecord | null;
   locked: boolean;
+  // Block 11e: show the Elite upsell toggle ONLY to non-entitled (Pro) vendors.
+  // There is no live product-level Elite layer yet, so an entitled Elite vendor
+  // must NOT see a locked pane for something they bought — the toggle is hidden
+  // for them and flips live when the real Elite layers ship.
+  showElite?: boolean;
 }) {
   const content = getVendorProductInsightContent(input.insightKey);
   const lockedState = content?.lockedState;
@@ -1237,6 +1244,16 @@ export function buildVendorProductInsightDetailSurfaceCards(input: {
       interactive: true,
     },
   ];
+
+  if (input.showElite) {
+    surfaces.push({
+      key: "elite",
+      title: "Elite",
+      summary: "A blurred preview of the Elite product-intelligence layers — available with Elite membership.",
+      href: `${baseHref}?surface=elite`,
+      interactive: true,
+    });
+  }
 
   return surfaces;
 }
@@ -1350,6 +1367,30 @@ export function buildVendorProductInsightDetailSurfaceContent(input: {
   const lockedState = content?.lockedState;
 
   switch (input.surface) {
+    case "elite":
+      // Block 11e: honest Pro-only upsell — names the Elite layers and their
+      // structure with ZERO data. Rendered alongside a blurred LockedElitePreview
+      // in the page. Only reachable when the toggle is shown (non-entitled).
+      return {
+        key: "elite",
+        title: "Elite",
+        intro:
+          "Elite product intelligence adds a market-comparison view and a forward demand projection for this product — each grounded in firm-reviewed evidence. Available with Elite membership.",
+        items: [
+          {
+            title: "Market comparison view",
+            body: "Where this product's firm-reviewed strength sits against the peer field in its category — a percentile position, not a ranking of named competitors.",
+          },
+          {
+            title: "Forward demand projection",
+            body: "The directional demand signal for this product's capability area across the firm base — a projection, not a guarantee.",
+          },
+          {
+            title: "Locked Elite boundary",
+            body: "This is a preview only — no live Elite data is shown here. PAT does not expose benchmark, projection, or market-wide figures until you hold Elite membership.",
+          },
+        ],
+      } satisfies VendorProductInsightDetailSurfaceContent;
     case "help": {
       const helpSurface = buildHelpSurfaceContent<VendorProductInsightDetailSurfaceKey>({
         key: "help",
