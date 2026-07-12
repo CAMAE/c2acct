@@ -189,7 +189,17 @@ function firmModuleAssessmentTarget(firm: DemoFirmInput, firmIndex: number, modu
     const target = DEMO_COMPANY_MODULE_TARGETS[moduleIndex] ?? firm.scoreTarget;
     return clampTarget(target);
   }
-  const moduleOffset = FIRM_MODULE_OFFSETS[moduleIndex % FIRM_MODULE_OFFSETS.length] ?? 0;
+  // Block 10a de-clump: ROTATE the per-module offset pattern by firmIndex so
+  // different firms have a different WEAKEST module. Without the rotation the
+  // offset with the lowest value (-0.75 at array index 3) always landed on the
+  // same module, so every firm's Sales Card gap area read identically
+  // ("Operating Model …"). Rotating spreads the weakest module across firms
+  // (firmIndex 0→module3, 1→module2, 2→module1, 3→module0, 4→module4 → 5
+  // distinct gap areas per 5 firms). The offsets sum to a constant (+0.05), so
+  // a firm's OVERALL alignment average — and thus the fit distribution — is
+  // unchanged; only which module is weakest rotates.
+  const moduleOffset =
+    FIRM_MODULE_OFFSETS[(moduleIndex + firmIndex) % FIRM_MODULE_OFFSETS.length] ?? 0;
   const firmOffset = ((firmIndex % 5) - 2) * 0.18;
   return clampTarget(firm.scoreTarget + moduleOffset + firmOffset);
 }

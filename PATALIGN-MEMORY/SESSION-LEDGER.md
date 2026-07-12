@@ -287,12 +287,16 @@ gone). Reseed chain: seed:demo-expand(scale4) → seed:demo-benchmark →
 seed:pat-runtime → preview:pat-setup(kill after DONE) → clear+compute:benchmarks.
 Commits: taxonomy b3caf760 · scale 58da6932 · filter 230e5347 · base-canonical
 d7638fa3 · gap-rotate ea6172fe · tier-gate test e02ef1f2 · radar-shape-vary (this).
-STILL OPEN:
-- gap-area/dimension variety: distinctGapAreas still =1 ("Operating Model …"). The
-  firm module-offset pattern keeps Operating Model weakest for ALL firms (not just
-  the warm-fit 4); varying reseedBoardRadar firmShapeIndex did NOT shift the
-  weakest module. Needs deeper seed-shape work (the archetype moduleScoreRanges /
-  seedFirmAlignmentSubmission offset pattern).
+10a de-clump: SOLVED ✅ — distinctGapAreas=4 (was 1). ROOT CAUSE: firmModuleAssessmentTarget
+did FIRM_MODULE_OFFSETS[moduleIndex] (fixed) + a firmOffset that shifts the whole
+firm uniformly — so the lowest offset (-0.75) always landed on module 3
+(Operating Model) for EVERY firm. FIX: rotate the offset by firmIndex —
+FIRM_MODULE_OFFSETS[(moduleIndex + firmIndex) % 5]. Offsets sum to a constant
+(+0.05) so overall alignment average (and the fit mix) is unchanged; only which
+module is weakest rotates. Verified on demo-vendor-elite Sales Card: 6 firms,
+fit s2/g1/w3, 4 distinct gap areas (Operating Model / Governance / Integration &
+Data Flow / Automation & AI). Probe: scripts/dev/verify-gap-areas.ts.
+10a COMPLETE. STILL OPEN:
 - 10c (P0 number integrity: one shared reader per insight, face==detail hero;
   per-card metric differentiation), 10d (threshold math), 10e (3 regressions).
 - Block 10 live checkpoint (rebuild + restart both ports + FULL regression
