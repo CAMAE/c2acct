@@ -72,6 +72,11 @@ export function classifyQbankSources(raw: string): QbankSourceRef[] {
   if (has("NIST")) {
     refs.push({ sourceOrg: "NIST", sourceDoc: raw, licenseType: ModuleSourceLicense.PUBLIC_DOMAIN });
   }
+  // FTC Safeguards Rule (16 CFR Part 314, GLBA implementing reg) — federal
+  // regulation, public domain. Used across the Integration & Data Flow bank.
+  if (has("FTC") || has("Safeguards Rule") || has("16 CFR") || has("GLBA")) {
+    refs.push({ sourceOrg: "FTC", sourceDoc: raw, licenseType: ModuleSourceLicense.PUBLIC_DOMAIN });
+  }
   // Copyrighted-but-citable tier: summarized + attributed, never reproduced.
   if (has("COSO")) {
     refs.push({ sourceOrg: "COSO", sourceDoc: raw, licenseType: ModuleSourceLicense.CITED });
@@ -86,7 +91,10 @@ export function classifyQbankSources(raw: string): QbankSourceRef[] {
   return refs;
 }
 
-export function parseQbank(markdown: string): ParsedQbankItem[] {
+export function parseQbank(
+  markdown: string,
+  keyPrefix: string = QBANK_TEMPLATE_KEY
+): ParsedQbankItem[] {
   const items: ParsedQbankItem[] = [];
   let currentCategory: string | null = null;
 
@@ -96,7 +104,7 @@ export function parseQbank(markdown: string): ParsedQbankItem[] {
   let buffer: string[] = [];
   const flush = () => {
     if (buffer.length === 0) return;
-    parseItemBlock(buffer.join(" "), currentCategory, items);
+    parseItemBlock(buffer.join(" "), currentCategory, items, keyPrefix);
     buffer = [];
   };
 
@@ -132,7 +140,8 @@ export function parseQbank(markdown: string): ParsedQbankItem[] {
 function parseItemBlock(
   block: string,
   currentCategory: string | null,
-  items: ParsedQbankItem[]
+  items: ParsedQbankItem[],
+  keyPrefix: string
 ): void {
   const itemMatch = ITEM_RE.exec(block);
   if (!itemMatch) return;
@@ -166,7 +175,7 @@ function parseItemBlock(
 
     items.push({
       code,
-      key: `${QBANK_TEMPLATE_KEY}-${code.toLowerCase()}`,
+      key: `${keyPrefix}-${code.toLowerCase()}`,
       category: currentCategory,
       difficulty,
       isAnchor: QBANK_ANCHOR_CODES.has(code),

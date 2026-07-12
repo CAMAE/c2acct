@@ -37,6 +37,19 @@ const DEFAULT_DOC = path.resolve(
 const DOC_PATH = process.env.PAT_QBANK_DOC?.trim() || DEFAULT_DOC;
 const ACCESSED_AT = new Date("2026-07-08T00:00:00.000Z");
 
+// Bank metadata is env-overridable so the SAME importer handles both banks
+// (Governance = DIAGNOSTIC default; Integration = STRENGTH via PAT_QBANK_*).
+const BANK_TEMPLATE_KEY = process.env.PAT_QBANK_TEMPLATE_KEY?.trim() || QBANK_TEMPLATE_KEY;
+const BANK_MODULE_TYPE = ((): ModuleType => {
+  const raw = process.env.PAT_QBANK_MODULE_TYPE?.trim().toUpperCase();
+  if (raw === "STRENGTH") return ModuleType.STRENGTH;
+  if (raw === "REMEDIATION") return ModuleType.REMEDIATION;
+  return ModuleType.DIAGNOSTIC;
+})();
+const BANK_CATEGORY = process.env.PAT_QBANK_CATEGORY?.trim() || "Governance & Controls";
+const BANK_TARGET_PATTERN = process.env.PAT_QBANK_TARGET_PATTERN?.trim() || "baseline-governance-diagnostic";
+const BANK_TITLE = process.env.PAT_QBANK_TITLE?.trim() || "Governance, Controls & Vendor Risk — Diagnostic v1";
+
 const EXPECTED_TOTAL = 90;
 const EXPECTED_MIX = { EASY: 27, MODERATE: 45, HARD: 18 };
 
@@ -96,13 +109,13 @@ async function main() {
     return;
   }
 
-  const items = parseQbank(markdown);
+  const items = parseQbank(markdown, BANK_TEMPLATE_KEY);
   const stats = summarize(items);
   const errors = validate(items, stats);
 
   console.log(`\n================ IMPORT QBANK v1 — ${APPLY ? "APPLY" : "DRY RUN"} ================`);
   console.log(`Source: ${DOC_PATH}`);
-  console.log(`Template: ${QBANK_TEMPLATE_KEY} (reviewStatus DRAFT — nothing serves until CPA-approved)\n`);
+  console.log(`Template: ${BANK_TEMPLATE_KEY} (reviewStatus DRAFT — nothing serves until CPA-approved)\n`);
   console.log(`Items parsed: ${items.length}`);
   console.log(`  Difficulty: E ${stats.byDifficulty.EASY} / M ${stats.byDifficulty.MODERATE} / H ${stats.byDifficulty.HARD}`);
   for (const [category, count] of Object.entries(stats.byCategory)) {
@@ -121,7 +134,7 @@ async function main() {
 
   if (!APPLY) {
     console.log(`\nDRY RUN — no changes written. Re-run with --apply to seed (as DRAFT).`);
-    console.log(`Rollback (after --apply): delete ModuleTemplate key='${QBANK_TEMPLATE_KEY}' (cascades items + sources).`);
+    console.log(`Rollback (after --apply): delete ModuleTemplate key='${BANK_TEMPLATE_KEY}' (cascades items + sources).`);
     return;
   }
 
@@ -130,23 +143,23 @@ async function main() {
 
   console.log("\nAPPLYING…");
   const template = await prisma.moduleTemplate.upsert({
-    where: { key: QBANK_TEMPLATE_KEY },
+    where: { key: BANK_TEMPLATE_KEY },
     update: {
-      category: "Governance & Controls",
-      targetPattern: "baseline-governance-diagnostic",
-      moduleType: ModuleType.DIAGNOSTIC,
-      title: "Governance, Controls & Vendor Risk — Diagnostic v1",
+      category: BANK_CATEGORY,
+      targetPattern: BANK_TARGET_PATTERN,
+      moduleType: BANK_MODULE_TYPE,
+      title: BANK_TITLE,
       reviewStatus: ModuleReviewStatus.DRAFT,
       updatedAt: new Date(),
     },
     create: {
-      key: QBANK_TEMPLATE_KEY,
-      category: "Governance & Controls",
-      targetPattern: "baseline-governance-diagnostic",
-      moduleType: ModuleType.DIAGNOSTIC,
-      title: "Governance, Controls & Vendor Risk — Diagnostic v1",
+      key: BANK_TEMPLATE_KEY,
+      category: BANK_CATEGORY,
+      targetPattern: BANK_TARGET_PATTERN,
+      moduleType: BANK_MODULE_TYPE,
+      title: BANK_TITLE,
       objectives: {
-        note: "Measurable objectives pending CPA-founder authoring pass; bank items map to Green Book components A–D.",
+        note: "Measurable objectives pending CPA-founder authoring pass; bank items map to their blueprint components A–D.",
       },
       reviewStatus: ModuleReviewStatus.DRAFT,
       updatedAt: new Date(),
