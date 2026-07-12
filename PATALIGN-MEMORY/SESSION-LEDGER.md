@@ -477,3 +477,22 @@ HYBRID ELITE DEPTH is now COMPLETE (cohort + ranked action + real trend).
 NEXT (Cam queue): sandbox utility lanes + multi-piece swap → Demand Signals / Gap
 Map expansions → QBANK v1.1 (approval HELD; founders email w/ v1.1 docx exports).
 
+### GLOBAL RENAME Sales Card → BattleCard (2026-07-12, commit efca9979)
+Final product name. Mechanical rename, no logic changes. Files renamed
+(lib/battleCard.ts, VendorBattleCardClient, app/vendor/battlecard, tests/e2e),
+symbols+UI copy swept ("BattleCard" one word), card id vendor-battlecard,
+data-testid battlecard-*. Route /vendor/battlecard + permanent redirect (308)
+from /vendor/sales-card (+deep paths). Flag PAT_ENABLE_BATTLECARD with a temporary
+LEGACY fallback read of PAT_ENABLE_SALES_CARD (so no unmigrated env silently
+disables it — remove once all envs updated). Help corpus: deleted 2 orphaned
+sales-card KnowledgeSources + re-indexed to battlecard paths (avoided the N1/L2
+name→identity orphan trap; L2 confirmed applies to KnowledgeSource.path too).
+Working-tree grep for sales card/salesCard/sales-card/SALES_CARD = zero outside
+two intentional aids (redirect source + legacy flag). Verified live on :3005
+(build pdJwHT6fQlrQnxNoK0FZd): header BATTLECARD, old route 308→/vendor/battlecard,
+asset-integrity PASS. lint clean, 797 unit green. NOTE for Cam: redirect is 308
+(Next.js permanent) not literal 301 — functionally identical for deep links; say
+the word if you want statusCode:301 exactly (needs a config change + rebuild).
+NEXT (Cam queue): sandbox utility lanes + multi-piece swap → Demand Signals / Gap
+Map expansions → QBANK v1.1 (approval HELD).
+
