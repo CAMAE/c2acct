@@ -105,3 +105,15 @@ Legend: ✅ pass · ⚠️ needs eyes on running server · ❌ fail · — n/a t
 
 Screenshots: `artifacts/block10-shots/` (E1, E2-alignment-board,
 E2-selfreported-zoom, E3-elite-pane, C1-C3-firm-data-controls, sales card).
+
+**Both ports serving the Block 10 build:** :3005 (flagged review standalone) and
+:3000 (launchd `com.c2acct.app`) both HTTP 200, asset-integrity PASS on both.
+Quiescing app+watchdog before `pnpm build` (per the .next-race rule) advanced
+`expected-live-release` but left `last-known-good` at the prior release 6bf25bd,
+so the app service's `validate-source-integrity` gate (`last_known_good_release_
+not_current`) blocked startup with exit 1 — working as designed, not a Block 10
+bug. Resolved with `pnpm release:promote-known-good` (HEAD==fingerprint guard
+passed) → LKG 6bf25bd → 0c19939; :3000 came back on the new build. Watchdog
+reloaded (300 s interval, last exit 0). **Checkpoint reproduction note:** always
+`release:promote-known-good` after a local `pnpm build`, or :3000 will refuse to
+restart.

@@ -370,3 +370,22 @@ Tests: tests/regression-10e.contract.test.ts (3) + magnitudeLabel test in
 vendor-insight-visuals. 32 contract tests green across the 5 files, tsc clean.
 NOTE: (1)+(2) are visual — confirm on the running :3005 at the checkpoint.
 
+### BLOCK 10 CHECKPOINT — COMPLETE (2026-07-11)
+All of 10a-10e committed (ea6172fe, b3f51381, 141885fe, ca1becd8, ce7d0489) +
+checklist 0c199394. Full chain: lint:test clean · tsc clean · test:unit 782/782
+· 32 Block-10 contract tests green. Rebuild BUILD_ID i6VTZf5TZy8mA7w2VMr47.
+Verified on RUNNING :3005 (build+flags printed): asset-integrity PASS
+(served==disk==fingerprint); A1 canonical taxonomy, A4 fit 2/1/3, A5 4 gap areas,
+C1 face==hero ("2 of 3"), C2 6 distinct headlines, C3 "60–65% bars" per-row,
+D2 pro=PRO, D5 both Elite=ELITE/ACTIVE, E1 concise divergence, E2 contained
+self-reported piece, E3 no elite-pane contradiction. Screenshots in
+artifacts/block10-shots/. Regression checklist: PATALIGN-MEMORY/REGRESSION-CHECKLIST.md.
+BOTH PORTS restored on the new build (:3000 launchd + :3005 review), asset-integrity
+PASS on both. GOTCHA logged: after a local `pnpm build`, expected-live-release
+advances but last-known-good does NOT, so com.c2acct.app's source-integrity gate
+(last_known_good_release_not_current) exit-1s until `pnpm release:promote-known-good`.
+NEXT: Block 11 (visual unification) — 11a firm-side card law → shared components,
+11b V1 percentile BAND rows, 11c band chips off face cards, 11d insight click UX,
+11e Pro product-insight Elite toggle. Then hybrid Elite depth, sandbox multi-piece,
+QBANK v1.1 (own pass; approval still HELD pending CPA name).
+
