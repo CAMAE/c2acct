@@ -70,6 +70,56 @@ Legend: ✅ pass · ⚠️ needs eyes on running server · ❌ fail · — n/a t
 - **E4** No score/band-chip regressions (bands: Early/Developing/Building/
   Established/Leading; confidence: Grounded/Early signal/No signal).
 
+## F — VISUAL UNIFICATION (Block 11)
+
+- **F1** All portal + consultant cards use the `pat-card` law (28px radius,
+  --shell-panel bg, pat-card-interactive hover) — no off-law rounded-[24px] /
+  soft-panel one-offs. _Sources:_ PortalSurfaceCard, EcosystemListCard.
+- **F2** Face cards carry NO score-band chip (number + one line only); the band
+  word appears only in the detail hero. _Guard:_ vendor-alignment + vendor-product
+  Pro card builders set no band statusLabel.
+- **F3** Clicking an insight card lands on the Pro/data pane — never Help — on
+  every surface (firm, vendor-alignment, product-insight), and cards expand the
+  Pro readout in place with "Open full view" → the unchanged detail route.
+  _Guard:_ `tests/insight-click-ux.contract.test.ts`.
+- **F4** V1 Category Position renders F1-style percentile band rows (no bell
+  curve); shares PercentileBand's visual language.
+- **F5** Product-insight Elite toggle is a non-entitled upsell only (blurred
+  preview, zero data); entitled Elite vendors never see a locked pane. A direct
+  ?surface=elite hit by an entitled vendor falls back to the data pane.
+- **F6** Demo replica names all carry a region tag (no bare-name vs "· Region"
+  collision); firm tier-2 elite copy is entitlement-consistent (no "not available
+  yet" above "Live with Elite membership" for an entitled firm), while the
+  non-entitled locked copy stays governance-compliant ("not a live Elite
+  interpretation", no named-feature teasing).
+
+## LANDMINES (session-hardened traps — check before shipping)
+
+- **L1 — LKG promotion after a local build.** A bare `pnpm build` advances
+  `expected-live-release` but NOT `last-known-good`, so `com.c2acct.app`
+  source-integrity exit-1s on every KeepAlive spawn (stderr's stale "Dirty git
+  tree" line is a red herring — the git check returns clean). Fix: `pnpm
+  release:promote-known-good` (commit first / keep tree clean), then kickstart.
+  If it then reports `buildTimestamp_mismatch`, delete
+  `last-known-good-release.json` and re-promote so LKG copies the CURRENT
+  fingerprint, validate, then start. Simplest: `pnpm validate:launch` does it
+  atomically. See [[feedback_launch_gates_app_service_race]].
+- **L2 — demo company id derives from the display NAME.** Renaming a demo
+  firm/vendor changes its key-derived id, so a reseed CREATES parallel rows and
+  orphans the old ones (N1 spawned 44 duplicate firms). `ensureCompany` now
+  resolves by stable id first, but the name→key coupling is still there: after
+  any demo rename, verify no orphans (`Company` count by id-prefix, with vs
+  without the expected suffix) and clean + recompute benchmarks + re-run
+  preview:pat-setup.
+- **L3 — preview:pat-setup hangs after DONE** (dangling Prisma handle) — kill
+  after the DONE marker, it is not a deadlock.
+- **L4 — quiesce app + watchdog before any local build** (watchdog first, so it
+  can't resurrect the app) or the launchd service races `.next`.
+- **L5 — governance copy on LOCKED elite surfaces** must not tease named Elite
+  features (peer benchmark / forecast) or claim they are "live" — only the
+  ENTITLED path may. A contract test (`firm-unlocks`) enforces this; N2's first
+  cut broke it.
+
 ---
 
 ## Checkpoint log
