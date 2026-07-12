@@ -1,6 +1,6 @@
 /**
  * Confidence bands — ONE shared definition (2026-07-09 audit, CLASS 3). Every
- * engine previously carried its own thresholds (board/salesCard 3/6, product
+ * engine previously carried its own thresholds (board/battleCard 3/6, product
  * engine 1/4/8, alignment engine 5/…); the audit flagged the divergence. This is
  * now the single source of truth.
  *

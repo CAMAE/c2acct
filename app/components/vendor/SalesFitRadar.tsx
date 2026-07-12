@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Sales Card mini radar (Redlines R16, P1 detail card). One filled polygon = the
+ * BattleCard mini radar (Redlines R16, P1 detail card). One filled polygon = the
  * firm's own alignment-module shape (real, from its assessment). A dashed
  * reference CIRCLE marks the vendor's OVERALL product strength — deliberately a
  * ring, not a second polygon, because there is no honest per-module vendor

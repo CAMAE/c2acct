@@ -30,13 +30,13 @@ Assumes Claude Code doing the typing, you reviewing/running the validation chain
 | ELITE entitlement gate in code (prereq for tiers) | 4-6 | ✅ |
 | Alignment Board v1 (real data, swap = recompute, clickable Tinder cards; polish later) | 25-40 | ⚠️ v1 skeleton only |
 | Pro teaser (anonymize layer on the board) | 6-8 | ⚠️ rides on Board v1 |
-| Vendor Sales Card v1 | 15-25 | ❌ next week |
+| Vendor BattleCard v1 | 15-25 | ❌ next week |
 | Adaptive firm modules (card-select + unlock tree) | 30-50 | ❌ next week+ |
 | Pat-voiced pings (wire trigger output → Pat copy, in-app only) | 8-12 | ⚠️ stretch |
 | PWA install layer | 15-25 | ❌ post-launch |
 | Password rotation + flag flips (Wednesday night) | 2 | ✅ |
 
-**Realistic Wednesday-night scope:** logins fixed, consent + top bar live behind flags, ELITE gate enforced, Alignment Board skeleton demo-able with demo data, everything rotated. That's ~20-28 focused hours across today/tomorrow/Wednesday — heavy but in range for how you run. Sales Card, adaptive modules, and the mobile app are the week-after list.
+**Realistic Wednesday-night scope:** logins fixed, consent + top bar live behind flags, ELITE gate enforced, Alignment Board skeleton demo-able with demo data, everything rotated. That's ~20-28 focused hours across today/tomorrow/Wednesday — heavy but in range for how you run. BattleCard, adaptive modules, and the mobile app are the week-after list.
 
 ## 4. Mascot/logo tooling (you asked for the best paid tools)
 

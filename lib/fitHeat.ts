@@ -30,7 +30,7 @@ export function fitTierLabel(delta: number | null): string {
 }
 
 // Green (strong) → amber (middle) → red (weak). Semantic, NOT pool-relative, so
-// the same delta reads the same colour on the board and the Sales Card.
+// the same delta reads the same colour on the board and the BattleCard.
 const HEAT_STOPS: Array<[number, number, number]> = [
   [47, 158, 92], // green  #2f9e5c
   [181, 132, 32], // amber  #b58420

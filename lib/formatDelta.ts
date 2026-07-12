@@ -2,7 +2,7 @@
  * Canonical delta / score formatter (Redlines R2, 2026-07-08).
  *
  * The ONE formatter for every surface that renders a computed delta or score —
- * Alignment Board, Sales Card, consultant briefs, insight radars. It kills
+ * Alignment Board, BattleCard, consultant briefs, insight radars. It kills
  * float-precision leaks like "-15.100000000000001" / "+7.799999999999997" by
  * rounding to hundredths, and returns a signed, human string.
  *

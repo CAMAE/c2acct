@@ -97,7 +97,7 @@ describe("band lexicon — banned strays never surface", () => {
     "lib/scoreBands.ts",
     "lib/confidenceBands.ts",
     "app/components/firm/AlignmentBoardClient.tsx",
-    "app/components/vendor/VendorSalesCardClient.tsx",
+    "app/components/vendor/VendorBattleCardClient.tsx",
     "app/consultants/_components/EcosystemListCard.tsx",
     "app/consultants/ecosystems/[ecosystemId]/_components/EcosystemHeader.tsx",
     "app/consultants/ecosystems/[ecosystemId]/_components/FirmGrid.tsx",

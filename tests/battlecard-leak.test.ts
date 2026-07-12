@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * Vendor Sales Card leak wall + ranking (Block F). Deps mocked at the module
- * boundary. The leak test is the point of the block: getVendorSalesCardData must
+ * Vendor BattleCard leak wall + ranking (Block F). Deps mocked at the module
+ * boundary. The leak test is the point of the block: getVendorBattleCardData must
  * ONLY ever touch firms returned by getVendorScopedFirms — never a firm outside
  * the vendor's ecosystem.
  */
@@ -16,7 +16,7 @@ import prisma from "@/lib/prisma";
 import { getAdminCompanyBriefing } from "@/lib/adminBriefingEngine";
 import { getVendorProductInsightCatalog } from "@/lib/vendorProductInsightEngine";
 import { getVendorScopedFirms } from "@/lib/tenancy";
-import { getVendorSalesCardData, rankFirmsByFit } from "@/lib/salesCard";
+import { getVendorBattleCardData, rankFirmsByFit } from "@/lib/battleCard";
 
 const findUnique = vi.mocked(prisma.company.findUnique);
 const briefing = vi.mocked(getAdminCompanyBriefing);
@@ -62,7 +62,7 @@ describe("rankFirmsByFit", () => {
   });
 });
 
-describe("getVendorSalesCardData — leak wall", () => {
+describe("getVendorBattleCardData — leak wall", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     findUnique.mockResolvedValue({ name: "Demo Vendor" } as never);
@@ -75,7 +75,7 @@ describe("getVendorSalesCardData — leak wall", () => {
       briefingFor(id, id === "firmA" ? 40 : 70, id === "firmA" ? 30 : 60)
     );
 
-    const data = await getVendorSalesCardData("vendorX");
+    const data = await getVendorBattleCardData("vendorX");
 
     // Tenancy call is scoped to this vendor.
     expect(scopedFirms).toHaveBeenCalledWith("vendorX");
@@ -92,7 +92,7 @@ describe("getVendorSalesCardData — leak wall", () => {
 
   it("returns an empty ranking (never a leak) when the vendor has no ecosystem", async () => {
     scopedFirms.mockResolvedValue([]);
-    const data = await getVendorSalesCardData("vendorX");
+    const data = await getVendorBattleCardData("vendorX");
     expect(briefing).not.toHaveBeenCalled();
     expect(data!.rankedFirms).toEqual([]);
   });

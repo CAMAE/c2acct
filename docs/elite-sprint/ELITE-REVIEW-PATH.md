@@ -9,10 +9,10 @@ one pass. Preview server: `http://127.0.0.1:3005` (all flags on). Re-run
 | Account | Password | Role | Company |
 |---|---|---|---|
 | `demo-firm-elite@pat.local` | `PatEliteDemo7x` | Elite FIRM | Kirkland Reyes LLP (adopted, full board) |
-| `demo-vendor-elite@pat.local` | `PatVendorElite7x` | Elite VENDOR | Meridian Practice Cloud (named Sales Card) |
+| `demo-vendor-elite@pat.local` | `PatVendorElite7x` | Elite VENDOR | Meridian Practice Cloud (named BattleCard) |
 
 Pro counterparts for the teaser side-by-side: `demo-firm-pro@pat.local /
-PatProDemo7x` (Pro board) · `review.vendor@pat.local` (Pro Sales Card).
+PatProDemo7x` (Pro board) · `review.vendor@pat.local` (Pro BattleCard).
 
 ## Elite-only surfaces to approve
 
@@ -21,7 +21,7 @@ PatProDemo7x` (Pro board) · `review.vendor@pat.local` (Pro Sales Card).
    - Confirm: connected puzzle stack, shaped radar, green→red fit heat, click-swap
      recomputes banner + radar + breakdown, candidate detail shows product/vendor.
 
-2. **Vendor Sales Card — named firms + firm detail** · `/vendor/sales-card` · **demo-vendor-elite**
+2. **Vendor BattleCard — named firms + firm detail** · `/vendor/battlecard` · **demo-vendor-elite**
    - Elite reveals real FIRM names + the click-in detail card (module gap this
      vendor closes, firm's current alignment, suggested action). Pro sees "Secret
      Firm N".

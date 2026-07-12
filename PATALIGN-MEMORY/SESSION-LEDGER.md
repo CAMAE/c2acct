@@ -17,7 +17,7 @@ Optimizing, Emerging, Full confidence, Pending confidence, Limited signal, Sampl
 Chip format "68 · Building"; confidence is its own small label, never concatenated.
 
 Queued AFTER Block 8 (Cam's go): hybrid Elite depth layers · sandbox utility lanes ·
-V2/V3 expansions · Sales Card v2. Also pending: qbank approval (flip both 90-item
+V2/V3 expansions · BattleCard v2. Also pending: qbank approval (flip both 90-item
 ModuleTemplates reviewStatus DRAFT→APPROVED with two-signature CPA + clarity record).
 
 ### B8-2 — ONE BAND LEXICON (landed before B8-1)
@@ -26,7 +26,7 @@ Building/Established/Leading + deep-red→deep-green ramp + `scoreChipLabel` →
 "68 · Building") and EVIDENCE_CONFIDENCE (three, Grounded/Early signal/No signal).
 `scoreBands.ts` + `confidenceBands.ts` now delegate. Canonicalized confidence
 labels at source across firm/vendorProduct/vendorAlignment/adminBriefing engines;
-retired the component-local maps (AlignmentBoard/SalesCard used score-word
+retired the component-local maps (AlignmentBoard/BattleCard used score-word
 "Building" for confidence — bug) and the consultant vocab layer (EcosystemListCard/
 Header/FirmGrid/FirmAlignmentHeader "Full confidence"/"Limited"/"Initial"/"Pending"
 → canonical); executive-summary "Full confidence" → "Grounded"; methodology bands
@@ -127,7 +127,7 @@ Follow-ups (flagged): LockedElitePreview wired into firm DETAIL only — vendor
 alignment detail + index cards still use the plain locked card (name + honest
 copy, no blurred chart); insightContent tier-2 PROSE still carries stale
 "reserved/future/not live" framing that contradicts the v2-live reality;
-flag-off Alignment Board / Sales Card "Coming soon" placeholders left (feature-
+flag-off Alignment Board / BattleCard "Coming soon" placeholders left (feature-
 flag-gated, not membership-locked — a different concept).
 
 ### CHECKPOINT 2 (after B8-8) — live proof
@@ -159,7 +159,7 @@ the demo seed re-runs (pnpm seed:demo-expand) — not run at this checkpoint.
 B8-2 eac17e95 · B8-1 e0e1f792 · B8-3 cbdee037 · B8-4 29b23327 · [CP1] · B8-5
 255a4a02 · B8-6 06544275 · B8-7 0fc5ea3a · B8-8 ca88c798 · [CP2] · qbank script.
 Held blocks now unlocked, queued AFTER Block 8: hybrid Elite depth · sandbox
-utility lanes · V2/V3 expansions · Sales Card v2.
+utility lanes · V2/V3 expansions · BattleCard v2.
 
 ## 2026-07-11 — Block 9: Governance mount + prose reconciliation
 
@@ -242,7 +242,7 @@ REMAINING — P1/P2/P4 are one coherent block (diagnosed, not yet built):
   Below median NEVER "Q2"; you-are-here marker; p25-p75 band; peer disclosure;
   so-what + ranked action; percentile tooltip). One visual+verbal system across
   F1 + all distribution charts.
-- P4: demo-vendor-elite (Meridian) Sales Card 0 strong/0 good/6 WEAK regression
+- P4: demo-vendor-elite (Meridian) BattleCard 0 strong/0 good/6 WEAK regression
   after reseed; rebalance BOTH vendor accounts to a strong/good/weak mix + vary
   the per-firm dimension line (all six repeat "Operating Model … · Early signal").
 Acceptance: zero insufficient-data cards on Meridian Category Position; live HTTP
@@ -282,7 +282,7 @@ mis-seeded membership, not a bypass). tests/elite-tier-gate.contract.test.ts
 B7-1/D5 ✅ — demo-firm-elite + demo-vendor-elite both ELITE+ACTIVE post-reseed.
 10a: P2 ✅ — demo-vendor-elite Category Position 5 cats / 0 suppressed (7
 canonical categories, readCohort own-categories filter, 4x scale). P4 MIX ✅ —
-Sales Card strong/good/weak = 2/1/3 (warm-fit reseed + score variety; red wall
+BattleCard strong/good/weak = 2/1/3 (warm-fit reseed + score variety; red wall
 gone). Reseed chain: seed:demo-expand(scale4) → seed:demo-benchmark →
 seed:pat-runtime → preview:pat-setup(kill after DONE) → clear+compute:benchmarks.
 Commits: taxonomy b3caf760 · scale 58da6932 · filter 230e5347 · base-canonical
@@ -293,7 +293,7 @@ firm uniformly — so the lowest offset (-0.75) always landed on module 3
 (Operating Model) for EVERY firm. FIX: rotate the offset by firmIndex —
 FIRM_MODULE_OFFSETS[(moduleIndex + firmIndex) % 5]. Offsets sum to a constant
 (+0.05) so overall alignment average (and the fit mix) is unchanged; only which
-module is weakest rotates. Verified on demo-vendor-elite Sales Card: 6 firms,
+module is weakest rotates. Verified on demo-vendor-elite BattleCard: 6 firms,
 fit s2/g1/w3, 4 distinct gap areas (Operating Model / Governance / Integration &
 Data Flow / Automation & AI). Probe: scripts/dev/verify-gap-areas.ts.
 10a COMPLETE. STILL OPEN:
@@ -404,13 +404,13 @@ DONE + committed + verified on :3005 (BUILD_ID AKfI20sxwYdQsbIt_gQTP):
   collision. ROOT FIX: ensureCompany now resolves by stable id first (name-derived
   keys made renames orphan firms). One-time cleanup of 44 orphan firms + cascade,
   benchmarks recomputed (12 firm/7 vendor runs), elite accounts re-adopted from
-  the clean 176-firm cohort. Verified: sales-card firms all region-tagged, fit 2/2/2.
+  the clean 176-firm cohort. Verified: battlecard firms all region-tagged, fit 2/2/2.
 - N2 (d52600a3): firm tier-2 elite locked-copy contradiction fixed
   (buildFirmLockedInsightDetailSurfaceContent entitlement-aware; page chrome
   consistent). Verified: entitled firm sees live Trajectory, no "not available yet".
 STILL OPEN (Block 11):
 - 11b: V1 Category Position — replace bell curves with F1-style percentile band rows.
-- 11d part 2: in-page expansion (sales-card-style) — client-architecture change,
+- 11d part 2: in-page expansion (battlecard-style) — client-architecture change,
   UX choices worth Cam's confirm (how much expands inline, keep full page?).
 - 11e: Pro product-insight Elite toggle + honest locked preview — product decision
   (show the toggle for entitled too, given there is no live product Elite?).

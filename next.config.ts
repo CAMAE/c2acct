@@ -42,6 +42,9 @@ const nextConfig: NextConfig = {
     return [
       { source: "/consultant", destination: "/consultants", permanent: true },
       { source: "/consultant/:path*", destination: "/consultants/:path*", permanent: true },
+      // "Sales Card" → "BattleCard" rename: keep deep links to the old route alive.
+      { source: "/vendor/sales-card", destination: "/vendor/battlecard", permanent: true },
+      { source: "/vendor/sales-card/:path*", destination: "/vendor/battlecard/:path*", permanent: true },
     ];
   },
   // Server Actions (the /sign-in "Continue with provisioned account" pilot-credentials

@@ -5,14 +5,14 @@ import { confidenceBandForSampleSize } from "@/lib/confidenceBands";
 import prisma from "@/lib/prisma";
 
 /**
- * Vendor Sales Card data layer (Elite Sprint Sprint-3 Block F). The mirror of
+ * Vendor BattleCard data layer (Elite Sprint Sprint-3 Block F). The mirror of
  * the Alignment Board: a vendor ranks the firms INSIDE ITS OWN ECOSYSTEM by fit
  * (each firm's current alignment vs this vendor's product strengths), surfacing
  * where the vendor could close the firm's gaps.
  *
  * TENANCY IS THE WHOLE GAME (spec: "read twice"): the candidate firm set comes
  * ONLY from getVendorScopedFirms(vendorCompanyId) — the ecosystem the vendor is
- * already entitled to see. No cross-ecosystem firm data, ever. getVendorSalesCardData
+ * already entitled to see. No cross-ecosystem firm data, ever. getVendorBattleCardData
  * never queries a firm outside that set; tests/salescard-leak.test.ts locks it.
  *
  * All numbers are real, from existing engines (getAdminCompanyBriefing for the
@@ -21,14 +21,23 @@ import prisma from "@/lib/prisma";
  * precision on a thin firm assessment.
  */
 
-export const PAT_SALES_CARD_FLAG_ENV = "PAT_ENABLE_SALES_CARD";
+export const PAT_BATTLECARD_FLAG_ENV = "PAT_ENABLE_BATTLECARD";
+/**
+ * Migration fallback for the Sales Card → BattleCard rename: any env source not
+ * yet updated (a launchd plist, a prod .env) can still enable the surface with
+ * the OLD flag name. Remove once every environment sets PAT_ENABLE_BATTLECARD.
+ */
+const PAT_BATTLECARD_FLAG_ENV_LEGACY = "PAT_ENABLE_SALES_CARD";
 
 /** Default OFF — ships dark until the flag is set in the runtime env. */
-export function isSalesCardEnabled(): boolean {
-  return process.env[PAT_SALES_CARD_FLAG_ENV] === "1";
+export function isBattleCardEnabled(): boolean {
+  return (
+    process.env[PAT_BATTLECARD_FLAG_ENV] === "1" ||
+    process.env[PAT_BATTLECARD_FLAG_ENV_LEGACY] === "1"
+  );
 }
 
-export type SalesCardConfidence = "no_signal" | "sample_thin" | "emerging" | "grounded";
+export type BattleCardConfidence = "no_signal" | "sample_thin" | "emerging" | "grounded";
 
 /**
  * One firm alignment-module row for the consultant-brief detail card: the firm's
@@ -58,7 +67,7 @@ export type RankedFirm = {
   /** vendorStrength − firmAlignment: how much headroom the vendor could lift (null = thin). */
   alignmentDelta: number | null;
   firmAlignment: number | null;
-  confidence: SalesCardConfidence;
+  confidence: BattleCardConfidence;
   /** The firm's weakest module — "where you close their gap". */
   gapArea: string;
   gapScore: number | null;
@@ -78,7 +87,7 @@ export type RankedFirm = {
  */
 export type EvidenceGrade = "firm_reviewed" | "vendor_reported" | "blended";
 
-export type VendorSalesCardData = {
+export type VendorBattleCardData = {
   vendorCompanyId: string;
   vendorName: string;
   /**
@@ -127,11 +136,11 @@ export function rankFirmsByFit(
 }
 
 /**
- * Assemble the sales card for one vendor. Tenancy: the firm set is
+ * Assemble the BattleCard for one vendor. Tenancy: the firm set is
  * getVendorScopedFirms(vendorCompanyId) and nothing else. Returns null when the
  * vendor has no ecosystem / no briefing (caller 404s).
  */
-export async function getVendorSalesCardData(vendorCompanyId: string): Promise<VendorSalesCardData | null> {
+export async function getVendorBattleCardData(vendorCompanyId: string): Promise<VendorBattleCardData | null> {
   // TENANCY FIRST — the only firm ids this function will ever touch.
   const firmIds = await getVendorScopedFirms(vendorCompanyId);
 

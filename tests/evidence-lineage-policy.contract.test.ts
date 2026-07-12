@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
  * Evidence-lineage policy contract (P2-pre). Locks the launch-critical rules for
- * the Sales Card product strength and the Sandbox candidate rail:
+ * the BattleCard product strength and the Sandbox candidate rail:
  *  1. Firm-reviewed evidence is PRIMARY whenever it exists.
  *  2. A metric that uses vendor self-report (alone/blended) is graded so the UI
  *     labels it; the strength number never silently blends self-report in.
@@ -28,7 +28,7 @@ import {
   getFirmProductFitDimensionsByProduct,
   getVendorProductInsightCatalog,
 } from "@/lib/vendorProductInsightEngine";
-import { getVendorSalesCardData } from "@/lib/salesCard";
+import { getVendorBattleCardData } from "@/lib/battleCard";
 import { getAlignmentBoardData } from "@/lib/alignmentBoard";
 import { PRODUCT_FIT_DIMENSIONS } from "@/lib/productFitDimensions";
 
@@ -58,7 +58,7 @@ function snap(id: string, opts: { firmAvg: number | null; vendor: number | null 
   };
 }
 
-describe("Sales Card product-strength evidence grade (policy)", () => {
+describe("BattleCard product-strength evidence grade (policy)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     findUnique.mockResolvedValue({ name: "Vendor Co" } as never);
@@ -72,7 +72,7 @@ describe("Sales Card product-strength evidence grade (policy)", () => {
 
   it("firm_reviewed grade + firm-reviewed-only mean when every product has firm reviews", async () => {
     catalog.mockResolvedValue([snap("p1", { firmAvg: 80, vendor: 40 }), snap("p2", { firmAvg: 60, vendor: 90 })] as never);
-    const data = await getVendorSalesCardData("vendorA");
+    const data = await getVendorBattleCardData("vendorA");
     expect(data!.vendorStrengthGrade).toBe("firm_reviewed");
     expect(data!.vendorStrength).toBe(70); // mean(80,60) — never the self-report 40/90
     expect(data!.firmReviewedProductCount).toBe(2);
@@ -82,7 +82,7 @@ describe("Sales Card product-strength evidence grade (policy)", () => {
   it("firm-reviewed is PRIMARY: self-report-only products are excluded, not blended in", async () => {
     // p1 firm-reviewed 80; p2 self-report-only 20. Blending would drag it to 50.
     catalog.mockResolvedValue([snap("p1", { firmAvg: 80, vendor: 95 }), snap("p2", { firmAvg: null, vendor: 20 })] as never);
-    const data = await getVendorSalesCardData("vendorA");
+    const data = await getVendorBattleCardData("vendorA");
     expect(data!.vendorStrength).toBe(80); // firm-reviewed only, NOT (80+20)/2
     expect(data!.vendorStrengthGrade).toBe("firm_reviewed");
     expect(data!.firmReviewedProductCount).toBe(1);
@@ -91,7 +91,7 @@ describe("Sales Card product-strength evidence grade (policy)", () => {
 
   it("vendor_reported grade only when NO product has a firm review", async () => {
     catalog.mockResolvedValue([snap("p1", { firmAvg: null, vendor: 75 }), snap("p2", { firmAvg: null, vendor: 65 })] as never);
-    const data = await getVendorSalesCardData("vendorA");
+    const data = await getVendorBattleCardData("vendorA");
     expect(data!.vendorStrengthGrade).toBe("vendor_reported");
     expect(data!.vendorStrength).toBe(70); // mean(75,65) self-report
     expect(data!.firmReviewedProductCount).toBe(0);

@@ -192,7 +192,7 @@ function firmModuleAssessmentTarget(firm: DemoFirmInput, firmIndex: number, modu
   // Block 10a de-clump: ROTATE the per-module offset pattern by firmIndex so
   // different firms have a different WEAKEST module. Without the rotation the
   // offset with the lowest value (-0.75 at array index 3) always landed on the
-  // same module, so every firm's Sales Card gap area read identically
+  // same module, so every firm's BattleCard gap area read identically
   // ("Operating Model …"). Rotating spreads the weakest module across firms
   // (firmIndex 0→module3, 1→module2, 2→module1, 3→module0, 4→module4 → 5
   // distinct gap areas per 5 firms). The offsets sum to a constant (+0.05), so

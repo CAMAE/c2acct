@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 /**
- * Vendor Sales Card tenancy + gate proofs (Block F). Flag-independent: the ELITE
+ * Vendor BattleCard tenancy + gate proofs (Block F). Flag-independent: the ELITE
  * gate (flag off) and the consultant cross-tenant 404 both hold in the default
  * local-review harness. The flag-on ranked cards + the Pro-Secret-Firm / Elite-
  * real split are verified on the preview and unit-covered (tests/salescard-leak.test.ts).
@@ -31,19 +31,19 @@ async function signIn(page: Page, email: string, redirect: string) {
   expect(res.ok()).toBeTruthy();
 }
 
-test("vendor on a Pro tier sees the Elite gate on the Sales Card (flag off)", async ({ page }) => {
+test("vendor on a Pro tier sees the Elite gate on the BattleCard (flag off)", async ({ page }) => {
   await signIn(page, "review.vendor@pat.local", "/vendor");
-  await gotoStable(page, "/vendor/sales-card");
-  // review.vendor resolves to Pro; with the sales-card flag off the route is the
+  await gotoStable(page, "/vendor/battlecard");
+  // review.vendor resolves to Pro; with the battlecard flag off the route is the
   // ELITE-gated placeholder, so the upgrade gate — not a crash — must render.
   await expect(page.getByRole("heading", { level: 1 })).toContainText(/elite/i);
   await expect(page.getByText("TypeError")).toHaveCount(0);
 });
 
-test("consultant cannot open a vendor's sales card outside their scope (cross-tenant 404)", async ({ page }) => {
+test("consultant cannot open a vendor's BattleCard outside their scope (cross-tenant 404)", async ({ page }) => {
   test.skip(!consultantAccessEnabled, "Consultant access flag is off.");
   await signIn(page, "review.consultant@pat.local", "/consultants");
-  const response = await page.goto("/vendor/sales-card?vendor=nonexistent-vendor-xyz", {
+  const response = await page.goto("/vendor/battlecard?vendor=nonexistent-vendor-xyz", {
     waitUntil: "domcontentloaded",
   });
   expect(response?.status()).toBe(404);

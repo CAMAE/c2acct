@@ -2,11 +2,11 @@
 ### 2026-07-07 · repo ~/work/c2acct-live · branch feat/elite-sprint (continue on it; everything rides Wednesday's deploy)
 ### Context: recall memory + read docs/elite-sprint/*. Sprint 2 (A-E + Leslie copy pass) is committed and chain-green. Same discipline: pnpm only, flags OFF, additive migrations, single commit per block, full chain per block, CLAUDE.md output ledger.
 
-## Block F — Vendor Sales Card v1 (the headline)
+## Block F — Vendor BattleCard v1 (the headline)
 
-Route `app/vendor/sales-card/page.tsx`, flag `PAT_ENABLE_SALES_CARD` (default OFF).
+Route `app/vendor/battlecard/page.tsx`, flag `PAT_ENABLE_BATTLECARD` (default OFF).
 
-**⚠️ Tenancy boundary — read twice.** v1 ranks ONLY firms inside the vendor's own ecosystem (data the vendor is already entitled to see in aggregate). No cross-ecosystem firm data, ever — the open-data marketplace phase is later and deliberate. Any platform-wide context appears only as anonymized aggregates that already exist on vendor surfaces (e.g., market averages). Add a leak test asserting the sales-card query can never return firms outside the vendor's ecosystem.
+**⚠️ Tenancy boundary — read twice.** v1 ranks ONLY firms inside the vendor's own ecosystem (data the vendor is already entitled to see in aggregate). No cross-ecosystem firm data, ever — the open-data marketplace phase is later and deliberate. Any platform-wide context appears only as anonymized aggregates that already exist on vendor surfaces (e.g., market averages). Add a leak test asserting the battlecard query can never return firms outside the vendor's ecosystem.
 
 **Content per ranked firm (Bullet Theory: one claim, one evidence line, one action):**
 - Fit rank + alignment delta between the firm's module shape and this vendor's product strengths (existing delta math; confidence band when sample-thin — AAE discipline).
@@ -29,7 +29,7 @@ The portal header icons and menu Cam dislikes. Scope: replace the three ambiguou
 3. Local smoke: 10 representative questions through /api/pat, each answering with citation or correctly falling back.
 
 ## Validation + ledger
-Full chain per block; grep-sweeps for new strings; standard CLAUDE.md ledger every block; update the Wednesday checklist in the incident doc with: gated prebuilt deploy → qa-smoke expectation revert → `seed-help-prod --apply` → flag flips (assistant + pings in-app; sales-card and alignment-board flags stay Cam's call for the demo) → prod smoke.
+Full chain per block; grep-sweeps for new strings; standard CLAUDE.md ledger every block; update the Wednesday checklist in the incident doc with: gated prebuilt deploy → qa-smoke expectation revert → `seed-help-prod --apply` → flag flips (assistant + pings in-app; battlecard and alignment-board flags stay Cam's call for the demo) → prod smoke.
 
 ## NOT in this sprint
 Adaptive firm module tree (Sprint 4 — needs Cam's question content first) · data-aware Elite Pat (Phase C) · email pings/Resend · PWA · any prod deploy (Wednesday only).

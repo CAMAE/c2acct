@@ -23,7 +23,7 @@ export type InsightSurfaceGridCard = {
   metric?: { value: string; caption: string };
   /**
    * Block 11d: when present, clicking the card expands the Pro readout in place
-   * (sales-card style) instead of navigating; "Open full view" still links to
+   * (battlecard style) instead of navigating; "Open full view" still links to
    * the detail page (href, which defaults to the Pro pane). When absent, the
    * card behaves as a plain navigating Link.
    */
@@ -79,7 +79,7 @@ export default function InsightSurfaceCardGrid({
           </>
         );
 
-        // Block 11d — sales-card-style inline expansion of the Pro readout.
+        // Block 11d — battlecard-style inline expansion of the Pro readout.
         if (card.interactive && card.expandedContent && card.href != null) {
           return (
             <div

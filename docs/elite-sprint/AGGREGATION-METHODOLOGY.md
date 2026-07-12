@@ -39,7 +39,7 @@ Band thresholds are **UX conventions with no claimed statistical basis** — the
 keep thin evidence visibly qualified; copy never implies significance, p-values,
 or confidence intervals. **Unified into ONE shared definition**
 (`lib/confidenceBands.ts`), replacing the per-engine thresholds the audit flagged
-(board/salesCard 3/6, product engine 1/4/8, alignment engine 5/10):
+(board/battleCard 3/6, product engine 1/4/8, alignment engine 5/10):
 
 - `no_signal` (n ≤ 0) · `sample_thin` (n < 3) · `emerging` (n < 6) · `grounded` (n ≥ 6)
 

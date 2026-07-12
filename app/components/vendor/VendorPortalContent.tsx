@@ -31,12 +31,12 @@ export const vendorWorkspaceCards: PortalSurface[] = [
     availability: "enabled",
   },
   {
-    // R5: entry point to the Sales Card. Filtered out in app/vendor/page.tsx
-    // unless PAT_ENABLE_SALES_CARD is on.
-    id: "vendor-sales-card",
-    title: "Sales Card",
+    // R5: entry point to the BattleCard. Filtered out in app/vendor/page.tsx
+    // unless PAT_ENABLE_BATTLECARD is on.
+    id: "vendor-battlecard",
+    title: "BattleCard",
     description: "Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap.",
-    href: "/vendor/sales-card",
+    href: "/vendor/battlecard",
     audience: ["vendor"],
     section: "operate",
     availability: "enabled",

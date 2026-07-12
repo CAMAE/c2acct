@@ -9,7 +9,7 @@ import { HELP_ARTICLES } from "@/scripts/index-help";
 
 describe("help corpus — Block 4 additions", () => {
   it("includes the Secret-Firms unlock article, vendor-scoped, naming the Elite path", () => {
-    const article = HELP_ARTICLES.find((a) => a.path === "help/vendor/sales-card-secret-firms.md");
+    const article = HELP_ARTICLES.find((a) => a.path === "help/vendor/battlecard-secret-firms.md");
     expect(article, "Secret-Firms article must exist").toBeDefined();
     expect(article!.title).toMatch(/secret firms/i);
     expect(article!.roleAccess).toEqual(["vendor"]);

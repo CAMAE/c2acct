@@ -1,7 +1,7 @@
 # Evidence Lineage — displayed-number provenance audit
 
 **Filed:** 2026-07-09 (P2-pre, launch-critical). **Scope:** every displayed number
-on the Sandbox, Sales Card, consultant vendor brief, the vendor/firm insight
+on the Sandbox, BattleCard, consultant vendor brief, the vendor/firm insight
 surfaces, and the planned Elite insights (P2). This is the source of truth for
 the evidence-lineage policy; contract tests
 (`tests/evidence-lineage-policy.contract.test.ts`) lock the enforced parts.
@@ -39,7 +39,7 @@ from `unreviewedCandidates` (vendor-reported, floored). Contract:
 
 ---
 
-## Surface 2 — Vendor Sales Card (`app/components/vendor/VendorSalesCardClient.tsx`, `lib/salesCard.ts`)
+## Surface 2 — Vendor BattleCard (`app/components/vendor/VendorBattleCardClient.tsx`, `lib/battleCard.ts`)
 
 | Metric (UI) | Source field(s) | Grade | UI provenance label |
 |---|---|---|---|
@@ -53,7 +53,7 @@ from `unreviewedCandidates` (vendor-reported, floored). Contract:
 **Change (P2-pre):** was `firmReviewed.averageScore ?? vendorSelfReported.latestScore`
 per product then meaned — a silent per-catalog **blend**. Now firm-reviewed-only
 mean (self-report excluded + disclosed), graded, labelled. Contract:
-`Sales Card product-strength evidence grade`.
+`BattleCard product-strength evidence grade`.
 
 ---
 

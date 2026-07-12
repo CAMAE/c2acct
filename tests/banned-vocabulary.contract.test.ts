@@ -67,7 +67,7 @@ describe("dev-speak sweep (B8-5)", () => {
   // not swept here.
   const devSpeakGuardedFiles = [
     "app/components/pat/PatModeToggle.tsx",
-    "app/components/vendor/VendorSalesCardClient.tsx",
+    "app/components/vendor/VendorBattleCardClient.tsx",
     "app/components/firm/AlignmentBoardClient.tsx",
   ];
   const devSpeakPhrases = ['>DISABLED<', '>DRAFT<', "demo-bench", "hello-world"];

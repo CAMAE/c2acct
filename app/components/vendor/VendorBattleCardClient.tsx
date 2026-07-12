@@ -7,11 +7,11 @@ import SalesFitRadar from "@/app/components/vendor/SalesFitRadar";
 import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import { formatDelta, formatScoreValue } from "@/lib/formatDelta";
 import { fitBarPct, fitHeatColor, fitTierKey, fitTierLabel, type FitTierKey } from "@/lib/fitHeat";
-import type { EvidenceGrade, RankedFirm, SalesModuleGap, VendorSalesCardData } from "@/lib/salesCard";
+import type { EvidenceGrade, RankedFirm, SalesModuleGap, VendorBattleCardData } from "@/lib/battleCard";
 import { CONFIDENCE_BAND_LABEL } from "@/lib/confidenceBands";
 
 /**
- * Vendor Sales Card v3 (Redlines R15/R16 + P1 finishers). Consultant-brief
+ * Vendor BattleCard v3 (Redlines R15/R16 + P1 finishers). Consultant-brief
  * visual standard: a stat-lockup header + alignment-delta explainer; a fit-tier
  * pill toggle — exactly Strong / Good / Weak, no "All" (clearing the active pill
  * shows every firm) — that filters the ranked rows in place (rank order kept);
@@ -33,12 +33,12 @@ function firmLabel(firm: RankedFirm, entitled: boolean): string {
 /** "" = no active tier → every firm shown (replaces the old "All" pill). */
 type TierFilter = "" | FitTierKey;
 
-export default function VendorSalesCardClient({
+export default function VendorBattleCardClient({
   data,
   entitled,
   membershipHref,
 }: {
-  data: VendorSalesCardData;
+  data: VendorBattleCardData;
   entitled: boolean;
   membershipHref: string;
 }) {
@@ -72,7 +72,7 @@ export default function VendorSalesCardClient({
     <div className="space-y-6">
       {/* Header: stat lockup + explainer (no collision) */}
       <section className="pat-card p-6 sm:p-8">
-        <div className="pat-label">Sales Card</div>
+        <div className="pat-label">BattleCard</div>
         <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div>
             <div className="pat-stat-number text-4xl sm:text-5xl">
@@ -135,7 +135,7 @@ export default function VendorSalesCardClient({
                 return (
                   <article
                     key={firm.firmCompanyId}
-                    data-testid="sales-card-firm"
+                    data-testid="battlecard-firm"
                     data-anonymized={entitled ? "0" : "1"}
                     data-firm-name={entitled ? firm.firmName : undefined}
                     className="pat-card p-5"
@@ -173,7 +173,7 @@ export default function VendorSalesCardClient({
       )}
 
       {detail ? (
-        <section className="pat-card p-6" data-testid="sales-card-detail">
+        <section className="pat-card p-6" data-testid="battlecard-detail">
           <div className="flex items-start justify-between">
             <div>
               <div className="pat-label">{firmLabel(detail, entitled)}</div>

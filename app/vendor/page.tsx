@@ -12,7 +12,7 @@ import {
 } from "@/app/components/vendor/VendorPortalContent";
 import { getSessionUser } from "@/lib/auth/session";
 import { getInviteeAccessContext } from "@/lib/invitee/access";
-import { isSalesCardEnabled } from "@/lib/salesCard";
+import { isBattleCardEnabled } from "@/lib/battleCard";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/profileSettingsStore";
 import prisma from "@/lib/prisma";
@@ -135,8 +135,8 @@ export default async function VendorPage({
     : null;
 
   const localizedCards = vendorWorkspaceCards
-    // R5: the Sales Card entry only appears while the sales-card flag is on.
-    .filter((card) => card.id !== "vendor-sales-card" || isSalesCardEnabled())
+    // R5: the BattleCard entry only appears while the battlecard flag is on.
+    .filter((card) => card.id !== "vendor-battlecard" || isBattleCardEnabled())
     .map((card) => ({
       ...card,
       title: messages.portal.cards.vendor[card.id]?.title ?? card.title,

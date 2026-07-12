@@ -19,7 +19,7 @@ Legend: ✅ pass · ⚠️ needs eyes on running server · ❌ fail · — n/a t
   _Probe:_ `scripts/dev/verify-*` / getVendorCategoryReadings suppressed count = 0.
 - **A3** Benchmarks recomputed after any reseed (compute:benchmarks only upserts;
   stale rows cleared first with DELETE CompanyBenchmark/BenchmarkRun).
-- **A4** Sales Card fit mix is real (median-anchored), not fixed copy — spans
+- **A4** BattleCard fit mix is real (median-anchored), not fixed copy — spans
   strong/good/weak (≈1/3 each; 40/30/30 acceptable).
   _Probe:_ `scripts/dev/verify-gap-areas.ts` fit mix.
 - **A5** De-clump: ≥4 distinct gap areas across a vendor's ranked firms.
@@ -135,7 +135,7 @@ Legend: ✅ pass · ⚠️ needs eyes on running server · ❌ fail · — n/a t
 - **Build:** BUILD_ID `i6VTZf5TZy8mA7w2VMr47`, HEAD `ce7d0489` (footer stamp
   "Release ce7d048:i6VTZf5TZy8mA7w2VMr47"). `pnpm build` exit 0.
 - **Flags (:3005):** LOCAL_REVIEW_AUTH, CONSULTANT_ACCESS, ALIGNMENT_BOARD,
-  SALES_CARD, PAT_ASSISTANT, PINGS = 1.
+  BATTLECARD, PAT_ASSISTANT, PINGS = 1.
 - **Build proof:** asset-integrity PASS against :3005 — served BUILD_ID == disk
   == fingerprint; /sign-in + /methodology 10/10 assets 200+typed.
 - **Validations:** lint:test clean · tsc clean · test:unit 782/782 · 32 Block-10
@@ -145,7 +145,7 @@ Legend: ✅ pass · ⚠️ needs eyes on running server · ❌ fail · — n/a t
 | Item | Result | Evidence |
 |---|---|---|
 | A1 canonical taxonomy | ✅ | product-insight shows Tax & Compliance / Ledger & Close / Payroll & Workforce / Client & Documents / Workflow & Practice Ops |
-| A4 sales-card fit mix | ✅ | strong 2 / good 1 / weak 3 (median-anchored) |
+| A4 battlecard fit mix | ✅ | strong 2 / good 1 / weak 3 (median-anchored) |
 | A5 de-clump gap areas | ✅ | 4 distinct gap areas across ranked firms |
 | B1–B3 tier gate | ✅ | elite-tier-gate.contract.test.ts (7) |
 | C1 face == detail hero | ✅ | data-controls hero "2 of 3" == face metric |
@@ -158,7 +158,7 @@ Legend: ✅ pass · ⚠️ needs eyes on running server · ❌ fail · — n/a t
 | E3 elite pane prose | ✅ (:3005) | elite surface affirms live Elite; no "not live / not claiming" contradiction |
 
 Screenshots: `artifacts/block10-shots/` (E1, E2-alignment-board,
-E2-selfreported-zoom, E3-elite-pane, C1-C3-firm-data-controls, sales card).
+E2-selfreported-zoom, E3-elite-pane, C1-C3-firm-data-controls, BattleCard).
 
 **Both ports serving the Block 10 build:** :3005 (flagged review standalone) and
 :3000 (launchd `com.c2acct.app`) both HTTP 200, asset-integrity PASS on both.

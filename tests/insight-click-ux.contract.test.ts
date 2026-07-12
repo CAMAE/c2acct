@@ -8,7 +8,7 @@ import { getRequestedVendorProductInsightDetailSurface } from "@/lib/vendorProdu
 /**
  * Block 11d: clicking an insight card must land on the Pro (data) pane — never
  * Help — on every insight surface, and cards expand the Pro readout in place
- * (sales-card style) with "Open full view" linking to the unchanged detail
+ * (battlecard style) with "Open full view" linking to the unchanged detail
  * route. Block 11e: the product-insight Elite upsell toggle is shown to
  * non-entitled vendors only.
  */

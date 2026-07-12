@@ -1,9 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
-import VendorSalesCardClient from "@/app/components/vendor/VendorSalesCardClient";
+import VendorBattleCardClient from "@/app/components/vendor/VendorBattleCardClient";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
-import { getVendorSalesCardData, isSalesCardEnabled } from "@/lib/salesCard";
+import { getVendorBattleCardData, isBattleCardEnabled } from "@/lib/battleCard";
 import {
   getConsultantAccessStateForUser,
   requireConsultantCompanyAccess,
@@ -13,20 +13,20 @@ import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership"
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Sales Card | Patalign",
-  description: "Elite vendor Sales Card — the firms in your ecosystem, ranked by fit.",
+  title: "BattleCard | Patalign",
+  description: "Elite vendor BattleCard — the firms in your ecosystem, ranked by fit.",
 };
 
 type SearchParams = { vendor?: string };
 
-/** Elite "Coming soon" placeholder shown while PAT_ENABLE_SALES_CARD is off. */
+/** Elite "Coming soon" placeholder shown while PAT_ENABLE_BATTLECARD is off. */
 function ComingSoon() {
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
         <PatLogoLockup mode="hero" tone="light" />
         <div className="pat-label mt-6 flex items-center gap-2">
-          Sales Card
+          BattleCard
           <span className="rounded-full bg-[var(--shell-panel-soft)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
             Coming soon
           </span>
@@ -35,7 +35,7 @@ function ComingSoon() {
           The firms in your ecosystem, ranked by fit
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          The Sales Card ranks the firms in your ecosystem by how well your product strengths close
+          The BattleCard ranks the firms in your ecosystem by how well your product strengths close
           their current gaps — one claim, one evidence line, one next action per firm. This Elite
           surface is unlocked for your vendor account; the ranked cards are landing shortly.
         </p>
@@ -44,7 +44,7 @@ function ComingSoon() {
   );
 }
 
-export default async function VendorSalesCardPage({
+export default async function VendorBattleCardPage({
   searchParams,
 }: {
   searchParams?: Promise<SearchParams>;
@@ -73,7 +73,7 @@ export default async function VendorSalesCardPage({
   }
 
   // --- Flag off: Elite-gated "Coming soon" placeholder (dark by default) ---
-  if (!isSalesCardEnabled()) {
+  if (!isBattleCardEnabled()) {
     if (readOnlyConsultant) {
       return <ComingSoon />;
     }
@@ -82,9 +82,9 @@ export default async function VendorSalesCardPage({
       return (
         <MembershipSurfaceGate
           audience="vendor"
-          surfaceLabel="Sales Card"
-          title="The Sales Card is an Elite feature"
-          body="The Sales Card ranks the firms in your ecosystem by fit and shows where your products close their gaps. PAT keeps this route visible so the upgrade path stays explicit, but the ranked cards open only with Elite membership."
+          surfaceLabel="BattleCard"
+          title="The BattleCard is an Elite feature"
+          body="The BattleCard ranks the firms in your ecosystem by fit and shows where your products close their gaps. PAT keeps this route visible so the upgrade path stays explicit, but the ranked cards open only with Elite membership."
           displayName={entitlement.membership.displayName}
           currentPlan={entitlement.membership.plan}
           currentStatus={entitlement.membership.status}
@@ -94,7 +94,7 @@ export default async function VendorSalesCardPage({
           workspaceHref="/vendor"
           workspaceLabel="Open vendor workspace"
           availableNow="Your current tier keeps the vendor workspace, product insight, and membership routing available."
-          stagedNote="The Sales Card is the Elite packaging layer around your ecosystem's firm signal, so PAT does not open it from a Pro tier."
+          stagedNote="The BattleCard is the Elite packaging layer around your ecosystem's firm signal, so PAT does not open it from a Pro tier."
         />
       );
     }
@@ -112,9 +112,9 @@ export default async function VendorSalesCardPage({
       return (
         <MembershipSurfaceGate
           audience="vendor"
-          surfaceLabel="Sales Card"
-          title="The Sales Card needs Pro membership"
-          body="The Sales Card is part of the paid vendor tiers. PAT keeps this route visible so the membership path stays explicit; the ranked cards open once Pro is active, and Elite reveals the firm names."
+          surfaceLabel="BattleCard"
+          title="The BattleCard needs Pro membership"
+          body="The BattleCard is part of the paid vendor tiers. PAT keeps this route visible so the membership path stays explicit; the ranked cards open once Pro is active, and Elite reveals the firm names."
           displayName={proEntitlement.membership.displayName}
           currentPlan={proEntitlement.membership.plan}
           currentStatus={proEntitlement.membership.status}
@@ -124,7 +124,7 @@ export default async function VendorSalesCardPage({
           workspaceHref="/vendor"
           workspaceLabel="Open vendor workspace"
           availableNow="Your current tier keeps the vendor workspace, product insight, and membership routing available."
-          stagedNote="The Sales Card is the paid packaging layer around your ecosystem's firm signal."
+          stagedNote="The BattleCard is the paid packaging layer around your ecosystem's firm signal."
         />
       );
     }
@@ -133,10 +133,10 @@ export default async function VendorSalesCardPage({
     entitled = eliteEntitlement.allowed;
   }
 
-  const data = await getVendorSalesCardData(vendorCompanyId);
+  const data = await getVendorBattleCardData(vendorCompanyId);
   if (!data) {
     notFound();
   }
 
-  return <VendorSalesCardClient data={data} entitled={entitled} membershipHref={membershipHref} />;
+  return <VendorBattleCardClient data={data} entitled={entitled} membershipHref={membershipHref} />;
 }

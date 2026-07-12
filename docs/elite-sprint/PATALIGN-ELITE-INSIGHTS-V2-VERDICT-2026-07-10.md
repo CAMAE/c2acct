@@ -47,7 +47,7 @@ Directly relevant to our exact market: **CPA firms already pay for percentile be
 | Per-capability gap-to-threshold (computed, discarded) | firmInsightEngine | Ranked "fix first" gap list with point deficits |
 | Per-utility / per-section divergence (computed, collapsed) | vendorProductInsightEngine | Divergence heatmap: where vendor story ≠ firm reality |
 | Sandbox swap-in/swap-out of a vendor's products | alignmentBoard (needs event logging) | First-party demand signal — G2 Buyer Intent's value story from our own data |
-| Ordinal rank (computed in 3 engines, never shown to the subject) | salesCard / alignmentBoard / platformPicture | "You rank Nth of M" with suppression |
+| Ordinal rank (computed in 3 engines, never shown to the subject) | battleCard / alignmentBoard / platformPicture | "You rank Nth of M" with suppression |
 | Review recency/velocity | timestamps on every submission | Freshness + momentum signals |
 | Score arrays behind every average | every engine | Distribution/spread visuals instead of single numbers |
 
@@ -71,7 +71,7 @@ Design law for every card: **lead with a chart, position the customer inside a d
 
 ## 5 · SHIP / HOLD DISCIPLINE
 
-F1, F2, V1, V3 are computable from stored or already-computed-but-discarded data — buildable inside the launch window. F3 depends on snapshot depth (demo/pilot accounts need seeded history to demo honestly); V2 needs the event log started immediately and renders "early signal" states truthfully. **If any surface can't meet its bar by deploy night, it ships dark (flag off) rather than thin — an Elite tab with four excellent cards beats six mediocre ones.** Worst case, Elite still justifies itself at launch on Sandbox reveal + named Sales Card + unlimited Pat + consultant sessions, with Elite Insights following as the first post-launch drop. But the data says we don't need the fallback.
+F1, F2, V1, V3 are computable from stored or already-computed-but-discarded data — buildable inside the launch window. F3 depends on snapshot depth (demo/pilot accounts need seeded history to demo honestly); V2 needs the event log started immediately and renders "early signal" states truthfully. **If any surface can't meet its bar by deploy night, it ships dark (flag off) rather than thin — an Elite tab with four excellent cards beats six mediocre ones.** Worst case, Elite still justifies itself at launch on Sandbox reveal + named BattleCard + unlimited Pat + consultant sessions, with Elite Insights following as the first post-launch drop. But the data says we don't need the fallback.
 
 ## 6 · CLAUDE CODE PROMPT (paste when you approve)
 

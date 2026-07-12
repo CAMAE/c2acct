@@ -35,7 +35,7 @@
 
 ## VERIFIED CLEAN (equally important — the core is sound)
 
-✓ Draft exclusion (scoreVersion=0) correctly applied at every audited final-metric query · ✓ zero-is-a-valid-answer handled intentionally, with contract test · ✓ tenancy walls hold in every engine audited (no cross-ecosystem leakage found — again) · ✓ post-d4fd4d87, vendor self-report is evidence-graded and segregated in board + sales card, with the ranking floor and provenance labels enforced by 5 contract tests · ✓ no hidden self-report→"firm-verified" leaks found beyond the one Cam caught (now fixed) · ✓ score-scale (0-5) handling correct · ✓ no true feedback loops (metrics feeding their own inputs) — the "gearing itself" risk is the demo contamination above, not recursive math.
+✓ Draft exclusion (scoreVersion=0) correctly applied at every audited final-metric query · ✓ zero-is-a-valid-answer handled intentionally, with contract test · ✓ tenancy walls hold in every engine audited (no cross-ecosystem leakage found — again) · ✓ post-d4fd4d87, vendor self-report is evidence-graded and segregated in board + BattleCard, with the ranking floor and provenance labels enforced by 5 contract tests · ✓ no hidden self-report→"firm-verified" leaks found beyond the one Cam caught (now fixed) · ✓ score-scale (0-5) handling correct · ✓ no true feedback loops (metrics feeding their own inputs) — the "gearing itself" risk is the demo contamination above, not recursive math.
 
 ## RELEASE CRITERIA (nothing ships until all true)
 

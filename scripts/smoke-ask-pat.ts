@@ -16,11 +16,11 @@ async function main() {
   const { retrieveHelp } = await import("@/lib/patAssistant/retrieveHelp");
 
   // 1. The required question → its article is retrieved and would be cited.
-  const secret = await retrieveHelp("How do I unlock Secret Firms on the Sales Card?", "vendor", 5);
+  const secret = await retrieveHelp("How do I unlock Secret Firms on the BattleCard?", "vendor", 5);
   assert.ok(secret.length > 0, "Secret-Firms question must retrieve at least one help chunk (a citation).");
   assert.equal(
     secret[0].sourcePath,
-    "help/vendor/sales-card-secret-firms.md",
+    "help/vendor/battlecard-secret-firms.md",
     `Top citation should be the Secret-Firms article, got ${secret[0].sourcePath}`
   );
   assert.ok(/elite/i.test(secret[0].text), "Secret-Firms answer text must mention the Elite upgrade path.");
@@ -38,9 +38,9 @@ async function main() {
   );
 
   // 3. roleAccess wall: a FIRM audience never retrieves the vendor-only Secret-Firms doc.
-  const firmSecret = await retrieveHelp("How do I unlock Secret Firms on the Sales Card?", "firm", 5);
+  const firmSecret = await retrieveHelp("How do I unlock Secret Firms on the BattleCard?", "firm", 5);
   assert.ok(
-    !firmSecret.some((c) => c.sourcePath === "help/vendor/sales-card-secret-firms.md"),
+    !firmSecret.some((c) => c.sourcePath === "help/vendor/battlecard-secret-firms.md"),
     "A firm audience must NOT retrieve the vendor-only Secret-Firms article (roleAccess wall)."
   );
 

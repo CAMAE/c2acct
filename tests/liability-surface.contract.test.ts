@@ -26,7 +26,7 @@ describe("in-product output disclaimer", () => {
       "app/components/insights/InsightsModeShell.tsx", // firm + vendor insight overviews
       "app/components/insights/InsightDetailShell.tsx", // insight detail pages
       "app/components/firm/AlignmentBoardClient.tsx", // firm sandbox projection
-      "app/components/vendor/VendorSalesCardClient.tsx", // vendor benchmark
+      "app/components/vendor/VendorBattleCardClient.tsx", // vendor benchmark
       "app/consultants/ecosystems/[ecosystemId]/vendor-brief/page.tsx", // consultant benchmark
       "app/consultants/ecosystems/[ecosystemId]/firm/[firmCompanyId]/page.tsx", // consultant firm detail
     ];
