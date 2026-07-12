@@ -115,6 +115,10 @@ Legend: ✅ pass · ⚠️ needs eyes on running server · ❌ fail · — n/a t
   after the DONE marker, it is not a deadlock.
 - **L4 — quiesce app + watchdog before any local build** (watchdog first, so it
   can't resurrect the app) or the launchd service races `.next`.
+- **L6 — `prisma migrate diff` picks up pre-existing DB drift.** The local DB
+  has a manually-managed `KnowledgeChunk.tsv` tsvector column not in schema.prisma;
+  `migrate diff` wants to DROP it. When generating a new migration, HAND-EDIT the
+  SQL to keep ONLY your intended DDL — never ship the unrelated DropColumn.
 - **L5 — governance copy on LOCKED elite surfaces** must not tease named Elite
   features (peer benchmark / forecast) or claim they are "live" — only the
   ENTITLED path may. A contract test (`firm-unlocks`) enforces this; N2's first

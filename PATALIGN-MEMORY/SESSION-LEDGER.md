@@ -458,3 +458,22 @@ needs a ProductMaturitySnapshot model + compute (real time-series) before it can
 go live. Then: sandbox utility lanes + multi-piece swap → Demand/Gap Map
 expansions → QBANK v1.1.
 
+### PRODUCT MATURITY / TREND — LIVE (2026-07-12, commit d6335ed4)
+Mirrors F3 firm trajectory exactly, per Cam's approval. Migration 20260712180000
+(ProductMaturityIndex/Momentum/Snapshot, additive; KnowledgeChunk.tsv drift left
+untouched — landmine L6). lib/productMaturity (computeProductAlignmentIndex +
+writeProductMaturitySnapshot, skips DEMO). Write hook on final firm product review
+(survey/submit). Monthly rollup scripts/rollup-product-maturity.ts (scheduled like
+the firm rollup on the deploy host recompute runner). buildProductTrajectory
+(eliteInsightsV2) — real history + directional projection, opens only at >=2 pts.
+Demo backfill scripts/seed-demo-product-maturity.ts — VARIED trajectories
+(rising/falling/flat/volatile) landing on the product's current firm-reviewed
+strength (192/193 products, 1152 snapshots). ProductEliteDepthCard trend pane now
+renders the real TrajectoryChart; honest pending until points exist (same as F3).
+Verified live on :3005 (build iXW01ch_9fYtabDe6M3jc): Meridian Practice trend
+[86,84,81,79,76,74] Feb→Jul, projection 72 (not-verified label), newest 74 == cohort.
+795 unit + 8 product-elite-depth contract tests green, lint+tsc clean, both ports 200.
+HYBRID ELITE DEPTH is now COMPLETE (cohort + ranked action + real trend).
+NEXT (Cam queue): sandbox utility lanes + multi-piece swap → Demand Signals / Gap
+Map expansions → QBANK v1.1 (approval HELD; founders email w/ v1.1 docx exports).
+
