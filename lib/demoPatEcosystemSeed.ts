@@ -243,15 +243,24 @@ export async function ensureCompany(client: DemoSeedClient, input: {
   name: string;
   type: CompanyType;
 }) {
-  const existing = await client.company.findFirst({
-    where: { name: input.name },
-    select: { id: true },
-  });
+  // The company id is derived from the stable `key`, so resolve by id FIRST.
+  // This keeps re-seeding idempotent when a demo company's NAME changes (e.g.
+  // Block 11 N1 region-suffix rename): the existing row is updated in place
+  // rather than the create colliding on the key-derived id. The name lookup
+  // stays as a legacy fallback for rows created before ids were stable.
+  const id = stableId(
+    input.type === CompanyType.VENDOR ? "demo-vendor-company" : "demo-firm-company",
+    input.key
+  );
+  const existing =
+    (await client.company.findUnique({ where: { id }, select: { id: true } })) ??
+    (await client.company.findFirst({ where: { name: input.name }, select: { id: true } }));
 
   if (existing) {
     return client.company.update({
       where: { id: existing.id },
       data: {
+        name: input.name,
         type: input.type,
         updatedAt: new Date(),
       },
@@ -261,7 +270,7 @@ export async function ensureCompany(client: DemoSeedClient, input: {
 
   return client.company.create({
     data: {
-      id: stableId(input.type === CompanyType.VENDOR ? "demo-vendor-company" : "demo-firm-company", input.key),
+      id,
       name: input.name,
       type: input.type,
       updatedAt: new Date(),
