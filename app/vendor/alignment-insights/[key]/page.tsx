@@ -13,6 +13,7 @@ import {
   buildVendorAlignmentPlainLanguage,
   getRequestedVendorAlignmentInsightDetailSurface,
   getVendorAlignmentInsightBundle,
+  readVendorAlignmentInsightHeadline,
 } from "@/lib/vendorAlignmentInsightEngine";
 import prisma from "@/lib/prisma";
 import { getVendorProductInsightCatalog } from "@/lib/vendorProductInsightEngine";
@@ -167,16 +168,24 @@ export default async function VendorAlignmentInsightDetailPage({
     .sort((left, right) => (right.averageScore ?? 0) - (left.averageScore ?? 0));
   const plainLanguage = buildVendorAlignmentPlainLanguage(report);
 
+  // Block 10c: the detail hero reads the SAME headline as the face card, so the
+  // number a vendor sees on /vendor/alignment-insights matches the number on
+  // this detail page. (Pre-10c it read report.averageModuleScore — a different,
+  // card-invariant number.)
+  const headline = readVendorAlignmentInsightHeadline(report);
   let visualLead = null;
-  if (!report.locked && report.averageModuleScore !== null && scoredModules.length > 0) {
+  if (!report.locked && headline.displayValue !== "—" && scoredModules.length > 0) {
     visualLead = (
       <>
         <section className="pat-card p-6">
           <div className="grid gap-8 lg:grid-cols-2">
             <ScoreLockup
-              label="Firm-side signal"
-              score={report.averageModuleScore}
-              context={`Average of the firm-aligned module signal behind this view · ${report.submissionCount} module submission${report.submissionCount === 1 ? "" : "s"} · current-state evidence only`}
+              label={headline.caption}
+              score={headline.score}
+              displayValue={headline.displayValue}
+              suffix={headline.suffix}
+              showBand={headline.showBand}
+              context={`This insight's headline signal · ${report.submissionCount} module submission${report.submissionCount === 1 ? "" : "s"} · current-state evidence only`}
             />
             <div className="space-y-6">
               <div>

@@ -326,16 +326,41 @@ export function averageContributingModuleScore(report: FirmInsightReport): numbe
 }
 
 /**
- * One real number per overview card, varied by insight theme so the four
- * cards stop reading as the same auto-generated readout (5.7 audit §1.4).
+ * Block 10c (P0 number integrity): the ONE shared reader for a firm insight's
+ * headline number. BOTH the overview face card and the detail-page hero call
+ * this, so the number a firm sees on /firm/insights matches the number on the
+ * detail page. (Pre-10c the detail hero always showed
+ * averageContributingModuleScore while the face card showed a per-theme metric
+ * — so for automation / data-and-controls / change cards the two numbers
+ * disagreed.) The number is still varied by theme so the cards don't read as
+ * the same auto-generated readout (5.7 audit §1.4).
  */
-export function buildFirmInsightCardMetric(
-  key: InsightKey,
-  report: FirmInsightReport
-): FirmInsightOverviewCardMetric | undefined {
+export type FirmInsightHeadline = {
+  /** 0-100 reading that drives the band chip/gauge; null for non-score stats. */
+  score: number | null;
+  /** The big-number text (e.g. "72", "3 of 5"). */
+  displayValue: string;
+  /** Small suffix after the number (e.g. "%", "pts"); undefined for plain text. */
+  suffix?: string;
+  /** Show the band chip — only when score is a real 0-100 reading. */
+  showBand: boolean;
+  /** What this number measures (theme-specific). */
+  caption: string;
+};
+
+const EMPTY_FIRM_HEADLINE: FirmInsightHeadline = {
+  score: null,
+  displayValue: "—",
+  showBand: false,
+  caption: "Evidence in progress",
+};
+
+export function readFirmInsightHeadline(key: InsightKey, report: FirmInsightReport): FirmInsightHeadline {
   const average = averageContributingModuleScore(report);
-  const averageMetric: FirmInsightOverviewCardMetric | undefined =
-    average === null ? undefined : { value: `${average}%`, caption: "average module score" };
+  const averageHeadline: FirmInsightHeadline =
+    average === null
+      ? EMPTY_FIRM_HEADLINE
+      : { score: average, displayValue: `${average}`, suffix: "%", showBand: true, caption: "average module score" };
   const scoredModules = report.contributingModules.filter(
     (module): module is ModuleEvidence & { score: number } => typeof module.score === "number"
   );
@@ -346,40 +371,81 @@ export function buildFirmInsightCardMetric(
         (module) => module.key === "firm_alignment_automation_ai_v1"
       );
       return automationModule
-        ? { value: `${Math.round(automationModule.score)}%`, caption: "Automation and AI module score" }
-        : averageMetric;
+        ? {
+            score: automationModule.score,
+            displayValue: `${Math.round(automationModule.score)}`,
+            suffix: "%",
+            showBand: true,
+            caption: "Automation and AI module score",
+          }
+        : averageHeadline;
     }
     case "firm_tier1_data_and_controls": {
       const scoredCapabilities = report.contributingCapabilities.filter(
         (capability) => capability.score !== null
       );
       if (!report.contributingCapabilities.length || !scoredCapabilities.length) {
-        return averageMetric;
+        return averageHeadline;
       }
       const met = report.contributingCapabilities.filter((capability) => capability.meetsThreshold).length;
       return {
-        value: `${met} of ${report.contributingCapabilities.length}`,
+        score: null,
+        displayValue: `${met} of ${report.contributingCapabilities.length}`,
+        showBand: false,
         caption: "capabilities at or above the 60% threshold",
       };
     }
     case "firm_tier1_change_alignment": {
       if (scoredModules.length < 2) {
-        return averageMetric;
+        return averageHeadline;
       }
       const strongest = report.strongestModules[0];
       const weakest = report.weakestModules[0];
       if (typeof strongest?.score !== "number" || typeof weakest?.score !== "number") {
-        return averageMetric;
+        return averageHeadline;
       }
       return {
-        value: `${Math.round(strongest.score - weakest.score)} pts`,
+        score: null,
+        displayValue: `${Math.round(strongest.score - weakest.score)}`,
+        suffix: "pts",
+        showBand: false,
         caption: "spread between strongest and weakest modules",
       };
     }
     case "firm_tier1_operating_baseline":
     default:
-      return averageMetric;
+      return averageHeadline;
   }
+}
+
+/**
+ * One real number per overview card, varied by insight theme so the four
+ * cards stop reading as the same auto-generated readout (5.7 audit §1.4).
+ * Derived from the same shared headline reader as the detail hero (Block 10c).
+ */
+export function buildFirmInsightCardMetric(
+  key: InsightKey,
+  report: FirmInsightReport
+): FirmInsightOverviewCardMetric | undefined {
+  const headline = readFirmInsightHeadline(key, report);
+  if (headline.displayValue === "—") {
+    return undefined;
+  }
+  return {
+    value: firmHeadlineValueText(headline),
+    caption: headline.caption,
+  };
+}
+
+/** Shared number+suffix formatting so the face card and detail hero read identically. */
+export function firmHeadlineValueText(headline: FirmInsightHeadline): string {
+  if (!headline.suffix) {
+    return headline.displayValue;
+  }
+  // "%" hugs the number ("60%"); word suffixes get a space ("24 pts").
+  return headline.suffix === "%"
+    ? `${headline.displayValue}%`
+    : `${headline.displayValue} ${headline.suffix}`;
 }
 
 /**

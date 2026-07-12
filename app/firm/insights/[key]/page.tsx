@@ -8,7 +8,6 @@ import InsightDetailShell from "@/app/components/insights/InsightDetailShell";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
 import {
-  averageContributingModuleScore,
   buildFirmInsightPlainLanguage,
   buildFirmInsightDetailSurfaceCards,
   buildFirmInsightDetailSurfaceContent,
@@ -16,6 +15,7 @@ import {
   buildFirmLockedInsightDetailSurfaceContent,
   getFirmInsightReports,
   getRequestedFirmInsightDetailSurface,
+  readFirmInsightHeadline,
 } from "@/lib/firmInsightEngine";
 import { getFirmInsightContent } from "@/lib/insightContent";
 import { evaluateUnlocked } from "@/lib/insights/evaluateUnlocked";
@@ -213,13 +213,16 @@ export default async function FirmInsightDetailPage({
         .filter((module) => typeof module.score === "number")
         .sort((left, right) => (right.score ?? 0) - (left.score ?? 0))
     : [];
-  const averageScore = report ? averageContributingModuleScore(report) : null;
   const latestEvidenceDate = report?.latestUpdatedAt
     ? report.latestUpdatedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
     : null;
+  // Block 10c: the detail hero reads the SAME per-theme headline as the face
+  // card on /firm/insights (was averageContributingModuleScore for every card,
+  // which disagreed with the varied face-card number).
+  const headline = report ? readFirmInsightHeadline(key, report) : null;
 
   let visualLead = null;
-  if (report && scoredModules.length > 0) {
+  if (report && headline && scoredModules.length > 0) {
     const plainLanguage = buildFirmInsightPlainLanguage(report);
     visualLead = (
       <>
@@ -227,9 +230,12 @@ export default async function FirmInsightDetailPage({
         <div className="grid gap-8 lg:grid-cols-2">
           <div>
             <ScoreLockup
-              label="Current readout"
-              score={averageScore}
-              context={`Average across ${scoredModules.length} of ${report.contributingModules.length} relevant modules${
+              label={headline.caption}
+              score={headline.score}
+              displayValue={headline.displayValue}
+              suffix={headline.suffix}
+              showBand={headline.showBand}
+              context={`This insight's headline signal${
                 latestEvidenceDate ? ` · updated ${latestEvidenceDate}` : ""
               }`}
             />

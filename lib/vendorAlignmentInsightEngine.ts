@@ -92,6 +92,12 @@ export type VendorAlignmentInsightReport = {
   weakestModules: VendorAlignmentModuleEvidence[];
   contributingCapabilities: VendorAlignmentCapabilityEvidence[];
   notableQuestionClusters: VendorAlignmentClusterEvidence[];
+  /**
+   * The insight's OWN primary signal cluster (config clusterKeys[0]) — theme-
+   * stable and distinct per insight. Block 10c reads the headline number from
+   * here so each card reads its own theme, not the shared global weakest module.
+   */
+  primaryCluster: VendorAlignmentClusterEvidence | null;
 };
 
 export type VendorAlignmentInsightBundle = {
@@ -482,6 +488,7 @@ function buildLockedReport(
     weakestModules: [],
     contributingCapabilities: [],
     notableQuestionClusters: [],
+    primaryCluster: null,
   };
 }
 
@@ -549,6 +556,9 @@ function buildProNarrative(input: {
     weakestModules,
     contributingCapabilities: strongestCapabilities,
     notableQuestionClusters: notableClusters,
+    // The insight's OWN primary theme cluster (config order, not score-sorted)
+    // — this is the per-card differentiator the 10c headline reader keys on.
+    primaryCluster: input.clusters[0] ?? null,
     confidenceCaveats,
     currentStateSummary:
       scoredModules.length === 0
@@ -644,6 +654,7 @@ export function buildVendorAlignmentInsightBundle(
       weakestModules: narrative.weakestModules,
       contributingCapabilities: narrative.contributingCapabilities,
       notableQuestionClusters: narrative.notableQuestionClusters,
+      primaryCluster: narrative.primaryCluster,
     };
   });
 
@@ -756,30 +767,96 @@ export function buildVendorAlignmentPlainLanguage(
  * cross-module spread). averageModuleScore is snapshot-wide, so it is NOT used
  * as the per-card metric. The card-specific sentence stays report.currentStateSummary.
  */
-function buildVendorAlignmentCardMetric(
+/**
+ * Block 10c (P0 number integrity): the ONE shared reader for a vendor-alignment
+ * insight's headline number. BOTH the overview face card and the detail-page
+ * hero call this, so the number on the card can never diverge from the number
+ * on the detail (the pre-10c bug: face read weakestModules[0] while the detail
+ * hero read the bundle-wide averageModuleScore — two different numbers, and both
+ * identical across all six cards).
+ *
+ * The headline is each insight's OWN primary theme signal:
+ *  - uneven-maturity-variance → the cross-module spread (its defining stat);
+ *  - every other insight → its primary cluster (config clusterKeys[0]), which is
+ *    distinct per insight, so the cards stop reading as the same pressure point;
+ *  - graceful fallback to the insight's weakest/strongest module, then em dash.
+ */
+export type VendorAlignmentInsightHeadline = {
+  /** 0-100 reading that drives the band chip/gauge; null for non-score stats. */
+  score: number | null;
+  /** The big-number text (e.g. "72", "18"). */
+  displayValue: string;
+  /** Small suffix after the number (e.g. "pts"); undefined for plain scores. */
+  suffix?: string;
+  /** Show the band chip — only when score is a real 0-100 reading. */
+  showBand: boolean;
+  /** What this number measures (theme-specific — the per-card differentiator). */
+  caption: string;
+  /** Short status label for the face-card chip. */
+  statusLabel?: string;
+};
+
+export function readVendorAlignmentInsightHeadline(
   report: VendorAlignmentInsightBundle["reports"][number]
-): { metric?: { value: string; caption: string }; statusLabel?: string } {
+): VendorAlignmentInsightHeadline {
   if (report.key === "uneven-maturity-variance" && report.moduleVariance != null) {
     return {
-      metric: { value: `${Math.round(report.moduleVariance)} pts`, caption: "spread across modules" },
+      score: null,
+      displayValue: `${Math.round(report.moduleVariance)}`,
+      suffix: "pts",
+      showBand: false,
+      caption: "spread across modules",
       statusLabel: report.confidenceLabel,
+    };
+  }
+  const primary = report.primaryCluster;
+  if (primary?.averageScore != null) {
+    return {
+      score: primary.averageScore,
+      displayValue: `${Math.round(primary.averageScore)}`,
+      showBand: true,
+      caption: primary.title,
+      statusLabel: getScoreBand(primary.averageScore).label,
     };
   }
   const pressure = report.weakestModules[0];
   if (pressure?.averageScore != null) {
     return {
-      metric: { value: `${Math.round(pressure.averageScore)}`, caption: `pressure point: ${pressure.title}` },
+      score: pressure.averageScore,
+      displayValue: `${Math.round(pressure.averageScore)}`,
+      showBand: true,
+      caption: `pressure point: ${pressure.title}`,
       statusLabel: getScoreBand(pressure.averageScore).label,
     };
   }
   const strong = report.strongestModules[0];
   if (strong?.averageScore != null) {
     return {
-      metric: { value: `${Math.round(strong.averageScore)}`, caption: `strongest driver: ${strong.title}` },
+      score: strong.averageScore,
+      displayValue: `${Math.round(strong.averageScore)}`,
+      showBand: true,
+      caption: `strongest driver: ${strong.title}`,
       statusLabel: getScoreBand(strong.averageScore).label,
     };
   }
-  return {};
+  return { score: null, displayValue: "—", showBand: false, caption: "Evidence in progress" };
+}
+
+/** Face-card metric — derived from the same shared headline reader as the detail hero. */
+function buildVendorAlignmentCardMetric(
+  report: VendorAlignmentInsightBundle["reports"][number]
+): { metric?: { value: string; caption: string }; statusLabel?: string } {
+  const headline = readVendorAlignmentInsightHeadline(report);
+  if (headline.displayValue === "—") {
+    return {};
+  }
+  return {
+    metric: {
+      value: headline.suffix ? `${headline.displayValue} ${headline.suffix}` : headline.displayValue,
+      caption: headline.caption,
+    },
+    statusLabel: headline.statusLabel,
+  };
 }
 
 export function buildVendorAlignmentProInsightCards(

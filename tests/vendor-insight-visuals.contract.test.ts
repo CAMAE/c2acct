@@ -98,6 +98,7 @@ function alignmentReportFixture(
     weakestModules: [modules[2]],
     contributingCapabilities: [],
     notableQuestionClusters: [],
+    primaryCluster: null,
     ...overrides,
   };
 }

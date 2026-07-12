@@ -303,3 +303,26 @@ Data Flow / Automation & AI). Probe: scripts/dev/verify-gap-areas.ts.
   checklist A-E incl. D5) after 10c-10e.
 The running :3005/:3000 are STALE (pre-Block-10 build + old in-process data);
 they get rebuilt/restarted at the checkpoint.
+
+### B10c — P0 NUMBER INTEGRITY (done)
+Bug: face card number != detail hero number, and all cards read the same.
+Vendor side: face read weakestModules[0] (~same module every card) while the
+detail hero read report.averageModuleScore (the BUNDLE average — identical for
+all 8 cards). Firm side: hero always showed averageContributingModuleScore while
+the face card showed a per-theme metric — so automation/data-controls/change
+cards disagreed face-vs-hero.
+Fix: ONE shared headline reader per portal, called by BOTH face + hero:
+- readVendorAlignmentInsightHeadline(report) → each insight's PRIMARY cluster
+  (config clusterKeys[0], theme-stable/distinct); uneven-maturity-variance keeps
+  its variance stat. Added report.primaryCluster (=narrative clusters[0]).
+- readFirmInsightHeadline(key, report) + firmHeadlineValueText() → same per-theme
+  number the face card already used; buildFirmInsightCardMetric now delegates.
+Both [key]/page.tsx heroes feed ScoreLockup from the reader (score/displayValue/
+suffix/showBand); no more averageModuleScore fallback.
+Result (demo-vendor-elite, live): 8 tier-1 cards → 6 DISTINCT headline values
+(was 1). face==hero by construction.
+Tests: tests/insight-number-integrity.contract.test.ts (7) — behavioural
+identity + per-card differentiation + source-scan wiring guard (no averageScore
+fallback). Full: 22 contract tests green, tsc clean.
+Probes: scripts/dev/verify-insight-headlines.ts.
+
