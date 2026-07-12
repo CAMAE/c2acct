@@ -200,7 +200,10 @@ export function getRequestedVendorProductInsightDetailSurface(
     case "confidence":
       return "evidence";
     default:
-      return "help";
+      // Block 11d: default to the data (evidence) pane, not Help — clicking a
+      // product-insight card should land on the grounded readout, not the
+      // help copy.
+      return "evidence";
   }
 }
 
@@ -1211,16 +1214,9 @@ export function buildVendorProductInsightDetailSurfaceCards(input: {
     (utility) => utility.averageScore !== null
   ).length;
 
+  // Block 11d: data (Evidence) pane leads the toggle, Help second — the card
+  // click lands on the grounded readout first.
   const surfaces: VendorProductInsightDetailSurfaceCard[] = [
-    {
-      key: "help",
-      title: "Help",
-      summary: input.locked
-        ? lockedState?.summary ?? ELITE_PLACEHOLDER_MESSAGE
-        : input.record?.currentStateSummary ?? input.snapshot.combinedCurrentPatReadout,
-      href: `${baseHref}?surface=help`,
-      interactive: true,
-    },
     {
       key: "evidence",
       title: "Evidence",
@@ -1229,6 +1225,15 @@ export function buildVendorProductInsightDetailSurfaceCards(input: {
           ? "Review the vendor section evidence alongside the firm-reviewed feature evidence behind this readout."
           : input.snapshot.combinedCurrentPatReadout,
       href: `${baseHref}?surface=evidence`,
+      interactive: true,
+    },
+    {
+      key: "help",
+      title: "Help",
+      summary: input.locked
+        ? lockedState?.summary ?? ELITE_PLACEHOLDER_MESSAGE
+        : input.record?.currentStateSummary ?? input.snapshot.combinedCurrentPatReadout,
+      href: `${baseHref}?surface=help`,
       interactive: true,
     },
   ];
