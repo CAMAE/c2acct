@@ -389,3 +389,31 @@ NEXT: Block 11 (visual unification) — 11a firm-side card law → shared compon
 11e Pro product-insight Elite toggle. Then hybrid Elite depth, sandbox multi-piece,
 QBANK v1.1 (own pass; approval still HELD pending CPA name).
 
+### BLOCK 11 (VISUAL UNIFICATION) — partial checkpoint (2026-07-12)
+DONE + committed + verified on :3005 (BUILD_ID AKfI20sxwYdQsbIt_gQTP):
+- 11a (1ed78bc7): portal + consultant cards unified to the pat-card law
+  (PortalSurfaceCard dropped rounded-[24px]/bg-white; EcosystemListCard adopted
+  pat-card). Verified: vendor home cards match insight cards.
+- 11c (f0456c44): score-band chips OFF face cards (vendor-alignment + vendor-
+  product Pro cards) — number + one line only; band stays in detail hero.
+  Verified: alignment cards show "54 · Operating discipline…", no chip.
+- 11d part 1 (60637b6a): product-insight defaults to Evidence (data) pane +
+  toggle leads with it (was Help-first). Firm/vendor-alignment already Pro-first.
+- N1 (d52600a3 + ensureCompany b20384ea): every demo replica carries a region
+  tag (r0 → " · National"); no more bare "Montrose Partners" vs "· Central"
+  collision. ROOT FIX: ensureCompany now resolves by stable id first (name-derived
+  keys made renames orphan firms). One-time cleanup of 44 orphan firms + cascade,
+  benchmarks recomputed (12 firm/7 vendor runs), elite accounts re-adopted from
+  the clean 176-firm cohort. Verified: sales-card firms all region-tagged, fit 2/2/2.
+- N2 (d52600a3): firm tier-2 elite locked-copy contradiction fixed
+  (buildFirmLockedInsightDetailSurfaceContent entitlement-aware; page chrome
+  consistent). Verified: entitled firm sees live Trajectory, no "not available yet".
+STILL OPEN (Block 11):
+- 11b: V1 Category Position — replace bell curves with F1-style percentile band rows.
+- 11d part 2: in-page expansion (sales-card-style) — client-architecture change,
+  UX choices worth Cam's confirm (how much expands inline, keep full page?).
+- 11e: Pro product-insight Elite toggle + honest locked preview — product decision
+  (show the toggle for entitled too, given there is no live product Elite?).
+Both ports serving AKfI build (:3000 launchd + :3005 review), integrity PASS.
+Screenshots: artifacts/b11-shots/.
+
