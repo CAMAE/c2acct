@@ -380,6 +380,17 @@ export function buildFirmPlan(input: {
   for (const [moduleKey, range] of Object.entries(archetypeProfile.moduleScoreRanges)) {
     moduleScoreTargets[moduleKey] = pickInRange(rng, range);
   }
+  // Block 10a de-clump: firms sharing an archetype otherwise share a weakest
+  // module, so every Sales-Card firm card names the SAME gap area. Rotate a
+  // depressed module per firm (index-based, coprime step) so the weakest module —
+  // and therefore the gap-area line — varies across a vendor's firm cards. Bounded
+  // dip keeps scores plausible; the average is barely moved.
+  const moduleKeysOrdered = Object.keys(moduleScoreTargets);
+  if (moduleKeysOrdered.length > 0) {
+    const weakIndex = (input.firmIndex * 3 + input.ecosystemIndex) % moduleKeysOrdered.length;
+    const weakKey = moduleKeysOrdered[weakIndex]!;
+    moduleScoreTargets[weakKey] = Math.max(24, Math.min(moduleScoreTargets[weakKey]! - 14, 100));
+  }
   const avgScorePct = averageOfRanges(archetypeProfile.moduleScoreRanges);
 
   // Subset of vendor products this firm reviews.
