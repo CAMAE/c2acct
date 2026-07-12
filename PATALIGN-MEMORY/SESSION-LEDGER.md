@@ -417,3 +417,21 @@ STILL OPEN (Block 11):
 Both ports serving AKfI build (:3000 launchd + :3005 review), integrity PASS.
 Screenshots: artifacts/b11-shots/.
 
+### BLOCK 11 — COMPLETE + CHECKPOINT GREEN (2026-07-12)
+All sub-blocks done+committed+verified on running :3005 (BUILD_ID iJjTwaEH2ZEgRnDl2Pe0U,
+HEAD 8d49dc4). Commits: 11a 1ed78bc7 · 11c f0456c44 · 11d-1 60637b6a · N1/N2 d52600a3 +
+ensureCompany b20384ea · 11b 060ed252 · 11e 29565414 · 11d-2 ea859080 · checklist 39481c8a.
+Verified: F1 card law (portal+consultant → pat-card), F2 no face-card band chips,
+F3 inline Pro-readout expansion + Open full view, F4 Category Position F1-style
+percentile band rows (bell curve removed), F5 non-entitled Elite upsell only,
+F6 region-tagged replica names + entitlement-consistent firm elite copy.
+Full chain: lint clean · tsc clean · test:unit 789/789 · Block-11 contract tests green
+(insight-click-ux + updated vendor-product-insight/firm-unlocks). Demo clean at
+176 firms/32 vendors, 0 orphans. Both ports serving, integrity PASS restart-safe.
+Regression checklist now has F (visual unification) + LANDMINES (L1-L5) sections.
+Screenshots artifacts/b11-shots + b11cp-shots.
+NEXT (Cam order): Mythos live sweep → hybrid Elite depth layers (fills Elite panes +
+flips 11e live for Elite in same commit) → sandbox utility lanes + multi-piece swap →
+Demand Signals / Gap Map expansions → QBANK v1.1 (approval HELD; signatures follow
+founders review; email out with v1.1 docx exports).
+
