@@ -1,4 +1,4 @@
-import DistributionCurve from "@/app/components/charts/DistributionCurve";
+import PercentileBandRow from "@/app/components/charts/PercentileBandRow";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
 import type { VendorCategoryPosition } from "@/lib/eliteInsightsV2";
 
@@ -44,13 +44,13 @@ export default function VendorCategoryPositionCard({ data }: { data: VendorCateg
                 </span>
               </div>
               <div className="mt-3">
-                <DistributionCurve
+                <PercentileBandRow
                   mean={cat.mean}
-                  stdev={cat.stdev}
                   p25={cat.p25}
                   p75={cat.p75}
                   marker={cat.score}
-                  title={`Distribution of vendor strength in ${cat.category}`}
+                  percentile={cat.percentile}
+                  title={`Vendor strength field in ${cat.category}`}
                 />
               </div>
             </div>
