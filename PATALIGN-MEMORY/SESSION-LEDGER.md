@@ -215,3 +215,35 @@ The direct connection bypasses pgbouncer, so a PASS means the credential is
 genuinely good. Runs SELECT 1 + current_user + version + now, writes a proof JSON.
 Verified locally: PASS via DATABASE_URL fallback (no pgbouncer locally, warns to
 set DIRECT_URL). Fast gates: typecheck 0 · lint clean · unit 754/754.
+
+## 2026-07-12 — Mythos punch list (P1-P6) + qbank second bank
+
+Second bank imported (9c9a93ad): parameterized import-qbank for both banks
+(env metadata + parseQbank keyPrefix, FTC classifier); qbank-integration-v1
+STRENGTH 90 items DRAFT. Governance approval STILL HELD (founders' review
+round-trip; do not record until Cam names CPA — Brian Tankersley or Randy
+Johnston; clarity Leslie Garrett). QBANK v1.1 MECHANICAL FIXES received (spec in
+message) — NOT yet executed (key shuffle, joke distractors, length cues, Gov C11
+retarget, targeted edits, margin flags, docx exports).
+
+Punch list P3/P5/P6 DONE (dabc4ac6): killed Products-at-a-Glance on vendor home;
+trust "Last updated" is build-date-driven (release fingerprint); board rail
+header "Ranked candidates" for entitled viewers.
+
+REMAINING — P1/P2/P4 are one coherent block (diagnosed, not yet built):
+- P2 ROOT CAUSE: MIN_CONTRIBUTORS=5 and reading.n = DISTINCT VENDORS per category.
+  The demo has 51 fragmented categories (Tax_workflow 4 · Close-recon 3 · ~11
+  one-off 1-vendor cats). Fix = consolidate the vendor product bank to a shared
+  canonical taxonomy (~6-7 categories) so each has >=5 of the 8 vendors. This is
+  data-model work in the demo vendor bank, not a coverage tweak. Reseed +
+  recompute:benchmarks after.
+- P1: V1 Category Position rebuild per review-response §3 (human category names
+  from utilityKeyToLabel; takeaway title; named bands Top quartile/Above median/
+  Below median NEVER "Q2"; you-are-here marker; p25-p75 band; peer disclosure;
+  so-what + ranked action; percentile tooltip). One visual+verbal system across
+  F1 + all distribution charts.
+- P4: demo-vendor-elite (Meridian) Sales Card 0 strong/0 good/6 WEAK regression
+  after reseed; rebalance BOTH vendor accounts to a strong/good/weak mix + vary
+  the per-firm dimension line (all six repeat "Operating Model … · Early signal").
+Acceptance: zero insufficient-data cards on Meridian Category Position; live HTTP
++ screenshot; Mythos re-verifies.
