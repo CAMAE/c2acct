@@ -206,6 +206,7 @@ export default async function FirmInsightDetailPage({
         what: content?.lockedState?.what,
         why: content?.lockedState?.why,
         how: content?.lockedState?.how,
+        entitled: isElite,
       });
 
   const scoredModules = report
@@ -344,11 +345,17 @@ export default async function FirmInsightDetailPage({
     );
   }
 
+  // Block 11 N2: tier-2 copy must be consistent with entitlement — Elite
+  // Insights v2 ARE live, so an entitled firm should never see "not available
+  // yet", and a Pro firm should see one coherent "available with Elite" message
+  // rather than "not available yet" stacked above "Live with Elite membership".
   const combinedEvidenceText = report
     ? unlocked
       ? "Current evidence combines current module results, supporting capability signal, and stored question patterns behind this insight."
       : "Current evidence stays grounded in the current module, capability, and question-pattern signal already visible in this route."
-    : "This route remains reserved for a deeper PAT layer that is not available yet.";
+    : isElite
+      ? "Your Elite Insights for this view are live, grounded in your firm-reviewed evidence."
+      : "This deeper Elite layer becomes available with Elite membership, grounded in your firm-reviewed evidence.";
 
   return (
     <InsightDetailShell
@@ -358,13 +365,15 @@ export default async function FirmInsightDetailPage({
       summary={
         report
           ? report.currentStateSummary
-          : (content?.lockedState?.summary ?? "Live with Elite membership.")
+          : isElite
+            ? "Your live Elite readout for this view, grounded in your firm-reviewed evidence."
+            : (content?.lockedState?.summary ?? "Available with Elite membership.")
       }
       surfaceContent={surfaceContent}
       toggleAriaLabel="Firm alignment insight views"
       toggleOptions={toggleOptions}
       combinedEvidenceText={combinedEvidenceText}
-      combinedEvidenceNote={isTier2 ? "Live with Elite membership." : undefined}
+      combinedEvidenceNote={isTier2 && !isElite ? "Available with Elite membership." : undefined}
       muted={isTier2}
       visualLead={visualLead}
       surfaceCollapsed={Boolean(visualLead) && scoredModules.length > 0 && visibleSurfaceKey === "pro"}

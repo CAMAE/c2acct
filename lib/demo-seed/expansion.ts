@@ -56,7 +56,12 @@ type ExpansionBank = {
  * floor and both vendor accounts land a mixed strong/good/weak fit distribution.
  * Replication keeps writes serial in the caller — no fan-out (Day-16 pool lesson).
  */
-const REPLICA_REGION = ["", " · East", " · Central", " · West", " · South", " · Pacific"] as const;
+// Block 11 N1: every replica (including r0) carries a distinct region tag so no
+// two replicas of the same base firm read as one firm — the pre-fix "" on r0
+// meant "Montrose Partners" and "Montrose Partners · Central" looked like the
+// same firm ranked both #1-strong and #6-weak. Ids still use "" for r0 (stable
+// base ids); only the display name gets the region tag.
+const REPLICA_REGION = [" · National", " · East", " · Central", " · West", " · South", " · Pacific"] as const;
 
 function expandScale(): number {
   const raw = Number(process.env.PAT_DEMO_EXPAND_SCALE ?? "1");
@@ -92,7 +97,7 @@ function replicateBank(bank: ExpansionBank, scale: number): ExpansionBank {
   const firms: FirmRosterEntry[] = [];
   for (let r = 0; r < scale; r += 1) {
     bank.firms.forEach((firm) => {
-      firms.push(r === 0 ? firm : { ...firm, name: `${firm.name}${REPLICA_REGION[r] ?? ` ${r + 1}`}` });
+      firms.push({ ...firm, name: `${firm.name}${REPLICA_REGION[r] ?? ` ${r + 1}`}` });
     });
   }
   return { ...bank, vendors, ecosystemSizes, firms };

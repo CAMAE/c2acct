@@ -955,6 +955,11 @@ export function buildFirmLockedInsightDetailSurfaceContent(input: {
   what?: string | null;
   why?: string | null;
   how?: string | null;
+  // Block 11 N2: when the viewer is ENTITLED to Elite, the tier-2 layer is live,
+  // so the elite surface must NOT render the "not a live Elite interpretation"
+  // placeholder — that contradicted the live Elite pane on the same page. The
+  // placeholder stays only for non-entitled (Pro) viewers.
+  entitled?: boolean;
 }) {
   const summary =
     input.summary ?? "This Elite insight is not live. PAT is not exposing unavailable benchmark, projection, recommendation, or comparative content.";
@@ -966,14 +971,38 @@ export function buildFirmLockedInsightDetailSurfaceContent(input: {
 
   switch (input.surface) {
     case "elite":
+      if (input.entitled) {
+        return {
+          key: "elite",
+          title: "Elite",
+          intro:
+            "Your Elite Insights for this view are live — a future-state projection, a peer benchmark, and a recommendation engine, each grounded in your firm-reviewed evidence.",
+          items: [
+            {
+              title: "What Elite adds here",
+              body: "Elite turns your current-state alignment into forward and comparative views: where your trajectory is heading, where you sit against peers, and the highest-leverage next moves — all from your firm-reviewed evidence, not new claims.",
+            },
+            {
+              title: "Evidence provenance",
+              body: "Every Elite view is computed from your completed firm module, capability, and question-pattern evidence — no external, forecast, or fabricated data.",
+            },
+          ],
+        } satisfies FirmInsightDetailSurfaceContent;
+      }
       return {
         key: "elite",
         title: "Elite",
-        intro: `${summary} This is not a live Elite interpretation.`,
+        // Non-entitled (Pro) viewer: Elite Insights v2 are a real, live product —
+        // this layer is gated behind membership, not "unavailable". Frame it as
+        // available-with-Elite so it reads consistently with the page's upsell
+        // chrome instead of "not live" (Block 11 N2).
+        intro:
+          input.summary ??
+          "This deeper Elite layer — a future-state projection, a peer benchmark, and a recommendation engine — is available with Elite membership, grounded in your firm-reviewed evidence.",
         items: [
           {
             title: "What it is",
-            body: input.what ?? "A restricted future Elite insight layer.",
+            body: input.what ?? "A forward and comparative Elite layer that unlocks with Elite membership.",
           },
           lockedBoundary,
           evidenceStatus,
