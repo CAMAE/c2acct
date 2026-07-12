@@ -117,7 +117,19 @@ describe("vendor product gap callout", () => {
     expect(buildVendorProductGapCallout({ divergence: { points: null, label: "", belowFloor: false } })).toEqual({
       points: null,
       label: "Not enough shared signal yet",
+      magnitudeLabel: "No divergence yet",
     });
+  });
+
+  it("exposes a concise magnitude label for compact face cards (B7-3)", () => {
+    // The face card renders just the magnitude; the directional clause stays on
+    // the detail hero (it overran the compact card border).
+    expect(
+      buildVendorProductGapCallout({ divergence: { points: 9.5, label: "", belowFloor: false } }).magnitudeLabel
+    ).toBe("9.5 pt divergence");
+    expect(
+      buildVendorProductGapCallout({ divergence: { points: -7, label: "", belowFloor: false } }).magnitudeLabel
+    ).toBe("7 pt divergence");
   });
 });
 

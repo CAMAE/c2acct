@@ -347,3 +347,26 @@ Runtime (demo-firm-elite): data_and_controls "2 of 3 · their 60–65% bars"
 "12 under 65%" — count computed from the same displayed per-row thresholds.
 Tests: tests/threshold-math.contract.test.ts (7). 13 green w/ 10c, tsc clean.
 
+### B10e — 3 RE-VERIFIED REGRESSIONS (done)
+(1) Product-intel face card divergence line: the face card passed the FULL
+directional callout ("15 pt divergence · firms read this product lower…") which
+overran the compact pill. Added VendorProductGapCallout.magnitudeLabel ("N.N pt
+divergence"); face card (product-insight/page.tsx) now uses magnitudeLabel, the
+detail hero keeps the full directional .label.
+(2) Self-reported puzzle-piece text overrun: in AlignmentBoardClient PuzzlePiece
+the "#N · Self-reported" rank/tier line had NO clamp (title/subtitle did) and the
+text container had no overflow-hidden, so the wide uppercase "SELF-REPORTED" tag
+spilled past the border. Added overflow-hidden to the container + w-full truncate
++ tighter tracking on the rank line.
+(3) Vendor alignment Elite pane contradictory stale prose (B8-8): on a LIVE
+(tier-1) insight's ?surface=elite the surfaceContent still built the old
+"not yet live / should stay unavailable / not claiming benchmark" placeholder,
+contradicting the live "Elite Insights are live" pane on the same page. Non-locked
+elite surface now affirms the live Elite layer; parameterized
+buildAlignmentEvidenceProvenanceItem so the elite closing drops the Pro-only
+"not claiming benchmark/projection/scenario" disclaimer. Locked (tier-2) keeps
+the honest locked boundary. Runtime: 0 contradiction fragments (was ≥1).
+Tests: tests/regression-10e.contract.test.ts (3) + magnitudeLabel test in
+vendor-insight-visuals. 32 contract tests green across the 5 files, tsc clean.
+NOTE: (1)+(2) are visual — confirm on the running :3005 at the checkpoint.
+

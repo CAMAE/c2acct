@@ -717,15 +717,17 @@ function PuzzlePiece({
           strokeDasharray={strokeDashed ? "5 4" : undefined}
         />
       </svg>
-      {/* Centered text block; padding clears the tab/blank zones on every edge. */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 px-[16%] py-[15%] text-center">
+      {/* Centered text block; padding clears the tab/blank zones on every edge.
+          overflow-hidden + per-line clamps keep long labels (e.g. the
+          "Self-reported" tier tag, B7-3) inside the piece border. */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 overflow-hidden px-[16%] py-[15%] text-center">
         {typeof rank === "number" ? (
-          <div className={`text-[9px] font-semibold uppercase tracking-[0.14em] ${mutedClass}`}>
+          <div className={`w-full truncate text-[9px] font-semibold uppercase tracking-[0.1em] ${mutedClass}`}>
             #{rank}
             {tierLabel ? ` · ${tierLabel}` : ""}
           </div>
         ) : null}
-        <div className={`line-clamp-2 text-[13px] font-semibold leading-tight ${textClass}`}>{title}</div>
+        <div className={`line-clamp-2 max-w-full text-[13px] font-semibold leading-tight ${textClass}`}>{title}</div>
         <div className={`line-clamp-1 text-[10px] ${mutedClass}`}>{subtitle}</div>
         <div className={`mt-0.5 text-lg font-bold tabular-nums ${textClass}`}>{scoreText}</div>
       </div>

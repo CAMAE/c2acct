@@ -49,7 +49,7 @@ function ProductInsightCard({ snapshot }: { snapshot: VendorProductInsightSnapsh
             title={`${snapshot.product.name}: vendor self-reported vs firm-reviewed signal`}
             a={{ label: "Vendor self-reported", value: vendorScore }}
             b={{ label: "Firm-reviewed", value: firmScore }}
-            gapLabel={gapCallout.label}
+            gapLabel={gapCallout.magnitudeLabel}
           />
         ) : vendorScore !== null ? (
           <div>

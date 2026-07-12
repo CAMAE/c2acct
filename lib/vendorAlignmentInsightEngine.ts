@@ -1001,7 +1001,14 @@ function summarizeAlignmentLimits(report: VendorAlignmentInsightReport) {
     .join(" ");
 }
 
-function buildAlignmentEvidenceProvenanceItem(report: VendorAlignmentInsightReport) {
+function buildAlignmentEvidenceProvenanceItem(
+  report: VendorAlignmentInsightReport,
+  // The closing disclaimer differs by surface: the Pro surface asserts PAT is
+  // NOT claiming benchmark/projection/scenario proof (current-state only); the
+  // Elite surface, where those views ARE the offering, must not repeat that
+  // clause (B8-8) — it instead affirms the same evidence grounds the Elite layer.
+  closing = "PAT uses only current firm PAT signal, module patterns, capability scores, and stored answer clusters for this detail page; it is not claiming benchmark, projection, scenario, customer, or market-wide proof."
+) {
   const latestUpdatedAt = report.latestUpdatedAt ? report.latestUpdatedAt.toISOString() : "not available";
   const moduleEvidence =
     report.contributingModules.length > 0
@@ -1029,7 +1036,7 @@ function buildAlignmentEvidenceProvenanceItem(report: VendorAlignmentInsightRepo
       `Module patterns: ${moduleEvidence}.`,
       `Capability evidence: ${capabilityEvidence}.`,
       `Question-cluster evidence: ${clusterEvidence}.`,
-      "PAT uses only current firm PAT signal, module patterns, capability scores, and stored answer clusters for this detail page; it is not claiming benchmark, projection, scenario, customer, or market-wide proof.",
+      closing,
     ].join(" "),
   };
 }
@@ -1076,20 +1083,35 @@ export function buildVendorAlignmentInsightDetailSurfaceContent(input: {
       } satisfies VendorAlignmentInsightDetailSurfaceContent;
     case "elite":
       {
+      // Block 10e / B8-8: Elite Insights v2 ARE live. For a NON-locked (tier-1)
+      // insight, the elite surface must NOT render the old "not yet live /
+      // should stay unavailable" placeholder — that directly contradicted the
+      // live "Your Elite Insights are live" pane rendered on the same page.
+      // The placeholder is kept only for genuinely locked (tier-2) reports.
+      if (!input.report.locked) {
+        return {
+          key: "elite",
+          title: "Elite",
+          intro:
+            "Elite Insights build on this Pro readout — peer benchmark position, forward demand, and an expansion simulation, each grounded in the same firm-reviewed evidence behind this insight.",
+          items: [
+            {
+              title: "What Elite adds here",
+              body: "Elite turns this current-state signal into comparative and forward views: where you sit against peers, where demand is heading, and how an expansion would land — all from the firm-reviewed evidence behind this insight, not new claims.",
+            },
+            buildAlignmentEvidenceProvenanceItem(
+              input.report,
+              "Every Elite view is computed from this same firm-reviewed PAT evidence — peer position from the cross-firm distribution, demand from the aggregated firm signal, expansion from your current stack — with no external, forecast, or fabricated data."
+            ),
+          ],
+        } satisfies VendorAlignmentInsightDetailSurfaceContent;
+      }
       const eliteSurface = buildElitePlaceholderSurfaceContent<VendorAlignmentInsightDetailSurfaceKey>({
         key: "elite",
-        intro: input.report.locked
-          ? `This is not a live Elite interpretation. ${lockedState?.summary ?? ELITE_PLACEHOLDER_MESSAGE}`
-          : ELITE_PLACEHOLDER_MESSAGE,
-        what: input.report.locked
-          ? lockedState?.what ?? content?.what ?? ELITE_PLACEHOLDER_TITLE
-          : "A deeper PAT interpretation layer reserved for benchmark, projection, and scenario work that is not yet live in this route.",
-        why: input.report.locked
-          ? lockedState?.why ?? content?.why ?? ELITE_PLACEHOLDER_CTA
-          : "The deeper comparative and forward-looking layer should stay unavailable until PAT can support it honestly.",
-        how: input.report.locked
-          ? lockedState?.how ?? content?.how ?? ELITE_PLACEHOLDER_CTA
-          : `${ELITE_PLACEHOLDER_TITLE}. ${ELITE_PLACEHOLDER_CTA}.`,
+        intro: `This is not a live Elite interpretation. ${lockedState?.summary ?? ELITE_PLACEHOLDER_MESSAGE}`,
+        what: lockedState?.what ?? content?.what ?? ELITE_PLACEHOLDER_TITLE,
+        why: lockedState?.why ?? content?.why ?? ELITE_PLACEHOLDER_CTA,
+        how: lockedState?.how ?? content?.how ?? ELITE_PLACEHOLDER_CTA,
       });
       return {
         ...eliteSurface,

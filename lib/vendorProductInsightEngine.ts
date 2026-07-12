@@ -928,7 +928,10 @@ export function buildVendorProductInsightSnapshot(
 
 export type VendorProductGapCallout = {
   points: number | null;
+  /** Full directional callout for the detail hero, e.g. "9.5 pt divergence · firms read…". */
   label: string;
+  /** Concise magnitude for compact product cards, e.g. "9.5 pt divergence" (B7-3). */
+  magnitudeLabel: string;
 };
 
 /**
@@ -940,16 +943,17 @@ export function buildVendorProductGapCallout(
 ): VendorProductGapCallout {
   const points = snapshot.divergence.points;
   if (points === null) {
-    return { points: null, label: "Not enough shared signal yet" };
+    return { points: null, label: "Not enough shared signal yet", magnitudeLabel: "No divergence yet" };
   }
   const magnitude = Math.round(Math.abs(points) * 10) / 10;
+  const magnitudeLabel = `${magnitude} pt divergence`;
   if (Math.abs(points) < 5) {
-    return { points, label: `${magnitude} pt divergence · vendor story and firm reviews closely aligned` };
+    return { points, label: `${magnitudeLabel} · vendor story and firm reviews closely aligned`, magnitudeLabel };
   }
   if (points > 0) {
-    return { points, label: `${magnitude} pt divergence · firms read this product lower than the vendor story` };
+    return { points, label: `${magnitudeLabel} · firms read this product lower than the vendor story`, magnitudeLabel };
   }
-  return { points, label: `${magnitude} pt divergence · firms read this product higher than the vendor story` };
+  return { points, label: `${magnitudeLabel} · firms read this product higher than the vendor story`, magnitudeLabel };
 }
 
 export type VendorProductPlainLanguage = {
