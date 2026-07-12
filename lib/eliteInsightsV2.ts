@@ -9,8 +9,16 @@
  * server card components render. See app/components/insights/elite/*.
  */
 import type { PrismaClient, DataBoundary } from "@prisma/client";
-import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
-import { getFirmPeerReadings, getVendorCategoryReadings, ALIGNMENT_INDEX_METRIC, type BenchmarkReading } from "@/lib/benchmarks";
+import { FIRM_MODULE_DEFINITIONS, FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat";
+import {
+  getFirmPeerReadings,
+  getVendorCategoryReadings,
+  ALIGNMENT_INDEX_METRIC,
+  percentileRank,
+  percentileValue,
+  type BenchmarkReading,
+} from "@/lib/benchmarks";
+import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { MIN_CONTRIBUTORS } from "@/lib/benchmarkSuppression";
 import type { PercentileRow } from "@/app/components/charts/PercentileBand";
 
@@ -444,6 +452,122 @@ export async function buildVendorCategoryPosition(
     .map((c) => ({ category: c.category, gap: Math.round((c.p75 as number) - c.score), n: c.n }))
     .sort((a, b) => b.gap - a.gap)[0] ?? null;
   return { available: true, categories, topAction, emptyReason: null };
+}
+
+// ── Hybrid Elite depth · Product cohort position ─────────────────────────────
+// Where a SINGLE product ranks in its category's cohort of peer vendor products
+// (percentile + band), computed from the same firm-reviewed product evidence the
+// vendor benchmark uses — but at the product grain the offline benchmark stops
+// at (it aggregates to vendor-per-category). This is a bounded read-time query
+// (one category's products), only on the entitled Elite product-insight page.
+
+export type ProductCohortPosition = {
+  available: boolean;
+  category: string;
+  /** This product's firm-reviewed mean strength (0-100). */
+  score: number;
+  mean: number;
+  p25: number | null;
+  p75: number | null;
+  percentile: number;
+  rankFromTop: number;
+  /** Distinct peer products (incl. this one) in the category cohort. */
+  n: number;
+  quartile: 1 | 2 | 3 | 4;
+  suppressed: boolean;
+  /** Ranked action: points to reach the category's top quartile (p75), or null when already there. */
+  gapToTopQuartile: number | null;
+  emptyReason: string | null;
+};
+
+type ProductCohortClient = Pick<PrismaClient, "product" | "surveySubmission">;
+
+export async function buildProductCohortPosition(
+  client: ProductCohortClient,
+  input: { productId: string; category: string | null; boundaries: DataBoundary[] },
+): Promise<ProductCohortPosition> {
+  const empty = (reason: string): ProductCohortPosition => ({
+    available: false,
+    category: input.category ?? "Uncategorized",
+    score: 0,
+    mean: 0,
+    p25: null,
+    p75: null,
+    percentile: 0,
+    rankFromTop: 0,
+    n: 0,
+    quartile: 1,
+    suppressed: false,
+    gapToTopQuartile: null,
+    emptyReason: reason,
+  });
+
+  if (!input.category) {
+    return empty("Cohort position opens once this product is placed in a product category.");
+  }
+
+  // Peer products in the same category (across vendors) within the pool boundary.
+  const peers = await client.product.findMany({
+    where: { category: input.category, companyId: { not: null }, Company: { is: { dataBoundary: { in: input.boundaries } } } },
+    select: { id: true },
+  });
+  const peerIds = peers.map((p) => p.id);
+  if (!peerIds.includes(input.productId)) peerIds.push(input.productId);
+
+  // Firm-reviewed strength per peer product = mean of its firm product-review scores.
+  const reviews = await client.surveySubmission.findMany({
+    where: getSurveyFinalWhere({
+      SurveyModule: { is: { key: FIRM_PRODUCT_MODULE_KEY } },
+      Subject: { is: { productId: { in: peerIds } } },
+    }),
+    select: { score: true, Subject: { select: { productId: true } } },
+  });
+  const scoresByProduct = new Map<string, number[]>();
+  for (const r of reviews) {
+    const pid = r.Subject?.productId;
+    if (!pid || typeof r.score !== "number") continue;
+    (scoresByProduct.get(pid) ?? scoresByProduct.set(pid, []).get(pid)!).push(r.score);
+  }
+
+  const productMeans: number[] = [];
+  let thisScore: number | null = null;
+  for (const [pid, scores] of scoresByProduct) {
+    if (scores.length === 0) continue;
+    const mean = scores.reduce((s, v) => s + v, 0) / scores.length;
+    productMeans.push(mean);
+    if (pid === input.productId) thisScore = mean;
+  }
+
+  if (thisScore === null) {
+    return empty("Cohort position opens after firms review this product.");
+  }
+
+  const n = productMeans.length;
+  const sorted = [...productMeans].sort((a, b) => a - b);
+  const mean = sorted.reduce((s, v) => s + v, 0) / n;
+  const p25 = percentileValue(sorted, 25);
+  const p75 = percentileValue(sorted, 75);
+  const percentile = Math.round(percentileRank(productMeans, thisScore));
+  const rankFromTop = Math.max(1, n - Math.round((percentile / 100) * n) + 1);
+  const score = Math.round(thisScore);
+  const gapToTopQuartile =
+    typeof p75 === "number" && score < p75 ? Math.round(p75 - score) : null;
+
+  return {
+    available: true,
+    category: input.category,
+    score,
+    mean: Math.round(mean),
+    p25,
+    p75,
+    percentile,
+    rankFromTop: Math.min(n, rankFromTop),
+    n,
+    quartile: quartileOf(percentile) as 1 | 2 | 3 | 4,
+    suppressed: n < MIN_CONTRIBUTORS,
+    gapToTopQuartile,
+    emptyReason: null,
+  };
 }
 
 // ── V2 · Demand Signals ──────────────────────────────────────────────────────

@@ -1362,20 +1362,38 @@ export function buildVendorProductInsightDetailSurfaceContent(input: {
   record: VendorProductInsightRecord | null;
   surface: VendorProductInsightDetailSurfaceKey;
   locked: boolean;
+  /** Hybrid Elite depth: an entitled Elite vendor gets the live elite intro. */
+  eliteEntitled?: boolean;
 }) {
   const content = getVendorProductInsightContent(input.insightKey);
   const lockedState = content?.lockedState;
 
   switch (input.surface) {
     case "elite":
-      // Block 11e: honest Pro-only upsell — names the Elite layers and their
-      // structure with ZERO data. Rendered alongside a blurred LockedElitePreview
-      // in the page. Only reachable when the toggle is shown (non-entitled).
+      // Hybrid Elite depth: an ENTITLED vendor gets a live intro (the depth card
+      // renders the real cohort position + ranked action alongside). A
+      // non-entitled vendor gets the honest upsell — named layers, zero data.
+      if (input.eliteEntitled) {
+        return {
+          key: "elite",
+          title: "Elite",
+          intro:
+            "Live product intelligence: where this product ranks in its category's cohort of firm-reviewed peers, the ranked move to climb, and the trend as review history builds.",
+          items: [
+            {
+              title: "Grounding",
+              body: "Cohort position is computed from the firm-reviewed strength of every peer product in this category — the same evidence base as your alignment benchmarks, at the product grain.",
+            },
+          ],
+        } satisfies VendorProductInsightDetailSurfaceContent;
+      }
+      // Non-entitled upsell — names the Elite layers with ZERO data, rendered
+      // alongside a blurred LockedElitePreview in the page.
       return {
         key: "elite",
         title: "Elite",
         intro:
-          "Elite product intelligence adds a market-comparison view and a forward demand projection for this product — each grounded in firm-reviewed evidence. Available with Elite membership.",
+          "Elite product intelligence adds a cohort position, a ranked action, and a trend for this product — each grounded in firm-reviewed evidence. Available with Elite membership.",
         items: [
           {
             title: "Market comparison view",

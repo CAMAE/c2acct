@@ -58,12 +58,15 @@ describe("11e — product-insight Elite toggle is a non-entitled upsell only", (
     expect(src).toContain('key: "elite"');
   });
 
-  it("the page shows the upsell only to non-entitled and coerces a direct elite hit", () => {
+  it("shows the upsell only to non-entitled; entitled gets live depth (hybrid Elite depth flip)", () => {
     const src = read("app/vendor/product-insight/[productId]/[insightKey]/page.tsx");
-    expect(src).toContain("!eliteEntitlement.allowed");
-    expect(src).toContain("showEliteUpsell");
-    // an entitled vendor hitting ?surface=elite falls back to the data pane
-    expect(src).toContain('requestedSurface === "elite" && !showEliteUpsell');
+    // the toggle shows on every tier-1 surface; the UPSELL is non-entitled only
+    expect(src).toContain("const showEliteToggle = !isTier2");
+    expect(src).toContain("showEliteUpsell = showEliteToggle && !eliteEntitled");
+    // a direct ?surface=elite on a tier-2 route (no toggle) falls back to data
+    expect(src).toContain('requestedSurface === "elite" && !showEliteToggle');
+    // entitled → live depth card; non-entitled → honest locked preview
+    expect(src).toContain("ProductEliteDepthCard");
     expect(src).toContain("LockedElitePreview");
   });
 });

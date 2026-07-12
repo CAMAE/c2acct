@@ -4,8 +4,12 @@ import RankedBars from "@/app/components/charts/RankedBars";
 import ScoreLockup from "@/app/components/charts/ScoreLockup";
 import InsightDetailShell from "@/app/components/insights/InsightDetailShell";
 import LockedElitePreview from "@/app/components/insights/LockedElitePreview";
+import ProductEliteDepthCard from "@/app/components/insights/elite/ProductEliteDepthCard";
 import { getSessionUser } from "@/lib/auth/session";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
+import { buildProductCohortPosition } from "@/lib/eliteInsightsV2";
+import { poolForViewerBoundary, resolveCompanyBoundary } from "@/lib/dataBoundary";
+import prisma from "@/lib/prisma";
 import {
   ELITE_PLACEHOLDER_CTA,
   ELITE_PLACEHOLDER_MESSAGE,
@@ -62,15 +66,28 @@ export default async function VendorProductInsightSlicePage({
     notFound();
   }
 
-  // Block 11e: the Pro product-insight surface offers an Elite upsell toggle to
-  // NON-entitled vendors only (honest blurred preview, zero data). Entitled Elite
-  // vendors never see it — there is no live product Elite layer to gate yet.
+  // Block 11e + hybrid Elite depth: the Pro product-insight surface carries an
+  // Elite toggle on every tier-1 insight. ENTITLED Elite vendors now see LIVE
+  // product-level depth (cohort position + ranked action); non-entitled vendors
+  // see the honest blurred upsell preview. The toggle is absent only on tier-2
+  // routes (a direct ?surface=elite there falls back to the data pane).
   const eliteEntitlement = await resolveMembershipEntitlement(sessionUser, "vendor", MEMBERSHIP_PLAN.ELITE);
-  const showEliteUpsell = !isTier2 && !eliteEntitlement.allowed;
-  // A direct ?surface=elite hit by someone who can't see the toggle (entitled, or
-  // a tier-2 route) falls back to the data pane — never the locked teaser.
+  const eliteEntitled = eliteEntitlement.allowed;
+  const showEliteToggle = !isTier2;
+  const showEliteUpsell = showEliteToggle && !eliteEntitled;
   const activeSurface =
-    requestedSurface === "elite" && !showEliteUpsell ? "evidence" : requestedSurface;
+    requestedSurface === "elite" && !showEliteToggle ? "evidence" : requestedSurface;
+
+  // Live product cohort position — only computed for an entitled vendor viewing
+  // the elite pane of a tier-1 product insight (bounded single-category query).
+  const productCohort =
+    eliteEntitled && showEliteToggle && activeSurface === "elite"
+      ? await buildProductCohortPosition(prisma, {
+          productId: snapshot.product.id,
+          category: snapshot.product.category ?? null,
+          boundaries: poolForViewerBoundary(await resolveCompanyBoundary(sessionUser.companyId)),
+        })
+      : null;
 
   const pageTitle = isTier2 ? tier2Definition?.title ?? content.title : tier1Record?.title ?? content.title;
   const heroBody = isTier2
@@ -81,7 +98,7 @@ export default async function VendorProductInsightSlicePage({
     insightKey,
     record: tier1Record ?? null,
     locked: isTier2,
-    showElite: showEliteUpsell,
+    showElite: showEliteToggle,
   });
   const surfaceContent = buildVendorProductInsightDetailSurfaceContent({
     snapshot,
@@ -89,6 +106,7 @@ export default async function VendorProductInsightSlicePage({
     record: tier1Record ?? null,
     surface: activeSurface,
     locked: isTier2,
+    eliteEntitled,
   });
   const toggleOptions = surfaceCards.map((card) => ({
     key: card.key,
@@ -208,12 +226,18 @@ export default async function VendorProductInsightSlicePage({
       muted={isTier2}
       visualLead={visualLead}
     >
-      {showEliteUpsell && activeSurface === "elite" ? (
+      {activeSurface === "elite" && eliteEntitled && productCohort ? (
+        <ProductEliteDepthCard
+          cohort={productCohort}
+          productName={snapshot.product.name}
+          weakestArea={weakestFirmReviewedArea(snapshot.firmReviewed.utilityEvidence)}
+        />
+      ) : showEliteUpsell && activeSurface === "elite" ? (
         <section className="pat-card p-6">
           <div className="pat-label">Elite Insights</div>
           <LockedElitePreview
             title="Elite product intelligence"
-            description="A market-comparison view and a forward demand projection for this product — live with Elite membership."
+            description="Cohort position, ranked action, and trend for this product — live with Elite membership."
             shape="distribution"
             upgradeHref={eliteEntitlement.upgradeHref}
           />
@@ -221,4 +245,15 @@ export default async function VendorProductInsightSlicePage({
       ) : null}
     </InsightDetailShell>
   );
+}
+
+/** The product's thinnest firm-reviewed feature area (for the ranked-action hint). */
+function weakestFirmReviewedArea(
+  utilityEvidence: ReadonlyArray<{ utilityLabel: string; averageScore: number | null }>
+): string | null {
+  const scored = utilityEvidence.filter(
+    (u): u is { utilityLabel: string; averageScore: number } => typeof u.averageScore === "number"
+  );
+  if (scored.length === 0) return null;
+  return [...scored].sort((a, b) => a.averageScore - b.averageScore)[0]!.utilityLabel;
 }
