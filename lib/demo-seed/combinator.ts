@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 import { MembershipPlan, MembershipStatus, ProductDeploymentModel } from "@prisma/client";
+import { canonicalCategoryForProduct } from "@/lib/productCategoryTaxonomy";
 
 import type {
   DemoFirmInput,
@@ -317,7 +318,10 @@ export function buildVendorPlan(vendor: VendorBankEntry): DemoBenchmarkVendorPla
   const productInputs: DemoProductInput[] = vendor.products.map((product) => ({
     key: product.id,
     name: product.name,
-    category: utilityKeyToLabel(product.utilityKeys[0] ?? "function-practice-management"),
+    // Block 10a: category is one of the 7 shared canonical categories (not the
+    // raw utility label) so every vendor's products land in the same set and
+    // each category clears the >=5-vendor benchmark floor.
+    category: canonicalCategoryForProduct(product.utilityKeys),
     websitePath: `/products/${product.id.replace(/^demo-bench-product-/, "")}`,
     summary: `${product.name} is ${vendor.name}'s ${utilityKeyToLabel(
       product.utilityKeys[0] ?? "function-practice-management"
