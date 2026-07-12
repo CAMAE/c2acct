@@ -2,13 +2,28 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import type { TrustSurface } from "@/lib/trustContent";
+import { getReleaseFingerprint } from "@/lib/release/fingerprint";
 
 type TrustSurfacePageProps = {
   surface: TrustSurface;
   children?: ReactNode;
 };
 
+// P5 (Mythos punch list): "Last updated" is build-date-driven, not a stale
+// hardcoded date. Derived from the release fingerprint's build timestamp.
+function buildDateLabel(): string {
+  try {
+    const iso = getReleaseFingerprint().buildTimestamp;
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return "the current build";
+    return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
+  } catch {
+    return "the current build";
+  }
+}
+
 export default function TrustSurfacePage({ surface, children }: TrustSurfacePageProps) {
+  const lastUpdated = buildDateLabel();
   return (
     <div className="space-y-8">
       <section className="pat-card px-7 py-8 sm:px-10 sm:py-10">
@@ -26,7 +41,7 @@ export default function TrustSurfacePage({ surface, children }: TrustSurfacePage
           {surface.summary}
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-[var(--shell-muted)]">
-          <span>Last updated: {surface.lastUpdated}</span>
+          <span>Last updated: {lastUpdated}</span>
           <span aria-hidden="true" className="h-3.5 w-px bg-[var(--shell-border-strong)]" />
           <Link href="/trust" className="font-semibold text-[var(--shell-ink)] hover:text-[var(--shell-accent)]">
             Trust center

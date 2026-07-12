@@ -429,7 +429,7 @@ export default function AlignmentBoardClient({
       <section className="pat-card p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="pat-label">
-            Secret candidates · ranked fits — {swapOutId ? "click one to swap it in" : "lift a stack piece first"}
+            {entitled ? "Ranked candidates" : "Secret candidates"} · ranked fits — {swapOutId ? "click one to swap it in" : "lift a stack piece first"}
           </div>
           {!entitled && data.candidates[0] ? (
             <span className="text-xs text-[var(--shell-muted)]">
