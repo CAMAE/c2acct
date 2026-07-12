@@ -247,3 +247,28 @@ REMAINING — P1/P2/P4 are one coherent block (diagnosed, not yet built):
   the per-firm dimension line (all six repeat "Operating Model … · Early signal").
 Acceptance: zero insufficient-data cards on Meridian Category Position; live HTTP
 + screenshot; Mythos re-verifies.
+
+### B10a — DATA + INTEGRITY (P2 done; P4 needs a score-balance pass)
+Commits: taxonomy keystone b3caf760 · scale multiplier 58da6932 · readCohort
+filter 230e5347 · base-demo canonical d7638fa3. Reseed executed: scale-4
+seed:demo-expand (32 vendors / 176 firms / 824 module subs / 548 product reviews)
++ seed:demo-benchmark + seed:pat-runtime (all serial, no fan-out per Day-16) →
+cleared stale benchmarks (1523 company / 56 run rows) → compute:benchmarks =
+12 firm + **7 vendor runs** (exactly the 7 canonical categories).
+ACCEPTANCE — P2 MET: getVendorCategoryReadings now returns only the vendor's OWN
+categories (readCohort filtered to companyByMetric), and every canonical category
+clears >=8 vendors → Meridian (demo-vendor-elite) 5 cats / **0 suppressed** ✅;
+PAT Demo Vendor 4 cats / 0 suppressed ✅. One null-category product remains (not
+in any run, harmless).
+STILL OPEN in 10a:
+- P4 fit mix: Meridian 0 strong/0 good/6 weak; PAT Demo Vendor 0/1/14. Root
+  cause: alignmentDelta = vendorStrength − firmAlignment is negative for ~all
+  firms (vendor product strength sits below firm alignment). Fix = raise the
+  review vendors' product scoreTarget / widen the ecosystem firm alignment spread
+  so deltas span strong/good/weak. Iterative demo-score tuning, not a code bug.
+- Dimension-line variety: only 2 distinct gapAreas per vendor — apply B8-7-style
+  de-clump to the gapArea/dimension rotation.
+NOT STARTED: 10b (P0 server-side Elite tier-gate + contract tests — cites 4.12.26
+direct-route-lock audit), 10c (P0 one-shared-reader number integrity), 10d
+(threshold math), 10e (3 re-verified regressions). Block 10 live checkpoint runs
+the FULL regression checklist after 10a-10e.
