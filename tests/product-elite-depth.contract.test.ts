@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { buildProductCohortPosition } from "@/lib/eliteInsightsV2";
+import { buildProductCohortPosition, buildProductTrajectory } from "@/lib/eliteInsightsV2";
 
 /**
  * Hybrid Elite depth: a product's cohort position is real, firm-reviewed data
@@ -76,6 +76,37 @@ describe("buildProductCohortPosition — real cohort placement", () => {
     );
     expect(result.available).toBe(false);
     expect(result.emptyReason).toMatch(/after firms review/i);
+  });
+});
+
+function trajClient(snaps: Array<{ score: number; computedAt: Date }>) {
+  return {
+    productMaturitySnapshot: { findMany: async () => snaps },
+    productMaturityMomentum: { findFirst: async () => null },
+  } as unknown as Parameters<typeof buildProductTrajectory>[0];
+}
+
+describe("buildProductTrajectory — real line only, honest pending otherwise", () => {
+  it("stays honestly pending with fewer than two snapshots (no fabricated line)", async () => {
+    const t = await buildProductTrajectory(trajClient([{ score: 60, computedAt: new Date("2026-06-15") }]), "P");
+    expect(t.available).toBe(false);
+    expect(t.history).toHaveLength(0);
+    expect(t.emptyReason).toMatch(/holds this back|time-series|fabricated/i);
+  });
+
+  it("charts a real trajectory with >=2 snapshots + a directional projection", async () => {
+    const t = await buildProductTrajectory(
+      trajClient([
+        { score: 50, computedAt: new Date("2026-03-15") },
+        { score: 55, computedAt: new Date("2026-04-15") },
+        { score: 60, computedAt: new Date("2026-05-15") },
+      ]),
+      "P"
+    );
+    expect(t.available).toBe(true);
+    expect(t.history.map((h) => h.score)).toEqual([50, 55, 60]);
+    expect(t.projection).not.toBeNull();
+    expect(t.projection!.score).toBeGreaterThanOrEqual(60); // rising → projects up
   });
 });
 

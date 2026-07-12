@@ -7,7 +7,7 @@ import LockedElitePreview from "@/app/components/insights/LockedElitePreview";
 import ProductEliteDepthCard from "@/app/components/insights/elite/ProductEliteDepthCard";
 import { getSessionUser } from "@/lib/auth/session";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
-import { buildProductCohortPosition } from "@/lib/eliteInsightsV2";
+import { buildProductCohortPosition, buildProductTrajectory } from "@/lib/eliteInsightsV2";
 import { poolForViewerBoundary, resolveCompanyBoundary } from "@/lib/dataBoundary";
 import prisma from "@/lib/prisma";
 import {
@@ -80,14 +80,17 @@ export default async function VendorProductInsightSlicePage({
 
   // Live product cohort position — only computed for an entitled vendor viewing
   // the elite pane of a tier-1 product insight (bounded single-category query).
-  const productCohort =
-    eliteEntitled && showEliteToggle && activeSurface === "elite"
-      ? await buildProductCohortPosition(prisma, {
-          productId: snapshot.product.id,
-          category: snapshot.product.category ?? null,
-          boundaries: poolForViewerBoundary(await resolveCompanyBoundary(sessionUser.companyId)),
-        })
-      : null;
+  const showLiveDepth = eliteEntitled && showEliteToggle && activeSurface === "elite";
+  const productCohort = showLiveDepth
+    ? await buildProductCohortPosition(prisma, {
+        productId: snapshot.product.id,
+        category: snapshot.product.category ?? null,
+        boundaries: poolForViewerBoundary(await resolveCompanyBoundary(sessionUser.companyId)),
+      })
+    : null;
+  const productTrajectory = showLiveDepth
+    ? await buildProductTrajectory(prisma, snapshot.product.id)
+    : null;
 
   const pageTitle = isTier2 ? tier2Definition?.title ?? content.title : tier1Record?.title ?? content.title;
   const heroBody = isTier2
@@ -229,6 +232,7 @@ export default async function VendorProductInsightSlicePage({
       {activeSurface === "elite" && eliteEntitled && productCohort ? (
         <ProductEliteDepthCard
           cohort={productCohort}
+          trajectory={productTrajectory}
           productName={snapshot.product.name}
           weakestArea={weakestFirmReviewedArea(snapshot.firmReviewed.utilityEvidence)}
         />

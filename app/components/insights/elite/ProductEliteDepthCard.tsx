@@ -1,5 +1,6 @@
 import PercentileBandRow from "@/app/components/charts/PercentileBandRow";
-import type { ProductCohortPosition } from "@/lib/eliteInsightsV2";
+import TrajectoryChart from "@/app/components/charts/TrajectoryChart";
+import type { ProductCohortPosition, ProductTrajectory } from "@/lib/eliteInsightsV2";
 
 function ordinal(n: number): string {
   const s = ["th", "st", "nd", "rd"];
@@ -16,10 +17,12 @@ function ordinal(n: number): string {
  */
 export default function ProductEliteDepthCard({
   cohort,
+  trajectory,
   productName,
   weakestArea,
 }: {
   cohort: ProductCohortPosition;
+  trajectory: ProductTrajectory | null;
   productName: string;
   weakestArea?: string | null;
 }) {
@@ -93,15 +96,35 @@ export default function ProductEliteDepthCard({
         </section>
       ) : null}
 
-      {/* TREND — honest pending state (no product time-series yet) */}
-      <section className="pat-card pat-card-muted p-6">
-        <div className="pat-label">Trend</div>
-        <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-          A product trajectory needs repeat firm reviews over time. PAT holds this back until there is
-          real time-series evidence rather than showing a fabricated line — it opens as review history
-          builds for this product.
-        </p>
-      </section>
+      {/* TREND — a real line once >=2 snapshots exist; honest pending until then */}
+      {trajectory?.available ? (
+        <section className="pat-card p-6">
+          <div className="pat-label">Trend</div>
+          <div className="mt-2 flex flex-wrap items-baseline gap-x-3">
+            <span className="text-3xl font-semibold tabular-nums text-[var(--shell-ink)]">
+              {trajectory.history[trajectory.history.length - 1]!.score}
+            </span>
+            <span className="text-sm text-[var(--shell-muted)]">
+              firm-reviewed strength over the last {trajectory.history.length} snapshots
+            </span>
+          </div>
+          <div className="mt-3">
+            <TrajectoryChart
+              history={trajectory.history}
+              projection={trajectory.projection}
+              title={`${productName} firm-reviewed strength over time`}
+            />
+          </div>
+        </section>
+      ) : (
+        <section className="pat-card pat-card-muted p-6">
+          <div className="pat-label">Trend</div>
+          <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+            {trajectory?.emptyReason ??
+              "A product trajectory needs repeat firm reviews over time. PAT holds this back until there is real time-series evidence rather than showing a fabricated line — it opens as review history builds for this product."}
+          </p>
+        </section>
+      )}
     </div>
   );
 }

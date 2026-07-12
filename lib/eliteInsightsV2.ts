@@ -570,6 +570,72 @@ export async function buildProductCohortPosition(
   };
 }
 
+// ── Hybrid Elite depth · Product trajectory (mirror of F3 firm trajectory) ───
+// Charts a product's firm-reviewed strength over time from real ProductMaturity
+// snapshots. Opens only at >=2 points — until then the Trend pane stays honestly
+// pending; never a fabricated line.
+
+export type ProductTrajectory = {
+  available: boolean;
+  history: Array<{ label: string; score: number }>;
+  projection: { score: number; low: number; high: number; label: string } | null;
+  momentum: { trend: string; velocity: string; volatility: number; avgDelta: number } | null;
+  emptyReason: string | null;
+};
+
+type ProductTrajectoryClient = Pick<PrismaClient, "productMaturitySnapshot" | "productMaturityMomentum">;
+
+export async function buildProductTrajectory(
+  client: ProductTrajectoryClient,
+  productId: string
+): Promise<ProductTrajectory> {
+  const [snapshots, momentum] = await Promise.all([
+    client.productMaturitySnapshot.findMany({
+      where: { productId },
+      orderBy: { computedAt: "asc" },
+      select: { score: true, computedAt: true },
+    }),
+    client.productMaturityMomentum.findFirst({ where: { productId }, orderBy: { computedAt: "desc" } }),
+  ]);
+
+  if (snapshots.length < 2) {
+    return {
+      available: false,
+      history: [],
+      projection: null,
+      momentum: null,
+      emptyReason:
+        "A product trajectory needs repeat firm reviews over time. PAT holds this back until there is real time-series evidence rather than showing a fabricated line — it opens as review history builds.",
+    };
+  }
+
+  const history = snapshots.map((s) => ({
+    label: s.computedAt.toLocaleDateString("en-US", { month: "short" }),
+    score: Math.round(s.score),
+  }));
+
+  const last = history[history.length - 1].score;
+  const avgDelta = momentum?.avgDelta ?? (last - history[0].score) / (history.length - 1);
+  const vol = momentum?.volatility ?? 2;
+  const projScore = Math.max(0, Math.min(100, Math.round(last + avgDelta)));
+  const projection = {
+    score: projScore,
+    low: Math.max(0, Math.round(projScore - Math.max(1.5, vol))),
+    high: Math.min(100, Math.round(projScore + Math.max(1.5, vol))),
+    label: "next",
+  };
+
+  return {
+    available: true,
+    history,
+    projection,
+    momentum: momentum
+      ? { trend: momentum.trend, velocity: momentum.velocity, volatility: momentum.volatility, avgDelta: momentum.avgDelta }
+      : null,
+    emptyReason: null,
+  };
+}
+
 // ── V2 · Demand Signals ──────────────────────────────────────────────────────
 
 export type VendorDemandSignals = {

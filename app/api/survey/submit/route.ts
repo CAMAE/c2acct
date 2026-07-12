@@ -30,6 +30,8 @@ import { writeCompanyCapabilityScores } from "@/lib/companyCapabilityScoreWrites
 import { recordPatDiagnostic } from "@/lib/patDiagnostics";
 import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
 import { writeFirmMaturitySnapshot } from "@/lib/firmMaturity";
+import { writeProductMaturitySnapshot } from "@/lib/productMaturity";
+import { FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat";
 import { SURVEY_FINAL_SCORE_VERSION, getSurveyDraftWhere } from "@/lib/surveyDrafts";
 import { consumeDurableRateLimit, rateLimitJsonResponse } from "@/lib/security/rateLimit";
 
@@ -530,6 +532,31 @@ export async function POST(req: Request) {
             warnPrismaCompatibilityOnce(
               "survey-submit-maturity-snapshot-missing",
               "FirmMaturitySnapshot writes are unavailable in the local database. Trajectory history is skipped until local Prisma migrations are applied."
+            );
+          } else {
+            throw error;
+          }
+        }
+      }
+
+      // Hybrid Elite depth: on a final FIRM PRODUCT REVIEW, append a product
+      // maturity snapshot so the product Trend pane builds honest history over
+      // time. Demo products are skipped inside the writer (their history is
+      // seeded). The subject of a product review carries the reviewed productId.
+      if (moduleKey === FIRM_PRODUCT_MODULE_KEY && assessmentContext.subjectId) {
+        try {
+          const reviewedSubject = await tx.subject.findUnique({
+            where: { id: assessmentContext.subjectId },
+            select: { productId: true },
+          });
+          if (reviewedSubject?.productId) {
+            await writeProductMaturitySnapshot(tx, reviewedSubject.productId);
+          }
+        } catch (error) {
+          if (isPrismaMissingSchemaError(error)) {
+            warnPrismaCompatibilityOnce(
+              "survey-submit-product-maturity-missing",
+              "ProductMaturitySnapshot writes are unavailable in the local database. Product trend history is skipped until local Prisma migrations are applied."
             );
           } else {
             throw error;

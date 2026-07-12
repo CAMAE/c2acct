@@ -287,6 +287,59 @@ model FirmMaturitySnapshot {
   @@index([companyId, version])
 }
 
+// Product maturity trajectory — the per-product mirror of the firm maturity
+// models (F3). Tracks a product's firm-reviewed strength over time so the Elite
+// depth trend pane can render a real line once >=2 points exist (never faked).
+model ProductMaturityIndex {
+  id         String   @id
+  productId  String
+  score      Float
+  version    Int      @default(1)
+  computedAt DateTime @default(now())
+  bandMax    Float    @default(25)
+  bandMin    Float    @default(0)
+  tier       String   @default("FOUNDATIONAL")
+  Product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, version])
+  @@index([productId])
+}
+
+model ProductMaturityMomentum {
+  id         String   @id
+  productId  String
+  version    Int      @default(1)
+  windowN    Int      @default(3)
+  delta1     Float    @default(0)
+  delta2     Float    @default(0)
+  accel      Float    @default(0)
+  avgDelta   Float    @default(0)
+  volatility Float    @default(0)
+  trend      String   @default("FLAT")
+  velocity   String   @default("STABLE")
+  stability  String   @default("STABLE")
+  computedAt DateTime @default(now())
+  Product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, version])
+  @@index([productId])
+}
+
+model ProductMaturitySnapshot {
+  id         String   @id
+  productId  String
+  score      Float
+  tier       String
+  bandMin    Float
+  bandMax    Float
+  version    Int      @default(1)
+  computedAt DateTime @default(now())
+  Product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, computedAt])
+  @@index([productId, version])
+}
+
 model Insight {
   id                    String                  @id
   key                   String                  @unique
@@ -373,6 +426,9 @@ model Product {
   ProductCapabilityMap      ProductCapabilityMap[]
   ProductSignal             ProductSignal[]
   ProductTaxonomyAssignment ProductTaxonomyAssignment[]
+  ProductMaturityIndex      ProductMaturityIndex[]
+  ProductMaturityMomentum   ProductMaturityMomentum[]
+  ProductMaturitySnapshot   ProductMaturitySnapshot[]
 
   @@index([companyId])
   @@index([vendorId])
