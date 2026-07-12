@@ -92,6 +92,8 @@ export type FirmInsightOverviewCard = {
   interactive: boolean;
   supportingText: string | null;
   metric?: FirmInsightOverviewCardMetric;
+  /** Block 11d: the Pro readout the card expands into in place. */
+  expandedContent?: { intro: string; items: Array<{ title: string; body: string }> } | null;
 };
 
 export type FirmInsightDetailSurfaceKey = "pro" | "elite" | "help";
@@ -629,6 +631,15 @@ export function buildFirmProInsightCards(input: {
     const content = getFirmInsightContent(insight.key);
     const variedSummary = report ? buildFirmInsightCardSummary(insight.key as InsightKey, report) : null;
 
+    // Block 11d: attach the Pro readout so the card can expand in place.
+    const proSurface =
+      report && visible
+        ? buildFirmInsightDetailSurfaceContent({ report, surface: "pro" })
+        : null;
+    const expandedContent = proSurface
+      ? { intro: proSurface.intro, items: proSurface.items.map((item) => ({ title: item.title, body: item.body })) }
+      : null;
+
     return {
       key: insight.key,
       title: insight.title,
@@ -637,6 +648,7 @@ export function buildFirmProInsightCards(input: {
       tone: visible ? "active" : "muted",
       href: `/firm/insights/${insight.key}`,
       interactive: true,
+      expandedContent,
       supportingText: report
         ? visible
           ? report.strongestModules.length
@@ -989,20 +1001,18 @@ export function buildFirmLockedInsightDetailSurfaceContent(input: {
           ],
         } satisfies FirmInsightDetailSurfaceContent;
       }
+      // Non-entitled (Pro) viewer: keep the governance-compliant locked copy —
+      // the boundary is explicit and named Elite features (peer benchmark,
+      // forecast) are NOT teased on the locked surface. The N2 contradiction
+      // was on the ENTITLED path only (handled above); this branch is unchanged.
       return {
         key: "elite",
         title: "Elite",
-        // Non-entitled (Pro) viewer: Elite Insights v2 are a real, live product —
-        // this layer is gated behind membership, not "unavailable". Frame it as
-        // available-with-Elite so it reads consistently with the page's upsell
-        // chrome instead of "not live" (Block 11 N2).
-        intro:
-          input.summary ??
-          "This deeper Elite layer — a future-state projection, a peer benchmark, and a recommendation engine — is available with Elite membership, grounded in your firm-reviewed evidence.",
+        intro: `${summary} This is not a live Elite interpretation.`,
         items: [
           {
             title: "What it is",
-            body: input.what ?? "A forward and comparative Elite layer that unlocks with Elite membership.",
+            body: input.what ?? "A restricted future Elite insight layer.",
           },
           lockedBoundary,
           evidenceStatus,

@@ -465,7 +465,8 @@ describe("vendor product insight runtime", () => {
     });
     const record = snapshot.insightRecords[0]!;
 
-    expect(getRequestedVendorProductInsightDetailSurface(undefined)).toBe("help");
+    // Block 11d: the click default is the data (Evidence) pane, not Help.
+    expect(getRequestedVendorProductInsightDetailSurface(undefined)).toBe("evidence");
     expect(getRequestedVendorProductInsightDetailSurface("firm-evidence")).toBe("evidence");
     expect(getRequestedVendorProductInsightDetailSurface("confidence")).toBe("evidence");
 
@@ -482,13 +483,13 @@ describe("vendor product insight runtime", () => {
       locked: true,
     });
 
-    expect(proCards.map((card) => card.key)).toEqual(["help", "evidence"]);
+    expect(proCards.map((card) => card.key)).toEqual(["evidence", "help"]);
     expect(proCards.every((card) => card.interactive && card.href?.includes(`surface=${card.key}`))).toBe(true);
     expect(proCards.every((card) => card.href?.startsWith(`/vendor/product-insight/${snapshot.product.id}/${record.key}?surface=`))).toBe(true);
     expect(proCards.find((card) => card.key === "evidence")?.summary).toBe(
       "Review the vendor section evidence alongside the firm-reviewed feature evidence behind this readout."
     );
-    expect(eliteCards.map((card) => card.key)).toEqual(["help", "evidence"]);
+    expect(eliteCards.map((card) => card.key)).toEqual(["evidence", "help"]);
     expect(eliteCards.every((card) => card.interactive && card.href?.includes(`surface=${card.key}`))).toBe(
       true
     );

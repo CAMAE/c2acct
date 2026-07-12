@@ -130,6 +130,8 @@ export type VendorAlignmentInsightOverviewCard = {
   interactive: boolean;
   supportingText: string | null;
   metric?: { value: string; caption: string };
+  /** Block 11d: the Pro readout the card expands into in place. */
+  expandedContent?: { intro: string; items: Array<{ title: string; body: string }> } | null;
 };
 
 export type VendorAlignmentInsightDetailSurfaceCard = {
@@ -866,6 +868,8 @@ export function buildVendorAlignmentProInsightCards(
     .filter((report) => report.tier === 1)
     .map((report) => {
       const face = buildVendorAlignmentCardMetric(report);
+      // Block 11d: attach the Pro readout so the card can expand in place.
+      const proSurface = buildVendorAlignmentInsightDetailSurfaceContent({ report, surface: "pro" });
       return {
         key: report.key,
         title: report.title,
@@ -879,6 +883,10 @@ export function buildVendorAlignmentProInsightCards(
         tone: "active",
         href: `/vendor/alignment-insights/${report.key}`,
         interactive: true,
+        expandedContent: {
+          intro: proSurface.intro,
+          items: proSurface.items.map((item) => ({ title: item.title, body: item.body })),
+        },
         supportingText: report.strongestModules.length
           ? `Strongest support: ${report.strongestModules.map((module) => module.title).join(", ")}.`
           : report.notableQuestionClusters.length
