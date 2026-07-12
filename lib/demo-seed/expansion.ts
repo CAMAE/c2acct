@@ -48,10 +48,61 @@ type ExpansionBank = {
   firms: FirmRosterEntry[];
 };
 
+/**
+ * Block 10a: scale the demo up ~4× (Cam's ~176 firms / ~32 vendors target) WITHOUT
+ * hand-authoring a bigger bank. PAT_DEMO_EXPAND_SCALE (default 1) replicates every
+ * vendor and firm N times with unique ids/names and per-replica score variety, so
+ * each of the 7 canonical categories comfortably clears the ≥5-vendor benchmark
+ * floor and both vendor accounts land a mixed strong/good/weak fit distribution.
+ * Replication keeps writes serial in the caller — no fan-out (Day-16 pool lesson).
+ */
+const REPLICA_REGION = ["", " · East", " · Central", " · West", " · South", " · Pacific"] as const;
+
+function expandScale(): number {
+  const raw = Number(process.env.PAT_DEMO_EXPAND_SCALE ?? "1");
+  return Number.isFinite(raw) && raw >= 1 ? Math.min(6, Math.floor(raw)) : 1;
+}
+
+/** Deterministic per-replica score nudge (keeps seeds in a plausible band). */
+function nudgeScore(seed: number, replica: number): number {
+  const deltas = [0, -9, 6, -4, 11, -7];
+  return Math.max(28, Math.min(96, Math.round(seed + (deltas[replica] ?? 0))));
+}
+
+function replicateBank(bank: ExpansionBank, scale: number): ExpansionBank {
+  if (scale <= 1) return bank;
+  const vendors: VendorBankEntry[] = [];
+  const ecosystemSizes: number[] = [];
+  for (let r = 0; r < scale; r += 1) {
+    bank.vendors.forEach((vendor, vendorIndex) => {
+      const suffix = r === 0 ? "" : `-r${r}`;
+      vendors.push({
+        ...vendor,
+        id: `${vendor.id}${suffix}`,
+        name: `${vendor.name}${REPLICA_REGION[r] ?? ` ${r + 1}`}`,
+        products: vendor.products.map((product) => ({
+          ...product,
+          id: `${product.id}${suffix}`,
+          selfReportedScoreSeed: nudgeScore(product.selfReportedScoreSeed, r),
+        })),
+      });
+      ecosystemSizes.push(bank.ecosystemSizes[vendorIndex]!);
+    });
+  }
+  const firms: FirmRosterEntry[] = [];
+  for (let r = 0; r < scale; r += 1) {
+    bank.firms.forEach((firm) => {
+      firms.push(r === 0 ? firm : { ...firm, name: `${firm.name}${REPLICA_REGION[r] ?? ` ${r + 1}`}` });
+    });
+  }
+  return { ...bank, vendors, ecosystemSizes, firms };
+}
+
 export function loadExpansionBank(): ExpansionBank {
-  const bank = JSON.parse(
+  const parsed = JSON.parse(
     readFileSync(path.join(DEMO_SEED_ROOT, "expansion-catalog.json"), "utf8")
   ) as ExpansionBank;
+  const bank = replicateBank(parsed, expandScale());
 
   if (!Array.isArray(bank.vendors) || bank.vendors.length === 0) {
     throw new Error("expansion-catalog.json: no vendors");
