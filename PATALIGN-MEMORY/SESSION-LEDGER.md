@@ -435,3 +435,26 @@ flips 11e live for Elite in same commit) → sandbox utility lanes + multi-piece
 Demand Signals / Gap Map expansions → QBANK v1.1 (approval HELD; signatures follow
 founders review; email out with v1.1 docx exports).
 
+### HYBRID ELITE DEPTH — layer 1 LIVE (2026-07-12, commit 910aa248)
+Fills the product-level Elite pane with REAL data + flips 11e live for entitled.
+- buildProductCohortPosition (eliteInsightsV2): a single product's percentile in
+  its category's cohort of firm-reviewed PEER PRODUCTS (rank, quartile, p25/p75,
+  gap→top-quartile). Bounded read-time single-category query — the offline vendor
+  benchmark only goes to vendor-per-category; this reads at the product grain.
+  Honest suppression below minimum-n. NO schema migration (CompanyBenchmark is
+  per-company; per-product cohort computed at read time on the entitled page).
+- ProductEliteDepthCard: F1-style PercentileBandRow + ranked action + HONEST
+  trend pending-state (no product time-series exists — not faked).
+- Product-insight page: Elite toggle on every tier-1 surface; ENTITLED → live
+  depth card, non-entitled → blurred upsell (named layers, zero data). Elite
+  intro entitlement-aware.
+Verified live on :3005 (build ptMreLKjjnY_5ew1aGvUY): Meridian Practice 74 · p76
+· 6th of 21 · Q4 in Workflow & Practice Ops, band row correct, ranked action
+"already top quartile — hold the lead", trend honestly pending. Contract test
+tests/product-elite-depth.contract.test.ts (6). 795 unit green, lint+tsc clean.
+STILL OPEN (hybrid depth follow-on): product tier-2 routes (market-comparison /
+future-demand-projection / expansion-simulation) still placeholder; product TREND
+needs a ProductMaturitySnapshot model + compute (real time-series) before it can
+go live. Then: sandbox utility lanes + multi-piece swap → Demand/Gap Map
+expansions → QBANK v1.1.
+
