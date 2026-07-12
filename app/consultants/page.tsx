@@ -103,7 +103,7 @@ export default async function ConsultantOverviewPage({
               You don&apos;t have any ecosystems assigned yet. Ask your admin to assign you to an ecosystem before signing back in.
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               {cards.map((card) => (
                 <EcosystemListCard key={card.ecosystemId} data={card} />
               ))}

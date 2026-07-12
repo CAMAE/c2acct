@@ -26,8 +26,11 @@ export default function PortalSurfaceCard({
     </>
   );
 
-  const className =
-    "pat-card pat-card-interactive group block rounded-[24px] bg-white p-6";
+  // Block 11a: inherit the canonical pat-card treatment (28px radius,
+  // --shell-panel bg) — the same "law" the firm-pro insight cards use — instead
+  // of the off-law rounded-[24px]/bg-white override, so every portal home card
+  // matches the insight cards.
+  const className = "pat-card pat-card-interactive group block p-6";
 
   if (surface.availability === "enabled" && surface.href) {
     return <Link href={surface.href} className={className}>{content}</Link>;
