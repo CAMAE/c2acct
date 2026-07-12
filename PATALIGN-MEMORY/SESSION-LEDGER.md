@@ -326,3 +326,24 @@ identity + per-card differentiation + source-scan wiring guard (no averageScore
 fallback). Full: 22 contract tests green, tsc clean.
 Probes: scripts/dev/verify-insight-headlines.ts.
 
+### B10d — THRESHOLD MATH (done)
+Root cause: capability evidence bars are PER-CAPABILITY (60% or 65%, from
+firmCapabilities badge minScore) but copy/charts hardcoded a single "60%".
+firm_tier1_data_and_controls = {Data 65, Governance 65, Control 60} — mixed.
+The FirmGapPlanCard drew a hardcoded threshold={60} "60% bar" chart line while
+per-row meta said "under 65%" and the header called it the "top-quartile bar" —
+three framings for one set of bars (Cam's "60% bar vs +N over 65%" flag).
+Fix (per-row real bars everywhere; single line only when uniform):
+- describeCapabilityBar(caps) in firmInsightEngine → "the 65% bar" | "their
+  60–65% bars"; used in the data_and_controls headline caption + summary (was
+  "the 60% threshold").
+- FirmGapPlanCard: barLineFor(items) draws the RankedBars threshold line ONLY
+  when every charted row shares one bar, else omits it (per-row meta carries the
+  real bar). Header "top-quartile bar" → "their capability bar".
+- firm insight detail RankedBars: capBarLine/capBarTitle computed from the real
+  distinct thresholds; each row meta now "below 65% bar" (was bare "below").
+Runtime (demo-firm-elite): data_and_controls "2 of 3 · their 60–65% bars"
+(Data65✗/Gov65✓/Ctrl60✓); gap plan cleared 7/10 with rows "20 under 60%",
+"12 under 65%" — count computed from the same displayed per-row thresholds.
+Tests: tests/threshold-math.contract.test.ts (7). 13 green w/ 10c, tsc clean.
+

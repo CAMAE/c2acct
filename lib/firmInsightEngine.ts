@@ -326,6 +326,29 @@ export function averageContributingModuleScore(report: FirmInsightReport): numbe
 }
 
 /**
+ * Block 10d (threshold math): capability evidence bars are per-capability (60%
+ * or 65%, from firmCapabilities badge rules) — NOT a single global 60%. This
+ * describes the ACTUAL bar(s) behind a set of capabilities so copy never
+ * hardcodes "60%" while the count is measured against a mix of 60/65 bars.
+ *   uniform  → "the 65% bar"
+ *   mixed    → "their 60–65% bars"
+ */
+export function describeCapabilityBar(
+  capabilities: ReadonlyArray<{ threshold: number }>
+): string {
+  const distinct = [...new Set(capabilities.map((capability) => capability.threshold))].sort(
+    (a, b) => a - b
+  );
+  if (distinct.length === 0) {
+    return "their evidence bar";
+  }
+  if (distinct.length === 1) {
+    return `the ${distinct[0]}% bar`;
+  }
+  return `their ${distinct[0]}–${distinct[distinct.length - 1]}% bars`;
+}
+
+/**
  * Block 10c (P0 number integrity): the ONE shared reader for a firm insight's
  * headline number. BOTH the overview face card and the detail-page hero call
  * this, so the number a firm sees on /firm/insights matches the number on the
@@ -392,7 +415,9 @@ export function readFirmInsightHeadline(key: InsightKey, report: FirmInsightRepo
         score: null,
         displayValue: `${met} of ${report.contributingCapabilities.length}`,
         showBand: false,
-        caption: "capabilities at or above the 60% threshold",
+        // The count is measured against each capability's OWN bar (60% or 65%),
+        // so the caption names the real bar(s), not a hardcoded 60%.
+        caption: `capabilities at or above ${describeCapabilityBar(report.contributingCapabilities)}`,
       };
     }
     case "firm_tier1_change_alignment": {
@@ -475,7 +500,7 @@ export function buildFirmInsightCardSummary(key: InsightKey, report: FirmInsight
       );
       if (scoredCapabilities.length) {
         const met = report.contributingCapabilities.filter((capability) => capability.meetsThreshold).length;
-        return `${met} of ${report.contributingCapabilities.length} supporting capabilities clear the 60% threshold; ${weakest.title} carries the most control-side pressure.`;
+        return `${met} of ${report.contributingCapabilities.length} supporting capabilities clear ${describeCapabilityBar(report.contributingCapabilities)}; ${weakest.title} carries the most control-side pressure.`;
       }
       return `Control posture rests on ${strongest.title} (${strongScore}%), with ${weakest.title} (${weakScore}%) holding the most pressure.`;
     }

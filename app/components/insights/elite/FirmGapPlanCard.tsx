@@ -1,6 +1,20 @@
 import RankedBars from "@/app/components/charts/RankedBars";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
-import type { FirmGapPlan } from "@/lib/eliteInsightsV2";
+import type { FirmGapPlan, GapItem } from "@/lib/eliteInsightsV2";
+
+/**
+ * Block 10d (threshold math): the capability bars are per-capability (60% or
+ * 65%), so a single hardcoded threshold line is wrong. Draw the line ONLY when
+ * every charted row shares one bar; otherwise omit it and let each row's meta
+ * ("−N pts under 65%") carry its own real bar. Never asserts a uniform 60%.
+ */
+function barLineFor(items: GapItem[]): { threshold?: number; thresholdLabel?: string } {
+  const distinct = [...new Set(items.map((item) => item.threshold))];
+  if (distinct.length === 1) {
+    return { threshold: distinct[0], thresholdLabel: `${distinct[0]}% bar` };
+  }
+  return {}; // mixed bars — no single line; per-row meta shows each bar
+}
 
 export default function FirmGapPlanCard({ data }: { data: FirmGapPlan }) {
   if (!data.available) {
@@ -26,8 +40,7 @@ export default function FirmGapPlanCard({ data }: { data: FirmGapPlan }) {
                   value: g.score,
                   meta: `+${-g.gap} pts over ${g.threshold}%`,
                 }))}
-                threshold={60}
-                thresholdLabel="60% bar"
+                {...barLineFor(data.watchList)}
                 colorByBand
               />
             </div>
@@ -58,7 +71,7 @@ export default function FirmGapPlanCard({ data }: { data: FirmGapPlan }) {
         <div className="flex flex-wrap items-baseline gap-x-3">
           <span className="text-3xl font-semibold tabular-nums text-[var(--shell-ink)]">{data.gaps.length}</span>
           <span className="text-sm text-[var(--shell-muted)]">
-            capabilit{data.gaps.length === 1 ? "y" : "ies"} below the top-quartile bar · {data.clearedCount} of{" "}
+            capabilit{data.gaps.length === 1 ? "y" : "ies"} below their capability bar · {data.clearedCount} of{" "}
             {data.totalCount} already cleared. Fix in this order — largest point deficit first.
           </span>
         </div>
@@ -71,8 +84,7 @@ export default function FirmGapPlanCard({ data }: { data: FirmGapPlan }) {
               value: g.score,
               meta: `${g.gap} pts under ${g.threshold}%`,
             }))}
-            threshold={60}
-            thresholdLabel="60% bar"
+            {...barLineFor(data.gaps)}
             colorByBand
           />
         </div>

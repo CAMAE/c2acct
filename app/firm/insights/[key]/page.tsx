@@ -220,6 +220,24 @@ export default async function FirmInsightDetailPage({
   // card on /firm/insights (was averageContributingModuleScore for every card,
   // which disagreed with the varied face-card number).
   const headline = report ? readFirmInsightHeadline(key, report) : null;
+  // Block 10d (threshold math): capability bars are per-capability (60% or 65%).
+  // Draw a single chart line only when every capability shares one bar; label
+  // the title and each row with the REAL bar, never a hardcoded 60%.
+  const capThresholds = report
+    ? [...new Set(report.contributingCapabilities.map((capability) => capability.threshold))].sort(
+        (left, right) => left - right
+      )
+    : [];
+  const capBarLine =
+    capThresholds.length === 1
+      ? { threshold: capThresholds[0], thresholdLabel: `${capThresholds[0]}% bar` }
+      : {};
+  const capBarTitle =
+    capThresholds.length === 1
+      ? `Capability scores behind this insight versus the ${capThresholds[0]}% bar`
+      : capThresholds.length > 1
+        ? `Capability scores behind this insight versus each capability's bar (${capThresholds[0]}–${capThresholds[capThresholds.length - 1]}%)`
+        : "Capability scores behind this insight";
 
   let visualLead = null;
   if (report && headline && scoredModules.length > 0) {
@@ -277,18 +295,20 @@ export default async function FirmInsightDetailPage({
                 <div className="pat-label">Capability evidence</div>
                 <div className="mt-3">
                   <RankedBars
-                    title="Capability scores behind this insight versus the 60% unlock threshold"
+                    title={capBarTitle}
                     items={[...report.contributingCapabilities]
                       .sort((left, right) => (right.score ?? -1) - (left.score ?? -1))
                       .map((capability) => ({
                         key: capability.key,
                         label: capability.title,
                         value: capability.score,
-                        meta: capability.score === null ? "no score yet" : capability.meetsThreshold ? "meets" : "below",
+                        meta:
+                          capability.score === null
+                            ? "no score yet"
+                            : `${capability.meetsThreshold ? "meets" : "below"} ${capability.threshold}% bar`,
                       }))}
                     colorByBand
-                    threshold={60}
-                    thresholdLabel="60% unlock threshold"
+                    {...capBarLine}
                   />
                 </div>
               </div>
