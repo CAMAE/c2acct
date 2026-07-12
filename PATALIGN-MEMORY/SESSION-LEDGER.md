@@ -272,3 +272,30 @@ NOT STARTED: 10b (P0 server-side Elite tier-gate + contract tests — cites 4.12
 direct-route-lock audit), 10c (P0 one-shared-reader number integrity), 10d
 (threshold math), 10e (3 re-verified regressions). Block 10 live checkpoint runs
 the FULL regression checklist after 10a-10e.
+
+### B10a/B10b — STATUS (critical walls done; polish + 10c-e remain)
+Key insight: running preview:pat-setup was the missing final reseed step.
+10b (P0 SECURITY): BREACH CLOSED ✅ — demo-firm-pro re-pinned to PRO
+(eliteAllowed=false); the server-side Elite gate was already correct (repro was a
+mis-seeded membership, not a bypass). tests/elite-tier-gate.contract.test.ts
+(e02ef1f2) locks both directions — closes the 2026-04-12 direct-route-lock audit.
+B7-1/D5 ✅ — demo-firm-elite + demo-vendor-elite both ELITE+ACTIVE post-reseed.
+10a: P2 ✅ — demo-vendor-elite Category Position 5 cats / 0 suppressed (7
+canonical categories, readCohort own-categories filter, 4x scale). P4 MIX ✅ —
+Sales Card strong/good/weak = 2/1/3 (warm-fit reseed + score variety; red wall
+gone). Reseed chain: seed:demo-expand(scale4) → seed:demo-benchmark →
+seed:pat-runtime → preview:pat-setup(kill after DONE) → clear+compute:benchmarks.
+Commits: taxonomy b3caf760 · scale 58da6932 · filter 230e5347 · base-canonical
+d7638fa3 · gap-rotate ea6172fe · tier-gate test e02ef1f2 · radar-shape-vary (this).
+STILL OPEN:
+- gap-area/dimension variety: distinctGapAreas still =1 ("Operating Model …"). The
+  firm module-offset pattern keeps Operating Model weakest for ALL firms (not just
+  the warm-fit 4); varying reseedBoardRadar firmShapeIndex did NOT shift the
+  weakest module. Needs deeper seed-shape work (the archetype moduleScoreRanges /
+  seedFirmAlignmentSubmission offset pattern).
+- 10c (P0 number integrity: one shared reader per insight, face==detail hero;
+  per-card metric differentiation), 10d (threshold math), 10e (3 regressions).
+- Block 10 live checkpoint (rebuild + restart both ports + FULL regression
+  checklist A-E incl. D5) after 10c-10e.
+The running :3005/:3000 are STALE (pre-Block-10 build + old in-process data);
+they get rebuilt/restarted at the checkpoint.
