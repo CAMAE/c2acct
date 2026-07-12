@@ -870,7 +870,11 @@ export function buildVendorAlignmentProInsightCards(
         key: report.key,
         title: report.title,
         summary: report.currentStateSummary,
-        statusLabel: face.statusLabel,
+        // Block 11c: NO score-band chip on the face card — the card is number +
+        // one line only. The band word (Building/Established/…) appears solely
+        // in the detail hero (ScoreLockup). face.statusLabel is intentionally
+        // dropped here; tier badges (Elite/locked) still render on Elite cards.
+        statusLabel: undefined,
         metric: face.metric,
         tone: "active",
         href: `/vendor/alignment-insights/${report.key}`,

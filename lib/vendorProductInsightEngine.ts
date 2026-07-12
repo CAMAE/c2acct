@@ -1166,7 +1166,9 @@ export function buildVendorProductProInsightCards(
       key: insight.key,
       title: insight.title,
       summary: face.summary,
-      statusLabel: face.statusLabel,
+      // Block 11c: no score-band chip on the face card (number + one line only);
+      // the band word lives in the detail hero. face.statusLabel dropped.
+      statusLabel: undefined,
       metric: face.metric,
       tone: "active" as const,
       href: `/vendor/product-insight/${snapshot.product.id}/${insight.key}`,
