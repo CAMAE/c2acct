@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { percentileValue, percentileRank } from "@/lib/benchmarks";
-import { buildVendorGapMap, type GapMapProductInput } from "@/lib/eliteInsightsV2";
+import {
+  buildGapMapDrilldownInsight,
+  buildVendorGapMap,
+  type GapMapProductInput,
+} from "@/lib/eliteInsightsV2";
 
 /**
  * Elite Insights v2 (verdict §4) — contract for the pure logic: percentile math
@@ -51,6 +55,35 @@ describe("V3 Alignment Gap Map — divergence floor + tone", () => {
     expect(map.available).toBe(true);
     expect(map.rows[0].cells[0].tone).toBe("dispute");
     expect(map.rows[1].cells[0].tone).toBe("confirm");
+  });
+});
+
+describe("V3 Gap Map drill-down — takeaway + action from the selection", () => {
+  it("anchors on the WIDEST dispute across selected product×dimension pairs", () => {
+    const insight = buildGapMapDrilldownInsight([
+      { productLabel: "Ledger Pro", dimLabel: "Workflow Fit", firm: 70, vendor: 80 }, // gap +10
+      { productLabel: "Recon", dimLabel: "Data Controls", firm: 55, vendor: 90 }, // gap +35 (widest)
+      { productLabel: "Recon", dimLabel: "Support", firm: null, vendor: 88 }, // unscored, ignored
+    ]);
+    expect(insight).not.toBeNull();
+    expect(insight!.takeaway).toContain("Recon");
+    expect(insight!.takeaway).toContain("Data Controls");
+    expect(insight!.takeaway).toContain("35 points");
+    expect(insight!.action).toContain("Recon");
+  });
+
+  it("flips to a lead-with signal when firms confirm everywhere (no positive gap)", () => {
+    const insight = buildGapMapDrilldownInsight([
+      { productLabel: "Recon", dimLabel: "Data Controls", firm: 82, vendor: 78 }, // firms above
+    ]);
+    expect(insight!.takeaway).toMatch(/confirm your story/);
+    expect(insight!.action).toMatch(/Lead with/);
+  });
+
+  it("returns null when no selected pair has both a firm read and a self-report", () => {
+    expect(
+      buildGapMapDrilldownInsight([{ productLabel: "Recon", dimLabel: "Support", firm: null, vendor: 80 }])
+    ).toBeNull();
   });
 });
 
