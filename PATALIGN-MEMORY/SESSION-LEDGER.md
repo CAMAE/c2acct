@@ -496,3 +496,25 @@ the word if you want statusCode:301 exactly (needs a config change + rebuild).
 NEXT (Cam queue): sandbox utility lanes + multi-piece swap → Demand Signals / Gap
 Map expansions → QBANK v1.1 (approval HELD).
 
+### SANDBOX UTILITY LANES + MULTI-PIECE SWAP — LIVE (2026-07-12)
+Commits: foundation 6ac92158 · multi-swap client 91b6fac6 · demo swaps 21ed03b5 ·
+client-safe module fix 1da43b7. Build w7gTHTPCF4QRyAzec3sD1.
+- lib/sandboxLanes (client-safe, pure): sharesUtility, slotFitDelta (over shared-
+  signal dims), splitCandidatesForSlot, recomputeProjectedAlignment (moved here so
+  the client doesn't pull the server graph — node:crypto build break, fixed).
+- BoardPiece/BoardCandidate carry utilityKeys (threaded from snapshot).
+- AlignmentBoardClient: single→multi swap. State = per-slot map (out→in|null), cap
+  3 lifts, no double-booking. Projection RECOMPUTED from the full resulting stack
+  via recomputeProjectedAlignment (never additive). Radar re-means over the full
+  projected stack. Slot tabs (one per lift), utility lanes ("Fits this slot" =
+  utility overlap ranked by slot-fit delta; "Whole firm" = every candidate, never
+  hidden), "Reset all".
+- seed:demo-swaps enriched: swap volume varies by category heat × region (DEMO
+  only; real early-signal floor unchanged) — 1318 events / 47 vendors.
+Verified live on :3005: lift 2 pieces → 2 slot tabs, Fits-this-slot + Whole-firm
+lanes render, projection recompute, radar projected polygon, Reset all. Checkpoint
+focus: B6 "Ranked candidates" header ✓, A2 no new routes (reuses gated
+/firm/alignment-board) ✓. 803 unit + 6 sandbox-lane contract tests green, lint+tsc
+clean, asset-integrity PASS both ports, integrity restart-safe.
+NEXT (Cam queue): Demand Signals / Gap Map expansions → QBANK v1.1 (approval HELD).
+
