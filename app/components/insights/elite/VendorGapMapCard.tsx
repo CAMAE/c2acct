@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import HeatmapGrid from "@/app/components/charts/HeatmapGrid";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
-import { buildGapMapDrilldownInsight, type GapMapCell, type VendorGapMap } from "@/lib/eliteInsightsV2";
+import { buildGapMapDrilldownInsight, type GapMapCell, type VendorGapMap } from "@/lib/gapMapDrilldown";
 
 /**
  * V3 · Alignment Gap Map. The heatmap is the overview; below it an INLINE
