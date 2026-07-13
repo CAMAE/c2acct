@@ -192,3 +192,27 @@ restart.
 | N1 / N2 | ✅ | verified earlier this checkpoint chain |
 
 Screenshots: `artifacts/b11-shots/`, `artifacts/b11cp-shots/`. Mythos live sweep next.
+
+### Demand Signals + Gap Map expansions checkpoint — 2026-07-12
+
+- **Build:** BUILD_ID `G4nKckRc1k-yv8Ta-BwUv`, HEAD `9e6756e`. Both ports serving it.
+- **Flags (:3005):** LOCAL_REVIEW_AUTH, CONSULTANT_ACCESS, ALIGNMENT_BOARD,
+  BATTLECARD, PAT_ASSISTANT, PINGS = 1.
+- **Build proof:** asset-integrity PASS both ports (served == disk == fingerprint;
+  /sign-in + /methodology 10/10 assets 200+typed).
+- **Validations:** lint clean · tsc clean · test:unit 808/808 (added 3 gap-map
+  drill-down + 2 Demand-Signals classification tests).
+- **Data classification (Cam this session):** swap COUNTS = Pro-tier; trend /
+  top-product / ranked-action = Elite. P0 wall unchanged in principle.
+
+| Item | Result | Evidence (running :3005, authenticated) |
+|---|---|---|
+| A1 canonical taxonomy | ✅ | Demand Signals grouped into the 7 canonical categories |
+| A4 battlecard fit mix | ✅ | Meridian strong2/good2/weak2 |
+| A5 de-clump gap areas | ✅ | 4 distinct gap areas |
+| B1 Elite gate / classification | ✅ | ELITE→counts+trend+top+action; PRO→counts only + upsell, no Elite fields |
+| D5 elite seed invariant (vendor) | ✅ | demo-vendor-elite resolved ELITE (full Elite surface rendered) |
+| NEW-A Demand Signals by category | ✅ | Tax↑ Ledger↑ Workflow→ Client↓ Payroll↑ · top:Meridian-X · ranked action · totals 31/4/+27 |
+| NEW-B Gap Map inline drill-down | ✅ | "compare up to 3 products × 3 dimensions" + product/dimension fieldsets, no modal |
+| L (client-safe) | ✅ | node:crypto build break fixed — pure Gap Map logic in lib/gapMapDrilldown |
+| L1 (LKG after local build) | ✅ | buildTimestamp_mismatch → rm LKG json + re-promote → both ports restart-safe |

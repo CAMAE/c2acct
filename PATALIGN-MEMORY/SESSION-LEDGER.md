@@ -518,3 +518,51 @@ focus: B6 "Ranked candidates" header ✓, A2 no new routes (reuses gated
 clean, asset-integrity PASS both ports, integrity restart-safe.
 NEXT (Cam queue): Demand Signals / Gap Map expansions → QBANK v1.1 (approval HELD).
 
+### DEMAND SIGNALS + GAP MAP EXPANSIONS — LIVE + CHECKPOINT GREEN (2026-07-12)
+Commits: A eea963f9 · B a4a221c7 · client-safe fix 9e6756ec. Build G4nKckRc1k-yv8Ta-BwUv.
+DATA-CLASSIFICATION RULING (Cam, this session, [[project_demand_signals_data_classification]]):
+per-category swap COUNTS are Pro-tier (the teaser that sells Elite); TREND arrows,
+TOP-PRODUCT, and the RANKED ACTION are Elite-classified. P0 direct-route wall stands
+in principle — non-entitled never receives Elite-classified data.
+- A (Demand Signals): buildVendorDemandSignals rebuilt — two-window (current vs prior
+  90d) for a real trend arrow; grouped by canonical product category; each row
+  count/trend/topProduct; ranked action (churn first, else hottest pipeline);
+  identityAllowed=false STRIPS trend/topProduct/rankedAction to null so the Pro
+  projection never carries Elite data. VendorDemandSignalsCard: grouped in/out
+  sections; Elite identity gated; Pro upsell naming "who is moving, which products,
+  what to do about it". Page: Pro non-entitled routes into the counts-only surface
+  (NOT a LockedElitePreview — that grammar = zero data); Elite guard intact.
+  elite-tier-gate contract now encodes the classification (Pro=counts only via a
+  mock-client projection; Elite=all). seed-demo-swaps enriched: events span current
+  + prior windows per a per-category trend shape (rising/flat/falling) → varied
+  arrows; DEMO-only, real early-signal floor unchanged (2640 events / 47 vendors).
+- B (Gap Map): GapMapCell now carries firmScore/vendorScore; new pure
+  buildGapMapDrilldownInsight (widest-dispute takeaway + action, confirm-flip,
+  null when unscored). VendorGapMapCard now "use client" with INLINE drill-down
+  (11d, no modal): checkbox-select up to 3 products × 3 dimensions → per-pair bars
+  (firm vs self-report) + takeaway + action; caps enforced by disabling boxes.
+- LANDMINE HIT + fixed: client "use client" card importing eliteInsightsV2 →
+  benchmarks → node:crypto = webpack "Unhandled scheme" build break (same class as
+  the sandbox fix). Extracted pure Gap Map types + drill-down to client-safe
+  lib/gapMapDrilldown.ts; eliteInsightsV2 re-exports. Also re-hit L1: after
+  `pnpm build` the app-start prepare-standalone-runtime re-stamped buildTimestamp
+  (02:53:29→02:54:21) so LKG lagged (last_known_good_release_buildTimestamp_mismatch,
+  masked by the stale "Dirty git tree" stderr) — fixed by `rm last-known-good-release.json`
+  + re-promote (copies CURRENT fingerprint), then kickstart. Both ports came back.
+CHECKPOINT (running :3005, build G4nKckRc1k, flags LOCAL_REVIEW_AUTH/CONSULTANT/
+ALIGNMENT_BOARD/BATTLECARD/PAT_ASSISTANT/PINGS=1): asset-integrity PASS both ports
+(served==disk==fingerprint). Authenticated HTTP proof:
+- ELITE (demo-vendor-elite/Meridian): Demand Signals grouped into the 7 canonical
+  categories; counts + varied trend arrows (Tax↑ Ledger↑ Workflow→ Client↓ Payroll↑)
+  + top:Meridian-X per row + ranked action ("sharpest churn signal is Client &
+  Documents — Meridian Portal left 2 stacks"); totals 31 in/4 out/+27. Gap Map:
+  "Drill down · compare up to 3 products × 3 dimensions" + product/dimension fieldsets.
+- PRO (review.vendor): "Vendor · Demand Signals" counts sections + upsell (who/which/
+  what) — NO ranked action, NO top identity, NO trend arrows. Classification wall
+  holds live.
+Regression: A1 ✅ (7 canonical categories live in Demand Signals grouping + BattleCard
+gap areas), A4 fit 2/2/2 ✅, A5 4 distinct gap areas ✅, B1 ✅ (Elite→full, Pro→counts),
+D5-vendor ✅ (Meridian resolved ELITE live). Full chain: lint clean · tsc clean ·
+test:unit 808/808 (3 drill-down + 2 classification tests added) · build exit 0.
+NEXT (Cam queue): Mythos sweeps → QBANK v1.1 (approval HELD; founders review round-trip).
+
