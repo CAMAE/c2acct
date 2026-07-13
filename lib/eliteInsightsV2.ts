@@ -994,3 +994,43 @@ export function vendorEliteHubMetrics(input: {
     "scenario-simulation": gapMapMetric,
   };
 }
+
+// ── Firm tier-1 hybrid Elite depth (Block 12b) ───────────────────────────────
+// Each firm tier-1 detail route (operating_baseline, automation_readiness,
+// data_and_controls, change_alignment) gets a REAL Elite pane for entitled firms
+// — the theme's peer-benchmark position (percentile band per module) + one ranked
+// action — instead of locked-boundary boilerplate. Scopes buildFirmPeerPosition to
+// the insight's own contributing modules. Honest suppression below the safe harbor.
+
+export type FirmThemeDepth = {
+  available: boolean;
+  rows: PercentileRow[];
+  /** The theme's biggest gap to the peer top quartile (p75). */
+  rankedAction: { moduleLabel: string; deficit: number; percentile: number | null } | null;
+  emptyReason: string | null;
+};
+
+export function buildFirmThemeDepth(peer: FirmPeerPosition, moduleKeys: readonly string[]): FirmThemeDepth {
+  if (!peer.available) {
+    return { available: false, rows: [], rankedAction: null, emptyReason: peer.emptyReason ?? "Peer position is not available yet." };
+  }
+  const keys = new Set(moduleKeys);
+  const rows = peer.rows.filter((row) => keys.has(row.key) && !row.suppressed);
+  if (rows.length === 0) {
+    return {
+      available: false,
+      rows: [],
+      rankedAction: null,
+      emptyReason: "Not enough peer data on this theme's modules yet to open the Elite position.",
+    };
+  }
+  let rankedAction: FirmThemeDepth["rankedAction"] = null;
+  for (const row of rows) {
+    if (row.score === null || row.p75 === null) continue;
+    const deficit = Math.round(row.p75 - row.score);
+    if (deficit > 0 && (!rankedAction || deficit > rankedAction.deficit)) {
+      rankedAction = { moduleLabel: row.label, deficit, percentile: row.percentile };
+    }
+  }
+  return { available: true, rows, rankedAction, emptyReason: null };
+}

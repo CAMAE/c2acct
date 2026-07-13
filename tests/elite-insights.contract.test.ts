@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { percentileValue, percentileRank } from "@/lib/benchmarks";
 import {
+  buildFirmThemeDepth,
   buildGapMapDrilldownInsight,
   buildVendorGapMap,
   firmEliteHubMetrics,
   vendorEliteHubMetrics,
+  type FirmPeerPosition,
   type GapMapProductInput,
 } from "@/lib/eliteInsightsV2";
 
@@ -86,6 +88,36 @@ describe("V3 Gap Map drill-down — takeaway + action from the selection", () =>
     expect(
       buildGapMapDrilldownInsight([{ productLabel: "Recon", dimLabel: "Support", firm: null, vendor: 80 }])
     ).toBeNull();
+  });
+});
+
+describe("Block 12b — firm tier-1 hybrid Elite depth (theme-scoped peer position)", () => {
+  const peer = (): FirmPeerPosition => ({
+    available: true,
+    overall: { percentile: 60, rankFromTop: 40, n: 100, score: 66 },
+    bestAction: { moduleLabel: "Automation and AI Readiness", deficit: 12, fromPercentile: 40, toPercentile: 75 },
+    rows: [
+      { key: "m_ops", label: "Operating Model", p25: 55, p50: 65, p75: 75, p90: 85, score: 60, percentile: 45 },
+      { key: "m_auto", label: "Automation", p25: 50, p50: 60, p75: 72, p90: 82, score: 54, percentile: 30 },
+      { key: "m_other", label: "Other", p25: 55, p50: 65, p75: 75, p90: 85, score: 70, percentile: 60, suppressed: true },
+    ],
+    reportCard: [],
+    emptyReason: null,
+  });
+
+  it("scopes to the theme's modules and picks the biggest gap to the peer top quartile", () => {
+    const depth = buildFirmThemeDepth(peer(), ["m_ops", "m_auto"]);
+    expect(depth.available).toBe(true);
+    expect(depth.rows.map((r) => r.key)).toEqual(["m_ops", "m_auto"]);
+    // Automation is furthest below its p75 (72 - 54 = 18 > Operating 75 - 60 = 15)
+    expect(depth.rankedAction?.moduleLabel).toBe("Automation");
+    expect(depth.rankedAction?.deficit).toBe(18);
+  });
+
+  it("drops suppressed rows and reports unavailable when the theme clears no safe-harbor module", () => {
+    const depth = buildFirmThemeDepth(peer(), ["m_other"]);
+    expect(depth.available).toBe(false);
+    expect(depth.emptyReason).toMatch(/Not enough peer data/);
   });
 });
 

@@ -19,11 +19,12 @@ import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import prisma from "@/lib/prisma";
 import { getAlignmentBoardData } from "@/lib/alignmentBoard";
 import { resolveCompanyBoundary } from "@/lib/dataBoundary";
-import { buildFirmPeerPosition, buildFirmGapPlan, buildFirmTrajectory } from "@/lib/eliteInsightsV2";
+import { buildFirmPeerPosition, buildFirmGapPlan, buildFirmTrajectory, buildFirmThemeDepth } from "@/lib/eliteInsightsV2";
 import EliteCardShell from "@/app/components/insights/elite/EliteCardShell";
 import LockedElitePreview from "@/app/components/insights/LockedElitePreview";
 import { FIRM_ELITE_V2_META } from "@/lib/eliteInsightsV2";
 import FirmPeerPositionCard from "@/app/components/insights/elite/FirmPeerPositionCard";
+import FirmThemeEliteDepthCard from "@/app/components/insights/elite/FirmThemeEliteDepthCard";
 import FirmGapPlanCard from "@/app/components/insights/elite/FirmGapPlanCard";
 import FirmTrajectoryCard from "@/app/components/insights/elite/FirmTrajectoryCard";
 import {
@@ -173,6 +174,19 @@ export default async function FirmInsightDetailPage({
   const report = !isTier2 ? insightReports.get(key as (typeof FIRM_TIER1_INSIGHT_DEFINITIONS)[number]["key"]) : null;
   const activeSurface = getRequestedFirmInsightDetailSurface(resolvedSearchParams?.surface);
   const visibleSurfaceKey = activeSurface;
+
+  // Block 12b: a tier-1 Elite pane for an ENTITLED firm is REAL theme-scoped peer
+  // depth (percentile band + ranked action), not locked-boundary boilerplate.
+  // Pro-only firms fall through and keep the LockedElitePreview grammar below.
+  if (!isTier2 && isElite && report && activeSurface === "elite" && sessionUser.companyId) {
+    const boundary = await resolveCompanyBoundary(sessionUser.companyId);
+    const peer = await buildFirmPeerPosition(prisma, sessionUser.companyId, boundary);
+    const depth = buildFirmThemeDepth(
+      peer,
+      report.contributingModules.map((module) => module.key)
+    );
+    return <FirmThemeEliteDepthCard data={depth} themeTitle={insight.title} />;
+  }
 
   const surfaceCards = report
     ? buildFirmInsightDetailSurfaceCards({
