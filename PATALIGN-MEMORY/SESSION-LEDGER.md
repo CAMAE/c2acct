@@ -586,3 +586,39 @@ story vs firm review inline). typecheck/lint clean, test:unit 808/808.
 REMAINING: 12b (firm hybrid elite depth / remove boilerplate toggles), 12c (elite
 hub face cards restore numbers), 12d (Trajectory rebuild), 12e (review.vendor
 BattleCard fit mix). End checkpoint after those + reseed.
+
+### 12b + 12c — END CHECKPOINT GREEN (2026-07-13)
+Commits: 12c 875251ae · 12b d102f7f7. Build qVEGHRy3Z16PTBufCVv8E, both ports
+asset-integrity PASS (served==disk==fingerprint).
+- 12c (Elite hub face cards): entitled hubs now carry their OWN headline number
+  (from the same builders that power each detail), "ELITE" corner chip dropped.
+  Pure firmEliteHubMetrics/vendorEliteHubMetrics formatters (contract-tested to
+  Cam's exact formats). Non-entitled keep the blurred LockedElitePreview.
+  LIVE (entitled): firm hub — "Nth percentile", "N · +N projected", "N pts to top
+  quartile"; vendor hub — "+28 net motion", "10 confirmed · 16 read lower",
+  "2 in top band".
+- 12b (firm tier-1 hybrid Elite depth): the 4 firm tier-1 elite panes no longer
+  show locked-boundary boilerplate to a paying Elite firm. buildFirmThemeDepth
+  scopes buildFirmPeerPosition to the insight's contributing modules → real
+  percentile band per module + ranked action. LIVE (demo-firm-elite,
+  firm_tier1_operating_baseline?surface=elite): "Operating baseline — where you
+  sit vs peers", 5 module band rows (Operating 60/32nd … Automation 84/74th),
+  "Close Operating Model's 23-pt gap to the peer top quartile first" — NO
+  boilerplate, NO "Locked Elite boundary". Pro firm keeps LockedElitePreview
+  ("Live with Elite membership", no depth leaked).
+- 12a regression: firm pro cards still expand inline (4 Open readout).
+Full chain: typecheck/lint clean · test:unit 810/810 (+2 theme-depth, +2 hub-metric,
++3 drilldown tests across the block). NOTE the real tier-1 keys are
+firm_tier1_operating_baseline / _automation_readiness / _data_and_controls /
+_change_alignment (Cam's block used the friendly forms).
+STILL OPEN in Block 12 (deferred to a focused follow-up — both benefit from one
+demo reseed):
+- 12d Trajectory detail rebuild: provenance panel for the projection (which
+  modules/momentum drive +N, over what window, from what evidence), copy clarifying
+  the trend is built from module submissions over time (NOT sandbox swaps), F1-grade
+  chart upgrade, varied demo history (D3), ends with a ranked action (C3).
+- 12e review.vendor BattleCard fit mix (D2): rebalance demo so BOTH vendor accounts
+  show varied strong/good/weak. Lever: PAT Demo Vendor's firm-reviewed product
+  strength sits below its reviewing firms' alignment → mostly weak. Raise the demo
+  firm-review score targets for its products so vendorStrength lands mid-distribution.
+  Requires reseed (L1-L4) + rebuild + restart.
