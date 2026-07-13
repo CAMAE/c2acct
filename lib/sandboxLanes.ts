@@ -1,6 +1,18 @@
 import type { ProductFitDimensionScore } from "@/lib/productFitDimensions";
 
 /**
+ * Pure mean of the resulting stack scores (0–100), rounded, or null when every
+ * slot is unscored. Lives here (client-safe, no server deps) so both the server
+ * board builder and the client sandbox recompute the SAME way from the full
+ * resulting stack — never additive per-swap deltas.
+ */
+export function recomputeProjectedAlignment(scores: Array<number | null>): number | null {
+  const known = scores.filter((score): score is number => score !== null);
+  if (known.length === 0) return null;
+  return Math.round(known.reduce((sum, score) => sum + score, 0) / known.length);
+}
+
+/**
  * Sandbox candidate lanes (utility-aware swap). When a firm lifts a stack piece,
  * candidates split into two lanes:
  *   - "Fits this slot": shares ≥1 utilityKey with the lifted piece — these do the

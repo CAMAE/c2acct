@@ -11,6 +11,7 @@ import {
 } from "@/lib/productFitDimensions";
 import { poolForViewerBoundary, resolveCompanyBoundary } from "@/lib/dataBoundary";
 import { confidenceBandForSampleSize } from "@/lib/confidenceBands";
+import { recomputeProjectedAlignment } from "@/lib/sandboxLanes";
 
 /**
  * Alignment Board data layer (Elite Sprint Block D, v1). The firm's product
@@ -136,16 +137,12 @@ export const SANDBOX_STACK_LIMIT = 8;
 
 /**
  * Deterministic projected firm alignment = mean of the (non-null) piece scores.
- * A swap is just this over the post-swap score list — the client recomputes live
- * with the same math so the board never drifts from the server model.
+ * A swap is just this over the post-swap score list. Defined in the client-safe
+ * lib/sandboxLanes (imported above) so the client sandbox recomputes with the
+ * SAME math without pulling this server module into the client bundle;
+ * re-exported here for the server board builder + existing importers.
  */
-export function recomputeProjectedAlignment(scores: Array<number | null>): number | null {
-  const known = scores.filter((score): score is number => score !== null);
-  if (known.length === 0) {
-    return null;
-  }
-  return Math.round(known.reduce((sum, score) => sum + score, 0) / known.length);
-}
+export { recomputeProjectedAlignment };
 
 // CLASS 3: bands come from the ONE shared definition (lib/confidenceBands.ts).
 const bandForSampleSize = confidenceBandForSampleSize;

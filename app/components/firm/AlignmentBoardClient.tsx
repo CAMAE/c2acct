@@ -7,8 +7,8 @@ import { logSandboxSwap } from "@/app/firm/alignment-board/swapActions";
 import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import { formatDelta, formatScoreValue } from "@/lib/formatDelta";
 import { fitHeatColor, fitTierLabel } from "@/lib/fitHeat";
-import { recomputeProjectedAlignment, type AlignmentBoardData, type BoardCandidate, type BoardPiece } from "@/lib/alignmentBoard";
-import { splitCandidatesForSlot } from "@/lib/sandboxLanes";
+import type { AlignmentBoardData, BoardCandidate, BoardPiece } from "@/lib/alignmentBoard";
+import { recomputeProjectedAlignment, splitCandidatesForSlot } from "@/lib/sandboxLanes";
 import type { ProductFitDimensionScore } from "@/lib/productFitDimensions";
 import { CONFIDENCE_BAND_LABEL } from "@/lib/confidenceBands";
 
