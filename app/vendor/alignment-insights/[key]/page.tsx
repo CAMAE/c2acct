@@ -43,7 +43,11 @@ type SearchParams = { surface?: string };
  * Category Position (benchmark-comparison), V2 Demand Signals (forward-projection),
  * V3 Alignment Gap Map (scenario-simulation). Rank/distribution/heatmap, not averages.
  */
-async function renderVendorEliteSurface(key: string, companyId: string) {
+async function renderVendorEliteSurface(
+  key: string,
+  companyId: string,
+  { identityAllowed }: { identityAllowed: boolean }
+) {
   const boundary = await resolveCompanyBoundary(companyId);
 
   if (key === "benchmark-comparison") {
@@ -60,12 +64,22 @@ async function renderVendorEliteSurface(key: string, companyId: string) {
   }
 
   if (key === "forward-projection") {
-    const data = await buildVendorDemandSignals(prisma, companyId, poolForViewerBoundary(boundary));
+    // Demand Signals is dual-tier: the per-category COUNTS are Pro-tier (the
+    // teaser), while trend/top-product/ranked-action are Elite. identityAllowed
+    // is false for a Pro caller, so buildVendorDemandSignals strips the Elite
+    // fields to null — a non-entitled account never receives Elite-classified data.
+    const data = await buildVendorDemandSignals(prisma, companyId, poolForViewerBoundary(boundary), {
+      identityAllowed,
+    });
     return (
       <EliteCardShell
-        eyebrow="Vendor Elite · Demand Signals"
+        eyebrow={identityAllowed ? "Vendor Elite · Demand Signals" : "Vendor · Demand Signals"}
         title="Demand Signals"
-        summary="First-party intent from the Alignment Sandbox: how firms moved your products in and out of their simulated stacks. Direction, not magnitude, until volume clears the early-signal floor."
+        summary={
+          identityAllowed
+            ? "First-party intent from the Alignment Sandbox: how firms moved your products in and out of their simulated stacks, by category — with the direction each is trending, your most-swapped product, and a ranked next move."
+            : "First-party intent from the Alignment Sandbox: how many firms moved your products in and out of their simulated stacks, by category. Elite adds who is moving, which products, and what to do about it."
+        }
       >
         <VendorDemandSignalsCard data={data} />
       </EliteCardShell>
@@ -145,9 +159,17 @@ export default async function VendorAlignmentInsightDetailPage({
   // Elite Insights v2 (verdict §4): an Elite member opening a Tier-2 vendor
   // surface gets the chart-led decision product; Pro-only members keep "Coming soon".
   const eliteEntitlement = await resolveMembershipEntitlement(sessionUser, "vendor", MEMBERSHIP_PLAN.ELITE);
-  if (report.tier === 2 && eliteEntitlement.allowed && sessionUser.companyId) {
-    const surface = await renderVendorEliteSurface(key, sessionUser.companyId);
-    if (surface) return surface;
+  if (report.tier === 2 && sessionUser.companyId) {
+    if (eliteEntitlement.allowed) {
+      const surface = await renderVendorEliteSurface(key, sessionUser.companyId, { identityAllowed: true });
+      if (surface) return surface;
+    } else if (key === "forward-projection") {
+      // Pro-tier Demand Signals: per-category swap COUNTS only (identity/trend/
+      // action stripped). Counts are Pro-classified by Cam's 2026-07-12 ruling;
+      // this is NOT a LockedElitePreview (that grammar means zero data).
+      const surface = await renderVendorEliteSurface(key, sessionUser.companyId, { identityAllowed: false });
+      if (surface) return surface;
+    }
   }
 
   const surfaceCards = buildVendorAlignmentInsightDetailSurfaceCards({ report });

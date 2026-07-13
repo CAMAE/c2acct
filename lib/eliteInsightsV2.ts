@@ -638,48 +638,179 @@ export async function buildProductTrajectory(
 
 // ── V2 · Demand Signals ──────────────────────────────────────────────────────
 
+/**
+ * One demand row = one canonical product category the vendor competes in.
+ *
+ * Data classification (Cam 2026-07-12, [[project_demand_signals_data_classification]]):
+ *   - `count` (per-category swap volume) is PRO-tier — the teaser that sells Elite.
+ *   - `trend` and `topProduct` are ELITE-classified identity/motion. They are
+ *     `null` on the Pro projection (identityAllowed=false), so a non-entitled
+ *     caller never even receives them.
+ */
+export type DemandTrend = "up" | "down" | "flat";
+export type DemandCategoryRow = {
+  key: string;
+  category: string;
+  /** Current-window swap count for this category (Pro-tier). */
+  count: number;
+  /** Direction vs the prior equal window — ELITE only, null on the Pro projection. */
+  trend: DemandTrend | null;
+  /** The vendor's product most involved in this category this window — ELITE only. */
+  topProduct: string | null;
+};
+
 export type VendorDemandSignals = {
   available: boolean;
-  swappedIn: number;
-  swappedOut: number;
+  /** True → this projection carries Elite identity (trend/topProduct/rankedAction). */
+  identityAllowed: boolean;
   windowLabel: string;
   earlySignal: boolean;
+  totalIn: number;
+  totalOut: number;
+  /** swapped-IN categories (pipeline), ranked by count. */
+  swappedIn: DemandCategoryRow[];
+  /** swapped-OUT categories (churn risk), ranked by count. */
+  swappedOut: DemandCategoryRow[];
+  /** One ranked next step — ELITE only, null on the Pro projection. */
+  rankedAction: string | null;
   emptyReason: string | null;
 };
 
 const DEMAND_WINDOW_DAYS = 90;
 const DEMAND_EARLY_SIGNAL_FLOOR = 5;
+const DEMAND_DEFAULT_CATEGORY = "Uncategorized";
 
 type DemandClient = Pick<PrismaClient, "product" | "sandboxSwapEvent">;
 
+type DemandProduct = { id: string; name: string; category: string | null };
+type DemandEvent = { productId: string | null; createdAt: Date };
+
+/** Bucket a side (in/out) of the demand flow into per-category rows. */
+function buildDemandRows(
+  events: DemandEvent[],
+  productById: Map<string, DemandProduct>,
+  currentSince: Date
+): DemandCategoryRow[] {
+  // category -> { current, prior, per-product current counts }
+  const byCategory = new Map<string, { current: number; prior: number; products: Map<string, number> }>();
+  for (const event of events) {
+    if (!event.productId) continue;
+    const product = productById.get(event.productId);
+    if (!product) continue;
+    const category = product.category ?? DEMAND_DEFAULT_CATEGORY;
+    let bucket = byCategory.get(category);
+    if (!bucket) {
+      bucket = { current: 0, prior: 0, products: new Map() };
+      byCategory.set(category, bucket);
+    }
+    if (event.createdAt >= currentSince) {
+      bucket.current += 1;
+      bucket.products.set(product.name, (bucket.products.get(product.name) ?? 0) + 1);
+    } else {
+      bucket.prior += 1;
+    }
+  }
+
+  const rows: DemandCategoryRow[] = [];
+  for (const [category, bucket] of byCategory) {
+    if (bucket.current === 0) continue; // only surface categories active this window
+    let topProduct: string | null = null;
+    let topCount = -1;
+    for (const [name, count] of bucket.products) {
+      if (count > topCount) {
+        topCount = count;
+        topProduct = name;
+      }
+    }
+    const trend: DemandTrend =
+      bucket.current > bucket.prior ? "up" : bucket.current < bucket.prior ? "down" : "flat";
+    rows.push({ key: category, category, count: bucket.current, trend, topProduct });
+  }
+  rows.sort((a, b) => b.count - a.count || a.category.localeCompare(b.category));
+  return rows;
+}
+
+/**
+ * V2 · Demand Signals — first-party intent from the Alignment Sandbox, grouped by
+ * canonical product category. Swapped-IN is pipeline; swapped-OUT is churn risk.
+ *
+ * `identityAllowed` gates the Elite classification: a Pro caller passes false and
+ * receives counts only (trend/topProduct/rankedAction stripped to null) so the
+ * P0 direct-route wall holds — non-entitled never receives Elite-classified data.
+ */
 export async function buildVendorDemandSignals(
   client: DemandClient,
   companyId: string,
-  poolBoundaries: DataBoundary[]
+  poolBoundaries: DataBoundary[],
+  options: { identityAllowed: boolean }
 ): Promise<VendorDemandSignals> {
-  const products = await client.product.findMany({ where: { companyId }, select: { id: true } });
+  const products = (await client.product.findMany({
+    where: { companyId },
+    select: { id: true, name: true, category: true },
+  })) as DemandProduct[];
+  const productById = new Map(products.map((p) => [p.id, p]));
   const productIds = products.map((p) => p.id);
   const boundaries = poolBoundaries.map((b) => String(b));
-  const since = new Date(Date.now() - DEMAND_WINDOW_DAYS * 24 * 60 * 60 * 1000);
+  const currentSince = new Date(Date.now() - DEMAND_WINDOW_DAYS * 24 * 60 * 60 * 1000);
+  const priorSince = new Date(Date.now() - 2 * DEMAND_WINDOW_DAYS * 24 * 60 * 60 * 1000);
 
-  const [swappedIn, swappedOut] = await Promise.all([
-    client.sandboxSwapEvent.count({
-      where: { vendorInId: companyId, boundary: { in: boundaries }, createdAt: { gte: since } },
+  // Read both windows (current + prior) so the trend arrow is computed, not guessed.
+  const [inEvents, outEvents] = await Promise.all([
+    client.sandboxSwapEvent.findMany({
+      where: { vendorInId: companyId, boundary: { in: boundaries }, createdAt: { gte: priorSince } },
+      select: { productInId: true, createdAt: true },
     }),
     productIds.length
-      ? client.sandboxSwapEvent.count({
-          where: { productOutId: { in: productIds }, boundary: { in: boundaries }, createdAt: { gte: since } },
+      ? client.sandboxSwapEvent.findMany({
+          where: { productOutId: { in: productIds }, boundary: { in: boundaries }, createdAt: { gte: priorSince } },
+          select: { productOutId: true, createdAt: true },
         })
-      : Promise.resolve(0),
+      : Promise.resolve([] as Array<{ productOutId: string | null; createdAt: Date }>),
   ]);
 
-  const total = swappedIn + swappedOut;
+  const swappedIn = buildDemandRows(
+    inEvents.map((e) => ({ productId: e.productInId, createdAt: e.createdAt })),
+    productById,
+    currentSince
+  );
+  const swappedOut = buildDemandRows(
+    outEvents.map((e) => ({ productId: e.productOutId, createdAt: e.createdAt })),
+    productById,
+    currentSince
+  );
+
+  const totalIn = swappedIn.reduce((sum, row) => sum + row.count, 0);
+  const totalOut = swappedOut.reduce((sum, row) => sum + row.count, 0);
+  const earlySignal = totalIn + totalOut < DEMAND_EARLY_SIGNAL_FLOOR;
+
+  // Ranked action: churn first (a swap-out is the sharper signal), else hottest
+  // pipeline. Named product + category + the concrete next surface to open.
+  let rankedAction: string | null = null;
+  if (swappedOut.length > 0) {
+    const top = swappedOut[0];
+    rankedAction = `Your sharpest churn signal is ${top.category}${
+      top.topProduct ? ` — ${top.topProduct}` : ""
+    } left ${top.count} simulated stack${top.count === 1 ? "" : "s"} this window. Open the Alignment Gap Map for it and fix the dimensions firms read lowest.`;
+  } else if (swappedIn.length > 0) {
+    const top = swappedIn[0];
+    rankedAction = `Your hottest pipeline is ${top.category}${
+      top.topProduct ? ` — ${top.topProduct}` : ""
+    } led ${top.count} swap-in${top.count === 1 ? "" : "s"}. Put it first in outreach while the signal is warm.`;
+  }
+
+  const stripped = (rows: DemandCategoryRow[]): DemandCategoryRow[] =>
+    options.identityAllowed ? rows : rows.map((row) => ({ ...row, trend: null, topProduct: null }));
+
   return {
     available: true,
-    swappedIn,
-    swappedOut,
+    identityAllowed: options.identityAllowed,
     windowLabel: `last ${DEMAND_WINDOW_DAYS} days`,
-    earlySignal: total < DEMAND_EARLY_SIGNAL_FLOOR,
+    earlySignal,
+    totalIn,
+    totalOut,
+    swappedIn: stripped(swappedIn),
+    swappedOut: stripped(swappedOut),
+    rankedAction: options.identityAllowed ? rankedAction : null,
     emptyReason: null,
   };
 }
