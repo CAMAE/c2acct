@@ -7,7 +7,8 @@ import { logSandboxSwap } from "@/app/firm/alignment-board/swapActions";
 import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import { formatDelta, formatScoreValue } from "@/lib/formatDelta";
 import { fitHeatColor, fitTierLabel } from "@/lib/fitHeat";
-import type { AlignmentBoardData, BoardCandidate, BoardPiece } from "@/lib/alignmentBoard";
+import { recomputeProjectedAlignment, type AlignmentBoardData, type BoardCandidate, type BoardPiece } from "@/lib/alignmentBoard";
+import { splitCandidatesForSlot } from "@/lib/sandboxLanes";
 import type { ProductFitDimensionScore } from "@/lib/productFitDimensions";
 import { CONFIDENCE_BAND_LABEL } from "@/lib/confidenceBands";
 
@@ -114,12 +115,6 @@ function puzzlePath(edges: PieceEdges, inset: number): string {
   ].join(" ");
 }
 
-function mean(scores: Array<number | null>): number | null {
-  const known = scores.filter((s): s is number => s !== null);
-  if (known.length === 0) return null;
-  return Math.round(known.reduce((a, b) => a + b, 0) / known.length);
-}
-
 type Selection = { kind: "piece"; id: string } | { kind: "candidate"; id: string } | null;
 
 export default function AlignmentBoardClient({
@@ -131,8 +126,13 @@ export default function AlignmentBoardClient({
   entitled: boolean;
   membershipHref: string;
 }) {
-  const [swapOutId, setSwapOutId] = useState<string | null>(null);
-  const [swapInId, setSwapInId] = useState<string | null>(null);
+  // Multi-piece swap: each lifted slot (the productId of a piece lifted OUT) maps
+  // to the candidate productId chosen to fill it, or null = lifted, no candidate
+  // yet. Up to MAX_LIFTS slots at once; `activeSlot` is the tab whose candidate
+  // trays are showing. Insertion order of the record drives the tab order.
+  const MAX_LIFTS = 3;
+  const [swaps, setSwaps] = useState<Record<string, string | null>>({});
+  const [activeSlot, setActiveSlot] = useState<string | null>(null);
   const [detail, setDetail] = useState<Selection>(null);
   const [showAllMovers, setShowAllMovers] = useState(false);
 
@@ -145,45 +145,67 @@ export default function AlignmentBoardClient({
     () => [...data.candidates, ...data.unreviewedCandidates],
     [data.candidates, data.unreviewedCandidates]
   );
-  const swapCandidate = swapInId ? allCandidates.find((c) => c.productId === swapInId) ?? null : null;
-  const swapPiece = swapOutId ? data.stack.find((p) => p.productId === swapOutId) ?? null : null;
-  const swapStaged = Boolean(swapOutId && swapInId && swapCandidate);
+  const candidateById = useMemo(
+    () => new Map(allCandidates.map((c) => [c.productId, c])),
+    [allCandidates]
+  );
 
-  // Elite Insights v2 (V2 demand signal): log each unique staged swap once. The
-  // vendor demand surface reads "your products swapped IN to N stacks". Deduped
-  // per (in,out) pair for this session; best-effort (never blocks the UI).
+  const liftedIds = Object.keys(swaps);
+  const candidateForSlot = (outId: string): BoardCandidate | null => {
+    const inId = swaps[outId];
+    return inId ? candidateById.get(inId) ?? null : null;
+  };
+  const stagedEntries = liftedIds
+    .map((outId) => ({ outId, candidate: candidateForSlot(outId) }))
+    .filter((e): e is { outId: string; candidate: BoardCandidate } => e.candidate !== null);
+  const swapStaged = stagedEntries.length > 0;
+  const activePiece = activeSlot ? data.stack.find((p) => p.productId === activeSlot) ?? null : null;
+  // Candidates already committed to OTHER slots can't be dropped again.
+  const takenByOtherSlots = new Set(
+    liftedIds.filter((id) => id !== activeSlot).map((id) => swaps[id]).filter((v): v is string => Boolean(v))
+  );
+
+  // Elite Insights v2 (V2 demand signal): log each unique staged swap once.
   const loggedSwaps = useRef<Set<string>>(new Set());
+  const stagedKey = stagedEntries.map((e) => `${e.candidate.productId}::${e.outId}`).sort().join(",");
   useEffect(() => {
-    if (!swapStaged || !swapInId) return;
-    const key = `${swapInId}::${swapOutId ?? ""}`;
-    if (loggedSwaps.current.has(key)) return;
-    loggedSwaps.current.add(key);
-    void logSandboxSwap({ productInId: swapInId, productOutId: swapOutId });
-  }, [swapStaged, swapInId, swapOutId]);
+    for (const { outId, candidate } of stagedEntries) {
+      const key = `${candidate.productId}::${outId}`;
+      if (loggedSwaps.current.has(key)) continue;
+      loggedSwaps.current.add(key);
+      void logSandboxSwap({ productInId: candidate.productId, productOutId: outId });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stagedKey]);
 
+  // Projection is RECOMPUTED from the full resulting stack (never additive
+  // per-swap deltas): each lifted-and-filled slot contributes its candidate's
+  // projected score, every other piece its own score.
   const projected = useMemo(() => {
-    if (!swapOutId || !swapCandidate) return baseline;
-    const scores = data.stack.map((piece) =>
-      piece.productId === swapOutId ? swapCandidate.projectedScore ?? null : piece.scoreVsFirm
-    );
-    return mean(scores);
-  }, [swapOutId, swapCandidate, baseline, data.stack]);
+    if (!swapStaged) return baseline;
+    const scores = data.stack.map((piece) => {
+      const inId = swaps[piece.productId];
+      if (inId) return candidateById.get(inId)?.projectedScore ?? null;
+      return piece.scoreVsFirm;
+    });
+    return recomputeProjectedAlignment(scores);
+  }, [swapStaged, data.stack, swaps, candidateById, baseline]);
 
   const projectedDelta =
     projected !== null && baseline !== null && swapStaged ? projected - baseline : null;
 
-  // P0 radar — real per-dimension recompute. Each axis is the MEAN of the stack
-  // pieces' own per-dimension review scores; the projected polygon swaps the
-  // lifted piece for the candidate and re-means per axis. No uniform delta.
-  // Axes with no firm signal (or where the candidate carries no evidence) are
-  // flagged thin and rendered with the confidence-band treatment, never faked.
+  // P0 radar — real per-dimension recompute over the full projected stack (every
+  // filled slot swaps its piece for the candidate; the rest hold). No uniform
+  // delta. Axes with no signal are flagged thin, never faked.
+  const projectedStack = useMemo(
+    () =>
+      swapStaged
+        ? data.stack.map((piece) => candidateForSlot(piece.productId) ?? piece)
+        : data.stack,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [swapStaged, data.stack, stagedKey]
+  );
   const radarAxes: RadarAxis[] = useMemo(() => {
-    const projectedStack = swapStaged
-      ? data.stack.map((piece) =>
-          piece.productId === swapOutId && swapCandidate ? swapCandidate : piece
-        )
-      : data.stack;
-
     return data.dimensionAxes.map((axis, index) => {
       const meanAt = (products: Array<{ dimensionScores: ProductFitDimensionScore[] }>) => {
         let sum = 0;
@@ -199,51 +221,57 @@ export default function AlignmentBoardClient({
         }
         return { score: count > 0 ? Math.round(sum / count) : null, sample };
       };
-
       const current = meanAt(data.stack);
       const projectedAxis = swapStaged ? meanAt(projectedStack) : current;
-      const candidateDimension = swapCandidate?.dimensionScores[index] ?? null;
       const thin =
         current.score === null ||
         current.sample < 2 ||
-        (swapStaged && (candidateDimension === null || candidateDimension.score === null));
-
-      return {
-        title: axis.title,
-        current: current.score,
-        projected: projectedAxis.score,
-        thin,
-      };
+        (swapStaged && projectedAxis.score === null);
+      return { title: axis.title, current: current.score, projected: projectedAxis.score, thin };
     });
-  }, [data.stack, data.dimensionAxes, swapStaged, swapOutId, swapCandidate]);
+  }, [data.stack, data.dimensionAxes, swapStaged, projectedStack]);
 
   const radarEvidenceNote = useMemo(() => {
-    if (!swapStaged || !swapCandidate) return null;
-    if (swapCandidate.evidenceBasis === "vendor_reported") {
-      return "This candidate's projected axes use vendor self-reported evidence — no firm review of it yet.";
+    if (!swapStaged) return null;
+    const grades = stagedEntries.map((e) => e.candidate.evidenceBasis);
+    if (grades.some((g) => g === "vendor_reported")) {
+      return "A staged candidate's projected axes use vendor self-reported evidence — no firm review of it yet.";
     }
-    if (swapCandidate.evidenceBasis === "none") {
-      return "This candidate has no per-dimension evidence yet; the projection reflects only lifting your current piece.";
+    if (grades.some((g) => g === "none")) {
+      return "A staged candidate has no per-dimension evidence yet; that slot's projection reflects only lifting your current piece.";
     }
     return null;
-  }, [swapStaged, swapCandidate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [swapStaged, stagedKey]);
 
   function pickPiece(piece: BoardPiece) {
-    setSwapOutId((current) => (current === piece.productId ? null : piece.productId));
-    setSwapInId(null);
+    const wasLifted = piece.productId in swaps;
+    if (wasLifted) {
+      setSwaps((prev) => {
+        const next = { ...prev };
+        delete next[piece.productId];
+        return next;
+      });
+      setActiveSlot((a) => (a === piece.productId ? null : a));
+    } else if (liftedIds.length < MAX_LIFTS) {
+      setSwaps((prev) => ({ ...prev, [piece.productId]: null }));
+      setActiveSlot(piece.productId);
+    }
     setDetail({ kind: "piece", id: piece.productId });
   }
 
   function pickCandidate(candidate: BoardCandidate) {
     setDetail({ kind: "candidate", id: candidate.productId });
-    if (swapOutId) {
-      setSwapInId((current) => (current === candidate.productId ? null : candidate.productId));
-    }
+    if (!activeSlot || takenByOtherSlots.has(candidate.productId)) return;
+    setSwaps((prev) => ({
+      ...prev,
+      [activeSlot]: prev[activeSlot] === candidate.productId ? null : candidate.productId,
+    }));
   }
 
   function resetSwap() {
-    setSwapOutId(null);
-    setSwapInId(null);
+    setSwaps({});
+    setActiveSlot(null);
   }
 
   const detailPiece =
@@ -251,11 +279,13 @@ export default function AlignmentBoardClient({
   const detailCandidate =
     detail?.kind === "candidate" ? allCandidates.find((c) => c.productId === detail.id) ?? null : null;
 
-  // Breakdown: swapped piece first (the only real mover), then the rest; collapse
-  // to the top 6 by default with a "Show all" expander (R3.1).
+  // Breakdown: the swapped (filled) slots first — the real movers — then the rest;
+  // collapse to the top 6 by default with a "Show all" expander (R3.1).
+  const stagedOutIds = new Set(stagedEntries.map((e) => e.outId));
   const breakdownPieces = [...data.stack].sort((a, b) => {
-    if (a.productId === swapOutId) return -1;
-    if (b.productId === swapOutId) return 1;
+    const aStaged = stagedOutIds.has(a.productId);
+    const bStaged = stagedOutIds.has(b.productId);
+    if (aStaged !== bStaged) return aStaged ? -1 : 1;
     return (b.scoreVsFirm ?? 0) - (a.scoreVsFirm ?? 0);
   });
   const visibleMovers = showAllMovers ? breakdownPieces : breakdownPieces.slice(0, 6);
@@ -304,9 +334,9 @@ export default function AlignmentBoardClient({
                 ? "Sample is thin, so projections are directional — PAT won't fake precision."
                 : "Projections are directional, drawn from cross-firm benchmarks."}
             </p>
-            {swapOutId || swapInId ? (
+            {liftedIds.length > 0 ? (
               <button type="button" className="pat-button-secondary mt-4 text-sm" onClick={resetSwap}>
-                Reset swap
+                Reset all
               </button>
             ) : null}
           </div>
@@ -341,11 +371,13 @@ export default function AlignmentBoardClient({
             }}
           >
             {data.stack.map((piece, index) => {
-              const isSwapSlot = swapStaged && piece.productId === swapOutId;
-              const shown = isSwapSlot && swapCandidate
-                ? { name: candidateLabel(swapCandidate), score: swapCandidate.projectedScore, from: piece.productName, vendor: "swapped in" }
+              const slotCandidate = candidateForSlot(piece.productId);
+              const isSwapSlot = slotCandidate !== null; // lifted AND filled
+              const isLifted = piece.productId in swaps; // lifted (filled or empty)
+              const selected = isLifted && !isSwapSlot; // lifted, awaiting a candidate
+              const shown = isSwapSlot && slotCandidate
+                ? { name: candidateLabel(slotCandidate), score: slotCandidate.projectedScore, from: piece.productName, vendor: "swapped in" }
                 : { name: piece.productName, score: piece.scoreVsFirm, from: null as string | null, vendor: piece.vendorName };
-              const selected = swapOutId === piece.productId && !swapStaged;
               return (
                 <PuzzlePiece
                   key={piece.productId}
@@ -353,8 +385,8 @@ export default function AlignmentBoardClient({
                   tile
                   zIndex={data.stack.length - index}
                   fill={isSwapSlot ? C2_BLUE : selected ? STACK_FILL_LIFTED : STACK_FILL}
-                  stroke="var(--shell-border)"
-                  lifted={selected || isSwapSlot}
+                  stroke={activeSlot === piece.productId ? "var(--brand-orange)" : "var(--shell-border)"}
+                  lifted={isLifted}
                   textClass={isSwapSlot ? "text-white" : "text-[var(--shell-ink)]"}
                   mutedClass={isSwapSlot ? "text-white/75" : "text-[var(--shell-muted)]"}
                   onClick={() => pickPiece(piece)}
@@ -375,20 +407,37 @@ export default function AlignmentBoardClient({
         <section className="pat-card p-6" data-testid="board-breakdown">
           <div className="pat-label">What changes — top movers</div>
           <p className="mt-2 text-sm text-[var(--shell-muted)]">
-            Swapping <strong className="text-[var(--shell-ink)]">{swapPiece?.productName}</strong> for{" "}
-            <strong className="text-[var(--shell-ink)]">{swapCandidate ? candidateLabel(swapCandidate) : ""}</strong>
-            . Only the lifted piece moves; the rest hold.
+            {stagedEntries.length === 1 ? (
+              <>
+                Swapping{" "}
+                <strong className="text-[var(--shell-ink)]">
+                  {data.stack.find((p) => p.productId === stagedEntries[0]!.outId)?.productName}
+                </strong>{" "}
+                for{" "}
+                <strong className="text-[var(--shell-ink)]">
+                  {candidateLabel(stagedEntries[0]!.candidate)}
+                </strong>
+                . Only the lifted piece moves; the rest hold.
+              </>
+            ) : (
+              <>
+                Swapping <strong className="text-[var(--shell-ink)]">{stagedEntries.length} pieces</strong> at
+                once. The projected alignment is recomputed from the full resulting stack — only the lifted
+                slots move, the rest hold.
+              </>
+            )}
           </p>
           <ul className="mt-4 space-y-2.5">
             {visibleMovers.map((piece) => {
-              const isSwap = piece.productId === swapOutId;
-              const after = isSwap ? swapCandidate?.projectedScore ?? null : piece.scoreVsFirm;
+              const slotCand = candidateForSlot(piece.productId);
+              const isSwap = slotCand !== null;
+              const after = isSwap ? slotCand!.projectedScore ?? null : piece.scoreVsFirm;
               const before = piece.scoreVsFirm;
               const pieceDelta = isSwap && before !== null && after !== null ? after - before : null;
               return (
                 <li key={piece.productId} className="flex items-center gap-3">
                   <span className="w-36 shrink-0 truncate text-sm text-[var(--shell-ink)]">
-                    {isSwap && swapCandidate ? candidateLabel(swapCandidate) : piece.productName}
+                    {isSwap && slotCand ? candidateLabel(slotCand) : piece.productName}
                   </span>
                   <div className="relative h-3 flex-1 overflow-hidden rounded-full bg-[rgba(6,54,116,0.08)]">
                     <div
@@ -429,7 +478,7 @@ export default function AlignmentBoardClient({
       <section className="pat-card p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="pat-label">
-            {entitled ? "Ranked candidates" : "Secret candidates"} · ranked fits — {swapOutId ? "click one to swap it in" : "lift a stack piece first"}
+            {entitled ? "Ranked candidates" : "Secret candidates"} · {activeSlot ? "click one to fill this slot" : "lift a stack piece first"}
           </div>
           {!entitled && data.candidates[0] ? (
             <span className="text-xs text-[var(--shell-muted)]">
@@ -440,30 +489,107 @@ export default function AlignmentBoardClient({
             </span>
           ) : null}
         </div>
-        <p className="mt-1 text-xs text-[var(--shell-muted)]">
-          Ranked by projected fit — every rank is backed by real firm reviews.
-        </p>
+
+        {/* Slot tabs — one per lifted piece (up to 3). Picking a tab targets that
+            emptied slot; its own candidate lanes render below. */}
+        {liftedIds.length > 0 ? (
+          <div className="mt-3 flex flex-wrap gap-2" data-testid="board-slot-tabs">
+            {liftedIds.map((outId) => {
+              const p = data.stack.find((x) => x.productId === outId);
+              const filled = candidateForSlot(outId) !== null;
+              const isActive = activeSlot === outId;
+              return (
+                <button
+                  key={outId}
+                  type="button"
+                  onClick={() => setActiveSlot(outId)}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                    isActive
+                      ? "border-[var(--brand-orange)] bg-[rgba(229,109,4,0.08)] text-[var(--shell-ink)]"
+                      : "border-[var(--shell-border)] text-[var(--shell-muted)]"
+                  }`}
+                >
+                  Slot: {p ? (entitled ? p.productName : p.productName) : outId}
+                  {filled ? " ✓" : ""}
+                </button>
+              );
+            })}
+            <span className="self-center text-xs text-[var(--shell-muted)]">
+              {liftedIds.length} of {MAX_LIFTS} slots lifted
+            </span>
+          </div>
+        ) : null}
+
         {data.candidates.length === 0 ? (
           <p className="mt-4 text-sm text-[var(--shell-muted)]">
             No firm-reviewed candidates yet — see the not-yet-reviewed set below.
           </p>
+        ) : activePiece ? (
+          // Utility lanes for the active slot: "Fits this slot" (shares ≥1
+          // utilityKey, ranked by slot-fit delta) then whole-firm (never hidden).
+          (() => {
+            const { fitsSlot, wholeFirm } = splitCandidatesForSlot(activePiece, data.candidates);
+            const fitsIds = new Set(fitsSlot.map((c) => c.productId));
+            const rest = wholeFirm.filter((c) => !fitsIds.has(c.productId));
+            const renderLane = (list: readonly BoardCandidate[]) => (
+              <div className="mt-3 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(168px,1fr))]">
+                {list.map((candidate) => (
+                  <CandidatePiece
+                    key={candidate.productId}
+                    candidate={candidate}
+                    baseline={baseline}
+                    activeSlotId={activeSlot}
+                    chosenInId={activeSlot ? swaps[activeSlot] ?? null : null}
+                    takenElsewhere={takenByOtherSlots.has(candidate.productId)}
+                    activePieceName={activePiece.productName}
+                    entitled={entitled}
+                    candidateLabel={candidateLabel}
+                    onPick={pickCandidate}
+                  />
+                ))}
+              </div>
+            );
+            return (
+              <>
+                {fitsSlot.length > 0 ? (
+                  <div className="mt-4">
+                    <div className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-ink)]">
+                      Fits this slot · shares a job with {entitled ? activePiece.productName : "your lifted piece"}
+                    </div>
+                    {renderLane(fitsSlot)}
+                  </div>
+                ) : null}
+                <div className="mt-5">
+                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
+                    {fitsSlot.length > 0 ? "Whole firm · every candidate" : "Whole firm · no utility-match candidate"}
+                  </div>
+                  {renderLane(rest)}
+                </div>
+              </>
+            );
+          })()
         ) : (
-          <div className="mt-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(168px,1fr))]">
-            {data.candidates.map((candidate) => (
-              <CandidatePiece
-                key={candidate.productId}
-                candidate={candidate}
-                baseline={baseline}
-                swapOutId={swapOutId}
-                swapInId={swapInId}
-                swapStaged={swapStaged}
-                swapPiece={swapPiece}
-                entitled={entitled}
-                candidateLabel={candidateLabel}
-                onPick={pickCandidate}
-              />
-            ))}
-          </div>
+          <>
+            <p className="mt-3 text-xs text-[var(--shell-muted)]">
+              Ranked by projected fit — every rank is backed by real firm reviews.
+            </p>
+            <div className="mt-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(168px,1fr))]">
+              {data.candidates.map((candidate) => (
+                <CandidatePiece
+                  key={candidate.productId}
+                  candidate={candidate}
+                  baseline={baseline}
+                  activeSlotId={activeSlot}
+                  chosenInId={null}
+                  takenElsewhere={false}
+                  activePieceName={null}
+                  entitled={entitled}
+                  candidateLabel={candidateLabel}
+                  onPick={pickCandidate}
+                />
+              ))}
+            </div>
+          </>
         )}
       </section>
 
@@ -486,10 +612,10 @@ export default function AlignmentBoardClient({
                 key={candidate.productId}
                 candidate={candidate}
                 baseline={baseline}
-                swapOutId={swapOutId}
-                swapInId={swapInId}
-                swapStaged={swapStaged}
-                swapPiece={swapPiece}
+                activeSlotId={activeSlot}
+                chosenInId={activeSlot ? swaps[activeSlot] ?? null : null}
+                takenElsewhere={takenByOtherSlots.has(candidate.productId)}
+                activePieceName={activePiece?.productName ?? null}
                 entitled={entitled}
                 candidateLabel={candidateLabel}
                 onPick={pickCandidate}
@@ -592,10 +718,10 @@ export default function AlignmentBoardClient({
 function CandidatePiece({
   candidate,
   baseline,
-  swapOutId,
-  swapInId,
-  swapStaged,
-  swapPiece,
+  activeSlotId,
+  chosenInId,
+  takenElsewhere,
+  activePieceName,
   entitled,
   candidateLabel,
   onPick,
@@ -603,10 +729,14 @@ function CandidatePiece({
 }: {
   candidate: BoardCandidate;
   baseline: number | null;
-  swapOutId: string | null;
-  swapInId: string | null;
-  swapStaged: boolean;
-  swapPiece: BoardPiece | null;
+  /** The lifted slot currently being filled, or null (nothing lifted). */
+  activeSlotId: string | null;
+  /** The candidate productId chosen for the active slot, or null. */
+  chosenInId: string | null;
+  /** True when this candidate is already committed to a DIFFERENT slot. */
+  takenElsewhere: boolean;
+  /** The lifted piece's name (for the swapped-in title). */
+  activePieceName: string | null;
   entitled: boolean;
   candidateLabel: (candidate: BoardCandidate) => string;
   onPick: (candidate: BoardCandidate) => void;
@@ -614,8 +744,10 @@ function CandidatePiece({
 }) {
   const delta =
     candidate.projectedScore !== null && baseline !== null ? candidate.projectedScore - baseline : null;
-  const isSwappedIn = swapStaged && candidate.productId === swapInId;
+  const isSwappedIn = chosenInId === candidate.productId;
   const heat = fitHeatColor(delta);
+  // Can't pick without a lifted slot, and can't double-book a candidate.
+  const disabled = (!activeSlotId || takenElsewhere) && !isSwappedIn;
   return (
     <PuzzlePiece
       edges={looseEdges(candidate.fitRank)}
@@ -623,17 +755,25 @@ function CandidatePiece({
       fill={isSwappedIn ? STACK_FILL : unreviewed ? "#f7efe6" : heat}
       stroke={isSwappedIn ? "var(--shell-border)" : unreviewed ? "var(--brand-orange)" : heat}
       strokeDashed={unreviewed && !isSwappedIn}
-      lifted={swapInId === candidate.productId}
+      lifted={isSwappedIn}
       textClass={isSwappedIn || unreviewed ? "text-[var(--shell-ink)]" : "text-white"}
       mutedClass={isSwappedIn || unreviewed ? "text-[var(--shell-muted)]" : "text-white/80"}
-      disabled={!swapOutId && !isSwappedIn}
+      disabled={disabled}
       onClick={() => onPick(candidate)}
       testId="board-candidate"
       dataAnonymized={entitled ? "0" : "1"}
       dataGrade={candidate.grade}
       rank={candidate.fitRank}
-      tierLabel={isSwappedIn ? undefined : unreviewed ? "Self-reported" : fitTierLabel(delta)}
-      title={isSwappedIn && swapPiece ? swapPiece.productName : candidateLabel(candidate)}
+      tierLabel={
+        isSwappedIn
+          ? undefined
+          : takenElsewhere
+            ? "In another slot"
+            : unreviewed
+              ? "Self-reported"
+              : fitTierLabel(delta)
+      }
+      title={isSwappedIn && activePieceName ? activePieceName : candidateLabel(candidate)}
       subtitle={isSwappedIn ? "⇄ lifted from your stack" : entitled ? candidate.vendorName : "Vendor hidden"}
       scoreText={formatDelta(delta)}
     />
