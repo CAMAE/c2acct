@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import InsightStatusBadge from "@/app/components/insights/InsightStatusBadge";
 import { compactInsightSummary } from "@/app/components/insights/insightCardText";
@@ -28,6 +28,13 @@ export type InsightSurfaceGridCard = {
    * card behaves as a plain navigating Link.
    */
   expandedContent?: InsightCardExpandedContent | null;
+  /**
+   * Block 12a: the COMPLETE insight body (same server-rendered components the
+   * detail route renders — headline, colored evidence bars, charts, what-this-
+   * means, ranked action). When present it supersedes expandedContent: clicking
+   * expands the full insight inline; "Open full view" still links to the route.
+   */
+  expandedNode?: ReactNode;
 };
 
 type InsightSurfaceCardGridProps = {
@@ -79,8 +86,28 @@ export default function InsightSurfaceCardGrid({
           </>
         );
 
-        // Block 11d — battlecard-style inline expansion of the Pro readout.
-        if (card.interactive && card.expandedContent && card.href != null) {
+        // Block 12a — inline expansion into the COMPLETE insight body (the same
+        // components the detail route renders). Supersedes the Block 11d text-only
+        // readout. Falls back to the legacy text readout when no full node exists.
+        const inlineBody: ReactNode = card.expandedNode
+          ? card.expandedNode
+          : card.expandedContent
+            ? (
+                <>
+                  <p className="text-sm leading-6 text-[var(--shell-ink)]">{card.expandedContent.intro}</p>
+                  <dl className="mt-4 space-y-3">
+                    {card.expandedContent.items.map((item) => (
+                      <div key={item.title}>
+                        <dt className="text-sm font-semibold text-[var(--shell-ink)]">{item.title}</dt>
+                        <dd className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">{item.body}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </>
+              )
+            : null;
+
+        if (card.interactive && inlineBody && card.href != null) {
           return (
             <div
               key={card.key}
@@ -101,15 +128,7 @@ export default function InsightSurfaceCardGrid({
               </button>
               {expanded ? (
                 <div className="mt-4 border-t border-[var(--shell-border)] pt-4">
-                  <p className="text-sm leading-6 text-[var(--shell-ink)]">{card.expandedContent.intro}</p>
-                  <dl className="mt-4 space-y-3">
-                    {card.expandedContent.items.map((item) => (
-                      <div key={item.title}>
-                        <dt className="text-sm font-semibold text-[var(--shell-ink)]">{item.title}</dt>
-                        <dd className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">{item.body}</dd>
-                      </div>
-                    ))}
-                  </dl>
+                  <div className="space-y-6">{inlineBody}</div>
                   <Link href={card.href} className="pat-button-secondary mt-5 inline-flex">
                     Open full view
                   </Link>

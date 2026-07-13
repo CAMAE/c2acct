@@ -44,7 +44,9 @@ describe("no hardcoded single threshold line survives in the gap-plan surfaces",
   });
 
   it("firm insight detail charts the real per-capability bar (no hardcoded 60% unlock line)", () => {
-    const src = read("app/firm/insights/[key]/page.tsx");
+    // Block 12a: the firm insight body (with the per-capability bar logic) moved
+    // into the shared FirmInsightDetailBody rendered by route + inline expansion.
+    const src = read("app/components/insights/detail/FirmInsightDetailBody.tsx");
     expect(src).not.toContain("threshold={60}");
     expect(src).not.toContain('thresholdLabel="60% unlock threshold"');
     expect(src).toContain("capBarLine");

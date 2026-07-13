@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import InsightsModeShell from "@/app/components/insights/InsightsModeShell";
+import VendorAlignmentInsightDetailBody from "@/app/components/insights/detail/VendorAlignmentInsightDetailBody";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { VENDOR_ELITE_V2_META } from "@/lib/eliteInsightsV2";
 import { getSessionUser } from "@/lib/auth/session";
@@ -73,7 +74,15 @@ export default async function VendorAlignmentInsightsPage({
   const peerBenchmarkSuppressed = bundle.benchmarkSuppression.suppressed && bundle.sampleSize > 0;
   const eliteEntitlement = await resolveMembershipEntitlement(sessionUser, "vendor", MEMBERSHIP_PLAN.ELITE);
   const activeMode = getRequestedVendorAlignmentInsightOverviewMode(resolvedSearchParams?.mode);
-  const proCards = buildVendorAlignmentProInsightCards(bundle);
+  // Block 12a: every Pro face card expands inline into the COMPLETE insight body
+  // (same component the detail route renders), not a text-only readout.
+  const reportByKey = new Map(bundle.reports.map((report) => [report.key, report]));
+  const proCards = buildVendorAlignmentProInsightCards(bundle).map((card) => {
+    const report = reportByKey.get(card.key);
+    return report && !report.locked
+      ? { ...card, expandedNode: <VendorAlignmentInsightDetailBody report={report} /> }
+      : card;
+  });
   const eliteCards = buildVendorAlignmentEliteInsightCards(bundle, { elite: eliteEntitlement.allowed });
   const toggleOptions = [
     { key: "pro", label: "Pro Insights", href: getModeHref("pro") },

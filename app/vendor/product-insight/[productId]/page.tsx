@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import InsightsModeShell from "@/app/components/insights/InsightsModeShell";
+import VendorProductInsightDetailBody from "@/app/components/insights/detail/VendorProductInsightDetailBody";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
@@ -84,7 +85,13 @@ export default async function VendorProductInsightDetailPage({
     { key: "pro", label: "Pro Insights", href: getModeHref(snapshot.product.id, "pro") },
     { key: "help", label: "Help", href: getModeHref(snapshot.product.id, "help") },
   ] as const;
-  const proCards = buildVendorProductProInsightCards(snapshot);
+  // Block 12a: every product Pro face card expands inline into the COMPLETE
+  // insight body (same component the detail route renders). Previously these
+  // cards navigated away with no inline readout.
+  const proCards = buildVendorProductProInsightCards(snapshot).map((card) => {
+    const record = snapshot.insightRecords.find((entry) => entry.key === card.key) ?? null;
+    return { ...card, expandedNode: <VendorProductInsightDetailBody snapshot={snapshot} record={record} /> };
+  });
 
   return (
     <InsightsModeShell

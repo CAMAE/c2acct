@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
-import DivergenceBar from "@/app/components/charts/DivergenceBar";
-import RankedBars from "@/app/components/charts/RankedBars";
-import ScoreLockup from "@/app/components/charts/ScoreLockup";
 import InsightDetailShell from "@/app/components/insights/InsightDetailShell";
+import VendorProductInsightDetailBody from "@/app/components/insights/detail/VendorProductInsightDetailBody";
 import LockedElitePreview from "@/app/components/insights/LockedElitePreview";
 import ProductEliteDepthCard from "@/app/components/insights/elite/ProductEliteDepthCard";
 import { getSessionUser } from "@/lib/auth/session";
@@ -17,10 +15,8 @@ import {
 } from "@/lib/insightContent";
 import { PRODUCT_TIER2_INSIGHTS } from "@/lib/vendorPat";
 import {
-  buildVendorProductGapCallout,
   buildVendorProductInsightDetailSurfaceCards,
   buildVendorProductInsightDetailSurfaceContent,
-  buildVendorProductPlainLanguage,
   getRequestedVendorProductInsightDetailSurface,
   getVendorProductInsightSnapshot,
 } from "@/lib/vendorProductInsightEngine";
@@ -132,77 +128,13 @@ export default async function VendorProductInsightSlicePage({
 
   const vendorScore = snapshot.vendorSelfReported.latestScore;
   const firmScore = snapshot.firmReviewed.averageScore;
-  const gapCallout = buildVendorProductGapCallout(snapshot);
-  const plainLanguage = !isTier2 ? buildVendorProductPlainLanguage(snapshot, tier1Record ?? null) : null;
-  const sectionEvidence = (tier1Record?.vendorSectionEvidence ?? []).filter(
-    (section) => section.averageScore !== null
-  );
 
-  let visualLead = null;
-  if (!isTier2 && (vendorScore !== null || firmScore !== null)) {
-    visualLead = (
-      <>
-        <section className="pat-card p-6">
-          <div className="grid gap-8 lg:grid-cols-2">
-            <div>
-              <div className="pat-label">Vendor story vs firm review</div>
-              <div className="mt-4">
-                {vendorScore !== null && firmScore !== null ? (
-                  <DivergenceBar
-                    title={`${snapshot.product.name}: vendor self-reported vs firm-reviewed signal`}
-                    a={{ label: "Vendor self-reported", value: vendorScore }}
-                    b={{ label: "Firm-reviewed", value: firmScore }}
-                    gapLabel={gapCallout.label}
-                  />
-                ) : (
-                  <ScoreLockup
-                    label={vendorScore !== null ? "Vendor self-reported signal" : "Firm-reviewed signal"}
-                    score={vendorScore ?? firmScore}
-                    context={
-                      vendorScore !== null
-                        ? "No firm-reviewed signal yet — the divergence view opens once the first firm review lands."
-                        : "No vendor self-reported signal yet, so the divergence view cannot open."
-                    }
-                  />
-                )}
-              </div>
-            </div>
-            {sectionEvidence.length ? (
-              <div>
-                <div className="pat-label">Self-reported section signal</div>
-                <div className="mt-3">
-                  <RankedBars
-                    title="Vendor self-reported section scores behind this insight, ranked strongest to softest"
-                    items={[...sectionEvidence]
-                      .sort((left, right) => (right.averageScore ?? 0) - (left.averageScore ?? 0))
-                      .map((section) => ({
-                        key: section.key,
-                        label: section.title,
-                        value: section.averageScore,
-                      }))}
-                    colorByBand
-                  />
-                </div>
-              </div>
-            ) : null}
-          </div>
-        </section>
-        {plainLanguage ? (
-          <section className="pat-card p-6">
-            <div className="pat-label">What this means for your product</div>
-            <p className="mt-4 max-w-3xl text-sm leading-6 text-[var(--shell-ink)]">{plainLanguage.summary}</p>
-            {plainLanguage.nextSteps.length ? (
-              <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-6 text-[var(--shell-muted)]">
-                {plainLanguage.nextSteps.map((step) => (
-                  <li key={step}>{step}</li>
-                ))}
-              </ul>
-            ) : null}
-          </section>
-        ) : null}
-      </>
-    );
-  }
+  // Block 12a: the full Pro product-insight body is a shared component rendered
+  // here AND inline when a product face card expands.
+  const visualLead =
+    !isTier2 && (vendorScore !== null || firmScore !== null) ? (
+      <VendorProductInsightDetailBody snapshot={snapshot} record={tier1Record ?? null} />
+    ) : null;
 
   const combinedEvidenceText = isTier2 ? (
     <>

@@ -148,9 +148,12 @@ describe("firm insight — face number equals detail hero number", () => {
 
 // ---- Wiring guard (source scan) -----------------------------------------
 
-describe("detail pages feed the hero from the shared reader (no averageScore fallback)", () => {
-  it("vendor detail page wires ScoreLockup to the headline reader", () => {
-    const src = read("app/vendor/alignment-insights/[key]/page.tsx");
+describe("detail bodies feed the hero from the shared reader (no averageScore fallback)", () => {
+  // Block 12a: the detail body (hero + evidence bars) is one shared component
+  // rendered by BOTH the detail route AND the inline face-card expansion, so the
+  // headline-reader wiring now lives in the shared component (single source).
+  it("vendor detail body wires ScoreLockup to the headline reader", () => {
+    const src = read("app/components/insights/detail/VendorAlignmentInsightDetailBody.tsx");
     expect(src).toContain("readVendorAlignmentInsightHeadline");
     expect(src).toContain("const headline = readVendorAlignmentInsightHeadline(report)");
     expect(src).toContain("score={headline.score}");
@@ -158,8 +161,8 @@ describe("detail pages feed the hero from the shared reader (no averageScore fal
     expect(src).not.toContain("score={report.averageModuleScore}");
   });
 
-  it("firm detail page wires ScoreLockup to the headline reader", () => {
-    const src = read("app/firm/insights/[key]/page.tsx");
+  it("firm detail body wires ScoreLockup to the headline reader", () => {
+    const src = read("app/components/insights/detail/FirmInsightDetailBody.tsx");
     expect(src).toContain("readFirmInsightHeadline");
     expect(src).toContain("score={headline.score}");
     expect(src).not.toContain("score={averageScore}");

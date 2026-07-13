@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import RankedBars from "@/app/components/charts/RankedBars";
-import ScoreLockup from "@/app/components/charts/ScoreLockup";
 import InsightDetailShell from "@/app/components/insights/InsightDetailShell";
+import VendorAlignmentInsightDetailBody from "@/app/components/insights/detail/VendorAlignmentInsightDetailBody";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
 import { getVendorAlignmentInsightContent } from "@/lib/insightContent";
@@ -10,10 +9,8 @@ import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership"
 import {
   buildVendorAlignmentInsightDetailSurfaceCards,
   buildVendorAlignmentInsightDetailSurfaceContent,
-  buildVendorAlignmentPlainLanguage,
   getRequestedVendorAlignmentInsightDetailSurface,
   getVendorAlignmentInsightBundle,
-  readVendorAlignmentInsightHeadline,
 } from "@/lib/vendorAlignmentInsightEngine";
 import prisma from "@/lib/prisma";
 import { getVendorProductInsightCatalog } from "@/lib/vendorProductInsightEngine";
@@ -182,76 +179,9 @@ export default async function VendorAlignmentInsightDetailPage({
     label: card.title,
     href: card.href ?? `/vendor/alignment-insights/${report.key}?surface=${card.key}`,
   }));
-  const scoredModules = report.contributingModules
-    .filter((module) => typeof module.averageScore === "number")
-    .sort((left, right) => (right.averageScore ?? 0) - (left.averageScore ?? 0));
-  const scoredCapabilities = report.contributingCapabilities
-    .filter((capability) => typeof capability.averageScore === "number")
-    .sort((left, right) => (right.averageScore ?? 0) - (left.averageScore ?? 0));
-  const plainLanguage = buildVendorAlignmentPlainLanguage(report);
-
-  // Block 10c: the detail hero reads the SAME headline as the face card, so the
-  // number a vendor sees on /vendor/alignment-insights matches the number on
-  // this detail page. (Pre-10c it read report.averageModuleScore — a different,
-  // card-invariant number.)
-  const headline = readVendorAlignmentInsightHeadline(report);
-  let visualLead = null;
-  if (!report.locked && headline.displayValue !== "—" && scoredModules.length > 0) {
-    visualLead = (
-      <>
-        <section className="pat-card p-6">
-          <div className="grid gap-8 lg:grid-cols-2">
-            <ScoreLockup
-              label={headline.caption}
-              score={headline.score}
-              displayValue={headline.displayValue}
-              suffix={headline.suffix}
-              showBand={headline.showBand}
-              context={`This insight's headline signal · ${report.submissionCount} module submission${report.submissionCount === 1 ? "" : "s"} · current-state evidence only`}
-            />
-            <div className="space-y-6">
-              <div>
-                <div className="pat-label">Firm-side signal by area · strongest to softest</div>
-                <div className="mt-3">
-                  <RankedBars
-                    title="Aggregated firm module signal behind this insight, ranked strongest to softest"
-                    items={scoredModules.map((module) => ({
-                      key: module.key,
-                      label: module.title,
-                      value: module.averageScore,
-                    }))}
-                    colorByBand
-                  />
-                </div>
-              </div>
-              {scoredCapabilities.length ? (
-                <div>
-                  <div className="pat-label">Supporting capability signal</div>
-                  <div className="mt-3">
-                    <RankedBars
-                      title="Aggregated firm capability signal supporting this insight"
-                      items={scoredCapabilities.map((capability) => ({
-                        key: capability.key,
-                        label: capability.title,
-                        value: capability.averageScore,
-                      }))}
-                      colorByBand
-                    />
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </section>
-        {plainLanguage ? (
-          <section className="pat-card p-6">
-            <div className="pat-label">What this means for your positioning</div>
-            <p className="mt-4 max-w-3xl text-sm leading-6 text-[var(--shell-ink)]">{plainLanguage.summary}</p>
-          </section>
-        ) : null}
-      </>
-    );
-  }
+  // Block 12a: the full Pro insight body is a shared component rendered here AND
+  // inline when a face card expands on /vendor/alignment-insights.
+  const visualLead = report.locked ? null : <VendorAlignmentInsightDetailBody report={report} />;
 
   const combinedEvidenceText = report.locked
     ? "Current evidence stays grounded in the current firm PAT signal already visible in this route, while the deeper Elite layer remains unavailable."

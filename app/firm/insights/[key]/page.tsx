@@ -1,21 +1,16 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import ChartEmptyState from "@/app/components/charts/ChartEmptyState";
-import ProgressMeter from "@/app/components/charts/ProgressMeter";
-import RankedBars from "@/app/components/charts/RankedBars";
-import ScoreLockup from "@/app/components/charts/ScoreLockup";
 import InsightDetailShell from "@/app/components/insights/InsightDetailShell";
+import FirmInsightDetailBody from "@/app/components/insights/detail/FirmInsightDetailBody";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
 import {
-  buildFirmInsightPlainLanguage,
   buildFirmInsightDetailSurfaceCards,
   buildFirmInsightDetailSurfaceContent,
   buildFirmLockedInsightDetailSurfaceCards,
   buildFirmLockedInsightDetailSurfaceContent,
   getFirmInsightReports,
   getRequestedFirmInsightDetailSurface,
-  readFirmInsightHeadline,
 } from "@/lib/firmInsightEngine";
 import { getFirmInsightContent } from "@/lib/insightContent";
 import { evaluateUnlocked } from "@/lib/insights/evaluateUnlocked";
@@ -209,140 +204,16 @@ export default async function FirmInsightDetailPage({
         entitled: isElite,
       });
 
+  // Block 12a: the full Pro insight body (headline + module completion + colored
+  // module/capability evidence bars + "what this means") is a single shared
+  // component rendered here AND inline when a face card expands.
   const scoredModules = report
-    ? report.contributingModules
-        .filter((module) => typeof module.score === "number")
-        .sort((left, right) => (right.score ?? 0) - (left.score ?? 0))
+    ? report.contributingModules.filter((module) => typeof module.score === "number")
     : [];
-  const latestEvidenceDate = report?.latestUpdatedAt
-    ? report.latestUpdatedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-    : null;
-  // Block 10c: the detail hero reads the SAME per-theme headline as the face
-  // card on /firm/insights (was averageContributingModuleScore for every card,
-  // which disagreed with the varied face-card number).
-  const headline = report ? readFirmInsightHeadline(key, report) : null;
-  // Block 10d (threshold math): capability bars are per-capability (60% or 65%).
-  // Draw a single chart line only when every capability shares one bar; label
-  // the title and each row with the REAL bar, never a hardcoded 60%.
-  const capThresholds = report
-    ? [...new Set(report.contributingCapabilities.map((capability) => capability.threshold))].sort(
-        (left, right) => left - right
-      )
-    : [];
-  const capBarLine =
-    capThresholds.length === 1
-      ? { threshold: capThresholds[0], thresholdLabel: `${capThresholds[0]}% bar` }
-      : {};
-  const capBarTitle =
-    capThresholds.length === 1
-      ? `Capability scores behind this insight versus the ${capThresholds[0]}% bar`
-      : capThresholds.length > 1
-        ? `Capability scores behind this insight versus each capability's bar (${capThresholds[0]}–${capThresholds[capThresholds.length - 1]}%)`
-        : "Capability scores behind this insight";
 
   let visualLead = null;
-  if (report && headline && scoredModules.length > 0) {
-    const plainLanguage = buildFirmInsightPlainLanguage(report);
-    visualLead = (
-      <>
-      <section className="pat-card p-6">
-        <div className="grid gap-8 lg:grid-cols-2">
-          <div>
-            <ScoreLockup
-              label={headline.caption}
-              score={headline.score}
-              displayValue={headline.displayValue}
-              suffix={headline.suffix}
-              showBand={headline.showBand}
-              context={`This insight's headline signal${
-                latestEvidenceDate ? ` · updated ${latestEvidenceDate}` : ""
-              }`}
-            />
-            <div className="mt-8">
-              <div className="pat-label">Current limits</div>
-              <div className="mt-3">
-                <ProgressMeter
-                  completed={scoredModules.length}
-                  total={report.contributingModules.length}
-                  unitLabel="relevant modules complete"
-                  title="Module completion behind this insight"
-                  chips={report.contributingModules.map((module) => ({
-                    key: module.key,
-                    label: module.title,
-                    done: typeof module.score === "number",
-                  }))}
-                  context={report.confidenceCaveats[0]}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="space-y-6">
-            <div>
-              <div className="pat-label">Module evidence · strongest to under pressure</div>
-              <div className="mt-3">
-                <RankedBars
-                  title="Module scores behind this insight, ranked strongest to weakest"
-                  items={scoredModules.map((module) => ({
-                    key: module.key,
-                    label: module.title,
-                    value: module.score,
-                  }))}
-                  colorByBand
-                />
-              </div>
-            </div>
-            {report.contributingCapabilities.length ? (
-              <div>
-                <div className="pat-label">Capability evidence</div>
-                <div className="mt-3">
-                  <RankedBars
-                    title={capBarTitle}
-                    items={[...report.contributingCapabilities]
-                      .sort((left, right) => (right.score ?? -1) - (left.score ?? -1))
-                      .map((capability) => ({
-                        key: capability.key,
-                        label: capability.title,
-                        value: capability.score,
-                        meta:
-                          capability.score === null
-                            ? "no score yet"
-                            : `${capability.meetsThreshold ? "meets" : "below"} ${capability.threshold}% bar`,
-                      }))}
-                    colorByBand
-                    {...capBarLine}
-                  />
-                </div>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </section>
-      {plainLanguage ? (
-        <section className="pat-card p-6">
-          <div className="pat-label">What this means for your firm</div>
-          <p className="mt-4 max-w-3xl text-sm leading-6 text-[var(--shell-ink)]">{plainLanguage.summary}</p>
-          {plainLanguage.nextSteps.length ? (
-            <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-6 text-[var(--shell-muted)]">
-              {plainLanguage.nextSteps.map((step) => (
-                <li key={step}>{step}</li>
-              ))}
-            </ul>
-          ) : null}
-        </section>
-      ) : null}
-      </>
-    );
-  } else if (report) {
-    visualLead = (
-      <section className="pat-card p-6">
-        <ChartEmptyState
-          variant="bars"
-          message="This readout charts final module and capability scores. Complete the related alignment modules to open the visual evidence."
-          ctaHref="/firm/alignment-assessment"
-          ctaLabel="Open the alignment assessment"
-        />
-      </section>
-    );
+  if (report) {
+    visualLead = <FirmInsightDetailBody report={report} insightKey={key} />;
   }
 
   // Block 11 N2: tier-2 copy must be consistent with entitlement — Elite

@@ -3,6 +3,7 @@ import ChartEmptyState from "@/app/components/charts/ChartEmptyState";
 import RadarChart from "@/app/components/charts/RadarChart";
 import ScoreLockup from "@/app/components/charts/ScoreLockup";
 import InsightsModeShell from "@/app/components/insights/InsightsModeShell";
+import FirmInsightDetailBody from "@/app/components/insights/detail/FirmInsightDetailBody";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { FIRM_ELITE_V2_META } from "@/lib/eliteInsightsV2";
 import { getSessionUser } from "@/lib/auth/session";
@@ -18,6 +19,7 @@ import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import {
   ensureFirmAlignmentSystem,
   getFirmAssessmentProgress,
+  FIRM_TIER1_INSIGHT_DEFINITIONS,
 } from "@/lib/firmPat";
 
 export const dynamic = "force-dynamic";
@@ -80,9 +82,17 @@ export default async function FirmInsightsPage({
   const unlockedKeys = new Set(unlocked.map((item) => item.key));
   const activeMode = getRequestedFirmInsightOverviewMode(resolvedSearchParams?.mode);
   const completedModules = moduleProgress.filter((module) => module.latestSubmittedAt).length;
+  // Block 12a: every Pro face card expands inline into the COMPLETE insight body
+  // (same component the detail route renders), not a text-only readout — so all
+  // four cards behave identically. "Open full view" still links to the route.
   const proCards = buildFirmProInsightCards({
     reports: insightReports,
     unlockedKeys,
+  }).map((card) => {
+    const report = insightReports.get(card.key as (typeof FIRM_TIER1_INSIGHT_DEFINITIONS)[number]["key"]);
+    return report
+      ? { ...card, expandedNode: <FirmInsightDetailBody report={report} insightKey={card.key} /> }
+      : card;
   });
   const eliteCards = buildFirmEliteInsightCards({ elite: eliteEntitlement.allowed });
   const toggleOptions = [
