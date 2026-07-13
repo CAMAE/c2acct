@@ -909,11 +909,13 @@ export function buildVendorAlignmentEliteInsightCards(
       // locked "Coming soon" state is preserved for Pro-only members.
       if (elite) {
         const meta = VENDOR_ELITE_V2_META[report.key];
+        // Block 12c: entitled hub cards use firm-standard grammar (headline number
+        // + specific sentence), not a bare name + "ELITE" chip. The metric is
+        // attached by the index page from the live builder data.
         return {
           key: report.key,
           title: meta?.title ?? report.title,
           summary: meta?.description ?? report.currentStateSummary,
-          statusLabel: "Elite",
           tone: "active",
           href: `/vendor/alignment-insights/${report.key}?surface=elite`,
           interactive: true,

@@ -3,6 +3,8 @@ import { percentileValue, percentileRank } from "@/lib/benchmarks";
 import {
   buildGapMapDrilldownInsight,
   buildVendorGapMap,
+  firmEliteHubMetrics,
+  vendorEliteHubMetrics,
   type GapMapProductInput,
 } from "@/lib/eliteInsightsV2";
 
@@ -84,6 +86,66 @@ describe("V3 Gap Map drill-down — takeaway + action from the selection", () =>
     expect(
       buildGapMapDrilldownInsight([{ productLabel: "Recon", dimLabel: "Support", firm: null, vendor: 80 }])
     ).toBeNull();
+  });
+});
+
+describe("Block 12c — Elite hub face metrics (own headline number per card)", () => {
+  it("firm hub metrics: trajectory index+projection, peer percentile, gap pts-to-top-quartile", () => {
+    const metrics = firmEliteHubMetrics({
+      peer: {
+        available: true,
+        overall: { percentile: 72, rankFromTop: 30, n: 106, score: 68 },
+        bestAction: { moduleLabel: "Automation and AI Readiness", deficit: 9, fromPercentile: 48, toPercentile: 75 },
+        rows: [],
+        reportCard: [],
+        emptyReason: null,
+      },
+      gapPlan: { available: true, gaps: [], watchList: [], clearedCount: 7, totalCount: 10, emptyReason: null },
+      trajectory: {
+        available: true,
+        history: [{ label: "Feb", score: 60 }, { label: "Jul", score: 68 }],
+        projection: { score: 85, low: 78, high: 92, label: "next" },
+        momentum: null,
+        swapMovement: null,
+        emptyReason: null,
+      },
+    });
+    expect(metrics.firm_tier2_projection?.value).toBe("68 · +17 projected");
+    expect(metrics.firm_tier2_benchmark?.value).toBe("72nd percentile");
+    expect(metrics.firm_tier2_recommendation?.value).toBe("9 pts to top quartile");
+  });
+
+  it("vendor hub metrics: category top-band, demand net motion, gap-map confirmed vs lower", () => {
+    const metrics = vendorEliteHubMetrics({
+      category: {
+        available: true,
+        categories: [
+          { category: "Tax & Compliance", mean: 70, stdev: 5, p25: 60, p75: 80, score: 82, percentile: 90, rankFromTop: 1, n: 9, quartile: 4, suppressed: false },
+          { category: "Ledger & Close", mean: 65, stdev: 5, p25: 55, p75: 75, score: 62, percentile: 40, rankFromTop: 5, n: 8, quartile: 2, suppressed: false },
+        ],
+        topAction: null,
+        emptyReason: null,
+      },
+      demand: {
+        available: true,
+        identityAllowed: true,
+        windowLabel: "last 90 days",
+        earlySignal: false,
+        totalIn: 42,
+        totalOut: 15,
+        swappedIn: [],
+        swappedOut: [],
+        rankedAction: null,
+        emptyReason: null,
+      },
+      gapMap: buildVendorGapMap([
+        { productId: "p1", productName: "Ledger", firmAssessmentCount: 5, firmDimensions: [{ key: "w", title: "Workflow", score: 80 }], vendorDimensions: [{ key: "w", title: "Workflow", score: 78 }] },
+        { productId: "p2", productName: "Recon", firmAssessmentCount: 5, firmDimensions: [{ key: "w", title: "Workflow", score: 55 }], vendorDimensions: [{ key: "w", title: "Workflow", score: 90 }] },
+      ]),
+    });
+    expect(metrics["benchmark-comparison"]?.value).toBe("1 in top band");
+    expect(metrics["forward-projection"]?.value).toBe("+27 net motion");
+    expect(metrics["scenario-simulation"]?.value).toBe("1 confirmed · 1 read lower");
   });
 });
 

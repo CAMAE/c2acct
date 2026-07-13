@@ -889,3 +889,108 @@ export function buildVendorGapMap(products: GapMapProductInput[]): VendorGapMap 
 
   return { available: true, columns, rows, emptyReason: null };
 }
+
+// ── Elite hub face metrics (Block 12c) ───────────────────────────────────────
+// Restore firm-standard card grammar on the Elite Insights HUBS: each entitled
+// hub card leads with its OWN headline number sourced from the same builder that
+// powers its detail surface (not a bare name + "ELITE" chip). Pure formatters so
+// a contract test can lock the number format; the index pages call the builders.
+
+export type EliteHubMetric = { value: string; caption: string };
+
+/** Firm hub metrics keyed by tier-2 insight key. Null when the surface has no data. */
+export function firmEliteHubMetrics(input: {
+  peer: FirmPeerPosition;
+  gapPlan: FirmGapPlan;
+  trajectory: FirmTrajectory;
+}): Record<string, EliteHubMetric | null> {
+  const { peer, gapPlan, trajectory } = input;
+
+  // Trajectory: current index + projected delta ("68 · +17 projected").
+  let projectionMetric: EliteHubMetric | null = null;
+  const current = trajectory.history.at(-1)?.score ?? null;
+  if (trajectory.available && current !== null && trajectory.projection) {
+    const delta = Math.round(trajectory.projection.score - current);
+    projectionMetric = {
+      value: `${Math.round(current)} · ${delta >= 0 ? "+" : ""}${delta} projected`,
+      caption: "current index · directional projection",
+    };
+  } else if (trajectory.available && current !== null) {
+    projectionMetric = { value: `${Math.round(current)}`, caption: "current alignment index" };
+  }
+
+  // Peer Position: overall percentile ("72nd percentile").
+  const benchmarkMetric: EliteHubMetric | null =
+    peer.available && peer.overall
+      ? { value: `${ordinal(peer.overall.percentile)} percentile`, caption: `of ${peer.overall.n} peer firms` }
+      : null;
+
+  // Gap-to-Top-Quartile: points for the biggest lever to reach peer top quartile.
+  const recommendationMetric: EliteHubMetric | null =
+    peer.available && peer.bestAction
+      ? {
+          value: `${Math.round(peer.bestAction.deficit)} pts to top quartile`,
+          caption: `biggest lever: ${peer.bestAction.moduleLabel}`,
+        }
+      : gapPlan.available && gapPlan.totalCount > 0
+        ? { value: `${gapPlan.clearedCount} of ${gapPlan.totalCount} cleared`, caption: "capabilities at their bar" }
+        : null;
+
+  return {
+    firm_tier2_projection: projectionMetric,
+    firm_tier2_benchmark: benchmarkMetric,
+    firm_tier2_recommendation: recommendationMetric,
+  };
+}
+
+/** Vendor hub metrics keyed by tier-2 insight key. Null when the surface has no data. */
+export function vendorEliteHubMetrics(input: {
+  category: VendorCategoryPosition;
+  demand: VendorDemandSignals;
+  gapMap: VendorGapMap;
+}): Record<string, EliteHubMetric | null> {
+  const { category, demand, gapMap } = input;
+
+  // Category Position: products in the top band, else the median percentile.
+  let categoryMetric: EliteHubMetric | null = null;
+  const published = category.categories.filter((c) => !c.suppressed);
+  if (category.available && published.length > 0) {
+    const topBand = published.filter((c) => c.quartile === 4).length;
+    if (topBand > 0) {
+      categoryMetric = {
+        value: `${topBand} in top band`,
+        caption: `of ${published.length} category position${published.length === 1 ? "" : "s"}`,
+      };
+    } else {
+      const sorted = [...published].sort((a, b) => a.percentile - b.percentile);
+      const median = sorted[Math.floor((sorted.length - 1) / 2)]!.percentile;
+      categoryMetric = { value: `${ordinal(median)} percentile`, caption: "median category position" };
+    }
+  }
+
+  // Demand Signals: net motion over the window ("+27 net motion · 90d").
+  const net = demand.totalIn - demand.totalOut;
+  const demandMetric: EliteHubMetric | null = demand.available
+    ? { value: `${net >= 0 ? "+" : ""}${net} net motion`, caption: demand.windowLabel }
+    : null;
+
+  // Gap Map: confirmed vs read-lower dimensions across the scored grid.
+  let gapMapMetric: EliteHubMetric | null = null;
+  if (gapMap.available) {
+    let confirmed = 0;
+    let lower = 0;
+    for (const row of gapMap.rows) {
+      for (const cell of row.cells) {
+        if (cell.tone === "confirm") confirmed += 1;
+        else if (cell.tone === "dispute") lower += 1;
+      }
+    }
+    gapMapMetric = { value: `${confirmed} confirmed · ${lower} read lower`, caption: "product-fit dimensions" };
+  }
+
+  return {
+    "benchmark-comparison": categoryMetric,
+    "forward-projection": demandMetric,
+    "scenario-simulation": gapMapMetric,
+  };
+}

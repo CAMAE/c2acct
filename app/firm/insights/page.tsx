@@ -5,7 +5,15 @@ import ScoreLockup from "@/app/components/charts/ScoreLockup";
 import InsightsModeShell from "@/app/components/insights/InsightsModeShell";
 import FirmInsightDetailBody from "@/app/components/insights/detail/FirmInsightDetailBody";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
-import { FIRM_ELITE_V2_META } from "@/lib/eliteInsightsV2";
+import prisma from "@/lib/prisma";
+import { resolveCompanyBoundary } from "@/lib/dataBoundary";
+import {
+  FIRM_ELITE_V2_META,
+  buildFirmPeerPosition,
+  buildFirmGapPlan,
+  buildFirmTrajectory,
+  firmEliteHubMetrics,
+} from "@/lib/eliteInsightsV2";
 import { getSessionUser } from "@/lib/auth/session";
 import {
   buildFirmEliteInsightCards,
@@ -94,7 +102,22 @@ export default async function FirmInsightsPage({
       ? { ...card, expandedNode: <FirmInsightDetailBody report={report} insightKey={card.key} /> }
       : card;
   });
-  const eliteCards = buildFirmEliteInsightCards({ elite: eliteEntitlement.allowed });
+  // Block 12c: entitled Elite hub cards carry their own headline number (from the
+  // same builders that power each detail surface), restoring firm-standard grammar.
+  let eliteCards = buildFirmEliteInsightCards({ elite: eliteEntitlement.allowed });
+  if (eliteEntitlement.allowed) {
+    const boundary = await resolveCompanyBoundary(sessionUser.companyId);
+    const [peer, gapPlan, trajectory] = await Promise.all([
+      buildFirmPeerPosition(prisma, sessionUser.companyId, boundary),
+      buildFirmGapPlan({ getFirmInsightReports }, sessionUser.companyId),
+      buildFirmTrajectory(prisma, sessionUser.companyId),
+    ]);
+    const metrics = firmEliteHubMetrics({ peer, gapPlan, trajectory });
+    eliteCards = eliteCards.map((card) => {
+      const metric = metrics[card.key];
+      return metric ? { ...card, metric } : card;
+    });
+  }
   const toggleOptions = [
     { key: "pro", label: "Pro Insights", href: getModeHref("pro") },
     { key: "elite", label: "Elite Insights", href: getModeHref("elite") },

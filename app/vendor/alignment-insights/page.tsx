@@ -2,7 +2,16 @@ import { redirect } from "next/navigation";
 import InsightsModeShell from "@/app/components/insights/InsightsModeShell";
 import VendorAlignmentInsightDetailBody from "@/app/components/insights/detail/VendorAlignmentInsightDetailBody";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
-import { VENDOR_ELITE_V2_META } from "@/lib/eliteInsightsV2";
+import prisma from "@/lib/prisma";
+import { poolForViewerBoundary, resolveCompanyBoundary } from "@/lib/dataBoundary";
+import { getVendorProductInsightCatalog } from "@/lib/vendorProductInsightEngine";
+import {
+  VENDOR_ELITE_V2_META,
+  buildVendorCategoryPosition,
+  buildVendorDemandSignals,
+  buildVendorGapMap,
+  vendorEliteHubMetrics,
+} from "@/lib/eliteInsightsV2";
 import { getSessionUser } from "@/lib/auth/session";
 import { resolveVendorSurfaceAccess } from "@/lib/consultantAccess";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
@@ -83,7 +92,32 @@ export default async function VendorAlignmentInsightsPage({
       ? { ...card, expandedNode: <VendorAlignmentInsightDetailBody report={report} /> }
       : card;
   });
-  const eliteCards = buildVendorAlignmentEliteInsightCards(bundle, { elite: eliteEntitlement.allowed });
+  // Block 12c: entitled Elite hub cards carry their own headline number, from the
+  // same builders that power each detail surface.
+  let eliteCards = buildVendorAlignmentEliteInsightCards(bundle, { elite: eliteEntitlement.allowed });
+  if (eliteEntitlement.allowed && sessionUser.companyId) {
+    const companyId = sessionUser.companyId;
+    const boundary = await resolveCompanyBoundary(companyId);
+    const [category, demand, catalog] = await Promise.all([
+      buildVendorCategoryPosition(prisma, companyId, boundary),
+      buildVendorDemandSignals(prisma, companyId, poolForViewerBoundary(boundary), { identityAllowed: true }),
+      getVendorProductInsightCatalog(companyId),
+    ]);
+    const gapMap = buildVendorGapMap(
+      catalog.map((snapshot) => ({
+        productId: snapshot.product.id,
+        productName: snapshot.product.name,
+        firmAssessmentCount: snapshot.firmReviewed.assessmentCount,
+        firmDimensions: snapshot.firmReviewed.dimensionEvidence.map((d) => ({ key: d.key, title: d.title, score: d.score })),
+        vendorDimensions: snapshot.vendorSelfReported.dimensionEvidence.map((d) => ({ key: d.key, title: d.title, score: d.score })),
+      }))
+    );
+    const metrics = vendorEliteHubMetrics({ category, demand, gapMap });
+    eliteCards = eliteCards.map((card) => {
+      const metric = metrics[card.key];
+      return metric ? { ...card, metric } : card;
+    });
+  }
   const toggleOptions = [
     { key: "pro", label: "Pro Insights", href: getModeHref("pro") },
     { key: "elite", label: "Elite Insights", href: getModeHref("elite") },

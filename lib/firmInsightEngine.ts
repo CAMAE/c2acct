@@ -668,11 +668,13 @@ export function buildFirmEliteInsightCards({ elite = false }: { elite?: boolean 
     // description match the interior surface. Locked "Coming soon" for Pro members.
     if (elite) {
       const meta = FIRM_ELITE_V2_META[insight.key];
+      // Block 12c: entitled hub cards use firm-standard grammar (headline number +
+      // specific sentence), NOT a bare name + "ELITE" corner chip. The metric is
+      // attached by the index page from the live builder data.
       return {
         key: insight.key,
         title: meta?.title ?? insight.title,
         summary: meta?.description ?? insight.title,
-        statusLabel: "Elite",
         tone: "active",
         href: `/firm/insights/${insight.key}?surface=elite`,
         interactive: true,
