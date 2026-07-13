@@ -566,3 +566,23 @@ D5-vendor ✅ (Meridian resolved ELITE live). Full chain: lint clean · tsc clea
 test:unit 808/808 (3 drill-down + 2 classification tests added) · build exit 0.
 NEXT (Cam queue): Mythos sweeps → QBANK v1.1 (approval HELD; founders review round-trip).
 
+
+## 2026-07-13 — Block 12: Insight surface unification round 2
+
+### 12a — INLINE = FULL INSIGHT (mid checkpoint GREEN)
+Commit f23e402b. Build cdq6VxjC35yIMHEvrHpiH. Every Pro face card (firm + vendor,
+alignment + product) now expands INLINE into the COMPLETE insight body (headline +
+colored evidence bars + charts + what-this-means), via 3 shared server components
+(FirmInsightDetailBody / VendorAlignmentInsightDetailBody / VendorProductInsightDetailBody)
+rendered by BOTH the detail route AND the inline expansion. InsightSurfaceCardGrid
+gained expandedNode (ReactNode) superseding the Block-11d text-only readout;
+"Open full view" still links to the route (C6). Firm was top-2-inline/bottom-2-nav
+→ all 4 inline; vendor product was navigate-only → inline. Contract tests
+(number-integrity C1, threshold-math C3) repointed to the shared body components.
+MID CHECKPOINT: both ports serving cdq6VxjC35yIMHEvrHpiH, asset-integrity PASS both.
+Authenticated :3005 proof — firm 4 cards expandable (Module evidence inline),
+vendor-alignment cards (Firm-side signal inline), vendor-product 3 cards (Vendor
+story vs firm review inline). typecheck/lint clean, test:unit 808/808.
+REMAINING: 12b (firm hybrid elite depth / remove boilerplate toggles), 12c (elite
+hub face cards restore numbers), 12d (Trajectory rebuild), 12e (review.vendor
+BattleCard fit mix). End checkpoint after those + reseed.
