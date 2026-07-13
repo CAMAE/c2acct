@@ -54,6 +54,8 @@ export type BoardPiece = {
   priceBand: string;
   /** This firm's per-dimension review shape (P0 radar). Real answers, per axis. */
   dimensionScores: ProductFitDimensionScore[];
+  /** The product's declared utility keys — the slots it fills (sandbox lanes). */
+  utilityKeys: string[];
 };
 
 export type BoardCandidate = {
@@ -88,6 +90,8 @@ export type BoardCandidate = {
    */
   dimensionScores: ProductFitDimensionScore[];
   evidenceBasis: "firm_reviewed" | "vendor_reported" | "none";
+  /** The product's declared utility keys — the slots it fills (sandbox lanes). */
+  utilityKeys: string[];
 };
 
 /** One radar axis (product-fit dimension key + title), canonical order. */
@@ -252,6 +256,7 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
           topGap: pieceGap(firmReview, snapshot.divergence),
           priceBand: BOARD_PRICE_BAND,
           dimensionScores: emptyDimensionScores(), // filled from this-firm review below
+          utilityKeys: snapshot.product.utilityKeys,
         });
       } else {
         // Evidence-lineage policy (P2-pre): firm-review is PRIMARY. A candidate
@@ -275,6 +280,7 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
           grade,
           dimensionScores,
           evidenceBasis,
+          utilityKeys: snapshot.product.utilityKeys,
         });
       }
     }
