@@ -710,3 +710,28 @@ lib/demo-seed/expansion.ts + purge-script headers. (Mythos owns REGRESSION-CHECK
 D-section + MYTHOS.md updates.) Peer cohort N=238 is the LEGITIMATE count (12f reader
 correct — not orphan-polluted). NEXT: 12e fit-mix + D3 (score re-tuning, no deletions)
 → re-run tests/number-integrity-elite vs 238/43 → full regression + screenshots.
+
+### 12g/12h/12d/12e + reseed — END CHECKPOINT GREEN (2026-07-14)
+Build iVxak9JnIEy0Y_CnloeyJ (code unchanged since the 12d build — 12e is data-only),
+both ports asset-integrity PASS. LKG re-promoted (commit advanced 794d004→a8adfa0,
+same BUILD_ID — L1 last_known_good_release_not_current, fixed by rm LKG + re-promote).
+- 12g Elite hub faces: ONE hero + colored chip/micro + sub (both portals). LIVE.
+- 12h grid items-start: expanding never resizes siblings. LIVE.
+- 12d Trajectory: provenance panel + "module submissions over time, NOT sandbox swaps"
+  copy + ranked action + colored hero. LIVE. D3: demo-firm-elite carries a varied
+  7-pt maturity history (Jan→Jul) already; the newest point == live index (12f).
+- 12e review.vendor BattleCard fit: 0 strong/1 good (red-wall) → 1 strong / 4 good /
+  10 weak (varied, 5 non-weak) via product scoreTarget re-tune to near-cap (4.9/4.85/
+  4.7); Meridian 2/2/2 unchanged. Weak-heaviness is the score-only ceiling (15 shared
+  base firms cluster high + 4.9 cap); a balanced mix needs structural firm-spread work.
+- Reseed pass complete: purged 4 stale demo-bench vendors, canon RE-BASELINED to 238
+  firms / 43 vendors (176 expansion + 15 base; 32 + 11); validation 2a-2d all pass;
+  benchmarks recomputed (12 firm / 7 vendor). Peer cohort N=238 LIVE (12f reader correct).
+- Number integrity re-verified LIVE against the re-baselined cohort: Elite peer "you"==
+  Pro module scores, Alignment index 68 == Trajectory current 68. tests/number-integrity-elite
+  8/8, test:unit 820/820.
+INFRA NOTE: repeated tsx seed/probe runs leaked ~348 orphaned Prisma query-engines that
+exhausted Neon's client limit (P2037 "too many clients") and blocked seeding — killed
+via `pkill -9 -f "c2acct-live/node_modules/.pnpm/@prisma.*query-engine-darwin-arm64"`,
+then connections drained. Always let tsx probes process.exit + $disconnect, or reap engines.
+BLOCK 12 (a-h + reseed) COMPLETE. Mythos owns REGRESSION-CHECKLIST D-section + MYTHOS.md.
