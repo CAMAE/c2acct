@@ -7,6 +7,7 @@ import FirmInsightDetailBody from "@/app/components/insights/detail/FirmInsightD
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import prisma from "@/lib/prisma";
 import { resolveCompanyBoundary } from "@/lib/dataBoundary";
+import { getFirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
 import {
   FIRM_ELITE_V2_META,
   buildFirmPeerPosition,
@@ -81,10 +82,11 @@ export default async function FirmInsightsPage({
 
   await ensureFirmAlignmentSystem();
 
-  const [moduleProgress, unlocked, insightReports] = await Promise.all([
+  const [moduleProgress, unlocked, insightReports, alignmentSignal] = await Promise.all([
     getFirmAssessmentProgress(sessionUser.companyId),
     evaluateUnlocked({ companyId: sessionUser.companyId }),
     getFirmInsightReports(sessionUser.companyId),
+    getFirmAlignmentSignal(sessionUser.companyId),
   ]);
 
   const unlockedKeys = new Set(unlocked.map((item) => item.key));
@@ -108,9 +110,9 @@ export default async function FirmInsightsPage({
   if (eliteEntitlement.allowed) {
     const boundary = await resolveCompanyBoundary(sessionUser.companyId);
     const [peer, gapPlan, trajectory] = await Promise.all([
-      buildFirmPeerPosition(prisma, sessionUser.companyId, boundary),
+      buildFirmPeerPosition(prisma, sessionUser.companyId, boundary, alignmentSignal),
       buildFirmGapPlan({ getFirmInsightReports }, sessionUser.companyId),
-      buildFirmTrajectory(prisma, sessionUser.companyId),
+      buildFirmTrajectory(prisma, sessionUser.companyId, { currentIndex: alignmentSignal.alignmentIndex }),
     ]);
     const metrics = firmEliteHubMetrics({ peer, gapPlan, trajectory });
     eliteCards = eliteCards.map((card) => {
@@ -129,12 +131,9 @@ export default async function FirmInsightsPage({
       ? "PAT needs completed firm alignment modules before it can open a grounded firm insight readout."
       : "PAT is summarizing current firm alignment and product-review evidence so you can review the operating picture in one place.";
 
-  const moduleScores = moduleProgress
-    .map((module) => module.latestScore)
-    .filter((score): score is number => typeof score === "number");
-  const alignmentIndex = moduleScores.length
-    ? Math.round(moduleScores.reduce((sum, score) => sum + score, 0) / moduleScores.length)
-    : null;
+  // Block 12f: the visible Alignment index reads the ONE shared signal, so it
+  // equals the Trajectory face-card "current" and the what-this-means prose.
+  const alignmentIndex = alignmentSignal.alignmentIndex;
   const radarAxes = moduleProgress.map((module) => ({
     key: module.key,
     label: module.title,

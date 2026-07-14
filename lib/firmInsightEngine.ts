@@ -23,6 +23,7 @@ import {
   FIRM_TIER2_INSIGHT_DEFINITIONS,
 } from "@/lib/firmPat";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
+import { computeFirmAlignmentIndex } from "@/lib/firmAlignmentSignal";
 
 type InsightKey = (typeof FIRM_TIER1_INSIGHT_DEFINITIONS)[number]["key"];
 
@@ -73,6 +74,12 @@ export type FirmInsightReport = {
   contributingCapabilities: CapabilityEvidence[];
   notableQuestionClusters: ClusterEvidence[];
   confidenceCaveats: string[];
+  /**
+   * Block 12f: the firm-wide alignment index (round mean of ALL module scores)
+   * from the ONE shared reader — the same number the index card, Trajectory
+   * "current", and Elite peer overall show. Distinct from a per-theme average.
+   */
+  firmAlignmentIndex: number | null;
 };
 
 export type FirmInsightOverviewMode = "pro" | "elite" | "help";
@@ -574,7 +581,11 @@ export function buildFirmInsightPlainLanguage(report: FirmInsightReport): FirmIn
     return null;
   }
 
-  const band = getScoreBand(average);
+  // Block 12f: "Your firm scores X" reads the shared firm-wide alignment index —
+  // the same number as the index card / Trajectory current — not the per-theme
+  // average (which read 69/72 while the index was 68 on the same account).
+  const indexScore = report.firmAlignmentIndex ?? average;
+  const band = getScoreBand(indexScore);
   const strongest = report.strongestModules[0];
   const weakest = report.weakestModules[0];
   const scoredCount = report.contributingModules.filter(
@@ -582,7 +593,7 @@ export function buildFirmInsightPlainLanguage(report: FirmInsightReport): FirmIn
   ).length;
   const remaining = report.contributingModules.length - scoredCount;
 
-  const sentences = [`Your firm scores ${average} — ${band.label}.`];
+  const sentences = [`Your firm scores ${indexScore} — ${band.label}.`];
   if (strongest && weakest && typeof weakest.score === "number") {
     if (strongest.key === weakest.key) {
       sentences.push(`All current evidence comes from ${strongest.title}.`);
@@ -1124,6 +1135,12 @@ export async function getFirmInsightReports(companyId: string) {
       latestSubmissionByModuleId.set(submission.moduleId, submission);
     }
   }
+  // Block 12f: the firm-wide alignment index from the SAME latest-final-submission
+  // scores getFirmAlignmentSignal reads (identical computation), attached to every
+  // report so what-this-means prose reads the index, not a per-theme average.
+  const firmAlignmentIndex = computeFirmAlignmentIndex(
+    [...latestSubmissionByModuleId.values()].map((submission) => submission.score)
+  );
 
   const capabilityDefinitionByKey = new Map<string, (typeof FIRM_CAPABILITY_DEFINITIONS)[number]>(
     FIRM_CAPABILITY_DEFINITIONS.map((capability) => [capability.key, capability])
@@ -1294,6 +1311,7 @@ export async function getFirmInsightReports(companyId: string) {
       contributingCapabilities: relevantCapabilities,
       notableQuestionClusters,
       confidenceCaveats,
+      firmAlignmentIndex,
     });
   }
 

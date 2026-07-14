@@ -19,6 +19,7 @@ import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import prisma from "@/lib/prisma";
 import { getAlignmentBoardData } from "@/lib/alignmentBoard";
 import { resolveCompanyBoundary } from "@/lib/dataBoundary";
+import { getFirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
 import { buildFirmPeerPosition, buildFirmGapPlan, buildFirmTrajectory, buildFirmThemeDepth } from "@/lib/eliteInsightsV2";
 import EliteCardShell from "@/app/components/insights/elite/EliteCardShell";
 import LockedElitePreview from "@/app/components/insights/LockedElitePreview";
@@ -51,9 +52,12 @@ type SearchParams = {
  */
 async function renderFirmEliteSurface(key: string, companyId: string) {
   const boundary = await resolveCompanyBoundary(companyId);
+  // Block 12f: one shared live reader feeds "you" module scores + the alignment
+  // index into every Elite surface (peer position, trajectory).
+  const signal = await getFirmAlignmentSignal(companyId);
 
   if (key === "firm_tier2_benchmark") {
-    const data = await buildFirmPeerPosition(prisma, companyId, boundary);
+    const data = await buildFirmPeerPosition(prisma, companyId, boundary, signal);
     return (
       <EliteCardShell
         eyebrow="Firm Elite · Peer Position"
@@ -82,7 +86,7 @@ async function renderFirmEliteSurface(key: string, companyId: string) {
     // Percentile-movement link to the Sandbox: map the best swap's projected
     // alignment to a percentile against the peer alignment-index distribution.
     const [peer, board] = await Promise.all([
-      buildFirmPeerPosition(prisma, companyId, boundary),
+      buildFirmPeerPosition(prisma, companyId, boundary, signal),
       getAlignmentBoardData(companyId).catch(() => null),
     ]);
     const currentPercentile = peer.overall?.percentile ?? null;
@@ -93,7 +97,11 @@ async function renderFirmEliteSurface(key: string, companyId: string) {
       const gain = Math.max(0, Math.round(best.projectedScore - peer.overall.score));
       bestSwapPercentile = Math.min(100, currentPercentile + gain);
     }
-    const data = await buildFirmTrajectory(prisma, companyId, { currentPercentile, bestSwapPercentile });
+    const data = await buildFirmTrajectory(prisma, companyId, {
+      currentPercentile,
+      bestSwapPercentile,
+      currentIndex: signal.alignmentIndex,
+    });
     return (
       <EliteCardShell
         eyebrow="Firm Elite · Trajectory"
@@ -180,7 +188,8 @@ export default async function FirmInsightDetailPage({
   // Pro-only firms fall through and keep the LockedElitePreview grammar below.
   if (!isTier2 && isElite && report && activeSurface === "elite" && sessionUser.companyId) {
     const boundary = await resolveCompanyBoundary(sessionUser.companyId);
-    const peer = await buildFirmPeerPosition(prisma, sessionUser.companyId, boundary);
+    const signal = await getFirmAlignmentSignal(sessionUser.companyId);
+    const peer = await buildFirmPeerPosition(prisma, sessionUser.companyId, boundary, signal);
     const depth = buildFirmThemeDepth(
       peer,
       report.contributingModules.map((module) => module.key)

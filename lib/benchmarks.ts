@@ -311,6 +311,25 @@ export function getFirmPeerReadings(client: ReaderClient, companyId: string, bou
   return readCohort(client, firmCohortKeyForBoundary(boundary), companyId);
 }
 
+/**
+ * The peer cohort size as DISTINCT firms actually scored in the benchmark table
+ * (Block 12f) — the honest N to display, not BenchmarkRun.n (which can drift from
+ * the distinct-company count after reseeds / stale rows).
+ */
+export async function getFirmCohortFirmCount(client: ReaderClient, boundary: DataBoundary): Promise<number> {
+  const cohort = await client.benchmarkCohort.findUnique({
+    where: { key: firmCohortKeyForBoundary(boundary) },
+    select: { id: true },
+  });
+  if (!cohort) return 0;
+  const rows = await client.companyBenchmark.findMany({
+    where: { cohortId: cohort.id, metricKey: ALIGNMENT_INDEX_METRIC, version: BENCHMARK_VERSION },
+    select: { companyId: true },
+    distinct: ["companyId"],
+  });
+  return rows.length;
+}
+
 /** V1 reader: the vendor's per-category benchmark readings. */
 export function getVendorCategoryReadings(client: ReaderClient, companyId: string, boundary: DataBoundary) {
   return readCohort(client, vendorCohortKeyForBoundary(boundary), companyId);

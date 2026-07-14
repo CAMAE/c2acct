@@ -83,6 +83,7 @@ const firmInsightFixture: FirmInsightReport = {
     },
   ],
   confidenceCaveats: ["Only 3 relevant modules have final submissions."],
+  firmAlignmentIndex: 68,
 };
 
 const noModuleFirmInsightFixture: FirmInsightReport = {

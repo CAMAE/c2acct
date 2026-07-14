@@ -12,12 +12,14 @@ import type { PrismaClient, DataBoundary } from "@prisma/client";
 import { FIRM_MODULE_DEFINITIONS, FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat";
 import {
   getFirmPeerReadings,
+  getFirmCohortFirmCount,
   getVendorCategoryReadings,
   ALIGNMENT_INDEX_METRIC,
   percentileRank,
   percentileValue,
   type BenchmarkReading,
 } from "@/lib/benchmarks";
+import type { FirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { MIN_CONTRIBUTORS } from "@/lib/benchmarkSuppression";
 import type { PercentileRow } from "@/app/components/charts/PercentileBand";
@@ -112,16 +114,36 @@ export type FirmPeerPosition = {
 
 type ReaderClient = Pick<PrismaClient, "benchmarkCohort" | "benchmarkRun" | "companyBenchmark">;
 
+/** anchors for a benchmark reading's distribution, for percentile recomputation. */
+function distributionAnchors(r: BenchmarkReading): Array<{ p: number; v: number }> {
+  return [
+    { p: 10, v: r.p10 as number },
+    { p: 25, v: r.p25 as number },
+    { p: 50, v: r.p50 as number },
+    { p: 75, v: r.p75 as number },
+    { p: 90, v: r.p90 as number },
+  ].filter((a) => typeof a.v === "number");
+}
+
 export async function buildFirmPeerPosition(
   client: ReaderClient,
   companyId: string,
-  boundary: DataBoundary
+  boundary: DataBoundary,
+  liveSignal: FirmAlignmentSignal
 ): Promise<FirmPeerPosition> {
-  const readings = await getFirmPeerReadings(client, companyId, boundary);
+  // Block 12f — number integrity: the DISTRIBUTION (p25..p90, mean) comes from the
+  // benchmark, but the firm's OWN "you" scores + alignment index come from the
+  // ONE shared live reader (getFirmAlignmentSignal), so the Elite pane reads the
+  // exact same module values as the Pro pane. Percentiles are recomputed from the
+  // live score against the benchmark distribution. Cohort N = distinct firms.
+  const [readings, cohortN] = await Promise.all([
+    getFirmPeerReadings(client, companyId, boundary),
+    getFirmCohortFirmCount(client, boundary),
+  ]);
   const overallReading = readings.find((r) => r.metricKey === ALIGNMENT_INDEX_METRIC);
-  const moduleReadings = readings.filter((r) => r.metricKey !== ALIGNMENT_INDEX_METRIC);
+  const liveIndex = liveSignal.alignmentIndex;
 
-  if (!overallReading || overallReading.score === null) {
+  if (!overallReading || liveIndex === null) {
     return {
       available: false,
       overall: null,
@@ -132,32 +154,43 @@ export async function buildFirmPeerPosition(
         "Your peer position opens once your firm has completed enough alignment modules to place you in the benchmark.",
     };
   }
+  const moduleReadings = readings.filter((r) => r.metricKey !== ALIGNMENT_INDEX_METRIC);
 
   const overallSuppressed = suppressed(overallReading);
-  const rows: PercentileRow[] = moduleReadings.map((r) => ({
-    key: r.metricKey,
-    label: MODULE_TITLE.get(r.metricKey) ?? r.metricKey,
-    p25: r.p25,
-    p50: r.p50,
-    p75: r.p75,
-    p90: r.p90,
-    score: r.score,
-    percentile: r.percentile,
-    suppressed: suppressed(r),
-  }));
+  const youFor = (metricKey: string, fallback: number | null): number | null => {
+    const live = liveSignal.moduleScores.get(metricKey);
+    return typeof live === "number" ? live : fallback;
+  };
+
+  const rows: PercentileRow[] = moduleReadings.map((r) => {
+    const you = youFor(r.metricKey, r.score);
+    const anchors = distributionAnchors(r);
+    return {
+      key: r.metricKey,
+      label: MODULE_TITLE.get(r.metricKey) ?? r.metricKey,
+      p25: r.p25,
+      p50: r.p50,
+      p75: r.p75,
+      p90: r.p90,
+      score: you,
+      percentile: you !== null && anchors.length ? percentileForValue(anchors, you) : r.percentile,
+      suppressed: suppressed(r),
+    };
+  });
 
   const reportCard = moduleReadings.map((r) => {
-    const withheld = suppressed(r) || r.score === null;
+    const you = youFor(r.metricKey, r.score);
+    const withheld = suppressed(r) || you === null;
     let verdict: FirmPeerPosition["reportCard"][number]["verdict"] = "withheld";
-    if (!withheld && typeof r.score === "number" && typeof r.p75 === "number" && typeof r.p25 === "number") {
-      if (r.score >= r.p75) verdict = "ahead";
-      else if (r.score < r.p25) verdict = "behind";
+    if (!withheld && typeof you === "number" && typeof r.p75 === "number" && typeof r.p25 === "number") {
+      if (you >= r.p75) verdict = "ahead";
+      else if (you < r.p25) verdict = "behind";
       else verdict = "on par";
     }
     return {
       key: r.metricKey,
       label: MODULE_TITLE.get(r.metricKey) ?? r.metricKey,
-      you: r.score,
+      you,
       peerLow: r.p25,
       peerHigh: r.p75,
       verdict,
@@ -165,52 +198,48 @@ export async function buildFirmPeerPosition(
   });
 
   // Ranked action (B5-2): the module with the largest deficit to the peer top
-  // quartile (p75) is the biggest single lever. Estimate the overall percentile
-  // move by lifting the alignment index by deficit/5 (one of five modules) and
-  // re-reading it against the alignment-index distribution. Directional.
+  // quartile (p75) is the biggest single lever. Uses the LIVE "you" scores.
   let bestAction: FirmPeerPosition["bestAction"] = null;
+  const overallAnchors = distributionAnchors(overallReading);
+  const overallPercentile = overallAnchors.length
+    ? percentileForValue(overallAnchors, liveIndex)
+    : overallReading.percentile ?? 0;
   if (!overallSuppressed) {
     const candidates = moduleReadings
-      .filter((r) => !suppressed(r) && typeof r.score === "number" && typeof r.p75 === "number")
-      .map((r) => ({ r, deficit: Math.round((r.p75 as number) - (r.score as number)) }))
+      .map((r) => ({ r, you: youFor(r.metricKey, r.score) }))
+      .filter((c) => !suppressed(c.r) && typeof c.you === "number" && typeof c.r.p75 === "number")
+      .map((c) => ({ r: c.r, deficit: Math.round((c.r.p75 as number) - (c.you as number)) }))
       .filter((c) => c.deficit > 0)
       .sort((a, b) => b.deficit - a.deficit);
     if (candidates.length > 0) {
       const top = candidates[0];
-      const anchors = [
-        { p: 10, v: overallReading.p10 as number },
-        { p: 25, v: overallReading.p25 as number },
-        { p: 50, v: overallReading.p50 as number },
-        { p: 75, v: overallReading.p75 as number },
-        { p: 90, v: overallReading.p90 as number },
-      ].filter((a) => typeof a.v === "number");
-      const newIndex = overallReading.score + top.deficit / FIRM_MODULE_DEFINITIONS.length;
-      const fromPercentile = overallReading.percentile ?? 0;
-      const toPercentile = Math.max(fromPercentile, percentileForValue(anchors, newIndex));
+      const newIndex = liveIndex + top.deficit / FIRM_MODULE_DEFINITIONS.length;
+      const toPercentile = Math.max(overallPercentile, percentileForValue(overallAnchors, newIndex));
       bestAction = {
         moduleLabel: MODULE_TITLE.get(top.r.metricKey) ?? top.r.metricKey,
         deficit: top.deficit,
-        fromPercentile,
+        fromPercentile: overallPercentile,
         toPercentile,
       };
     }
   }
 
+  const n = cohortN > 0 ? cohortN : overallReading.n;
   return {
     available: true,
     overall: overallSuppressed
       ? null
       : {
-          percentile: overallReading.percentile ?? 0,
-          rankFromTop: overallReading.rankFromTop ?? 0,
-          n: overallReading.n,
-          score: overallReading.score,
+          percentile: overallPercentile,
+          rankFromTop: Math.min(n, Math.max(1, n - Math.round((overallPercentile / 100) * n) + 1)),
+          n,
+          score: liveIndex,
         },
     bestAction,
     rows,
     reportCard,
     emptyReason: overallSuppressed
-      ? `Insufficient peer data — the benchmark needs at least ${MIN_CONTRIBUTORS} contributing firms (currently ${overallReading.n}).`
+      ? `Insufficient peer data — the benchmark needs at least ${MIN_CONTRIBUTORS} contributing firms (currently ${n}).`
       : null,
   };
 }
@@ -333,7 +362,7 @@ type TrajectoryClient = Pick<PrismaClient, "firmMaturitySnapshot" | "firmMaturit
 export async function buildFirmTrajectory(
   client: TrajectoryClient,
   companyId: string,
-  options?: { currentPercentile?: number | null; bestSwapPercentile?: number | null }
+  options?: { currentPercentile?: number | null; bestSwapPercentile?: number | null; currentIndex?: number | null }
 ): Promise<FirmTrajectory> {
   const [snapshots, momentum] = await Promise.all([
     client.firmMaturitySnapshot.findMany({
@@ -359,6 +388,12 @@ export async function buildFirmTrajectory(
     label: s.computedAt.toLocaleDateString("en-US", { month: "short" }),
     score: Math.round(s.score),
   }));
+  // Block 12f — number integrity: the newest point (and therefore the face-card
+  // "current index") is the ONE shared live alignment index, not the last stored
+  // maturity snapshot, so Trajectory "current" == the alignment index everywhere.
+  if (typeof options?.currentIndex === "number") {
+    history[history.length - 1] = { label: history[history.length - 1].label, score: options.currentIndex };
+  }
 
   // Directional projection: extend the recent average delta one step, band = ±volatility.
   const last = history[history.length - 1].score;

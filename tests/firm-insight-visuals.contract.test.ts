@@ -75,6 +75,7 @@ function reportFixture(key: InsightKey): FirmInsightReport {
     ],
     notableQuestionClusters: [],
     confidenceCaveats: ["Only 5 of 5 relevant modules have final submissions."],
+    firmAlignmentIndex: 68,
   };
 }
 
@@ -150,8 +151,10 @@ describe("plain-language insight summary", () => {
   it("builds the zero-context readout from the same payload, including tech-stack framing", () => {
     const plain = buildFirmInsightPlainLanguage(reportFixture("firm_tier1_operating_baseline"));
 
-    // B8-2: 73 now falls in the Building band (60-74).
-    expect(plain?.summary).toContain("Your firm scores 73 — Building.");
+    // Block 12f: "Your firm scores X" reads the shared firm-wide alignment index
+    // (fixture firmAlignmentIndex=68), NOT the per-theme module average — so the
+    // prose can never contradict the index card. 68 is in the Building band (60-74).
+    expect(plain?.summary).toContain("Your firm scores 68 — Building.");
     expect(plain?.summary).toContain(
       "Your strongest area is Operating Model and Workflow Discipline; your biggest opportunity is Integration and Data Flow Maturity at 65%."
     );
