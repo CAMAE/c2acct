@@ -90,6 +90,10 @@ type BakedFingerprint = {
   branch?: string;
   buildId?: string;
   buildTimestamp?: string;
+  buildSourceType?: string;
+  canonicalRoot?: string;
+  authMode?: string;
+  releaseFingerprintSeed?: string;
 };
 
 function readBaked(): BakedFingerprint | null {
@@ -168,14 +172,21 @@ function resolveBuildTimestamp(state: CanonicalRootState | null) {
   return "unknown";
 }
 
-function resolveCommitSha(contract: CanonicalRootContract, state: CanonicalRootState | null) {
+function resolveCommitSha(state: CanonicalRootState | null) {
+  // Single source of truth: the cloud bake. VERCEL_GIT_COMMIT_SHA only appears on
+  // git-integration deploys; git only on mac-mini/local; state on mac-mini runtime.
+  // The STALE committed contract.baselineCommit fallback is intentionally gone — a
+  // cloud build that reaches here with nothing must FAIL LOUD, not report 2018.
   const baked = readBaked();
   if (baked?.commitSha) return baked.commitSha;
   if (process.env.VERCEL_GIT_COMMIT_SHA) return process.env.VERCEL_GIT_COMMIT_SHA.trim();
   try {
     return runGit("rev-parse", "HEAD");
   } catch {
-    return state?.commitSha ?? contract.baselineCommit ?? "unknown";
+    if (state?.commitSha) return state.commitSha;
+    throw new Error(
+      "release fingerprint has no commit source (no baked-fingerprint.json, no VERCEL_GIT_COMMIT_SHA, no git, no mac-mini state) — a cloud build must run scripts/release/bake-release.mjs; refusing to report a stale baseline."
+    );
   }
 }
 
@@ -216,16 +227,17 @@ export function getReleaseFingerprint(): ReleaseFingerprint {
   }
 
   const state = readJsonFile<CanonicalRootState>(statePath);
-  const canonicalRoot = state?.canonicalRoot ?? contract.canonicalRoot;
-  const commitSha = resolveCommitSha(contract, state);
-  const buildSourceType = state?.runtimeSourceType ?? contract.runtimeSourceType;
-  const authMode = state?.authMode ?? contract.authMode;
-  const releaseFingerprintSeed = computeReleaseFingerprintSeed(
-    canonicalRoot,
-    commitSha,
-    authMode,
-    buildSourceType
-  );
+  const baked = readBaked();
+  // Baked (cloud build) is authoritative for every field it carries — it is the ONE
+  // source generated in the same build that produced BUILD_ID. mac-mini falls to
+  // state → contract as before.
+  const canonicalRoot = baked?.canonicalRoot ?? state?.canonicalRoot ?? contract.canonicalRoot;
+  const commitSha = resolveCommitSha(state);
+  const buildSourceType = baked?.buildSourceType ?? state?.runtimeSourceType ?? contract.runtimeSourceType;
+  const authMode = baked?.authMode ?? state?.authMode ?? contract.authMode;
+  const releaseFingerprintSeed =
+    baked?.releaseFingerprintSeed ??
+    computeReleaseFingerprintSeed(canonicalRoot, commitSha, authMode, buildSourceType);
   const buildId = readBuildId();
 
   return {

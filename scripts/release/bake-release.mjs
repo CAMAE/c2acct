@@ -1,25 +1,27 @@
 #!/usr/bin/env node
 /**
- * Bake the true release fingerprint for CLOUD builds (Vercel).
+ * Bake the SINGLE SOURCE OF TRUTH release fingerprint for CLOUD builds.
  *
- * getReleaseFingerprint() resolves commit via `git rev-parse HEAD` and falls back
- * to the committed contract baselineCommit when git is unavailable. In a Vercel
- * cloud build there is no .git and the mac-mini state files are gitignored, so the
- * public footer "Release <commit>:<buildId>" reported the STALE contract baseline
- * (078a41f) — a lying build proof. This runs at the END of the build command
- * (after `next build`, so .next/BUILD_ID exists) and writes the TRUE commit +
- * BUILD_ID + timestamp to lib/release/baked-fingerprint.json, which
- * getReleaseFingerprint prefers and next.config force-includes into every function.
+ * Runs at the START of the build command (BEFORE `next build`) so the file exists
+ * when Next traces functions (outputFileTracingIncludes force-includes it) — a bake
+ * that runs AFTER next build is written too late to be traced, which is exactly the
+ * "metadata chimera" bug (fresh buildId, stale commit/timestamp). Because it runs
+ * pre-build, it also GENERATES the buildId, which next.config.generateBuildId reads
+ * so .next/BUILD_ID == baked.buildId. getReleaseFingerprint reads ALL fields from
+ * this one file; a missing bake fails loud rather than reporting a stale baseline.
  *
- * Commit/branch come from Vercel's System Env Vars (VERCEL_GIT_COMMIT_SHA/REF) with
- * a `git` fallback for local runs. No-ops loudly-safe if BUILD_ID is missing.
+ * Commit/branch: VERCEL_GIT_COMMIT_SHA/REF (git-integration) → PAT_COMMIT_SHA/REF
+ * (CLI `vercel deploy --build-env`) → `git` (local). buildSourceType: PAT_BUILD_SOURCE
+ * or "cloud-build".
  */
 import { execFileSync } from "node:child_process";
 import { writeFileSync, existsSync, readFileSync, mkdirSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { dirname, join } from "node:path";
 
 const ROOT = process.cwd();
 const OUT = join(ROOT, "lib", "release", "baked-fingerprint.json");
+const CONTRACT = join(ROOT, "ops", "release", "canonical-root.json");
 
 function git(...args) {
   try {
@@ -29,9 +31,6 @@ function git(...args) {
   }
 }
 
-// VERCEL_GIT_COMMIT_SHA is only set for GIT-integration deploys; a CLI
-// `vercel deploy` leaves it unset AND ships no .git, so accept an explicit
-// PAT_COMMIT_SHA/REF passed via `vercel deploy --build-env` as the CLI path.
 const commitSha = (
   process.env.VERCEL_GIT_COMMIT_SHA ||
   process.env.PAT_COMMIT_SHA ||
@@ -44,20 +43,34 @@ const branch = (
   git("rev-parse", "--abbrev-ref", "HEAD") ||
   ""
 ).trim();
-const buildIdPath = join(ROOT, ".next", "BUILD_ID");
-const buildId = existsSync(buildIdPath) ? readFileSync(buildIdPath, "utf8").trim() : "";
-const buildTimestamp = new Date().toISOString();
 
 if (!commitSha) {
-  console.warn("[bake-release] WARN: no commit resolvable (no VERCEL_GIT_COMMIT_SHA and no git) — footer will fall back.");
+  console.error(
+    "[bake-release] FATAL: no commit resolvable (VERCEL_GIT_COMMIT_SHA / PAT_COMMIT_SHA / git all empty). " +
+      "Pass `vercel deploy --build-env PAT_COMMIT_SHA=$(git rev-parse HEAD)`."
+  );
+  process.exit(1);
 }
-if (!buildId) {
-  console.warn("[bake-release] WARN: .next/BUILD_ID missing — run AFTER `next build`.");
-}
+
+const contract = existsSync(CONTRACT) ? JSON.parse(readFileSync(CONTRACT, "utf8")) : {};
+const canonicalRoot = contract.canonicalRoot ?? ROOT;
+const authMode = contract.authMode ?? "unknown";
+const buildSourceType = process.env.PAT_BUILD_SOURCE || (process.env.VERCEL ? "cloud-build" : "local-build");
+const buildTimestamp = new Date().toISOString();
+// buildId we control (pre-build): commit-short + base36 wall-clock — unique per build,
+// readable, and consumed by next.config.generateBuildId so .next/BUILD_ID matches.
+const buildId = `${commitSha.slice(0, 7)}-${Date.now().toString(36)}`;
+const releaseFingerprintSeed = createHash("sha256")
+  .update(`${canonicalRoot}|${commitSha}|${authMode}|${buildSourceType}`)
+  .digest("hex");
 
 mkdirSync(dirname(OUT), { recursive: true });
 writeFileSync(
   OUT,
-  JSON.stringify({ commitSha, branch, buildId, buildTimestamp, source: process.env.VERCEL ? "vercel" : "local" }, null, 2) + "\n"
+  JSON.stringify(
+    { commitSha, branch, buildId, buildTimestamp, buildSourceType, canonicalRoot, authMode, releaseFingerprintSeed },
+    null,
+    2
+  ) + "\n"
 );
-console.log(`[bake-release] wrote ${OUT} — commit=${commitSha.slice(0, 7)} buildId=${buildId || "?"} ts=${buildTimestamp}`);
+console.log(`[bake-release] wrote ${OUT} — commit=${commitSha.slice(0, 7)} buildId=${buildId} source=${buildSourceType} ts=${buildTimestamp}`);

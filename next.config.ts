@@ -1,4 +1,6 @@
 import type { NextConfig } from "next";
+import fs from "node:fs";
+import path from "node:path";
 
 // Security headers (2026-07-09 governance audit B3). CSP ships REPORT-ONLY first
 // so we can observe violations before enforcing (staged rollout); HSTS +
@@ -31,8 +33,25 @@ const SECURITY_HEADERS = [
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
 ];
 
+// Single-source-of-truth build id: bake-release.mjs runs BEFORE `next build` and
+// writes lib/release/baked-fingerprint.json (which nft then traces into the
+// functions). Reading its buildId here makes .next/BUILD_ID == baked.buildId ==
+// footer Release id — no metadata chimera (fresh buildId with a stale commit).
+// Missing/absent bake → return undefined so Next generates its own id (local dev).
+function bakedBuildId(): string | null {
+  try {
+    const p = path.join(process.cwd(), "lib/release/baked-fingerprint.json");
+    if (!fs.existsSync(p)) return null;
+    const v = JSON.parse(fs.readFileSync(p, "utf8")) as { buildId?: string };
+    return v?.buildId || null;
+  } catch {
+    return null;
+  }
+}
+
 const nextConfig: NextConfig = {
   output: "standalone",
+  generateBuildId: bakedBuildId,
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },

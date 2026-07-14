@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm prisma generate && pnpm exec next build --webpack && node scripts/release/bake-release.mjs",
+  "buildCommand": "pnpm prisma generate && node scripts/release/bake-release.mjs && pnpm exec next build --webpack",
   "installCommand": "pnpm install --frozen-lockfile",
   "devCommand": "pnpm dev",
   "framework": "nextjs",
