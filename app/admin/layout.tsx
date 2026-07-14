@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import PatModeToggle from "@/app/components/pat/PatModeToggle";
 import { getAdminAccessState, getAdminNavItems } from "@/lib/adminControlPlane";
+import { enforceAudience } from "@/lib/audienceGuard";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,9 @@ function resolveActiveAdminKey(
 }
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
+  // 13a: strict role wall — a company-bound account (incl. firm/vendor OWNER/ADMIN)
+  // is redirected to its own portal; only a company-less operator reaches /admin.
+  await enforceAudience("admin");
   const { sessionUser, isAdmin } = await getAdminAccessState();
   const navItems = getAdminNavItems();
   const requestHeaders = await headers();

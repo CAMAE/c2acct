@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import { isConsultantAccessEnabled, requireConsultantSession } from "@/lib/consultantAccess";
+import { enforceAudience } from "@/lib/audienceGuard";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,10 @@ export default async function ConsultantLayout({
   if (!isConsultantAccessEnabled()) {
     notFound();
   }
+
+  // 13a: strict role wall — firm/vendor/individual/admin accounts are redirected
+  // to their own portal before the consultant-scope checks run.
+  await enforceAudience("consultant");
 
   const consultantAccess = await requireConsultantSession("/consultants");
 

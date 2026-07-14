@@ -1,9 +1,37 @@
 import { redirect } from "next/navigation";
+import type { UserRole } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
-import { resolveAudienceRedirectTarget, type PortalAudienceSegment } from "@/lib/audiencePolicy";
+import {
+  AUDIENCE_HOME_PATH,
+  audienceHomeFor,
+  type PortalAudienceSegment,
+} from "@/lib/audiencePolicy";
 
 export type { PortalAudienceSegment } from "@/lib/audiencePolicy";
+
+type AudienceUser = { id: string; role: UserRole; companyId: string | null };
+
+/**
+ * Resolve an account's single home audience (consultant profile + company kind
+ * lookup, then the pure policy). Shared by the route chokepoint (enforceAudience)
+ * and the sign-in hub so both wall the same way. Returns null only for an
+ * unresolved company kind (never misroute).
+ */
+export async function resolveUserAudienceHome(user: AudienceUser): Promise<PortalAudienceSegment | null> {
+  const [consultant, company] = await Promise.all([
+    prisma.consultantProfile.findUnique({ where: { userId: user.id }, select: { id: true } }),
+    user.companyId
+      ? prisma.company.findUnique({ where: { id: user.companyId }, select: { type: true } })
+      : Promise.resolve(null),
+  ]);
+  return audienceHomeFor({
+    role: user.role,
+    companyId: user.companyId,
+    companyType: company?.type ?? null,
+    isConsultant: Boolean(consultant),
+  });
+}
 
 /**
  * Audience guard (B5-4) — ONE chokepoint applied in each customer portal segment
@@ -19,21 +47,6 @@ export async function enforceAudience(segment: PortalAudienceSegment): Promise<v
   const user = await getSessionUser();
   if (!user) return;
 
-  const [consultant, company] = await Promise.all([
-    prisma.consultantProfile.findUnique({ where: { userId: user.id }, select: { id: true } }),
-    user.companyId
-      ? prisma.company.findUnique({ where: { id: user.companyId }, select: { type: true } })
-      : Promise.resolve(null),
-  ]);
-
-  const target = resolveAudienceRedirectTarget(
-    {
-      role: user.role,
-      companyId: user.companyId,
-      companyType: company?.type ?? null,
-      isConsultant: Boolean(consultant),
-    },
-    segment
-  );
-  if (target) redirect(target);
+  const home = await resolveUserAudienceHome(user);
+  if (home && home !== segment) redirect(AUDIENCE_HOME_PATH[home]);
 }

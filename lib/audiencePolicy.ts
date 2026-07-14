@@ -6,12 +6,14 @@ import type { CompanyType, UserRole } from "@prisma/client";
  * layout chokepoint that resolves the session + applies these.
  */
 
-export type PortalAudienceSegment = "firm" | "vendor" | "user";
+export type PortalAudienceSegment = "firm" | "vendor" | "user" | "consultant" | "admin";
 
 export const AUDIENCE_HOME_PATH: Record<PortalAudienceSegment, string> = {
   firm: "/firm",
   vendor: "/vendor",
   user: "/user",
+  consultant: "/consultants",
+  admin: "/admin",
 };
 
 export type AudienceResolutionInput = {
@@ -21,19 +23,32 @@ export type AudienceResolutionInput = {
   isConsultant: boolean;
 };
 
-const ADMIN_ROLES: ReadonlySet<UserRole> = new Set<UserRole>(["ADMIN"]);
+const ADMIN_ROLES: ReadonlySet<UserRole> = new Set<UserRole>(["ADMIN", "OWNER"]);
 
 /**
- * The account's home audience, or null when it should NOT be audience-gated
- * (admin, consultant, or an unresolved company kind — never misroute).
+ * The account's SINGLE home audience — the one portal it is allowed to occupy.
+ * Every other portal redirects here (13a strict role→portal wall). Resolution
+ * order matters and is security-critical:
+ *   1. consultant  → /consultants  (a consultant profile defines the home even
+ *      though the account carries no company; this closes the P0 where consultant
+ *      creds reached /vendor).
+ *   2. company type → /firm | /vendor  (company MEMBERS *and* company OWNER/ADMIN
+ *      stay in their own portal — a firm-admin must never be routed to /admin or
+ *      allowed into /vendor. Company binding wins over the ADMIN role.)
+ *   3. company set but unknown kind → null (never misroute).
+ *   4. company-LESS admin/owner → /admin  (a true platform operator).
+ *   5. otherwise → /user  (company-less individual).
+ * Returns null only when we genuinely cannot resolve a home (unknown company
+ * kind) — resolveAudienceRedirectTarget treats null as "stay", so a null NEVER
+ * grants access to a portal it wasn't already on.
  */
 export function audienceHomeFor(input: AudienceResolutionInput): PortalAudienceSegment | null {
-  if (ADMIN_ROLES.has(input.role)) return null; // admin bypass
-  if (input.isConsultant) return null; // consultant bypass
-  if (!input.companyId) return "user"; // true individual (no company)
+  if (input.isConsultant) return "consultant";
   if (input.companyType === "FIRM") return "firm";
   if (input.companyType === "VENDOR") return "vendor";
-  return null; // unknown company kind — do not misroute
+  if (input.companyId) return null; // company set but kind unresolved — do not misroute
+  if (ADMIN_ROLES.has(input.role)) return "admin"; // company-less platform operator
+  return "user"; // true individual (no company)
 }
 
 /** Pure: the redirect target for `segment`, or null to stay. */

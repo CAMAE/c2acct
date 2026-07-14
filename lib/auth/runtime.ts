@@ -22,6 +22,12 @@ export type AuthRuntimeStatus = {
   }>;
   operatorSteps: string[];
   resetPath: string;
+  /**
+   * 13b: whether auth SETUP diagnostics (missing-env warnings, GitHub-config
+   * operator steps) may render. These are local-dev troubleshooting aids and
+   * must NEVER surface on a public production deployment. False on prod.
+   */
+  diagnosticsVisible: boolean;
 };
 
 export function getAuthRuntimeStatus(): AuthRuntimeStatus {
@@ -55,5 +61,6 @@ export function getAuthRuntimeStatus(): AuthRuntimeStatus {
       "If local sign-in fails after a secret change or a broken callback, reset local auth cookies and try again.",
     ],
     resetPath: "/api/auth/local-reset",
+    diagnosticsVisible: process.env.NODE_ENV !== "production",
   };
 }

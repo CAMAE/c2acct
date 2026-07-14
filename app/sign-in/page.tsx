@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
+import { getSessionUser } from "@/lib/auth/session";
+import { resolveUserAudienceHome } from "@/lib/audienceGuard";
+import { AUDIENCE_HOME_PATH } from "@/lib/audiencePolicy";
 import { signInWithLocalReviewCredentials } from "@/lib/auth/localReviewActions";
 import { signInWithPilotCredentials } from "@/lib/auth/pilotPasswordActions";
 import {
@@ -141,6 +145,7 @@ function RoleAccessCard({
   inviteeAccessEnabled,
   hubHref,
   submittedEmail,
+  diagnosticsVisible,
 }: {
   title: string;
   subtitle: string;
@@ -157,6 +162,7 @@ function RoleAccessCard({
   inviteeAccessEnabled: boolean;
   hubHref: string;
   submittedEmail: string | null;
+  diagnosticsVisible: boolean;
 }) {
   return (
     <section className="pat-card p-8">
@@ -273,7 +279,7 @@ function RoleAccessCard({
         </form>
       </div>
 
-      {localReviewRequested && !localReviewEnabled ? (
+      {diagnosticsVisible && localReviewRequested && !localReviewEnabled ? (
         <div className="mt-6 rounded-[18px] border border-amber-200 bg-amber-50/90 p-5 text-sm leading-6 text-amber-900">
           <div className="font-semibold">Local review mode is requested but not ready.</div>
           <div className="mt-2">
@@ -365,6 +371,15 @@ export default async function SignInHubPage({
 }: {
   searchParams?: Promise<SearchParams>;
 }) {
+  // 13a defense-in-depth: an already-authenticated account never lingers on the
+  // sign-in hub picking a wrong-role tab — route it straight to its home portal.
+  // The route-level enforceAudience() remains the primary wall.
+  const sessionUser = await getSessionUser();
+  if (sessionUser) {
+    const home = await resolveUserAudienceHome(sessionUser);
+    if (home) redirect(AUDIENCE_HOME_PATH[home]);
+  }
+
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const messages = await getRequestLocaleMessages();
   const requestedView = getSingleParam(resolvedSearchParams?.view);
@@ -496,6 +511,7 @@ export default async function SignInHubPage({
           inviteeAccessEnabled={inviteeAccessEnabled}
           hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.vendor, view: "vendor" })}
           submittedEmail={submittedEmail}
+          diagnosticsVisible={authRuntime.diagnosticsVisible}
         />
       ) : null}
 
@@ -516,6 +532,7 @@ export default async function SignInHubPage({
           inviteeAccessEnabled={inviteeAccessEnabled}
           hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.firm, view: "firm" })}
           submittedEmail={submittedEmail}
+          diagnosticsVisible={authRuntime.diagnosticsVisible}
         />
       ) : null}
 
@@ -536,6 +553,7 @@ export default async function SignInHubPage({
           inviteeAccessEnabled={inviteeAccessEnabled}
           hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.individual, view: "individual" })}
           submittedEmail={submittedEmail}
+          diagnosticsVisible={authRuntime.diagnosticsVisible}
         />
       ) : null}
 
@@ -556,6 +574,7 @@ export default async function SignInHubPage({
           inviteeAccessEnabled={inviteeAccessEnabled}
           hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.admin, view: "admin" })}
           submittedEmail={submittedEmail}
+          diagnosticsVisible={authRuntime.diagnosticsVisible}
         />
       ) : null}
 
@@ -576,6 +595,7 @@ export default async function SignInHubPage({
           inviteeAccessEnabled={inviteeAccessEnabled}
           hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.consultant, view: "consultant" })}
           submittedEmail={submittedEmail}
+          diagnosticsVisible={authRuntime.diagnosticsVisible}
         />
       ) : null}
 
