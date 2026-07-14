@@ -29,8 +29,21 @@ function git(...args) {
   }
 }
 
-const commitSha = (process.env.VERCEL_GIT_COMMIT_SHA || git("rev-parse", "HEAD") || "").trim();
-const branch = (process.env.VERCEL_GIT_COMMIT_REF || git("rev-parse", "--abbrev-ref", "HEAD") || "").trim();
+// VERCEL_GIT_COMMIT_SHA is only set for GIT-integration deploys; a CLI
+// `vercel deploy` leaves it unset AND ships no .git, so accept an explicit
+// PAT_COMMIT_SHA/REF passed via `vercel deploy --build-env` as the CLI path.
+const commitSha = (
+  process.env.VERCEL_GIT_COMMIT_SHA ||
+  process.env.PAT_COMMIT_SHA ||
+  git("rev-parse", "HEAD") ||
+  ""
+).trim();
+const branch = (
+  process.env.VERCEL_GIT_COMMIT_REF ||
+  process.env.PAT_COMMIT_REF ||
+  git("rev-parse", "--abbrev-ref", "HEAD") ||
+  ""
+).trim();
 const buildIdPath = join(ROOT, ".next", "BUILD_ID");
 const buildId = existsSync(buildIdPath) ? readFileSync(buildIdPath, "utf8").trim() : "";
 const buildTimestamp = new Date().toISOString();
