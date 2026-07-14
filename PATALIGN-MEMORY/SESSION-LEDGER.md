@@ -622,3 +622,28 @@ demo reseed):
   strength sits below its reviewing firms' alignment → mostly weak. Raise the demo
   firm-review score targets for its products so vendorStrength lands mid-distribution.
   Requires reseed (L1-L4) + rebuild + restart.
+
+### 12f — NUMBER INTEGRITY, ELITE LAYER (P0) — DONE + live-verified (2026-07-13)
+Commit 17d26957. Build d1-vD61Ptku5YB-3SG3z2, both ports asset-integrity PASS.
+Mythos found the Elite layer read different sources than the Pro layer → contradictory
+numbers on one screen. Fix = the 10c pattern: ONE shared reader per quantity.
+- NEW lib/firmAlignmentSignal (getFirmAlignmentSignal + computeFirmAlignmentIndex):
+  the single source for per-module scores + alignment index, from the latest final
+  SurveySubmission per module (same source the Pro reports use).
+- buildFirmPeerPosition(client, companyId, boundary, liveSignal): benchmark supplies
+  only the DISTRIBUTION (p25..p90); "you" module scores + overall index come from the
+  live signal; percentiles RECOMPUTED from the live score; cohort N = distinct firms
+  (getFirmCohortFirmCount), not BenchmarkRun.n.
+- buildFirmTrajectory: newest history point + face "current" = live alignment index.
+- FirmInsightReport.firmAlignmentIndex; plainLanguage "Your firm scores X" reads it.
+- Firm index card + all Elite callers fed by getFirmAlignmentSignal.
+LIVE PROOF (demo-firm-elite, :3005): data_and_controls Elite "you" 81/74/53 == Pro
+module scores (was 60/81/65); Trajectory current 68 == Alignment index 68 (was 81);
+prose "Your firm scores 68" == index 68 (was 69/72); Peer "of 238 peer firms" =
+distinct benchmark firms (reader correct; 238-vs-176 = orphan cleanup for reseed).
+Contract tests tests/number-integrity-elite (8): Elite "you" == live signal not stale
+benchmark, overall == index, N == distinct firms, percentile recomputed, trajectory
+current == index + hub face, prose reads firmAlignmentIndex, wiring. 820 unit green.
+NEXT (Cam's sequence): 12d Trajectory rebuild + 12e review.vendor BattleCard fit mix
+in ONE reseed pass (L1-L4), then RE-RUN the number-integrity-elite equality tests
+AFTER reseed (reseeds are when parallel readers drift), full regression + screenshots.
