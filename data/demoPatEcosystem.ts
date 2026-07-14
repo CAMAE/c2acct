@@ -88,7 +88,7 @@ export const DEMO_PAT_VENDORS: DemoVendorInput[] = [
         summary: "Close orchestration for firms with recurring reconciliations, review gates, and entity-level signoff.",
         deploymentModel: ProductDeploymentModel.CLOUD,
         utilityKeys: ["close_reconciliation_consolidation", "workflow_practice_operations_task_routing", "controls_compliance_audit_trail_approvals"],
-        scoreTarget: 4.3,
+        scoreTarget: 4.9, // 12e: raised toward cap so PAT Demo Vendor firm-reviewed strength lands mid-firm-distribution (BattleCard fit spread)
         profile: {
           positioning: "Close cockpit for firms that need reviewable reconciliation and signoff discipline.",
           targetCustomer: "Multi-entity advisory and CAS teams with recurring close pressure.",
@@ -108,7 +108,7 @@ export const DEMO_PAT_VENDORS: DemoVendorInput[] = [
         summary: "AP intake, approval routing, and payment evidence for firms managing vendor spend across clients.",
         deploymentModel: ProductDeploymentModel.CLOUD,
         utilityKeys: ["ap_payables_spend", "document_capture_management_esignature", "controls_compliance_audit_trail_approvals"],
-        scoreTarget: 4.1,
+        scoreTarget: 4.85, // 12e: raised (see LedgerFlow)
         profile: {
           positioning: "Payables control layer for firms that need invoice evidence and approval discipline.",
           targetCustomer: "CAS and outsourced accounting teams handling recurring payables.",
@@ -128,7 +128,7 @@ export const DEMO_PAT_VENDORS: DemoVendorInput[] = [
         summary: "Client request portal with document collection, status nudges, and request-level evidence.",
         deploymentModel: ProductDeploymentModel.CLOUD,
         utilityKeys: ["client_collaboration_portal_requests", "document_capture_management_esignature", "workflow_practice_operations_task_routing"],
-        scoreTarget: 3.8,
+        scoreTarget: 4.7, // 12e: raised (see LedgerFlow)
         profile: {
           positioning: "Client request workspace for firms moving recurring document chase out of email.",
           targetCustomer: "Tax, CAS, and advisory teams with repeat request cycles.",
