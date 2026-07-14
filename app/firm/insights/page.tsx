@@ -114,10 +114,10 @@ export default async function FirmInsightsPage({
       buildFirmGapPlan({ getFirmInsightReports }, sessionUser.companyId),
       buildFirmTrajectory(prisma, sessionUser.companyId, { currentIndex: alignmentSignal.alignmentIndex }),
     ]);
-    const metrics = firmEliteHubMetrics({ peer, gapPlan, trajectory });
+    const faces = firmEliteHubMetrics({ peer, gapPlan, trajectory });
     eliteCards = eliteCards.map((card) => {
-      const metric = metrics[card.key];
-      return metric ? { ...card, metric } : card;
+      const eliteFace = faces[card.key];
+      return eliteFace ? { ...card, eliteFace } : card;
     });
   }
   const toggleOptions = [

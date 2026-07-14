@@ -931,86 +931,104 @@ export function buildVendorGapMap(products: GapMapProductInput[]): VendorGapMap 
 // powers its detail surface (not a bare name + "ELITE" chip). Pure formatters so
 // a contract test can lock the number format; the index pages call the builders.
 
-export type EliteHubMetric = { value: string; caption: string };
+// Block 12g: ONE hero number per card. The second quantity becomes a colored chip
+// or a micro-visual, never a compound headline. Face types live in the client-safe
+// lib/eliteHubFace (rendered by the "use client" grid); re-exported here.
+export type { EliteHubChip, EliteHubMicro, EliteHubFace } from "@/lib/eliteHubFace";
+import type { EliteHubFace } from "@/lib/eliteHubFace";
 
-/** Firm hub metrics keyed by tier-2 insight key. Null when the surface has no data. */
+/** Firm hub faces keyed by tier-2 insight key. Null when the surface has no data. */
 export function firmEliteHubMetrics(input: {
   peer: FirmPeerPosition;
   gapPlan: FirmGapPlan;
   trajectory: FirmTrajectory;
-}): Record<string, EliteHubMetric | null> {
+}): Record<string, EliteHubFace | null> {
   const { peer, gapPlan, trajectory } = input;
 
-  // Trajectory: current index + projected delta ("68 · +17 projected").
-  let projectionMetric: EliteHubMetric | null = null;
+  // Trajectory: hero = current index; projected delta becomes a colored chip.
+  let projectionFace: EliteHubFace | null = null;
   const current = trajectory.history.at(-1)?.score ?? null;
-  if (trajectory.available && current !== null && trajectory.projection) {
-    const delta = Math.round(trajectory.projection.score - current);
-    projectionMetric = {
-      value: `${Math.round(current)} · ${delta >= 0 ? "+" : ""}${delta} projected`,
-      caption: "current index · directional projection",
+  if (trajectory.available && current !== null) {
+    const delta = trajectory.projection ? Math.round(trajectory.projection.score - current) : null;
+    projectionFace = {
+      hero: `${Math.round(current)}`,
+      chip:
+        delta !== null
+          ? {
+              label: `${delta >= 0 ? "+" : ""}${delta} projected`,
+              tone: delta >= 0 ? "positive" : "amber",
+              arrow: delta >= 0 ? "up" : "down",
+            }
+          : undefined,
+      sub: "alignment index · directional",
     };
-  } else if (trajectory.available && current !== null) {
-    projectionMetric = { value: `${Math.round(current)}`, caption: "current alignment index" };
   }
 
-  // Peer Position: overall percentile ("72nd percentile").
-  const benchmarkMetric: EliteHubMetric | null =
+  // Peer Position: hero = percentile; micro percentile-band strip; N drops to detail.
+  const benchmarkFace: EliteHubFace | null =
     peer.available && peer.overall
-      ? { value: `${ordinal(peer.overall.percentile)} percentile`, caption: `of ${peer.overall.n} peer firms` }
+      ? {
+          hero: `${ordinal(peer.overall.percentile)} percentile`,
+          micro: { kind: "percentile-band", percentile: peer.overall.percentile },
+          sub: "vs peer firms · module by module",
+        }
       : null;
 
-  // Gap-to-Top-Quartile: points for the biggest lever to reach peer top quartile.
-  const recommendationMetric: EliteHubMetric | null =
+  // Gap-to-Top-Quartile: hero = points; biggest lever becomes an amber chip.
+  const recommendationFace: EliteHubFace | null =
     peer.available && peer.bestAction
       ? {
-          value: `${Math.round(peer.bestAction.deficit)} pts to top quartile`,
-          caption: `biggest lever: ${peer.bestAction.moduleLabel}`,
+          hero: `${Math.round(peer.bestAction.deficit)} pts`,
+          chip: { label: `biggest lever: ${peer.bestAction.moduleLabel}`, tone: "amber" },
+          sub: "to top quartile",
         }
       : gapPlan.available && gapPlan.totalCount > 0
-        ? { value: `${gapPlan.clearedCount} of ${gapPlan.totalCount} cleared`, caption: "capabilities at their bar" }
+        ? {
+            hero: `${gapPlan.clearedCount} of ${gapPlan.totalCount}`,
+            sub: "capabilities at their bar",
+          }
         : null;
 
   return {
-    firm_tier2_projection: projectionMetric,
-    firm_tier2_benchmark: benchmarkMetric,
-    firm_tier2_recommendation: recommendationMetric,
+    firm_tier2_projection: projectionFace,
+    firm_tier2_benchmark: benchmarkFace,
+    firm_tier2_recommendation: recommendationFace,
   };
 }
 
-/** Vendor hub metrics keyed by tier-2 insight key. Null when the surface has no data. */
+/** Vendor hub faces keyed by tier-2 insight key. Null when the surface has no data. */
 export function vendorEliteHubMetrics(input: {
   category: VendorCategoryPosition;
   demand: VendorDemandSignals;
   gapMap: VendorGapMap;
-}): Record<string, EliteHubMetric | null> {
+}): Record<string, EliteHubFace | null> {
   const { category, demand, gapMap } = input;
 
-  // Category Position: products in the top band, else the median percentile.
-  let categoryMetric: EliteHubMetric | null = null;
+  // Category Position: hero = "N of M" in the top band; micro band-dot row.
+  let categoryFace: EliteHubFace | null = null;
   const published = category.categories.filter((c) => !c.suppressed);
   if (category.available && published.length > 0) {
     const topBand = published.filter((c) => c.quartile === 4).length;
-    if (topBand > 0) {
-      categoryMetric = {
-        value: `${topBand} in top band`,
-        caption: `of ${published.length} category position${published.length === 1 ? "" : "s"}`,
-      };
-    } else {
-      const sorted = [...published].sort((a, b) => a.percentile - b.percentile);
-      const median = sorted[Math.floor((sorted.length - 1) / 2)]!.percentile;
-      categoryMetric = { value: `${ordinal(median)} percentile`, caption: "median category position" };
-    }
+    categoryFace = {
+      hero: `${topBand} of ${published.length}`,
+      micro: { kind: "band-dots", total: published.length, filled: topBand },
+      sub: "products in top band",
+    };
   }
 
-  // Demand Signals: net motion over the window ("+27 net motion · 90d").
+  // Demand Signals: hero = net motion, colored by sign; no chip/micro.
   const net = demand.totalIn - demand.totalOut;
-  const demandMetric: EliteHubMetric | null = demand.available
-    ? { value: `${net >= 0 ? "+" : ""}${net} net motion`, caption: demand.windowLabel }
+  const demandFace: EliteHubFace | null = demand.available
+    ? {
+        hero: `${net >= 0 ? "+" : ""}${net}`,
+        heroTone: net >= 0 ? "positive" : "negative",
+        sub: "net motion · 90 days",
+      }
     : null;
 
-  // Gap Map: confirmed vs read-lower dimensions across the scored grid.
-  let gapMapMetric: EliteHubMetric | null = null;
+  // Gap Map: hero = read-lower count (amber); confirmed becomes a green chip +
+  // a two-segment micro bar.
+  let gapMapFace: EliteHubFace | null = null;
   if (gapMap.available) {
     let confirmed = 0;
     let lower = 0;
@@ -1020,13 +1038,19 @@ export function vendorEliteHubMetrics(input: {
         else if (cell.tone === "dispute") lower += 1;
       }
     }
-    gapMapMetric = { value: `${confirmed} confirmed · ${lower} read lower`, caption: "product-fit dimensions" };
+    gapMapFace = {
+      hero: `${lower}`,
+      heroTone: "amber",
+      chip: { label: `${confirmed} confirmed`, tone: "positive" },
+      micro: { kind: "two-segment", confirmed, lower },
+      sub: "product-fit dimensions",
+    };
   }
 
   return {
-    "benchmark-comparison": categoryMetric,
-    "forward-projection": demandMetric,
-    "scenario-simulation": gapMapMetric,
+    "benchmark-comparison": categoryFace,
+    "forward-projection": demandFace,
+    "scenario-simulation": gapMapFace,
   };
 }
 

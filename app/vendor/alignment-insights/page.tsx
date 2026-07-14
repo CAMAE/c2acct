@@ -112,10 +112,10 @@ export default async function VendorAlignmentInsightsPage({
         vendorDimensions: snapshot.vendorSelfReported.dimensionEvidence.map((d) => ({ key: d.key, title: d.title, score: d.score })),
       }))
     );
-    const metrics = vendorEliteHubMetrics({ category, demand, gapMap });
+    const faces = vendorEliteHubMetrics({ category, demand, gapMap });
     eliteCards = eliteCards.map((card) => {
-      const metric = metrics[card.key];
-      return metric ? { ...card, metric } : card;
+      const eliteFace = faces[card.key];
+      return eliteFace ? { ...card, eliteFace } : card;
     });
   }
   const toggleOptions = [

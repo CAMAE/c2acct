@@ -142,9 +142,14 @@ describe("Block 12c — Elite hub face metrics (own headline number per card)", 
         emptyReason: null,
       },
     });
-    expect(metrics.firm_tier2_projection?.value).toBe("68 · +17 projected");
-    expect(metrics.firm_tier2_benchmark?.value).toBe("72nd percentile");
-    expect(metrics.firm_tier2_recommendation?.value).toBe("9 pts to top quartile");
+    // Block 12g: ONE hero number; the second quantity is a colored chip / micro.
+    expect(metrics.firm_tier2_projection?.hero).toBe("68");
+    expect(metrics.firm_tier2_projection?.chip).toEqual({ label: "+17 projected", tone: "positive", arrow: "up" });
+    expect(metrics.firm_tier2_benchmark?.hero).toBe("72nd percentile");
+    expect(metrics.firm_tier2_benchmark?.micro).toEqual({ kind: "percentile-band", percentile: 72 });
+    expect(metrics.firm_tier2_recommendation?.hero).toBe("9 pts");
+    expect(metrics.firm_tier2_recommendation?.chip?.tone).toBe("amber");
+    expect(metrics.firm_tier2_recommendation?.sub).toBe("to top quartile");
   });
 
   it("vendor hub metrics: category top-band, demand net motion, gap-map confirmed vs lower", () => {
@@ -175,9 +180,13 @@ describe("Block 12c — Elite hub face metrics (own headline number per card)", 
         { productId: "p2", productName: "Recon", firmAssessmentCount: 5, firmDimensions: [{ key: "w", title: "Workflow", score: 55 }], vendorDimensions: [{ key: "w", title: "Workflow", score: 90 }] },
       ]),
     });
-    expect(metrics["benchmark-comparison"]?.value).toBe("1 in top band");
-    expect(metrics["forward-projection"]?.value).toBe("+27 net motion");
-    expect(metrics["scenario-simulation"]?.value).toBe("1 confirmed · 1 read lower");
+    expect(metrics["benchmark-comparison"]?.hero).toBe("1 of 2");
+    expect(metrics["benchmark-comparison"]?.micro).toEqual({ kind: "band-dots", total: 2, filled: 1 });
+    expect(metrics["forward-projection"]?.hero).toBe("+27");
+    expect(metrics["forward-projection"]?.heroTone).toBe("positive");
+    expect(metrics["scenario-simulation"]?.hero).toBe("1"); // read-lower count
+    expect(metrics["scenario-simulation"]?.chip).toEqual({ label: "1 confirmed", tone: "positive" });
+    expect(metrics["scenario-simulation"]?.micro).toEqual({ kind: "two-segment", confirmed: 1, lower: 1 });
   });
 });
 

@@ -3,7 +3,9 @@
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import InsightStatusBadge from "@/app/components/insights/InsightStatusBadge";
+import EliteHubFaceView from "@/app/components/insights/EliteHubFaceView";
 import { compactInsightSummary } from "@/app/components/insights/insightCardText";
+import type { EliteHubFace } from "@/lib/eliteHubFace";
 
 /** The Pro readout an interactive card expands into in place (Block 11d). */
 export type InsightCardExpandedContent = {
@@ -35,6 +37,12 @@ export type InsightSurfaceGridCard = {
    * expands the full insight inline; "Open full view" still links to the route.
    */
   expandedNode?: ReactNode;
+  /**
+   * Block 12g: the refined Elite hub face — ONE hero number + a colored chip /
+   * micro-visual + a one-line sub. When present it replaces the metric + summary
+   * in the card head (entitled Elite hub cards).
+   */
+  eliteFace?: EliteHubFace;
 };
 
 type InsightSurfaceCardGridProps = {
@@ -49,7 +57,9 @@ export default function InsightSurfaceCardGrid({
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
 
   return (
-    <section className={`grid gap-5 ${columnsClassName}`}>
+    // Block 12h: items-start so expanding one card (into the full inline body)
+    // never stretches its row siblings to match — each card sizes independently.
+    <section className={`grid items-start gap-5 ${columnsClassName}`}>
       {cards.map((card) => {
         const tone = card.tone ?? "active";
         const hasStatusLabel = Boolean(card.statusLabel);
@@ -72,17 +82,25 @@ export default function InsightSurfaceCardGrid({
               <div className="text-lg font-semibold text-[var(--shell-ink)]">{card.title}</div>
               {hasStatusLabel ? <InsightStatusBadge label={card.statusLabel!} tone={tone} /> : null}
             </div>
-            {card.metric ? (
-              <div className="mt-3 flex flex-wrap items-baseline gap-2">
-                <span className="text-3xl font-semibold leading-none tracking-tight tabular-nums text-[var(--shell-ink)]">
-                  {card.metric.value}
-                </span>
-                <span className="text-xs text-[var(--shell-muted)]">{card.metric.caption}</span>
-              </div>
-            ) : null}
-            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-              {compactInsightSummary(card.summary)}
-            </p>
+            {card.eliteFace ? (
+              // Block 12g: refined Elite hub face (hero + chip/micro + sub); no
+              // compound metric, no wordy summary.
+              <EliteHubFaceView face={card.eliteFace} />
+            ) : (
+              <>
+                {card.metric ? (
+                  <div className="mt-3 flex flex-wrap items-baseline gap-2">
+                    <span className="text-3xl font-semibold leading-none tracking-tight tabular-nums text-[var(--shell-ink)]">
+                      {card.metric.value}
+                    </span>
+                    <span className="text-xs text-[var(--shell-muted)]">{card.metric.caption}</span>
+                  </div>
+                ) : null}
+                <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
+                  {compactInsightSummary(card.summary)}
+                </p>
+              </>
+            )}
           </>
         );
 

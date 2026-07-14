@@ -109,7 +109,7 @@ describe("Trajectory 'current' == the alignment index", () => {
       gapPlan: { available: false, gaps: [], watchList: [], clearedCount: 0, totalCount: 0, emptyReason: null },
       trajectory: traj,
     });
-    expect(metrics.firm_tier2_projection?.value.startsWith("68 ")).toBe(true);
+    expect(metrics.firm_tier2_projection?.hero).toBe("68");
   });
 });
 
