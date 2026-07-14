@@ -129,6 +129,7 @@ export default function InsightSurfaceCardGrid({
           return (
             <div
               key={card.key}
+              data-insight-key={card.key}
               className={`${className} ${expanded ? "xl:col-span-2" : ""}`}
               data-expanded={expanded ? "1" : "0"}
             >
@@ -158,14 +159,14 @@ export default function InsightSurfaceCardGrid({
 
         if (card.interactive && card.href != null) {
           return (
-            <Link key={card.key} href={card.href} className={className}>
+            <Link key={card.key} data-insight-key={card.key} href={card.href} className={className}>
               {head}
             </Link>
           );
         }
 
         return (
-          <article key={card.key} className={className}>
+          <article key={card.key} data-insight-key={card.key} className={className}>
             {head}
           </article>
         );

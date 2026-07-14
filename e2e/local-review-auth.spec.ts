@@ -280,9 +280,12 @@ test.describe("local review auth", () => {
       firmPage.getByRole("heading", { name: /Firm alignment insights/i }).first()
     ).toBeVisible();
 
+    // B5-4: a firm account on /user is redirected to its own portal home by the
+    // audience guard BEFORE the pilot-surfaces gate runs, so the shelved
+    // individual surface is never exposed to a firm user. (Individual surfaces are
+    // OFF for the pilot — the flag the runner/PROD both leave unset.)
     await gotoStable(firmPage, "/user");
-    await expect(firmPage).toHaveURL(/\/sign-in\?pilotDisabled=individual/);
-    await expect(firmPage.getByText(/Individual surfaces are shelved/i)).toBeVisible();
+    await expect(firmPage).toHaveURL(/\/firm(?:$|[/?])/);
 
     await firmContext.close();
   });
@@ -457,8 +460,11 @@ test.describe("local review auth", () => {
     const deniedResponse = await consultantPage.goto(`/consultants/briefings/${unassignedCompanyId}`, {
       waitUntil: "domcontentloaded",
     });
+    // Security: cross-tenant access is denied with a hard 404 (the load-bearing
+    // assertion). B8-4 replaced Next's default copy with the branded 404, so the
+    // rendered text is "Page not found" (not "This page could not be found").
     expect(deniedResponse?.status()).toBe(404);
-    await expect(consultantPage.getByText("This page could not be found")).toBeVisible();
+    await expect(consultantPage.getByText("Page not found")).toBeVisible();
 
     await consultantContext.close();
   });
