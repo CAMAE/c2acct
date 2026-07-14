@@ -79,6 +79,17 @@ const nextConfig: NextConfig = {
     "/admin/runs": ["./agents/**", "./verticals/**"],
     "/api/agents": ["./agents/**", "./verticals/**"],
     "/api/agents/[agentKey]": ["./agents/**", "./verticals/**"],
+    // Founders-preview deploy: the Linux Prisma query engines are runtime-loaded
+    // binaries that Vercel's function tracing does NOT follow, so a macOS prebuilt
+    // `vercel build` ships .vercel/output without them and every DB route 500s
+    // ("Database unavailable"). The standalone build already emits all three
+    // engines (native + debian + rhel); force-include the two Linux ones on every
+    // route so the prebuilt functions carry the rhel engine Vercel's runtime needs.
+    // Guarded by scripts/release/assert-vercel-prisma-engine.mjs (fails loud on 0).
+    "/**": [
+      "./node_modules/.pnpm/@prisma+client@*/node_modules/.prisma/client/query-engine-rhel-openssl-3.0.x",
+      "./node_modules/.pnpm/@prisma+client@*/node_modules/.prisma/client/query-engine-debian-openssl-3.0.x",
+    ],
   },
 };
 
