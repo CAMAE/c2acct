@@ -354,6 +354,15 @@ export type FirmTrajectory = {
   momentum: { trend: string; velocity: string; volatility: number; avgDelta: number } | null;
   /** "your best available swap moves you 48th → 71st percentile" */
   swapMovement: { fromPercentile: number; toPercentile: number } | null;
+  /** Block 12d: what the projection is built from — the evidence + window, so the
+   *  directional band is explained, never presented as a forecast-as-fact. */
+  provenance: {
+    snapshotCount: number;
+    firstLabel: string;
+    lastLabel: string;
+    avgDelta: number;
+    volatility: number;
+  } | null;
   emptyReason: string | null;
 };
 
@@ -380,6 +389,7 @@ export async function buildFirmTrajectory(
       projection: null,
       momentum: null,
       swapMovement: null,
+      provenance: null,
       emptyReason: "Your trajectory opens once PAT has at least two alignment snapshots over time.",
     };
   }
@@ -420,6 +430,13 @@ export async function buildFirmTrajectory(
       ? { trend: momentum.trend, velocity: momentum.velocity, volatility: momentum.volatility, avgDelta: momentum.avgDelta }
       : null,
     swapMovement,
+    provenance: {
+      snapshotCount: history.length,
+      firstLabel: history[0].label,
+      lastLabel: history[history.length - 1].label,
+      avgDelta: Math.round(avgDelta * 10) / 10,
+      volatility: Math.round(Math.max(1.5, vol) * 10) / 10,
+    },
     emptyReason: null,
   };
 }

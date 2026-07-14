@@ -15,7 +15,20 @@ function ordinal(n: number): string {
   return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
 }
 
-export default function FirmTrajectoryCard({ data }: { data: FirmTrajectory }) {
+/**
+ * Block 12d — Trajectory rebuilt to be Elite-grade: the chart is framed by a hero
+ * delta, momentum chips, and — new — a PROVENANCE panel that says exactly what the
+ * projection is built from (module-submission snapshots over time, NOT sandbox
+ * swaps), over what window, and how the directional band is derived. Ends with a
+ * ranked action. The projection stays labelled directional, never forecast-as-fact.
+ */
+export default function FirmTrajectoryCard({
+  data,
+  rankedAction,
+}: {
+  data: FirmTrajectory;
+  rankedAction?: { moduleLabel: string; deficit: number } | null;
+}) {
   if (!data.available) {
     return <EliteEmptyState message={data.emptyReason ?? "Trajectory not available yet."} />;
   }
@@ -27,12 +40,14 @@ export default function FirmTrajectoryCard({ data }: { data: FirmTrajectory }) {
     <>
       <section className="pat-card p-6">
         <div className="flex flex-wrap items-baseline gap-x-3">
-          <span className="text-3xl font-semibold tabular-nums text-[var(--shell-ink)]">
+          <span
+            className={`text-3xl font-semibold tabular-nums ${netDelta >= 0 ? "text-[var(--shell-positive)]" : "text-[var(--brand-orange)]"}`}
+          >
             {netDelta >= 0 ? "+" : ""}
             {netDelta}
           </span>
           <span className="text-sm text-[var(--shell-muted)]">
-            points over the last {data.history.length} snapshots (now {last}).
+            points across your last {data.history.length} module-submission snapshots (now {last}).
           </span>
         </div>
         <div className="mt-4">
@@ -62,6 +77,35 @@ export default function FirmTrajectoryCard({ data }: { data: FirmTrajectory }) {
         ) : null}
       </section>
 
+      {/* Block 12d: provenance — what the trend and projection are built from. */}
+      {data.provenance ? (
+        <section className="pat-card p-6">
+          <div className="pat-label">How this projection is built</div>
+          <dl className="mt-3 space-y-2 text-sm leading-6 text-[var(--shell-ink)]">
+            <div>
+              <dt className="inline font-semibold">Evidence: </dt>
+              <dd className="inline text-[var(--shell-muted)]">
+                your alignment index recomputed each time you submit a module — {data.provenance.snapshotCount}{" "}
+                submission snapshots from {data.provenance.firstLabel} to {data.provenance.lastLabel}. This is your PAT
+                assessment history over time, not Alignment Sandbox swap activity.
+              </dd>
+            </div>
+            <div>
+              <dt className="inline font-semibold">Projection: </dt>
+              <dd className="inline text-[var(--shell-muted)]">
+                extends your recent average movement of{" "}
+                <span className="font-medium text-[var(--shell-ink)]">
+                  {data.provenance.avgDelta >= 0 ? "+" : ""}
+                  {data.provenance.avgDelta}
+                </span>{" "}
+                points per snapshot one step forward; the shaded band is ±{data.provenance.volatility} (your recent
+                volatility). It is a directional estimate, not a forecast.
+              </dd>
+            </div>
+          </dl>
+        </section>
+      ) : null}
+
       {data.swapMovement ? (
         <section className="pat-card p-6">
           <div className="pat-label">Best available move (Sandbox)</div>
@@ -72,6 +116,18 @@ export default function FirmTrajectoryCard({ data }: { data: FirmTrajectory }) {
               {ordinal(data.swapMovement.toPercentile)} percentile
             </span>{" "}
             among peer firms — a directional projection, not a guaranteed outcome.
+          </p>
+        </section>
+      ) : null}
+
+      {rankedAction ? (
+        <section className="pat-card p-6">
+          <div className="pat-label">Your next move</div>
+          <p className="mt-3 text-sm leading-6 text-[var(--shell-ink)]">
+            To bend the trajectory up fastest, close{" "}
+            <span className="font-semibold">{rankedAction.moduleLabel}</span>&rsquo;s{" "}
+            <span className="font-semibold">{rankedAction.deficit}-pt</span> gap to the peer top quartile — it is the
+            biggest single lever on your alignment index right now.
           </p>
         </section>
       ) : null}

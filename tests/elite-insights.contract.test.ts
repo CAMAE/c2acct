@@ -139,6 +139,7 @@ describe("Block 12c — Elite hub face metrics (own headline number per card)", 
         projection: { score: 85, low: 78, high: 92, label: "next" },
         momentum: null,
         swapMovement: null,
+        provenance: null,
         emptyReason: null,
       },
     });

@@ -106,9 +106,9 @@ async function renderFirmEliteSurface(key: string, companyId: string) {
       <EliteCardShell
         eyebrow="Firm Elite · Trajectory"
         title="Trajectory"
-        summary="Your alignment index over time, with momentum and a clearly-labelled directional projection. Where you've been, where you're heading, and the best available move."
+        summary="Your alignment index over time — built from your module-submission history, not sandbox activity — with momentum, a clearly-labelled directional projection, and the single biggest lever to bend it up."
       >
-        <FirmTrajectoryCard data={data} />
+        <FirmTrajectoryCard data={data} rankedAction={peer.bestAction} />
       </EliteCardShell>
     );
   }
