@@ -89,6 +89,9 @@ const nextConfig: NextConfig = {
     "/**": [
       "./node_modules/.pnpm/@prisma+client@*/node_modules/.prisma/client/query-engine-rhel-openssl-3.0.x",
       "./node_modules/.pnpm/@prisma+client@*/node_modules/.prisma/client/query-engine-debian-openssl-3.0.x",
+      // Cloud-build release fingerprint (true commit + BUILD_ID) — read at runtime
+      // by lib/release/fingerprint so the public footer Release string is honest.
+      "./lib/release/baked-fingerprint.json",
     ],
   },
 };

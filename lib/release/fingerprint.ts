@@ -79,6 +79,28 @@ const contractPath = path.join(repoRoot, "ops/release/canonical-root.json");
 const statePath = path.join(repoRoot, "artifacts/mac-mini/state/canonical-root.json");
 const releaseStatePath = path.join(repoRoot, "artifacts/mac-mini/state/release-state.env");
 const buildIdPath = path.join(repoRoot, ".next/BUILD_ID");
+// Baked by scripts/release/bake-release.mjs at the END of the CLOUD build (Vercel).
+// The mac-mini state files are gitignored + git is absent in the Vercel runtime,
+// so without this the footer falls back to the STALE contract baselineCommit. When
+// present it is the authoritative source of truth for commit/buildId/branch/ts.
+const bakedPath = path.join(repoRoot, "lib/release/baked-fingerprint.json");
+
+type BakedFingerprint = {
+  commitSha?: string;
+  branch?: string;
+  buildId?: string;
+  buildTimestamp?: string;
+};
+
+function readBaked(): BakedFingerprint | null {
+  try {
+    if (!fs.existsSync(bakedPath)) return null;
+    const parsed = JSON.parse(fs.readFileSync(bakedPath, "utf8")) as BakedFingerprint;
+    return parsed?.commitSha ? parsed : null;
+  } catch {
+    return null;
+  }
+}
 
 function readJsonFile<T>(filePath: string): T | null {
   if (!fs.existsSync(filePath)) {
@@ -96,11 +118,14 @@ function runGit(...args: string[]) {
 }
 
 function readBuildId() {
-  if (!fs.existsSync(buildIdPath)) {
-    return "missing";
+  const baked = readBaked();
+  if (baked?.buildId) return baked.buildId;
+  if (fs.existsSync(buildIdPath)) {
+    const value = fs.readFileSync(buildIdPath, "utf8").trim();
+    if (value) return value;
   }
-
-  return fs.readFileSync(buildIdPath, "utf8").trim() || "missing";
+  // Cloud runtime fallback: the per-deploy id is always set and unique per build.
+  return process.env.VERCEL_DEPLOYMENT_ID?.trim() || "missing";
 }
 
 function readReleaseStateValue(key: string) {
@@ -123,6 +148,10 @@ function readReleaseStateValue(key: string) {
 }
 
 function resolveBuildTimestamp(state: CanonicalRootState | null) {
+  const baked = readBaked();
+  if (baked?.buildTimestamp) {
+    return baked.buildTimestamp;
+  }
   const stateValue = readReleaseStateValue("BUILD_TIME_UTC");
   if (stateValue) {
     return stateValue;
@@ -140,6 +169,9 @@ function resolveBuildTimestamp(state: CanonicalRootState | null) {
 }
 
 function resolveCommitSha(contract: CanonicalRootContract, state: CanonicalRootState | null) {
+  const baked = readBaked();
+  if (baked?.commitSha) return baked.commitSha;
+  if (process.env.VERCEL_GIT_COMMIT_SHA) return process.env.VERCEL_GIT_COMMIT_SHA.trim();
   try {
     return runGit("rev-parse", "HEAD");
   } catch {
@@ -148,6 +180,9 @@ function resolveCommitSha(contract: CanonicalRootContract, state: CanonicalRootS
 }
 
 function resolveBranch(state: CanonicalRootState | null) {
+  const baked = readBaked();
+  if (baked?.branch) return baked.branch;
+  if (process.env.VERCEL_GIT_COMMIT_REF) return process.env.VERCEL_GIT_COMMIT_REF.trim();
   try {
     return runGit("rev-parse", "--abbrev-ref", "HEAD");
   } catch {

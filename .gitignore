@@ -114,3 +114,4 @@ pilot-login-reset.local.md
 # Block 9d: rotation-verification proof output (keep dir, ignore proofs)
 artifacts/rotations/*
 !artifacts/rotations/.gitkeep
+lib/release/baked-fingerprint.json
