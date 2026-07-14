@@ -15,11 +15,12 @@ commit** with production env (NOT `vercel promote` — preview/prod env targets 
 would carry the preview DATABASE_URL/AUTH_URL onto patalign.com). No protection-settings changes on
 the production project. A1/A2 auth proof moves to **post-seed on patalign.com**.
 
-## Current position (2026-07-14T15:07Z)
-- **HEAD / deploy commit:** `c6a5b331` (branch `feat/agent-system-phase-0`), tag `founders-preview-2026-07-13` (move to c6a5b331 before prod).
-- **Preview URL (SSO-authed browser):** https://pat-c2acct-live-chki2immx-cams-projects-cbec4d2e.vercel.app
-- **Baked fingerprint (this build):** commit=`c6a5b33` buildId=`c6a5b33-mrksavhu` source=`cloud-build` ts=`2026-07-14T15:06:33Z` → footer Release id should read `c6a5b33:c6a5b33-mrksavhu`.
-- **Status:** awaiting **Mythos preview re-gate** (footer==c6a5b33 · `/api/health/db` reason · `/admin` clean).
+## Current position (2026-07-14T15:11Z)
+- **Gated + ship commit:** `4c1d27a0` (branch `feat/agent-system-phase-0`) — the ledger doc is IN this commit, so gated tree == ship tree, no divergence. (Runtime-identical to code commit `c6a5b331`; `4c1d27a0` just adds this doc, which is not traced into functions.)
+- **Preview URL (SSO-authed browser):** https://pat-c2acct-live-lkk09k7yu-cams-projects-cbec4d2e.vercel.app
+- **Baked fingerprint (this build):** commit=`4c1d27a` buildId=`4c1d27a-mrksgd3f` source=`cloud-build` ts=`2026-07-14T15:10:49Z` → footer Release id should read `4c1d27a:4c1d27a-mrksgd3f`. Vercel metadata gitCommitSha=`4c1d27a` (confirmed).
+- **Status:** awaiting **Mythos preview re-gate** (footer==`4c1d27a` · `/api/health/db` reason · `/admin` clean).
+- **Tag `founders-preview-2026-07-13`** still points at the pre-fix commit — move to `4c1d27a0` before prod.
 
 ## Gate ledger
 - **Gate 1 (pre-flight)** ✅ — validate:launch green single-worker (`CI=1 PAT_VALIDATE_LAUNCH_SKIP_MAC_MINI=1`): 820 unit + 26 e2e/1 skip. Stale-test drift fixed behavior-first (insight-elite-stacking, local-review-auth 244/385, data-insight-key). Cross-tenant 404 proven live (E5 security) before any test edit.
@@ -29,8 +30,8 @@ the production project. A1/A2 auth proof moves to **post-seed on patalign.com**.
 - **Gate 2d — /admin** — accepted by Mythos as clean branded redirect (no ENOENT); full includes proof runs on patalign.com after --prod.
 
 ## Remaining steps (after Mythos green)
-1. `git tag -f founders-preview-2026-07-13 c6a5b331` (or new date tag).
-2. **`vercel --prod`** — same commit c6a5b331, **production** env. Pass `--build-env PAT_COMMIT_SHA=$(git rev-parse HEAD) PAT_COMMIT_REF=$(git branch --show-current) PAT_BUILD_SOURCE=cloud-build` so the bake stamps the true commit. (env -u AI_AGENT -u CLAUDECODE.)
+1. `git tag -f founders-preview-2026-07-13 4c1d27a0`.
+2. **`vercel --prod`** — deploy the **gated commit `4c1d27a0`**, **production** env. If repo HEAD has moved past it (only later docs commits do), `git checkout 4c1d27a0` first so the built tree == gated tree, then: `env -u AI_AGENT -u CLAUDECODE vercel --prod --build-env PAT_COMMIT_SHA=4c1d27a0... PAT_COMMIT_REF=feat/agent-system-phase-0 PAT_BUILD_SOURCE=cloud-build`. Prod footer must read `4c1d27a:…` — same commit Mythos gated on preview.
 3. **Gate prod:** `node scripts/release/assert-vercel-prisma-engine.mjs --deployed https://patalign.com` (needs `/api/health/db` 200) · asset-integrity on patalign.com · footer Release id == c6a5b33:… .
 4. **Step 3 — PROD demo data:** `demo-expansion --apply` on PROD Neon via **DIRECT_URL (not pooled), batched/serialized**. Assert D0 (238 firms / 43 vendors), 0 name-dupes, A7 (all rows DEMO boundary; pilot/production untouched), D5 (demo Elite accounts resolve ELITE + ACTIVE). Watch for Neon P2037 — kill orphan darwin query engines if seeding stalls.
 5. **Step 4 — flags:** enable on prod the exact set :3005 runs (board, BattleCard, insights, sandbox, elite). **Print flag diff.**
