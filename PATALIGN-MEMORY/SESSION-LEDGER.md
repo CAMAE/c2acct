@@ -647,3 +647,41 @@ current == index + hub face, prose reads firmAlignmentIndex, wiring. 820 unit gr
 NEXT (Cam's sequence): 12d Trajectory rebuild + 12e review.vendor BattleCard fit mix
 in ONE reseed pass (L1-L4), then RE-RUN the number-integrity-elite equality tests
 AFTER reseed (reseeds are when parallel readers drift), full regression + screenshots.
+
+### 12g + 12h + 12d — DONE + live-verified (2026-07-13)
+Commits: 12g/12h 20bcbd9c · 12d 794d0049. Build serving both ports, asset-integrity PASS.
+- 12g Elite hub face refinement (both portals): ONE hero number per card; 2nd quantity
+  → colored chip or micro-visual. New client-safe lib/eliteHubFace + EliteHubFaceView
+  (percentile-band strip / band-dots / two-segment bar). Formatters return EliteHubFace.
+  LIVE: trajectory hero "68" + green "+N projected" chip (no compound headline);
+  peer hero "Nth percentile" + micro band + "vs peer firms · module by module";
+  gap hero "N pts" + amber lever chip + "to top quartile".
+- 12h grid items-start: expanding a card never resizes row siblings. One shared
+  InsightSurfaceCardGrid fix covers firm+vendor, alignment+product. LIVE: grid class
+  "grid items-start gap-5".
+- 12d Trajectory rebuild: provenance panel ("How this projection is built" — evidence =
+  module-submission snapshots over a named window, NOT sandbox swaps; projection extends
+  avg movement ±volatility, directional), colored hero delta, ranked action ("Your next
+  move" = biggest peer-top-quartile lever). buildFirmTrajectory returns provenance.
+  LIVE: all three present on firm_tier2_projection?surface=elite. F1 chart polish + D3
+  varied demo history land with the reseed. Contract tests updated to the new shapes.
+typecheck/lint clean, test:unit 820/820.
+
+### RESEED PASS (12e + orphan purge + D3) — DIAGNOSED, NOT YET RUN (destructive DB)
+State: DEMO has 238 firms / 47 vendors; canonical (scale-4 expand) = 176 / 32. The 62
+extra firms + 15 vendors are NOT empty orphans — they all carry valid submissions (a
+prior LARGER-scale expand set left behind; seed:demo-expand upserts in place and never
+deletes, so extras accumulate). Purge plan: canonical company ids = stableId(
+"demo-firm-company"|"demo-vendor-company", key) over DEMO_PAT_FIRMS/VENDORS (@/data/
+demoPatEcosystem) ∪ planExpansionEcosystems() (lib/demo-seed/expansion) keys; delete
+DEMO FIRM/VENDOR companies whose id ∉ canonical set — FK-ordered cascade (SurveySubmission,
+CompanyBenchmark, FirmMaturitySnapshot/Momentum, Product+reviews, SandboxSwapEvent…), a
+few relations are SetNull not Cascade so children must be deleted first. DRY-RUN first:
+expect exactly 62 firms / 15 vendors flagged → leaving 176 / 32. Then reseed chain
+(expand scale4 → demo-benchmark → pat-runtime → preview:pat-setup → clear+compute:benchmarks),
+12e fit-mix (raise PAT Demo Vendor firm-review product score targets so vendorStrength lands
+mid-distribution → strong/good/weak spread on review.vendor BattleCard), D3 varied firm
+maturity history. THEN re-run tests/number-integrity-elite (percentiles/cohort N recomputed
+against the clean 176 — Peer Position values WILL shift; that's correction). Full regression
++ screenshots. Held back this session: destructive multi-table purge on the live Neon demo
+DB deserves a dry-run-first focused pass, not a rushed one.
