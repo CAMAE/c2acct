@@ -685,3 +685,28 @@ maturity history. THEN re-run tests/number-integrity-elite (percentiles/cohort N
 against the clean 176 — Peer Position values WILL shift; that's correction). Full regression
 + screenshots. Held back this session: destructive multi-table purge on the live Neon demo
 DB deserves a dry-run-first focused pass, not a rushed one.
+
+### ORPHAN PURGE + CANON RE-BASELINE (Mythos ruling, 2026-07-13)
+Investigation RETIRED the "238 = 176 canon + 62 orphans" premise. Findings:
+- Firms: 238, of which 224 own login users → legitimate seeded accounts, NOT orphans.
+  Key-recomputation orphan detection is UNRELIABLE for firms (real ids carry extra
+  indices the plan keys don't). The user guard (never purge a company with a login
+  User) was load-bearing — it protected 47 non-canonical-but-real firms.
+- The ONLY true orphans: 4 stale `demo-bench-vendor-*` vendors (superseded old seed,
+  no users, but carrying products + CompanyBenchmark rows polluting the vendor cohort):
+  Sentinel Practice Cloud, Stratabind Audit & Compliance, Lumen Modern, Bridgepath Suite.
+Cam's ruling: Option 1 + validation rider. NO firm deletions, NO clean-slate.
+ACTIONS: new scripts/demo/purge-demo-orphans.ts (dry-run default; canonical-miss AND
+no-login-user; FK-safe txn). Applied at scale 4 → purged 4 vendors (19 submissions,
+19 products, 4 profiles). Cleared+recomputed benchmarks (12 firm / 7 vendor runs).
+VALIDATION (all pass): (2a) 238 firms all dataBoundary=DEMO, PILOT/PRODUCTION outside
+the set; (2b) 238 distinct firm names + 43 distinct vendor names, ZERO dup groups;
+(2c) 238/238 firms have ≥1 final module submission, 0 thin ghosts; (2d) firm cohort
+distinct-firm N=238, Meridian 5 categories min-n=9 all ≥ MIN_CONTRIBUTORS(5), 0
+suppressed; 4 purged vendors gone.
+RE-BASELINE: demo canon = 238 firms / 43 vendors (176 expansion + 15 base firms;
+32 expansion + 11 base vendors). "176/32" retired as a total. Updated
+lib/demo-seed/expansion.ts + purge-script headers. (Mythos owns REGRESSION-CHECKLIST
+D-section + MYTHOS.md updates.) Peer cohort N=238 is the LEGITIMATE count (12f reader
+correct — not orphan-polluted). NEXT: 12e fit-mix + D3 (score re-tuning, no deletions)
+→ re-run tests/number-integrity-elite vs 238/43 → full regression + screenshots.

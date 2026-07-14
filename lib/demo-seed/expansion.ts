@@ -49,12 +49,21 @@ type ExpansionBank = {
 };
 
 /**
- * Block 10a: scale the demo up ~4× (Cam's ~176 firms / ~32 vendors target) WITHOUT
- * hand-authoring a bigger bank. PAT_DEMO_EXPAND_SCALE (default 1) replicates every
- * vendor and firm N times with unique ids/names and per-replica score variety, so
- * each of the 7 canonical categories comfortably clears the ≥5-vendor benchmark
- * floor and both vendor accounts land a mixed strong/good/weak fit distribution.
- * Replication keeps writes serial in the caller — no fan-out (Day-16 pool lesson).
+ * Block 10a: scale the demo up ~4× WITHOUT hand-authoring a bigger bank.
+ * PAT_DEMO_EXPAND_SCALE (default 1) replicates every vendor and firm N times with
+ * unique ids/names and per-replica score variety, so each of the 7 canonical
+ * categories comfortably clears the ≥5-vendor benchmark floor and both vendor
+ * accounts land a mixed strong/good/weak fit distribution. Replication keeps writes
+ * serial in the caller — no fan-out (Day-16 pool lesson).
+ *
+ * Block 12e re-baseline (Mythos ruling, 2026-07-13): the demo canon is 238 FIRM /
+ * 43 VENDOR demo companies (the scale-4 expansion cohort of 176 firms / 32 vendors
+ * PLUS the 15-firm / 11-vendor base ecosystem). The prior "~176 / ~32" figure named
+ * only the expansion cohort and is RETIRED as a total. Validation held it: all-DEMO
+ * boundary, zero duplicate display names, every firm carries a final module
+ * submission, suppression/divergence floors satisfied. The only purged rows were 4
+ * stale `demo-bench-vendor-*` orphans (old naming, no login users) — see
+ * scripts/demo/purge-demo-orphans.ts.
  */
 // Block 11 N1: every replica (including r0) carries a distinct region tag so no
 // two replicas of the same base firm read as one firm — the pre-fix "" on r0
