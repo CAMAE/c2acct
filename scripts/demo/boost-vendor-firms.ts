@@ -28,19 +28,23 @@ import { classifyCompanyBoundaries } from "@/lib/dataBoundaryBackfill";
 const idSubstr = process.argv[2] ?? "meridian";
 const FIRM_INDEX_OFFSET = 60; // beyond any existing firmIndex → new keys
 
-const BOOST_FIRMS: FirmRosterEntry[] = [
-  { name: "Aldermere Group", size: "mid", archetype: "struggling", regionalFlavor: "midwest", userCountSeed: 7 },
-  { name: "Bexley Crossmark", size: "small", archetype: "struggling", regionalFlavor: "west", userCountSeed: 9 },
-  { name: "Cornbrook LLP", size: "mid", archetype: "struggling", regionalFlavor: "northeast", userCountSeed: 6 },
-  { name: "Draymoor Partners", size: "small", archetype: "struggling", regionalFlavor: "southeast", userCountSeed: 8 },
-  { name: "Ellwood Vance", size: "small", archetype: "sample-thin", regionalFlavor: "midwest", userCountSeed: 5 },
-  { name: "Fenwick Sable", size: "small", archetype: "sample-thin", regionalFlavor: "west", userCountSeed: 6 },
-  { name: "Garrow and Pike", size: "mid", archetype: "sample-thin", regionalFlavor: "national", userCountSeed: 7 },
-  { name: "Hensley Braid", size: "mid", archetype: "mid-tier", regionalFlavor: "northeast", userCountSeed: 10 },
-  { name: "Ironvale CPAs", size: "large", archetype: "mid-tier", regionalFlavor: "national", userCountSeed: 9 },
-  { name: "Jarrow Kline", size: "mid", archetype: "mid-tier", regionalFlavor: "southeast", userCountSeed: 8 },
-  { name: "Kesterly Fox", size: "large", archetype: "compliance-heavy", regionalFlavor: "midwest", userCountSeed: 11 },
-  { name: "Larchmont Reed", size: "mid", archetype: "compliance-heavy", regionalFlavor: "west", userCountSeed: 9 },
+// lane = intended BattleCard fit lane. strong: lower alignment ~25pts (delta>=12).
+// good: hold alignment at a tight mid band so delta lands ~0-12. weak: natural
+// (mid/compliance alignment > vendorStrength → delta<0).
+type BoostEntry = FirmRosterEntry & { lane: "strong" | "good" | "weak" };
+const BOOST_FIRMS: BoostEntry[] = [
+  { name: "Aldermere Group", size: "mid", archetype: "struggling", regionalFlavor: "midwest", userCountSeed: 7, lane: "strong" },
+  { name: "Bexley Crossmark", size: "small", archetype: "struggling", regionalFlavor: "west", userCountSeed: 9, lane: "strong" },
+  { name: "Cornbrook LLP", size: "mid", archetype: "struggling", regionalFlavor: "northeast", userCountSeed: 6, lane: "strong" },
+  { name: "Draymoor Partners", size: "small", archetype: "struggling", regionalFlavor: "southeast", userCountSeed: 8, lane: "strong" },
+  { name: "Ellwood Vance", size: "small", archetype: "struggling", regionalFlavor: "midwest", userCountSeed: 5, lane: "good" },
+  { name: "Fenwick Sable", size: "small", archetype: "struggling", regionalFlavor: "west", userCountSeed: 6, lane: "good" },
+  { name: "Garrow and Pike", size: "mid", archetype: "struggling", regionalFlavor: "national", userCountSeed: 7, lane: "good" },
+  { name: "Hensley Braid", size: "mid", archetype: "struggling", regionalFlavor: "northeast", userCountSeed: 10, lane: "good" },
+  { name: "Ironvale CPAs", size: "large", archetype: "mid-tier", regionalFlavor: "national", userCountSeed: 9, lane: "weak" },
+  { name: "Jarrow Kline", size: "mid", archetype: "mid-tier", regionalFlavor: "southeast", userCountSeed: 8, lane: "weak" },
+  { name: "Kesterly Fox", size: "large", archetype: "compliance-heavy", regionalFlavor: "midwest", userCountSeed: 11, lane: "weak" },
+  { name: "Larchmont Reed", size: "mid", archetype: "compliance-heavy", regionalFlavor: "west", userCountSeed: 9, lane: "weak" },
 ];
 
 async function main() {
@@ -90,11 +94,16 @@ async function main() {
   for (const [i, entry] of BOOST_FIRMS.entries()) {
     const baseProfile = archetypeMap[entry.archetype as FirmArchetypeKey];
     if (!baseProfile) { console.log(`  unknown archetype '${entry.archetype}'`); continue; }
-    // STRONG-lane firms: clone the struggling profile with module scores lowered
-    // ~25 pts so firm alignment sits well below vendorStrength (delta >= 12 =
-    // strong fit) regardless of the exact vendor strength on this DB's cohort.
-    const archetypeProfile = entry.archetype === "struggling"
-      ? { ...baseProfile, moduleScoreRanges: Object.fromEntries(Object.entries(baseProfile.moduleScoreRanges).map(([k, [lo, hi]]) => [k, [Math.max(18, lo - 25), Math.max(26, hi - 25)] as [number, number]])) }
+    const ranges = baseProfile.moduleScoreRanges;
+    // Lane-targeted alignment (vendorStrength≈59 → strong delta>=12 needs align<=47;
+    // good delta 0-12 needs align 47-59; weak needs align>59):
+    //   strong → lower ~25pts (align ~30); good → tight band [50,56] (align ~53,
+    //   delta ~6); weak → natural mid/compliance (align >59).
+    const lowered = Object.fromEntries(Object.entries(ranges).map(([k, [lo, hi]]) => [k, [Math.max(18, lo - 25), Math.max(26, hi - 25)] as [number, number]]));
+    const tightMid = Object.fromEntries(Object.keys(ranges).map((k) => [k, [50, 56] as [number, number]]));
+    const archetypeProfile =
+      entry.lane === "strong" ? { ...baseProfile, moduleScoreRanges: lowered }
+      : entry.lane === "good" ? { ...baseProfile, moduleScoreRanges: tightMid }
       : baseProfile;
     const firmIndex = FIRM_INDEX_OFFSET + i;
     const firmPlan = buildFirmPlan({ firm: entry, ecosystemIndex: vendorIndex, firmIndex, archetypeProfile, vendorPlan, templates, rng, firmKeyPrefix: EXPANSION_FIRM_PREFIX });
