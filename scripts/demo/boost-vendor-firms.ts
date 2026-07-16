@@ -88,8 +88,14 @@ async function main() {
 
   let firmsSeeded = 0, submissions = 0, reviews = 0;
   for (const [i, entry] of BOOST_FIRMS.entries()) {
-    const archetypeProfile = archetypeMap[entry.archetype as FirmArchetypeKey];
-    if (!archetypeProfile) { console.log(`  unknown archetype '${entry.archetype}'`); continue; }
+    const baseProfile = archetypeMap[entry.archetype as FirmArchetypeKey];
+    if (!baseProfile) { console.log(`  unknown archetype '${entry.archetype}'`); continue; }
+    // STRONG-lane firms: clone the struggling profile with module scores lowered
+    // ~25 pts so firm alignment sits well below vendorStrength (delta >= 12 =
+    // strong fit) regardless of the exact vendor strength on this DB's cohort.
+    const archetypeProfile = entry.archetype === "struggling"
+      ? { ...baseProfile, moduleScoreRanges: Object.fromEntries(Object.entries(baseProfile.moduleScoreRanges).map(([k, [lo, hi]]) => [k, [Math.max(18, lo - 25), Math.max(26, hi - 25)] as [number, number]])) }
+      : baseProfile;
     const firmIndex = FIRM_INDEX_OFFSET + i;
     const firmPlan = buildFirmPlan({ firm: entry, ecosystemIndex: vendorIndex, firmIndex, archetypeProfile, vendorPlan, templates, rng, firmKeyPrefix: EXPANSION_FIRM_PREFIX });
 

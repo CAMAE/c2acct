@@ -34,6 +34,8 @@ async function main() {
   const reviewing = firms.length;
   const bcPass = reviewing >= 15 && lanes.strong > 0 && lanes.good > 0 && lanes.weak > 0;
   console.log(`\nBATTLECARD: reviewingFirms=${reviewing} | strong=${lanes.strong} good=${lanes.good} weak=${lanes.weak} pending=${lanes.pending}`);
+  const deltas = firms.map((f) => f.alignmentDelta).filter((d): d is number => typeof d === "number").sort((a, b) => b - a);
+  console.log(`  vendorStrength=${(bc as { vendorStrength?: number } | null)?.vendorStrength ?? "?"} | strong-bar delta>=12 | top deltas: ${deltas.slice(0, 6).map((d) => d.toFixed(1)).join(", ")}`);
   console.log(`  firmReviewedProductCount=${bc?.firmReviewedProductCount ?? "?"} selfReportedOnly=${bc?.selfReportedOnlyProductCount ?? "?"}`);
   console.log(`  ${bcPass ? "✅" : "❌"} accept: >=15 reviewing AND all three lanes non-empty`);
 
