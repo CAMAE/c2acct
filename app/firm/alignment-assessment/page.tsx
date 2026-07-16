@@ -3,6 +3,9 @@ import { redirect } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
+import ScoreLockup from "@/app/components/charts/ScoreLockup";
+import ScoreBar from "@/app/components/charts/ScoreBar";
+import CardChip, { CardChipRow } from "@/app/components/cards/CardChip";
 import { getSessionUser } from "@/lib/auth/session";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import {
@@ -57,25 +60,22 @@ function FirmModuleCard({ module }: { module: FirmModuleProgress }) {
   const latestActivity = formatDate(module.latestSubmittedAt ?? module.draftUpdatedAt);
 
   return (
-    <Link
-      href={module.href}
-      className="pat-card pat-card-interactive block rounded-[24px] bg-white p-6"
-    >
+    <Link href={module.href} className="pat-card pat-card-interactive block p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="text-xl font-semibold text-[var(--shell-ink)]">{module.title}</div>
-        <span className="rounded-full border border-[var(--shell-border)] bg-white px-3 py-1 text-xs font-semibold text-[var(--shell-muted)]">
-          {module.statusLabel}
-        </span>
+        <CardChip>{module.statusLabel}</CardChip>
       </div>
       <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{module.description}</p>
-      <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{module.summary}</p>
-      <div className="mt-5 grid gap-2 text-sm leading-6 text-[var(--shell-muted)]">
-        <div>Questions: <span className="font-semibold text-[var(--shell-ink)]">{module.questionCount}</span></div>
-        <div>Progress: <span className="font-semibold text-[var(--shell-ink)]">{module.completedCount}/{module.questionCount}</span></div>
-        <div>Latest score: <span className="font-semibold text-[var(--shell-ink)]">{module.latestScore ?? "--"}</span></div>
-        <div>Latest activity: <span className="font-semibold text-[var(--shell-ink)]">{latestActivity ?? "--"}</span></div>
+      <CardChipRow>
+        <CardChip>{module.completedCount}/{module.questionCount} answered</CardChip>
+        {latestActivity ? <CardChip tone="muted">Updated {latestActivity}</CardChip> : null}
+      </CardChipRow>
+      <div className="mt-4">
+        <ScoreLockup label="Latest score" score={module.latestScore ?? null} context={module.statusDescription} />
+        <div className="mt-3">
+          <ScoreBar score={module.latestScore ?? null} title={`${module.title} latest score`} />
+        </div>
       </div>
-      <p className="mt-5 text-sm leading-6 text-[var(--shell-muted)]">{module.statusDescription}</p>
     </Link>
   );
 }

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
+import CardChip, { CardChipRow } from "@/app/components/cards/CardChip";
 import { getSessionUser } from "@/lib/auth/session";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { getVendorUtilityLabels } from "@/lib/vendorPat";
@@ -112,35 +113,25 @@ export default async function FirmProductAssessmentsPage({
               <Link
                 key={product.id}
                 href={`/firm/product-assessments/${product.id}`}
-                className="pat-card pat-card-interactive block rounded-[24px] p-6 shadow-[0_24px_60px_rgba(15,23,42,0.06)]"
+                className="pat-card pat-card-interactive block p-6"
               >
-                <div>
-                  <div className="text-xl font-semibold text-[var(--shell-ink)]">{product.name}</div>
-                  <div className="mt-2 text-sm text-[var(--shell-muted)]">{product.vendorName}</div>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-xl font-semibold text-[var(--shell-ink)]">{product.name}</div>
+                    <div className="mt-1 text-sm text-[var(--shell-muted)]">{product.vendorName}</div>
+                  </div>
+                  <CardChip>{product.firmReviewStatusLabel}</CardChip>
                 </div>
-                <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
+                <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
                   {product.summary ?? "No summary added yet."}
                 </p>
-                <div className="mt-4 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4 text-sm leading-6 text-[var(--shell-muted)]">
-                  <div>
-                    Questions: <span className="font-semibold text-[var(--shell-ink)]">{product.questionCount}</span>
-                  </div>
-                  <div>
-                    Firm review status:{" "}
-                    <span className="font-semibold text-[var(--shell-ink)]">{product.firmReviewStatusLabel}</span>
-                  </div>
-                  <div>{product.firmReviewStatusReason}</div>
-                </div>
-                <div className="mt-5 flex flex-wrap gap-2">
+                <CardChipRow>
+                  <CardChip>{product.questionCount} questions</CardChip>
                   {getVendorUtilityLabels(product.utilityKeys).map((featureLabel) => (
-                    <span
-                      key={featureLabel}
-                      className="rounded-full border border-[var(--shell-border)] px-3 py-1.5 text-xs font-medium text-[var(--shell-ink)]"
-                    >
-                      {featureLabel}
-                    </span>
+                    <CardChip key={featureLabel}>{featureLabel}</CardChip>
                   ))}
-                </div>
+                </CardChipRow>
+                <p className="mt-3 text-xs leading-5 text-[var(--shell-muted)]">{product.firmReviewStatusReason}</p>
               </Link>
             ))
           )}

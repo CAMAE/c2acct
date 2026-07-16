@@ -1,4 +1,7 @@
 import Link from "next/link";
+import ScoreLockup from "@/app/components/charts/ScoreLockup";
+import ScoreBar from "@/app/components/charts/ScoreBar";
+import CardChip, { CardChipRow } from "@/app/components/cards/CardChip";
 import { redirect } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
@@ -74,11 +77,21 @@ export default async function UserAlignmentAssessmentPage() {
               <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--shell-muted)]">
                 {progress.description}
               </p>
-              <div className="mt-5 grid gap-2 text-sm leading-6 text-[var(--shell-muted)]">
-                <div>Questions: <span className="font-semibold text-[var(--shell-ink)]">{progress.questionCount}</span></div>
-                <div>Progress: <span className="font-semibold text-[var(--shell-ink)]">{progress.answeredCount}/{progress.questionCount}</span></div>
-                <div>Latest score: <span className="font-semibold text-[var(--shell-ink)]">{progress.latestScore ?? "--"}</span></div>
-                <div>Insights access: <span className="font-semibold text-[var(--shell-ink)]">{progress.tier1Unlocked ? "Available" : "Complete the assessment to open insights"}</span></div>
+              <CardChipRow>
+                <CardChip>{progress.answeredCount}/{progress.questionCount} answered</CardChip>
+                <CardChip tone={progress.tier1Unlocked ? "positive" : "muted"}>
+                  {progress.tier1Unlocked ? "Insights unlocked" : "Insights locked"}
+                </CardChip>
+              </CardChipRow>
+              <div className="mt-4">
+                <ScoreLockup
+                  label="Latest score"
+                  score={progress.latestScore ?? null}
+                  context={progress.tier1Unlocked ? undefined : "Complete the assessment to open insights"}
+                />
+                <div className="mt-3">
+                  <ScoreBar score={progress.latestScore ?? null} title={`${progress.title} latest score`} />
+                </div>
               </div>
             </div>
             <div className="flex flex-col gap-3">

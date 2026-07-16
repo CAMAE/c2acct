@@ -1,5 +1,8 @@
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
+import ScoreLockup from "@/app/components/charts/ScoreLockup";
+import ScoreBar from "@/app/components/charts/ScoreBar";
+import CardChip, { CardChipRow } from "@/app/components/cards/CardChip";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
@@ -161,13 +164,29 @@ export default async function UserPage({
           <div className="space-y-6">
               <div className="pat-card p-6">
                 <div className="pat-label">{messages.portal.individual.currentSignedInAccount}</div>
-                <div className="mt-4 grid gap-2 text-sm leading-6 text-[var(--shell-muted)]">
-                  <div>Email: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser?.email ?? messages.common.notSignedIn}</span></div>
-                  <div>{messages.portal.individual.role}: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser?.role ?? messages.common.guest}</span></div>
-                  <div>{messages.portal.individual.companyContext}: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser?.companyId ?? messages.common.unbound}</span></div>
-                  <div>{messages.portal.individual.patSubjectLink}: <span className="font-semibold text-[var(--shell-ink)]">{userPatContext?.personSubjectId ?? messages.insights.shared.pending}</span></div>
-                  <div>{messages.portal.individual.assessmentCount}: <span className="font-semibold text-[var(--shell-ink)]">{userPatContext?.assessmentCount ?? 0}</span></div>
-                  <div>{messages.portal.individual.latestScore}: <span className="font-semibold text-[var(--shell-ink)]">{userPatContext?.latestScore ?? "--"}</span></div>
+                <div className="mt-2 text-sm font-semibold break-all text-[var(--shell-ink)]">
+                  {sessionUser?.email ?? messages.common.notSignedIn}
+                </div>
+                <CardChipRow>
+                  <CardChip>{sessionUser?.role ?? messages.common.guest}</CardChip>
+                  <CardChip>
+                    {userPatContext?.assessmentCount ?? 0} {messages.portal.individual.assessmentCount}
+                  </CardChip>
+                  <CardChip tone={userPatContext?.personSubjectId ? "positive" : "muted"}>
+                    {userPatContext?.personSubjectId
+                      ? messages.portal.individual.patSubjectLink
+                      : messages.insights.shared.pending}
+                  </CardChip>
+                </CardChipRow>
+                <div className="mt-4">
+                  <ScoreLockup
+                    label={messages.portal.individual.latestScore}
+                    score={userPatContext?.latestScore ?? null}
+                    context={`${messages.portal.individual.companyContext}: ${sessionUser?.companyId ?? messages.common.unbound}`}
+                  />
+                  <div className="mt-3">
+                    <ScoreBar score={userPatContext?.latestScore ?? null} title="Individual latest score" />
+                  </div>
                 </div>
               </div>
             </div>

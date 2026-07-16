@@ -1,4 +1,7 @@
 import Link from "next/link";
+import ScoreLockup from "@/app/components/charts/ScoreLockup";
+import ScoreBar from "@/app/components/charts/ScoreBar";
+import CardChip, { CardChipRow } from "@/app/components/cards/CardChip";
 import { redirect } from "next/navigation";
 import MembershipCard from "@/app/components/membership/MembershipCard";
 import { getSessionUser } from "@/lib/auth/session";
@@ -101,13 +104,25 @@ export default async function UserProfilePage() {
           ) : null}
           <div className="pat-card p-6">
             <div className="pat-label">Current signed-in account</div>
-            <div className="mt-4 grid gap-2 text-sm leading-6 text-[var(--shell-muted)]">
-              <div>Email: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser?.email ?? "Not signed in"}</span></div>
-              <div>Role: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser?.role ?? "Guest"}</span></div>
-              <div>Company context: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser?.companyId ?? "Unbound"}</span></div>
-              <div>Person subject: <span className="font-semibold text-[var(--shell-ink)]">{userPatContext?.personSubjectId ?? "Pending"}</span></div>
-              <div>Assessment count: <span className="font-semibold text-[var(--shell-ink)]">{userPatContext?.assessmentCount ?? 0}</span></div>
-              <div>Latest score: <span className="font-semibold text-[var(--shell-ink)]">{userPatContext?.latestScore ?? "--"}</span></div>
+            <div className="mt-2 text-sm font-semibold break-all text-[var(--shell-ink)]">
+              {sessionUser?.email ?? "Not signed in"}
+            </div>
+            <CardChipRow>
+              <CardChip>{sessionUser?.role ?? "Guest"}</CardChip>
+              <CardChip>{userPatContext?.assessmentCount ?? 0} assessments</CardChip>
+              <CardChip tone={userPatContext?.personSubjectId ? "positive" : "muted"}>
+                {userPatContext?.personSubjectId ? "Subject connected" : "Subject pending"}
+              </CardChip>
+            </CardChipRow>
+            <div className="mt-4">
+              <ScoreLockup
+                label="Latest score"
+                score={userPatContext?.latestScore ?? null}
+                context={`Company: ${sessionUser?.companyId ?? "Unbound"}`}
+              />
+              <div className="mt-3">
+                <ScoreBar score={userPatContext?.latestScore ?? null} title="Individual latest score" />
+              </div>
             </div>
           </div>
         </div>

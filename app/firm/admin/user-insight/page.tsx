@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import CardChip, { CardChipRow } from "@/app/components/cards/CardChip";
 import { getSessionUser } from "@/lib/auth/session";
 import { getPilotDisabledSignInPath, isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import prisma from "@/lib/prisma";
@@ -105,12 +106,16 @@ export default async function FirmUserInsightPage({
                   {user.role}
                 </span>
               </div>
-              <div className="mt-4 grid gap-2 text-sm leading-6 text-[var(--shell-muted)]">
-                <div>Status: <span className="font-semibold text-[var(--shell-ink)]">{user.status}</span></div>
-                <div>Assessment progress: <span className="font-semibold text-[var(--shell-ink)]">{user.assessmentProgress}</span></div>
-                <div>Person subject: <span className="font-semibold text-[var(--shell-ink)]">{user.subjectMembershipReady ? "Connected" : "Pending"}</span></div>
-                <div>Company linkage: <span className="font-semibold text-[var(--shell-ink)]">{user.companyId ? "Attached" : "Not attached"}</span></div>
-              </div>
+              <CardChipRow>
+                <CardChip>{user.status}</CardChip>
+                <CardChip>{user.assessmentProgress}</CardChip>
+                <CardChip tone={user.subjectMembershipReady ? "positive" : "muted"}>
+                  {user.subjectMembershipReady ? "Subject connected" : "Subject pending"}
+                </CardChip>
+                <CardChip tone={user.companyId ? "neutral" : "muted"}>
+                  {user.companyId ? "Company attached" : "Not attached"}
+                </CardChip>
+              </CardChipRow>
             </div>
           ))
         )}
