@@ -206,7 +206,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     path: "help/vendor/battlecard.md",
     title: "Vendor BattleCard",
     roleAccess: ["vendor"],
-    body: "The BattleCard ranks the firms in your ecosystem by how well your product fits them, using firm-reviewed evidence where it exists. Filter by fit tier (Strong, Good, Weak), open a firm to see the per-module gap table and headroom, and review the ranked next actions. Pro shows firms anonymized as Secret Firms; Elite names them. Find it at /vendor/battlecard.",
+    body: "The BattleCard ranks the firms in your ecosystem by how well your product fits them, using firm-reviewed evidence where it exists. Alignment delta is the core metric on the BattleCard: it is how much your product's strengths sit above a firm's current alignment — the headroom you could lift them. Firms with the most headroom (the highest alignment delta) rank first. A large positive alignment delta is a Strong fit; a smaller positive delta is a Good fit; a delta at or below the firm's own alignment is a Weak fit. Deltas stay directional while a firm's review sample is still thin. Filter by fit tier (Strong, Good, Weak), open a firm to see the per-module gap table and headroom, and review the ranked next actions. Pro shows firms anonymized as Secret Firms; Elite names them. Find it at /vendor/battlecard.",
   },
   {
     path: "help/vendor/elite-insights.md",
