@@ -12,13 +12,11 @@ type ProfileSettings = {
 };
 
 type VendorAdminPanelsProps = {
-  contract: unknown;
   profileSettings: ProfileSettings;
   saveProfile: (formData: FormData) => Promise<void>;
 };
 
 export default function VendorAdminPanels({
-  contract,
   profileSettings,
   saveProfile,
 }: VendorAdminPanelsProps) {
@@ -34,18 +32,6 @@ export default function VendorAdminPanels({
             </button>
           </div>
         </form>
-      </section>
-
-      <section className="pat-card p-6">
-        <div className="pat-label">Future sync contract</div>
-        <div className="mt-4 max-h-[24rem] overflow-auto rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
-          <pre className="text-xs leading-6 whitespace-pre-wrap break-words text-[var(--shell-muted)]">
-            {JSON.stringify(contract, null, 2)}
-          </pre>
-        </div>
-        <div className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-          This is integration-ready data, not a fake live c2acct.com / six-site sync.
-        </div>
       </section>
     </>
   );

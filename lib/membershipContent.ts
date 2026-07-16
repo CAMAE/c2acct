@@ -828,15 +828,28 @@ function buildMembershipTierCard(
 ): MembershipTierCardData {
   const seed = content.tierSeed[plan];
   const isCurrent = plan === currentPlan;
-  const isRecommended = plan === MEMBERSHIP_PLAN.PRO;
+  // Plan-aware CTA: rank by tier order so an ELITE member never sees "Upgrade to
+  // Pro" (a plan they already include) or a "Most popular" badge on a tier below
+  // them. currentPlan may be FREE (absent from the order) → rank -1, below PRO.
+  const currentRank = MEMBERSHIP_TIER_ORDER.indexOf(currentPlan);
+  const planRank = MEMBERSHIP_TIER_ORDER.indexOf(plan);
+  const isUpgrade = planRank > currentRank;
+  // PRO carries the "most popular" badge only as a genuine upsell target — never
+  // on the current plan, and never for a member who has already surpassed it.
+  const isRecommended = plan === MEMBERSHIP_PLAN.PRO && isUpgrade;
   let ctaLabel: string;
   let ctaHref: string | null;
   if (isCurrent) {
     ctaLabel = "Current plan";
     ctaHref = null;
-  } else {
+  } else if (isUpgrade) {
     ctaLabel = `Upgrade to ${formatMembershipValue(plan)}`;
     ctaHref = buildMembershipCheckoutHref(audience, plan);
+  } else {
+    // Card sits below the member's current tier (e.g. an ELITE member viewing the
+    // Pro card) — it's included, not an upsell.
+    ctaLabel = `Included with ${formatMembershipValue(currentPlan)}`;
+    ctaHref = null;
   }
   return {
     plan,

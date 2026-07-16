@@ -9,7 +9,6 @@ import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/pro
 import { resolveCurrentMembership } from "@/lib/membership";
 import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import prisma from "@/lib/prisma";
-import { buildFirmExternalProfileContract } from "@/lib/firmPat";
 import { ensureUserPatScaffold, getFirmManagedUserRecords } from "@/lib/userPat";
 
 export const dynamic = "force-dynamic";
@@ -145,22 +144,6 @@ export default async function FirmAdminPage() {
     companyDescription: "",
     website: "",
   });
-  const contract = buildFirmExternalProfileContract({
-    companyName: profileSettings.companyName,
-    contactName: profileSettings.contactName || null,
-    workEmail: profileSettings.workEmail || null,
-    phone: profileSettings.phone || null,
-    businessAddress: profileSettings.businessAddress || null,
-    paymentDetails: profileSettings.paymentDetails || null,
-    companyDescription: profileSettings.companyDescription || null,
-    users: company.User.map((user) => ({
-      email: user.email,
-      role: user.role,
-      status: user.name ? "active" : "invited",
-    })),
-    productsUnderReview: company.Product.map((product) => product.name),
-  });
-
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
@@ -212,7 +195,6 @@ export default async function FirmAdminPage() {
         </div>
       </section>
       <FirmAdminPanels
-        contract={contract}
         individualSurfacesEnabled={individualSurfacesEnabled}
         inviteUser={inviteUser}
         profileSettings={profileSettings}

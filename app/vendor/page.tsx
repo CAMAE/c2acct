@@ -16,7 +16,6 @@ import { isBattleCardEnabled } from "@/lib/battleCard";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/profileSettingsStore";
 import prisma from "@/lib/prisma";
-import { buildVendorExternalProfileContract } from "@/lib/vendorProfileAdapter";
 import { ensureVendorProfileForCompany, getVendorCompanyContext } from "@/lib/vendorPat";
 import { redirect } from "next/navigation";
 
@@ -115,25 +114,6 @@ export default async function VendorPage({
         website: vendorContext.vendorProfile?.website ?? "",
       })
     : null;
-  const contract = profileSettings
-    ? buildVendorExternalProfileContract({
-        companyName: profileSettings.companyName,
-        contactName: profileSettings.contactName || null,
-        workEmail: profileSettings.workEmail || null,
-        phone: profileSettings.phone || null,
-        businessAddress: profileSettings.businessAddress || null,
-        paymentDetails: profileSettings.paymentDetails || null,
-        companyDescription: profileSettings.companyDescription || null,
-        website: profileSettings.website || null,
-        products: vendorContext.products.map((product) => ({
-          name: product.name,
-          slug: product.slug,
-          website: product.website,
-          summary: product.summary,
-        })),
-      })
-    : null;
-
   const localizedCards = vendorWorkspaceCards
     // R5: the BattleCard entry only appears while the battlecard flag is on.
     .filter((card) => card.id !== "vendor-battlecard" || isBattleCardEnabled())
@@ -179,9 +159,8 @@ export default async function VendorPage({
       ) : activePanel === "admin" ? (
         <div className="space-y-6">
           <VendorAdminInlineContent />
-          {profileSettings && contract ? (
+          {profileSettings ? (
             <VendorAdminPanels
-              contract={contract}
               profileSettings={profileSettings}
               saveProfile={saveProfile}
             />

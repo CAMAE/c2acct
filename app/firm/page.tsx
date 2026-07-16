@@ -14,7 +14,7 @@ import {
 } from "@/app/components/firm/FirmPortalContent";
 import { isAlignmentBoardEnabled } from "@/lib/alignmentBoard";
 import { getSessionUser } from "@/lib/auth/session";
-import { buildFirmExternalProfileContract, getFirmAssessmentProgress } from "@/lib/firmPat";
+import { getFirmAssessmentProgress } from "@/lib/firmPat";
 import { getInviteeAccessContext } from "@/lib/invitee/access";
 import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
@@ -189,24 +189,6 @@ export default async function FirmPage({
         website: "",
       })
     : null;
-  const contract = profileSettings
-    ? buildFirmExternalProfileContract({
-        companyName: profileSettings.companyName,
-        contactName: profileSettings.contactName || null,
-        workEmail: profileSettings.workEmail || null,
-        phone: profileSettings.phone || null,
-        businessAddress: profileSettings.businessAddress || null,
-        paymentDetails: profileSettings.paymentDetails || null,
-        companyDescription: profileSettings.companyDescription || null,
-        users: adminCompany ? adminCompany.User.map((user) => ({
-          email: user.email,
-          role: user.role,
-          status: user.name ? "active" : "invited",
-        })) : [],
-        productsUnderReview: adminCompany ? adminCompany.Product.map((product) => product.name) : [],
-      })
-    : null;
-
   const localizedCards = firmWorkspaceCards
     // R4: the Alignment Sandbox card only appears while the board flag is on.
     .filter((card) => card.id !== "firm-alignment-sandbox" || isAlignmentBoardEnabled())
@@ -246,9 +228,8 @@ export default async function FirmPage({
       ) : activePanel === "admin" ? (
         <div className="space-y-6">
           <FirmAdminInlineContent />
-          {profileSettings && contract ? (
+          {profileSettings ? (
             <FirmAdminPanels
-              contract={contract}
               individualSurfacesEnabled={individualSurfacesEnabled}
               inviteUser={inviteUser}
               profileSettings={profileSettings}

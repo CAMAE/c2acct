@@ -119,7 +119,7 @@ export default function VendorBattleCardClient({
             />
             <span className="text-xs text-[var(--shell-muted)]">
               {tierFilter === ""
-                ? `All ${data.rankedFirms.length} firm${data.rankedFirms.length === 1 ? "" : "s"}`
+                ? `All · ${data.rankedFirms.length} firm${data.rankedFirms.length === 1 ? "" : "s"}`
                 : "Tap the active tier to show all"}
             </span>
           </div>

@@ -151,7 +151,7 @@ export async function buildFirmPeerPosition(
       rows: [],
       reportCard: [],
       emptyReason:
-        "Your peer position opens once your firm has completed enough alignment modules to place you in the benchmark.",
+        "Your peer position opens once your alignment index is live and the benchmark has enough contributing firms to place you against the cohort.",
     };
   }
   const moduleReadings = readings.filter((r) => r.metricKey !== ALIGNMENT_INDEX_METRIC);

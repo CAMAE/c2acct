@@ -76,6 +76,9 @@ export default function LockedElitePreview({
         </span>
       </div>
       <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{description}</p>
+      <p className="mt-1 text-xs leading-5 text-[var(--shell-muted)]">
+        Built on firm-reviewed evidence, not self-report — Elite membership brings it live.
+      </p>
 
       <div className="relative mt-4 overflow-hidden rounded-[14px] border border-[var(--shell-border)] bg-[var(--shell-panel)]">
         {/* Real chart STRUCTURE, values withheld behind a blur. */}

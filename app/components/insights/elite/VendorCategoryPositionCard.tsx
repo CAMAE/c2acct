@@ -22,7 +22,7 @@ export default function VendorCategoryPositionCard({ data }: { data: VendorCateg
             <div className="pat-label">{cat.category}</div>
             {cat.suppressed ? (
               <span className="rounded-full border border-dashed border-[var(--shell-border)] px-2.5 py-1 text-xs text-[var(--shell-muted)]">
-                Insufficient peer data ({cat.n} vendors)
+                Field still forming · {cat.n} vendors
               </span>
             ) : (
               <span className="rounded-full bg-[rgba(6,54,116,0.06)] px-2.5 py-1 text-xs font-semibold text-[var(--shell-ink)]">
@@ -32,8 +32,8 @@ export default function VendorCategoryPositionCard({ data }: { data: VendorCateg
           </div>
           {cat.suppressed ? (
             <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-              Your firm-reviewed strength here is {cat.score}, but this category needs at least {MIN_CONTRIBUTORS}{" "}
-              vendors before PAT publishes a distribution.
+              Your firm-reviewed strength here is {cat.score}. This category publishes a peer distribution once at least{" "}
+              {MIN_CONTRIBUTORS} vendors have firm-reviewed products in it — {cat.n} so far.
             </p>
           ) : (
             <div className="mt-4">

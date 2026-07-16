@@ -20,7 +20,6 @@ type ManagedUser = {
 };
 
 type FirmAdminPanelsProps = {
-  contract: unknown;
   inviteUser: (formData: FormData) => Promise<void>;
   profileSettings: ProfileSettings;
   saveFirmProfile: (formData: FormData) => Promise<void>;
@@ -29,7 +28,6 @@ type FirmAdminPanelsProps = {
 };
 
 export default function FirmAdminPanels({
-  contract,
   inviteUser,
   individualSurfacesEnabled,
   profileSettings,
@@ -75,7 +73,7 @@ export default function FirmAdminPanels({
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1fr_0.95fr]">
+      <section className="grid gap-6">
         <div className="pat-card p-6">
           <div className="pat-label">Invite or update user</div>
           <form action={inviteUser} className="mt-4 grid gap-4 md:grid-cols-[1.3fr_0.8fr_auto] md:items-end">
@@ -103,18 +101,6 @@ export default function FirmAdminPanels({
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-
-        <div className="pat-card p-6">
-          <div className="pat-label">Future sync contract</div>
-          <div className="mt-4 max-h-[24rem] overflow-auto rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
-            <pre className="text-xs leading-6 whitespace-pre-wrap break-words text-[var(--shell-muted)]">
-              {JSON.stringify(contract, null, 2)}
-            </pre>
-          </div>
-          <div className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-            This is integration-ready firm data. It does not pretend a live c2acct.com / six-site sync already exists.
           </div>
         </div>
       </section>

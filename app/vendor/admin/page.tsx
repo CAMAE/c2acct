@@ -7,7 +7,6 @@ import { canAccessPortalAdmin } from "@/lib/authz";
 import { resolveCurrentMembership } from "@/lib/membership";
 import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/profileSettingsStore";
 import prisma from "@/lib/prisma";
-import { buildVendorExternalProfileContract } from "@/lib/vendorProfileAdapter";
 import { ensureVendorProfileForCompany, getVendorCompanyContext } from "@/lib/vendorPat";
 
 export const dynamic = "force-dynamic";
@@ -79,23 +78,6 @@ export default async function VendorAdminPage() {
     website: vendorContext.vendorProfile?.website ?? "",
   });
 
-  const contract = buildVendorExternalProfileContract({
-    companyName: profileSettings.companyName,
-    contactName: profileSettings.contactName || null,
-    workEmail: profileSettings.workEmail || null,
-    phone: profileSettings.phone || null,
-    businessAddress: profileSettings.businessAddress || null,
-    paymentDetails: profileSettings.paymentDetails || null,
-    companyDescription: profileSettings.companyDescription || null,
-    website: profileSettings.website || null,
-    products: vendorContext.products.map((product) => ({
-      name: product.name,
-      slug: product.slug,
-      website: product.website,
-      summary: product.summary,
-    })),
-  });
-
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
@@ -148,7 +130,6 @@ export default async function VendorAdminPage() {
       </section>
 
       <VendorAdminPanels
-        contract={contract}
         profileSettings={profileSettings}
         saveProfile={saveProfile}
       />
