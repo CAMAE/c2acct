@@ -173,6 +173,6 @@ Sweep bounced. Order: 13a/13b security → 13c-g copy → 13h/i UX → 13j/k dat
   `battlecard` consultant cases) + `ELITE-REVIEW-PATH.md` were realigned to the wall.
 
 ## Deferred / notes
-- Local review servers :3000/:3005 are DOWN — restore post-deploy (L2: `pnpm release:promote-known-good` FIRST, tree clean, restart LAST; then `pnpm asset-integrity`).
+- **:3005 UP as the BUILT STANDALONE (2026-07-16)** — promoted known-good `54f5e71:b5J1tM-P5i6mMTEPRi9X1` (HEAD), served via `node .next/standalone/server.js` PORT=3005 + all review flags; asset-integrity PASS (served==disk==fingerprint, /sign-in+/methodology 10/10). Preview DB restored (demo-expand → compute → swaps → preview-pat-setup) + both boosted vendors re-applied locally (Meridian 18 firms 5/4/9, Bridgepath 25 firms 2/5/18). Ready for the Mythos sweep. (:3000 launchd app not restarted — SKIP_MAC_MINI.)
 - e2e local-review must run single-worker (`CI=1`) or the stateful consultant test flakes.
 - `baked-fingerprint.json` is gitignored (per-build artifact).
