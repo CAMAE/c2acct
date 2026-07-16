@@ -44,7 +44,7 @@ export default async function SurveyModulePage({
           workspaceHref="/firm/alignment-assessment"
           workspaceLabel="Back to firm alignment assessment"
           availableNow="The baseline firm state still keeps workspace entry and membership routing available."
-          stagedNote="The firm alignment module runtime feeds the live firm insight layer, so PAT treats it as a Pro surface rather than a baseline workspace page."
+          upgradeNote="The firm alignment module runtime feeds the live firm insight layer, so PAT treats it as a Pro surface rather than a baseline workspace page."
         />
       );
     }
@@ -68,7 +68,7 @@ export default async function SurveyModulePage({
           workspaceHref="/user/alignment-assessment"
           workspaceLabel="Back to individual alignment assessment"
           availableNow="The baseline individual state still keeps workspace entry and membership routing available."
-          stagedNote="The current user assessment runtime is the live Pro intake path for person-level PAT state, so it does not open from the baseline state."
+          upgradeNote="The current user assessment runtime is the live Pro intake path for person-level PAT state, so it does not open from the baseline state."
         />
       );
     }

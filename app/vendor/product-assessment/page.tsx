@@ -183,7 +183,7 @@ export default async function VendorProductAssessmentPage({
         workspaceHref="/vendor"
         workspaceLabel="Open vendor workspace"
         availableNow="The baseline vendor state still keeps portal entry, help, profile continuity, and membership routing available."
-        stagedNote="The assessment runtime belongs to the current product-intelligence layer, so PAT does not open it from the baseline state because the intended product model treats core vendor assessments and insights as Pro surfaces."
+        upgradeNote="The assessment runtime belongs to the current product-intelligence layer, so PAT does not open it from the baseline state because the intended product model treats core vendor assessments and insights as Pro surfaces."
       />
     );
   }

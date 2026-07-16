@@ -94,7 +94,7 @@ export default async function VendorBattleCardPage({
           workspaceHref="/vendor"
           workspaceLabel="Open vendor workspace"
           availableNow="Your current tier keeps the vendor workspace, product insight, and membership routing available."
-          stagedNote="The BattleCard is the Elite packaging layer around your ecosystem's firm signal, so PAT does not open it from a Pro tier."
+          upgradeNote="The BattleCard is the Elite packaging layer around your ecosystem's firm signal, so PAT does not open it from a Pro tier."
         />
       );
     }
@@ -124,7 +124,7 @@ export default async function VendorBattleCardPage({
           workspaceHref="/vendor"
           workspaceLabel="Open vendor workspace"
           availableNow="Your current tier keeps the vendor workspace, product insight, and membership routing available."
-          stagedNote="The BattleCard is the paid packaging layer around your ecosystem's firm signal."
+          upgradeNote="The BattleCard is the paid packaging layer around your ecosystem's firm signal."
         />
       );
     }

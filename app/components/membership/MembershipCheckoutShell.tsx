@@ -78,9 +78,9 @@ export default function MembershipCheckoutShell({
           <input type="hidden" name="plan" value={model.plan} />
           <input type="hidden" name="paymentMethod" value={activeMethodPanel} />
 
-          <div className="pat-label">{providerBacked ? "Provider checkout" : "Checkout scaffold"}</div>
+          <div className="pat-label">{providerBacked ? "Provider checkout" : "Checkout — no charge today"}</div>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
-            {providerBacked ? "Continue through Stripe" : "Payment form scaffold"}
+            {providerBacked ? "Continue through Stripe" : "Payment form (nothing is billed today)"}
           </h2>
           <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
             {providerBacked

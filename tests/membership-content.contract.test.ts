@@ -171,7 +171,7 @@ describe("membership page contracts", () => {
   // duplicated the parent membership page. The four section titles ("What it
   // is" / "What's available today" / "What's coming next" / "Why it helps")
   // continue to render — now inline on the parent via MembershipPlanPanel's
-  // model.panel.{what,liveNowNote,stagedNote,why} fields. The
+  // model.panel.{what,liveNowNote,upgradeNote,why} fields. The
   // /membership/checkout?plan=pro destination is preserved (still tested in
   // the checkout contract above).
 

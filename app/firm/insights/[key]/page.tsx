@@ -145,7 +145,7 @@ export default async function FirmInsightDetailPage({
         workspaceHref="/firm/insights"
         workspaceLabel="Back to firm alignment insights"
         availableNow="The baseline firm state still keeps workspace entry and membership routing available."
-        stagedNote="This page is part of the current firm Pro insight layer grounded in current assessment evidence, so PAT does not open it from the baseline state."
+        upgradeNote="This page is part of the current firm Pro insight layer grounded in current assessment evidence, so PAT does not open it from the baseline state."
       />
     );
   }

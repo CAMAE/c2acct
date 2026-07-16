@@ -102,7 +102,7 @@ export default async function FirmAlignmentAssessmentPage() {
         workspaceHref="/firm"
         workspaceLabel="Open firm workspace"
         availableNow="The baseline firm state still keeps workspace entry, help, and membership routing available."
-        stagedNote="This assessment surface feeds the current firm insight layer, so PAT treats it as part of the current Pro operating tier rather than the baseline state."
+        upgradeNote="This assessment surface feeds the current firm insight layer, so PAT treats it as part of the current Pro operating tier rather than the baseline state."
       />
     );
   }

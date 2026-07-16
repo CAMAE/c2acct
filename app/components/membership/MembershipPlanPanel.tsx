@@ -38,7 +38,7 @@ export default function MembershipPlanPanel({ model }: MembershipPlanPanelProps)
           <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">{model.panel.title}</h2>
           <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">{model.panel.summary}</p>
           <div className="mt-6 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-5">
-            <div className="pat-label">Current truthful scope</div>
+            <div className="pat-label">What this tier covers</div>
             <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{model.panel.scopeNote}</p>
           </div>
         </article>
@@ -53,7 +53,7 @@ export default function MembershipPlanPanel({ model }: MembershipPlanPanelProps)
             </div>
             <div className="mt-4 rounded-[18px] border border-[var(--shell-border)] bg-white/70 p-4">
               <div className="pat-label">What&apos;s coming next</div>
-              <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{model.panel.stagedNote}</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{model.panel.upgradeNote}</p>
             </div>
           </div>
           <div className="rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-5">

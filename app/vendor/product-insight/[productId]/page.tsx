@@ -64,7 +64,7 @@ export default async function VendorProductInsightDetailPage({
         workspaceHref="/vendor/product-insight"
         workspaceLabel="Back to product intelligence"
         availableNow="The baseline vendor state still keeps workspace entry and membership routing available."
-        stagedNote="This product page packages current assessment evidence into the current vendor intelligence layer, so PAT treats it as a Pro surface."
+        upgradeNote="This product page packages current assessment evidence into the current vendor intelligence layer, so PAT treats it as a Pro surface."
       />
     );
   }

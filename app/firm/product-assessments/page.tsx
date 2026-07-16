@@ -49,7 +49,7 @@ export default async function FirmProductAssessmentsPage({
         workspaceHref="/firm"
         workspaceLabel="Open firm workspace"
         availableNow="The baseline firm state still keeps workspace entry, help, and membership routing available."
-        stagedNote="The product review flow feeds the current PAT product-evidence loop, so PAT treats it as a Pro assessment surface rather than a baseline route."
+        upgradeNote="The product review flow feeds the current PAT product-evidence loop, so PAT treats it as a Pro assessment surface rather than a baseline route."
       />
     );
   }

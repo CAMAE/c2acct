@@ -100,7 +100,7 @@ export default async function VendorProductInsightPage() {
         workspaceHref="/vendor"
         workspaceLabel="Open vendor workspace"
         availableNow="The baseline vendor state still keeps portal entry, help, and membership routing available."
-        stagedNote="The catalog and product pages are current-state Pro surfaces. PAT does not open them from the baseline state because they package assessment evidence into the vendor intelligence layer."
+        upgradeNote="The catalog and product pages are current-state Pro surfaces. PAT does not open them from the baseline state because they package assessment evidence into the vendor intelligence layer."
       />
     );
   }

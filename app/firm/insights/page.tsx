@@ -75,7 +75,7 @@ export default async function FirmInsightsPage({
         workspaceHref="/firm"
         workspaceLabel="Open firm workspace"
         availableNow="The baseline firm state still keeps workspace entry, help, and membership routing available."
-        stagedNote="This catalog is the current Pro packaging layer around firm alignment evidence, so PAT does not open it from the baseline state."
+        upgradeNote="This catalog is the current Pro packaging layer around firm alignment evidence, so PAT does not open it from the baseline state."
       />
     );
   }

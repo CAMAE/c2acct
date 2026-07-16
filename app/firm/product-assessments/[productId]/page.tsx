@@ -39,7 +39,7 @@ export default async function FirmProductAssessmentDetailPage({
         workspaceHref="/firm/product-assessments"
         workspaceLabel="Back to firm product assessments"
         availableNow="The baseline firm state still keeps workspace entry and membership routing available."
-        stagedNote="This runtime sits inside the current product-review loop that feeds PAT product evidence, so it stays behind the current Pro tier."
+        upgradeNote="This runtime sits inside the current product-review loop that feeds PAT product evidence, so it stays behind the current Pro tier."
       />
     );
   }

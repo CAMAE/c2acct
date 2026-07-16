@@ -25,7 +25,7 @@ export default async function VendorMembershipPage({
   const params = searchParams ? await searchParams : undefined;
   const checkoutNotice =
     params?.checkout === "pro" || params?.checkout === "elite"
-      ? `Vendor ${params.checkout === "pro" ? "Pro" : "Elite"} checkout scaffold started.`
+      ? `Vendor ${params.checkout === "pro" ? "Pro" : "Elite"} checkout started — intent recorded, no charge today.`
       : null;
 
   return (

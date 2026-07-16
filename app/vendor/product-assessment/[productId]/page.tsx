@@ -51,7 +51,7 @@ export default async function VendorProductAssessmentDetailPage({
         workspaceHref="/vendor/product-assessment"
         workspaceLabel="Back to vendor product assessments"
         availableNow="The baseline vendor state still keeps the portal, help, and membership routes available without opening the assessment runtime."
-        stagedNote="This assessment body feeds the current product-intelligence layer, so PAT treats it as a Pro surface rather than a baseline portal page."
+        upgradeNote="This assessment body feeds the current product-intelligence layer, so PAT treats it as a Pro surface rather than a baseline portal page."
       />
     );
   }

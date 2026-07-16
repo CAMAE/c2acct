@@ -33,7 +33,7 @@ export default async function UserAlignmentAssessmentPage() {
         workspaceHref="/user"
         workspaceLabel="Open individual workspace"
         availableNow="The baseline individual state still keeps workspace entry, help, profile continuity, and membership routing available."
-        stagedNote="This assessment route is the current person-level intake path PAT uses for the individual Pro layer, so it does not open from the baseline state."
+        upgradeNote="This assessment route is the current person-level intake path PAT uses for the individual Pro layer, so it does not open from the baseline state."
       />
     );
   }

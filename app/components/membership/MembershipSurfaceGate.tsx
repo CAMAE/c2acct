@@ -20,7 +20,7 @@ type MembershipSurfaceGateProps = {
   workspaceHref: string;
   workspaceLabel: string;
   availableNow: string;
-  stagedNote: string;
+  upgradeNote: string;
 };
 
 function getAudienceTerms(audience: MembershipAudience) {
@@ -49,7 +49,7 @@ export default function MembershipSurfaceGate({
   workspaceHref,
   workspaceLabel,
   availableNow,
-  stagedNote,
+  upgradeNote,
 }: MembershipSurfaceGateProps) {
   return (
     <div className="space-y-8">
@@ -85,7 +85,7 @@ export default function MembershipSurfaceGate({
           <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">{availableNow}</p>
           <div className="mt-5 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-5">
             <div className="pat-label">Why this page is locked</div>
-            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{stagedNote}</p>
+            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{upgradeNote}</p>
           </div>
         </article>
 
@@ -102,7 +102,7 @@ export default function MembershipSurfaceGate({
               Open membership
             </Link>
             <Link className="pat-button-secondary" href={upgradeHref}>
-              Open checkout scaffold
+              Continue to checkout
             </Link>
             <Link className="pat-button-secondary" href={workspaceHref}>
               {workspaceLabel}

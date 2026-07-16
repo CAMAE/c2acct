@@ -87,7 +87,7 @@ export type MembershipPageModel = {
       why: string;
       scopeNote: string;
       liveNowNote: string;
-      stagedNote: string;
+      upgradeNote: string;
       ownsPlan: boolean;
       ctaTitle: string;
       ctaBody: string;
@@ -139,7 +139,7 @@ export type MembershipCheckoutModel = {
     title: string;
     whatItIs: string;
     liveNow: string;
-    staged: string;
+    upgradeNote: string;
     afterSubmitTitle: string;
     afterSubmitBody: string;
   };
@@ -220,7 +220,7 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
     eyebrow: "Vendor membership",
     title: "Choose the Vendor PAT membership tier that matches your market motion",
     body:
-      "Vendor membership should stay simple: make the live Pro scope clear, keep the staged Elite layer honest, and move into the checkout scaffold only when the stronger tier is actually needed.",
+      "Vendor membership stays simple: Pro and Elite are both live tiers — see what each covers and move up when the stronger tier fits. Upgrading records your intent and activates the tier; automated billing isn't switched on yet, so nothing is charged today.",
     plans: {
       FREE: {
         title: "Free keeps the vendor PAT baseline visible",
@@ -230,7 +230,7 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
         why:
           "This helps early-stage or locally reviewed vendors hold a clean baseline before they need deeper alignment packaging.",
         ctaTitle: "Step into Pro when you want stronger buyer-facing positioning",
-        ctaBody: "Move into the Pro checkout scaffold to stage richer alignment readouts and a clearer commercial handoff.",
+        ctaBody: "Move up to Pro for richer alignment readouts and a clearer commercial handoff. No card and no charge today.",
       },
       PRO: {
         title: "Pro packages vendor alignment into a stronger commercial surface",
@@ -240,17 +240,17 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
         why:
           "That helps a vendor turn assessment signal into usable sales and product-readiness framing instead of leaving insights implicit.",
         ctaTitle: "Upgrade into Pro",
-        ctaBody: "Open the checkout scaffold to stage Pro membership and the associated commercial handoff cleanly.",
+        ctaBody: "Move up to Pro membership and its commercial handoff. Upgrading records your intent and activates the tier — no charge today.",
       },
       ELITE: {
-        title: "Elite is reserved for the highest-confidence vendor intelligence layer",
-        summary: "Elite is the future tier for benchmarked or projection-backed surfaces that PAT should not overstate before they are ready.",
+        title: "Elite is the highest-confidence vendor intelligence tier",
+        summary: "Elite is live for Elite members — benchmarked and projection-backed vendor surfaces, grounded in firm-reviewed evidence. Pro accounts see a locked preview of the same surfaces.",
         what:
-          "Elite is the staged next layer for richer benchmark, scenario, and projection packaging once the supporting evidence and payment rails exist.",
+          "Elite is the live top vendor tier: benchmark position, demand signals, and scenario/projection packaging on your products, all backed by firm-reviewed evidence.",
         why:
-          "This keeps the vendor promise disciplined: stronger value only appears when the intelligence can be defended.",
-        ctaTitle: "Stage the Elite path",
-        ctaBody: "Use the checkout scaffold to mark Elite interest without pretending the final commercial layer is already live.",
+          "That gives a vendor the defensible, benchmarked view buyers trust — the depth Pro previews but only Elite unlocks.",
+        ctaTitle: "Move up to Elite",
+        ctaBody: "Unlock the full Elite vendor intelligence layer. Upgrading records your intent and PAT activates Elite — no card and no charge today.",
       },
     },
     meetPat: {
@@ -308,7 +308,7 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
     eyebrow: "Firm membership",
     title: "Set the Firm PAT membership tier that matches how your firm wants to work",
     body:
-      "Firm membership should make the live Pro scope legible, keep the staged Elite layer honest, and show a clean upgrade handoff without inventing a broader firm product suite.",
+      "Firm membership keeps the Pro and Elite scope legible — both are live tiers — with a clean upgrade handoff. Upgrading records your intent and activates the tier; automated billing isn't switched on yet, so nothing is charged today.",
     plans: {
       FREE: {
         title: "Free keeps the firm PAT core in place",
@@ -318,7 +318,7 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
         why:
           "That helps a firm adopt PAT in a controlled way before it needs broader insight packaging or stronger internal rollout support.",
         ctaTitle: "Move toward Pro when the firm needs stronger operating guidance",
-        ctaBody: "Start the checkout scaffold to stage a firmer PAT operating tier without adding payment complexity yet.",
+        ctaBody: "Move up to Pro for a firmer PAT operating tier. No card and no charge today.",
       },
       PRO: {
         title: "Pro turns the live firm alignment insight layer into a clearer operating surface",
@@ -328,17 +328,17 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
         why:
           "That matters when leadership needs clearer interpretation of readiness, change posture, automation capacity, and governance signal from the existing PAT evidence.",
         ctaTitle: "Upgrade into Pro",
-        ctaBody: "Open the checkout scaffold to stage the firm alignment-insight tier without over-claiming broader firm product scope.",
+        ctaBody: "Move up to the firm alignment-insight tier. Upgrading records your intent and activates the tier — no charge today.",
       },
       ELITE: {
-        title: "Elite is the staged higher-order firm insight tier",
-        summary: "Elite remains the visible but still staged extension of the firm alignment insight surface.",
+        title: "Elite is the higher-order firm insight tier",
+        summary: "Elite is live for Elite members — the richer firm insight layer (peer position, gap plan, trajectory) built on your alignment evidence. Pro accounts see a locked preview of the same surfaces.",
         what:
-          "Elite is reserved for richer firm insight packaging that should stay attached to alignment evidence until PAT can support a stronger premium layer honestly.",
+          "Elite is the live top firm tier: peer-benchmarked position, a ranked gap plan, and trajectory — all anchored to firm-reviewed alignment evidence.",
         why:
-          "That keeps the firm promise honest while still making the higher-order tier legible.",
-        ctaTitle: "Stage the Elite path",
-        ctaBody: "Use the checkout scaffold to register Elite intent without implying a broader firm intelligence suite is already live.",
+          "That gives leadership the benchmarked, forward-looking read Pro previews but only Elite unlocks.",
+        ctaTitle: "Move up to Elite",
+        ctaBody: "Unlock the full Elite firm insight layer. Upgrading records your intent and PAT activates Elite — no card and no charge today.",
       },
     },
     meetPat: {
@@ -396,7 +396,7 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
     eyebrow: "Individual membership",
     title: "Choose the Individual PAT membership tier that matches your personal operating depth",
     body:
-      "Individual membership should make the live Pro path clear, keep the staged Elite layer explicit, and move into the checkout scaffold only when the stronger tier is actually wanted.",
+      "Individual membership keeps the Pro and Elite path clear — both are live tiers — and moves up only when the stronger tier is wanted. Upgrading records your intent and activates the tier; automated billing isn't switched on yet, so nothing is charged today.",
     plans: {
       FREE: {
         title: "Free keeps the individual PAT baseline available",
@@ -406,7 +406,7 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
         why:
           "That matters for people who want clarity and continuity first, before they commit to a stronger ongoing intelligence layer.",
         ctaTitle: "Step into Pro when you want stronger guidance",
-        ctaBody: "Open the checkout scaffold to move toward a richer personal PAT tier without adding real payment logic yet.",
+        ctaBody: "Move up to a richer personal PAT tier. No card and no charge today.",
       },
       PRO: {
         title: "Pro gives the individual a stronger personal PAT layer",
@@ -416,17 +416,17 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
         why:
           "That helps the individual turn PAT from a one-time assessment into a steadier operating aid.",
         ctaTitle: "Upgrade into Pro",
-        ctaBody: "Use the checkout scaffold to stage a stronger personal tier with a direct, non-ambiguous handoff.",
+        ctaBody: "Move up to a stronger personal tier with a direct handoff. Upgrading records your intent and activates the tier — no charge today.",
       },
       ELITE: {
-        title: "Elite stays reserved for the most advanced personal intelligence layer",
-        summary: "Elite is the future tier for premium intelligence packaging that should remain staged until it is honestly supported.",
+        title: "Elite is the most advanced personal intelligence tier",
+        summary: "Elite is live for Elite members — the deepest personal intelligence packaging PAT offers. Pro accounts see a locked preview of the same surfaces.",
         what:
-          "Elite is where deeper premium features could live later without forcing them into the current product prematurely.",
+          "Elite is the live top personal tier: the richest subject-backed intelligence and premium detail, grounded in real person-level signal.",
         why:
-          "That keeps the individual promise grounded while still making the future tier visible.",
-        ctaTitle: "Stage the Elite path",
-        ctaBody: "Route into the checkout scaffold to register Elite intent without implying that the final premium layer is already complete.",
+          "That gives the individual the deepest read Pro previews but only Elite unlocks — without over-claiming what the signal supports.",
+        ctaTitle: "Move up to Elite",
+        ctaBody: "Unlock the full Elite personal layer. Upgrading records your intent and PAT activates Elite — no card and no charge today.",
       },
     },
     meetPat: {
@@ -579,7 +579,7 @@ function getMembershipScopeNote(audience: MembershipAudience, plan: MembershipPl
       return "Pro is the current minimum tier for the core vendor assessment and insight routes. It stays grounded in current PAT signal rather than benchmark or projection claims.";
     }
 
-    return "Elite is visible as the higher vendor intelligence tier, but its benchmark, scenario, and richer premium packaging remain staged rather than fully unlocked today.";
+    return "Elite is the live top vendor tier — benchmark position, demand signals, and scenario/projection packaging, all backed by firm-reviewed evidence. Elite members see it in full; Pro accounts see a locked preview.";
   }
 
   if (audience === "firm") {
@@ -591,7 +591,7 @@ function getMembershipScopeNote(audience: MembershipAudience, plan: MembershipPl
       return "Current firm Pro scope covers the core firm assessment and insight routes PAT can support now. It is not a separate paid contract for admin, advisory, or broader firm product intelligence behavior.";
     }
 
-    return "Current firm Elite remains a staged higher-order firm insight layer attached to the alignment insight surface. It does not unlock a broader firm product suite today.";
+    return "Firm Elite is the live higher-order insight layer — peer position, gap plan, and trajectory anchored to your alignment evidence. Elite members see it in full; Pro accounts see a locked preview. It does not add a separate firm product suite.";
   }
 
   if (plan === MEMBERSHIP_PLAN.FREE) {
@@ -602,7 +602,7 @@ function getMembershipScopeNote(audience: MembershipAudience, plan: MembershipPl
     return "Current individual Pro scope is the minimum tier for the live individual assessment and insight routes PAT can support from person-level alignment state now.";
   }
 
-  return "Individual Elite stays staged and explanation-first. It does not imply a full personal benchmark, projection, or coaching engine is already live.";
+  return "Individual Elite is the live top personal tier — the deepest subject-backed intelligence PAT offers, explanation-first. Elite members see it in full; Pro accounts see a locked preview.";
 }
 
 function getMembershipLiveNowNote(audience: MembershipAudience, plan: MembershipPlan) {
@@ -615,7 +615,7 @@ function getMembershipLiveNowNote(audience: MembershipAudience, plan: Membership
       return "The live vendor Pro framing appears today across vendor product intelligence and vendor alignment insight surfaces.";
     }
 
-    return "The Elite vendor layer is currently represented through locked cards and detail routes that stay visible without overstating the premium layer.";
+    return "Elite vendor surfaces are live for Elite members today; Pro accounts see a locked preview of the same cards and detail routes.";
   }
 
   if (audience === "firm") {
@@ -627,7 +627,7 @@ function getMembershipLiveNowNote(audience: MembershipAudience, plan: Membership
       return "The live firm Pro layer is the firm insights surface backed by alignment-module and capability signal.";
     }
 
-    return "The live firm Elite expression is still the locked higher-order layer inside the firm insights surface.";
+    return "Firm Elite surfaces are live for Elite members today; Pro accounts see a locked preview inside the firm insights surface.";
   }
 
   if (plan === MEMBERSHIP_PLAN.FREE) {
@@ -638,43 +638,43 @@ function getMembershipLiveNowNote(audience: MembershipAudience, plan: Membership
     return "The live individual Pro layer is the limited but real person-level insight structure that opens from the individual alignment path.";
   }
 
-  return "The live individual Elite expression remains a staged locked layer with disciplined detail pages instead of fabricated premium analysis.";
+  return "Individual Elite surfaces are live for Elite members today; Pro accounts see a locked preview with disciplined detail pages, not fabricated analysis.";
 }
 
-function getMembershipStagedNote(audience: MembershipAudience, plan: MembershipPlan) {
+function getMembershipUpgradeNote(audience: MembershipAudience, plan: MembershipPlan) {
   if (audience === "vendor") {
     if (plan === MEMBERSHIP_PLAN.FREE) {
-      return "Moving beyond Free is about stronger vendor-facing insight packaging, not about replacing the baseline PAT evidence contract.";
+      return "Moving up unlocks stronger vendor-facing insight packaging — the same PAT evidence contract, presented with more depth.";
     }
 
     if (plan === MEMBERSHIP_PLAN.PRO) {
-      return "What stays out of scope in Pro is the richer benchmark, scenario, and projection packaging reserved for a later Elite layer.";
+      return "Elite adds the benchmark, demand-signal, and projection packaging. It is live for Elite members and one upgrade away.";
     }
 
-    return "Elite remains staged until the premium vendor intelligence layer can be defended with the right evidence and commercial plumbing.";
+    return "You are on the top vendor tier. The next platform step is self-serve billing; today PAT activates Elite on request with no charge.";
   }
 
   if (audience === "firm") {
     if (plan === MEMBERSHIP_PLAN.FREE) {
-      return "Higher tiers are about clearer firm insight packaging, not about inventing a larger paid firm platform before the current scope is ready.";
+      return "Moving up gives clearer firm insight packaging on the same PAT evidence — not a separate paid firm platform.";
     }
 
     if (plan === MEMBERSHIP_PLAN.PRO) {
-      return "What stays out of scope in firm Pro today is any broader paid promise beyond the live alignment-insight layer.";
+      return "Elite adds peer position, gap plan, and trajectory. It is live for Elite members and one upgrade away.";
     }
 
-    return "Elite stays staged until PAT can back a stronger firm intelligence layer without overclaiming the current source truth.";
+    return "You are on the top firm tier. The next platform step is self-serve billing; today PAT activates Elite on request with no charge.";
   }
 
   if (plan === MEMBERSHIP_PLAN.FREE) {
-    return "Higher tiers are about stronger personal interpretation and packaging, not about changing the honesty of the underlying person-level signal.";
+    return "Moving up gives stronger personal interpretation on the same honest person-level signal.";
   }
 
   if (plan === MEMBERSHIP_PLAN.PRO) {
-    return "What stays out of scope in individual Pro is the richer premium intelligence layer that PAT has not built yet.";
+    return "Elite adds the deepest personal intelligence layer. It is live for Elite members and one upgrade away.";
   }
 
-  return "Elite remains staged until PAT has a real premium personal layer instead of a thin scaffold.";
+  return "You are on the top personal tier. The next platform step is self-serve billing; today PAT activates Elite on request with no charge.";
 }
 
 function getMembershipWorkspaceLink(audience: MembershipAudience) {
@@ -930,11 +930,11 @@ export function getMembershipPageModel(input: {
       why: planContent.why,
       scopeNote: getMembershipScopeNote(input.audience, activeTab),
       liveNowNote: getMembershipLiveNowNote(input.audience, activeTab),
-      stagedNote: getMembershipStagedNote(input.audience, activeTab),
+      upgradeNote: getMembershipUpgradeNote(input.audience, activeTab),
       ownsPlan,
       ctaTitle: ownsPlan ? `Continue with ${formatMembershipValue(activeTab)}` : planContent.ctaTitle,
       ctaBody: ownsPlan
-        ? `Open the ${formatMembershipValue(ctaPlan)} checkout scaffold to continue the current membership handoff cleanly.`
+        ? `Manage your ${formatMembershipValue(ctaPlan)} membership. Billing isn't switched on yet, so nothing is charged today.`
         : planContent.ctaBody,
       ctaHref: buildMembershipCheckoutHref(input.audience, ctaPlan),
     },
@@ -967,10 +967,10 @@ export function getMembershipCheckoutModel(input: {
       eyebrow: `${content.eyebrow} checkout`,
       title: providerBacked
         ? `${formatMembershipValue(selectedPlan)} membership checkout`
-        : `${formatMembershipValue(selectedPlan)} membership checkout scaffold`,
+        : `${formatMembershipValue(selectedPlan)} membership checkout`,
       body: providerBacked
         ? "Billing is configured for Stripe-hosted checkout. PAT redirects to Stripe for payment collection and stores provider customer, session, subscription, invoice, and webhook references only."
-        : "Billing is disabled or missing provider configuration. PAT records explicit checkout intent as scaffold state only; no live charge, card collection, or provider session is created.",
+        : "Billing isn't switched on yet. PAT records your checkout intent only — no live charge, card collection, or provider session is created today.",
     },
     summary: {
       tierLabel: formatMembershipValue(selectedPlan),
@@ -1000,7 +1000,7 @@ export function getMembershipCheckoutModel(input: {
       title: `${formatMembershipValue(selectedPlan)} membership value`,
       whatItIs: `${planContent.what} ${planContent.why}`,
       liveNow: getMembershipLiveNowNote(input.audience, selectedPlan),
-      staged: getMembershipStagedNote(input.audience, selectedPlan),
+      upgradeNote: getMembershipUpgradeNote(input.audience, selectedPlan),
       afterSubmitTitle: "What happens after submit",
       afterSubmitBody: providerBacked
         ? "PAT creates a Stripe checkout session, marks the membership as pending checkout, and waits for signed webhook reconciliation before granting paid entitlement."

@@ -47,7 +47,7 @@ export default async function UserInsightsPage({
         workspaceHref="/user"
         workspaceLabel="Open individual workspace"
         availableNow="The baseline individual state still keeps workspace entry, help, profile continuity, and membership routing available."
-        stagedNote="This route is the current Pro packaging layer around person-level PAT state, so PAT does not open it from the baseline state."
+        upgradeNote="This route is the current Pro packaging layer around person-level PAT state, so PAT does not open it from the baseline state."
       />
     );
   }

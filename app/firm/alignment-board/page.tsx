@@ -97,7 +97,7 @@ export default async function FirmAlignmentBoardPage({
           workspaceHref="/firm"
           workspaceLabel="Open firm workspace"
           availableNow="Your current tier keeps the firm workspace, insights, and membership routing available."
-          stagedNote="The Alignment Board is the Elite packaging layer around your live alignment evidence, so PAT does not open it from a Pro tier."
+          upgradeNote="The Alignment Board is the Elite packaging layer around your live alignment evidence, so PAT does not open it from a Pro tier."
         />
       );
     }
@@ -129,7 +129,7 @@ export default async function FirmAlignmentBoardPage({
           workspaceHref="/firm"
           workspaceLabel="Open firm workspace"
           availableNow="Your current tier keeps the firm workspace, insights, and membership routing available."
-          stagedNote="The Alignment Board is the paid packaging layer around your live alignment evidence."
+          upgradeNote="The Alignment Board is the paid packaging layer around your live alignment evidence."
         />
       );
     }

@@ -81,3 +81,32 @@ describe("dev-speak sweep (B8-5)", () => {
     }
   });
 });
+
+describe("membership customer copy — no dev-speak / stale staged claims (13d)", () => {
+  // Elite is a LIVE tier; automated billing is off, disclosed in plain language
+  // ("no charge today"). The "checkout scaffold" / "truthful scope" dev-speak and
+  // the stale "Elite is staged/future" claims were the class Mythos bounced (13d) —
+  // banned here so they can't return on any membership customer surface. The
+  // required no-live-charge disclosure stays (plain "no charge" wording); the bare
+  // billing "scaffold" mode key is internal and is NOT the banned "checkout scaffold"
+  // phrase.
+  const membershipGuardedFiles = [
+    "lib/membershipContent.ts",
+    "app/components/membership/MembershipPlanPanel.tsx",
+    "app/components/membership/MembershipCheckoutShell.tsx",
+    "app/components/membership/MembershipSurfaceGate.tsx",
+    "app/vendor/membership/page.tsx",
+    "app/firm/membership/page.tsx",
+    "app/user/membership/page.tsx",
+  ];
+  const bannedMembershipPhrases = ["checkout scaffold", "truthful scope", "staged"];
+
+  it("no membership surface carries the banned dev-speak / staged-claim vocabulary", () => {
+    for (const relativePath of membershipGuardedFiles) {
+      const text = readFileSync(path.join(ROOT, relativePath), "utf8").toLowerCase();
+      for (const phrase of bannedMembershipPhrases) {
+        expect(text, `${relativePath} should not contain "${phrase}"`).not.toContain(phrase);
+      }
+    }
+  });
+});

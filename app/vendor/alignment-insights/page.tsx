@@ -70,7 +70,7 @@ export default async function VendorAlignmentInsightsPage({
         workspaceHref="/vendor"
         workspaceLabel="Open vendor workspace"
         availableNow="The baseline vendor state still keeps workspace entry, help, and membership routing available."
-        stagedNote="This overview is the current Pro packaging layer around firm-alignment signal, so PAT does not open it from the baseline state."
+        upgradeNote="This overview is the current Pro packaging layer around firm-alignment signal, so PAT does not open it from the baseline state."
       />
     );
   }

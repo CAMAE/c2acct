@@ -138,7 +138,7 @@ export default async function VendorAlignmentInsightDetailPage({
         workspaceHref="/vendor/alignment-insights"
         workspaceLabel="Back to vendor alignment insights"
         availableNow="The baseline vendor state still keeps portal entry and membership routing available."
-        stagedNote="This page packages current firm-alignment signal into the current vendor Pro layer, so PAT does not open it from the baseline state."
+        upgradeNote="This page packages current firm-alignment signal into the current vendor Pro layer, so PAT does not open it from the baseline state."
       />
     );
   }
