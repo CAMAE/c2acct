@@ -41,13 +41,16 @@ test("firm on a Pro tier sees the Elite gate on the Alignment Board (flag off)",
   await expect(page.getByText("TypeError")).toHaveCount(0);
 });
 
-test("consultant cannot open another firm's board (cross-tenant 404)", async ({ page }) => {
+test("consultant is walled off a firm's alignment board to /consultants (13a; scoped = F14)", async ({ page }) => {
   test.skip(!consultantAccessEnabled, "Consultant access flag is off.");
   await signIn(page, "review.consultant@pat.local", "/consultants");
-  // A firm id outside the consultant's scope must 404 (tenancy runs before the
-  // board flag), never leak another firm's board.
-  const response = await page.goto("/firm/alignment-board?firm=nonexistent-firm-xyz", {
+  // 13a role wall: the audience wall redirects a consultant off /firm entirely to
+  // /consultants BEFORE the per-firm tenancy 404 runs — so no other firm's board
+  // can leak. Scoped read-only board access for a consultant's OWN ecosystems is
+  // deferred as F14 (a proper scoped authorization check, never a route exemption;
+  // see the founders-preview ledger).
+  await page.goto("/firm/alignment-board?firm=nonexistent-firm-xyz", {
     waitUntil: "domcontentloaded",
   });
-  expect(response?.status()).toBe(404);
+  await expect(page).toHaveURL(/\/consultants(\/|\?|$)/);
 });

@@ -36,7 +36,12 @@ PatProDemo7x` (Pro board) · `review.vendor@pat.local` (Pro BattleCard).
    - Elite vendor alignment insight groups. Confirm the Elite detail renders.
 
 ## Notes
-- Consultant read-only bypass sees named board/brief for scoped firms
-  (`/firm/alignment-board?firm=<id>` as a consultant) — cross-tenant `?firm=` 404s.
+- Consultants are walled to `/consultants` (13a role wall): they review scoped
+  vendor/firm briefings via `/consultants/ecosystems/<id>`, NOT by browsing
+  `/firm` or `/vendor` directly. Hitting `/firm/alignment-board?firm=<id>` (or
+  `/vendor/battlecard?vendor=<id>`) as a consultant redirects to `/consultants`.
+  A scoped read-only board bypass is **deferred as F14** — post-launch, a proper
+  scoped authorization check (consultant may view boards only of firms in their
+  assigned ecosystems), never a route exemption. See the founders-preview ledger.
 - The 17 PRO gates stay PRO (core); ELITE gates = the surfaces above.
 - Approval is per-surface: tick each only after clicking it in the preview.

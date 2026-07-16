@@ -1,8 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
 
 /**
- * Audience guard (B5-4). A signed-in account on the wrong customer portal is
- * redirected server-side to its own portal home; consultant/admin are unaffected.
+ * Audience guard (B5-4, hardened by 13a role wall). A signed-in account on a
+ * portal that is not its audience home is redirected server-side to its own home.
+ * 13a closed the P0 where a consultant/admin reached the firm/vendor workspaces:
+ * a consultant is now walled to /consultants. (Scoped consultant read-only board
+ * access is deferred as F14 — a proper scoped authorization check, never a route
+ * exemption; see the founders-preview ledger.)
  * Live repro this fixes: a firm account served /vendor rendered an empty vendor
  * page ("Vendor company: <firm name>, Products: 0") instead of redirecting.
  */
@@ -30,10 +34,10 @@ test("vendor account on /firm is redirected to /vendor", async ({ page }) => {
   await expect(page).toHaveURL(/\/vendor(\/|\?|$)/);
 });
 
-test("consultant is not audience-redirected (may view firm + vendor)", async ({ page }) => {
+test("consultant is walled off /firm and /vendor to /consultants (13a role wall)", async ({ page }) => {
   await signIn(page, "review.consultant@pat.local", "/consultants");
   await page.goto("/firm", { waitUntil: "domcontentloaded" });
-  await expect(page).toHaveURL(/\/firm(\/|\?|$)/);
+  await expect(page).toHaveURL(/\/consultants(\/|\?|$)/);
   await page.goto("/vendor", { waitUntil: "domcontentloaded" });
-  await expect(page).toHaveURL(/\/vendor(\/|\?|$)/);
+  await expect(page).toHaveURL(/\/consultants(\/|\?|$)/);
 });

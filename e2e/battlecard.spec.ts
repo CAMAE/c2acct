@@ -40,11 +40,14 @@ test("vendor on a Pro tier sees the Elite gate on the BattleCard (flag off)", as
   await expect(page.getByText("TypeError")).toHaveCount(0);
 });
 
-test("consultant cannot open a vendor's BattleCard outside their scope (cross-tenant 404)", async ({ page }) => {
+test("consultant is walled off a vendor's BattleCard to /consultants (13a; scoped = F14)", async ({ page }) => {
   test.skip(!consultantAccessEnabled, "Consultant access flag is off.");
   await signIn(page, "review.consultant@pat.local", "/consultants");
-  const response = await page.goto("/vendor/battlecard?vendor=nonexistent-vendor-xyz", {
+  // 13a role wall: consultant is redirected off /vendor to /consultants before the
+  // per-vendor tenancy 404 runs, so no out-of-scope BattleCard leaks. Scoped
+  // read-only access for a consultant's own ecosystems is deferred as F14.
+  await page.goto("/vendor/battlecard?vendor=nonexistent-vendor-xyz", {
     waitUntil: "domcontentloaded",
   });
-  expect(response?.status()).toBe(404);
+  await expect(page).toHaveURL(/\/consultants(\/|\?|$)/);
 });

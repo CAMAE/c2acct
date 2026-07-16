@@ -46,7 +46,11 @@ without re-deriving state. Read `CLAUDE.md` (hard rules, validation chain) + thi
     - **Cards rebuilt (7):** vendor product-assessment · firm alignment-assessment (FirmModuleCard) · firm product-assessments · firm admin user-insight · individual user/page · user/profile · user/alignment-assessment. Score cards → ScoreLockup + ScoreBar + chips; status cards → chips. **Data + actions unchanged.**
     - **Verified live on :3005:** vendor completed (18 cards, Latest-score lockup + bar), firm alignment-assessment / product-assessments / admin user-insight all render **0 old colon-rows · 0 TypeErrors**. Individual portal is flag-dark (`PAT_ENABLE_INDIVIDUAL_SURFACES` off) → not renderable in-preview; typecheck/lint clean, shares the verified primitives.
     - typecheck + eslint clean across all 9 files.
-- **🟢 NEXT (resume here): FULL REGRESSION SWEEP + screenshots**, then the **bundled `--prod`** (all of 13c-g + 13h + 13i owe one redeploy — nothing shipped piecemeal). Mythos authed-render of both boosted vendors (Meridian + Bridgepath) rides this sweep. Dev review server up on `:3005` (all flags on).
+- **✅ PRE-DEPLOY VALIDATION CHAIN GREEN (2026-07-16).** `CI=1 PAT_VALIDATE_LAUNCH_SKIP_MAC_MINI=1 pnpm validate:launch` — prisma/db/seeds · lint:test · typecheck · **test:unit 873** · build · release:prelaunch (build + asset-integrity self-host) · promote-known-good all ✅. `test:e2e:local-review` initially 5-red — **all 5 were pre-existing, NOT from 13c-g/13h/13i** (first full validate:launch since 13a; Gate 1 ran pre-13a):
+  - 3 stale CONSULTANT specs (`audience-guard`/`alignment-board`/`battlecard`) encoded pre-13a "consultant may view firm/vendor" + cross-tenant-404 — 13a walls consultants to `/consultants` (confirmed benign via error-context: consultant lands on OWN `/consultants`, no leak). **Realigned to the wall.**
+  - 2 ADMIN `/admin` timeouts — **PROVEN real/deterministic** (isolated re-run failed identically; error-context showed the admin landing on `/firm`). Root cause: the `review.admin` fixture was FIRM-company-bound, so 13a routes it to `/firm`. **Fix: fixture → company-less platform operator** (13a's model; `/admin` layout requires a company-less operator).
+  - **Re-run after fix + re-seed: 27 tests → 26 passed / 1 skipped / 0 failed.** F14 (consultant scoped board access) tracked in Deferred features; `ELITE-REVIEW-PATH.md` realigned to the wall.
+- **🟢 NEXT (resume here): bring up `:3005` as the BUILT STANDALONE** (promote-known-good → restart, NOT the dev server — the sweep verifies against built output per the running-server law) → **asset-integrity on `:3005`** → post the review-account list → hand to **Mythos regression sweep** (incl. authed render of both boosted vendors Meridian + Bridgepath, + the 13i modern cards). **After sweep green: bundled `--prod`** (all of 13c-g + 13h + 13i + the e2e/audience fixes owe one redeploy — nothing shipped piecemeal), then Cam's closing pass on patalign.com.
 - **Redeploy `a3e8e2af` STANDS** — it bound `PAT_ENABLE_PAT_ASSISTANT`+`PAT_ENABLE_PINGS` (flags are deploy-time; BattleCard data is DB-driven, no redeploy needed for the boost).
 - **THEN 13c–g copy** (incl. suppressed-cell copy), **13h/i UX**, regression + screenshots.
 - **Infra laws (hard-won):** (1) scripts calling seed/surface helpers MUST use the `@/lib/prisma` singleton — a 2nd `new PrismaClient()` = pool DEADLOCK (cost hours); (2) local validation = FOREGROUND + `[+Ns]` heartbeat, never silent background; assume dead past 10 min; (3) `pkill -9 -f query-engine` between runs (leak → pool exhaustion); (4) never assert against a backgrounded seed/compute (race).
@@ -156,6 +160,17 @@ Sweep bounced. Order: 13a/13b security → 13c-g copy → 13h/i UX → 13j/k dat
 5. **Step 4 — flags:** enable on prod the exact set :3005 runs (board, BattleCard, insights, sandbox, elite). **Print flag diff.**
 6. **Step 5 — post-deploy proof:** patalign.com asset-integrity · qa-smoke pin revert (078a41f → true c6a5b33 fingerprint) · `/api/health/db` 200 · supervisor heartbeat fresh · authenticated A1/A2 spot-proof on 4 demo accounts.
 7. **Step 6 — founder accounts:** provision **Randy Johnston, Leslie Garrett, Brian Tankersley** — Elite firm + Elite vendor seats, first-login password change flagged. **Credentials printed to terminal ONLY — never in files or commits.**
+
+## Deferred features
+- **F14 — consultant scoped read-only board access (post-launch).** A consultant
+  should be able to open the alignment board / BattleCard of firms/vendors **in
+  their assigned ecosystems** (read-only). Cam's ruling (2026-07-16): this is a
+  **deferred FEATURE, not a 13a regression** — implement as a **proper scoped
+  authorization check** (verify the target firm/vendor is in the consultant's
+  assigned ecosystems), **never a route exemption / `?firm=` bypass**. Until then
+  the 13a role wall stands: consultants are walled to `/consultants` and review via
+  `/consultants/ecosystems/<id>`. E2e specs (`audience-guard`, `alignment-board`,
+  `battlecard` consultant cases) + `ELITE-REVIEW-PATH.md` were realigned to the wall.
 
 ## Deferred / notes
 - Local review servers :3000/:3005 are DOWN — restore post-deploy (L2: `pnpm release:promote-known-good` FIRST, tree clean, restart LAST; then `pnpm asset-integrity`).

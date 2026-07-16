@@ -62,12 +62,16 @@ export const LOCAL_REVIEW_USERS: LocalReviewUserDefinition[] = [
     redirectTo: "/user",
   },
   {
+    // A platform operator is COMPANY-LESS (13a audience model: "company binding
+    // wins over the ADMIN role"). A firm-bound ADMIN is a firm admin and is
+    // correctly routed to /firm, so the operator fixture must carry no company or
+    // the /admin control plane is unreachable (audienceHomeFor → /firm).
     key: "admin",
     label: "Admin/operator review",
     email: "review.admin@pat.local",
     role: "ADMIN",
-    companyType: CompanyType.FIRM,
-    companyName: LOCAL_REVIEW_FIRM_COMPANY_NAME,
+    companyType: null,
+    companyName: null,
     redirectTo: "/admin",
   },
   {
