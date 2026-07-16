@@ -672,9 +672,18 @@ describe("vendor product assessment contracts", () => {
     expect(source).toContain("buckets.existing.map");
     expect(source).not.toContain("entry.status.statusLabel");
     expect(source).not.toContain("rounded-full bg-[var(--shell-accent)]/10");
-    expect(source).toContain("Vendor context:");
-    expect(source).toContain("Feature scope:");
-    expect(source).toContain("Feature summary:");
+    // 13i modern card language: chips + ScoreLockup/ScoreBar, NOT the old
+    // "label: value" text-list rows. The same facts are still surfaced (vendor,
+    // feature scope, feature summary, latest score) — just in the current grammar.
+    expect(source).not.toContain("Vendor context:");
+    expect(source).not.toContain("Feature scope:");
+    expect(source).not.toContain("Feature summary:");
+    expect(source).toContain("ScoreLockup");
+    expect(source).toContain("ScoreBar");
+    expect(source).toContain("CardChip");
+    expect(source).toContain("entry.product.vendorName");
+    expect(source).toContain("formatFeatureCountLabel(entry.status.utilityKeys.length)");
+    expect(source).toContain("featureSummary");
   });
 
   it("starts a newly added vendor product assessment directly and stores only actual product URLs", () => {
