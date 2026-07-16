@@ -5,6 +5,9 @@ import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import PatModeToggle from "@/app/components/pat/PatModeToggle";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
+import ScoreLockup from "@/app/components/charts/ScoreLockup";
+import ScoreBar from "@/app/components/charts/ScoreBar";
+import CardChip, { CardChipRow } from "@/app/components/cards/CardChip";
 import {
   formatFeatureCountLabel,
   replaceUtilityTermsForDisplay,
@@ -99,48 +102,34 @@ function ProductAssessmentCard({
   const productUrl = getActualProductUrl(entry.product.website);
   const featureSummary = getFeatureSummary(entry.status.utilityKeys);
 
+  const statusTone = entry.status.completed ? "positive" : entry.status.latestSubmissionId ? "amber" : "muted";
   return (
-    <article
-      className="pat-card pat-card-interactive block rounded-[24px] p-5 shadow-[0_20px_44px_rgba(15,23,42,0.05)]"
-    >
-      <div>
+    <article className="pat-card p-6">
+      <div className="flex items-start justify-between gap-3">
         <Link
           href={`/vendor/product-assessment/${entry.product.id}`}
           className="text-xl font-semibold text-[var(--shell-ink)] hover:text-[var(--shell-accent)]"
         >
           {entry.product.name}
         </Link>
-        <div className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--shell-muted)]">
-          {getOverviewStatusLabel(entry)}
-        </div>
-        <p className="mt-3 line-clamp-3 text-sm leading-6 text-[var(--shell-muted)]">
-          {entry.product.summary ?? "No product summary added yet."}
-        </p>
+        <CardChip tone={statusTone}>{getOverviewStatusLabel(entry)}</CardChip>
       </div>
-      <div className="mt-5 grid gap-2 text-sm leading-6 text-[var(--shell-muted)]">
-        <div>
-          Vendor context: <span className="font-semibold text-[var(--shell-ink)]">{entry.product.vendorName}</span>
+      <CardChipRow>
+        <CardChip>{entry.product.vendorName}</CardChip>
+        <CardChip>{formatFeatureCountLabel(entry.status.utilityKeys.length)}</CardChip>
+      </CardChipRow>
+      <p className="mt-3 line-clamp-2 text-sm leading-6 text-[var(--shell-muted)]">
+        {entry.product.summary ?? "No product summary added yet."}
+      </p>
+      <div className="mt-4">
+        <ScoreLockup
+          label="Latest score"
+          score={entry.status.latestScore}
+          context={`Features: ${featureSummary} · Latest final submission ${formatSubmittedDate(entry.status.latestSubmittedAt)}`}
+        />
+        <div className="mt-3">
+          <ScoreBar score={entry.status.latestScore} title={`${entry.product.name} latest score`} />
         </div>
-        <div>
-          Feature scope:{" "}
-          <span className="font-semibold text-[var(--shell-ink)]">
-            {formatFeatureCountLabel(entry.status.utilityKeys.length)}
-          </span>
-        </div>
-        <div>
-          Feature summary: <span className="font-semibold text-[var(--shell-ink)]">{featureSummary}</span>
-        </div>
-        <div>
-          Latest final submission:{" "}
-          <span className="font-semibold text-[var(--shell-ink)]">
-            {formatSubmittedDate(entry.status.latestSubmittedAt)}
-          </span>
-        </div>
-        {entry.status.latestScore !== null ? (
-          <div>
-            Latest score: <span className="font-semibold text-[var(--shell-ink)]">{entry.status.latestScore}</span>
-          </div>
-        ) : null}
       </div>
       <div className="mt-5 flex flex-wrap gap-3">
         <Link
