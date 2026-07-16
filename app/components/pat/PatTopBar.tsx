@@ -1,6 +1,28 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { parseInlineMarkdown } from "@/lib/patMarkdown";
+
+/**
+ * Render Pat answer text with **bold** / *italic* emphasis (13h rider #2 — raw
+ * text showed literal asterisks). Pure tokenizer in lib/patMarkdown; here we just
+ * map tokens to elements. Newlines preserved by the whitespace-pre-wrap wrapper.
+ */
+function renderPatMarkdown(text: string): ReactNode[] {
+  return parseInlineMarkdown(text).map((token, i) => {
+    if (token.kind === "bold") {
+      return (
+        <strong key={i} className="font-semibold">
+          {token.value}
+        </strong>
+      );
+    }
+    if (token.kind === "italic") {
+      return <em key={i}>{token.value}</em>;
+    }
+    return <span key={i}>{token.value}</span>;
+  });
+}
 
 /**
  * Pat top bar (Elite Sprint Block B). Replaces the floating launcher with a
@@ -154,7 +176,7 @@ export default function PatTopBar() {
                   }`
             }
           >
-            <span className="whitespace-pre-wrap">{turn.text}</span>
+            <span className="whitespace-pre-wrap">{renderPatMarkdown(turn.text)}</span>
             {turn.citations && turn.citations.length > 0 ? (
               <span className="mt-2 block text-[11px] text-[var(--shell-muted)]">
                 Source{turn.citations.length > 1 ? "s" : ""}:{" "}

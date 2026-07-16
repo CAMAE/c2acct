@@ -44,7 +44,6 @@ export default function VendorBattleCardClient({
 }) {
   const [detailId, setDetailId] = useState<string | null>(null);
   const [tierFilter, setTierFilter] = useState<TierFilter>("");
-  const detail = data.rankedFirms.find((firm) => firm.firmCompanyId === detailId) ?? null;
 
   const tierCounts = data.rankedFirms.reduce(
     (acc, firm) => {
@@ -132,15 +131,22 @@ export default function VendorBattleCardClient({
             <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {visibleFirms.map((firm) => {
                 const heat = fitHeatColor(firm.alignmentDelta);
+                const expanded = detailId === firm.firmCompanyId;
                 return (
                   <article
                     key={firm.firmCompanyId}
                     data-testid="battlecard-firm"
                     data-anonymized={entitled ? "0" : "1"}
                     data-firm-name={entitled ? firm.firmName : undefined}
-                    className="pat-card p-5"
+                    data-expanded={expanded ? "1" : "0"}
+                    className={`pat-card p-5 ${expanded ? "md:col-span-2 xl:col-span-3" : ""}`}
                   >
-                    <button type="button" className="block w-full text-left" onClick={() => setDetailId(firm.firmCompanyId)}>
+                    <button
+                      type="button"
+                      className="block w-full text-left"
+                      aria-expanded={expanded}
+                      onClick={() => setDetailId(expanded ? null : firm.firmCompanyId)}
+                    >
                       <div className="flex items-baseline justify-between gap-2">
                         <div className="font-semibold text-[var(--shell-ink)]">{firmLabel(firm, entitled)}</div>
                         <span className="shrink-0 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
@@ -163,7 +169,24 @@ export default function VendorBattleCardClient({
                           <div className="h-full rounded-full" style={{ width: `${fitBarPct(firm.alignmentDelta)}%`, background: heat }} />
                         </div>
                       </div>
+                      <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand-c2-blue)]">
+                        {expanded ? "Hide brief" : entitled ? "Open brief" : "Preview brief"}
+                        <span aria-hidden="true">{expanded ? "▾" : "▸"}</span>
+                      </span>
                     </button>
+                    {/* Inline expansion (same law as insights): the clicked card grows
+                        to a full-width own-row and renders the consultant brief in
+                        place — never a detached panel at the page bottom. */}
+                    {expanded ? (
+                      <div className="mt-4 border-t border-[var(--shell-border)] pt-4" data-testid="battlecard-detail">
+                        <BattleCardDetailBody
+                          detail={firm}
+                          data={data}
+                          entitled={entitled}
+                          membershipHref={membershipHref}
+                        />
+                      </div>
+                    ) : null}
                   </article>
                 );
               })}
@@ -172,114 +195,120 @@ export default function VendorBattleCardClient({
         </>
       )}
 
-      {detail ? (
-        <section className="pat-card p-6" data-testid="battlecard-detail">
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="pat-label">{firmLabel(detail, entitled)}</div>
-              <div className="mt-1 text-xs text-[var(--shell-muted)]">
-                Fit #{detail.fitRank} of {data.rankedFirms.length} · {CONFIDENCE_LABEL[detail.confidence]}
-              </div>
-            </div>
-            <button type="button" className="text-sm text-[var(--shell-muted)]" onClick={() => setDetailId(null)}>
-              ✕
-            </button>
-          </div>
-
-          {/* Fit lockup */}
-          <div className="mt-4">
-            <div className="flex items-baseline justify-between">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: fitHeatColor(detail.alignmentDelta) }}>
-                {fitTierLabel(detail.alignmentDelta)} · headroom over their alignment
-              </span>
-              <span className="pat-stat-number text-2xl" style={{ color: fitHeatColor(detail.alignmentDelta) }}>
-                {formatDelta(detail.alignmentDelta)}
-              </span>
-            </div>
-            <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-[rgba(6,54,116,0.08)]">
-              <div className="h-full rounded-full" style={{ width: `${fitBarPct(detail.alignmentDelta)}%`, background: fitHeatColor(detail.alignmentDelta) }} />
-            </div>
-            <div className="mt-1.5 text-xs text-[var(--shell-muted)]">
-              Their alignment {detail.firmAlignment !== null ? `${detail.firmAlignment}%` : "— (thin)"} · your product
-              strength {data.vendorStrength !== null ? `${data.vendorStrength}%` : "—"} across{" "}
-              {data.firmReviewedProductCount || data.selfReportedOnlyProductCount} product
-              {(data.firmReviewedProductCount || data.selfReportedOnlyProductCount) === 1 ? "" : "s"}
-            </div>
-            <div className="mt-1.5">
-              <EvidenceProvenance
-                grade={data.vendorStrengthGrade}
-                firmReviewed={data.firmReviewedProductCount}
-                selfReported={data.selfReportedOnlyProductCount}
-              />
-            </div>
-          </div>
-
-          {entitled ? (
-            <div className="mt-6 grid gap-6 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start">
-              {/* Mini radar: firm shape vs your product-strength ring */}
-              <div>
-                <div className="pat-label mb-2">Alignment shape</div>
-                <SalesFitRadar
-                  axes={detail.moduleShape.map((gap) => ({ title: gap.title, score: gap.score }))}
-                  vendorStrength={data.vendorStrength}
-                />
-              </div>
-
-              {/* Per-module gap table with evidence counts */}
-              <div>
-                <div className="pat-label mb-2">Module gaps you could close</div>
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-left text-[10px] uppercase tracking-[0.14em] text-[var(--shell-muted)]">
-                      <th className="pb-1.5 font-semibold">Module</th>
-                      <th className="pb-1.5 text-right font-semibold">Firm</th>
-                      <th className="pb-1.5 text-right font-semibold">Headroom</th>
-                      <th className="pb-1.5 text-right font-semibold">Evidence</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {detail.moduleShape.map((gap) => (
-                      <ModuleGapRow key={gap.key} gap={gap} />
-                    ))}
-                  </tbody>
-                </table>
-                <p className="mt-2 text-xs text-[var(--shell-muted)]">
-                  Headroom = your overall product strength minus the firm&rsquo;s module score. Evidence
-                  is answered vs total assessment questions behind each module (&ldquo;scored&rdquo; = a
-                  completed module without per-question answers recorded).
-                </p>
-              </div>
-            </div>
-          ) : (
-            <dl className="mt-5 grid gap-3 sm:grid-cols-2">
-              <Fact label="Gap category" value={detail.gapArea} />
-              <Fact label="Alignment delta" value={formatDelta(detail.alignmentDelta)} />
-            </dl>
-          )}
-
-          {entitled ? (
-            <div className="mt-6">
-              <div className="pat-label mb-2">Suggested next actions</div>
-              <ol className="space-y-2">
-                {detail.nextActions.map((action, index) => (
-                  <li key={index} className="flex gap-2.5 text-sm leading-6 text-[var(--shell-ink)]">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--shell-panel-soft)] text-[11px] font-semibold text-[var(--shell-muted)]">
-                      {index + 1}
-                    </span>
-                    <span>{action}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          ) : (
-            <Link className="pat-button-primary mt-5 inline-flex text-sm" href={membershipHref}>
-              Reveal with Elite
-            </Link>
-          )}
-        </section>
-      ) : null}
       <OutputDisclaimer variant="note" />
     </div>
+  );
+}
+
+/**
+ * The consultant-brief body shown inline when a firm card is expanded. Header
+ * (firm name + fit rank) lives on the card face; this is fit lockup + (Elite)
+ * radar/gap table + next actions, or the Pro facts + Reveal CTA.
+ */
+function BattleCardDetailBody({
+  detail,
+  data,
+  entitled,
+  membershipHref,
+}: {
+  detail: RankedFirm;
+  data: VendorBattleCardData;
+  entitled: boolean;
+  membershipHref: string;
+}) {
+  return (
+    <>
+      {/* Fit lockup */}
+      <div>
+        <div className="flex items-baseline justify-between">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: fitHeatColor(detail.alignmentDelta) }}>
+            {fitTierLabel(detail.alignmentDelta)} · headroom over their alignment
+          </span>
+          <span className="pat-stat-number text-2xl" style={{ color: fitHeatColor(detail.alignmentDelta) }}>
+            {formatDelta(detail.alignmentDelta)}
+          </span>
+        </div>
+        <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-[rgba(6,54,116,0.08)]">
+          <div className="h-full rounded-full" style={{ width: `${fitBarPct(detail.alignmentDelta)}%`, background: fitHeatColor(detail.alignmentDelta) }} />
+        </div>
+        <div className="mt-1.5 text-xs text-[var(--shell-muted)]">
+          Their alignment {detail.firmAlignment !== null ? `${detail.firmAlignment}%` : "— (thin)"} · your product
+          strength {data.vendorStrength !== null ? `${data.vendorStrength}%` : "—"} across{" "}
+          {data.firmReviewedProductCount || data.selfReportedOnlyProductCount} product
+          {(data.firmReviewedProductCount || data.selfReportedOnlyProductCount) === 1 ? "" : "s"}
+        </div>
+        <div className="mt-1.5">
+          <EvidenceProvenance
+            grade={data.vendorStrengthGrade}
+            firmReviewed={data.firmReviewedProductCount}
+            selfReported={data.selfReportedOnlyProductCount}
+          />
+        </div>
+      </div>
+
+      {entitled ? (
+        <div className="mt-6 grid gap-6 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start">
+          {/* Mini radar: firm shape vs your product-strength ring */}
+          <div>
+            <div className="pat-label mb-2">Alignment shape</div>
+            <SalesFitRadar
+              axes={detail.moduleShape.map((gap) => ({ title: gap.title, score: gap.score }))}
+              vendorStrength={data.vendorStrength}
+            />
+          </div>
+
+          {/* Per-module gap table with evidence counts */}
+          <div>
+            <div className="pat-label mb-2">Module gaps you could close</div>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-[10px] uppercase tracking-[0.14em] text-[var(--shell-muted)]">
+                  <th className="pb-1.5 font-semibold">Module</th>
+                  <th className="pb-1.5 text-right font-semibold">Firm</th>
+                  <th className="pb-1.5 text-right font-semibold">Headroom</th>
+                  <th className="pb-1.5 text-right font-semibold">Evidence</th>
+                </tr>
+              </thead>
+              <tbody>
+                {detail.moduleShape.map((gap) => (
+                  <ModuleGapRow key={gap.key} gap={gap} />
+                ))}
+              </tbody>
+            </table>
+            <p className="mt-2 text-xs text-[var(--shell-muted)]">
+              Headroom = your overall product strength minus the firm&rsquo;s module score. Evidence
+              is answered vs total assessment questions behind each module (&ldquo;scored&rdquo; = a
+              completed module without per-question answers recorded).
+            </p>
+          </div>
+        </div>
+      ) : (
+        <dl className="mt-5 grid gap-3 sm:grid-cols-2">
+          <Fact label="Gap category" value={detail.gapArea} />
+          <Fact label="Alignment delta" value={formatDelta(detail.alignmentDelta)} />
+        </dl>
+      )}
+
+      {entitled ? (
+        <div className="mt-6">
+          <div className="pat-label mb-2">Suggested next actions</div>
+          <ol className="space-y-2">
+            {detail.nextActions.map((action, index) => (
+              <li key={index} className="flex gap-2.5 text-sm leading-6 text-[var(--shell-ink)]">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--shell-panel-soft)] text-[11px] font-semibold text-[var(--shell-muted)]">
+                  {index + 1}
+                </span>
+                <span>{action}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ) : (
+        <Link className="pat-button-primary mt-5 inline-flex text-sm" href={membershipHref}>
+          Reveal with Elite
+        </Link>
+      )}
+    </>
   );
 }
 
