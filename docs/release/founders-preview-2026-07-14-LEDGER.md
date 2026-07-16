@@ -6,14 +6,15 @@ without re-deriving state. Read `CLAUDE.md` (hard rules, validation chain) + thi
 
 ## ⏭ RESUME STATE (2026-07-15, post-13k Meridian, pre-/clear) — READ FIRST
 **Prod is LIVE on patalign.com.** Founders-preview shipped; now in **Block 13 hardening** (Mythos 5-account sweep verdict). Branch `feat/agent-system-phase-0`.
-- **Deployed to prod:** commit `bdd48846` (Block 13a/b security) → `releaseId=bdd4884`. **Branch HEAD is now `84257f50`** (13j/13k tooling) — **NOT yet deployed**; a redeploy is pending to bind 2 flags.
+- **Deployed to prod:** HEAD **`a3e8e2af`** → `releaseId=a3e8e2a:a3e8e2a-mrmsi679` (health 200, asset-integrity PASS, 13a walls intact). **`PAT_ENABLE_PAT_ASSISTANT` + `PAT_ENABLE_PINGS` now BOUND** (redeploy 2026-07-16T00:47Z; `/notifications` route live).
 - **DONE:** 13a role wall + 13b diagnostics leak (deployed, 867 unit green). 13j `compute:benchmarks` run on prod (Peer Position cohort live).
-- **13k Meridian (data front-load, Cam's 3 demoed surfaces):**
-  - **Demand Signals ✅** — `boost-vendor-swaps.ts meridian` RUN on prod (12 in/5 out).
-  - **BattleCard** — `boost-vendor-firms.ts meridian` RUN on prod (+12 firms, 18 total). ⚠️ **OPEN:** prod inspector showed `strong=0` but `compute-benchmarks` was backgrounded CONCURRENT (race; `sampleSize:0` diag). **MUST re-run inspector clean (compute done first) to confirm the strong lane; if genuinely 0, add lower-alignment firms to the boost roster.**
-  - **Category — Option A (Mythos ruling):** renders 4/5; Payroll (4 vendors) + Audit (<5) honest-suppressed. `n` = **vendor count** per category (≥5 to clear) — structural, single-vendor boost can't fix. **Suppressed copy → 13c** (reads as error + wrongly says "firms", is "vendors").
-- **Flags:** `PAT_ENABLE_PAT_ASSISTANT` + `PAT_ENABLE_PINGS` ADDED to prod env, **NOT bound** (redeploy pending). Full parity table in the Block-13 §. New law: **flag parity = rendered surfaces, not env presence.**
-- **PENDING to close 13k (in order):** (1) run `seed-review-consent.ts` on PROD (Ask Pat bar needs per-user consent; validated local); (2) clean inspector re-run on prod (confirm BattleCard strong lane); (3) **single `vercel --prod`** of HEAD binds the 2 flags; (4) verify Ask Pat + 3 Meridian surfaces authenticated (use the 5 `@c2acct.com` review accounts — rotate creds via `prod-review-accounts.ts --provision`, terminal-only).
+- **13k Meridian — ✅ CLOSED:**
+  - **Demand Signals ✅** — `boost-vendor-swaps.ts` (12 in/5 out, net +7).
+  - **BattleCard ✅** — `boost-vendor-firms.ts` (+12 firms, 18 total). Prod: **`strong=8 good=4 weak=14`** (all 3 lanes). Fix: lowered the struggling-archetype profile ~25pts so firm alignment sits ≥12 below vendorStrength (strong bar); inspector dumps vendorStrength + deltas. (First run showed strong=0 — struggling too close to vendorStrength≈59.)
+  - **Category — Option A (Mythos):** renders 4/5; Payroll (4 vendors) + Audit (<5) honest-suppressed. `n` = **vendor count** (≥5). **Suppressed copy → 13c** (reads as error + wrongly says "firms", is "vendors").
+  - Consent seeded for 5 `@c2acct.com` review accounts (Ask Pat bar). **Authed verify (Ask Pat + 3 surfaces) = MYTHOS SWEEP.**
+- **Flags:** parity table in Block-13 §. Law: **flag parity = rendered surfaces, not env presence.**
+- **NEXT (resume here): MYTHOS SWEEP** of the 3 Meridian surfaces + Ask Pat on patalign.com (authed, 5 review accounts). Then **Bridgepath**.
 - **THEN Bridgepath** (same treatment) — ⚠️ Bridgepath is a demo-**BENCH** vendor; `boost-vendor-firms.ts` only handles EXPANSION vendors (loadExpansionBank). Needs a bench variant (loadVendorCatalog + planEcosystems bank) OR generalize the loader. `boost-vendor-swaps.ts` is already generic.
 - **THEN 13c–g copy** (incl. suppressed-cell copy), **13h/i UX**, regression + screenshots.
 - **Infra laws (hard-won):** (1) scripts calling seed/surface helpers MUST use the `@/lib/prisma` singleton — a 2nd `new PrismaClient()` = pool DEADLOCK (cost hours); (2) local validation = FOREGROUND + `[+Ns]` heartbeat, never silent background; assume dead past 10 min; (3) `pkill -9 -f query-engine` between runs (leak → pool exhaustion); (4) never assert against a backgrounded seed/compute (race).
