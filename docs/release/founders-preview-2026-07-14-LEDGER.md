@@ -161,6 +161,11 @@ Sweep bounced. Order: 13a/13b security → 13c-g copy → 13h/i UX → 13j/k dat
 6. **Step 5 — post-deploy proof:** patalign.com asset-integrity · qa-smoke pin revert (078a41f → true c6a5b33 fingerprint) · `/api/health/db` 200 · supervisor heartbeat fresh · authenticated A1/A2 spot-proof on 4 demo accounts.
 7. **Step 6 — founder accounts:** provision **Randy Johnston, Leslie Garrett, Brian Tankersley** — Elite firm + Elite vendor seats, first-login password change flagged. **Credentials printed to terminal ONLY — never in files or commits.**
 
+## MYTHOS SWEEP (2026-07-16, standalone c959824 → fixes on 6495bb4)
+- **PASS:** 13h BattleCard brief expands inline at the clicked row (full-width, radar + module-gaps, verified FIT #10 mid-list) · "All · 25 firms" toggle · Bridgepath 2/5/18 named · 13i assessment cards modernized · Ask Pat markdown bold + sources · 13d CTA logic (Elite → "current plan"/"Included with Elite", inversion dead).
+- **BOUNCE → FIXED (13d residual membership copy, commit `6495bb49`):** `/vendor/membership` (+ firm/individual twins) still framed Elite as "staged/future … should not overstate" and used "checkout scaffold" / "Current truthful scope" dev-speak — contradicting live Elite. Reframed Elite as LIVE (built + live for members; Pro sees a locked preview); preserved the no-live-charge truth in plain words; renamed the `staged` identifiers (incl. `MembershipSurfaceGate` prop across 18 callers). **ENFORCED:** `banned-vocabulary.contract.test.ts` bans "checkout scaffold"/"truthful scope"/"staged" on the 7 membership surfaces. Verified on `:3005` (6495bb4): both membership pages 0 banned phrases · Elite-live copy · no-charge intact · Elite-viewer CTA has no "Most popular"/"Upgrade to Pro" · 0 TypeErrors. 874 unit green.
+- **NEXT: bundled `--prod`** of HEAD `6495bb49` (all of 13c-g + 13h + 13i + e2e/audience fixes + boosts + this 13d fix — one deploy). Then Cam's closing pass on patalign.com (verifies membership copy + everything). Promoted known-good local = `6495bb4:DSauvsbXkOkYIa13rtexj`; `:3005` built standalone up on it.
+
 ## Deferred features
 - **F14 — consultant scoped read-only board access (post-launch).** A consultant
   should be able to open the alignment board / BattleCard of firms/vendors **in
