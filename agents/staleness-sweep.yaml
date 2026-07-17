@@ -1,0 +1,33 @@
+key: staleness-sweep
+name: Staleness Sweep Agent
+description: "Weekly evidence-freshness sweep (16b): find firm/vendor assessments crossing into Aging or Stale, write one change-triggered nudge each through the notification store. Idempotent via the send-ledger; nag hard-stops after 2 unacknowledged. No-op while PAT_ENABLE_STALENESS_ALERTS (or PAT_ENABLE_PINGS) is off."
+vertical_id: accounting
+enabled: true
+
+# Cadence: weekly, Monday 14:00 UTC (~09:00 ET). Staleness moves slowly — a
+# weekly window respects the batching law (at most one digest/user/week) while
+# change-triggered singles still fire on the state crossing they detect.
+schedule:
+  type: cron
+  expression: "0 14 * * 1"
+  jitter_seconds: 300
+
+# Deterministic — the freshness state and the send decision are pure rules
+# (lib/freshness.ts + lib/notifications/staleness/ledger.ts). No model call.
+llm:
+  enabled: false
+
+# Hard caps (enforced by lib/agents/budget.ts). Complements the in-runner
+# per-run query budget (MAX_COMPANIES_PER_RUN, E8).
+limits:
+  max_turns: 4
+  max_budget_usd: 0.01
+  max_runtime_seconds: 180
+
+tools: []
+
+hooks:
+  pre_tool_use:
+    - audit
+  post_tool_use:
+    - audit

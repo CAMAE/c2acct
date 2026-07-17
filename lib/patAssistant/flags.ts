@@ -16,6 +16,8 @@
 export const PAT_ASSISTANT_FLAG_ENV = "PAT_ENABLE_PAT_ASSISTANT";
 export const PAT_PINGS_FLAG_ENV = "PAT_ENABLE_PINGS";
 export const PAT_PINGS_EMAIL_FLAG_ENV = "PAT_PINGS_EMAIL_ENABLED";
+/** 16b — staleness-alert generators. Independent off-switch; also requires pings. */
+export const PAT_STALENESS_ALERTS_FLAG_ENV = "PAT_ENABLE_STALENESS_ALERTS";
 
 function flagEnabled(envName: string): boolean {
   return process.env[envName] === "1";
@@ -38,4 +40,14 @@ export function isPingsEnabled(): boolean {
  */
 export function isPingsEmailEnabled(): boolean {
   return isPingsEnabled() && flagEnabled(PAT_PINGS_EMAIL_FLAG_ENV);
+}
+
+/**
+ * 16b — staleness-alert generators (own-module Aging/Stale, product-review
+ * month-10, score-change, cohort movement). Requires BOTH the pings system (the
+ * notification write path + inbox) and this dedicated switch, so the generators
+ * ship dark and can be flipped independently of the rest of the ping system.
+ */
+export function isStalenessAlertsEnabled(): boolean {
+  return isPingsEnabled() && flagEnabled(PAT_STALENESS_ALERTS_FLAG_ENV);
 }

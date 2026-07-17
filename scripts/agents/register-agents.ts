@@ -8,3 +8,4 @@ import "./cloudflare-watcher";
 import "./pilot-ops";
 import "./internal-knowledge";
 import "./ping-sweep";
+import "./staleness-sweep";
