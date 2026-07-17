@@ -209,3 +209,16 @@ Sweep bounced. Order: 13a/13b security → 13c-g copy → 13h/i UX → 13j/k dat
 - **:3005 UP as the BUILT STANDALONE (2026-07-16)** — promoted known-good `54f5e71:b5J1tM-P5i6mMTEPRi9X1` (HEAD), served via `node .next/standalone/server.js` PORT=3005 + all review flags; asset-integrity PASS (served==disk==fingerprint, /sign-in+/methodology 10/10). Preview DB restored (demo-expand → compute → swaps → preview-pat-setup) + both boosted vendors re-applied locally (Meridian 18 firms 5/4/9, Bridgepath 25 firms 2/5/18). Ready for the Mythos sweep. (:3000 launchd app not restarted — SKIP_MAC_MINI.)
 - e2e local-review must run single-worker (`CI=1`) or the stateful consultant test flakes.
 - `baked-fingerprint.json` is gitignored (per-build artifact).
+
+## BLOCK 15 LIVE — pre-launch polish (2026-07-17, prod `6ad96a7`)
+- **Shipped (commits `cd5801b3` 15a · `f63bff06` 15b · `6ad96a73` 15c/d/e):**
+  - **15a Pillar badges** — canonical 5-pillar lexicon (`lib/firmPillars.ts`) on all three radars; `SurveyModule.pillarName` column + backfill migration `20260717000000_add_survey_module_pillar`; 3 hardcoded drift sites fixed; contract test (`tests/firm-pillars.contract.test.ts`, pillar set==5, 1:1 to module keys, no drift).
+  - **15b Trajectory sparkline** — mini history+dashed-projection SVG on the Elite hub trajectory face (right-aligned, fills the whitespace; face number unchanged).
+  - **15c Elite evidence panels** — shared `EvidenceMethodPanel` ("How this is built", native `<details>`) on all 6 Elite details (firm Peer/Gap + vendor Category/Demand/GapMap; Trajectory already carried its own provenance). Cohort · n · window · computation note — Pro-grade provenance discipline.
+  - **15d Freshness labels** — `getFirmEvidenceFreshness` + `FreshnessNote`: "Evidence age: newest snapshot N days ago" on Peer Position + Trajectory. Display-only, no decay math.
+  - **15e Consultant assessment column** — ecosystem firm list (`FirmGrid`) shows last-full-assessment date + per-firm staleness flag (Stale 90d+ / Incomplete). Read-only; nudging = Block 16 post-launch.
+- **Pre-deploy regression (fresh DB):** typecheck · lint:test · vitest 883 (incl. new pillar contract) · build · e2e local-review 26/26 · release-integrity 2/2 · **PASS validate-launch**. Migration applied clean on fresh DB.
+- **Live verification on running standalone `6ad96a7:51weIJiIBQZh1ttih0wSP` (:3000):** 15a 5 pillar axis labels · 15b sparkline SVG (`aria-label="Alignment index trajectory"`) · 15c panels on all 6 Elite details (firm Peer "106 peer firms" etc.) · 15d "newest snapshot today (Jul 16, 2026)" · 15e real dates Apr 30–May 3 + Incomplete flag. (ELITE surfaces reached via throwaway local grant, since removed.)
+- **Deploy:** Cam ran prod migrate via `!` (DIRECT_URL, applied `20260717000000` clean on Neon). Claude drove cloud-build preview → SSO gate (302→sso-api + `_vercel_sso_nonce`) → `--prod` → aliased patalign.com.
+- **4 prod gates GREEN:** fingerprint `6ad96a7:6ad96a7-mrohbpdd`==commit · `/api/health/db` 200 ok:true · prisma-engine assert PASS · served==fingerprint + JS/CSS assets 200.
+- **NEXT:** Mythos closing pass on patalign.com (authenticated sweep of the Elite evidence panels, freshness labels, pillar radar axes, and the consultant assessment column). Nothing else enters scope before launch.
