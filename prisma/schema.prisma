@@ -145,12 +145,31 @@ model Company {
   SurveySubmission       SurveySubmission[]
   User                   User[]
   VendorProfile          VendorProfile?
+  CadenceConfig          CadenceConfig?
   EcosystemAsVendor      Ecosystem?               @relation("EcosystemVendor")
   EcosystemFirm          EcosystemFirm[]          @relation("EcosystemFirmCompany")
 
   @@index([verticalId])
   @@index([type, dataBoundary])
   @@index([deletedAt])
+}
+
+// 16d — per-company re-assessment cadence. Optional: absence of a row means
+// "system defaults", resolved by lib/cadence.ts effectiveCadence() (the ONE
+// reader — anti-A3). Purely additive, zero backfill. Every field nullable so a
+// consultant/firm-admin can override just what they mean to. Extensible to
+// vendor review-window config later without a shape change.
+model CadenceConfig {
+  id                   String   @id @default(cuid())
+  companyId            String   @unique
+  censusIntervalMonths Int? // full-census cadence; default 12
+  censusAnchorMonth    Int? // 1-12; default = month of last full census
+  pulseIntervalMonths  Int? // rotating pulse cadence; default 3
+  pulseRotation        Json? // ordered pillar keys; default = canonical pillar order
+  setBy                String? // userId (consultant or firm admin) — the board's audit trail
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  Company              Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }
 
 // Deletion receipt (Governance Phase 2, A8). A tombstone that OUTLIVES the tenant
