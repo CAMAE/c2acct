@@ -76,7 +76,9 @@ describe("same reader everywhere — no A3-class freshness splits", () => {
   const freshnessSurfaces = [
     "app/components/insights/elite/FreshnessNote.tsx",
     "app/consultants/ecosystems/[ecosystemId]/_components/FirmGrid.tsx",
+    "app/components/freshness/FreshnessChip.tsx",
     "lib/eliteInsightsV2.ts",
+    "lib/battleCard.ts",
   ];
 
   it("each freshness surface imports the canonical reader", () => {

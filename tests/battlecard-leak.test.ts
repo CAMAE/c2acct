@@ -7,7 +7,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  * the vendor's ecosystem.
  */
 
-vi.mock("@/lib/prisma", () => ({ default: { company: { findUnique: vi.fn() } } }));
+vi.mock("@/lib/prisma", () => ({
+  default: {
+    company: { findUnique: vi.fn() },
+    // 16a: getVendorBattleCardData now reads each firm's alignment freshness.
+    firmMaturitySnapshot: { findFirst: vi.fn(async () => null) },
+  },
+}));
 vi.mock("@/lib/adminBriefingEngine", () => ({ getAdminCompanyBriefing: vi.fn() }));
 vi.mock("@/lib/vendorProductInsightEngine", () => ({ getVendorProductInsightCatalog: vi.fn() }));
 vi.mock("@/lib/tenancy", () => ({ getVendorScopedFirms: vi.fn() }));
@@ -53,9 +59,9 @@ function vendorSnapshot(firmAvg: number) {
 describe("rankFirmsByFit", () => {
   it("ranks bigger alignment deltas first; null deltas last", () => {
     const ranked = rankFirmsByFit([
-      { firmCompanyId: "b", firmName: "B", alignmentDelta: -4, firmAlignment: 70, confidence: "grounded", gapArea: "x", gapScore: 60, moduleShape: [], nextActions: [] },
-      { firmCompanyId: "a", firmName: "A", alignmentDelta: 26, firmAlignment: 40, confidence: "grounded", gapArea: "x", gapScore: 30, moduleShape: [], nextActions: [] },
-      { firmCompanyId: "c", firmName: "C", alignmentDelta: null, firmAlignment: null, confidence: "no_signal", gapArea: "x", gapScore: null, moduleShape: [], nextActions: [] },
+      { firmCompanyId: "b", firmName: "B", alignmentDelta: -4, firmAlignment: 70, confidence: "grounded", gapArea: "x", gapScore: 60, moduleShape: [], nextActions: [], alignmentFreshness: null },
+      { firmCompanyId: "a", firmName: "A", alignmentDelta: 26, firmAlignment: 40, confidence: "grounded", gapArea: "x", gapScore: 30, moduleShape: [], nextActions: [], alignmentFreshness: null },
+      { firmCompanyId: "c", firmName: "C", alignmentDelta: null, firmAlignment: null, confidence: "no_signal", gapArea: "x", gapScore: null, moduleShape: [], nextActions: [], alignmentFreshness: null },
     ]);
     expect(ranked.map((f) => f.firmCompanyId)).toEqual(["a", "b", "c"]);
     expect(ranked.map((f) => f.fitRank)).toEqual([1, 2, 3]);

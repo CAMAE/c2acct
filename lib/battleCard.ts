@@ -2,6 +2,8 @@ import { getAdminCompanyBriefing } from "@/lib/adminBriefingEngine";
 import { getVendorProductInsightCatalog } from "@/lib/vendorProductInsightEngine";
 import { getVendorScopedFirms } from "@/lib/tenancy";
 import { confidenceBandForSampleSize } from "@/lib/confidenceBands";
+import { getFirmEvidenceFreshness } from "@/lib/eliteInsightsV2";
+import type { FreshnessReading } from "@/lib/freshness";
 import prisma from "@/lib/prisma";
 
 /**
@@ -75,6 +77,8 @@ export type RankedFirm = {
   moduleShape: SalesModuleGap[];
   /** Suggested next actions, ranked (the two widest gaps + a close). */
   nextActions: string[];
+  /** 16a — evidence age behind this firm's alignment score (Fresh/Aging/Stale). */
+  alignmentFreshness: FreshnessReading | null;
 };
 
 /**
@@ -247,6 +251,8 @@ export async function getVendorBattleCardData(vendorCompanyId: string): Promise<
       gapScore,
       moduleShape,
       nextActions,
+      // 16a — the firm's alignment evidence age, from the canonical reader.
+      alignmentFreshness: await getFirmEvidenceFreshness(prisma, firmCompanyId),
     });
   }
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import FreshnessChip from "@/app/components/freshness/FreshnessChip";
 import PatModeToggle from "@/app/components/pat/PatModeToggle";
 import SalesFitRadar from "@/app/components/vendor/SalesFitRadar";
 import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
@@ -167,8 +168,12 @@ export default function VendorBattleCardClient({
                           Fit #{firm.fitRank}
                         </span>
                       </div>
-                      <div className="mt-1 text-xs text-[var(--shell-muted)]">
-                        {firm.gapArea} · {CONFIDENCE_LABEL[firm.confidence]}
+                      <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-[var(--shell-muted)]">
+                        <span>
+                          {firm.gapArea} · {CONFIDENCE_LABEL[firm.confidence]}
+                        </span>
+                        {/* 16a — the firm's alignment evidence age, one shared chip */}
+                        <FreshnessChip reading={firm.alignmentFreshness} showAge={false} />
                       </div>
                       <div className="mt-3.5">
                         <div className="flex items-baseline justify-between">

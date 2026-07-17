@@ -12,7 +12,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  */
 
 vi.mock("@/lib/prisma", () => ({
-  default: { company: { findMany: vi.fn(), findUnique: vi.fn() } },
+  default: {
+    company: { findMany: vi.fn(), findUnique: vi.fn() },
+    // 16a: getVendorBattleCardData reads each firm's alignment freshness.
+    firmMaturitySnapshot: { findFirst: vi.fn(async () => null) },
+  },
 }));
 vi.mock("@/lib/adminBriefingEngine", () => ({ getAdminCompanyBriefing: vi.fn() }));
 vi.mock("@/lib/tenancy", () => ({ getVendorScopedFirms: vi.fn() }));

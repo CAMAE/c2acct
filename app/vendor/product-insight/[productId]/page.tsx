@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import FreshnessChip from "@/app/components/freshness/FreshnessChip";
 import InsightsModeShell from "@/app/components/insights/InsightsModeShell";
 import VendorProductInsightDetailBody from "@/app/components/insights/detail/VendorProductInsightDetailBody";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
@@ -117,7 +118,13 @@ export default async function VendorProductInsightDetailPage({
             </p>
           </div>
           <div className="pat-soft-panel p-5">
-            <div className="pat-label">{messages.insights.vendorProduct.firmReviewedSignal}</div>
+            <div className="flex items-center justify-between gap-2">
+              <div className="pat-label">{messages.insights.vendorProduct.firmReviewedSignal}</div>
+              {/* 16a — review evidence age (Fresh/Aging/Stale), one shared chip */}
+              {snapshot.firmReviewed.assessmentCount > 0 ? (
+                <FreshnessChip from={snapshot.firmReviewed.latestSubmittedAt} showAge={false} />
+              ) : null}
+            </div>
             <div className="pat-stat-number mt-3 text-3xl">
               {formatScore(snapshot.firmReviewed.averageScore)}
             </div>
