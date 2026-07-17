@@ -79,6 +79,7 @@ describe("same reader everywhere — no A3-class freshness splits", () => {
     "app/components/freshness/FreshnessChip.tsx",
     "lib/eliteInsightsV2.ts",
     "lib/battleCard.ts",
+    "lib/consultantFreshness.ts",
   ];
 
   it("each freshness surface imports the canonical reader", () => {

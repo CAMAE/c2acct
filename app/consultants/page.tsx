@@ -7,6 +7,7 @@ import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
 import MeetPatContent from "@/app/components/pat/MeetPatContent";
 import ConsultantHelpContent from "@/app/components/consultants/ConsultantHelpContent";
 import EcosystemListCard from "./_components/EcosystemListCard";
+import FreshnessBoard from "./_components/FreshnessBoard";
 import {
   isConsultantAccessEnabled,
   requireConsultantSession,
@@ -15,6 +16,11 @@ import {
   getEcosystemListForConsultant,
   type EcosystemListCardData,
 } from "@/lib/ecosystem";
+import { isPingsEnabled } from "@/lib/patAssistant/flags";
+import {
+  getConsultantFreshnessBoard,
+  type ConsultantFreshnessBoard,
+} from "@/lib/consultantFreshness";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +28,7 @@ type SearchParams = {
   panel?: string;
 };
 
-type ConsultantPanelKey = "ecosystems" | "pat" | "help";
+type ConsultantPanelKey = "ecosystems" | "freshness" | "pat" | "help";
 
 function getPanelHref(panel: ConsultantPanelKey): string {
   return panel === "ecosystems" ? "/consultants" : `/consultants?panel=${panel}`;
@@ -41,12 +47,23 @@ export default async function ConsultantOverviewPage({
     return null;
   }
 
+  // The freshness board is part of the engagement system — dark until pings ship.
+  const freshnessEnabled = isPingsEnabled();
+
   const params = searchParams ? await searchParams : undefined;
+  const requestedPanel = params?.panel;
   const activePanel: ConsultantPanelKey =
-    params?.panel === "pat" || params?.panel === "help" ? params.panel : "ecosystems";
+    requestedPanel === "freshness" && freshnessEnabled
+      ? "freshness"
+      : requestedPanel === "pat" || requestedPanel === "help"
+        ? requestedPanel
+        : "ecosystems";
 
   const panelOptions = [
     { key: "ecosystems", label: "Ecosystems", href: getPanelHref("ecosystems") },
+    ...(freshnessEnabled
+      ? [{ key: "freshness", label: "Freshness", href: getPanelHref("freshness") }]
+      : []),
     { key: "pat", label: "Meet PAT", href: getPanelHref("pat") },
     { key: "help", label: "Help", href: getPanelHref("help") },
   ] as const;
@@ -60,6 +77,12 @@ export default async function ConsultantOverviewPage({
     } catch (error) {
       aggregationError = error instanceof Error ? error.message : "Unknown aggregation error.";
     }
+  }
+
+  // Fetch the freshness board only when its panel is active.
+  let freshnessBoard: ConsultantFreshnessBoard | null = null;
+  if (activePanel === "freshness") {
+    freshnessBoard = await getConsultantFreshnessBoard(consultantAccess);
   }
 
   return (
@@ -111,6 +134,12 @@ export default async function ConsultantOverviewPage({
               ))}
             </div>
           )}
+        </section>
+      ) : null}
+
+      {activePanel === "freshness" && freshnessBoard ? (
+        <section data-testid="consultant-freshness-panel" className="space-y-4">
+          <FreshnessBoard board={freshnessBoard} />
         </section>
       ) : null}
 

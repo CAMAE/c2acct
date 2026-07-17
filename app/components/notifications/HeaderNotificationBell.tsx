@@ -170,34 +170,51 @@ export default function HeaderNotificationBell({ buttonClassName }: { buttonClas
                 You&apos;re all caught up — no notifications yet.
               </p>
             ) : (
-              items.map((n) => (
-                <button
-                  key={n.id}
-                  type="button"
-                  onClick={() => void mark(n.id)}
-                  className={`block w-full rounded-xl border px-3 py-2.5 text-left transition-colors ${
-                    n.readAt
-                      ? "border-[var(--shell-border)] bg-white"
-                      : "border-[var(--brand-c2-blue)] bg-[var(--shell-panel-soft)]"
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-semibold text-[var(--shell-ink)]">{n.title}</span>
-                    <span className="shrink-0 text-[11px] text-[var(--shell-muted)]">{timeAgo(n.createdAt)}</span>
-                  </div>
-                  <p className="mt-1 text-sm leading-5 text-[var(--shell-muted)]">{n.body}</p>
-                  {n.aiGenerated ? (
-                    <span className="mt-1.5 inline-block text-[11px] text-[var(--shell-muted)]">
-                      {PAT_DISCLOSURE_SHORT}
-                    </span>
-                  ) : null}
-                  {n.ctaHref && n.ctaLabel ? (
-                    <span className="mt-2 inline-block text-[12px] font-semibold text-[var(--brand-c2-blue)]">
-                      {n.ctaLabel} →
-                    </span>
-                  ) : null}
-                </button>
-              ))
+              items.map((n) => {
+                // A notification with a CTA is a real navigating anchor (marks
+                // read on the way out); one without stays a mark-read button.
+                const cardClass = `block w-full rounded-xl border px-3 py-2.5 text-left transition-colors ${
+                  n.readAt
+                    ? "border-[var(--shell-border)] bg-white"
+                    : "border-[var(--brand-c2-blue)] bg-[var(--shell-panel-soft)]"
+                }`;
+                const content = (
+                  <>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-semibold text-[var(--shell-ink)]">{n.title}</span>
+                      <span className="shrink-0 text-[11px] text-[var(--shell-muted)]">{timeAgo(n.createdAt)}</span>
+                    </div>
+                    <p className="mt-1 text-sm leading-5 text-[var(--shell-muted)]">{n.body}</p>
+                    {n.aiGenerated ? (
+                      <span className="mt-1.5 inline-block text-[11px] text-[var(--shell-muted)]">
+                        {PAT_DISCLOSURE_SHORT}
+                      </span>
+                    ) : null}
+                    {n.ctaHref && n.ctaLabel ? (
+                      <span className="mt-2 inline-block text-[12px] font-semibold text-[var(--brand-c2-blue)]">
+                        {n.ctaLabel} →
+                      </span>
+                    ) : null}
+                  </>
+                );
+                return n.ctaHref ? (
+                  <Link
+                    key={n.id}
+                    href={n.ctaHref}
+                    onClick={() => {
+                      void mark(n.id);
+                      setOpen(false);
+                    }}
+                    className={cardClass}
+                  >
+                    {content}
+                  </Link>
+                ) : (
+                  <button key={n.id} type="button" onClick={() => void mark(n.id)} className={cardClass}>
+                    {content}
+                  </button>
+                );
+              })
             )}
           </div>
 

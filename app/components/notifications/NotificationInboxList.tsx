@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { PAT_DISCLOSURE_FOOTER } from "@/lib/patDisclosure";
 
@@ -81,17 +82,16 @@ export default function NotificationInboxList({ initialItems }: { initialItems: 
       ) : null}
 
       <ul className="space-y-2.5">
-        {items.map((n) => (
-          <li key={n.id}>
-            <button
-              type="button"
-              onClick={() => void markOne(n.id)}
-              className={`block w-full rounded-2xl border px-4 py-3.5 text-left transition-colors ${
-                n.readAt
-                  ? "border-[var(--shell-border)] bg-white"
-                  : "border-[var(--brand-c2-blue)] bg-[var(--shell-panel-soft)]"
-              }`}
-            >
+        {items.map((n) => {
+          // A notification with a CTA is a real navigating anchor (marks read on
+          // the way out); one without stays a mark-read button.
+          const cardClass = `block w-full rounded-2xl border px-4 py-3.5 text-left transition-colors ${
+            n.readAt
+              ? "border-[var(--shell-border)] bg-white"
+              : "border-[var(--brand-c2-blue)] bg-[var(--shell-panel-soft)]"
+          }`;
+          const content = (
+            <>
               <div className="flex items-center justify-between gap-3">
                 <span className="text-sm font-semibold text-[var(--shell-ink)]">{n.title}</span>
                 <span className="shrink-0 text-[11px] text-[var(--shell-muted)]">
@@ -109,9 +109,22 @@ export default function NotificationInboxList({ initialItems }: { initialItems: 
                   {PAT_DISCLOSURE_FOOTER}
                 </p>
               ) : null}
-            </button>
-          </li>
-        ))}
+            </>
+          );
+          return (
+            <li key={n.id}>
+              {n.ctaHref ? (
+                <Link href={n.ctaHref} onClick={() => void markOne(n.id)} className={cardClass}>
+                  {content}
+                </Link>
+              ) : (
+                <button type="button" onClick={() => void markOne(n.id)} className={cardClass}>
+                  {content}
+                </button>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
