@@ -14,7 +14,7 @@ export const vendorWorkspaceCards: PortalSurface[] = [
   },
   {
     id: "product-insight",
-    title: "Product Insight",
+    title: "Product Intelligence",
     description: "Open the product intelligence catalog and review standalone product insight pages.",
     href: "/vendor/product-insight",
     audience: ["vendor"],

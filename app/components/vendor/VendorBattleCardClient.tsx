@@ -101,6 +101,16 @@ export default function VendorBattleCardClient({
         </div>
       </section>
 
+      {/* 14f — Prospect Intelligence explainer: where the firm list comes from and how it grows. */}
+      <div>
+        <div className="pat-label">Prospect Intelligence</div>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--shell-muted)]">
+          These are the firms in your ecosystem that have completed an alignment briefing, ranked by
+          the headroom your product strength has over their current alignment. The list grows as more
+          firms join your ecosystem and complete their briefings.
+        </p>
+      </div>
+
       {data.rankedFirms.length === 0 ? (
         <div className="pat-card p-6 text-sm text-[var(--shell-muted)]">
           No firms in your ecosystem have a briefing yet. Ranked fit appears as firms complete their

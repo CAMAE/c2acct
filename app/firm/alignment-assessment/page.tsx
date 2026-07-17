@@ -174,17 +174,26 @@ export default async function FirmAlignmentAssessmentPage() {
             Drafted modules can be resumed from the saved page and answers.
           </p>
         </div>
-        <div className="pat-soft-panel p-5">
+        {/* 14d: the recommendation is a real link — resume the next module, or (when
+            all modules are done) deep-link into Firm Insights. */}
+        <Link
+          href={progress.nextModule ? progress.nextModule.href : "/firm/insights"}
+          className="pat-soft-panel pat-card-interactive block p-5"
+          data-testid="next-best-step"
+        >
           <div className="pat-label">Next Best Step</div>
-          <div className="mt-3 text-xl font-semibold text-[var(--shell-ink)]">
-            {progress.nextModule ? progress.nextModule.title : "Review insights"}
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <span className="text-xl font-semibold text-[var(--shell-ink)]">
+              {progress.nextModule ? progress.nextModule.title : "Review firm insights"}
+            </span>
+            <span aria-hidden="true" className="text-[var(--shell-muted)]">→</span>
           </div>
           <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
             {progress.nextModule
               ? "Resume the in-progress module first, or start this module to keep the five-part assessment moving."
               : "All modules are complete. Open firm insights to review what the evidence unlocks next."}
           </p>
-        </div>
+        </Link>
       </section>
 
       {STATUS_SECTIONS.map((section) => {

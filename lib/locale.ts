@@ -441,7 +441,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
             description: "Select a software product, declare the features it solves, and run the per-product PAT assessment.",
           },
           "product-insight": {
-            title: "Product Insight",
+            title: "Product Intelligence",
             description: "Open the product intelligence catalog and review standalone product insight pages.",
           },
           "alignment-insights": {
