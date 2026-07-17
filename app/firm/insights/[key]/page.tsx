@@ -20,7 +20,7 @@ import prisma from "@/lib/prisma";
 import { getAlignmentBoardData } from "@/lib/alignmentBoard";
 import { resolveCompanyBoundary } from "@/lib/dataBoundary";
 import { getFirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
-import { buildFirmPeerPosition, buildFirmGapPlan, buildFirmTrajectory, buildFirmThemeDepth } from "@/lib/eliteInsightsV2";
+import { buildFirmPeerPosition, buildFirmGapPlan, buildFirmTrajectory, buildFirmThemeDepth, getFirmEvidenceFreshness } from "@/lib/eliteInsightsV2";
 import EliteCardShell from "@/app/components/insights/elite/EliteCardShell";
 import LockedElitePreview from "@/app/components/insights/LockedElitePreview";
 import { FIRM_ELITE_V2_META } from "@/lib/eliteInsightsV2";
@@ -57,14 +57,17 @@ async function renderFirmEliteSurface(key: string, companyId: string) {
   const signal = await getFirmAlignmentSignal(companyId);
 
   if (key === "firm_tier2_benchmark") {
-    const data = await buildFirmPeerPosition(prisma, companyId, boundary, signal);
+    const [data, freshness] = await Promise.all([
+      buildFirmPeerPosition(prisma, companyId, boundary, signal),
+      getFirmEvidenceFreshness(prisma, companyId),
+    ]);
     return (
       <EliteCardShell
         eyebrow="Firm Elite · Peer Position"
         title="Peer Position Report"
         summary="Where your firm ranks against peer firms, module by module — a percentile position, not an average. Cuts below the minimum-n safe harbor are withheld."
       >
-        <FirmPeerPositionCard data={data} />
+        <FirmPeerPositionCard data={data} freshness={freshness} />
       </EliteCardShell>
     );
   }
@@ -97,18 +100,21 @@ async function renderFirmEliteSurface(key: string, companyId: string) {
       const gain = Math.max(0, Math.round(best.projectedScore - peer.overall.score));
       bestSwapPercentile = Math.min(100, currentPercentile + gain);
     }
-    const data = await buildFirmTrajectory(prisma, companyId, {
-      currentPercentile,
-      bestSwapPercentile,
-      currentIndex: signal.alignmentIndex,
-    });
+    const [data, freshness] = await Promise.all([
+      buildFirmTrajectory(prisma, companyId, {
+        currentPercentile,
+        bestSwapPercentile,
+        currentIndex: signal.alignmentIndex,
+      }),
+      getFirmEvidenceFreshness(prisma, companyId),
+    ]);
     return (
       <EliteCardShell
         eyebrow="Firm Elite · Trajectory"
         title="Trajectory"
         summary="Your alignment index over time — built from your module-submission history, not sandbox activity — with momentum, a clearly-labelled directional projection, and the single biggest lever to bend it up."
       >
-        <FirmTrajectoryCard data={data} rankedAction={peer.bestAction} />
+        <FirmTrajectoryCard data={data} rankedAction={peer.bestAction} freshness={freshness} />
       </EliteCardShell>
     );
   }

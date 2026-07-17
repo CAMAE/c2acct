@@ -1,6 +1,8 @@
 import PercentileBand from "@/app/components/charts/PercentileBand";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
-import { describePercentile, type FirmPeerPosition } from "@/lib/eliteInsightsV2";
+import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
+import FreshnessNote from "@/app/components/insights/elite/FreshnessNote";
+import { describePercentile, type EvidenceFreshness, type FirmPeerPosition } from "@/lib/eliteInsightsV2";
 
 function ordinal(n: number): string {
   const s = ["th", "st", "nd", "rd"];
@@ -15,7 +17,13 @@ const VERDICT_CHIP: Record<FirmPeerPosition["reportCard"][number]["verdict"], { 
   withheld: { label: "withheld", cls: "bg-[rgba(6,54,116,0.04)] text-[var(--shell-muted)]" },
 };
 
-export default function FirmPeerPositionCard({ data }: { data: FirmPeerPosition }) {
+export default function FirmPeerPositionCard({
+  data,
+  freshness,
+}: {
+  data: FirmPeerPosition;
+  freshness?: EvidenceFreshness | null;
+}) {
   if (!data.available) {
     return <EliteEmptyState message={data.emptyReason ?? "Peer position is not available yet."} />;
   }
@@ -42,6 +50,15 @@ export default function FirmPeerPositionCard({ data }: { data: FirmPeerPosition 
           Cross-firm aggregate — a percentile, not a ranking of named firms. Cuts below the minimum-n safe harbor are
           withheld.
         </p>
+        <FreshnessNote freshness={freshness} />
+        <EvidenceMethodPanel
+          rows={[
+            { label: "Cohort", value: data.overall ? `${data.overall.n} peer firms` : "—" },
+            { label: "Window", value: "Each firm's most recent alignment assessment" },
+            { label: "Basis", value: "Your alignment index vs. the peer distribution" },
+          ]}
+          note="Your percentile is where your alignment index falls across the peer cohort, module by module. Module cuts that fall below the minimum-n safe harbor are withheld, not estimated."
+        />
       </section>
 
       <section className="pat-card p-6">

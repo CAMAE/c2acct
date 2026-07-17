@@ -1,6 +1,18 @@
 import RankedBars from "@/app/components/charts/RankedBars";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
+import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
 import type { FirmGapPlan, GapItem } from "@/lib/eliteInsightsV2";
+
+function gapEvidenceRows(data: FirmGapPlan) {
+  return [
+    { label: "Scope", value: `${data.totalCount} capabilities assessed` },
+    { label: "Basis", value: "Your capability scores vs. each capability's bar" },
+    { label: "Window", value: "Your most recent module submissions" },
+  ];
+}
+
+const GAP_EVIDENCE_NOTE =
+  "Each capability carries its own bar (60–65% by design). A capability is flagged only when your score falls under its own bar; gaps are ranked by point deficit, largest first. Self-assessment against your module readings — not a cross-firm comparison.";
 
 /**
  * Block 10d (threshold math): the capability bars are per-capability (60% or
@@ -45,6 +57,7 @@ export default function FirmGapPlanCard({ data }: { data: FirmGapPlan }) {
               />
             </div>
           ) : null}
+          <EvidenceMethodPanel rows={gapEvidenceRows(data)} note={GAP_EVIDENCE_NOTE} />
         </section>
         {data.watchList.length ? (
           <section className="pat-card p-6">
@@ -88,6 +101,7 @@ export default function FirmGapPlanCard({ data }: { data: FirmGapPlan }) {
             colorByBand
           />
         </div>
+        <EvidenceMethodPanel rows={gapEvidenceRows(data)} note={GAP_EVIDENCE_NOTE} />
       </section>
 
       <section className="pat-card p-6">

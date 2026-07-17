@@ -370,6 +370,39 @@ export type FirmTrajectory = {
 
 type TrajectoryClient = Pick<PrismaClient, "firmMaturitySnapshot" | "firmMaturityMomentum">;
 
+/**
+ * 15d — display-only evidence freshness: how recent the firm's newest alignment
+ * snapshot is. Both Trajectory and Peer Position read the SAME underlying firm
+ * assessment recency, so one helper feeds both surfaces. Honest age only — no
+ * decay math, no staleness penalty on the numbers themselves.
+ */
+export type EvidenceFreshness = { label: string; ageDays: number; newestLabel: string };
+
+export async function getFirmEvidenceFreshness(
+  client: TrajectoryClient,
+  companyId: string
+): Promise<EvidenceFreshness | null> {
+  const newest = await client.firmMaturitySnapshot.findFirst({
+    where: { companyId },
+    orderBy: { computedAt: "desc" },
+    select: { computedAt: true },
+  });
+  if (!newest) return null;
+  const ageDays = Math.max(0, Math.round((Date.now() - newest.computedAt.getTime()) / 86_400_000));
+  const newestLabel = newest.computedAt.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  const label =
+    ageDays === 0
+      ? "newest snapshot today"
+      : ageDays === 1
+        ? "newest snapshot 1 day ago"
+        : `newest snapshot ${ageDays} days ago`;
+  return { label, ageDays, newestLabel };
+}
+
 export async function buildFirmTrajectory(
   client: TrajectoryClient,
   companyId: string,

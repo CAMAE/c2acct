@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import HeatmapGrid from "@/app/components/charts/HeatmapGrid";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
+import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
 import { buildGapMapDrilldownInsight, type GapMapCell, type VendorGapMap } from "@/lib/gapMapDrilldown";
 
 /**
@@ -205,6 +206,14 @@ export default function VendorGapMapCard({ data }: { data: VendorGapMap }) {
           </p>
         )}
       </div>
+      <EvidenceMethodPanel
+        rows={[
+          { label: "Cohort", value: `${data.rows.length} products × ${data.columns.length} product-fit dimensions` },
+          { label: "Basis", value: "Firm review scores vs. your self-report, per product × dimension" },
+          { label: "Safe harbor", value: "Cells without enough firm reviews are left unscored" },
+        ]}
+        note="Each cell compares how firms scored a product on a dimension against how you rate yourself. Green means firms confirm your story; orange means they read you lower. Only dimensions with enough firm reviews are scored — thin cells stay blank rather than being estimated."
+      />
     </section>
   );
 }

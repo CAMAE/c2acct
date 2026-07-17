@@ -1,5 +1,6 @@
 import PercentileBandRow from "@/app/components/charts/PercentileBandRow";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
+import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
 import type { VendorCategoryPosition } from "@/lib/eliteInsightsV2";
 
 const MIN_CONTRIBUTORS = 5;
@@ -67,6 +68,14 @@ export default function VendorCategoryPositionCard({ data }: { data: VendorCateg
           </p>
         </section>
       ) : null}
+      <EvidenceMethodPanel
+        rows={[
+          { label: "Cohort", value: "Vendors with firm-reviewed products in each category" },
+          { label: "Basis", value: "Your firm-reviewed strength vs. the category peer distribution" },
+          { label: "Safe harbor", value: `Categories with fewer than ${MIN_CONTRIBUTORS} vendors are suppressed` },
+        ]}
+        note="Each category's percentile places your firm-reviewed strength against the vendors competing in that category. A category publishes a distribution only once it clears the minimum-n safe harbor — thin fields are labelled 'still forming,' never estimated."
+      />
     </>
   );
 }

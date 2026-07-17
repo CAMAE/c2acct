@@ -1,5 +1,6 @@
 import SwapFlowTiles from "@/app/components/charts/SwapFlowTiles";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
+import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
 import type { DemandCategoryRow, DemandTrend, VendorDemandSignals } from "@/lib/eliteInsightsV2";
 
 /**
@@ -112,6 +113,15 @@ export default function VendorDemandSignalsCard({ data }: { data: VendorDemandSi
           </p>
         </div>
       )}
+
+      <EvidenceMethodPanel
+        rows={[
+          { label: "Window", value: data.windowLabel },
+          { label: "Volume", value: `${data.totalIn} swapped in · ${data.totalOut} swapped out` },
+          { label: "Source", value: "First-party Alignment Sandbox swap events, by product category" },
+        ]}
+        note="Counts are every firm swap of your products in or out of a simulated stack during the window — raw first-party intent, not a survey. Identity of the moving firms and per-category trend detail are Elite-gated and shown only when the safe harbor allows."
+      />
     </section>
   );
 }

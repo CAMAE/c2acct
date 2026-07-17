@@ -361,6 +361,10 @@ export type EcosystemDetailFirmRow = {
   productReviewCount: number;
   productsAvailable: number;
   latestActivityAt: string | null;
+  /** 15e — when the firm last had a complete (all-module) assessment on record;
+   *  null if never fully assessed. Read-only staleness signal for consultants. */
+  lastFullAssessmentAt: string | null;
+  fullyAssessed: boolean;
   thirtyDayActionCount: number;
   hotDivergenceCount: number;
 };
@@ -669,6 +673,10 @@ export async function getEcosystemDetailForConsultant(
         latestActivityAt: catalogEntry.latestUpdatedAt
           ? catalogEntry.latestUpdatedAt.toISOString()
           : null,
+        lastFullAssessmentAt: progress?.lastFullAssessmentAt
+          ? progress.lastFullAssessmentAt.toISOString()
+          : null,
+        fullyAssessed: progress?.fullyAssessed ?? false,
         thirtyDayActionCount: thirtyDayActionsByFirmId.get(firmId) ?? 0,
         hotDivergenceCount: hotDivergencesByFirmId.get(firmId) ?? 0,
       };

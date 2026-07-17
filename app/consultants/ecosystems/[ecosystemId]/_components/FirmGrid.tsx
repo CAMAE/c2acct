@@ -23,6 +23,23 @@ function formatRelative(iso: string | null): string {
   return `${months}mo ago`;
 }
 
+// 15e — a full assessment older than this reads as stale for the consultant.
+const ASSESSMENT_STALE_DAYS = 90;
+
+/** 15e — read-only assessment freshness: absolute date + a staleness verdict.
+ *  Display only — no nudging (that is Block 16, post-launch). */
+function assessmentFreshness(
+  iso: string | null,
+  fullyAssessed: boolean
+): { label: string; flag: "none" | "stale" | "never" } {
+  if (!fullyAssessed || !iso) return { label: "no full assessment yet", flag: "never" };
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return { label: "no full assessment yet", flag: "never" };
+  const date = new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const days = Math.max(0, Math.round((Date.now() - then) / (24 * 60 * 60 * 1000)));
+  return { label: date, flag: days >= ASSESSMENT_STALE_DAYS ? "stale" : "none" };
+}
+
 function shortConfidence(label: string): string {
   // Day-27 P1a/RK10: 4/22-banned terms (grounded, emerging, sample-thin,
   // early-signal) replaced with plain-language tiers reflecting submission
@@ -89,6 +106,7 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
         {rows.map((row: EcosystemDetailFirmRow, index) => {
           const score = row.canonicalFirmScore;
           const band = score === null ? null : getScoreBand(score);
+          const freshness = assessmentFreshness(row.lastFullAssessmentAt, row.fullyAssessed);
           return (
             <li
               key={row.firmCompanyId}
@@ -142,6 +160,19 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
                   {row.productReviewCount}/{row.productsAvailable}
                 </span>{" "}
                 reviews · {formatRelative(row.latestActivityAt)}
+              </div>
+              {/* 15e — read-only last-full-assessment date + staleness flag */}
+              <div className="mt-1 flex flex-wrap items-center gap-2 pl-6 text-xs leading-5 text-[var(--shell-muted)]">
+                <span>Last full assessment: {freshness.label}</span>
+                {freshness.flag === "stale" ? (
+                  <span className="rounded-full bg-[rgba(229,109,4,0.1)] px-2 py-0.5 text-[0.7rem] font-semibold text-[var(--brand-orange)]">
+                    Stale · {ASSESSMENT_STALE_DAYS}d+
+                  </span>
+                ) : freshness.flag === "never" ? (
+                  <span className="rounded-full bg-[rgba(6,54,116,0.06)] px-2 py-0.5 text-[0.7rem] font-semibold text-[var(--shell-muted)]">
+                    Incomplete
+                  </span>
+                ) : null}
               </div>
             </li>
           );

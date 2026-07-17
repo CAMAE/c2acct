@@ -348,6 +348,11 @@ export type FirmAlignmentProgressSummary = {
   totalQuestions: number;
   completionPercent: number;
   nextModule: FirmModuleProgress | null;
+  /** 15e — all five modules submitted (a "full assessment" on record). */
+  fullyAssessed: boolean;
+  /** 15e — when the assessment last became complete: the newest module
+   *  submission once every module is in. Null until the firm is fully assessed. */
+  lastFullAssessmentAt: Date | null;
 };
 
 export function getFirmModuleProgressStatus(input: {
@@ -396,6 +401,17 @@ export function summarizeFirmAlignmentProgress(
     modules.find((module) => module.status === "not-started") ??
     null;
 
+  const fullyAssessed = totalModules > 0 && completedModules === totalModules;
+  const lastFullAssessmentAt = fullyAssessed
+    ? modules.reduce<Date | null>(
+        (latest, module) =>
+          module.latestSubmittedAt && (latest === null || module.latestSubmittedAt > latest)
+            ? module.latestSubmittedAt
+            : latest,
+        null
+      )
+    : null;
+
   return {
     totalModules,
     completedModules,
@@ -405,6 +421,8 @@ export function summarizeFirmAlignmentProgress(
     totalQuestions,
     completionPercent,
     nextModule,
+    fullyAssessed,
+    lastFullAssessmentAt,
   };
 }
 
