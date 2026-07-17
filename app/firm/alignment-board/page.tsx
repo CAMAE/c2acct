@@ -19,27 +19,26 @@ export const metadata = {
 
 type SearchParams = { firm?: string };
 
-/** Elite "Coming soon" placeholder shown while PAT_ENABLE_ALIGNMENT_BOARD is off. */
-function ComingSoon() {
+/**
+ * Honest-empty Alignment Board hero (B3, Mythos 16a rider). The board is a live
+ * Elite surface — the copy never promises a future arrival. It describes the
+ * board and states plainly what populates it.
+ */
+function EmptyAlignmentBoard() {
   return (
     <div className="space-y-8">
       <section className="pat-card p-8">
         <PatLogoLockup mode="hero" tone="light" />
-        <div className="pat-label mt-6 flex items-center gap-2">
-          Alignment Board
-          <span className="rounded-full bg-[var(--shell-panel-soft)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-            Coming soon
-          </span>
-        </div>
+        <div className="pat-label mt-6">Alignment Board</div>
         <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
           Your stack, as a board you can play with
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          Your current products will render as pieces, each carrying its live alignment score. A
+          Your current products render as pieces, each carrying its live alignment score. A
           product-fit radar plots your stack across five evidence-backed dimensions. Swap a piece for
           a candidate and watch your projected shape recompute — with a confidence band whenever the
-          sample is thin. This Elite surface is unlocked for your firm; the interactive board is
-          landing shortly.
+          sample is thin. The board appears once your firm has completed its alignment assessment and
+          has products in its stack.
         </p>
       </section>
     </div>
@@ -75,10 +74,11 @@ export default async function FirmAlignmentBoardPage({
     firmCompanyId = sessionUser.companyId;
   }
 
-  // --- Flag off: Elite-gated "Coming soon" placeholder (dark by default) ---
+  // --- Flag off (dark by default): honest-empty hero for entitled callers,
+  //     membership gate for Pro-only. Never "coming soon" — the board is live. ---
   if (!isAlignmentBoardEnabled()) {
     if (readOnlyConsultant) {
-      return <ComingSoon />;
+      return <EmptyAlignmentBoard />;
     }
     const entitlement = await resolveMembershipEntitlement(sessionUser!, "firm", MEMBERSHIP_PLAN.ELITE);
     if (!entitlement.allowed) {
@@ -101,7 +101,7 @@ export default async function FirmAlignmentBoardPage({
         />
       );
     }
-    return <ComingSoon />;
+    return <EmptyAlignmentBoard />;
   }
 
   // --- Flag on: live board with the entitlement split ---

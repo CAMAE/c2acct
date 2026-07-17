@@ -21,26 +21,27 @@ export const metadata = {
 
 type SearchParams = { vendor?: string };
 
-/** Elite "Coming soon" placeholder shown while PAT_ENABLE_BATTLECARD is off. */
-function ComingSoon({ audience }: { audience: HeroAudience }) {
+/**
+ * Honest-empty BattleCard hero (B3, Mythos 16a rider). BattleCard is a live
+ * Elite surface — the copy never promises a future arrival ("coming soon" /
+ * "landing shortly" is false wherever it renders). It states plainly that no
+ * reviewed firms are in the ecosystem yet and what fills the ranking.
+ */
+function EmptyBattleCard({ audience }: { audience: HeroAudience }) {
   return (
     <div className="space-y-8">
       <section className="pat-card relative p-8">
         <HeroChips audience={audience} />
         <PatLogoLockup mode="hero" tone="light" />
-        <div className="pat-label mt-6 flex items-center gap-2">
-          BattleCard
-          <span className="rounded-full bg-[var(--shell-panel-soft)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-            Coming soon
-          </span>
-        </div>
+        <div className="pat-label mt-6">BattleCard</div>
         <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
           The firms in your ecosystem, ranked by fit
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           The BattleCard ranks the firms in your ecosystem by how well your product strengths close
-          their current gaps — one claim, one evidence line, one next action per firm. This Elite
-          surface is unlocked for your vendor account; the ranked cards are landing shortly.
+          their current gaps — one claim, one evidence line, one next action per firm. No reviewed
+          firms in your ecosystem yet; ranked cards appear as firms complete their alignment
+          assessments.
         </p>
       </section>
     </div>
@@ -75,10 +76,11 @@ export default async function VendorBattleCardPage({
     vendorCompanyId = sessionUser.companyId;
   }
 
-  // --- Flag off: Elite-gated "Coming soon" placeholder (dark by default) ---
+  // --- Flag off (dark by default): honest-empty hero for entitled callers,
+  //     membership gate for Pro-only. Never "coming soon" — the feature is live. ---
   if (!isBattleCardEnabled()) {
     if (readOnlyConsultant) {
-      return <ComingSoon audience="consultant" />;
+      return <EmptyBattleCard audience="consultant" />;
     }
     const entitlement = await resolveMembershipEntitlement(sessionUser!, "vendor", MEMBERSHIP_PLAN.ELITE);
     if (!entitlement.allowed) {
@@ -101,7 +103,7 @@ export default async function VendorBattleCardPage({
         />
       );
     }
-    return <ComingSoon audience="vendor" />;
+    return <EmptyBattleCard audience="vendor" />;
   }
 
   // --- Flag on: live ranked cards with the entitlement split ---
