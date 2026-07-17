@@ -37,7 +37,7 @@ function getLocalReviewCard(page: Page, email: string) {
 }
 
 async function expectScaffoldCheckout(page: Page) {
-  await expect(page.getByRole("heading", { name: /checkout scaffold/i }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: /membership checkout/i }).first()).toBeVisible();
   await expect(page.getByText("Payment state: Scaffold only", { exact: true })).toBeVisible();
   await expect(page.getByText(/No live charge will be created/i).first()).toBeVisible();
   await expect(page.getByRole("button", { name: /Credit\/Debit/i })).toBeVisible();
