@@ -37,10 +37,13 @@ export default function VendorBattleCardClient({
   data,
   entitled,
   membershipHref,
+  heroChips,
 }: {
   data: VendorBattleCardData;
   entitled: boolean;
   membershipHref: string;
+  /** 14a/b/c hero chips slot (server-rendered, passed in). */
+  heroChips?: React.ReactNode;
 }) {
   const [detailId, setDetailId] = useState<string | null>(null);
   const [tierFilter, setTierFilter] = useState<TierFilter>("");
@@ -70,7 +73,8 @@ export default function VendorBattleCardClient({
   return (
     <div className="space-y-6">
       {/* Header: stat lockup + explainer (no collision) */}
-      <section className="pat-card p-6 sm:p-8">
+      <section className="pat-card relative p-6 sm:p-8">
+        {heroChips}
         <div className="pat-label">BattleCard</div>
         <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div>

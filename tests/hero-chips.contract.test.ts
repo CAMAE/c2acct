@@ -1,13 +1,13 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import PortalHeroChips from "@/app/components/pat/PortalHeroChips";
+import { HeroChipsView } from "@/app/components/pat/HeroChipsView";
 import { MEMBERSHIP_PLAN } from "@/lib/membership";
 
-type Props = Parameters<typeof PortalHeroChips>[0];
-const render = (props: Props) => renderToStaticMarkup(createElement(PortalHeroChips, props));
+type Props = Parameters<typeof HeroChipsView>[0];
+const render = (props: Props) => renderToStaticMarkup(createElement(HeroChipsView, props));
 
-describe("PortalHeroChips (Block 14a/b/c)", () => {
+describe("HeroChips (Block 14a/b/c)", () => {
   it("14c CONTRACT: Elite never sees the upgrade-to-Elite CTA", () => {
     const html = render({
       audience: "vendor",

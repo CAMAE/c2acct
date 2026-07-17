@@ -2,6 +2,7 @@ import Link from "next/link";
 import { randomUUID } from "crypto";
 import { redirect } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import HeroChips from "@/app/components/pat/HeroChips";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import PatModeToggle from "@/app/components/pat/PatModeToggle";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
@@ -285,7 +286,8 @@ export default async function VendorProductAssessmentPage({
 
   return (
     <div className="space-y-8">
-      <section className="pat-card p-8">
+      <section className="pat-card relative p-8">
+        <HeroChips audience="vendor" />
         <PatLogoLockup mode="hero" tone="light" />
         <PatAudienceTitle
           as="h1"

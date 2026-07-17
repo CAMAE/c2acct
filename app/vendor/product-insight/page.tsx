@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import HeroChips from "@/app/components/pat/HeroChips";
 import DivergenceBar from "@/app/components/charts/DivergenceBar";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
@@ -110,7 +111,8 @@ export default async function VendorProductInsightPage() {
 
   return (
     <div className="space-y-8">
-      <section className="pat-card p-8">
+      <section className="pat-card relative p-8">
+        <HeroChips audience="vendor" />
         <PatLogoLockup mode="hero" tone="light" />
         <div className="pat-label mt-6">Product intelligence</div>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">

@@ -9,6 +9,8 @@ import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/pro
 import prisma from "@/lib/prisma";
 import { ensureVendorProfileForCompany, getVendorCompanyContext } from "@/lib/vendorPat";
 
+import HeroChips from "@/app/components/pat/HeroChips";
+
 export const dynamic = "force-dynamic";
 
 export const metadata = {
@@ -80,7 +82,8 @@ export default async function VendorAdminPage() {
 
   return (
     <div className="space-y-8">
-      <section className="pat-card p-8">
+      <section className="pat-card relative p-8">
+        <HeroChips audience="vendor" />
         <div className="pat-label">Vendor admin</div>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
           Simple admin and profile management

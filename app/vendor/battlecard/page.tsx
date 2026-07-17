@@ -1,5 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import HeroChips from "@/app/components/pat/HeroChips";
+import type { HeroAudience } from "@/app/components/pat/HeroChipsView";
 import VendorBattleCardClient from "@/app/components/vendor/VendorBattleCardClient";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
@@ -20,10 +22,11 @@ export const metadata = {
 type SearchParams = { vendor?: string };
 
 /** Elite "Coming soon" placeholder shown while PAT_ENABLE_BATTLECARD is off. */
-function ComingSoon() {
+function ComingSoon({ audience }: { audience: HeroAudience }) {
   return (
     <div className="space-y-8">
-      <section className="pat-card p-8">
+      <section className="pat-card relative p-8">
+        <HeroChips audience={audience} />
         <PatLogoLockup mode="hero" tone="light" />
         <div className="pat-label mt-6 flex items-center gap-2">
           BattleCard
@@ -75,7 +78,7 @@ export default async function VendorBattleCardPage({
   // --- Flag off: Elite-gated "Coming soon" placeholder (dark by default) ---
   if (!isBattleCardEnabled()) {
     if (readOnlyConsultant) {
-      return <ComingSoon />;
+      return <ComingSoon audience="consultant" />;
     }
     const entitlement = await resolveMembershipEntitlement(sessionUser!, "vendor", MEMBERSHIP_PLAN.ELITE);
     if (!entitlement.allowed) {
@@ -98,7 +101,7 @@ export default async function VendorBattleCardPage({
         />
       );
     }
-    return <ComingSoon />;
+    return <ComingSoon audience="vendor" />;
   }
 
   // --- Flag on: live ranked cards with the entitlement split ---
@@ -138,5 +141,12 @@ export default async function VendorBattleCardPage({
     notFound();
   }
 
-  return <VendorBattleCardClient data={data} entitled={entitled} membershipHref={membershipHref} />;
+  return (
+    <VendorBattleCardClient
+      data={data}
+      entitled={entitled}
+      membershipHref={membershipHref}
+      heroChips={<HeroChips audience={readOnlyConsultant ? "consultant" : "vendor"} />}
+    />
+  );
 }

@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import HeroChips from "@/app/components/pat/HeroChips";
+import type { HeroAudience } from "@/app/components/pat/HeroChipsView";
 import InsightStatusBadge from "@/app/components/insights/InsightStatusBadge";
 import InsightSurfaceCardGrid, { type InsightSurfaceGridCard } from "@/app/components/insights/InsightSurfaceCardGrid";
 import LockedElitePreview, { type LockedElitePreviewProps } from "@/app/components/insights/LockedElitePreview";
@@ -32,6 +34,9 @@ type InsightsModePanel = {
 
 type InsightsModeShellProps = {
   activeMode: InsightsModeKey;
+  /** 14a — portal the hero chips point their "← Workspace" back link at. Omitted
+      on flag-dark surfaces (individual insights) → no chips. */
+  audience?: HeroAudience;
   eyebrow: string;
   heroBody: ReactNode;
   proPanel: InsightsModePanel;
@@ -52,6 +57,7 @@ type InsightsModeShellProps = {
 
 export default function InsightsModeShell({
   activeMode,
+  audience,
   eyebrow,
   heroBody,
   proPanel,
@@ -73,7 +79,8 @@ export default function InsightsModeShell({
 
   return (
     <div className="space-y-8">
-      <section className="pat-card p-8">
+      <section className="pat-card relative p-8">
+        {audience ? <HeroChips audience={audience} /> : null}
         <PatLogoLockup mode="hero" tone="light" />
         <div className="pat-label mt-6">{eyebrow}</div>
         <PatAudienceTitle

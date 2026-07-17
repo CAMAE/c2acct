@@ -96,6 +96,7 @@ export default async function VendorProductInsightDetailPage({
   return (
     <InsightsModeShell
       activeMode={activeMode}
+      audience="vendor"
       eyebrow="Product intelligence"
       title={`Vendor product intelligence for ${snapshot.product.name}`}
       audienceTerms={["Vendor"]}

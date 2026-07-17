@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import { isConsultantAccessEnabled, requireConsultantSession } from "@/lib/consultantAccess";
 import { enforceAudience } from "@/lib/audienceGuard";
-import PortalHeroChips from "@/app/components/pat/PortalHeroChips";
 
 export const dynamic = "force-dynamic";
 
@@ -50,8 +49,6 @@ export default async function ConsultantLayout({
 
   return (
     <div className="space-y-8">
-      {/* 14a — consultants have no membership tier, so only the workspace back chip. */}
-      <PortalHeroChips audience="consultant" />
       {children}
     </div>
   );

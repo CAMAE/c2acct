@@ -127,6 +127,7 @@ export default async function VendorAlignmentInsightsPage({
   return (
     <InsightsModeShell
       activeMode={activeMode}
+      audience="vendor"
       eyebrow="Vendor alignment insights"
       title={messages.insights.vendorAlignment.heroTitle}
       audienceTerms={["Vendor"]}

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import HeroChips from "@/app/components/pat/HeroChips";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
@@ -63,7 +64,8 @@ export default async function ConsultantOverviewPage({
 
   return (
     <div className="space-y-8">
-      <section className="pat-card p-8" data-testid="consultant-portal-hero">
+      <section className="pat-card relative p-8" data-testid="consultant-portal-hero">
+        <HeroChips audience="consultant" />
         <PatLogoLockup mode="hero" tone="light" />
         <PortalAudienceEyebrow
           className="pat-label mt-6"

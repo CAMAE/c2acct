@@ -7,6 +7,8 @@ import prisma from "@/lib/prisma";
 import { buildVendorExternalProfileContract } from "@/lib/vendorProfileAdapter";
 import { ensureVendorProfileForCompany, getVendorCompanyContext } from "@/lib/vendorPat";
 
+import HeroChips from "@/app/components/pat/HeroChips";
+
 export const dynamic = "force-dynamic";
 
 export const metadata = {
@@ -94,7 +96,8 @@ export default async function VendorProfilePage() {
 
   return (
     <div className="space-y-8">
-      <section className="pat-card p-8">
+      <section className="pat-card relative p-8">
+        <HeroChips audience="vendor" />
         <div className="pat-label">Vendor profile</div>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
           General, editable, and prepared for future integration

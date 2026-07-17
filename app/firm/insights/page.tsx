@@ -198,6 +198,7 @@ export default async function FirmInsightsPage({
   return (
     <InsightsModeShell
       activeMode={activeMode}
+      audience="firm"
       eyebrow="Firm alignment insights"
       title={messages.insights.firm.heroTitle}
       audienceTerms={["Firm"]}

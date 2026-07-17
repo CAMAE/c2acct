@@ -11,6 +11,8 @@ import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import prisma from "@/lib/prisma";
 import { ensureUserPatScaffold, getFirmManagedUserRecords } from "@/lib/userPat";
 
+import HeroChips from "@/app/components/pat/HeroChips";
+
 export const dynamic = "force-dynamic";
 
 export const metadata = {
@@ -146,7 +148,8 @@ export default async function FirmAdminPage() {
   });
   return (
     <div className="space-y-8">
-      <section className="pat-card p-8">
+      <section className="pat-card relative p-8">
+        <HeroChips audience="firm" />
         <div className="pat-label">Firm admin</div>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
           Profile and management without operator clutter

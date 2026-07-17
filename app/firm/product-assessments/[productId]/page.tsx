@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import HeroChips from "@/app/components/pat/HeroChips";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import FirmProductAssessmentClient from "@/app/components/firm/FirmProductAssessmentClient";
@@ -60,7 +61,8 @@ export default async function FirmProductAssessmentDetailPage({
 
   return (
     <div className="space-y-8">
-      <section className="pat-card p-8">
+      <section className="pat-card relative p-8">
+        <HeroChips audience="firm" />
         <PatLogoLockup mode="hero" tone="light" />
         <PatAudienceTitle
           as="h1"
