@@ -1,4 +1,5 @@
 "use client";
+import { pillarForModule } from "@/lib/firmPillars";
 
 /**
  * Alignment Sandbox positioning radar (Redlines R12.2; re-axised P0 2026-07-09).
@@ -45,10 +46,6 @@ function polygon(values: number[]): string {
     })
     .join(" ")
     .concat(" Z");
-}
-
-function shorten(label: string): string {
-  return label.length <= 20 ? label : `${label.slice(0, 19)}…`;
 }
 
 export default function AlignmentRadar({
@@ -125,7 +122,7 @@ export default function AlignmentRadar({
               dominantBaseline="middle"
               className={axis.thin ? "fill-[var(--shell-muted)] text-[9px] italic" : "fill-[var(--shell-muted)] text-[9px]"}
             >
-              {shorten(axis.title)}
+              {pillarForModule(axis.title)}
               {axis.thin ? " ·" : ""}
             </text>
           );

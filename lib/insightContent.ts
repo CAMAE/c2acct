@@ -198,7 +198,7 @@ const vendorAlignmentInsights = [
     summary: "Shows whether current firms look prepared to absorb automation-oriented product value without destabilizing delivery.",
     what: "A vendor-facing PAT readout of whether the current firm signal suggests practical openness to automation and AI-enabled delivery improvement.",
     why: "Automation-oriented products succeed differently in firms that are prepared for change than in firms still struggling with operating basics.",
-    how: "PAT grounds this in Automation and AI Readiness, Strategy and Change Alignment, and the question clusters tied to repeatable automation support, responsible AI use, and change adoption.",
+    how: "PAT grounds this in Automation and AI Readiness, Strategy, Change Readiness, and Market Alignment, and the question clusters tied to repeatable automation support, responsible AI use, and change adoption.",
     basisTemplate: "Use current automation, change, and supporting capability evidence only.",
     confidenceDisclaimerTemplate: "Thin current-state evidence should not be read as forecast demand.",
     lockedState: null,

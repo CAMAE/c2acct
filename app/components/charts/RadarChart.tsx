@@ -1,4 +1,5 @@
 import { GUIDE_COLOR, getScoreBand } from "@/lib/scoreBands";
+import { pillarForModule } from "@/lib/firmPillars";
 
 export type RadarChartAxis = {
   key: string;
@@ -43,12 +44,6 @@ function polygonPath(axes: RadarChartAxis[], pick: (axis: RadarChartAxis) => num
     })
     .concat("Z")
     .join(" ");
-}
-
-function shortenLabel(label: string): string {
-  if (label.length <= 18) return label;
-  const stripped = label.replace(/^[A-Z][a-z]+ /, "");
-  return stripped.length <= 18 ? stripped : `${label.slice(0, 16)}…`;
 }
 
 export default function RadarChart({ axes, title, benchmarkLabel, className }: RadarChartProps) {
@@ -138,7 +133,7 @@ export default function RadarChart({ axes, title, benchmarkLabel, className }: R
               fontSize="10"
               fill="var(--shell-muted)"
             >
-              {shortenLabel(axis.label)}
+              {pillarForModule(axis.label)}
             </text>
           );
         })}

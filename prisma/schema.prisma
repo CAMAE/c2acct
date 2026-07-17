@@ -833,6 +833,9 @@ model SurveyModule {
   id               String             @id
   key              String             @unique
   title            String
+  // 15a: short pillar badge (Strategy/Operations/Automation/Integration/Governance);
+  // canonical source is FIRM_MODULE_DEFINITIONS.pillarName, persisted for reads.
+  pillarName       String?
   description      String?
   scope            ModuleScope
   version          Int                @default(1)

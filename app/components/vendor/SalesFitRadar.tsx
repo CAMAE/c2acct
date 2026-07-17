@@ -1,4 +1,5 @@
 "use client";
+import { pillarForModule } from "@/lib/firmPillars";
 
 /**
  * BattleCard mini radar (Redlines R16, P1 detail card). One filled polygon = the
@@ -34,10 +35,6 @@ function polygon(values: number[]): string {
     })
     .join(" ")
     .concat(" Z");
-}
-
-function shorten(label: string): string {
-  return label.length <= 18 ? label : `${label.slice(0, 17)}…`;
 }
 
 export default function SalesFitRadar({
@@ -88,7 +85,7 @@ export default function SalesFitRadar({
           const anchor = x < CENTER - 4 ? "end" : x > CENTER + 4 ? "start" : "middle";
           return (
             <text key={`${axis.title}-label`} x={x} y={y} textAnchor={anchor} dominantBaseline="middle" className="fill-[var(--shell-muted)] text-[8px]">
-              {shorten(axis.title)}
+              {pillarForModule(axis.title)}
             </text>
           );
         })}

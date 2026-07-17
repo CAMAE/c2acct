@@ -21,6 +21,7 @@ import {
   FIRM_MODULE_DEFINITIONS,
   FIRM_TIER1_INSIGHT_DEFINITIONS,
   FIRM_TIER2_INSIGHT_DEFINITIONS,
+  pillarForModule,
 } from "@/lib/firmPat";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { computeFirmAlignmentIndex } from "@/lib/firmAlignmentSignal";
@@ -408,7 +409,7 @@ export function readFirmInsightHeadline(key: InsightKey, report: FirmInsightRepo
             displayValue: `${Math.round(automationModule.score)}`,
             suffix: "%",
             showBand: true,
-            caption: "Automation and AI module score",
+            caption: `${pillarForModule("firm_alignment_automation_ai_v1")} module score`,
           }
         : averageHeadline;
     }

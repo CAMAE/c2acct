@@ -250,16 +250,18 @@ export function describePercentile(percentile: number, n: number): string {
 
 // ── F2 · Gap-to-Top-Quartile Plan ────────────────────────────────────────────
 
-/** Best-effort capability→module label from the capability key's domain token. */
+/** 15a: capability key → module KEY; the label resolves from the canonical
+ *  MODULE_TITLE map (no hardcoded title drift). */
 const MODULE_DOMAIN_TOKENS: Array<[RegExp, string]> = [
-  [/data_flow|integration|data/, "Integration and Data Flow Maturity"],
-  [/governance|control|vendor|risk/, "Governance, Controls, and Vendor Risk"],
-  [/automation|_ai|ai_/, "Automation and AI Readiness"],
-  [/strategy|change|market/, "Change and Market Alignment"],
-  [/operating|workflow|model/, "Operating Model and Workflow Discipline"],
+  [/data_flow|integration|data/, "firm_alignment_data_flow_v1"],
+  [/governance|control|vendor|risk/, "firm_alignment_governance_v1"],
+  [/automation|_ai|ai_/, "firm_alignment_automation_ai_v1"],
+  [/strategy|change|market/, "firm_alignment_strategy_v1"],
+  [/operating|workflow|model/, "firm_alignment_operating_model_v1"],
 ];
 function moduleForCapability(key: string): string {
-  for (const [re, title] of MODULE_DOMAIN_TOKENS) if (re.test(key)) return title;
+  for (const [re, moduleKey] of MODULE_DOMAIN_TOKENS)
+    if (re.test(key)) return MODULE_TITLE.get(moduleKey) ?? "the related alignment modules";
   return "the related alignment modules";
 }
 

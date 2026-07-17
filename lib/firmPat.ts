@@ -31,6 +31,9 @@ export const FIRM_MODULE_DEFINITIONS = [
     key: "firm_alignment_operating_model_v1",
     badgeId: "firm-module-operating-model",
     title: "Operating Model and Workflow Discipline",
+    // 15a: short pillar badge — the ONE canonical axis/badge label. Full title
+    // stays in evidence prose + module cards.
+    pillarName: "Operations",
     description: "How clearly the firm defines, runs, and measures the operating model.",
     summary: "Workflow discipline, review rigor, handoffs, and operating clarity.",
     sectionKey: "operating-model",
@@ -39,6 +42,7 @@ export const FIRM_MODULE_DEFINITIONS = [
     key: "firm_alignment_automation_ai_v1",
     badgeId: "firm-module-automation-ai",
     title: "Automation and AI Readiness",
+    pillarName: "Automation",
     description: "How ready the firm is to use automation and AI responsibly in live delivery.",
     summary: "Automation posture, augmentation readiness, and practical AI governance.",
     sectionKey: "automation-ai",
@@ -47,6 +51,7 @@ export const FIRM_MODULE_DEFINITIONS = [
     key: "firm_alignment_data_flow_v1",
     badgeId: "firm-module-data-flow",
     title: "Integration and Data Flow Maturity",
+    pillarName: "Integration",
     description: "How well systems, data, and operational handoffs connect across the firm.",
     summary: "System linkage, data confidence, and cross-tool operating continuity.",
     sectionKey: "data-flow",
@@ -55,6 +60,7 @@ export const FIRM_MODULE_DEFINITIONS = [
     key: "firm_alignment_governance_v1",
     badgeId: "firm-module-governance",
     title: "Governance, Controls, and Vendor Risk",
+    pillarName: "Governance",
     description: "How clearly the firm governs risk, controls, and third-party product exposure.",
     summary: "Control posture, risk discipline, and vendor oversight.",
     sectionKey: "governance",
@@ -63,11 +69,17 @@ export const FIRM_MODULE_DEFINITIONS = [
     key: "firm_alignment_strategy_v1",
     badgeId: "firm-module-strategy",
     title: "Strategy, Change Readiness, and Market Alignment",
+    pillarName: "Strategy",
     description: "How well the firm can adapt, prioritize, and align to current market pressure.",
     summary: "Strategy execution, change readiness, and external alignment.",
     sectionKey: "strategy",
   },
 ] as const;
+
+// 15a — pillar constants + resolver live in the PURE lib/firmPillars module so
+// radar client components can import them without pulling prisma. Re-exported here
+// for server callers.
+export { FIRM_PILLARS, pillarForModule, type FirmPillar } from "@/lib/firmPillars";
 
 export const FIRM_MODULE_QUESTION_STEMS = [
   "How clearly is the current-state approach defined in this area?",
@@ -509,6 +521,7 @@ export async function ensureFirmAlignmentSystem() {
       where: { key: moduleDefinition.key },
       update: {
         title: moduleDefinition.title,
+        pillarName: moduleDefinition.pillarName,
         description: moduleDefinition.description,
         scope: ModuleScope.FIRM,
         active: true,
@@ -520,6 +533,7 @@ export async function ensureFirmAlignmentSystem() {
         id: randomUUID(),
         key: moduleDefinition.key,
         title: moduleDefinition.title,
+        pillarName: moduleDefinition.pillarName,
         description: moduleDefinition.description,
         scope: ModuleScope.FIRM,
         active: true,
@@ -527,7 +541,7 @@ export async function ensureFirmAlignmentSystem() {
         weight: 1,
         updatedAt: now,
       },
-      select: { id: true, key: true, title: true },
+      select: { id: true, key: true, title: true, pillarName: true },
     });
 
     ensuredModules.push(moduleRecord);
