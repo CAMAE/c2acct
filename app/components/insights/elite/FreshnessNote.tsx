@@ -1,20 +1,18 @@
-import type { EvidenceFreshness } from "@/lib/eliteInsightsV2";
+import FreshnessChip from "@/app/components/freshness/FreshnessChip";
+import type { FreshnessReading } from "@/lib/freshness";
 
 /**
- * 15d — display-only evidence-age line. Shows how recent the underlying assessment
- * is ("newest snapshot N days ago") so an Elite reader can weigh the number's
- * currency. No decay math — the figures are unchanged; this only labels their age.
+ * 15d/16a — display-only evidence-age line. Renders the canonical FreshnessChip
+ * (Fresh / Aging / Stale) plus the newest-evidence date so an Elite reader can
+ * weigh the number's currency. No decay math — the figures are unchanged; this
+ * only labels their age, using the one shared reader.
  */
-export default function FreshnessNote({ freshness }: { freshness?: EvidenceFreshness | null }) {
+export default function FreshnessNote({ freshness }: { freshness?: FreshnessReading | null }) {
   if (!freshness) return null;
-  const stale = freshness.ageDays >= 90;
   return (
-    <p className="mt-3 flex items-center gap-1.5 text-xs text-[var(--shell-muted)]">
-      <span
-        aria-hidden="true"
-        className={`h-1.5 w-1.5 rounded-full ${stale ? "bg-[var(--brand-orange)]" : "bg-[var(--shell-positive)]"}`}
-      />
-      Evidence age: {freshness.label} ({freshness.newestLabel})
-    </p>
+    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[var(--shell-muted)]">
+      <FreshnessChip reading={freshness} />
+      <span>newest evidence {freshness.asOfLabel}</span>
+    </div>
   );
 }

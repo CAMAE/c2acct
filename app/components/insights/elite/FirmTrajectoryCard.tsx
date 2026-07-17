@@ -2,7 +2,8 @@ import TrajectoryChart from "@/app/components/charts/TrajectoryChart";
 import TrendChip, { type TrendDirection } from "@/app/components/charts/TrendChip";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
 import FreshnessNote from "@/app/components/insights/elite/FreshnessNote";
-import type { EvidenceFreshness, FirmTrajectory } from "@/lib/eliteInsightsV2";
+import type { FirmTrajectory } from "@/lib/eliteInsightsV2";
+import type { FreshnessReading } from "@/lib/freshness";
 
 function trendDir(t: string): TrendDirection {
   if (/UP|ACCEL|RISING|IMPROV/i.test(t)) return "up";
@@ -30,7 +31,7 @@ export default function FirmTrajectoryCard({
 }: {
   data: FirmTrajectory;
   rankedAction?: { moduleLabel: string; deficit: number } | null;
-  freshness?: EvidenceFreshness | null;
+  freshness?: FreshnessReading | null;
 }) {
   if (!data.available) {
     return <EliteEmptyState message={data.emptyReason ?? "Trajectory not available yet."} />;

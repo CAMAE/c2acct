@@ -11,7 +11,9 @@
  * Locked by tests/methodology-content.contract.test.ts.
  */
 
-export const METHODOLOGY_VERSION = "1.1";
+import { FRESHNESS_WINDOWS } from "@/lib/freshness";
+
+export const METHODOLOGY_VERSION = "1.2";
 export const METHODOLOGY_SOURCE_DOC = "docs/elite-sprint/AGGREGATION-METHODOLOGY.md";
 
 export type MethodologyChangelogEntry = {
@@ -21,6 +23,12 @@ export type MethodologyChangelogEntry = {
 };
 
 export const METHODOLOGY_CHANGELOG: readonly MethodologyChangelogEntry[] = [
+  {
+    version: "1.2",
+    date: "July 17, 2026",
+    summary:
+      "Published the evidence-freshness windows (Fresh under 90 days, Aging 90–365 days, Stale over 365 days). Stated the honest-decay law: evidence age is labelled beside a score, never used to silently alter it.",
+  },
   {
     version: "1.1",
     date: "July 10, 2026",
@@ -98,6 +106,19 @@ export const METHODOLOGY_SECTIONS: readonly MethodologySection[] = [
     title: "Rounding — a single authoritative pass",
     paragraphs: [
       "The user-facing value is rounded once, to an integer, at display. Internal aggregates may carry one extra decimal of precision as a convenience, but that intermediate step is bounded and can never change a displayed integer or cross a band threshold. Patalign does not present, or imply, sub-integer precision.",
+    ],
+  },
+  {
+    key: "freshness",
+    title: "Freshness windows — evidence age is labelled, never decayed",
+    paragraphs: [
+      `Every score carries the age of the evidence behind it — the most recent module submission, product assessment, or firm review that fed it. Patalign classifies that age into three published windows: Fresh (under ${FRESHNESS_WINDOWS.agingAfterDays} days), Aging (${FRESHNESS_WINDOWS.agingAfterDays}–${FRESHNESS_WINDOWS.staleAfterDays} days), and Stale (over ${FRESHNESS_WINDOWS.staleAfterDays} days).`,
+      "Age changes the label, never the number. Patalign does not silently decay, discount, or otherwise alter a score because it is old — the figure stays exactly as computed and the freshness state sits beside it so you can weigh its currency yourself. Absence of an evidence date is treated as unknown, not as stale.",
+    ],
+    bullets: [
+      `Fresh — newest evidence under ${FRESHNESS_WINDOWS.agingAfterDays} days old.`,
+      `Aging — newest evidence ${FRESHNESS_WINDOWS.agingAfterDays} to ${FRESHNESS_WINDOWS.staleAfterDays} days old.`,
+      `Stale — newest evidence over ${FRESHNESS_WINDOWS.staleAfterDays} days old.`,
     ],
   },
 ];

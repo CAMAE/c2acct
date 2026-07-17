@@ -20,6 +20,7 @@ import {
   type BenchmarkReading,
 } from "@/lib/benchmarks";
 import type { FirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
+import { readFreshness, type FreshnessReading } from "@/lib/freshness";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { MIN_CONTRIBUTORS } from "@/lib/benchmarkSuppression";
 import type { PercentileRow } from "@/app/components/charts/PercentileBand";
@@ -371,36 +372,22 @@ export type FirmTrajectory = {
 type TrajectoryClient = Pick<PrismaClient, "firmMaturitySnapshot" | "firmMaturityMomentum">;
 
 /**
- * 15d — display-only evidence freshness: how recent the firm's newest alignment
- * snapshot is. Both Trajectory and Peer Position read the SAME underlying firm
- * assessment recency, so one helper feeds both surfaces. Honest age only — no
- * decay math, no staleness penalty on the numbers themselves.
+ * 15d/16a — display-only evidence freshness: how recent the firm's newest
+ * alignment snapshot is. Both Trajectory and Peer Position read the SAME
+ * underlying firm assessment recency, so one helper feeds both surfaces. Age is
+ * resolved by the canonical reader (lib/freshness) — no bespoke thresholds here.
+ * Honest age only — no decay math, no staleness penalty on the numbers.
  */
-export type EvidenceFreshness = { label: string; ageDays: number; newestLabel: string };
-
 export async function getFirmEvidenceFreshness(
   client: TrajectoryClient,
   companyId: string
-): Promise<EvidenceFreshness | null> {
+): Promise<FreshnessReading | null> {
   const newest = await client.firmMaturitySnapshot.findFirst({
     where: { companyId },
     orderBy: { computedAt: "desc" },
     select: { computedAt: true },
   });
-  if (!newest) return null;
-  const ageDays = Math.max(0, Math.round((Date.now() - newest.computedAt.getTime()) / 86_400_000));
-  const newestLabel = newest.computedAt.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-  const label =
-    ageDays === 0
-      ? "newest snapshot today"
-      : ageDays === 1
-        ? "newest snapshot 1 day ago"
-        : `newest snapshot ${ageDays} days ago`;
-  return { label, ageDays, newestLabel };
+  return readFreshness(newest?.computedAt ?? null);
 }
 
 export async function buildFirmTrajectory(

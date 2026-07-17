@@ -2,7 +2,8 @@ import PercentileBand from "@/app/components/charts/PercentileBand";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
 import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
 import FreshnessNote from "@/app/components/insights/elite/FreshnessNote";
-import { describePercentile, type EvidenceFreshness, type FirmPeerPosition } from "@/lib/eliteInsightsV2";
+import { describePercentile, type FirmPeerPosition } from "@/lib/eliteInsightsV2";
+import type { FreshnessReading } from "@/lib/freshness";
 
 function ordinal(n: number): string {
   const s = ["th", "st", "nd", "rd"];
@@ -22,7 +23,7 @@ export default function FirmPeerPositionCard({
   freshness,
 }: {
   data: FirmPeerPosition;
-  freshness?: EvidenceFreshness | null;
+  freshness?: FreshnessReading | null;
 }) {
   if (!data.available) {
     return <EliteEmptyState message={data.emptyReason ?? "Peer position is not available yet."} />;

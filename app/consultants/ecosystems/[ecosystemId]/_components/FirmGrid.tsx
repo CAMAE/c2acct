@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import FreshnessChip from "@/app/components/freshness/FreshnessChip";
 import type { EcosystemDetailData, EcosystemDetailFirmRow } from "@/lib/ecosystem";
+import { readFreshness } from "@/lib/freshness";
 import { TRACK_COLOR, getScoreBand } from "@/lib/scoreBands";
 
 type SortDir = "asc" | "desc";
@@ -21,23 +23,6 @@ function formatRelative(iso: string | null): string {
   if (days < 30) return `${days}d ago`;
   const months = Math.round(days / 30);
   return `${months}mo ago`;
-}
-
-// 15e — a full assessment older than this reads as stale for the consultant.
-const ASSESSMENT_STALE_DAYS = 90;
-
-/** 15e — read-only assessment freshness: absolute date + a staleness verdict.
- *  Display only — no nudging (that is Block 16, post-launch). */
-function assessmentFreshness(
-  iso: string | null,
-  fullyAssessed: boolean
-): { label: string; flag: "none" | "stale" | "never" } {
-  if (!fullyAssessed || !iso) return { label: "no full assessment yet", flag: "never" };
-  const then = new Date(iso).getTime();
-  if (Number.isNaN(then)) return { label: "no full assessment yet", flag: "never" };
-  const date = new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  const days = Math.max(0, Math.round((Date.now() - then) / (24 * 60 * 60 * 1000)));
-  return { label: date, flag: days >= ASSESSMENT_STALE_DAYS ? "stale" : "none" };
 }
 
 function shortConfidence(label: string): string {
@@ -106,7 +91,7 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
         {rows.map((row: EcosystemDetailFirmRow, index) => {
           const score = row.canonicalFirmScore;
           const band = score === null ? null : getScoreBand(score);
-          const freshness = assessmentFreshness(row.lastFullAssessmentAt, row.fullyAssessed);
+          const freshness = row.fullyAssessed ? readFreshness(row.lastFullAssessmentAt) : null;
           return (
             <li
               key={row.firmCompanyId}
@@ -161,18 +146,21 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
                 </span>{" "}
                 reviews · {formatRelative(row.latestActivityAt)}
               </div>
-              {/* 15e — read-only last-full-assessment date + staleness flag */}
+              {/* 15e/16a — read-only last-full-assessment date + freshness chip */}
               <div className="mt-1 flex flex-wrap items-center gap-2 pl-6 text-xs leading-5 text-[var(--shell-muted)]">
-                <span>Last full assessment: {freshness.label}</span>
-                {freshness.flag === "stale" ? (
-                  <span className="rounded-full bg-[rgba(229,109,4,0.1)] px-2 py-0.5 text-[0.7rem] font-semibold text-[var(--brand-orange)]">
-                    Stale · {ASSESSMENT_STALE_DAYS}d+
-                  </span>
-                ) : freshness.flag === "never" ? (
-                  <span className="rounded-full bg-[rgba(6,54,116,0.06)] px-2 py-0.5 text-[0.7rem] font-semibold text-[var(--shell-muted)]">
-                    Incomplete
-                  </span>
-                ) : null}
+                {freshness ? (
+                  <>
+                    <span>Last full assessment: {freshness.asOfLabel}</span>
+                    <FreshnessChip reading={freshness} showAge={false} />
+                  </>
+                ) : (
+                  <>
+                    <span>Last full assessment: no full assessment yet</span>
+                    <span className="rounded-full bg-[rgba(6,54,116,0.06)] px-2 py-0.5 text-[0.7rem] font-semibold text-[var(--shell-muted)]">
+                      Incomplete
+                    </span>
+                  </>
+                )}
               </div>
             </li>
           );
