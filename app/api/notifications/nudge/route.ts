@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { isPingsEnabled } from "@/lib/patAssistant/flags";
-import { sendCompanyNudge, type NudgeAudience } from "@/lib/notifications/nudge";
+import { type NudgeAudience } from "@/lib/notifications/nudge";
+import { createNudgeDraft } from "@/lib/notifications/nudgeDraft";
 
 export const dynamic = "force-dynamic";
 
@@ -12,8 +13,10 @@ function isNudgeAudience(value: unknown): value is NudgeAudience {
 }
 
 /**
- * Manual nudge endpoint (Phase B2b). A consultant/admin nudges a firm/vendor.
- * Flag-gated; authorization resolved server-side in sendCompanyNudge.
+ * 16c — draft a Pat-composed nudge for a firm/vendor. This NEVER sends: it only
+ * creates a PENDING draft that lands in the consultant approval queue. The nudge
+ * reaches the firm only after a consultant approves it (see /decide). Flag-gated;
+ * authorization resolved server-side in createNudgeDraft.
  */
 export async function POST(req: Request) {
   if (!isPingsEnabled()) {
@@ -41,11 +44,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
   }
 
-  const result = await sendCompanyNudge({ actor: sessionUser, companyId, audience: audienceRaw });
+  const result = await createNudgeDraft({ actor: sessionUser, companyId, audience: audienceRaw });
   if (!result.ok) {
-    const status = result.reason === "forbidden" ? 403 : 409;
-    return NextResponse.json({ ok: false, error: result.reason }, { status });
+    return NextResponse.json({ ok: false, error: result.reason }, { status: 403 });
   }
 
-  return NextResponse.json({ ok: true, recipients: result.recipients, created: result.created }, noStore);
+  return NextResponse.json(
+    { ok: true, draftId: result.draftId, created: result.created, status: "PENDING" },
+    noStore
+  );
 }

@@ -146,6 +146,7 @@ model Company {
   User                   User[]
   VendorProfile          VendorProfile?
   CadenceConfig          CadenceConfig?
+  NudgeDraft             NudgeDraft[]
   EcosystemAsVendor      Ecosystem?               @relation("EcosystemVendor")
   EcosystemFirm          EcosystemFirm[]          @relation("EcosystemFirmCompany")
 
@@ -170,6 +171,34 @@ model CadenceConfig {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
   Company              Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+// 16c — a Pat-drafted nudge awaiting consultant approval (HITL). A draft NEVER
+// reaches a firm until a consultant approves it; the ONLY code path that turns a
+// draft into a firm Notification is decideNudgeDraft's approve branch
+// (lib/notifications/nudgeDraft.ts). There is no auto-send path anywhere.
+// Additive, zero backfill.
+model NudgeDraft {
+  id                 String    @id @default(cuid())
+  actorUserId        String // consultant/admin who drafted it
+  companyId          String // target firm (or vendor)
+  audience           String // "firm" | "vendor"
+  title              String
+  body               String // Pat-drafted; editable before approval
+  ctaLabel           String?
+  ctaHref            String?
+  aiGenerated        Boolean   @default(true) // drives the AI-disclosure label
+  status             String    @default("PENDING") // PENDING | APPROVED | DISMISSED
+  edited             Boolean   @default(false) // true when a consultant edited the body pre-approval
+  decidedByUserId    String?
+  decidedAt          DateTime?
+  recipientsNotified Int       @default(0) // firm users notified on approval
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  Company            Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, status])
+  @@index([actorUserId, status])
 }
 
 // Deletion receipt (Governance Phase 2, A8). A tombstone that OUTLIVES the tenant

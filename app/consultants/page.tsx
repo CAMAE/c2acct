@@ -8,6 +8,7 @@ import MeetPatContent from "@/app/components/pat/MeetPatContent";
 import ConsultantHelpContent from "@/app/components/consultants/ConsultantHelpContent";
 import EcosystemListCard from "./_components/EcosystemListCard";
 import FreshnessBoard from "./_components/FreshnessBoard";
+import NudgeQueue, { type QueueDraft } from "./_components/NudgeQueue";
 import {
   isConsultantAccessEnabled,
   requireConsultantSession,
@@ -21,6 +22,7 @@ import {
   getConsultantFreshnessBoard,
   type ConsultantFreshnessBoard,
 } from "@/lib/consultantFreshness";
+import { listPendingNudgeDrafts } from "@/lib/notifications/nudgeDraft";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +30,7 @@ type SearchParams = {
   panel?: string;
 };
 
-type ConsultantPanelKey = "ecosystems" | "freshness" | "pat" | "help";
+type ConsultantPanelKey = "ecosystems" | "freshness" | "nudges" | "pat" | "help";
 
 function getPanelHref(panel: ConsultantPanelKey): string {
   return panel === "ecosystems" ? "/consultants" : `/consultants?panel=${panel}`;
@@ -53,8 +55,8 @@ export default async function ConsultantOverviewPage({
   const params = searchParams ? await searchParams : undefined;
   const requestedPanel = params?.panel;
   const activePanel: ConsultantPanelKey =
-    requestedPanel === "freshness" && freshnessEnabled
-      ? "freshness"
+    (requestedPanel === "freshness" || requestedPanel === "nudges") && freshnessEnabled
+      ? requestedPanel
       : requestedPanel === "pat" || requestedPanel === "help"
         ? requestedPanel
         : "ecosystems";
@@ -62,7 +64,10 @@ export default async function ConsultantOverviewPage({
   const panelOptions = [
     { key: "ecosystems", label: "Ecosystems", href: getPanelHref("ecosystems") },
     ...(freshnessEnabled
-      ? [{ key: "freshness", label: "Freshness", href: getPanelHref("freshness") }]
+      ? [
+          { key: "freshness", label: "Freshness", href: getPanelHref("freshness") },
+          { key: "nudges", label: "Nudge queue", href: getPanelHref("nudges") },
+        ]
       : []),
     { key: "pat", label: "Meet PAT", href: getPanelHref("pat") },
     { key: "help", label: "Help", href: getPanelHref("help") },
@@ -83,6 +88,12 @@ export default async function ConsultantOverviewPage({
   let freshnessBoard: ConsultantFreshnessBoard | null = null;
   if (activePanel === "freshness") {
     freshnessBoard = await getConsultantFreshnessBoard(consultantAccess);
+  }
+
+  // Fetch the pending nudge queue only when its panel is active.
+  let nudgeDrafts: QueueDraft[] = [];
+  if (activePanel === "nudges") {
+    nudgeDrafts = await listPendingNudgeDrafts(consultantAccess.sessionUser);
   }
 
   return (
@@ -140,6 +151,22 @@ export default async function ConsultantOverviewPage({
       {activePanel === "freshness" && freshnessBoard ? (
         <section data-testid="consultant-freshness-panel" className="space-y-4">
           <FreshnessBoard board={freshnessBoard} />
+        </section>
+      ) : null}
+
+      {activePanel === "nudges" ? (
+        <section data-testid="consultant-nudges-panel" className="space-y-4">
+          <div className="pat-card p-6">
+            <div className="pat-label">Nudge queue</div>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">
+              Pat-drafted reminders waiting for your approval
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">
+              Pat drafts each reminder from a firm&apos;s freshness. Review the wording, edit if you like, then approve to
+              send it on your behalf — or dismiss it. Nothing reaches a firm until you approve it.
+            </p>
+          </div>
+          <NudgeQueue initialDrafts={nudgeDrafts} />
         </section>
       ) : null}
 

@@ -43,12 +43,20 @@ test("notification dropdown item navigates to its CTA on click", async ({ page }
     "Notification bell + nudge API require PAT_ENABLE_PINGS=1."
   );
 
-  // 1) Seed a real notification for review.firm by nudging its company as admin.
+  // 1) Seed a real notification for review.firm through the 16c HITL path: draft
+  //    a nudge, then approve it (approval is the only send path). Admin may act on
+  //    any company.
   await signIn(page, "review.admin@pat.local", "/admin");
-  const nudge = await page.context().request.post("/api/notifications/nudge", {
+  const draft = await page.context().request.post("/api/notifications/nudge", {
     data: { companyId: DEMO_FIRM_COMPANY_ID, audience: "firm" },
   });
-  expect(nudge.ok()).toBeTruthy();
+  expect(draft.ok()).toBeTruthy();
+  const draftId = ((await draft.json().catch(() => null)) as { draftId?: string } | null)?.draftId;
+  expect(draftId).toBeTruthy();
+  const approve = await page.context().request.post("/api/notifications/nudge/decide", {
+    data: { draftId, decision: "approve" },
+  });
+  expect(approve.ok()).toBeTruthy();
 
   // 2) Re-auth as the firm (overwrites the session) and open a portal page.
   await signIn(page, "review.firm@pat.local", "/firm");

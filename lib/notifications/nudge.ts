@@ -2,16 +2,19 @@ import prisma from "@/lib/prisma";
 import type { SessionUser } from "@/lib/auth/session";
 import { isAdminRole } from "@/lib/authz";
 import { getConsultantAccessStateForUser } from "@/lib/consultantAccess";
-import { createNotification, recordNudge } from "@/lib/notifications/store";
 
 /**
- * Manual nudge write path (Phase B2b, 2026-06-18). A consultant sends a friendly
- * reminder to a firm/vendor they manage; an admin may nudge any company. The
- * relationship message is templated (deterministic — no LLM in the write path);
- * Pat-composed copy is a later enhancement.
+ * Nudge authorization + message helpers (Phase B2b → 16c). A consultant may nudge
+ * a firm/vendor they manage; an admin may nudge any company. The message is a
+ * deterministic Pat-drafted template.
  *
- * Authorization is resolved server-side from the session + ecosystem scope
- * (mirrors requireConsultantCompanyAccess), never from the client.
+ * 16c HITL rule: there is NO auto-send here. A nudge only reaches a firm through
+ * a Pat-drafted DRAFT that a consultant explicitly approves — see
+ * [[lib/notifications/nudgeDraft]] `decideNudgeDraft` (the single send path).
+ * This module now only resolves authorization, recipients, and the draft body.
+ *
+ * Authorization is resolved server-side from the session + ecosystem scope,
+ * never from the client.
  */
 
 export type NudgeAudience = "firm" | "vendor";
@@ -53,7 +56,7 @@ export async function getCompanyRecipientUserIds(companyId: string): Promise<str
   return users.map((u) => u.id);
 }
 
-function buildNudgeMessage(
+export function buildNudgeMessage(
   audience: NudgeAudience,
   fromLabel: string
 ): { title: string; body: string; ctaLabel: string; ctaHref: string } {
@@ -73,62 +76,16 @@ function buildNudgeMessage(
   };
 }
 
-export type SendNudgeResult =
-  | { ok: true; recipients: number; created: number }
-  | { ok: false; reason: "forbidden" | "no_recipients" };
-
 /**
- * Send a manual nudge to every user of the target company. Each recipient goes
- * through the store's preference + dedupe gate; an audit row is recorded per
- * recipient regardless (the actor did nudge).
+ * The label a firm sees as the nudge sender: the consultant's name, or a generic
+ * operator label for an admin-issued draft.
  */
-export async function sendCompanyNudge(input: {
-  actor: SessionUser;
-  companyId: string;
-  audience: NudgeAudience;
-}): Promise<SendNudgeResult> {
-  const authority = await authorizeCompanyNudge(input.actor, input.companyId);
-  if (authority.kind === "denied") {
-    return { ok: false, reason: "forbidden" };
-  }
-
-  const recipientIds = await getCompanyRecipientUserIds(input.companyId);
-  if (recipientIds.length === 0) {
-    return { ok: false, reason: "no_recipients" };
-  }
-
-  const fromLabel = authority.kind === "consultant" ? authority.consultantLabel : "A Patalign operator";
-  const message = buildNudgeMessage(input.audience, fromLabel);
-  const kind = NUDGE_KIND[input.audience];
-
-  let created = 0;
-  for (const recipientUserId of recipientIds) {
-    const result = await createNotification({
-      recipientUserId,
-      audience: input.audience,
-      kind,
-      title: message.title,
-      body: message.body,
-      ctaLabel: message.ctaLabel,
-      ctaHref: message.ctaHref,
-      sourceType: "Company",
-      sourceId: input.companyId,
-      actorUserId: input.actor.id,
-      // Block 9a: the nudge body is a Pat-drafted template a person reviews + sends.
-      aiGenerated: true,
-    });
-    if (result.created) {
-      created += 1;
-    }
-    await recordNudge({
-      actorUserId: input.actor.id,
-      recipientUserId,
-      kind,
-      sourceType: "Company",
-      sourceId: input.companyId,
-      manual: true,
-    });
-  }
-
-  return { ok: true, recipients: recipientIds.length, created };
+export function nudgeFromLabel(authority: NudgeAuthority): string {
+  return authority.kind === "consultant" ? authority.consultantLabel : "A Patalign operator";
 }
+
+// NOTE: there is deliberately NO sendCompanyNudge here. Turning a Pat-drafted
+// nudge into a firm Notification happens ONLY inside decideNudgeDraft's approve
+// branch (lib/notifications/nudgeDraft.ts), after a consultant approves. Any
+// re-introduction of a direct-send helper is a HITL violation — a contract test
+// asserts this file exports no auto-send path.

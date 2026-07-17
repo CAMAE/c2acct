@@ -35,7 +35,9 @@ describe("Pat AI-disclosure — every Pat-drafted create path is flagged", () =>
   // aiGenerated: true. (store.ts is the sink; the others are the drafters.)
   const patDraftedCreateSites = [
     "lib/notifications/executePlan.ts",
-    "lib/notifications/nudge.ts",
+    // 16c: the consultant nudge send moved behind the approval queue; the create
+    // site is now the approve branch of decideNudgeDraft.
+    "lib/notifications/nudgeDraft.ts",
   ];
   for (const rel of patDraftedCreateSites) {
     it(`${rel} sets aiGenerated: true on its notification create`, () => {
@@ -67,5 +69,11 @@ describe("Pat AI-disclosure — every render surface shows it", () => {
   it("the notifications API serializes aiGenerated to the client", () => {
     const src = read("app/api/notifications/route.ts");
     expect(src).toContain("aiGenerated: n.aiGenerated");
+  });
+
+  it("the consultant nudge queue shows the disclosure on every Pat-drafted card", () => {
+    const src = read("app/consultants/_components/NudgeQueue.tsx");
+    expect(src).toContain("PAT_DISCLOSURE_SHORT");
+    expect(src).toContain("d.aiGenerated");
   });
 });

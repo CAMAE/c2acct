@@ -74,7 +74,10 @@ function FirmRow({ row }: { row: ConsultantFirmFreshnessRow }) {
       <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{consequenceLine(row)}</p>
 
       <div className="mt-4">
-        <NudgeButtonMount companyId={row.companyId} audience="firm" label={`Nudge ${row.companyName}`} />
+        <NudgeButtonMount companyId={row.companyId} audience="firm" label="Draft a reminder" />
+        <p className="mt-2 text-xs leading-5 text-[var(--shell-muted)]">
+          Pat drafts it for your review — nothing sends until you approve it in your nudge queue.
+        </p>
       </div>
     </div>
   );
