@@ -7,7 +7,7 @@ import {
   requiresCompanyBackedAssessment,
   resolveAssessmentSubjectContext,
 } from "@/lib/subjectContext";
-import { getSurveyDraftWhere } from "@/lib/surveyDrafts";
+import { getSurveyDraftWhere, getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { USER_ALIGNMENT_MODULE_KEY, ensureUserAlignmentSystem } from "@/lib/userPat";
 
 export async function GET(
@@ -100,21 +100,36 @@ export async function GET(
       return NextResponse.json(payload);
     }
 
-    const draftSubmission = await prisma.surveySubmission
-      .findFirst({
-        where: getSurveyDraftWhere({
-          companyId: assessmentContext.companyId,
-          subjectId: assessmentContext.subjectId,
-          moduleId: mod.id,
-        }),
-        orderBy: { createdAt: "desc" },
-        select: {
-          answers: true,
-          integrityFlags: true,
-          createdAt: true,
-        },
-      })
-      .catch(() => null);
+    const [draftSubmission, priorFinalSubmission] = await Promise.all([
+      prisma.surveySubmission
+        .findFirst({
+          where: getSurveyDraftWhere({
+            companyId: assessmentContext.companyId,
+            subjectId: assessmentContext.subjectId,
+            moduleId: mod.id,
+          }),
+          orderBy: { createdAt: "desc" },
+          select: {
+            answers: true,
+            integrityFlags: true,
+            createdAt: true,
+          },
+        })
+        .catch(() => null),
+      // 16d — the last FINAL submission, so a "what changed?" delta refresh can
+      // pre-fill the form and the user only touches what moved.
+      prisma.surveySubmission
+        .findFirst({
+          where: getSurveyFinalWhere({
+            companyId: assessmentContext.companyId,
+            subjectId: assessmentContext.subjectId,
+            moduleId: mod.id,
+          }),
+          orderBy: { createdAt: "desc" },
+          select: { answers: true, createdAt: true },
+        })
+        .catch(() => null),
+    ]);
 
     return NextResponse.json({
       ...payload,
@@ -131,6 +146,13 @@ export async function GET(
             updatedAt: draftSubmission.createdAt.toISOString(),
           }
         : null,
+      priorFinal:
+        priorFinalSubmission && priorFinalSubmission.answers && typeof priorFinalSubmission.answers === "object"
+          ? {
+              answers: priorFinalSubmission.answers as Record<string, unknown>,
+              submittedAt: priorFinalSubmission.createdAt.toISOString(),
+            }
+          : null,
     });
   } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });

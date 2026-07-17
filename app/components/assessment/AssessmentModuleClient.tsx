@@ -352,6 +352,8 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
   const [pageError, setPageError] = useState<string | null>(null);
   const assessmentLandingHref = getAssessmentLandingHref(moduleKey);
   const resultsLandingHref = data ? getPostSubmitHref(data.key).replace(/\?submitted=1$/, "") : assessmentLandingHref;
+  // 16d — "what changed?" delta refresh mode (?mode=delta).
+  const isDeltaRefresh = searchParams.get("mode") === "delta";
 
   useEffect(() => {
     let cancelled = false;
@@ -394,7 +396,12 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
     }
 
     setAnswers((currentAnswers) => {
+      // 16d — delta refresh: with no in-progress draft, pre-fill from the last
+      // FINAL submission so the user touches only what moved. A live draft
+      // always wins; current in-memory edits win over both.
+      const deltaPrefill = isDeltaRefresh && !data.draft ? (data.priorFinal?.answers ?? {}) : {};
       const nextAnswers = {
+        ...deltaPrefill,
         ...(data.draft?.answers ?? {}),
         ...currentAnswers,
       };
@@ -412,7 +419,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
 
       return changed ? nextAnswers : currentAnswers;
     });
-  }, [data]);
+  }, [data, isDeltaRefresh]);
 
   const pages = data?.pages ?? [];
   const totalSteps = Math.max(1, pages.length);
@@ -726,6 +733,25 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
           PAT keeps this module in ten-question pages while preserving the same 0 to 5 scoring,
           draft-saving, and unlock logic underneath.
         </p>
+
+        {/* 16d — delta refresh banner: pre-filled from the last submission. */}
+        {isDeltaRefresh && data.priorFinal ? (
+          <div className="mt-5 rounded-[16px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
+            <div className="pat-label">Refreshing — what changed?</div>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--shell-ink)]">
+              Your answers from{" "}
+              <span className="font-semibold">
+                {new Date(data.priorFinal.submittedAt).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </span>{" "}
+              are pre-filled. Change only what moved — on submit, PAT rescores this module and its
+              freshness clock resets to today.
+            </p>
+          </div>
+        ) : null}
 
         <div className="mt-6 grid gap-4 md:grid-cols-4">
           <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">

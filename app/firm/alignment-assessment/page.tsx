@@ -59,25 +59,39 @@ function formatDate(value: Date | null) {
 
 function FirmModuleCard({ module }: { module: FirmModuleProgress }) {
   const latestActivity = formatDate(module.latestSubmittedAt ?? module.draftUpdatedAt);
+  const isCompleted = module.status === "completed";
 
   return (
-    <Link href={module.href} className="pat-card pat-card-interactive block p-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="text-xl font-semibold text-[var(--shell-ink)]">{module.title}</div>
-        <CardChip>{module.statusLabel}</CardChip>
-      </div>
-      <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{module.description}</p>
-      <CardChipRow>
-        <CardChip>{module.completedCount}/{module.questionCount} answered</CardChip>
-        {latestActivity ? <CardChip tone="muted">Updated {latestActivity}</CardChip> : null}
-      </CardChipRow>
-      <div className="mt-4">
-        <ScoreLockup label="Latest score" score={module.latestScore ?? null} context={module.statusDescription} />
-        <div className="mt-3">
-          <ScoreBar score={module.latestScore ?? null} title={`${module.title} latest score`} />
+    <div className="pat-card pat-card-interactive p-6">
+      <Link href={module.href} className="block">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="text-xl font-semibold text-[var(--shell-ink)]">{module.title}</div>
+          <CardChip>{module.statusLabel}</CardChip>
         </div>
-      </div>
-    </Link>
+        <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{module.description}</p>
+        <CardChipRow>
+          <CardChip>{module.completedCount}/{module.questionCount} answered</CardChip>
+          {latestActivity ? <CardChip tone="muted">Updated {latestActivity}</CardChip> : null}
+        </CardChipRow>
+        <div className="mt-4">
+          <ScoreLockup label="Latest score" score={module.latestScore ?? null} context={module.statusDescription} />
+          <div className="mt-3">
+            <ScoreBar score={module.latestScore ?? null} title={`${module.title} latest score`} />
+          </div>
+        </div>
+      </Link>
+      {/* 16d — delta re-assessment entry for a completed module. */}
+      {isCompleted ? (
+        <div className="mt-4 border-t border-[var(--shell-border)] pt-3">
+          <Link
+            href={`${module.href}?mode=delta`}
+            className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--brand-c2-blue)] hover:underline"
+          >
+            Refresh — what changed? <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+      ) : null}
+    </div>
   );
 }
 

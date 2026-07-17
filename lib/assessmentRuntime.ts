@@ -162,6 +162,11 @@ export type AssessmentModulePayload = {
     currentStep: number;
     updatedAt: string;
   } | null;
+  /** 16d — the last FINAL submission, for a "what changed?" delta refresh pre-fill. */
+  priorFinal?: {
+    answers: Record<string, NormalizedAnswer>;
+    submittedAt: string;
+  } | null;
 };
 
 export type NormalizedAnswer =
