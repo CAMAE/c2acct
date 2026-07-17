@@ -1,6 +1,7 @@
 import { readFreshness, type FreshnessState } from "@/lib/freshness";
 import {
   decideStalenessSend,
+  ledgerKey,
   type StalenessLedgerEntry,
 } from "@/lib/notifications/staleness/ledger";
 
@@ -48,9 +49,13 @@ export type StalenessTarget = {
   ledger: StalenessLedgerEntry | null;
 };
 
+/** Which generator produced a draft (drives digest grouping + labels). */
+export type StalenessGenerator = "module" | "review" | "cohort" | "score";
+
 export type StalenessDraft = {
   recipientUserId: string;
   audience: StalenessAudience;
+  generator: StalenessGenerator;
   kind: string;
   title: string;
   body: string;
@@ -59,7 +64,8 @@ export type StalenessDraft = {
   sourceType: "Company";
   sourceId: string;
   aiGenerated: true;
-  /** The ledger entry to persist iff the notification is created. */
+  /** The ledger item key + entry to persist iff the notification is created. */
+  ledgerItemKey: string;
   nextEntry: StalenessLedgerEntry;
 };
 
@@ -129,6 +135,7 @@ export function planStaleness(targets: StalenessTarget[], nowMs: number): Stalen
     drafts.push({
       recipientUserId: target.recipientUserId,
       audience: target.audience,
+      generator: "module",
       kind: stalenessKind(target.audience, decision.state),
       title: copy.title,
       body: copy.body,
@@ -137,6 +144,7 @@ export function planStaleness(targets: StalenessTarget[], nowMs: number): Stalen
       sourceType: "Company",
       sourceId: target.companyId,
       aiGenerated: true,
+      ledgerItemKey: ledgerKey(`staleness:${target.audience}`, target.companyId, target.recipientUserId),
       nextEntry: decision.nextEntry,
     });
   }

@@ -63,7 +63,7 @@ describe("staleness planner (16b)", () => {
 
   it("is idempotent: a target already at its notified state does not re-fire", () => {
     const plan = planStaleness(
-      [target({ ledger: { lastState: "aging", lastSentIso: "x", unackedCount: 1 } })],
+      [target({ ledger: { lastSignature: "aging", lastSentIso: "x", unackedCount: 1 } })],
       NOW
     );
     expect(plan.fired).toBe(0);

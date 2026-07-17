@@ -18,7 +18,7 @@ describe("staleness send-ledger", () => {
   it("fresh evidence never alerts and clears the ledger", () => {
     const d = decideStalenessSend({
       currentState: "fresh",
-      entry: { lastState: "aging", lastSentIso: NOW, unackedCount: 1 },
+      entry: { lastSignature: "aging", lastSentIso: NOW, unackedCount: 1 },
       acknowledgedSinceLast: false,
       nowIso: NOW,
     });
@@ -38,19 +38,19 @@ describe("staleness send-ledger", () => {
     if (d.send) {
       expect(d.state).toBe("aging");
       expect(d.nextEntry.unackedCount).toBe(1);
-      expect(d.nextEntry.lastState).toBe("aging");
+      expect(d.nextEntry.lastSignature).toBe("aging");
     }
   });
 
   it("is idempotent: a re-run at the same state does not re-notify", () => {
-    const entry: StalenessLedgerEntry = { lastState: "aging", lastSentIso: NOW, unackedCount: 1 };
+    const entry: StalenessLedgerEntry = { lastSignature: "aging", lastSentIso: NOW, unackedCount: 1 };
     const d = decideStalenessSend({ currentState: "aging", entry, acknowledgedSinceLast: false, nowIso: NOW });
     expect(d.send).toBe(false);
     expect(d.reason).toBe("unchanged");
   });
 
   it("speaks again on a genuine aging→stale crossing", () => {
-    const entry: StalenessLedgerEntry = { lastState: "aging", lastSentIso: NOW, unackedCount: 1 };
+    const entry: StalenessLedgerEntry = { lastSignature: "aging", lastSentIso: NOW, unackedCount: 1 };
     const d = decideStalenessSend({ currentState: "stale", entry, acknowledgedSinceLast: false, nowIso: NOW });
     expect(d.send).toBe(true);
     if (d.send) expect(d.nextEntry.unackedCount).toBe(2);
@@ -58,14 +58,14 @@ describe("staleness send-ledger", () => {
 
   it("hard-stops after MAX_UNACKED_NUDGES unacknowledged nudges on the same item", () => {
     // unacked already at the ceiling, a new crossing still must NOT fire.
-    const entry: StalenessLedgerEntry = { lastState: "aging", lastSentIso: NOW, unackedCount: MAX_UNACKED_NUDGES };
+    const entry: StalenessLedgerEntry = { lastSignature: "aging", lastSentIso: NOW, unackedCount: MAX_UNACKED_NUDGES };
     const d = decideStalenessSend({ currentState: "stale", entry, acknowledgedSinceLast: false, nowIso: NOW });
     expect(d.send).toBe(false);
     expect(d.reason).toBe("hard_stop");
   });
 
   it("an acknowledgement resets the nag counter so a new crossing can speak once", () => {
-    const entry: StalenessLedgerEntry = { lastState: "aging", lastSentIso: NOW, unackedCount: MAX_UNACKED_NUDGES };
+    const entry: StalenessLedgerEntry = { lastSignature: "aging", lastSentIso: NOW, unackedCount: MAX_UNACKED_NUDGES };
     const d = decideStalenessSend({ currentState: "stale", entry, acknowledgedSinceLast: true, nowIso: NOW });
     expect(d.send).toBe(true);
     if (d.send) expect(d.nextEntry.unackedCount).toBe(1);

@@ -18,9 +18,24 @@ import type { FreshnessState } from "@/lib/freshness";
  */
 export const MAX_UNACKED_NUDGES = 2;
 
+/**
+ * State-independent ledger item key: one entry per (namespace, source, recipient).
+ * Pure (no I/O) so the planners can compute it without pulling the store. The
+ * namespace segments the generators (e.g. "staleness:firm", "review:vendor",
+ * "cohort:firm") so their ledgers never collide.
+ */
+export function ledgerKey(namespace: string, sourceId: string, recipientUserId: string): string {
+  return `ledger:${namespace}:${sourceId}:${recipientUserId}`;
+}
+
 export type StalenessLedgerEntry = {
-  /** The freshness state we last notified this recipient about, for this item. */
-  lastState: FreshnessState | null;
+  /**
+   * The "signature" of what we last notified this recipient about, for this
+   * item. For the freshness generator it is the state ("aging"/"stale"); for the
+   * others it is a generator-specific change signature (a batch id, a quarter +
+   * count, a submission id). A send fires only when the signature changes.
+   */
+  lastSignature: string | null;
   /** ISO timestamp of the last nudge we sent for this item. */
   lastSentIso: string | null;
   /** Consecutive unacknowledged nudges for this item (reset on acknowledgement). */
@@ -28,7 +43,7 @@ export type StalenessLedgerEntry = {
 };
 
 export const EMPTY_LEDGER_ENTRY: StalenessLedgerEntry = {
-  lastState: null,
+  lastSignature: null,
   lastSentIso: null,
   unackedCount: 0,
 };
@@ -59,7 +74,7 @@ export function decideStalenessSend(input: {
   const effectiveUnacked = input.acknowledgedSinceLast ? 0 : entry.unackedCount;
 
   // Idempotent: we already spoke for this exact state — a re-run must be silent.
-  if (entry.lastState === input.currentState) {
+  if (entry.lastSignature === input.currentState) {
     return {
       send: false,
       reason: "unchanged",
@@ -82,7 +97,51 @@ export function decideStalenessSend(input: {
     reason: "crossing",
     state: input.currentState,
     nextEntry: {
-      lastState: input.currentState,
+      lastSignature: input.currentState,
+      lastSentIso: input.nowIso,
+      unackedCount: effectiveUnacked + 1,
+    },
+  };
+}
+
+/**
+ * Generic signature-based send decision, for generators whose trigger is not a
+ * freshness state (review-expiry batch, cohort movement, score change). A send
+ * fires only when the signature CHANGES from what we last notified — so a re-run
+ * over identical data is silent — and the same nag hard-stop applies. A null
+ * signature means "nothing to say" and clears the ledger.
+ */
+export type SignatureDecision =
+  | { send: false; reason: "none" | "unchanged" | "hard_stop"; nextEntry: StalenessLedgerEntry }
+  | { send: true; reason: "changed"; nextEntry: StalenessLedgerEntry };
+
+export function decideSignatureSend(input: {
+  signature: string | null;
+  entry: StalenessLedgerEntry | null;
+  acknowledgedSinceLast: boolean;
+  nowIso: string;
+}): SignatureDecision {
+  const entry = input.entry ?? EMPTY_LEDGER_ENTRY;
+
+  if (input.signature == null) {
+    return { send: false, reason: "none", nextEntry: { ...EMPTY_LEDGER_ENTRY } };
+  }
+
+  const effectiveUnacked = input.acknowledgedSinceLast ? 0 : entry.unackedCount;
+
+  if (entry.lastSignature === input.signature) {
+    return { send: false, reason: "unchanged", nextEntry: { ...entry, unackedCount: effectiveUnacked } };
+  }
+
+  if (effectiveUnacked >= MAX_UNACKED_NUDGES) {
+    return { send: false, reason: "hard_stop", nextEntry: { ...entry, unackedCount: effectiveUnacked } };
+  }
+
+  return {
+    send: true,
+    reason: "changed",
+    nextEntry: {
+      lastSignature: input.signature,
       lastSentIso: input.nowIso,
       unackedCount: effectiveUnacked + 1,
     },

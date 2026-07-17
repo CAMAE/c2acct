@@ -32,15 +32,14 @@ export const stalenessSweepHandler: AgentHandler = async (ctx) => {
     companiesScanned: summary.companiesScanned,
     evaluated: summary.evaluated,
     fired: summary.fired,
+    dispatched: summary.dispatched,
     created: summary.created,
-    suppressed: summary.suppressed,
   });
 
   return {
     summary:
-      `staleness-sweep: scanned ${summary.companiesScanned} compan(ies), evaluated ${summary.evaluated} ` +
-      `recipient-item(s), fired ${summary.fired}; created ${summary.created} nudge(s) ` +
-      `(${summary.suppressed} suppressed by ledger/dedupe).`,
+      `staleness-sweep: scanned ${summary.companiesScanned} compan(ies), fired ${summary.fired} draft(s) ` +
+      `across generators, collapsed to ${summary.dispatched} dispatch item(s); created ${summary.created} row(s).`,
   };
 };
 
