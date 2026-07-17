@@ -22,7 +22,8 @@ without re-deriving state. Read `CLAUDE.md` (hard rules, validation chain) + thi
   - **✅ Mythos sign-off (in-browser, vendor home + battlecard): Block 14 build APPROVED.**
   - **✅ FULL REGRESSION GREEN (2026-07-17, `validate:launch` VL_EXIT=0):** lint · validate:db · typecheck · **unit 879** · build · release:prelaunch · promote-known-good · **e2e:local-review 26/1-skip/0-fail** · e2e:release-integrity 2 · PASS. NB: caught 2 STALE 13d e2e assertions (`expectScaffoldCheckout` looked for the removed "checkout scaffold" heading) — realigned to `/membership checkout/i` (commit `eb6bfb6`, test-only; 13d shipped without full e2e so it surfaced now). NOT a Block 14 defect.
   - **✅ PREVIEW GATE GREEN:** cloud-build preview `pat-c2acct-live-g08vufgmo` — status Ready, baked `eb6bfb6:eb6bfb6-mroeqz28` source=cloud-build (pinned to HEAD `eb6bfb6b`, no chimera).
-  - **🟢 NEXT: Cam fires the bundled `--prod` of HEAD `eb6bfb6b`; then I run the 4 prod gates; then Mythos closing pass on patalign.com.** Prev prod `b6d8124`. No prod DB work owed (pure code). Commands:
+  - **✅ BLOCK 14 LIVE ON PATALIGN.COM at `eb6bfb6` (2026-07-17) — 4 PROD GATES GREEN, no waivers.** Deploy `pat-c2acct-live-gghsqen2a` aliased to patalign.com; bake `commit=eb6bfb6 buildId=eb6bfb6-mroeyqry source=cloud-build`. Gates: **1. fingerprint** `eb6bfb6:eb6bfb6-mroeyqry` · **2. /api/health/db** 200 ok:true · **3. prisma-engine assert** PASS · **4. asset-integrity** served==fingerprint (5 refs each /sign-in+/methodology), 10/10 assets 200+typed (script's local-disk FAIL = cloud-build false-neg, [[feedback_asset_integrity_cloud_build_prod]]). Prod flipped `b6d8124` → `eb6bfb6`.
+  - **🟢 NEXT: Mythos closing pass on patalign.com** (Block 14 hero chips + Product Intelligence + Prospect Intelligence + Next-Best-Step link, authed). Prev-block deploy commands (historical):
     ```
     git tag -f founders-preview-2026-07-13 eb6bfb6b
     env -u AI_AGENT -u CLAUDECODE vercel --prod \
