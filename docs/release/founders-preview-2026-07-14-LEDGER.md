@@ -19,7 +19,17 @@ without re-deriving state. Read `CLAUDE.md` (hard rules, validation chain) + thi
   - Verified on `:3005` (Elite/Pro/consultant): Elite upgrade=0, Pro upgrade present, tier flags correct, Product Intelligence live, Next Best Step is a link, Prospect Intelligence on BattleCard, 0 TypeErrors. typecheck + eslint clean · **879 unit**.
   - **Rulings (not in scope):** BattleCard stays ONE word; sandbox veiled-toggle SKIPPED; C2Acct metadata + C2X routing = **F15** (post-launch); per-product + competitive battlecards = **F12** (post-launch, first after the 23rd).
   - **✅ PLACEMENT FIXED (Mythos ruling, commit `aff95645`):** the layout-hook row floated blindly + broke at 1216px (Elite chip overlapped hero border, ← Workspace stranded bottom-left). Reverted the layout hooks; chips now render INSIDE the hero card top-right via a shared `HeroChips` (async wrapper) + `HeroChipsView` (pure, absolutely positioned, corner order `[← Workspace][tier][Upgrade if Pro]`, unit-tested). Rendered in the hero of every navigable surface (firm/vendor/consultant home, `InsightsModeShell` for insights, BattleCard via a `heroChips` slot into the client, assessment/product/admin/profile/catalog pages). **Verified on :3005 at 1216 AND 1600** (5 Mythos pages): chips inside the hero card, top-right, 0 page errors — screenshots in `/tmp/block14-shots`. **Deferred:** alignment-board flag-on + deep consultant ecosystem sub-pages + flag-dark individual pages.
-  - **NEXT for Block 14:** full regression checklist + Mythos screenshot sign-off → bundled deploy (cloud-build → preview-gate → --prod) before July 18.
+  - **✅ Mythos sign-off (in-browser, vendor home + battlecard): Block 14 build APPROVED.**
+  - **✅ FULL REGRESSION GREEN (2026-07-17, `validate:launch` VL_EXIT=0):** lint · validate:db · typecheck · **unit 879** · build · release:prelaunch · promote-known-good · **e2e:local-review 26/1-skip/0-fail** · e2e:release-integrity 2 · PASS. NB: caught 2 STALE 13d e2e assertions (`expectScaffoldCheckout` looked for the removed "checkout scaffold" heading) — realigned to `/membership checkout/i` (commit `eb6bfb6`, test-only; 13d shipped without full e2e so it surfaced now). NOT a Block 14 defect.
+  - **✅ PREVIEW GATE GREEN:** cloud-build preview `pat-c2acct-live-g08vufgmo` — status Ready, baked `eb6bfb6:eb6bfb6-mroeqz28` source=cloud-build (pinned to HEAD `eb6bfb6b`, no chimera).
+  - **🟢 NEXT: Cam fires the bundled `--prod` of HEAD `eb6bfb6b`; then I run the 4 prod gates; then Mythos closing pass on patalign.com.** Prev prod `b6d8124`. No prod DB work owed (pure code). Commands:
+    ```
+    git tag -f founders-preview-2026-07-13 eb6bfb6b
+    env -u AI_AGENT -u CLAUDECODE vercel --prod \
+      --build-env PAT_COMMIT_SHA=eb6bfb6bd6dcc32ccdc1082616eb47f58518995c \
+      --build-env PAT_COMMIT_REF=feat/agent-system-phase-0 \
+      --build-env PAT_BUILD_SOURCE=cloud-build
+    ```
 - **Preview gate (pre-prod, GREEN):** cloud-build preview `pat-c2acct-live-b2dpctt0x` — Ready, baked `b6d8124:b6d8124-mrobyiak`. Mythos SSO-browser-verified the preview fingerprint before `--prod`.
 - **Local review env:** `:3005` built standalone up on `6495bb4` (docs-identical to HEAD); ELITE accounts + both boosted vendors seeded. Direct Bridgepath login: `demo-vendor-bridgepath@pat.local / PatVendorBridgepath7x` (ELITE). Restart after DB reset: rebuild → promote-known-good → `node .next/standalone/server.js` PORT=3005 + flags; re-seed via demo-expand→compute→swaps→preview-pat-setup.
 - **Prod is LIVE on patalign.com at `e1ebd610`.** (Historical detail below.) Block 13 hardening context (Mythos 5-account sweep verdict). Branch `feat/agent-system-phase-0`.
