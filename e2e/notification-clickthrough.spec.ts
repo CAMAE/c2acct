@@ -70,9 +70,10 @@ test("notification dropdown item navigates to its CTA on click", async ({ page }
   const dialog = page.locator("#notification-bell-card");
   await expect(dialog).toBeVisible();
 
-  // 4) The nudge item is a real anchor (href = /firm/alignment-assessment).
+  // 4) The nudge item is a real anchor (href = /firm/alignment-assessment). The
+  //    feed is fetched on open; allow a generous window for a cold standalone.
   const item = dialog.locator("a", { hasText: /friendly reminder/i }).first();
-  await expect(item).toBeVisible();
+  await expect(item).toBeVisible({ timeout: 15_000 });
   await expect(item).toHaveAttribute("href", /\/firm\/alignment-assessment/);
 
   await item.click();
