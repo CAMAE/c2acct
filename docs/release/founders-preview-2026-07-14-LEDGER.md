@@ -4,8 +4,23 @@
 without re-deriving state. Read `CLAUDE.md` (hard rules, validation chain) + this file +
 `docs/e2e-known-stale.md` before running `vercel --prod`.
 
-## ⏭ RESUME STATE (2026-07-15, post-13k Meridian, pre-/clear) — READ FIRST
-**Prod is LIVE on patalign.com.** Founders-preview shipped; now in **Block 13 hardening** (Mythos 5-account sweep verdict). Branch `feat/agent-system-phase-0`.
+## ⏭ RESUME STATE (2026-07-16, post-13d + preview-gated, pre-/clear) — READ FIRST
+**Prod is LIVE on patalign.com at `e1ebd610`.** Block 13 hardening COMPLETE through 13d; the whole bundle is preview-gated and staged for a bundled `--prod`. Branch `feat/agent-system-phase-0`, **HEAD `b6d8124e`** (clean tree).
+- **✅ THIS BLOCK IS DONE — resume at the bundled `--prod` then Cam's closing pass.** Everything below (Bridgepath boost, 13c-g, 13h, 13i, e2e/audience fixes, 13d membership) is committed + locally validated. Mythos sweep PASS except the 13d membership bounce, now FIXED (`6495bb49`) + enforced.
+- **🟢 PREVIEW GATE GREEN (2026-07-17T02:4xZ):** cloud-build preview `https://pat-c2acct-live-b2dpctt0x-cams-projects-cbec4d2e.vercel.app` (dpl_B9yebBTP…) — **status Ready**; **baked fingerprint `b6d8124:b6d8124-mrobyiak` source=cloud-build** (pinned to HEAD, single-source, no chimera). HTTP surface gates NOT run on the SSO-walled preview (302→login, no automation-bypass secret; preview env lacks prod flags + stale preview DB) — they run on PROD post-`--prod`; the same runtime already passed asset-integrity + health + surface smoke on the local `:3005` standalone.
+- **🟢 NEXT (resume here): Cam runs the bundled `--prod` of HEAD `b6d8124e`, then gates prod, then his closing pass on patalign.com.** No prod DB work owed (pure code; flags + boosts already on prod). Commands:
+  ```
+  git tag -f founders-preview-2026-07-13 b6d8124e
+  env -u AI_AGENT -u CLAUDECODE vercel --prod \
+    --build-env PAT_COMMIT_SHA=b6d8124ed385284ae8a0a6c8ec205073b8609fc2 \
+    --build-env PAT_COMMIT_REF=feat/agent-system-phase-0 \
+    --build-env PAT_BUILD_SOURCE=cloud-build
+  # gate prod: /api/release-fingerprint == b6d8124:… · /api/health/db 200 ·
+  #   node scripts/release/assert-vercel-prisma-engine.mjs --deployed https://patalign.com ·
+  #   node scripts/release/asset-integrity-check.mjs --root . --base-url https://patalign.com
+  ```
+- **Local review env:** `:3005` built standalone up on `6495bb4` (docs-identical to HEAD); ELITE accounts + both boosted vendors seeded. Direct Bridgepath login: `demo-vendor-bridgepath@pat.local / PatVendorBridgepath7x` (ELITE). Restart after DB reset: rebuild → promote-known-good → `node .next/standalone/server.js` PORT=3005 + flags; re-seed via demo-expand→compute→swaps→preview-pat-setup.
+- **Prod is LIVE on patalign.com at `e1ebd610`.** (Historical detail below.) Block 13 hardening context (Mythos 5-account sweep verdict). Branch `feat/agent-system-phase-0`.
 - **Deployed to prod:** HEAD **`a3e8e2af`** → `releaseId=a3e8e2a:a3e8e2a-mrmsi679` (health 200, asset-integrity PASS, 13a walls intact). **`PAT_ENABLE_PAT_ASSISTANT` + `PAT_ENABLE_PINGS` now BOUND** (redeploy 2026-07-16T00:47Z; `/notifications` route live).
 - **DONE:** 13a role wall + 13b diagnostics leak (deployed, 867 unit green). 13j `compute:benchmarks` run on prod (Peer Position cohort live).
 - **13k Meridian — ✅ CLOSED (Mythos browser + inspector matched, 2026-07-16):**
