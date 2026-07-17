@@ -979,6 +979,13 @@ export function firmEliteHubMetrics(input: {
               arrow: delta >= 0 ? "up" : "down",
             }
           : undefined,
+      // 15b: mini sparkline (last 7 snapshots + dashed projection) — fills the
+      // right-hand white space on the hub card.
+      micro: {
+        kind: "sparkline",
+        points: trajectory.history.slice(-7).map((h) => h.score),
+        projection: trajectory.projection ? trajectory.projection.score : null,
+      },
       sub: "alignment index · directional",
     };
   }

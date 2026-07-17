@@ -11,7 +11,9 @@ export type EliteHubChip = { label: string; tone: "positive" | "amber" | "neutra
 export type EliteHubMicro =
   | { kind: "percentile-band"; percentile: number }
   | { kind: "band-dots"; total: number; filled: number }
-  | { kind: "two-segment"; confirmed: number; lower: number };
+  | { kind: "two-segment"; confirmed: number; lower: number }
+  // 15b: trajectory sparkline — recent snapshots + an optional dashed projection point.
+  | { kind: "sparkline"; points: number[]; projection?: number | null };
 
 export type EliteHubFace = {
   /** The single hero number. */

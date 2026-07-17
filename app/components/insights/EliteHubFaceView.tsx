@@ -18,7 +18,55 @@ const CHIP_TONE: Record<EliteHubChip["tone"], string> = {
   neutral: "bg-[rgba(6,54,116,0.06)] text-[var(--shell-ink)]",
 };
 
+/** 15b — trajectory sparkline: recent snapshots as a polyline + a dashed
+ *  projection segment. Right-aligned in the hero row to fill the white space. */
+function SparklineMicro({ points, projection }: { points: number[]; projection?: number | null }) {
+  if (points.length < 2) return null;
+  const all = typeof projection === "number" ? [...points, projection] : points;
+  const W = 92;
+  const H = 30;
+  const pad = 3;
+  const min = Math.min(...all);
+  const max = Math.max(...all);
+  const range = max - min || 1;
+  const n = points.length + (typeof projection === "number" ? 1 : 0);
+  const xAt = (i: number) => pad + (i / (n - 1)) * (W - 2 * pad);
+  const yAt = (v: number) => H - pad - ((v - min) / range) * (H - 2 * pad);
+  const hist = points.map((v, i) => `${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" ");
+  const lastX = xAt(points.length - 1);
+  const lastY = yAt(points[points.length - 1]!);
+  const rising =
+    typeof projection === "number" ? projection >= points[points.length - 1]! : points[points.length - 1]! >= points[0]!;
+  const color = rising ? "var(--shell-positive)" : "var(--brand-orange)";
+  return (
+    <svg
+      width={W}
+      height={H}
+      viewBox={`0 0 ${W} ${H}`}
+      className="ml-auto self-center"
+      role="img"
+      aria-label="Alignment index trajectory"
+    >
+      <polyline points={hist} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+      {typeof projection === "number" ? (
+        <line
+          x1={lastX}
+          y1={lastY}
+          x2={xAt(points.length)}
+          y2={yAt(projection)}
+          stroke={color}
+          strokeWidth="1.5"
+          strokeDasharray="3 2"
+          opacity="0.7"
+        />
+      ) : null}
+      <circle cx={lastX} cy={lastY} r="2" fill={color} />
+    </svg>
+  );
+}
+
 function Micro({ micro }: { micro: EliteHubMicro }) {
+  if (micro.kind === "sparkline") return null; // rendered in the hero row instead
   if (micro.kind === "percentile-band") {
     const pct = Math.max(0, Math.min(100, micro.percentile));
     return (
@@ -76,6 +124,10 @@ export default function EliteHubFaceView({ face }: { face: EliteHubFace }) {
             {face.chip.arrow ? <span aria-hidden="true">{face.chip.arrow === "up" ? "↗" : "↘"}</span> : null}
             {face.chip.label}
           </span>
+        ) : null}
+        {/* 15b — sparkline lives in the hero row, right-aligned */}
+        {face.micro?.kind === "sparkline" ? (
+          <SparklineMicro points={face.micro.points} projection={face.micro.projection} />
         ) : null}
       </div>
       {face.micro ? <Micro micro={face.micro} /> : null}
