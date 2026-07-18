@@ -77,11 +77,12 @@ export function buildNudgeMessage(
 }
 
 /**
- * The label a firm sees as the nudge sender: the consultant's name, or a generic
- * operator label for an admin-issued draft.
+ * The sender phrase a firm reads in the nudge body. A generic role phrase — not
+ * the raw consultant label — so it always reads cleanly ("Your consultant sent a
+ * nudge…") and never leaks a demo/account label. (16c copy fix.)
  */
 export function nudgeFromLabel(authority: NudgeAuthority): string {
-  return authority.kind === "consultant" ? authority.consultantLabel : "A Patalign operator";
+  return authority.kind === "consultant" ? "Your consultant" : "A Patalign operator";
 }
 
 // NOTE: there is deliberately NO sendCompanyNudge here. Turning a Pat-drafted

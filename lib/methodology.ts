@@ -13,7 +13,7 @@
 
 import { FRESHNESS_WINDOWS } from "@/lib/freshness";
 
-export const METHODOLOGY_VERSION = "1.2";
+export const METHODOLOGY_VERSION = "1.3";
 export const METHODOLOGY_SOURCE_DOC = "docs/elite-sprint/AGGREGATION-METHODOLOGY.md";
 
 export type MethodologyChangelogEntry = {
@@ -23,6 +23,12 @@ export type MethodologyChangelogEntry = {
 };
 
 export const METHODOLOGY_CHANGELOG: readonly MethodologyChangelogEntry[] = [
+  {
+    version: "1.3",
+    date: "July 17, 2026",
+    summary:
+      "Published the quarterly benchmark cutoff mechanics: each calendar quarter has a cutoff date, and only assessments completed on or before it count toward that quarter's benchmark cut. The cutoff is a calendar deadline for what is included next — it never alters a score already computed.",
+  },
   {
     version: "1.2",
     date: "July 17, 2026",
@@ -119,6 +125,19 @@ export const METHODOLOGY_SECTIONS: readonly MethodologySection[] = [
       `Fresh — newest evidence under ${FRESHNESS_WINDOWS.agingAfterDays} days old.`,
       `Aging — newest evidence ${FRESHNESS_WINDOWS.agingAfterDays} to ${FRESHNESS_WINDOWS.staleAfterDays} days old.`,
       `Stale — newest evidence over ${FRESHNESS_WINDOWS.staleAfterDays} days old.`,
+    ],
+  },
+  {
+    key: "quarterly-cutoff",
+    title: "Quarterly benchmark cutoff — a published deadline, not a score change",
+    paragraphs: [
+      "Patalign publishes a quarterly benchmark cut. Each calendar quarter has a cutoff date — the last day of the quarter — and an assessment counts toward that quarter's benchmark only if it was completed on or before that date. This is the same calendar-deadline pattern used by established B2B benchmark reports: a predictable date that tells everyone which evidence is included next.",
+      "The cutoff governs inclusion, not value. It never changes, weights, or decays a score that has already been computed — a figure completed after the cutoff simply lands in the next quarter's cut instead of the current one. Membership tier changes what you see inside the benchmark (bands and percentiles for all members; deeper ranked position for Elite), never whether the cutoff applies to you.",
+    ],
+    bullets: [
+      "The cutoff is the last calendar day of each quarter (Mar 31, Jun 30, Sep 30, Dec 31).",
+      "Assessments completed on or before the cutoff count for that quarter; later ones count for the next.",
+      "The cutoff decides what is included in the next cut — it does not alter any score already computed.",
     ],
   },
 ];

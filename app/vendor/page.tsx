@@ -12,6 +12,7 @@ import {
   vendorWorkspaceCards,
 } from "@/app/components/vendor/VendorPortalContent";
 import { getSessionUser } from "@/lib/auth/session";
+import { isPingsEnabled } from "@/lib/patAssistant/flags";
 import { getInviteeAccessContext } from "@/lib/invitee/access";
 import { isBattleCardEnabled } from "@/lib/battleCard";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
@@ -177,6 +178,22 @@ export default async function VendorPage({
               <PortalSurfaceCard key={card.id} surface={card} />
             ))}
           </section>
+
+          {isPingsEnabled() ? (
+            <a
+              href="/vendor/review-refresh"
+              className="pat-card pat-card-interactive block p-6"
+              data-testid="vendor-review-refresh-link"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-lg font-semibold text-[var(--shell-ink)]">Review refresh</div>
+                <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
+              </div>
+              <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
+                How current the firm reviews of your products are — and which are entering their refresh window.
+              </p>
+            </a>
+          ) : null}
 
           {/* P3 (Mythos punch list): "Products at a glance" strip removed —
               product intelligence lives on the product-insight surfaces. */}

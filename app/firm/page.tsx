@@ -14,6 +14,7 @@ import {
   firmWorkspaceCards,
 } from "@/app/components/firm/FirmPortalContent";
 import { isAlignmentBoardEnabled } from "@/lib/alignmentBoard";
+import { isPingsEnabled } from "@/lib/patAssistant/flags";
 import { getSessionUser } from "@/lib/auth/session";
 import { getFirmAssessmentProgress } from "@/lib/firmPat";
 import { getInviteeAccessContext } from "@/lib/invitee/access";
@@ -264,6 +265,22 @@ export default async function FirmPage({
               <PortalSurfaceCard key={card.id} surface={card} />
             ))}
           </section>
+
+          {isPingsEnabled() ? (
+            <a
+              href="/firm/benchmark"
+              className="pat-card pat-card-interactive block p-6"
+              data-testid="firm-benchmark-link"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-lg font-semibold text-[var(--shell-ink)]">Quarterly benchmark</div>
+                <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
+              </div>
+              <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
+                Where your firm stands against its cohort this quarter, with the published cutoff date.
+              </p>
+            </a>
+          ) : null}
         </>
       )}
     </div>

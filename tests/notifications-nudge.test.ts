@@ -66,8 +66,8 @@ describe("authorizeCompanyNudge", () => {
 });
 
 describe("nudge message helpers", () => {
-  it("nudgeFromLabel uses the consultant name, or a generic operator label for admins", () => {
-    expect(nudgeFromLabel({ kind: "consultant", consultantLabel: "Jane" })).toBe("Jane");
+  it("nudgeFromLabel is a generic role phrase (never the raw label)", () => {
+    expect(nudgeFromLabel({ kind: "consultant", consultantLabel: "Consultant review" })).toBe("Your consultant");
     expect(nudgeFromLabel({ kind: "admin" })).toBe("A Patalign operator");
   });
 
