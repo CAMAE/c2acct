@@ -1,10 +1,151 @@
 import { getAdminCompanyBriefing } from "@/lib/adminBriefingEngine";
+import type { BriefingProductSummary, BriefingRiskOpportunity } from "@/lib/adminBriefingEngine";
 import { getVendorProductInsightCatalog } from "@/lib/vendorProductInsightEngine";
 import { getVendorScopedFirms } from "@/lib/tenancy";
 import { confidenceBandForSampleSize } from "@/lib/confidenceBands";
 import { getFirmEvidenceFreshness } from "@/lib/eliteInsightsV2";
 import type { FreshnessReading } from "@/lib/freshness";
+import {
+  selectQuestions,
+  bandForFirmScore,
+  magnitudeForDelta,
+  type QuestionScopeCell,
+} from "@/lib/perFirmQuestionLibrary";
+import { sweepVendorSurfaceCopy } from "@/lib/customerLexicon";
 import prisma from "@/lib/prisma";
+
+/**
+ * BattleCard v2 anatomy (Block 17 Track B, Day-23 §D23-P0 "Per-Firm Strengths/
+ * Cautions"). Four grounded, bullet-capped, honest-empty blocks that render ONLY
+ * in the Elite expansion layer (the collapsed card face stays a one-line summary).
+ * No fabrication: every bullet traces to a real firm review, a real calibration
+ * gap (N>=2 sample floor), or a real briefing risk. NOTE: the discovery-question
+ * strings come from the shared consultant question engine and are rephrased for a
+ * vendor customer surface in B2 (lexicon sweep).
+ */
+export type BattleCardAnatomy = {
+  /** "Why this vendor fits this firm" — high-band firm reviews. Cap 3. */
+  whyItFits: string[];
+  /** "Where it struggles for this firm" — low-band + calibration gaps + stale. Cap 3. */
+  riskFlags: string[];
+  /** "Questions to ask in evaluation" — the shared question engine. Cap 4. */
+  discoveryQuestions: string[];
+  /** "Quick disqualifiers" — briefing risks + large vendor-higher gaps. Cap 2. */
+  objectionPrep: string[];
+};
+
+/** Firm reviews below this sample floor are never asserted as evidence (N>=2). */
+const ANATOMY_MIN_REVIEW_N = 2;
+
+function anatomyCapabilityArea(product: BriefingProductSummary): string {
+  return product.taxonomyTitles?.[0] ?? product.utilityLabels?.[0] ?? "this capability";
+}
+
+export function buildBattleCardAnatomy(input: {
+  products: BriefingProductSummary[];
+  risks: BriefingRiskOpportunity[];
+  freshness: FreshnessReading | null;
+  vendorName: string;
+  firmName: string;
+}): BattleCardAnatomy {
+  const { products, risks, freshness, vendorName, firmName } = input;
+
+  // Only firm-reviewed products above the sample floor are grounded evidence.
+  const reviewed = products.filter(
+    (p) => p.firmReviewCount >= ANATOMY_MIN_REVIEW_N && p.canonicalFirmReviewScore !== null
+  );
+
+  // delta = vendor self-report − firm review (positive = vendor claims higher).
+  const cells: QuestionScopeCell[] = reviewed.map((p) => ({
+    productId: p.productId,
+    productName: p.productName,
+    capabilityArea: anatomyCapabilityArea(p),
+    firmScore: p.canonicalFirmReviewScore as number,
+    vendorScore: p.vendorSelfReportedScore,
+    delta:
+      p.vendorSelfReportedScore !== null && p.canonicalFirmReviewScore !== null
+        ? p.vendorSelfReportedScore - p.canonicalFirmReviewScore
+        : null,
+  }));
+
+  // 1. Why it fits — high-band firm reviews, strongest first.
+  const whyItFits = reviewed
+    .filter((p) => bandForFirmScore(p.canonicalFirmReviewScore as number) === "high")
+    .sort((a, b) => (b.canonicalFirmReviewScore ?? 0) - (a.canonicalFirmReviewScore ?? 0))
+    .slice(0, 3)
+    .map(
+      (p) =>
+        `${p.productName}: firms rate it ${Math.round(p.canonicalFirmReviewScore as number)} — a proven strength to lead with.`
+    );
+
+  // 2. Risk flags — low-band reviews, then calibration gaps, then stale evidence.
+  const riskFlags: string[] = [];
+  for (const p of reviewed) {
+    if (riskFlags.length >= 3) break;
+    if (bandForFirmScore(p.canonicalFirmReviewScore as number) === "low") {
+      riskFlags.push(
+        `${p.productName}: firms rate it ${Math.round(p.canonicalFirmReviewScore as number)}, below the mid-band — expect scrutiny here.`
+      );
+    }
+  }
+  for (const c of cells) {
+    if (riskFlags.length >= 3) break;
+    if (magnitudeForDelta(c.delta) !== "small" && c.vendorScore !== null && c.delta !== null) {
+      const dir = c.delta > 0 ? "above" : "below";
+      riskFlags.push(
+        `${c.productName}: your self-report (${Math.round(c.vendorScore)}) sits ${Math.abs(Math.round(c.delta))} pts ${dir} the firm review (${Math.round(c.firmScore)}) — a calibration gap to close.`
+      );
+    }
+  }
+  if (riskFlags.length < 3 && freshness && freshness.state !== "fresh") {
+    riskFlags.push(
+      `This firm's alignment evidence is ${freshness.state} (${freshness.ageLabel}) — refresh it before leaning on this card.`
+    );
+  }
+
+  // 3. Discovery questions — the shared engine over the graded cells.
+  const discoveryQuestions = selectQuestions(cells, { vendorName, firmName }, 4).map((q) => q.rendered);
+
+  // 4. Objection prep — real briefing risks, then large vendor-higher gaps (per ruling).
+  const objectionPrep: string[] = [];
+  for (const r of risks) {
+    if (objectionPrep.length >= 2) break;
+    if (r.layer === "product" || r.layer === "firm") objectionPrep.push(r.title);
+  }
+  for (const c of cells) {
+    if (objectionPrep.length >= 2) break;
+    if (
+      bandForFirmScore(c.firmScore) === "low" &&
+      magnitudeForDelta(c.delta) === "large" &&
+      (c.delta ?? 0) > 0 &&
+      c.vendorScore !== null
+    ) {
+      objectionPrep.push(
+        `Firms score ${c.productName} at ${Math.round(c.firmScore)} against your ${Math.round(c.vendorScore)} self-report — pre-empt this gap before it becomes their objection.`
+      );
+    }
+  }
+
+  // Every string that renders on the vendor customer surface passes the lexicon
+  // sweep — the discovery questions + briefing risk titles are ported from the
+  // internal consultant engine and must not carry analyst shorthand.
+  const clean = (arr: string[]) => arr.map(sweepVendorSurfaceCopy);
+
+  return {
+    whyItFits: clean(whyItFits.length ? whyItFits : ["No high-band products yet — fit is emerging at the mid-band."]),
+    riskFlags: clean(
+      riskFlags.length ? riskFlags : ["No low-band products or calibration gaps on file for this firm yet."]
+    ),
+    discoveryQuestions: clean(
+      discoveryQuestions.length
+        ? discoveryQuestions
+        : ["Complete a product review with this firm to unlock tailored discovery questions."]
+    ),
+    objectionPrep: clean(
+      objectionPrep.length ? objectionPrep : ["No category-level disqualifiers surface for this firm."]
+    ),
+  };
+}
 
 /**
  * Vendor BattleCard data layer (Elite Sprint Sprint-3 Block F). The mirror of
@@ -79,6 +220,8 @@ export type RankedFirm = {
   nextActions: string[];
   /** 16a — evidence age behind this firm's alignment score (Fresh/Aging/Stale). */
   alignmentFreshness: FreshnessReading | null;
+  /** Block 17 v2 — the four-block per-firm sales anatomy (Elite expansion only). */
+  anatomy: BattleCardAnatomy;
 };
 
 /**
@@ -241,6 +384,8 @@ export async function getVendorBattleCardData(vendorCompanyId: string): Promise<
       nextActions.push("Attach product evidence to these modules before the outreach so the pitch is grounded, not generic.");
     }
 
+    const alignmentFreshness = await getFirmEvidenceFreshness(prisma, firmCompanyId);
+
     firms.push({
       firmCompanyId,
       firmName: briefing.company.name,
@@ -252,7 +397,15 @@ export async function getVendorBattleCardData(vendorCompanyId: string): Promise<
       moduleShape,
       nextActions,
       // 16a — the firm's alignment evidence age, from the canonical reader.
-      alignmentFreshness: await getFirmEvidenceFreshness(prisma, firmCompanyId),
+      alignmentFreshness,
+      // Block 17 v2 — four-block per-firm sales anatomy, grounded in the briefing.
+      anatomy: buildBattleCardAnatomy({
+        products: briefing.productLayer?.products ?? [],
+        risks: briefing.risks ?? [],
+        freshness: alignmentFreshness,
+        vendorName: vendorCompany.name,
+        firmName: briefing.company.name,
+      }),
     });
   }
 

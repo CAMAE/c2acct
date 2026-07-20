@@ -8,7 +8,7 @@ import SalesFitRadar from "@/app/components/vendor/SalesFitRadar";
 import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import { formatDelta, formatScoreValue } from "@/lib/formatDelta";
 import { fitBarPct, fitHeatColor, fitTierKey, fitTierLabel, type FitTierKey } from "@/lib/fitHeat";
-import type { EvidenceGrade, RankedFirm, SalesModuleGap, VendorBattleCardData } from "@/lib/battleCard";
+import type { BattleCardAnatomy, EvidenceGrade, RankedFirm, SalesModuleGap, VendorBattleCardData } from "@/lib/battleCard";
 import { CONFIDENCE_BAND_LABEL } from "@/lib/confidenceBands";
 
 /**
@@ -309,25 +309,59 @@ function BattleCardDetailBody({
       )}
 
       {entitled ? (
-        <div className="mt-6">
-          <div className="pat-label mb-2">Suggested next actions</div>
-          <ol className="space-y-2">
-            {detail.nextActions.map((action, index) => (
-              <li key={index} className="flex gap-2.5 text-sm leading-6 text-[var(--shell-ink)]">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--shell-panel-soft)] text-[11px] font-semibold text-[var(--shell-muted)]">
-                  {index + 1}
-                </span>
-                <span>{action}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
+        <>
+          <div className="mt-6">
+            <div className="pat-label mb-2">Suggested next actions</div>
+            <ol className="space-y-2">
+              {detail.nextActions.map((action, index) => (
+                <li key={index} className="flex gap-2.5 text-sm leading-6 text-[var(--shell-ink)]">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--shell-panel-soft)] text-[11px] font-semibold text-[var(--shell-muted)]">
+                    {index + 1}
+                  </span>
+                  <span>{action}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+          {/* BattleCard v2 anatomy — Elite expansion layer only (the collapsed
+              face stays a one-line summary; Pro sees the upsell below). */}
+          <BattleCardAnatomySection anatomy={detail.anatomy} />
+        </>
       ) : (
         <Link className="pat-button-primary mt-5 inline-flex text-sm" href={membershipHref}>
           Reveal with Elite
         </Link>
       )}
     </>
+  );
+}
+
+function AnatomyBlock({ label, items, tone }: { label: string; items: string[]; tone: "fit" | "risk" | "neutral" }) {
+  const dot =
+    tone === "fit" ? "bg-[var(--shell-positive)]" : tone === "risk" ? "bg-[var(--brand-orange)]" : "bg-[var(--shell-muted)]";
+  return (
+    <div className="mt-6" data-testid={`battlecard-anatomy-${label.toLowerCase().replace(/[^a-z]+/g, "-")}`}>
+      <div className="pat-label mb-2">{label}</div>
+      <ul className="space-y-1.5">
+        {items.map((item, index) => (
+          <li key={index} className="flex gap-2 text-sm leading-6 text-[var(--shell-ink)]">
+            <span aria-hidden="true" className={`mt-2 h-1.5 w-1.5 shrink-0 rounded-full ${dot}`} />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function BattleCardAnatomySection({ anatomy }: { anatomy: BattleCardAnatomy }) {
+  return (
+    <div data-testid="battlecard-anatomy">
+      <AnatomyBlock label="Why it fits" items={anatomy.whyItFits} tone="fit" />
+      <AnatomyBlock label="Risk flags" items={anatomy.riskFlags} tone="risk" />
+      <AnatomyBlock label="Discovery questions" items={anatomy.discoveryQuestions} tone="neutral" />
+      <AnatomyBlock label="Objection prep" items={anatomy.objectionPrep} tone="neutral" />
+    </div>
   );
 }
 

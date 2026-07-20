@@ -59,9 +59,9 @@ function vendorSnapshot(firmAvg: number) {
 describe("rankFirmsByFit", () => {
   it("ranks bigger alignment deltas first; null deltas last", () => {
     const ranked = rankFirmsByFit([
-      { firmCompanyId: "b", firmName: "B", alignmentDelta: -4, firmAlignment: 70, confidence: "grounded", gapArea: "x", gapScore: 60, moduleShape: [], nextActions: [], alignmentFreshness: null },
-      { firmCompanyId: "a", firmName: "A", alignmentDelta: 26, firmAlignment: 40, confidence: "grounded", gapArea: "x", gapScore: 30, moduleShape: [], nextActions: [], alignmentFreshness: null },
-      { firmCompanyId: "c", firmName: "C", alignmentDelta: null, firmAlignment: null, confidence: "no_signal", gapArea: "x", gapScore: null, moduleShape: [], nextActions: [], alignmentFreshness: null },
+      { firmCompanyId: "b", firmName: "B", alignmentDelta: -4, firmAlignment: 70, confidence: "grounded", gapArea: "x", gapScore: 60, moduleShape: [], nextActions: [], alignmentFreshness: null, anatomy: { whyItFits: [], riskFlags: [], discoveryQuestions: [], objectionPrep: [] } },
+      { firmCompanyId: "a", firmName: "A", alignmentDelta: 26, firmAlignment: 40, confidence: "grounded", gapArea: "x", gapScore: 30, moduleShape: [], nextActions: [], alignmentFreshness: null, anatomy: { whyItFits: [], riskFlags: [], discoveryQuestions: [], objectionPrep: [] } },
+      { firmCompanyId: "c", firmName: "C", alignmentDelta: null, firmAlignment: null, confidence: "no_signal", gapArea: "x", gapScore: null, moduleShape: [], nextActions: [], alignmentFreshness: null, anatomy: { whyItFits: [], riskFlags: [], discoveryQuestions: [], objectionPrep: [] } },
     ]);
     expect(ranked.map((f) => f.firmCompanyId)).toEqual(["a", "b", "c"]);
     expect(ranked.map((f) => f.fitRank)).toEqual([1, 2, 3]);
