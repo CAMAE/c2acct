@@ -61,7 +61,8 @@ export type StalenessDraft = {
   body: string;
   ctaLabel: string;
   ctaHref: string;
-  sourceType: "Company";
+  /** "Company" for firm/vendor-level alerts; "Product" for per-product singles (C2). */
+  sourceType: "Company" | "Product";
   sourceId: string;
   aiGenerated: true;
   /** The ledger item key + entry to persist iff the notification is created. */

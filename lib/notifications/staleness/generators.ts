@@ -62,41 +62,58 @@ export function planReviewExpiry(facts: ReviewExpiryFact[], nowMs: number): Stal
 
 // ── (3) score-change ─────────────────────────────────────────────────────────
 export type ScoreChangeFact = GeneratorFactBase & {
-  /** The newest submission's id + resulting index, or null if none/no change. */
+  /** The newest submission/snapshot id + resulting score, or null if none/no change. */
   latestSubmissionId: string | null;
   newScore: number | null;
   priorScore: number | null;
+  /**
+   * Optional subject the score belongs to. Firm alignment index: absent (the
+   * whole firm). Vendor per-product (C2): the productId + product name, so the
+   * alert names the product and links to the product's own maturity surface —
+   * A3-compliant (the number is the product-maturity reader's, shown elsewhere).
+   */
+  subjectId?: string | null;
+  subjectLabel?: string | null;
 };
 
 export function planScoreChange(facts: ScoreChangeFact[], nowMs: number): StalenessDraft[] {
   const nowIso = new Date(nowMs).toISOString();
   const drafts: StalenessDraft[] = [];
   for (const f of facts) {
-    // Fire once per new submission that actually moved the score. Signature ties
-    // to the submission id, so a re-run is silent and only a genuinely new
-    // submission speaks again.
+    // Fire once per new submission/snapshot that actually moved the score. The
+    // signature ties to that id, so a re-run is silent until a genuinely newer
+    // one lands. Per-product facts carry a distinct subjectId → distinct ledger.
     const moved = f.latestSubmissionId != null && f.newScore != null && f.newScore !== f.priorScore;
     const signature = moved ? `sub:${f.latestSubmissionId}` : null;
     const decision = decideSignatureSend({ signature, entry: f.ledger, acknowledgedSinceLast: f.acknowledgedSinceLast, nowIso });
     if (!decision.send) continue;
     const delta = (f.newScore as number) - (f.priorScore ?? (f.newScore as number));
     const dir = delta > 0 ? "up" : delta < 0 ? "down" : "unchanged";
+    const perProduct = Boolean(f.subjectId && f.subjectLabel);
+    const subjectNs = f.subjectId ? `:${f.subjectId}` : "";
     drafts.push({
       recipientUserId: f.recipientUserId,
       audience: f.audience,
       generator: "score",
       kind: `AUTO_${f.audience.toUpperCase()}_SCORE_CHANGE`,
-      title: "Your alignment index updated",
-      body:
-        dir === "unchanged"
+      title: perProduct ? `${f.subjectLabel} strength updated` : "Your alignment index updated",
+      body: perProduct
+        ? dir === "unchanged"
+          ? `A new firm review is in. ${f.subjectLabel} held at ${f.newScore}.`
+          : `A new firm review is in. ${f.subjectLabel} strength moved ${dir} to ${f.newScore} (${delta > 0 ? "+" : ""}${delta}).`
+        : dir === "unchanged"
           ? `Your latest submission is in. Your alignment index held at ${f.newScore}.`
           : `Your latest submission is in. Your alignment index moved ${dir} to ${f.newScore} (${delta > 0 ? "+" : ""}${delta}).`,
       ctaLabel: "See what changed",
-      ctaHref: f.audience === "firm" ? "/firm/insights" : "/vendor/product-insight",
-      sourceType: "Company",
-      sourceId: f.companyId,
+      ctaHref: perProduct
+        ? `/vendor/product-insight/${f.subjectId}`
+        : f.audience === "firm"
+          ? "/firm/insights"
+          : "/vendor/product-insight",
+      sourceType: perProduct ? "Product" : "Company",
+      sourceId: f.subjectId ?? f.companyId,
       aiGenerated: true,
-      ledgerItemKey: ledgerKey(`score:${f.audience}`, f.companyId, f.recipientUserId),
+      ledgerItemKey: ledgerKey(`score:${f.audience}${subjectNs}`, f.companyId, f.recipientUserId),
       nextEntry: decision.nextEntry,
     });
   }

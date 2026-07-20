@@ -69,41 +69,45 @@ export function peersReassessedInCohort(cohortReassessedThisQuarter: number, sel
   return Math.max(0, cohortReassessedThisQuarter - (selfReassessed ? 1 : 0));
 }
 
+export type VendorProductScoreChange = {
+  subjectId: string;
+  subjectLabel: string;
+  latestSubmissionId: string;
+  newScore: number;
+  priorScore: number;
+};
+
 /**
- * (3) score-change, vendor side (C2). Vendors have no firm-level maturity
- * snapshot — only per-product ProductMaturitySnapshot rows. The honest vendor
- * "index over time" is the mean of each product's NEWEST snapshot vs the mean of
- * each product's SECOND-newest. Fires only when at least one product carries a
- * prior round (else priorScore is null → no delta → silent). latestId is a
- * stable signature so a re-run is quiet until a genuinely newer round lands.
+ * (3) score-change, vendor side (C2 — Mythos ruling). PER-PRODUCT singles, not a
+ * synthetic vendor index (A3: every displayed number must be some reader's — the
+ * mean-of-products index is nowhere else in the product). For each of the
+ * vendor's products with >=2 ProductMaturitySnapshot rounds, emit a change from
+ * newest vs second-newest, keyed by the newest snapshot id. Products with <2
+ * rounds are honest-empty (no fact). The digest law batches multiple products.
  */
-export function vendorIndexFromProductSnapshots(
-  snaps: Array<{ productId: string; score: number; computedAt: Date }>
-): { latestSubmissionId: string | null; newScore: number | null; priorScore: number | null } {
-  const byProduct = new Map<string, { score: number; computedAt: Date }[]>();
+export function vendorProductScoreChanges(
+  snaps: Array<{ id: string; productId: string; score: number; computedAt: Date }>,
+  productNameById: Map<string, string>
+): VendorProductScoreChange[] {
+  const byProduct = new Map<string, { id: string; score: number; computedAt: Date }[]>();
   for (const s of snaps) {
     const arr = byProduct.get(s.productId) ?? [];
-    arr.push({ score: s.score, computedAt: s.computedAt });
+    arr.push({ id: s.id, score: s.score, computedAt: s.computedAt });
     byProduct.set(s.productId, arr);
   }
-  const newests: number[] = [];
-  const priors: number[] = [];
-  let latestMs = -Infinity;
-  for (const rows of byProduct.values()) {
+  const changes: VendorProductScoreChange[] = [];
+  for (const [productId, rows] of byProduct) {
     rows.sort((a, b) => b.computedAt.getTime() - a.computedAt.getTime());
-    if (rows[0]) {
-      newests.push(rows[0].score);
-      latestMs = Math.max(latestMs, rows[0].computedAt.getTime());
-    }
-    if (rows[1]) priors.push(rows[1].score);
+    if (rows.length < 2) continue; // honest-empty until a product has a prior round
+    changes.push({
+      subjectId: productId,
+      subjectLabel: productNameById.get(productId) ?? "A product",
+      latestSubmissionId: rows[0].id,
+      newScore: Math.round(rows[0].score),
+      priorScore: Math.round(rows[1].score),
+    });
   }
-  if (newests.length === 0) return { latestSubmissionId: null, newScore: null, priorScore: null };
-  const mean = (xs: number[]) => Math.round(xs.reduce((a, b) => a + b, 0) / xs.length);
-  return {
-    latestSubmissionId: `vendor-index:${new Date(latestMs).toISOString()}`,
-    newScore: mean(newests),
-    priorScore: priors.length > 0 ? mean(priors) : null,
-  };
+  return changes;
 }
 
 /**
@@ -198,12 +202,19 @@ async function gather(nowMs: number): Promise<Gathered> {
       });
     }
 
-    // (3) score-change: the firm's alignment-index snapshot delta, or — for a
-    // vendor — its product-maturity index (mean of products' newest vs prior
-    // snapshot; C2). Both feed the SAME generator on the SAME governed spine.
-    let latestSubmissionId: string | null = null;
-    let newScore: number | null = null;
-    let priorScore: number | null = null;
+    // (3) score-change: the firm's alignment-index snapshot delta (one subject),
+    // or — for a vendor — one PER-PRODUCT subject from its product-maturity
+    // snapshots (C2, Mythos ruling: per-product singles, not a synthetic index).
+    // Both feed the SAME generator on the SAME governed spine; the digest batches
+    // a vendor's multiple product changes.
+    type ScoreSubject = {
+      subjectId: string | null;
+      subjectLabel: string | null;
+      latestSubmissionId: string | null;
+      newScore: number | null;
+      priorScore: number | null;
+    };
+    const scoreSubjects: ScoreSubject[] = [];
     if (audience === "firm") {
       const snaps = await prisma.firmMaturitySnapshot.findMany({
         where: { companyId: company.id },
@@ -212,26 +223,30 @@ async function gather(nowMs: number): Promise<Gathered> {
         select: { id: true, score: true },
       });
       if (snaps[0]) {
-        latestSubmissionId = snaps[0].id;
-        newScore = Math.round(snaps[0].score);
-        priorScore = snaps[1] ? Math.round(snaps[1].score) : null;
+        scoreSubjects.push({
+          subjectId: null,
+          subjectLabel: null,
+          latestSubmissionId: snaps[0].id,
+          newScore: Math.round(snaps[0].score),
+          priorScore: snaps[1] ? Math.round(snaps[1].score) : null,
+        });
       }
     } else {
       const vendorProducts = await prisma.product.findMany({
         where: { companyId: company.id, active: true },
-        select: { id: true },
+        select: { id: true, name: true },
       });
       const productIds = vendorProducts.map((p) => p.id);
       if (productIds.length > 0) {
         const snaps = await prisma.productMaturitySnapshot.findMany({
           where: { productId: { in: productIds } },
           orderBy: { computedAt: "desc" },
-          select: { productId: true, score: true, computedAt: true },
+          select: { id: true, productId: true, score: true, computedAt: true },
         });
-        const idx = vendorIndexFromProductSnapshots(snaps);
-        latestSubmissionId = idx.latestSubmissionId;
-        newScore = idx.newScore;
-        priorScore = idx.priorScore;
+        const nameById = new Map(vendorProducts.map((p) => [p.id, p.name]));
+        for (const change of vendorProductScoreChanges(snaps, nameById)) {
+          scoreSubjects.push(change);
+        }
       }
     }
 
@@ -282,14 +297,19 @@ async function gather(nowMs: number): Promise<Gathered> {
         acknowledgedSinceLast: ackFor(notes, [`AUTO_${auu}_REVIEW_EXPIRY`, digestPrefix]),
         ledger: await readLedgerEntry(itemKey(`review:${audience}`, company.id, user.id)),
       });
-      scoreFacts.push({
-        ...commonBase,
-        latestSubmissionId,
-        newScore,
-        priorScore,
-        acknowledgedSinceLast: ackFor(notes, [`AUTO_${auu}_SCORE_CHANGE`, digestPrefix]),
-        ledger: await readLedgerEntry(itemKey(`score:${audience}`, company.id, user.id)),
-      });
+      for (const subj of scoreSubjects) {
+        const subjectNs = subj.subjectId ? `:${subj.subjectId}` : "";
+        scoreFacts.push({
+          ...commonBase,
+          latestSubmissionId: subj.latestSubmissionId,
+          newScore: subj.newScore,
+          priorScore: subj.priorScore,
+          subjectId: subj.subjectId,
+          subjectLabel: subj.subjectLabel,
+          acknowledgedSinceLast: ackFor(notes, [`AUTO_${auu}_SCORE_CHANGE`, digestPrefix]),
+          ledger: await readLedgerEntry(itemKey(`score:${audience}${subjectNs}`, company.id, user.id)),
+        });
+      }
       cohortStubs.push({
         ...commonBase,
         cohortKey,

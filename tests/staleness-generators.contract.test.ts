@@ -62,6 +62,25 @@ describe("score-change (3)", () => {
       planScoreChange([{ ...base(), latestSubmissionId: "s9", newScore: 70, priorScore: 70 }], NOW)
     ).toHaveLength(0);
   });
+  it("C2 per-product single: names the product, links to it, distinct ledger + Product source", () => {
+    const fact: ScoreChangeFact = {
+      ...base(),
+      latestSubmissionId: "snap-new",
+      newScore: 80,
+      priorScore: 70,
+      subjectId: "prod-1",
+      subjectLabel: "Meridian Portal",
+    };
+    const [d] = planScoreChange([fact], NOW);
+    expect(d.title).toBe("Meridian Portal strength updated");
+    expect(d.body).toContain("Meridian Portal");
+    expect(d.body).toContain("80");
+    expect(d.ctaHref).toBe("/vendor/product-insight/prod-1");
+    expect(d.sourceType).toBe("Product");
+    expect(d.sourceId).toBe("prod-1");
+    // per-product ledger key is distinct from the firm/company-level score key.
+    expect(d.ledgerItemKey).toContain("prod-1");
+  });
 });
 
 describe("cohort movement (4) — counts only, never identities", () => {

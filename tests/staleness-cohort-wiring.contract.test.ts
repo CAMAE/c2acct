@@ -4,12 +4,22 @@ import { describe, expect, it } from "vitest";
 import {
   ackFor,
   peersReassessedInCohort,
-  vendorIndexFromProductSnapshots,
+  vendorProductScoreChanges,
 } from "@/lib/notifications/staleness/runStalenessSweep";
 
 const note = (kind: string, read: boolean) => ({ kind, readAt: read ? new Date() : null });
 
-const snap = (productId: string, score: number, iso: string) => ({ productId, score, computedAt: new Date(iso) });
+const snap = (id: string, productId: string, score: number, iso: string) => ({
+  id,
+  productId,
+  score,
+  computedAt: new Date(iso),
+});
+const NAMES = new Map([
+  ["a", "Meridian Portal"],
+  ["b", "Meridian Tax"],
+  ["solo", "Meridian Payroll"],
+]);
 
 /**
  * Block 17 Track C / C1 — cohort-movement gather wiring. planCohortMovement is
@@ -55,37 +65,31 @@ describe("ackFor (C3 — digest-ack refinement)", () => {
   });
 });
 
-describe("vendorIndexFromProductSnapshots (C2 — vendor score-change grounding)", () => {
-  it("means each product's newest vs second-newest snapshot", () => {
-    const idx = vendorIndexFromProductSnapshots([
-      snap("a", 80, "2026-07-01"),
-      snap("a", 70, "2026-04-01"),
-      snap("b", 60, "2026-07-01"),
-      snap("b", 50, "2026-04-01"),
-    ]);
-    expect(idx.newScore).toBe(70); // mean(80,60)
-    expect(idx.priorScore).toBe(60); // mean(70,50)
-    expect(idx.latestSubmissionId).toContain("2026-07-01");
+describe("vendorProductScoreChanges (C2 — per-product singles, Mythos ruling)", () => {
+  it("one change PER PRODUCT with >=2 rounds, keyed by the newest snapshot id", () => {
+    const changes = vendorProductScoreChanges(
+      [
+        snap("a2", "a", 80, "2026-07-01"),
+        snap("a1", "a", 70, "2026-04-01"),
+        snap("b2", "b", 60, "2026-07-01"),
+        snap("b1", "b", 52, "2026-04-01"),
+      ],
+      NAMES
+    );
+    expect(changes).toHaveLength(2);
+    const a = changes.find((c) => c.subjectId === "a")!;
+    expect(a).toMatchObject({ subjectLabel: "Meridian Portal", latestSubmissionId: "a2", newScore: 80, priorScore: 70 });
+    const b = changes.find((c) => c.subjectId === "b")!;
+    expect(b).toMatchObject({ subjectLabel: "Meridian Tax", newScore: 60, priorScore: 52 });
   });
 
-  it("no prior round → priorScore null (no delta, generator stays silent)", () => {
-    const idx = vendorIndexFromProductSnapshots([snap("a", 80, "2026-07-01"), snap("b", 60, "2026-07-01")]);
-    expect(idx.newScore).toBe(70);
-    expect(idx.priorScore).toBeNull();
+  it("a product with only ONE round is honest-empty (no fact — never fires)", () => {
+    const changes = vendorProductScoreChanges([snap("s1", "solo", 40, "2026-07-01")], NAMES);
+    expect(changes).toEqual([]);
   });
 
-  it("empty snapshots → all null (never asserts a vendor index)", () => {
-    expect(vendorIndexFromProductSnapshots([])).toEqual({ latestSubmissionId: null, newScore: null, priorScore: null });
-  });
-
-  it("a product with only one snapshot contributes to newScore but not priorScore", () => {
-    const idx = vendorIndexFromProductSnapshots([
-      snap("a", 90, "2026-07-01"),
-      snap("a", 60, "2026-04-01"),
-      snap("solo", 40, "2026-07-01"),
-    ]);
-    expect(idx.newScore).toBe(65); // mean(90,40)
-    expect(idx.priorScore).toBe(60); // only product a has a prior
+  it("empty snapshots → no changes", () => {
+    expect(vendorProductScoreChanges([], NAMES)).toEqual([]);
   });
 });
 
