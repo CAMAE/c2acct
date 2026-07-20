@@ -1,4 +1,5 @@
 import { getScoreBand } from "@/lib/scoreBands";
+import { ordinal } from "@/lib/ordinal";
 
 /**
  * Percentile band (Elite Insights v2, F1 Peer Position). Per row: a 0–100 track
@@ -24,12 +25,6 @@ export type PercentileRow = {
 
 function pct(n: number | null): number {
   return Math.max(0, Math.min(100, n ?? 0));
-}
-
-function ordinal(n: number): string {
-  const s = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
 }
 
 export default function PercentileBand({ rows, title }: { rows: PercentileRow[]; title: string }) {

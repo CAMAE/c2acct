@@ -2,14 +2,9 @@ import PercentileBandRow from "@/app/components/charts/PercentileBandRow";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
 import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
 import type { VendorCategoryPosition } from "@/lib/eliteInsightsV2";
+import { ordinal } from "@/lib/ordinal";
 
 const MIN_CONTRIBUTORS = 5;
-
-function ordinal(n: number): string {
-  const s = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
-}
 
 export default function VendorCategoryPositionCard({ data }: { data: VendorCategoryPosition }) {
   if (!data.available) {

@@ -1,12 +1,7 @@
 import PercentileBandRow from "@/app/components/charts/PercentileBandRow";
 import TrajectoryChart from "@/app/components/charts/TrajectoryChart";
 import type { ProductCohortPosition, ProductTrajectory } from "@/lib/eliteInsightsV2";
-
-function ordinal(n: number): string {
-  const s = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
-}
+import { ordinal } from "@/lib/ordinal";
 
 /**
  * Hybrid Elite depth (live for entitled Elite vendors): where a product sits in

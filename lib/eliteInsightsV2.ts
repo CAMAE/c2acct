@@ -24,6 +24,7 @@ import { readFreshness, type FreshnessReading } from "@/lib/freshness";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { MIN_CONTRIBUTORS } from "@/lib/benchmarkSuppression";
 import type { PercentileRow } from "@/app/components/charts/PercentileBand";
+import { ordinal } from "@/lib/ordinal";
 
 const MODULE_TITLE = new Map<string, string>(FIRM_MODULE_DEFINITIONS.map((m) => [m.key, m.title]));
 
@@ -66,12 +67,6 @@ export const VENDOR_ELITE_V2_META: Record<string, EliteCardMeta> = {
 
 function suppressed(reading: BenchmarkReading): boolean {
   return reading.n < MIN_CONTRIBUTORS;
-}
-
-function ordinal(n: number): string {
-  const s = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
 }
 
 // ── F1 · Peer Position Report ────────────────────────────────────────────────

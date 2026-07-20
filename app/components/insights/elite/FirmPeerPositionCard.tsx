@@ -4,12 +4,7 @@ import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodP
 import FreshnessNote from "@/app/components/insights/elite/FreshnessNote";
 import { describePercentile, type FirmPeerPosition } from "@/lib/eliteInsightsV2";
 import type { FreshnessReading } from "@/lib/freshness";
-
-function ordinal(n: number): string {
-  const s = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
-}
+import { ordinal } from "@/lib/ordinal";
 
 const VERDICT_CHIP: Record<FirmPeerPosition["reportCard"][number]["verdict"], { label: string; cls: string }> = {
   ahead: { label: "ahead of peers", cls: "bg-[rgba(22,163,74,0.1)] text-[var(--shell-positive)]" },

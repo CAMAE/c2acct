@@ -14,7 +14,8 @@ import { resolveCompanyBoundary } from "@/lib/dataBoundary";
 import { getFirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
 import { buildFirmPeerPosition } from "@/lib/eliteInsightsV2";
 import { getBenchmarkArtifactMeta } from "@/lib/benchmarkArtifact";
-import { scoreChipLabel } from "@/lib/bandLexicon";
+import { scoreBandFor } from "@/lib/bandLexicon";
+import { ordinal } from "@/lib/ordinal";
 
 export const dynamic = "force-dynamic";
 
@@ -99,11 +100,11 @@ export default async function FirmBenchmarkArtifactPage() {
             <div className="mt-3 flex flex-wrap items-end gap-x-6 gap-y-2">
               <div>
                 <div className="text-4xl font-semibold tabular-nums text-[var(--shell-ink)]">
-                  {peer.overall.percentile}
-                  <span className="ml-1 text-lg font-medium text-[var(--shell-muted)]">th pct</span>
+                  {ordinal(peer.overall.percentile)}
+                  <span className="ml-1 text-lg font-medium text-[var(--shell-muted)]">pct</span>
                 </div>
                 <div className="mt-1 text-sm text-[var(--shell-muted)]">
-                  alignment index {Math.round(peer.overall.score)} · {scoreChipLabel(peer.overall.score)}
+                  alignment index {Math.round(peer.overall.score)} · {scoreBandFor(peer.overall.score).label}
                 </div>
               </div>
               <CardChipRow>
@@ -129,8 +130,8 @@ export default async function FirmBenchmarkArtifactPage() {
               {peer.bestAction ? (
                 <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
                   Fastest move up: <strong>{peer.bestAction.moduleLabel}</strong> — closing its {peer.bestAction.deficit}-point
-                  deficit lifts you from the {peer.bestAction.fromPercentile}th toward the {peer.bestAction.toPercentile}th
-                  percentile before the {meta.quarterLabel} cutoff.
+                  deficit lifts you from the {ordinal(peer.bestAction.fromPercentile)} toward the{" "}
+                  {ordinal(peer.bestAction.toPercentile)} percentile before the {meta.quarterLabel} cutoff.
                 </p>
               ) : null}
             </section>

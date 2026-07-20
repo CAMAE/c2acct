@@ -4,17 +4,12 @@ import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell"
 import FreshnessNote from "@/app/components/insights/elite/FreshnessNote";
 import type { FirmTrajectory } from "@/lib/eliteInsightsV2";
 import type { FreshnessReading } from "@/lib/freshness";
+import { ordinal } from "@/lib/ordinal";
 
 function trendDir(t: string): TrendDirection {
   if (/UP|ACCEL|RISING|IMPROV/i.test(t)) return "up";
   if (/DOWN|DECEL|FALLING|DECLIN/i.test(t)) return "down";
   return "flat";
-}
-
-function ordinal(n: number): string {
-  const s = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
 }
 
 /**
