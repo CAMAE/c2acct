@@ -64,10 +64,17 @@ export async function signInWithPilotCredentials(formData: FormData) {
   const finalRedirect = user?.mustChangePassword ? passwordUpdatePath(redirectTo) : redirectTo;
 
   try {
+    // redirect:false — establish the session WITHOUT letting Auth.js redirect to
+    // the pinned AUTH_URL origin. When the standalone's AUTH_URL host differs from
+    // the browser's (e.g. 127.0.0.1 vs localhost), Auth.js's own post-sign-in
+    // redirect crosses origins, the freshly-set session cookie is host-locked to
+    // the submit origin and never travels, and the portal bounces back to
+    // /sign-in with NO error param. We do the redirect ourselves, relative, so it
+    // stays on the exact origin the form was posted to and the cookie sticks.
     await signIn("credentials", {
       email,
       password,
-      redirectTo: finalRedirect,
+      redirect: false,
     });
   } catch (error) {
     if (error instanceof AuthError) {
@@ -76,6 +83,10 @@ export async function signInWithPilotCredentials(formData: FormData) {
 
     throw error;
   }
+
+  // Same-origin relative redirect (must live OUTSIDE the try — redirect() throws
+  // NEXT_REDIRECT, which is not an AuthError and must propagate to Next).
+  redirect(finalRedirect);
 }
 
 export async function updateFirstLoginPasswordAction(formData: FormData) {
@@ -138,10 +149,12 @@ export async function updateFirstLoginPasswordAction(formData: FormData) {
   });
 
   try {
+    // Same cross-origin cookie fix as signInWithPilotCredentials: establish the
+    // session without Auth.js's pinned-origin redirect, then redirect relative.
     await signIn("credentials", {
       email: user.email,
       password,
-      redirectTo: returnTo,
+      redirect: false,
     });
   } catch (error) {
     if (error instanceof AuthError) {
@@ -150,4 +163,6 @@ export async function updateFirstLoginPasswordAction(formData: FormData) {
 
     throw error;
   }
+
+  redirect(returnTo);
 }
