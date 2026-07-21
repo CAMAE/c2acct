@@ -30,7 +30,11 @@ export default function V7FrontDoor() {
         dangerouslySetInnerHTML={{
           __html:
             "body.pat-shell > header, body.pat-shell > footer{display:none!important}" +
-            "body.pat-shell > main.pat-shell-main{max-width:none!important;margin-inline:0!important;padding-inline:0!important;padding-block:0!important}",
+            // display:block matters — pat-shell-main is `flex flex-1`, so without
+            // this the V7 root div is a flex child with no grow and collapses to
+            // content width (~796px) pinned left. Block flow lets it fill 100%
+            // while its own mx-auto max-w-[1120px] sections handle centering.
+            "body.pat-shell > main.pat-shell-main{display:block!important;max-width:none!important;margin-inline:0!important;padding-inline:0!important;padding-block:0!important}",
         }}
       />
       {/* NAV */}

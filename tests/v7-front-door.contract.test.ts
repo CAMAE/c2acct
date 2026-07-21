@@ -52,7 +52,9 @@ describe("V7 front door", () => {
     // silently reintroduce the double header/footer.
     expect(src).toMatch(/body\.pat-shell > header[^{]*\{[^}]*display:\s*none/);
     expect(src).toContain("body.pat-shell > footer");
-    expect(src).toContain("main.pat-shell-main");
+    // main.pat-shell-main is `flex flex-1`; the escape MUST restore block flow or
+    // the V7 root collapses to content width (~796px) pinned left in the flex row.
+    expect(src).toMatch(/main\.pat-shell-main\{display:\s*block/);
   });
 
   it("the radar is data-free — no fabricated scores/percentages on the front door", () => {
