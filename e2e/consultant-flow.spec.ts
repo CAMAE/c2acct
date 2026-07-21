@@ -659,11 +659,21 @@ test.describe("consultant flow", () => {
     expect(ownEcosystemId).toBeTruthy();
 
     await page.goto(`/consultants/ecosystems/${ownEcosystemId}/vendor-brief`, {
-      waitUntil: "domcontentloaded",
+      waitUntil: "networkidle",
       timeout: 60_000,
     });
-    await expect(page.locator('[data-testid="vendor-brief-portal-hero"]')).toBeVisible();
-    await expect(page.locator('[data-testid="vendor-brief-exec-panel"]')).toBeVisible();
+    // Flake guard (Block 18): a PARALLEL spec (local-review-auth) reassigns the
+    // shared demo-bench sentinel consultant mid-run, which can briefly empty this
+    // ecosystem's brief so the server renders the honest empty-firm frame (no
+    // hero). Reload once to let the reassignment settle. A PERSISTENTLY empty
+    // ecosystem still fails the assertion below — this masks the transient, not a
+    // real regression.
+    const hero = page.locator('[data-testid="vendor-brief-portal-hero"]');
+    if (!(await hero.isVisible().catch(() => false))) {
+      await page.reload({ waitUntil: "networkidle" });
+    }
+    await expect(hero).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('[data-testid="vendor-brief-exec-panel"]')).toBeVisible({ timeout: 15_000 });
 
     const toggleLabels = await page
       .locator('[data-testid="vendor-brief-portal-hero"] .pat-mode-toggle__option')
