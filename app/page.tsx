@@ -7,8 +7,17 @@ import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import { resolvePortalExperience } from "@/lib/portalVisibility";
 import { CREATE_ACCOUNT_PATH, isSelfSignupEnabled } from "@/lib/selfSignup";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
+import V7FrontDoor from "@/app/components/frontdoor/V7FrontDoor";
 
 export default async function Home() {
+  // Block 19 — V7 product-native front door, dark behind PAT_ENABLE_NEW_FRONT_DOOR.
+  // When off (default), the existing page below is UNTOUCHED. When Cam flips the
+  // flag, the public front page renders the V7 door instead.
+  if (isNewFrontDoorEnabled()) {
+    return <V7FrontDoor />;
+  }
+
   const sessionUser = await getSessionUser();
   const messages = await getRequestLocaleMessages();
   const individualSurfacesEnabled = isIndividualSurfacesEnabled();
