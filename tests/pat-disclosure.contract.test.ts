@@ -38,6 +38,9 @@ describe("Pat AI-disclosure — every Pat-drafted create path is flagged", () =>
     // 16c: the consultant nudge send moved behind the approval queue; the create
     // site is now the approve branch of decideNudgeDraft.
     "lib/notifications/nudgeDraft.ts",
+    // 16b (GAP-2, Block 20): the staleness sweep is a third Pat-drafted create
+    // path — pin its aiGenerated: true like the others.
+    "lib/notifications/staleness/runStalenessSweep.ts",
   ];
   for (const rel of patDraftedCreateSites) {
     it(`${rel} sets aiGenerated: true on its notification create`, () => {

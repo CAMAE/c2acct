@@ -485,22 +485,25 @@ evidence; I did not re-run it (no live flag-on env here).
 human-visible Notification from a nudge is `decideNudgeDraft`'s `approve` branch
 after a consultant acts (G2.3). No volume/autonomous outbound seam exists.
 
-### Verdict readiness + the two gaps
+### Verdict — bar fully met, both gaps CLOSED
 
-Every G2/G3 citation in Mythos's bar **checks out** against HEAD, with two
-*test-coverage* gaps (not code defects):
-- **[GAP-1]** add a staleness NOOP contract (assert `runStalenessSweep` →
-  `created: 0` when `PAT_ENABLE_STALENESS_ALERTS` off), symmetric to
+Every G2/G3 citation in Mythos's bar **checks out** against HEAD, and the two
+*test-coverage* gaps are now **pinned green** (2 files / 10 tests,
+`vitest run`, 2026-07-21):
+- **[GAP-1 CLOSED]** `tests/staleness-noop.contract.test.ts` — asserts
+  `runStalenessSweep` → `{ enabled: false, … created: 0 }` and `createNotification`
+  never called when `PAT_ENABLE_STALENESS_ALERTS` is off; symmetric to
   `notifications-pingsweep.test.ts:34`.
-- **[GAP-2]** add `"lib/notifications/staleness/runStalenessSweep.ts"` to
-  `patDraftedCreateSites` in `pat-disclosure.contract.test.ts` so the staleness
-  create path's `aiGenerated: true` is pinned like the other two.
+- **[GAP-2 CLOSED]** `pat-disclosure.contract.test.ts` `patDraftedCreateSites` now
+  includes `lib/notifications/staleness/runStalenessSweep.ts`, pinning its
+  `aiGenerated: true` (`:371`) like the other two drafters.
 
-**For Mythos:** re-rule G2/G3 PASS-AS-REWRITTEN now with the two gaps logged as
-fast-follow test additions, **or** hold and I land the two one-line pins first
-(they are pure test-coverage, ride the same doc-only/quiet path, and don't touch
-runtime). Recommendation: land both pins now — they are trivial and close the bar
-completely rather than on-paper.
+**Mythos ruling (2026-07-21): G2/G3 PASS-AS-REWRITTEN** — generators exist,
+**provably inert** (guard sites + NOOP contract + zero-row pin) and **provably
+governed** (aiGenerated propagation + disclosure copy pin + HITL-only outbound),
+evidence fully test-pinned. The §2.7 additions are **confirmed as first-class
+criteria**. The release-criteria draft is complete pending only Cam's vendor date
+and the post-deploy Proof A/B run.
 
 ---
 
@@ -521,8 +524,9 @@ on:
    canonical list (`~/work/PATALIGN-RELEASE-CRITERIA-2026-07-23.md`); divergences
    noted in §4.0 (count 30≠25, prod/calendar staleness, and the §139 scope-change:
    17-B/18-F14/16a–g/19 move from deferrals into §2). Re-dated draft produced.
-   Open for Mythos: **re-rule G2/G3** (generators now exist dark) and confirm the
-   §2.7 additions in the re-dated draft.
+   RESOLVED — Mythos re-ruled **G2/G3 PASS-AS-REWRITTEN** (2026-07-21) on the §5
+   evidence with both test-coverage gaps pinned green; §2.7 additions confirmed as
+   first-class criteria.
 
 **Two live reads gate the go and only Cam can run them:** prod `migrate status`
 (§1.3 step 1) and `vercel env ls production` (§2.2). Nothing deploys until both
