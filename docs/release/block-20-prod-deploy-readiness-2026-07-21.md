@@ -408,6 +408,102 @@ vendor-driven date and Mythos completes Proof-A/B post-deploy.**
 
 ---
 
+## 5. G2/G3 wiring evidence — targeting Mythos's PASS-AS-REWRITTEN bar
+
+Premise as rewritten by Mythos: not "no generators exist at launch" but
+**"generators exist but are PROVABLY INERT (G2) and PROVABLY GOVERNED (G3)."**
+Every citation below verified against HEAD `78247050`. Two test-coverage gaps are
+flagged honestly at the end — the *code* is correct at both sites; only the
+contract *pins* are incomplete.
+
+### G2 — PROVABLY INERT (flags off ⇒ nothing fires, nothing writes)
+
+**G2.1 — Every generator persist path terminates in the PINGS/STALENESS guard.**
+There are **exactly three** `createNotification` call sites in the codebase (grep
+census, `lib app scripts`), and each sits behind a guard:
+
+| Persist site | Guard that dominates it | Guard site |
+|---|---|---|
+| Ping sweep → `executePingPlan` (`lib/notifications/executePlan.ts:32`) | `if (!isPingsEnabled()) return NOOP_SUMMARY` | `lib/notifications/runSweep.ts:34` |
+| Staleness sweep (`lib/notifications/staleness/runStalenessSweep.ts:360`) | `if (!isStalenessAlertsEnabled()) return NOOP_SUMMARY` (requires PINGS **and** STALENESS — `lib/patAssistant/flags.ts:51`) | `runStalenessSweep.ts:343` |
+| Nudge approve (`lib/notifications/nudgeDraft.ts:180`) | HITL-only — no sweep/auto path (see G2.3) | n/a |
+
+The scheduled agent runners **double-gate**: `scripts/agents/ping-sweep.ts:25–27`
+and `scripts/agents/staleness-sweep.ts:26` both no-op and log `"skipped — … is
+off"` on `!summary.enabled`. No fourth, unguarded persist site exists.
+
+**G2.2 — Sweep returns NOOP and writes zero rows with flags off.**
+- Ping: `tests/notifications-pingsweep.test.ts:34` — *"is a hard no-op when
+  PAT_ENABLE_PINGS is off"* asserts `{ enabled: false, … created: 0 }`.
+- Staleness: `runStalenessSweep` returns `NOOP_SUMMARY` (`created: 0`) at
+  `runStalenessSweep.ts:343–344`. **[GAP-1]** no dedicated contract pins this,
+  symmetric to the ping test (recommendation below).
+
+**G2.3 — NudgeDraft API cannot dispatch without the approve branch.**
+- The no-send guarantee is documented at `lib/notifications/nudge.ts:89–92`
+  (*"…happens ONLY inside decideNudgeDraft's approve branch … no auto-send path…"*).
+- `createNudgeDraft` (`nudgeDraft.ts:37–71`) writes a `PENDING` row and calls **no**
+  `createNotification`.
+- `decideNudgeDraft` (`nudgeDraft.ts:149–217`) is the single send path; it guards
+  `if (draft.status !== "PENDING") return … already_decided` (`:161`) before the
+  only `createNotification` (`:180`).
+- Pinned by `tests/nudge-draft.contract.test.ts`: *"creates a PENDING draft and
+  sends NOTHING"* (`:60`, `create` not called), *"already_decided drafts never
+  re-send"* (`:81`), and the header contract *"(5) source-scan — no auto-send path
+  exists in the code"* (`:8–11`).
+
+### G3 — PROVABLY GOVERNED (every draft is AI-labeled + human-reviewed)
+
+**G3.1 — Every drafted create carries `aiGenerated: true`.**
+- Ping: `executePlan.ts:44`. Staleness: generator drafts `generators.ts:55/115/155`
+  + the create at `runStalenessSweep.ts:371`. Nudge: PENDING draft
+  `nudgeDraft.ts:65` (`aiGenerated: true`), and the approve-branch send propagates
+  it — `nudgeDraft.ts:193` `aiGenerated: draft.aiGenerated` (always true). Sink:
+  `store.ts` persists `aiGenerated: input.aiGenerated`.
+- Pinned by `tests/pat-disclosure.contract.test.ts:43–46` (source-scan asserts each
+  drafter contains `aiGenerated: true`) + `:50–52` (store persists it).
+  **[GAP-2]** the scan list `patDraftedCreateSites` (`:36–41`) is `[executePlan.ts,
+  nudgeDraft.ts]` — it **omits** `runStalenessSweep.ts`, whose create at `:371` is
+  governed in code but not pinned by this test.
+
+**G3.2 — Disclosure copy is exact and renders on every human-facing surface.**
+- Copy: `lib/patDisclosure.ts:13` `PAT_DISCLOSURE_SHORT = "Pat (AI) · human-reviewed"`,
+  pinned `pat-disclosure.contract.test.ts:27`. Email header
+  `X-PAT-AI-Generated: "true; reviewed=human"`, pinned `:28–29`.
+- Render sites (each `n.aiGenerated ? <disclosure>`): header bell
+  `HeaderNotificationBell.tsx:188–190` (short), inbox
+  `NotificationInboxList.tsx:107` (footer), consultant queue
+  `NudgeQueue.tsx:115` (short) — pinned `pat-disclosure.contract.test.ts:57–63`.
+- Trust-page promise: `lib/trustContent.ts:375` — *"Every Pat-drafted message is
+  labeled as AI-drafted and human-reviewed. Pat never poses as a person."*
+
+**G3.3 — Rendered-bell sweep.** Mythos's own 2026-07-20 sweep on both accounts
+(the disclosure label present on rendered bells) — cited as Mythos-supplied
+evidence; I did not re-run it (no live flag-on env here).
+
+**G3.4 — Outbound-to-humans is HITL-only.** The only path that produces a
+human-visible Notification from a nudge is `decideNudgeDraft`'s `approve` branch
+after a consultant acts (G2.3). No volume/autonomous outbound seam exists.
+
+### Verdict readiness + the two gaps
+
+Every G2/G3 citation in Mythos's bar **checks out** against HEAD, with two
+*test-coverage* gaps (not code defects):
+- **[GAP-1]** add a staleness NOOP contract (assert `runStalenessSweep` →
+  `created: 0` when `PAT_ENABLE_STALENESS_ALERTS` off), symmetric to
+  `notifications-pingsweep.test.ts:34`.
+- **[GAP-2]** add `"lib/notifications/staleness/runStalenessSweep.ts"` to
+  `patDraftedCreateSites` in `pat-disclosure.contract.test.ts` so the staleness
+  create path's `aiGenerated: true` is pinned like the other two.
+
+**For Mythos:** re-rule G2/G3 PASS-AS-REWRITTEN now with the two gaps logged as
+fast-follow test additions, **or** hold and I land the two one-line pins first
+(they are pure test-coverage, ride the same doc-only/quiet path, and don't touch
+runtime). Recommendation: land both pins now — they are trivial and close the bar
+completely rather than on-paper.
+
+---
+
 ## Checkpoint — for Mythos review
 
 This block produced documents + proofs, not a deployment. Requesting Mythos ruling
