@@ -48,6 +48,23 @@ for (const [routeKey, routeConfig] of Object.entries(manifest.routes)) {
     }
   }
 
+  // Flag-gated routes render one of two marker variants at runtime; the canonical
+  // copy for BOTH must still live in the protected source (so a gate flip never
+  // ships un-approved copy). Verify enabled+disabled marker sets against source.
+  const gate =
+    routeConfig.consultantAccessGate ?? routeConfig.individualSurfacesGate ?? routeConfig.newFrontDoorGate;
+  const gatedMarkers = [
+    ...(gate?.enabled?.positiveMarkers ?? []),
+    ...(gate?.disabled?.positiveMarkers ?? []),
+  ];
+  for (const marker of gatedMarkers) {
+    const ok = content.includes(marker);
+    checks.push({ route: routeKey, type: "positive-gated", marker, ok });
+    if (!ok) {
+      failures.push(`${routeKey}:missing_gated_positive:${marker}`);
+    }
+  }
+
   for (const marker of routeConfig.forbiddenMarkers ?? []) {
     const ok = !content.includes(marker);
     checks.push({ route: routeKey, type: "forbidden", marker, ok });

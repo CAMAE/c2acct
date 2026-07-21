@@ -14,8 +14,18 @@ type Contract = {
   startCommand?: string;
 };
 
+type ManifestGate = {
+  envVar: string;
+  enabledValue?: string;
+  enabled?: { positiveMarkers?: string[] };
+  disabled?: { positiveMarkers?: string[] };
+};
+
 type ManifestRoute = {
   positiveMarkers?: string[];
+  consultantAccessGate?: ManifestGate;
+  individualSurfacesGate?: ManifestGate;
+  newFrontDoorGate?: ManifestGate;
 };
 
 type Manifest = {
@@ -103,9 +113,26 @@ async function fetchText(url: string) {
   };
 }
 
-function buildMarkerSet(manifest: Manifest) {
+// A route's homepage markers can be flag-dependent (e.g. the V7 front door rides
+// PAT_ENABLE_NEW_FRONT_DOOR). Resolve the active gate against the live env so the
+// guard requires the marker variant that the serving process actually renders —
+// not the current-page markers when the flag has swapped the surface out.
+function resolveGateMarkers(route: ManifestRoute | undefined, env: NodeJS.ProcessEnv): string[] {
+  const gate =
+    route?.consultantAccessGate ?? route?.individualSurfacesGate ?? route?.newFrontDoorGate;
+  if (!gate) {
+    return [];
+  }
+  const enabled = String(env?.[gate.envVar] ?? "") === String(gate.enabledValue ?? "1");
+  const active = enabled ? gate.enabled : gate.disabled;
+  return active?.positiveMarkers ?? [];
+}
+
+function buildMarkerSet(manifest: Manifest, env: NodeJS.ProcessEnv = process.env) {
+  const home = manifest.routes["/"];
   return [
-    ...(manifest.routes["/"]?.positiveMarkers ?? []),
+    ...(home?.positiveMarkers ?? []),
+    ...resolveGateMarkers(home, env),
     ...(manifest.routes.header?.positiveMarkers ?? []),
   ];
 }

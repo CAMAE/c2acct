@@ -96,7 +96,8 @@ function containsForbiddenMarker(html, marker) {
 export function resolveRouteValidationConfig(routeConfig, env = process.env) {
   const consultantAccessGate = routeConfig?.consultantAccessGate;
   const individualSurfacesGate = routeConfig?.individualSurfacesGate;
-  const gate = consultantAccessGate ?? individualSurfacesGate ?? null;
+  const newFrontDoorGate = routeConfig?.newFrontDoorGate;
+  const gate = consultantAccessGate ?? individualSurfacesGate ?? newFrontDoorGate ?? null;
 
   if (!gate) {
     return {

@@ -33,15 +33,33 @@
       "sourceFiles": [
         "app/page.tsx",
         "lib/selfSignup.ts",
-        "lib/locale.ts"
+        "lib/locale.ts",
+        "lib/frontDoor.ts",
+        "app/components/frontdoor/V7FrontDoor.tsx"
       ],
       "positiveMarkers": [
         "PAT",
         "Performance Alignment Technology",
-        "The intelligence layer inside C2Acct",
-        "Meet PAT",
-        "Continue to your workspace"
-      ]
+        "Meet PAT"
+      ],
+      "newFrontDoorGate": {
+        "envVar": "PAT_ENABLE_NEW_FRONT_DOOR",
+        "enabledValue": "1",
+        "enabled": {
+          "expectedStatus": 200,
+          "positiveMarkers": [
+            "Product selection, without the sales pitch.",
+            "Every number shows its work."
+          ]
+        },
+        "disabled": {
+          "expectedStatus": 200,
+          "positiveMarkers": [
+            "The intelligence layer inside C2Acct",
+            "Continue to your workspace"
+          ]
+        }
+      }
     },
     "/onboarding": {
       "sourceFiles": [
