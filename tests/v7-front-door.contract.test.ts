@@ -29,11 +29,47 @@ describe("V7 front door", () => {
       "Five pillars",
       "Score your stack.",
       "Earn the evidence.",
+      // V7 revision — cohort-standing panel adds exactly these locked strings.
+      "Cohort standing",
+      "Peer view",
+      "Peers",
+      "Top decile",
+      "You",
       "Every number shows its work.",
       "a Patalign™ product",
     ]) {
       expect(src, `missing locked copy: ${phrase}`).toContain(phrase);
     }
+  });
+
+  it("section order: nav → hero → doors → radar → cohort → trust (doors above the charts)", () => {
+    // Cam's V7 revision — the doors move UP so visitors reach them without
+    // scrolling; the radar and the new cohort panel reward the scroll.
+    const iHero = src.indexOf("Product selection, without the sales pitch.");
+    const iDoors = src.indexOf('data-testid="v7-door-firm"');
+    const iRadar = src.indexOf("Alignment radar");
+    const iCohort = src.indexOf("Cohort standing");
+    const iTrust = src.indexOf("Every number shows its work.");
+    expect(iHero).toBeGreaterThan(-1);
+    expect(iDoors).toBeGreaterThan(iHero);
+    expect(iRadar).toBeGreaterThan(iDoors);
+    expect(iCohort).toBeGreaterThan(iRadar);
+    expect(iTrust).toBeGreaterThan(iCohort);
+  });
+
+  it("door arrow is the inline SVG glyph (fixed 22px, centered), not a text glyph", () => {
+    // The text arrow sat off-center in the circle chip; the spec swaps it for the
+    // inline arrow SVG. One arrow per door → the path appears exactly twice.
+    expect((src.match(/d="m13 6 6 6-6 6"/g) || []).length).toBe(2);
+    expect(src).toMatch(/className="block h-\[22px\] w-\[22px\]"/);
+    // The old text-glyph chip must be gone (no `text-[26px]…>→` arrow span).
+    expect(src).not.toMatch(/rounded-full[^>]*text-\[26px\][^>]*>\s*→/);
+  });
+
+  it("the cohort panel shares the radar's card-header grammar", () => {
+    // PAT mark · divider · label · chip — same header as the radar card.
+    expect(src).toMatch(/pat-label">Cohort standing/);
+    expect(src).toMatch(/Peer view/);
   });
 
   it("door cards route to sign-in with the role preselected", () => {

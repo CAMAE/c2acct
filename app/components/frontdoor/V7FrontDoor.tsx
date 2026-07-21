@@ -5,10 +5,28 @@ import Link from "next/link";
  * patalign-front-v7-product-native.html using existing product tokens only
  * (--shell-ink / --shell-muted / --shell-border / --brand-c2-blue, pat-card 28px,
  * pat-label, Barlow via the app font, /PAT.png mark). Copy is locked to the
- * mockup's ~40 words. The radar is DATA-FREE — shape only, no numbers anywhere.
+ * mockup. The radar and the cohort-standing panel are DATA-FREE — shape only, no
+ * numbers, no percentile claims. The bar positions below are illustrative layout
+ * coordinates (same status as the radar's hardcoded polygon points), not scores.
  * Dark behind PAT_ENABLE_NEW_FRONT_DOOR (app/page.tsx); the current page is the
  * untouched default. No client JS — a static server component.
+ *
+ * Section order (Cam's V7 revision): nav → hero → door cards → radar panel →
+ * cohort-standing panel → trust → footer. Visitors get the doors without
+ * scrolling; the charts reward the scroll.
  */
+
+// Illustrative peer positions — shape only, no scores. band = [left%, width%] of
+// the peer range; p90 = the top-decile tick; you = the "you" dot. Pillar names
+// are reused from the radar (not new copy).
+const COHORT_ROWS = [
+  { pillar: "Strategy", band: [42, 25], p90: 77, you: 60 },
+  { pillar: "Operations", band: [46, 22], p90: 79, you: 81 },
+  { pillar: "Automation", band: [48, 22], p90: 78, you: 74 },
+  { pillar: "Integration", band: [45, 24], p90: 80, you: 53 },
+  { pillar: "Governance", band: [50, 20], p90: 82, you: 74 },
+] as const;
+
 export default function V7FrontDoor() {
   const shadow = "0 1px 2px rgba(12,33,66,.05), 0 24px 64px rgba(12,33,66,.09)";
   const borderLt = "rgba(12,33,66,.07)";
@@ -84,9 +102,41 @@ export default function V7FrontDoor() {
         </div>
       </header>
 
-      {/* RADAR PANEL — data-free (shape only) */}
-      <section className="px-9 pb-10 pt-16">
+      {/* DOOR CARDS — sign-in with role preselected. Above the panels so visitors
+          reach the doors without scrolling; the charts reward the scroll. */}
+      <section className="mx-auto grid max-w-[1120px] grid-cols-1 gap-6 px-9 pb-6 pt-10 md:grid-cols-2">
+        <Link href="/sign-in?view=firm" className="pat-card flex items-center justify-between gap-6 px-[42px] py-10" style={{ boxShadow: shadow }} data-testid="v7-door-firm">
+          <div>
+            <div className="pat-label">Firms</div>
+            <h3 className="mt-3 text-[26px] font-bold tracking-[-0.01em]">Score your stack.</h3>
+          </div>
+          {/* Inline arrow SVG (fixed 22px, flex-centered, line-height 1). Replaces
+              the text glyph, which sat off-center in the circle chip. */}
+          <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border border-[var(--shell-border)] leading-none text-[var(--shell-ink)]">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="block h-[22px] w-[22px]" aria-hidden="true">
+              <path d="M5 12h14" />
+              <path d="m13 6 6 6-6 6" />
+            </svg>
+          </span>
+        </Link>
+        <Link href="/sign-in?view=vendor" className="pat-card flex items-center justify-between gap-6 px-[42px] py-10" style={{ boxShadow: shadow }} data-testid="v7-door-vendor">
+          <div>
+            <div className="pat-label">Vendors</div>
+            <h3 className="mt-3 text-[26px] font-bold tracking-[-0.01em]">Earn the evidence.</h3>
+          </div>
+          <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border border-[var(--shell-border)] leading-none text-[var(--shell-ink)]">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="block h-[22px] w-[22px]" aria-hidden="true">
+              <path d="M5 12h14" />
+              <path d="m13 6 6 6-6 6" />
+            </svg>
+          </span>
+        </Link>
+      </section>
+
+      {/* PANELS — data-free shape only: alignment radar, then cohort standing. */}
+      <section className="px-9 pb-[88px] pt-6">
         <div className="mx-auto max-w-[1120px]">
+          {/* RADAR CARD */}
           <div className="overflow-hidden rounded-[28px] border border-[var(--shell-border)] bg-white" style={{ boxShadow: shadow }}>
             <div className="flex items-center justify-between px-[34px] py-[22px]" style={{ borderBottom: `1px solid ${borderLt}` }}>
               <div className="flex items-center gap-4">
@@ -132,25 +182,46 @@ export default function V7FrontDoor() {
               </svg>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* DOOR CARDS — sign-in with role preselected */}
-      <section className="mx-auto grid max-w-[1120px] grid-cols-1 gap-6 px-9 pb-[88px] pt-6 md:grid-cols-2">
-        <Link href="/sign-in?view=firm" className="pat-card flex items-center justify-between gap-6 px-[42px] py-10" style={{ boxShadow: shadow }} data-testid="v7-door-firm">
-          <div>
-            <div className="pat-label">Firms</div>
-            <h3 className="mt-3 text-[26px] font-bold tracking-[-0.01em]">Score your stack.</h3>
+          {/* COHORT STANDING CARD — shape only, illustrative peer positions, no
+              numbers, no percentile claims. Same card-header grammar as the radar. */}
+          <div className="mt-7 overflow-hidden rounded-[28px] border border-[var(--shell-border)] bg-white" style={{ boxShadow: shadow }}>
+            <div className="flex items-center justify-between px-[34px] py-[22px]" style={{ borderBottom: `1px solid ${borderLt}` }}>
+              <div className="flex items-center gap-4">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/PAT.png" alt="PAT" className="block h-[22px] w-auto" />
+                <span className="h-[22px] w-px bg-[var(--shell-border)]" />
+                <span className="pat-label">Cohort standing</span>
+              </div>
+              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--shell-border)] px-[14px] py-[6px] text-xs font-semibold text-[var(--shell-muted)]">
+                <span className="h-[7px] w-[7px] rounded-full bg-[var(--brand-c2-blue)]" />
+                Peer view
+              </span>
+            </div>
+            <div className="px-12 pb-9 pt-10">
+              {COHORT_ROWS.map((row, i) => (
+                <div key={row.pillar} className={i === 0 ? "" : "mt-6"}>
+                  <div className="mb-2 text-[14.5px] font-semibold">{row.pillar}</div>
+                  <div className="relative h-3">
+                    {/* rail */}
+                    <span className="absolute inset-x-0 top-[5px] h-0.5 rounded-[1px] bg-[#eef2f7]" />
+                    {/* peer band */}
+                    <span className="absolute top-0.5 h-2 rounded bg-[#dbe4ee]" style={{ left: `${row.band[0]}%`, width: `${row.band[1]}%` }} />
+                    {/* top-decile tick */}
+                    <span className="absolute top-[-2px] h-4 w-0.5 rounded-[1px] bg-[var(--brand-c2-blue)]" style={{ left: `${row.p90}%` }} />
+                    {/* you dot */}
+                    <span className="absolute top-0 h-3 w-3 -translate-x-1.5 rounded-full border-[3px] border-[var(--shell-ink)] bg-white" style={{ left: `${row.you}%` }} />
+                  </div>
+                </div>
+              ))}
+              <div className="mt-7 flex items-center justify-center gap-[26px] border-t pt-4 text-[13px] text-[var(--shell-muted)]" style={{ borderColor: borderLt }}>
+                <span className="flex items-center gap-2"><span className="inline-block h-2 w-[26px] rounded bg-[#dbe4ee]" /> Peers</span>
+                <span className="flex items-center gap-2"><span className="inline-block h-[14px] w-0.5 bg-[var(--brand-c2-blue)]" /> Top decile</span>
+                <span className="flex items-center gap-2"><span className="inline-block h-[11px] w-[11px] rounded-full border-[3px] border-[var(--shell-ink)] bg-white" /> You</span>
+              </div>
+            </div>
           </div>
-          <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border border-[var(--shell-border)] text-[26px]">→</span>
-        </Link>
-        <Link href="/sign-in?view=vendor" className="pat-card flex items-center justify-between gap-6 px-[42px] py-10" style={{ boxShadow: shadow }} data-testid="v7-door-vendor">
-          <div>
-            <div className="pat-label">Vendors</div>
-            <h3 className="mt-3 text-[26px] font-bold tracking-[-0.01em]">Earn the evidence.</h3>
-          </div>
-          <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border border-[var(--shell-border)] text-[26px]">→</span>
-        </Link>
+        </div>
       </section>
 
       {/* TRUST LINE */}
