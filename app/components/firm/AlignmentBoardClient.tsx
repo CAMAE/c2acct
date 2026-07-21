@@ -335,8 +335,11 @@ export default function AlignmentBoardClient({
               ) : null}
             </div>
             <p className="mt-4 max-w-md text-sm leading-6 text-[var(--shell-muted)]">
-              Lift a piece from your stack, then drop in a Secret candidate to see your projected
-              alignment shape move.{" "}
+              {/* Read-only (consultant) drops the firm-second-person swap instruction —
+                  the header already frames what the firm does on its own board. */}
+              {readOnly
+                ? null
+                : "Lift a piece from your stack, then drop in a Secret candidate to see your projected alignment shape move. "}
               {data.confidence === "sample_thin" || data.confidence === "no_signal"
                 ? "Sample is thin, so projections are directional — PAT won't fake precision."
                 : "Projections are directional, drawn from cross-firm benchmarks."}
@@ -356,7 +359,9 @@ export default function AlignmentBoardClient({
       {/* Stack — wrapping grid of puzzle pieces */}
       <section className="pat-card p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <div className="pat-label">Your stack — click a piece to lift it out</div>
+          <div className="pat-label">
+            {readOnly ? "The firm's stack — click a piece to inspect it" : "Your stack — click a piece to lift it out"}
+          </div>
           {data.totalStackCount > data.stack.length ? (
             <span className="text-xs text-[var(--shell-muted)]">
               Showing your top {data.stack.length} of {data.totalStackCount} reviewed products
@@ -485,7 +490,8 @@ export default function AlignmentBoardClient({
       <section className="pat-card p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="pat-label">
-            {entitled ? "Ranked candidates" : "Secret candidates"} · {activeSlot ? "click one to fill this slot" : "lift a stack piece first"}
+            {entitled ? "Ranked candidates" : "Secret candidates"}
+            {readOnly ? "" : ` · ${activeSlot ? "click one to fill this slot" : "lift a stack piece first"}`}
           </div>
           {!entitled && data.candidates[0] ? (
             <span className="text-xs text-[var(--shell-muted)]">

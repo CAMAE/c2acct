@@ -38,3 +38,16 @@ describe("F14 route — scoped tenancy, not a route exemption", () => {
     expect(routeSrc).not.toMatch(/coming soon/i);
   });
 });
+
+describe("F14 read-only copy — no firm-second-person swap instructions leak", () => {
+  const boardSrc = readFileSync(path.join(ROOT, "app/components/firm/AlignmentBoardClient.tsx"), "utf8");
+
+  it("gates the swap instructions on readOnly (consultant view drops/reframes them)", () => {
+    // Consultant-framed stack label instead of "Your stack — … lift it out".
+    expect(boardSrc).toContain("The firm's stack — click a piece to inspect it");
+    // The firm-second-person swap intro is behind readOnly (dropped for consultants).
+    expect(boardSrc).toMatch(/readOnly[\s\S]{0,120}Lift a piece from your stack/);
+    // The candidate-rail "lift a stack piece first" instruction is readOnly-gated.
+    expect(boardSrc).toMatch(/readOnly \? ""[\s\S]{0,140}lift a stack piece first/);
+  });
+});
