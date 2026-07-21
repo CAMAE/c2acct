@@ -151,8 +151,8 @@ export default function V7FrontDoor() {
             <Link href="/privacy">Privacy</Link>
             <Link href="/terms">Terms</Link>
             <Link href="/methodology">Methodology</Link>
-            {/* No public /build-proof route yet — rendered as a label to avoid a dead link. */}
-            <span>Build proof</span>
+            {/* Footer parity with the product: "Build proof" → /release (the release transparency page). */}
+            <Link href="/release">Build proof</Link>
           </div>
           <div className="mt-4 text-[12.5px] text-[var(--shell-muted)]">
             Copyright 2026 C2Acct · PAT — Performance Alignment Technology · a Patalign™ product

@@ -41,6 +41,10 @@ describe("V7 front door", () => {
     expect(src).toContain("/sign-in?view=vendor");
   });
 
+  it("footer keeps product parity — 'Build proof' → /release", () => {
+    expect(src).toMatch(/href="\/release"[^>]*>\s*Build proof/);
+  });
+
   it("the radar is data-free — no fabricated scores/percentages on the front door", () => {
     // No VISIBLE percentage (a fabricated score); SVG gradient geometry like
     // cx="50%" lives in attributes, not rendered text, so it's excluded.
