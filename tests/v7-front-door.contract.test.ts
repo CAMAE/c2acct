@@ -45,6 +45,16 @@ describe("V7 front door", () => {
     expect(src).toMatch(/href="\/release"[^>]*>\s*Build proof/);
   });
 
+  it("renders full-bleed — hides the app shell chrome so it matches the standalone mockup", () => {
+    // The root layout wraps every page in AppHeader + app <footer> +
+    // pat-shell-main; the front door must suppress that shell (it has its own
+    // nav + footer) or it double-stacks. Pin the escape so a refactor can't
+    // silently reintroduce the double header/footer.
+    expect(src).toMatch(/body\.pat-shell > header[^{]*\{[^}]*display:\s*none/);
+    expect(src).toContain("body.pat-shell > footer");
+    expect(src).toContain("main.pat-shell-main");
+  });
+
   it("the radar is data-free — no fabricated scores/percentages on the front door", () => {
     // No VISIBLE percentage (a fabricated score); SVG gradient geometry like
     // cx="50%" lives in attributes, not rendered text, so it's excluded.

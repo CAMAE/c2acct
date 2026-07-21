@@ -15,6 +15,24 @@ export default function V7FrontDoor() {
 
   return (
     <div className="min-h-screen bg-[#fbfcfe] text-[var(--shell-ink)]" data-testid="v7-front-door">
+      {/*
+        Full-bleed escape from the app shell. The V7 mockup is a standalone page
+        with its OWN nav + footer; the root layout (app/layout.tsx) otherwise
+        wraps every page in AppHeader + app <footer> + a width-constrained,
+        padded <main class="pat-shell-main">. Left alone that double-stacks a
+        second header above and a second footer below the front door. This style
+        renders ONLY when the front door renders (flag on + "/"), so flag-off and
+        every other route keep the shell untouched. (When the front door
+        graduates from flag-dark, the permanent fix is a layout route-group split
+        rather than hiding the shell here.)
+      */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html:
+            "body.pat-shell > header, body.pat-shell > footer{display:none!important}" +
+            "body.pat-shell > main.pat-shell-main{max-width:none!important;margin-inline:0!important;padding-inline:0!important;padding-block:0!important}",
+        }}
+      />
       {/* NAV */}
       <nav
         className="sticky top-0 z-10 border-b bg-[rgba(251,252,254,.88)] backdrop-blur-[10px]"
