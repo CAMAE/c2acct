@@ -54,3 +54,16 @@ test("consultant is walled off a firm's alignment board to /consultants (13a; sc
   });
   await expect(page).toHaveURL(/\/consultants(\/|\?|$)/);
 });
+
+test("F14: consultant scoped board 404s for an out-of-scope firm (no route exemption)", async ({ page }) => {
+  test.skip(!consultantAccessEnabled, "Consultant access flag is off.");
+  await signIn(page, "review.consultant@pat.local", "/consultants");
+  // The scoped board is a proper /consultants route (reachable by consultants),
+  // but a firm NOT in the consultant's ecosystem resolves to 404 — never a leak,
+  // never a /firm audience-wall exemption.
+  const res = await page.goto(
+    "/consultants/ecosystems/nonexistent-eco/firm/nonexistent-firm/alignment-board",
+    { waitUntil: "domcontentloaded" }
+  );
+  expect(res?.status()).toBe(404);
+});

@@ -121,10 +121,14 @@ export default function AlignmentBoardClient({
   data,
   entitled,
   membershipHref,
+  readOnly = false,
 }: {
   data: AlignmentBoardData;
   entitled: boolean;
   membershipHref: string;
+  /** F14: a managing consultant views a scoped firm's board read-only — piece
+   *  inspection stays, but swap staging is disabled (no what-if mutations). */
+  readOnly?: boolean;
 }) {
   // Multi-piece swap: each lifted slot (the productId of a piece lifted OUT) maps
   // to the candidate productId chosen to fill it, or null = lifted, no candidate
@@ -245,24 +249,27 @@ export default function AlignmentBoardClient({
   }, [swapStaged, stagedKey]);
 
   function pickPiece(piece: BoardPiece) {
-    const wasLifted = piece.productId in swaps;
-    if (wasLifted) {
-      setSwaps((prev) => {
-        const next = { ...prev };
-        delete next[piece.productId];
-        return next;
-      });
-      setActiveSlot((a) => (a === piece.productId ? null : a));
-    } else if (liftedIds.length < MAX_LIFTS) {
-      setSwaps((prev) => ({ ...prev, [piece.productId]: null }));
-      setActiveSlot(piece.productId);
+    // Read-only (consultant advisor view): inspect the piece, never stage a swap.
+    if (!readOnly) {
+      const wasLifted = piece.productId in swaps;
+      if (wasLifted) {
+        setSwaps((prev) => {
+          const next = { ...prev };
+          delete next[piece.productId];
+          return next;
+        });
+        setActiveSlot((a) => (a === piece.productId ? null : a));
+      } else if (liftedIds.length < MAX_LIFTS) {
+        setSwaps((prev) => ({ ...prev, [piece.productId]: null }));
+        setActiveSlot(piece.productId);
+      }
     }
     setDetail({ kind: "piece", id: piece.productId });
   }
 
   function pickCandidate(candidate: BoardCandidate) {
     setDetail({ kind: "candidate", id: candidate.productId });
-    if (!activeSlot || takenByOtherSlots.has(candidate.productId)) return;
+    if (readOnly || !activeSlot || takenByOtherSlots.has(candidate.productId)) return;
     setSwaps((prev) => ({
       ...prev,
       [activeSlot]: prev[activeSlot] === candidate.productId ? null : candidate.productId,

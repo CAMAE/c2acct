@@ -11,6 +11,7 @@ import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
 import MeetPatContent from "@/app/components/pat/MeetPatContent";
 import NudgeButtonMount from "@/app/components/notifications/NudgeButtonMount";
 import { requireConsultantSession } from "@/lib/consultantAccess";
+import { isAlignmentBoardEnabled } from "@/lib/alignmentBoard";
 import { getFirmBriefForConsultant } from "@/lib/firmBriefs";
 import FirmAlignmentHeader from "./_components/FirmAlignmentHeader";
 import FirmBriefHelpContent from "./_components/FirmBriefHelpContent";
@@ -121,8 +122,17 @@ export default async function FirmBriefPage({
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           {brief.ecosystemName} · {brief.vendorCompanyName}
         </p>
-        <div className="mt-6">
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           <NudgeButtonMount companyId={firmCompanyId} audience="firm" />
+          {isAlignmentBoardEnabled() ? (
+            <Link
+              href={`/consultants/ecosystems/${ecosystemId}/firm/${firmCompanyId}/alignment-board`}
+              className="inline-flex items-center gap-2 rounded-full border border-[rgba(6,54,116,0.16)] bg-[rgba(6,54,116,0.06)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition-colors hover:bg-[rgba(6,54,116,0.1)]"
+              data-testid="firm-brief-open-board"
+            >
+              Open Alignment Board <span aria-hidden="true">→</span>
+            </Link>
+          ) : null}
         </div>
         <div className="mt-6">
           <PortalPanelSelector activeKey={activePanel} options={panelOptions} />
