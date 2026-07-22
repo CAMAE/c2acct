@@ -66,6 +66,18 @@ describe("V7 front door", () => {
     expect(src).not.toMatch(/rounded-full[^>]*text-\[26px\][^>]*>\s*→/);
   });
 
+  it("radar carries the dashed peer overlay + You/Peers legend (shape-only)", () => {
+    // Peer overlay: a second polygon, dashed #8ba1bd, drawn under the solid navy
+    // "you" shape — same convention as the consultant firm-brief radar.
+    expect(src).toMatch(/stroke="#8ba1bd"[^>]*strokeDasharray="6 5"/);
+    // Legend beneath the svg — solid "You" dot + dashed "Peers" line.
+    expect(src).toMatch(/border-dashed border-\[#8ba1bd\]/);
+    expect(src).toContain("You");
+    expect(src).toContain("Peers");
+    // Overlay stays shape-only — no fabricated number rides in on it.
+    expect(src).not.toMatch(/stroke="#8ba1bd"[^>]*>\s*\d/);
+  });
+
   it("the cohort panel shares the radar's card-header grammar", () => {
     // PAT mark · divider · label · chip — same header as the radar card.
     expect(src).toMatch(/pat-label">Cohort standing/);
