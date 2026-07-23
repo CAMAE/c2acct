@@ -233,6 +233,25 @@ cloud-build gates only.
 - [ ] **Q3. Scope freeze confirmed** — blockers-only through launch; HEAD is the
   intended deploy commit; tree clean.
 
+### Phase 0.5 — GO-0: Production env-scope reconcile (GATED — Cam's explicit GO)
+Added 2026-07-23 after the env-scope drift finding (see
+`docs/incidents/2026-07-23-prod-env-scope-drift.md`). Vercel binds env at build
+time, so the live deployment serves its build-time values while the Production
+*scope* — what the next deploy inherits — had drifted to `BATTLECARD=OFF` /
+`CONSULTANT_ACCESS=OFF`. Deploying against the drifted scope would regress those
+live surfaces to dark. Reconcile BEFORE Phase 1.
+- [ ] **R0. [GATED: GO-0]** Set the two must-be-ON flags in Production scope:
+  ```bash
+  vercel env rm  PAT_ENABLE_BATTLECARD        production --yes
+  printf 1 | vercel env add PAT_ENABLE_BATTLECARD        production
+  vercel env rm  PAT_ENABLE_CONSULTANT_ACCESS production --yes
+  printf 1 | vercel env add PAT_ENABLE_CONSULTANT_ACCESS production
+  ```
+- [ ] **R1. Value-check confirm** (scoped-pull hygiene — pull, grep the flags to
+  ON/OFF, never echo values, `rm -P`): final Production picture must read
+  **`BATTLECARD=ON, CONSULTANT_ACCESS=ON`** and
+  **`PINGS/STALENESS_ALERTS/PINGS_EMAIL/NEW_FRONT_DOOR/ALIGNMENT_BOARD=OFF`**.
+
 ### Phase 1 — Pre-flight proofs (local, on the deploy commit)
 - [ ] **P1.** `pnpm lint:test` · `pnpm typecheck` · `pnpm test:unit` green.
 - [ ] **P2.** Full `pnpm validate:launch` chain green on this commit (or a
@@ -261,10 +280,17 @@ cloud-build gates only.
 - [ ] **M3.** Re-verify: `migrate status` up-to-date + a data-bearing Prisma read
   on a migrated table (`CadenceConfig`/`NudgeDraft` count, no P2021/P2022).
 
-### Phase 3 — Flag confirmation (Cam)
-- [ ] **F1. [NEEDS CAM]** `vercel env ls production` — confirm the five §2.2 flags
-  all OFF/unset; `PAT_ENABLE_CONSULTANT_ACCESS` stays ON; no flag flipped as a
-  side effect of the deploy.
+### Phase 3 — Flag confirmation (Cam) — VALUE-CHECK (upgraded 2026-07-23)
+Permanently upgraded from presence-check to **value-check** after the env-scope
+drift: `vercel env ls` proves only *presence*, not value, and a present-but-wrong
+value (or build-time-snapshot drift) reads as fine while regressing a live surface.
+- [ ] **F1. [NEEDS CAM] Value-check, not presence-check.** Via scoped-pull hygiene
+  (pull → grep each flag to ON/OFF → never echo values → `rm -P`), confirm the
+  Production **values**: `PAT_ENABLE_BATTLECARD=ON`,
+  `PAT_ENABLE_CONSULTANT_ACCESS=ON` (both reconciled in GO-0), and
+  `PINGS/STALENESS_ALERTS/PINGS_EMAIL/NEW_FRONT_DOOR/ALIGNMENT_BOARD=OFF`. Remember
+  BattleCard also ORs the legacy `PAT_ENABLE_SALES_CARD` — include it (expect
+  absent/off). No flag flipped as a side effect of the deploy.
 
 ### Phase 4 — Cloud build → promote (proven split)
 - [ ] **B1.** Claude drives cloud-build **preview** → Ready.
