@@ -247,10 +247,12 @@ live surfaces to dark. Reconcile BEFORE Phase 1.
   vercel env rm  PAT_ENABLE_CONSULTANT_ACCESS production --yes
   printf 1 | vercel env add PAT_ENABLE_CONSULTANT_ACCESS production
   ```
-- [ ] **R1. Value-check confirm** (scoped-pull hygiene — pull, grep the flags to
-  ON/OFF, never echo values, `rm -P`): final Production picture must read
-  **`BATTLECARD=ON, CONSULTANT_ACCESS=ON`** and
-  **`PINGS/STALENESS_ALERTS/PINGS_EMAIL/NEW_FRONT_DOOR/ALIGNMENT_BOARD=OFF`**.
+- [ ] **R1. Value-check confirm — via dashboard / rendered surface, NOT `env pull`**
+  (pull returns empty for encrypted vars here — see the incident). Confirm
+  **`BATTLECARD=1, CONSULTANT_ACCESS=1`** in the Vercel dashboard; dark flags off;
+  authoritative proof is the Phase-4 preview rendering BattleCard + consultant.
+  ⚠ 2026-07-27: GO-0 was executed on a FALSE drift premise (the read method was
+  invalid). Both flags were re-set to `1`; verify via dashboard/preview before --prod.
 
 ### Phase 1 — Pre-flight proofs (local, on the deploy commit)
 - [ ] **P1.** `pnpm lint:test` · `pnpm typecheck` · `pnpm test:unit` green.
@@ -280,17 +282,19 @@ live surfaces to dark. Reconcile BEFORE Phase 1.
 - [ ] **M3.** Re-verify: `migrate status` up-to-date + a data-bearing Prisma read
   on a migrated table (`CadenceConfig`/`NudgeDraft` count, no P2021/P2022).
 
-### Phase 3 — Flag confirmation (Cam) — VALUE-CHECK (upgraded 2026-07-23)
-Permanently upgraded from presence-check to **value-check** after the env-scope
-drift: `vercel env ls` proves only *presence*, not value, and a present-but-wrong
-value (or build-time-snapshot drift) reads as fine while regressing a live surface.
-- [ ] **F1. [NEEDS CAM] Value-check, not presence-check.** Via scoped-pull hygiene
-  (pull → grep each flag to ON/OFF → never echo values → `rm -P`), confirm the
-  Production **values**: `PAT_ENABLE_BATTLECARD=ON`,
-  `PAT_ENABLE_CONSULTANT_ACCESS=ON` (both reconciled in GO-0), and
-  `PINGS/STALENESS_ALERTS/PINGS_EMAIL/NEW_FRONT_DOOR/ALIGNMENT_BOARD=OFF`. Remember
-  BattleCard also ORs the legacy `PAT_ENABLE_SALES_CARD` — include it (expect
-  absent/off). No flag flipped as a side effect of the deploy.
+### Phase 3 — Flag confirmation (Cam) — VALUE-CHECK (corrected 2026-07-27)
+**`vercel env pull` is INVALID for value-checking this project's encrypted vars** —
+it returns EMPTY for every encrypted var (proven 2026-07-27: a known-ON flag and a
+freshly-set probe both pulled empty; see
+`docs/incidents/2026-07-23-prod-env-scope-drift.md`). `vercel env ls` gives presence
+only. **The only valid value-checks are the Vercel dashboard (value field on edit) or
+the rendered surface of a preview/prod deployment.**
+- [ ] **F1. [NEEDS CAM] Value-check via dashboard AND/OR rendered surface** — confirm
+  `PAT_ENABLE_BATTLECARD=1` and `PAT_ENABLE_CONSULTANT_ACCESS=1` in the Vercel
+  dashboard; the dark flags (`PINGS/STALENESS_ALERTS/PINGS_EMAIL/NEW_FRONT_DOOR/
+  ALIGNMENT_BOARD`) confirmed off there too. **Authoritative:** the Phase-4 preview
+  (built from current scope) must render BattleCard + the consultant portal → proves
+  the two flags are effectively on. Never trust a CLI `env pull` value here.
 
 ### Phase 4 — Cloud build → promote (proven split)
 - [ ] **B1.** Claude drives cloud-build **preview** → Ready.
