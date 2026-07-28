@@ -79,10 +79,34 @@ NEW_FRONT_DOOR, ALIGNMENT_BOARD; ON — CONSULTANT_ACCESS, BATTLECARD (observe i
 - **Staged URL:** `https://pat-c2acct-live-ll6ib6kab-cams-projects-cbec4d2e.vercel.app`
 - **SSO gate:** 302 → `vercel.com/sso-api` + `_vercel_sso_nonce` (deployment protection
   active). **patalign.com untouched — HTTP 200 on the current live deployment.**
-- [ ] **Mythos observation sweep** (closes GO-0 + confirms flag state on the staged
-      build): BATTLECARD renders, consultant portal renders, bell present/absent,
-      `/firm/benchmark` + `/vendor/review-refresh` 200-or-404, firm sandbox card,
-      V7 front door ABSENT, SSO gate. → then GO-2.
+- **Mythos observation sweep — COMPLETE AND CLEAN (2026-07-28, on `ll6ib6kab` /
+  `0157d40`):** V7 ABSENT; **BATTLECARD=1** (renders, live-identical + 16a chips);
+  **CONSULTANT_ACCESS=1** (renders); **PINGS=1** (bell + 16c/16e/16f/16g serving real
+  data correctly); **ALIGNMENT_BOARD=1** (firm sandbox card present, F14 rides);
+  **STALENESS_ALERTS + PINGS_EMAIL absent** (fail-closed → no generators, no outbound).
+  **GO-0 closed by observation** (BATTLECARD + CONSULTANT confirmed rendering — the CLI
+  could not read them).
+  - **Flag-state correction:** the earlier "all dark flags off" was never measured
+    (encrypted-var `env pull` gap). Actual: PINGS + ALIGNMENT_BOARD are ON and their
+    surfaces are LIVE. **Proof reclassification (see block-20 §2.4/§2.5):** live-delta
+    (Proof B) set = 16a, 17-B, 16d, 17-A + PINGS surfaces (16c/16e/16f/16g) + F14 —
+    each previously block-swept; **Proof A reduces to** V7-absent (observed) +
+    sweep-inert (STALENESS/PINGS_EMAIL flag-absent).
+
+## GO-2 — Promote staged build to production ✅ (2026-07-28, Cam GO)
+- `vercel promote <ll6ib6kab>` → **"Success! pat-c2acct-live was promoted"**
+  (`dpl_B4W8z2Qehfn1UJwQdraNLt7pVtrq`), exit 0. Same deployment Mythos swept — no
+  rebuild.
+
+## Phase 5 — Prod gates on live patalign.com ✅ (G1/G2/G3)
+- **G1 fingerprint:** `releaseId 0157d40:0157d40-ms46jjob` — commit == buildId prefix
+  == validated commit `0157d40`, honest (no chimera).
+- **G2 routes:** `/` 200, `/sign-in` 200, `/vendor` `/firm` `/consultants` `/admin`
+  307 (unauth → sign-in redirect, correct).
+- **G3 health-db:** `{"ok":true …}`, release `0157d40`, branch feature/engagement-v1.
+- [ ] **G4 browser gate + Proof A/B on live** — Mythos (proof-ab-runbook.md).
+
+## Pending
 - [ ] **GO-2 — `--prod` promote** (Cam GO) + alias patalign.com.
 - [ ] **Phase 5 — 4 prod gates** (fingerprint / route / health-db / browser).
 - [ ] **Proof A/B** on live (`proof-ab-runbook.md`).

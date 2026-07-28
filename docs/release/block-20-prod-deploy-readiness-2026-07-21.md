@@ -138,6 +138,14 @@ two proofs:
 
 ### 2.2 Flag inventory + required prod values (all dark surfaces OFF)
 
+> **CORRECTION (2026-07-28):** the "required OFF" column below was a *plan*, never a
+> measurement — `vercel env pull` returns empty for encrypted vars here, so the
+> values were unknowable via CLI. The **observed** prod state (Mythos staged-build
+> sweep) is **PINGS=1 and ALIGNMENT_BOARD=1 (ON)**, not off; STALENESS_ALERTS,
+> PINGS_EMAIL, NEW_FRONT_DOOR are absent/off. See §2.4/§2.5 for the corrected
+> live-delta classification. The table's dependency logic still holds; only the
+> assumed values were wrong.
+
 The ping system uses a **master + dependent** structure (`lib/patAssistant/flags.ts`):
 `PAT_ENABLE_PINGS` is the master; staleness and email are dependent switches that
 require PINGS *and* their own flag. So PINGS-off alone dark-gates 16c/16e/16f/16g.
@@ -193,18 +201,35 @@ These change prod behavior on deploy. Mythos must confirm each is wanted.
 | Delta re-assessment "what changed?" link | 16d | no flag | Renders for completed modules (`app/firm/alignment-assessment/page.tsx:84`) | Firm with a completed module sees the link; routes to the delta flow |
 | Sign-in form same-origin redirect fix | 17-A | no flag | Unconditional auth fix (`lib/auth/pilotPasswordActions.ts:74`) | Provisioned-pilot sign-in lands on the workspace with no silent bounce (the bug it fixes) |
 
-**Deploy hinges on §2.2 [NEEDS CAM]:** if `PAT_ENABLE_BATTLECARD` is *off* in prod,
-16a + 17-B become dark too and move to Proof A. Evidence strongly indicates
-BATTLECARD is ON (Block 13k Bridgepath BattleCard shipped prod-green), so treat
-16a/17-B as live deltas unless the `vercel env ls` read says otherwise.
+**RESOLVED by observation (2026-07-28, Mythos staged-build sweep on `ll6ib6kab`
+/ `0157d40`):** the CLI `env pull` value-read was invalid (returns empty for
+encrypted vars — see the incident), so §2.2's "dark flags OFF" was never a measured
+fact. The **observed** prod flag state is: **ON — BATTLECARD, CONSULTANT_ACCESS,
+PINGS, ALIGNMENT_BOARD; ABSENT/off — STALENESS_ALERTS, PINGS_EMAIL,
+NEW_FRONT_DOOR.** So PINGS + ALIGNMENT_BOARD are **on**, and their surfaces are LIVE.
 
-### 2.5 Parity verdict statement (for the ledger)
+**Live-delta set (Proof B) therefore expands** to every flag-on engagement-v1
+surface — each previously Mythos-swept in its own block:
+- 16a freshness chips, 17-B BattleCard v2 (BATTLECARD on)
+- 16d delta link, 17-A sign-in fix (no flag)
+- **16c nudge drafts, 16e consultant freshness, 16f vendor review-refresh, 16g firm
+  benchmark (PINGS on)** — the ping system is live; generators are OFF
+  (STALENESS_ALERTS + PINGS_EMAIL absent) so no autonomous outbound, HITL-only
+- **18-F14 consultant scoped board (ALIGNMENT_BOARD on)**
 
-> With PINGS, STALENESS_ALERTS, PINGS_EMAIL, NEW_FRONT_DOOR, and ALIGNMENT_BOARD
-> all OFF, every Block 16b/16c/16e/16f/16g/18-F14/19 surface is byte-equivalent to
-> the pre-deploy render (Proof A). The deploy intentionally ships four live deltas
-> (16a freshness, 17-B BattleCard v2, 16d delta link, 17-A sign-in fix) that are
-> product changes for this release, each positively render-verified (Proof B).
+### 2.5 Parity verdict statement (for the ledger) — corrected by observation
+
+> Observed prod flag state (Mythos staged-build sweep, `0157d40`): BATTLECARD,
+> CONSULTANT_ACCESS, PINGS, ALIGNMENT_BOARD **ON**; STALENESS_ALERTS, PINGS_EMAIL,
+> NEW_FRONT_DOOR **absent/off**. **Proof A reduces to two things:** (1) the V7 front
+> door is ABSENT on `/` (NEW_FRONT_DOOR off — observed), and (2) the
+> staleness/email generators are **inert** (their flags absent → fail-closed, no
+> notifications created, no outbound). **Proof B (positive render-proof)** covers
+> every flag-on engagement-v1 surface — 16a, 17-B, 16d, 17-A, 16c/16e/16f/16g
+> (PINGS), 18-F14 (ALIGNMENT_BOARD) — each already block-swept, and all confirmed
+> rendering live-correct on the staged build before promotion. The two flags the
+> CLI could not read (BATTLECARD, CONSULTANT_ACCESS) were closed by observation:
+> both render.
 
 ---
 
