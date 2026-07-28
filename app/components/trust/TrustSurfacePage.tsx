@@ -27,11 +27,13 @@ export default function TrustSurfacePage({ surface, children }: TrustSurfacePage
         <p className="mt-5 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           {surface.summary}
         </p>
-        <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-[var(--shell-muted)]">
-          <Link href="/trust" className="font-semibold text-[var(--shell-ink)] hover:text-[var(--shell-accent)]">
-            Trust center
-          </Link>
-        </div>
+        {surface.key !== "trust" ? (
+          <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-[var(--shell-muted)]">
+            <Link href="/trust" className="font-semibold text-[var(--shell-ink)] hover:text-[var(--shell-accent)]">
+              Trust center
+            </Link>
+          </div>
+        ) : null}
       </section>
 
       {children}

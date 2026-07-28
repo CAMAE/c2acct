@@ -128,19 +128,19 @@ export const TRUST_SURFACES = {
     eyebrow: "Trust Center 2026",
     title: "Launch-readiness information for PAT review.",
     summary:
-      "This hub links the current privacy, terms, security, support, billing, and release transparency surfaces for PAT. The language is intentionally conservative while the product is in local review and pre-public launch.",
-    statusLabel: "Launch review surface",
+      "Privacy, terms, security, support, billing, and release transparency for PAT — each linked below.",
+    statusLabel: "Trust Center 2026",
     lastUpdated: TRUST_SURFACE_LAST_UPDATED,
     sections: [
       {
         title: "Current stage",
         body:
-          "PAT is being prepared for public launch with local validation, release fingerprints, provider-backed billing scaffolding, and role-specific onboarding. Public-live state remains unverified unless a reachable deployment URL is supplied and validated.",
+          "PAT runs on verified releases — every release is checked against its source — with provider-backed billing and role-specific access.",
       },
       {
         title: "No unsupported claims",
         body:
-          "PAT does not claim third-party certification, audited status, uptime SLA, public customer references, or regulated-industry compliance certification at this stage.",
+          "PAT does not claim third-party certification, audited status, uptime SLA, public customer references, or regulated-industry compliance certification.",
       },
     ],
   },
@@ -151,14 +151,14 @@ export const TRUST_SURFACES = {
     eyebrow: "Privacy policy draft",
     title: "PAT privacy policy draft.",
     summary:
-      "This draft describes the data PAT expects to process during review and early launch. It is not a final legal policy until approved by counsel or the operator of record.",
+      "What PAT processes and why. It is not a final legal policy until approved by counsel or the operator of record.",
     statusLabel: "Policy draft",
     lastUpdated: TRUST_SURFACE_LAST_UPDATED,
     sections: [
       {
         title: "Data PAT uses",
         body:
-          "PAT uses account, organization, role, membership, assessment, product, and insight state to route users and generate the product experience. Local review credentials and seeded demo records are used only to validate the application locally.",
+          "PAT uses account, organization, role, membership, assessment, product, and insight state to route users and generate the product experience.",
         bullets: [
           "Account data can include name, email, role, authentication provider identifiers, and session metadata.",
           "Organization data can include vendor, firm, product, membership, and assessment relationships.",
@@ -168,7 +168,7 @@ export const TRUST_SURFACES = {
       {
         title: "Payment data",
         body:
-          "PAT uses provider-hosted checkout when billing is configured. The app does not store raw card numbers; provider customer, subscription, invoice, and webhook references are stored only as needed for reconciliation and entitlement state.",
+          "PAT uses provider-hosted checkout. The app does not store raw card numbers; provider customer, subscription, invoice, and webhook references are stored only as needed for reconciliation and to track what your plan includes.",
       },
       {
         title: "Review and support use",
@@ -184,14 +184,14 @@ export const TRUST_SURFACES = {
     eyebrow: "Terms of service draft",
     title: "PAT terms of service draft.",
     summary:
-      "These draft terms set expectations for review access and early launch use. They do not replace signed commercial terms or legal review.",
+      "Draft terms for PAT use. They do not replace signed commercial terms or legal review.",
     statusLabel: "Policy draft",
     lastUpdated: TRUST_SURFACE_LAST_UPDATED,
     sections: [
       {
         title: "Access and acceptable use",
         body:
-          "PAT access is role-based for vendors, firms, consultants, and operators during the current pilot. Users are responsible for using the correct role path and for keeping any assigned credentials secure.",
+          "PAT access is role-based for vendors, firms, consultants, and operators. Users are responsible for using the correct sign-in path (vendor, firm, consultant, admin) and for keeping any assigned credentials secure.",
       },
       {
         title: "Product output",
@@ -201,7 +201,7 @@ export const TRUST_SURFACES = {
       {
         title: "Availability and changes",
         body:
-          "PAT is still under launch review. Features, plan packaging, onboarding paths, and billing behavior can change before production launch, and no availability SLA is offered by this draft.",
+          "Features, plan packaging, onboarding, and billing may change. No availability SLA is offered.",
       },
     ],
   },
@@ -219,7 +219,7 @@ export const TRUST_SURFACES = {
       {
         title: "Authentication boundaries",
         body:
-          "Production authentication is provider-backed. Local review credentials are explicitly gated by environment and loopback rules so they are not confused with public production auth.",
+          "Production authentication is provider-backed. Local review credentials are restricted to local machines and cannot be used against public production auth.",
       },
       {
         title: "Sensitive operations",
@@ -229,7 +229,7 @@ export const TRUST_SURFACES = {
       {
         title: "Release and runtime proof",
         body:
-          "Startup preserves a dirty-tree guard, and release validators compare canonical root, branch, commit, build ID, build timestamp, auth mode, start command, and git dirty state across runtime artifacts.",
+          "We verify that every release matches its source before it serves, and the full technical proof — branch, commit, build identity, and runtime checks — is published on the release page at /release.",
       },
       {
         title: "Billing data boundary",
@@ -259,9 +259,9 @@ export const TRUST_SURFACES = {
     href: "/support",
     label: "Support",
     eyebrow: "Support and contact",
-    title: "How to contact PAT support during launch review.",
+    title: "How to contact PAT support.",
     summary:
-      "Support expectations are intentionally scoped for local review and early launch. Always-on public support is not claimed here.",
+      "How to reach PAT support. Always-on public support is not claimed here.",
     statusLabel: "Support draft",
     lastUpdated: TRUST_SURFACE_LAST_UPDATED,
     sections: [
@@ -271,9 +271,9 @@ export const TRUST_SURFACES = {
           "For product issues, include your role path, the page URL, the assessment or product you were using, and the release ID shown in the footer or release transparency page.",
       },
       {
-        title: "Local review support",
+        title: "If something fails",
         body:
-          "If you are reviewing locally, report whether you used vendor, firm, consultant, or admin review access and include any validation command that failed.",
+          "Report which access path you used (vendor, firm, consultant, or admin) and any command or step that failed.",
       },
       {
         title: "Billing support",
@@ -289,7 +289,7 @@ export const TRUST_SURFACES = {
     eyebrow: "Billing policy draft",
     title: "PAT billing policy draft.",
     summary:
-      "This draft explains how billing should behave when provider configuration is present and how the UI must stay honest when it is absent.",
+      "How PAT billing behaves when a payment provider is configured — and how the UI stays honest when it isn't.",
     statusLabel: "Policy draft",
     lastUpdated: TRUST_SURFACE_LAST_UPDATED,
     sections: [

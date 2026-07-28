@@ -68,7 +68,9 @@ describe("PAT trust and launch-readiness surfaces", () => {
     expect(TRUST_SURFACES.billingPolicy.statusLabel).toBe("Policy draft");
     expect(allText).toContain("Public-live release state remains UNVERIFIED");
     expect(allText).toContain("The app does not store raw card numbers");
-    expect(allText).toContain("Local review credentials are explicitly gated");
+    // 21-0 voice rewrite (Mythos-approved): security auth-boundary honesty restated
+    // in plain language — local review creds are walled from public production auth.
+    expect(allText).toContain("Local review credentials are restricted to local machines");
   });
 
   it("does not include historical AAE copy or unsupported launch claims", () => {
