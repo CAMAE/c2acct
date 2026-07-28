@@ -71,8 +71,18 @@ NEW_FRONT_DOOR, ALIGNMENT_BOARD; ON — CONSULTANT_ACCESS, BATTLECARD (observe i
   the P4 migration-first rule is satisfied.**
 
 ## Pending
-- [ ] **Phase 4 — cloud build → staged prod (`--skip-domain`)** → Mythos observation
-      sweep: BATTLECARD + consultant render (closes GO-0 verification); SSO gate.
+## Phase 4 — Cloud build → staged prod (`--skip-domain`) ✅ built, awaiting Mythos sweep
+- Built from `0157d40f` via `git checkout 0157d40f` (built tree == validated tree, no
+  fingerprint chimera) → `env -u AI_AGENT -u CLAUDECODE vercel deploy --prod
+  --skip-domain --yes --build-env PAT_COMMIT_SHA=0157d40f9ee… PAT_COMMIT_REF=feature/
+  engagement-v1 PAT_BUILD_SOURCE=cloud-build`. Build Completed 2m, **Ready**, exit 0.
+- **Staged URL:** `https://pat-c2acct-live-ll6ib6kab-cams-projects-cbec4d2e.vercel.app`
+- **SSO gate:** 302 → `vercel.com/sso-api` + `_vercel_sso_nonce` (deployment protection
+  active). **patalign.com untouched — HTTP 200 on the current live deployment.**
+- [ ] **Mythos observation sweep** (closes GO-0 + confirms flag state on the staged
+      build): BATTLECARD renders, consultant portal renders, bell present/absent,
+      `/firm/benchmark` + `/vendor/review-refresh` 200-or-404, firm sandbox card,
+      V7 front door ABSENT, SSO gate. → then GO-2.
 - [ ] **GO-2 — `--prod` promote** (Cam GO) + alias patalign.com.
 - [ ] **Phase 5 — 4 prod gates** (fingerprint / route / health-db / browser).
 - [ ] **Proof A/B** on live (`proof-ab-runbook.md`).
