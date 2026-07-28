@@ -60,11 +60,17 @@ NEW_FRONT_DOOR, ALIGNMENT_BOARD; ON — CONSULTANT_ACCESS, BATTLECARD (observe i
 
 ---
 
+## GO-1 — Prod migrate deploy ✅ (2026-07-27, Cam GO)
+- Pre-flight `migrate status`: exactly 2 pending (`add_cadence_config`,
+  `add_nudge_draft`).
+- `migrate deploy` (DIRECT_URL / non-pooled): **both applied clean — "All migrations
+  have been successfully applied."**
+- Re-verify: `migrate status` → **"Database schema is up to date!"**; data-bearing
+  read **`CadenceConfig=0  NudgeDraft=0`** (readable, born empty, no P2021/P2022).
+- L7: query-engines reaped. **Prod migration HEAD is now `20260719_add_nudge_draft`;
+  the P4 migration-first rule is satisfied.**
+
 ## Pending
-- [ ] **GO-1 — migrate deploy** (Cam GO): `set -a; source .env.prod; set +a;
-      DATABASE_URL="$DIRECT_URL" node --import tsx scripts/prisma-safe.ts migrate
-      deploy` → 2 applied clean → re-verify (status up-to-date + `CadenceConfig` /
-      `NudgeDraft` count, no P2021/P2022). pkill query-engine after (L7).
 - [ ] **Phase 4 — cloud build → staged prod (`--skip-domain`)** → Mythos observation
       sweep: BATTLECARD + consultant render (closes GO-0 verification); SSO gate.
 - [ ] **GO-2 — `--prod` promote** (Cam GO) + alias patalign.com.
