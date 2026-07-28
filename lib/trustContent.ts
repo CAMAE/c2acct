@@ -125,7 +125,7 @@ export const TRUST_SURFACES = {
     key: "trust",
     href: "/trust",
     label: "Trust",
-    eyebrow: "PAT trust center",
+    eyebrow: "Trust Center 2026",
     title: "Launch-readiness information for PAT review.",
     summary:
       "This hub links the current privacy, terms, security, support, billing, and release transparency surfaces for PAT. The language is intentionally conservative while the product is in local review and pre-public launch.",
