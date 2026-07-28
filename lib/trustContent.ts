@@ -126,7 +126,7 @@ export const TRUST_SURFACES = {
     href: "/trust",
     label: "Trust",
     eyebrow: "Trust Center 2026",
-    title: "Launch-readiness information for PAT review.",
+    title: "How PAT earns trust.",
     summary:
       "Privacy, terms, security, support, billing, and release transparency for PAT — each linked below.",
     statusLabel: "Trust Center 2026",
@@ -148,7 +148,7 @@ export const TRUST_SURFACES = {
     key: "privacy",
     href: "/privacy",
     label: "Privacy",
-    eyebrow: "Privacy policy draft",
+    eyebrow: "Privacy policy",
     title: "PAT privacy policy draft.",
     summary:
       "What PAT processes and why. It is not a final legal policy until approved by counsel or the operator of record.",
@@ -181,7 +181,7 @@ export const TRUST_SURFACES = {
     key: "terms",
     href: "/terms",
     label: "Terms",
-    eyebrow: "Terms of service draft",
+    eyebrow: "Terms of service",
     title: "PAT terms of service draft.",
     summary:
       "Draft terms for PAT use. They do not replace signed commercial terms or legal review.",
@@ -286,7 +286,7 @@ export const TRUST_SURFACES = {
     key: "billingPolicy",
     href: "/billing-policy",
     label: "Billing policy",
-    eyebrow: "Billing policy draft",
+    eyebrow: "Billing policy",
     title: "PAT billing policy draft.",
     summary:
       "How PAT billing behaves when a payment provider is configured — and how the UI stays honest when it isn't.",
