@@ -94,6 +94,16 @@ const steps = [
   // skipped-due-to-freshness. The bug was that a skipped prelaunch
   // bypassed the promotion path inside prelaunch-gate.mjs.
   { command: packageManagerCommand, args: ["release:promote-known-good"], proofKey: "releasePromoteKnownGood" },
+  // Option A (2026-07-27): provision the pilot/preview accounts BEFORE the
+  // local-review e2e. pilot-signin-form.spec.ts needs demo-firm-elite@pat.local,
+  // which ONLY preview-pat-setup creates — db:recreate -v wipes it every run and
+  // no seed:* recreates it, so the spec failed pilot_password_invalid. The final
+  // block below re-runs preview-pat-setup post-chain so the preview is also left
+  // provisioned. Guarded on the (gitignored) script existing so a clean checkout
+  // stays portable.
+  ...(fs.existsSync(path.join(repoRoot, "scripts/dev/preview-pat-setup.ts"))
+    ? ([{ command: packageManagerCommand, args: ["preview:pat-setup"] }] as const)
+    : []),
   { command: packageManagerCommand, args: ["test:e2e:local-review"], proofKey: "localReviewE2e" },
   { command: packageManagerCommand, args: ["test:e2e:release-integrity"] },
   ...(skipMacMiniSteps

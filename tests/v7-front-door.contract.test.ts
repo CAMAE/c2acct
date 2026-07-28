@@ -35,9 +35,6 @@ describe("V7 front door", () => {
       "Peers",
       "Top decile",
       "You",
-      // V7 revision 2 — pillar sentence + semantic-dot key.
-      "Every PAT score rolls up from five pillars: Strategy, Operations, Automation, Integration, and Governance.",
-      "green above peers, amber within, red below",
       "a Patalign™ product",
     ]) {
       expect(src, `missing locked copy: ${phrase}`).toContain(phrase);
@@ -80,7 +77,18 @@ describe("V7 front door", () => {
     expect(src).toContain("#d97e22"); // mid = amber
     expect(src).toContain("#c4442e"); // dn = red
     expect(src).toMatch(/tone: "(up|mid|dn)"/);
-    expect(src).toContain("green above peers, amber within, red below");
+  });
+
+  it("radar carries the five per-pillar value sentences (locked verbatim)", () => {
+    for (const rest of [
+      "whether your technology plans point where your practice is actually heading.",
+      "the daily workflow discipline that separates smooth closes from late nights.",
+      "where software genuinely saves hours, and where it only promises to.",
+      "whether your systems share data cleanly or make your team re-key it.",
+      "the controls and vendor oversight your clients assume you already have.",
+    ]) {
+      expect(src, `missing pillar sentence: ${rest}`).toContain(rest);
+    }
   });
 
   it("radar carries the dashed peer overlay + You/Peers legend (shape-only)", () => {

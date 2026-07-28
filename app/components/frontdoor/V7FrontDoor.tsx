@@ -12,16 +12,16 @@ import Link from "next/link";
  * untouched default. No client JS — a static server component.
  *
  * Section order: nav → hero → door cards → radar panel → cohort-standing panel →
- * trust → footer. V7 revision 2 (2026-07-27): hero CTAs are compact cta-cards;
- * global type-scale bumped ~12-15% for older readers; cohort "you" dots are
- * semantic (green above the peer band / amber within / red below); a one-line
- * pillar sentence sits under the radar legend.
+ * trust → footer. Revision 3 (2026-07-27): type scale backed off halfway; the
+ * cohort legend drops the color-key words; the single pillar sentence becomes five
+ * per-pillar value sentences under the radar; the methodology/trust band is
+ * condensed.
  */
 
 // Illustrative peer positions — shape only, no scores. band = [left%, width%];
 // p90 = top-decile tick; you = the "you" dot; tone = semantic standing of "you"
-// vs the peer band (up = above / mid = within / dn = below). Pillar names are
-// reused from the radar (not new copy).
+// vs the peer band (up = above / mid = within / dn = below). Pillar names reuse
+// the radar (not new copy).
 const COHORT_ROWS = [
   { pillar: "Strategy", band: [42, 25], p90: 77, you: 60, tone: "mid" },
   { pillar: "Operations", band: [46, 22], p90: 79, you: 81, tone: "up" },
@@ -30,6 +30,15 @@ const COHORT_ROWS = [
   { pillar: "Governance", band: [50, 20], p90: 82, you: 74, tone: "up" },
 ] as const;
 const YOU_TONE: Record<string, string> = { up: "#16a34a", mid: "#d97e22", dn: "#c4442e" };
+
+// Locked verbatim — one plain-language value sentence per pillar, under the radar.
+const PILLAR_SENTENCES: { pillar: string; rest: string }[] = [
+  { pillar: "Strategy", rest: "whether your technology plans point where your practice is actually heading." },
+  { pillar: "Operations", rest: "the daily workflow discipline that separates smooth closes from late nights." },
+  { pillar: "Automation", rest: "where software genuinely saves hours, and where it only promises to." },
+  { pillar: "Integration", rest: "whether your systems share data cleanly or make your team re-key it." },
+  { pillar: "Governance", rest: "the controls and vendor oversight your clients assume you already have." },
+];
 
 const ArrowGlyph = ({ px }: { px: number }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="block" style={{ width: px, height: px }} aria-hidden="true">
@@ -46,7 +55,7 @@ export default function V7FrontDoor() {
     <div className="min-h-screen bg-[#fbfcfe] text-[var(--shell-ink)]" data-testid="v7-front-door">
       {/*
         Full-bleed escape from the app shell (hides the double header/footer), plus
-        a V7-scoped pat-label bump to 12.5px (the shared product class is 11px; the
+        a V7-scoped pat-label size (the shared product class is 11px; the
         attribute+class selector overrides only inside the front door). Renders ONLY
         when the front door renders (flag on + "/"); flag-off + every other route
         keep the shell + global pat-label untouched.
@@ -56,7 +65,7 @@ export default function V7FrontDoor() {
           __html:
             "body.pat-shell > header, body.pat-shell > footer{display:none!important}" +
             "body.pat-shell > main.pat-shell-main{display:block!important;max-width:none!important;margin-inline:0!important;padding-inline:0!important;padding-block:0!important}" +
-            '[data-testid="v7-front-door"] .pat-label{font-size:12.5px}',
+            '[data-testid="v7-front-door"] .pat-label{font-size:12px}',
         }}
       />
       {/* NAV */}
@@ -69,7 +78,7 @@ export default function V7FrontDoor() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/PAT.png" alt="PAT" className="block h-9 w-auto" />
           </Link>
-          <div className="flex items-center gap-[30px] text-[16px] font-semibold text-[var(--shell-muted)]">
+          <div className="flex items-center gap-[30px] text-[15px] font-semibold text-[var(--shell-muted)]">
             <Link href="/methodology">Methodology</Link>
             <Link href="/trust">Trust</Link>
             <Link href="/sign-in" className="rounded-full bg-[var(--shell-ink)] px-6 py-[11px] font-semibold text-white">
@@ -83,10 +92,10 @@ export default function V7FrontDoor() {
       <header className="px-9 pb-[60px] pt-28 text-center">
         <div className="mx-auto max-w-[1120px]">
           <div className="pat-label">Performance Alignment Technology</div>
-          <h1 className="mx-auto mt-[22px] max-w-[12em] text-[66px] font-extrabold leading-[1.04] tracking-[-0.02em]">
+          <h1 className="mx-auto mt-[22px] max-w-[12em] text-[64px] font-extrabold leading-[1.04] tracking-[-0.02em]">
             Product selection, without the sales pitch.
           </h1>
-          <p className="mt-5 text-[21px] font-medium text-[var(--shell-muted)]">
+          <p className="mt-5 text-[20px] font-medium text-[var(--shell-muted)]">
             Real assessments. Evidence both sides can trust.
           </p>
           {/* Hero CTAs — compact cta-cards (same family as the doors, smaller). */}
@@ -112,7 +121,7 @@ export default function V7FrontDoor() {
         <Link href="/sign-in?view=firm" className="pat-card flex items-center justify-between gap-6 px-[42px] py-10" style={{ boxShadow: shadow }} data-testid="v7-door-firm">
           <div>
             <div className="pat-label">Firms</div>
-            <h3 className="mt-3 text-[29px] font-bold tracking-[-0.01em]">Score your stack.</h3>
+            <h3 className="mt-3 text-[27px] font-bold tracking-[-0.01em]">Score your stack.</h3>
           </div>
           <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border border-[var(--shell-border)] leading-none text-[var(--shell-ink)]">
             <ArrowGlyph px={22} />
@@ -121,7 +130,7 @@ export default function V7FrontDoor() {
         <Link href="/sign-in?view=vendor" className="pat-card flex items-center justify-between gap-6 px-[42px] py-10" style={{ boxShadow: shadow }} data-testid="v7-door-vendor">
           <div>
             <div className="pat-label">Vendors</div>
-            <h3 className="mt-3 text-[29px] font-bold tracking-[-0.01em]">Earn the evidence.</h3>
+            <h3 className="mt-3 text-[27px] font-bold tracking-[-0.01em]">Earn the evidence.</h3>
           </div>
           <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border border-[var(--shell-border)] leading-none text-[var(--shell-ink)]">
             <ArrowGlyph px={22} />
@@ -170,7 +179,7 @@ export default function V7FrontDoor() {
                   <circle cx="151" cy="262" r="5" />
                   <circle cx="121" cy="154" r="5" />
                 </g>
-                <g fontSize="15" fill="var(--shell-muted)" fontWeight="700" textAnchor="middle">
+                <g fontSize="14" fill="var(--shell-muted)" fontWeight="700" textAnchor="middle">
                   <text x="200" y="34">Strategy</text>
                   <text x="358" y="140">Operations</text>
                   <text x="297" y="314">Automation</text>
@@ -179,13 +188,18 @@ export default function V7FrontDoor() {
                 </g>
               </svg>
               {/* Legend beneath the radar — You (solid navy) vs Peers (dashed). */}
-              <div className="mt-6 flex items-center justify-center gap-[26px] text-[15px] text-[var(--shell-muted)]">
+              <div className="mt-6 flex items-center justify-center gap-[26px] text-[14.5px] text-[var(--shell-muted)]">
                 <span className="flex items-center gap-2"><span className="inline-block h-[11px] w-[11px] rounded-full bg-[var(--brand-c2-blue)]" /> You</span>
                 <span className="flex items-center gap-2"><span className="inline-block w-[26px] border-t-2 border-dashed border-[#8ba1bd]" /> Peers</span>
               </div>
-              <p className="mt-[18px] text-center text-[16px] text-[var(--shell-muted)]">
-                Every PAT score rolls up from five pillars: Strategy, Operations, Automation, Integration, and Governance.
-              </p>
+              {/* Five per-pillar value sentences — plain language, locked verbatim. */}
+              <div className="mx-auto mt-[26px] max-w-[640px] border-t pt-[22px]" style={{ borderColor: borderLt }}>
+                {PILLAR_SENTENCES.map((s) => (
+                  <p key={s.pillar} className="mt-2 text-[15px] text-[var(--shell-muted)]">
+                    <b className="text-[var(--shell-ink)]">{s.pillar}</b> — {s.rest}
+                  </p>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -207,7 +221,7 @@ export default function V7FrontDoor() {
             <div className="px-12 pb-9 pt-10">
               {COHORT_ROWS.map((row, i) => (
                 <div key={row.pillar} className={i === 0 ? "" : "mt-6"}>
-                  <div className="mb-2 text-[16.5px] font-semibold">{row.pillar}</div>
+                  <div className="mb-2 text-[15.5px] font-semibold">{row.pillar}</div>
                   <div className="relative h-3">
                     <span className="absolute inset-x-0 top-[5px] h-0.5 rounded-[1px] bg-[#eef2f7]" />
                     <span className="absolute top-0.5 h-2 rounded bg-[#dbe4ee]" style={{ left: `${row.band[0]}%`, width: `${row.band[1]}%` }} />
@@ -220,15 +234,15 @@ export default function V7FrontDoor() {
               <div className="mt-7 flex items-center justify-center gap-[26px] border-t pt-4 text-[15px] text-[var(--shell-muted)]" style={{ borderColor: borderLt }}>
                 <span className="flex items-center gap-2"><span className="inline-block h-2 w-[26px] rounded bg-[#dbe4ee]" /> Peers</span>
                 <span className="flex items-center gap-2"><span className="inline-block h-[14px] w-0.5 bg-[var(--brand-c2-blue)]" /> Top decile</span>
-                <span className="flex items-center gap-2"><span className="inline-block h-[11px] w-[11px] rounded-full border-[3px] border-[#16a34a] bg-white" /> You — green above peers, amber within, red below</span>
+                <span className="flex items-center gap-2"><span className="inline-block h-[11px] w-[11px] rounded-full border-[3px] border-[#16a34a] bg-white" /> You</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* TRUST — a single centered ghost-pill Methodology button (.btn.ghost). */}
-      <div className="bg-white py-[66px] text-center" style={{ borderTop: `1px solid ${borderLt}` }}>
+      {/* TRUST / methodology — condensed band with a single ghost-pill button. */}
+      <div className="bg-white py-[34px] text-center" style={{ borderTop: `1px solid ${borderLt}` }}>
         <div className="mx-auto max-w-[1120px] px-9">
           <Link
             href="/methodology"
@@ -242,7 +256,7 @@ export default function V7FrontDoor() {
       {/* PRODUCT FOOTER */}
       <footer className="bg-white pb-11 pt-8 text-center" style={{ borderTop: `1px solid ${borderLt}` }}>
         <div className="mx-auto max-w-[1120px] px-9">
-          <div className="flex flex-wrap justify-center gap-[26px] text-[15px] font-semibold text-[var(--shell-muted)]">
+          <div className="flex flex-wrap justify-center gap-[26px] text-[14px] font-semibold text-[var(--shell-muted)]">
             <Link href="/trust">Trust</Link>
             <Link href="/privacy">Privacy</Link>
             <Link href="/terms">Terms</Link>
