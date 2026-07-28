@@ -70,8 +70,7 @@ NEW_FRONT_DOOR, ALIGNMENT_BOARD; ON — CONSULTANT_ACCESS, BATTLECARD (observe i
 - L7: query-engines reaped. **Prod migration HEAD is now `20260719_add_nudge_draft`;
   the P4 migration-first rule is satisfied.**
 
-## Pending
-## Phase 4 — Cloud build → staged prod (`--skip-domain`) ✅ built, awaiting Mythos sweep
+## Phase 4 — Cloud build → staged prod (`--skip-domain`) ✅
 - Built from `0157d40f` via `git checkout 0157d40f` (built tree == validated tree, no
   fingerprint chimera) → `env -u AI_AGENT -u CLAUDECODE vercel deploy --prod
   --skip-domain --yes --build-env PAT_COMMIT_SHA=0157d40f9ee… PAT_COMMIT_REF=feature/
@@ -104,12 +103,31 @@ NEW_FRONT_DOOR, ALIGNMENT_BOARD; ON — CONSULTANT_ACCESS, BATTLECARD (observe i
 - **G2 routes:** `/` 200, `/sign-in` 200, `/vendor` `/firm` `/consultants` `/admin`
   307 (unauth → sign-in redirect, correct).
 - **G3 health-db:** `{"ok":true …}`, release `0157d40`, branch feature/engagement-v1.
-- [ ] **G4 browser gate + Proof A/B on live** — Mythos (proof-ab-runbook.md).
+## Phase 6 — G4 + Proof A/B on live ✅ PASS (Mythos, 2026-07-28)
+Verified on patalign.com (`0157d40`): V7 absent on `/`; BattleCard 18 firms + 16a
+Fresh chips; 17-B four-block anatomy grounded (honest-empty why-it-fits works on real
+data); review-refresh 97 reviews all current; consultant + firm surfaces verified on
+the identical staged deployment pre-promote; generators fail-closed. **Zero defects.**
 
-## Pending
-- [ ] **GO-2 — `--prod` promote** (Cam GO) + alias patalign.com.
-- [ ] **Phase 5 — 4 prod gates** (fingerprint / route / health-db / browser).
-- [ ] **Proof A/B** on live (`proof-ab-runbook.md`).
-- [ ] **Phase 7 — un-quiesce** (re-boot the 12 services; supervisor heartbeat;
-      restart com.c2acct.app LAST + asset-integrity).
-- [ ] Post-deploy: pull Vercel audit log for the env vars (incident follow-up).
+## Phase 7 — Un-quiesce ✅ (2026-07-28)
+- **Z1** patalign `agent-supervisor` + `telegram-bot` bootstrapped; **supervisor
+  heartbeat advancing** (`lastOkPollAt` 05:30:08, reaching Neon).
+- **Z3** sibling `com.aae.c2acct.*` (8) bootstrapped.
+- **Z2 (LAST)** `com.c2acct.app` + `watchdog`: initially exit-1-flapped — the doc-only
+  ledger commits advanced HEAD to `922718c3` past the promoted build `0157d40`, so
+  `assert_release_artifacts_agree` saw expected(`922718c`)≠known-good(`0157d40`). Fix:
+  `release:promote-known-good` at HEAD (disk `.next` unchanged — docs-only diff) →
+  known-good `922718c:49r-TBS813s`. Restarted → **`:3000` HTTP 200**;
+  **asset-integrity PASS** (served == disk == fingerprint; 10/10 assets 200+typed).
+- All **12 services loaded**.
+
+## Deploy COMPLETE ✅ — engagement-v1 LIVE on patalign.com at `0157d40` (2026-07-28)
+
+### Incident close-out — env-scope "drift" = FALSE ALARM
+`docs/incidents/2026-07-23-prod-env-scope-drift.md`: the drift was a measurement
+artifact (`vercel env pull` returns empty for encrypted vars). Mythos's staged-build
+observation confirmed BATTLECARD/CONSULTANT/PINGS/ALIGNMENT_BOARD were `1` all along —
+no drift ever occurred. **Vercel audit-log follow-up: the CLI (54.4.1) has no
+audit-log subcommand — it is dashboard/API-only** (Team Settings → Audit Log, if Cam
+wants the ~9-day-ago change history); low priority since the values are confirmed
+correct by observation.
