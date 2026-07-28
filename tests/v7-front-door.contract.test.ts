@@ -38,7 +38,6 @@ describe("V7 front door", () => {
       // V7 revision 2 — pillar sentence + semantic-dot key.
       "Every PAT score rolls up from five pillars: Strategy, Operations, Automation, Integration, and Governance.",
       "green above peers, amber within, red below",
-      "Every number shows its work.",
       "a Patalign™ product",
     ]) {
       expect(src, `missing locked copy: ${phrase}`).toContain(phrase);
@@ -52,7 +51,7 @@ describe("V7 front door", () => {
     const iDoors = src.indexOf('data-testid="v7-door-firm"');
     const iRadar = src.indexOf("Alignment radar");
     const iCohort = src.indexOf("Cohort standing");
-    const iTrust = src.indexOf("Every number shows its work.");
+    const iTrust = src.indexOf("text-[17px]"); // the trust ghost-pill button (unique 17px)
     expect(iHero).toBeGreaterThan(-1);
     expect(iDoors).toBeGreaterThan(iHero);
     expect(iRadar).toBeGreaterThan(iDoors);
@@ -100,6 +99,13 @@ describe("V7 front door", () => {
     // PAT mark · divider · label · chip — same header as the radar card.
     expect(src).toMatch(/pat-label">Cohort standing/);
     expect(src).toMatch(/Peer view/);
+  });
+
+  it("trust section is a single centered ghost-pill Methodology button", () => {
+    // Revision 2 (Cam): "Every number shows its work." + the "Methodology →" text
+    // link are gone; replaced by a single .btn.ghost-style pill linking /methodology.
+    expect(src).not.toContain("Every number shows its work.");
+    expect(src).toMatch(/rounded-full border[\s\S]*?text-\[17px\][\s\S]*?>\s*Methodology/);
   });
 
   it("door cards route to sign-in with the role preselected", () => {

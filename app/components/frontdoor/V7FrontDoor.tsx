@@ -227,15 +227,15 @@ export default function V7FrontDoor() {
         </div>
       </section>
 
-      {/* TRUST LINE */}
+      {/* TRUST — a single centered ghost-pill Methodology button (.btn.ghost). */}
       <div className="bg-white py-[66px] text-center" style={{ borderTop: `1px solid ${borderLt}` }}>
         <div className="mx-auto max-w-[1120px] px-9">
-          <b className="text-[25px] font-bold tracking-[-0.01em]">Every number shows its work.</b>
-          <p className="mt-[10px] text-[15px]">
-            <Link href="/methodology" className="font-semibold text-[var(--shell-muted)]">
-              Methodology →
-            </Link>
-          </p>
+          <Link
+            href="/methodology"
+            className="inline-block rounded-full border border-[var(--shell-border)] bg-white px-10 py-4 text-[17px] font-semibold text-[var(--shell-ink)]"
+          >
+            Methodology
+          </Link>
         </div>
       </div>
 
