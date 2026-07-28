@@ -149,7 +149,7 @@ export const TRUST_SURFACES = {
     href: "/privacy",
     label: "Privacy",
     eyebrow: "Privacy policy",
-    title: "PAT privacy policy draft.",
+    title: "PAT privacy policy.",
     summary:
       "What PAT processes and why. It is not a final legal policy until approved by counsel or the operator of record.",
     statusLabel: "Policy draft",
@@ -182,9 +182,9 @@ export const TRUST_SURFACES = {
     href: "/terms",
     label: "Terms",
     eyebrow: "Terms of service",
-    title: "PAT terms of service draft.",
+    title: "PAT terms of service.",
     summary:
-      "Draft terms for PAT use. They do not replace signed commercial terms or legal review.",
+      "Terms for PAT use. They do not replace signed commercial terms or legal review.",
     statusLabel: "Policy draft",
     lastUpdated: TRUST_SURFACE_LAST_UPDATED,
     sections: [
@@ -287,7 +287,7 @@ export const TRUST_SURFACES = {
     href: "/billing-policy",
     label: "Billing policy",
     eyebrow: "Billing policy",
-    title: "PAT billing policy draft.",
+    title: "PAT billing policy.",
     summary:
       "How PAT billing behaves when a payment provider is configured — and how the UI stays honest when it isn't.",
     statusLabel: "Policy draft",
