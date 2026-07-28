@@ -35,6 +35,9 @@ describe("V7 front door", () => {
       "Peers",
       "Top decile",
       "You",
+      // V7 revision 2 — pillar sentence + semantic-dot key.
+      "Every PAT score rolls up from five pillars: Strategy, Operations, Automation, Integration, and Governance.",
+      "green above peers, amber within, red below",
       "Every number shows its work.",
       "a Patalign™ product",
     ]) {
@@ -57,13 +60,28 @@ describe("V7 front door", () => {
     expect(iTrust).toBeGreaterThan(iCohort);
   });
 
-  it("door arrow is the inline SVG glyph (fixed 22px, centered), not a text glyph", () => {
-    // The text arrow sat off-center in the circle chip; the spec swaps it for the
-    // inline arrow SVG. One arrow per door → the path appears exactly twice.
-    expect((src.match(/d="m13 6 6 6-6 6"/g) || []).length).toBe(2);
-    expect(src).toMatch(/className="block h-\[22px\] w-\[22px\]"/);
-    // The old text-glyph chip must be gone (no `text-[26px]…>→` arrow span).
-    expect(src).not.toMatch(/rounded-full[^>]*text-\[26px\][^>]*>\s*→/);
+  it("arrows are inline SVG glyphs (shared ArrowGlyph), not text glyphs", () => {
+    // Single ArrowGlyph component — path defined ONCE, used 4× (2 hero cta-cards
+    // at 19px + 2 doors at 22px). The off-center text glyph is gone.
+    expect((src.match(/d="m13 6 6 6-6 6"/g) || []).length).toBe(1);
+    expect((src.match(/<ArrowGlyph /g) || []).length).toBe(4);
+    expect(src).toMatch(/<ArrowGlyph px=\{22\} \/>/); // doors
+    expect(src).toMatch(/<ArrowGlyph px=\{19\} \/>/); // hero cta-cards
+    expect(src).not.toMatch(/rounded-full[^>]*>\s*→\s*</); // no text-glyph chip
+  });
+
+  it("hero CTAs are compact cta-cards (pat-card family), routing correctly", () => {
+    expect(src).toMatch(/pat-card[^>]*data-testid="v7-cta-enter"/);
+    expect(src).toMatch(/pat-card[^>]*data-testid="v7-cta-meet"/);
+    expect(src).toContain('href="/sign-in?view=pat"'); // Meet PAT
+  });
+
+  it("cohort you-dots are semantic (green above / amber within / red below)", () => {
+    expect(src).toContain("#16a34a"); // up = green
+    expect(src).toContain("#d97e22"); // mid = amber
+    expect(src).toContain("#c4442e"); // dn = red
+    expect(src).toMatch(/tone: "(up|mid|dn)"/);
+    expect(src).toContain("green above peers, amber within, red below");
   });
 
   it("radar carries the dashed peer overlay + You/Peers legend (shape-only)", () => {
