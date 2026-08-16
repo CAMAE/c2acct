@@ -7,7 +7,7 @@ import {
   MEMBERSHIP_PLAN_OPTIONS,
   MEMBERSHIP_STATUS_OPTIONS,
 } from "@/lib/adminControlPlane";
-import { updateOrganizationAction, updateOrganizationMembershipAction } from "@/app/admin/actions";
+import { updateOrganizationAction, updateOrganizationMembershipAction } from "@/app/(app)/admin/actions";
 
 export const dynamic = "force-dynamic";
 

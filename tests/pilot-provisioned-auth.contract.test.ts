@@ -41,7 +41,7 @@ describe("pilot provisioned password auth", () => {
 
   it("forces password rotation before protected pilot routes can open", () => {
     const proxy = readRepoFile("proxy.ts");
-    const passwordUpdatePage = readRepoFile("app/sign-in/password-update/page.tsx");
+    const passwordUpdatePage = readRepoFile("app/(public)/sign-in/password-update/page.tsx");
     const passwordActions = readRepoFile("lib/auth/pilotPasswordActions.ts");
 
     expect(proxy).toContain("token.mustChangePassword === true");
@@ -53,8 +53,8 @@ describe("pilot provisioned password auth", () => {
   });
 
   it("keeps admin provisioning audited and hash-only", () => {
-    const adminActions = readRepoFile("app/admin/actions.ts");
-    const adminUsersPage = readRepoFile("app/admin/users/page.tsx");
+    const adminActions = readRepoFile("app/(app)/admin/actions.ts");
+    const adminUsersPage = readRepoFile("app/(app)/admin/users/page.tsx");
 
     expect(adminActions).toContain("createPilotUserAction");
     expect(adminActions).toContain("updatePilotUserPasswordAction");

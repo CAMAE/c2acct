@@ -245,8 +245,16 @@ describe("admin launch control plane contracts", () => {
 
     const view = buildAdminLaunchControlView(seededSource());
     for (const link of view.remediationLinks) {
-      const pagePath = path.join(process.cwd(), "app", link.href, "page.tsx");
-      expect(fs.existsSync(pagePath), `${link.href} exists`).toBe(true);
+      // Block 21a STEP 2b — routes live under the (app)/(public) route groups now.
+      // Route groups don't change URLs, so a href maps to a page in either group
+      // (or, defensively, still at the app root). Resolve across all candidates.
+      const candidates = ["app/(app)", "app/(public)", "app"].map((base) =>
+        path.join(process.cwd(), base, link.href, "page.tsx")
+      );
+      expect(
+        candidates.some((p) => fs.existsSync(p)),
+        `${link.href} exists`
+      ).toBe(true);
     }
   });
 });

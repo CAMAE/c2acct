@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { submitInviteeCode } from "@/app/sign-in/invitee/actions";
+import { submitInviteeCode } from "@/app/(public)/sign-in/invitee/actions";
 import { getInviteeCodeConfigs, isInviteeAccessEnabled } from "@/lib/invitee/access";
 import { getPilotDisabledSignInPath, isInviteeSurfacesEnabled } from "@/lib/pilotSurfaces";
 

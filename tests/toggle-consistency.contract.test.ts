@@ -11,7 +11,7 @@ import { describe, expect, it } from "vitest";
  * different design family).
  *
  * The canonical CSS lives in app/globals.css (WS1 Block A rewrite).
- * The canonical reference visual is app/sign-in/page.tsx
+ * The canonical reference visual is app/(public)/sign-in/page.tsx
  * (InlineAccessSelectorWithOptions) — note that sign-in uses inline
  * Tailwind constants for the same values because it IS the design
  * source; that inline reimplementation is explicitly sanctioned below.
@@ -39,9 +39,9 @@ const ROOT = "/Users/camerongarrett/work/c2acct-live";
 
 const CANONICAL_TOGGLE_FILES = [
   "app/components/pat/PatModeToggle.tsx",
-  "app/firm/product-assessments/_components/AvailableCompletedToggle.tsx",
+  "app/(app)/firm/product-assessments/_components/AvailableCompletedToggle.tsx",
   "app/components/consultants/briefEdits/PhrasingVariantPicker.tsx",
-  "app/consultants/ecosystems/[ecosystemId]/_components/OpenEndedPanel.tsx",
+  "app/(app)/consultants/ecosystems/[ecosystemId]/_components/OpenEndedPanel.tsx",
 ] as const;
 
 const CANONICAL_TOGGLE_CONSUMERS = [
@@ -50,11 +50,11 @@ const CANONICAL_TOGGLE_CONSUMERS = [
   "app/components/pat/PortalPanelSelector.tsx",
   "app/components/membership/MembershipPageShell.tsx",
   "app/components/membership/MembershipCheckoutShell.tsx",
-  "app/admin/layout.tsx",
+  "app/(app)/admin/layout.tsx",
 ] as const;
 
 const SANCTIONED_NON_CANONICAL = [
-  "app/sign-in/page.tsx",
+  "app/(public)/sign-in/page.tsx",
   "app/components/consultants/briefEdits/EmphasisToggle.tsx",
   "app/components/assessment/AssessmentModuleClient.tsx",
 ] as const;

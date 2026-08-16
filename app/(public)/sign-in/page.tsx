@@ -19,7 +19,7 @@ import { getPresentLocalAuthCookies, summarizeLocalAuthCookies } from "@/lib/aut
 import { getLocalReviewUsersForUi } from "@/lib/auth/localReview";
 import { getAuthRuntimeStatus } from "@/lib/auth/runtime";
 import { isInviteeAccessEnabled } from "@/lib/invitee/access";
-import { submitInviteeCode } from "@/app/sign-in/invitee/actions";
+import { submitInviteeCode } from "@/app/(public)/sign-in/invitee/actions";
 import { isConsultantAccessEnabled } from "@/lib/consultantAccess";
 import {
   getPilotDisabledMessage,

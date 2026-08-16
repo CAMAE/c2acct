@@ -8,10 +8,11 @@ import LanguageSelector from "@/app/components/shell/LanguageSelector";
  * EN/FR/ES language selector reused from AppHeader) + the product footer, wrapping
  * any public-page content. Dark behind PAT_ENABLE_NEW_FRONT_DOOR.
  *
- * STEP 1 (Mythos): built + previewed via V7FrontDoor (flag-on "/"). It still uses the
- * scoped shell-escape below because the root layout renders AppHeader until STEP 2.
- * STEP 2 retires the escape: the (public) route group renders this shell directly and
- * the root layout no longer emits AppHeader, so there is nothing to hide.
+ * STEP 2b: the (public) route group renders this shell DIRECTLY (the root layout is
+ * now just html/body — no AppHeader, no root footer, no pat-shell-main). There is no
+ * longer any app chrome to hide, so the STEP-1 full-bleed escape is gone; this shell
+ * is a plain min-h-screen block child of body.pat-shell. The only scoped rule left is
+ * the V7 pat-label size (the shared product class is 11px; 12px inside this shell).
  */
 const borderLt = "rgba(12,33,66,.07)";
 
@@ -20,15 +21,10 @@ export default async function V7PublicShell({ children }: { children: ReactNode 
 
   return (
     <div className="min-h-screen bg-[#fbfcfe] text-[var(--shell-ink)]" data-testid="v7-public-shell">
-      {/* Full-bleed escape from the app shell (INTERIM — retired by the STEP-2 route
-          group). Hides the root AppHeader/footer + restores block flow, and scopes
-          pat-label to 12px inside the V7 public shell. */}
+      {/* V7-scoped pat-label size (12px inside this shell; the shared class is 11px). */}
       <style
         dangerouslySetInnerHTML={{
-          __html:
-            "body.pat-shell > header, body.pat-shell > footer{display:none!important}" +
-            "body.pat-shell > main.pat-shell-main{display:block!important;max-width:none!important;margin-inline:0!important;padding-inline:0!important;padding-block:0!important}" +
-            '[data-testid="v7-public-shell"] .pat-label{font-size:12px}',
+          __html: '[data-testid="v7-public-shell"] .pat-label{font-size:12px}',
         }}
       />
       {/* NAV — shared V7 public nav + language selector */}

@@ -12,15 +12,15 @@ import {
 const repoRoot = process.cwd();
 
 const expectedRoutePages = {
-  "/trust": "app/trust/page.tsx",
-  "/privacy": "app/privacy/page.tsx",
-  "/terms": "app/terms/page.tsx",
-  "/security": "app/security/page.tsx",
-  "/support": "app/support/page.tsx",
-  "/billing-policy": "app/billing-policy/page.tsx",
-  "/methodology": "app/methodology/page.tsx",
-  "/trust/pat": "app/trust/pat/page.tsx",
-  "/release": "app/release/page.tsx",
+  "/trust": "app/(public)/trust/page.tsx",
+  "/privacy": "app/(public)/privacy/page.tsx",
+  "/terms": "app/(public)/terms/page.tsx",
+  "/security": "app/(app)/security/page.tsx",
+  "/support": "app/(app)/support/page.tsx",
+  "/billing-policy": "app/(public)/billing-policy/page.tsx",
+  "/methodology": "app/(public)/methodology/page.tsx",
+  "/trust/pat": "app/(public)/trust/pat/page.tsx",
+  "/release": "app/(app)/release/page.tsx",
 } as const;
 
 const forbiddenLaunchClaims = [

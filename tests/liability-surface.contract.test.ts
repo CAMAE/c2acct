@@ -27,8 +27,8 @@ describe("in-product output disclaimer", () => {
       "app/components/insights/InsightDetailShell.tsx", // insight detail pages
       "app/components/firm/AlignmentBoardClient.tsx", // firm sandbox projection
       "app/components/vendor/VendorBattleCardClient.tsx", // vendor benchmark
-      "app/consultants/ecosystems/[ecosystemId]/vendor-brief/page.tsx", // consultant benchmark
-      "app/consultants/ecosystems/[ecosystemId]/firm/[firmCompanyId]/page.tsx", // consultant firm detail
+      "app/(app)/consultants/ecosystems/[ecosystemId]/vendor-brief/page.tsx", // consultant benchmark
+      "app/(app)/consultants/ecosystems/[ecosystemId]/firm/[firmCompanyId]/page.tsx", // consultant firm detail
     ];
     for (const file of mountPoints) {
       expect(read(file), `${file} mounts OutputDisclaimer`).toContain("OutputDisclaimer");

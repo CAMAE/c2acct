@@ -98,10 +98,10 @@ describe("band lexicon — banned strays never surface", () => {
     "lib/confidenceBands.ts",
     "app/components/firm/AlignmentBoardClient.tsx",
     "app/components/vendor/VendorBattleCardClient.tsx",
-    "app/consultants/_components/EcosystemListCard.tsx",
-    "app/consultants/ecosystems/[ecosystemId]/_components/EcosystemHeader.tsx",
-    "app/consultants/ecosystems/[ecosystemId]/_components/FirmGrid.tsx",
-    "app/consultants/ecosystems/[ecosystemId]/firm/[firmCompanyId]/_components/FirmAlignmentHeader.tsx",
+    "app/(app)/consultants/_components/EcosystemListCard.tsx",
+    "app/(app)/consultants/ecosystems/[ecosystemId]/_components/EcosystemHeader.tsx",
+    "app/(app)/consultants/ecosystems/[ecosystemId]/_components/FirmGrid.tsx",
+    "app/(app)/consultants/ecosystems/[ecosystemId]/firm/[firmCompanyId]/_components/FirmAlignmentHeader.tsx",
     "lib/briefs/executive-summary-templates.ts",
   ];
 

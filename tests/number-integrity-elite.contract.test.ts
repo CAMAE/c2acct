@@ -129,10 +129,10 @@ describe("wiring: Pro + Elite surfaces read the shared signal / index", () => {
   });
 
   it("the firm index card + Elite builders are fed by getFirmAlignmentSignal", () => {
-    const page = read("app/firm/insights/page.tsx");
+    const page = read("app/(app)/firm/insights/page.tsx");
     expect(page).toContain("getFirmAlignmentSignal");
     expect(page).toContain("alignmentSignal.alignmentIndex");
-    const detail = read("app/firm/insights/[key]/page.tsx");
+    const detail = read("app/(app)/firm/insights/[key]/page.tsx");
     expect(detail).toContain("getFirmAlignmentSignal");
     expect(detail).toContain("buildFirmPeerPosition(prisma, companyId, boundary, signal)");
   });

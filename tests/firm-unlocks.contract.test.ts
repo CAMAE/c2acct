@@ -356,7 +356,7 @@ describe("firm pro unlock rules", () => {
 
   it("keeps the firm insight detail route on the cleaned shared shell", () => {
     const text = readFileSync(
-      path.join(ROOT, "app/firm/insights/[key]/page.tsx"),
+      path.join(ROOT, "app/(app)/firm/insights/[key]/page.tsx"),
       "utf8"
     );
 
@@ -377,7 +377,7 @@ describe("firm pro unlock rules", () => {
 
   it("keeps the firm overview route free of count-led hero copy", () => {
     const text = readFileSync(
-      path.join(ROOT, "app/firm/insights/page.tsx"),
+      path.join(ROOT, "app/(app)/firm/insights/page.tsx"),
       "utf8"
     );
 
@@ -387,7 +387,7 @@ describe("firm pro unlock rules", () => {
 
   it("keeps the firm alignment assessment overview grouped by module status", () => {
     const text = readFileSync(
-      path.join(ROOT, "app/firm/alignment-assessment/page.tsx"),
+      path.join(ROOT, "app/(app)/firm/alignment-assessment/page.tsx"),
       "utf8"
     );
 

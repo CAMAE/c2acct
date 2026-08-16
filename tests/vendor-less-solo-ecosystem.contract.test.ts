@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
  * 404 contract.
  *
  * Diagnosis: AUDIT-D12-003 described the legacy admin "Assign firm to
- * consultant" flow (app/admin/actions.ts) creating Solo: ecosystems with
+ * consultant" flow (app/(app)/admin/actions.ts) creating Solo: ecosystems with
  * `vendorCompanyId = NULL`. The Day-12 ticket was filed BEFORE Day-13's
  * commit 0e0c39a, which added the downstream tolerance at the
  * consultant-access-state layer. As of Day-18 HEAD, all consultant
@@ -72,12 +72,12 @@ describe("AUDIT-D12-003 vendor-less Solo ecosystem 404 contract", () => {
     expect(remainder).toMatch(NULL_GUARD_PATTERN);
   });
 
-  it("app/admin/actions.ts marks the legacy Solo-ecosystem create with a Phase-5 deprecation marker", () => {
+  it("app/(app)/admin/actions.ts marks the legacy Solo-ecosystem create with a Phase-5 deprecation marker", () => {
     // The legacy admin Assign-firm flow still creates vendor-less Solo:
     // ecosystems (line ~622). That's deferred to Phase 5 (AUDIT-D10-001).
     // The code path must carry a Phase-5/AUDIT-D10-001 reference so a
     // future auditor finds it without spelunking through git blame.
-    const source = readFileSync(path.join(ROOT, "app/admin/actions.ts"), "utf8");
+    const source = readFileSync(path.join(ROOT, "app/(app)/admin/actions.ts"), "utf8");
     // Locate the Solo: ecosystem create
     const soloIdx = source.indexOf("`Solo: ");
     expect(soloIdx).toBeGreaterThan(-1);

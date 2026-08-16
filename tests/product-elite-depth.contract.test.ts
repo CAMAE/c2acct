@@ -112,7 +112,7 @@ describe("buildProductTrajectory — real line only, honest pending otherwise", 
 
 describe("11e flip — entitled sees live depth, non-entitled sees the upsell", () => {
   it("the page renders the live depth card for entitled and the locked preview otherwise", () => {
-    const src = read("app/vendor/product-insight/[productId]/[insightKey]/page.tsx");
+    const src = read("app/(app)/vendor/product-insight/[productId]/[insightKey]/page.tsx");
     // entitled + live cohort → the live depth card
     expect(src).toContain("eliteEntitled && productCohort");
     expect(src).toContain("ProductEliteDepthCard");

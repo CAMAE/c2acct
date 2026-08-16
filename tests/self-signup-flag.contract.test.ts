@@ -45,14 +45,14 @@ describe("self-signup flag gating contract", () => {
     // audit fixes removed, so the entry points must not render while dark.
     // Source contract: each surface guards the link with isSelfSignupEnabled
     // and never points it anywhere but the wizard.
-    const homepage = readFileSync(path.join(process.cwd(), "app/page.tsx"), "utf8");
+    const homepage = readFileSync(path.join(process.cwd(), "app/(public)/page.tsx"), "utf8");
     expect(homepage).toContain("isSelfSignupEnabled()");
     // Signed-in users get the workspace card, never the create-account card.
     expect(homepage).toContain("{selfSignupEnabled && !signedIn ? (");
     expect(homepage).toContain("href={CREATE_ACCOUNT_PATH}");
     expect(homepage).not.toContain("getCreateAccountHref");
 
-    const landing = readFileSync(path.join(process.cwd(), "app/onboarding/[audience]/page.tsx"), "utf8");
+    const landing = readFileSync(path.join(process.cwd(), "app/(app)/onboarding/[audience]/page.tsx"), "utf8");
     expect(landing).toContain("isSelfSignupEnabled()");
     expect(landing).toContain("{selfSignupEnabled ? (");
     expect(landing).toContain("href={CREATE_ACCOUNT_PATH}");

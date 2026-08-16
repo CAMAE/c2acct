@@ -37,7 +37,7 @@ describe("quarter + cutoff mechanics", () => {
 
 describe("tier wall inside the artifact", () => {
   it("the page gates the Elite rank layer and members-only entry", () => {
-    const src = readFileSync(path.join(ROOT, "app/firm/benchmark/page.tsx"), "utf8");
+    const src = readFileSync(path.join(ROOT, "app/(app)/firm/benchmark/page.tsx"), "utf8");
     // Members-only: Pro entitlement gate with the shared surface gate on deny.
     expect(src).toMatch(/resolveMembershipEntitlement\(sessionUser, "firm", MEMBERSHIP_PLAN\.PRO\)/);
     expect(src).toContain("MembershipSurfaceGate");

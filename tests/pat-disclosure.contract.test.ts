@@ -75,7 +75,7 @@ describe("Pat AI-disclosure — every render surface shows it", () => {
   });
 
   it("the consultant nudge queue shows the disclosure on every Pat-drafted card", () => {
-    const src = read("app/consultants/_components/NudgeQueue.tsx");
+    const src = read("app/(app)/consultants/_components/NudgeQueue.tsx");
     expect(src).toContain("PAT_DISCLOSURE_SHORT");
     expect(src).toContain("d.aiGenerated");
   });

@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { AdminMetricCard, AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
 import { getAdminOverviewData } from "@/lib/adminControlPlane";
 import { getDemoPatEcosystemHealth } from "@/lib/demoPatEcosystemHealth";
-import { updatePortalAction } from "@/app/admin/actions";
+import { updatePortalAction } from "@/app/(app)/admin/actions";
 
 export const dynamic = "force-dynamic";
 

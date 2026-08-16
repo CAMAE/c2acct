@@ -6,7 +6,7 @@ import {
   updatePilotUserPasswordAction,
   updateUserContextAction,
   updateUserMembershipAction,
-} from "@/app/admin/actions";
+} from "@/app/(app)/admin/actions";
 import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 
 export const dynamic = "force-dynamic";

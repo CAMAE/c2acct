@@ -528,7 +528,7 @@ describe("vendor alignment catalog", () => {
 
   it("keeps the vendor alignment detail route on the cleaned shared shell", () => {
     const text = readFileSync(
-      path.join(ROOT, "app/vendor/alignment-insights/[key]/page.tsx"),
+      path.join(ROOT, "app/(app)/vendor/alignment-insights/[key]/page.tsx"),
       "utf8"
     );
 
@@ -546,7 +546,7 @@ describe("vendor alignment catalog", () => {
 
   it("keeps the vendor alignment overview route free of count-led hero copy", () => {
     const text = readFileSync(
-      path.join(ROOT, "app/vendor/alignment-insights/page.tsx"),
+      path.join(ROOT, "app/(app)/vendor/alignment-insights/page.tsx"),
       "utf8"
     );
 

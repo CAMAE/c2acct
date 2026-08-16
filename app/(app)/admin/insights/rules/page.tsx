@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
-import { updateInsightAction, upsertInsightCapabilityRuleAction, upsertInsightUnlockRuleAction } from "@/app/admin/actions";
+import { updateInsightAction, upsertInsightCapabilityRuleAction, upsertInsightUnlockRuleAction } from "@/app/(app)/admin/actions";
 
 export const dynamic = "force-dynamic";
 

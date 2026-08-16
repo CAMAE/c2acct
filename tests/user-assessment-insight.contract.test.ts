@@ -173,15 +173,15 @@ describe("user assessment and insight contracts", () => {
 
   it("keeps user assessment routes gated and staged product assessment copy honest", () => {
     const alignmentPage = readFileSync(
-      path.join(ROOT, "app/user/alignment-assessment/page.tsx"),
+      path.join(ROOT, "app/(app)/user/alignment-assessment/page.tsx"),
       "utf8"
     );
-    const insightsPage = readFileSync(path.join(ROOT, "app/user/insights/page.tsx"), "utf8");
+    const insightsPage = readFileSync(path.join(ROOT, "app/(app)/user/insights/page.tsx"), "utf8");
     const insightDetailPage = readFileSync(
-      path.join(ROOT, "app/user/insights/[key]/page.tsx"),
+      path.join(ROOT, "app/(app)/user/insights/[key]/page.tsx"),
       "utf8"
     );
-    const productPage = readFileSync(path.join(ROOT, "app/user/product-assessment/page.tsx"), "utf8");
+    const productPage = readFileSync(path.join(ROOT, "app/(app)/user/product-assessment/page.tsx"), "utf8");
 
     for (const text of [alignmentPage, insightsPage, insightDetailPage]) {
       expect(text).toContain("MembershipSurfaceGate");

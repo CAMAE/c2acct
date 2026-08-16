@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import AlignmentRadar, { type RadarAxis } from "@/app/components/firm/AlignmentRadar";
-import { logSandboxSwap } from "@/app/firm/alignment-board/swapActions";
+import { logSandboxSwap } from "@/app/(app)/firm/alignment-board/swapActions";
 import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import { formatDelta, formatScoreValue } from "@/lib/formatDelta";
 import { fitHeatColor, fitTierLabel } from "@/lib/fitHeat";

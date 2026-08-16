@@ -2,7 +2,7 @@ import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
 import { COMPANY_TYPE_OPTIONS, MEMBERSHIP_PLAN_OPTIONS, MEMBERSHIP_STATUS_OPTIONS } from "@/lib/adminControlPlane";
-import { createOrganizationAction, provisionOrganizationAccountAction } from "@/app/admin/actions";
+import { createOrganizationAction, provisionOrganizationAccountAction } from "@/app/(app)/admin/actions";
 import { PROVISION_ORG_KINDS } from "@/lib/provisioning/account";
 
 export const dynamic = "force-dynamic";

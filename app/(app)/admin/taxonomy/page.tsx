@@ -9,7 +9,7 @@ import {
   createTaxonomyBucketAction,
   updateTaxonomyBucketAction,
   upsertTaxonomyBucketCapabilityAction,
-} from "@/app/admin/actions";
+} from "@/app/(app)/admin/actions";
 
 export const dynamic = "force-dynamic";
 

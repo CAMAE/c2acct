@@ -69,11 +69,11 @@ describe("firm product assessment catalog", () => {
 
   it("keeps blocked, empty, available, in-progress, and completed catalog copy visible", () => {
     const pageText = readFileSync(
-      path.join(ROOT, "app/firm/product-assessments/page.tsx"),
+      path.join(ROOT, "app/(app)/firm/product-assessments/page.tsx"),
       "utf8"
     );
     const detailText = readFileSync(
-      path.join(ROOT, "app/firm/product-assessments/[productId]/page.tsx"),
+      path.join(ROOT, "app/(app)/firm/product-assessments/[productId]/page.tsx"),
       "utf8"
     );
     const submitRouteText = readFileSync(

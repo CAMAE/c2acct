@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
 
 const ROOT = path.resolve(__dirname, "..");
 const routeSrc = readFileSync(
-  path.join(ROOT, "app/consultants/ecosystems/[ecosystemId]/firm/[firmCompanyId]/alignment-board/page.tsx"),
+  path.join(ROOT, "app/(app)/consultants/ecosystems/[ecosystemId]/firm/[firmCompanyId]/alignment-board/page.tsx"),
   "utf8"
 );
 

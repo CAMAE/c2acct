@@ -31,7 +31,7 @@
   "routes": {
     "/": {
       "sourceFiles": [
-        "app/page.tsx",
+        "app/(public)/page.tsx",
         "lib/selfSignup.ts",
         "lib/locale.ts",
         "lib/frontDoor.ts",
@@ -63,7 +63,7 @@
     },
     "/onboarding": {
       "sourceFiles": [
-        "app/onboarding/page.tsx",
+        "app/(app)/onboarding/page.tsx",
         "lib/publicOnboarding.ts"
       ],
       "positiveMarkers": [
@@ -74,7 +74,7 @@
     },
     "/onboarding/vendor": {
       "sourceFiles": [
-        "app/onboarding/[audience]/page.tsx",
+        "app/(app)/onboarding/[audience]/page.tsx",
         "lib/publicOnboarding.ts"
       ],
       "positiveMarkers": [
@@ -86,7 +86,7 @@
     },
     "/onboarding/firm": {
       "sourceFiles": [
-        "app/onboarding/[audience]/page.tsx",
+        "app/(app)/onboarding/[audience]/page.tsx",
         "lib/publicOnboarding.ts"
       ],
       "positiveMarkers": [
@@ -98,7 +98,7 @@
     },
     "/onboarding/user": {
       "sourceFiles": [
-        "app/onboarding/[audience]/page.tsx",
+        "app/(app)/onboarding/[audience]/page.tsx",
         "lib/publicOnboarding.ts"
       ],
       "individualSurfacesGate": {
@@ -120,7 +120,7 @@
     },
     "/trust": {
       "sourceFiles": [
-        "app/trust/page.tsx",
+        "app/(public)/trust/page.tsx",
         "app/components/trust/TrustSurfacePage.tsx",
         "lib/trustContent.ts"
       ],
@@ -132,7 +132,7 @@
     },
     "/privacy": {
       "sourceFiles": [
-        "app/privacy/page.tsx",
+        "app/(public)/privacy/page.tsx",
         "app/components/trust/TrustSurfacePage.tsx",
         "lib/trustContent.ts"
       ],
@@ -144,7 +144,7 @@
     },
     "/terms": {
       "sourceFiles": [
-        "app/terms/page.tsx",
+        "app/(public)/terms/page.tsx",
         "app/components/trust/TrustSurfacePage.tsx",
         "lib/trustContent.ts"
       ],
@@ -156,7 +156,7 @@
     },
     "/security": {
       "sourceFiles": [
-        "app/security/page.tsx",
+        "app/(app)/security/page.tsx",
         "app/components/trust/TrustSurfacePage.tsx",
         "lib/trustContent.ts"
       ],
@@ -168,7 +168,7 @@
     },
     "/support": {
       "sourceFiles": [
-        "app/support/page.tsx",
+        "app/(app)/support/page.tsx",
         "app/components/trust/TrustSurfacePage.tsx",
         "lib/trustContent.ts"
       ],
@@ -180,7 +180,7 @@
     },
     "/billing-policy": {
       "sourceFiles": [
-        "app/billing-policy/page.tsx",
+        "app/(public)/billing-policy/page.tsx",
         "app/components/trust/TrustSurfacePage.tsx",
         "lib/trustContent.ts"
       ],
@@ -192,7 +192,7 @@
     },
     "/methodology": {
       "sourceFiles": [
-        "app/methodology/page.tsx",
+        "app/(public)/methodology/page.tsx",
         "app/components/trust/TrustSurfacePage.tsx",
         "lib/trustContent.ts",
         "lib/methodology.ts"
@@ -205,7 +205,7 @@
     },
     "/release": {
       "sourceFiles": [
-        "app/release/page.tsx",
+        "app/(app)/release/page.tsx",
         "app/components/trust/TrustSurfacePage.tsx",
         "lib/trustContent.ts",
         "lib/release/fingerprint.ts"
@@ -233,7 +233,7 @@
     },
     "/sign-in": {
       "sourceFiles": [
-        "app/sign-in/page.tsx",
+        "app/(public)/sign-in/page.tsx",
         "lib/locale.ts"
       ],
       "positiveMarkers": [
@@ -244,7 +244,7 @@
     },
     "/vendor": {
       "sourceFiles": [
-        "app/vendor/page.tsx",
+        "app/(app)/vendor/page.tsx",
         "lib/locale.ts"
       ],
       "positiveMarkers": [
@@ -254,7 +254,7 @@
     },
     "/firm": {
       "sourceFiles": [
-        "app/firm/page.tsx",
+        "app/(app)/firm/page.tsx",
         "lib/locale.ts"
       ],
       "positiveMarkers": [
@@ -264,7 +264,7 @@
     },
     "/user": {
       "sourceFiles": [
-        "app/user/page.tsx",
+        "app/(app)/user/page.tsx",
         "lib/locale.ts"
       ],
       "positiveMarkers": [
@@ -274,7 +274,7 @@
     },
     "/admin": {
       "sourceFiles": [
-        "app/admin/page.tsx"
+        "app/(app)/admin/page.tsx"
       ],
       "positiveMarkers": [
         "C2Core operator control plane",
@@ -283,7 +283,7 @@
     },
     "/login": {
       "sourceFiles": [
-        "app/login/page.tsx",
+        "app/(app)/login/page.tsx",
         "lib/auth/routes.ts"
       ],
       "mode": "compatibility-only",
@@ -304,7 +304,7 @@
     },
     "/sign-in?view=consultant": {
       "sourceFiles": [
-        "app/sign-in/page.tsx",
+        "app/(public)/sign-in/page.tsx",
         "lib/auth/routes.ts"
       ],
       "consultantAccessGate": {
@@ -333,8 +333,8 @@
     },
     "/consultants": {
       "sourceFiles": [
-        "app/consultants/page.tsx",
-        "app/consultants/layout.tsx",
+        "app/(app)/consultants/page.tsx",
+        "app/(app)/consultants/layout.tsx",
         "lib/consultantAccess.ts"
       ],
       "positiveMarkers": [
@@ -344,7 +344,7 @@
     },
     "/trust/pat": {
       "sourceFiles": [
-        "app/trust/pat/page.tsx",
+        "app/(public)/trust/pat/page.tsx",
         "app/components/trust/TrustSurfacePage.tsx",
         "lib/trustContent.ts"
       ],

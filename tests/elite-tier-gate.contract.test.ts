@@ -53,12 +53,12 @@ describe("Elite tier gate — every Elite detail route checks server-side", () =
   // (3) render LockedElitePreview (not data) on the non-entitled branch.
   const eliteRoutes = [
     {
-      file: "app/firm/insights/[key]/page.tsx",
+      file: "app/(app)/firm/insights/[key]/page.tsx",
       resolve: 'resolveMembershipEntitlement(sessionUser, "firm", MEMBERSHIP_PLAN.ELITE)',
       renderFn: "renderFirmEliteSurface",
     },
     {
-      file: "app/vendor/alignment-insights/[key]/page.tsx",
+      file: "app/(app)/vendor/alignment-insights/[key]/page.tsx",
       resolve: 'resolveMembershipEntitlement(sessionUser, "vendor", MEMBERSHIP_PLAN.ELITE)',
       renderFn: "renderVendorEliteSurface",
     },

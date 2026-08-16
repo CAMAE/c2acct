@@ -9,17 +9,17 @@ import {
 const ROOT = "/Users/camerongarrett/work/c2acct-live";
 
 const overviewRoutes = [
-  "app/vendor/product-insight/[productId]/page.tsx",
-  "app/vendor/alignment-insights/page.tsx",
-  "app/firm/insights/page.tsx",
-  "app/user/insights/page.tsx",
+  "app/(app)/vendor/product-insight/[productId]/page.tsx",
+  "app/(app)/vendor/alignment-insights/page.tsx",
+  "app/(app)/firm/insights/page.tsx",
+  "app/(app)/user/insights/page.tsx",
 ] as const;
 
 const detailRoutes = [
-  "app/vendor/product-insight/[productId]/[insightKey]/page.tsx",
-  "app/vendor/alignment-insights/[key]/page.tsx",
-  "app/firm/insights/[key]/page.tsx",
-  "app/user/insights/[key]/page.tsx",
+  "app/(app)/vendor/product-insight/[productId]/[insightKey]/page.tsx",
+  "app/(app)/vendor/alignment-insights/[key]/page.tsx",
+  "app/(app)/firm/insights/[key]/page.tsx",
+  "app/(app)/user/insights/[key]/page.tsx",
 ] as const;
 
 describe("shared insight primitives", () => {
@@ -63,7 +63,7 @@ describe("shared insight primitives", () => {
   });
 
   it("keeps the overview shell source free of legacy overview badge and count copy", () => {
-    const userOverview = readFileSync(path.join(ROOT, "app/user/insights/page.tsx"), "utf8");
+    const userOverview = readFileSync(path.join(ROOT, "app/(app)/user/insights/page.tsx"), "utf8");
     const gridSource = readFileSync(
       path.join(ROOT, "app/components/insights/InsightSurfaceCardGrid.tsx"),
       "utf8"

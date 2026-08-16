@@ -33,9 +33,9 @@ describe("consultant open-ended scoping — render context", () => {
     expect(importers.length).toBeGreaterThan(0);
     for (const file of importers) {
       const rel = path.relative(ROOT, file);
-      expect(rel.startsWith("app/consultants/"), `${rel} must be under app/consultants/`).toBe(true);
-      expect(rel.startsWith("app/vendor/")).toBe(false);
-      expect(rel.startsWith("app/firm/")).toBe(false);
+      expect(rel.startsWith("app/(app)/consultants/"), `${rel} must be under app/(app)/consultants/`).toBe(true);
+      expect(rel.startsWith("app/(app)/vendor/")).toBe(false);
+      expect(rel.startsWith("app/(app)/firm/")).toBe(false);
     }
   });
 });

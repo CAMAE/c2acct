@@ -10,7 +10,7 @@ import {
   updateProductAction,
   upsertProductCapabilityMapAction,
   upsertProductTaxonomyAssignmentAction,
-} from "@/app/admin/actions";
+} from "@/app/(app)/admin/actions";
 
 export const dynamic = "force-dynamic";
 

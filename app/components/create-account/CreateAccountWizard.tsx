@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
-import type { CreateAccountActionState } from "@/app/create-account/actions";
+import type { CreateAccountActionState } from "@/app/(app)/create-account/actions";
 import type { SelfSignupPlanCard } from "@/lib/selfSignup";
 import {
   SELF_SIGNUP_PASSWORD_HINT,

@@ -95,9 +95,9 @@ describe("membership customer copy — no dev-speak / stale staged claims (13d)"
     "app/components/membership/MembershipPlanPanel.tsx",
     "app/components/membership/MembershipCheckoutShell.tsx",
     "app/components/membership/MembershipSurfaceGate.tsx",
-    "app/vendor/membership/page.tsx",
-    "app/firm/membership/page.tsx",
-    "app/user/membership/page.tsx",
+    "app/(app)/vendor/membership/page.tsx",
+    "app/(app)/firm/membership/page.tsx",
+    "app/(app)/user/membership/page.tsx",
   ];
   const bannedMembershipPhrases = ["checkout scaffold", "truthful scope", "staged"];
 

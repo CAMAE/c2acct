@@ -634,11 +634,11 @@ describe("vendor product assessment contracts", () => {
 
   it("keeps vendor product assessment routes free of legacy ready and directional language", () => {
     const overviewText = readFileSync(
-      path.join(ROOT, "app/vendor/product-assessment/page.tsx"),
+      path.join(ROOT, "app/(app)/vendor/product-assessment/page.tsx"),
       "utf8"
     );
     const detailText = readFileSync(
-      path.join(ROOT, "app/vendor/product-assessment/[productId]/page.tsx"),
+      path.join(ROOT, "app/(app)/vendor/product-assessment/[productId]/page.tsx"),
       "utf8"
     );
 
@@ -661,7 +661,7 @@ describe("vendor product assessment contracts", () => {
   });
 
   it("keeps the vendor product assessment overview clickable, clean, and mode-scoped", () => {
-    const source = readFileSync(path.join(ROOT, "app/vendor/product-assessment/page.tsx"), "utf8");
+    const source = readFileSync(path.join(ROOT, "app/(app)/vendor/product-assessment/page.tsx"), "utf8");
 
     expect(source).toContain("PatModeToggle");
     expect(source).toContain('key: "completed"');
@@ -687,7 +687,7 @@ describe("vendor product assessment contracts", () => {
   });
 
   it("starts a newly added vendor product assessment directly and stores only actual product URLs", () => {
-    const source = readFileSync(path.join(ROOT, "app/vendor/product-assessment/page.tsx"), "utf8");
+    const source = readFileSync(path.join(ROOT, "app/(app)/vendor/product-assessment/page.tsx"), "utf8");
 
     expect(source).toContain("function getActualProductUrl");
     expect(source).toContain('parsed.protocol === "https:" || parsed.protocol === "http:"');
@@ -701,11 +701,11 @@ describe("vendor product assessment contracts", () => {
       "utf8"
     );
     const overviewText = readFileSync(
-      path.join(ROOT, "app/vendor/product-assessment/page.tsx"),
+      path.join(ROOT, "app/(app)/vendor/product-assessment/page.tsx"),
       "utf8"
     );
     const detailText = readFileSync(
-      path.join(ROOT, "app/vendor/product-assessment/[productId]/page.tsx"),
+      path.join(ROOT, "app/(app)/vendor/product-assessment/[productId]/page.tsx"),
       "utf8"
     );
     const clientText = readFileSync(

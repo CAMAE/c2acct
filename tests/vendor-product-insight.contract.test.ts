@@ -570,7 +570,7 @@ describe("vendor product insight runtime", () => {
 
   it("keeps the detail route on the cleaned shared shell without legacy panel clutter", () => {
     const text = readFileSync(
-      path.join(ROOT, "app/vendor/product-insight/[productId]/[insightKey]/page.tsx"),
+      path.join(ROOT, "app/(app)/vendor/product-insight/[productId]/[insightKey]/page.tsx"),
       "utf8"
     );
 
@@ -589,11 +589,11 @@ describe("vendor product insight runtime", () => {
   it("blocks direct product intelligence routes before incomplete products can build snapshots", () => {
     const engineText = readFileSync(path.join(ROOT, "lib/vendorProductInsightEngine.ts"), "utf8");
     const detailPageText = readFileSync(
-      path.join(ROOT, "app/vendor/product-insight/[productId]/page.tsx"),
+      path.join(ROOT, "app/(app)/vendor/product-insight/[productId]/page.tsx"),
       "utf8"
     );
     const slicePageText = readFileSync(
-      path.join(ROOT, "app/vendor/product-insight/[productId]/[insightKey]/page.tsx"),
+      path.join(ROOT, "app/(app)/vendor/product-insight/[productId]/[insightKey]/page.tsx"),
       "utf8"
     );
 

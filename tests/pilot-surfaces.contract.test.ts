@@ -63,9 +63,9 @@ describe("pilot surface flags", () => {
   });
 
   it("keeps direct user routes behind a pilot-disabled guard", () => {
-    const userLayout = readFileSync(path.join(ROOT, "app/user/layout.tsx"), "utf8");
-    const userSignIn = readFileSync(path.join(ROOT, "app/sign-in/user/page.tsx"), "utf8");
-    const inviteeSignIn = readFileSync(path.join(ROOT, "app/sign-in/invitee/page.tsx"), "utf8");
+    const userLayout = readFileSync(path.join(ROOT, "app/(app)/user/layout.tsx"), "utf8");
+    const userSignIn = readFileSync(path.join(ROOT, "app/(public)/sign-in/user/page.tsx"), "utf8");
+    const inviteeSignIn = readFileSync(path.join(ROOT, "app/(public)/sign-in/invitee/page.tsx"), "utf8");
 
     expect(userLayout).toContain("isIndividualSurfacesEnabled");
     expect(userLayout).toContain('getPilotDisabledSignInPath("individual")');

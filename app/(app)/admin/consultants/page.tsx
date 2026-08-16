@@ -6,7 +6,7 @@ import {
   deactivateConsultantAction,
   removeConsultantAssignmentAction,
   upsertConsultantAssignmentAction,
-} from "@/app/admin/actions";
+} from "@/app/(app)/admin/actions";
 import {
   matchesPrismaMissingSchemaTarget,
   warnPrismaCompatibilityOnce,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { submitBriefEditChoice } from "@/app/consultants/_actions/briefEditChoice";
+import { submitBriefEditChoice } from "@/app/(app)/consultants/_actions/briefEditChoice";
 import type {
   BriefEditSectionKey,
   BriefKind,

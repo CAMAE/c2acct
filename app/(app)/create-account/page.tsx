@@ -4,7 +4,7 @@ import { signOut } from "@/auth";
 import CreateAccountWizard, {
   type CreateAccountWizardContent,
 } from "@/app/components/create-account/CreateAccountWizard";
-import { completeSelfSignup } from "@/app/create-account/actions";
+import { completeSelfSignup } from "@/app/(app)/create-account/actions";
 import { getSessionUser } from "@/lib/auth/session";
 import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import { resolvePortalExperience } from "@/lib/portalVisibility";

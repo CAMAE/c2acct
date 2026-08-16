@@ -8,14 +8,19 @@ import Link from "next/link";
  * mockup. The radar and the cohort-standing panel are DATA-FREE — shape only, no
  * numbers, no percentile claims. Bar positions are illustrative layout
  * coordinates (same status as the radar polygon points), not scores.
- * Dark behind PAT_ENABLE_NEW_FRONT_DOOR (app/page.tsx); the current page is the
- * untouched default. No client JS — a static server component.
+ * Dark behind PAT_ENABLE_NEW_FRONT_DOOR (the (public) route group renders it when
+ * on). No client JS — a static server component.
  *
- * Section order: nav → hero → door cards → radar panel → cohort-standing panel →
- * trust → footer. Revision 3 (2026-07-27): type scale backed off halfway; the
- * cohort legend drops the color-key words; the single pillar sentence becomes five
- * per-pillar value sentences under the radar; the methodology/trust band is
- * condensed.
+ * Block 21a STEP 2b — DEDUPE: the nav, product footer, full-bleed escape and the
+ * min-h-screen wrapper moved to V7PublicShell (the (public) group layout wraps this
+ * content in ONE shared shell + the EN/FR/ES selector). This component is now just
+ * the front-door CONTENT — a fragment. The V7-scoped pat-label 12px size lives on
+ * V7PublicShell's [data-testid="v7-public-shell"] wrapper.
+ *
+ * Content order: hero → door cards → radar panel → cohort-standing panel → trust
+ * band. Revision 3 (2026-07-27): type scale backed off halfway; the cohort legend
+ * drops the color-key words; the single pillar sentence becomes five per-pillar
+ * value sentences under the radar; the methodology/trust band is condensed.
  */
 
 // Illustrative peer positions — shape only, no scores. band = [left%, width%];
@@ -52,42 +57,7 @@ export default function V7FrontDoor() {
   const borderLt = "rgba(12,33,66,.07)";
 
   return (
-    <div className="min-h-screen bg-[#fbfcfe] text-[var(--shell-ink)]" data-testid="v7-front-door">
-      {/*
-        Full-bleed escape from the app shell (hides the double header/footer), plus
-        a V7-scoped pat-label size (the shared product class is 11px; the
-        attribute+class selector overrides only inside the front door). Renders ONLY
-        when the front door renders (flag on + "/"); flag-off + every other route
-        keep the shell + global pat-label untouched.
-      */}
-      <style
-        dangerouslySetInnerHTML={{
-          __html:
-            "body.pat-shell > header, body.pat-shell > footer{display:none!important}" +
-            "body.pat-shell > main.pat-shell-main{display:block!important;max-width:none!important;margin-inline:0!important;padding-inline:0!important;padding-block:0!important}" +
-            '[data-testid="v7-front-door"] .pat-label{font-size:12px}',
-        }}
-      />
-      {/* NAV */}
-      <nav
-        className="sticky top-0 z-10 border-b bg-[rgba(251,252,254,.88)] backdrop-blur-[10px]"
-        style={{ borderColor: borderLt }}
-      >
-        <div className="mx-auto flex h-[78px] max-w-[1120px] items-center justify-between px-9">
-          <Link href="/">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/PAT.png" alt="PAT" className="block h-9 w-auto" />
-          </Link>
-          <div className="flex items-center gap-[30px] text-[15px] font-semibold text-[var(--shell-muted)]">
-            <Link href="/methodology">Methodology</Link>
-            <Link href="/trust">Trust</Link>
-            <Link href="/sign-in" className="rounded-full bg-[var(--shell-ink)] px-6 py-[11px] font-semibold text-white">
-              Sign in
-            </Link>
-          </div>
-        </div>
-      </nav>
-
+    <>
       {/* HERO */}
       <header className="px-9 pb-[60px] pt-28 text-center">
         <div className="mx-auto max-w-[1120px]">
@@ -252,23 +222,6 @@ export default function V7FrontDoor() {
           </Link>
         </div>
       </div>
-
-      {/* PRODUCT FOOTER */}
-      <footer className="bg-white pb-11 pt-8 text-center" style={{ borderTop: `1px solid ${borderLt}` }}>
-        <div className="mx-auto max-w-[1120px] px-9">
-          <div className="flex flex-wrap justify-center gap-[26px] text-[14px] font-semibold text-[var(--shell-muted)]">
-            <Link href="/trust">Trust</Link>
-            <Link href="/privacy">Privacy</Link>
-            <Link href="/terms">Terms</Link>
-            <Link href="/methodology">Methodology</Link>
-            {/* Footer parity with the product: "Build proof" → /release (the release transparency page). */}
-            <Link href="/release">Build proof</Link>
-          </div>
-          <div className="mt-4 text-[13.5px] text-[var(--shell-muted)]">
-            Copyright 2026 C2Acct · PAT — Performance Alignment Technology · a Patalign™ product
-          </div>
-        </div>
-      </footer>
-    </div>
+    </>
   );
 }
