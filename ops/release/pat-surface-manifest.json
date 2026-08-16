@@ -125,8 +125,8 @@
         "lib/trustContent.ts"
       ],
       "positiveMarkers": [
-        "PAT trust center",
-        "Launch-readiness information",
+        "Trust Center 2026",
+        "How PAT earns trust.",
         "No unsupported claims"
       ]
     },
@@ -137,8 +137,8 @@
         "lib/trustContent.ts"
       ],
       "positiveMarkers": [
-        "Privacy policy draft",
-        "PAT privacy policy draft.",
+        "Privacy policy",
+        "PAT privacy policy.",
         "Payment data"
       ]
     },
@@ -149,8 +149,8 @@
         "lib/trustContent.ts"
       ],
       "positiveMarkers": [
-        "Terms of service draft",
-        "PAT terms of service draft.",
+        "Terms of service",
+        "PAT terms of service.",
         "Product output"
       ]
     },
@@ -185,8 +185,8 @@
         "lib/trustContent.ts"
       ],
       "positiveMarkers": [
-        "Billing policy draft",
-        "PAT billing policy draft.",
+        "Billing policy",
+        "PAT billing policy.",
         "Scaffold mode"
       ]
     },
