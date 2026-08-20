@@ -28,16 +28,32 @@ describe("pilot-ops approval gating", () => {
     });
   });
 
-  it("does NOT require approval for reads", async () => {
+  it("does NOT require approval for tools classified as safe", async () => {
     const config = await configPromise;
+    // Under deny-by-default (S7) these are ungated because pilot-ops.yaml lists
+    // them in never_require_approval — not because "unlisted" used to mean safe.
     expect(resolveApprovalRule(config, "neon.read", { table: "PilotCohortMember" }).required).toBe(false);
     expect(resolveApprovalRule(config, "telegram.send_message", {}).required).toBe(false);
   });
 
-  it("does not gate a neon write to an unlisted table", async () => {
+  it("gates a neon write to a table nobody classified", async () => {
     const config = await configPromise;
-    // Only User / PilotCohortMember writes are gated; a different table is not in
-    // the approval rules (allowlist scope is the separate guard that blocks it).
-    expect(resolveApprovalRule(config, "neon.write", { table: "Badge" }).required).toBe(false);
+    // Badge has no table-qualified rule. The OLD behaviour let it through
+    // ungated; now the blanket "neon.write" gate catches it, so an unlisted
+    // write pauses for an operator instead of running unattended — and it
+    // carries that rule's explicit high blast radius, not "unknown".
+    const rule = resolveApprovalRule(config, "neon.write", { table: "Badge" });
+    expect(rule.required).toBe(true);
+    expect(rule.ruleKey).toBe("neon.write");
+    expect(rule.blastRadius).toBe("high");
+  });
+
+  it("gates a tool that appears in neither list", async () => {
+    const config = await configPromise;
+    // unknown-tool-requires-approval: the deny-by-default contract itself.
+    const rule = resolveApprovalRule(config, "gmail.send_as_user", { to: "x@example.com" });
+    expect(rule.required).toBe(true);
+    expect(rule.ruleKey).toBe("gmail.send_as_user");
+    expect(rule.blastRadius).toBe("unknown");
   });
 });

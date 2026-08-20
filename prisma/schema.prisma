@@ -1342,6 +1342,10 @@ model AgentRun {
 enum AgentRunStatus {
   running
   awaiting_approval
+  // Run suspended with no live process while an operator decides (async
+  // pause/resume). Distinct from awaiting_approval, which meant "process alive,
+  // blocked in-band". Approval wait no longer burns max_runtime_seconds.
+  paused_approval
   completed
   failed
   cancelled
@@ -1402,6 +1406,13 @@ model AgentApproval {
   decisionNote   String?
   telegramMsgId  String? // for inline button updates
   telegramHmac   String? // anti-replay
+  // Tool this approval gates, and the check-and-set idempotency guard for its
+  // side effect. idempotencyKey = sha256(runId|toolName|argsHash); consumedAt is
+  // set exactly once, by a conditional update, immediately before the approved
+  // call executes — so a resume replay or a late approve can never double-send.
+  toolName       String?
+  idempotencyKey String?             @unique
+  consumedAt     DateTime?
   createdAt      DateTime            @default(now())
 
   @@index([status, createdAt])
@@ -1449,6 +1460,10 @@ model AgentTriggerRequest {
   claimedAt   DateTime?
   finishedAt  DateTime?
   runId       String? // AgentRun id once the supervisor starts the run
+  // Set when this trigger resumes a run paused on an approval. The supervisor
+  // re-enters the ORIGINAL run id (stable idempotency keys) instead of opening a
+  // new run. Null for ordinary /admin command-bar triggers.
+  resumeRunId String?
   error       String?
 
   @@index([status, createdAt])

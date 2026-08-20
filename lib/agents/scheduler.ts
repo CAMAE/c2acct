@@ -4,6 +4,21 @@ import { cronMatches } from "./cron";
 
 export type ScheduledTask = (trigger: RunTrigger) => Promise<void>;
 
+/**
+ * Consulted before every scheduled fire. Returning `allowed: false` skips the
+ * run (and says why). The supervisor supplies one that enforces the global
+ * daily cost cap (S3) and the per-agent circuit breaker (S4); keeping it
+ * injected leaves the Scheduler pure and unit-testable.
+ */
+export type ScheduleGate = (config: AgentConfig) => Promise<{ allowed: boolean; reason?: string }>;
+
+export interface SchedulerOptions {
+  gate?: ScheduleGate;
+  /** Agent keys already running when the supervisor started (orphan sweep seed). */
+  initiallyRunning?: Iterable<string>;
+  onSkip?: (agentKey: string, reason: string) => void;
+}
+
 interface Registration {
   config: AgentConfig;
   task: ScheduledTask;
@@ -24,9 +39,33 @@ export class Scheduler {
   private readonly registrations: Registration[] = [];
   private readonly timers: ReturnType<typeof setInterval>[] = [];
   private cronTicker: ReturnType<typeof setInterval> | null = null;
+  /**
+   * Agents with a fire in flight. An agent whose run outlasts its own cadence
+   * (a 5-minute QA sweep on a 1-minute interval) must not be started again on
+   * top of itself — previously every tick stacked another concurrent run, which
+   * is how one slow agent turned into a pile of duplicate work and duplicate
+   * side effects.
+   */
+  private readonly inFlight = new Set<string>();
+  private readonly gate?: ScheduleGate;
+  private readonly onSkip: (agentKey: string, reason: string) => void;
+
+  constructor(options: SchedulerOptions = {}) {
+    this.gate = options.gate;
+    this.onSkip =
+      options.onSkip ?? ((agentKey, reason) => console.warn(`[scheduler] ${agentKey} skipped: ${reason}`));
+    for (const key of options.initiallyRunning ?? []) {
+      this.inFlight.add(key);
+    }
+  }
 
   register(config: AgentConfig, task: ScheduledTask): void {
     this.registrations.push({ config, task });
+  }
+
+  /** Test/ops seam: which agents the scheduler currently believes are running. */
+  runningAgents(): string[] {
+    return [...this.inFlight];
   }
 
   start(): void {
@@ -88,20 +127,39 @@ export class Scheduler {
   }
 
   private async fire(registration: Registration, trigger: RunTrigger): Promise<void> {
-    const jitterMs = (registration.config.schedule.jitter_seconds ?? 0) * 1000 * Math.random();
-    if (jitterMs > 0) {
-      await new Promise((resolve) => setTimeout(resolve, jitterMs));
+    const key = registration.config.key;
+
+    // Claim the slot BEFORE the jitter sleep. Claiming after it would leave a
+    // window in which a second tick sails through the guard.
+    if (this.inFlight.has(key)) {
+      this.onSkip(key, "previous run still in flight (overlap guard)");
+      return;
     }
+    this.inFlight.add(key);
+
     try {
+      const jitterMs = (registration.config.schedule.jitter_seconds ?? 0) * 1000 * Math.random();
+      if (jitterMs > 0) {
+        await new Promise((resolve) => setTimeout(resolve, jitterMs));
+      }
+
+      if (this.gate) {
+        const verdict = await this.gate(registration.config);
+        if (!verdict.allowed) {
+          this.onSkip(key, verdict.reason ?? "blocked by schedule gate");
+          return;
+        }
+      }
+
       await registration.task(trigger);
     } catch (error) {
       // PII hygiene (B12): log the message only, never the raw error object
       // (stack/cause can carry request bodies, tokens, or PII from upstream).
       console.error(
-        `[scheduler] ${registration.config.key} task error: ${
-          error instanceof Error ? error.message : String(error)
-        }`
+        `[scheduler] ${key} task error: ${error instanceof Error ? error.message : String(error)}`
       );
+    } finally {
+      this.inFlight.delete(key);
     }
   }
 }

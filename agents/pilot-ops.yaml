@@ -11,7 +11,6 @@ schedule:
 
 model:
   default: claude-sonnet-4-6
-  triage: claude-haiku-4-5
 
 # LLM backing opt-in (lib/agents/llm.ts). Requires ANTHROPIC_API_KEY in the
 # supervisor env at runtime; the key value is never committed or logged.
@@ -69,9 +68,18 @@ approval_rules:
     - neon.write:User              # cannot create/modify users
     - neon.write:PilotCohortMember # cannot create/modify pilot membership / invites
     - provisioning.create_account  # org + owner provisioning always needs an operator
+    - neon.write                   # any write not covered by a table-qualified rule above
+  # Deny-by-default (S7): a tool in NEITHER list is unclassified and GATED.
+  # These are the read-only / notify calls Pilot Ops may make unattended.
+  never_require_approval:
+    - neon.read                    # read-only, table-scoped in tools.scope
+    - telegram.send_message        # operator notification to the fixed ops chat
+    - telegram.send_approval_card  # the approval mechanism itself
+    - vercel.read_logs             # read-only deployment logs
   approval_blast_radius:
     gmail.send: high
     gmail.draft: medium
     neon.write:User: high
     neon.write:PilotCohortMember: medium
     provisioning.create_account: high
+    neon.write: high

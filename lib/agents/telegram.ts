@@ -29,9 +29,30 @@ export async function sendTelegramMessage(
       headers: { "content-type": "application/json" },
       body: JSON.stringify(payload),
     });
-    return { sent: response.ok, status: response.status };
+    if (response.ok) {
+      return { sent: true, status: response.status };
+    }
+    // Carry Telegram's own explanation ("chat not found", "bot was blocked",
+    // "wrong file identifier") instead of just an HTTP number. The status alone
+    // told an operator that something failed but never what, which is the
+    // difference between a fixable alert and a mystery.
+    const reason = await describeFailure(response);
+    return { sent: false, status: response.status, reason };
   } catch (error) {
     return { sent: false, reason: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+/** Pull Telegram's `description` out of an error response; fall back to the body text. */
+async function describeFailure(response: Response): Promise<string> {
+  try {
+    const body = (await response.json()) as { description?: string };
+    if (body?.description) {
+      return `${response.status} ${body.description}`;
+    }
+    return `HTTP ${response.status}`;
+  } catch {
+    return `HTTP ${response.status}`;
   }
 }
 
@@ -48,7 +69,14 @@ export interface InlineKeyboardButton {
   callback_data: string;
 }
 
-/** Low-level Bot API call. Returns the parsed envelope (never throws on HTTP). */
+/**
+ * Low-level Bot API call. Returns the parsed envelope (never throws on HTTP).
+ *
+ * A failed call is now LOGGED rather than silently returned. Every caller below
+ * ignored the envelope, so a bot token rotation, a blocked bot, or a bad chat id
+ * turned the entire operator notification channel — approval cards included —
+ * into a no-op that reported nothing anywhere.
+ */
 export async function callTelegram(
   token: string,
   method: string,
@@ -60,9 +88,17 @@ export async function callTelegram(
       headers: { "content-type": "application/json" },
       body: JSON.stringify(payload),
     });
-    return (await response.json()) as TelegramApiResponse;
+    const envelope = (await response.json()) as TelegramApiResponse;
+    if (!envelope.ok) {
+      console.error(
+        `[telegram] ${method} failed (HTTP ${response.status}): ${envelope.description ?? "no description"}`
+      );
+    }
+    return envelope;
   } catch (error) {
-    return { ok: false, description: error instanceof Error ? error.message : String(error) };
+    const description = error instanceof Error ? error.message : String(error);
+    console.error(`[telegram] ${method} threw: ${description}`);
+    return { ok: false, description };
   }
 }
 
@@ -76,7 +112,14 @@ export async function sendMessage(token: string, chatId: string, text: string): 
   return messageIdOf(res);
 }
 
-/** Send an approval card (text + inline keyboard); returns the message_id. */
+/**
+ * Send an approval card (text + inline keyboard); returns the message_id.
+ *
+ * Throws when the card does not reach the operator. A card that silently failed
+ * to send left a run paused on a decision nobody could see and nobody knew was
+ * pending; the caller (lib/agents/approvals.ts) catches this and writes the
+ * failure into the audit trail so the silence is explainable.
+ */
 export async function sendApprovalCard(
   token: string,
   params: { chat_id: string; text: string; inline_keyboard: InlineKeyboardButton[][] }
@@ -86,6 +129,9 @@ export async function sendApprovalCard(
     text: params.text,
     reply_markup: { inline_keyboard: params.inline_keyboard },
   });
+  if (!res.ok) {
+    throw new Error(`telegram approval card was not delivered: ${res.description ?? "unknown error"}`);
+  }
   return messageIdOf(res);
 }
 

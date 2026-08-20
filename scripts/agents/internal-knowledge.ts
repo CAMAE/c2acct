@@ -26,8 +26,16 @@ const internalKnowledgeHandler: AgentHandler = async (ctx) => {
     return { summary: "Internal Knowledge: no query provided (set PAT_KNOWLEDGE_QUERY)." };
   }
 
+  // Retrieval walls (S6) are declared explicitly at the call site: this operator
+  // agent reads the internal doc corpus only. `audit_log` is not requestable —
+  // asking for it throws — so the agent's own audit trail can never be folded
+  // back into its context. roleAccess is empty: this agent holds no customer
+  // audience, so it sees only unrestricted-audience sources.
   const chunks = await ctx.useTool("knowledge.retrieve", { query, k: TOP_K }, async (args) =>
-    retrieve(String(args.query), Number(args.k) || TOP_K)
+    retrieve(String(args.query), Number(args.k) || TOP_K, {
+      kinds: ["repo_doc", "dream_state"],
+      roleAccess: [],
+    })
   );
 
   if (chunks.length === 0) {
@@ -36,7 +44,10 @@ const internalKnowledgeHandler: AgentHandler = async (ctx) => {
 
   const body = chunks
     .map((chunk, index) => {
-      const snippet = chunk.text.length > SNIPPET_CHARS ? `${chunk.text.slice(0, SNIPPET_CHARS)}…` : chunk.text;
+      // rawText for the human-readable Telegram/console summary; `text` (framed)
+      // is what would go into a model prompt when Phase 3 adds synthesis.
+      const snippet =
+        chunk.rawText.length > SNIPPET_CHARS ? `${chunk.rawText.slice(0, SNIPPET_CHARS)}…` : chunk.rawText;
       return `${index + 1}. ${formatCitation(chunk)}\n${snippet}`;
     })
     .join("\n\n");

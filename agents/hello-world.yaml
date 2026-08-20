@@ -40,3 +40,7 @@ hooks:
     - cost_track
   can_use_tool:
     - allowlist
+# Deny-by-default approval gating (S7).
+approval_rules:
+  never_require_approval:
+    - noop.log                # in-process no-op; no outbound effect

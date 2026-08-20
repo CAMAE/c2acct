@@ -44,3 +44,12 @@ hooks:
 #     - web.post_forum
 #   approval_blast_radius:
 #     web.post_forum: medium
+# Deny-by-default approval gating (S7): a tool in NEITHER list is unclassified
+# and therefore GATED. These are the read-only/notify calls this agent is
+# cleared to make unattended. Adding a new tool without classifying it will
+# pause the run for an operator rather than run it silently.
+approval_rules:
+  never_require_approval:
+    - shell.exec              # allowlisted to literal `dig` commands in tools.allow
+    - cloudflare.read         # zone/DNS read; no write action is allowlisted
+    - telegram.send_message   # operator notification to the fixed ops chat

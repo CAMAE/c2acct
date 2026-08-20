@@ -11,7 +11,6 @@ schedule:
 
 model:
   default: claude-sonnet-4-6     # reserved for the Phase 3 LLM-synthesis upgrade
-  triage: claude-haiku-4-5       # v1 is deterministic (FTS); no model calls yet
 
 limits:
   max_turns: 15
@@ -42,3 +41,9 @@ hooks:
     - cost_track
   can_use_tool:
     - allowlist
+# Deny-by-default approval gating (S7).
+approval_rules:
+  never_require_approval:
+    - knowledge.retrieve      # read-only corpus search, walled to repo_doc/dream_state
+    - neon.read               # read-only, table-scoped in tools.scope
+    - telegram.send_message   # operator notification to the fixed ops chat

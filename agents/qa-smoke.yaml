@@ -10,11 +10,9 @@ schedule:
   expression: "0 * * * *"        # top of every hour
   jitter_seconds: 60             # randomize start by up to 60s
 
-# Model routing (Phase 1a is deterministic; routing reserved for future triage)
+# Model recorded on each step (AgentStep.modelUsed).
 model:
   default: claude-sonnet-4-6
-  triage: claude-haiku-4-5       # routing decisions
-  deep: null                     # not needed for QA
 
 # Hard caps (enforced by lib/agents/budget.ts)
 limits:
@@ -58,3 +56,13 @@ hooks:
     - cost_track
   can_use_tool:
     - allowlist                  # only tools in `tools:` allowed
+# Deny-by-default approval gating (S7): unclassified tools are GATED. QA is a
+# read-only agent, so every tool it holds is listed here; it has no gated tool
+# and should never pause for approval in normal operation.
+approval_rules:
+  never_require_approval:
+    - http_fetch.get              # GET-only, host+path allowlisted in tools.allow
+    - neon.read                   # read-only, table-scoped in tools.scope
+    - telegram.send_message       # operator notification to the fixed ops chat
+    - vercel.list_deployments
+    - vercel.get_deployment_status

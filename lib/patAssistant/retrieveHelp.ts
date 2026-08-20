@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { frameUntrusted } from "@/lib/agents/internal-knowledge/retrieve";
 import type { RetrievedChunk } from "@/lib/agents/internal-knowledge/retrieve";
 
 /**
@@ -70,8 +71,12 @@ export async function retrieveHelp(
     LIMIT ${k}
   `);
 
+  // Same untrusted-content framing as the internal path (S6): help docs are
+  // authored content, but they still enter a prompt as DATA. buildHelpContext
+  // below reads `text`, so the framing travels with it by construction.
   return rows.map((row) => ({
-    text: row.text,
+    text: frameUntrusted(row.text, row.sourcePath, Number(row.chunkIdx)),
+    rawText: row.text,
     sourceKind: row.sourceKind,
     sourcePath: row.sourcePath,
     chunkIdx: Number(row.chunkIdx),

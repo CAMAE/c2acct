@@ -3,21 +3,25 @@
 import { applyRepoEnv } from "@/lib/env/repoEnv";
 import { retrieve } from "@/lib/agents/internal-knowledge/retrieve";
 
+/** Eval helper: the same walls the internal-knowledge agent declares. */
+const retrieveDocs = (query: string, k: number) =>
+  retrieve(query, k, { kinds: ["repo_doc", "dream_state"], roleAccess: [] });
+
 type Check = { name: string; fn: () => Promise<string | null> }; // null = pass, string = failure
 
 const checks: Check[] = [
   {
     name: "query 'Stripe' returns chunks",
-    fn: async () => ((await retrieve("Stripe", 5)).length > 0 ? null : "no results"),
+    fn: async () => ((await retrieveDocs("Stripe", 5)).length > 0 ? null : "no results"),
   },
   {
     name: "query 'patalign.com DNS' returns chunks",
-    fn: async () => ((await retrieve("patalign.com DNS", 5)).length > 0 ? null : "no results"),
+    fn: async () => ((await retrieveDocs("patalign.com DNS", 5)).length > 0 ? null : "no results"),
   },
   {
     name: "query 'agent system' returns agent docs",
     fn: async () => {
-      const r = await retrieve("agent system", 5);
+      const r = await retrieveDocs("agent system", 5);
       if (r.length === 0) return "no results";
       return r.some((c) => c.sourcePath.includes("agents") || /agent/i.test(c.text)) ? null : "no agent-related source";
     },
@@ -25,13 +29,13 @@ const checks: Check[] = [
   {
     name: "audit-log substring matches AgentAuditLogEntry text",
     fn: async () => {
-      const r = await retrieve("qa-smoke", 10);
+      const r = await retrieveDocs("qa-smoke", 10);
       return r.some((c) => c.sourceKind === "audit_log") ? null : "no audit_log chunk matched";
     },
   },
   {
     name: "empty query returns empty result (no error)",
-    fn: async () => ((await retrieve("", 5)).length === 0 ? null : "empty query returned results"),
+    fn: async () => ((await retrieveDocs("", 5)).length === 0 ? null : "empty query returned results"),
   },
 ];
 

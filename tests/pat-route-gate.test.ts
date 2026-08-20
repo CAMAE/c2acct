@@ -44,7 +44,14 @@ function call(question: unknown) {
   return POST(req);
 }
 
-const aChunk = { text: "t", sourceKind: "help_doc", sourcePath: "help/x.md", chunkIdx: 0, rank: 1 };
+const aChunk = {
+  text: "t",
+  rawText: "t",
+  sourceKind: "help_doc",
+  sourcePath: "help/x.md",
+  chunkIdx: 0,
+  rank: 1,
+};
 
 beforeEach(() => {
   vi.clearAllMocks();

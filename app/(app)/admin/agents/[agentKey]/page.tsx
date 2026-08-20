@@ -128,7 +128,7 @@ export default async function AdminAgentDetailPage({ params }: { params: Promise
         <div className="mb-2 text-sm font-semibold text-[var(--shell-ink)]">Config (read-only)</div>
         <div className="grid gap-2 text-xs text-[var(--shell-muted)]">
           <div>schedule: {config.schedule.type} {config.schedule.expression ?? ""}</div>
-          <div>model: {config.model?.default ?? "—"}{config.model?.triage ? ` · triage ${config.model.triage}` : ""}</div>
+          <div>model: {config.model?.default ?? "—"}</div>
           <div>tools: {config.tools.map((t) => t.server).join(", ") || "—"}</div>
           {config.approval_rules?.always_require_approval ? (
             <div>gated: {config.approval_rules.always_require_approval.join(", ")}</div>

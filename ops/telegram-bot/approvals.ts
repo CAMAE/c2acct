@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { toJsonValue } from "@/lib/agents/json";
 import { auditLog } from "@/lib/agents/audit";
+import { enqueueTrigger } from "@/lib/agents/triggerQueue";
 import {
   answerCallbackQuery,
   editMessageText,
@@ -145,17 +146,34 @@ export async function onApprovalReply(message: TelegramMessage): Promise<boolean
 }
 
 /**
- * Record a decision: update the AgentApproval row and write the canonical
- * approval_decision audit row (outcome approved|denied|edited). This is the only
- * place a human decision is persisted.
+ * Record a decision: update the AgentApproval row, write the canonical
+ * approval_decision audit row (outcome approved|denied|edited), and settle the
+ * paused run. This is the only place a human decision is persisted.
+ *
+ * Settling is what makes async pause/resume work (S1). The agent process that
+ * proposed the action is long gone — nothing is polling this row — so the
+ * decision handler owns waking the run back up:
+ *   - approve / edit → enqueue an `approval-resume` trigger carrying the
+ *     ORIGINAL run id. The supervisor re-enters that run; the handler replays
+ *     and reaches the gate again, which now finds a decision. The idempotency
+ *     key makes the replay safe.
+ *   - deny → close the paused run in place. Re-entering only to fail at the
+ *     gate would replay the handler's earlier steps for nothing.
+ * Both writes are conditional on the run still being `paused_approval`, so a run
+ * that already timed out is never revived by a late tap.
  */
 export async function recordApprovalDecision(
   approvalId: string,
   input: { decision: "approve" | "deny" | "edit"; decidedBy?: string; editedArgs?: ToolArgs; decisionNote?: string }
 ): Promise<void> {
   const status = input.decision === "approve" ? "approved" : input.decision === "deny" ? "denied" : "edited";
-  const approval = await prisma.agentApproval.update({
-    where: { id: approvalId },
+
+  // Conditional on "pending" — the other half of the approve/expire race. The
+  // callers check status first, but between their read and this write the
+  // expiry sweep may have claimed the row. Whoever wins, wins; the loser must
+  // not overwrite a recorded outcome.
+  const applied = await prisma.agentApproval.updateMany({
+    where: { id: approvalId, status: "pending" },
     data: {
       status,
       decision: input.decision,
@@ -165,6 +183,24 @@ export async function recordApprovalDecision(
       decisionNote: input.decisionNote ?? null,
     },
   });
+
+  const approval = await prisma.agentApproval.findUniqueOrThrow({ where: { id: approvalId } });
+
+  if (applied.count !== 1) {
+    await auditLog({
+      runId: approval.runId,
+      agentKey: approval.agentKey,
+      hookPhase: "approval_decision",
+      payload: {
+        approvalId,
+        reason: "decision_lost_race",
+        attempted: input.decision,
+        settledStatus: approval.status,
+      },
+      outcome: "blocked",
+    });
+    return;
+  }
 
   await auditLog({
     runId: approval.runId,
@@ -178,6 +214,59 @@ export async function recordApprovalDecision(
     },
     outcome: status,
   });
+
+  await settlePausedRun(approval.runId, approval.agentKey, input.decision);
+}
+
+/**
+ * Wake or close the run this approval paused. Conditional on `paused_approval`:
+ * if the run already reached a terminal status (it timed out while the card sat
+ * unanswered), a late decision settles nothing and no side effect can follow.
+ */
+async function settlePausedRun(
+  runId: string,
+  agentKey: string,
+  decision: "approve" | "deny" | "edit"
+): Promise<void> {
+  if (decision === "deny") {
+    const closed = await prisma.agentRun.updateMany({
+      where: { id: runId, status: "paused_approval" },
+      data: {
+        status: "failed",
+        finishedAt: new Date(),
+        errorClass: "approval_denied",
+        errorMessage: "operator denied the gated action",
+      },
+    });
+    if (closed.count === 1) {
+      console.log(`[approvals] run ${runId} (${agentKey}) closed: operator denied.`);
+    }
+    return;
+  }
+
+  const run = await prisma.agentRun.findUnique({
+    where: { id: runId },
+    select: { status: true },
+  });
+  if (run?.status !== "paused_approval") {
+    // Nothing to resume: the run already ended (timeout / cancel) or is live.
+    await auditLog({
+      runId,
+      agentKey,
+      hookPhase: "approval_decision",
+      payload: { reason: "resume_skipped_run_not_paused", runStatus: run?.status ?? null },
+      outcome: "blocked",
+    });
+    return;
+  }
+
+  const trigger = await enqueueTrigger({
+    agentKey,
+    resumeRunId: runId,
+    requestedBy: "approval-resume",
+    message: `resume run ${runId} after approval`,
+  });
+  console.log(`[approvals] run ${runId} (${agentKey}) resume queued as trigger ${trigger.id}.`);
 }
 
 /** Parse a free-text approval reply. Haiku seam for ambiguous text; deterministic now. */

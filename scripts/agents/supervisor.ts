@@ -13,6 +13,9 @@ import { runAgent } from "@/lib/agents/sdk";
 import { auditLog } from "@/lib/agents/audit";
 import { onShutdown } from "@/lib/agents/lifecycle";
 import { claimNextTrigger, completeTrigger, failTrigger } from "@/lib/agents/triggerQueue";
+import { agentsWithLiveRuns, bootSweep } from "@/lib/agents/recovery";
+import { checkBreaker } from "@/lib/agents/circuitBreaker";
+import { checkDailyCap } from "@/lib/agents/cost";
 import {
   DEFAULT_REALERT_INTERVAL_MS,
   DEFAULT_SILENCE_THRESHOLD_MS,
@@ -21,6 +24,7 @@ import {
   writeHeartbeatFile,
 } from "@/lib/agents/heartbeat";
 import { anthropicApiKeyPresent, llmBackedAgentKeys } from "@/lib/agents/llm";
+import { formatBootReport, validateBoot } from "@/lib/agents/boot";
 import { buildTelegramSendPayload, sendTelegramMessage } from "@/lib/agents/telegram";
 import type { AgentConfig } from "@/lib/agents/config";
 import { loadEnv } from "../_shared/prismaScript";
@@ -66,6 +70,17 @@ async function runClaimedTrigger(
     return;
   }
 
+  // The daily ceiling applies to manual triggers too — otherwise the /admin
+  // command bar is a way around the cap that just suspended the schedule.
+  const daily = await checkDailyCap();
+  if (daily.exceeded) {
+    await failTrigger(
+      trigger.id,
+      `daily cost cap reached ($${daily.spentUsd.toFixed(4)} of $${daily.capUsd.toFixed(2)}); refusing to run`
+    );
+    return;
+  }
+
   const previousEnv = new Map<string, string | undefined>();
   for (const [key, value] of Object.entries(trigger.taskEnv)) {
     previousEnv.set(key, process.env[key]);
@@ -73,12 +88,28 @@ async function runClaimedTrigger(
   }
 
   try {
-    const outcome = await runAgent(config, {
-      trigger: "manual",
-      triggerSource: trigger.requestedBy ? `admin-command:${trigger.requestedBy}` : "admin-command",
-    });
+    // A resume trigger re-enters the ORIGINAL paused run rather than opening a
+    // new one, which is what keeps every idempotency key derived from the run id
+    // stable across the approval pause.
+    const outcome = trigger.resumeRunId
+      ? await runAgent(config, {
+          trigger: "approval-resume",
+          triggerSource: "approval-resume",
+          resumeRunId: trigger.resumeRunId,
+        })
+      : await runAgent(config, {
+          trigger: "manual",
+          triggerSource: trigger.requestedBy ? `admin-command:${trigger.requestedBy}` : "admin-command",
+        });
     console.log(`[supervisor] trigger ${trigger.id} → ${config.key} run ${outcome.runId} → ${outcome.status}`);
-    if (outcome.status === "completed" || outcome.status === "awaiting_approval") {
+    // paused_approval is a healthy outcome: the run is parked on a human, and
+    // the decision callback will enqueue its own resume trigger. Treat it as a
+    // completed trigger, not a failure.
+    if (
+      outcome.status === "completed" ||
+      outcome.status === "awaiting_approval" ||
+      outcome.status === "paused_approval"
+    ) {
       await completeTrigger(trigger.id, outcome.runId);
     } else {
       await failTrigger(trigger.id, outcome.error ?? `run ended with status ${outcome.status}`, outcome.runId);
@@ -110,13 +141,61 @@ async function main() {
     `[supervisor] loaded ${enabled.length} enabled agent(s): ${enabled.map((config) => config.key).join(", ") || "(none)"}`
   );
 
+  // Boot validation (S8): every enabled agent must have a registered handler and
+  // a coherent schedule BEFORE anything is scheduled. Previously a missing
+  // handler surfaced as one failed run per cadence, forever.
+  const report = validateBoot(configs);
+  console.log(formatBootReport(report));
+  if (!report.ok) {
+    console.error(
+      `[supervisor] refusing to start: ${report.errors.length} boot validation error(s). Fix the config/registry and restart.`
+    );
+    process.exit(1);
+  }
+
   // Presence-only — the key VALUE must never be logged or persisted anywhere.
   const llmKeys = llmBackedAgentKeys(enabled);
   console.log(
     `[supervisor] ANTHROPIC_API_KEY ${anthropicApiKeyPresent() ? "present" : "absent"}; LLM-backed agents: ${llmKeys.join(", ") || "(none)"}`
   );
 
-  const scheduler = new Scheduler();
+  // Orphan recovery (S5) runs BEFORE anything is scheduled: fail runs no process
+  // owns, expire approvals and triggers past their windows, and seed the
+  // overlap guard with whatever is genuinely still running.
+  const sweep = await bootSweep(enabled);
+  console.log(
+    `[supervisor] boot sweep — runs failed: ${sweep.failedRunning} running / ${sweep.failedPaused} paused; ` +
+      `expired: ${sweep.expiredApprovals} approval(s), ${sweep.expiredPendingTriggers} pending + ${sweep.expiredClaimedTriggers} claimed trigger(s).`
+  );
+
+  /**
+   * Gate consulted before every scheduled fire: the global daily spend ceiling
+   * first (one overspend suspends the whole fleet), then the per-agent circuit
+   * breaker.
+   */
+  const scheduleGate = async (config: AgentConfig) => {
+    const daily = await checkDailyCap();
+    if (daily.exceeded) {
+      return {
+        allowed: false,
+        reason: `daily cost cap reached ($${daily.spentUsd.toFixed(4)} of $${daily.capUsd.toFixed(2)}) — scheduling suspended`,
+      };
+    }
+    const breaker = await checkBreaker(config);
+    if (!breaker.allowed) {
+      return { allowed: false, reason: breaker.reason ?? "circuit open" };
+    }
+    if (breaker.state === "half_open") {
+      console.log(`[supervisor] ${config.key}: circuit half-open — allowing one probe run.`);
+    }
+    return { allowed: true };
+  };
+
+  const scheduler = new Scheduler({
+    gate: scheduleGate,
+    initiallyRunning: await agentsWithLiveRuns(),
+    onSkip: (agentKey, reason) => console.warn(`[supervisor] ${agentKey} skipped: ${reason}`),
+  });
   for (const config of enabled) {
     scheduler.register(config, async (trigger) => {
       try {

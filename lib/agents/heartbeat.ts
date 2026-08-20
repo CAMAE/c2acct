@@ -1,5 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 /**
  * Supervisor heartbeat (June 10 hardening). The trigger-poll loop records a
@@ -75,7 +76,25 @@ export interface HeartbeatFileShape {
   updatedAt: string;
 }
 
-export const HEARTBEAT_FILE = path.join("artifacts", "agents", "supervisor-heartbeat.json");
+/**
+ * Repo root, derived from THIS module's location (lib/agents/… → ../..) rather
+ * than from `process.cwd()`.
+ *
+ * The heartbeat path used to be the bare relative "artifacts/agents/…", which
+ * silently resolved against whatever directory the process happened to start
+ * in. launchd does not run the supervisor from the repo root, so in production
+ * the heartbeat was written somewhere else entirely — while every status script
+ * and the operator both looked for it in the repo and found a stale file or
+ * none. A watchdog whose own output can go missing is worse than no watchdog,
+ * because its silence is indistinguishable from health.
+ */
+const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
+export const REPO_ROOT = path.resolve(MODULE_DIR, "..", "..");
+
+/** Absolute by construction; override with PAT_HEARTBEAT_FILE if ever needed. */
+export const HEARTBEAT_FILE =
+  process.env.PAT_HEARTBEAT_FILE ??
+  path.join(REPO_ROOT, "artifacts", "agents", "supervisor-heartbeat.json");
 
 /** Persist the heartbeat for external inspection (status scripts, future watchdog). */
 export async function writeHeartbeatFile(lastOkPollMs: number, file = HEARTBEAT_FILE): Promise<void> {

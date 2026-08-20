@@ -98,7 +98,7 @@ function parseMap(lines: Line[], start: number, indent: number): [Record<string,
     if (colon === -1) {
       throw new Error(`Malformed YAML map line (no key separator): "${line.text}"`);
     }
-    const key = line.text.slice(0, colon).trim();
+    const key = unquoteKey(line.text.slice(0, colon));
     const rest = line.text.slice(colon + 1).trim();
 
     if (rest === "") {
@@ -164,21 +164,60 @@ function parseSequence(lines: Line[], start: number, indent: number): [YamlValue
   return [arr, i];
 }
 
-/** A map pair starts with a bare key immediately followed by `:` then space/end. */
+/** A map pair is any line with a key separator at a position after the start. */
 function isMapPair(text: string): boolean {
-  return /^[^\s:'"][^:]*:(\s|$)/.test(text);
+  return findKeyColon(text) > 0;
 }
 
-/** Index of the `key:` colon, or -1. Splits on the first `: ` or a trailing `:`. */
+/**
+ * Index of the `key:` colon, or -1.
+ *
+ * QUOTE-AWARE (previously it was not). The old implementation took
+ * `text.indexOf(": ")` — the first colon-space ANYWHERE in the line, including
+ * one inside a quoted key or a quoted value. That silently produced garbage
+ * rather than failing:
+ *
+ *     '"a: b": v'   parsed as  { '"a': 'b": v' }     (key split mid-quote)
+ *     'msg:"a: b"'  parsed as  { 'msg:"a': 'b"' }    (value split mid-quote)
+ *
+ * Because every agent config is re-validated by zod afterwards, a mangled key
+ * surfaces as a confusing "unrecognized key" error far from its cause — or, for
+ * an optional field, as a value that silently goes missing.
+ *
+ * The separator is now the first colon that is OUTSIDE quotes and followed by
+ * whitespace or end-of-line, which is the YAML rule. `msg:"a: b"` (no space
+ * after the colon) is correctly not a mapping at all.
+ */
 function findKeyColon(text: string): number {
-  const spaced = text.indexOf(": ");
-  if (spaced !== -1) {
-    return spaced;
-  }
-  if (text.endsWith(":")) {
-    return text.length - 1;
+  let inSingle = false;
+  let inDouble = false;
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
+    if (ch === "'" && !inDouble) {
+      inSingle = !inSingle;
+    } else if (ch === '"' && !inSingle) {
+      inDouble = !inDouble;
+    } else if (ch === ":" && !inSingle && !inDouble) {
+      const next = text[i + 1];
+      if (next === undefined || /\s/.test(next)) {
+        return i;
+      }
+    }
   }
   return -1;
+}
+
+/** Strip one layer of matching quotes from a map key. */
+function unquoteKey(raw: string): string {
+  const key = raw.trim();
+  if (key.length >= 2) {
+    const first = key[0];
+    const last = key[key.length - 1];
+    if ((first === '"' && last === '"') || (first === "'" && last === "'")) {
+      return key.slice(1, -1);
+    }
+  }
+  return key;
 }
 
 function parseScalarOrFlow(raw: string): YamlValue {
@@ -211,4 +250,120 @@ function parseScalar(raw: string): YamlValue {
     return Number.parseFloat(value);
   }
   return value;
+}
+
+/**
+ * Emit the block-style YAML subset this module parses.
+ *
+ * Exists because `AgentDefinition.configYaml` was being written with
+ * `JSON.stringify` — a column named for one format holding another. Anything
+ * reading it back as YAML (an operator in /admin, a future config differ, this
+ * module's own parser) got a surprise, and the mismatch was invisible until
+ * something tried. `stringifyYaml(parseYaml(x))` round-trips, which is the
+ * property the storage boundary actually needs.
+ */
+export function stringifyYaml(value: YamlValue): string {
+  const lines: string[] = [];
+  emitNode(value, 0, lines);
+  return lines.length > 0 ? `${lines.join("\n")}\n` : "";
+}
+
+function emitNode(value: YamlValue, indent: number, out: string[]): void {
+  const pad = " ".repeat(indent);
+
+  if (Array.isArray(value)) {
+    if (value.length === 0) {
+      // An empty sequence has no block form in this subset; use flow.
+      out.push(`${pad}[]`);
+      return;
+    }
+    for (const item of value) {
+      if (item !== null && typeof item === "object" && !Array.isArray(item)) {
+        const entries = Object.entries(item);
+        if (entries.length === 0) {
+          out.push(`${pad}- {}`);
+          continue;
+        }
+        // First pair inline on the dash, the rest indented beneath it.
+        const [firstKey, firstValue] = entries[0];
+        emitPair(firstKey, firstValue, indent + 2, out, `${pad}- `);
+        for (const [key, entry] of entries.slice(1)) {
+          emitPair(key, entry, indent + 2, out);
+        }
+      } else {
+        out.push(`${pad}- ${formatScalar(item)}`);
+      }
+    }
+    return;
+  }
+
+  if (value !== null && typeof value === "object") {
+    for (const [key, entry] of Object.entries(value)) {
+      emitPair(key, entry, indent, out);
+    }
+    return;
+  }
+
+  out.push(`${pad}${formatScalar(value)}`);
+}
+
+function emitPair(
+  key: string,
+  value: YamlValue,
+  indent: number,
+  out: string[],
+  prefixOverride?: string
+): void {
+  const prefix = prefixOverride ?? " ".repeat(indent);
+  const label = `${formatKey(key)}:`;
+
+  if (Array.isArray(value)) {
+    if (value.length === 0) {
+      out.push(`${prefix}${label} []`);
+      return;
+    }
+    out.push(`${prefix}${label}`);
+    // Sequences sit at the parent's own indent (the parser reads `- ` items at
+    // indent > parent, and parseSequence anchors on the dash's own column).
+    emitNode(value, indent + 2, out);
+    return;
+  }
+
+  if (value !== null && typeof value === "object") {
+    if (Object.keys(value).length === 0) {
+      out.push(`${prefix}${label} {}`);
+      return;
+    }
+    out.push(`${prefix}${label}`);
+    emitNode(value, indent + 2, out);
+    return;
+  }
+
+  out.push(`${prefix}${label} ${formatScalar(value)}`);
+}
+
+function formatKey(key: string): string {
+  // Quote a key that would otherwise confuse the separator scan.
+  return /^[A-Za-z0-9_][A-Za-z0-9_.-]*$/.test(key) ? key : JSON.stringify(key);
+}
+
+/** Quote whenever an unquoted form would parse back as something else. */
+function formatScalar(value: YamlValue): string {
+  if (value === null) return "null";
+  if (typeof value === "boolean") return value ? "true" : "false";
+  if (typeof value === "number") return String(value);
+
+  const text = String(value);
+  const needsQuotes =
+    text === "" ||
+    text !== text.trim() ||
+    /^(true|false|null|~)$/.test(text) ||
+    /^-?\d+$/.test(text) ||
+    /^-?\d*\.\d+$/.test(text) ||
+    /^[-[\]{}"'#&*!|>%@`]/.test(text) ||
+    text.includes(": ") ||
+    text.endsWith(":") ||
+    text.includes(" #") ||
+    text.includes("\n");
+  return needsQuotes ? JSON.stringify(text) : text;
 }
