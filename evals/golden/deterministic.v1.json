@@ -1,0 +1,2255 @@
+{
+  "version": "deterministic.v1",
+  "suite": "mixed",
+  "description": "Exact-assert golden set over PAT's deterministic surfaces: scoring, maturity bands, benchmark suppression, and registry lookups. No model in the loop.",
+  "items": [
+    {
+      "id": "SCORE-001",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: all answers at scale floor score 0.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 1,
+          "q2": 1,
+          "q3": 1
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 0,
+        "rawScorePct": 0,
+        "weightedAvg": 1.0,
+        "rawWeightedAvg": 1.0,
+        "totalWeight": 3,
+        "answeredCount": 3,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-002",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: all answers at scale ceiling score 100.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 5,
+          "q2": 5,
+          "q3": 5
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 100,
+        "rawScorePct": 100,
+        "weightedAvg": 5.0,
+        "rawWeightedAvg": 5.0,
+        "totalWeight": 3,
+        "answeredCount": 3,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-003",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: midpoint of a 1-5 scale scores 50.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 3,
+          "q2": 3
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 50,
+        "rawScorePct": 50,
+        "weightedAvg": 3.0,
+        "rawWeightedAvg": 3.0,
+        "totalWeight": 2,
+        "answeredCount": 2,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-004",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: mixed 1-5 answers average then normalize.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 2,
+          "q2": 4,
+          "q3": 3
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 50,
+        "rawScorePct": 50,
+        "weightedAvg": 3.0,
+        "rawWeightedAvg": 3.0,
+        "totalWeight": 3,
+        "answeredCount": 3,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-005",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: non-terminating average is preserved.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 3,
+          "q2": 3,
+          "q4": 4
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 58,
+        "rawScorePct": 58,
+        "weightedAvg": 3.3333333333333335,
+        "rawWeightedAvg": 3.3333333333333335,
+        "totalWeight": 3,
+        "answeredCount": 3,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-006",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: single answer drives the whole score.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 4
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 75,
+        "rawScorePct": 75,
+        "weightedAvg": 4.0,
+        "rawWeightedAvg": 4.0,
+        "totalWeight": 1,
+        "answeredCount": 1,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-007",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: 0-100 scale passes the average through.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 72,
+          "q2": 68
+        },
+        "scaleMin": 0,
+        "scaleMax": 100
+      },
+      "expect": {
+        "score": 70,
+        "rawScorePct": 70,
+        "weightedAvg": 70.0,
+        "rawWeightedAvg": 70.0,
+        "totalWeight": 2,
+        "answeredCount": 2,
+        "scaleMin": 0,
+        "scaleMax": 100
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-008",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: 0-100 scale at floor.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 0
+        },
+        "scaleMin": 0,
+        "scaleMax": 100
+      },
+      "expect": {
+        "score": 0,
+        "rawScorePct": 0,
+        "weightedAvg": 0.0,
+        "rawWeightedAvg": 0.0,
+        "totalWeight": 1,
+        "answeredCount": 1,
+        "scaleMin": 0,
+        "scaleMax": 100
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-009",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: 0-100 scale at ceiling.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 100
+        },
+        "scaleMin": 0,
+        "scaleMax": 100
+      },
+      "expect": {
+        "score": 100,
+        "rawScorePct": 100,
+        "weightedAvg": 100.0,
+        "rawWeightedAvg": 100.0,
+        "totalWeight": 1,
+        "answeredCount": 1,
+        "scaleMin": 0,
+        "scaleMax": 100
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-010",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: 0-10 scale halfway.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 5
+        },
+        "scaleMin": 0,
+        "scaleMax": 10
+      },
+      "expect": {
+        "score": 50,
+        "rawScorePct": 50,
+        "weightedAvg": 5.0,
+        "rawWeightedAvg": 5.0,
+        "totalWeight": 1,
+        "answeredCount": 1,
+        "scaleMin": 0,
+        "scaleMax": 10
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-011",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: 0-10 scale rounds .5 upward.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 7,
+          "q2": 8
+        },
+        "scaleMin": 0,
+        "scaleMax": 10
+      },
+      "expect": {
+        "score": 75,
+        "rawScorePct": 75,
+        "weightedAvg": 7.5,
+        "rawWeightedAvg": 7.5,
+        "totalWeight": 2,
+        "answeredCount": 2,
+        "scaleMin": 0,
+        "scaleMax": 10
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-012",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: empty answers object yields the zero result.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {},
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 0,
+        "rawScorePct": 0,
+        "weightedAvg": null,
+        "rawWeightedAvg": null,
+        "totalWeight": 0,
+        "answeredCount": 0,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-013",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: wide scale normalizes correctly.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 50
+        },
+        "scaleMin": 0,
+        "scaleMax": 200
+      },
+      "expect": {
+        "score": 25,
+        "rawScorePct": 25,
+        "weightedAvg": 50.0,
+        "rawWeightedAvg": 50.0,
+        "totalWeight": 1,
+        "answeredCount": 1,
+        "scaleMin": 0,
+        "scaleMax": 200
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-014",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: negative scale floor is handled.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 0
+        },
+        "scaleMin": -5,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 50,
+        "rawScorePct": 50,
+        "weightedAvg": 0.0,
+        "rawWeightedAvg": 0.0,
+        "totalWeight": 1,
+        "answeredCount": 1,
+        "scaleMin": -5,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-015",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: negative scale floor at minimum.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": -5
+        },
+        "scaleMin": -5,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 0,
+        "rawScorePct": 0,
+        "weightedAvg": -5.0,
+        "rawWeightedAvg": -5.0,
+        "totalWeight": 1,
+        "answeredCount": 1,
+        "scaleMin": -5,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-016",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: four answers average cleanly.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "a": 1,
+          "b": 2,
+          "c": 3,
+          "d": 4
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 38,
+        "rawScorePct": 38,
+        "weightedAvg": 2.5,
+        "rawWeightedAvg": 2.5,
+        "totalWeight": 4,
+        "answeredCount": 4,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-017",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: ten identical answers.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q0": 4,
+          "q1": 4,
+          "q2": 4,
+          "q3": 4,
+          "q4": 4,
+          "q5": 4,
+          "q6": 4,
+          "q7": 4,
+          "q8": 4,
+          "q9": 4
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 75,
+        "rawScorePct": 75,
+        "weightedAvg": 4.0,
+        "rawWeightedAvg": 4.0,
+        "totalWeight": 10,
+        "answeredCount": 10,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-018",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: answers just below midpoint.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 2,
+          "q2": 3
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 38,
+        "rawScorePct": 38,
+        "weightedAvg": 2.5,
+        "rawWeightedAvg": 2.5,
+        "totalWeight": 2,
+        "answeredCount": 2,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-019",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: answers just above midpoint.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 3,
+          "q2": 4
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 63,
+        "rawScorePct": 63,
+        "weightedAvg": 3.5,
+        "rawWeightedAvg": 3.5,
+        "totalWeight": 2,
+        "answeredCount": 2,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-020",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: degenerate scale (min == max) scores 0.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 3
+        },
+        "scaleMin": 5,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 0,
+        "rawScorePct": 0,
+        "weightedAvg": 3.0,
+        "rawWeightedAvg": 3.0,
+        "totalWeight": 1,
+        "answeredCount": 1,
+        "scaleMin": 5,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-021",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: fractional answers are kept.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 2.5,
+          "q2": 3.5
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 50,
+        "rawScorePct": 50,
+        "weightedAvg": 3.0,
+        "rawWeightedAvg": 3.0,
+        "totalWeight": 2,
+        "answeredCount": 2,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-022",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: value above the declared ceiling is not clamped.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 6
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 125,
+        "rawScorePct": 125,
+        "weightedAvg": 6.0,
+        "rawWeightedAvg": 6.0,
+        "totalWeight": 1,
+        "answeredCount": 1,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-023",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: value below the declared floor is not clamped.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 0
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": -25,
+        "rawScorePct": -25,
+        "weightedAvg": 0.0,
+        "rawWeightedAvg": 0.0,
+        "totalWeight": 1,
+        "answeredCount": 1,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-024",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: two answers spanning the full range.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 1,
+          "q2": 5
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 50,
+        "rawScorePct": 50,
+        "weightedAvg": 3.0,
+        "rawWeightedAvg": 3.0,
+        "totalWeight": 2,
+        "answeredCount": 2,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-025",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: large answer set averages.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q0": 1,
+          "q1": 2,
+          "q2": 3,
+          "q3": 4,
+          "q4": 5,
+          "q5": 1,
+          "q6": 2,
+          "q7": 3,
+          "q8": 4,
+          "q9": 5,
+          "q10": 1,
+          "q11": 2,
+          "q12": 3,
+          "q13": 4,
+          "q14": 5,
+          "q15": 1,
+          "q16": 2,
+          "q17": 3,
+          "q18": 4,
+          "q19": 5
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 50,
+        "rawScorePct": 50,
+        "weightedAvg": 3.0,
+        "rawWeightedAvg": 3.0,
+        "totalWeight": 20,
+        "answeredCount": 20,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-026",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: score rounds to nearest integer.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 3,
+          "q2": 3,
+          "q3": 4
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 58,
+        "rawScorePct": 58,
+        "weightedAvg": 3.3333333333333335,
+        "rawWeightedAvg": 3.3333333333333335,
+        "totalWeight": 3,
+        "answeredCount": 3,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-027",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: 0-1 scale.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 1
+        },
+        "scaleMin": 0,
+        "scaleMax": 1
+      },
+      "expect": {
+        "score": 100,
+        "rawScorePct": 100,
+        "weightedAvg": 1.0,
+        "rawWeightedAvg": 1.0,
+        "totalWeight": 1,
+        "answeredCount": 1,
+        "scaleMin": 0,
+        "scaleMax": 1
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-028",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: 0-1 scale at floor.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 0
+        },
+        "scaleMin": 0,
+        "scaleMax": 1
+      },
+      "expect": {
+        "score": 0,
+        "rawScorePct": 0,
+        "weightedAvg": 0.0,
+        "rawWeightedAvg": 0.0,
+        "totalWeight": 1,
+        "answeredCount": 1,
+        "scaleMin": 0,
+        "scaleMax": 1
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-029",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: three-quarter point on 1-5.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 4,
+          "q2": 4
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 75,
+        "rawScorePct": 75,
+        "weightedAvg": 4.0,
+        "rawWeightedAvg": 4.0,
+        "totalWeight": 2,
+        "answeredCount": 2,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SCORE-030",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "computeScore: one-quarter point on 1-5.",
+      "surface": "scoring.computeScore",
+      "input": {
+        "answers": {
+          "q1": 2,
+          "q2": 2
+        },
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "expect": {
+        "score": 25,
+        "rawScorePct": 25,
+        "weightedAvg": 2.0,
+        "rawWeightedAvg": 2.0,
+        "totalWeight": 2,
+        "answeredCount": 2,
+        "scaleMin": 1,
+        "scaleMax": 5
+      },
+      "tags": [
+        "scoring"
+      ]
+    },
+    {
+      "id": "SIG-001",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "normalizeSignalIntegrityScore: a mid-range confidence passes through.",
+      "surface": "scoring.normalizeSignalIntegrityScore",
+      "input": {
+        "value": 0.5
+      },
+      "expect": 0.5,
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SIG-002",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "normalizeSignalIntegrityScore: exactly 1 is the ceiling.",
+      "surface": "scoring.normalizeSignalIntegrityScore",
+      "input": {
+        "value": 1
+      },
+      "expect": 1,
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SIG-003",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "normalizeSignalIntegrityScore: exactly 0 is the floor.",
+      "surface": "scoring.normalizeSignalIntegrityScore",
+      "input": {
+        "value": 0
+      },
+      "expect": 0,
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SIG-004",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "normalizeSignalIntegrityScore: above 1 clamps down to 1.",
+      "surface": "scoring.normalizeSignalIntegrityScore",
+      "input": {
+        "value": 1.5
+      },
+      "expect": 1,
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SIG-005",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "normalizeSignalIntegrityScore: below 0 clamps up to 0.",
+      "surface": "scoring.normalizeSignalIntegrityScore",
+      "input": {
+        "value": -0.2
+      },
+      "expect": 0,
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SIG-006",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "normalizeSignalIntegrityScore: a numeric string is coerced.",
+      "surface": "scoring.normalizeSignalIntegrityScore",
+      "input": {
+        "value": "0.7"
+      },
+      "expect": 0.7,
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SIG-007",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "normalizeSignalIntegrityScore: a non-numeric string falls back to full confidence.",
+      "surface": "scoring.normalizeSignalIntegrityScore",
+      "input": {
+        "value": "abc"
+      },
+      "expect": 1,
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SIG-008",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "normalizeSignalIntegrityScore: undefined falls back to full confidence.",
+      "surface": "scoring.normalizeSignalIntegrityScore",
+      "input": {},
+      "expect": 1,
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SIG-009",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "normalizeSignalIntegrityScore: Infinity is not finite so falls back to 1.",
+      "surface": "scoring.normalizeSignalIntegrityScore",
+      "input": {
+        "value": "Infinity"
+      },
+      "expect": 1,
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SIG-010",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "normalizeSignalIntegrityScore: a value just under the ceiling is preserved.",
+      "surface": "scoring.normalizeSignalIntegrityScore",
+      "input": {
+        "value": 0.999
+      },
+      "expect": 0.999,
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SUMM-001",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "summarizeSubmissionScores: a null submission yields nulls at full confidence.",
+      "surface": "scoring.summarizeSubmissionScores",
+      "input": {
+        "submission": null
+      },
+      "expect": {
+        "rawScorePct": null,
+        "rawWeightedAvg": null,
+        "signalIntegrityScore": 1,
+        "confidenceAdjustedScorePct": null,
+        "confidenceAdjustedWeightedAvg": null,
+        "unlockBasisScorePct": null
+      },
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SUMM-002",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "summarizeSubmissionScores: an empty submission yields nulls at full confidence.",
+      "surface": "scoring.summarizeSubmissionScores",
+      "input": {
+        "submission": {}
+      },
+      "expect": {
+        "rawScorePct": null,
+        "rawWeightedAvg": null,
+        "signalIntegrityScore": 1,
+        "confidenceAdjustedScorePct": null,
+        "confidenceAdjustedWeightedAvg": null,
+        "unlockBasisScorePct": null
+      },
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SUMM-003",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "summarizeSubmissionScores: full confidence leaves the score untouched.",
+      "surface": "scoring.summarizeSubmissionScores",
+      "input": {
+        "submission": {
+          "score": 80,
+          "weightedAvg": 4.0,
+          "signalIntegrityScore": 1
+        }
+      },
+      "expect": {
+        "rawScorePct": 80,
+        "rawWeightedAvg": 4.0,
+        "signalIntegrityScore": 1.0,
+        "confidenceAdjustedScorePct": 80,
+        "confidenceAdjustedWeightedAvg": 4.0,
+        "unlockBasisScorePct": 80
+      },
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SUMM-004",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "summarizeSubmissionScores: half confidence halves the adjusted score.",
+      "surface": "scoring.summarizeSubmissionScores",
+      "input": {
+        "submission": {
+          "score": 80,
+          "weightedAvg": 4.0,
+          "signalIntegrityScore": 0.5
+        }
+      },
+      "expect": {
+        "rawScorePct": 80,
+        "rawWeightedAvg": 4.0,
+        "signalIntegrityScore": 0.5,
+        "confidenceAdjustedScorePct": 40,
+        "confidenceAdjustedWeightedAvg": 2.0,
+        "unlockBasisScorePct": 80
+      },
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SUMM-005",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "summarizeSubmissionScores: zero confidence zeroes the adjusted score.",
+      "surface": "scoring.summarizeSubmissionScores",
+      "input": {
+        "submission": {
+          "score": 80,
+          "weightedAvg": 4.0,
+          "signalIntegrityScore": 0
+        }
+      },
+      "expect": {
+        "rawScorePct": 80,
+        "rawWeightedAvg": 4.0,
+        "signalIntegrityScore": 0.0,
+        "confidenceAdjustedScorePct": 0,
+        "confidenceAdjustedWeightedAvg": 0.0,
+        "unlockBasisScorePct": 80
+      },
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SUMM-006",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "summarizeSubmissionScores: missing confidence defaults to full.",
+      "surface": "scoring.summarizeSubmissionScores",
+      "input": {
+        "submission": {
+          "score": 63,
+          "weightedAvg": 3.52
+        }
+      },
+      "expect": {
+        "rawScorePct": 63,
+        "rawWeightedAvg": 3.52,
+        "signalIntegrityScore": 1,
+        "confidenceAdjustedScorePct": 63,
+        "confidenceAdjustedWeightedAvg": 3.52,
+        "unlockBasisScorePct": 63
+      },
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SUMM-007",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "summarizeSubmissionScores: out-of-range confidence clamps before adjusting.",
+      "surface": "scoring.summarizeSubmissionScores",
+      "input": {
+        "submission": {
+          "score": 90,
+          "weightedAvg": 4.5,
+          "signalIntegrityScore": 2
+        }
+      },
+      "expect": {
+        "rawScorePct": 90,
+        "rawWeightedAvg": 4.5,
+        "signalIntegrityScore": 1,
+        "confidenceAdjustedScorePct": 90,
+        "confidenceAdjustedWeightedAvg": 4.5,
+        "unlockBasisScorePct": 90
+      },
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SUMM-008",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "summarizeSubmissionScores: negative confidence clamps to zero.",
+      "surface": "scoring.summarizeSubmissionScores",
+      "input": {
+        "submission": {
+          "score": 90,
+          "weightedAvg": 4.5,
+          "signalIntegrityScore": -1
+        }
+      },
+      "expect": {
+        "rawScorePct": 90,
+        "rawWeightedAvg": 4.5,
+        "signalIntegrityScore": 0,
+        "confidenceAdjustedScorePct": 0,
+        "confidenceAdjustedWeightedAvg": 0.0,
+        "unlockBasisScorePct": 90
+      },
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SUMM-009",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "summarizeSubmissionScores: a fractional score rounds for the pct.",
+      "surface": "scoring.summarizeSubmissionScores",
+      "input": {
+        "submission": {
+          "score": 72.4,
+          "weightedAvg": 3.62,
+          "signalIntegrityScore": 1
+        }
+      },
+      "expect": {
+        "rawScorePct": 72,
+        "rawWeightedAvg": 3.62,
+        "signalIntegrityScore": 1.0,
+        "confidenceAdjustedScorePct": 72,
+        "confidenceAdjustedWeightedAvg": 3.62,
+        "unlockBasisScorePct": 72
+      },
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SUMM-010",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "summarizeSubmissionScores: weighted average keeps two decimals after adjustment.",
+      "surface": "scoring.summarizeSubmissionScores",
+      "input": {
+        "submission": {
+          "score": 70,
+          "weightedAvg": 3.333,
+          "signalIntegrityScore": 0.9
+        }
+      },
+      "expect": {
+        "rawScorePct": 70,
+        "rawWeightedAvg": 3.333,
+        "signalIntegrityScore": 0.9,
+        "confidenceAdjustedScorePct": 63,
+        "confidenceAdjustedWeightedAvg": 3.0,
+        "unlockBasisScorePct": 70
+      },
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SUMM-011",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "summarizeSubmissionScores: unlock basis always tracks the RAW score.",
+      "surface": "scoring.summarizeSubmissionScores",
+      "input": {
+        "submission": {
+          "score": 55,
+          "weightedAvg": 2.75,
+          "signalIntegrityScore": 0.4
+        }
+      },
+      "expect": {
+        "rawScorePct": 55,
+        "rawWeightedAvg": 2.75,
+        "signalIntegrityScore": 0.4,
+        "confidenceAdjustedScorePct": 22,
+        "confidenceAdjustedWeightedAvg": 1.1,
+        "unlockBasisScorePct": 55
+      },
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "SUMM-012",
+      "suite": "scoring",
+      "judge": "exact",
+      "question": "summarizeSubmissionScores: a non-numeric score yields null.",
+      "surface": "scoring.summarizeSubmissionScores",
+      "input": {
+        "submission": {
+          "score": "n/a",
+          "weightedAvg": "n/a",
+          "signalIntegrityScore": 0.8
+        }
+      },
+      "expect": {
+        "rawScorePct": null,
+        "rawWeightedAvg": null,
+        "signalIntegrityScore": 0.8,
+        "confidenceAdjustedScorePct": null,
+        "confidenceAdjustedWeightedAvg": null,
+        "unlockBasisScorePct": null
+      },
+      "tags": [
+        "scoring",
+        "confidence"
+      ]
+    },
+    {
+      "id": "BAND-001",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "A score of 0 sits in the 'Early' band.",
+      "surface": "bands.scoreBandFor",
+      "input": {
+        "score": 0
+      },
+      "expect": {
+        "key": "early",
+        "label": "Early"
+      },
+      "tags": [
+        "bands",
+        "boundary"
+      ]
+    },
+    {
+      "id": "BAND-002",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "A score of 39 sits in the 'Early' band.",
+      "surface": "bands.scoreBandFor",
+      "input": {
+        "score": 39
+      },
+      "expect": {
+        "key": "early",
+        "label": "Early"
+      },
+      "tags": [
+        "bands",
+        "boundary"
+      ]
+    },
+    {
+      "id": "BAND-003",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "A score of 40 sits in the 'Developing' band.",
+      "surface": "bands.scoreBandFor",
+      "input": {
+        "score": 40
+      },
+      "expect": {
+        "key": "developing",
+        "label": "Developing"
+      },
+      "tags": [
+        "bands",
+        "boundary"
+      ]
+    },
+    {
+      "id": "BAND-004",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "A score of 59 sits in the 'Developing' band.",
+      "surface": "bands.scoreBandFor",
+      "input": {
+        "score": 59
+      },
+      "expect": {
+        "key": "developing",
+        "label": "Developing"
+      },
+      "tags": [
+        "bands",
+        "boundary"
+      ]
+    },
+    {
+      "id": "BAND-005",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "A score of 60 sits in the 'Building' band.",
+      "surface": "bands.scoreBandFor",
+      "input": {
+        "score": 60
+      },
+      "expect": {
+        "key": "building",
+        "label": "Building"
+      },
+      "tags": [
+        "bands",
+        "boundary"
+      ]
+    },
+    {
+      "id": "BAND-006",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "A score of 74 sits in the 'Building' band.",
+      "surface": "bands.scoreBandFor",
+      "input": {
+        "score": 74
+      },
+      "expect": {
+        "key": "building",
+        "label": "Building"
+      },
+      "tags": [
+        "bands",
+        "boundary"
+      ]
+    },
+    {
+      "id": "BAND-007",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "A score of 75 sits in the 'Established' band.",
+      "surface": "bands.scoreBandFor",
+      "input": {
+        "score": 75
+      },
+      "expect": {
+        "key": "established",
+        "label": "Established"
+      },
+      "tags": [
+        "bands",
+        "boundary"
+      ]
+    },
+    {
+      "id": "BAND-008",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "A score of 89 sits in the 'Established' band.",
+      "surface": "bands.scoreBandFor",
+      "input": {
+        "score": 89
+      },
+      "expect": {
+        "key": "established",
+        "label": "Established"
+      },
+      "tags": [
+        "bands",
+        "boundary"
+      ]
+    },
+    {
+      "id": "BAND-009",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "A score of 90 sits in the 'Leading' band.",
+      "surface": "bands.scoreBandFor",
+      "input": {
+        "score": 90
+      },
+      "expect": {
+        "key": "leading",
+        "label": "Leading"
+      },
+      "tags": [
+        "bands",
+        "boundary"
+      ]
+    },
+    {
+      "id": "BAND-010",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "A score of 100 sits in the 'Leading' band.",
+      "surface": "bands.scoreBandFor",
+      "input": {
+        "score": 100
+      },
+      "expect": {
+        "key": "leading",
+        "label": "Leading"
+      },
+      "tags": [
+        "bands",
+        "boundary"
+      ]
+    },
+    {
+      "id": "BAND-011",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "a negative score clamps into Early.",
+      "surface": "bands.scoreBandFor",
+      "input": {
+        "score": -10
+      },
+      "expect": {
+        "key": "early",
+        "label": "Early"
+      },
+      "tags": [
+        "bands",
+        "clamp"
+      ]
+    },
+    {
+      "id": "BAND-012",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "a score above 100 clamps into Leading.",
+      "surface": "bands.scoreBandFor",
+      "input": {
+        "score": 150
+      },
+      "expect": {
+        "key": "leading",
+        "label": "Leading"
+      },
+      "tags": [
+        "bands",
+        "clamp"
+      ]
+    },
+    {
+      "id": "BAND-013",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "The chip for 68 reads '68 \u00b7 Building'.",
+      "surface": "bands.scoreChipLabel",
+      "input": {
+        "score": 68
+      },
+      "expect": "68 \u00b7 Building",
+      "tags": [
+        "bands",
+        "copy"
+      ]
+    },
+    {
+      "id": "BAND-014",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "The chip for 39 reads '39 \u00b7 Early'.",
+      "surface": "bands.scoreChipLabel",
+      "input": {
+        "score": 39
+      },
+      "expect": "39 \u00b7 Early",
+      "tags": [
+        "bands",
+        "copy"
+      ]
+    },
+    {
+      "id": "BAND-015",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "The chip for 90 reads '90 \u00b7 Leading'.",
+      "surface": "bands.scoreChipLabel",
+      "input": {
+        "score": 90
+      },
+      "expect": "90 \u00b7 Leading",
+      "tags": [
+        "bands",
+        "copy"
+      ]
+    },
+    {
+      "id": "BAND-016",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "The chip for 74.6 reads '75 \u00b7 Building'.",
+      "surface": "bands.scoreChipLabel",
+      "input": {
+        "score": 74.6
+      },
+      "expect": "75 \u00b7 Building",
+      "tags": [
+        "bands",
+        "copy"
+      ]
+    },
+    {
+      "id": "BAND-017",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "The five score bands are ordered low to high.",
+      "surface": "bands.bandOrder",
+      "input": {},
+      "expect": [
+        "early",
+        "developing",
+        "building",
+        "established",
+        "leading"
+      ],
+      "tags": [
+        "bands",
+        "inventory"
+      ]
+    },
+    {
+      "id": "BAND-018",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "The 'building' band spans 60-74 inclusive.",
+      "surface": "bands.bandBounds",
+      "input": {
+        "key": "building"
+      },
+      "expect": {
+        "min": 60,
+        "max": 74
+      },
+      "tags": [
+        "bands",
+        "boundary"
+      ]
+    },
+    {
+      "id": "BAND-019",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "Thin and emerging evidence both surface as 'Early signal'.",
+      "surface": "bands.evidenceConfidenceLabel",
+      "input": {
+        "internal": "sample_thin"
+      },
+      "expect": "Early signal",
+      "tags": [
+        "bands",
+        "confidence"
+      ]
+    },
+    {
+      "id": "BAND-020",
+      "suite": "bands",
+      "judge": "exact",
+      "question": "No retired band label is reachable through the allowed-label list.",
+      "surface": "bands.bannedLabelsAreNotAllowed",
+      "input": {},
+      "expect": [],
+      "tags": [
+        "bands",
+        "governance"
+      ]
+    },
+    {
+      "id": "SUPP-001",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: no contributors is suppressed.",
+      "surface": "suppression.evaluateByCount",
+      "input": {
+        "contributorCount": 0
+      },
+      "expect": {
+        "suppressed": true,
+        "reason": "insufficient_contributors",
+        "contributorCount": 0,
+        "maxContributorShare": 0
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "SUPP-002",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: a single contributor is suppressed.",
+      "surface": "suppression.evaluateByCount",
+      "input": {
+        "contributorCount": 1
+      },
+      "expect": {
+        "suppressed": true,
+        "reason": "insufficient_contributors",
+        "contributorCount": 1,
+        "maxContributorShare": 1.0
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "SUPP-003",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: four contributors is one short of the floor.",
+      "surface": "suppression.evaluateByCount",
+      "input": {
+        "contributorCount": 4
+      },
+      "expect": {
+        "suppressed": true,
+        "reason": "insufficient_contributors",
+        "contributorCount": 4,
+        "maxContributorShare": 0.25
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "SUPP-004",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: five contributors is exactly the floor and publishes.",
+      "surface": "suppression.evaluateByCount",
+      "input": {
+        "contributorCount": 5
+      },
+      "expect": {
+        "suppressed": false,
+        "reason": null,
+        "contributorCount": 5,
+        "maxContributorShare": 0.2
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "SUPP-005",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: six contributors publishes.",
+      "surface": "suppression.evaluateByCount",
+      "input": {
+        "contributorCount": 6
+      },
+      "expect": {
+        "suppressed": false,
+        "reason": null,
+        "contributorCount": 6,
+        "maxContributorShare": 0.16666666666666666
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "SUPP-006",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: a well-populated cut publishes.",
+      "surface": "suppression.evaluateByCount",
+      "input": {
+        "contributorCount": 12
+      },
+      "expect": {
+        "suppressed": false,
+        "reason": null,
+        "contributorCount": 12,
+        "maxContributorShare": 0.08333333333333333
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "SUPP-007",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: an evenly weighted five-firm cut publishes.",
+      "surface": "suppression.evaluate",
+      "input": {
+        "weights": [
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
+      },
+      "expect": {
+        "suppressed": false,
+        "reason": null,
+        "contributorCount": 5,
+        "maxContributorShare": 0.2
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "SUPP-008",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: one firm supplying most of the data is suppressed for dominance.",
+      "surface": "suppression.evaluate",
+      "input": {
+        "weights": [
+          10,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "expect": {
+        "suppressed": true,
+        "reason": "contributor_dominance",
+        "contributorCount": 5,
+        "maxContributorShare": 0.7142857142857143
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "SUPP-009",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: a max share of exactly 25% is allowed.",
+      "surface": "suppression.evaluate",
+      "input": {
+        "weights": [
+          2,
+          2,
+          2,
+          1,
+          1
+        ]
+      },
+      "expect": {
+        "suppressed": false,
+        "reason": null,
+        "contributorCount": 5,
+        "maxContributorShare": 0.25
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "SUPP-010",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: a max share just over 25% is suppressed.",
+      "surface": "suppression.evaluate",
+      "input": {
+        "weights": [
+          3,
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      "expect": {
+        "suppressed": true,
+        "reason": "contributor_dominance",
+        "contributorCount": 5,
+        "maxContributorShare": 0.2727272727272727
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "SUPP-011",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: eight equal contributors publishes.",
+      "surface": "suppression.evaluate",
+      "input": {
+        "weights": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "expect": {
+        "suppressed": false,
+        "reason": null,
+        "contributorCount": 8,
+        "maxContributorShare": 0.125
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "SUPP-012",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: zero and negative weights are ignored when counting contributors.",
+      "surface": "suppression.evaluate",
+      "input": {
+        "weights": [
+          0,
+          -1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "expect": {
+        "suppressed": false,
+        "reason": null,
+        "contributorCount": 5,
+        "maxContributorShare": 0.2
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "SUPP-013",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: the contributor floor takes precedence over the dominance rule.",
+      "surface": "suppression.evaluate",
+      "input": {
+        "weights": [
+          100,
+          1,
+          1,
+          1
+        ]
+      },
+      "expect": {
+        "suppressed": true,
+        "reason": "insufficient_contributors",
+        "contributorCount": 4,
+        "maxContributorShare": 0.970873786407767
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "SUPP-014",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: six equal contributors publishes.",
+      "surface": "suppression.evaluate",
+      "input": {
+        "weights": [
+          5,
+          5,
+          5,
+          5,
+          5,
+          5
+        ]
+      },
+      "expect": {
+        "suppressed": false,
+        "reason": null,
+        "contributorCount": 6,
+        "maxContributorShare": 0.16666666666666666
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "SUPP-015",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: a dominant fifth contributor is suppressed.",
+      "surface": "suppression.evaluate",
+      "input": {
+        "weights": [
+          1,
+          1,
+          1,
+          1,
+          20
+        ]
+      },
+      "expect": {
+        "suppressed": true,
+        "reason": "contributor_dominance",
+        "contributorCount": 5,
+        "maxContributorShare": 0.8333333333333334
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "SUPP-016",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: ten equal contributors publishes.",
+      "surface": "suppression.evaluate",
+      "input": {
+        "weights": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ]
+      },
+      "expect": {
+        "suppressed": false,
+        "reason": null,
+        "contributorCount": 10,
+        "maxContributorShare": 0.1
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "SUPP-017",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: an empty cut is suppressed.",
+      "surface": "suppression.evaluate",
+      "input": {
+        "weights": []
+      },
+      "expect": {
+        "suppressed": true,
+        "reason": "insufficient_contributors",
+        "contributorCount": 0,
+        "maxContributorShare": 0
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "SUPP-018",
+      "suite": "suppression",
+      "judge": "exact",
+      "question": "Benchmark suppression: a cut of only zero weights is suppressed.",
+      "surface": "suppression.evaluate",
+      "input": {
+        "weights": [
+          0,
+          0,
+          0
+        ]
+      },
+      "expect": {
+        "suppressed": true,
+        "reason": "insufficient_contributors",
+        "contributorCount": 0,
+        "maxContributorShare": 0
+      },
+      "tags": [
+        "suppression",
+        "k-anonymity"
+      ]
+    },
+    {
+      "id": "REG-001",
+      "suite": "registry",
+      "judge": "exact",
+      "question": "The product utility architecture is 4 subcategories x 5 scored questions = 20.",
+      "surface": "registry.counts",
+      "input": {},
+      "expect": {
+        "subcategoryCount": 4,
+        "scoredPerSubcategory": 5,
+        "scoredQuestionCount": 20,
+        "generalQuestionCount": 10,
+        "openEndedQuestionCount": 10
+      },
+      "tags": [
+        "registry",
+        "architecture"
+      ]
+    },
+    {
+      "id": "REG-002",
+      "suite": "registry",
+      "judge": "exact",
+      "question": "The pinned product-utility registry version is unchanged.",
+      "surface": "registry.version",
+      "input": {},
+      "expect": "2026-03-product-utility-v2",
+      "tags": [
+        "registry",
+        "version"
+      ]
+    },
+    {
+      "id": "REG-003",
+      "suite": "registry",
+      "judge": "exact",
+      "question": "The registry carries 18 product utilities.",
+      "surface": "registry.utilityCount",
+      "input": {},
+      "expect": 18,
+      "tags": [
+        "registry",
+        "inventory"
+      ]
+    },
+    {
+      "id": "REG-004",
+      "suite": "registry",
+      "judge": "exact",
+      "question": "No utility deviates from the declared 4-subcategory shape.",
+      "surface": "registry.subcategoryShapeViolations",
+      "input": {},
+      "expect": [],
+      "tags": [
+        "registry",
+        "architecture"
+      ]
+    },
+    {
+      "id": "REG-005",
+      "suite": "registry",
+      "judge": "exact",
+      "question": "No subcategory deviates from the declared 5-scored-question shape.",
+      "surface": "registry.scoredQuestionShapeViolations",
+      "input": {},
+      "expect": [],
+      "tags": [
+        "registry",
+        "architecture"
+      ]
+    },
+    {
+      "id": "REG-006",
+      "suite": "registry",
+      "judge": "exact",
+      "question": "Utility keys are unique.",
+      "surface": "registry.duplicateUtilityKeys",
+      "input": {},
+      "expect": [],
+      "tags": [
+        "registry",
+        "integrity"
+      ]
+    },
+    {
+      "id": "REG-007",
+      "suite": "registry",
+      "judge": "exact",
+      "question": "The utility key set is unchanged.",
+      "surface": "registry.utilityKeys",
+      "input": {},
+      "expect": [
+        "ap_payables_spend",
+        "ar_billing_collections",
+        "audit_workflow_workpapers_evidence",
+        "automation_orchestration_ai_assistance",
+        "client_collaboration_portal_requests",
+        "close_reconciliation_consolidation",
+        "controls_compliance_audit_trail_approvals",
+        "crm_revenue_workflow",
+        "document_capture_management_esignature",
+        "erp_gl_core_ledger",
+        "expense_management",
+        "forecasting_planning",
+        "integration_interoperability_data_sync",
+        "payments_treasury_cash_application_commerce_connectivity",
+        "payroll_workforce_support",
+        "reporting_analytics_fpa",
+        "tax_workflow_compliance",
+        "workflow_practice_operations_task_routing"
+      ],
+      "tags": [
+        "registry",
+        "inventory"
+      ]
+    },
+    {
+      "id": "REG-008",
+      "suite": "registry",
+      "judge": "exact",
+      "question": "The five canonical firm alignment modules are present and ordered.",
+      "surface": "registry.firmModuleKeys",
+      "input": {},
+      "expect": [
+        "firm_alignment_operating_model_v1",
+        "firm_alignment_automation_ai_v1",
+        "firm_alignment_data_flow_v1",
+        "firm_alignment_governance_v1",
+        "firm_alignment_strategy_v1"
+      ],
+      "tags": [
+        "registry",
+        "inventory"
+      ]
+    },
+    {
+      "id": "REG-009",
+      "suite": "registry",
+      "judge": "exact",
+      "question": "Firm module keys are unique.",
+      "surface": "registry.duplicateFirmModuleKeys",
+      "input": {},
+      "expect": [],
+      "tags": [
+        "registry",
+        "integrity"
+      ]
+    },
+    {
+      "id": "REG-010",
+      "suite": "registry",
+      "judge": "exact",
+      "question": "The published suppression thresholds are 5 contributors and a 25% dominance cap.",
+      "surface": "suppression.thresholds",
+      "input": {},
+      "expect": {
+        "minContributors": 5,
+        "maxContributorShare": 0.25
+      },
+      "tags": [
+        "registry",
+        "policy"
+      ]
+    }
+  ]
+}

@@ -49,6 +49,7 @@ artifacts/agents/
 artifacts/audit/
 artifacts/launch-proof/
 artifacts/release/
+artifacts/eval/
 artifacts/visual/
 # Tenant data-portability exports (contain PII — never commit).
 artifacts/tenant-exports/

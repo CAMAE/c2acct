@@ -1,0 +1,495 @@
+{
+  "version": "retrieval.v1",
+  "suite": "retrieval",
+  "description": "Retrieval golden set over the help corpus, executed through retrieve() under its mandatory kind + roleAccess walls. Chunk refs are '<sourcePath>#<chunkIdx>' \u2014 stable across re-index, unlike KnowledgeChunk cuids.",
+  "items": [
+    {
+      "id": "RET-001",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A newcomer asking what the product is gets the overview doc.",
+      "query": "what is Patalign alignment measurement platform",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [],
+      "mustRetrieve": [
+        "help/global/what-is-patalign.md#0"
+      ],
+      "tags": [
+        "global"
+      ]
+    },
+    {
+      "id": "RET-002",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A question about the AI assistant returns the Meet Pat doc.",
+      "query": "Meet Pat optional AI assistant guide",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [],
+      "mustRetrieve": [
+        "help/global/meet-pat.md#0"
+      ],
+      "tags": [
+        "global"
+      ]
+    },
+    {
+      "id": "RET-003",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A pricing question returns the membership tiers doc.",
+      "query": "membership tiers Free Pro Elite",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [],
+      "mustRetrieve": [
+        "help/global/membership-tiers.md#0"
+      ],
+      "tags": [
+        "global"
+      ]
+    },
+    {
+      "id": "RET-004",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A methodology question returns the methodology doc.",
+      "query": "how Patalign computes its scores methodology",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [],
+      "mustRetrieve": [
+        "help/global/methodology.md#0"
+      ],
+      "tags": [
+        "global"
+      ]
+    },
+    {
+      "id": "RET-005",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "An advice-liability question returns the directional-not-advice doc.",
+      "query": "are Patalign numbers professional advice",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [],
+      "mustRetrieve": [
+        "help/global/directional-not-advice.md#0"
+      ],
+      "tags": [
+        "global",
+        "trust"
+      ]
+    },
+    {
+      "id": "RET-006",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A confidence-band question returns the confidence bands doc.",
+      "query": "what do the confidence bands mean thin evidence",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [],
+      "mustRetrieve": [
+        "help/global/confidence-bands.md#0"
+      ],
+      "tags": [
+        "global"
+      ]
+    },
+    {
+      "id": "RET-007",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "The suppression message is explained by the insufficient-peer-data doc.",
+      "query": "why does a benchmark say insufficient peer data",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [],
+      "mustRetrieve": [
+        "help/global/insufficient-peer-data.md#0"
+      ],
+      "tags": [
+        "global",
+        "suppression"
+      ]
+    },
+    {
+      "id": "RET-008",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A demo-data question returns the demo-vs-real doc.",
+      "query": "is demo data mixed into my benchmarks synthetic",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [],
+      "mustRetrieve": [
+        "help/global/demo-vs-real-data.md#0"
+      ],
+      "tags": [
+        "global",
+        "trust"
+      ]
+    },
+    {
+      "id": "RET-009",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A security question returns the trust center doc.",
+      "query": "where is Patalign trust and security information",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [],
+      "mustRetrieve": [
+        "help/global/trust-center.md#0"
+      ],
+      "tags": [
+        "global",
+        "trust"
+      ]
+    },
+    {
+      "id": "RET-010",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A sign-out question returns the sign-out doc.",
+      "query": "how do I sign out navigation menu",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [],
+      "mustRetrieve": [
+        "help/global/sign-out.md#0"
+      ],
+      "tags": [
+        "global"
+      ]
+    },
+    {
+      "id": "RET-011",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A firm asking about the assessment gets the firm alignment assessment doc.",
+      "query": "firm alignment assessment five modules 100 questions",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [
+        "firm"
+      ],
+      "mustRetrieve": [
+        "help/firm/alignment-assessment.md#0"
+      ],
+      "tags": [
+        "firm"
+      ]
+    },
+    {
+      "id": "RET-012",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A firm asking about the Alignment Board gets the Elite board doc.",
+      "query": "firm alignment board product stack Elite",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [
+        "firm"
+      ],
+      "mustRetrieve": [
+        "help/firm/alignment-board.md#0"
+      ],
+      "tags": [
+        "firm"
+      ]
+    },
+    {
+      "id": "RET-013",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A firm asking about peer comparison gets the peer benchmark doc.",
+      "query": "firm peer benchmark compares alignment index",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [
+        "firm"
+      ],
+      "mustRetrieve": [
+        "help/firm/peer-benchmark.md#0"
+      ],
+      "tags": [
+        "firm"
+      ]
+    },
+    {
+      "id": "RET-014",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A firm asking what to do next gets the recommendation engine doc.",
+      "query": "firm recommendation engine prioritized next actions",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [
+        "firm"
+      ],
+      "mustRetrieve": [
+        "help/firm/recommendation-engine.md#0"
+      ],
+      "tags": [
+        "firm"
+      ]
+    },
+    {
+      "id": "RET-015",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A firm asking about projections gets the future-state doc.",
+      "query": "firm future state projection models where alignment could go",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [
+        "firm"
+      ],
+      "mustRetrieve": [
+        "help/firm/future-state-projection.md#0"
+      ],
+      "tags": [
+        "firm"
+      ]
+    },
+    {
+      "id": "RET-016",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A firm asking about product reviews gets the firm product-assessments doc.",
+      "query": "firm product assessments vendor declared feature coverage",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [
+        "firm"
+      ],
+      "mustRetrieve": [
+        "help/firm/product-assessments.md#0"
+      ],
+      "tags": [
+        "firm"
+      ]
+    },
+    {
+      "id": "RET-017",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A vendor asking about the BattleCard gets the BattleCard doc.",
+      "query": "vendor battlecard ranks firms in your ecosystem",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [
+        "vendor"
+      ],
+      "mustRetrieve": [
+        "help/vendor/battlecard.md#0"
+      ],
+      "tags": [
+        "vendor"
+      ]
+    },
+    {
+      "id": "RET-018",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A vendor asking how to unlock hidden firms gets the secret-firms doc.",
+      "query": "how do I unlock secret firms on the battlecard",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [
+        "vendor"
+      ],
+      "mustRetrieve": [
+        "help/vendor/battlecard-secret-firms.md#0"
+      ],
+      "tags": [
+        "vendor"
+      ]
+    },
+    {
+      "id": "RET-019",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A vendor asking about demand gets the future-demand doc.",
+      "query": "vendor future demand projection firms weakest",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [
+        "vendor"
+      ],
+      "mustRetrieve": [
+        "help/vendor/future-demand.md#0"
+      ],
+      "tags": [
+        "vendor"
+      ]
+    },
+    {
+      "id": "RET-020",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A vendor asking about simulations gets the expansion-simulation doc.",
+      "query": "vendor expansion simulation sandbox",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [
+        "vendor"
+      ],
+      "mustRetrieve": [
+        "help/vendor/expansion-simulation.md#0"
+      ],
+      "tags": [
+        "vendor"
+      ]
+    },
+    {
+      "id": "RET-021",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A vendor asking about adding products gets the product-management doc.",
+      "query": "vendor product management adding software products",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [
+        "vendor"
+      ],
+      "mustRetrieve": [
+        "help/vendor/product-management.md#0"
+      ],
+      "tags": [
+        "vendor"
+      ]
+    },
+    {
+      "id": "RET-022",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A consultant asking about ecosystems gets the consultant ecosystems doc.",
+      "query": "consultant ecosystems one ecosystem per login",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [
+        "consultant"
+      ],
+      "mustRetrieve": [
+        "help/consultant/ecosystems.md#0"
+      ],
+      "tags": [
+        "consultant"
+      ]
+    },
+    {
+      "id": "RET-023",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A consultant asking about vendor briefs gets the vendor-brief doc.",
+      "query": "consultant vendor brief summarizes a vendor across ecosystems",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [
+        "consultant"
+      ],
+      "mustRetrieve": [
+        "help/consultant/vendor-brief.md#0"
+      ],
+      "tags": [
+        "consultant"
+      ]
+    },
+    {
+      "id": "RET-024",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "An individual asking about their assessment gets the individual doc.",
+      "query": "individual alignment assessment person level",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [
+        "individual"
+      ],
+      "mustRetrieve": [
+        "help/individual/alignment-assessment.md#0"
+      ],
+      "tags": [
+        "individual"
+      ]
+    },
+    {
+      "id": "RET-025",
+      "suite": "retrieval",
+      "judge": "exact",
+      "question": "A vendor asking a firm-only question never receives firm-scoped help.",
+      "query": "firm alignment board product stack Elite",
+      "k": 5,
+      "kinds": [
+        "help_doc"
+      ],
+      "roleAccess": [
+        "vendor"
+      ],
+      "mustRetrieve": [],
+      "mustNotRetrieve": [
+        "help/firm/alignment-board.md#0",
+        "help/firm/alignment-assessment.md#0",
+        "help/firm/peer-benchmark.md#0"
+      ],
+      "tags": [
+        "wall",
+        "audience-isolation"
+      ]
+    }
+  ]
+}

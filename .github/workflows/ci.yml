@@ -47,3 +47,31 @@ jobs:
       - name: Approved PAT marker verification
         run: node scripts/release/verify-approved-pat-markers.mjs --root .
       - run: pnpm build
+
+  eval:
+    name: Eval Golden Set
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10.32.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+      - run: pnpm install
+      - name: Prisma generate
+        run: pnpm prisma:generate
+      # Gates on the 100 exact-assert items (scoring, bands, suppression,
+      # registry) — pure functions, no database needed. The 25 retrieval items
+      # report as SKIPPED here because no knowledge corpus is indexed in CI;
+      # --strict-deterministic makes sure nothing ELSE quietly becomes a skip.
+      - name: Run eval
+        run: pnpm eval --strict-deterministic
+      - name: Upload scoreboard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-scoreboard
+          path: artifacts/eval/
