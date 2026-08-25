@@ -48,6 +48,22 @@ export const PERF_SCALE_FIRM_EMAIL_DOMAIN = "perf-scale.pat.local";
 /** Charter scale: the firm count AUDIT-WS9-001 cites for the benchmark cohort. */
 export const DEFAULT_PERF_SCALE_FIRM_COUNT = 47;
 
+/**
+ * Per-firm DEPTH, expressed as the vendor's product-catalog size.
+ *
+ * Measured composition of the demo cohort (2026-08-24): 41.9 survey
+ * submissions per firm = 5 alignment modules + 36.9 product reviews, and those
+ * reviews are 37 DISTINCT firm-product pairs with one submission each — demo
+ * firms review ~37 different products, they do not carry review history.
+ *
+ * So matching demo density means giving the perf vendor a comparable catalog
+ * and having every firm review all of it: 37 products + 5 alignment modules
+ * = 42 submissions/firm, against demo's 41.9. Catalog size is the lever;
+ * `--depth` sets it.
+ */
+export const DEFAULT_PERF_SCALE_PRODUCT_COUNT = 5;
+export const DEMO_DENSITY_PRODUCT_COUNT = 37;
+
 /** Rotated so the cohort spans the full archetype space, not one flat profile. */
 const ARCHETYPE_CYCLE: FirmArchetypeKey[] = [
   "high-performing",
@@ -78,23 +94,60 @@ const NAME_STEMS = [
 ];
 const NAME_SUFFIXES = ["Advisory", "CPAs", "Partners", "Accounting", "Group"];
 
+/** Utility keys cycled across the generated catalog, straight from the registry. */
+const CATALOG_UTILITY_KEYS = [
+  "erp_gl_core_ledger",
+  "close_reconciliation_consolidation",
+  "workflow_practice_operations_task_routing",
+  "reporting_analytics_fpa",
+  "integration_interoperability_data_sync",
+  "ap_payables_spend",
+  "ar_billing_collections",
+  "tax_workflow_compliance",
+  "audit_workflow_workpapers_evidence",
+  "document_capture_management_esignature",
+  "client_collaboration_portal_requests",
+  "expense_management",
+  "forecasting_planning",
+  "payroll_workforce_support",
+  "controls_compliance_audit_trail_approvals",
+];
+
+const CATALOG_NAMES = [
+  "Ledger", "Close", "Flow", "Insight", "Connect", "Payables", "Receivables",
+  "Tax", "Audit", "Docs", "Portal", "Expense", "Forecast", "Payroll", "Controls",
+  "Vault", "Bridge", "Pulse", "Atlas Core", "Signal",
+];
+
 /**
- * The vendor at the centre of the perf ecosystem. Five products keeps the
- * per-firm product-review fan-out realistic without making the seed enormous.
+ * The vendor at the centre of the perf ecosystem, with a catalog sized by
+ * `productCount`. Generated rather than hand-authored so depth is a parameter.
  */
-export const PERF_SCALE_VENDOR: VendorBankEntry = {
-  id: `${PERF_SCALE_VENDOR_PREFIX}atlas`,
-  name: "Atlas PerfScale",
-  tagline: "Synthetic vendor used only for performance measurement.",
-  archetype: "large-incumbent",
-  products: [
-    { id: "perf-scale-product-atlas-ledger", name: "Atlas Ledger", utilityKeys: ["erp_gl_core_ledger"], selfReportedScoreSeed: 78, narrativeTone: "confident" },
-    { id: "perf-scale-product-atlas-close", name: "Atlas Close", utilityKeys: ["close_reconciliation_consolidation"], selfReportedScoreSeed: 71, narrativeTone: "confident" },
-    { id: "perf-scale-product-atlas-flow", name: "Atlas Flow", utilityKeys: ["workflow_practice_operations_task_routing"], selfReportedScoreSeed: 66, narrativeTone: "measured" },
-    { id: "perf-scale-product-atlas-insight", name: "Atlas Insight", utilityKeys: ["reporting_analytics_fpa"], selfReportedScoreSeed: 74, narrativeTone: "measured" },
-    { id: "perf-scale-product-atlas-connect", name: "Atlas Connect", utilityKeys: ["integration_interoperability_data_sync"], selfReportedScoreSeed: 69, narrativeTone: "confident" },
-  ],
-} as VendorBankEntry;
+export function buildPerfScaleVendor(productCount: number): VendorBankEntry {
+  if (!Number.isInteger(productCount) || productCount < 1) {
+    throw new Error(`perf-scale productCount must be a positive integer (got ${productCount})`);
+  }
+  const products = Array.from({ length: productCount }, (_, index) => {
+    const name = CATALOG_NAMES[index % CATALOG_NAMES.length]!;
+    const suffix = index >= CATALOG_NAMES.length ? ` ${Math.floor(index / CATALOG_NAMES.length) + 1}` : "";
+    return {
+      id: `perf-scale-product-atlas-${String(index + 1).padStart(2, "0")}`,
+      name: `Atlas ${name}${suffix}`,
+      utilityKeys: [CATALOG_UTILITY_KEYS[index % CATALOG_UTILITY_KEYS.length]!],
+      // Spread self-reported seeds so divergence maths has something to chew on.
+      selfReportedScoreSeed: 62 + ((index * 7) % 30),
+      narrativeTone: index % 2 === 0 ? "confident" : "measured",
+    };
+  });
+
+  return {
+    id: `${PERF_SCALE_VENDOR_PREFIX}atlas`,
+    name: "Atlas PerfScale",
+    tagline: "Synthetic vendor used only for performance measurement.",
+    archetype: "large-incumbent",
+    products,
+  } as VendorBankEntry;
+}
 
 /** Deterministic synthetic roster of `count` firms. */
 export function buildPerfScaleRoster(count: number): FirmRosterEntry[] {
@@ -114,24 +167,46 @@ export function buildPerfScaleRoster(count: number): FirmRosterEntry[] {
   return roster;
 }
 
+export interface PerfScalePlanOptions {
+  firmCount?: number;
+  /** Vendor catalog size — the per-firm depth lever. See DEMO_DENSITY_PRODUCT_COUNT. */
+  productCount?: number;
+  /**
+   * Force every firm to review the whole catalog. Archetype profiles otherwise
+   * apply a per-archetype coverage fraction, which makes reviews/firm a
+   * function of the archetype mix rather than of `productCount` — and depth
+   * needs to be the thing being set, not a side effect of the mix.
+   */
+  fullCoverage?: boolean;
+}
+
 export function planPerfScaleEcosystem(
-  firmCount = DEFAULT_PERF_SCALE_FIRM_COUNT
+  options: PerfScalePlanOptions | number = {}
 ): DemoBenchmarkEcosystemPlan {
+  // Back-compat: the first version took a bare firm count.
+  const opts: PerfScalePlanOptions = typeof options === "number" ? { firmCount: options } : options;
+  const firmCount = opts.firmCount ?? DEFAULT_PERF_SCALE_FIRM_COUNT;
+  const productCount = opts.productCount ?? DEFAULT_PERF_SCALE_PRODUCT_COUNT;
+  const fullCoverage = opts.fullCoverage ?? false;
+
   if (!Number.isInteger(firmCount) || firmCount < 1) {
     throw new Error(`perf-scale firmCount must be a positive integer (got ${firmCount})`);
   }
 
-  const rng = createMulberry32(`${PERF_SCALE_SEED}-${firmCount}`);
+  const rng = createMulberry32(`${PERF_SCALE_SEED}-${firmCount}-${productCount}`);
   const archetypeMap = loadFirmArchetypes();
   const templates = loadOpenEndedTemplates();
   const roster = buildPerfScaleRoster(firmCount);
-  const vendorPlan = buildVendorPlan(PERF_SCALE_VENDOR);
+  const vendorPlan = buildVendorPlan(buildPerfScaleVendor(productCount));
 
   const firms: DemoBenchmarkFirmPlan[] = roster.map((firm, firmIndex) => {
-    const archetypeProfile = archetypeMap[firm.archetype];
-    if (!archetypeProfile) {
+    const baseProfile = archetypeMap[firm.archetype];
+    if (!baseProfile) {
       throw new Error(`Unknown firm archetype "${firm.archetype}" — not in firm-archetypes.json`);
     }
+    const archetypeProfile = fullCoverage
+      ? { ...baseProfile, productReviewCoverage: 1 }
+      : baseProfile;
     return buildFirmPlan({
       firm,
       ecosystemIndex: 0,
@@ -146,7 +221,7 @@ export function planPerfScaleEcosystem(
 
   return {
     ecosystemId: `${PERF_SCALE_ECOSYSTEM_PREFIX}atlas`,
-    ecosystemName: `Atlas PerfScale Ecosystem (${firmCount} firms)`,
+    ecosystemName: `Atlas PerfScale Ecosystem (${firmCount} firms × ${productCount} products)`,
     consultant: {
       userId: "perf-scale-user-consultant-atlas",
       profileId: "perf-scale-consultant-profile-atlas",

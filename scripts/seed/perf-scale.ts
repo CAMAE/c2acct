@@ -5,6 +5,8 @@ import { applyRepoEnv } from "@/lib/env/repoEnv";
 import { classifyCompanyBoundaries } from "@/lib/dataBoundaryBackfill";
 import {
   DEFAULT_PERF_SCALE_FIRM_COUNT,
+  DEFAULT_PERF_SCALE_PRODUCT_COUNT,
+  DEMO_DENSITY_PRODUCT_COUNT,
   PERF_SCALE_ECOSYSTEM_PREFIX,
   PERF_SCALE_CONSULTANT_EMAIL,
   PERF_SCALE_FIRM_EMAIL_DOMAIN,
@@ -37,6 +39,7 @@ import {
  *   node --import tsx scripts/seed/perf-scale.ts                  # DRY RUN — prints the plan, writes nothing
  *   node --import tsx scripts/seed/perf-scale.ts --apply          # writes 47 firms (default)
  *   node --import tsx scripts/seed/perf-scale.ts --apply --firms=90
+ *   node --import tsx scripts/seed/perf-scale.ts --apply --depth=demo   # match demo per-firm density
  *   node --import tsx scripts/seed/perf-scale.ts --teardown       # removes the perf-scale cohort
  */
 
@@ -54,6 +57,27 @@ function parseFirmCount(): number {
   return value;
 }
 
+/**
+ * `--depth` sets per-firm submission density via the vendor's catalog size.
+ *   --depth=demo   match the measured demo cohort (37 products → ~42 subs/firm)
+ *   --depth=N      N products, every firm reviews all of them
+ * Omitted, it stays at the original shallow default so existing measurements
+ * remain reproducible.
+ */
+function parseDepth(): { productCount: number; fullCoverage: boolean } {
+  const flag = process.argv.find((arg) => arg.startsWith("--depth="));
+  if (!flag) return { productCount: DEFAULT_PERF_SCALE_PRODUCT_COUNT, fullCoverage: false };
+  const raw = flag.split("=")[1] ?? "";
+  if (raw === "demo") {
+    return { productCount: DEMO_DENSITY_PRODUCT_COUNT, fullCoverage: true };
+  }
+  const value = Number.parseInt(raw, 10);
+  if (!Number.isInteger(value) || value < 1) {
+    throw new Error(`--depth must be "demo" or a positive integer (got "${flag}")`);
+  }
+  return { productCount: value, fullCoverage: true };
+}
+
 let prismaClient: { $disconnect(): Promise<void> } | null = null;
 
 async function main() {
@@ -65,7 +89,8 @@ async function main() {
   }
 
   const firmCount = parseFirmCount();
-  const plan = planPerfScaleEcosystem(firmCount);
+  const depth = parseDepth();
+  const plan = planPerfScaleEcosystem({ firmCount, ...depth });
   assertPerfScaleBoundary(plan);
 
   const plannedReviews = plan.firms.reduce((sum, firm) => sum + firm.productReviewIds.length, 0);
@@ -84,7 +109,14 @@ async function main() {
   console.log(
     `    mix:      ${Object.entries(archetypeMix).map(([key, count]) => `${key}×${count}`).join(", ")}`
   );
-  console.log(`    reviews:  ${plannedReviews} planned firm product reviews`);
+  console.log(`    products: ${plan.vendor.demoVendorInput.products.length} in the vendor catalog`);
+  console.log(
+    `    reviews:  ${plannedReviews} planned firm product reviews (${(plannedReviews / plan.firms.length).toFixed(1)}/firm)`
+  );
+  // 5 canonical alignment modules land per firm on top of the reviews.
+  console.log(
+    `    density:  ~${(plannedReviews / plan.firms.length + 5).toFixed(1)} submissions/firm (demo cohort measures 41.9)`
+  );
 
   if (!APPLY) {
     console.log("\nDRY RUN — no changes written. Re-run with --apply to execute.");
@@ -270,7 +302,14 @@ async function applyPlan(plan: ReturnType<typeof planPerfScaleEcosystem>): Promi
   console.log(`Consultant:   ${plan.consultant.email} / ${PERF_SCALE_PASSWORD}`);
 }
 
-/** Remove the perf-scale cohort. Scoped strictly to the perf-scale-* namespace. */
+/**
+ * Remove the perf-scale cohort. Scoped strictly to the perf-scale-* namespace.
+ *
+ * Deletion order matters: Company has several RESTRICT-mode dependents
+ * (SurveySubmission, Product, VendorProfile, User, Ecosystem), so the companies
+ * cannot go first. Everything below is filtered to perf-scale ids, so a partial
+ * failure can never reach another cohort.
+ */
 async function teardown(): Promise<void> {
   const { default: prisma } = await import("@/lib/prisma");
   prismaClient = prisma;
@@ -295,31 +334,53 @@ async function teardown(): Promise<void> {
   console.log(
     `\nPERF-SCALE TEARDOWN — ${ecosystems.length} ecosystem(s), ${firms.length} firm(s), ${vendors.length} vendor(s).`
   );
+  if (companyIds.length === 0 && ecosystems.length === 0) {
+    console.log("Nothing to remove.");
+    return;
+  }
 
-  // Users first (FK to Company), then the ecosystem (cascades assignments and
-  // membership), then the companies themselves.
-  const deletedUsers = await prisma.user.deleteMany({
-    where: {
-      OR: [
-        { email: { endsWith: `@${PERF_SCALE_FIRM_EMAIL_DOMAIN}` } },
-        { email: PERF_SCALE_CONSULTANT_EMAIL },
-        ...(companyIds.length > 0 ? [{ companyId: { in: companyIds } }] : []),
-      ],
-    },
-  });
-  const deletedEcosystems = await prisma.ecosystem.deleteMany({
-    where: { id: { startsWith: PERF_SCALE_ECOSYSTEM_PREFIX } },
-  });
-  const deletedCompanies =
-    companyIds.length > 0
-      ? await prisma.company.deleteMany({ where: { id: { in: companyIds } } })
-      : { count: 0 };
+  const counts: Record<string, number> = {};
+  const run = async (label: string, fn: () => Promise<{ count: number }>) => {
+    counts[label] = (await fn()).count;
+  };
 
-  console.log("Teardown complete:", {
-    users: deletedUsers.count,
-    ecosystems: deletedEcosystems.count,
-    companies: deletedCompanies.count,
-  });
+  // 1. Submissions (both alignment modules and product reviews — a "firm product
+  //    review" is a SurveySubmission against firm_product_review_v1, not a
+  //    separate relationship table).
+  await run("surveySubmissions", () =>
+    prisma.surveySubmission.deleteMany({ where: { companyId: { in: companyIds } } })
+  );
+
+  // 2. Users (FK to Company) — both the firm logins and the perf consultant.
+  await run("users", () =>
+    prisma.user.deleteMany({
+      where: {
+        OR: [
+          { email: { endsWith: `@${PERF_SCALE_FIRM_EMAIL_DOMAIN}` } },
+          { email: PERF_SCALE_CONSULTANT_EMAIL },
+          ...(companyIds.length > 0 ? [{ companyId: { in: companyIds } }] : []),
+        ],
+      },
+    })
+  );
+
+  // 3. The ecosystem (FK to the vendor company; cascades assignments + membership).
+  await run("ecosystems", () =>
+    prisma.ecosystem.deleteMany({ where: { id: { startsWith: PERF_SCALE_ECOSYSTEM_PREFIX } } })
+  );
+
+  // 4. Vendor-side rows that restrict the company delete.
+  await run("products", () =>
+    prisma.product.deleteMany({ where: { companyId: { in: companyIds } } })
+  );
+  await run("vendorProfiles", () =>
+    prisma.vendorProfile.deleteMany({ where: { companyId: { in: companyIds } } })
+  );
+
+  // 5. Finally the companies themselves (Subject cascades from here).
+  await run("companies", () => prisma.company.deleteMany({ where: { id: { in: companyIds } } }));
+
+  console.log("Teardown complete:", counts);
 }
 
 async function upsertConsultantUser(
