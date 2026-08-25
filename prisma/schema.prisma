@@ -143,6 +143,7 @@ model Company {
   PilotCohortMember      PilotCohortMember[]
   Subject                Subject?
   SurveySubmission       SurveySubmission[]
+  ModuleSitting          ModuleSitting[]
   User                   User[]
   VendorProfile          VendorProfile?
   CadenceConfig          CadenceConfig?
@@ -1706,6 +1707,7 @@ model ModuleTemplate {
   updatedAt         DateTime           @updatedAt
   ModuleItem        ModuleItem[]
   ModuleUnlockRule  ModuleUnlockRule[]
+  ModuleSitting     ModuleSitting[]
 
   @@index([category])
   @@index([moduleType, reviewStatus])
@@ -1737,6 +1739,7 @@ model ModuleItem {
   updatedAt          DateTime         @updatedAt
   ModuleTemplate     ModuleTemplate   @relation(fields: [templateId], references: [id], onDelete: Cascade)
   ModuleSource       ModuleSource[]
+  ItemResponse       ItemResponse[]
 
   @@index([templateId, itemKind])
   @@index([category])
@@ -1772,6 +1775,83 @@ model ModuleUnlockRule {
 
   @@unique([patternSubset, templateId])
   @@index([templateId])
+}
+
+// ---------------------------------------------------------------------------
+// Adaptive modules Block A — the sitting container and per-item response
+// history ("Prerequisite Zero"). Adaptive history cannot be retrofitted: an
+// item's discrimination and p-value are only knowable from the answers that
+// were actually given, so these rows must start accruing before any adaptive
+// behaviour exists to consume them.
+//
+// Deletion policy is deliberate and asymmetric:
+//   - Cascade from Company (tenant deletion must remove tenant data) and from
+//     ModuleSitting to its responses (a sitting owns its answers).
+//   - RESTRICT on the two history edges — ItemResponse.itemId and
+//     ModuleSitting.templateId. A content cleanup that dropped items or
+//     templates would otherwise silently destroy the calibration history those
+//     rows exist to accumulate. Retiring content is a reviewStatus change, not
+//     a delete.
+// Flag-dark behind PAT_ENABLE_ADAPTIVE_MODULES; nothing serves from these.
+// ---------------------------------------------------------------------------
+
+model ModuleSitting {
+  id                  String              @id @default(cuid())
+  companyId           String
+  templateId          String
+  // Optional attribution. Plain columns, not FKs: a sitting's history must
+  // outlive the subject / user / quarter records it was taken under.
+  subjectId           String?
+  userId              String?
+  engagementQuarterId String?
+  // The deterministic serve manifest — exactly which items were shown, in
+  // order. This is the audit record that keeps a score reproducible after the
+  // item bank rotates underneath it.
+  servedItemIds       Json
+  status              ModuleSittingStatus @default(IN_PROGRESS)
+  startedAt           DateTime            @default(now())
+  completedAt         DateTime?
+  scoreRaw            Int?
+  scorePercent        Float?
+  scoreVersion        Int                 @default(1)
+  Company             Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  ModuleTemplate      ModuleTemplate      @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  ItemResponse        ItemResponse[]
+
+  @@index([companyId, templateId, startedAt])
+  @@index([templateId, status])
+}
+
+model ItemResponse {
+  id             String        @id @default(cuid())
+  sittingId      String
+  itemId         String
+  // Denormalized from the sitting so pattern and suppression queries can scope
+  // by tenant without joining through ModuleSitting on every read.
+  companyId      String
+  responseKey    String
+  // ALWAYS derived server-side from ModuleItem.correctKey at write time (see
+  // lib/modules/history.ts). Never accepted from a client payload.
+  isCorrect      Boolean
+  answeredAt     DateTime      @default(now())
+  durationMs     Int?
+  // Snapshot of ModuleItem.updatedAt when the answer was given, so a later item
+  // edit cannot silently rewrite what this response was an answer to.
+  itemRevisionAt DateTime
+  ModuleSitting  ModuleSitting @relation(fields: [sittingId], references: [id], onDelete: Cascade)
+  ModuleItem     ModuleItem    @relation(fields: [itemId], references: [id], onDelete: Restrict)
+
+  @@unique([sittingId, itemId])
+  // Feeds the discrimination / p-value calibration that ModuleItem's
+  // discriminationSeed and pValueSeed are placeholders for.
+  @@index([itemId, isCorrect])
+  @@index([companyId, answeredAt])
+}
+
+enum ModuleSittingStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
 }
 
 enum ModuleType {
