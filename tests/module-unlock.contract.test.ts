@@ -106,21 +106,58 @@ describe("flag", () => {
   });
 });
 
-describe("no surface references the resolver while dark", () => {
-  it("is imported only by lib/modules and its tests", async () => {
-    const { promises: fs } = await import("node:fs");
+describe("surfaces reach the resolver only through the gated seam", () => {
+  it("no app/ file imports resolveUnlocks or computeScoringPattern", async () => {
     const { execFile } = await import("node:child_process");
     const { promisify } = await import("node:util");
-    void fs;
+    const { promises: fs } = await import("node:fs");
     const run = promisify(execFile);
-    // Block A is explicitly "no UI, no serving change": nothing under app/ may
-    // reach the resolver yet.
-    const { stdout } = await run("grep", ["-rl", "modules/unlock", "app", "lib", "scripts", "tests"]).catch(
+
+    // Block B put the resolver behind lib/modules/portal.ts, whose every entry
+    // point runs requireFirmModuleAccess() (flag + firm role + tenancy). A page
+    // or action importing the resolver directly would bypass that gate.
+    //
+    // IMPORT lines are the check, not raw text: a docblock that mentions
+    // resolveUnlocks() by name is documentation, not a call site, and matching
+    // on prose would make this test fail for describing itself.
+    const { stdout } = await run("grep", ["-rl", "modules/unlock", "app"]).catch(
       (error: { stdout?: string }) => ({ stdout: error.stdout ?? "" })
     );
-    const referrers = stdout.split("\n").filter(Boolean).sort();
-    expect(referrers.filter((path) => path.startsWith("app/"))).toEqual([]);
-    expect(referrers).toEqual(["tests/module-unlock.contract.test.ts"]);
+    const offenders: string[] = [];
+    for (const file of stdout.split("\n").filter(Boolean)) {
+      const source = await fs.readFile(file, "utf8");
+      const imports = source
+        .split("\n")
+        .filter((line) => line.trim().startsWith("import") && line.includes("modules/unlock"));
+      if (imports.some((line) => /resolveUnlocks|computeScoringPattern/.test(line))) {
+        offenders.push(file);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it("any app/ import of the unlock module is the flag helper only", async () => {
+    const { execFile } = await import("node:child_process");
+    const { promisify } = await import("node:util");
+    const run = promisify(execFile);
+
+    const { stdout } = await run("grep", ["-rl", "modules/unlock", "app"]).catch(
+      (error: { stdout?: string }) => ({ stdout: error.stdout ?? "" })
+    );
+    const referrers = stdout.split("\n").filter(Boolean);
+
+    const { promises: fs } = await import("node:fs");
+    for (const file of referrers) {
+      const source = await fs.readFile(file, "utf8");
+      const importLine = source
+        .split("\n")
+        .find((line) => line.includes("modules/unlock") && line.trim().startsWith("import"));
+      // Surfaces may ask WHETHER the feature is on; they may not compute unlocks.
+      expect({ file, importLine }).toEqual({
+        file,
+        importLine: 'import { isAdaptiveModulesEnabled } from "@/lib/modules/unlock";',
+      });
+    }
   });
 });
 

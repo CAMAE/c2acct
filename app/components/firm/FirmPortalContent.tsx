@@ -23,6 +23,18 @@ export const firmWorkspaceCards: PortalSurface[] = [
     availability: "enabled",
   },
   {
+    // Adaptive modules (Block B). Filtered out in app/(app)/firm/page.tsx unless
+    // PAT_ENABLE_ADAPTIVE_MODULES is on, so the flag-off portal shows no card
+    // and therefore no dead link to a route that 404s.
+    id: "firm-modules",
+    title: "Modules",
+    description: "Work through the adaptive modules your alignment pattern has unlocked.",
+    href: "/firm/modules",
+    audience: ["firm"],
+    section: "operate",
+    availability: "enabled",
+  },
+  {
     id: "firm-insights",
     title: "Insights",
     description: "Open firm-facing Pro membership and Elite membership PAT insights based on current firm and product alignment signal.",

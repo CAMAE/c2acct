@@ -50,6 +50,7 @@ artifacts/audit/
 artifacts/launch-proof/
 artifacts/release/
 artifacts/eval/
+artifacts/blockb-screenshots/
 artifacts/visual/
 # Tenant data-portability exports (contain PII — never commit).
 artifacts/tenant-exports/

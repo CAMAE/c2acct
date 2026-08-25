@@ -14,6 +14,7 @@ import {
   firmWorkspaceCards,
 } from "@/app/components/firm/FirmPortalContent";
 import { isAlignmentBoardEnabled } from "@/lib/alignmentBoard";
+import { isAdaptiveModulesEnabled } from "@/lib/modules/unlock";
 import { isPingsEnabled } from "@/lib/patAssistant/flags";
 import { getSessionUser } from "@/lib/auth/session";
 import { getFirmAssessmentProgress } from "@/lib/firmPat";
@@ -194,6 +195,7 @@ export default async function FirmPage({
   const localizedCards = firmWorkspaceCards
     // R4: the Alignment Sandbox card only appears while the board flag is on.
     .filter((card) => card.id !== "firm-alignment-sandbox" || isAlignmentBoardEnabled())
+    .filter((card) => card.id !== "firm-modules" || isAdaptiveModulesEnabled())
     .map((card) => ({
       ...card,
       title: messages.portal.cards.firm[card.id]?.title ?? card.title,
