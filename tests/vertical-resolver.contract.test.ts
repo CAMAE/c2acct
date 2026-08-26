@@ -172,11 +172,16 @@ describe("pack ids referenced by stored rows are frozen", () => {
   });
 
   it("keeps every verticalized model defaulting to the frozen id", () => {
-    // Fourteen models carry `verticalId String @default("accounting")` (audit
-    // §1.1). A pack rename without a backfill orphans all of them.
+    // Twenty-one models carry `verticalId String @default("accounting")`: the
+    // fourteen from the original add_vertical_id_layer migration (audit §1.1)
+    // plus the seven added by PF-2 W5 — ModuleItem, ModuleUnlockRule,
+    // ModuleSitting, ItemResponse, SurveySubmission, CompanyBenchmark and
+    // CompanyBenchmarkCohort. A pack rename without a backfill orphans all of
+    // them, and this count is what makes a new verticalized model join the
+    // freeze rule deliberately rather than by being forgotten.
     const schema = readFileSync(path.join(ROOT, "prisma/schema.prisma"), "utf8");
     const defaults = schema.match(/verticalId\s+String\s+@default\("([^"]+)"\)/g) ?? [];
-    expect(defaults).toHaveLength(14);
+    expect(defaults).toHaveLength(21);
     for (const line of defaults) {
       expect(line).toContain(`@default("${DEFAULT_VERTICAL_ID}")`);
     }

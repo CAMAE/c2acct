@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { verticalFilter, verticalStamp } from "@/lib/verticals/scope";
 
 /**
  * Per-item response history ("Prerequisite Zero", Block A).
@@ -39,6 +40,11 @@ export interface RecordItemResponseInput {
   responseKey: string;
   durationMs?: number | null;
   answeredAt?: Date;
+  /**
+   * The tenant's vertical, resolved at the request boundary (W5). Flag off this
+   * is ignored entirely and the database default stamps "accounting".
+   */
+  verticalId?: string;
 }
 
 export interface RecordedItemResponse {
@@ -56,6 +62,8 @@ export interface RecordedItemResponse {
 export async function recordItemResponse(
   input: RecordItemResponseInput
 ): Promise<RecordedItemResponse> {
+  const scope = verticalFilter({ verticalId: input.verticalId });
+
   const sitting = await prisma.moduleSitting.findUnique({
     where: { id: input.sittingId },
     select: { id: true, companyId: true, templateId: true, status: true },
@@ -70,8 +78,11 @@ export async function recordItemResponse(
     );
   }
 
-  const item = await prisma.moduleItem.findUnique({
-    where: { id: input.itemId },
+  // findFirst rather than findUnique so the flag-on vertical scope can join the
+  // predicate. Flag off `scope` is `{}` and this is a primary-key lookup with
+  // the same plan as the findUnique it replaces.
+  const item = await prisma.moduleItem.findFirst({
+    where: { id: input.itemId, ...scope },
     select: { id: true, templateId: true, correctKey: true, updatedAt: true },
   });
   if (!item) {
@@ -101,6 +112,7 @@ export async function recordItemResponse(
       answeredAt,
       durationMs: input.durationMs ?? null,
       itemRevisionAt: item.updatedAt,
+      ...verticalStamp({ verticalId: input.verticalId }),
     },
     update: {
       responseKey: input.responseKey,
@@ -122,17 +134,23 @@ export async function recordItemResponse(
  * skipped half the module scored on what it was shown, otherwise abandoning
  * hard items would inflate the score.
  */
-export async function completeSitting(sittingId: string, completedAt: Date = new Date()) {
-  const sitting = await prisma.moduleSitting.findUnique({
-    where: { id: sittingId },
+export async function completeSitting(
+  sittingId: string,
+  completedAt: Date = new Date(),
+  verticalId?: string
+) {
+  const scope = verticalFilter({ verticalId });
+
+  const sitting = await prisma.moduleSitting.findFirst({
+    where: { id: sittingId, ...scope },
     select: { id: true, servedItemIds: true, status: true },
   });
   if (!sitting) {
     throw new ModuleHistoryError("sitting_not_found", `No ModuleSitting "${sittingId}".`);
   }
 
+  const correct = await prisma.itemResponse.count({ where: { sittingId, isCorrect: true, ...scope } });
   const served = Array.isArray(sitting.servedItemIds) ? sitting.servedItemIds.length : 0;
-  const correct = await prisma.itemResponse.count({ where: { sittingId, isCorrect: true } });
   const scorePercent = served > 0 ? Math.round((correct / served) * 10000) / 100 : 0;
 
   return prisma.moduleSitting.update({

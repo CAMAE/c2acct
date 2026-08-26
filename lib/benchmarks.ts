@@ -17,6 +17,14 @@ import { randomUUID } from "node:crypto";
 import { DataBoundary, type PrismaClient, type CompanyType } from "@prisma/client";
 import { FIRM_MODULE_DEFINITIONS, FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
+import {
+  assertSingleVerticalCohort,
+  assertVerticalPackInstalled,
+  benchmarkCohortKey,
+} from "@/lib/benchmarkCohortIsolation";
+import { DEFAULT_VERTICAL_ID } from "@/lib/verticals/context";
+import { isVerticalPacksEnabled } from "@/lib/verticals/flag";
+import { verticalFilter, verticalStamp } from "@/lib/verticals/scope";
 
 export const ALIGNMENT_INDEX_METRIC = "alignment_index";
 export const BENCHMARK_VERSION = 1;
@@ -32,12 +40,26 @@ const POOLS: Pool[] = [
   { tag: "demo", boundaries: [DataBoundary.DEMO] },
 ];
 
-/** Which cohort key a viewer of the given boundary reads. */
-export function firmCohortKeyForBoundary(boundary: DataBoundary): string {
-  return `firm:${boundary === DataBoundary.DEMO ? "demo" : "real"}`;
+/**
+ * Which cohort key a viewer of the given boundary reads.
+ *
+ * `verticalId` defaults to accounting, and accounting's key is TODAY'S LITERAL
+ * key — `firm:real`, `vendor:demo` — with no vertical segment. Existing
+ * BenchmarkCohort rows are addressed by this unique key, so qualifying
+ * accounting's would orphan every one of them. Another vertical gets its own
+ * rows under its own key (W6); see lib/benchmarkCohortIsolation.ts.
+ */
+export function firmCohortKeyForBoundary(
+  boundary: DataBoundary,
+  verticalId: string = DEFAULT_VERTICAL_ID
+): string {
+  return benchmarkCohortKey(`firm:${boundary === DataBoundary.DEMO ? "demo" : "real"}`, verticalId);
 }
-export function vendorCohortKeyForBoundary(boundary: DataBoundary): string {
-  return `vendor:${boundary === DataBoundary.DEMO ? "demo" : "real"}`;
+export function vendorCohortKeyForBoundary(
+  boundary: DataBoundary,
+  verticalId: string = DEFAULT_VERTICAL_ID
+): string {
+  return benchmarkCohortKey(`vendor:${boundary === DataBoundary.DEMO ? "demo" : "real"}`, verticalId);
 }
 
 // --- percentile math (nearest-rank distribution + rank-based percentile) -------
@@ -102,38 +124,78 @@ async function writeCompany(
   cohortId: string,
   metricKey: string,
   score: number,
-  values: number[]
+  values: number[],
+  verticalId?: string
 ) {
   const percentile = percentileRank(values, score);
+  // Flag off, the stamp names no column and the W5 database default supplies
+  // "accounting" — the two upserts are the upserts that shipped before PF-2.
+  const stamp = verticalStamp({ verticalId });
   await client.companyBenchmark.upsert({
     where: { companyId_cohortId_metricKey_version: { companyId, cohortId, metricKey, version: BENCHMARK_VERSION } },
-    create: { id: randomUUID(), companyId, cohortId, metricKey, version: BENCHMARK_VERSION, score, percentile },
+    create: {
+      id: randomUUID(),
+      companyId,
+      cohortId,
+      metricKey,
+      version: BENCHMARK_VERSION,
+      score,
+      percentile,
+      ...stamp,
+    },
     update: { score, percentile, computedAt: new Date() },
   });
   await client.companyBenchmarkCohort.upsert({
     where: { companyId_cohortId: { companyId, cohortId } },
-    create: { id: randomUUID(), companyId, cohortId },
+    create: { id: randomUUID(), companyId, cohortId, ...stamp },
     update: {},
   });
 }
 
 // --- firm benchmarks (F1): alignment_index + 5 modules, per pool ---------------
 
-async function computeFirmBenchmarks(client: BenchmarkClient): Promise<number> {
+async function computeFirmBenchmarks(client: BenchmarkClient, verticalId?: string): Promise<number> {
   const moduleKeys = FIRM_MODULE_DEFINITIONS.map((m) => m.key);
+  const scope = verticalFilter({ verticalId });
+  const cohortVertical = verticalId ?? DEFAULT_VERTICAL_ID;
   let written = 0;
 
   for (const pool of POOLS) {
-    const cohortId = await ensureCohort(client, `firm:${pool.tag}`, `Firms (${pool.tag})`, "FIRM");
+    const cohortId = await ensureCohort(
+      client,
+      benchmarkCohortKey(`firm:${pool.tag}`, cohortVertical),
+      `Firms (${pool.tag})`,
+      "FIRM"
+    );
 
     const submissions = await client.surveySubmission.findMany({
       where: getSurveyFinalWhere({
         SurveyModule: { key: { in: moduleKeys } },
         Company: { is: { dataBoundary: { in: pool.boundaries } } },
+        ...scope,
       }),
       orderBy: { createdAt: "desc" },
-      select: { companyId: true, score: true, SurveyModule: { select: { key: true } } },
+      select: {
+        companyId: true,
+        score: true,
+        ...(scope.verticalId === undefined ? {} : { verticalId: true as const }),
+        SurveyModule: { select: { key: true } },
+      },
     });
+
+    // The isolation invariant, asserted at the point rows become a cohort. The
+    // query above already scopes flag-on, so this can only fire if a caller
+    // reaches the write path another way — which is exactly the case worth
+    // failing loudly on. It is a no-op flag off, where `scope` is `{}`.
+    if (scope.verticalId !== undefined) {
+      assertSingleVerticalCohort(
+        scope.verticalId,
+        submissions.map((s) => ({
+          companyId: s.companyId,
+          verticalId: (s as { verticalId?: string }).verticalId ?? "",
+        }))
+      );
+    }
 
     // latest score per (firm, module)
     const latest = new Map<string, number>();
@@ -164,7 +226,9 @@ async function computeFirmBenchmarks(client: BenchmarkClient): Promise<number> {
       if (rows.length === 0) continue;
       const values = rows.map((r) => r.score);
       await writeRun(client, cohortId, metricKey, values);
-      for (const row of rows) await writeCompany(client, row.companyId, cohortId, metricKey, row.score, values);
+      for (const row of rows) {
+        await writeCompany(client, row.companyId, cohortId, metricKey, row.score, values, verticalId);
+      }
       written += 1;
     }
   }
@@ -173,11 +237,18 @@ async function computeFirmBenchmarks(client: BenchmarkClient): Promise<number> {
 
 // --- vendor benchmarks (V1): firm-reviewed product strength per category -------
 
-async function computeVendorBenchmarks(client: BenchmarkClient): Promise<number> {
+async function computeVendorBenchmarks(client: BenchmarkClient, verticalId?: string): Promise<number> {
+  const scope = verticalFilter({ verticalId });
+  const cohortVertical = verticalId ?? DEFAULT_VERTICAL_ID;
   let written = 0;
 
   for (const pool of POOLS) {
-    const cohortId = await ensureCohort(client, `vendor:${pool.tag}`, `Vendors (${pool.tag})`, "VENDOR");
+    const cohortId = await ensureCohort(
+      client,
+      benchmarkCohortKey(`vendor:${pool.tag}`, cohortVertical),
+      `Vendors (${pool.tag})`,
+      "VENDOR"
+    );
 
     // firm-reviewed product submissions in this pool (firms review vendor products)
     const reviews = await client.surveySubmission.findMany({
@@ -185,6 +256,7 @@ async function computeVendorBenchmarks(client: BenchmarkClient): Promise<number>
         SurveyModule: { key: FIRM_PRODUCT_MODULE_KEY },
         Subject: { productId: { not: null } },
         Company: { is: { dataBoundary: { in: pool.boundaries } } },
+        ...scope,
       }),
       select: { score: true, Subject: { select: { productId: true } } },
     });
@@ -198,7 +270,7 @@ async function computeVendorBenchmarks(client: BenchmarkClient): Promise<number>
 
     // map product -> {vendor, category}
     const products = await client.product.findMany({
-      where: { id: { in: [...scoresByProduct.keys()] } },
+      where: { id: { in: [...scoresByProduct.keys()] }, ...scope },
       select: { id: true, companyId: true, category: true },
     });
     // per (vendor, category): mean firm-reviewed strength across the vendor's products
@@ -224,16 +296,38 @@ async function computeVendorBenchmarks(client: BenchmarkClient): Promise<number>
     for (const [category, rows] of vendorsByCategory) {
       const values = rows.map((r) => r.score);
       await writeRun(client, cohortId, category, values);
-      for (const row of rows) await writeCompany(client, row.vendorId, cohortId, category, row.score, values);
+      for (const row of rows) {
+        await writeCompany(client, row.vendorId, cohortId, category, row.score, values, verticalId);
+      }
       written += 1;
     }
   }
   return written;
 }
 
-export async function computeBenchmarks(client: BenchmarkClient): Promise<{ firmRuns: number; vendorRuns: number }> {
-  const firmRuns = await computeFirmBenchmarks(client);
-  const vendorRuns = await computeVendorBenchmarks(client);
+/**
+ * Compute every benchmark distribution.
+ *
+ * `verticalId` is the cohort's vertical (W6). Flag off it is ignored entirely:
+ * the queries keep their plans, the writes name no new column, and the cohort
+ * keys are the literal keys that already exist — accounting's cohorts are
+ * byte-identical flag-off and flag-on-with-only-accounting-data, which is the
+ * point of accounting keeping the unqualified key.
+ *
+ * Flag on with an explicit vertical, that vertical's pack must be installed. A
+ * packless vertical is a caller with a bad id, not an empty cohort: computing
+ * it would write real benchmark rows under a vertical nothing can resolve.
+ */
+export async function computeBenchmarks(
+  client: BenchmarkClient,
+  options: { verticalId?: string } = {}
+): Promise<{ firmRuns: number; vendorRuns: number }> {
+  const verticalId = isVerticalPacksEnabled() ? options.verticalId : undefined;
+  if (verticalId !== undefined) {
+    await assertVerticalPackInstalled(verticalId);
+  }
+  const firmRuns = await computeFirmBenchmarks(client, verticalId);
+  const vendorRuns = await computeVendorBenchmarks(client, verticalId);
   return { firmRuns, vendorRuns };
 }
 

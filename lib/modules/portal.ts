@@ -5,6 +5,9 @@ import { scoreBandFor } from "@/lib/bandLexicon";
 import { canServeTemplate } from "@/lib/modules/serving";
 import { planFinalExam, type ServableBankItem } from "@/lib/modules/qbankServing";
 import { isAdaptiveModulesEnabled, resolveUnlocks } from "@/lib/modules/unlock";
+import { DEFAULT_VERTICAL_ID } from "@/lib/verticals/context";
+import { isVerticalPacksEnabled } from "@/lib/verticals/flag";
+import { verticalFilter, verticalStamp } from "@/lib/verticals/scope";
 
 /**
  * Firm-portal module surface — the server-side data layer for Block B.
@@ -29,6 +32,36 @@ import { isAdaptiveModulesEnabled, resolveUnlocks } from "@/lib/modules/unlock";
 export interface FirmModuleAccess {
   companyId: string;
   userId: string;
+  /**
+   * The tenant's vertical, resolved at this boundary and passed down rather
+   * than re-resolved per query (W5). Flag off this is the `"accounting"`
+   * constant and no column was read for it — see readAccessCompany().
+   */
+  verticalId: string;
+}
+
+/**
+ * The Company read that requireFirmModuleAccess() already performs, plus the
+ * tenant's vertical when — and ONLY when — the Vertical Pack flag is on.
+ *
+ * Two statements rather than a computed `select` so the flag-off SQL is
+ * literally the statement that shipped before PF-2: same table, same three
+ * columns, same plan. Flag on, `verticalId` rides along on a read that was
+ * happening anyway; §3.3 forbids a NEW read for a default tenant, and this is
+ * how the tenant step gets its value without one.
+ */
+async function readAccessCompany(companyId: string) {
+  if (!isVerticalPacksEnabled()) {
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+      select: { id: true, type: true, deletedAt: true },
+    });
+    return company ? { ...company, verticalId: DEFAULT_VERTICAL_ID } : null;
+  }
+  return prisma.company.findUnique({
+    where: { id: companyId },
+    select: { id: true, type: true, deletedAt: true, verticalId: true },
+  });
 }
 
 /** The one gate. Throws Next's notFound() for flag-off, wrong role, or no company. */
@@ -40,15 +73,12 @@ export async function requireFirmModuleAccess(): Promise<FirmModuleAccess> {
   if (!sessionUser?.companyId) {
     notFound();
   }
-  const company = await prisma.company.findUnique({
-    where: { id: sessionUser.companyId },
-    select: { id: true, type: true, deletedAt: true },
-  });
+  const company = await readAccessCompany(sessionUser.companyId);
   // Non-firm roles and soft-deleted tenants get 404, never 403.
   if (!company || company.type !== "FIRM" || company.deletedAt !== null) {
     notFound();
   }
-  return { companyId: company.id, userId: sessionUser.id };
+  return { companyId: company.id, userId: sessionUser.id, verticalId: company.verticalId };
 }
 
 export type SittingStatusLabel = "Not started" | "In progress" | "Completed";
@@ -83,8 +113,12 @@ const MODULE_TYPE_LABEL: Record<string, FirmModuleCard["moduleType"]> = {
  * re-checked against the serving guard, decorated with this firm's own sitting
  * status. Locked modules are simply absent — no teasers, no locked-state cards.
  */
-export async function listFirmModuleCards(companyId: string, now: Date = new Date()): Promise<FirmModuleCard[]> {
-  const unlocked = await resolveUnlocks(companyId, now);
+export async function listFirmModuleCards(
+  companyId: string,
+  now: Date = new Date(),
+  verticalId?: string
+): Promise<FirmModuleCard[]> {
+  const unlocked = await resolveUnlocks(companyId, now, verticalId);
   if (unlocked.length === 0) {
     return [];
   }
@@ -106,7 +140,11 @@ export async function listFirmModuleCards(companyId: string, now: Date = new Dat
   const servable = templates.filter((template) => canServeTemplate(template) && template.active);
 
   const sittings = await prisma.moduleSitting.findMany({
-    where: { companyId, templateId: { in: servable.map((template) => template.id) } },
+    where: {
+      companyId,
+      templateId: { in: servable.map((template) => template.id) },
+      ...verticalFilter({ verticalId }),
+    },
     orderBy: { startedAt: "desc" },
     select: { id: true, templateId: true, status: true, scorePercent: true },
   });
@@ -147,8 +185,13 @@ export async function listFirmModuleCards(companyId: string, now: Date = new Dat
  * it. Called on every sitting route so a firm cannot reach a module by URL that
  * its own pattern never unlocked.
  */
-export async function assertTemplateUnlocked(companyId: string, templateId: string, now: Date = new Date()) {
-  const unlocked = await resolveUnlocks(companyId, now);
+export async function assertTemplateUnlocked(
+  companyId: string,
+  templateId: string,
+  now: Date = new Date(),
+  verticalId?: string
+) {
+  const unlocked = await resolveUnlocks(companyId, now, verticalId);
   if (!unlocked.some((entry) => entry.templateId === templateId)) {
     notFound();
   }
@@ -175,9 +218,18 @@ export async function assertTemplateUnlocked(companyId: string, templateId: stri
  * sitting route so an explicit visit lands on the existing result instead of
  * silently opening a new exam over a completed one.
  */
-export async function findLatestSitting(companyId: string, templateId: string): Promise<string | null> {
+export async function findLatestSitting(
+  companyId: string,
+  templateId: string,
+  verticalId?: string
+): Promise<string | null> {
   const sitting = await prisma.moduleSitting.findFirst({
-    where: { companyId, templateId, status: { in: ["IN_PROGRESS", "COMPLETED"] } },
+    where: {
+      companyId,
+      templateId,
+      status: { in: ["IN_PROGRESS", "COMPLETED"] },
+      ...verticalFilter({ verticalId }),
+    },
     orderBy: { startedAt: "desc" },
     select: { id: true },
   });
@@ -188,9 +240,16 @@ export async function startOrResumeSitting(input: {
   companyId: string;
   userId: string;
   templateId: string;
+  verticalId?: string;
 }): Promise<{ sittingId: string; servedItemIds: string[] }> {
+  const scope = verticalFilter({ verticalId: input.verticalId });
   const existing = await prisma.moduleSitting.findFirst({
-    where: { companyId: input.companyId, templateId: input.templateId, status: "IN_PROGRESS" },
+    where: {
+      companyId: input.companyId,
+      templateId: input.templateId,
+      status: "IN_PROGRESS",
+      ...scope,
+    },
     orderBy: { startedAt: "desc" },
     select: { id: true, servedItemIds: true },
   });
@@ -207,7 +266,7 @@ export async function startOrResumeSitting(input: {
   });
 
   const bank = await prisma.moduleItem.findMany({
-    where: { templateId: input.templateId },
+    where: { templateId: input.templateId, ...scope },
     orderBy: { order: "asc" },
     select: {
       id: true,
@@ -244,6 +303,9 @@ export async function startOrResumeSitting(input: {
       templateId: input.templateId,
       userId: input.userId,
       servedItemIds,
+      // Flag off this names no column and the database default stamps
+      // "accounting" — the insert is the insert that shipped before PF-2.
+      ...verticalStamp({ verticalId: input.verticalId }),
     },
     select: { id: true },
   });
@@ -269,24 +331,57 @@ export interface SittingView {
   } | null;
 }
 
-/** Load a sitting for rendering. Tenancy-checked: the sitting must be this firm's. */
-export async function loadSittingView(companyId: string, sittingId: string): Promise<SittingView> {
-  const sitting = await prisma.moduleSitting.findUnique({
+/**
+ * The sitting row loadSittingView() renders from, with `verticalId` selected
+ * only when the flag is on.
+ *
+ * Same discipline as readAccessCompany(): flag off, the emitted statement is
+ * column-for-column the one that shipped before PF-2. A sitting is addressed by
+ * primary key, so the vertical wall cannot live in the `where` of a findUnique —
+ * it is asserted against the selected column instead, which is why the column
+ * has to be fetched at all, and why it is fetched only when it will be checked.
+ */
+async function readSittingRow(sittingId: string, withVertical: boolean) {
+  const base = {
+    id: true,
+    companyId: true,
+    templateId: true,
+    status: true,
+    servedItemIds: true,
+    scorePercent: true,
+    scoreRaw: true,
+    ModuleTemplate: { select: { title: true, reviewStatus: true, active: true } },
+  } as const;
+
+  if (!withVertical) {
+    const row = await prisma.moduleSitting.findUnique({ where: { id: sittingId }, select: base });
+    return row ? { ...row, verticalId: null as string | null } : null;
+  }
+  return prisma.moduleSitting.findUnique({
     where: { id: sittingId },
-    select: {
-      id: true,
-      companyId: true,
-      templateId: true,
-      status: true,
-      servedItemIds: true,
-      scorePercent: true,
-      scoreRaw: true,
-      ModuleTemplate: { select: { title: true, reviewStatus: true, active: true } },
-    },
+    select: { ...base, verticalId: true },
   });
+}
+
+/** Load a sitting for rendering. Tenancy-checked: the sitting must be this firm's. */
+export async function loadSittingView(
+  companyId: string,
+  sittingId: string,
+  verticalId?: string
+): Promise<SittingView> {
+  const scope = verticalFilter({ verticalId });
+  const sitting = await readSittingRow(sittingId, scope.verticalId !== undefined);
   // A sitting belonging to another company is unreachable, and indistinguishable
   // from one that does not exist.
   if (!sitting || sitting.companyId !== companyId) {
+    notFound();
+  }
+  // Flag on, a sitting from another vertical is as unreachable as one from
+  // another company — and for the same reason: indistinguishable from absent.
+  // `scope` is `{}` flag off, so this comparison cannot fire for a default
+  // tenant (findUnique cannot take a non-unique filter, so the check is here
+  // rather than in the where clause).
+  if (scope.verticalId !== undefined && sitting.verticalId !== scope.verticalId) {
     notFound();
   }
   if (!canServeTemplate(sitting.ModuleTemplate) || !sitting.ModuleTemplate.active) {
@@ -295,7 +390,7 @@ export async function loadSittingView(companyId: string, sittingId: string): Pro
 
   const servedItemIds = Array.isArray(sitting.servedItemIds) ? (sitting.servedItemIds as string[]) : [];
   const answered = await prisma.itemResponse.findMany({
-    where: { sittingId: sitting.id },
+    where: { sittingId: sitting.id, ...scope },
     select: { itemId: true },
   });
   const answeredIds = new Set(answered.map((row) => row.itemId));

@@ -22,8 +22,8 @@ export const metadata = {
  * firm; locked modules are absent, not teased.
  */
 export default async function FirmModulesPage() {
-  const { companyId } = await requireFirmModuleAccess();
-  const cards = await listFirmModuleCards(companyId);
+  const { companyId, verticalId } = await requireFirmModuleAccess();
+  const cards = await listFirmModuleCards(companyId, undefined, verticalId);
 
   return (
     <div className="space-y-8">

@@ -1,15 +1,32 @@
 import {
-  PRODUCT_GENERAL_MODULE,
   PRODUCT_GENERAL_QUESTION_COUNT,
-  PRODUCT_OPEN_ENDED_MODULE,
   PRODUCT_OPEN_ENDED_QUESTION_COUNT,
   PRODUCT_SCORED_QUESTIONS_PER_SUBCATEGORY,
-  PRODUCT_UTILITY_REGISTRY,
-  PRODUCT_UTILITY_REGISTRY_METADATA,
   PRODUCT_UTILITY_SCORED_QUESTION_COUNT,
   type ProductQuestionBasisKey,
   type ProductProfileFieldKey,
 } from "@/lib/productUtilityRegistry";
+import {
+  resolveProductUtilityRegistry,
+  type ProductUtilityRegistryBundle,
+} from "@/lib/verticals/questionBankRegistry";
+
+/**
+ * W3 — the bank these builders read is resolved by the PAIR
+ * (verticalId, versionId) rather than by version alone
+ * (VERTICAL-READINESS-AUDIT-2026-08 §5.5).
+ *
+ * With PAT_ENABLE_VERTICAL_PACKS off, `resolveProductUtilityRegistry()` returns
+ * the in-code accounting bundle before resolving anything and before touching a
+ * pack — the same object graph the module-level
+ * `import { PRODUCT_UTILITY_REGISTRY }` produced before this seam existed. Every
+ * question id, section key and `version` field is therefore byte-identical, and
+ * the eval goldens do not move.
+ *
+ * The version half of the key is UNQUALIFIED and stays that way: it is embedded
+ * in stored question ids, so vertical-qualifying it would rewrite every stored
+ * row's ids to say something the rows already say in their verticalId column.
+ */
 
 export type ProductAssessmentPerspective = "vendor" | "firm" | "individual";
 
@@ -89,7 +106,7 @@ function buildId(parts: string[]) {
   return parts.join("__");
 }
 
-function getSelectedUtilities(selectedUtilityKeys: string[]) {
+function getSelectedUtilities(registry: ProductUtilityRegistryBundle, selectedUtilityKeys: string[]) {
   const seen = new Set<string>();
 
   return selectedUtilityKeys
@@ -100,21 +117,25 @@ function getSelectedUtilities(selectedUtilityKeys: string[]) {
       seen.add(utilityKey);
       return true;
     })
-    .map((utilityKey) => PRODUCT_UTILITY_REGISTRY.find((utility) => utility.key === utilityKey))
-    .filter((utility): utility is (typeof PRODUCT_UTILITY_REGISTRY)[number] => Boolean(utility));
+    .map((utilityKey) => registry.utilities.find((utility) => utility.key === utilityKey))
+    .filter((utility): utility is ProductUtilityRegistryBundle["utilities"][number] => Boolean(utility));
 }
 
-function buildGeneralModule(orderOffset: number): ProductAssessmentModule {
+function buildGeneralModule(
+  registry: ProductUtilityRegistryBundle,
+  orderOffset: number
+): ProductAssessmentModule {
+  const generalModule = registry.generalModule;
   const sections: ProductAssessmentSection[] = [
     {
-      key: `${PRODUCT_GENERAL_MODULE.key}-identity`,
+      key: `${generalModule.key}-identity`,
       title: "Product identity and positioning",
       description: "Foundational profile fields for product identity, positioning, and target fit.",
       order: 1,
       questionIds: [],
     },
     {
-      key: `${PRODUCT_GENERAL_MODULE.key}-operating-context`,
+      key: `${generalModule.key}-operating-context`,
       title: "Operating context and implementation fit",
       description: "Implementation posture, operating-model fit, buyer context, and interoperability framing.",
       order: 2,
@@ -122,9 +143,9 @@ function buildGeneralModule(orderOffset: number): ProductAssessmentModule {
     },
   ];
 
-  const questions = PRODUCT_GENERAL_MODULE.questions.map((question, index) => {
+  const questions = generalModule.questions.map((question, index) => {
     const section = index < 5 ? sections[0] : sections[1];
-    const id = buildId([PRODUCT_UTILITY_REGISTRY_METADATA.version, PRODUCT_GENERAL_MODULE.key, question.key]);
+    const id = buildId([registry.versionId, generalModule.key, question.key]);
     section.questionIds.push(id);
 
     return {
@@ -134,7 +155,7 @@ function buildGeneralModule(orderOffset: number): ProductAssessmentModule {
       order: orderOffset + index + 1,
       required: true,
       responseKind: "text" as const,
-      moduleKey: PRODUCT_GENERAL_MODULE.key,
+      moduleKey: generalModule.key,
       moduleKind: "general" as const,
       fieldKey: question.fieldKey,
       section: {
@@ -143,14 +164,14 @@ function buildGeneralModule(orderOffset: number): ProductAssessmentModule {
         description: section.description,
         order: section.order,
       },
-      version: PRODUCT_UTILITY_REGISTRY_METADATA.version,
+      version: registry.versionId,
     };
   });
 
   return {
-    key: PRODUCT_GENERAL_MODULE.key,
-    title: PRODUCT_GENERAL_MODULE.title,
-    description: PRODUCT_GENERAL_MODULE.description,
+    key: generalModule.key,
+    title: generalModule.title,
+    description: generalModule.description,
     kind: "general",
     sections,
     questions,
@@ -158,10 +179,11 @@ function buildGeneralModule(orderOffset: number): ProductAssessmentModule {
 }
 
 function buildUtilityModules(
+  registry: ProductUtilityRegistryBundle,
   selectedUtilityKeys: string[],
   orderOffset: number
 ): ProductAssessmentModule[] {
-  const utilities = getSelectedUtilities(selectedUtilityKeys);
+  const utilities = getSelectedUtilities(registry, selectedUtilityKeys);
   let order = orderOffset;
 
   return utilities.map((utility) => {
@@ -187,7 +209,7 @@ function buildUtilityModules(
           throw new Error(`Missing section for product utility subcategory ${utility.key}/${subcategory.key}`);
         }
         const id = buildId([
-          PRODUCT_UTILITY_REGISTRY_METADATA.version,
+          registry.versionId,
           utility.key,
           subcategory.key,
           question.key,
@@ -222,7 +244,7 @@ function buildUtilityModules(
             subcategoryTitle: section.subcategoryTitle,
             basisKey: question.basisKey,
           },
-          version: PRODUCT_UTILITY_REGISTRY_METADATA.version,
+          version: registry.versionId,
         };
       })
     );
@@ -240,17 +262,21 @@ function buildUtilityModules(
   });
 }
 
-function buildOpenEndedModule(orderOffset: number): ProductAssessmentModule {
+function buildOpenEndedModule(
+  registry: ProductUtilityRegistryBundle,
+  orderOffset: number
+): ProductAssessmentModule {
+  const openEndedModule = registry.openEndedModule;
   const sections: ProductAssessmentSection[] = [
     {
-      key: `${PRODUCT_OPEN_ENDED_MODULE.key}-operating-readout`,
+      key: `${openEndedModule.key}-operating-readout`,
       title: "Operating readout and current fit",
       description: "Narrative questions that surface strengths, weaknesses, and immediate implementation pressure.",
       order: 1,
       questionIds: [],
     },
     {
-      key: `${PRODUCT_OPEN_ENDED_MODULE.key}-follow-up`,
+      key: `${openEndedModule.key}-follow-up`,
       title: "Follow-up, evidence, and next action",
       description: "Narrative questions that capture fit, evidence gaps, and the next sensible PAT action.",
       order: 2,
@@ -258,9 +284,9 @@ function buildOpenEndedModule(orderOffset: number): ProductAssessmentModule {
     },
   ];
 
-  const questions = PRODUCT_OPEN_ENDED_MODULE.questions.map((question, index) => {
+  const questions = openEndedModule.questions.map((question, index) => {
     const section = index < 5 ? sections[0] : sections[1];
-    const id = buildId([PRODUCT_UTILITY_REGISTRY_METADATA.version, PRODUCT_OPEN_ENDED_MODULE.key, question.key]);
+    const id = buildId([registry.versionId, openEndedModule.key, question.key]);
     section.questionIds.push(id);
 
     return {
@@ -270,7 +296,7 @@ function buildOpenEndedModule(orderOffset: number): ProductAssessmentModule {
       order: orderOffset + index + 1,
       required: false,
       responseKind: "text" as const,
-      moduleKey: PRODUCT_OPEN_ENDED_MODULE.key,
+      moduleKey: openEndedModule.key,
       moduleKind: "open-ended" as const,
       section: {
         key: section.key,
@@ -278,22 +304,24 @@ function buildOpenEndedModule(orderOffset: number): ProductAssessmentModule {
         description: section.description,
         order: section.order,
       },
-      version: PRODUCT_UTILITY_REGISTRY_METADATA.version,
+      version: registry.versionId,
     };
   });
 
   return {
-    key: PRODUCT_OPEN_ENDED_MODULE.key,
-    title: PRODUCT_OPEN_ENDED_MODULE.title,
-    description: PRODUCT_OPEN_ENDED_MODULE.description,
+    key: openEndedModule.key,
+    title: openEndedModule.title,
+    description: openEndedModule.description,
     kind: "open-ended",
     sections,
     questions,
   };
 }
 
-export function getProductUtilityCatalog(): ProductUtilityCatalogEntry[] {
-  return PRODUCT_UTILITY_REGISTRY.map((utility) => ({
+export function getProductUtilityCatalog(
+  registry: ProductUtilityRegistryBundle = resolveProductUtilityRegistry()
+): ProductUtilityCatalogEntry[] {
+  return registry.utilities.map((utility) => ({
     key: utility.key,
     label: utility.label,
     description: utility.description,
@@ -305,7 +333,13 @@ export function buildProductAssessmentPlan(input: {
   selectedUtilityKeys: string[];
   includeProductGeneral?: boolean;
   includeOpenEnded?: boolean;
+  /**
+   * The (verticalId, versionId)-keyed bank to build from. Defaults to the
+   * resolved one, which is the in-code accounting bundle with the flag off.
+   */
+  registry?: ProductUtilityRegistryBundle;
 }): ProductAssessmentPlan {
+  const registry = input.registry ?? resolveProductUtilityRegistry();
   const perspective = input.perspective ?? "vendor";
   const includeProductGeneral = input.includeProductGeneral ?? true;
   const includeOpenEnded = input.includeOpenEnded ?? true;
@@ -313,39 +347,45 @@ export function buildProductAssessmentPlan(input: {
   let order = 0;
 
   if (includeProductGeneral) {
-    const generalModule = buildGeneralModule(order);
+    const generalModule = buildGeneralModule(registry, order);
     modules.push(generalModule);
     order += generalModule.questions.length;
   }
 
-  const utilityModules = buildUtilityModules(input.selectedUtilityKeys, order);
+  const utilityModules = buildUtilityModules(registry, input.selectedUtilityKeys, order);
   modules.push(...utilityModules);
   order += utilityModules.reduce((sum, module) => sum + module.questions.length, 0);
 
   if (includeOpenEnded) {
-    modules.push(buildOpenEndedModule(order));
+    modules.push(buildOpenEndedModule(registry, order));
   }
 
   return {
-    version: PRODUCT_UTILITY_REGISTRY_METADATA.version,
+    version: registry.versionId,
     perspective,
     modules,
   };
 }
 
-export function buildScoredUtilityQuestions(selectedUtilityKeys: string[]) {
+export function buildScoredUtilityQuestions(
+  selectedUtilityKeys: string[],
+  registry?: ProductUtilityRegistryBundle
+) {
   return buildProductAssessmentPlan({
     selectedUtilityKeys,
     includeProductGeneral: false,
     includeOpenEnded: false,
+    registry,
   }).modules.flatMap((module) => module.questions);
 }
 
-export function getProductQuestionBankSummary() {
+export function getProductQuestionBankSummary(
+  registry: ProductUtilityRegistryBundle = resolveProductUtilityRegistry()
+) {
   return {
-    version: PRODUCT_UTILITY_REGISTRY_METADATA.version,
-    utilityCount: PRODUCT_UTILITY_REGISTRY.length,
-    subcategoryCount: PRODUCT_UTILITY_REGISTRY.reduce(
+    version: registry.versionId,
+    utilityCount: registry.utilities.length,
+    subcategoryCount: registry.utilities.reduce(
       (sum, utility) => sum + utility.subcategories.length,
       0
     ),

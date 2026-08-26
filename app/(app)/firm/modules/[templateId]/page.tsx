@@ -35,12 +35,12 @@ export default async function FirmModuleSittingPage({
   params: Promise<{ templateId: string }>;
   searchParams?: Promise<{ sitting?: string }>;
 }) {
-  const { companyId, userId } = await requireFirmModuleAccess();
+  const { companyId, userId, verticalId } = await requireFirmModuleAccess();
   const { templateId } = await params;
   const query = searchParams ? await searchParams : undefined;
 
   // This firm's own pattern must have unlocked it; 404 otherwise.
-  const template = await assertTemplateUnlocked(companyId, templateId);
+  const template = await assertTemplateUnlocked(companyId, templateId, undefined, verticalId);
 
   // Prefer an explicit sitting, then this firm's newest existing sitting
   // (open OR completed), and only open a new one when none exists. Without the
@@ -48,10 +48,11 @@ export default async function FirmModuleSittingPage({
   // fresh exam on top of the completed result.
   const existing = query?.sitting && query.sitting.length > 0
     ? query.sitting
-    : await findLatestSitting(companyId, templateId);
-  const sittingId = existing ?? (await startOrResumeSitting({ companyId, userId, templateId })).sittingId;
+    : await findLatestSitting(companyId, templateId, verticalId);
+  const sittingId =
+    existing ?? (await startOrResumeSitting({ companyId, userId, templateId, verticalId })).sittingId;
 
-  const view = await loadSittingView(companyId, sittingId);
+  const view = await loadSittingView(companyId, sittingId, verticalId);
   if (view.templateId !== templateId) {
     notFound();
   }

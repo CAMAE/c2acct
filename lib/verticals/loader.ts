@@ -42,6 +42,14 @@ const packSchema = z.object({
   questionBank: z
     .object({
       sourceAuthorities: z.array(sourceAuthoritySchema).default([]),
+      /**
+       * W3 — the pack-declared product-utility bank, a path relative to the
+       * pack dir. The bank's identity is the PAIR (verticalId, versionId): the
+       * vertical half is this pack's id (and the W5 column on stored rows), the
+       * version half stays unqualified inside the payload. There is no
+       * slash-joined form of the key; see lib/verticals/questionBankRegistry.ts.
+       */
+      utilityRegistry: z.string().min(1).optional(),
     })
     .default({ sourceAuthorities: [] }),
   workflows: z.array(z.string()).default([]),

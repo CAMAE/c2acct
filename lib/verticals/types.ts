@@ -23,6 +23,12 @@ export interface VerticalPackSourceAuthority {
 export interface VerticalPackQuestionBank {
   /** ORDER IS SIGNIFICANT — one source ref per match, in manifest order. */
   sourceAuthorities: VerticalPackSourceAuthority[];
+  /**
+   * Path (relative to the pack dir) to this vertical's product-utility bank.
+   * Keyed by the pair (verticalId, versionId) — see
+   * lib/verticals/questionBankRegistry.ts.
+   */
+  utilityRegistry?: string;
 }
 
 export interface VerticalPackCompliance {

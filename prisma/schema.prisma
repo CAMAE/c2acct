@@ -253,12 +253,14 @@ model CompanyBenchmark {
   score           Float           @default(0)
   percentile      Float           @default(0)
   computedAt      DateTime        @default(now())
+  verticalId      String          @default("accounting")
   BenchmarkCohort BenchmarkCohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
   Company         Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@unique([companyId, cohortId, metricKey, version])
   @@index([cohortId])
   @@index([companyId])
+  @@index([verticalId])
 }
 
 model CompanyBenchmarkCohort {
@@ -266,12 +268,14 @@ model CompanyBenchmarkCohort {
   companyId       String
   cohortId        String
   createdAt       DateTime        @default(now())
+  verticalId      String          @default("accounting")
   BenchmarkCohort BenchmarkCohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
   Company         Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@unique([companyId, cohortId])
   @@index([cohortId])
   @@index([companyId])
+  @@index([verticalId])
 }
 
 model CompanyCapabilityScore {
@@ -979,12 +983,14 @@ model SurveySubmission {
   scaleMax             Int          @default(100)
   scaleMin             Int          @default(0)
   totalWeight          Float        @default(0)
+  verticalId           String       @default("accounting")
   Company              Company      @relation(fields: [companyId], references: [id])
   Subject              Subject?     @relation(fields: [subjectId], references: [id], onDelete: SetNull)
   SurveyModule         SurveyModule @relation(fields: [moduleId], references: [id])
 
   @@index([companyId, moduleId, createdAt])
   @@index([subjectId, moduleId, createdAt])
+  @@index([verticalId])
 }
 
 model User {
@@ -1742,6 +1748,7 @@ model ModuleItem {
   discriminationSeed Float            @default(0.3)
   pValueSeed         Float?
   order              Int              @default(0)
+  verticalId         String           @default("accounting")
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
   ModuleTemplate     ModuleTemplate   @relation(fields: [templateId], references: [id], onDelete: Cascade)
@@ -1751,6 +1758,7 @@ model ModuleItem {
   @@index([templateId, itemKind])
   @@index([category])
   @@index([difficulty])
+  @@index([verticalId])
 }
 
 model ModuleSource {
@@ -1776,12 +1784,14 @@ model ModuleUnlockRule {
   // Quarters after the trigger before the module opens (EngagementQuarter drip).
   quarterOffset  Int            @default(0)
   active         Boolean        @default(true)
+  verticalId     String         @default("accounting")
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   ModuleTemplate ModuleTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
 
   @@unique([patternSubset, templateId])
   @@index([templateId])
+  @@index([verticalId])
 }
 
 // ---------------------------------------------------------------------------
@@ -1821,12 +1831,14 @@ model ModuleSitting {
   scoreRaw            Int?
   scorePercent        Float?
   scoreVersion        Int                 @default(1)
+  verticalId          String              @default("accounting")
   Company             Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
   ModuleTemplate      ModuleTemplate      @relation(fields: [templateId], references: [id], onDelete: Restrict)
   ItemResponse        ItemResponse[]
 
   @@index([companyId, templateId, startedAt])
   @@index([templateId, status])
+  @@index([verticalId])
 }
 
 model ItemResponse {
@@ -1845,6 +1857,7 @@ model ItemResponse {
   // Snapshot of ModuleItem.updatedAt when the answer was given, so a later item
   // edit cannot silently rewrite what this response was an answer to.
   itemRevisionAt DateTime
+  verticalId     String        @default("accounting")
   ModuleSitting  ModuleSitting @relation(fields: [sittingId], references: [id], onDelete: Cascade)
   ModuleItem     ModuleItem    @relation(fields: [itemId], references: [id], onDelete: Restrict)
 
@@ -1853,6 +1866,7 @@ model ItemResponse {
   // discriminationSeed and pValueSeed are placeholders for.
   @@index([itemId, isCorrect])
   @@index([companyId, answeredAt])
+  @@index([verticalId])
 }
 
 enum ModuleSittingStatus {

@@ -25,24 +25,24 @@ import {
  */
 
 export async function startModuleAction(formData: FormData): Promise<void> {
-  const { companyId, userId } = await requireFirmModuleAccess();
+  const { companyId, userId, verticalId } = await requireFirmModuleAccess();
   const templateId = String(formData.get("templateId") ?? "");
   // Confirms this firm's own pattern unlocked it; 404s otherwise.
-  await assertTemplateUnlocked(companyId, templateId);
+  await assertTemplateUnlocked(companyId, templateId, undefined, verticalId);
 
-  const { sittingId } = await startOrResumeSitting({ companyId, userId, templateId });
+  const { sittingId } = await startOrResumeSitting({ companyId, userId, templateId, verticalId });
   revalidatePath("/firm/modules");
   redirect(`/firm/modules/${templateId}?sitting=${sittingId}`);
 }
 
 export async function answerItemAction(formData: FormData): Promise<void> {
-  const { companyId } = await requireFirmModuleAccess();
+  const { companyId, verticalId } = await requireFirmModuleAccess();
   const sittingId = String(formData.get("sittingId") ?? "");
   const itemId = String(formData.get("itemId") ?? "");
   const responseKey = String(formData.get("responseKey") ?? "");
 
   // Tenancy: loadSittingView 404s a sitting that is not this company's.
-  const view = await loadSittingView(companyId, sittingId);
+  const view = await loadSittingView(companyId, sittingId, verticalId);
 
   if (responseKey) {
     // Duration is measured SERVER-SIDE, from the previous answer (or the
@@ -52,7 +52,7 @@ export async function answerItemAction(formData: FormData): Promise<void> {
     const durationMs = await elapsedSinceLastAnswer(sittingId);
     // NOTE: no correctness value is sent or accepted — recordItemResponse
     // grades against ModuleItem.correctKey server-side.
-    await recordItemResponse({ sittingId, itemId, responseKey, durationMs });
+    await recordItemResponse({ sittingId, itemId, responseKey, durationMs, verticalId });
   }
 
   revalidatePath(`/firm/modules/${view.templateId}`);
@@ -77,11 +77,11 @@ async function elapsedSinceLastAnswer(sittingId: string): Promise<number | null>
 }
 
 export async function completeModuleAction(formData: FormData): Promise<void> {
-  const { companyId } = await requireFirmModuleAccess();
+  const { companyId, verticalId } = await requireFirmModuleAccess();
   const sittingId = String(formData.get("sittingId") ?? "");
-  const view = await loadSittingView(companyId, sittingId);
+  const view = await loadSittingView(companyId, sittingId, verticalId);
 
-  await completeSitting(sittingId);
+  await completeSitting(sittingId, undefined, verticalId);
   revalidatePath(`/firm/modules/${view.templateId}`);
   redirect(`/firm/modules/${view.templateId}?sitting=${sittingId}`);
 }

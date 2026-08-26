@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { scoreBandFor, type ScoreBandKey } from "@/lib/bandLexicon";
 import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
+import { verticalFilter } from "@/lib/verticals/scope";
 
 /**
  * Adaptive module unlock resolver (Block A).
@@ -77,8 +78,13 @@ export interface ScoringPattern {
  * "Latest" is per module, by createdAt desc, and only final (non-draft)
  * submissions count — a half-finished module must not move a firm's pattern.
  */
-export async function computeScoringPattern(companyId: string): Promise<ScoringPattern> {
+export async function computeScoringPattern(
+  companyId: string,
+  verticalId?: string
+): Promise<ScoringPattern> {
   const moduleKeys = FIRM_MODULE_DEFINITIONS.map((definition) => definition.key);
+  // `{}` with the flag off — the two queries below keep the plans they had.
+  const scope = verticalFilter({ verticalId });
 
   const modules = await prisma.surveyModule.findMany({
     where: { key: { in: moduleKeys } },
@@ -90,6 +96,7 @@ export async function computeScoringPattern(companyId: string): Promise<ScoringP
     where: getSurveyFinalWhere({
       companyId,
       SurveyModule: { key: { in: moduleKeys } },
+      ...scope,
     }),
     orderBy: { createdAt: "desc" },
     select: { moduleId: true, score: true, createdAt: true },
@@ -157,8 +164,13 @@ export interface UnlockedModule {
  * Returns one entry per unlocked template, earliest unlock wins on ties, sorted
  * by templateId for deterministic output.
  */
-export async function resolveUnlocks(companyId: string, now: Date = new Date()): Promise<UnlockedModule[]> {
-  const pattern = await computeScoringPattern(companyId);
+export async function resolveUnlocks(
+  companyId: string,
+  now: Date = new Date(),
+  verticalId?: string
+): Promise<UnlockedModule[]> {
+  const scope = verticalFilter({ verticalId });
+  const pattern = await computeScoringPattern(companyId, verticalId);
   if (pattern.keys.length === 0) {
     return [];
   }
@@ -166,7 +178,7 @@ export async function resolveUnlocks(companyId: string, now: Date = new Date()):
   const candidateSubsets = [...pattern.keys, pattern.composite].filter((entry) => entry.length > 0);
 
   const rules = await prisma.moduleUnlockRule.findMany({
-    where: { active: true, patternSubset: { in: candidateSubsets } },
+    where: { active: true, patternSubset: { in: candidateSubsets }, ...scope },
     select: {
       id: true,
       templateId: true,

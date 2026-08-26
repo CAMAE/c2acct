@@ -1,0 +1,63 @@
+# ============================================================================
+# SYNTHETIC TEST FIXTURE — NOT A PRODUCT VERTICAL. NEVER SHIP THIS ENABLED.
+# ============================================================================
+#
+# This pack exists for exactly one reason: benchmark cohort isolation (W6,
+# VERTICAL-READINESS-AUDIT-2026-08 §5.1) cannot be proved with one vertical
+# installed. "Accounting firms never mix with another vertical's firms" is
+# vacuously true while accounting is the only vertical there is, and a vacuous
+# proof is what the audit warned about — the suppression rules would not flag a
+# cross-vertical pool either, because the counts still pass.
+#
+# So the isolation suite needs a SECOND vertical to try to smuggle into an
+# accounting cohort, and it must be one that could never be mistaken for a real
+# one. Every value below is deliberately nonsense: "sprocket" is not a market
+# Patalign serves and is not on any roadmap.
+#
+# Guards that keep it out of production, each with a test:
+#   - it is NOT in FROZEN_VERTICAL_IDS (no stored row may reference it);
+#   - it IS in SYNTHETIC_VERTICAL_IDS, and resolveVerticalForSession() THROWS if
+#     a real request ever resolves to a synthetic vertical — so a mis-seeded
+#     Company.verticalId fails loudly instead of serving fixture nouns;
+#   - it declares no questionBank.utilityRegistry, so a product assessment
+#     cannot be built for it at all;
+#   - tests/vertical-cohort-isolation.contract.test.ts asserts no shipping
+#     source file outside tests/ names it.
+#
+# Adding real content here is a mistake. If a second vertical is ever really
+# built, it gets its own pack; this one stays nonsense on purpose.
+
+id: test-fixture
+name: "SYNTHETIC TEST FIXTURE — DO NOT SHIP"
+version: 1
+description: "SYNTHETIC fixture vertical — proves benchmark cohort isolation. Not a market, not a roadmap item, never enabled outside tests."
+
+# A complete lexicon is mandatory (a partial one is rejected outright), so these
+# are filled in — with words no real surface would ever print.
+lexicon:
+  ecosystem: "sprocket ecosystem"
+  firm: "sprocket works"
+  firmArticle: "a"
+  firmPlural: "sprocket works"
+  firmMarket: "sprocket-works market"
+  vendorAudience: "software for sprocket works"
+
+taxonomy:
+  source: db
+  filter:
+    verticalId: test-fixture
+
+# No sourceAuthorities and no utilityRegistry: this fixture must never be able to
+# import a question bank or build a product assessment. Both absences are load-
+# bearing, and both produce a loud error rather than a silent empty result.
+questionBank:
+  sourceAuthorities: []
+
+# No workflows and no agent prompts. The loader defaults agent_prompts to an
+# empty map when the key is absent, and this fixture must stay incapable of
+# resolving a prompt.
+workflows: []
+
+compliance:
+  audit_retention_days: 1
+  data_residency: nowhere

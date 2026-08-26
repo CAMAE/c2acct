@@ -31,6 +31,31 @@ export const DEFAULT_VERTICAL_ID = "accounting";
 export const FROZEN_VERTICAL_IDS: readonly string[] = Object.freeze([DEFAULT_VERTICAL_ID]);
 
 /**
+ * Packs that exist ONLY to be tested against, and must never resolve for a real
+ * request (PF-2 W6).
+ *
+ * Benchmark cohort isolation cannot be proved with one vertical installed —
+ * "accounting firms never mix with another vertical's firms" is vacuously true
+ * while accounting is the only vertical there is, and audit §5.1 is explicit
+ * that a cross-vertical pool would pass the suppression rules unnoticed. So the
+ * isolation suite needs a second vertical to try to smuggle in, and that
+ * vertical needs a hard wall between itself and production.
+ *
+ * This list is that wall's other half: `resolveVerticalForSession()` throws if a
+ * request ever resolves to one of these. A mis-seeded `Company.verticalId`
+ * therefore fails loudly rather than serving a tenant fixture nouns and putting
+ * fixture rows in a real cohort.
+ *
+ * Synthetic ids are deliberately NOT frozen — nothing stored may reference one.
+ */
+export const SYNTHETIC_VERTICAL_IDS: readonly string[] = Object.freeze(["test-fixture"]);
+
+/** True for a pack that exists only for tests. See {@link SYNTHETIC_VERTICAL_IDS}. */
+export function isSyntheticVerticalId(verticalId: string): boolean {
+  return SYNTHETIC_VERTICAL_IDS.includes(verticalId);
+}
+
+/**
  * The tenant half of the resolution order. Structurally minimal on purpose: the
  * resolver needs `Company.verticalId` and nothing else, so any caller holding a
  * company row (or a projection of one) can satisfy it without importing Prisma
