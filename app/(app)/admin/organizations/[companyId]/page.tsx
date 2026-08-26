@@ -110,7 +110,7 @@ export default async function AdminOrganizationDetailPage({
           <input type="hidden" name="returnTo" value={`/admin/organizations/${organization.id}`} />
           <label className="grid gap-2">
             <span className="text-sm font-semibold text-[var(--shell-ink)]">Plan</span>
-            <select name="plan" defaultValue={subscription?.plan ?? "FREE"} className="pat-select">
+            <select name="plan" defaultValue={subscription?.plan ?? MEMBERSHIP_PLAN_OPTIONS[0]} className="pat-select">
               {MEMBERSHIP_PLAN_OPTIONS.map((plan) => (
                 <option key={plan} value={plan}>
                   {plan}

@@ -43,8 +43,13 @@ export function getAdminNavItems() {
 }
 
 export const COMPANY_TYPE_OPTIONS = [CompanyType.FIRM, CompanyType.VENDOR] as const;
+/**
+ * Assignable membership plans. FREE is deliberately ABSENT (AUDIT-OMNIBUS-A-001,
+ * standing law: no free tier ever). The enum value still exists in the database
+ * for historical rows and as the not-yet-paid placeholder, but nothing —
+ * including an admin — may assign it going forward, so it is not an option here.
+ */
 export const MEMBERSHIP_PLAN_OPTIONS = [
-  MembershipPlan.FREE,
   MembershipPlan.PRO,
   MembershipPlan.ELITE,
 ] as const;

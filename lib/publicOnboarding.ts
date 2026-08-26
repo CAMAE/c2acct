@@ -8,7 +8,14 @@ import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 
 export const PUBLIC_ONBOARDING_COOKIE = "pat-public-onboarding";
 export const PUBLIC_ONBOARDING_AUDIENCES = ["vendor", "firm", "user"] as const;
-export const PUBLIC_ONBOARDING_PLANS = ["free", "pro", "elite"] as const;
+/**
+ * Selectable onboarding plans. "free" is deliberately absent
+ * (AUDIT-OMNIBUS-A-001, standing law: no free tier ever) — removing it from the
+ * tuple removes it from PublicOnboardingPlan, so the type system now refuses a
+ * free selection rather than relying on a runtime coercion. A legacy ?plan=free
+ * link still lands on pro via normalizePublicOnboardingPlan's fallback.
+ */
+export const PUBLIC_ONBOARDING_PLANS = ["pro", "elite"] as const;
 
 export type PublicOnboardingAudience = (typeof PUBLIC_ONBOARDING_AUDIENCES)[number];
 export type PublicOnboardingPlan = (typeof PUBLIC_ONBOARDING_PLANS)[number];
@@ -160,12 +167,6 @@ const PLAN_COPY: Record<PublicOnboardingPlan, {
   summary: string;
   value: string;
 }> = {
-  free: {
-    label: "Free",
-    title: "Start with assessment evidence",
-    summary: "Use the public onboarding path and first assessment route without claiming a paid conversion.",
-    value: "Best for validating fit, completing baseline evidence, and seeing what PAT needs before insights are unlocked.",
-  },
   pro: {
     label: "Pro",
     title: "Operationalize the first-value path",
@@ -290,10 +291,10 @@ export function getPublicOnboardingPageModel(input: {
   env?: NodeJS.ProcessEnv;
 }): PublicOnboardingPageModel {
   const config = getPublicOnboardingConfig(input.audience);
-  // FREE stays a technical plan key but is never rendered: coerce a free
-  // selection up to pro so no "Free" copy reaches the onboarding surface.
-  const requestedPlan = normalizePublicOnboardingPlan(input.selectedPlan);
-  const selectedPlan = requestedPlan === "free" ? "pro" : requestedPlan;
+  // A legacy ?plan=free link falls through normalizePublicOnboardingPlan to
+  // "pro" — "free" is no longer a member of PublicOnboardingPlan, so there is
+  // no free branch left to coerce.
+  const selectedPlan = normalizePublicOnboardingPlan(input.selectedPlan);
   const membershipHref = `${config.routeHref}/membership`;
   const selectedBilling = getBillingLabels({
     audience: config.membershipAudience,
@@ -317,7 +318,7 @@ export function getPublicOnboardingPageModel(input: {
     signInWorkspaceHref,
     membershipHref,
     selectedBilling,
-    planCards: PUBLIC_ONBOARDING_PLANS.filter((plan) => plan !== "free").map((plan) => {
+    planCards: PUBLIC_ONBOARDING_PLANS.map((plan) => {
       const planCopy = PLAN_COPY[plan];
       const planBilling = getBillingLabels({
         audience: config.membershipAudience,

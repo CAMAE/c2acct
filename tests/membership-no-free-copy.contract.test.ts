@@ -1,5 +1,7 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { MEMBERSHIP_PLAN } from "@/lib/membership";
+import { MEMBERSHIP_PLAN, NO_MEMBERSHIP, normalizeMembershipPlan } from "@/lib/membership";
 import { getMembershipPageModel, type MembershipTabKey } from "@/lib/membershipContent";
 import type { MembershipAudience } from "@/lib/membershipContext";
 import {
@@ -70,7 +72,7 @@ describe("no FREE tier in public onboarding copy", () => {
       const model = getPublicOnboardingPageModel({ audience, selectedPlan: "free" });
 
       expect(model.planCards.some((card) => /^free$/i.test(card.label))).toBe(false);
-      expect(model.planCards.some((card) => card.key === "free")).toBe(false);
+      expect(model.planCards.some((card) => (card.key as string) === "free")).toBe(false);
       expect(/^free$/i.test(model.selectedPlanLabel)).toBe(false);
 
       const offenders = collectStrings({
@@ -80,4 +82,88 @@ describe("no FREE tier in public onboarding copy", () => {
       expect(offenders).toEqual([]);
     });
   }
+});
+
+describe("FREE structural retirement (AUDIT-OMNIBUS-A-001)", () => {
+  it("FREE is not an assignable plan option", () => {
+    // Admin surfaces render this list as a <select>. FREE being absent is what
+    // makes the tier unassignable going forward; the DB enum value still exists
+    // for historical rows, which is why this asserts the OPTIONS, not the enum.
+    //
+    // Read as source rather than imported: lib/adminControlPlane pulls the
+    // next-auth chain, which does not resolve under vitest. Restructuring
+    // product code to suit the test runner would be the wrong trade.
+    const source = readFileSync(path.join(process.cwd(), "lib/adminControlPlane.ts"), "utf8");
+    const block = source.slice(
+      source.indexOf("export const MEMBERSHIP_PLAN_OPTIONS"),
+      source.indexOf("] as const;", source.indexOf("export const MEMBERSHIP_PLAN_OPTIONS"))
+    );
+    expect(block).toContain("MembershipPlan.PRO");
+    expect(block).toContain("MembershipPlan.ELITE");
+    expect(block, "FREE must not be an assignable plan option").not.toContain("MembershipPlan.FREE");
+  });
+
+  it("FREE is not a selectable public onboarding plan", async () => {
+    const { PUBLIC_ONBOARDING_PLANS, normalizePublicOnboardingPlan } = await import(
+      "@/lib/publicOnboarding"
+    );
+    expect(PUBLIC_ONBOARDING_PLANS as readonly string[]).toEqual(["pro", "elite"]);
+    // A legacy ?plan=free bookmark still lands somewhere sensible.
+    expect(normalizePublicOnboardingPlan("free")).toBe("pro");
+  });
+
+  it("the resolver can never produce FREE as an entitlement", () => {
+    // Historical rows still hold FREE; reading one must yield no entitlement.
+    expect(normalizeMembershipPlan("FREE")).toBe(NO_MEMBERSHIP);
+    expect(normalizeMembershipPlan(null)).toBe(NO_MEMBERSHIP);
+    expect(normalizeMembershipPlan("PRO")).toBe("PRO");
+  });
+
+  it("no customer-facing membership surface renders 'Free' as a plan", () => {
+    const root = process.cwd();
+    const surfaces = [
+      "app/(app)/firm/membership/page.tsx",
+      "app/(app)/vendor/membership/page.tsx",
+      "app/(app)/user/membership/page.tsx",
+      "app/components/membership/MembershipPageShell.tsx",
+      "app/components/membership/MembershipSurfaceGate.tsx",
+      "lib/publicOnboarding.ts",
+    ];
+    // Plan-shaped renderings of Free: a label, an option, or a heading. Not a
+    // bare word match — "no payment required" copy and the `free` BILLING MODE
+    // are different concepts and must survive.
+    const planShapedFree = [
+      'label: "Free"',
+      '>Free<',
+      'value="FREE"',
+      '"Free plan"',
+      '"Free tier"',
+    ];
+    for (const relative of surfaces) {
+      const text = readFileSync(path.join(root, relative), "utf8");
+      for (const phrase of planShapedFree) {
+        expect(text, `${relative} should not render ${phrase}`).not.toContain(phrase);
+      }
+    }
+  });
+
+  it("pre-auth membership renders the tier grid instead of bouncing to sign-in", () => {
+    const root = process.cwd();
+    for (const relative of [
+      "app/(app)/firm/membership/page.tsx",
+      "app/(app)/vendor/membership/page.tsx",
+      "app/(app)/user/membership/page.tsx",
+    ]) {
+      const text = readFileSync(path.join(root, relative), "utf8");
+      // Membership is a sales surface: a signed-out visitor must reach the tiers.
+      expect(text, `${relative} should not redirect signed-out visitors`).not.toContain(
+        'redirect("/sign-in'
+      );
+      expect(text, `${relative} should render the shell when signed out`).toContain(
+        "MembershipPageShell"
+      );
+      // …and must not leak account state in that path.
+      expect(text).toContain('displayName="Not signed in"');
+    }
+  });
 });

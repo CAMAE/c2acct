@@ -35,6 +35,12 @@ export type MembershipSnapshot = {
 };
 
 export const MEMBERSHIP_PLAN = {
+  /**
+   * RETIRED — never assign this to a customer (AUDIT-OMNIBUS-A-001). It survives
+   * only as (1) the DB value on historical rows and (2) the placeholder plan on
+   * a PENDING_CHECKOUT row that carries no entitlement. normalizeMembershipPlan()
+   * maps it to NO_MEMBERSHIP, so it can never become a resolved entitlement.
+   */
   FREE: "FREE",
   PRO: "PRO",
   ELITE: "ELITE",
@@ -56,6 +62,9 @@ const NO_MEMBERSHIP_STATUS = MEMBERSHIP_STATUS.CANCELED;
 
 const MEMBERSHIP_PLAN_RANK: Record<ResolvedMembershipPlan, number> = {
   [NO_MEMBERSHIP]: -1,
+  // Ranked only so historical FREE rows sort deterministically; the resolver
+  // never produces FREE, so this entry is unreachable through normal access
+  // checks and exists to keep the Record total.
   [MEMBERSHIP_PLAN.FREE]: 0,
   [MEMBERSHIP_PLAN.PRO]: 1,
   [MEMBERSHIP_PLAN.ELITE]: 2,

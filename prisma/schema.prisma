@@ -1169,6 +1169,13 @@ enum ModuleScope {
 }
 
 enum MembershipPlan {
+  // RETIRED, NOT REMOVED (AUDIT-OMNIBUS-A-001, standing law: no free tier ever).
+  // The value stays because historical rows reference it and because a
+  // not-yet-paid checkout row needs a plan placeholder while entitlement is
+  // gated by status. Nothing assigns it going forward: it is absent from
+  // MEMBERSHIP_PLAN_OPTIONS (lib/adminControlPlane.ts), absent from the public
+  // onboarding plan tuple, and normalizeMembershipPlan() never returns it.
+  // Dropping the value would break reads of existing rows, so it remains.
   FREE
   PRO
   ELITE

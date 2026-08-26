@@ -54,6 +54,10 @@ function planFromProviderSubscription(subscription: StripeSubscriptionLike, conf
     return metadataPlan;
   }
 
+  // An unrecognised price falls back to the FREE placeholder, which grants NO
+  // entitlement (normalizeMembershipPlan maps it to NO_MEMBERSHIP). Failing
+  // closed here is deliberate: guessing PRO from an unknown price would hand out
+  // paid access on a billing misconfiguration.
   return planFromPriceId(config, firstSubscriptionPriceId(subscription)) ?? MEMBERSHIP_PLAN.FREE;
 }
 

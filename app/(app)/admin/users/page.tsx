@@ -216,7 +216,7 @@ export default async function AdminUsersPage() {
                       <input type="hidden" name="userId" value={user.id} />
                       <input type="hidden" name="returnTo" value="/admin/users" />
                       <div className="text-sm font-semibold text-[var(--shell-ink)]">Individual membership</div>
-                      <select name="plan" defaultValue={individualMembership?.plan ?? "FREE"} className="pat-select">
+                      <select name="plan" defaultValue={individualMembership?.plan ?? MEMBERSHIP_PLAN_OPTIONS[0]} className="pat-select">
                         {MEMBERSHIP_PLAN_OPTIONS.map((plan) => (
                           <option key={plan} value={plan}>
                             {plan}
