@@ -168,6 +168,17 @@ describe("no surface serves the public path in this box", () => {
   it("nothing outside the retrieval seam and its tests passes publicEntry", async () => {
     // (b) is explicit: the wall accepts the value, no surface serves it. This is
     // the assertion that keeps "not yet wired" true rather than assumed.
+    //
+    // The rule is that no surface PASSES the option, so the scan looks for the
+    // property being SET (`publicEntry:`), not for the identifier appearing.
+    // A docblock that names the parameter — corpusAccess.ts explains the rule
+    // and has to be able to say the word — is documentation, not a caller.
+    // Matching the bare identifier flagged exactly that, and forbidding
+    // documentation from naming an API is a worse rule than the one it enforces.
+    //
+    // NOTE: like the PF-2 fixture scan, this is only meaningful once the files
+    // are TRACKED. It passed while these files were untracked and fired on the
+    // first post-commit run — which is the run that matters.
     const { execFileSync } = await import("node:child_process");
     const { readFileSync } = await import("node:fs");
     const path = await import("node:path");
@@ -183,7 +194,8 @@ describe("no surface serves the public path in this box", () => {
 
     const allowed = new Set(["lib/patAssistant/retrieveHelp.ts"]);
     const offenders = tracked.filter(
-      (file) => !allowed.has(file) && /\bpublicEntry\b/.test(readFileSync(path.join(root, file), "utf8"))
+      (file) =>
+        !allowed.has(file) && /\bpublicEntry\s*:/.test(readFileSync(path.join(root, file), "utf8"))
     );
     expect(offenders).toEqual([]);
   });
@@ -237,5 +249,21 @@ describe("the corpus migration is additive only", () => {
     for (const forbidden of ["userId", "companyId", "subjectId", "email"]) {
       expect(body).not.toContain(forbidden);
     }
+  });
+});
+
+describe("the publicEntry scan is not vacuous", () => {
+  it("would catch a surface that actually passed the option", async () => {
+    // Proves the tightened regex still detects a real caller — a scan that can
+    // no longer fail is not a guard.
+    const callerShapes = [
+      "retrieveHelp(q, 'public', 5, { publicEntry: true })",
+      "const opts = {\n  publicEntry : true,\n};",
+    ];
+    for (const shape of callerShapes) {
+      expect(/\bpublicEntry\s*:/.test(shape)).toBe(true);
+    }
+    // ...and still ignores prose that merely names the parameter.
+    expect(/\bpublicEntry\s*:/.test("requested explicitly via `publicEntry`, and no route")).toBe(false);
   });
 });
