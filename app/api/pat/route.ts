@@ -5,8 +5,8 @@ import { isPatAssistantEnabled } from "@/lib/patAssistant/flags";
 import { hasPatConsent } from "@/lib/patAssistant/consent";
 import { resolvePatAudience } from "@/lib/patAssistant/audience";
 import { buildHelpContext, retrieveHelp } from "@/lib/patAssistant/retrieveHelp";
-import { generatePatReply, type PatReply } from "@/lib/patAssistant/model";
-import { DECLINE_RUNGS, recordPatDecline } from "@/lib/patAssistant/declineLog";
+import { generatePatReply } from "@/lib/patAssistant/model";
+import { runAnswerLadder } from "@/lib/patAssistant/ladder";
 
 export const dynamic = "force-dynamic";
 
@@ -21,39 +21,6 @@ function fallback(citations: PatCitation[] = []) {
     { ok: true, answer: null, fallback: FALLBACK_MESSAGE, insufficientContext: true, citations },
     { headers: { "cache-control": "no-store" } }
   );
-}
-
-/**
- * Decline + log, in one call, so the two can never drift apart (corpus program).
- *
- * Every path that returns the fallback goes through here. A decline that is not
- * logged is a gap the corpus program cannot see, and the only reliable way to
- * guarantee that is to make declining and logging the same act rather than two
- * things a future edit has to remember to do together.
- *
- * The log write is guarded HERE as well as inside recordPatDecline. That is not
- * redundant: recordPatDecline swallowing its own errors is an implementation
- * detail of the logger, while "a gap-log failure never reaches the user" is a
- * property of this route. Depending on the former to get the latter means one
- * refactor of the logger silently turns a database blip into a failed help
- * answer. The user came for an answer, not for analytics.
- */
-async function declineAndLog(input: {
-  question: string;
-  audience: string;
-  rungReached: string;
-  citations?: PatCitation[];
-}) {
-  try {
-    await recordPatDecline({
-      question: input.question,
-      audience: input.audience,
-      rungReached: input.rungReached,
-    });
-  } catch {
-    // Deliberately swallowed — see the docblock above.
-  }
-  return fallback(input.citations ?? []);
 }
 
 /**
@@ -99,58 +66,50 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "no_audience" }, { status: 403 });
   }
 
-  // No key present → degrade to the fallback rather than erroring. The surface is
-  // flag-gated anyway, but this keeps a misconfig from 500-ing at the user.
-  if (!anthropicApiKeyPresent()) {
-    return declineAndLog({
-      question,
-      audience: resolution.audience,
-      rungReached: DECLINE_RUNGS.UNAVAILABLE,
-    });
-  }
-
-  const chunks = await retrieveHelp(question, resolution.audience, 5, {
-    unrestricted: resolution.unrestricted,
-    // Depth-tier wall: the viewer's server-resolved plan decides whether ELITE
-    // corpus depth is readable. Inert today — every source is CORE.
-    membershipPlan: resolution.membershipPlan,
-  });
-  if (chunks.length === 0) {
-    return declineAndLog({
-      question,
-      audience: resolution.audience,
-      rungReached: DECLINE_RUNGS.CORPUS_MISS,
-    });
-  }
-
-  let reply: PatReply;
+  // The ladder owns the walk and the gap log. The route owns HTTP: it decides
+  // what a decline and a breakage look like on the wire, and nothing else.
+  let outcome: Awaited<ReturnType<typeof runAnswerLadder>>;
   try {
-    reply = await generatePatReply({ prompt: question, context: buildHelpContext(chunks) });
+    outcome = await runAnswerLadder({
+      question,
+      audience: resolution.audience,
+      // No key present → the ladder declines rather than erroring. The surface
+      // is flag-gated anyway, but this keeps a misconfig from 500-ing at the user.
+      hasModelKey: anthropicApiKeyPresent,
+      retrieve: () =>
+        retrieveHelp(question, resolution.audience, 5, {
+          unrestricted: resolution.unrestricted,
+          // Depth-tier wall: the viewer's server-resolved plan decides whether
+          // ELITE corpus depth is readable. Inert today — every source is CORE.
+          membershipPlan: resolution.membershipPlan,
+        }),
+      generate: (chunks) =>
+        generatePatReply({ prompt: question, context: buildHelpContext(chunks) }),
+    });
   } catch {
+    // A generation failure is genuinely exceptional, and distinct from a
+    // decline: "we could not answer" is a 200 with fallback copy, "we broke" is
+    // a 502. Collapsing them would hide an outage inside a polite message about
+    // the help library.
     return NextResponse.json({ ok: false, error: "generation_failed" }, { status: 502 });
   }
 
-  const citations: PatCitation[] = chunks.map((chunk) => ({
+  const citations: PatCitation[] = outcome.chunks.map((chunk) => ({
     path: chunk.sourcePath,
     idx: chunk.chunkIdx,
   }));
 
-  if (reply.insufficientContext) {
-    return declineAndLog({
-      question,
-      audience: resolution.audience,
-      rungReached: DECLINE_RUNGS.CORPUS_INSUFFICIENT,
-      citations,
-    });
+  if (outcome.kind === "decline") {
+    return fallback(citations);
   }
 
   return NextResponse.json(
     {
       ok: true,
-      answer: reply.text,
+      answer: outcome.reply.text,
       insufficientContext: false,
-      escalated: reply.escalated,
-      modelUsed: reply.modelUsed,
+      escalated: outcome.reply.escalated,
+      modelUsed: outcome.reply.modelUsed,
       citations,
     },
     { headers: { "cache-control": "no-store" } }

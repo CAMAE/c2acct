@@ -7,7 +7,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  * action, only returns text.
  */
 
-vi.mock("@/lib/patAssistant/flags", () => ({ isPatAssistantEnabled: vi.fn() }));
+vi.mock("@/lib/patAssistant/flags", () => ({
+  isPatAssistantEnabled: vi.fn(),
+  // The ladder reads this. A partial module mock leaves it undefined, which
+  // throws inside the ladder and surfaces as a 502 — the route's "we broke"
+  // branch — so an omission here looks like a routing bug rather than a mock gap.
+  isPatLadderEnabled: vi.fn(() => false),
+}));
 vi.mock("@/lib/patAssistant/consent", () => ({ hasPatConsent: vi.fn() }));
 vi.mock("@/lib/auth/session", () => ({ getSessionUser: vi.fn() }));
 vi.mock("@/lib/agents/llm", () => ({ anthropicApiKeyPresent: vi.fn() }));
@@ -29,7 +35,7 @@ vi.mock("@/lib/patAssistant/declineLog", async () => {
 });
 
 import { POST } from "@/app/api/pat/route";
-import { isPatAssistantEnabled } from "@/lib/patAssistant/flags";
+import { isPatAssistantEnabled, isPatLadderEnabled } from "@/lib/patAssistant/flags";
 import { hasPatConsent } from "@/lib/patAssistant/consent";
 import { getSessionUser } from "@/lib/auth/session";
 import { anthropicApiKeyPresent } from "@/lib/agents/llm";
@@ -39,6 +45,7 @@ import { generatePatReply } from "@/lib/patAssistant/model";
 import { DECLINE_RUNGS, recordPatDecline } from "@/lib/patAssistant/declineLog";
 
 const flag = vi.mocked(isPatAssistantEnabled);
+const ladderFlag = vi.mocked(isPatLadderEnabled);
 const consent = vi.mocked(hasPatConsent);
 const session = vi.mocked(getSessionUser);
 const keyPresent = vi.mocked(anthropicApiKeyPresent);
@@ -68,6 +75,7 @@ const aChunk = {
 beforeEach(() => {
   vi.clearAllMocks();
   flag.mockReturnValue(true);
+  ladderFlag.mockReturnValue(false);
   consent.mockResolvedValue(true);
   session.mockResolvedValue({ id: "u1", email: "u@x.com", role: "MEMBER", companyId: "c1" });
   audience.mockResolvedValue({ audience: "vendor", unrestricted: false, membershipPlan: "PRO" });

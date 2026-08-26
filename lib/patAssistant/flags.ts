@@ -18,6 +18,16 @@ export const PAT_PINGS_FLAG_ENV = "PAT_ENABLE_PINGS";
 export const PAT_PINGS_EMAIL_FLAG_ENV = "PAT_PINGS_EMAIL_ENABLED";
 /** 16b — staleness-alert generators. Independent off-switch; also requires pings. */
 export const PAT_STALENESS_ALERTS_FLAG_ENV = "PAT_ENABLE_STALENESS_ALERTS";
+/**
+ * LADDER-1 — the answer-ladder scope gate. Default off.
+ *
+ * Off, the ladder still runs, but WITHOUT the scope-gate rung: the router's
+ * corpus → decline walk is exactly the flow that shipped before it existed, so
+ * flag-off behaviour is byte-identical rather than merely similar. On, a cheap
+ * classifier runs in front of retrieval and out-of-scope questions decline at
+ * the gate instead of burning a retrieval and a generation.
+ */
+export const PAT_LADDER_FLAG_ENV = "PAT_ENABLE_PAT_LADDER";
 
 function flagEnabled(envName: string): boolean {
   return process.env[envName] === "1";
@@ -50,4 +60,14 @@ export function isPingsEmailEnabled(): boolean {
  */
 export function isStalenessAlertsEnabled(): boolean {
   return isPingsEnabled() && flagEnabled(PAT_STALENESS_ALERTS_FLAG_ENV);
+}
+
+/**
+ * The answer-ladder scope gate (LADDER-1). Independent of the assistant flag:
+ * the gate is a rung, and a rung is meaningless without the surface, but keeping
+ * the switches separate means the gate can be turned on and off against a live
+ * assistant without taking the assistant down with it.
+ */
+export function isPatLadderEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return env[PAT_LADDER_FLAG_ENV] === "1";
 }
