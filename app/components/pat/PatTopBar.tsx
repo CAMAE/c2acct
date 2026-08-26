@@ -1,26 +1,63 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { parseInlineMarkdown } from "@/lib/patMarkdown";
+import { parseMarkdownBlocks, type MarkdownToken } from "@/lib/patMarkdown";
 
 /**
- * Render Pat answer text with **bold** / *italic* emphasis (13h rider #2 — raw
- * text showed literal asterisks). Pure tokenizer in lib/patMarkdown; here we just
- * map tokens to elements. Newlines preserved by the whitespace-pre-wrap wrapper.
+ * Render Pat answer text as markdown (13h rider #2, extended): bold, italics,
+ * inline code, and bullet/numbered lists. Raw text previously showed literal
+ * asterisks, underscores and backticks.
+ *
+ * SAFETY: the tokenizer returns structure, not HTML, and every value below goes
+ * through a React child — so it is escaped on render and dangerouslySetInnerHTML
+ * is never used. HTML in a model reply renders as visible text, which is the
+ * correct outcome for untrusted output.
  */
-function renderPatMarkdown(text: string): ReactNode[] {
-  return parseInlineMarkdown(text).map((token, i) => {
+function renderInline(tokens: MarkdownToken[], keyPrefix: string): ReactNode[] {
+  return tokens.map((token, i) => {
+    const key = `${keyPrefix}-${i}`;
     if (token.kind === "bold") {
       return (
-        <strong key={i} className="font-semibold">
+        <strong key={key} className="font-semibold">
           {token.value}
         </strong>
       );
     }
     if (token.kind === "italic") {
-      return <em key={i}>{token.value}</em>;
+      return <em key={key}>{token.value}</em>;
     }
-    return <span key={i}>{token.value}</span>;
+    if (token.kind === "code") {
+      return (
+        <code
+          key={key}
+          className="rounded bg-[rgba(6,54,116,0.06)] px-1 py-0.5 font-mono text-[0.85em]"
+        >
+          {token.value}
+        </code>
+      );
+    }
+    return <span key={key}>{token.value}</span>;
+  });
+}
+
+function renderPatMarkdown(text: string): ReactNode[] {
+  return parseMarkdownBlocks(text).map((block, blockIndex) => {
+    if (block.kind === "list") {
+      const ListTag = block.ordered ? "ol" : "ul";
+      return (
+        <ListTag
+          key={`b-${blockIndex}`}
+          className={`my-1 ml-4 space-y-0.5 ${block.ordered ? "list-decimal" : "list-disc"}`}
+        >
+          {block.items.map((item, itemIndex) => (
+            <li key={`b-${blockIndex}-i-${itemIndex}`}>
+              {renderInline(item, `b-${blockIndex}-i-${itemIndex}`)}
+            </li>
+          ))}
+        </ListTag>
+      );
+    }
+    return <span key={`b-${blockIndex}`}>{renderInline(block.inline, `b-${blockIndex}`)}</span>;
   });
 }
 
