@@ -1,4 +1,4 @@
-export const PRODUCT_UTILITY_REGISTRY_VERSION = "2026-03-product-utility-v2";
+export const PRODUCT_UTILITY_REGISTRY_VERSION = "2026-08-product-utility-v3";
 export const PRODUCT_UTILITY_SUBCATEGORY_COUNT = 4;
 export const PRODUCT_SCORED_QUESTIONS_PER_SUBCATEGORY = 5;
 export const PRODUCT_UTILITY_SCORED_QUESTION_COUNT =
@@ -92,7 +92,7 @@ function makeExecutionSubcategory(input: {
       {
         key: "exception_handling",
         basisKey: "operational-dependence" as const,
-        prompt: `How dependable does this product feel when ${input.focus} gets messy, urgent, or exception-heavy?`,
+        prompt: `How well does this product hold up when ${input.focus} is non-standard, urgent, or full of exceptions?`,
       },
       {
         key: "status_visibility",
@@ -102,7 +102,7 @@ function makeExecutionSubcategory(input: {
       {
         key: "frontline_adoption",
         basisKey: "adoption-ease" as const,
-        prompt: `How easy is it for real users to adopt ${input.focus} in this product without extra handholding?`,
+        prompt: `How easy is it for real users to adopt ${input.focus} in this product without supplemental training or guided support?`,
       },
       {
         key: "practical_outcome",
@@ -132,7 +132,7 @@ function makeIntegrationSubcategory(input: {
       {
         key: "admin_control",
         basisKey: "configuration-depth" as const,
-        prompt: `How manageable is the configuration and admin setup required to keep ${input.focus} aligned?`,
+        prompt: `How manageable is the configuration and administrative work required to keep ${input.focus} current and in sync?`,
       },
       {
         key: "implementation_burden",
@@ -147,7 +147,7 @@ function makeIntegrationSubcategory(input: {
       {
         key: "runtime_reliability",
         basisKey: "support-trust" as const,
-        prompt: `How trustworthy does this product feel when ${input.focus} depends on integrations, mappings, or data movement?`,
+        prompt: `How confident are you in this product's reliability when ${input.focus} relies on integrations, mappings, or data movement?`,
       },
     ],
   } satisfies ProductUtilitySubcategoryDefinition;
@@ -863,8 +863,8 @@ export const PRODUCT_OPEN_ENDED_MODULE = {
     { key: "change_management_risk", prompt: "What user, operator, or buyer-side change-management risk is most likely to slow adoption?" },
     { key: "integration_gap", prompt: "What integration, data, or interoperability gap matters most before PAT should treat this product as stronger than directional?" },
     { key: "control_concern", prompt: "What control, approval, auditability, or governance concern deserves explicit follow-up?" },
-    { key: "best_fit_customer", prompt: "Who looks like the best-fit customer or operator for this product today, based on the current evidence rather than aspiration?" },
-    { key: "poor_fit_customer", prompt: "Who looks like the poorest-fit customer or operator for this product today, and why?" },
+    { key: "best_fit_customer", prompt: "Based on current evidence, what firm size (FTEs) and firm type appear to be the best-fit customer or operator for this product today?" },
+    { key: "poor_fit_customer", prompt: "Based on current evidence, what firm size (FTEs) and firm type appear to be the worst-fit customer or operator for this product today, and why?" },
     { key: "evidence_needed_next", prompt: "What additional evidence would most improve confidence, calibration, or operator usefulness in this product next?" },
     { key: "recommended_next_action", prompt: "What is the single most sensible next action after this review: gather evidence, narrow scope, reposition, or continue?" },
   ],

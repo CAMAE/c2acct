@@ -2110,10 +2110,10 @@
       "id": "REG-002",
       "suite": "registry",
       "judge": "exact",
-      "question": "The pinned product-utility registry version is unchanged.",
+      "question": "The pinned product-utility registry version is 2026-08-product-utility-v3.",
       "surface": "registry.version",
       "input": {},
-      "expect": "2026-03-product-utility-v2",
+      "expect": "2026-08-product-utility-v3",
       "tags": [
         "registry",
         "version"
@@ -2249,6 +2249,127 @@
       "tags": [
         "registry",
         "policy"
+      ]
+    },
+    {
+      "id": "WORD-001",
+      "suite": "registry",
+      "judge": "exact",
+      "question": "exception_handling reads exactly as Leslie reconciled it.",
+      "surface": "registry.promptFor",
+      "input": {
+        "utilityKey": "erp_gl_core_ledger",
+        "subcategoryKey": "journal_processing",
+        "questionKey": "exception_handling"
+      },
+      "expect": "How well does this product hold up when journal processing and ledger activity is non-standard, urgent, or full of exceptions?",
+      "tags": [
+        "registry",
+        "wording",
+        "v3-reconciled"
+      ]
+    },
+    {
+      "id": "WORD-002",
+      "suite": "registry",
+      "judge": "exact",
+      "question": "frontline_adoption reads exactly as Leslie reconciled it.",
+      "surface": "registry.promptFor",
+      "input": {
+        "utilityKey": "erp_gl_core_ledger",
+        "subcategoryKey": "journal_processing",
+        "questionKey": "frontline_adoption"
+      },
+      "expect": "How easy is it for real users to adopt journal processing and ledger activity in this product without supplemental training or guided support?",
+      "tags": [
+        "registry",
+        "wording",
+        "v3-reconciled"
+      ]
+    },
+    {
+      "id": "WORD-003",
+      "suite": "registry",
+      "judge": "exact",
+      "question": "admin_control reads exactly as Leslie reconciled it.",
+      "surface": "registry.promptFor",
+      "input": {
+        "utilityKey": "erp_gl_core_ledger",
+        "subcategoryKey": "entity_and_dimension_alignment",
+        "questionKey": "admin_control"
+      },
+      "expect": "How manageable is the configuration and administrative work required to keep entity, dimension, and ledger alignment current and in sync?",
+      "tags": [
+        "registry",
+        "wording",
+        "v3-reconciled"
+      ]
+    },
+    {
+      "id": "WORD-004",
+      "suite": "registry",
+      "judge": "exact",
+      "question": "runtime_reliability reads exactly as Leslie reconciled it.",
+      "surface": "registry.promptFor",
+      "input": {
+        "utilityKey": "erp_gl_core_ledger",
+        "subcategoryKey": "entity_and_dimension_alignment",
+        "questionKey": "runtime_reliability"
+      },
+      "expect": "How confident are you in this product's reliability when entity, dimension, and ledger alignment relies on integrations, mappings, or data movement?",
+      "tags": [
+        "registry",
+        "wording",
+        "v3-reconciled"
+      ]
+    },
+    {
+      "id": "WORD-005",
+      "suite": "registry",
+      "judge": "exact",
+      "question": "best_fit_customer reads exactly as Leslie reconciled it.",
+      "surface": "registry.openEndedPromptFor",
+      "input": {
+        "questionKey": "best_fit_customer"
+      },
+      "expect": "Based on current evidence, what firm size (FTEs) and firm type appear to be the best-fit customer or operator for this product today?",
+      "tags": [
+        "registry",
+        "wording",
+        "v3-reconciled"
+      ]
+    },
+    {
+      "id": "WORD-006",
+      "suite": "registry",
+      "judge": "exact",
+      "question": "poor_fit_customer reads exactly as Leslie reconciled it.",
+      "surface": "registry.openEndedPromptFor",
+      "input": {
+        "questionKey": "poor_fit_customer"
+      },
+      "expect": "Based on current evidence, what firm size (FTEs) and firm type appear to be the worst-fit customer or operator for this product today, and why?",
+      "tags": [
+        "registry",
+        "wording",
+        "v3-reconciled"
+      ]
+    },
+    {
+      "id": "WORD-007",
+      "suite": "registry",
+      "judge": "exact",
+      "question": "operating-model_open_4 reads exactly as Leslie reconciled it.",
+      "surface": "firm.openEndedPromptFor",
+      "input": {
+        "sectionKey": "operating-model",
+        "index": 4
+      },
+      "expect": "When work passes between people, where does it most often have to be reworked, and why?",
+      "tags": [
+        "registry",
+        "wording",
+        "v3-reconciled"
       ]
     }
   ]

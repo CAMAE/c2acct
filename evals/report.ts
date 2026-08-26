@@ -211,7 +211,8 @@ export function renderMarkdown(board: Scoreboard): string {
       "change that breaks the rule fails rather than silently re-baselining."
   );
   lines.push(
-    "- **Versioned golden sets.** Changing an expectation means cutting a new version, not editing history."
+    "- **Versioned golden sets.** A pinned expectation changes only in the same commit as the product change " +
+      "that causes it — never on its own to turn a red board green."
   );
   lines.push(
     "- **Skips never count as passes.** An unavailable corpus or an unconfigured judge is reported as a skip and " +

@@ -134,7 +134,7 @@ const FIRM_MODULE_OPEN_ENDED_PROMPTS: Record<
     },
     {
       keySuffix: "handoff_rework",
-      prompt: "Which handoff currently creates the most rework, and what tends to go wrong at that point?",
+      prompt: "When work passes between people, where does it most often have to be reworked, and why?",
       placeholder: "Use a concrete example of where rework or escalation appears.",
     },
     {

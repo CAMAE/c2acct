@@ -14,9 +14,17 @@
  *                    "no judge configured", so a future judge is a runner
  *                    addition and not a schema migration.
  *
- * Golden files are VERSIONED (`deterministic.v1.json`). Changing an expectation
- * means cutting a new version, not editing history — an eval you can silently
- * edit to match the code is not an eval.
+ * Golden files are VERSIONED (`deterministic.v1.json`). The rule that matters is
+ * not "never edit an expectation" — a pinned value like the registry version is
+ * SUPPOSED to change when the product deliberately changes it, and forcing a new
+ * golden file per wording pass would just make the set unreadable. The rule is:
+ *
+ *   an expectation changes ONLY in the same commit as the product change that
+ *   causes it, and never on its own to turn a red board green.
+ *
+ * A golden edit arriving without the change that justifies it is the failure
+ * mode this discipline exists to catch, and it is visible in review as a diff
+ * that touches evals/ and nothing else.
  */
 
 export type Judge = "exact" | "llm";

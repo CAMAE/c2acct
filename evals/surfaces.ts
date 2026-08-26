@@ -15,7 +15,8 @@ import {
   PRODUCT_UTILITY_SCORED_QUESTION_COUNT,
   PRODUCT_UTILITY_SUBCATEGORY_COUNT,
 } from "@/lib/productUtilityRegistry";
-import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
+import { FIRM_MODULE_DEFINITIONS, buildFirmModuleOpenEndedPrompts } from "@/lib/firmPat";
+import { PRODUCT_OPEN_ENDED_MODULE } from "@/lib/productUtilityRegistry";
 
 /**
  * The surface registry: the ONLY bridge between a golden JSON item and real
@@ -108,6 +109,36 @@ export const SURFACES: Record<string, Surface> = {
       seen.add(utility.key);
     }
     return dupes;
+  },
+  /**
+   * Exact prompt text for one scored registry question, addressed by
+   * (utility, subcategory, question). Pinned only for the seven prompts that
+   * carry Leslie + Mythos + Cam review provenance: the version pin catches a
+   * wording change made PROPERLY (with a bump), and these catch the sneaky
+   * case — a wording edit that skips the bump.
+   */
+  "registry.promptFor": (input) => {
+    const args = asRecord(input);
+    const utility = PRODUCT_UTILITY_REGISTRY.find((entry) => entry.key === args.utilityKey);
+    const subcategory = utility?.subcategories.find((entry) => entry.key === args.subcategoryKey);
+    const question = subcategory?.questions.find((entry) => entry.key === args.questionKey);
+    return question ? question.prompt : null;
+  },
+  /** Exact prompt text for one product open-ended question, by key. */
+  "registry.openEndedPromptFor": (input) => {
+    const key = String(asRecord(input).questionKey);
+    const questions = (PRODUCT_OPEN_ENDED_MODULE as { questions: Array<{ key: string; prompt: string }> })
+      .questions;
+    return questions.find((entry) => entry.key === key)?.prompt ?? null;
+  },
+  /** Exact prompt text for one firm module open-ended question, by 1-based index. */
+  "firm.openEndedPromptFor": (input) => {
+    const args = asRecord(input);
+    const definition = FIRM_MODULE_DEFINITIONS.find((entry) => entry.sectionKey === args.sectionKey);
+    if (!definition) return null;
+    const prompts = buildFirmModuleOpenEndedPrompts(definition);
+    const index = Number(args.index);
+    return prompts[index - 1]?.prompt ?? null;
   },
   "registry.firmModuleKeys": () => FIRM_MODULE_DEFINITIONS.map((definition) => definition.key),
   "registry.duplicateFirmModuleKeys": () => {
