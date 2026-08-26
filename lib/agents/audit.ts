@@ -24,6 +24,13 @@ export interface AuditEntry {
   hookPhase: HookPhase;
   payload: Record<string, unknown>;
   outcome?: AuditOutcome;
+  /**
+   * Request-correlation id, when the entry was written during an HTTP request.
+   * Null for supervisor-driven agent runs, which have no request scope. Stored
+   * inside the payload rather than as a column so this stays additive — it
+   * needs no migration and no backfill of historical rows.
+   */
+  requestId?: string | null;
 }
 
 /**
@@ -37,7 +44,11 @@ export async function auditLog(entry: AuditEntry): Promise<void> {
       runId: entry.runId ?? null,
       agentKey: entry.agentKey ?? null,
       hookPhase: entry.hookPhase,
-      payload: toJsonValue(entry.payload),
+      // requestId rides inside the payload so an audit row can be joined to the
+      // structured error lines from the same request.
+      payload: toJsonValue(
+        entry.requestId ? { ...entry.payload, requestId: entry.requestId } : entry.payload
+      ),
       outcome: entry.outcome ?? null,
     },
   });
