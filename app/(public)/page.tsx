@@ -59,7 +59,7 @@ export default async function Home() {
     ? messages.home.signedInCopy
     : individualSurfacesEnabled
       ? messages.home.signedOutCopy
-      : "Vendors and firms sign in here to access their PAT workspace. Person-level and access-code paths are shelved for the current pilot.";
+      : "Vendors and firms sign in here to access their PAT workspace. Person-level and access-code sign-in are not part of the current pilot.";
 
   async function signOutShelvedSession() {
     "use server";
@@ -103,9 +103,9 @@ export default async function Home() {
               Your account type isn&apos;t part of the current pilot
             </h2>
             <p className="mt-4 text-base leading-7 text-[var(--shell-muted)]">
-              You are signed in with a person-level account, and person-level surfaces are shelved
-              for the current vendor/firm pilot. Sign out and use a vendor or firm account to reach
-              a pilot workspace.
+              You are signed in with a person-level account. Person-level surfaces are not part of the
+              current vendor and firm pilot. Sign out and use a vendor or firm account to reach a
+              pilot workspace.
             </p>
             <form action={signOutShelvedSession} className="mt-6">
               <button type="submit" className="pat-button-primary">
@@ -144,8 +144,8 @@ export default async function Home() {
           </h2>
           <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
             Pick the role that matches your work — vendor or firm — answer two quick onboarding
-            questions, and choose the plan that fits. Paid conversion stays clearly staged unless
-            Stripe billing is configured.
+            questions, and choose the plan that fits. You will not be charged until card payments are
+            switched on.
           </p>
           <span className="mt-6 inline-flex items-center rounded-full border border-[var(--shell-border)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] shadow-[0_6px_18px_rgba(15,23,42,0.04)]">
             Create an account

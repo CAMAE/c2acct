@@ -888,7 +888,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
                       ) : null}
                       {question.meta.branching ? (
                         <div className="pat-banner pat-banner-info">
-                          Branching rule staged for phase 2:{" "}
+                          Follow-up question depends on your answer to:{" "}
                           {question.meta.branching.visibleWhen?.questionKey ?? "conditional"}
                         </div>
                       ) : null}

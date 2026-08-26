@@ -58,7 +58,7 @@ export default function FirmAdminPanels({
           <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
             {individualSurfacesEnabled
               ? "Open the user insight surface to invite users, review current progress status, and search for an individual user under this firm."
-              : "Invite users and review current firm account status. Individual insight surfaces are shelved for the current vendor/firm pilot."}
+              : "Invite users and review current firm account status. Individual insight surfaces are not part of the current vendor and firm pilot."}
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             {individualSurfacesEnabled ? (

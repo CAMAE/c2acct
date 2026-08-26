@@ -35,6 +35,53 @@ const bannedPhrases = [
   "Below threshold",
 ] as const;
 
+/**
+ * Block-19 copy-lexicon rider: public and pilot-facing surfaces must not use
+ * internal roadmap tone. "shelved" and "staged" describe our backlog, not the
+ * customer's product — a surface that is not in the pilot is "not part of the
+ * current pilot", and unbilled is "you will not be charged", not "conversion
+ * stays staged".
+ *
+ * Phrase-level, and scoped to copy files rather than the whole repo, so it does
+ * not fire on legitimate domain vocabulary: the Alignment Board's "staged
+ * candidate" means a swap placed in the sandbox, which is the product's own
+ * language and stays.
+ */
+const copyLexiconFiles = [
+  "app/(public)/page.tsx",
+  "app/(app)/firm/admin/user-insight/page.tsx",
+  "app/components/firm/FirmAdminPanels.tsx",
+  "app/components/assessment/AssessmentModuleClient.tsx",
+];
+
+/** Internal-tone phrases as they would appear in rendered customer copy. */
+const bannedCopyPhrases = [
+  "are shelved",
+  "is shelved",
+  "Shelved for",
+  "shelved for the current",
+  "stays clearly staged",
+  "staged for phase",
+] as const;
+
+describe("copy lexicon — no internal roadmap tone on customer surfaces", () => {
+  it("no guarded copy surface uses shelved/staged internal tone", () => {
+    for (const relativePath of copyLexiconFiles) {
+      const text = readFileSync(path.join(ROOT, relativePath), "utf8");
+      for (const phrase of bannedCopyPhrases) {
+        expect(text, `${relativePath} should not contain "${phrase}"`).not.toContain(phrase);
+      }
+    }
+  });
+
+  it("keeps the Alignment Board's own 'staged candidate' vocabulary", () => {
+    // Guard against an over-eager future sweep: this is product language for a
+    // swap placed on the board, not the banned "not really live" sense.
+    const board = readFileSync(path.join(ROOT, "app/components/firm/AlignmentBoardClient.tsx"), "utf8");
+    expect(board).toContain("staged candidate");
+  });
+});
+
 describe("banned vocabulary — board + Elite v2 surfaces", () => {
   it("no guarded surface uses the rejected status/confidence vocabulary", () => {
     for (const relativePath of guardedFiles) {

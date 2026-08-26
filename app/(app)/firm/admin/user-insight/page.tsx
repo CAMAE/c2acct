@@ -40,11 +40,11 @@ export default async function FirmUserInsightPage({
           <HeroChips audience="firm" />
           <div className="pat-label">User Insight</div>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
-            Shelved for the current pilot
+            Not part of the current pilot
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-            Person-level user insight for {company.name} is part of the individual surface set,
-            which is shelved for the current vendor/firm pilot. Your firm workspace, alignment
+            Person-level user insight for {company.name} is part of the individual surface set, which
+            is not part of the current vendor and firm pilot. Your firm workspace, alignment
             assessment, and insights remain fully available.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
