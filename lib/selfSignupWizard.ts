@@ -7,7 +7,14 @@
  *
  * The model accepts an "individual" role for the post-pilot rollout but the
  * wizard never renders it while the individual surfaces stay shelved.
+ *
+ * Industry nouns come from the resolved vertical's lexicon (class d,
+ * VERTICAL-READINESS-AUDIT-2026-08 §2). lib/verticals/lexicon.ts is pure and
+ * client-safe — no prisma, no node builtins — and with PAT_ENABLE_VERTICAL_PACKS
+ * off it returns the accounting literals without loading a pack. The copy is
+ * still built server-side and handed to the wizard as props.
  */
+import { lexicon } from "@/lib/verticals/lexicon";
 
 export const SELF_SIGNUP_ROLES = ["vendor", "firm", "individual"] as const;
 export type SelfSignupRole = (typeof SELF_SIGNUP_ROLES)[number];
@@ -155,13 +162,13 @@ export function getSelfSignupRoleOptions(): SelfSignupRoleOption[] {
     {
       role: "vendor",
       label: "Vendor",
-      title: "I build software for accounting firms",
-      body: "Map product evidence to the accounting-firm market and see where your product aligns.",
+      title: `I build ${lexicon("vendorAudience")}`,
+      body: `Map product evidence to the ${lexicon("firmMarket")} and see where your product aligns.`,
     },
     {
       role: "firm",
       label: "Firm",
-      title: "I run or work at an accounting firm",
+      title: `I run or work at ${lexicon("firmArticle")} ${lexicon("firm")}`,
       body: "Baseline your firm's alignment and evaluate the technology your practice runs on.",
     },
   ];
@@ -217,39 +224,41 @@ export type SelfSignupGoalQuestion = {
   options: Array<{ value: string; label: string }>;
 };
 
-const GOAL_QUESTIONS: Record<SelfSignupRole, SelfSignupGoalQuestion> = {
-  vendor: {
-    title: "What brings you to PAT?",
-    subtitle: "Pick the closest fit — this shapes your first assessment, not your plan.",
-    options: [
-      { value: "prove-product-market-fit", label: "Prove product–market fit with accounting firms" },
-      { value: "benchmark-against-market", label: "Benchmark my product against the market" },
-      { value: "firm-facing-evidence", label: "Build evidence for firm-facing sales conversations" },
-      { value: "align-roadmap", label: "Align our roadmap with what firms actually need" },
-      { value: "exploring", label: "Just exploring" },
-    ],
-  },
-  firm: {
-    title: "What brings you to PAT?",
-    subtitle: "Pick the closest fit — this shapes your first assessment, not your plan.",
-    options: [
-      { value: "alignment-baseline", label: "Get an alignment baseline for our practice" },
-      { value: "evaluate-vendors", label: "Evaluate vendors and products with real evidence" },
-      { value: "close-workflow-gaps", label: "Find and close workflow gaps" },
-      { value: "support-tech-decision", label: "Support a technology decision we're planning" },
-      { value: "exploring", label: "Just exploring" },
-    ],
-  },
-  individual: {
-    title: "What brings you to PAT?",
-    subtitle: "Pick the closest fit — this shapes your first assessment, not your plan.",
-    options: [
-      { value: "personal-baseline", label: "Build my personal alignment baseline" },
-      { value: "improve-workflow", label: "Improve how I work day to day" },
-    ],
-  },
-};
+function buildGoalQuestions(): Record<SelfSignupRole, SelfSignupGoalQuestion> {
+  return {
+    vendor: {
+      title: "What brings you to PAT?",
+      subtitle: "Pick the closest fit — this shapes your first assessment, not your plan.",
+      options: [
+        { value: "prove-product-market-fit", label: `Prove product–market fit with ${lexicon("firmPlural")}` },
+        { value: "benchmark-against-market", label: "Benchmark my product against the market" },
+        { value: "firm-facing-evidence", label: "Build evidence for firm-facing sales conversations" },
+        { value: "align-roadmap", label: "Align our roadmap with what firms actually need" },
+        { value: "exploring", label: "Just exploring" },
+      ],
+    },
+    firm: {
+      title: "What brings you to PAT?",
+      subtitle: "Pick the closest fit — this shapes your first assessment, not your plan.",
+      options: [
+        { value: "alignment-baseline", label: "Get an alignment baseline for our practice" },
+        { value: "evaluate-vendors", label: "Evaluate vendors and products with real evidence" },
+        { value: "close-workflow-gaps", label: "Find and close workflow gaps" },
+        { value: "support-tech-decision", label: "Support a technology decision we're planning" },
+        { value: "exploring", label: "Just exploring" },
+      ],
+    },
+    individual: {
+      title: "What brings you to PAT?",
+      subtitle: "Pick the closest fit — this shapes your first assessment, not your plan.",
+      options: [
+        { value: "personal-baseline", label: "Build my personal alignment baseline" },
+        { value: "improve-workflow", label: "Improve how I work day to day" },
+      ],
+    },
+  };
+}
 
 export function getSelfSignupGoalQuestion(role: SelfSignupRole) {
-  return GOAL_QUESTIONS[role];
+  return buildGoalQuestions()[role];
 }

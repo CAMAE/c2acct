@@ -9,11 +9,21 @@ describe("Vertical Pack loader", () => {
   it("loads the accounting pack without errors", async () => {
     const pack = await loadVerticalPack("accounting");
     expect(pack.id).toBe("accounting");
-    expect(pack.version).toBe(1);
+    // v2 adds the class-(d) lexicon and the class-(b) questionBank block
+    // (VERTICAL-READINESS-AUDIT-2026-08 §3.1).
+    expect(pack.version).toBe(2);
     expect(pack.taxonomy.source).toBe("db");
     expect(pack.taxonomy.filter?.verticalId).toBe("accounting");
     expect(pack.agent_prompts["vendor-review-assistant"]).toBe("prompts/vendor-review.md");
     expect(pack.compliance.audit_retention_days).toBe(365);
+    expect(pack.lexicon.ecosystem).toBe("accounting ecosystem");
+    expect(pack.questionBank.sourceAuthorities.map((a) => a.org)).toEqual([
+      "GAO",
+      "IRS",
+      "NIST",
+      "FTC",
+      "COSO",
+    ]);
   });
 
   it("throws a clean error for a nonexistent pack", async () => {

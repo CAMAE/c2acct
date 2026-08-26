@@ -6,9 +6,11 @@ import { ModuleReviewStatus, ModuleType } from "@prisma/client";
 import { applyRepoEnv } from "@/lib/env/repoEnv";
 import {
   QBANK_TEMPLATE_KEY,
+  UNCLASSIFIED_SOURCE_ORG,
   parseQbank,
   type ParsedQbankItem,
 } from "@/lib/modules/qbankParser";
+import { loadQbankSourceAuthorities } from "@/lib/modules/qbankSourceAuthorities";
 
 /**
  * Import PAT Question Bank v1 (Sprint 4 M2, 2026-07-08).
@@ -68,7 +70,7 @@ function summarize(items: ParsedQbankItem[]) {
     if (item.isAnchor) anchors += 1;
     sourceRows += item.sources.length;
     if (item.sources.length === 0) unsourced += 1;
-    if (item.sources.some((s) => s.sourceOrg === "UNCLASSIFIED")) unclassified.push(item.code);
+    if (item.sources.some((s) => s.sourceOrg === UNCLASSIFIED_SOURCE_ORG)) unclassified.push(item.code);
   }
   return { byDifficulty, byCategory, anchors, sourceRows, unsourced, unclassified };
 }
@@ -109,7 +111,11 @@ async function main() {
     return;
   }
 
-  const items = parseQbank(markdown, BANK_TEMPLATE_KEY);
+  // Citation authorities come from the resolved Vertical Pack (W4). Flag off,
+  // that is the accounting pack — the same five authorities the parser used to
+  // hardcode, in the same order.
+  const authorities = await loadQbankSourceAuthorities();
+  const items = parseQbank(markdown, BANK_TEMPLATE_KEY, authorities);
   const stats = summarize(items);
   const errors = validate(items, stats);
 

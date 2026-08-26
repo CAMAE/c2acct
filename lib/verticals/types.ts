@@ -10,6 +10,21 @@ export interface VerticalPackTaxonomy {
   filter?: Record<string, string>;
 }
 
+/** One question-bank citation authority declared by a pack (class b). */
+export interface VerticalPackSourceAuthority {
+  /** Attribution org recorded on the ModuleSource row. */
+  org: string;
+  /** Case-insensitive substrings; any hit classifies the citation. */
+  match: string[];
+  /** Mirrors Prisma's ModuleSourceLicense. */
+  license: "PUBLIC_DOMAIN" | "CITED" | "LICENSED";
+}
+
+export interface VerticalPackQuestionBank {
+  /** ORDER IS SIGNIFICANT — one source ref per match, in manifest order. */
+  sourceAuthorities: VerticalPackSourceAuthority[];
+}
+
 export interface VerticalPackCompliance {
   audit_retention_days: number;
   data_residency: string;
@@ -20,7 +35,10 @@ export interface VerticalPack {
   name: string;
   version: number;
   description?: string;
+  /** Class (d) display-layer terms — see lib/verticals/lexicon.ts. */
+  lexicon: Record<string, string>;
   taxonomy: VerticalPackTaxonomy;
+  questionBank: VerticalPackQuestionBank;
   /** Workflow template paths, relative to the pack dir. */
   workflows: string[];
   /** prompt key → markdown path, relative to the pack dir. */

@@ -23,6 +23,27 @@ export type QbankSourceRef = {
   licenseType: ModuleSourceLicense;
 };
 
+/**
+ * One citation authority, supplied by the resolved Vertical Pack's
+ * `questionBank.sourceAuthorities` (VERTICAL-READINESS-AUDIT-2026-08 §3.1, W4).
+ * These used to be five hardcoded `if (has(...))` branches naming US
+ * accounting/security bodies; a legal or healthcare vertical shares NIST and
+ * nothing else, so the list is pack data, not parser code.
+ */
+export type QbankSourceAuthority = {
+  /** Attribution org recorded on the ModuleSource row. */
+  sourceOrg: string;
+  /** Case-insensitive substrings; any hit classifies the citation. */
+  match: readonly string[];
+  licenseType: ModuleSourceLicense;
+};
+
+/**
+ * The sourced-content bar, and deliberately NOT pack data: every vertical must
+ * fail an unrecognized citation loudly rather than seed an unsourced item.
+ */
+export const UNCLASSIFIED_SOURCE_ORG = "UNCLASSIFIED";
+
 export type ParsedQbankItem = {
   /** Bank code, e.g. "A1". */
   code: string;
@@ -57,36 +78,40 @@ const ANSWER_SPLIT_RE = /\s*—\s*\*\*([a-d])\.\*\*\s*/;
 const OPTIONS_RE = /^(.*?)\s+a\)\s+(.*?)\s+b\)\s+(.*?)\s+c\)\s+(.*?)\s+d\)\s+(.*)$/;
 const SOURCE_RE = /^(.*?)\s*\*\[(.+?)\]\*\s*$/;
 
-/** Classify a raw source string into one or more tiered source refs. */
-export function classifyQbankSources(raw: string): QbankSourceRef[] {
+/**
+ * Classify a raw source string into one or more tiered source refs, against the
+ * authority list the resolved Vertical Pack declares.
+ *
+ * `authorities` is required and has no default on purpose. A default would be a
+ * second copy of the accounting list living in code, free to drift from the
+ * pack — which is exactly the coupling W4 exists to remove. Callers resolve it
+ * once via `loadQbankSourceAuthorities()`.
+ *
+ * ORDER IS SIGNIFICANT: refs come out in authority order, so a citation naming
+ * both GAO and COSO yields [GAO, COSO] iff the manifest lists GAO first.
+ */
+export function classifyQbankSources(
+  raw: string,
+  authorities: readonly QbankSourceAuthority[]
+): QbankSourceRef[] {
   const refs: QbankSourceRef[] = [];
-  const has = (needle: string) => raw.toLowerCase().includes(needle.toLowerCase());
+  const haystack = raw.toLowerCase();
 
-  // Primary public-domain government sources (free to use outright).
-  if (has("Green Book") || has("Yellow Book") || has("GAGAS") || has("GAO")) {
-    refs.push({ sourceOrg: "GAO", sourceDoc: raw, licenseType: ModuleSourceLicense.PUBLIC_DOMAIN });
-  }
-  if (has("Circular 230") || has("IRS")) {
-    refs.push({ sourceOrg: "IRS", sourceDoc: raw, licenseType: ModuleSourceLicense.PUBLIC_DOMAIN });
-  }
-  if (has("NIST")) {
-    refs.push({ sourceOrg: "NIST", sourceDoc: raw, licenseType: ModuleSourceLicense.PUBLIC_DOMAIN });
-  }
-  // FTC Safeguards Rule (16 CFR Part 314, GLBA implementing reg) — federal
-  // regulation, public domain. Used across the Integration & Data Flow bank.
-  if (has("FTC") || has("Safeguards Rule") || has("16 CFR") || has("GLBA")) {
-    refs.push({ sourceOrg: "FTC", sourceDoc: raw, licenseType: ModuleSourceLicense.PUBLIC_DOMAIN });
-  }
-  // Copyrighted-but-citable tier: summarized + attributed, never reproduced.
-  if (has("COSO")) {
-    refs.push({ sourceOrg: "COSO", sourceDoc: raw, licenseType: ModuleSourceLicense.CITED });
+  for (const authority of authorities) {
+    if (authority.match.some((needle) => haystack.includes(needle.toLowerCase()))) {
+      refs.push({ sourceOrg: authority.sourceOrg, sourceDoc: raw, licenseType: authority.licenseType });
+    }
   }
 
   // Every item must carry at least one source (the sourced-content bar). If the
   // classifier recognized nothing, surface it as a CITED "unclassified" ref so
   // the import fails loudly rather than seeding an unsourced item.
   if (refs.length === 0) {
-    refs.push({ sourceOrg: "UNCLASSIFIED", sourceDoc: raw, licenseType: ModuleSourceLicense.CITED });
+    refs.push({
+      sourceOrg: UNCLASSIFIED_SOURCE_ORG,
+      sourceDoc: raw,
+      licenseType: ModuleSourceLicense.CITED,
+    });
   }
   return refs;
 }
@@ -112,8 +137,9 @@ export type QbankParseReport = {
  */
 export function parseQbankReport(
   markdown: string,
-  keyPrefix: string = QBANK_TEMPLATE_KEY,
-  anchorCodes: ReadonlySet<string> = QBANK_ANCHOR_CODES
+  keyPrefix: string,
+  anchorCodes: ReadonlySet<string>,
+  authorities: readonly QbankSourceAuthority[]
 ): QbankParseReport {
   const items: ParsedQbankItem[] = [];
   const issues: QbankParseIssue[] = [];
@@ -129,7 +155,7 @@ export function parseQbankReport(
     const code = ITEM_RE.exec(block)?.[1] ?? null;
     try {
       const parsed: ParsedQbankItem[] = [];
-      parseItemBlock(block, currentCategory, parsed, keyPrefix);
+      parseItemBlock(block, currentCategory, parsed, keyPrefix, authorities);
       for (const item of parsed) {
         items.push({ ...item, isAnchor: anchorCodes.has(item.code) });
       }
@@ -164,7 +190,8 @@ export function parseQbankReport(
 
 export function parseQbank(
   markdown: string,
-  keyPrefix: string = QBANK_TEMPLATE_KEY
+  keyPrefix: string,
+  authorities: readonly QbankSourceAuthority[]
 ): ParsedQbankItem[] {
   const items: ParsedQbankItem[] = [];
   let currentCategory: string | null = null;
@@ -175,7 +202,7 @@ export function parseQbank(
   let buffer: string[] = [];
   const flush = () => {
     if (buffer.length === 0) return;
-    parseItemBlock(buffer.join(" "), currentCategory, items, keyPrefix);
+    parseItemBlock(buffer.join(" "), currentCategory, items, keyPrefix, authorities);
     buffer = [];
   };
 
@@ -212,7 +239,8 @@ function parseItemBlock(
   block: string,
   currentCategory: string | null,
   items: ParsedQbankItem[],
-  keyPrefix: string
+  keyPrefix: string,
+  authorities: readonly QbankSourceAuthority[]
 ): void {
   const itemMatch = ITEM_RE.exec(block);
   if (!itemMatch) return;
@@ -255,6 +283,6 @@ function parseItemBlock(
       correctKey,
       feedback,
       sourceRaw,
-      sources: classifyQbankSources(sourceRaw),
+      sources: classifyQbankSources(sourceRaw, authorities),
     });
 }

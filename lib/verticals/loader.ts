@@ -6,15 +6,44 @@ import type { VerticalPack } from "./types";
 
 export const VERTICALS_DIR = "verticals";
 
+/**
+ * License tiers a pack may assert for a question-bank source authority. Mirrors
+ * the Prisma `ModuleSourceLicense` enum, spelled out as literals so the manifest
+ * loader stays free of a Prisma import (it is also used from non-DB contexts).
+ * `tests/qbank-source-authorities.contract.test.ts` pins the two to each other.
+ */
+export const SOURCE_AUTHORITY_LICENSES = ["PUBLIC_DOMAIN", "CITED", "LICENSED"] as const;
+
+const sourceAuthoritySchema = z.object({
+  /** Attribution org recorded on every ModuleSource row this authority matches. */
+  org: z.string().min(1),
+  /** Case-insensitive substrings; any hit classifies the citation. */
+  match: z.array(z.string().min(1)).min(1),
+  license: z.enum(SOURCE_AUTHORITY_LICENSES),
+});
+
 const packSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   version: z.number().int().positive(),
   description: z.string().optional(),
+  /** Class (d) display-layer terms — see lib/verticals/lexicon.ts. */
+  lexicon: z.record(z.string(), z.string()).default({}),
   taxonomy: z.object({
     source: z.enum(["db", "file"]).default("db"),
     filter: z.record(z.string(), z.string()).optional(),
   }),
+  /**
+   * Class (b) question-bank payload. `sourceAuthorities` replaces the hardcoded
+   * citation classifier that used to live in lib/modules/qbankParser.ts.
+   * ORDER IS SIGNIFICANT: a citation matching several authorities yields one
+   * source ref per match, in manifest order.
+   */
+  questionBank: z
+    .object({
+      sourceAuthorities: z.array(sourceAuthoritySchema).default([]),
+    })
+    .default({ sourceAuthorities: [] }),
   workflows: z.array(z.string()).default([]),
   agent_prompts: z.record(z.string(), z.string()).default({}),
   compliance: z.object({

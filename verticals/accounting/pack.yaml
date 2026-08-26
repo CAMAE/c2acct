@@ -1,7 +1,20 @@
 id: accounting
 name: Accounting
-version: 1
+version: 2
 description: Accounting firm + vendor alignment pack (V1 reference Vertical Pack)
+
+# Display-layer lexicon (class d): the industry nouns the guarded copy surfaces
+# interpolate. Structure, punctuation and casing stay in the surface — a pack
+# supplies words, never sentences. These values ARE the literal strings that
+# shipped before the lexicon seam existed, and tests/vertical-lexicon-byte-
+# identity.contract.test.ts holds them to that character-for-character.
+lexicon:
+  ecosystem: "accounting ecosystem"
+  firm: "accounting firm"
+  firmArticle: "an"
+  firmPlural: "accounting firms"
+  firmMarket: "accounting-firm market"
+  vendorAudience: "software for accounting firms"
 
 # Taxonomy (descriptive layer): vendor categories live in the TaxonomyBucket
 # table, filtered by verticalId. Structural entities (Company, Product, Vendor,
@@ -10,6 +23,35 @@ taxonomy:
   source: db
   filter:
     verticalId: accounting
+
+# Question bank (class b). sourceAuthorities replaces the hardcoded classifier
+# that used to live in lib/modules/qbankParser.ts: a legal or healthcare vertical
+# shares NIST and nothing else, so the authority list is pack data, not code.
+#
+# ORDER IS SIGNIFICANT — a citation matching several authorities produces one
+# ModuleSource row per match, in this order. Keep GAO → IRS → NIST → FTC → COSO
+# unless you intend to reorder existing rows.
+questionBank:
+  sourceAuthorities:
+    # Primary public-domain government sources (free to use outright).
+    - org: GAO
+      match: ["Green Book", "Yellow Book", "GAGAS", "GAO"]
+      license: PUBLIC_DOMAIN
+    - org: IRS
+      match: ["Circular 230", "IRS"]
+      license: PUBLIC_DOMAIN
+    - org: NIST
+      match: ["NIST"]
+      license: PUBLIC_DOMAIN
+    # FTC Safeguards Rule (16 CFR Part 314, GLBA implementing reg) — federal
+    # regulation, public domain. Used across the Integration & Data Flow bank.
+    - org: FTC
+      match: ["FTC", "Safeguards Rule", "16 CFR", "GLBA"]
+      license: PUBLIC_DOMAIN
+    # Copyrighted-but-citable tier: summarized + attributed, never reproduced.
+    - org: COSO
+      match: ["COSO"]
+      license: CITED
 
 workflows:
   - templates/vendor-review.yaml

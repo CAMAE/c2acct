@@ -6,13 +6,19 @@ import {
   classifyQbankSources,
   parseQbank,
 } from "@/lib/modules/qbankParser";
+import { loadQbankSourceAuthorities } from "@/lib/modules/qbankSourceAuthorities";
 
 /**
  * Parser contract (Sprint 4 M2). Uses an inline fixture in the exact bank
  * format so the test never depends on the gitignored source doc. Exercises the
  * hard cases: an em dash *inside* an option (must not be mistaken for the
  * answer marker), anchor flagging, and multi-tier source classification.
+ *
+ * Since W4 the citation authorities are Vertical Pack data rather than parser
+ * branches, so the parser is exercised against the accounting pack's real list —
+ * the same list the importer and preflight resolve.
  */
+const AUTHORITIES = await loadQbankSourceAuthorities();
 
 const FIXTURE = `
 ## SECTION A — Control Environment & Firm Governance (27: 8E/14M/5H)
@@ -35,7 +41,7 @@ const FIXTURE = `
 `;
 
 describe("qbank parser", () => {
-  const items = parseQbank(FIXTURE);
+  const items = parseQbank(FIXTURE, QBANK_TEMPLATE_KEY, AUTHORITIES);
 
   it("parses every item with a stable namespaced key", () => {
     expect(items).toHaveLength(5);
@@ -93,7 +99,7 @@ describe("qbank parser", () => {
     expect(coso.licenseType).toBe(ModuleSourceLicense.CITED);
 
     // NIST alone is public domain.
-    expect(classifyQbankSources("NIST CSF 2.0")).toEqual([
+    expect(classifyQbankSources("NIST CSF 2.0", AUTHORITIES)).toEqual([
       { sourceOrg: "NIST", sourceDoc: "NIST CSF 2.0", licenseType: ModuleSourceLicense.PUBLIC_DOMAIN },
     ]);
   });

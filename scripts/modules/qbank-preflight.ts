@@ -2,6 +2,7 @@
 import { readFileSync } from "node:fs";
 import { ModuleDifficulty, ModuleSourceLicense } from "@prisma/client";
 import { parseQbankReport, type ParsedQbankItem } from "@/lib/modules/qbankParser";
+import { loadQbankSourceAuthorities } from "@/lib/modules/qbankSourceAuthorities";
 import { DIFFICULTY_MIX } from "@/lib/modules/qbankServing";
 import { PERF_SCALE_FIRM_PREFIX } from "@/lib/demo-seed/perfScale";
 
@@ -97,10 +98,17 @@ async function main() {
   const allKeys = new Map<string, string[]>();
   let anyBlocking = false;
 
+  // Citation authorities come from the resolved Vertical Pack. Flag off, the
+  // resolver short-circuits to the "accounting" constant, so this is that
+  // pack's list — which must classify both banks exactly as the old hardcoded
+  // branches did. Nothing is logged about it on purpose: this script's stdout
+  // is the diff artifact that proves W4 changed no classification.
+  const authorities = await loadQbankSourceAuthorities();
+
   for (const bank of BANKS) {
     const markdown = readFileSync(bank.path, "utf8");
     const anchors = declaredAnchors(markdown);
-    const report = parseQbankReport(markdown, bank.keyPrefix, anchors.codes);
+    const report = parseQbankReport(markdown, bank.keyPrefix, anchors.codes, authorities);
     const { items, issues, blocksSeen } = report;
 
     console.log(`\n───────── ${bank.label} ─────────`);
