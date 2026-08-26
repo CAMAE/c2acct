@@ -11,7 +11,9 @@ import {
   getRequestedVendorAlignmentInsightOverviewMode,
 } from "@/lib/vendorAlignmentInsightEngine";
 
-const ROOT = "/Users/camerongarrett/work/c2acct-live";
+// Repo root, resolved at run time — vitest runs from the project root.
+// A hardcoded absolute path breaks the suite for every other machine (RK20).
+const ROOT = process.cwd();
 
 function buildFixture(input: {
   sampleSize: number;

@@ -8,7 +8,9 @@ import {
   llmBackedAgentKeys,
 } from "@/lib/agents/llm";
 
-const ROOT = "/Users/camerongarrett/work/c2acct-live";
+// Repo root, resolved at run time — vitest runs from the project root.
+// A hardcoded absolute path breaks the suite for every other machine (RK20).
+const ROOT = process.cwd();
 
 const originalKey = process.env.ANTHROPIC_API_KEY;
 

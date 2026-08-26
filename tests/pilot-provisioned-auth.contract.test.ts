@@ -8,7 +8,9 @@ import {
 } from "@/lib/auth/passwords";
 import { PILOT_SEED_TEMPORARY_PASSWORD } from "@/lib/pilotCohortSeed";
 
-const ROOT = "/Users/camerongarrett/work/c2acct-live";
+// Repo root, resolved at run time — vitest runs from the project root.
+// A hardcoded absolute path breaks the suite for every other machine (RK20).
+const ROOT = process.cwd();
 
 function readRepoFile(path: string) {
   return readFileSync(`${ROOT}/${path}`, "utf8");

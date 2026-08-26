@@ -2,7 +2,9 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-const ROOT = "/Users/camerongarrett/work/c2acct-live";
+// Repo root, resolved at run time — vitest runs from the project root.
+// A hardcoded absolute path breaks the suite for every other machine (RK20).
+const ROOT = process.cwd();
 
 const brandedAssessmentHeroRoutes = [
   "app/(app)/user/alignment-assessment/page.tsx",

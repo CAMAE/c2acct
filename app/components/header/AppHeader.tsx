@@ -208,7 +208,7 @@ export default function AppHeader({
                 <div
                   ref={languageCardRef}
                   id="language-nav-card"
-                  className="absolute right-0 top-[3.55rem] z-[65] min-w-[11rem] rounded-[1.25rem] border border-[var(--shell-border)] bg-white/98 p-2.5"
+                  className="absolute right-0 top-[calc(100%+0.5rem)] z-[65] min-w-[11rem] rounded-[1.25rem] border border-[var(--shell-border)] bg-white/98 p-2.5"
                 >
                   <div className="px-2.5 pb-2 text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-[var(--shell-muted)]">
                     {uiText.language}
@@ -265,7 +265,7 @@ export default function AppHeader({
                   role="dialog"
                   aria-modal="true"
                   aria-labelledby="global-nav-title"
-                  className="absolute right-0 top-[3.55rem] z-[60] w-[18rem] max-w-[calc(100vw-1.5rem)] rounded-[1.55rem] border border-[var(--shell-border)] bg-white/98 p-3"
+                  className="absolute right-0 top-[calc(100%+0.5rem)] z-[60] w-[18rem] max-w-[calc(100vw-1.5rem)] rounded-[1.55rem] border border-[var(--shell-border)] bg-white/98 p-3"
                 >
                   <div className="border-b border-[var(--shell-border)] px-3 pb-3">
                     <div id="global-nav-title" className="text-[0.82rem] font-semibold uppercase tracking-[0.22em] text-[var(--shell-muted)]">

@@ -18,7 +18,9 @@ import {
 } from "@/lib/vendorProductInsightEngine";
 import { buildVendorProductQuestions } from "@/lib/vendorPat";
 
-const ROOT = "/Users/camerongarrett/work/c2acct-live";
+// Repo root, resolved at run time — vitest runs from the project root.
+// A hardcoded absolute path breaks the suite for every other machine (RK20).
+const ROOT = process.cwd();
 
 describe("vendor product insight runtime", () => {
   it("normalizes stored answers against the submission scale", () => {

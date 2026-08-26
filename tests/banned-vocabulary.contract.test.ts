@@ -12,7 +12,9 @@ import { CONFIDENCE_BAND_LABEL } from "@/lib/confidenceBands";
  * identifiers like `swapStaged` or the `emerging` band KEY.
  */
 
-const ROOT = "/Users/camerongarrett/work/c2acct-live";
+// Repo root, resolved at run time — vitest runs from the project root.
+// A hardcoded absolute path breaks the suite for every other machine (RK20).
+const ROOT = process.cwd();
 
 /** Customer-facing copy files this rule guards. */
 const guardedFiles = [

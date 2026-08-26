@@ -12,7 +12,9 @@ import type { AdminCompanyBriefing } from "@/lib/adminBriefingEngine";
  * ecosystem detail filters responses to the ecosystem vendor's own catalog.
  */
 
-const ROOT = "/Users/camerongarrett/work/c2acct-live";
+// Repo root, resolved at run time — vitest runs from the project root.
+// A hardcoded absolute path breaks the suite for every other machine (RK20).
+const ROOT = process.cwd();
 
 function walk(dir: string): string[] {
   const out: string[] = [];

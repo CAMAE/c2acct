@@ -16,7 +16,9 @@ import {
  * re-deriving thresholds locally. Same reader everywhere.
  */
 
-const ROOT = "/Users/camerongarrett/work/c2acct-live";
+// Repo root, resolved at run time — vitest runs from the project root.
+// A hardcoded absolute path breaks the suite for every other machine (RK20).
+const ROOT = process.cwd();
 
 describe("freshness windows (16a, published on /methodology)", () => {
   it("the windows are exactly Fresh <90d, Aging 90–365d, Stale >365d", () => {

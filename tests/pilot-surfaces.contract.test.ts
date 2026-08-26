@@ -9,7 +9,9 @@ import {
 } from "@/lib/pilotSurfaces";
 import { getPublicOnboardingHomeCards, isPublicOnboardingAudienceEnabled } from "@/lib/publicOnboarding";
 
-const ROOT = "/Users/camerongarrett/work/c2acct-live";
+// Repo root, resolved at run time — vitest runs from the project root.
+// A hardcoded absolute path breaks the suite for every other machine (RK20).
+const ROOT = process.cwd();
 
 function testEnv(overrides: Record<string, string | undefined> = {}): NodeJS.ProcessEnv {
   return {

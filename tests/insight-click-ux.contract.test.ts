@@ -13,7 +13,9 @@ import { getRequestedVendorProductInsightDetailSurface } from "@/lib/vendorProdu
  * non-entitled vendors only.
  */
 
-const ROOT = "/Users/camerongarrett/work/c2acct-live";
+// Repo root, resolved at run time — vitest runs from the project root.
+// A hardcoded absolute path breaks the suite for every other machine (RK20).
+const ROOT = process.cwd();
 const read = (rel: string) => readFileSync(path.join(ROOT, rel), "utf8");
 
 describe("11d — insight detail defaults to the Pro/data pane, never Help", () => {
