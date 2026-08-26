@@ -15,8 +15,25 @@
 import { createHash } from "crypto";
 import { KnowledgeSourceKind, type PrismaClient } from "@prisma/client";
 import { runWithPrisma } from "./_shared/prismaScript";
+import {
+  formatCorpusLintReport,
+  lintCorpus,
+  type CorpusLintReport,
+} from "@/lib/corpus/importLint";
+import { DEPTH_TIER_CORE, type CorpusDepthTier } from "@/lib/patAssistant/corpusAccess";
 
-type HelpArticle = { path: string; title: string; roleAccess: string[]; body: string };
+type HelpArticle = {
+  path: string;
+  title: string;
+  roleAccess: string[];
+  body: string;
+  /**
+   * Retrieval depth (corpus program). Omitted = CORE, which is what every
+   * article below is: the tier wall ships before the content it gates, so no
+   * ELITE source can ever be authored into an unguarded corpus.
+   */
+  depthTier?: CorpusDepthTier;
+};
 
 // Faithful to the portal help content (FIRM_HELP_CARDS, vendorHelpCards,
 // individualHelpCards) plus two global orientation articles.
@@ -254,6 +271,36 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
 ];
 
+/**
+ * The import lint (corpus program (d)) — the gate every write path runs first.
+ *
+ * Placed at the IMPORT boundary rather than in review, because the corpus is the
+ * one place Pat is allowed to speak from: anything indexed here is something the
+ * assistant will state to a customer as fact, in our voice, with a citation.
+ * A banned construct that reaches the table is a claim we have already made.
+ *
+ * Throws rather than warns. A lint that only warns during a seed is a lint
+ * nobody sees — seeds run unattended, and the offending row lands anyway.
+ */
+export class CorpusLintError extends Error {
+  constructor(public readonly report: CorpusLintReport) {
+    super(formatCorpusLintReport(report));
+    this.name = "CorpusLintError";
+  }
+}
+
+export function lintHelpArticles(articles: readonly HelpArticle[] = HELP_ARTICLES): CorpusLintReport {
+  return lintCorpus(articles.map(({ path, title, body }) => ({ path, title, body })));
+}
+
+/** Lint, or throw with the full report. Called by every path that writes. */
+export function assertHelpArticlesClean(articles: readonly HelpArticle[] = HELP_ARTICLES): void {
+  const report = lintHelpArticles(articles);
+  if (!report.ok) {
+    throw new CorpusLintError(report);
+  }
+}
+
 function sha256(value: string): string {
   return createHash("sha256").update(value).digest("hex");
 }
@@ -271,6 +318,9 @@ type HelpIndexClient = Pick<PrismaClient, "knowledgeSource" | "knowledgeChunk">;
 export async function planHelpDocs(
   prisma: Pick<PrismaClient, "knowledgeSource">
 ): Promise<{ toIndex: string[]; unchanged: string[]; total: number }> {
+  // The dry-run lints too: a plan that reports "3 articles would be indexed" for
+  // content the real run will reject is a dry-run that tested nothing.
+  assertHelpArticlesClean();
   const toIndex: string[] = [];
   const unchanged: string[] = [];
   for (const article of HELP_ARTICLES) {
@@ -291,6 +341,9 @@ export async function planHelpDocs(
  * counts so callers can log them.
  */
 export async function indexHelpDocs(prisma: HelpIndexClient): Promise<{ indexed: number; skipped: number; total: number }> {
+  // Gate before the first write, not per article: a corpus that is half-indexed
+  // and then rejected is worse than one that is not indexed at all.
+  assertHelpArticlesClean();
   let indexed = 0;
   let skipped = 0;
   for (const article of HELP_ARTICLES) {
@@ -316,6 +369,7 @@ export async function indexHelpDocs(prisma: HelpIndexClient): Promise<{ indexed:
           lastIndexedAt: new Date(),
           roleAccess: article.roleAccess,
           verticalId: "accounting",
+          depthTier: article.depthTier ?? DEPTH_TIER_CORE,
         },
       });
       await prisma.knowledgeChunk.create({
@@ -330,6 +384,7 @@ export async function indexHelpDocs(prisma: HelpIndexClient): Promise<{ indexed:
           lastIndexedAt: new Date(),
           roleAccess: article.roleAccess,
           verticalId: "accounting",
+          depthTier: article.depthTier ?? DEPTH_TIER_CORE,
         },
       });
       await prisma.knowledgeChunk.create({

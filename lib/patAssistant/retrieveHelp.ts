@@ -2,6 +2,11 @@ import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { frameUntrusted } from "@/lib/agents/internal-knowledge/retrieve";
 import type { RetrievedChunk } from "@/lib/agents/internal-knowledge/retrieve";
+import {
+  PUBLIC_AUDIENCE,
+  readableDepthTiers,
+  type CorpusDepthTier,
+} from "@/lib/patAssistant/corpusAccess";
 
 /**
  * Customer-facing, role-scoped help retrieval for Pat (Phase 0 foundation,
@@ -19,16 +24,62 @@ import type { RetrievedChunk } from "@/lib/agents/internal-knowledge/retrieve";
  * `audience` MUST come from the server session (lib/auth/session.ts), never from
  * the client. Reuses the existing tsvector lexical search + RetrievedChunk shape,
  * so citations keep working and the documented pgvector swap-seam still applies.
+ *
+ * THREE walls now compose in the WHERE clause, and all three are deny-by-default:
+ *
+ *   1. kind = 'help_doc'  — the customer-safe corpus, always, in every mode.
+ *   2. roleAccess         — the caller's audience, unless `unrestricted`.
+ *   3. depthTier          — an ALLOWLIST of tiers derived from the caller's
+ *                           membership plan (corpus program). CORE for everyone;
+ *                           ELITE only for an ELITE member.
+ *
+ * The tier wall is inert on the day it lands: every existing source is CORE by
+ * column default, and CORE is readable by everyone, so retrieval returns exactly
+ * what it returned before. That is the point — the wall exists BEFORE the
+ * content it gates, so no ELITE source can ever be authored into an unguarded
+ * corpus.
+ *
+ * `unrestricted` (consultant/admin) drops wall 2 ONLY. Being entitled to ask
+ * about any audience's help is not the same entitlement as being entitled to
+ * read paid depth; collapsing the two would hand ELITE content to every
+ * consultant seat.
  */
+export type RetrieveHelpOptions = {
+  verticalId?: string;
+  /** consultant/admin: drop the AUDIENCE predicate. Never the tier predicate. */
+  unrestricted?: boolean;
+  /**
+   * The viewer's membership plan, from the server-side membership resolver.
+   * Absent/unentitled = CORE only. Never client-supplied.
+   */
+  membershipPlan?: string | null;
+  /**
+   * Set ONLY by an unauthenticated public entry path (corpus program (b)).
+   *
+   * That path does not exist yet and nothing passes this in this box — the wall
+   * learns the word, no surface speaks it. When it does exist it will be
+   * signed-out by definition, so it gets CORE depth and the `public` audience
+   * and nothing else.
+   */
+  publicEntry?: boolean;
+};
+
 export async function retrieveHelp(
   query: string,
   audience: string,
   k = 5,
-  opts?: { verticalId?: string; unrestricted?: boolean }
+  opts?: RetrieveHelpOptions
 ): Promise<RetrievedChunk[]> {
   const q = query.trim();
   const aud = audience.trim();
   if (!q || !aud) {
+    return [];
+  }
+
+  // A signed-in caller may never claim the public audience: `public` marks
+  // content for the unauthenticated entry path, and an authenticated session
+  // reaching it would be an audience escalation, not a convenience.
+  if (aud === PUBLIC_AUDIENCE && !opts?.publicEntry) {
     return [];
   }
 
@@ -51,6 +102,16 @@ export async function retrieveHelp(
     ? Prisma.empty
     : Prisma.sql`AND (cardinality(s."roleAccess") = 0 OR ${aud} = ANY(s."roleAccess"))`;
 
+  // Depth-tier allowlist. An ALLOWLIST rather than a `<=` comparison so the wall
+  // stays deny-by-default: a tier added to the enum later is invisible to every
+  // existing viewer until it is named on purpose. The public entry path is
+  // signed out by definition, so it is pinned to CORE regardless of anything
+  // else a caller passes.
+  const tiers: CorpusDepthTier[] = opts?.publicEntry
+    ? ["CORE"]
+    : readableDepthTiers(opts?.membershipPlan);
+  const tierFilter = Prisma.sql`AND s."depthTier"::text = ANY(${tiers}::text[])`;
+
   // roleAccess scoping: empty array = help visible to every authenticated audience;
   // otherwise the caller's audience must be a member. Enforced here, in SQL.
   const rows = await prisma.$queryRaw<
@@ -65,6 +126,7 @@ export async function retrieveHelp(
     JOIN "KnowledgeSource" s ON s."id" = c."sourceId"
     WHERE s."kind" = 'help_doc'
       ${roleFilter}
+      ${tierFilter}
       AND c."tsv" @@ websearch_to_tsquery('english', ${tsquery})
       ${verticalFilter}
     ORDER BY "rank" DESC, c."chunkIdx" ASC

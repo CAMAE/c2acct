@@ -17,6 +17,16 @@ vi.mock("@/lib/patAssistant/retrieveHelp", () => ({
   buildHelpContext: vi.fn(() => "ctx"),
 }));
 vi.mock("@/lib/patAssistant/model", () => ({ generatePatReply: vi.fn() }));
+// The gap log is mocked, not exercised: this suite is "no DB, no network", and a
+// real write here would put junk rows in the dev database. Its CONTENT is proved
+// in tests/pat-decline-log.contract.test.ts; what matters here is that every
+// decline path calls it, which is asserted below.
+vi.mock("@/lib/patAssistant/declineLog", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/patAssistant/declineLog")>(
+    "@/lib/patAssistant/declineLog"
+  );
+  return { ...actual, recordPatDecline: vi.fn(async () => {}) };
+});
 
 import { POST } from "@/app/api/pat/route";
 import { isPatAssistantEnabled } from "@/lib/patAssistant/flags";
@@ -26,6 +36,7 @@ import { anthropicApiKeyPresent } from "@/lib/agents/llm";
 import { resolvePatAudience } from "@/lib/patAssistant/audience";
 import { retrieveHelp } from "@/lib/patAssistant/retrieveHelp";
 import { generatePatReply } from "@/lib/patAssistant/model";
+import { DECLINE_RUNGS, recordPatDecline } from "@/lib/patAssistant/declineLog";
 
 const flag = vi.mocked(isPatAssistantEnabled);
 const consent = vi.mocked(hasPatConsent);
@@ -34,6 +45,7 @@ const keyPresent = vi.mocked(anthropicApiKeyPresent);
 const audience = vi.mocked(resolvePatAudience);
 const retrieve = vi.mocked(retrieveHelp);
 const generate = vi.mocked(generatePatReply);
+const decline = vi.mocked(recordPatDecline);
 
 function call(question: unknown) {
   const req = new Request("http://localhost/api/pat", {
@@ -58,7 +70,7 @@ beforeEach(() => {
   flag.mockReturnValue(true);
   consent.mockResolvedValue(true);
   session.mockResolvedValue({ id: "u1", email: "u@x.com", role: "MEMBER", companyId: "c1" });
-  audience.mockResolvedValue({ audience: "vendor", unrestricted: false });
+  audience.mockResolvedValue({ audience: "vendor", unrestricted: false, membershipPlan: "PRO" });
   keyPresent.mockReturnValue(true);
   retrieve.mockResolvedValue([aChunk]);
   generate.mockResolvedValue({ text: "Go to Settings.", modelUsed: "fast", escalated: false, insufficientContext: false });
@@ -122,8 +134,69 @@ describe("POST /api/pat — happy path", () => {
   });
 
   it("passes the unrestricted flag through for consultant/admin callers", async () => {
-    audience.mockResolvedValue({ audience: "consultant", unrestricted: true });
+    audience.mockResolvedValue({ audience: "consultant", unrestricted: true, membershipPlan: "NO_MEMBERSHIP" });
     await call("anything");
-    expect(retrieve).toHaveBeenCalledWith("anything", "consultant", 5, { unrestricted: true });
+    expect(retrieve).toHaveBeenCalledWith("anything", "consultant", 5, {
+      unrestricted: true,
+      membershipPlan: "NO_MEMBERSHIP",
+    });
+  });
+});
+
+/**
+ * Corpus program (c) — a decline that is not logged is a gap the corpus program
+ * cannot see. Every path that returns the fallback must record one, so the
+ * assertion is per-path rather than "logging exists somewhere".
+ */
+describe("POST /api/pat — every decline is logged", () => {
+  it("logs a corpus miss when retrieval returns nothing", async () => {
+    retrieve.mockResolvedValue([]);
+    await call("something we have no help for");
+    expect(decline).toHaveBeenCalledWith({
+      question: "something we have no help for",
+      audience: "vendor",
+      rungReached: DECLINE_RUNGS.CORPUS_MISS,
+    });
+  });
+
+  it("logs an unavailable decline when no model key is present", async () => {
+    keyPresent.mockReturnValue(false);
+    await call("anything");
+    expect(decline).toHaveBeenCalledWith({
+      question: "anything",
+      audience: "vendor",
+      rungReached: DECLINE_RUNGS.UNAVAILABLE,
+    });
+  });
+
+  it("logs an insufficient-context decline when the model cannot ground an answer", async () => {
+    generate.mockResolvedValue({
+      text: "INSUFFICIENT_CONTEXT",
+      modelUsed: "strong",
+      escalated: true,
+      insufficientContext: true,
+    });
+    await call("a question the corpus half-matches");
+    expect(decline).toHaveBeenCalledWith({
+      question: "a question the corpus half-matches",
+      audience: "vendor",
+      rungReached: DECLINE_RUNGS.CORPUS_INSUFFICIENT,
+    });
+  });
+
+  it("does NOT log when Pat actually answers", async () => {
+    // The gap log is a record of failure. Logging a success would make the
+    // digest's "what is the corpus missing" question unanswerable.
+    await call("where do I find settings");
+    expect(decline).not.toHaveBeenCalled();
+  });
+
+  it("never lets a gap-log failure reach the user", async () => {
+    // recordPatDecline swallows its own errors; this proves the route does not
+    // reintroduce the failure by awaiting it unguarded.
+    decline.mockRejectedValueOnce(new Error("db down"));
+    retrieve.mockResolvedValue([]);
+    const res = await call("anything");
+    expect(res.status).toBe(200);
   });
 });

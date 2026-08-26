@@ -1510,12 +1510,33 @@ model KnowledgeSource {
   // retrieve these chunks (e.g. ["vendor"], ["firm","consultant"]). Enforced in
   // the SQL WHERE of lib/patAssistant/retrieveHelp.ts — never by prompting.
   roleAccess    String[]            @default([])
+  // Answer-ladder depth (corpus program). CORE is everything that exists today
+  // and is readable by any entitled audience; ELITE marks depth that requires an
+  // ELITE membership to retrieve. Enforced in the SQL WHERE of
+  // lib/patAssistant/retrieveHelp.ts — never by prompting, and never by the
+  // client. Default CORE means the column is inert on every existing row.
+  depthTier     KnowledgeDepthTier  @default(CORE)
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
   chunks        KnowledgeChunk[]
 
   @@index([kind])
   @@index([verticalId])
+  @@index([depthTier])
+}
+
+// Retrieval depth tiers for the help corpus.
+//
+// CORE — the corpus as it exists today: any entitled audience may retrieve it.
+// ELITE — depth gated behind an ELITE membership.
+//
+// Deliberately NOT a membership plan enum: the corpus tier is a property of the
+// CONTENT, and the membership plan is a property of the VIEWER. Reusing
+// MembershipPlan here would tie corpus authoring to billing states like
+// PENDING_CHECKOUT that have no meaning for a document.
+enum KnowledgeDepthTier {
+  CORE
+  ELITE
 }
 
 enum KnowledgeSourceKind {
@@ -1523,6 +1544,41 @@ enum KnowledgeSourceKind {
   audit_log
   dream_state
   help_doc
+}
+
+// Every question Pat DECLINED to answer (corpus program, answer-ladder rung
+// support).
+//
+// The gap log. A decline is the single most informative event the assistant
+// produces: it is a real user, asking a real question, in a real audience, that
+// the corpus could not answer. Without this table that signal is discarded at
+// the moment it is generated, and the corpus can only ever be extended by
+// guesswork about what people wanted.
+//
+// The question text is stored REDACTED (lib/agents/redact.ts, the same redactor
+// the audit trail uses), so a user who pastes a key or a connection string into
+// the chat box does not write it into a second durable table. Redaction is
+// one-way and lossy on purpose; what survives is what a corpus author needs.
+//
+// No userId, no companyId, no subjectId. The digest this feeds answers "what is
+// the corpus missing for firms?", never "what did this firm ask?" — storing the
+// identity would make an innocuous analytics table into a per-tenant question
+// history, which is a different product with different consent.
+model PatDeclineLog {
+  id               String   @id @default(cuid())
+  /// The asked question, passed through the audit redactor. Never raw.
+  questionRedacted String
+  /// Server-resolved audience (vendor/firm/consultant/admin/...). Never client-supplied.
+  audience         String
+  verticalId       String   @default("accounting")
+  /// How far up the answer ladder the question got before it was declined.
+  rungReached      String
+  createdAt        DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([audience, createdAt])
+  @@index([verticalId, createdAt])
+  @@index([rungReached, createdAt])
 }
 
 model KnowledgeChunk {
