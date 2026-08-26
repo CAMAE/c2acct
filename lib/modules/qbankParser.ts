@@ -91,6 +91,77 @@ export function classifyQbankSources(raw: string): QbankSourceRef[] {
   return refs;
 }
 
+export type QbankParseIssue = { code: string | null; message: string };
+
+export type QbankParseReport = {
+  items: ParsedQbankItem[];
+  /** One entry per item block that could not be parsed. */
+  issues: QbankParseIssue[];
+  /** Item blocks detected in the source, parsed or not. */
+  blocksSeen: number;
+};
+
+/**
+ * VALIDATE-ONLY parse. Never writes, never throws on a malformed item: it
+ * isolates each item block so one broken marker cannot hide the state of every
+ * item after it.
+ *
+ * parseQbank() throws on the first bad block, which is right for an import (a
+ * partially-parsed bank must not seed) and wrong for a preflight, where the
+ * whole point is to see every defect in one pass before anyone signs off.
+ */
+export function parseQbankReport(
+  markdown: string,
+  keyPrefix: string = QBANK_TEMPLATE_KEY,
+  anchorCodes: ReadonlySet<string> = QBANK_ANCHOR_CODES
+): QbankParseReport {
+  const items: ParsedQbankItem[] = [];
+  const issues: QbankParseIssue[] = [];
+  let blocksSeen = 0;
+  let currentCategory: string | null = null;
+  let buffer: string[] = [];
+
+  const flush = () => {
+    if (buffer.length === 0) return;
+    const block = buffer.join(" ");
+    buffer = [];
+    blocksSeen += 1;
+    const code = ITEM_RE.exec(block)?.[1] ?? null;
+    try {
+      const parsed: ParsedQbankItem[] = [];
+      parseItemBlock(block, currentCategory, parsed, keyPrefix);
+      for (const item of parsed) {
+        items.push({ ...item, isAnchor: anchorCodes.has(item.code) });
+      }
+    } catch (error) {
+      issues.push({ code, message: error instanceof Error ? error.message : String(error) });
+    }
+  };
+
+  for (const rawLine of markdown.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line) {
+      flush();
+      continue;
+    }
+    const sectionMatch = SECTION_RE.exec(line);
+    if (sectionMatch) {
+      flush();
+      currentCategory = sectionMatch[2]!.trim();
+      continue;
+    }
+    if (ITEM_RE.test(line)) {
+      flush();
+      buffer = [line];
+      continue;
+    }
+    if (buffer.length > 0) buffer.push(line);
+  }
+  flush();
+
+  return { items, issues, blocksSeen };
+}
+
 export function parseQbank(
   markdown: string,
   keyPrefix: string = QBANK_TEMPLATE_KEY
