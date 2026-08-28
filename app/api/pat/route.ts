@@ -7,6 +7,9 @@ import { resolvePatAudience } from "@/lib/patAssistant/audience";
 import { buildHelpContext, retrieveHelp } from "@/lib/patAssistant/retrieveHelp";
 import { generatePatReply } from "@/lib/patAssistant/model";
 import { runAnswerLadder } from "@/lib/patAssistant/ladder";
+import { runWebRung } from "@/lib/patAssistant/web/rung";
+import { resolveWebSearchProvider } from "@/lib/patAssistant/web/provider";
+import { checkWebBudget, recordWebSearch } from "@/lib/patAssistant/web/budget";
 
 export const dynamic = "force-dynamic";
 
@@ -85,6 +88,30 @@ export async function POST(req: Request) {
         }),
       generate: (chunks) =>
         generatePatReply({ prompt: question, context: buildHelpContext(chunks) }),
+      // The web rung (LADDER-2). The route composes it because the route is
+      // where the request's identity and the database live — the rung handler
+      // itself imports neither, which is what makes the tenant-data firewall
+      // provable rather than promised.
+      attemptWeb: (scope) =>
+        runWebRung({
+          question,
+          audience: resolution.audience,
+          userId: sessionUser.id,
+          scope,
+          provider: resolveWebSearchProvider(),
+          budgetAllows: async () => {
+            const verdict = await checkWebBudget(sessionUser.id);
+            return { allowed: verdict.allowed, reason: verdict.reason };
+          },
+          onSearchBilled: (outcome, answered) =>
+            recordWebSearch({
+              userId: sessionUser.id,
+              audience: resolution.audience,
+              provider: outcome.provider,
+              costUsd: outcome.costUsd,
+              answered,
+            }),
+        }),
     });
   } catch {
     // A generation failure is genuinely exceptional, and distinct from a
@@ -103,10 +130,31 @@ export async function POST(req: Request) {
     return fallback(citations);
   }
 
+  if (outcome.kind === "web-answer") {
+    // A web answer is shaped differently on the wire because it MUST carry its
+    // provenance. The renderer already refused any answer without at least one
+    // clickable citation, so `webCitations` is non-empty by construction and
+    // `label` is present verbatim — the client cannot render this as if it were
+    // Patalign's own documentation.
+    return NextResponse.json(
+      {
+        ok: true,
+        answer: outcome.answer.text,
+        source: "web",
+        webLabel: outcome.answer.label,
+        webCitations: outcome.answer.citations,
+        insufficientContext: false,
+        citations,
+      },
+      { headers: { "cache-control": "no-store" } }
+    );
+  }
+
   return NextResponse.json(
     {
       ok: true,
       answer: outcome.reply.text,
+      source: "corpus",
       insufficientContext: false,
       escalated: outcome.reply.escalated,
       modelUsed: outcome.reply.modelUsed,

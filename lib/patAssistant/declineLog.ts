@@ -41,6 +41,14 @@ export const DECLINE_RUNGS = {
   CORPUS_MISS: "corpus_miss",
   /** The corpus matched, but no tier could answer confidently from it. */
   CORPUS_INSUFFICIENT: "corpus_insufficient",
+  /**
+   * The web rung was ATTEMPTED (every wall passed) and still produced no citable
+   * answer — no results, nothing on the allowlist, a provider outage, or a cap
+   * trip. Distinct from corpus_miss because the corpus and the web are different
+   * gaps: one is content we should write, the other is a question the web could
+   * not answer either (LADDER-2).
+   */
+  WEB: "web",
   /** Retrieval never ran: no model key present. */
   UNAVAILABLE: "unavailable",
 } as const;

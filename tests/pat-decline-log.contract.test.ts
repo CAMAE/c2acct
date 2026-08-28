@@ -87,6 +87,8 @@ describe("the rung vocabulary", () => {
       SCOPE_GATE: "scope_gate",
       CORPUS_MISS: "corpus_miss",
       CORPUS_INSUFFICIENT: "corpus_insufficient",
+      // LADDER-2: the web rung was attempted and still produced nothing citable.
+      WEB: "web",
       UNAVAILABLE: "unavailable",
     });
   });

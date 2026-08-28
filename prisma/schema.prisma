@@ -1581,6 +1581,40 @@ model PatDeclineLog {
   @@index([rungReached, createdAt])
 }
 
+// Web-tier search ledger (LADDER-2). A SPEND CONTROL, not analytics.
+//
+// This table exists to answer two questions before money is spent: "how much has
+// the web tier cost today?" and "has this user already had their allowance?".
+// Neither is answerable without a per-row cost and a per-row user, which is why
+// this table carries a userId when PatDeclineLog deliberately does not — you
+// cannot rate-limit per user without knowing the user. It is a rate-limit
+// ledger, and the identity is the point of it rather than an incidental extra.
+//
+// The QUESTION is never stored here. PatDeclineLog already owns the redacted
+// question text with no identity attached; storing the question beside the
+// userId would silently reconstruct the per-tenant question history that the
+// decline log's no-identity rule exists to prevent. Rows are safe to prune on
+// any schedule — nothing reads them beyond the current day's window.
+model PatWebSearchLog {
+  id         String   @id @default(cuid())
+  /// Who spent it. Required: a per-user cap cannot be enforced anonymously.
+  userId     String
+  /// Server-resolved audience, for cost attribution by segment.
+  audience   String
+  verticalId String   @default("accounting")
+  /// Search provider that was billed (e.g. "anthropic").
+  provider   String
+  /// Derived USD cost of the call, from the provider's reported token usage.
+  costUsd    Float    @default(0)
+  /// Whether the rung produced a citable answer. False rows still cost money.
+  answered   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([userId, createdAt])
+  @@index([audience, createdAt])
+}
+
 model KnowledgeChunk {
   id        String          @id @default(cuid())
   sourceId  String

@@ -125,13 +125,23 @@ describe("classifyScope — key present vs absent", () => {
       classifyWithModel,
     });
     expect(classifyWithModel).not.toHaveBeenCalled();
-    expect(verdict).toEqual({ inScope: false, source: "keyword", reason: "general-knowledge" });
+    expect(verdict).toEqual({
+      inScope: false,
+      certainty: "confident-out",
+      source: "keyword",
+      reason: "general-knowledge",
+    });
   });
 
   it("uses the model when a key is present", async () => {
     const verdict = await classifyScope("anything at all", {
       hasApiKey: () => true,
-      classifyWithModel: async () => ({ inScope: false, source: "model", reason: "model_out_of_scope" }),
+      classifyWithModel: async () => ({
+        inScope: false,
+        certainty: "confident-out" as const,
+        source: "model" as const,
+        reason: "model_out_of_scope",
+      }),
     });
     expect(verdict.source).toBe("model");
     expect(verdict.inScope).toBe(false);
@@ -334,21 +344,121 @@ describe("every exit is logged, and a log failure never breaks the walk", () => 
   });
 });
 
-describe("the web tier is NOT in this box", () => {
-  it("no ladder module references a web rung or its flag", async () => {
-    const { readFileSync } = await import("node:fs");
-    const path = await import("node:path");
-    const root = process.cwd();
-    // LADDER-2 is a separate box behind PAT_ENABLE_PAT_WEB_TIER. This asserts
-    // the router did not quietly grow half of it.
-    for (const file of [
-      "lib/patAssistant/ladder.ts",
-      "lib/patAssistant/scopeGate.ts",
-      "app/api/pat/route.ts",
-    ]) {
-      const source = readFileSync(path.join(root, file), "utf8");
-      expect(source).not.toMatch(/PAT_ENABLE_PAT_WEB_TIER\s*[=:]/);
-      expect(source).not.toMatch(/\bwebSearch\b|\bWebSearchProvider\b|\btavily\b/i);
+/**
+ * RETIRED IN LADDER-2: "the web tier is NOT in this box".
+ *
+ * That test asserted no ladder module referenced PAT_ENABLE_PAT_WEB_TIER, a
+ * search provider, or a web rung. It did its job — it kept LADDER-1 honest about
+ * its own boundary — and it is now false by design, so it is removed here rather
+ * than left to fail or quietly weakened.
+ *
+ * Its inversion lives in tests/pat-web-tier.contract.test.ts: the web rung is
+ * reachable ONLY when the flag is on AND a provider is configured AND the caller
+ * is signed-in non-public AND the gate returned confidently in scope AND the
+ * spend caps have room. An absence test becomes a reachability test; the
+ * boundary is still pinned, from the other side.
+ */
+
+/**
+ * LADDER-2 — where the web rung sits in the walk.
+ *
+ * The insertion point is the thing worth pinning: after the corpus FAILS, at
+ * both of the two ways it can fail, and never after it succeeds.
+ */
+describe("the web rung is tried only after the corpus fails", () => {
+  const webAnswer = {
+    kind: "answer" as const,
+    answer: {
+      text: "The AICPA says peer review runs on a three-year cycle.",
+      citations: [{ url: "https://www.aicpa.org/peer-review", title: "Peer Review" }],
+      label: "This comes from the web, not PAT's documentation.",
+    },
+    outcome: { text: "t", sources: [], costUsd: 0.01, provider: "test" },
+  };
+  const webUnavailable = (refusal: "flag_off" | "no_citations" | "provider_error") =>
+    ({ kind: "unavailable" as const, refusal, outcome: null });
+
+  it("is NOT attempted when the corpus answers", async () => {
+    // Patalign's own documentation is the better source whenever it has one.
+    // Paying a search to second-guess it would be wasteful and wrong.
+    const attemptWeb = vi.fn(async () => webAnswer);
+    const { input } = harness({ attemptWeb });
+    const outcome = await runAnswerLadder(input);
+    expect(outcome.kind).toBe("answer");
+    expect(attemptWeb).not.toHaveBeenCalled();
+  });
+
+  it("is attempted on a corpus MISS", async () => {
+    const attemptWeb = vi.fn(async () => webAnswer);
+    const { input, recordDecline } = harness({ retrieve: async () => [], attemptWeb });
+    const outcome = await runAnswerLadder(input);
+    expect(attemptWeb).toHaveBeenCalledTimes(1);
+    expect(outcome.kind).toBe("web-answer");
+    if (outcome.kind === "web-answer") {
+      expect(outcome.answer.citations).toHaveLength(1);
+      expect(outcome.answer.label).toContain("not PAT's documentation");
     }
+    // A web ANSWER is not a gap.
+    expect(recordDecline).not.toHaveBeenCalled();
+  });
+
+  it("is attempted on corpus INSUFFICIENT CONTEXT too", async () => {
+    // Both are "Patalign's documentation cannot answer this", which is the
+    // precondition for looking outward.
+    const attemptWeb = vi.fn(async () => webAnswer);
+    const { input } = harness({ generate: async () => unanswered, attemptWeb });
+    const outcome = await runAnswerLadder(input);
+    expect(attemptWeb).toHaveBeenCalledTimes(1);
+    expect(outcome.kind).toBe("web-answer");
+  });
+
+  it("receives the gate verdict, so it can enforce confident-in-scope itself", async () => {
+    const attemptWeb = vi.fn(async () => webUnavailable("flag_off"));
+    const { input } = harness({
+      question: "where do I find my BattleCard?",
+      env: FLAG_ON,
+      scopeOptions: { hasApiKey: () => false },
+      retrieve: async () => [],
+      attemptWeb,
+    });
+    await runAnswerLadder(input);
+    expect(attemptWeb).toHaveBeenCalledWith(
+      expect.objectContaining({ certainty: "confident-in" })
+    );
+  });
+
+  it("logs rung=web when the web rung RAN and produced nothing citable", async () => {
+    const { input, recordDecline } = harness({
+      retrieve: async () => [],
+      attemptWeb: async () => webUnavailable("no_citations"),
+    });
+    const outcome = await runAnswerLadder(input);
+    expect(outcome.kind).toBe("decline");
+    if (outcome.kind === "decline") expect(outcome.rung).toBe(DECLINE_RUNGS.WEB);
+    expect(recordDecline).toHaveBeenCalledWith(
+      expect.objectContaining({ rungReached: DECLINE_RUNGS.WEB })
+    );
+  });
+
+  it("keeps the CORPUS rung when a wall refused before the rung really ran", async () => {
+    // A wall refusal (flag off, no provider, wrong audience, unconfident scope)
+    // means the web never ran, so the corpus keeps ownership of the decline and
+    // the digest keeps reading true.
+    const { input, recordDecline } = harness({
+      retrieve: async () => [],
+      attemptWeb: async () => webUnavailable("flag_off"),
+    });
+    const outcome = await runAnswerLadder(input);
+    if (outcome.kind === "decline") expect(outcome.rung).toBe(DECLINE_RUNGS.CORPUS_MISS);
+    expect(recordDecline).toHaveBeenCalledWith(
+      expect.objectContaining({ rungReached: DECLINE_RUNGS.CORPUS_MISS })
+    );
+  });
+
+  it("declines exactly as before when no web rung is wired at all", async () => {
+    const { input, recordDecline } = harness({ retrieve: async () => [] });
+    const outcome = await runAnswerLadder(input);
+    if (outcome.kind === "decline") expect(outcome.rung).toBe(DECLINE_RUNGS.CORPUS_MISS);
+    expect(recordDecline).toHaveBeenCalledTimes(1);
   });
 });

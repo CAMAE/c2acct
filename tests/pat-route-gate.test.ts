@@ -13,6 +13,18 @@ vi.mock("@/lib/patAssistant/flags", () => ({
   // throws inside the ladder and surfaces as a 502 — the route's "we broke"
   // branch — so an omission here looks like a routing bug rather than a mock gap.
   isPatLadderEnabled: vi.fn(() => false),
+  // Same lesson as isPatLadderEnabled above, one box later: the web rung reads
+  // this, and a partial module mock leaves it undefined, which throws and
+  // surfaces as a 502.
+  isPatWebTierEnabled: vi.fn(() => false),
+}));
+// The web tier is mocked out entirely here: this suite is "no DB, no network",
+// and resolveWebSearchProvider / checkWebBudget reach both. The rung's own
+// behaviour is proved in tests/pat-web-tier.contract.test.ts.
+vi.mock("@/lib/patAssistant/web/provider", () => ({ resolveWebSearchProvider: vi.fn(() => null) }));
+vi.mock("@/lib/patAssistant/web/budget", () => ({
+  checkWebBudget: vi.fn(async () => ({ allowed: false, reason: "global_cap_exhausted" })),
+  recordWebSearch: vi.fn(async () => {}),
 }));
 vi.mock("@/lib/patAssistant/consent", () => ({ hasPatConsent: vi.fn() }));
 vi.mock("@/lib/auth/session", () => ({ getSessionUser: vi.fn() }));

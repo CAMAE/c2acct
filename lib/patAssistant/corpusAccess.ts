@@ -19,48 +19,25 @@ export const DEPTH_TIER_CORE: CorpusDepthTier = "CORE";
 export const DEPTH_TIER_ELITE: CorpusDepthTier = "ELITE";
 
 /**
- * The `public` audience token (corpus program (b)).
+ * Audience tokens live in ./audienceTokens.ts and are re-exported here so every
+ * existing import keeps working.
  *
- * A roleAccess value reserved for content that an UNAUTHENTICATED public entry
- * path may retrieve. That path does not exist yet, and nothing in this box
- * serves it: the wall learns the word, no surface speaks it.
+ * They moved because THIS module imports the membership resolver (for depth
+ * tiers), which imports Prisma — and the web rung needs the `public` token while
+ * being provably unable to reach tenant data. A leaf module with no imports is
+ * the only way both can be true.
  *
- * It is deliberately a roleAccess audience rather than a new column. roleAccess
- * already means "which audiences may retrieve this", `public` is exactly such an
- * audience, and adding a parallel boolean would create two places to ask one
- * question — the failure mode that produces a source visible under one rule and
- * hidden under the other.
- *
- * Two invariants make it safe to land before its consumer exists, both tested:
- *   1. No authenticated audience resolution ever RETURNS "public"
- *      (lib/patAssistant/audience.ts), so a signed-in caller cannot match a
- *      public-only source through the normal roleAccess predicate.
- *   2. Public retrieval must be requested explicitly via `publicEntry`, and no
- *      route passes it. A grep-able contract test asserts that stays true.
+ * The `public` token is a roleAccess audience reserved for an unauthenticated
+ * public entry path. That path does not exist yet: the wall accepts the word, no
+ * surface serves it. Two invariants keep it safe, both tested — no authenticated
+ * audience resolution returns it, and public retrieval must be requested
+ * explicitly via `publicEntry`, which no route passes.
  */
-export const PUBLIC_AUDIENCE = "public";
-
-/**
- * Audiences the authenticated resolver may produce. `public` is absent by
- * design — it is the one audience that can only come from an unauthenticated
- * path, and an authenticated session must never be able to claim it.
- */
-export const AUTHENTICATED_AUDIENCES = [
-  "admin",
-  "consultant",
-  "vendor",
-  "firm",
-  "individual",
-  "invitee",
-] as const;
-
-/** Is this roleAccess token one the corpus is allowed to carry? */
-export function isKnownAudienceToken(token: string): boolean {
-  return (
-    token === PUBLIC_AUDIENCE ||
-    (AUTHENTICATED_AUDIENCES as readonly string[]).includes(token)
-  );
-}
+export {
+  AUTHENTICATED_AUDIENCES,
+  PUBLIC_AUDIENCE,
+  isKnownAudienceToken,
+} from "@/lib/patAssistant/audienceTokens";
 
 /**
  * The highest depth tier a viewer may retrieve.

@@ -26,9 +26,25 @@ import { PAT_CHAT_MODEL_FAST } from "@/lib/patAssistant/model";
  * recognize gets told Pat cannot help, and there is no second chance. A false
  * negative wastes a query; a false positive loses a user.
  *
- * The direction reverses for the web tier (LADDER-2), where passing the gate
- * spends real money on a search. That box gets its own decision; this one does
- * not pre-empt it.
+ * ## Ambiguity is free-rungs-only (LADDER-2 ruling)
+ *
+ * Failing open is right for rungs that cost nothing and wrong for rungs that
+ * spend money, so the verdict carries a CERTAINTY alongside `inScope`:
+ *
+ *   confident-in  — something positively decided it was in scope.
+ *   confident-out — something positively decided it was out.
+ *   uncertain     — nothing decided. The question proceeds (fail open), but only
+ *                   onto free rungs.
+ *
+ * `inScope` stays the fail-open answer, so the corpus rung still runs on an
+ * uncertain verdict — it costs a query and self-corrects. The WEB rung requires
+ * `confident-in` and nothing less: an ambiguous question must never spend money.
+ *
+ * Certainty is a property of the VERDICT, not of how it was reached. That makes
+ * it strictly stronger than the ruling's literal condition ("model call failed
+ * AND the keyword classifier is uncertain"): a keyword verdict that merely
+ * failed open is uncertain whether or not a model was ever consulted, and in
+ * every one of those cases nothing actually decided, so nothing should be spent.
  *
  * ## Two implementations, one contract
  *
@@ -50,12 +66,33 @@ export type ScopeVerdictSource =
   /** The cheap-model classifier decided. */
   | "model";
 
+/**
+ * Whether anything actually DECIDED, as opposed to the gate failing open.
+ *
+ * Only `confident-in` may unlock a rung that spends money.
+ */
+export type ScopeCertainty = "confident-in" | "confident-out" | "uncertain";
+
 export type ScopeVerdict = {
+  /** The fail-open answer: may this question proceed onto the free rungs? */
   inScope: boolean;
+  certainty: ScopeCertainty;
   source: ScopeVerdictSource;
   /** Short machine-readable reason, for the gap log and for debugging. */
   reason: string;
 };
+
+/**
+ * The single predicate every paid rung must consult.
+ *
+ * Exported as a named function rather than left as an inline
+ * `certainty === "confident-in"` at each call site, so a future paid rung asks
+ * the same question in the same words and cannot accidentally accept
+ * `inScope === true` — which is the fail-open answer, not a decision.
+ */
+export function mayReachPaidRung(scope: ScopeVerdict | null): boolean {
+  return scope?.certainty === "confident-in";
+}
 
 /**
  * High-confidence OUT-OF-SCOPE signals.
@@ -88,7 +125,7 @@ const IN_SCOPE_SIGNALS: RegExp =
 export function classifyScopeByKeyword(question: string): ScopeVerdict {
   const text = question.trim();
   if (!text) {
-    return { inScope: false, source: "keyword", reason: "empty_question" };
+    return { inScope: false, certainty: "confident-out", source: "keyword", reason: "empty_question" };
   }
 
   const inScope = IN_SCOPE_SIGNALS.test(text);
@@ -97,10 +134,16 @@ export function classifyScopeByKeyword(question: string): ScopeVerdict {
   // Product vocabulary wins. A question that mentions the product is a question
   // about the product, whatever else it also mentions.
   if (hit && !inScope) {
-    return { inScope: false, source: "keyword", reason: hit.id };
+    return { inScope: false, certainty: "confident-out", source: "keyword", reason: hit.id };
   }
-  // Fail open: no confident out-of-scope signal means the question proceeds.
-  return { inScope: true, source: "keyword", reason: inScope ? "product_vocabulary" : "no_out_of_scope_signal" };
+  if (inScope) {
+    // Positive product vocabulary: something decided.
+    return { inScope: true, certainty: "confident-in", source: "keyword", reason: "product_vocabulary" };
+  }
+  // Fail open onto the FREE rungs only. Nothing decided this either way, so the
+  // corpus rung may run (it costs a query) and the web rung may not (it costs
+  // money).
+  return { inScope: true, certainty: "uncertain", source: "keyword", reason: "no_out_of_scope_signal" };
 }
 
 const CLASSIFIER_SYSTEM = [
@@ -153,10 +196,10 @@ async function classifyScopeByModel(question: string): Promise<ScopeVerdict> {
     .toUpperCase();
 
   if (text.includes(SCOPE_OUT)) {
-    return { inScope: false, source: "model", reason: "model_out_of_scope" };
+    return { inScope: false, certainty: "confident-out", source: "model", reason: "model_out_of_scope" };
   }
   if (text.includes(SCOPE_IN)) {
-    return { inScope: true, source: "model", reason: "model_in_scope" };
+    return { inScope: true, certainty: "confident-in", source: "model", reason: "model_in_scope" };
   }
   // An unparseable verdict is not a verdict. Treat it as a failure so the
   // deterministic classifier decides, rather than inventing an answer from noise.

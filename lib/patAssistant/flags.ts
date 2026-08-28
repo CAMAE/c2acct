@@ -28,6 +28,16 @@ export const PAT_STALENESS_ALERTS_FLAG_ENV = "PAT_ENABLE_STALENESS_ALERTS";
  * the gate instead of burning a retrieval and a generation.
  */
 export const PAT_LADDER_FLAG_ENV = "PAT_ENABLE_PAT_LADDER";
+/**
+ * LADDER-2 — the web tier (rung 3). Default off.
+ *
+ * The flag is necessary but NOT sufficient. The web rung additionally requires a
+ * configured search provider, a signed-in non-public caller, a confidently
+ * in-scope gate verdict, and room under both spend caps. Each of those is an
+ * independent wall rather than a condition of this one, so turning the flag on
+ * in an environment with no provider key changes nothing.
+ */
+export const PAT_WEB_TIER_FLAG_ENV = "PAT_ENABLE_PAT_WEB_TIER";
 
 function flagEnabled(envName: string): boolean {
   return process.env[envName] === "1";
@@ -70,4 +80,12 @@ export function isStalenessAlertsEnabled(): boolean {
  */
 export function isPatLadderEnabled(env: Record<string, string | undefined> = process.env): boolean {
   return env[PAT_LADDER_FLAG_ENV] === "1";
+}
+
+/**
+ * The web tier's master switch (LADDER-2). One of five independent walls — see
+ * lib/patAssistant/web/rung.ts for the full list and why each is separate.
+ */
+export function isPatWebTierEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return env[PAT_WEB_TIER_FLAG_ENV] === "1";
 }
