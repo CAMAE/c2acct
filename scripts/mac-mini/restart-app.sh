@@ -21,7 +21,9 @@ mac_mini_ensure_dirs
 mac_mini_load_contract
 mac_mini_load_env
 mac_mini_assert_runtime_root_allowed
-mac_mini_assert_clean_root
+# One exact-path exemption vs the other startup scripts: a tree dirty ONLY by
+# the session ledger starts. See common.sh for the rationale.
+mac_mini_assert_clean_root_allowing_ledger
 
 launchd_target="gui/${UID}/${MAC_MINI_APP_LABEL}"
 expected_env="$(cd "${MAC_MINI_ROOT}" && node --import tsx scripts/release/read-release-fingerprint.ts --format env)"

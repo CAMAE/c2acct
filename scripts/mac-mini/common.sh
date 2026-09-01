@@ -255,6 +255,42 @@ mac_mini_assert_clean_root() {
   fi
 }
 
+mac_mini_startup_dirty_verdict() {
+  (
+    cd "${MAC_MINI_ROOT}"
+    node --import tsx scripts/release/read-release-git-dirty.ts --root "${MAC_MINI_ROOT}" --format startup
+  )
+}
+
+# Like mac_mini_assert_clean_root, with ONE exact-path exemption: a working tree
+# whose entire diff is PATALIGN-MEMORY/SESSION-LEDGER.md starts.
+#
+# The launch gate exists to stop unbuilt code from starting. The session ledger
+# is an out-of-band record that appends on its own cadence, independent of the
+# build — it has appended DURING a fifteen-minute validate:launch and failed the
+# final step on a tree whose every other gate had passed. Banking right before a
+# run only shrinks that window; exempting the one path removes the race.
+#
+# Sole-file only. Ledger + anything else is still forbidden, because once real
+# work is in the tree the original reason applies again and the ledger must not
+# launder it. Used ONLY by restart-app.sh; app-start.sh, launchd-install.sh,
+# rollback-release.sh and validate-runtime-contract.sh keep the strict check.
+mac_mini_assert_clean_root_allowing_ledger() {
+  local verdict
+  verdict="$(mac_mini_startup_dirty_verdict)"
+  case "${verdict}" in
+    clean) return 0 ;;
+    ledger-only)
+      echo "[restart-app] working tree carries only PATALIGN-MEMORY/SESSION-LEDGER.md; treating as clean." >&2
+      return 0
+      ;;
+    *)
+      echo "Dirty git tree is forbidden for startup." >&2
+      exit 1
+      ;;
+  esac
+}
+
 mac_mini_assert_env_ready() {
   local missing
   missing="$(mac_mini_missing_env_vars || true)"

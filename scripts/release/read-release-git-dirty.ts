@@ -6,7 +6,7 @@
 // scripts/release/prepare-standalone-runtime.mjs use `node --import tsx`,
 // which accepts both forms. tsconfig moduleResolution=bundler permits the
 // .ts extension, so typecheck stays clean.
-import { getReleaseGitState } from "../../lib/release/git-state.ts";
+import { getReleaseGitState, getStartupDirtyVerdict } from "../../lib/release/git-state.ts";
 
 function parseArgs(argv: string[]) {
   const args = {
@@ -31,7 +31,12 @@ function parseArgs(argv: string[]) {
 const args = parseArgs(process.argv.slice(2));
 const state = getReleaseGitState(args.root);
 
-if (args.format === "json") {
+if (args.format === "startup") {
+  // The mac-mini startup gate's verdict: "clean" | "ledger-only" | "dirty".
+  // Separate from the `state` format on purpose — that one feeds the release
+  // fingerprint, and the ledger exemption must not reach it.
+  process.stdout.write(`${getStartupDirtyVerdict(args.root)}\n`);
+} else if (args.format === "json") {
   process.stdout.write(`${JSON.stringify(state, null, 2)}\n`);
 } else if (args.format === "env") {
   process.stdout.write(`git_dirty=${state.gitDirty}\n`);
