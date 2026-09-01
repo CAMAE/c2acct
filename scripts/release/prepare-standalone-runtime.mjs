@@ -27,10 +27,50 @@ const expectedLiveReleasePath = path.join(releaseStateDir, "expected-live-releas
 const lastKnownGoodReleasePath = path.join(releaseStateDir, "last-known-good-release.json");
 const contractPath = path.join(root, "ops", "release", "canonical-root.json");
 
+/**
+ * Recursive delete that survives a concurrent writer.
+ *
+ * `fs.rmSync` defaults to `maxRetries: 0`, and `force: true` only suppresses
+ * ENOENT — it does nothing for ENOTEMPTY. So when anything creates a file inside
+ * a directory while the recursive walk is unlinking it, the delete fails
+ * immediately and takes the build with it:
+ *
+ *   Error: ENOTEMPTY: directory not empty, rmdir
+ *     '.next/standalone/.next/static/chunks'
+ *
+ * That is not hypothetical here. This build tree is indexed by Spotlight (the
+ * same `com.apple` indexer has been observed holding read handles on files in
+ * .git), and a running standalone server also holds files under this path. Both
+ * race a rebuild, and the failure only appears on a SECOND build — the first one
+ * finds no target to remove — which is exactly why it kept looking like a
+ * mysterious one-off rather than a bug.
+ *
+ * Node retries precisely this error class (EBUSY, EMFILE, ENFILE, ENOTEMPTY,
+ * EPERM) when `recursive` is set and `maxRetries` is greater than zero, with a
+ * linear backoff. Ten retries at 100ms is up to ~5.5s of backoff — far longer
+ * than an indexer touching a directory needs, and still short enough that a
+ * genuinely stuck delete fails the build rather than hanging it.
+ */
+const RM_RETRIES = 10;
+const RM_RETRY_DELAY_MS = 100;
+
 function resetDir(target) {
-  fs.rmSync(target, { recursive: true, force: true });
+  fs.rmSync(target, {
+    recursive: true,
+    force: true,
+    maxRetries: RM_RETRIES,
+    retryDelay: RM_RETRY_DELAY_MS,
+  });
 }
 
+/**
+ * Mirror `source` onto `target`.
+ *
+ * Resets first, so the copy is a MIRROR rather than an overlay. `fs.cpSync`
+ * overwrites files that exist in the source and leaves everything else alone, so
+ * without the reset a file deleted from the source lingers in the target
+ * forever — a stale asset served by a runtime that believes it is current.
+ */
 function copyDir(source, target) {
   resetDir(target);
   fs.cpSync(source, target, { recursive: true });
@@ -158,7 +198,17 @@ function writeReleaseArtifacts(buildReason) {
 
 function copyReleaseProofIntoStandalone() {
   fs.mkdirSync(standaloneReleaseStateDir, { recursive: true });
-  fs.cpSync(sourceReleaseOpsDir, targetReleaseOpsDir, { recursive: true });
+  // Mirror, not overlay. This used to be a bare cpSync, which copies over what
+  // exists in the source and leaves everything else — so a file REMOVED from
+  // ops/release/ would persist in the target.
+  //
+  // Scope, measured rather than assumed: `next build` currently deletes
+  // .next/standalone before regenerating it, so the normal build path recreates
+  // this directory from scratch and the stale file never actually ships. This is
+  // therefore DEFENCE IN DEPTH, not a live data bug — it matters if prep is ever
+  // re-run against an existing tree, or if Next stops wiping the directory. The
+  // cost of being right about it is one line.
+  copyDir(sourceReleaseOpsDir, targetReleaseOpsDir);
 
   for (const filePath of [
     releaseStatePath,
