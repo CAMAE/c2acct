@@ -21,8 +21,8 @@ mac_mini_ensure_dirs
 mac_mini_load_contract
 mac_mini_load_env
 mac_mini_assert_runtime_root_allowed
-# One exact-path exemption vs the other startup scripts: a tree dirty ONLY by
-# the session ledger starts. See common.sh for the rationale.
+# Sole-file ledger exemption, shared with app-start.sh (the script launchd
+# actually spawns). See common.sh for why both need it.
 mac_mini_assert_clean_root_allowing_ledger
 
 launchd_target="gui/${UID}/${MAC_MINI_APP_LABEL}"

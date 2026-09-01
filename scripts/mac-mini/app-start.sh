@@ -23,7 +23,10 @@ mac_mini_prune_artifacts
 mac_mini_load_contract
 mac_mini_load_env
 mac_mini_assert_runtime_root_allowed
-mac_mini_assert_clean_root
+# The REAL enforcement point: this is what launchd spawns. Carries the same
+# sole-file ledger exemption as restart-app.sh, via the same shared helper —
+# exempting the kickstarter alone kills a running app it then cannot restart.
+mac_mini_assert_clean_root_allowing_ledger
 mac_mini_assert_env_ready
 
 if [ ! -d "${MAC_MINI_ROOT}/node_modules" ]; then

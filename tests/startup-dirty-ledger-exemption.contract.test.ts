@@ -135,22 +135,46 @@ describe("getStartupDirtyVerdict, against real git trees", () => {
   });
 });
 
-describe("the exemption is scoped to restart-app.sh alone", () => {
+describe("the exemption is scoped to the two startup-path scripts", () => {
   const ROOT = process.cwd();
   const read = (file: string) => fs.readFileSync(path.join(ROOT, file), "utf8");
 
-  it("is used by restart-app.sh", () => {
-    expect(read("scripts/mac-mini/restart-app.sh")).toMatch(
-      /mac_mini_assert_clean_root_allowing_ledger/
-    );
+  /**
+   * Both halves of the startup path carry the exemption, and BOTH are required.
+   *
+   * restart-app.sh decides whether to kickstart; app-start.sh is what launchd
+   * actually spawns and is the real enforcement point. Exempting only the first
+   * shipped once and proved the point the hard way: restart passed the gate,
+   * `launchctl kickstart -k` killed the running app, and the respawned
+   * app-start.sh refused the same ledger-dirty tree and crash-looped ~40k times
+   * with no listener. A half-applied exemption is worse than none — it turns
+   * "refuse to restart, app keeps running" into "kill the app and fail to bring
+   * it back".
+   */
+  it("is used by both restart-app.sh and app-start.sh", () => {
+    for (const file of ["scripts/mac-mini/restart-app.sh", "scripts/mac-mini/app-start.sh"]) {
+      expect({ file, exempt: /mac_mini_assert_clean_root_allowing_ledger/.test(read(file)) }).toEqual(
+        { file, exempt: true }
+      );
+    }
   });
 
-  it("is NOT used by the other startup scripts", () => {
-    // app-start, launchd-install, rollback-release and validate-runtime-contract
-    // keep the strict check. The ruling exempted one script, and a shared helper
-    // is one edit away from silently exempting all five.
+  it("uses ONE shared implementation, never a copy", () => {
+    // The two scripts must not be able to drift. The verdict logic lives in
+    // common.sh + lib/release/git-state.ts and is called, not duplicated.
+    for (const file of ["scripts/mac-mini/restart-app.sh", "scripts/mac-mini/app-start.sh"]) {
+      const source = read(file);
+      expect(source).not.toMatch(/SESSION-LEDGER\.md["'`]/);
+      expect(source).not.toMatch(/ledger-only/);
+    }
+    expect(read("scripts/mac-mini/common.sh")).toMatch(/--format startup/);
+  });
+
+  it("is NOT used by the non-startup scripts", () => {
+    // launchd-install, rollback-release and validate-runtime-contract keep the
+    // strict check. The helper is shared, so it is one edit away from silently
+    // exempting all five.
     for (const file of [
-      "scripts/mac-mini/app-start.sh",
       "scripts/mac-mini/launchd-install.sh",
       "scripts/mac-mini/rollback-release.sh",
       "scripts/mac-mini/validate-runtime-contract.sh",

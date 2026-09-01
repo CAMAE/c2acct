@@ -273,15 +273,29 @@ mac_mini_startup_dirty_verdict() {
 #
 # Sole-file only. Ledger + anything else is still forbidden, because once real
 # work is in the tree the original reason applies again and the ledger must not
-# launder it. Used ONLY by restart-app.sh; app-start.sh, launchd-install.sh,
-# rollback-release.sh and validate-runtime-contract.sh keep the strict check.
+# launder it.
+#
+# USED BY EXACTLY TWO SCRIPTS, and the pairing is the whole point:
+#
+#   restart-app.sh — decides whether to kickstart.
+#   app-start.sh   — what launchd actually spawns, and the real enforcement point.
+#
+# Exempting only the first was a foot-gun, and shipping it proved so: restart
+# passed the gate, `launchctl kickstart -k` killed the running app, and the
+# respawned app-start.sh refused the same ledger-dirty tree and crash-looped
+# ~40k times with no listener. The exemption has to live where the gate is
+# actually enforced, or it converts "refuse to restart, app keeps running" into
+# "kill the app and fail to bring it back".
+#
+# launchd-install.sh, rollback-release.sh and validate-runtime-contract.sh keep
+# the strict check.
 mac_mini_assert_clean_root_allowing_ledger() {
   local verdict
   verdict="$(mac_mini_startup_dirty_verdict)"
   case "${verdict}" in
     clean) return 0 ;;
     ledger-only)
-      echo "[restart-app] working tree carries only PATALIGN-MEMORY/SESSION-LEDGER.md; treating as clean." >&2
+      echo "[startup] working tree carries only PATALIGN-MEMORY/SESSION-LEDGER.md; treating as clean." >&2
       return 0
       ;;
     *)
