@@ -1,3 +1,4 @@
+import RememberedEmailField from "@/app/components/auth/RememberedEmailField";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -256,14 +257,17 @@ function RoleAccessCard({
             Phase 2.5 #1: defaultValue re-fills the submitted email after a
             failed attempt (carried back via the error redirect).
           */}
-          <input
-            name="email"
-            type="email"
+          {/*
+            Email persistence (July commitment) is added WITHOUT touching the
+            autoComplete decision above: Phase 2.5 #11 set it to "off"
+            deliberately, and this remembers the last email typed on THIS form
+            rather than re-enabling the password manager that was substituting
+            operator credentials. The password is never persisted.
+          */}
+          <RememberedEmailField
             autoComplete="off"
             defaultValue={submittedEmail ?? undefined}
             placeholder="Provisioned pilot email"
-            className="pat-input"
-            required
           />
           <input
             name="password"

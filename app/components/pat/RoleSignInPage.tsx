@@ -1,3 +1,4 @@
+import RememberedEmailField from "@/app/components/auth/RememberedEmailField";
 import Link from "next/link";
 import { getLocalReviewUsersForUi } from "@/lib/auth/localReview";
 import { signInWithLocalReviewCredentials } from "@/lib/auth/localReviewActions";
@@ -94,13 +95,9 @@ export default function RoleSignInPage({ role }: RoleSignInPageProps) {
             <input type="hidden" name="redirectTo" value={roleRedirect} />
             <input type="hidden" name="source" value="sign-in" />
             <input type="hidden" name="view" value={localReviewKey} />
-            <input
-              name="email"
-              type="email"
+            <RememberedEmailField
               autoComplete="username"
               placeholder="Provisioned pilot email"
-              className="pat-input"
-              required
             />
             <input
               name="password"
