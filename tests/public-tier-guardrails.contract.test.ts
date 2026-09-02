@@ -18,7 +18,13 @@ import {
   longestSharedRun,
   offsiteHosts,
 } from "@/lib/patAssistant/public/outputFilter";
-import { checkPublicUsage, hashIp, recordPublicUsage } from "@/lib/patAssistant/public/usage";
+import {
+  MissingPublicIpSaltError,
+  checkPublicUsage,
+  hashIp,
+  publicTierAvailability,
+  recordPublicUsage,
+} from "@/lib/patAssistant/public/usage";
 
 /**
  * Public-tier guardrails (BOX 2).
@@ -35,6 +41,8 @@ applyRepoEnv();
 const ROOT = process.cwd();
 const DB_TIMEOUT_MS = 60_000;
 const NS = "test-public-tier";
+// No fallback salt exists any more, so every usage call names one explicitly.
+const SALT = { PAT_PUBLIC_IP_HASH_SALT: "test-salt" };
 
 let prisma: typeof import("@/lib/prisma").default;
 let dbAvailable = false;
@@ -256,11 +264,11 @@ describe("usage caps (DB-backed)", () => {
   it("hashes the IP and never stores it raw", async (ctx) => {
     if (!dbAvailable) return ctx.skip();
     const ip = "203.0.113.42";
-    await recordPublicUsage({ ip, sessionId: `${NS}-hash`, costUsd: 0, answered: true });
+    await recordPublicUsage({ ip, sessionId: `${NS}-hash`, costUsd: 0, answered: true }, SALT);
     const row = await prisma.patPublicUsageLog.findFirst({ where: { sessionId: `${NS}-hash` } });
     expect(row).not.toBeNull();
     expect(row!.ipHash).not.toContain(ip);
-    expect(row!.ipHash).toBe(hashIp(ip));
+    expect(row!.ipHash).toBe(hashIp(ip, SALT));
     // No question text column exists to leak into.
     expect(Object.keys(row!)).not.toContain("question");
   }, DB_TIMEOUT_MS);
@@ -273,7 +281,7 @@ describe("usage caps (DB-backed)", () => {
 
   it("rate-limits an IP inside the window", async (ctx) => {
     if (!dbAvailable) return ctx.skip();
-    const env = { PAT_PUBLIC_IP_MAX_REQUESTS: "3", PAT_PUBLIC_SESSION_MAX_MESSAGES: "999" };
+    const env = { ...SALT, PAT_PUBLIC_IP_MAX_REQUESTS: "3", PAT_PUBLIC_SESSION_MAX_MESSAGES: "999" };
     const ip = "203.0.113.99";
     for (let i = 0; i < 3; i += 1) {
       await recordPublicUsage({ ip, sessionId: `${NS}-ip-${i}`, costUsd: 0, answered: true }, env);
@@ -286,7 +294,7 @@ describe("usage caps (DB-backed)", () => {
 
   it("caps a session's total messages, which no per-minute window would catch", async (ctx) => {
     if (!dbAvailable) return ctx.skip();
-    const env = { PAT_PUBLIC_IP_MAX_REQUESTS: "999", PAT_PUBLIC_SESSION_MAX_MESSAGES: "2" };
+    const env = { ...SALT, PAT_PUBLIC_IP_MAX_REQUESTS: "999", PAT_PUBLIC_SESSION_MAX_MESSAGES: "2" };
     const sessionId = `${NS}-session-cap`;
     for (let i = 0; i < 2; i += 1) {
       await recordPublicUsage({ ip: `198.51.100.${i}`, sessionId, costUsd: 0, answered: true }, env);
@@ -299,6 +307,7 @@ describe("usage caps (DB-backed)", () => {
   it("trips the global daily cost cap", async (ctx) => {
     if (!dbAvailable) return ctx.skip();
     const env = {
+      ...SALT,
       PAT_PUBLIC_IP_MAX_REQUESTS: "999",
       PAT_PUBLIC_SESSION_MAX_MESSAGES: "999",
       PAT_PUBLIC_DAILY_CAP_USD: "0.05",
@@ -316,7 +325,7 @@ describe("usage caps (DB-backed)", () => {
     if (!dbAvailable) return ctx.skip();
     const verdict = await checkPublicUsage(
       { ip: "192.0.2.1", sessionId: `${NS}-fresh-${Date.now()}` },
-      { PAT_PUBLIC_DAILY_CAP_USD: "1000" }
+      { ...SALT, PAT_PUBLIC_DAILY_CAP_USD: "1000" }
     );
     expect(verdict.allowed).toBe(true);
     expect(verdict.reason).toBeNull();
@@ -325,7 +334,7 @@ describe("usage caps (DB-backed)", () => {
   it("records refused answers too, because they still cost tokens", async (ctx) => {
     if (!dbAvailable) return ctx.skip();
     const sessionId = `${NS}-refused`;
-    await recordPublicUsage({ ip: "192.0.2.7", sessionId, costUsd: 0.02, answered: false });
+    await recordPublicUsage({ ip: "192.0.2.7", sessionId, costUsd: 0.02, answered: false }, SALT);
     const row = await prisma.patPublicUsageLog.findFirst({ where: { sessionId } });
     expect(row!.answered).toBe(false);
     expect(Number(row!.costUsd)).toBeCloseTo(0.02, 5);
@@ -335,12 +344,72 @@ describe("usage caps (DB-backed)", () => {
     if (!dbAvailable) return ctx.skip();
     // A ledger write that fails must not fail the answer the visitor waited for.
     await expect(
-      recordPublicUsage({
-        ip: "192.0.2.8",
-        sessionId: null as unknown as string,
-        costUsd: 0,
-        answered: true,
-      })
+      recordPublicUsage(
+        { ip: "192.0.2.8", sessionId: null as unknown as string, costUsd: 0, answered: true },
+        SALT
+      )
     ).resolves.toBeUndefined();
+  }, DB_TIMEOUT_MS);
+});
+
+/**
+ * The salt precondition (Mythos rider).
+ *
+ * The first version fell back to a constant salt when the env var was unset,
+ * documented as "weaker but still prevents casual reversal". That reasoning was
+ * wrong, and the rider is right: the constant lived in the repo, and the entire
+ * IPv4 space is 2^32 — anyone holding both the table and the source enumerates
+ * it offline in minutes. A hash whose salt is public is an encoding, not a hash.
+ *
+ * Enabled-with-no-salt is therefore REFUSED, the same wall pattern as the web
+ * rung's missing provider: a precondition that is not met means decline, never
+ * serve in a degraded shape.
+ */
+describe("a missing IP salt refuses the tier rather than weakening it", () => {
+  it("refuses availability when the flag is on but no salt is set", () => {
+    expect(publicTierAvailability({ [PAT_PUBLIC_TIER_FLAG_ENV]: "1" })).toEqual({
+      available: false,
+      refusal: "missing_ip_salt",
+    });
+    expect(publicTierAvailability({ [PAT_PUBLIC_TIER_FLAG_ENV]: "1", PAT_PUBLIC_IP_HASH_SALT: "   " })).toEqual({
+      available: false,
+      refusal: "missing_ip_salt",
+    });
+  });
+
+  it("refuses on the flag before it even looks at the salt", () => {
+    expect(publicTierAvailability({})).toEqual({ available: false, refusal: "flag_off" });
+  });
+
+  it("is available only with BOTH the flag and a salt", () => {
+    expect(
+      publicTierAvailability({ [PAT_PUBLIC_TIER_FLAG_ENV]: "1", PAT_PUBLIC_IP_HASH_SALT: "s3cr3t" })
+    ).toEqual({ available: true, refusal: null });
+  });
+
+  it("hashIp throws rather than falling back to a constant", () => {
+    // There is no fallback salt. This throw is the second wall behind the gate.
+    expect(() => hashIp("203.0.113.1", {})).toThrow(MissingPublicIpSaltError);
+    expect(() => hashIp("203.0.113.1", { PAT_PUBLIC_IP_HASH_SALT: "" })).toThrow(
+      /brute-forceable/
+    );
+  });
+
+  it("no constant salt literal survives in the source", () => {
+    // The specific string that made the old fallback brute-forceable.
+    const source = readFileSync(path.join(ROOT, "lib/patAssistant/public/usage.ts"), "utf8");
+    expect(source).not.toContain("pat-public-tier-unsalted");
+  });
+
+  it("checkPublicUsage fails CLOSED for a caller that skipped the gate", async (ctx) => {
+    if (!dbAvailable) return ctx.skip();
+    // Returning a refusal rather than throwing keeps the shape callers handle,
+    // and a missing salt must never degrade into "serve anyway".
+    const verdict = await checkPublicUsage(
+      { ip: "203.0.113.5", sessionId: `${NS}-nosalt` },
+      { PAT_PUBLIC_DAILY_CAP_USD: "1000" }
+    );
+    expect(verdict.allowed).toBe(false);
+    expect(verdict.reason).toBe("missing_ip_salt");
   }, DB_TIMEOUT_MS);
 });

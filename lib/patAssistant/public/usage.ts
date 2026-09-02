@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import prisma from "@/lib/prisma";
 import { startOfDay } from "@/lib/agents/costRates";
+import { PAT_PUBLIC_TIER_FLAG_ENV } from "@/lib/patAssistant/flags";
 import {
   publicDailyCapUsd,
   publicIpMaxRequests,
@@ -35,24 +36,76 @@ import {
 
 export const PUBLIC_IP_SALT_ENV = "PAT_PUBLIC_IP_HASH_SALT";
 
+export class MissingPublicIpSaltError extends Error {
+  constructor() {
+    super(
+      `${PUBLIC_IP_SALT_ENV} is not set. The public tier stores salted IP hashes; ` +
+        "without a secret salt the hashes are brute-forceable and must not be written."
+    );
+    this.name = "MissingPublicIpSaltError";
+  }
+}
+
 /**
  * Salted hash of a caller IP.
  *
- * Rate-limiting an abuser requires distinguishing callers, not identifying them.
- * The salt lives in the runtime env so the table alone cannot be reversed by
- * whoever obtains it; without a configured salt this falls back to a constant,
- * which still prevents casual reversal but is weaker — a deployment enabling the
- * public tier should set one, and the contract test says so.
+ * Rate-limiting an abuser requires distinguishing callers, not identifying them,
+ * and a salted hash does the first without the second.
+ *
+ * THERE IS NO FALLBACK SALT, and that is a deliberate correction. An earlier
+ * version fell back to a constant when the env var was unset, documented as
+ * "weaker but still prevents casual reversal". That reasoning was wrong: the
+ * constant lived in the repo, and the entire IPv4 space is 2^32 — anyone holding
+ * both the table and the source can enumerate it offline in minutes and recover
+ * every address. A hash whose salt is public is not a hash, it is an encoding.
+ *
+ * So a missing salt is an ERROR rather than a downgrade. It is unreachable in
+ * practice because {@link publicTierAvailability} refuses to enable the tier
+ * without one, and this throw is the second wall behind that gate.
  */
 export function hashIp(ip: string, env: PublicLimitEnv = process.env): string {
-  const salt = env[PUBLIC_IP_SALT_ENV]?.trim() || "pat-public-tier-unsalted";
+  const salt = env[PUBLIC_IP_SALT_ENV]?.trim();
+  if (!salt) {
+    throw new MissingPublicIpSaltError();
+  }
   return createHash("sha256").update(`${salt}:${ip.trim()}`).digest("hex").slice(0, 32);
+}
+
+export type PublicTierRefusal = "flag_off" | "missing_ip_salt";
+
+export type PublicTierAvailability = {
+  available: boolean;
+  refusal: PublicTierRefusal | null;
+};
+
+/**
+ * May the public tier serve at all?
+ *
+ * The same wall pattern as the web rung's missing provider: a precondition that
+ * is not met means the tier DECLINES, never that it serves in a degraded shape.
+ * Enabled-with-no-salt is precisely such a shape — it would answer visitors
+ * while writing rows that can be de-anonymised offline — so it is refused rather
+ * than tolerated.
+ *
+ * Checked before anything else by any surface that ever serves this tier.
+ */
+export function publicTierAvailability(
+  env: PublicLimitEnv = process.env
+): PublicTierAvailability {
+  if (env[PAT_PUBLIC_TIER_FLAG_ENV] !== "1") {
+    return { available: false, refusal: "flag_off" };
+  }
+  if (!env[PUBLIC_IP_SALT_ENV]?.trim()) {
+    return { available: false, refusal: "missing_ip_salt" };
+  }
+  return { available: true, refusal: null };
 }
 
 export type PublicUsageRefusal =
   | "ip_rate_limited"
   | "session_message_cap"
-  | "daily_cost_cap";
+  | "daily_cost_cap"
+  | "missing_ip_salt";
 
 export type PublicUsageVerdict = {
   allowed: boolean;
@@ -80,7 +133,22 @@ export async function checkPublicUsage(
   now: Date = new Date(),
   client: UsageClient = prisma
 ): Promise<PublicUsageVerdict> {
-  const ipHash = hashIp(input.ip, env);
+  // Fail CLOSED for a caller that skipped publicTierAvailability(). Returning a
+  // refusal rather than throwing keeps the shape callers already handle, and a
+  // missing salt must never degrade into "serve anyway" — which is what would
+  // happen if this threw and some caller caught it broadly.
+  let ipHash: string;
+  try {
+    ipHash = hashIp(input.ip, env);
+  } catch {
+    return {
+      allowed: false,
+      reason: "missing_ip_salt",
+      ipRequests: 0,
+      sessionMessages: 0,
+      spentUsd: 0,
+    };
+  }
   const windowStart = new Date(now.getTime() - publicIpWindowSeconds(env) * 1000);
 
   const [ipRequests, sessionMessages, todays] = await Promise.all([
