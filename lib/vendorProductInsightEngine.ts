@@ -1493,7 +1493,204 @@ export function buildVendorProductInsightDetailSurfaceContent(input: {
   }
 }
 
-export async function getVendorProductInsightSnapshot(companyId: string, productId: string) {
+/**
+ * The reads that are INVARIANT across every product of one vendor.
+ *
+ * The two SurveyModule rows are looked up by fixed key, and the vendor's scoped
+ * firm list depends only on the vendor. Neither varies with productId, so
+ * re-deriving them inside a per-product loop is pure repetition: at 47 firms x
+ * 37 products the ecosystem route issued ~3,500 Ecosystem.findUnique and ~7,300
+ * SurveyModule.findUnique calls for values that never changed within the request.
+ *
+ * Resolved ONCE by the loop and passed down. This is a hoist, not a cache: there
+ * is no store, no TTL and no invalidation question — the values are computed at
+ * the top of the loop that needs them and discarded when it ends.
+ */
+export type VendorProductInsightContext = {
+  vendorModuleId: string | null;
+  firmModuleId: string | null;
+  scopedFirmIds: string[];
+  /**
+   * Submissions pre-fetched for a whole product set and grouped by productId.
+   *
+   * Present only when the caller resolved the context for a KNOWN set of
+   * products (the vendor catalog, or a briefing's product list). Absent for a
+   * one-off single-product call, which then queries as before.
+   *
+   * This is the batching half of the fix. The per-product queries were not slow
+   * SQL — averaged 1.6s each, which is queue time, not execution time. Thousands
+   * of concurrent point queries saturate the connection pool and every one of
+   * them waits behind the others. Two queries for the whole set replace ~3,500,
+   * and the wall stops being dominated by contention the route created itself.
+   */
+  vendorSubmissionByProductId?: Map<string, VendorSubmissionRow>;
+  firmSubmissionsByProductId?: Map<string, FirmSubmissionRow[]>;
+};
+
+type VendorSubmissionRow = {
+  id: string;
+  score: number;
+  createdAt: Date;
+  answeredCount: number;
+  answers: unknown;
+  scaleMin: number;
+  scaleMax: number;
+};
+
+type FirmSubmissionRow = {
+  id: string;
+  score: number;
+  createdAt: Date;
+  answers: unknown;
+  scaleMin: number;
+  scaleMax: number;
+};
+
+export async function resolveVendorProductInsightContext(
+  companyId: string,
+  productIds?: string[]
+): Promise<VendorProductInsightContext> {
+  const [vendorModule, firmModule, scopedFirmIds] = await Promise.all([
+    prisma.surveyModule
+      .findUnique({ where: { key: VENDOR_PRODUCT_MODULE_KEY }, select: { id: true } })
+      .catch(() => null),
+    prisma.surveyModule
+      .findUnique({ where: { key: FIRM_PRODUCT_MODULE_KEY }, select: { id: true } })
+      .catch(() => null),
+    getVendorScopedFirms(companyId),
+  ]);
+
+  const context: VendorProductInsightContext = {
+    vendorModuleId: vendorModule?.id ?? null,
+    firmModuleId: firmModule?.id ?? null,
+    scopedFirmIds,
+  };
+
+  if (!productIds || productIds.length === 0) {
+    return context;
+  }
+
+  // TWO queries for the whole product set, replacing two per product. Ordered
+  // newest-first and grouped in memory, so the per-product code below sees
+  // exactly what its own query would have returned — same rows, same order,
+  // same tenancy predicates.
+  const [vendorRows, firmRows] = await Promise.all([
+    context.vendorModuleId
+      ? prisma.surveySubmission
+          .findMany({
+            where: getSurveyFinalWhere({
+              moduleId: context.vendorModuleId,
+              companyId,
+              Subject: { productId: { in: productIds } },
+            }),
+            orderBy: { createdAt: "desc" },
+            select: {
+              id: true,
+              score: true,
+              createdAt: true,
+              answeredCount: true,
+              answers: true,
+              scaleMin: true,
+              scaleMax: true,
+              Subject: { select: { productId: true } },
+            },
+          })
+          .catch(() => [])
+      : Promise.resolve([]),
+    context.firmModuleId
+      ? prisma.surveySubmission
+          .findMany({
+            where: getSurveyFinalWhere({
+              moduleId: context.firmModuleId,
+              Subject: { productId: { in: productIds } },
+              Company: { type: "FIRM", id: { in: scopedFirmIds } },
+            }),
+            orderBy: { createdAt: "desc" },
+            select: {
+              id: true,
+              score: true,
+              createdAt: true,
+              answers: true,
+              scaleMin: true,
+              scaleMax: true,
+              Subject: { select: { productId: true } },
+            },
+          })
+          .catch(() => [])
+      : Promise.resolve([]),
+  ]);
+
+  const vendorByProduct = new Map<string, VendorSubmissionRow>();
+  for (const row of vendorRows) {
+    const productId = row.Subject?.productId;
+    if (!productId) continue;
+    // Newest-first ordering means the FIRST row per product is the latest, which
+    // is what findFirst({orderBy: createdAt desc}) returned.
+    if (!vendorByProduct.has(productId)) {
+      // Drop the Subject join used only for grouping, so the shape handed on
+      // is exactly what the per-product query returned.
+      const rest = { ...row, Subject: undefined };
+      delete (rest as { Subject?: unknown }).Subject;
+      vendorByProduct.set(productId, rest as unknown as VendorSubmissionRow);
+    }
+  }
+
+  const firmByProduct = new Map<string, FirmSubmissionRow[]>();
+  for (const row of firmRows) {
+    const productId = row.Subject?.productId;
+    if (!productId) continue;
+    const rest = { ...row, Subject: undefined };
+    delete (rest as { Subject?: unknown }).Subject;
+    const bucket = firmByProduct.get(productId) ?? [];
+    bucket.push(rest as unknown as FirmSubmissionRow);
+    firmByProduct.set(productId, bucket);
+  }
+
+  // Every requested product gets an entry, so a product with no submissions is
+  // a present-and-empty bucket rather than a cache miss that silently falls back
+  // to a per-product query.
+  for (const productId of productIds) {
+    if (!firmByProduct.has(productId)) firmByProduct.set(productId, []);
+  }
+
+  return {
+    ...context,
+    vendorSubmissionByProductId: vendorByProduct,
+    firmSubmissionsByProductId: firmByProduct,
+  };
+}
+
+/**
+ * Per-vendor context resolver for a loop that spans several vendor companies.
+ *
+ * The admin briefing iterates products that may belong to different vendors, so
+ * one hoisted context is not enough — but re-deriving per product is what this
+ * change exists to remove. A loop-local Map keyed by companyId gives each vendor
+ * exactly one resolution, and dies with the loop.
+ */
+export function createVendorInsightContextResolver(
+  productIdsByCompany?: Map<string, string[]>
+) {
+  const byCompany = new Map<string, Promise<VendorProductInsightContext>>();
+  return (companyId: string): Promise<VendorProductInsightContext> => {
+    const existing = byCompany.get(companyId);
+    if (existing) return existing;
+    // The caller knows every product it will ask about, so the submissions for
+    // all of them are fetched in one pair of queries rather than one pair each.
+    const resolved = resolveVendorProductInsightContext(
+      companyId,
+      productIdsByCompany?.get(companyId)
+    );
+    byCompany.set(companyId, resolved);
+    return resolved;
+  };
+}
+
+export async function getVendorProductInsightSnapshot(
+  companyId: string,
+  productId: string,
+  context?: VendorProductInsightContext
+) {
   const vendorContext = await getVendorCompanyContext(companyId);
   const product = vendorContext.products.find((entry) => entry.id === productId);
   if (!product || !vendorContext.company) {
@@ -1514,18 +1711,19 @@ export async function getVendorProductInsightSnapshot(companyId: string, product
 
   const utilityKeys = extractUtilityKeysFromSignals(product.signals);
 
-  const [vendorModule, firmModule] = await Promise.all([
-    prisma.surveyModule.findUnique({
-      where: { key: VENDOR_PRODUCT_MODULE_KEY },
-      select: { id: true },
-    }).catch(() => null),
-    prisma.surveyModule.findUnique({
-      where: { key: FIRM_PRODUCT_MODULE_KEY },
-      select: { id: true },
-    }).catch(() => null),
-  ]);
+  // Hoisted by the caller when it is looping products; resolved here only for a
+  // one-off single-product call, so the standalone path keeps working unchanged.
+  const insightContext = context ?? (await resolveVendorProductInsightContext(companyId));
+  const vendorModule = insightContext.vendorModuleId ? { id: insightContext.vendorModuleId } : null;
+  const firmModule = insightContext.firmModuleId ? { id: insightContext.firmModuleId } : null;
+  // Batched by the caller when the product set was known up front; the
+  // per-product queries below run only for a standalone single-product call.
+  const batchedVendor = insightContext.vendorSubmissionByProductId;
+  const batchedFirm = insightContext.firmSubmissionsByProductId;
 
-  const [latestVendorSubmission, firmSubmissions] = await Promise.all([
+  const [latestVendorSubmission, firmSubmissions] = batchedFirm
+    ? [batchedVendor?.get(productId) ?? null, batchedFirm.get(productId) ?? []]
+    : await Promise.all([
     vendorModule
       ? prisma.surveySubmission.findFirst({
           where: getSurveyFinalWhere({
@@ -1552,7 +1750,11 @@ export async function getVendorProductInsightSnapshot(companyId: string, product
           // here is the vendor's own company; getVendorScopedFirms returns
           // all FIRM-type companies in open mode so the IN-clause is a no-op
           // for the pre-Phase-1 baseline behavior.
-          const scopedFirmIds = await getVendorScopedFirms(companyId);
+          //
+          // Hoisted: the scope depends on the VENDOR, not the product, so a
+          // per-product re-derivation was re-reading the same ecosystem row
+          // once per product per firm. Same value, same wall, one query.
+          const scopedFirmIds = insightContext.scopedFirmIds;
           return prisma.surveySubmission.findMany({
             where: getSurveyFinalWhere({
               moduleId: firmModule.id,
@@ -1571,7 +1773,7 @@ export async function getVendorProductInsightSnapshot(companyId: string, product
           }).catch(() => []);
         })()
       : Promise.resolve([]),
-  ]);
+      ]);
 
   const vendorAssessmentStatus = deriveVendorProductAssessmentCompletionStatus({
     latestSubmission: latestVendorSubmission
@@ -1654,8 +1856,17 @@ export async function getVendorProductInsightCatalog(
   companyId: string
 ): Promise<VendorProductInsightSnapshot[]> {
   const vendorContext = await getVendorCompanyContext(companyId);
+  // One resolution for the whole catalog: every product here belongs to the
+  // same vendor, so the modules and the scoped firm list are identical for all
+  // of them.
+  const insightContext = await resolveVendorProductInsightContext(
+    companyId,
+    vendorContext.products.map((product) => product.id)
+  );
   const snapshots = await Promise.all(
-    vendorContext.products.map((product) => getVendorProductInsightSnapshot(companyId, product.id))
+    vendorContext.products.map((product) =>
+      getVendorProductInsightSnapshot(companyId, product.id, insightContext)
+    )
   );
 
   const catalog: VendorProductInsightSnapshot[] = [];

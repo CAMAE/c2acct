@@ -10,7 +10,10 @@ import { CUSTOMER_FACING_BOUNDARIES } from "@/lib/dataBoundary";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { getFirmManagedUserRecords } from "@/lib/userPat";
 import { getVendorAlignmentInsightBundle } from "@/lib/vendorAlignmentInsightEngine";
-import { getVendorProductInsightSnapshot } from "@/lib/vendorProductInsightEngine";
+import {
+  createVendorInsightContextResolver,
+  getVendorProductInsightSnapshot,
+} from "@/lib/vendorProductInsightEngine";
 import type { VendorAdaptiveOpenEndedQuestionSnapshot } from "@/lib/vendorProductAssessmentPlan";
 import { buildProductAssessmentPlan } from "@/lib/vendorProductQuestionBank";
 import {
@@ -983,12 +986,29 @@ async function getBriefingProducts(companyId: string) {
 
   const latestVendorAssessmentsByProductId = await getLatestVendorAssessmentsByProductId(products);
 
+  // Products here may span several vendor companies, so one hoisted context is
+  // not enough — but re-deriving per product is exactly what this removes. The
+  // resolver gives each vendor one resolution and dies with the loop.
+  const productIdsByCompany = new Map<string, string[]>();
+  for (const product of products) {
+    if (!product.companyId) continue;
+    const bucket = productIdsByCompany.get(product.companyId) ?? [];
+    bucket.push(product.id);
+    productIdsByCompany.set(product.companyId, bucket);
+  }
+  const insightContextFor = createVendorInsightContextResolver(productIdsByCompany);
+
   const items = await Promise.all(
     products.map(async (product) => {
       const latestCompanyReview = latestSubmissionByProductId.get(product.id) ?? null;
       const latestVendorAssessment = latestVendorAssessmentsByProductId.get(product.id) ?? null;
-      const snapshot =
-        product.companyId ? await getVendorProductInsightSnapshot(product.companyId, product.id) : null;
+      const snapshot = product.companyId
+        ? await getVendorProductInsightSnapshot(
+            product.companyId,
+            product.id,
+            await insightContextFor(product.companyId)
+          )
+        : null;
 
       return {
         productId: product.id,
