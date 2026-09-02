@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
-import { frameUntrusted } from "@/lib/agents/internal-knowledge/retrieve";
+import { TS_RANK_NORMALIZATION, frameUntrusted } from "@/lib/agents/internal-knowledge/retrieve";
 import type { RetrievedChunk } from "@/lib/agents/internal-knowledge/retrieve";
 import { GLOBAL_VERTICAL_ID } from "@/lib/verticals/context";
 import {
@@ -145,7 +145,7 @@ export async function retrieveHelp(
            s."kind"::text AS "sourceKind",
            s."path" AS "sourcePath",
            c."chunkIdx" AS "chunkIdx",
-           ts_rank(c."tsv", websearch_to_tsquery('english', ${tsquery})) AS "rank"
+           ts_rank(c."tsv", websearch_to_tsquery('english', ${tsquery}), ${TS_RANK_NORMALIZATION}) AS "rank"
     FROM "KnowledgeChunk" c
     JOIN "KnowledgeSource" s ON s."id" = c."sourceId"
     WHERE s."kind" = 'help_doc'

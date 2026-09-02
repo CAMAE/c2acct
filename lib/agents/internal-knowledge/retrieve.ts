@@ -69,6 +69,35 @@ export interface RetrieveOptions {
 }
 
 /** Wrap chunk text so a prompt builder cannot accidentally present it as instructions. */
+/**
+ * ts_rank length normalization: 1 = divide the rank by (1 + log(document
+ * length)).
+ *
+ * Section-level chunking fixed the systemic ranking problem; this closes the
+ * residual skew it left behind, where a 60-word operational help doc lost to
+ * long definitional sections that genuinely contain the query's terms more
+ * often. Log-damped length is the gentler correction and the better-understood
+ * one.
+ *
+ * Chosen by measurement rather than argument, across all 25 retrieval goldens
+ * under identical chunking:
+ *
+ *   flag  0 (none)                 23/25   RET-008, RET-011 fail
+ *   flag  1 (/(1+log(length)))     25/25   <- adopted
+ *   flag  2 (/length)              24/25   over-corrects, breaks RET-017
+ *   flag 16 (/(1+log(uniq words))) 25/25   penalizes vocabulary richness
+ *   flag 32 (rank/(rank+1))        23/25   no effect on the failures
+ *
+ * Exported so retrieveHelp uses the SAME value: the eval measures this path and
+ * customers use that one, and two different rankings would mean the goldens
+ * stopped describing what ships.
+ *
+ * A raw SQL literal rather than a bound parameter because Postgres wants int4
+ * here and a bound JS number binds as bigint — `ts_rank(tsvector, tsquery,
+ * bigint)` does not exist.
+ */
+export const TS_RANK_NORMALIZATION = Prisma.raw("1");
+
 export function frameUntrusted(text: string, sourcePath: string, chunkIdx: number): string {
   return [
     `<untrusted-retrieved-content source="${sourcePath}" chunk="${chunkIdx}">`,
@@ -149,7 +178,7 @@ export async function retrieve(
            s."kind"::text AS "sourceKind",
            s."path" AS "sourcePath",
            c."chunkIdx" AS "chunkIdx",
-           ts_rank(c."tsv", websearch_to_tsquery('english', ${tsquery})) AS "rank"
+           ts_rank(c."tsv", websearch_to_tsquery('english', ${tsquery}), ${TS_RANK_NORMALIZATION}) AS "rank"
     FROM "KnowledgeChunk" c
     JOIN "KnowledgeSource" s ON s."id" = c."sourceId"
     WHERE c."tsv" @@ websearch_to_tsquery('english', ${tsquery})
