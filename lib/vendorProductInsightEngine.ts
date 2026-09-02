@@ -29,6 +29,7 @@ import {
   deriveVendorProductAssessmentCompletionStatus,
   extractUtilityKeysFromSignals,
   getVendorCompanyContext,
+  type VendorCompanyContext,
   getVendorUtilityLabels,
 } from "@/lib/vendorPat";
 
@@ -1525,6 +1526,19 @@ export type VendorProductInsightContext = {
    */
   vendorSubmissionByProductId?: Map<string, VendorSubmissionRow>;
   firmSubmissionsByProductId?: Map<string, FirmSubmissionRow[]>;
+  /**
+   * The vendor company with its active products and their signals, loaded ONCE
+   * per vendor alongside the modules and scoped firms above.
+   *
+   * This was the remaining dominant term after the two hoists above: the
+   * snapshot re-loaded the vendor company (Company + every active Product +
+   * ProductSignal — three SQL statements behind one include) for EVERY product
+   * it was asked about, and the briefing asks about every product for every
+   * firm. At 47 firms x 37 products, twice per firm, that was 3,516 identical
+   * loads of one row that depends only on the vendor. Same hoist, same rule:
+   * resolved at the top of the loop, discarded with it, no store and no TTL.
+   */
+  vendorContext?: VendorCompanyContext;
 };
 
 type VendorSubmissionRow = {
@@ -1548,9 +1562,15 @@ type FirmSubmissionRow = {
 
 export async function resolveVendorProductInsightContext(
   companyId: string,
-  productIds?: string[]
+  productIds?: string[],
+  /**
+   * A vendor context the caller has ALREADY loaded (the catalog needs the
+   * product ids before it can ask for a batched context). Passed through so
+   * the same row is not read twice; loaded here otherwise.
+   */
+  preloadedVendorContext?: VendorCompanyContext
 ): Promise<VendorProductInsightContext> {
-  const [vendorModule, firmModule, scopedFirmIds] = await Promise.all([
+  const [vendorModule, firmModule, scopedFirmIds, vendorContext] = await Promise.all([
     prisma.surveyModule
       .findUnique({ where: { key: VENDOR_PRODUCT_MODULE_KEY }, select: { id: true } })
       .catch(() => null),
@@ -1558,12 +1578,14 @@ export async function resolveVendorProductInsightContext(
       .findUnique({ where: { key: FIRM_PRODUCT_MODULE_KEY }, select: { id: true } })
       .catch(() => null),
     getVendorScopedFirms(companyId),
+    preloadedVendorContext ?? getVendorCompanyContext(companyId),
   ]);
 
   const context: VendorProductInsightContext = {
     vendorModuleId: vendorModule?.id ?? null,
     firmModuleId: firmModule?.id ?? null,
     scopedFirmIds,
+    vendorContext,
   };
 
   if (!productIds || productIds.length === 0) {
@@ -1691,7 +1713,9 @@ export async function getVendorProductInsightSnapshot(
   productId: string,
   context?: VendorProductInsightContext
 ) {
-  const vendorContext = await getVendorCompanyContext(companyId);
+  // Hoisted by the caller when it is looping products (one load per vendor);
+  // loaded here only for a one-off single-product call.
+  const vendorContext = context?.vendorContext ?? (await getVendorCompanyContext(companyId));
   const product = vendorContext.products.find((entry) => entry.id === productId);
   if (!product || !vendorContext.company) {
     return null;
@@ -1713,7 +1737,8 @@ export async function getVendorProductInsightSnapshot(
 
   // Hoisted by the caller when it is looping products; resolved here only for a
   // one-off single-product call, so the standalone path keeps working unchanged.
-  const insightContext = context ?? (await resolveVendorProductInsightContext(companyId));
+  const insightContext =
+    context ?? (await resolveVendorProductInsightContext(companyId, undefined, vendorContext));
   const vendorModule = insightContext.vendorModuleId ? { id: insightContext.vendorModuleId } : null;
   const firmModule = insightContext.firmModuleId ? { id: insightContext.firmModuleId } : null;
   // Batched by the caller when the product set was known up front; the
@@ -1861,7 +1886,8 @@ export async function getVendorProductInsightCatalog(
   // of them.
   const insightContext = await resolveVendorProductInsightContext(
     companyId,
-    vendorContext.products.map((product) => product.id)
+    vendorContext.products.map((product) => product.id),
+    vendorContext
   );
   const snapshots = await Promise.all(
     vendorContext.products.map((product) =>
