@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { frameUntrusted } from "@/lib/agents/internal-knowledge/retrieve";
 import type { RetrievedChunk } from "@/lib/agents/internal-knowledge/retrieve";
+import { GLOBAL_VERTICAL_ID } from "@/lib/verticals/context";
 import {
   PUBLIC_AUDIENCE,
   readableDepthTiers,
@@ -87,8 +88,16 @@ export async function retrieveHelp(
   // significant term, then rank by ts_rank (same approach as internal retrieve()).
   const tsquery = q.split(/\s+/).filter(Boolean).join(" or ");
 
+  // Vertical scope. A request for one vertical also admits VERTICAL-NEUTRAL
+  // content (GLOBAL_VERTICAL_ID) — the B1 articles explain what PAT is and how
+  // alignment is measured, which is true in every vertical. Without the OR they
+  // would be stored correctly and then silently vanish the moment vertical
+  // filtering was switched on.
+  //
+  // This only ever WIDENS to the neutral bucket; it never admits another real
+  // vertical's content, so accounting can still never see legal's help.
   const verticalFilter = opts?.verticalId
-    ? Prisma.sql`AND s."verticalId" = ${opts.verticalId}`
+    ? Prisma.sql`AND (s."verticalId" = ${opts.verticalId} OR s."verticalId" = ${GLOBAL_VERTICAL_ID})`
     : Prisma.empty;
 
   // Audience scoping. Strict by default: a vendor/firm caller only sees help
@@ -98,9 +107,24 @@ export async function retrieveHelp(
   // 'help_doc', so the internal repo_doc/audit_log/dream_state corpus remains
   // unreachable. The caller (lib/patAssistant/audience.ts) decides this from the
   // server session, never the client.
+  // Audience scoping.
+  //
+  // The empty-array wildcard means "every AUTHENTICATED audience" — that is the
+  // documented semantic on KnowledgeSource.roleAccess, and it predates the
+  // existence of a public audience. Once public content arrived, the wildcard
+  // became a hole: a signed-out caller passing aud="public" matched
+  // `cardinality = 0` and could retrieve every signed-in-global article. The B1
+  // wall test caught exactly that — the public shelf returning the signed-in
+  // glossary.
+  //
+  // So the public entry path requires EXPLICIT public membership. It never
+  // benefits from a wildcard that means "any authenticated audience", because it
+  // is not one.
   const roleFilter = opts?.unrestricted
     ? Prisma.empty
-    : Prisma.sql`AND (cardinality(s."roleAccess") = 0 OR ${aud} = ANY(s."roleAccess"))`;
+    : opts?.publicEntry
+      ? Prisma.sql`AND ${PUBLIC_AUDIENCE} = ANY(s."roleAccess")`
+      : Prisma.sql`AND (cardinality(s."roleAccess") = 0 OR ${aud} = ANY(s."roleAccess"))`;
 
   // Depth-tier allowlist. An ALLOWLIST rather than a `<=` comparison so the wall
   // stays deny-by-default: a tier added to the enum later is invisible to every

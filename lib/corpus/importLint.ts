@@ -56,6 +56,22 @@ export type CorpusLintViolation = {
 const MECHANISM_EXEMPTIONS: RegExp[] = [
   /\b(deterministic|determinism|arithmetic|computation|calculation|the math|hashing|idempoten\w+|schema|constraint|migration|index)\b[^.!?]{0,60}\b(guarantee|guarantees|ensure|ensures)\b/i,
   /\b(guarantee|guarantees|ensure|ensures)\b[^.!?]{0,60}\b(repeatab\w+|reproducib\w+|determinis\w+|idempoten\w+|consistency|the same (answer|result|output)|byte-identical)\b/i,
+  /**
+   * "By <doing X>, PAT ensures <property>" — the mechanism is stated in the
+   * sentence's own leading clause.
+   *
+   * Added when the B1 corpus tripped this rule three times on sentences that
+   * are the OPPOSITE of marketing: "By keeping every contributor's share at a
+   * quarter or less, PAT ensures a published benchmark reflects a genuine
+   * plurality." That is the suppression rule explaining itself. The original
+   * our-voice branch fired on "PAT ensures" alone, with no regard for what was
+   * being ensured, so it could not tell a promise from an explanation.
+   *
+   * The object still matters: this exempts the SHAPE, and the outcome-noun
+   * branch below continues to fire independently, so "By working hard, PAT
+   * ensures more revenue" is still caught on "revenue".
+   */
+  /\bby\s+\w+ing\b[^.!?]{0,140},\s*(pat|patalign|we)\s+(ensure|ensures|guarantee|guarantees)\b/i,
 ];
 
 /**
@@ -74,8 +90,14 @@ const MECHANISM_EXEMPTIONS: RegExp[] = [
  * states a price.
  */
 const NEGATION_EXEMPTIONS: RegExp[] = [
-  /\b(not|never|no|without|rather than|instead of|cannot|can't|doesn't|does not|don't|do not|isn't|is not|aren't|are not)\b[^.!?]{0,40}\b(guarantee\w*|promise\w*|ensure\w*|roi|return on investment|results?|outcomes?)\b/i,
-  /\b(guarantee\w*|promise\w*|roi|return on investment)\b[^.!?]{0,40}\b(is not|are not|isn't|aren't|never)\b/i,
+  /\b(not|never|no|nothing|without|rather than|instead of|cannot|can't|doesn't|does not|don't|do not|isn't|is not|aren't|are not)\b[^.!?]{0,40}\b(guarantee\w*|promise\w*|ensure\w*|roi|return on investment|results?|outcomes?)\b/i,
+  /**
+   * The denial trailing its verb: "promises nothing about outcomes",
+   * "guarantees no particular result". The first pattern above scans FORWARD
+   * from the negation and missed this by four characters, which is the kind of
+   * margin that should not decide whether a disclaimer counts as a promise.
+   */
+  /\b(guarantee\w*|promise\w*|ensure\w*|roi|return on investment)\b[^.!?]{0,40}\b(is not|are not|isn't|aren't|never|nothing|no particular|none)\b/i,
 ];
 
 type RuleExemption = "mechanism" | "negation";
@@ -89,13 +111,34 @@ type BannedRule = {
 };
 
 const BANNED_RULES: BannedRule[] = [
+  /**
+   * The outcome-promise rule is TWO rules, split by what triggers them, because
+   * they need different exemptions.
+   *
+   * The voice branch fires on "we/PAT guarantee…" regardless of object, so it
+   * must be exemptible by a mechanism clause — otherwise every sentence
+   * explaining how the instrument works reads as marketing.
+   *
+   * The object branch fires on a promise verb near an OUTCOME NOUN, and must
+   * NOT be exemptible by mechanism. A single combined rule was tried first and
+   * immediately let "By working hard, PAT ensures more revenue" through: the
+   * mechanism clause cleared the whole rule, laundering the outcome. A gate you
+   * can defeat by prefixing "By ..." to the sentence is not a gate.
+   */
+  {
+    rule: "outcome-promise",
+    pattern: /\b(we|patalign|pat)\s+(guarantee|guarantees|promise|promises|ensure|ensures)\b/i,
+    reason:
+      "Outcome promise in Patalign's own voice. Patalign measures and reports; it does not promise a customer result. State the mechanism instead.",
+    exemptions: ["mechanism", "negation"],
+  },
   {
     rule: "outcome-promise",
     pattern:
-      /\b(we|patalign|pat)\s+(guarantee|guarantees|promise|promises|ensure|ensures)\b|\b(guarantee|guarantees|guaranteed|promise|promises|ensures?)\b[^.!?]{0,40}\b(results?|success|outcomes?|savings?|revenue|growth|roi|return on investment|more (clients|customers|deals)|wins?)\b/i,
+      /\b(guarantee|guarantees|guaranteed|promise|promises|ensures?)\b[^.!?]{0,40}\b(results?|success|outcomes?|savings?|revenue|growth|roi|return on investment|more (clients|customers|deals)|wins?)\b/i,
     reason:
-      "Outcome promise. Patalign measures and reports; it does not promise a customer result. State the mechanism instead.",
-    exemptions: ["mechanism", "negation"],
+      "Promise attached to a customer outcome. The corpus has no evidence for a customer's result, so Pat must never assert one — no mechanism clause makes an outcome promise acceptable.",
+    exemptions: ["negation"],
   },
   {
     rule: "financial-claim",

@@ -21,6 +21,7 @@ import {
   type CorpusLintReport,
 } from "@/lib/corpus/importLint";
 import { DEPTH_TIER_CORE, type CorpusDepthTier } from "@/lib/patAssistant/corpusAccess";
+import { loadCorpusArticleFiles } from "@/lib/corpus/articleFiles";
 
 type HelpArticle = {
   path: string;
@@ -33,6 +34,12 @@ type HelpArticle = {
    * ELITE source can ever be authored into an unguarded corpus.
    */
   depthTier?: CorpusDepthTier;
+  /**
+   * Omitted = "accounting", which is what the original in-code articles are.
+   * File-backed articles set it explicitly from frontmatter — B1 is
+   * vertical-neutral ("global"), because it describes PAT itself.
+   */
+  verticalId?: string;
 };
 
 // Faithful to the portal help content (FIRM_HELP_CARDS, vendorHelpCards,
@@ -289,12 +296,33 @@ export class CorpusLintError extends Error {
   }
 }
 
-export function lintHelpArticles(articles: readonly HelpArticle[] = HELP_ARTICLES): CorpusLintReport {
+/**
+ * Every article the importer will write: the in-code HELP_ARTICLES plus the
+ * file-backed corpus under help/ (B1 and everything after it).
+ *
+ * One list, so the lint gate, the dry-run plan and the writer cannot disagree
+ * about what is being imported. A file-backed article that skipped the lint
+ * would be a claim entering the corpus ungated, which is the whole thing the
+ * gate exists to stop.
+ */
+export function allHelpArticles(root = process.cwd()): HelpArticle[] {
+  const fromFiles = loadCorpusArticleFiles(root).map((article) => ({
+    path: article.path,
+    title: article.title,
+    roleAccess: article.roleAccess,
+    body: article.body,
+    depthTier: article.depthTier,
+    verticalId: article.verticalId,
+  }));
+  return [...HELP_ARTICLES, ...fromFiles];
+}
+
+export function lintHelpArticles(articles: readonly HelpArticle[] = allHelpArticles()): CorpusLintReport {
   return lintCorpus(articles.map(({ path, title, body }) => ({ path, title, body })));
 }
 
 /** Lint, or throw with the full report. Called by every path that writes. */
-export function assertHelpArticlesClean(articles: readonly HelpArticle[] = HELP_ARTICLES): void {
+export function assertHelpArticlesClean(articles: readonly HelpArticle[] = allHelpArticles()): void {
   const report = lintHelpArticles(articles);
   if (!report.ok) {
     throw new CorpusLintError(report);
@@ -320,10 +348,11 @@ export async function planHelpDocs(
 ): Promise<{ toIndex: string[]; unchanged: string[]; total: number }> {
   // The dry-run lints too: a plan that reports "3 articles would be indexed" for
   // content the real run will reject is a dry-run that tested nothing.
-  assertHelpArticlesClean();
+  const articles = allHelpArticles();
+  assertHelpArticlesClean(articles);
   const toIndex: string[] = [];
   const unchanged: string[] = [];
-  for (const article of HELP_ARTICLES) {
+  for (const article of articles) {
     const contentHash = sha256(`${article.title}\n\n${article.body}`);
     const existing = await prisma.knowledgeSource.findUnique({
       where: { path: article.path },
@@ -332,7 +361,7 @@ export async function planHelpDocs(
     if (existing?.contentHash === contentHash) unchanged.push(article.path);
     else toIndex.push(article.path);
   }
-  return { toIndex, unchanged, total: HELP_ARTICLES.length };
+  return { toIndex, unchanged, total: articles.length };
 }
 
 /**
@@ -343,10 +372,11 @@ export async function planHelpDocs(
 export async function indexHelpDocs(prisma: HelpIndexClient): Promise<{ indexed: number; skipped: number; total: number }> {
   // Gate before the first write, not per article: a corpus that is half-indexed
   // and then rejected is worse than one that is not indexed at all.
-  assertHelpArticlesClean();
+  const articles = allHelpArticles();
+  assertHelpArticlesClean(articles);
   let indexed = 0;
   let skipped = 0;
-  for (const article of HELP_ARTICLES) {
+  for (const article of articles) {
     const text = `${article.title}\n\n${article.body}`;
     const contentHash = sha256(text);
     const existing = await prisma.knowledgeSource.findUnique({
@@ -368,7 +398,7 @@ export async function indexHelpDocs(prisma: HelpIndexClient): Promise<{ indexed:
           contentHash,
           lastIndexedAt: new Date(),
           roleAccess: article.roleAccess,
-          verticalId: "accounting",
+          verticalId: article.verticalId ?? "accounting",
           depthTier: article.depthTier ?? DEPTH_TIER_CORE,
         },
       });
@@ -383,7 +413,7 @@ export async function indexHelpDocs(prisma: HelpIndexClient): Promise<{ indexed:
           contentHash,
           lastIndexedAt: new Date(),
           roleAccess: article.roleAccess,
-          verticalId: "accounting",
+          verticalId: article.verticalId ?? "accounting",
           depthTier: article.depthTier ?? DEPTH_TIER_CORE,
         },
       });
@@ -393,7 +423,7 @@ export async function indexHelpDocs(prisma: HelpIndexClient): Promise<{ indexed:
     }
     indexed += 1;
   }
-  return { indexed, skipped, total: HELP_ARTICLES.length };
+  return { indexed, skipped, total: articles.length };
 }
 
 // Only run the standalone flow when invoked directly (not when imported by a seed).

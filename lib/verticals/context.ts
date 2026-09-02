@@ -31,6 +31,30 @@ export const DEFAULT_VERTICAL_ID = "accounting";
 export const FROZEN_VERTICAL_IDS: readonly string[] = Object.freeze([DEFAULT_VERTICAL_ID]);
 
 /**
+ * The VERTICAL-NEUTRAL sentinel, for content that describes PAT itself rather
+ * than any industry (corpus program B1).
+ *
+ * The B1 articles explain what PAT is, how alignment is measured, what a
+ * benchmark means. None of that is accounting-specific, and tagging it
+ * `"accounting"` would make it invisible to a second vertical that needs the
+ * same explanations — the platform would look like it had no documentation the
+ * moment it served anyone but an accounting firm.
+ *
+ * NOT a pack id: no `verticals/global/pack.yaml` exists and none should. It is
+ * a scope marker meaning "every vertical", which is why it is deliberately
+ * absent from FROZEN_VERTICAL_IDS (nothing resolves it to a pack) and why the
+ * vertical filter treats it as always-visible rather than as a peer of
+ * `"accounting"`. Cross-vertical CONTENT is safe; cross-vertical BENCHMARKS are
+ * not, and the W6 cohort invariant is untouched by this.
+ */
+export const GLOBAL_VERTICAL_ID = "global";
+
+/** True for content visible to every vertical. */
+export function isGlobalVerticalId(verticalId: string): boolean {
+  return verticalId === GLOBAL_VERTICAL_ID;
+}
+
+/**
  * Packs that exist ONLY to be tested against, and must never resolve for a real
  * request (PF-2 W6).
  *
