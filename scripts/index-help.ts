@@ -22,6 +22,7 @@ import {
 } from "@/lib/corpus/importLint";
 import { DEPTH_TIER_CORE, type CorpusDepthTier } from "@/lib/patAssistant/corpusAccess";
 import { loadCorpusArticleFiles } from "@/lib/corpus/articleFiles";
+import { splitIntoSections } from "@/lib/corpus/chunking";
 
 type HelpArticle = {
   path: string;
@@ -333,10 +334,6 @@ function sha256(value: string): string {
   return createHash("sha256").update(value).digest("hex");
 }
 
-function estimateTokens(value: string): number {
-  return Math.ceil(value.length / 4);
-}
-
 type HelpIndexClient = Pick<PrismaClient, "knowledgeSource" | "knowledgeChunk">;
 
 /**
@@ -365,17 +362,43 @@ export async function planHelpDocs(
 }
 
 /**
+ * Write one article's SECTION chunks, replacing whatever was there.
+ *
+ * One row per H2 section (plus the answer-first opening at chunkIdx 0), so
+ * retrieval ranks and returns sections rather than whole articles. See
+ * lib/corpus/chunking.ts for why whole-article chunks became the defect.
+ */
+async function writeChunks(
+  prisma: HelpIndexClient,
+  sourceId: string,
+  title: string,
+  body: string
+): Promise<number> {
+  const chunks = splitIntoSections(title, body);
+  for (const chunk of chunks) {
+    await prisma.knowledgeChunk.create({
+      data: { sourceId, chunkIdx: chunk.chunkIdx, text: chunk.text, tokens: chunk.tokens },
+    });
+  }
+  return chunks.length;
+}
+
+/**
  * Idempotently upsert the help_doc corpus. Reusable from seeds (pass the shared
  * prisma client) and from the standalone `pnpm index:help` runner. Returns the
  * counts so callers can log them.
  */
-export async function indexHelpDocs(prisma: HelpIndexClient): Promise<{ indexed: number; skipped: number; total: number }> {
+export async function indexHelpDocs(
+  prisma: HelpIndexClient,
+  options: { force?: boolean } = {}
+): Promise<{ indexed: number; skipped: number; total: number; chunks: number }> {
   // Gate before the first write, not per article: a corpus that is half-indexed
   // and then rejected is worse than one that is not indexed at all.
   const articles = allHelpArticles();
   assertHelpArticlesClean(articles);
   let indexed = 0;
   let skipped = 0;
+  let chunks = 0;
   for (const article of articles) {
     const text = `${article.title}\n\n${article.body}`;
     const contentHash = sha256(text);
@@ -384,7 +407,12 @@ export async function indexHelpDocs(prisma: HelpIndexClient): Promise<{ indexed:
       select: { id: true, contentHash: true },
     });
 
-    if (existing?.contentHash === contentHash) {
+    // `force` exists for CHUNKING-STRATEGY changes. The content hash covers the
+    // article text, so a change to how that text is split produces identical
+    // hashes and would skip every article — leaving the corpus indexed under the
+    // old strategy while the code claims the new one. Re-chunking is exactly the
+    // case where "unchanged content" is the wrong question.
+    if (!options.force && existing?.contentHash === contentHash) {
       skipped += 1;
       continue;
     }
@@ -402,9 +430,7 @@ export async function indexHelpDocs(prisma: HelpIndexClient): Promise<{ indexed:
           depthTier: article.depthTier ?? DEPTH_TIER_CORE,
         },
       });
-      await prisma.knowledgeChunk.create({
-        data: { sourceId: existing.id, chunkIdx: 0, text, tokens: estimateTokens(text) },
-      });
+      chunks += await writeChunks(prisma, existing.id, article.title, article.body);
     } else {
       const source = await prisma.knowledgeSource.create({
         data: {
@@ -417,20 +443,21 @@ export async function indexHelpDocs(prisma: HelpIndexClient): Promise<{ indexed:
           depthTier: article.depthTier ?? DEPTH_TIER_CORE,
         },
       });
-      await prisma.knowledgeChunk.create({
-        data: { sourceId: source.id, chunkIdx: 0, text, tokens: estimateTokens(text) },
-      });
+      chunks += await writeChunks(prisma, source.id, article.title, article.body);
     }
     indexed += 1;
   }
-  return { indexed, skipped, total: articles.length };
+  return { indexed, skipped, total: articles.length, chunks };
 }
 
 // Only run the standalone flow when invoked directly (not when imported by a seed).
 if (process.argv[1] && process.argv[1].endsWith("index-help.ts")) {
   runWithPrisma(async (prisma) => {
-    const { indexed, skipped, total } = await indexHelpDocs(prisma);
-    console.log(`help_doc index complete: ${indexed} indexed, ${skipped} unchanged, ${total} total articles.`);
+    const force = process.argv.includes("--reindex");
+    const { indexed, skipped, total, chunks } = await indexHelpDocs(prisma, { force });
+    console.log(
+      `help_doc index complete: ${indexed} indexed, ${skipped} unchanged, ${total} total articles, ${chunks} chunks written${force ? " (forced re-index)" : ""}.`
+    );
   }).catch((error) => {
     console.error(error);
     process.exit(1);
