@@ -73,7 +73,30 @@ afterAll(async () => {
 // Nothing is reachable while dark.
 // ---------------------------------------------------------------------------
 
-describe("the public tier is dark, and provably unreachable", () => {
+/**
+ * RETIRED IN BOX 3: "is read by no route, page or component" and "has no public
+ * entry point passing publicEntry into retrieval".
+ *
+ * Both asserted an ABSENCE that was correct while the guardrails shipped ahead
+ * of the surface they guard. Box 3 built that surface, so both are now false by
+ * design and are replaced by their inversions below rather than deleted or
+ * quietly weakened — the same treatment the LADDER-1 web-tier-absence test got.
+ *
+ * The boundary is still pinned, from the other side: the flag is read by exactly
+ * the page and the route, and exactly ONE file outside the retrieval seam passes
+ * publicEntry — this route.
+ */
+describe("the public tier is reachable ONLY through its own surface", () => {
+  const PAGE = "app/(public)/ask/page.tsx";
+  const ROUTE = "app/api/pat/public/route.ts";
+  const SEAM = "lib/patAssistant/retrieveHelp.ts";
+
+  function trackedFiles(...dirs: string[]): string[] {
+    return execFileSync("git", ["ls-files", ...dirs], { cwd: ROOT, encoding: "utf8" })
+      .split("\n")
+      .filter(Boolean);
+  }
+
   it("defaults off and admits only an exact \"1\"", () => {
     expect(isPublicTierEnabled({})).toBe(false);
     for (const value of ["0", "", "true", "yes", "TRUE", " 1"]) {
@@ -82,35 +105,112 @@ describe("the public tier is dark, and provably unreachable", () => {
     expect(isPublicTierEnabled({ [PAT_PUBLIC_TIER_FLAG_ENV]: "1" })).toBe(true);
   });
 
-  it("is read by no route, page or component", () => {
-    // The guardrails ship ahead of the surface. Until a public entry point is
-    // built and reviewed, nothing under app/ may consult this flag — otherwise
-    // "nothing is reachable" is a claim rather than a fact.
-    const tracked = execFileSync("git", ["ls-files", "app"], { cwd: ROOT, encoding: "utf8" })
-      .split("\n")
-      .filter(Boolean);
-    expect(tracked.length).toBeGreaterThan(50);
-    const offenders = tracked.filter((file) =>
-      /PAT_ENABLE_PUBLIC_TIER|isPublicTierEnabled/.test(readFileSync(path.join(ROOT, file), "utf8"))
+  it("gates the page and the route on availability, through the SAME function", () => {
+    // A page that rendered while its endpoint refused would be a chat box that
+    // silently never answers, so both consult publicTierAvailability().
+    for (const file of [PAGE, ROUTE]) {
+      const source = readFileSync(path.join(ROOT, file), "utf8");
+      expect({ file, gated: /publicTierAvailability\(\)/.test(source) }).toEqual({ file, gated: true });
+    }
+  });
+
+  it("is consulted by NOTHING else under app/", () => {
+    const offenders = trackedFiles("app").filter(
+      (file) =>
+        file !== PAGE &&
+        file !== ROUTE &&
+        /PAT_ENABLE_PUBLIC_TIER|isPublicTierEnabled|publicTierAvailability/.test(
+          readFileSync(path.join(ROOT, file), "utf8")
+        )
     );
     expect(offenders).toEqual([]);
   });
 
-  it("has no public entry point passing publicEntry into retrieval", () => {
-    // The CORPUS-INFRA wall: the retrieval seam accepts the public audience, and
-    // no surface may speak it yet.
-    const tracked = execFileSync("git", ["ls-files", "app", "lib", "scripts"], {
-      cwd: ROOT,
-      encoding: "utf8",
-    })
-      .split("\n")
-      .filter(Boolean);
-    const allowed = new Set(["lib/patAssistant/retrieveHelp.ts"]);
-    const offenders = tracked.filter(
-      (file) =>
-        !allowed.has(file) && /\bpublicEntry\s*:/.test(readFileSync(path.join(ROOT, file), "utf8"))
+  it("has EXACTLY ONE publicEntry caller outside the retrieval seam", () => {
+    const callers = trackedFiles("app", "lib", "scripts").filter(
+      (file) => file !== SEAM && /\bpublicEntry\s*:/.test(readFileSync(path.join(ROOT, file), "utf8"))
     );
-    expect(offenders).toEqual([]);
+    expect(callers).toEqual([ROUTE]);
+  });
+
+  /**
+   * Executable code only — comments and imports stripped.
+   *
+   * The first version of these assertions matched raw source and failed on the
+   * route's own docblock, which SAYS it does not import getSessionUser and does
+   * not pass attemptWeb. A scan that a comment can trip is a scan that will be
+   * silenced by rewording rather than by fixing, so it reads code here.
+   */
+  function routeCode(): string {
+    return readFileSync(path.join(ROOT, ROUTE), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/(^|\s)\/\/[^\n]*/g, "$1");
+  }
+
+  /** The POST body, so ordering assertions measure execution, not import order. */
+  function postBody(): string {
+    const code = routeCode();
+    return code.slice(code.indexOf("export async function POST"));
+  }
+
+  it("is anonymous BY CONSTRUCTION — the route cannot read a session", () => {
+    // Not "does not currently read one": it imports nothing that could. A
+    // signed-in visitor hitting this endpoint is another anonymous caller, and
+    // there is no path by which privilege could flow in.
+    const code = routeCode();
+    for (const forbidden of [
+      "@/lib/auth/session",
+      "next/headers",
+      "resolvePatAudience",
+      "getSessionUser",
+      "membershipPlan",
+      "unrestricted",
+    ]) {
+      expect({ forbidden, present: code.includes(forbidden) }).toEqual({ forbidden, present: false });
+    }
+  });
+
+  it("cannot reach the web tier, because it passes no attemptWeb", () => {
+    // Rung 3 exists only through that callback. Not passing one means the web
+    // tier does not exist on this path — no flag flip anywhere can add it.
+    const code = routeCode();
+    expect(code).toContain("runAnswerLadder");
+    expect(code).not.toMatch(/attemptWeb/);
+  });
+
+  it("runs every cheap refusal BEFORE the model call", () => {
+    // Spend-shaped order: a rate-limited or over-long request must cost $0 of
+    // model spend, which is the whole reason the caps sit in front. Measured in
+    // the POST body — an earlier version compared positions in the whole file
+    // and was reading the import block, where order means nothing.
+    const body = postBody();
+    const at = (needle: string) => {
+      const index = body.indexOf(needle);
+      expect({ needle, found: index > -1 }).toEqual({ needle, found: true });
+      return index;
+    };
+    expect(at("publicTierAvailability()")).toBeLessThan(at("checkPublicInput("));
+    expect(at("checkPublicInput(")).toBeLessThan(at("checkPublicUsage("));
+    expect(at("checkPublicUsage(")).toBeLessThan(at("runAnswerLadder("));
+    expect(at("runAnswerLadder(")).toBeLessThan(at("filterPublicAnswer("));
+    expect(at("filterPublicAnswer(")).toBeLessThan(body.lastIndexOf("recordPublicUsage("));
+  });
+
+  it("filters every answer and bills every path, refusals included", () => {
+    // Three recordPublicUsage calls: decline, filtered-out, answered.
+    expect(routeCode().match(/recordPublicUsage\(/g) ?? []).toHaveLength(3);
+    expect(routeCode()).toMatch(/answered: false/);
+    expect(routeCode()).toMatch(/answered: true/);
+  });
+
+  it("never logs a cap refusal as a corpus gap", () => {
+    // A cap is our throttling, not a hole in the corpus; writing it to the gap
+    // queue would corrupt the signal the queue exists to carry.
+    const code = routeCode();
+    expect(code).not.toMatch(/recordPatDecline/);
+    const capBranch = code.slice(code.indexOf("if (!usage.allowed)"), code.indexOf("const ip ="));
+    expect(capBranch).toContain("429");
+    expect(capBranch).not.toContain("decline(");
   });
 });
 

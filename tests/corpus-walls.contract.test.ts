@@ -164,42 +164,21 @@ describe("the reserved public audience (corpus program (b))", () => {
   });
 });
 
-describe("no surface serves the public path in this box", () => {
-  it("nothing outside the retrieval seam and its tests passes publicEntry", async () => {
-    // (b) is explicit: the wall accepts the value, no surface serves it. This is
-    // the assertion that keeps "not yet wired" true rather than assumed.
-    //
-    // The rule is that no surface PASSES the option, so the scan looks for the
-    // property being SET (`publicEntry:`), not for the identifier appearing.
-    // A docblock that names the parameter — corpusAccess.ts explains the rule
-    // and has to be able to say the word — is documentation, not a caller.
-    // Matching the bare identifier flagged exactly that, and forbidding
-    // documentation from naming an API is a worse rule than the one it enforces.
-    //
-    // NOTE: like the PF-2 fixture scan, this is only meaningful once the files
-    // are TRACKED. It passed while these files were untracked and fired on the
-    // first post-commit run — which is the run that matters.
-    const { execFileSync } = await import("node:child_process");
-    const { readFileSync } = await import("node:fs");
-    const path = await import("node:path");
-    const root = process.cwd();
-
-    const tracked = execFileSync("git", ["ls-files", "app", "lib", "scripts"], {
-      cwd: root,
-      encoding: "utf8",
-    })
-      .split("\n")
-      .filter(Boolean);
-    expect(tracked.length).toBeGreaterThan(100);
-
-    const allowed = new Set(["lib/patAssistant/retrieveHelp.ts"]);
-    const offenders = tracked.filter(
-      (file) =>
-        !allowed.has(file) && /\bpublicEntry\s*:/.test(readFileSync(path.join(root, file), "utf8"))
-    );
-    expect(offenders).toEqual([]);
-  });
-});
+/**
+ * RETIRED IN BOX 3: "no surface serves the public path in this box" and its
+ * companion "the publicEntry scan is not vacuous".
+ *
+ * Those asserted that NOTHING outside the retrieval seam passed publicEntry —
+ * true and load-bearing while CORPUS-INFRA shipped the wall ahead of any surface
+ * that could speak through it. Box 3 built that surface, so the absence is now
+ * false by design.
+ *
+ * Removed rather than weakened, and the boundary is still pinned from the other
+ * side: tests/public-tier-guardrails.contract.test.ts asserts EXACTLY ONE
+ * publicEntry caller outside the seam — app/api/pat/public/route.ts — which is a
+ * stronger statement than "none", because it names the one file allowed to do it
+ * and fails if a second appears.
+ */
 
 describe("the corpus migration is additive only", () => {
   it("adds an enum, a defaulted column, a table and indexes — and nothing else", async () => {

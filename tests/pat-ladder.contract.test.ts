@@ -38,12 +38,14 @@ const answered: PatReply = {
   modelUsed: "fast",
   escalated: false,
   insufficientContext: false,
+  costUsd: 0,
 };
 const unanswered: PatReply = {
   text: "INSUFFICIENT_CONTEXT",
   modelUsed: "strong",
   escalated: true,
   insufficientContext: true,
+  costUsd: 0,
 };
 
 function harness(overrides: Partial<Parameters<typeof runAnswerLadder>[0]> = {}) {

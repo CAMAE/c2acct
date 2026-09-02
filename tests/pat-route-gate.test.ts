@@ -93,7 +93,7 @@ beforeEach(() => {
   audience.mockResolvedValue({ audience: "vendor", unrestricted: false, membershipPlan: "PRO" });
   keyPresent.mockReturnValue(true);
   retrieve.mockResolvedValue([aChunk]);
-  generate.mockResolvedValue({ text: "Go to Settings.", modelUsed: "fast", escalated: false, insufficientContext: false });
+  generate.mockResolvedValue({ text: "Go to Settings.", modelUsed: "fast", escalated: false, insufficientContext: false, costUsd: 0 });
 });
 
 describe("POST /api/pat — fails closed", () => {
@@ -195,6 +195,7 @@ describe("POST /api/pat — every decline is logged", () => {
       modelUsed: "strong",
       escalated: true,
       insufficientContext: true,
+      costUsd: 0,
     });
     await call("a question the corpus half-matches");
     expect(decline).toHaveBeenCalledWith({

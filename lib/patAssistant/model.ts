@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { getAnthropicApiKey } from "@/lib/agents/llm";
+import { estimateCostUsd } from "@/lib/agents/costRates";
 
 /**
  * Pat chat model layer (Phase 0 foundation, 2026-06-18).
@@ -39,6 +40,15 @@ export type PatReply = {
   escalated: boolean;
   /** True when even the strong tier could not answer — caller shows the fallback. */
   insufficientContext: boolean;
+  /**
+   * Real USD cost of the call(s), derived from the token counts the SDK returns.
+   *
+   * Added for the public tier, whose daily spend cap is only meaningful if it is
+   * fed actual cost. A cap fed zeros is decoration: it would never trip, and the
+   * ledger would report a free service while the bill said otherwise. Includes
+   * BOTH tiers when the cascade escalated, because that is what the call cost.
+   */
+  costUsd: number;
 };
 
 const GROUNDING_RULES = [
@@ -77,7 +87,7 @@ async function callModel(input: {
   context: string;
   maxTokens: number;
   timeoutMs: number;
-}): Promise<string> {
+}): Promise<{ text: string; costUsd: number }> {
   const client = new Anthropic({ apiKey: input.apiKey, timeout: input.timeoutMs, maxRetries: 0 });
   const userContent = input.context
     ? `Context:\n${input.context}\n\nQuestion:\n${input.prompt}`
@@ -91,11 +101,16 @@ async function callModel(input: {
     messages: [{ role: "user", content: userContent }],
   });
 
-  return response.content
+  const text = response.content
     .filter((block): block is Anthropic.TextBlock => block.type === "text")
     .map((block) => block.text)
     .join("\n")
     .trim();
+
+  return {
+    text,
+    costUsd: estimateCostUsd(input.model, response.usage.input_tokens, response.usage.output_tokens),
+  };
 }
 
 /**
@@ -134,8 +149,14 @@ export async function generatePatReply(input: {
     timeoutMs,
   });
 
-  if (!allowEscalation || !shouldEscalate(fast)) {
-    return { text: fast, modelUsed: "fast", escalated: false, insufficientContext: isInsufficient(fast) };
+  if (!allowEscalation || !shouldEscalate(fast.text)) {
+    return {
+      text: fast.text,
+      modelUsed: "fast",
+      escalated: false,
+      insufficientContext: isInsufficient(fast.text),
+      costUsd: fast.costUsd,
+    };
   }
 
   const strong = await callModel({
@@ -148,11 +169,14 @@ export async function generatePatReply(input: {
     timeoutMs,
   });
 
-  const insufficient = isInsufficient(strong);
+  const insufficient = isInsufficient(strong.text);
   return {
-    text: insufficient ? INSUFFICIENT_CONTEXT : strong,
+    text: insufficient ? INSUFFICIENT_CONTEXT : strong.text,
     modelUsed: "strong",
     escalated: true,
     insufficientContext: insufficient,
+    // BOTH tiers: an escalated answer cost the fast call as well as the strong
+    // one, and charging only the second would under-report every escalation.
+    costUsd: fast.costUsd + strong.costUsd,
   };
 }
