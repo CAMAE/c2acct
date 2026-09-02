@@ -38,6 +38,19 @@ export const PAT_LADDER_FLAG_ENV = "PAT_ENABLE_PAT_LADDER";
  * in an environment with no provider key changes nothing.
  */
 export const PAT_WEB_TIER_FLAG_ENV = "PAT_ENABLE_PAT_WEB_TIER";
+/**
+ * The PUBLIC TIER — an unauthenticated Pat surface. Default off.
+ *
+ * No such surface exists yet. This flag and the guardrails behind it are built
+ * FIRST, deliberately: rate limits, spend caps and output filtering are the
+ * things that get bolted on after launch under pressure, and a public endpoint
+ * without them is an open relay to a paid model. Building them while nothing is
+ * reachable means the surface cannot ship without them.
+ *
+ * A contract test asserts no route or page reads this flag while the tier is
+ * dark, so "nothing is reachable" stays a fact rather than a claim.
+ */
+export const PAT_PUBLIC_TIER_FLAG_ENV = "PAT_ENABLE_PUBLIC_TIER";
 
 function flagEnabled(envName: string): boolean {
   return process.env[envName] === "1";
@@ -88,4 +101,9 @@ export function isPatLadderEnabled(env: Record<string, string | undefined> = pro
  */
 export function isPatWebTierEnabled(env: Record<string, string | undefined> = process.env): boolean {
   return env[PAT_WEB_TIER_FLAG_ENV] === "1";
+}
+
+/** The public (unauthenticated) tier's master switch. Default off. */
+export function isPublicTierEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return env[PAT_PUBLIC_TIER_FLAG_ENV] === "1";
 }

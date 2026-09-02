@@ -1615,6 +1615,41 @@ model PatWebSearchLog {
   @@index([audience, createdAt])
 }
 
+// Public-tier usage ledger (BOX 2). An ABUSE AND SPEND control.
+//
+// One table serves three guardrails, because all three ask the same question of
+// the same rows over different windows: how many requests from this caller
+// recently (per-IP rate limit), how many in this conversation (per-session
+// message cap), and how much has the tier cost today (global daily cap).
+//
+// THE IP IS STORED HASHED, never raw. A public endpoint must be able to
+// rate-limit an abuser, which requires distinguishing callers; it does not
+// require knowing who they are. A salted hash distinguishes without identifying,
+// and the salt lives in the runtime env so the table alone cannot be reversed by
+// anyone who obtains it. Same instinct as the decline log's redaction: keep what
+// the control needs, discard what it does not.
+//
+// No question text. PatDeclineLog already owns redacted questions with no
+// identity attached; putting question text beside an ip hash and a session id
+// here would rebuild the per-visitor transcript both tables are shaped to avoid.
+// Rows are prunable on any schedule — nothing reads them beyond today's window.
+model PatPublicUsageLog {
+  id         String   @id @default(cuid())
+  /// Salted hash of the caller IP. Never the address itself.
+  ipHash     String
+  /// Opaque per-conversation id from the public surface. Not a user identity.
+  sessionId  String
+  /// Derived USD cost of the answer, from reported token usage.
+  costUsd    Float    @default(0)
+  /// False for refusals and filtered answers. They still consumed budget.
+  answered   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([ipHash, createdAt])
+  @@index([sessionId, createdAt])
+}
+
 model KnowledgeChunk {
   id        String          @id @default(cuid())
   sourceId  String
