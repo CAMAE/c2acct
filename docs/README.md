@@ -9,7 +9,7 @@
 | `pilot/` | Pilot launch: june-1 go/no-go signoff, pilot ops | **Current** |
 | `release/` | Release promotion semantics, launch-proof process | **Current** |
 | `runbooks/` | Operator how-tos: Mac mini setup, terminal bring-up | **Current** |
-| `status/` | Dated point-in-time status snapshots (most recent file = latest state) | Snapshot |
+| `status/` | Dated point-in-time status snapshots (most recent file = latest state; `PATALIGN-STATUS-2026-09-04.md` is the Forge→successor handoff: laws, gated queue, tooling) | Snapshot |
 | `audit/` | Historical audits (WS-series, day-series reconciliations) | Historical |
 | `plan/`, `research/`, `rebuild/`, `incidents/` | Topic-specific working docs | Mixed |
 | `archive/` | Superseded docs (81 files) | **Stale — reference only** |

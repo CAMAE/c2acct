@@ -28,8 +28,52 @@ Supersedes `PATALIGN-STATUS-2026-06-02.md`. Every item below was Mythos-verified
 ## Deploy-night preflight, current (expected partly FAIL)
 9 PASS · 10 FAIL · 2 WARN · 6 SKIP. FAILs: the five un-rotated secrets (by design — they are the pre-rotation values whose fingerprints are recorded), `PAT_PUBLIC_IP_HASH_SALT` / `PAT_WEB_TIER_DAILY_CAP_USD` / `PAT_PUBLIC_DAILY_CAP_USD` absent in Vercel Production, audit 3 critical / 24 high. Vercel Production presence read 2026-09-04: tier flags LADDER / WEB_TIER / PUBLIC_TIER absent (off); ASSISTANT, PINGS, BATTLECARD, CONSULTANT_ACCESS, ALIGNMENT_BOARD, SELF_SIGNUP present.
 
-## Gated queue
-See `CLAUDE.md` → "Gated queue". First work for the successor: the V7 arc, and only on Mythos's 21a PASS.
+## Handoff — laws, queue, tooling
+The repo-root `CLAUDE.md` is git-ignored (local project memory on the Mac mini); this section is the tracked copy of its handoff content.
+
+### Standing laws the successor inherits
+1. **Flag-dark always.** New surfaces ship behind `PAT_ENABLE_*` flags that are
+   `=== "1"` and fail closed. Flag-off must be byte-identical to today.
+2. **Prod untouched** until deploy night. No prod writes, no flag flips, no
+   promotion. Content reaches prod only through the deploy/import path.
+3. **Typed GO gates.** Cam decides with a typed GO; Forge builds; Mythos
+   verifies on-disk before any push. A GO in one box does not carry to the next.
+4. **Per-box reports** carry files, tests, query/row/timing numbers where
+   relevant, commit + file SHA-256 hashes, and validations actually run.
+5. **Explicit NOT-CLOSED list on every report.** Silence never means closed.
+6. **Behaviour-identical claims are proven, not asserted**: capture and diff the
+   output/payload before and after (byte-identical serialisation), the way
+   `6686f4b6` proved the ecosystem route and `5729147d` proved the survey payload.
+7. **Ledger-only diffs of `PATALIGN-MEMORY/SESSION-LEDGER.md` are exempt at the
+   startup gate**; they are banked as their own `ledger: bank` commits. Nothing
+   else in that directory is ever committed.
+8. **Nothing self-starts.** Idle is correct while gated.
+9. Profile before fixing (perf): `scripts/perf/` — query shapes by FULL args,
+   `--chains` attribution, row census, CPU-vs-wall, cpuprofile summary.
+   Counts are exact; cumulative ms is concurrency-inflated.
+10. `validate:launch` → `db:recreate` wipes the perf fixture; reseed
+    `scripts/seed/perf-scale.ts --apply --depth=demo` or perf numbers lie.
+
+### Gated queue (data — none of these self-start)
+| # | Box | Gate | Spec / pointer |
+|---|---|---|---|
+| 1 | **V7 arc** (FIRST work) | Mythos's stalled 21a final visual verdict | Serve `:3011` with `PAT_ENABLE_NEW_FRONT_DOOR=1` and `:3000` flag-off for the verdict. On PASS build DARK: 21c (Meet PAT section −40%), 21d (sign-in redesign), trust accordion, and an Ask Pat `/ask` entry on `V7FrontDoor` (the door has no path to its own headline feature). Flag-off byte-identical assertions throughout. The flag flips exactly once, on deploy night, on Cam's typed GO — never in this arc. Port 3011 was held by another node process on 2026-09-04; check `lsof -nP -iTCP:3011` first. |
+| 2 | Audit-triage box | Cam's GO | `pnpm audit --prod`: 3 critical / 24 high. Bump or WRITTEN acceptance per advisory; no silent acceptances. Preflight FAILs until then. |
+| 3 | Corpus imports B2–B9 | Cam/Leslie review sign-offs | Shelves authored (see ledger); import via the flag-dark lint-gated path used for B1v3 (`90284cca`). |
+| 4 | Optional-polish perf box | Idle queue only, or a surface >1s p50 | `lib/firmPat.ts getFirmProductCatalog` re-reads vendor assessments per firm (48 calls / 20 MB) + module lookups ×94 at `firmPat.ts:1158/:1162`; context-less callers in `briefs.ts`, `firmBriefs.ts`, ecosystem list card. Same `AdminBriefingContext` pattern. |
+| 5 | Other module types flat-adopt | After Cam + Leslie see the firm module live (one screenshot round → GO) | `isFlatAssessmentLayout` in `lib/assessmentDisplay.ts`; extend the key predicate. |
+| 6 | Open-ended multiple-choice redesign | Leslie's option-set decisions (question doc in her inbox 2026-09-04) | Not started. |
+| 7 | Deploy night | Cam's date + typed GO per phase | `docs/DEPLOY-NIGHT.md`; `pnpm deploy-night:preflight` (read-only). Expected FAILs before the night: 5 un-rotated secrets, 3 tier vars absent in Vercel Production, audit. |
+
+### Tooling added this era
+- `pnpm deploy-night:preflight` (+ `--night-env=`, `--record-old-fingerprints`);
+  `scripts/deploy-night/known-old-fingerprints.json` holds one-way fingerprints
+  of the 2026-09-04 secrets.
+- `scripts/perf/`: `profile-query-shapes.ts`, `row-census.ts`, `profile-phases.ts`,
+  `route-once.ts` + `summarize-cpuprofile.mjs`, `route-datalayer.ts` (17/3 harness).
+- `pnpm eval` golden set: 132/132 is the bar. `test:unit` count at handoff: 1500 / 174 files.
+- Known-stale e2e specs: `docs/e2e-known-stale.md` (the validation chain does not run them).
+
 
 ## Known open, not blocking
 - `e2e/pat-panel-history.spec.ts` and its stale siblings (`docs/e2e-known-stale.md`) fail on HEAD independent of any change; a product decision, not a selector fix. Sibling stray `waitForTimeout` at `e2e/firm-portal-toggle-visual.spec.ts:107` on the OPTIONAL-POLISH register.
