@@ -83,7 +83,9 @@ async function activatePatToggle(page: Page, label: string, assertSurface: () =>
       return;
     } catch (error) {
       lastError = error;
-      await page.waitForTimeout(300);
+      // Propagation wait, not a sleep: the toggle reports its own state, so wait
+      // for the click to have landed before asserting the surface again.
+      await expect(button).toHaveAttribute("aria-pressed", "true");
     }
   }
 

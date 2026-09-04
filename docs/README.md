@@ -14,7 +14,7 @@
 | `plan/`, `research/`, `rebuild/`, `incidents/` | Topic-specific working docs | Mixed |
 | `archive/` | Superseded docs (81 files) | **Stale — reference only** |
 
-Loose files at `docs/` root: `active-repo-map.md` (repo map) and `CORE_BUILD_AAE.md` (foundational build guide).
+Loose files at `docs/` root: `active-repo-map.md` (repo map), `CORE_BUILD_AAE.md` (foundational build guide) and `DEPLOY-NIGHT.md` (the deploy-night runbook; preflight = `pnpm deploy-night:preflight`).
 
 After moving or adding docs, re-run the knowledge indexer so citations stay fresh:
 `pnpm exec tsx scripts/agents/index-knowledge.ts`

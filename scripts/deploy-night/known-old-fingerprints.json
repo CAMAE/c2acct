@@ -1,0 +1,21 @@
+{
+  "note": "One-way fingerprints (16 hex of a domain-separated SHA-256) of secrets that were IN USE before a rotation. The preflight fails any rotation-dependent secret whose fingerprint is listed here. Never store values.",
+  "recordedAt": "2026-09-04T14:29:23.927Z",
+  "fingerprints": {
+    "DATABASE_URL": [
+      "0f9c49d89b2f08f8"
+    ],
+    "DIRECT_URL": [
+      "09a68f4dad7b263b"
+    ],
+    "ANTHROPIC_API_KEY": [
+      "c8c88634af0b6e42"
+    ],
+    "TELEGRAM_BOT_TOKEN": [
+      "50529c3da7fd03fd"
+    ],
+    "AUTH_SECRET": [
+      "005caf83517cf931"
+    ]
+  }
+}
