@@ -925,3 +925,33 @@ SUB-2s MET. NOT-CLOSED: lib/firmPat.ts getFirmProductCatalog re-reads vendor ass
 firm (48 calls/2 distinct args/20.3MB) + modules x94 (firmPat.ts:1158/:1162) — outside the
 briefing family, untouched; buildEcosystemCard (ecosystem.ts list route), briefs.ts, firmBriefs.ts
 still call the briefing entry points without the context (work, correct); push GO for 6686f4b6.
+
+### ARC 2 — deploy-night readiness box (2026-09-04) — AWAITING MYTHOS + PUSH GO
+Commit 85a80b64: docs/DEPLOY-NIGHT.md (full ordered night: quiesce → rotations one-at-a-time
+[Telegram/BotFather, AUTH_SECRET, Neon reset] → API-key org swap → tier env vars w/ absent-vs-blank
+table → audit triage → 6 pending migrations since 0157d40 via DIRECT_URL → cloud build/promote +
+4 gates → seed-help-prod → 0-skip suites → rehearsals at min caps [web tier first provider call;
+public tier /ask flag-on smoke] → flag order ASSISTANT(on)→LADDER→WEB_TIER→PUBLIC_TIER → un-quiesce
++ retire old creds; per-step rollback table; 10 sensitivities S1–S10). scripts/deploy-night-preflight.ts
++ deploy-night/checks.ts (pnpm deploy-night:preflight; read-only; blank≠absent w/ Number("")=0 trap
+named; rotation fingerprints in scripts/deploy-night/known-old-fingerprints.json — 5 recorded
+2026-09-04, one-way 16-hex; Vercel presence only, gated on existing CLI credential; audit; 0-skip
+suites). 15 contract tests. CURRENT preflight: 9 PASS/10 FAIL/2 WARN/6 SKIP — FAILs = 5 un-rotated
+secrets (by design), 3 tier vars ABSENT in Vercel Production (PAT_PUBLIC_IP_HASH_SALT,
+PAT_WEB_TIER_DAILY_CAP_USD, PAT_PUBLIC_DAILY_CAP_USD), audit 3 critical/24 high. Vercel Production
+presence read live: tier flags LADDER/WEB_TIER/PUBLIC_TIER absent (off), ASSISTANT/PINGS/BATTLECARD/
+CONSULTANT_ACCESS/ALIGNMENT_BOARD/SELF_SIGNUP present.
+RIDE-ALONG NOT CLOSED: pat-panel-history.spec.ts:86 waitForTimeout→aria-pressed propagation wait
+committed, but the spec is KNOWN-STALE (docs/e2e-known-stale.md, all 5 tests since 6/11): HEAD spec
+fails 5/5 on the fresh chain build, edited 15/15 ×3, all before the edited helper runs. Stability ×3
+undemonstrable until the spec is un-staled (product decision). Sibling stray waitForTimeout at
+e2e/firm-portal-toggle-visual.spec.ts:107 untouched.
+VALIDATION: validate:launch green (mac-mini skipped): test:unit 1497/1497 (173 files; +15), build,
+prelaunch, local-review + release-integrity e2e. secrets:scan clean. Perf fixture reseeded
+--depth=demo after the chain (S1).
+DISCLOSED: vercel env ls probes triggered the CLI device-login flow, which completed — this Mac's
+Vercel CLI now holds a credential; nothing changed in Vercel; preflight guarded against repeating it.
+NOT-CLOSED: the night itself (Cam's date + typed GO); audit triage (3 critical/24 high — fix or
+written acceptance); AGENT_APPROVAL_HMAC_SECRET not in the rotation set (decide); Mac-mini plist
+render snippet lives only in deploy history (operations.md:17) — runbook references it, does not
+reproduce it; push GO.
