@@ -838,7 +838,7 @@ export async function ensureFirmAlignmentSystem() {
             order: FIRM_MODULE_SECTIONS.length + 1,
           },
           helpText:
-            "Use current-state examples and operating detail. This response is required for context quality, but it does not change the numeric PAT score.",
+            "Use current-state examples and operating detail. This response adds operating context; it does not change the numeric PAT score.",
           placeholder: promptDefinition.placeholder,
           text: {
             multiline: true,
