@@ -874,3 +874,31 @@ exhausted Neon's client limit (P2037 "too many clients") and blocked seeding —
 via `pkill -9 -f "c2acct-live/node_modules/.pnpm/@prisma.*query-engine-darwin-arm64"`,
 then connections drained. Always let tsx probes process.exit + $disconnect, or reap engines.
 BLOCK 12 (a-h + reseed) COMPLETE. Mythos owns REGRESSION-CHECKLIST D-section + MYTHOS.md.
+
+### BOX 4b-r — ecosystem-route relation-load cut (2026-09-02) — AWAITING MYTHOS + PUSH GO
+Startup: fcc3fbe9 confirmed at origin/feature/engagement-v1 (no push needed).
+ORIGIN PROVEN (not inferred): the 3,516 Company.findUnique were NOT select-less — they
+carry an `include` (VendorProfile+Product+ProductSignal); the prior grouping keyed on
+`select` only, so include-shaped calls showed as {}. Async stacks DO survive Prisma
+middleware with Error.stackTraceLimit raised. All 3,516 = lib/vendorPat.ts:583
+getVendorCompanyContext <- vendorProductInsightEngine.ts:1694 snapshot <- adminBriefingEngine
+:1006 per-product loop <- :1075 (catalog, 1,739) and :1140 (company briefing, 1,739)
+<- ecosystem.ts:600; +37+1 from the vendor catalog. Suspects :798/:963 were NOT it.
+FIX (commit on branch, unpushed): vendor context folded into resolveVendorProductInsightContext's
+existing per-vendor Promise.all; snapshot reads context.vendorContext; standalone + catalog
+paths pass the loaded context through (their counts unchanged). Only file:
+lib/vendorProductInsightEngine.ts.
+NUMBERS (47 firms, depth=demo verified in-fixture: 37 products, 1,739 reviews; no reseed):
+ops 5,925->2,504; Company.findUnique(include) 3,516->95; p50 5.806s->4.893s (today's
+baseline; prior box recorded 5.516s); p90 6.806->5.508; p10 5.083->4.293.
+VALIDATION: test:unit 1482/1482 (172 files) with changed file AND with HEAD file; eval 132/132;
+tsc clean; eslint clean on the file.
+SHORT OF 2s — STOPPED for re-auth. Route is CPU-bound (cpu 111% of wall, loop stalls to
+200ms). NEXT DOMINANT TERM (measured): firm-review batch SurveySubmission.findMany x95 calls
+/ 2 distinct arg sets / 165,205 rows / 413 MB answers JSON per request = the vendor's 1,739
+reviews decoded 94x (twice per firm), and 37 firm-invariant product snapshots built 94x each.
+Fix = compute vendor product snapshots once per request, share across per-firm briefings
+(changes briefing entry-point signatures) — needs GO.
+NOT-CLOSED: sub-2s target; the 94x firm-review refetch above; SurveyModule.findUnique x472
+(5 per getBriefingProducts); getBriefingProducts run twice per firm (catalog + briefing);
+push of this commit (Mythos on-disk verify first); ledger commit.
