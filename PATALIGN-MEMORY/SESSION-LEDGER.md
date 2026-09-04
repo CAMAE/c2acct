@@ -984,3 +984,19 @@ questions → "This response adds operating context; it does not change the nume
 branch on the deploy night, never a direct prod mutation. Local: 25 rows updated, 0 say "required".
 test:unit 1500/1500, lint clean. NOT-CLOSED: push GO for 8fabe6eb; deploy-night step to note —
 first firm-module page load after deploy rewrites the help text (add to Z6 ledger expectations).
+
+### HANDOFF — Forge session cleared (2026-09-04)
+8fabe6eb + e1358b71 + 98081bd3 (runbook expectation line) pushed. Handoff banked: CLAUDE.md
+(git-ignored local project memory, updated on disk) + docs/status/PATALIGN-STATUS-2026-09-04.md
+(tracked: era table w/ hashes, validation state, preflight state, standing laws, gated queue as
+data, tooling) + docs/README pointer. Commits: 64b0d554 = the snapshot's first version pushed
+under a MISLABELED "ledger: bank" message (broken command chain — git refused the ignored
+CLAUDE.md); left in history, not rewritten. 11503ce3 = "handoff: bank session memory for
+successor" (laws + queue + README pointer). Harness memory written for the successor seat.
+QUEUE (all gated, none self-start): V7 arc FIRST on Mythos's 21a PASS (:3011 flag-on vs :3000
+off; then DARK 21c/21d/trust accordion/Ask Pat entry on V7FrontDoor; flag flips once, deploy
+night, Cam's GO); audit triage (3 critical/24 high, written acceptances); corpus imports B2–B9
+on sign-off; optional-polish perf idle-only; other-modules flat after screenshot round;
+multiple-choice on Leslie's option sets; deploy night on Cam's date.
+NOT-CLOSED: all queue items; AGENT_APPROVAL_HMAC_SECRET not yet in preflight specs; ledger
+tail-append vs newest-first header (successor's call). Cam clears.
