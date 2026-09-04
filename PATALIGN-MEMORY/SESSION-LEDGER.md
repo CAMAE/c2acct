@@ -973,3 +973,14 @@ NOT-CLOSED: open-ended multiple-choice redesign (option-set decision); helpText 
 says "required" in DB copy (seed + prod content change, needs GO); other modules keep the paged
 layout (adopt on GO); push GO for 5729147d. Local docker DB: test submissions for the module
 cleaned up (today's finals removed).
+
+### UX box follow-through — help-text copy (2026-09-04) — AWAITING MYTHOS + PUSH GO
+5729147d + 66f1145a pushed (origin 66f1145a). Rulings banked: flat helper for other module types
+waits on Cam+Leslie seeing the firm module live (one screenshot round → GO); multiple-choice
+redesign gated on Leslie's option sets (question doc in her inbox tonight); screenshots-outside-repo
+accepted. CONTENT GO executed: commit 8fabe6eb lib/firmPat.ts helpText for the 5 open-ended
+questions → "This response adds operating context; it does not change the numeric PAT score."
+(required: true + submit gate unchanged). Reaches prod via ensureFirmAlignmentSystem's UPDATE
+branch on the deploy night, never a direct prod mutation. Local: 25 rows updated, 0 say "required".
+test:unit 1500/1500, lint clean. NOT-CLOSED: push GO for 8fabe6eb; deploy-night step to note —
+first firm-module page load after deploy rewrites the help text (add to Z6 ledger expectations).
