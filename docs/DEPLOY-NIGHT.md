@@ -183,6 +183,9 @@ Ready; the preview passes the SSO gate; **Cam promotes `--prod`**; then G1
 printed). This is the deploy that makes Phases 1b, 1c, 2 and 3 take effect.
 
 - **VERIFY** the AUTH_SECRET proof (1b): old session cookie → signed out.
+- **EXPECT** the first firm-module page load after deploy rewrites the 25
+  open-ended help texts via `ensureFirmAlignmentSystem` (intended content
+  change from 8fabe6eb, not drift) — record it in the Z6 ledger as such.
 - **ROLLBACK** the one-move L2→L1 restore + `git revert` + redeploy (§10).
 
 ### Phase 6 — Help corpus to prod
