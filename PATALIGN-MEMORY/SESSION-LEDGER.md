@@ -902,3 +902,26 @@ Fix = compute vendor product snapshots once per request, share across per-firm b
 NOT-CLOSED: sub-2s target; the 94x firm-review refetch above; SurveyModule.findUnique x472
 (5 per getBriefingProducts); getBriefingProducts run twice per firm (catalog + briefing);
 push of this commit (Mythos on-disk verify first); ledger commit.
+
+### BOX 4b-r2 — vendor snapshots once per request (2026-09-04) — AWAITING MYTHOS + PUSH GO
+Startup: 647d7163 pushed (Mythos verified); ledger banked 86b31842 and pushed.
+Baseline on 647d7163 same day: p50 4.628s / p90 4.808s. AFTER (commit 6686f4b6): p50 0.667s /
+p90 0.743s / p10 0.583s. ops 2,504->1,380; SQL stmts 3,695->1,865; rows decoded 194,153->15,253;
+answers JSON 514MB->26.3MB; firm-review batch 95 calls->1; SurveyModule.findUnique 472->98.
+CHANGE: AdminBriefingContext (module ids + vendor snapshots by productId + latest vendor
+assessments) built once by buildAdminBriefingContext(vendor); getBriefingProducts/
+getAdminBriefingCatalog/getAdminCompanyBriefing take it optionally (additive, standalone paths
+unchanged); getBriefingProductsForFirms dedupes catalog+briefing product layers; products outside
+the vendor's active catalog computed per firm as before. getVendorProductInsightCatalog now =
+vendorProductInsightCatalogFromSnapshots(getVendorProductInsightSnapshotsByProductId()).
+Files: lib/adminBriefingEngine.ts, lib/ecosystem.ts, lib/vendorProductInsightEngine.ts.
+IDENTITY PROOF: detail+list+vendor catalog+standalone briefing/catalog/snapshot serialised with
+HEAD files vs new: 14,174,336 bytes each, byte-identical. test:unit 1482/1482 (=HEAD), eval
+132/132, tsc + lint:repo clean.
+TOOLING BANKED scripts/perf/: profile-query-shapes.ts (full-args + --chains; stackTraceLimit
+finding), row-census.ts, profile-phases.ts, route-once.ts + summarize-cpuprofile.mjs (largest
+profile = main thread), _perfScaleTarget.ts (depth=demo trap documented). All smoke-run.
+SUB-2s MET. NOT-CLOSED: lib/firmPat.ts getFirmProductCatalog re-reads vendor assessments per
+firm (48 calls/2 distinct args/20.3MB) + modules x94 (firmPat.ts:1158/:1162) — outside the
+briefing family, untouched; buildEcosystemCard (ecosystem.ts list route), briefs.ts, firmBriefs.ts
+still call the briefing entry points without the context (work, correct); push GO for 6686f4b6.
