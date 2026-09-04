@@ -1,6 +1,9 @@
 import {
+  buildAdminBriefingContext,
   getAdminBriefingCatalog,
   getAdminCompanyBriefing,
+  getBriefingProductsForFirms,
+  type AdminBriefingContext,
   type AdminCompanyBriefing,
   type BriefingCatalogItem,
 } from "@/lib/adminBriefingEngine";
@@ -597,13 +600,32 @@ export async function getEcosystemDetailForConsultant(
     })
   );
 
-  const [catalog, briefings, progresses, firmProductCatalogs, vendorCatalog] = await Promise.all([
-    firmIds.length > 0
-      ? getAdminBriefingCatalog({ companyIds: firmIds })
-      : Promise.resolve<BriefingCatalogItem[]>([]),
-    Promise.all(firmIds.map((firmId) => getAdminCompanyBriefing(firmId))).then((results) =>
-      results.filter((briefing): briefing is AdminCompanyBriefing => briefing !== null)
-    ),
+  // The vendor-level work — the 37 product snapshots, the latest vendor
+  // assessments, the two module ids — is computed ONCE here and handed to every
+  // per-firm briefing, and each firm's product layer is computed once and
+  // shared by the catalog and the company briefing. Before this, each of the
+  // 47 firms rebuilt the vendor's snapshots twice over (94 x 37 builds, each
+  // decoding the vendor's whole firm-review set), which is where the route's
+  // CPU went. The vendor catalog is the same snapshots filtered to completed.
+  const briefingWork = (async () => {
+    const briefingContext = await buildAdminBriefingContext(vendorCompanyId);
+    const context: AdminBriefingContext = {
+      ...briefingContext,
+      briefingProductsByFirmId: await getBriefingProductsForFirms(firmIds, briefingContext),
+    };
+    const [catalog, briefings] = await Promise.all([
+      firmIds.length > 0
+        ? getAdminBriefingCatalog({ companyIds: firmIds, context })
+        : Promise.resolve<BriefingCatalogItem[]>([]),
+      Promise.all(firmIds.map((firmId) => getAdminCompanyBriefing(firmId, context))).then((results) =>
+        results.filter((briefing): briefing is AdminCompanyBriefing => briefing !== null)
+      ),
+    ]);
+    return { catalog, briefings, vendorCatalog: briefingContext.vendorCatalog };
+  })();
+
+  const [{ catalog, briefings, vendorCatalog }, progresses, firmProductCatalogs] = await Promise.all([
+    briefingWork,
     Promise.all(
       firmIds.map(async (firmId) => {
         const modules = await getFirmAssessmentProgress(firmId);
@@ -616,7 +638,6 @@ export async function getEcosystemDetailForConsultant(
         catalog: await getFirmProductCatalog(firmId),
       }))
     ),
-    getVendorProductInsightCatalog(vendorCompanyId) as Promise<VendorProductInsightSnapshot[]>,
   ]);
 
   const productCount = vendorCatalog.length;

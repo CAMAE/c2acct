@@ -13,6 +13,9 @@ import { getVendorAlignmentInsightBundle } from "@/lib/vendorAlignmentInsightEng
 import {
   createVendorInsightContextResolver,
   getVendorProductInsightSnapshot,
+  getVendorProductInsightSnapshotsByProductId,
+  vendorProductInsightCatalogFromSnapshots,
+  type VendorProductInsightSnapshot,
 } from "@/lib/vendorProductInsightEngine";
 import type { VendorAdaptiveOpenEndedQuestionSnapshot } from "@/lib/vendorProductAssessmentPlan";
 import { buildProductAssessmentPlan } from "@/lib/vendorProductQuestionBank";
@@ -791,6 +794,12 @@ function summarizeIndividualLayer(input: {
   };
 }
 
+export type BriefingLatestVendorAssessment = {
+  submissionId: string;
+  submittedAt: Date;
+  openEndedResponses: BriefingProductOpenEndedResponse[];
+};
+
 async function getLatestVendorAssessmentsByProductId(
   products: Array<{
     id: string;
@@ -798,33 +807,28 @@ async function getLatestVendorAssessmentsByProductId(
     Company: {
       name: string;
     } | null;
-  }>
+  }>,
+  /**
+   * The vendor product module when the caller already resolved it (null when
+   * it resolved to nothing). Looked up here when undefined — the module is
+   * keyed by a fixed string and does not vary within a request.
+   */
+  knownVendorModule?: { id: string } | null
 ) {
   if (products.length === 0) {
-    return new Map<
-      string,
-      {
-        submissionId: string;
-        submittedAt: Date;
-        openEndedResponses: BriefingProductOpenEndedResponse[];
-      }
-    >();
+    return new Map<string, BriefingLatestVendorAssessment>();
   }
 
-  const vendorModule = await prisma.surveyModule.findUnique({
-    where: { key: VENDOR_PRODUCT_MODULE_KEY },
-    select: { id: true },
-  }).catch(() => null);
+  const vendorModule =
+    knownVendorModule !== undefined
+      ? knownVendorModule
+      : await prisma.surveyModule.findUnique({
+          where: { key: VENDOR_PRODUCT_MODULE_KEY },
+          select: { id: true },
+        }).catch(() => null);
 
   if (!vendorModule) {
-    return new Map<
-      string,
-      {
-        submissionId: string;
-        submittedAt: Date;
-        openEndedResponses: BriefingProductOpenEndedResponse[];
-      }
-    >();
+    return new Map<string, BriefingLatestVendorAssessment>();
   }
 
   const submissions = await prisma.surveySubmission.findMany({
@@ -857,14 +861,7 @@ async function getLatestVendorAssessmentsByProductId(
   }
 
   const productById = new Map(products.map((product) => [product.id, product]));
-  const latestAssessmentByProductId = new Map<
-    string,
-    {
-      submissionId: string;
-      submittedAt: Date;
-      openEndedResponses: BriefingProductOpenEndedResponse[];
-    }
-  >();
+  const latestAssessmentByProductId = new Map<string, BriefingLatestVendorAssessment>();
 
   for (const [productId, submission] of latestSubmissionByProductId.entries()) {
     const product = productById.get(productId);
@@ -902,11 +899,103 @@ async function getLatestVendorAssessmentsByProductId(
   return latestAssessmentByProductId;
 }
 
-async function getBriefingProducts(companyId: string) {
-  const firmModule = await prisma.surveyModule.findUnique({
-    where: { key: FIRM_PRODUCT_MODULE_KEY },
-    select: { id: true },
+/**
+ * Request-level context for briefing MANY firms of ONE vendor.
+ *
+ * Everything in here depends on the vendor or on nothing at all, never on the
+ * firm being briefed: the two module ids are keyed by fixed strings, and a
+ * product's insight snapshot and latest vendor assessment are functions of
+ * (vendor, product). The per-firm path re-derived all of it per firm — and per
+ * product for the snapshots — so at 47 firms the ecosystem route built the same
+ * 37 snapshots 94 times and looked the same two modules up 472 times.
+ *
+ * Same discipline as VendorProductInsightContext: computed ONCE by the caller
+ * that knows the whole set, passed down, discarded with the request. Nothing is
+ * stored, there is no TTL and no invalidation. Every entry point still works
+ * without it — a standalone single-firm call derives what it needs as before.
+ *
+ * Products OUTSIDE vendorProductIds (a firm that also reviewed another vendor's
+ * product) are not covered by the maps and are computed per firm exactly as
+ * before, so the context can only ever replace work, never change an answer.
+ */
+export type AdminBriefingContext = {
+  firmProductModuleId: string | null;
+  vendorProductModuleId: string | null;
+  /** The product ids the two vendor-level maps below are authoritative for. */
+  vendorProductIds: ReadonlySet<string>;
+  vendorSnapshotByProductId: ReadonlyMap<string, VendorProductInsightSnapshot | null>;
+  latestVendorAssessmentByProductId: ReadonlyMap<string, BriefingLatestVendorAssessment>;
+  /**
+   * Per-firm product layers, when the caller computed them up front so the
+   * briefing catalog and the company briefing — which both need them for the
+   * same firms — share one computation instead of each running their own.
+   */
+  briefingProductsByFirmId?: ReadonlyMap<string, BriefingProduct[]>;
+};
+
+export async function buildAdminBriefingContext(
+  vendorCompanyId: string
+): Promise<AdminBriefingContext & { vendorCatalog: VendorProductInsightSnapshot[] }> {
+  const [firmModule, vendorModule, snapshots] = await Promise.all([
+    prisma.surveyModule.findUnique({
+      where: { key: FIRM_PRODUCT_MODULE_KEY },
+      select: { id: true },
+    }),
+    prisma.surveyModule
+      .findUnique({
+        where: { key: VENDOR_PRODUCT_MODULE_KEY },
+        select: { id: true },
+      })
+      .catch(() => null),
+    getVendorProductInsightSnapshotsByProductId(vendorCompanyId),
+  ]);
+
+  // The same product fields the per-firm path hands to the assessment reader,
+  // so the open-ended responses it extracts are labelled identically.
+  const vendorProducts = await prisma.product.findMany({
+    where: { id: { in: snapshots.productIds } },
+    select: {
+      id: true,
+      name: true,
+      Company: { select: { name: true } },
+    },
   });
+
+  return {
+    firmProductModuleId: firmModule?.id ?? null,
+    vendorProductModuleId: vendorModule?.id ?? null,
+    vendorProductIds: new Set(snapshots.productIds),
+    vendorSnapshotByProductId: snapshots.snapshotByProductId,
+    latestVendorAssessmentByProductId: await getLatestVendorAssessmentsByProductId(
+      vendorProducts,
+      vendorModule
+    ),
+    vendorCatalog: vendorProductInsightCatalogFromSnapshots(snapshots),
+  };
+}
+
+/** The product layer for each firm, computed once so several consumers can share it. */
+export async function getBriefingProductsForFirms(
+  firmIds: readonly string[],
+  context: AdminBriefingContext
+): Promise<Map<string, BriefingProduct[]>> {
+  const layers = await Promise.all(
+    firmIds.map(async (firmId) => [firmId, await getBriefingProducts(firmId, context)] as const)
+  );
+  return new Map(layers);
+}
+
+export type BriefingProduct = Awaited<ReturnType<typeof getBriefingProducts>>[number];
+
+async function getBriefingProducts(companyId: string, context?: AdminBriefingContext) {
+  const firmModule = context
+    ? context.firmProductModuleId
+      ? { id: context.firmProductModuleId }
+      : null
+    : await prisma.surveyModule.findUnique({
+        where: { key: FIRM_PRODUCT_MODULE_KEY },
+        select: { id: true },
+      });
   if (!firmModule) {
     return [];
   }
@@ -984,7 +1073,23 @@ async function getBriefingProducts(companyId: string) {
     },
   });
 
-  const latestVendorAssessmentsByProductId = await getLatestVendorAssessmentsByProductId(products);
+  // Products the context covers take their vendor-level results from it; any
+  // other product (another vendor's) is computed here exactly as before.
+  const coveredByContext = (productId: string) => context?.vendorProductIds.has(productId) ?? false;
+  const latestVendorAssessmentsByProductId = context
+    ? new Map<string, BriefingLatestVendorAssessment>([
+        ...products.flatMap((product) => {
+          const entry = coveredByContext(product.id)
+            ? context.latestVendorAssessmentByProductId.get(product.id)
+            : undefined;
+          return entry ? [[product.id, entry] as const] : [];
+        }),
+        ...(await getLatestVendorAssessmentsByProductId(
+          products.filter((product) => !coveredByContext(product.id)),
+          context.vendorProductModuleId ? { id: context.vendorProductModuleId } : null
+        )),
+      ])
+    : await getLatestVendorAssessmentsByProductId(products);
 
   // Products here may span several vendor companies, so one hoisted context is
   // not enough — but re-deriving per product is exactly what this removes. The
@@ -1002,13 +1107,15 @@ async function getBriefingProducts(companyId: string) {
     products.map(async (product) => {
       const latestCompanyReview = latestSubmissionByProductId.get(product.id) ?? null;
       const latestVendorAssessment = latestVendorAssessmentsByProductId.get(product.id) ?? null;
-      const snapshot = product.companyId
-        ? await getVendorProductInsightSnapshot(
-            product.companyId,
-            product.id,
-            await insightContextFor(product.companyId)
-          )
-        : null;
+      const snapshot = coveredByContext(product.id)
+        ? (context?.vendorSnapshotByProductId.get(product.id) ?? null)
+        : product.companyId
+          ? await getVendorProductInsightSnapshot(
+              product.companyId,
+              product.id,
+              await insightContextFor(product.companyId)
+            )
+          : null;
 
       return {
         productId: product.id,
@@ -1050,7 +1157,9 @@ async function getBriefingProducts(companyId: string) {
 
 export async function getAdminBriefingCatalog(input?: {
   companyIds?: string[];
+  context?: AdminBriefingContext;
 }): Promise<BriefingCatalogItem[]> {
+  const context = input?.context;
   const companies = await prisma.company.findMany({
     where: {
       type: "FIRM",
@@ -1085,7 +1194,7 @@ export async function getAdminBriefingCatalog(input?: {
             createdAt: true,
           },
         }),
-        getBriefingProducts(company.id),
+        context?.briefingProductsByFirmId?.get(company.id) ?? getBriefingProducts(company.id, context),
       ]);
 
       const latestSubmissionByModule = new Map<string, (typeof assessmentProgress)[number]>();
@@ -1121,7 +1230,10 @@ export async function getAdminBriefingCatalog(input?: {
   return catalog;
 }
 
-export async function getAdminCompanyBriefing(companyId: string): Promise<AdminCompanyBriefing | null> {
+export async function getAdminCompanyBriefing(
+  companyId: string,
+  context?: AdminBriefingContext
+): Promise<AdminCompanyBriefing | null> {
   const company = await prisma.company.findUnique({
     where: { id: companyId },
     select: {
@@ -1193,7 +1305,7 @@ export async function getAdminCompanyBriefing(companyId: string): Promise<AdminC
       getFirmManagedUserRecords(companyId, null),
       getFirmInsightReports(companyId),
       getVendorAlignmentInsightBundle(),
-      getBriefingProducts(companyId),
+      context?.briefingProductsByFirmId?.get(companyId) ?? getBriefingProducts(companyId, context),
     ]);
 
   const moduleHeatmap = buildModuleHeatmap(firmModules as ModuleRecord[], firmSubmissions);

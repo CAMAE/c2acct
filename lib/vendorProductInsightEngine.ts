@@ -1877,9 +1877,30 @@ export async function getVendorProductInsightSnapshot(
   });
 }
 
-export async function getVendorProductInsightCatalog(
+/**
+ * One vendor's product snapshots, every active product, keyed by productId and
+ * carrying the vendor's product order.
+ *
+ * A snapshot depends on the VENDOR and the PRODUCT only — the vendor's own
+ * assessment and the reviews from the vendor's scoped firms — never on which
+ * firm is being briefed. The per-firm briefing nevertheless built one per
+ * (firm, product): at 47 firms x 37 products, twice per firm, the same 37
+ * snapshots were built 94 times each, and each build decoded the vendor's
+ * full firm-review set (1,739 rows, ~4.4 MB of answers JSON) again — 413 MB
+ * of JSON per request for 37 distinct results. This is the one place they
+ * are built; callers that brief many firms of one vendor compute this once
+ * and pass it down. Not a cache: it lives as long as the request that built it.
+ */
+export type VendorProductInsightSnapshotsByProductId = {
+  /** Active product ids in the vendor's catalog order. */
+  productIds: string[];
+  /** Present for EVERY id in productIds; null where the snapshot is not open. */
+  snapshotByProductId: Map<string, VendorProductInsightSnapshot | null>;
+};
+
+export async function getVendorProductInsightSnapshotsByProductId(
   companyId: string
-): Promise<VendorProductInsightSnapshot[]> {
+): Promise<VendorProductInsightSnapshotsByProductId> {
   const vendorContext = await getVendorCompanyContext(companyId);
   // One resolution for the whole catalog: every product here belongs to the
   // same vendor, so the modules and the scoped firm list are identical for all
@@ -1894,12 +1915,34 @@ export async function getVendorProductInsightCatalog(
       getVendorProductInsightSnapshot(companyId, product.id, insightContext)
     )
   );
+  const snapshotByProductId = new Map<string, VendorProductInsightSnapshot | null>();
+  vendorContext.products.forEach((product, index) => {
+    snapshotByProductId.set(product.id, snapshots[index] ?? null);
+  });
+  return {
+    productIds: vendorContext.products.map((product) => product.id),
+    snapshotByProductId,
+  };
+}
 
+/** The vendor catalog as derived from the snapshot map: open snapshots, vendor order, completed only. */
+export function vendorProductInsightCatalogFromSnapshots(
+  entry: VendorProductInsightSnapshotsByProductId
+): VendorProductInsightSnapshot[] {
   const catalog: VendorProductInsightSnapshot[] = [];
-  for (const snapshot of snapshots) {
+  for (const productId of entry.productIds) {
+    const snapshot = entry.snapshotByProductId.get(productId);
     if (snapshot) {
       catalog.push(snapshot);
     }
   }
   return filterVendorProductInsightCatalogToCompleted(catalog);
+}
+
+export async function getVendorProductInsightCatalog(
+  companyId: string
+): Promise<VendorProductInsightSnapshot[]> {
+  return vendorProductInsightCatalogFromSnapshots(
+    await getVendorProductInsightSnapshotsByProductId(companyId)
+  );
 }
