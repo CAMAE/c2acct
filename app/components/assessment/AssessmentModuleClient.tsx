@@ -8,6 +8,7 @@ import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import DraftSavedIndicator from "@/app/components/assessment/DraftSavedIndicator";
 import { buildCanonicalSignInPath } from "@/lib/auth/routes";
 import { sliderValueFromPointer } from "@/lib/scoreSlider";
+import { displayPrompt, isFlatAssessmentLayout } from "@/lib/assessmentDisplay";
 import {
   getDefaultAnswer,
   isAnswerPresent,
@@ -423,6 +424,10 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
 
   const pages = data?.pages ?? [];
   const totalSteps = Math.max(1, pages.length);
+  // Firm alignment modules show all 25 questions on one page (Leslie's note).
+  // The pages model above is untouched: it still drives draft step bookkeeping
+  // and resume, so what the server receives is what it received before.
+  const flatLayout = isFlatAssessmentLayout(moduleKey);
 
   useEffect(() => {
     if (!data) {
@@ -501,6 +506,17 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
       return [];
     }
 
+    if (flatLayout) {
+      // One card, every question, module order — no section breaks of any kind.
+      return [
+        {
+          key: "all-questions",
+          title: data.title,
+          questionIds: data.questions.map((question) => question.id),
+        },
+      ];
+    }
+
     const pageQuestionIdSet = new Set(currentPage.questionIds);
     const sections: VisiblePageSection[] = [];
 
@@ -524,7 +540,11 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
     });
 
     return sections;
-  }, [currentPage, data]);
+  }, [currentPage, data, flatLayout]);
+
+  // What gates the primary button: the whole module on one page, the current
+  // page when paged. Same rule the submit handler already enforces.
+  const gatingMissingCount = flatLayout ? missingRequiredCount : currentPageMissingCount;
 
   function setAnswer(questionId: string, value: NormalizedAnswer) {
     setAnswers((currentAnswers) => ({ ...currentAnswers, [questionId]: value }));
@@ -624,9 +644,13 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
     if (missingRequiredCount > 0) {
       setSubmitStatus("error");
       setSubmitError(
-        `Complete the remaining ${missingRequiredCount} required question${
-          missingRequiredCount === 1 ? "" : "s"
-        } before submitting.`
+        flatLayout
+          ? `Answer the remaining ${missingRequiredCount} question${
+              missingRequiredCount === 1 ? "" : "s"
+            } before submitting.`
+          : `Complete the remaining ${missingRequiredCount} required question${
+              missingRequiredCount === 1 ? "" : "s"
+            } before submitting.`
       );
       return;
     }
@@ -729,10 +753,12 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
         {data.description ? (
           <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">{data.description}</p>
         ) : null}
-        <p className="mt-4 max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">
-          PAT keeps this module in ten-question pages while preserving the same 0 to 5 scoring,
-          draft-saving, and unlock logic underneath.
-        </p>
+        {flatLayout ? null : (
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">
+            PAT keeps this module in ten-question pages while preserving the same 0 to 5 scoring,
+            draft-saving, and unlock logic underneath.
+          </p>
+        )}
 
         {/* 16d — delta refresh banner: pre-filled from the last submission. */}
         {isDeltaRefresh && data.priorFinal ? (
@@ -753,10 +779,12 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
           </div>
         ) : null}
 
-        <div className="mt-6 grid gap-4 md:grid-cols-4">
-          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Page: <span className="font-semibold text-[var(--shell-ink)]">{currentStep} / {totalSteps}</span>
-          </div>
+        <div className={`mt-6 grid gap-4 ${flatLayout ? "md:grid-cols-3" : "md:grid-cols-4"}`}>
+          {flatLayout ? null : (
+            <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+              Page: <span className="font-semibold text-[var(--shell-ink)]">{currentStep} / {totalSteps}</span>
+            </div>
+          )}
           <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
             Progress: <strong className="font-semibold text-[var(--shell-ink)]">{completionPct}%</strong>
           </div>
@@ -773,6 +801,13 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
           </div>
         </div>
 
+        {flatLayout ? (
+          <div className="mt-6 flex flex-wrap gap-4 text-sm font-semibold text-[var(--shell-accent)]">
+            <Link href={assessmentLandingHref} className="hover:text-[var(--shell-accent-strong)]">
+              Back to readiness
+            </Link>
+          </div>
+        ) : (
         <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
           <section className="pat-soft-panel p-5">
             <div className="pat-label">Process</div>
@@ -830,6 +865,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
             </div>
           </section>
         </div>
+        )}
       </header>
 
       {data.stagedFeatures.branching || data.stagedFeatures.roleVariants ? (
@@ -853,14 +889,16 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
       <div className="grid gap-5">
         {visibleSections.map((section) => (
           <section key={section.key} className="pat-card overflow-hidden p-6">
-            <div className="grid gap-2">
-              <div className="pat-label">{section.title}</div>
-              {section.description ? (
-                <p className="max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">{section.description}</p>
-              ) : null}
-            </div>
+            {flatLayout ? null : (
+              <div className="grid gap-2">
+                <div className="pat-label">{section.title}</div>
+                {section.description ? (
+                  <p className="max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">{section.description}</p>
+                ) : null}
+              </div>
+            )}
 
-            <div className="mt-6 grid gap-5">
+            <div className={`${flatLayout ? "" : "mt-6 "}grid gap-5`}>
               {section.questionIds.map((questionId) => {
                 const question = questionsById.get(questionId);
                 if (!question) {
@@ -874,12 +912,12 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
                   <article key={question.id} className="pat-subpanel p-5">
                     <div className="grid gap-3">
                       <div className="pat-label">
-                        Question {questionNumberById.get(question.id) ?? 1} of {data.questions.length} ·{" "}
-                        {question.required ? "Required" : "Optional"}
-                        {question.meta.groupKey ? ` · ${question.meta.groupKey}` : ""}
+                        Question {questionNumberById.get(question.id) ?? 1} of {data.questions.length}
+                        {flatLayout ? "" : ` · ${question.required ? "Required" : "Optional"}`}
+                        {!flatLayout && question.meta.groupKey ? ` · ${question.meta.groupKey}` : ""}
                       </div>
                       <div className="text-xl font-semibold tracking-tight text-[var(--shell-ink)]">
-                        {question.prompt}
+                        {flatLayout ? displayPrompt(question.prompt, data.title) : question.prompt}
                       </div>
                       {question.meta.helpText ? (
                         <div className="text-sm leading-6 text-[var(--shell-muted)]">
@@ -914,20 +952,25 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
       </div>
 
       <section className="pat-card p-6">
-        <div className="pat-label">{currentStep < totalSteps ? "Next" : "Submit"}</div>
+        <div className="pat-label">{!flatLayout && currentStep < totalSteps ? "Next" : "Submit"}</div>
         <div className="mt-3 text-xl font-semibold text-[var(--shell-ink)]">
-          {currentStep < totalSteps ? "Next" : "Submit"}
+          {!flatLayout && currentStep < totalSteps ? "Next" : "Submit"}
         </div>
         <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-          {currentStep < totalSteps
+          {!flatLayout && currentStep < totalSteps
             ? "Continue to next page of the assessment"
             : "Submit this module to preserve the scored PAT record, unlock evaluation state, and carry the current module signal into the live firm results flow."}
         </p>
 
-        {currentPageMissingCount > 0 ? (
+        {gatingMissingCount > 0 ? (
           <div className="mt-4 rounded-[18px] border border-amber-200 bg-amber-50/90 p-4 text-sm leading-6 text-amber-900">
-            {currentPageMissingCount} required question{currentPageMissingCount === 1 ? "" : "s"} still need a
-            response before PAT can {currentStep < totalSteps ? "open the next page" : "submit this module"}.
+            {flatLayout
+              ? `${gatingMissingCount} question${gatingMissingCount === 1 ? "" : "s"} still need${
+                  gatingMissingCount === 1 ? "s" : ""
+                } a response before PAT can submit this module.`
+              : `${gatingMissingCount} required question${gatingMissingCount === 1 ? "" : "s"} still need a response before PAT can ${
+                  currentStep < totalSteps ? "open the next page" : "submit this module"
+                }.`}
           </div>
         ) : null}
 
@@ -950,12 +993,12 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
         ) : null}
 
         <div className="mt-6 flex flex-wrap gap-3">
-          {currentStep > 1 ? (
+          {!flatLayout && currentStep > 1 ? (
             <button type="button" onClick={() => void changeStep(currentStep - 1)} className="pat-button-secondary">
               Back a page
             </button>
           ) : null}
-          {currentStep < totalSteps ? (
+          {!flatLayout && currentStep < totalSteps ? (
             <button
               type="button"
               onClick={() => void changeStep(currentStep + 1)}
@@ -968,7 +1011,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
             <button
               type="button"
               onClick={submitSurvey}
-              disabled={submitStatus === "submitting" || submitStatus === "success" || currentPageMissingCount > 0}
+              disabled={submitStatus === "submitting" || submitStatus === "success" || gatingMissingCount > 0}
               className="pat-button-primary"
             >
               {submitStatus === "submitting" ? "Submitting assessment..." : "Submit assessment"}
