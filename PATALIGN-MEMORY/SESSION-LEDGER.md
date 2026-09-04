@@ -955,3 +955,21 @@ NOT-CLOSED: the night itself (Cam's date + typed GO); audit triage (3 critical/2
 written acceptance); AGENT_APPROVAL_HMAC_SECRET not in the rotation set (decide); Mac-mini plist
 render snippet lives only in deploy history (operations.md:17) — runbook references it, does not
 reproduce it; push GO.
+
+### ASSESSMENT UX BOX — firm modules on one page (2026-09-04) — AWAITING MYTHOS + PUSH GO
+Arc 2 85a80b64 + ledger bd406725 pushed (origin bd406725). Commit 5729147d: /survey/firm_alignment_*
+renders all 25 questions in ONE card (isFlatAssessmentLayout, firm_alignment_ keys only; other
+modules untouched): pagination + Process/Help panels + Page stat + ten-question explainer +
+section labels + "Required" removed; prompt shown with the "<module title>: " prefix stripped
+(displayPrompt, display-only — DB prompt unchanged). Files: AssessmentModuleClient.tsx,
+lib/assessmentDisplay.ts, tests/assessment-display.contract.test.ts (+3).
+PAYLOAD PROOF (Playwright vs dev :3012, demo-firm-pro, drafts wiped between runs, DOM layout
+asserted): A(HEAD) 3 pages/7 drafts vs B(new) 1 page/2 drafts → /api/survey/submit body
+BYTE-IDENTICAL (1,206 B), last-draft answers BYTE-IDENTICAL. Screenshots before ×3 / after ×1
+delivered to Cam & Leslie.
+VALIDATION: test:unit 1500/1500 (174 files) — one DB cohort test raced the live capture
+submission (percentile 25 vs 24), passes alone 5/5; lint:repo + tsc clean.
+NOT-CLOSED: open-ended multiple-choice redesign (option-set decision); helpText on Q21–25 still
+says "required" in DB copy (seed + prod content change, needs GO); other modules keep the paged
+layout (adopt on GO); push GO for 5729147d. Local docker DB: test submissions for the module
+cleaned up (today's finals removed).
