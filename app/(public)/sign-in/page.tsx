@@ -17,7 +17,7 @@ import {
 } from "@/lib/auth/routes";
 import MeetPatContent from "@/app/components/pat/MeetPatContent";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
-import { getSignInRegister, type SignInRegister } from "@/app/(public)/sign-in/register";
+import { cardStyleProps, getSignInRegister, type SignInRegister } from "@/app/(public)/sign-in/register";
 import { getPresentLocalAuthCookies, summarizeLocalAuthCookies } from "@/lib/auth/cookies";
 import { getLocalReviewUsersForUi } from "@/lib/auth/localReview";
 import { getAuthRuntimeStatus } from "@/lib/auth/runtime";
@@ -168,7 +168,7 @@ function RoleAccessCard({
   register: SignInRegister;
 }) {
   return (
-    <section className={r.card} style={r.cardStyle}>
+    <section className={r.card} {...cardStyleProps(r)}>
       <div className="pat-label">{title}</div>
       <h2 className={r.cardTitle}>
         {subtitle}
@@ -332,7 +332,7 @@ function HelpInline({
   register: SignInRegister;
 }) {
   return (
-    <section className={r.card} style={r.cardStyle}>
+    <section className={r.card} {...cardStyleProps(r)}>
       <div className="pat-label">{messages.helpEyebrow}</div>
       <h2 className={r.cardTitle}>
         {messages.helpTitle}
@@ -342,7 +342,7 @@ function HelpInline({
       </p>
       <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {helpCards.map((card) => (
-          <article key={card.title} className={r.helpCard} style={r.cardStyle}>
+          <article key={card.title} className={r.helpCard} {...cardStyleProps(r)}>
             <div className={r.helpCardTitle}>{card.title}</div>
             <p className={r.helpCardBody}>{card.body}</p>
           </article>
@@ -617,7 +617,7 @@ export default async function SignInHubPage({
       ) : null}
 
       {inviteeSurfacesEnabled && activeView === "invitee" ? (
-        <section className={r.card} style={r.cardStyle}>
+        <section className={r.card} {...cardStyleProps(r)}>
           <div className="pat-label">{messages.signIn.inviteeTitle}</div>
           <h2 className={r.cardTitle}>
             {messages.signIn.inviteeSubtitle}

@@ -102,6 +102,11 @@ describe("21d — sign-in hub in the V7 register, flag-off byte-identical", () =
     expect((signIn.match(/register=\{r\}/g) || []).length).toBe(7); // 5 role cards + help + selector
     expect((signIn.match(/className=\{r\.buttonPrimary\}/g) || []).length).toBe(6);
     expect((signIn.match(/className=\{r\.buttonSecondary\}/g) || []).length).toBe(2);
+    // The door shadow is spread, never passed as `style={undefined}`: a present-but-
+    // undefined prop serialises as "style":"$undefined" in the RSC flight payload and
+    // would break flag-off byte-identity of the stream.
+    expect(signIn).not.toContain("style={r.cardStyle}");
+    expect((signIn.match(/\{\.\.\.cardStyleProps\(r\)\}/g) || []).length).toBe(4);
   });
 
   it("V7 register: door grammar — ink pill primary, ghost pill secondary, pat-card + door shadow, px scale", () => {

@@ -101,6 +101,16 @@ export const V7_SIGN_IN_REGISTER: SignInRegister = {
     "mt-7 rounded-[22px] border border-[var(--shell-border)] bg-[#fbfcfe] p-6 text-[14.5px] leading-6 text-[var(--shell-muted)]",
 };
 
+/**
+ * Spread instead of `style={r.cardStyle}`: a prop that is present-but-undefined
+ * still serialises into the React flight payload as `"style":"$undefined"`, which
+ * broke flag-off byte-identity of the RSC stream (HTML attributes were unaffected).
+ * With the spread, the DEFAULT register emits no `style` key at all.
+ */
+export function cardStyleProps(r: SignInRegister): { style?: CSSProperties } {
+  return r.cardStyle ? { style: r.cardStyle } : {};
+}
+
 export function getSignInRegister(): SignInRegister {
   return isNewFrontDoorEnabled() ? V7_SIGN_IN_REGISTER : DEFAULT_SIGN_IN_REGISTER;
 }
