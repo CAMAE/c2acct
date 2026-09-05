@@ -100,6 +100,19 @@ describe("V7 front door — content (V7FrontDoor)", () => {
     expect(src).toMatch(/tone: "(up|mid|dn)"/);
   });
 
+  it("cohort rows share ONE px centreline — no rem-scaled spacing under html{font-size:11.5px}", () => {
+    // 2026-09-04 fix: track/band/tick/dot all centre at y=7px of a 14px row. Measured
+    // before (1440px): dot 0.78px under the track, 2.2px under the band, 2.75px under
+    // the tick, because h-3/top-0.5/h-2/h-4/w-0.5 are rem-based and rem is 11.5px here.
+    const row = src.slice(src.indexOf('data-testid="v7-cohort-row"'), src.indexOf("semantic \"you\" dot") + 400);
+    expect(src).toMatch(/className="relative h-\[14px\]" data-testid="v7-cohort-row"/);
+    expect(row).toContain("top-[6px] h-[2px]"); // track  → centre 7
+    expect(row).toContain("top-[3px] h-[8px]"); // band   → centre 7
+    expect(row).toContain("top-[-1px] h-[16px] w-[2px] -translate-x-1/2"); // tick → centre 7
+    expect(row).toContain("top-0 h-[14px] w-[14px] -translate-x-1/2"); // dot → centre 7
+    expect(row).not.toMatch(/\b(h-3|top-0\.5|h-2|h-4|w-0\.5|-translate-x-1\.5)\b/);
+  });
+
   it("radar carries the five per-pillar value sentences (locked verbatim)", () => {
     for (const rest of [
       "whether your technology plans point where your practice is actually heading.",

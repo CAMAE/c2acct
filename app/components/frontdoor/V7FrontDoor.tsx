@@ -192,12 +192,18 @@ export default function V7FrontDoor() {
               {COHORT_ROWS.map((row, i) => (
                 <div key={row.pillar} className={i === 0 ? "" : "mt-6"}>
                   <div className="mb-2 text-[15.5px] font-semibold">{row.pillar}</div>
-                  <div className="relative h-3">
-                    <span className="absolute inset-x-0 top-[5px] h-0.5 rounded-[1px] bg-[#eef2f7]" />
-                    <span className="absolute top-0.5 h-2 rounded bg-[#dbe4ee]" style={{ left: `${row.band[0]}%`, width: `${row.band[1]}%` }} />
-                    <span className="absolute top-[-2px] h-4 w-0.5 rounded-[1px] bg-[var(--brand-c2-blue)]" style={{ left: `${row.p90}%` }} />
+                  {/* Row geometry is ALL px on ONE centreline (y = 7px of a 14px row).
+                      The shell's html{font-size:11.5px} scales rem-based Tailwind
+                      spacing, so the old h-3 / top-0.5 / h-2 / h-4 / w-0.5 mix left the
+                      "you" dot 0.8px under the track, 2.2px under the peer band and
+                      2.75px under the top-decile tick at 1440px (measured 2026-09-04).
+                      Dot and tick are x-centred on their percentage, not left-anchored. */}
+                  <div className="relative h-[14px]" data-testid="v7-cohort-row">
+                    <span className="absolute inset-x-0 top-[6px] h-[2px] rounded-[1px] bg-[#eef2f7]" />
+                    <span className="absolute top-[3px] h-[8px] rounded bg-[#dbe4ee]" style={{ left: `${row.band[0]}%`, width: `${row.band[1]}%` }} />
+                    <span className="absolute top-[-1px] h-[16px] w-[2px] -translate-x-1/2 rounded-[1px] bg-[var(--brand-c2-blue)]" style={{ left: `${row.p90}%` }} />
                     {/* semantic "you" dot — ring color by standing vs the band */}
-                    <span className="absolute top-0 h-[13px] w-[13px] -translate-x-1.5 rounded-full border-[3.5px] bg-white" style={{ left: `${row.you}%`, borderColor: YOU_TONE[row.tone] }} />
+                    <span className="absolute top-0 h-[14px] w-[14px] -translate-x-1/2 rounded-full border-[3.5px] bg-white" style={{ left: `${row.you}%`, borderColor: YOU_TONE[row.tone] }} />
                   </div>
                 </div>
               ))}
