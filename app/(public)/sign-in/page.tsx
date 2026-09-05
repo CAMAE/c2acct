@@ -17,6 +17,7 @@ import {
 } from "@/lib/auth/routes";
 import MeetPatContent from "@/app/components/pat/MeetPatContent";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
+import { getSignInRegister, type SignInRegister } from "@/app/(public)/sign-in/register";
 import { getPresentLocalAuthCookies, summarizeLocalAuthCookies } from "@/lib/auth/cookies";
 import { getLocalReviewUsersForUi } from "@/lib/auth/localReview";
 import { getAuthRuntimeStatus } from "@/lib/auth/runtime";
@@ -105,23 +106,21 @@ function describeAuthError(error: string | null, cookieState: ReturnType<typeof 
 function InlineAccessSelectorWithOptions({
   activeView,
   toggleOptions,
+  register: r,
 }: {
   activeView: AccessView;
   toggleOptions: Array<{ id: AccessView; label: string }>;
+  register: SignInRegister;
 }) {
   return (
-    <div className="inline-flex flex-wrap gap-2 rounded-full border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-1.5">
+    <div className={r.selector}>
       {toggleOptions.map((option) => {
         const active = option.id === activeView;
         return (
           <Link
             key={option.id}
             href={getViewHref(option.id)}
-            className={`rounded-full border px-4 py-2.5 text-sm font-medium leading-none ${
-              active
-                ? "border-[rgba(6,54,116,0.16)] bg-[rgba(6,54,116,0.06)] text-[var(--shell-ink)]"
-                : "border-transparent text-[var(--shell-muted)] hover:border-[rgba(6,54,116,0.18)] hover:bg-white"
-            }`}
+            className={`${r.pill} ${active ? r.pillActive : r.pillInactive}`}
           >
             {option.label}
           </Link>
@@ -148,6 +147,7 @@ function RoleAccessCard({
   hubHref,
   submittedEmail,
   diagnosticsVisible,
+  register: r,
 }: {
   title: string;
   subtitle: string;
@@ -165,14 +165,15 @@ function RoleAccessCard({
   hubHref: string;
   submittedEmail: string | null;
   diagnosticsVisible: boolean;
+  register: SignInRegister;
 }) {
   return (
-    <section className="pat-card p-8">
+    <section className={r.card} style={r.cardStyle}>
       <div className="pat-label">{title}</div>
-      <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
+      <h2 className={r.cardTitle}>
         {subtitle}
       </h2>
-      <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
+      <p className={r.cardBody}>
         {body}
       </p>
 
@@ -184,23 +185,23 @@ function RoleAccessCard({
               await signIn("github", { redirectTo: roleRedirect });
             }}
           >
-            <button type="submit" className="pat-button-primary">
+            <button type="submit" className={r.buttonPrimary}>
               {signInLabel}
             </button>
           </form>
         ) : localReviewEnabled ? null : inviteeAccessEnabled ? (
-          <Link className="pat-button-primary" href="/sign-in?view=invitee">
+          <Link className={r.buttonPrimary} href="/sign-in?view=invitee">
             {accessCodeLabel}
           </Link>
         ) : (
-          <Link className="pat-button-primary" href={hubHref}>
+          <Link className={r.buttonPrimary} href={hubHref}>
             {localAuthLabel}
           </Link>
         )}
       </div>
 
       {localReviewEnabled && localReviewEmail ? (
-        <div className="mt-6 rounded-[18px] border border-sky-200 bg-sky-50/90 p-5 text-sm leading-6 text-sky-950">
+        <div className={r.localReviewBox}>
             <div className="font-semibold">Local review access</div>
             <div className="mt-2">
             Demo identity: <span className="font-semibold text-[var(--shell-ink)]">{localReviewEmail}</span>
@@ -218,7 +219,7 @@ function RoleAccessCard({
               className="pat-input"
             />
             <div className="flex flex-wrap gap-3">
-              <button type="submit" className="pat-button-primary">
+              <button type="submit" className={r.buttonPrimary}>
                 Continue with local review
               </button>
             </div>
@@ -231,7 +232,7 @@ function RoleAccessCard({
                   await signIn("github", { redirectTo: roleRedirect });
                 }}
               >
-                <button type="submit" className="pat-button-secondary">
+                <button type="submit" className={r.buttonSecondary}>
                   Continue with GitHub
                 </button>
               </form>
@@ -240,7 +241,7 @@ function RoleAccessCard({
         </div>
       ) : null}
 
-      <div className="mt-6 rounded-[18px] border border-[var(--shell-border)] bg-white/80 p-5 text-sm leading-6 text-[var(--shell-muted)]">
+      <div className={r.provisionedBox}>
         <div className="font-semibold text-[var(--shell-ink)]">Provisioned pilot account</div>
         <p className="mt-2">
           Vendor, firm, admin, and consultant pilot users sign in here after an operator provisions their account. First-login password updates are enforced when the account is flagged for a temporary or imported credential.
@@ -278,14 +279,14 @@ function RoleAccessCard({
             className="pat-input"
             required
           />
-          <button type="submit" className="pat-button-primary">
+          <button type="submit" className={r.buttonPrimary}>
             Continue with provisioned account
           </button>
         </form>
       </div>
 
       {diagnosticsVisible && localReviewRequested && !localReviewEnabled ? (
-        <div className="mt-6 rounded-[18px] border border-amber-200 bg-amber-50/90 p-5 text-sm leading-6 text-amber-900">
+        <div className={r.diagnosticsBox}>
           <div className="font-semibold">Local review mode is requested but not ready.</div>
           <div className="mt-2">
             This runtime is not showing a local role-entry form because PAT_LOCAL_REVIEW_PASSWORD or AUTH_SECRET is missing or unstable.
@@ -316,6 +317,7 @@ function HelpInline({
   authCookiesPresent,
   resetPath,
   resetRedirectTo,
+  register: r,
 }: {
   messages: Awaited<ReturnType<typeof getRequestLocaleMessages>>["signIn"];
   callbackTarget: string;
@@ -327,25 +329,26 @@ function HelpInline({
   authCookiesPresent: string[];
   resetPath: string;
   resetRedirectTo: string;
+  register: SignInRegister;
 }) {
   return (
-    <section className="pat-card p-8">
+    <section className={r.card} style={r.cardStyle}>
       <div className="pat-label">{messages.helpEyebrow}</div>
-      <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
+      <h2 className={r.cardTitle}>
         {messages.helpTitle}
       </h2>
-      <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
+      <p className={r.cardBody}>
         {messages.helpBody}
       </p>
       <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {helpCards.map((card) => (
-          <article key={card.title} className="pat-card p-6">
-            <div className="text-xl font-semibold text-[var(--shell-ink)]">{card.title}</div>
-            <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">{card.body}</p>
+          <article key={card.title} className={r.helpCard} style={r.cardStyle}>
+            <div className={r.helpCardTitle}>{card.title}</div>
+            <p className={r.helpCardBody}>{card.body}</p>
           </article>
         ))}
       </div>
-      <div className="mt-6 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-5 text-sm leading-6 text-[var(--shell-muted)]">
+      <div className={r.helpStatusBox}>
         <div>
           {messages.callbackTarget}: <span className="font-semibold text-[var(--shell-ink)]">{callbackTarget}</span>
         </div>
@@ -364,7 +367,7 @@ function HelpInline({
         <form action={resetPath} method="post" className="mt-4">
           <input type="hidden" name="redirectTo" value={resetRedirectTo} />
           <input type="hidden" name="reason" value="stale_callback" />
-          <button type="submit" className="pat-button-secondary">
+          <button type="submit" className={r.buttonSecondary}>
             Reset local auth state
           </button>
         </form>
@@ -388,6 +391,8 @@ export default async function SignInHubPage({
   }
 
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  // 21d: one tree, two registers — V7 door register only behind the flag.
+  const r = getSignInRegister();
   const messages = await getRequestLocaleMessages();
   const requestedView = getSingleParam(resolvedSearchParams?.view);
   const callbackUrl = getSingleParam(resolvedSearchParams?.callbackUrl);
@@ -465,13 +470,13 @@ export default async function SignInHubPage({
       : null);
 
   return (
-    <div className="space-y-8">
-      <section className="pat-card p-8">
+    <div className={r.page}>
+      <section className={r.hubSection}>
         <div className="pat-label">{messages.signIn.eyebrow}</div>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
+        <h1 className={r.hubTitle}>
           Sign in to your PAT workspace.
         </h1>
-        <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
+        <p className={r.hubBody}>
           Choose your role below and continue with your provisioned credentials.
         </p>
         {authReset ? (
@@ -496,8 +501,8 @@ export default async function SignInHubPage({
             {pilotDisabledMessage}
           </div>
         ) : null}
-        <div className="mt-6">
-          <InlineAccessSelectorWithOptions activeView={activeView} toggleOptions={toggleOptions} />
+        <div className={r.selectorWrap}>
+          <InlineAccessSelectorWithOptions activeView={activeView} toggleOptions={toggleOptions} register={r} />
         </div>
       </section>
 
@@ -519,6 +524,7 @@ export default async function SignInHubPage({
           hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.vendor, view: "vendor" })}
           submittedEmail={submittedEmail}
           diagnosticsVisible={authRuntime.diagnosticsVisible}
+          register={r}
         />
       ) : null}
 
@@ -540,6 +546,7 @@ export default async function SignInHubPage({
           hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.firm, view: "firm" })}
           submittedEmail={submittedEmail}
           diagnosticsVisible={authRuntime.diagnosticsVisible}
+          register={r}
         />
       ) : null}
 
@@ -561,6 +568,7 @@ export default async function SignInHubPage({
           hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.individual, view: "individual" })}
           submittedEmail={submittedEmail}
           diagnosticsVisible={authRuntime.diagnosticsVisible}
+          register={r}
         />
       ) : null}
 
@@ -582,6 +590,7 @@ export default async function SignInHubPage({
           hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.admin, view: "admin" })}
           submittedEmail={submittedEmail}
           diagnosticsVisible={authRuntime.diagnosticsVisible}
+          register={r}
         />
       ) : null}
 
@@ -603,16 +612,17 @@ export default async function SignInHubPage({
           hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.consultant, view: "consultant" })}
           submittedEmail={submittedEmail}
           diagnosticsVisible={authRuntime.diagnosticsVisible}
+          register={r}
         />
       ) : null}
 
       {inviteeSurfacesEnabled && activeView === "invitee" ? (
-        <section className="pat-card p-8">
+        <section className={r.card} style={r.cardStyle}>
           <div className="pat-label">{messages.signIn.inviteeTitle}</div>
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
+          <h2 className={r.cardTitle}>
             {messages.signIn.inviteeSubtitle}
           </h2>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
+          <p className={r.cardBody}>
             {messages.signIn.roleBody}
           </p>
           <form className="mt-6 grid gap-4" action={submitInviteeCode}>
@@ -624,7 +634,7 @@ export default async function SignInHubPage({
               className="pat-input max-w-md"
             />
             <div className="flex flex-wrap gap-3">
-              <button type="submit" className="pat-button-primary">
+              <button type="submit" className={r.buttonPrimary}>
                 {messages.common.continueWithAccessCode}
               </button>
             </div>
@@ -646,6 +656,7 @@ export default async function SignInHubPage({
           authCookiesPresent={authCookiesPresent}
           resetPath={authRuntime.resetPath}
           resetRedirectTo={resetRedirectTo}
+          register={r}
         />
       ) : null}
     </div>
