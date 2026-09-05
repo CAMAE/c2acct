@@ -16,6 +16,7 @@ import {
   type CanonicalSignInView,
 } from "@/lib/auth/routes";
 import MeetPatContent from "@/app/components/pat/MeetPatContent";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import { getPresentLocalAuthCookies, summarizeLocalAuthCookies } from "@/lib/auth/cookies";
 import { getLocalReviewUsersForUi } from "@/lib/auth/localReview";
 import { getAuthRuntimeStatus } from "@/lib/auth/runtime";
@@ -298,8 +299,10 @@ function RoleAccessCard({
   );
 }
 
-function MeetPatInline() {
-  return <MeetPatContent />;
+function MeetPatInline({ v7 }: { v7: boolean }) {
+  // 21c: the V7 (flag-on) Meet PAT is the -40% cut in the V7 register; flag-off
+  // renders the default variant — the same markup as before.
+  return <MeetPatContent variant={v7 ? "v7" : "default"} />;
 }
 
 function HelpInline({
@@ -629,7 +632,7 @@ export default async function SignInHubPage({
         </section>
       ) : null}
 
-      {activeView === "pat" ? <MeetPatInline /> : null}
+      {activeView === "pat" ? <MeetPatInline v7={isNewFrontDoorEnabled()} /> : null}
 
       {activeView === "help" ? (
         <HelpInline

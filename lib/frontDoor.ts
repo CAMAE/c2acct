@@ -21,3 +21,12 @@ export function isNewFrontDoorEnabled(): boolean {
 export function isAskPatDoorEntryEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
   return publicTierAvailability(env).available;
 }
+
+/**
+ * 21c — Meet PAT under the V7 door keeps the hero plus the first N sections
+ * ("What PAT does", "Why it matters") and drops "How PAT grows" and the
+ * "Instant value" block. Cut by omission only: no sentence is re-voiced, every
+ * locale drops the same blocks. -43% en / -43% es / -46% fr of the copy
+ * (contract-tested at <= 60% of the full text per locale).
+ */
+export const MEET_PAT_V7_SECTION_COUNT = 2;
