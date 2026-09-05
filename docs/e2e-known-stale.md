@@ -27,6 +27,12 @@ Fixed in the same triage (no longer stale): `release-integrity.spec.ts`
 assert the hidden `redirectTo` input), and the prelaunch surface manifest's
 sign-in markers (`ops/release/pat-surface-manifest.json`).
 
+## Added 2026-09-05 (V7 box validation run)
+
+| Spec | One-line cause |
+| --- | --- |
+| `create-account.spec.ts:44` ("flag on: signed-in users get an explicit interstitial") | `getByText('review.vendor@pat.local')` strict-mode violation: the signed-in email renders twice — in the interstitial paragraph and in the AppShell footer's signed-in sign-out block. Both were introduced together in `708b7fb5` (2026-06-11). Reproduced identically, spec run alone, on `4e74ce02` (pre-V7-box) and on the V7-box HEAD, 2026-09-05 — pre-existing, not a V7-box regression. Likely a selector-scope fix (`getByRole('main')`), left for triage with the seven above. |
+
 **Decision needed per spec:** either the new behavior is intended (rewrite the
 spec to pin it) or the rework regressed it (fix the app). The panel-history
 trio (151/174/210) looks most like a real regression — "one back exits the
