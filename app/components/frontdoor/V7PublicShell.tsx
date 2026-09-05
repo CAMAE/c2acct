@@ -57,7 +57,9 @@ export default async function V7PublicShell({ children }: { children: ReactNode 
             <Link href="/trust">Trust</Link>
             <Link href="/privacy">Privacy</Link>
             <Link href="/terms">Terms</Link>
-            <Link href="/methodology">Methodology</Link>
+            {/* Methodology is NOT repeated here: the nav carries it on every public
+                page and the door's trust accordion lists it — two occurrences on the
+                door, per the 21a verdict. */}
             {/* Footer parity with the product: "Build proof" → /release. */}
             <Link href="/release">Build proof</Link>
           </div>

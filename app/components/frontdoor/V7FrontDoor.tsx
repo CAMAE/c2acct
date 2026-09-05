@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { isAskPatDoorEntryEnabled } from "@/lib/frontDoor";
+import { TRUST_FOOTER_LINKS } from "@/lib/trustContent";
 
 /**
  * Block 19 — V7 product-native front door. A faithful build of
@@ -232,15 +233,31 @@ export default function V7FrontDoor() {
         </div>
       </section>
 
-      {/* TRUST / methodology — condensed band with a single ghost-pill button. */}
+      {/* TRUST — a native <details> accordion (no client JS). The ghost-pill summary
+          opens the full trust reach: the SAME nine links as the product footer
+          (TRUST_FOOTER_LINKS — Trust, Privacy, Terms, Security, Support, Billing
+          policy, Methodology, How Pat is governed, Build proof). It replaces the
+          single Methodology pill; with the V7 shell footer no longer repeating
+          Methodology, the door carries that word exactly twice (nav + this list). */}
       <div className="bg-white py-[34px] text-center" style={{ borderTop: `1px solid ${borderLt}` }}>
         <div className="mx-auto max-w-[1120px] px-9">
-          <Link
-            href="/methodology"
-            className="inline-block rounded-full border border-[var(--shell-border)] bg-white px-10 py-4 text-[17px] font-semibold text-[var(--shell-ink)]"
-          >
-            Methodology
-          </Link>
+          <details className="group" data-testid="v7-trust-accordion">
+            <summary className="inline-flex cursor-pointer select-none list-none items-center gap-3 rounded-full border border-[var(--shell-border)] bg-white px-10 py-4 text-[17px] font-semibold text-[var(--shell-ink)] [&::-webkit-details-marker]:hidden">
+              How PAT earns trust
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="block h-[18px] w-[18px] transition-transform group-open:rotate-180" aria-hidden="true">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </summary>
+            <ul className="mx-auto mt-6 flex max-w-[760px] flex-wrap justify-center gap-x-[26px] gap-y-3 text-[15px] font-semibold text-[var(--shell-muted)]">
+              {TRUST_FOOTER_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="hover:text-[var(--shell-ink)]">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </details>
         </div>
       </div>
     </>

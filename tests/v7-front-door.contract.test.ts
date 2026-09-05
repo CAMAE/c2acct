@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { isAskPatDoorEntryEnabled } from "@/lib/frontDoor";
+import { TRUST_FOOTER_LINKS } from "@/lib/trustContent";
 
 /**
  * Block 19 — V7 front door. Block 21a STEP 2b DEDUPE split it in two:
@@ -59,7 +60,7 @@ describe("V7 front door — content (V7FrontDoor)", () => {
     const iDoors = src.indexOf('data-testid="v7-door-firm"');
     const iRadar = src.indexOf("Alignment radar");
     const iCohort = src.indexOf("Cohort standing");
-    const iTrust = src.indexOf("text-[17px]"); // the trust ghost-pill button (unique 17px)
+    const iTrust = src.indexOf('data-testid="v7-trust-accordion"'); // the trust accordion
     expect(iHero).toBeGreaterThan(-1);
     expect(iDoors).toBeGreaterThan(iHero);
     expect(iRadar).toBeGreaterThan(iDoors);
@@ -139,9 +140,40 @@ describe("V7 front door — content (V7FrontDoor)", () => {
     expect(src).toMatch(/Peer view/);
   });
 
-  it("trust section is a single centered ghost-pill Methodology button", () => {
+  it("trust section is a native <details> accordion (no client JS) with a ghost-pill summary", () => {
     expect(src).not.toContain("Every number shows its work.");
-    expect(src).toMatch(/rounded-full border[\s\S]*?text-\[17px\][\s\S]*?>\s*Methodology/);
+    expect(src).toMatch(/<details className="group" data-testid="v7-trust-accordion">/);
+    expect(src).toMatch(/<summary className="[^"]*rounded-full border[^"]*text-\[17px\][^"]*">\s*How PAT earns trust/);
+    expect(src).not.toContain('"use client"');
+    expect(src).not.toMatch(/onClick|useState/);
+  });
+
+  it("trust accordion gives reach to all nine product-footer targets, in footer order", () => {
+    expect(src).toMatch(/\{TRUST_FOOTER_LINKS\.map\(\(link\) => \([\s\S]*?<Link href=\{link\.href\}[\s\S]*?\{link\.label\}/);
+    expect(TRUST_FOOTER_LINKS.map((l) => l.label)).toEqual([
+      "Trust",
+      "Privacy",
+      "Terms",
+      "Security",
+      "Support",
+      "Billing policy",
+      "Methodology",
+      "How Pat is governed",
+      "Build proof",
+    ]);
+    expect(TRUST_FOOTER_LINKS.map((l) => l.href)).toEqual([
+      "/trust", "/privacy", "/terms", "/security", "/support", "/billing-policy", "/methodology", "/trust/pat", "/release",
+    ]);
+  });
+
+  it('"Methodology" appears exactly twice on the door: the shell nav + the accordion list', () => {
+    // Content: no literal Methodology link of its own (the word reaches the door only
+    // through TRUST_FOOTER_LINKS). Shell: the nav link stays, the footer repeat is gone.
+    expect(src).not.toMatch(/>\s*Methodology\s*</);
+    expect(src).not.toContain('href="/methodology"');
+    expect((shell.match(/>Methodology</g) || []).length).toBe(1);
+    expect(shell).toMatch(/<nav[\s\S]*<Link href="\/methodology">Methodology<\/Link>[\s\S]*<\/nav>/);
+    expect(shell).not.toMatch(/<footer[\s\S]*href="\/methodology"[\s\S]*<\/footer>/);
   });
 
   it("door cards route to sign-in with the role preselected", () => {
@@ -202,8 +234,9 @@ describe("V7 public shell (V7PublicShell)", () => {
     expect(shell).toContain('href="/sign-in"');
   });
 
-  it("owns the product footer — Trust/Privacy/Terms/Methodology + Build proof + attribution", () => {
+  it("owns the product footer — Trust/Privacy/Terms + Build proof + attribution (Methodology lives in the nav)", () => {
     expect(shell).toContain("<footer");
+    expect(shell).toMatch(/<footer[\s\S]*href="\/trust"[\s\S]*href="\/privacy"[\s\S]*href="\/terms"[\s\S]*href="\/release"/);
     expect(shell).toMatch(/href="\/release"[^>]*>\s*Build proof/);
     expect(shell).toContain("a Patalign™ product");
   });
