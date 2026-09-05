@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { isAskPatDoorEntryEnabled } from "@/lib/frontDoor";
 
 /**
  * Block 19 — V7 front door. Block 21a STEP 2b DEDUPE split it in two:
@@ -81,7 +82,7 @@ describe("V7 front door — content (V7FrontDoor)", () => {
 
   it("arrows are inline SVG glyphs (shared ArrowGlyph), not text glyphs", () => {
     expect((src.match(/d="m13 6 6 6-6 6"/g) || []).length).toBe(1);
-    expect((src.match(/<ArrowGlyph /g) || []).length).toBe(4);
+    expect((src.match(/<ArrowGlyph /g) || []).length).toBe(5); // enter, meet, ask (gated), 2 doors
     expect(src).toMatch(/<ArrowGlyph px=\{22\} \/>/); // doors
     expect(src).toMatch(/<ArrowGlyph px=\{19\} \/>/); // hero cta-cards
     expect(src).not.toMatch(/rounded-full[^>]*>\s*→\s*</); // no text-glyph chip
@@ -155,6 +156,39 @@ describe("V7 front door — content (V7FrontDoor)", () => {
       expect(src).toContain(pillar);
     }
     expect(src).not.toMatch(/<text[^>]*>\s*\d/);
+  });
+});
+
+describe("V7 front door — Ask Pat entry (gated on the public tier)", () => {
+  const base = { NODE_ENV: "test" } as NodeJS.ProcessEnv;
+
+  it("hidden when PAT_ENABLE_PUBLIC_TIER is off (/ask is a 404 — a link would be dead)", () => {
+    expect(isAskPatDoorEntryEnabled({ ...base })).toBe(false);
+    expect(isAskPatDoorEntryEnabled({ ...base, PAT_ENABLE_PUBLIC_TIER: "0", PAT_PUBLIC_IP_HASH_SALT: "s" })).toBe(false);
+    expect(isAskPatDoorEntryEnabled({ ...base, PAT_ENABLE_PUBLIC_TIER: "true", PAT_PUBLIC_IP_HASH_SALT: "s" })).toBe(false);
+  });
+
+  it("hidden when the flag is on but the IP-hash salt is missing (/ask still 404s)", () => {
+    expect(isAskPatDoorEntryEnabled({ ...base, PAT_ENABLE_PUBLIC_TIER: "1" })).toBe(false);
+    expect(isAskPatDoorEntryEnabled({ ...base, PAT_ENABLE_PUBLIC_TIER: "1", PAT_PUBLIC_IP_HASH_SALT: "  " })).toBe(false);
+  });
+
+  it("shown only when the tier is fully available — the same check /ask renders on", () => {
+    expect(isAskPatDoorEntryEnabled({ ...base, PAT_ENABLE_PUBLIC_TIER: "1", PAT_PUBLIC_IP_HASH_SALT: "salt" })).toBe(true);
+  });
+
+  it("the door's /ask link is inside the gate and nowhere else", () => {
+    expect(src).toContain("const askPatEntry = isAskPatDoorEntryEnabled();");
+    expect(src).toMatch(/\{askPatEntry \? \([\s\S]{0,80}<Link href="\/ask"[^>]*data-testid="v7-cta-ask"/);
+    expect((src.match(/href="\/ask"/g) || []).length).toBe(1);
+    expect(src).toContain("Ask Pat");
+    // The gate reuses the /ask page's own availability function (no second opinion).
+    expect(read("lib/frontDoor.ts")).toMatch(/return publicTierAvailability\(env\)\.available;/);
+    expect(read("app/(public)/ask/page.tsx")).toContain("publicTierAvailability().available");
+  });
+
+  it("hero CTA row wraps (a third card or a 390px column stacks instead of overflowing)", () => {
+    expect(src).toMatch(/className="mt-\[38px\] flex flex-wrap justify-center gap-\[18px\]"/);
   });
 });
 

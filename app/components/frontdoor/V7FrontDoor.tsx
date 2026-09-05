@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { isAskPatDoorEntryEnabled } from "@/lib/frontDoor";
 
 /**
  * Block 19 — V7 product-native front door. A faithful build of
@@ -55,6 +56,8 @@ const ArrowGlyph = ({ px }: { px: number }) => (
 export default function V7FrontDoor() {
   const shadow = "0 1px 2px rgba(12,33,66,.05), 0 24px 64px rgba(12,33,66,.09)";
   const borderLt = "rgba(12,33,66,.07)";
+  // Ask Pat door entry — rendered ONLY when /ask would render (public tier live).
+  const askPatEntry = isAskPatDoorEntryEnabled();
 
   return (
     <>
@@ -68,8 +71,10 @@ export default function V7FrontDoor() {
           <p className="mt-5 text-[20px] font-medium text-[var(--shell-muted)]">
             Real assessments. Evidence both sides can trust.
           </p>
-          {/* Hero CTAs — compact cta-cards (same family as the doors, smaller). */}
-          <div className="mt-[38px] flex justify-center gap-[18px]">
+          {/* Hero CTAs — compact cta-cards (same family as the doors, smaller).
+              flex-wrap so a third card (Ask Pat) or a narrow viewport stacks instead
+              of overflowing the 390px column. */}
+          <div className="mt-[38px] flex flex-wrap justify-center gap-[18px]">
             <Link href="/sign-in" className="pat-card flex items-center gap-[22px] px-[30px] py-[22px] text-[19px] font-bold" style={{ boxShadow: shadow }} data-testid="v7-cta-enter">
               <span>Enter PAT</span>
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--shell-border)] leading-none text-[var(--shell-ink)]">
@@ -82,6 +87,16 @@ export default function V7FrontDoor() {
                 <ArrowGlyph px={19} />
               </span>
             </Link>
+            {/* Ask Pat — the door's path to its headline feature. Gated on the same
+                availability check /ask itself uses, so this link is never dead. */}
+            {askPatEntry ? (
+              <Link href="/ask" className="pat-card flex items-center gap-[22px] px-[30px] py-[22px] text-[19px] font-bold" style={{ boxShadow: shadow }} data-testid="v7-cta-ask">
+                <span>Ask Pat</span>
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--shell-border)] leading-none text-[var(--shell-ink)]">
+                  <ArrowGlyph px={19} />
+                </span>
+              </Link>
+            ) : null}
           </div>
         </div>
       </header>
