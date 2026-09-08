@@ -33,6 +33,12 @@ async function main() {
   const demoEcosystem = await ensureDemoPatEcosystem(prisma);
   const pilotCohort = await ensurePilotCohortSeed(prisma);
   const localReviewSeed = await ensureLocalReviewUsers(prisma);
+  // A4 (route atlas box): review.firm at 5/5 firm modules with deterministic
+  // answers so every post-completion unlock fires on the local preview. Runs
+  // only when the local-review identities were seeded (same gate as above).
+  const { seedReviewFirmFullAssessment } = await import("@/lib/demo-seed/reviewFirm");
+  const reviewFirmSeed = localReviewSeed.seeded ? await seedReviewFirmFullAssessment(prisma) : null;
+  console.log("review.firm full assessment:", reviewFirmSeed ? `${reviewFirmSeed.modulesSeeded}/5 modules` : "skipped");
   // Phase 2 / Day 11: minimal consultant ecosystem so /consultants is non-empty
   // when review.consultant@pat.local signs in. Runs after ensureLocalReviewUsers
   // so the consultant User row exists. Phase 6 expands this to 4 ecosystems.
