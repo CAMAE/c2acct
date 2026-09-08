@@ -286,19 +286,25 @@ export type FollowUpOtherGroup = {
   otherCount: number;
   totalPicks: number;
   otherRate: number | null;
-  texts: { text: string; companyId: string; submittedAt: string }[];
+  texts: { text: string; companyId: string; companyName: string | null; submittedAt: string }[];
 };
 
 /** Pure: all option rows → per question: Other write-ins, counts, and Other-rate over all picks. */
 export function summarizeFollowUpOtherTexts(
-  rows: ReadonlyArray<{ questionKey: string; optionKey: string | null; otherText: string | null; companyId: string; createdAt: Date }>
+  rows: ReadonlyArray<{ questionKey: string; optionKey: string | null; otherText: string | null; companyId: string; createdAt: Date }>,
+  companyNames: ReadonlyMap<string, string> = new Map()
 ): FollowUpOtherGroup[] {
   return FIRM_FOLLOWUP_MC_QUESTIONS.map((question) => {
     const picks = rows.filter((row) => row.questionKey === question.questionKey && row.optionKey);
     const others = picks.filter((row) => row.optionKey?.endsWith(".other"));
     const texts = others
       .filter((row) => row.otherText && row.otherText.trim().length > 0)
-      .map((row) => ({ text: row.otherText as string, companyId: row.companyId, submittedAt: row.createdAt.toISOString() }))
+      .map((row) => ({
+        text: row.otherText as string,
+        companyId: row.companyId,
+        companyName: companyNames.get(row.companyId) ?? null,
+        submittedAt: row.createdAt.toISOString(),
+      }))
       .sort((left, right) => (left.submittedAt < right.submittedAt ? 1 : -1));
     return {
       questionKey: question.questionKey,
@@ -321,7 +327,12 @@ export async function getFollowUpOtherTexts(): Promise<FollowUpOtherGroup[]> {
       select: { questionKey: true, optionKey: true, otherText: true, companyId: true, createdAt: true },
       orderBy: { createdAt: "desc" },
     });
-    return summarizeFollowUpOtherTexts(rows);
+    // Firm display names, not company slugs (A5): one lookup for the ids in play.
+    const companyIds = [...new Set(rows.map((row) => row.companyId))];
+    const companies = companyIds.length
+      ? await prisma.company.findMany({ where: { id: { in: companyIds } }, select: { id: true, name: true } })
+      : [];
+    return summarizeFollowUpOtherTexts(rows, new Map(companies.map((company) => [company.id, company.name])));
   } catch (error) {
     if (isPrismaMissingSchemaError(error)) {
       warnPrismaCompatibilityOnce(

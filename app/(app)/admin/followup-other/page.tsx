@@ -47,7 +47,7 @@ export default async function AdminFollowUpOtherPage() {
                   <li key={`${group.questionKey}-${index}`} className="rounded-[18px] border border-[var(--shell-border)] bg-white px-4 py-3 text-sm leading-6">
                     <div className="text-[var(--shell-ink)]">&ldquo;{entry.text}&rdquo;</div>
                     <div className="mt-1 text-xs text-[var(--shell-muted)]">
-                      {entry.companyId} · {new Date(entry.submittedAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                      {entry.companyName ?? entry.companyId} · {new Date(entry.submittedAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
                     </div>
                   </li>
                 ))}
