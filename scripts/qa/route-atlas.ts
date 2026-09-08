@@ -1,4 +1,4 @@
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { chromium, type BrowserContext, type Page } from "@playwright/test";
 
@@ -92,9 +92,11 @@ function slug(route: string) {
   return route === "/" ? "home" : route.replace(/^\//, "").replace(/[\/\[\]?=]/g, "_");
 }
 
-async function signIn(ctx: BrowserContext, identity: Identity) {
-  if (identity === "public") return;
+/** Returns null when signed in, or the reason the identity could not sign in (captured signed-out instead). */
+async function signIn(ctx: BrowserContext, identity: Identity): Promise<string | null> {
+  if (identity === "public") return null;
   const page = await ctx.newPage();
+  try {
   if (identity === "consultant") {
     await page.goto(`${base}/sign-in?view=consultant`, { waitUntil: "networkidle" });
     const form = page.locator('form:has(input[placeholder="Provisioned pilot email"])');
@@ -108,13 +110,24 @@ async function signIn(ctx: BrowserContext, identity: Identity) {
     const form = page.locator(`form:has(input[name="email"][value="${email}"])`);
     await form.locator('input[name="password"]').fill(localReviewPassword);
     await Promise.all([page.waitForURL((u) => !u.pathname.startsWith("/sign-in")), form.locator('button[type="submit"]').click()]);
+    }
+    return null;
+  } catch (error) {
+    // e.g. review.individual: individual surfaces are off for the pilot, so the
+    // sign-in view has no form. Capture the routes signed out and say so.
+    return `sign-in unavailable for ${identity} (${error instanceof Error ? error.message.split("\n")[0].slice(0, 60) : "unknown"}); captured signed out`;
+  } finally {
+    await page.close();
   }
-  await page.close();
 }
 
 type IndexRow = { route: string; url: string; identity: Identity; panel: string | null; status: number | null; finalUrl: string; files: string[]; notes: string[] };
 
 async function capture(page: Page, url: string, file: string, width: number) {
+  const sidecar = `${file}.json`;
+  if (existsSync(file) && existsSync(sidecar)) {
+    return JSON.parse(readFileSync(sidecar, "utf8")) as { status: number | null; finalUrl: string; note: string | null };
+  }
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
   const response = await page.goto(url, { waitUntil: "networkidle", timeout: 90_000 }).catch(() => null);
   await page.waitForTimeout(400);
@@ -129,7 +142,9 @@ async function capture(page: Page, url: string, file: string, width: number) {
       note = "screenshot failed";
     });
   }
-  return { status: response?.status() ?? null, finalUrl: page.url(), note };
+  const result = { status: response?.status() ?? null, finalUrl: page.url(), note };
+  writeFileSync(sidecar, JSON.stringify(result));
+  return result;
 }
 
 async function main() {
@@ -142,7 +157,8 @@ async function main() {
 
   for (const [identity, identityRoutes] of byIdentity) {
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-    await signIn(ctx, identity);
+    const signInNote = await signIn(ctx, identity);
+    if (signInNote) console.log(`${identity.padEnd(10)} note ${signInNote}`);
     const page = await ctx.newPage();
     const dir = path.join(outDir, identity);
     mkdirSync(dir, { recursive: true });
@@ -163,6 +179,7 @@ async function main() {
             finalUrl = result.finalUrl;
           }
           if (result.note) notes.push(`${width}: ${result.note}`);
+          if (signInNote && width === 1440) notes.push(signInNote);
           files.push(path.relative(outRoot, file));
         }
         rows.push({ route, url, identity, panel, status, finalUrl, files, notes });
