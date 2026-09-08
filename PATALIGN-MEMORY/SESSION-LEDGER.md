@@ -1,5 +1,8 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-08 · Facelift 2 box, commit 6bf05173 — footer pinned on short V7 pages; proofs so far
+After-atlas at 52bf2acf: routes=105 captures=138 bad=6, all six expected by flag, 0 unexpected (before: 10). Flag-off byte diff 0279b240 vs 52bf2acf: 49 signed-in routes × HTML+RSC = 98 files, 94 identical after normalising build/chunk/action/nonce/timestamp noise; the other 4 (/admin/modules, /admin/insights/rules) reorder between server process starts on the base build itself and match a fresh base capture exactly. Public 24/24 identical. Ten-capture visual review found one residual: footer not pinned on short pages → this commit. Validation chain (build → e2e → prelaunch → validate → proof → perf reseed) starting on this HEAD. — Forge.
+
 ## 2026-09-08 · Facelift 2 box, commit d0f6d223 — AppShell contract test follows the spread
 Full unit run on 52bf2acf: 1596/1598 — the two reds were the AppShell main-tag regex (now follows {...v7Shell}) and no-hardcoded-paths scanning an untracked scripts/dev capture script (path now from cwd). HEAD snapshot build (52bf2acf) serving flag-off on :3013 for the byte diff vs the 0279b240 snapshot on :3014; 49 signed-in routes × HTML+RSC captured from each. — Forge.
 
