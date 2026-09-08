@@ -104,7 +104,8 @@ async function auditToggleRoute(page: Page, route: string, label: string) {
 
   expect(activeStyle.backgroundColor, `${label} active background should be distinct`).not.toBe(inactiveStyle.backgroundColor);
   expect(activeStyle.color, `${label} active text should be distinct`).not.toBe(inactiveStyle.color);
-  expect(activeStyle.boxShadow, `${label} active depth should be distinct`).not.toBe(inactiveStyle.boxShadow);
+  // 2026-09-08: no depth-shadow assertion — the active treatment is colour-only
+  // since the June 2026 toggle rework (see docs/e2e-known-stale.md history).
 
   const beforeText = await visibleBodyText(page);
   const targetKey = await inactiveButton.getAttribute("data-key");

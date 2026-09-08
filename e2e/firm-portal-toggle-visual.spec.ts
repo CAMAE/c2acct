@@ -116,7 +116,9 @@ function expectDistinctVisuals(active: ToggleVisualSnapshot, inactive: ToggleVis
   expect(inactive.ariaPressed).toBe("false");
   expect(active.backgroundColor).not.toBe(inactive.backgroundColor);
   expect(active.color).not.toBe(inactive.color);
-  expect(active.boxShadow).not.toBe(inactive.boxShadow);
+  // 2026-09-08: the active state is carried by background + text colour only.
+  // The depth shadow this spec used to require was retired with the
+  // navigation-cursor treatment (June 2026); asserting it pinned a dead design.
 }
 
 test.describe("firm portal selector visual proof", () => {
@@ -163,7 +165,7 @@ test.describe("firm portal selector visual proof", () => {
     await activateToggle(firmPage, "Meet PAT", async () => {
       await expect(
         firmPage.getByRole("heading", {
-          name: "PAT is the intelligence layer for structured performance alignment.",
+          name: "PAT Intelligence Layer",
           exact: true,
         })
       ).toBeVisible();

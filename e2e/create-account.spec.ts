@@ -50,7 +50,8 @@ test("flag on: signed-in users get an explicit interstitial, not a silent bounce
   // /create-account: interstitial with both choices instead of a redirect.
   await page.goto("/create-account");
   await expect(page.getByRole("heading", { name: "You're already signed in" })).toBeVisible();
-  await expect(page.getByText("review.vendor@pat.local")).toBeVisible();
+  // The signed-in address also appears in the shell footer; pin the interstitial's copy.
+  await expect(page.getByRole("main").getByText("review.vendor@pat.local")).toBeVisible();
   await expect(page.getByRole("link", { name: "Continue to your workspace" })).toHaveAttribute("href", "/vendor");
   await expect(page.getByRole("button", { name: "Sign out and create a new account" })).toBeVisible();
 

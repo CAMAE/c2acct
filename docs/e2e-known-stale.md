@@ -1,5 +1,22 @@
 # Known-stale e2e specs (full `pnpm test:e2e` suite)
 
+## Status 2026-09-08 — list cleared (Facelift 2 box)
+
+All eight specs below were re-run against the current contracts and either
+rewritten to pin the shipped behaviour or given a scoped selector. Nothing was
+deleted. Dispositions:
+
+| Spec | Disposition |
+| --- | --- |
+| `firm-portal-toggle-visual.spec.ts` | Rewritten: active toggle state is background + text colour; the depth-shadow assertion pinned a treatment retired in June 2026. Meet PAT heading updated to "PAT Intelligence Layer". |
+| `pat-mode-toggle-audit.spec.ts` | Rewritten: same — shadow assertion dropped, colour assertions kept. |
+| `pat-panel-history.spec.ts` (5 cases) | Rewritten to the replace-history contract: `PatModeToggle` navigates with `replace` (PortalPanelSelector, since May 2026), so panel/surface switches never pile up in history and one back returns to the page the user arrived from. The vendor one-page assessment's modes are Completed/Existing/Add New/Help; product-insight readouts expand inline before the full-view link exists. NOTE for Cam/Mythos: the old spec called push-history "an explicitly designed guarantee"; the code has shipped replace for four months — if push was the intended contract, that is an app change, not a spec change. |
+| `create-account.spec.ts:44` | Selector scoped to `main` (the signed-in address also appears in the shell footer). |
+
+Run: `pnpm exec playwright test e2e/firm-portal-toggle-visual.spec.ts e2e/pat-mode-toggle-audit.spec.ts e2e/pat-panel-history.spec.ts e2e/create-account.spec.ts --workers=1` → 9 passed, 1 skipped (self-signup flag-off case), 0 stale.
+
+## History (2026-06-11 triage, kept for the record)
+
 Triaged 2026-06-11 during the self-signup build. All seven failures below
 pre-date that work (verified by stash-baseline against 7f02c6e2) and trace to
 the demo-week visual/navigation rework (commits 59dbae1f / 4bb0d20a, June
