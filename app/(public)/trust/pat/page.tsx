@@ -1,5 +1,8 @@
 import TrustSurfacePage from "@/app/components/trust/TrustSurfacePage";
 import { getTrustSurface } from "@/lib/trustContent";
+import TrustSurfaceV7 from "@/app/components/trust/TrustSurfaceV7";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
+
 
 export const metadata = {
   title: "How Pat is governed | Patalign",
@@ -8,5 +11,20 @@ export const metadata = {
 };
 
 export default function PatGovernancePage() {
-  return <TrustSurfacePage surface={getTrustSurface("patGovernance")} />;
+  const surface = getTrustSurface("patGovernance");
+
+  // B3 (flag-on): right-rail TOC, numbered sections, last-updated chip in mono.
+  // Compliance copy verbatim from the surface.
+  if (isNewFrontDoorEnabled()) {
+    return (
+      <TrustSurfaceV7
+        surface={surface}
+        chips={[{ label: surface.statusLabel }, { label: `Last updated ${surface.lastUpdated}`, mono: true }]}
+        toc
+        numbered
+      />
+    );
+  }
+
+  return <TrustSurfacePage surface={surface} />;
 }

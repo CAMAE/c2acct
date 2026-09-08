@@ -5,6 +5,9 @@ import {
   METHODOLOGY_CHANGELOG,
   METHODOLOGY_SECTIONS,
 } from "@/lib/methodology";
+import TrustSurfaceV7 from "@/app/components/trust/TrustSurfaceV7";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
+
 
 export const metadata = {
   title: "Methodology | Patalign",
@@ -13,6 +16,41 @@ export const metadata = {
 };
 
 export default function MethodologyPage() {
+  // B3 (flag-on): right-rail TOC, numbered sections, version chip in mono. The
+  // sections and the changelog are METHODOLOGY_SECTIONS / METHODOLOGY_CHANGELOG
+  // verbatim (paragraphs joined by a blank line; bullets as bullets).
+  if (isNewFrontDoorEnabled()) {
+    const surface = getTrustSurface("methodology");
+    return (
+      <TrustSurfaceV7
+        surface={surface}
+        chips={[{ label: `v${METHODOLOGY_VERSION}`, mono: true }, { label: `Last updated ${surface.lastUpdated}`, mono: true }]}
+        toc
+        numbered
+        sections={METHODOLOGY_SECTIONS.map((section) => ({
+          title: section.title,
+          body: section.paragraphs.join("\n\n"),
+          bullets: section.bullets,
+        }))}
+      >
+        <section id="changelog" className="mt-10 scroll-mt-24" aria-label="Methodology changelog">
+          <h2 className="pat-h2 text-[var(--shell-ink)]">Changelog</h2>
+          <ul className="mt-4 grid gap-3">
+            {METHODOLOGY_CHANGELOG.map((entry) => (
+              <li key={entry.version} className="rounded-[var(--radius-card)] border border-[var(--shell-border)] bg-white px-4 py-3">
+                <div className="flex flex-wrap items-baseline gap-2">
+                  <span className="pat-mono text-[var(--shell-ink)]">v{entry.version}</span>
+                  <span className="pat-mono text-[var(--shell-muted)]">{entry.date}</span>
+                </div>
+                <p className="pat-body mt-1 text-[var(--shell-muted)]">{entry.summary}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </TrustSurfaceV7>
+    );
+  }
+
   return (
     <TrustSurfacePage surface={getTrustSurface("methodology")}>
       <section className="pat-soft-panel px-6 py-6" aria-label="Methodology version">
