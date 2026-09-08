@@ -35,7 +35,6 @@ import { FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat";
 import { SURVEY_FINAL_SCORE_VERSION, getSurveyDraftWhere } from "@/lib/surveyDrafts";
 import { decorateFollowUpMcQuestions } from "@/lib/assessment/followUpMcRuntime";
 import { buildAssessmentItemResponseRows } from "@/lib/assessment/itemResponses";
-import { isFollowUpMcEnabled } from "@/lib/followUpMc";
 import { consumeDurableRateLimit, rateLimitJsonResponse } from "@/lib/security/rateLimit";
 
 const SUBMIT_WINDOW_MS = 60_000;
@@ -526,35 +525,6 @@ export async function POST(req: Request) {
         reached = true;
       }
 
-      // MC redesign box (Prerequisite Zero): DUAL-WRITE. The submission JSON above
-      // is written exactly as before; beside it, one AssessmentItemResponse row per
-      // scored item / selected option / legacy text. Flag-gated so flag-off submits
-      // touch nothing new (the backfill script covers those rows on demand).
-      if (isFollowUpMcEnabled() && CANONICAL_FIRM_MODULE_KEYS.has(moduleKey)) {
-        const { rows } = buildAssessmentItemResponseRows({
-          submissionId: createdSubmission.id,
-          companyId: effectiveCompanyId,
-          moduleKey,
-          moduleVersion: surveyModule.version ?? 1,
-          questions,
-          answers,
-        });
-        try {
-          if (rows.length > 0) {
-            await tx.assessmentItemResponse.createMany({ data: rows });
-          }
-        } catch (error) {
-          if (isPrismaMissingSchemaError(error)) {
-            warnPrismaCompatibilityOnce(
-              "survey-submit-assessment-item-response-missing",
-              "AssessmentItemResponse writes are unavailable in the local database. Row-wise item responses are skipped until local Prisma migrations are applied."
-            );
-          } else {
-            throw error;
-          }
-        }
-      }
-
       // B5-5 (F3 Trajectory): on a final FIRM alignment-module submission, append a
       // maturity snapshot so real firms build honest history over time. Demo firms
       // are skipped inside the writer (their history is seeded).
@@ -608,6 +578,51 @@ export async function POST(req: Request) {
 
       return { submission: createdSubmission, milestoneReached: reached };
     });
+
+    // MC follow-on box (Prerequisite Zero): DUAL-WRITE, from day one, flag or no
+    // flag. The submission JSON above is the source of truth and is written exactly
+    // as before; beside it, one AssessmentItemResponse row per scored item /
+    // selected option / legacy free-text follow-up. Best-effort AFTER the commit:
+    // a failed statement inside a Postgres transaction aborts the whole
+    // transaction, so "inside the transaction" and "never fails the submit" cannot
+    // both hold — the user's submission wins, and the idempotent backfill repairs
+    // any rows this write misses. Missing schema warns once; anything else is a
+    // diagnostic, never a thrown error.
+    if (CANONICAL_FIRM_MODULE_KEYS.has(moduleKey)) {
+      const { rows } = buildAssessmentItemResponseRows({
+        submissionId: submission.id,
+        companyId: effectiveCompanyId,
+        moduleKey,
+        moduleVersion: surveyModule.version ?? 1,
+        questions,
+        answers,
+      });
+      try {
+        if (rows.length > 0) {
+          await prisma.assessmentItemResponse.createMany({ data: rows });
+        }
+      } catch (error) {
+        if (isPrismaMissingSchemaError(error)) {
+          warnPrismaCompatibilityOnce(
+            "survey-submit-assessment-item-response-missing",
+            "AssessmentItemResponse writes are unavailable in the local database. Row-wise item responses are skipped until local Prisma migrations are applied."
+          );
+        } else {
+          recordPatDiagnostic({
+            area: "survey_submit",
+            level: "error",
+            status: "error",
+            summary: "AssessmentItemResponse dual-write failed; submission kept, rows recoverable by backfill.",
+            details: {
+              moduleKey,
+              submissionId: submission.id,
+              rowCount: rows.length,
+              error: error instanceof Error ? error.message.slice(0, 180) : "unknown",
+            },
+          });
+        }
+      }
+    }
 
     recordPatDiagnostic({
       area: "survey_submit",

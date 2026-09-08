@@ -356,6 +356,55 @@ async function ensurePersonSubjectMembership(
   });
 }
 
+/**
+ * MC follow-on box: a company-bound review identity (firm, vendor) needs a
+ * SubjectMembership on its company's ORGANIZATION subject, or every assessment
+ * route refuses it ("requires a company-backed subject") and the local reviewer
+ * cannot submit a module. Same subject key/shape as scripts/dev/preview-pat-setup.ts
+ * (`company:<companyId>`, unique on companyId), so the two seeds converge. The
+ * organization membership is made PRIMARY and any other membership of the user is
+ * demoted, because resolveAssessmentSubjectContext takes the primary membership.
+ */
+export async function ensureCompanySubjectMembership(
+  prisma: PrismaSeedClient,
+  input: { userId: string; companyId: string; companyName: string }
+) {
+  const subject = await prisma.subject.upsert({
+    where: { companyId: input.companyId },
+    update: { displayName: input.companyName, kind: SubjectKind.ORGANIZATION, updatedAt: new Date() },
+    create: {
+      id: randomUUID(),
+      key: `company:${input.companyId}`,
+      displayName: input.companyName,
+      kind: SubjectKind.ORGANIZATION,
+      companyId: input.companyId,
+      updatedAt: new Date(),
+    },
+    select: { id: true },
+  });
+
+  await prisma.subjectMembership.updateMany({
+    where: { userId: input.userId, subjectId: { not: subject.id }, isPrimary: true },
+    data: { isPrimary: false, updatedAt: new Date() },
+  });
+
+  await prisma.subjectMembership.upsert({
+    where: { subjectId_userId: { subjectId: subject.id, userId: input.userId } },
+    update: { membershipRole: SubjectMembershipRole.MEMBER, active: true, isPrimary: true, updatedAt: new Date() },
+    create: {
+      id: randomUUID(),
+      subjectId: subject.id,
+      userId: input.userId,
+      membershipRole: SubjectMembershipRole.MEMBER,
+      active: true,
+      isPrimary: true,
+      updatedAt: new Date(),
+    },
+  });
+
+  return subject;
+}
+
 async function ensureLocalReviewCompanies(prisma: PrismaSeedClient) {
   const companyIdsByName = new Map<string, string>();
 
@@ -401,6 +450,14 @@ async function ensureLocalReviewUserRecord(
     await ensurePersonSubjectMembership(prisma, {
       userId: user.id,
       email: user.email,
+    });
+  }
+
+  if (companyId && input.entry.companyName) {
+    await ensureCompanySubjectMembership(prisma, {
+      userId: user.id,
+      companyId,
+      companyName: input.entry.companyName,
     });
   }
 

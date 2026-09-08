@@ -10,13 +10,14 @@ import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
  *   pnpm exec node --import tsx scripts/assessment/backfill-item-responses.ts           # dry run: counts only
  *   pnpm exec node --import tsx scripts/assessment/backfill-item-responses.ts --apply   # write rows
  *
- * Idempotent: for every submission it processes it deletes that submission's
- * existing rows and re-inserts, so a re-run converges. Reads SurveySubmission.answers
+ * Idempotent: a submission that already has rows is SKIPPED (a second run writes
+ * 0); pass --force to delete and rewrite those too. Reads SurveySubmission.answers
  * as-is (never rewrites it). Recoverable = the answer is a finite number for a
  * SLIDER, non-blank text for a TEXT follow-up, or a follow-up selection object;
  * anything else is counted as skipped, per question.
  */
 const apply = process.argv.includes("--apply");
+const force = process.argv.includes("--force");
 
 async function main() {
   const moduleKeys = FIRM_MODULE_DEFINITIONS.map((definition) => definition.key);
@@ -34,6 +35,8 @@ async function main() {
     skippedItems: 0,
     rowsDeleted: 0,
     rowsWritten: 0,
+    submissionsAlreadyPresent: 0,
+    rowsByModule: {} as Record<string, number>,
   };
 
   for (const surveyModule of modules) {
@@ -71,14 +74,22 @@ async function main() {
         totals.submissionsUnrecoverable += 1;
         continue;
       }
+      const existingCount = await prisma.assessmentItemResponse.count({ where: { submissionId: submission.id } });
+      if (existingCount > 0 && !force) {
+        totals.submissionsAlreadyPresent += 1;
+        continue;
+      }
       totals.submissionsWithRows += 1;
       totals.rowsBuilt += rows.length;
       for (const row of rows) totals.rowsByMode[row.selectionMode] = (totals.rowsByMode[row.selectionMode] ?? 0) + 1;
+      totals.rowsByModule[surveyModule.key] = (totals.rowsByModule[surveyModule.key] ?? 0) + rows.length;
 
       if (apply) {
         await prisma.$transaction(async (tx) => {
-          const deleted = await tx.assessmentItemResponse.deleteMany({ where: { submissionId: submission.id } });
-          totals.rowsDeleted += deleted.count;
+          if (existingCount > 0) {
+            const deleted = await tx.assessmentItemResponse.deleteMany({ where: { submissionId: submission.id } });
+            totals.rowsDeleted += deleted.count;
+          }
           const written = await tx.assessmentItemResponse.createMany({ data: rows });
           totals.rowsWritten += written.count;
         });
@@ -87,7 +98,7 @@ async function main() {
   }
 
   const tableRows = await prisma.assessmentItemResponse.count();
-  console.log(JSON.stringify({ mode: apply ? "apply" : "dry-run", ...totals, tableRowsAfter: tableRows }, null, 2));
+  console.log(JSON.stringify({ mode: apply ? (force ? "apply --force" : "apply") : "dry-run", ...totals, tableRowsAfter: tableRows }, null, 2));
 }
 
 main()

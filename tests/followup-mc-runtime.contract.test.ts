@@ -100,10 +100,21 @@ describe("source pins — every flag-on path is behind the flag; option sets nev
     expect(moduleRoute).toContain("decoratedQuestions === builtPayload.questions ? builtPayload :");
   });
 
-  it("the dual-write to AssessmentItemResponse is flag-gated and inside the submit transaction", () => {
-    expect(submitRoute).toMatch(/if \(isFollowUpMcEnabled\(\) && CANONICAL_FIRM_MODULE_KEYS\.has\(moduleKey\)\) \{[\s\S]{0,400}buildAssessmentItemResponseRows\(/);
-    expect(submitRoute).toMatch(/tx\.assessmentItemResponse\.createMany/);
+  it("the dual-write to AssessmentItemResponse is UNCONDITIONAL for firm modules and can never fail the submit", () => {
+    // Follow-on ruling: rows accumulate from day one, flag or no flag.
+    expect(submitRoute).not.toContain("isFollowUpMcEnabled");
+    expect(submitRoute).toMatch(/if \(CANONICAL_FIRM_MODULE_KEYS\.has\(moduleKey\)\) \{\s*const \{ rows \} = buildAssessmentItemResponseRows\(/);
     expect((submitRoute.match(/assessmentItemResponse\./g) || []).length).toBe(1);
+    // Best-effort after the commit (a failed statement would abort a Postgres
+    // transaction): the write sits after `$transaction` resolves and every error
+    // path is a warning or a diagnostic — no rethrow inside this block.
+    const txEnd = submitRoute.indexOf("return { submission: createdSubmission, milestoneReached: reached };");
+    const writeAt = submitRoute.indexOf("prisma.assessmentItemResponse.createMany");
+    expect(writeAt).toBeGreaterThan(txEnd);
+    const block = submitRoute.slice(submitRoute.indexOf("if (CANONICAL_FIRM_MODULE_KEYS.has(moduleKey)) {\n      const { rows }"), writeAt + 1200);
+    expect(block).toContain("isPrismaMissingSchemaError(error)");
+    expect(block).toContain('summary: "AssessmentItemResponse dual-write failed; submission kept, rows recoverable by backfill."');
+    expect(block.slice(0, block.indexOf("recordPatDiagnostic({\n      area: \"survey_submit\",\n      level: \"info\""))).not.toMatch(/throw error/);
     // The submission JSON write itself is untouched: still `answers,` on the create.
     expect(submitRoute).toMatch(/moduleId: surveyModule\.id,\s*version: surveyModule\.version \?\? 1,\s*answers,/);
   });
