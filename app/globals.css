@@ -938,7 +938,7 @@ textarea {
 [data-v7-portal] .border,
 [data-v7-portal] .border-t,
 [data-v7-portal] .border-b {
-  border-color: rgba(12, 33, 66, 0.12);
+  border-color: var(--shell-border);
 }
 
 /* Release ids, counts, timestamps: the product's mono voice. */
