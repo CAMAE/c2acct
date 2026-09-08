@@ -156,7 +156,7 @@
     },
     "/security": {
       "sourceFiles": [
-        "app/(app)/security/page.tsx",
+        "app/(public)/security/page.tsx",
         "app/components/trust/TrustSurfacePage.tsx",
         "lib/trustContent.ts"
       ],
@@ -168,7 +168,7 @@
     },
     "/support": {
       "sourceFiles": [
-        "app/(app)/support/page.tsx",
+        "app/(public)/support/page.tsx",
         "app/components/trust/TrustSurfacePage.tsx",
         "lib/trustContent.ts"
       ],
@@ -205,7 +205,7 @@
     },
     "/release": {
       "sourceFiles": [
-        "app/(app)/release/page.tsx",
+        "app/(public)/release/page.tsx",
         "app/components/trust/TrustSurfacePage.tsx",
         "lib/trustContent.ts",
         "lib/release/fingerprint.ts"

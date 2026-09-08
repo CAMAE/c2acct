@@ -15,12 +15,12 @@ const expectedRoutePages = {
   "/trust": "app/(public)/trust/page.tsx",
   "/privacy": "app/(public)/privacy/page.tsx",
   "/terms": "app/(public)/terms/page.tsx",
-  "/security": "app/(app)/security/page.tsx",
-  "/support": "app/(app)/support/page.tsx",
+  "/security": "app/(public)/security/page.tsx",
+  "/support": "app/(public)/support/page.tsx",
   "/billing-policy": "app/(public)/billing-policy/page.tsx",
   "/methodology": "app/(public)/methodology/page.tsx",
   "/trust/pat": "app/(public)/trust/pat/page.tsx",
-  "/release": "app/(app)/release/page.tsx",
+  "/release": "app/(public)/release/page.tsx",
 } as const;
 
 const forbiddenLaunchClaims = [

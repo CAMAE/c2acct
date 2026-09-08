@@ -16,7 +16,7 @@ const ROOT = process.cwd();
 const ALLOWLISTED_FILES = [
   "app/(public)/methodology/page.tsx",
   "app/(public)/security/page.tsx",
-  "app/(app)/security/page.tsx",
+  "app/(public)/security/page.tsx",
   "lib/methodology.ts",
 ];
 const ALLOWLISTED_PHRASES = [/integration and data flow/i, /\bdata flow\b/i, /\bdatabase\b/i, /\bdata[- ]handling\b/i, /\bdata[- ]retention\b/i];
