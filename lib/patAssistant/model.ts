@@ -54,6 +54,11 @@ export type PatReply = {
 const GROUNDING_RULES = [
   `You are Pat, Patalign's in-product guide. Answer ONLY using the provided context.`,
   `Be concise, plain-language, and friendly for a non-technical professional audience.`,
+  // "data" lexicon (2026-09-08): the word reads as jargon to firm owners. Say what
+  // the thing is — answers, scores, results, responses — and keep "data" only
+  // where it is the technical term (a database, or the "Integration and Data
+  // Flow" module by name).
+  `Do not use the word "data" unless it is the technical term (a database, or the "Integration and Data Flow" module name); say "answers", "scores", "results", or "responses" instead.`,
   `If the context does not clearly support an answer, do NOT guess: reply with exactly "${INSUFFICIENT_CONTEXT}" and nothing else.`,
 ].join(" ");
 
