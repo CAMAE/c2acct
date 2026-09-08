@@ -1,5 +1,8 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-08 · Facelift 2 box, commit d8c7cc8a — portal token layer + /firm group
+Mechanism: a CSS layer in globals.css scoped to [data-v7-shell] (AppShell main/footer, flag-on spread) and [data-v7-portal] (group layout wraps children in a display:contents div flag-on; flag-off returns the old fragment). Maps the existing Tailwind classes to the B1 tokens (h1 32 / h2 24 / h3 18 / body 16 / meta 13, radius 12/6, hairline, shadow-card, container 1200, mono numerals); pills keep 9999px; hero chips flow above the wordmark below 640px (they overlapped it at 390). /firm enabled and measured on dev: no overflow at 390, h1 32/600, main 1200. Flag-off byte diff deferred to after the last group commit (one snapshot pair, all groups). — Forge.
+
 ## 2026-09-08 · Facelift 2 box, commit 90f47cb4 — B3 findings fixed (band, Sign in wrap, trust column)
 Part 0 confirmed first: origin/feature/engagement-v1 == 0279b240; typecheck 0; unit 1586/183 green at 22/100 Postgres connections; trust flag-off diff vs a 3844ddaf worktree build 8/9 byte-identical (release differs only in printed fingerprint values) once the worktree's path-hashed action id and the moved (app)→(public) segment name are isolated. Design brief PATALIGN-FACELIFT-DESIGN-BRIEF-2026-09-08.md is NOT in the repo copy and the Documents copy is TCC-denied to this seat — proceeding on the box's explicit rules; flagged. Commit 90f47cb4: V7 shell gets shrink-0 (band stopped at 900px because the flex child shrank to its min-h-screen), Sign in pill nowrap/shrink-0 with tighter sm-down gaps, TrustSurfaceV7 non-TOC pages span the container with 44rem prose measure and a 3-col link list. Flag-on components only. — Forge.
 
