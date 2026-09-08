@@ -126,7 +126,12 @@ export function toCorpusArticle(relativePath: string, raw: string): CorpusArticl
   };
 }
 
-/** Every `help/**\/*.md` article, sorted by path for deterministic imports. */
+/**
+ * Every shelf article (`help/<shelf>/**\/*.md`), sorted by path for deterministic
+ * imports. Markdown directly under `help/` is NOT an article — that level holds
+ * working notes such as help/lexicon-data-occurrences.md (the "data" lexicon
+ * listing for Leslie) — so it is skipped rather than failed for missing frontmatter.
+ */
 export function loadCorpusArticleFiles(root = process.cwd()): CorpusArticleFile[] {
   const base = path.join(root, CORPUS_ROOT);
   if (!fs.existsSync(base)) return [];
@@ -136,7 +141,7 @@ export function loadCorpusArticleFiles(root = process.cwd()): CorpusArticleFile[
     for (const entry of fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
       const full = path.join(dir, entry.name);
       if (entry.isDirectory()) walk(full);
-      else if (entry.name.endsWith(".md")) files.push(full);
+      else if (entry.name.endsWith(".md") && dir !== base) files.push(full);
     }
   };
   walk(base);
