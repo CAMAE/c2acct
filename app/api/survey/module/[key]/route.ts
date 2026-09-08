@@ -1,6 +1,7 @@
 ﻿import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { buildAssessmentModulePayload } from "@/lib/assessmentRuntime";
+import { decorateFollowUpMcQuestions } from "@/lib/assessment/followUpMcRuntime";
 import { getSessionUser } from "@/lib/auth/session";
 import { ensureFirmAlignmentSystem } from "@/lib/firmPat";
 import {
@@ -88,7 +89,13 @@ export async function GET(
       },
     });
 
-    const payload = buildAssessmentModulePayload(mod, questions, sections);
+    const builtPayload = buildAssessmentModulePayload(mod, questions, sections);
+    // MC redesign box: behind PAT_ENABLE_FOLLOWUP_MC the five firm follow-ups carry
+    // their option sets. Flag-off, decorate returns the same array and the payload
+    // object below is the one built above, byte-identical.
+    const decoratedQuestions = decorateFollowUpMcQuestions(builtPayload.questions, mod.key);
+    const payload =
+      decoratedQuestions === builtPayload.questions ? builtPayload : { ...builtPayload, questions: decoratedQuestions };
     const sessionUser = await getSessionUser();
 
     if (!sessionUser) {

@@ -1,5 +1,13 @@
 import { QuestionInputType, type Prisma } from "@prisma/client";
 import { z } from "zod";
+import {
+  isFollowUpMcAnswer,
+  isFollowUpMcAnswerComplete,
+  validateFollowUpMcAnswer,
+  type FollowUpMcAnswer,
+  type FollowUpOption,
+  type FollowUpSelectionMode,
+} from "@/lib/assessment/firmFollowUpOptions";
 
 const optionSchema = z.object({
   value: z.string().min(1),
@@ -81,6 +89,18 @@ export type AssessmentQuestionRuntime = {
   required: boolean;
   meta: AssessmentQuestionMeta;
   status: "ready" | "unsupported";
+  /**
+   * MC redesign box — present ONLY when PAT_ENABLE_FOLLOWUP_MC is on and the
+   * question is one of the five firm follow-ups (see
+   * lib/assessment/followUpMcRuntime.ts). Never set flag-off.
+   */
+  followUpMc?: {
+    version: number;
+    questionKey: string;
+    selectionMode: FollowUpSelectionMode;
+    stem: string;
+    options: readonly FollowUpOption[];
+  };
   validation: {
     slider?: {
       min: number;
@@ -174,6 +194,7 @@ export type NormalizedAnswer =
   | boolean
   | string
   | string[]
+  | FollowUpMcAnswer
   | null;
 
 type QuestionRecord = {
@@ -540,7 +561,24 @@ export function isAnswerPresent(answer: NormalizedAnswer | undefined): boolean {
     return answer.length > 0;
   }
 
+  if (isFollowUpMcAnswer(answer)) {
+    return answer.optionKeys.length > 0;
+  }
+
   return true;
+}
+
+/** Like isAnswerPresent, but a follow-up MC question also needs its rulings met (Other → text). */
+export function isAnswerComplete(question: AssessmentQuestionRuntime, answer: NormalizedAnswer | undefined): boolean {
+  if (question.followUpMc && answer !== null && answer !== undefined) {
+    return isFollowUpMcAnswer(answer)
+      ? isFollowUpMcAnswerComplete(
+          { ...question.followUpMc, moduleKey: "", moduleSectionKey: "", pillar: "", index: 0, hint: null },
+          answer
+        )
+      : false;
+  }
+  return isAnswerPresent(answer);
 }
 
 export function validateAnswer(
@@ -555,6 +593,17 @@ export function validateAnswer(
 
   if (question.status === "unsupported") {
     return { ok: false, error: "Question type is not enabled for this module runtime" };
+  }
+
+  // MC redesign box: a decorated follow-up takes a selection object, validated
+  // against the registry rulings. Undecorated (flag-off) questions never reach
+  // this branch, so the TEXT path below is untouched.
+  if (question.followUpMc) {
+    return validateFollowUpMcAnswer(
+      { ...question.followUpMc, moduleKey: "", moduleSectionKey: "", pillar: "", index: 0, hint: null },
+      rawValue,
+      question.required
+    );
   }
 
   if (question.inputType === QuestionInputType.SLIDER) {

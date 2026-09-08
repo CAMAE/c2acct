@@ -33,6 +33,9 @@ import { writeFirmMaturitySnapshot } from "@/lib/firmMaturity";
 import { writeProductMaturitySnapshot } from "@/lib/productMaturity";
 import { FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat";
 import { SURVEY_FINAL_SCORE_VERSION, getSurveyDraftWhere } from "@/lib/surveyDrafts";
+import { decorateFollowUpMcQuestions } from "@/lib/assessment/followUpMcRuntime";
+import { buildAssessmentItemResponseRows } from "@/lib/assessment/itemResponses";
+import { isFollowUpMcEnabled } from "@/lib/followUpMc";
 import { consumeDurableRateLimit, rateLimitJsonResponse } from "@/lib/security/rateLimit";
 
 const SUBMIT_WINDOW_MS = 60_000;
@@ -173,7 +176,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const questions = questionRecords.map(normalizeQuestionRuntime);
+    // MC redesign box: flag-on, the firm follow-ups validate as selections (same
+    // decoration the module GET applies); flag-off this is the identity.
+    const questions = decorateFollowUpMcQuestions(questionRecords.map(normalizeQuestionRuntime), moduleKey);
     const allowedQuestionIds = new Set(questions.map((q) => q.id));
     const submittedQuestionIds = Object.keys(rawAnswers);
 
@@ -519,6 +524,35 @@ export async function POST(req: Request) {
         }
 
         reached = true;
+      }
+
+      // MC redesign box (Prerequisite Zero): DUAL-WRITE. The submission JSON above
+      // is written exactly as before; beside it, one AssessmentItemResponse row per
+      // scored item / selected option / legacy text. Flag-gated so flag-off submits
+      // touch nothing new (the backfill script covers those rows on demand).
+      if (isFollowUpMcEnabled() && CANONICAL_FIRM_MODULE_KEYS.has(moduleKey)) {
+        const { rows } = buildAssessmentItemResponseRows({
+          submissionId: createdSubmission.id,
+          companyId: effectiveCompanyId,
+          moduleKey,
+          moduleVersion: surveyModule.version ?? 1,
+          questions,
+          answers,
+        });
+        try {
+          if (rows.length > 0) {
+            await tx.assessmentItemResponse.createMany({ data: rows });
+          }
+        } catch (error) {
+          if (isPrismaMissingSchemaError(error)) {
+            warnPrismaCompatibilityOnce(
+              "survey-submit-assessment-item-response-missing",
+              "AssessmentItemResponse writes are unavailable in the local database. Row-wise item responses are skipped until local Prisma migrations are applied."
+            );
+          } else {
+            throw error;
+          }
+        }
       }
 
       // B5-5 (F3 Trajectory): on a final FIRM alignment-module submission, append a

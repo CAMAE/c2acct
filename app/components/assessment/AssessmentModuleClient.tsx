@@ -11,12 +11,18 @@ import { sliderValueFromPointer } from "@/lib/scoreSlider";
 import { displayPrompt, isFlatAssessmentLayout } from "@/lib/assessmentDisplay";
 import {
   getDefaultAnswer,
-  isAnswerPresent,
+  isAnswerComplete,
   normalizeAssessmentStep,
   type AssessmentModulePayload,
   type AssessmentQuestionRuntime,
   type NormalizedAnswer,
 } from "@/lib/assessmentRuntime";
+import {
+  FIRM_FOLLOWUP_OTHER_MAX_LENGTH,
+  applyFollowUpPick,
+  isFollowUpMcAnswer,
+  type FollowUpQuestion,
+} from "@/lib/assessment/firmFollowUpOptions";
 
 type Props = {
   moduleKey: string;
@@ -141,6 +147,78 @@ function renderLegacySliderChoices(
   );
 }
 
+/**
+ * MC redesign box — the flag-on firm follow-up. Option rows: label first (bold),
+ * consequence clause muted beneath; radio for SINGLE, checkbox for MULTI; "Other"
+ * reveals an inline short-answer box. Every click goes through applyFollowUpPick,
+ * so the exclusive not-an-issue option and the Other rules live in the registry
+ * module, not here. Reached only when question.followUpMc exists, which
+ * the server sets only behind PAT_ENABLE_FOLLOWUP_MC.
+ */
+function renderFollowUpMcInput(
+  question: AssessmentQuestionRuntime,
+  value: NormalizedAnswer | undefined,
+  setAnswer: (value: NormalizedAnswer) => void
+) {
+  const mc = question.followUpMc;
+  if (!mc) {
+    return null;
+  }
+  const registryQuestion: FollowUpQuestion = { ...mc, moduleKey: "", moduleSectionKey: "", pillar: "", index: 0, hint: null };
+  const current = isFollowUpMcAnswer(value) ? value : { optionKeys: [], otherText: null };
+  const single = mc.selectionMode === "SINGLE";
+  const otherKey = mc.options.find((option) => option.kind === "other")?.key ?? null;
+  const otherSelected = otherKey ? current.optionKeys.includes(otherKey) : false;
+  const pick = (optionKey: string) => setAnswer(applyFollowUpPick(registryQuestion, current, optionKey));
+
+  return (
+    <div
+      className="grid gap-2"
+      role={single ? "radiogroup" : "group"}
+      aria-label={mc.stem}
+      data-testid="followup-mc"
+      data-selection-mode={mc.selectionMode}
+    >
+      {mc.options.map((option) => {
+        const checked = current.optionKeys.includes(option.key);
+        return (
+          <label key={option.key} data-active={checked} className="pat-question-choice pat-sans cursor-pointer">
+            <input
+              type={single ? "radio" : "checkbox"}
+              name={`followup-${question.id}`}
+              value={option.key}
+              checked={checked}
+              className="mt-1 shrink-0"
+              onChange={() => pick(option.key)}
+              // A checked radio fires no change event on re-click; route that click
+              // through the same pick so SINGLE can be cleared too.
+              onClick={single && checked ? () => pick(option.key) : undefined}
+            />
+            <span className="grid min-w-0 gap-1">
+              <span className="font-semibold text-[var(--shell-ink)]">{option.label}</span>
+              {option.consequence ? (
+                <span className="text-sm leading-6 text-[var(--shell-muted)]">{option.consequence}</span>
+              ) : null}
+            </span>
+          </label>
+        );
+      })}
+      {otherSelected ? (
+        <input
+          type="text"
+          value={current.otherText ?? ""}
+          maxLength={FIRM_FOLLOWUP_OTHER_MAX_LENGTH}
+          placeholder="Short answer"
+          aria-label="Other — short answer"
+          className="pat-input"
+          data-testid="followup-mc-other"
+          onChange={(event) => setAnswer({ optionKeys: current.optionKeys, otherText: event.target.value })}
+        />
+      ) : null}
+    </div>
+  );
+}
+
 function renderQuestionInput(
   question: AssessmentQuestionRuntime,
   value: NormalizedAnswer | undefined,
@@ -152,6 +230,10 @@ function renderQuestionInput(
         This question type is configured without the metadata the PAT runtime requires yet.
       </div>
     );
+  }
+
+  if (question.followUpMc) {
+    return renderFollowUpMcInput(question, value, setAnswer);
   }
 
   if (isVendorStyleSlider(question) && question.validation.slider) {
@@ -485,8 +567,12 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
   );
 
   const answeredRequiredCount = useMemo(
-    () => requiredQuestionIds.filter((questionId) => isAnswerPresent(answers[questionId])).length,
-    [answers, requiredQuestionIds]
+    () =>
+      requiredQuestionIds.filter((questionId) => {
+        const question = questionsById.get(questionId);
+        return question ? isAnswerComplete(question, answers[questionId]) : false;
+      }).length,
+    [answers, questionsById, requiredQuestionIds]
   );
 
   const missingRequiredCount = requiredQuestionIds.length - answeredRequiredCount;
@@ -496,9 +582,10 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
   const currentPageRequiredIds = currentPageQuestionIds.filter((questionId) =>
     requiredQuestionIds.includes(questionId)
   );
-  const currentPageAnsweredCount = currentPageRequiredIds.filter((questionId) =>
-    isAnswerPresent(answers[questionId])
-  ).length;
+  const currentPageAnsweredCount = currentPageRequiredIds.filter((questionId) => {
+    const question = questionsById.get(questionId);
+    return question ? isAnswerComplete(question, answers[questionId]) : false;
+  }).length;
   const currentPageMissingCount = currentPageRequiredIds.length - currentPageAnsweredCount;
 
   const visibleSections = useMemo<VisiblePageSection[]>(() => {
@@ -906,7 +993,7 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
                 }
 
                 const value = answers[question.id];
-                const hasAnswer = isAnswerPresent(value);
+                const hasAnswer = isAnswerComplete(question, value);
 
                 return (
                   <article key={question.id} className="pat-subpanel p-5">
@@ -917,9 +1004,13 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
                         {!flatLayout && question.meta.groupKey ? ` · ${question.meta.groupKey}` : ""}
                       </div>
                       <div className="text-xl font-semibold tracking-tight text-[var(--shell-ink)]">
-                        {flatLayout ? displayPrompt(question.prompt, data.title) : question.prompt}
+                        {question.followUpMc
+                          ? question.followUpMc.stem
+                          : flatLayout
+                            ? displayPrompt(question.prompt, data.title)
+                            : question.prompt}
                       </div>
-                      {question.meta.helpText ? (
+                      {question.meta.helpText && !question.followUpMc ? (
                         <div className="text-sm leading-6 text-[var(--shell-muted)]">
                           {question.meta.helpText}
                         </div>

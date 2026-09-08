@@ -14,7 +14,10 @@ export type IntegrityResult = {
   meta: IntegrityMeta;
 };
 
-type AnswerValue = number | boolean | string | string[] | null | undefined;
+// MC redesign box: a firm follow-up selection object counts as answered when it
+// carries at least one pick. Flag-off answers never take this shape.
+type FollowUpSelection = { optionKeys: string[]; otherText: string | null };
+type AnswerValue = number | boolean | string | string[] | FollowUpSelection | null | undefined;
 type Answers = Record<string, AnswerValue>;
 
 function isFiniteNumber(value: unknown): value is number {
@@ -40,6 +43,10 @@ function hasAnswerValue(value: AnswerValue): boolean {
 
   if (Array.isArray(value)) {
     return value.length > 0;
+  }
+
+  if (typeof value === "object") {
+    return Array.isArray(value.optionKeys) && value.optionKeys.length > 0;
   }
 
   return true;

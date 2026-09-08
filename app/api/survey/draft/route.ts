@@ -13,6 +13,7 @@ import {
   validateAnswer,
   type NormalizedAnswer,
 } from "@/lib/assessmentRuntime";
+import { decorateFollowUpMcQuestions } from "@/lib/assessment/followUpMcRuntime";
 import {
   SURVEY_DRAFT_SCORE_VERSION,
   buildSurveyDraftIntegrityFlags,
@@ -91,7 +92,9 @@ export async function POST(req: Request) {
     },
   });
 
-  const questions = questionRecords.map(normalizeQuestionRuntime);
+  // MC redesign box: flag-on, the firm follow-ups validate as selections (same
+  // decoration the module GET applies); flag-off this is the identity.
+  const questions = decorateFollowUpMcQuestions(questionRecords.map(normalizeQuestionRuntime), moduleKey);
   const allowedQuestionIds = new Set(questions.map((question) => question.id));
   const answerIds = Object.keys(rawAnswers);
   const unknownAnswerIds = answerIds.filter((questionId) => !allowedQuestionIds.has(questionId));
