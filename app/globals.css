@@ -58,6 +58,23 @@
   --shell-heatmap-low-fg: var(--brand-orange);
   --shell-heatmap-low-border: rgba(229, 109, 4, 0.28);
   --shell-max-width: 84rem;
+  /* Facelift Part 1 (B1, 2026-09-08): the six-step type scale, radii, hairline,
+     shadow and container are the ONLY sources of these values from here on. The
+     contract test (tests/design-tokens.contract.test.ts) ratchets raw
+     font-size / border-radius / box-shadow literals in app/ downward. */
+  --fs-display: 48px;
+  --fs-h1: 32px;
+  --fs-h2: 24px;
+  --fs-h3: 18px;
+  --fs-body: 16px;
+  --fs-meta: 13px;
+  --fw-heading: 600;
+  --fw-display: 700;
+  --radius-card: 12px;
+  --radius-control: 6px;
+  --border-hairline: 1px solid rgba(12, 33, 66, 0.12);
+  --shadow-card: 0 1px 2px rgba(12, 33, 66, 0.04);
+  --container: 1200px;
   --shell-gutter: clamp(1.1rem, 0.95rem + 0.9vw, 1.7rem);
   --shell-main-pad-y: clamp(2.1rem, 1.75rem + 1.05vw, 2.85rem);
   --pat-card-pad-xl: clamp(1.55rem, 1.35rem + 0.6vw, 1.85rem);
@@ -138,10 +155,16 @@ textarea {
   padding-block: var(--shell-main-pad-y);
 }
 
+.pat-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: var(--fs-meta);
+  font-variant-numeric: tabular-nums;
+}
+
 .pat-label {
-  font-size: 11px;
+  font-size: var(--fs-meta);
   font-weight: 700;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--shell-muted);
 }
@@ -193,9 +216,10 @@ textarea {
 }
 
 .pat-card {
-  border: 1px solid var(--shell-border);
-  border-radius: 28px;
+  border: var(--border-hairline);
+  border-radius: var(--radius-card);
   background: var(--shell-panel);
+  box-shadow: var(--shadow-card);
 }
 
 .pat-card.p-8 {
@@ -220,21 +244,24 @@ textarea {
 
 .pat-card h1.text-4xl,
 .pat-card h2.text-4xl {
-  font-size: var(--pat-hero-title-size);
-  line-height: 1.04;
-  letter-spacing: -0.035em;
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-heading);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .pat-card h2.text-3xl {
-  font-size: var(--pat-section-title-size);
-  line-height: 1.08;
-  letter-spacing: -0.03em;
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-heading);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
 }
 
 .pat-card h3.text-2xl {
-  font-size: var(--pat-subsection-title-size);
-  line-height: 1.12;
-  letter-spacing: -0.025em;
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-heading);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
 }
 
 .pat-card-interactive {
@@ -290,7 +317,7 @@ textarea {
 
 .pat-card-strong {
   border: 1px solid var(--dark-surface-border);
-  border-radius: 30px;
+  border-radius: var(--radius-card);
   background: linear-gradient(180deg, rgba(6, 54, 116, 0.985), rgba(12, 83, 159, 0.965));
   box-shadow: 0 28px 72px rgba(15, 23, 42, 0.14);
   color: var(--dark-surface-ink);
@@ -327,14 +354,14 @@ textarea {
 }
 
 .pat-subpanel {
-  border: 1px solid var(--shell-border);
-  border-radius: 20px;
+  border: var(--border-hairline);
+  border-radius: var(--radius-card);
   background: var(--shell-panel-strong);
 }
 
 .pat-soft-panel {
-  border: 1px solid var(--shell-border);
-  border-radius: 20px;
+  border: var(--border-hairline);
+  border-radius: var(--radius-card);
   background: var(--shell-panel-soft);
 }
 
@@ -572,7 +599,7 @@ textarea {
 .pat-textarea {
   width: 100%;
   border: 1px solid rgba(22, 33, 44, 0.14);
-  border-radius: 16px;
+  border-radius: var(--radius-control);
   background: rgba(255, 255, 255, 0.96);
   padding: 0.9rem 1rem;
   font-family: var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;

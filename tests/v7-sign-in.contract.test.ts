@@ -113,7 +113,7 @@ describe("21d — sign-in hub in the V7 register, flag-off byte-identical", () =
     expect(V7_SIGN_IN_REGISTER.buttonPrimary).toBe("rounded-full bg-[var(--shell-ink)] px-6 py-[11px] text-[15px] font-semibold text-white");
     expect(V7_SIGN_IN_REGISTER.buttonSecondary).toMatch(/^rounded-full border border-\[var\(--shell-border\)\] bg-white/);
     expect(V7_SIGN_IN_REGISTER.card).toBe("pat-card px-[42px] py-10");
-    expect(V7_SIGN_IN_REGISTER.cardStyle).toEqual({ boxShadow: "0 1px 2px rgba(12,33,66,.05), 0 24px 64px rgba(12,33,66,.09)" });
+    expect(V7_SIGN_IN_REGISTER.cardStyle).toEqual({ boxShadow: "var(--shadow-card)" });
     expect(V7_SIGN_IN_REGISTER.hubTitle).toContain("font-extrabold");
     expect(V7_SIGN_IN_REGISTER.pillActive).toBe("border-[var(--shell-ink)] bg-[var(--shell-ink)] text-white");
     // No rem-based font sizes in the V7 register (rem is 11.5px inside this shell).

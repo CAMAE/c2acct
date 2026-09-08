@@ -55,7 +55,7 @@ const ArrowGlyph = ({ px }: { px: number }) => (
 );
 
 export default function V7FrontDoor() {
-  const shadow = "0 1px 2px rgba(12,33,66,.05), 0 24px 64px rgba(12,33,66,.09)";
+  const shadow = "var(--shadow-card)";
   const borderLt = "rgba(12,33,66,.07)";
   // Ask Pat door entry — rendered ONLY when /ask would render (public tier live).
   const askPatEntry = isAskPatDoorEntryEnabled();

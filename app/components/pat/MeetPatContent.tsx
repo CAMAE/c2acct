@@ -21,7 +21,7 @@ type MeetPatContentProps = {
 };
 
 const V7_CARD_STYLE: CSSProperties = {
-  boxShadow: "0 1px 2px rgba(12,33,66,.05), 0 24px 64px rgba(12,33,66,.09)",
+  boxShadow: "var(--shadow-card)",
 };
 
 export default async function MeetPatContent({ actions, variant = "default" }: MeetPatContentProps) {

@@ -71,7 +71,7 @@ export const DEFAULT_SIGN_IN_REGISTER: SignInRegister = {
     "mt-6 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-5 text-sm leading-6 text-[var(--shell-muted)]",
 };
 
-const V7_SHADOW = "0 1px 2px rgba(12,33,66,.05), 0 24px 64px rgba(12,33,66,.09)";
+const V7_SHADOW = "var(--shadow-card)";
 
 export const V7_SIGN_IN_REGISTER: SignInRegister = {
   page: "mx-auto w-full max-w-[1120px] space-y-7 px-9 pb-[88px] pt-14",
