@@ -1,5 +1,8 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-08 · Facelift 2 box CLOSED on disk at 1bb8494c — awaiting Mythos verify, then Cam's "push"
+Chain on 1bb8494c: build 0 · test:e2e (FULL suite) 0 — 46 passed / 7 flag-skipped / 0 failed · release:prelaunch 0 (asset-integrity PASS) · validate:launch 0 on rerun (first run failed only on eslint of an untracked scripts/dev .cjs helper, now an .mts) · launch:proof 0 · perf fixture reseeded. lint:test 0, typecheck 0, unit 1598/1598 after the two contract-test follow-ups, copy-lint 68 "data" segments (A2 baseline 68, unchanged), ratchet at actual (111/9/2/223/0/8). After-atlas regenerated with the public slice at 1bb8494c: routes=105 captures=138 bad=6 (all expected by flag, 0 unexpected). Not pushed. — Forge.
+
 ## 2026-09-08 · Facelift 2 box, commit 6bf05173 — footer pinned on short V7 pages; proofs so far
 After-atlas at 52bf2acf: routes=105 captures=138 bad=6, all six expected by flag, 0 unexpected (before: 10). Flag-off byte diff 0279b240 vs 52bf2acf: 49 signed-in routes × HTML+RSC = 98 files, 94 identical after normalising build/chunk/action/nonce/timestamp noise; the other 4 (/admin/modules, /admin/insights/rules) reorder between server process starts on the base build itself and match a fresh base capture exactly. Public 24/24 identical. Ten-capture visual review found one residual: footer not pinned on short pages → this commit. Validation chain (build → e2e → prelaunch → validate → proof → perf reseed) starting on this HEAD. — Forge.
 
