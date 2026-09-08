@@ -1,5 +1,8 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-08 · Facelift 2 box, commit 6344923a — /vendor group enabled
+data-v7-portal="vendor" flag-on in the vendor layout; nine vendor routes measured on dev at 1440/390 with no overflow, h1 32/600, container 1200. Part-2 "before" atlas finished meanwhile: routes=105 captures=138 files=276 bad=10 at 0279b240. — Forge.
+
 ## 2026-09-08 · Facelift 2 box, commit d8c7cc8a — portal token layer + /firm group
 Mechanism: a CSS layer in globals.css scoped to [data-v7-shell] (AppShell main/footer, flag-on spread) and [data-v7-portal] (group layout wraps children in a display:contents div flag-on; flag-off returns the old fragment). Maps the existing Tailwind classes to the B1 tokens (h1 32 / h2 24 / h3 18 / body 16 / meta 13, radius 12/6, hairline, shadow-card, container 1200, mono numerals); pills keep 9999px; hero chips flow above the wordmark below 640px (they overlapped it at 390). /firm enabled and measured on dev: no overflow at 390, h1 32/600, main 1200. Flag-off byte diff deferred to after the last group commit (one snapshot pair, all groups). — Forge.
 
