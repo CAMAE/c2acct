@@ -1,5 +1,8 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-08 · Facelift 2 box, commit d0f6d223 — AppShell contract test follows the spread
+Full unit run on 52bf2acf: 1596/1598 — the two reds were the AppShell main-tag regex (now follows {...v7Shell}) and no-hardcoded-paths scanning an untracked scripts/dev capture script (path now from cwd). HEAD snapshot build (52bf2acf) serving flag-off on :3013 for the byte diff vs the 0279b240 snapshot on :3014; 49 signed-in routes × HTML+RSC captured from each. — Forge.
+
 ## 2026-09-08 · Facelift 2 box, commit 97203173 — token-pass contract tests; ratchet at actual
 tests/portal-token-pass.contract.test.ts (12 tests: layer scoping/tokens/no min-width/register colours/AppShell spread + one block per group). Ratchet actuals == ceilings (111/9/2/223/0/8) — Part 1 removed no literals, so no ceiling moves. Next: build HEAD snapshot, flag-off byte diff vs 0279b240 snapshot for all four groups, after-atlas, validation chain. — Forge.
 
