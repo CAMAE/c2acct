@@ -28,37 +28,32 @@ export default function FollowUpAggregatePanel({
       {withSignal.length === 0 ? (
         <p className="mt-5 text-sm leading-6 text-[var(--shell-muted)]">No option-based follow-ups in this ecosystem yet.</p>
       ) : (
-        <div className="mt-5 overflow-x-auto">
-          <table className="w-full min-w-[640px] text-left text-sm">
-            <thead>
-              <tr className="text-xs uppercase tracking-[0.14em] text-[var(--shell-muted)]">
-                <th className="py-2 pr-3 font-semibold">Question</th>
-                <th className="py-2 pr-3 font-semibold">Top pick</th>
-                <th className="py-2 pr-3 font-semibold">n</th>
-                <th className="py-2 pr-3 font-semibold">Firms</th>
-                <th className="py-2 font-semibold">Excluded</th>
-              </tr>
-            </thead>
-            <tbody>
-              {withSignal.map((row) => (
-                <tr key={row.questionKey} className="border-t border-[var(--shell-border)] align-top" data-testid="followup-aggregate-row">
-                  <td className="py-3 pr-3">
-                    <div className="text-xs text-[var(--shell-muted)]">
-                      {row.pillar} · Q{row.index}
-                    </div>
-                    <div className="mt-1 max-w-[28rem] leading-6 text-[var(--shell-ink)]">{row.stem}</div>
-                  </td>
-                  <td className="py-3 pr-3 font-semibold text-[var(--shell-ink)]">{row.topOption?.label}</td>
-                  <td className="py-3 pr-3 pat-stat-number">{row.topOption?.count}</td>
-                  <td className="py-3 pr-3">
-                    {row.firmsAnswered} · {row.includedPicks} picks
-                  </td>
-                  <td className="py-3 text-[var(--shell-muted)]">{row.excludedPicks}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        // Stacked rows, no table and no minimum width: the app shell's <main> is a
+        // flex row, so any min-width here would propagate up and overflow a 390px
+        // viewport.
+        <ul className="mt-5 grid gap-3">
+          {withSignal.map((row) => (
+            <li
+              key={row.questionKey}
+              className="grid gap-2 rounded-[18px] border border-[var(--shell-border)] bg-white p-4 md:grid-cols-[minmax(0,1fr)_minmax(0,16rem)]"
+              data-testid="followup-aggregate-row"
+            >
+              <div className="min-w-0">
+                <div className="text-xs uppercase tracking-[0.14em] text-[var(--shell-muted)]">
+                  {row.pillar} · Q{row.index}
+                </div>
+                <div className="mt-1 text-sm leading-6 text-[var(--shell-ink)]">{row.stem}</div>
+              </div>
+              <div className="min-w-0 text-sm">
+                <div className="font-semibold text-[var(--shell-ink)]">{row.topOption?.label}</div>
+                <div className="mt-1 text-[var(--shell-muted)]">
+                  n = <span className="pat-stat-number text-[var(--shell-ink)]">{row.topOption?.count}</span> · {row.firmsAnswered} firm
+                  {row.firmsAnswered === 1 ? "" : "s"} · {row.includedPicks} picks · {row.excludedPicks} excluded
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
     </section>
   );
