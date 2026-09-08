@@ -1,5 +1,8 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-08 · Facelift 2 box, commit 6db92b97 — Part 2 dispositions in the atlas
+Six 404s are flag-dark by design (public tier: /ask; pings: /notifications, /firm/benchmark, /vendor/review-refresh; adaptive modules: /firm/modules, /firm/modules/[templateId]) and now sit in EXPECTED_NON_2XX with the gate named in the index. Two were fixture guesses (insightKey → current-product-fit; admin briefing product → meridian-audit). The two "slow" admin routes were the atlas waiting for networkidle on an SSE page; atlas waits for load + ≤15s idle. No app code changed in Part 2. — Forge.
+
 ## 2026-09-08 · Facelift 2 box, commit d2dd12c1 — /admin group enabled; Part 1 route groups complete
 Admin layout attribute spread; layer gains an h1-step rule (agent console h1 was text-2xl → h3 size) and inline-size containment for table wrappers (/admin/launch's min-w-[42rem] tables widened the page to 516 at 390). Fourteen admin routes measured on dev: no overflow, h1 32/600, container 1200. Flag-off byte diff for all four groups still pending — it runs once against the final HEAD build vs the 0279b240 snapshot. — Forge.
 
