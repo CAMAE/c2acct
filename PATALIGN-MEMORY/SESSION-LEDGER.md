@@ -1,5 +1,8 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-08 · Facelift 2 box, commit b0a2cce5 — /consultants group enabled
+Attribute spread on the consultants layout root (empty flag-off). Seven consultant routes measured on dev at 1440/390: no overflow, h1 32/600, container 1200. Part 2 finding banked while here: /admin and /admin/agents/[agentKey] "took >90s" because LiveActionStream opens an EventSource (/api/agents/<key>/stream) — the atlas waited for networkidle, which an SSE page never reaches. Not a query or index problem; the atlas gets a bounded wait. — Forge.
+
 ## 2026-09-08 · Facelift 2 box, commit 6344923a — /vendor group enabled
 data-v7-portal="vendor" flag-on in the vendor layout; nine vendor routes measured on dev at 1440/390 with no overflow, h1 32/600, container 1200. Part-2 "before" atlas finished meanwhile: routes=105 captures=138 files=276 bad=10 at 0279b240. — Forge.
 
