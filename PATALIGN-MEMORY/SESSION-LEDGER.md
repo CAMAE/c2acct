@@ -1,5 +1,8 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-08 · Facelift 2 box, commit 97203173 — token-pass contract tests; ratchet at actual
+tests/portal-token-pass.contract.test.ts (12 tests: layer scoping/tokens/no min-width/register colours/AppShell spread + one block per group). Ratchet actuals == ceilings (111/9/2/223/0/8) — Part 1 removed no literals, so no ceiling moves. Next: build HEAD snapshot, flag-off byte diff vs 0279b240 snapshot for all four groups, after-atlas, validation chain. — Forge.
+
 ## 2026-09-08 · Facelift 2 box, commit 1823edef — known-stale e2e list cleared
 Eight stale specs fixed to shipped contracts, none deleted: colour-only toggle state (shadow retired), replace-history panel navigation (PatModeToggle replace since May 2026 — flagged as a product question if push was intended), one-page vendor assessment modes, inline readout expansion, footer-scoped selector. 9 passed / 1 flag skip. — Forge.
 
