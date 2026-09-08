@@ -20,7 +20,7 @@ export default async function V7PublicShell({ children }: { children: ReactNode 
   const currentLocale = await getRequestLocale();
 
   return (
-    <div className="min-h-screen shrink-0 bg-[#fbfcfe] text-[var(--shell-ink)]" data-testid="v7-public-shell">
+    <div className="flex min-h-screen shrink-0 flex-col bg-[#fbfcfe] text-[var(--shell-ink)]" data-testid="v7-public-shell">
       {/* V7-scoped pat-label size (12px inside this shell; the shared class is 11px). */}
       <style
         dangerouslySetInnerHTML={{
@@ -51,7 +51,7 @@ export default async function V7PublicShell({ children }: { children: ReactNode 
       {children}
 
       {/* PRODUCT FOOTER */}
-      <footer className="bg-white pb-11 pt-8 text-center" style={{ borderTop: `1px solid ${borderLt}` }}>
+      <footer className="mt-auto bg-white pb-11 pt-8 text-center" style={{ borderTop: `1px solid ${borderLt}` }}>
         <div className="mx-auto max-w-[1120px] px-9">
           <div className="flex flex-wrap justify-center gap-[26px] text-[14px] font-semibold text-[var(--shell-muted)]">
             <Link href="/trust">Trust</Link>
