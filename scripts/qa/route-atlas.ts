@@ -28,7 +28,7 @@ const FIXTURES: Record<string, string> = {
   "[firmCompanyId]": "demo-firm-company-demo-bench-firm-calder-pierce-and-boon-0-1",
   "[metricKey]": "avg-alignment",
   "[key]": "firm_tier1_operating_baseline",
-  "[insightKey]": "product_tier1_positioning",
+  "[insightKey]": "current-product-fit", // vendorProductInsights key (lib/insightContent.ts); the old guess 404'd
   "[templateId]": "no-approved-template", // ModuleTemplate is empty locally → expect 404
   "[agentKey]": "pilot-ops",
   "[vendorId]": "demo-vendor-company-pat-demo-vendor",
@@ -43,9 +43,27 @@ const ROUTE_FIXTURES: Record<string, Record<string, string>> = {
     "[productId]": "demo-product-demo-bench-vendor-sentinel-demo-bench-product-sentinel-cas",
   },
   "/user/insights/[key]": { "[key]": "user_tier1_work_fit" },
+  // Kirkland (the admin/company fixture) reviews the Meridian products, not APStream.
+  "/admin/briefings/[companyId]/products/[productId]": {
+    "[productId]": "demo-product-demo-expand-vendor-meridian-demo-expand-product-meridian-audit",
+  },
   "/vendor/alignment-insights/[key]": { "[key]": "benchmark-comparison" },
   "/survey/[key]": { "[key]": "firm_alignment_operating_model_v1" },
 };
+/**
+ * Routes that are 404 by design with the pilot flag set (fail-closed flags).
+ * Recorded so the index says WHY a non-2xx is expected; anything not listed
+ * here that is not 2xx/3xx is an unexpected finding.
+ */
+const EXPECTED_NON_2XX: Record<string, { status: number; reason: string }> = {
+  "/ask": { status: 404, reason: "PAT_ENABLE_PUBLIC_TIER off → notFound() (app/(public)/ask/page.tsx)" },
+  "/notifications": { status: 404, reason: "PAT_ENABLE_PINGS off → notFound() (isPingsEnabled)" },
+  "/firm/benchmark": { status: 404, reason: "PAT_ENABLE_PINGS off → notFound() (isPingsEnabled)" },
+  "/vendor/review-refresh": { status: 404, reason: "PAT_ENABLE_PINGS off → notFound() (isPingsEnabled)" },
+  "/firm/modules": { status: 404, reason: "PAT_ENABLE_ADAPTIVE_MODULES off → notFound() (lib/modules/portal.ts gate)" },
+  "/firm/modules/[templateId]": { status: 404, reason: "PAT_ENABLE_ADAPTIVE_MODULES off → notFound() (lib/modules/portal.ts gate)" },
+};
+
 const PANELS: Record<string, string[]> = {
   "/user": ["workspace", "profile", "pat", "help"],
   "/firm": ["workspace", "admin", "pat", "help"],
@@ -129,7 +147,11 @@ async function capture(page: Page, url: string, file: string, width: number) {
     return JSON.parse(readFileSync(sidecar, "utf8")) as { status: number | null; finalUrl: string; note: string | null };
   }
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
-  const response = await page.goto(url, { waitUntil: "networkidle", timeout: 90_000 }).catch(() => null);
+  // "load", then a bounded idle wait: pages that hold a Server-Sent Events
+  // stream open (/admin, /admin/agents/[agentKey] — LiveActionStream) never
+  // reach networkidle, and a 90s wait for it was misreported as a slow route.
+  const response = await page.goto(url, { waitUntil: "load", timeout: 90_000 }).catch(() => null);
+  await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
   await page.waitForTimeout(400);
   let note: string | null = null;
   try {
@@ -192,15 +214,17 @@ async function main() {
   await browser.close();
 
   const bad = rows.filter((row) => row.status === null || row.status >= 400);
+  const expected = bad.filter((row) => EXPECTED_NON_2XX[row.route]?.status === row.status);
+  const unexpected = bad.filter((row) => !expected.includes(row));
   const lines = [
     `# Route atlas — ${phase} (${new Date().toISOString()})`,
     "",
     `Base: ${base} (flag-on: PAT_ENABLE_NEW_FRONT_DOOR, PAT_ENABLE_FOLLOWUP_MC). Routes: ${routes.length}. Captures: ${rows.length} (× 1440 and 390 = ${rows.length * 2} files).`,
-    `Non-2xx/3xx: ${bad.length}${bad.length ? " — " + bad.map((row) => `${row.route}${row.panel ? `?panel=${row.panel}` : ""} (${row.status})`).join(", ") : ""}`,
+    `Non-2xx/3xx: ${bad.length} (expected by flag: ${expected.length}, unexpected: ${unexpected.length})${bad.length ? " — " + bad.map((row) => `${row.route}${row.panel ? `?panel=${row.panel}` : ""} (${row.status}${EXPECTED_NON_2XX[row.route]?.status === row.status ? ", expected" : ""})`).join(", ") : ""}`,
     "",
     "| Route | Identity | Panel | HTTP | Final URL | Files | Notes |",
     "| --- | --- | --- | --- | --- | --- | --- |",
-    ...rows.map((row) => `| \`${row.route}\` | ${row.identity} | ${row.panel ?? ""} | ${row.status ?? "ERR"} | \`${row.finalUrl.replace(base, "")}\` | ${row.files.map((file) => `\`${file}\``).join(" ")} | ${row.notes.join("; ")} |`),
+    ...rows.map((row) => `| \`${row.route}\` | ${row.identity} | ${row.panel ?? ""} | ${row.status ?? "ERR"} | \`${row.finalUrl.replace(base, "")}\` | ${row.files.map((file) => `\`${file}\``).join(" ")} | ${EXPECTED_NON_2XX[row.route]?.status === row.status ? `expected: ${EXPECTED_NON_2XX[row.route].reason}` + (row.notes ? " · " : "") : ""}${row.notes.join("; ")} |`),
     "",
   ];
   writeFileSync(path.join(outDir, "index.md"), lines.join("\n"));
