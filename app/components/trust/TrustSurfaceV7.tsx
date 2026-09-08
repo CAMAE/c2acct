@@ -46,7 +46,7 @@ function sectionId(index: number) {
 function SectionBody({ section, mono }: { section: TrustSurfaceSection; mono: boolean }) {
   return (
     <>
-      <p className="pat-body mt-3 text-[var(--shell-muted)]">{section.body}</p>
+      <p className="pat-body mt-3 max-w-[44rem] whitespace-pre-line text-[var(--shell-muted)]">{section.body}</p>
       {section.bullets ? (
         <ul className={`mt-4 grid gap-2 ${mono ? "pat-mono" : "pat-body"} text-[var(--shell-muted)]`}>
           {section.bullets.map((bullet) => (
@@ -84,7 +84,7 @@ export default function TrustSurfaceV7({
       {lead}
       {links ? (
         <nav aria-label="Trust surfaces" className="mt-8">
-          <ul className="grid gap-2 sm:grid-cols-2">
+          <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {links.map((link) => (
               <li key={link.href}>
                 <Link
@@ -183,7 +183,7 @@ export default function TrustSurfaceV7({
           </nav>
         </div>
       ) : (
-        <div className="mt-10 max-w-[44rem]">{contents}</div>
+        <div className="mt-10">{contents}</div>
       )}
     </div>
   );

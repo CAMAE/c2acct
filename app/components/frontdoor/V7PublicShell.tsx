@@ -20,7 +20,7 @@ export default async function V7PublicShell({ children }: { children: ReactNode 
   const currentLocale = await getRequestLocale();
 
   return (
-    <div className="min-h-screen bg-[#fbfcfe] text-[var(--shell-ink)]" data-testid="v7-public-shell">
+    <div className="min-h-screen shrink-0 bg-[#fbfcfe] text-[var(--shell-ink)]" data-testid="v7-public-shell">
       {/* V7-scoped pat-label size (12px inside this shell; the shared class is 11px). */}
       <style
         dangerouslySetInnerHTML={{
@@ -32,16 +32,16 @@ export default async function V7PublicShell({ children }: { children: ReactNode 
         className="sticky top-0 z-10 border-b bg-[rgba(251,252,254,.88)] backdrop-blur-[10px]"
         style={{ borderColor: borderLt }}
       >
-        <div className="mx-auto flex h-[78px] max-w-[1120px] items-center justify-between px-9">
+        <div className="mx-auto flex h-[78px] max-w-[1120px] items-center justify-between gap-3 px-4 sm:px-9">
           <Link href="/">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/PAT.png" alt="PAT" className="block h-9 w-auto" />
           </Link>
-          <div className="flex items-center gap-[24px] text-[15px] font-semibold text-[var(--shell-muted)]">
+          <div className="flex items-center gap-3 text-[15px] font-semibold text-[var(--shell-muted)] sm:gap-[24px]">
             <Link href="/methodology">Methodology</Link>
             <Link href="/trust">Trust</Link>
             <LanguageSelector currentLocale={currentLocale} />
-            <Link href="/sign-in" className="rounded-full bg-[var(--shell-ink)] px-6 py-[11px] font-semibold text-white">
+            <Link href="/sign-in" className="shrink-0 whitespace-nowrap rounded-full bg-[var(--shell-ink)] px-5 py-[11px] font-semibold text-white sm:px-6">
               Sign in
             </Link>
           </div>
