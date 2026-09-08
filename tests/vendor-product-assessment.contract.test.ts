@@ -746,8 +746,12 @@ describe("vendor product assessment contracts", () => {
     expect(overviewText).toContain("async function createProduct");
     expect(detailText).toContain("persistedAnswerPayload");
     expect(detailText).toContain("ProductAssessmentPlan");
-    expect(clientText).toContain("topCardRef.current?.scrollIntoView");
-    expect(clientText).toContain("continueToNextPage");
+    // A3 (route atlas box): one page, every question — the pager and its
+    // top-scroll are gone; save/resume/submit gating are unchanged.
+    expect(clientText).not.toContain("continueToNextPage");
+    expect(clientText).not.toContain("Continue to next page");
+    expect(clientText).toContain('data-testid="vendor-assessment-stacked"');
+    expect(clientText).toContain("const stackedGroups = useMemo(() => groupQuestionsBySection(stackedQuestions), [stackedQuestions]);");
     expect(clientText).toContain("canSubmitAssessment");
     expect(clientText).toContain('disabled={submitState === "submitting" || !canSubmitAssessment}');
     expect(submitRouteText).toContain("Complete every active question before submitting.");
