@@ -841,3 +841,123 @@ textarea {
   color: var(--shell-ink);
   font-variant-numeric: tabular-nums;
 }
+
+/* ---------------------------------------------------------------------------
+   Facelift Part 2 — portal token pass. Flag-on ONLY: [data-v7-portal] is set by
+   a portal group layout, and [data-v7-shell] by AppShell, only when
+   PAT_ENABLE_NEW_FRONT_DOOR=1. Flag-off no attribute renders and none of this
+   applies (rendered diff at commit time). Rules map the utility classes the
+   portals already carry onto the B1 tokens; no colours outside the register,
+   no min-width anywhere, no copy. One group per commit enables its attribute.
+   --------------------------------------------------------------------------- */
+[data-v7-shell] .pat-shell-main,
+[data-v7-shell] .pat-shell-frame,
+[data-v7-shell].pat-shell-main,
+[data-v7-shell].pat-shell-frame {
+  max-width: var(--container);
+}
+
+[data-v7-portal] h1.text-4xl,
+[data-v7-portal] h2.text-4xl,
+[data-v7-portal] .text-4xl,
+[data-v7-portal] .text-5xl,
+[data-v7-portal] .sm\:text-5xl {
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-heading);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+[data-v7-portal] .text-3xl {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-heading);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+[data-v7-portal] .text-2xl,
+[data-v7-portal] .text-xl {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-heading);
+  line-height: 1.25;
+}
+
+[data-v7-portal] .text-lg,
+[data-v7-portal] .text-base {
+  font-size: var(--fs-body);
+  line-height: 1.6;
+}
+
+[data-v7-portal] .text-sm,
+[data-v7-portal] .text-xs,
+[data-v7-portal] .text-\[11px\],
+[data-v7-portal] .text-\[13px\] {
+  font-size: var(--fs-meta);
+  line-height: 1.5;
+}
+
+[data-v7-portal] .pat-label {
+  font-size: var(--fs-meta);
+}
+
+[data-v7-portal] [class*="rounded-["],
+[data-v7-portal] .rounded-lg,
+[data-v7-portal] .rounded-xl,
+[data-v7-portal] .rounded-2xl,
+[data-v7-portal] .rounded-3xl,
+[data-v7-portal] .pat-card,
+[data-v7-portal] .pat-subpanel,
+[data-v7-portal] .pat-soft-panel {
+  border-radius: var(--radius-card);
+}
+
+/* Pills and dots keep their full radius; the card radius is for panels. */
+[data-v7-portal] .rounded-full,
+[data-v7-portal] [class*="rounded-[999"],
+[data-v7-portal] .pat-mode-toggle,
+[data-v7-portal] .pat-mode-toggle > *,
+[data-v7-portal] .pat-pill,
+[data-v7-portal] .pat-chip,
+[data-v7-portal] .pat-badge {
+  border-radius: 9999px;
+}
+
+[data-v7-portal] .pat-input,
+[data-v7-portal] .pat-select,
+[data-v7-portal] .pat-textarea,
+[data-v7-portal] .rounded-md,
+[data-v7-portal] .rounded {
+  border-radius: var(--radius-control);
+}
+
+[data-v7-portal] [class*="shadow-"],
+[data-v7-portal] .pat-card-strong {
+  box-shadow: var(--shadow-card);
+}
+
+[data-v7-portal] .border,
+[data-v7-portal] .border-t,
+[data-v7-portal] .border-b {
+  border-color: rgba(12, 33, 66, 0.12);
+}
+
+/* Release ids, counts, timestamps: the product's mono voice. */
+[data-v7-portal] .font-mono,
+[data-v7-portal] .tabular-nums,
+[data-v7-portal] time,
+[data-v7-portal] [data-release-fingerprint],
+[data-v7-portal] [data-release-field] dd:first-of-type,
+[data-v7-portal] .pat-stat-number {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hero chips (Workspace / plan / Upgrade) are absolutely placed top-right; at
+   phone widths they wrapped over the wordmark. Flag-on they flow above it. */
+@media (max-width: 639.98px) {
+  [data-v7-portal] .pat-card > .absolute.right-6.top-6 {
+    position: static;
+    justify-content: flex-start;
+    margin-bottom: 1rem;
+  }
+}

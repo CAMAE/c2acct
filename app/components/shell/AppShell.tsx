@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { signOut } from "@/auth";
 import AppHeader, { type HeaderNavItem } from "@/app/components/header/AppHeader";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import { getSessionUser } from "@/lib/auth/session";
 import { getMembershipPathPrefix } from "@/lib/membershipContent";
 import { getHeaderWordmarkVariant } from "@/lib/brand/wordmark";
@@ -77,6 +78,12 @@ export default async function AppShell({ children }: { children: ReactNode }) {
     await signOut({ redirectTo: "/" });
   }
 
+  // Facelift Part 2: the portal token pass is scoped by attributes that exist
+  // ONLY when PAT_ENABLE_NEW_FRONT_DOOR is on (the group layouts add
+  // data-v7-portal; the shell adds data-v7-shell). Flag-off the spread is empty,
+  // so nothing about the rendered output changes.
+  const v7Shell = isNewFrontDoorEnabled() ? { "data-v7-shell": "" } : {};
+
   return (
     <>
       <AppHeader
@@ -92,9 +99,9 @@ export default async function AppShell({ children }: { children: ReactNode }) {
         uiText={headerUiText}
       />
 
-      <main className="pat-shell-main flex flex-1">{children}</main>
+      <main className="pat-shell-main flex flex-1" {...v7Shell}>{children}</main>
 
-      <footer className="mt-auto border-t border-[var(--shell-border)] py-5">
+      <footer className="mt-auto border-t border-[var(--shell-border)] py-5" {...v7Shell}>
         <div className="pat-shell-frame flex flex-col items-center gap-3 text-[11px] text-[var(--shell-muted)]">
           <nav aria-label="PAT trust and launch links">
             <ul className="pat-sans flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
