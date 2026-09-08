@@ -112,14 +112,24 @@ async function signIn(ctx: BrowserContext, identity: Identity) {
   await page.close();
 }
 
-type IndexRow = { route: string; url: string; identity: Identity; panel: string | null; status: number | null; finalUrl: string; files: string[] };
+type IndexRow = { route: string; url: string; identity: Identity; panel: string | null; status: number | null; finalUrl: string; files: string[]; notes: string[] };
 
 async function capture(page: Page, url: string, file: string, width: number) {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
   const response = await page.goto(url, { waitUntil: "networkidle", timeout: 90_000 }).catch(() => null);
   await page.waitForTimeout(400);
-  await page.screenshot({ path: file, fullPage: true });
-  return { status: response?.status() ?? null, finalUrl: page.url() };
+  let note: string | null = null;
+  try {
+    await page.screenshot({ path: file, fullPage: true, timeout: 60_000 });
+  } catch (error) {
+    // Chromium refuses very tall full-page captures; keep the viewport so the
+    // route is still represented, and say so in the index.
+    note = `full-page capture failed (${error instanceof Error ? error.message.split("\n")[0].slice(0, 80) : "unknown"}); viewport only`;
+    await page.screenshot({ path: file, fullPage: false, timeout: 60_000 }).catch(() => {
+      note = "screenshot failed";
+    });
+  }
+  return { status: response?.status() ?? null, finalUrl: page.url(), note };
 }
 
 async function main() {
@@ -142,6 +152,7 @@ async function main() {
         const url = `${base}${resolve(route)}${panel ? `?panel=${panel}` : ""}`;
         const name = `${slug(route)}${panel ? `--${panel}` : ""}`;
         const files: string[] = [];
+        const notes: string[] = [];
         let status: number | null = null;
         let finalUrl = "";
         for (const width of [1440, 390]) {
@@ -151,9 +162,10 @@ async function main() {
             status = result.status;
             finalUrl = result.finalUrl;
           }
+          if (result.note) notes.push(`${width}: ${result.note}`);
           files.push(path.relative(outRoot, file));
         }
-        rows.push({ route, url, identity, panel, status, finalUrl, files });
+        rows.push({ route, url, identity, panel, status, finalUrl, files, notes });
         const flag = status === null || status >= 400 ? "  !!" : "";
         console.log(`${identity.padEnd(10)} ${String(status).padEnd(4)} ${route}${panel ? ` ?panel=${panel}` : ""}${flag}`);
       }
@@ -169,9 +181,9 @@ async function main() {
     `Base: ${base} (flag-on: PAT_ENABLE_NEW_FRONT_DOOR, PAT_ENABLE_FOLLOWUP_MC). Routes: ${routes.length}. Captures: ${rows.length} (× 1440 and 390 = ${rows.length * 2} files).`,
     `Non-2xx/3xx: ${bad.length}${bad.length ? " — " + bad.map((row) => `${row.route}${row.panel ? `?panel=${row.panel}` : ""} (${row.status})`).join(", ") : ""}`,
     "",
-    "| Route | Identity | Panel | HTTP | Final URL | Files |",
-    "| --- | --- | --- | --- | --- | --- |",
-    ...rows.map((row) => `| \`${row.route}\` | ${row.identity} | ${row.panel ?? ""} | ${row.status ?? "ERR"} | \`${row.finalUrl.replace(base, "")}\` | ${row.files.map((file) => `\`${file}\``).join(" ")} |`),
+    "| Route | Identity | Panel | HTTP | Final URL | Files | Notes |",
+    "| --- | --- | --- | --- | --- | --- | --- |",
+    ...rows.map((row) => `| \`${row.route}\` | ${row.identity} | ${row.panel ?? ""} | ${row.status ?? "ERR"} | \`${row.finalUrl.replace(base, "")}\` | ${row.files.map((file) => `\`${file}\``).join(" ")} | ${row.notes.join("; ")} |`),
     "",
   ];
   writeFileSync(path.join(outDir, "index.md"), lines.join("\n"));
