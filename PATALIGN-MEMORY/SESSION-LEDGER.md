@@ -1,5 +1,8 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-08 · Facelift 2 box, commit d2dd12c1 — /admin group enabled; Part 1 route groups complete
+Admin layout attribute spread; layer gains an h1-step rule (agent console h1 was text-2xl → h3 size) and inline-size containment for table wrappers (/admin/launch's min-w-[42rem] tables widened the page to 516 at 390). Fourteen admin routes measured on dev: no overflow, h1 32/600, container 1200. Flag-off byte diff for all four groups still pending — it runs once against the final HEAD build vs the 0279b240 snapshot. — Forge.
+
 ## 2026-09-08 · Facelift 2 box, commit b0a2cce5 — /consultants group enabled
 Attribute spread on the consultants layout root (empty flag-off). Seven consultant routes measured on dev at 1440/390: no overflow, h1 32/600, container 1200. Part 2 finding banked while here: /admin and /admin/agents/[agentKey] "took >90s" because LiveActionStream opens an EventSource (/api/agents/<key>/stream) — the atlas waited for networkidle, which an SSE page never reaches. Not a query or index problem; the atlas gets a bounded wait. — Forge.
 
