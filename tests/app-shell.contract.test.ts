@@ -25,7 +25,10 @@ const publicGroupLayout = read("app/(public)/layout.tsx");
 describe("AppShell (factored, byte-identical)", () => {
   it("carries the full standard shell — AppHeader + main.pat-shell-main + footer", () => {
     expect(shell).toContain("<AppHeader");
-    expect(shell).toMatch(/<main className="pat-shell-main flex flex-1">\{children\}<\/main>/);
+    // Facelift Part 2: main carries an attribute spread that is EMPTY flag-off
+    // (data-v7-shell only when PAT_ENABLE_NEW_FRONT_DOOR=1), so the rendered
+    // <main> is unchanged — see tests/portal-token-pass.contract.test.ts.
+    expect(shell).toMatch(/<main className="pat-shell-main flex flex-1" \{\.\.\.v7Shell\}>\{children\}<\/main>/);
     expect(shell).toContain('aria-label="PAT trust and launch links"');
     expect(shell).toContain("data-release-fingerprint");
     // Signed-in footer sign-out affordance preserved.
