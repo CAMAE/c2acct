@@ -961,3 +961,22 @@ textarea {
     margin-bottom: 1rem;
   }
 }
+
+/* Every portal page title sits on the h1 step, whatever utility it carries
+   (h1[class] outranks the utility-class mappings above). */
+[data-v7-portal] h1,
+[data-v7-portal] h1[class] {
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-heading);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+/* Wide tables (min-w-[42rem] and friends) scroll inside their own wrapper
+   instead of widening the page: inline-size containment stops the table's
+   minimum from propagating up to the column, and the wrapper scrolls. */
+[data-v7-portal] .overflow-hidden:has(> table),
+[data-v7-portal] .overflow-x-auto:has(> table) {
+  contain: inline-size;
+  overflow-x: auto;
+}

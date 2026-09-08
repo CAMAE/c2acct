@@ -5,6 +5,7 @@ import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import PatModeToggle from "@/app/components/pat/PatModeToggle";
 import { getAdminAccessState, getAdminNavItems } from "@/lib/adminControlPlane";
 import { enforceAudience } from "@/lib/audienceGuard";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 
 export const dynamic = "force-dynamic";
 
@@ -58,8 +59,12 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     );
   }
 
+  // Facelift Part 2: flag-on scope for the portal token pass (globals.css
+  // [data-v7-portal]); flag-off the spread is empty and the markup unchanged.
+  const v7Portal = isNewFrontDoorEnabled() ? { "data-v7-portal": "admin" } : {};
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" {...v7Portal}>
       <section className="pat-card p-5 print:hidden">
         <PatModeToggle
           ariaLabel="Admin control plane navigation"
