@@ -1,5 +1,8 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-08 · Facelift 2 box, commit 1823edef — known-stale e2e list cleared
+Eight stale specs fixed to shipped contracts, none deleted: colour-only toggle state (shadow retired), replace-history panel navigation (PatModeToggle replace since May 2026 — flagged as a product question if push was intended), one-page vendor assessment modes, inline readout expansion, footer-scoped selector. 9 passed / 1 flag skip. — Forge.
+
 ## 2026-09-08 · Facelift 2 box, commit 6db92b97 — Part 2 dispositions in the atlas
 Six 404s are flag-dark by design (public tier: /ask; pings: /notifications, /firm/benchmark, /vendor/review-refresh; adaptive modules: /firm/modules, /firm/modules/[templateId]) and now sit in EXPECTED_NON_2XX with the gate named in the index. Two were fixture guesses (insightKey → current-product-fit; admin briefing product → meridian-audit). The two "slow" admin routes were the atlas waiting for networkidle on an SSE page; atlas waits for load + ≤15s idle. No app code changed in Part 2. — Forge.
 
