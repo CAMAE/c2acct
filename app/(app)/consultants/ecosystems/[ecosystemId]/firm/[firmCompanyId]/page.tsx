@@ -13,6 +13,9 @@ import NudgeButtonMount from "@/app/components/notifications/NudgeButtonMount";
 import { requireConsultantSession } from "@/lib/consultantAccess";
 import { isAlignmentBoardEnabled } from "@/lib/alignmentBoard";
 import { getFirmBriefForConsultant } from "@/lib/firmBriefs";
+import FollowUpEvidencePanel from "@/app/components/assessment/FollowUpEvidencePanel";
+import { getFirmFollowUpEvidence } from "@/lib/assessment/followUpEvidence";
+import { isFollowUpMcEnabled } from "@/lib/followUpMc";
 import FirmAlignmentHeader from "./_components/FirmAlignmentHeader";
 import FirmBriefHelpContent from "./_components/FirmBriefHelpContent";
 import FirmBriefMethodology from "./_components/FirmBriefMethodology";
@@ -29,10 +32,13 @@ type FirmBriefPanelKey =
   | "radar"
   | "stack-fit"
   | "roadmap"
+  | "follow-ups"
   | "method"
   | "pat"
   | "help";
 
+// "follow-ups" (MC follow-on box) is a valid key only behind PAT_ENABLE_FOLLOWUP_MC;
+// flag-off it is unknown and the page falls back to "operating" exactly as before.
 const FIRM_BRIEF_PANELS: ReadonlyArray<FirmBriefPanelKey> = [
   "operating",
   "radar",
@@ -43,7 +49,8 @@ const FIRM_BRIEF_PANELS: ReadonlyArray<FirmBriefPanelKey> = [
   "help",
 ];
 
-function isFirmBriefPanelKey(value: string | undefined): value is FirmBriefPanelKey {
+function isFirmBriefPanelKey(value: string | undefined, followUpMcEnabled = false): value is FirmBriefPanelKey {
+  if (value === "follow-ups") return followUpMcEnabled;
   return value !== undefined && (FIRM_BRIEF_PANELS as readonly string[]).includes(value);
 }
 
@@ -79,15 +86,20 @@ export default async function FirmBriefPage({
   }
 
   const searchParamsResolved = searchParams ? await searchParams : undefined;
-  const activePanel: FirmBriefPanelKey = isFirmBriefPanelKey(searchParamsResolved?.panel)
+  const followUpMcEnabled = isFollowUpMcEnabled();
+  const activePanel: FirmBriefPanelKey = isFirmBriefPanelKey(searchParamsResolved?.panel, followUpMcEnabled)
     ? searchParamsResolved.panel
     : "operating";
+  const followUpEvidence = followUpMcEnabled && activePanel === "follow-ups" ? await getFirmFollowUpEvidence(firmCompanyId) : null;
 
   const panelOptions = [
     { key: "operating", label: "Operating alignment", href: getPanelHref(ecosystemId, firmCompanyId, "operating") },
     { key: "radar", label: "Five-module radar", href: getPanelHref(ecosystemId, firmCompanyId, "radar") },
     { key: "stack-fit", label: "Stack fit", href: getPanelHref(ecosystemId, firmCompanyId, "stack-fit") },
     { key: "roadmap", label: "6-quarter roadmap", href: getPanelHref(ecosystemId, firmCompanyId, "roadmap") },
+    ...(followUpMcEnabled
+      ? [{ key: "follow-ups", label: "Follow-ups", href: getPanelHref(ecosystemId, firmCompanyId, "follow-ups") }]
+      : []),
     { key: "method", label: "Methodology", href: getPanelHref(ecosystemId, firmCompanyId, "method") },
     { key: "pat", label: "Meet PAT", href: getPanelHref(ecosystemId, firmCompanyId, "pat") },
     { key: "help", label: "Help", href: getPanelHref(ecosystemId, firmCompanyId, "help") },
@@ -210,6 +222,11 @@ export default async function FirmBriefPage({
       {activePanel === "roadmap" ? (
         <section data-testid="firm-brief-roadmap-panel">
           <SixQuarterRoadmap data={brief} />
+        </section>
+      ) : null}
+      {followUpMcEnabled && activePanel === "follow-ups" && followUpEvidence ? (
+        <section data-testid="firm-brief-followups-panel">
+          <FollowUpEvidencePanel modules={followUpEvidence} />
         </section>
       ) : null}
       {activePanel === "method" ? (

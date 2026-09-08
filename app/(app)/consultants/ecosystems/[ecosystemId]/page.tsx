@@ -7,6 +7,9 @@ import FirmGrid from "./_components/FirmGrid";
 import HeadlineMetricsRow from "./_components/HeadlineMetricsRow";
 import LowestEngagementFirmsCard from "./_components/LowestEngagementFirmsCard";
 import OpenEndedPanel from "./_components/OpenEndedPanel";
+import FollowUpAggregatePanel from "@/app/components/assessment/FollowUpAggregatePanel";
+import { getEcosystemFollowUpAggregate } from "@/lib/assessment/followUpEvidence";
+import { isFollowUpMcEnabled } from "@/lib/followUpMc";
 import VendorAtAGlance from "./_components/VendorAtAGlance";
 
 export const dynamic = "force-dynamic";
@@ -27,6 +30,11 @@ export default async function EcosystemDetailPage({
   if (!detail) {
     notFound();
   }
+  // MC follow-on box: top-picked follow-up option per question with n, dark.
+  const followUpMcEnabled = isFollowUpMcEnabled();
+  const followUpAggregate = followUpMcEnabled
+    ? await getEcosystemFollowUpAggregate(detail.firmGrid.map((row) => row.firmCompanyId))
+    : null;
 
   return (
     <div
@@ -49,6 +57,13 @@ export default async function EcosystemDetailPage({
         </div>
       </div>
       <OpenEndedPanel data={detail} />
+      {followUpMcEnabled && followUpAggregate ? (
+        <FollowUpAggregatePanel
+          rows={followUpAggregate.rows}
+          firmCount={followUpAggregate.firmCount}
+          firmsWithSelections={followUpAggregate.firmsWithSelections}
+        />
+      ) : null}
     </div>
   );
 }

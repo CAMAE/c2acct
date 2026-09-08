@@ -17,6 +17,7 @@ import { canAccessPortalAdmin } from "@/lib/authz";
 import { isConsultantAccessEnabled } from "@/lib/consultantAccess";
 import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
 import { getPatDiagnosticsSnapshot } from "@/lib/patDiagnostics";
+import { isFollowUpMcEnabled } from "@/lib/followUpMc";
 
 // Phase 1e: /admin is now the agent ops console. Legacy operator surfaces
 // (taxonomy, modules, products, briefings, insight rules, consultants) are
@@ -36,9 +37,14 @@ export const ADMIN_NAV_ITEMS = [
   { href: "/admin/runtime", label: "Runtime" },
 ] as const;
 
-export function getAdminNavItems() {
+export function getAdminNavItems(): ReadonlyArray<{ href: string; label: string }> {
   // Legacy operator surfaces (incl. consultants) are reached from the /admin/insights
-  // hub now, not the primary nav, so the nav is the same regardless of the flag.
+  // hub now, not the primary nav, so the nav is the same regardless of the consultant
+  // flag. The MC follow-on "Other answers" gauge is the one dark entry: it exists
+  // only while PAT_ENABLE_FOLLOWUP_MC is on, so flag-off admin pages are unchanged.
+  if (isFollowUpMcEnabled()) {
+    return [...ADMIN_NAV_ITEMS, { href: "/admin/followup-other", label: "Other answers" }];
+  }
   return ADMIN_NAV_ITEMS;
 }
 

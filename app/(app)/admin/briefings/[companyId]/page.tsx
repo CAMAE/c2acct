@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import { AdminPageIntro } from "@/app/components/admin/AdminShell";
 import { CompanyBriefingView } from "@/app/components/admin/briefings/BriefingBoard";
 import { getAdminCompanyBriefing } from "@/lib/adminBriefingEngine";
+import FollowUpEvidencePanel from "@/app/components/assessment/FollowUpEvidencePanel";
+import { getFirmFollowUpEvidence } from "@/lib/assessment/followUpEvidence";
+import { isFollowUpMcEnabled } from "@/lib/followUpMc";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +23,9 @@ export default async function AdminCompanyBriefingPage({
   if (!briefing) {
     notFound();
   }
+  // MC follow-on box: the firm's follow-up evidence (selections or legacy text), dark.
+  const followUpMcEnabled = isFollowUpMcEnabled();
+  const followUpEvidence = followUpMcEnabled ? await getFirmFollowUpEvidence(companyId) : null;
 
   return (
     <div className="space-y-8">
@@ -38,6 +44,7 @@ export default async function AdminCompanyBriefingPage({
       </div>
 
       <CompanyBriefingView briefing={briefing} searchQuery={q} />
+      {followUpMcEnabled && followUpEvidence ? <FollowUpEvidencePanel modules={followUpEvidence} /> : null}
     </div>
   );
 }
