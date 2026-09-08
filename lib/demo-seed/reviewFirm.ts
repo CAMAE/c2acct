@@ -25,7 +25,7 @@ const REVIEW_FIRM_INPUT: DemoFirmInput = {
   maturityLevel: "Established",
   integrationNeeds: ["client portal", "QuickBooks Online"],
   riskFlags: ["growth straining coordination"],
-  scoreTarget: 3.6, // mid-high: clears the tier-1 capability thresholds (60/65) without clamping
+  scoreTarget: 4.2, // high enough that every module clears the tier-1 capability thresholds (60/65) after the per-module spread
   membership: { plan: MembershipPlan.PRO, status: MembershipStatus.ACTIVE },
 };
 
