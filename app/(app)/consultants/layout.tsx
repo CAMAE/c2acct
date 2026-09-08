@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import { isConsultantAccessEnabled, requireConsultantSession } from "@/lib/consultantAccess";
 import { enforceAudience } from "@/lib/audienceGuard";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 
 export const dynamic = "force-dynamic";
 
@@ -47,8 +48,12 @@ export default async function ConsultantLayout({
     );
   }
 
+  // Facelift Part 2: flag-on scope for the portal token pass (globals.css
+  // [data-v7-portal]); flag-off the spread is empty and the markup unchanged.
+  const v7Portal = isNewFrontDoorEnabled() ? { "data-v7-portal": "consultants" } : {};
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" {...v7Portal}>
       {children}
     </div>
   );
