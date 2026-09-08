@@ -987,10 +987,40 @@ model SurveySubmission {
   Company              Company      @relation(fields: [companyId], references: [id])
   Subject              Subject?     @relation(fields: [subjectId], references: [id], onDelete: SetNull)
   SurveyModule         SurveyModule @relation(fields: [moduleId], references: [id])
+  AssessmentItemResponse AssessmentItemResponse[]
 
   @@index([companyId, moduleId, createdAt])
   @@index([subjectId, moduleId, createdAt])
   @@index([verticalId])
+}
+
+// MC redesign box — Prerequisite Zero. One row per selected option (and one per
+// scored 0–5 item, and one per legacy free-text follow-up), so the table covers
+// all 25 items of a firm module submission. Additive beside SurveySubmission.answers,
+// which is still written unchanged (dual-write). Named AssessmentItemResponse
+// because ItemResponse already exists for the quiz-style firm knowledge modules.
+model AssessmentItemResponse {
+  id               String           @id
+  submissionId     String
+  companyId        String
+  moduleKey        String
+  questionKey      String
+  // SurveyModule.version the submission was made under.
+  questionVersion  Int
+  // FIRM_FOLLOWUP_MC_VERSION for option rows; null for scored / legacy text rows.
+  optionSetVersion Int?
+  // SINGLE | MULTI (option rows), SCORED (0–5 items), TEXT (legacy free-text follow-up).
+  selectionMode    String
+  optionKey        String?
+  otherText        String?
+  numericValue     Int?
+  orderingSeed     String?
+  createdAt        DateTime         @default(now())
+  SurveySubmission SurveySubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([submissionId])
+  @@index([companyId, moduleKey, questionKey])
+  @@index([questionKey, optionKey])
 }
 
 model User {
