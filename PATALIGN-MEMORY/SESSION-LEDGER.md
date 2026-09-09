@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · Depth box, commit fd9259e8 — membership prices (flag-off, approved): Firm Pro $4,800, Firm Elite $24,000, Vendor Pro $9,000, Vendor Elite ecosystem license; user tier hidden. Copy only. — Forge.
+
 ## 2026-09-09 · Depth box, commit b0535a66 — hover ruling applied (.pat-hover-card on hero band, Pro and Elite insight cards); public footer = TRUST_FOOTER_LINKS row, door accordion removed. — Forge.
 
 ## 2026-09-09 · V3 box PUSHED — origin/feature/engagement-v1 = 0cfaf48d
