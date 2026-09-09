@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { CompanyProfileSettingsFields } from "@/app/components/profile/ProfileSettingsFields";
 
 type ProfileSettings = {
@@ -62,11 +61,7 @@ export default function FirmAdminPanels({
               : "Invite users and review current firm account status. Individual insight surfaces are not part of the current vendor and firm pilot."}
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
-            {individualSurfacesEnabled ? (
-              <Link className="pat-button-primary" href="/firm/admin/user-insight">
-                Open user insight
-              </Link>
-            ) : null}
+            {/* Depth box 9: the user-insight surface is not built; no entry until it is. */}
             <div className="pat-soft-panel px-4 py-3 text-sm text-[var(--shell-muted)]">
               Current users: <span className="font-semibold text-[var(--shell-ink)]">{userInsight.length}</span>
             </div>

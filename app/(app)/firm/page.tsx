@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import { redirect } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import HeroChips from "@/app/components/pat/HeroChips";
+import WorkspaceNotice from "@/app/components/shell/WorkspaceNotice";
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
@@ -34,6 +35,7 @@ export const metadata = {
 
 type SearchParams = {
   panel?: string;
+  notice?: string;
 };
 
 function getPanelHref(panel: "workspace" | "pat" | "admin" | "help") {
@@ -208,6 +210,7 @@ export default async function FirmPage({
 
   return (
     <div className="space-y-8">
+      <WorkspaceNotice notice={params?.notice} />
       <section className="pat-card relative p-8">
         <HeroChips audience="firm" />
         <PatLogoLockup mode="hero" tone="light" />
