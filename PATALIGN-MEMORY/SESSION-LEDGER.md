@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · Depth box, commit 56e4358c — product lists (flag-on): status strip (features · reviews on file · last updated · divergence), table at 1440 / cards at 390, needs-attention first. — Forge.
+
 ## 2026-09-09 · Depth box, commit a3bc8dc6 — help (flag-on): /help + /help/[slug] article pages; Ask Pat card first on four help surfaces; every card links to its help/public article; guide packet not in help/ yet. — Forge.
 
 ## 2026-09-09 · Depth box, commit 70f8c74e — guide home: freshness/nudges were gated on PAT_ENABLE_PINGS (not mis-wired) — open flag-on; Request refresh label; task lists aggregated; NEXT BRIEFING + THIS WEEK cards. — Forge.
