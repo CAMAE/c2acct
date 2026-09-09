@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · Depth box, commit d885d555 — Fig. 03 provenance matches its values (visual self-check). — Forge.
+
 ## 2026-09-09 · Depth box, commit 721573da — atlas fixture for /help/[slug] (pat-for-firms). — Forge.
 
 ## 2026-09-09 · Depth box, commit 4a3f91d8 — depth-box test window widened for the shared hover selector list. — Forge.
