@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · Depth box, commit 2a69ce3d — /pat = How it works (flag-on): 01 radar, 02 evidence both ways, 03 delta / hot divergence, 04 fork band; radar + band extracted for reuse; depth-box contract test; atlas gains firm-elite / vendor-elite homes. — Forge.
+
 ## 2026-09-09 · Depth box, commit c6d32226 — workspace homes (flag-on): firm and vendor dashboards from the hub's own builders — index/band, modules, capabilities, radar, NEXT BEST STEP, latest readout, since-last-visit; designed empty states. — Forge.
 
 ## 2026-09-09 · Depth box, commit 68447982 — onboarding rail (flag-on): radar filling per completed step on /onboarding, /onboarding/[audience], /create-account. — Forge.
