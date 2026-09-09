@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · V3 box, commit ee02a3ef — 'directional' removed from /methodology, /trust title and every signed-in surface (23 source files + 3 tests, flag-off approved); insight footer = 'Informational, not professional advice · methodology'. — Forge.
+
 ## 2026-09-09 · V3 box, commit ed8c8028 — firm product assessment on one page (flag-off, approved): pager, Next/Back and per-page gate removed; submit gating unchanged; no draft API on this surface so nothing to autosave. — Forge.
 
 ## 2026-09-09 · V3 box, commit 17480e7c — leaks: chips under the eyebrow below lg + full-width roots (flag-on); Payment details → Billing contact name/email + 'PAT never collects card numbers here.' (flag-off, approved); vendor profile contract JSON admin-only (flag-off, approved); method panel plain sources + /methodology link (flag-on). — Forge.
