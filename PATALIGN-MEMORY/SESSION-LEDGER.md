@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · Depth box, commit b0535a66 — hover ruling applied (.pat-hover-card on hero band, Pro and Elite insight cards); public footer = TRUST_FOOTER_LINKS row, door accordion removed. — Forge.
+
 ## 2026-09-09 · V3 box PUSHED — origin/feature/engagement-v1 = 0cfaf48d
 Cam typed "push"; 9b365244..0cfaf48d fast-forwarded (25 commits: 12 code, 13 ledger banks). Prod untouched at 0157d40; flags off. Preview :3011 (flag-on dev) left running. This entry is banked locally, not pushed. — Forge.
 
