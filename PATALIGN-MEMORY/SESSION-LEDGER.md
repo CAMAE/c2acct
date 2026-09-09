@@ -1,5 +1,8 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · Finish box CLOSED on disk at HEAD (b3508ccd + this bank) — awaiting Mythos verify, then Cam's "push"
+Chain on b3508ccd: build 0 (through the new build lock: acquired/released logged) · test:e2e full 46 passed / 7 flag-skipped / 0 failed · release:prelaunch 0 · validate:launch 0 · launch:proof 0 · perf reseed 0. lint:test 0, typecheck 0, unit 1605/1605 (186 files), copy-lint 68 (unchanged), ratchet at actual. Flag-off diff db256219-build vs b3508ccd-build on the same DB: public 24/24 identical; portals 82/98 identical, remaining 16 = the two approved ordering pages (8 files), agent countdowns ticking (4), detached-worktree branch name on /admin/launch (2), chunk-manifest rows on 3 insight pages (6 files… by page 3) — zero unexplained. Atlas after at b3508ccd: 6 (expected by flag: 6, unexpected: 0) — /ask (404, expected (before = Part 2 after: 105/138/6). Not pushed. — Forge.
+
 ## 2026-09-08 · Finish box, commit 998d0a4f — portal polish flag-on: hero lockup keeps only the eyebrow; consultants/admin roots span the container (1161px measured); FAQ renders only with items (none exist → hidden). — Forge.
 
 ## 2026-09-08 · Finish box, commit a6ce49ab — build race guard: pnpm build → scripts/release/build-lock.mjs (atomic lock dir, refuse live holder with exit 75 + one log line, reclaim dead holder, always release); launchd helper waits on the lock. Smoke-tested refusal. — Forge.
