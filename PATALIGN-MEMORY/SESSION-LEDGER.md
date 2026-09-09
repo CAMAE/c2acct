@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · Depth box, commit c6d32226 — workspace homes (flag-on): firm and vendor dashboards from the hub's own builders — index/band, modules, capabilities, radar, NEXT BEST STEP, latest readout, since-last-visit; designed empty states. — Forge.
+
 ## 2026-09-09 · Depth box, commit 68447982 — onboarding rail (flag-on): radar filling per completed step on /onboarding, /onboarding/[audience], /create-account. — Forge.
 
 ## 2026-09-09 · Depth box, commit 56e4358c — product lists (flag-on): status strip (features · reviews on file · last updated · divergence), table at 1440 / cards at 390, needs-attention first. — Forge.
