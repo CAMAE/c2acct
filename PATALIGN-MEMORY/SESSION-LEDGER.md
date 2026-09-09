@@ -1,5 +1,8 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · V3 box CLOSED on disk at 8811fc28 (+ this bank) — awaiting Mythos verify, then Cam's "push"
+Chain on 8811fc28: test:e2e full 46 passed / 7 flag-skipped / 0 failed (teardown removed products=1 companies=1 users=1) · release:prelaunch 0 · validate:launch 0 · launch:proof 0 · perf reseed 0 · unit 1605/1605 (186 files) · lint 0 · typecheck 0 · copy-lint 68 → 67 · ratchet at 111 (band sizes moved to CSS classes). Flag-off diff 9b365244-build vs HEAD-build on one DB: portals 68/98 identical, the 30 others are the approved flag-off changes (disclaimer copy, billing contact, "1 pt spread", briefing/help copy) plus the detached-worktree branch row and a per-request tie flip on /firm/insights; public 32/36 identical (methodology = 4.2, release = branch row). Atlas after (flag-on, HEAD): routes=105 captures=138 non-2xx 6 expected / 0 unexpected (before = finish/after 105/138/6). Hover proof: start #f4f7fb→#dfe7f2, firm/vendor →#e6ecf5. Preview :3011 flag-on left running for Cam. Not pushed. — Forge.
+
 ## 2026-09-09 · V3 box, commit 78d6dbf8 — e2e teardown via tsx child process; fixture removal verified (E2E product created by the draft spec, 0 left). — Forge.
 
 ## 2026-09-09 · V3 box, commit b6b2fa8a — chain fixes: band sizes as CSS classes (ratchet back at 111), band rules above the token layer, e2e teardown reads DATABASE_URL from .env.local, accounting pack prompt follows 4.2. — Forge.
