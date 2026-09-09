@@ -194,7 +194,7 @@ export default async function VendorPage({
       ) : activePanel === "help" ? (
         <VendorHelpInlineContent />
       ) : dashboard ? (
-        <VendorWorkspaceDashboard data={dashboard} />
+        <VendorWorkspaceDashboard view={dashboard} />
       ) : (
         <>
           <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">

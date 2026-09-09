@@ -8,8 +8,8 @@ import type { VendorWorkspaceDashboard as Data } from "@/lib/vendorWorkspaceDash
  * date, the latest product readout with "Open readout", and "since your last
  * visit". A vendor with no product sees the first steps, never a blank.
  */
-export default function VendorWorkspaceDashboard({ data }: { data: Data }) {
-  const empty = data.productsDeclared === 0;
+export default function VendorWorkspaceDashboard({ view }: { view: Data }) {
+  const empty = view.productsDeclared === 0;
   return (
     <div className="space-y-8" data-testid="vendor-workspace-dashboard">
       <section className="pat-card p-8">
@@ -38,19 +38,19 @@ export default function VendorWorkspaceDashboard({ data }: { data: Data }) {
           </div>
         ) : (
           <div className="mt-5 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            <ScoreLockup label="Products declared" score={null} displayValue={`${data.productsDeclared}`} context={`${data.productsFinal} with a final vendor assessment`} />
-            <ScoreLockup label="Firm reviews on file" score={null} displayValue={`${data.firmReviewsOnFile}`} context="Final firm product reviews across your products" />
+            <ScoreLockup label="Products declared" score={null} displayValue={`${view.productsDeclared}`} context={`${view.productsFinal} with a final vendor assessment`} />
+            <ScoreLockup label="Firm reviews on file" score={null} displayValue={`${view.firmReviewsOnFile}`} context="Final firm product reviews across your products" />
             <ScoreLockup
               label="Largest divergence"
               score={null}
-              displayValue={data.largestDivergence ? `${data.largestDivergence.points} pt` : "—"}
-              context={data.largestDivergence ? `${data.largestDivergence.productName} · ${data.largestDivergence.label}` : "No divergence above the sample floor yet"}
+              displayValue={view.largestDivergence ? `${view.largestDivergence.points} pt` : "—"}
+              context={view.largestDivergence ? `${view.largestDivergence.productName} · ${view.largestDivergence.label}` : "No divergence above the sample floor yet"}
             />
             <ScoreLockup
               label="Next briefing"
               score={null}
-              displayValue={data.nextBriefing.dateLabel}
-              context={`Quarterly benchmark cut · ${data.nextBriefing.firmsReviewing} firm${data.nextBriefing.firmsReviewing === 1 ? "" : "s"} reviewing`}
+              displayValue={view.nextBriefing.dateLabel}
+              context={`Quarterly benchmark cut · ${view.nextBriefing.firmsReviewing} firm${view.nextBriefing.firmsReviewing === 1 ? "" : "s"} reviewing`}
             />
           </div>
         )}
@@ -58,19 +58,19 @@ export default function VendorWorkspaceDashboard({ data }: { data: Data }) {
 
       {!empty ? (
         <section className="grid gap-5 md:grid-cols-2">
-          {data.latestReadout ? (
-            <Link href={data.latestReadout.href} className="pat-card pat-hover-card block p-6" data-testid="latest-insight">
+          {view.latestReadout ? (
+            <Link href={view.latestReadout.href} className="pat-card pat-hover-card block p-6" data-testid="latest-insight">
               <div className="pat-label">Latest product readout</div>
-              <div className="mt-3 text-xl font-semibold text-[var(--shell-ink)]">{data.latestReadout.productName}</div>
+              <div className="mt-3 text-xl font-semibold text-[var(--shell-ink)]">{view.latestReadout.productName}</div>
               <div className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm text-[var(--shell-muted)]">
                 <span>
-                  self-reported <span className="pat-mono text-[var(--shell-ink)]">{data.latestReadout.selfReported ?? "—"}</span>
+                  self-reported <span className="pat-mono text-[var(--shell-ink)]">{view.latestReadout.selfReported ?? "—"}</span>
                 </span>
                 <span>
-                  firm-reviewed <span className="pat-mono text-[var(--shell-ink)]">{data.latestReadout.firmReviewed === null ? "—" : Math.round(data.latestReadout.firmReviewed)}</span>
+                  firm-reviewed <span className="pat-mono text-[var(--shell-ink)]">{view.latestReadout.firmReviewed === null ? "—" : Math.round(view.latestReadout.firmReviewed)}</span>
                 </span>
                 <span>
-                  <span className="pat-mono text-[var(--shell-ink)]">{data.latestReadout.firmReviews}</span> firm review{data.latestReadout.firmReviews === 1 ? "" : "s"}
+                  <span className="pat-mono text-[var(--shell-ink)]">{view.latestReadout.firmReviews}</span> firm review{view.latestReadout.firmReviews === 1 ? "" : "s"}
                 </span>
               </div>
               <span className="mt-4 inline-flex text-sm font-semibold text-[var(--brand-c2-blue)]">Open readout →</span>
@@ -79,7 +79,7 @@ export default function VendorWorkspaceDashboard({ data }: { data: Data }) {
           <div className="pat-card p-6">
             <div className="pat-label">Products</div>
             <ul className="mt-3 grid gap-2 text-sm">
-              {data.products.map((product) => (
+              {view.products.map((product) => (
                 <li key={product.id} className="flex flex-wrap items-center justify-between gap-2">
                   <Link href={`/vendor/product-insight/${product.id}`} className="font-semibold text-[var(--shell-ink)] hover:underline">
                     {product.name}
@@ -99,17 +99,17 @@ export default function VendorWorkspaceDashboard({ data }: { data: Data }) {
 
       <section className="pat-soft-panel flex flex-wrap items-center gap-x-6 gap-y-2 p-4 text-sm text-[var(--shell-muted)]" data-testid="since-last-visit">
         <span className="pat-label">Since your last visit</span>
-        {data.sinceLastVisit.sinceLabel ? (
+        {view.sinceLastVisit.sinceLabel ? (
           <>
             <span>
-              <span className="pat-mono text-[var(--shell-ink)]">{data.sinceLastVisit.firmReviewsReceived}</span> firm review
-              {data.sinceLastVisit.firmReviewsReceived === 1 ? "" : "s"} received
+              <span className="pat-mono text-[var(--shell-ink)]">{view.sinceLastVisit.firmReviewsReceived}</span> firm review
+              {view.sinceLastVisit.firmReviewsReceived === 1 ? "" : "s"} received
             </span>
             <span>
-              <span className="pat-mono text-[var(--shell-ink)]">{data.sinceLastVisit.readoutsRefreshed}</span> readout
-              {data.sinceLastVisit.readoutsRefreshed === 1 ? "" : "s"} refreshed
+              <span className="pat-mono text-[var(--shell-ink)]">{view.sinceLastVisit.readoutsRefreshed}</span> readout
+              {view.sinceLastVisit.readoutsRefreshed === 1 ? "" : "s"} refreshed
             </span>
-            <span className="pat-meta">since {data.sinceLastVisit.sinceLabel}</span>
+            <span className="pat-meta">since {view.sinceLastVisit.sinceLabel}</span>
           </>
         ) : (
           <span>This is your first visit on record.</span>

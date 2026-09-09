@@ -10,8 +10,8 @@ import type { FirmWorkspaceDashboard as Data } from "@/lib/firmWorkspaceDashboar
  * insight headline with "Open readout", and "since your last visit". A firm
  * with 0/5 sees the five modules as its next steps, never a blank.
  */
-export default function FirmWorkspaceDashboard({ data }: { data: Data }) {
-  const empty = data.completedModules === 0;
+export default function FirmWorkspaceDashboard({ view }: { view: Data }) {
+  const empty = view.completedModules === 0;
   return (
     <div className="space-y-8" data-testid="firm-workspace-dashboard">
       <section className="pat-card p-8">
@@ -24,7 +24,7 @@ export default function FirmWorkspaceDashboard({ data }: { data: Data }) {
                 the first one below; each takes about four minutes.
               </p>
               <ol className="mt-5 grid gap-3 sm:grid-cols-2">
-                {data.modules.map((module, index) => (
+                {view.modules.map((module, index) => (
                   <li key={module.key}>
                     <Link href={module.href} className="pat-subpanel pat-hover-card block p-4">
                       <div className="pat-label">Module {index + 1}</div>
@@ -35,54 +35,54 @@ export default function FirmWorkspaceDashboard({ data }: { data: Data }) {
                 ))}
               </ol>
             </div>
-            <RadarChart axes={data.radarAxes} title="Five-module maturity profile — no module scored yet" className="opacity-60" />
+            <RadarChart axes={view.radarAxes} title="Five-module maturity profile — no module scored yet" className="opacity-60" />
           </div>
         ) : (
           <div className="mt-5 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-center">
             <div className="grid gap-8 sm:grid-cols-3">
-              <ScoreLockup label="Alignment index" score={data.alignmentIndex} context="Average of your final module scores" />
+              <ScoreLockup label="Alignment index" score={view.alignmentIndex} context="Average of your final module scores" />
               <ScoreLockup
                 label="Modules complete"
                 score={null}
-                displayValue={`${data.completedModules}/${data.totalModules}`}
-                context={data.lastFullAssessmentAt ? `Full assessment on record since ${data.lastFullAssessmentAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` : "Final submissions across the five modules"}
+                displayValue={`${view.completedModules}/${view.totalModules}`}
+                context={view.lastFullAssessmentAt ? `Full assessment on record since ${view.lastFullAssessmentAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` : "Final submissions across the five modules"}
               />
               <ScoreLockup
                 label="Capabilities met"
                 score={null}
-                displayValue={data.capabilitiesTotal ? `${data.capabilitiesMet}/${data.capabilitiesTotal}` : "—"}
+                displayValue={view.capabilitiesTotal ? `${view.capabilitiesMet}/${view.capabilitiesTotal}` : "—"}
                 context="Distinct capabilities at or above their unlock threshold"
               />
             </div>
             <RadarChart
-              axes={data.radarAxes}
-              title={`Five-module maturity profile: ${data.radarAxes.map((axis) => `${axis.label} ${axis.value === null ? "not scored" : `${Math.round(axis.value)}%`}`).join(", ")}`}
+              axes={view.radarAxes}
+              title={`Five-module maturity profile: ${view.radarAxes.map((axis) => `${axis.label} ${axis.value === null ? "not scored" : `${Math.round(axis.value)}%`}`).join(", ")}`}
             />
           </div>
         )}
       </section>
 
       <section className="grid gap-5 md:grid-cols-2">
-        <Link href={data.nextStep.href} className="pat-card pat-hover-card block p-6" data-testid="next-best-step">
+        <Link href={view.nextStep.href} className="pat-card pat-hover-card block p-6" data-testid="next-best-step">
           <div className="pat-label">Next best step</div>
           <div className="mt-3 flex items-center justify-between gap-2">
-            <span className="text-xl font-semibold text-[var(--shell-ink)]">{data.nextStep.title}</span>
+            <span className="text-xl font-semibold text-[var(--shell-ink)]">{view.nextStep.title}</span>
             <span aria-hidden="true" className="text-[var(--brand-c2-blue)]">→</span>
           </div>
-          <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{data.nextStep.body}</p>
-          <span className="mt-4 inline-flex text-sm font-semibold text-[var(--brand-c2-blue)]">{data.nextStep.label}</span>
+          <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{view.nextStep.body}</p>
+          <span className="mt-4 inline-flex text-sm font-semibold text-[var(--brand-c2-blue)]">{view.nextStep.label}</span>
         </Link>
-        {data.latestInsight ? (
-          <Link href={data.latestInsight.href} className="pat-card pat-hover-card block p-6" data-testid="latest-insight">
+        {view.latestInsight ? (
+          <Link href={view.latestInsight.href} className="pat-card pat-hover-card block p-6" data-testid="latest-insight">
             <div className="pat-label">Latest insight</div>
-            <div className="mt-3 text-xl font-semibold text-[var(--shell-ink)]">{data.latestInsight.title}</div>
-            {data.latestInsight.value ? (
+            <div className="mt-3 text-xl font-semibold text-[var(--shell-ink)]">{view.latestInsight.title}</div>
+            {view.latestInsight.value ? (
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="pat-stat-number text-3xl text-[var(--shell-ink)]">{data.latestInsight.value}</span>
-                {data.latestInsight.caption ? <span className="text-sm text-[var(--shell-muted)]">{data.latestInsight.caption}</span> : null}
+                <span className="pat-stat-number text-3xl text-[var(--shell-ink)]">{view.latestInsight.value}</span>
+                {view.latestInsight.caption ? <span className="text-sm text-[var(--shell-muted)]">{view.latestInsight.caption}</span> : null}
               </div>
             ) : null}
-            <p className="mt-3 line-clamp-3 text-sm leading-6 text-[var(--shell-muted)]">{data.latestInsight.summary}</p>
+            <p className="mt-3 line-clamp-3 text-sm leading-6 text-[var(--shell-muted)]">{view.latestInsight.summary}</p>
             <span className="mt-4 inline-flex text-sm font-semibold text-[var(--brand-c2-blue)]">Open readout →</span>
           </Link>
         ) : (
@@ -98,17 +98,17 @@ export default function FirmWorkspaceDashboard({ data }: { data: Data }) {
 
       <section className="pat-soft-panel flex flex-wrap items-center gap-x-6 gap-y-2 p-4 text-sm text-[var(--shell-muted)]" data-testid="since-last-visit">
         <span className="pat-label">Since your last visit</span>
-        {data.sinceLastVisit.sinceLabel ? (
+        {view.sinceLastVisit.sinceLabel ? (
           <>
             <span>
-              <span className="pat-mono text-[var(--shell-ink)]">{data.sinceLastVisit.assessmentsSubmitted}</span> assessment module
-              {data.sinceLastVisit.assessmentsSubmitted === 1 ? "" : "s"} submitted
+              <span className="pat-mono text-[var(--shell-ink)]">{view.sinceLastVisit.assessmentsSubmitted}</span> assessment module
+              {view.sinceLastVisit.assessmentsSubmitted === 1 ? "" : "s"} submitted
             </span>
             <span>
-              <span className="pat-mono text-[var(--shell-ink)]">{data.sinceLastVisit.insightsRefreshed}</span> insight
-              {data.sinceLastVisit.insightsRefreshed === 1 ? "" : "s"} refreshed
+              <span className="pat-mono text-[var(--shell-ink)]">{view.sinceLastVisit.insightsRefreshed}</span> insight
+              {view.sinceLastVisit.insightsRefreshed === 1 ? "" : "s"} refreshed
             </span>
-            <span className="pat-meta">since {data.sinceLastVisit.sinceLabel}</span>
+            <span className="pat-meta">since {view.sinceLastVisit.sinceLabel}</span>
           </>
         ) : (
           <span>This is your first visit on record.</span>

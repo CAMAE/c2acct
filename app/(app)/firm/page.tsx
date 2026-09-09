@@ -271,7 +271,7 @@ export default async function FirmPage({
       ) : activePanel === "help" ? (
         <FirmHelpInlineContent />
       ) : dashboard ? (
-        <FirmWorkspaceDashboard data={dashboard} />
+        <FirmWorkspaceDashboard view={dashboard} />
       ) : (
         <>
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

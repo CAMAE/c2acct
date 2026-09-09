@@ -92,5 +92,5 @@ export default async function CreateAccountPage() {
     ) as CreateAccountWizardContent["byRole"],
   };
 
-  return <CreateAccountWizard content={content} action={completeSelfSignup} showRail={isNewFrontDoorEnabled()} />;
+  return <CreateAccountWizard content={content} action={completeSelfSignup} {...(isNewFrontDoorEnabled() ? { showRail: true } : {})} />;
 }

@@ -4,7 +4,9 @@ import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import { listHelpArticleSlugs, readHelpArticle } from "@/lib/helpArticles";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Help library | PAT" };
+export function generateMetadata() {
+  return isNewFrontDoorEnabled() ? { title: "Help library | PAT" } : {};
+}
 
 /** Depth box 6 (flag-on): the public help library index. */
 export default function HelpIndexPage() {

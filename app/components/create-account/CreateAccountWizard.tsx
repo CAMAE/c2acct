@@ -108,9 +108,8 @@ export default function CreateAccountWizard({
   const error = stepError ?? (step === "account" ? actionState.error : null);
 
   const railCompleted = Math.min(RAIL_STEPS.length, SELF_SIGNUP_STEPS.indexOf(step) + 1);
-  return (
-    <div className={showRail ? "mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[minmax(0,1fr)_280px]" : "mx-auto w-full max-w-3xl"}>
-    <div className="space-y-6">
+  const body = (
+    <div className={showRail ? "space-y-6" : "mx-auto w-full max-w-3xl space-y-6"}>
       <section className="pat-card px-7 py-7 sm:px-9 sm:py-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <PatLogoLockup mode="header" tone="light" />
@@ -384,7 +383,12 @@ export default function CreateAccountWizard({
         </Link>
       </p>
     </div>
-      {showRail ? <OnboardingPreviewRail completed={railCompleted} total={RAIL_STEPS.length} steps={RAIL_STEPS} /> : null}
+  );
+  if (!showRail) return body;
+  return (
+    <div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
+      {body}
+      <OnboardingPreviewRail completed={railCompleted} total={RAIL_STEPS.length} steps={RAIL_STEPS} />
     </div>
   );
 }

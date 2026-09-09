@@ -4,10 +4,14 @@ import HowItWorks from "@/app/components/frontdoor/HowItWorks";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 
-export const metadata = {
-  title: "How PAT works | Patalign",
+const metadata = {
+  title: "Meet PAT | Patalign",
   description: "PAT explainer and product framing.",
 };
+
+export function generateMetadata() {
+  return isNewFrontDoorEnabled() ? { title: "How PAT works | Patalign", description: "How PAT works, in four chapters." } : metadata;
+}
 
 export default async function PatExplainerPage() {
   // Depth box 2 (flag-on): /pat is "How it works" — four chapters ending in the fork.

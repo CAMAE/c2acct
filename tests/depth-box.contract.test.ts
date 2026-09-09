@@ -125,22 +125,25 @@ describe("8 — onboarding rail (flag-on)", () => {
   it("the rail renders on /onboarding, /onboarding/[audience] and the account wizard, filling as steps complete", () => {
     expect(read("app/(public)/onboarding/page.tsx")).toContain("<OnboardingPreviewRail completed={0}");
     expect(read("app/(public)/onboarding/[audience]/page.tsx")).toContain("<OnboardingPreviewRail completed={railCompleted}");
-    expect(read("app/components/create-account/CreateAccountWizard.tsx")).toContain("showRail ? <OnboardingPreviewRail completed={railCompleted}");
-    expect(read("app/(public)/create-account/page.tsx")).toContain("showRail={isNewFrontDoorEnabled()}");
+    const wizard = read("app/components/create-account/CreateAccountWizard.tsx");
+    expect(wizard).toContain("if (!showRail) return body;"); // flag-off root is the old root, byte for byte
+    expect(wizard).toContain("<OnboardingPreviewRail completed={railCompleted}");
+    expect(read("app/(public)/create-account/page.tsx")).toContain("{...(isNewFrontDoorEnabled() ? { showRail: true } : {})}"); // no prop flag-off
+    for (const rel of ["app/(public)/onboarding/page.tsx", "app/(public)/onboarding/[audience]/page.tsx"]) expect(read(rel), rel).toContain("if (!rail) return body;");
   });
 });
 
 describe("1 — workspace homes (flag-on)", () => {
   it("firm and vendor homes render the dashboards flag-on and keep the slogan + cards flag-off", () => {
     const firm = read("app/(app)/firm/page.tsx");
-    expect(firm).toContain("<FirmWorkspaceDashboard data={dashboard} />");
+    expect(firm).toContain("<FirmWorkspaceDashboard view={dashboard} />");
     expect(firm).toContain("{messages.portal.firm.body}"); // flag-off path intact
     const vendor = read("app/(app)/vendor/page.tsx");
-    expect(vendor).toContain("<VendorWorkspaceDashboard data={dashboard} />");
+    expect(vendor).toContain("<VendorWorkspaceDashboard view={dashboard} />");
     expect(vendor).toContain("{messages.portal.vendor.body}");
     const firmDash = read("app/components/workspace/FirmWorkspaceDashboard.tsx");
     for (const t of ["Alignment index", "Modules complete", "Capabilities met", "Next best step", "Open readout", "Since your last visit", "<RadarChart"]) expect(firmDash).toContain(t);
-    expect(firmDash).toContain("data.modules.map((module, index)"); // 0/5 empty state lists the five modules
+    expect(firmDash).toContain("view.modules.map((module, index)"); // 0/5 empty state lists the five modules
     const vendorDash = read("app/components/workspace/VendorWorkspaceDashboard.tsx");
     for (const t of ["Products declared", "Firm reviews on file", "Largest divergence", "Next briefing", "Open readout", "Since your last visit"]) expect(vendorDash).toContain(t);
   });

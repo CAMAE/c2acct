@@ -14,8 +14,7 @@ export default function PublicOnboardingPage() {
   const cards = getPublicOnboardingHomeCards();
 
   const rail = isNewFrontDoorEnabled();
-  return (
-    <div className={rail ? "grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]" : ""}>
+  const body = (
     <div className="space-y-8">
       <section className="pat-card px-7 py-8 sm:px-10 sm:py-10">
         <div className="pat-label">Public onboarding</div>
@@ -58,7 +57,12 @@ export default function PublicOnboardingPage() {
         </p>
       </section>
     </div>
-      {rail ? <OnboardingPreviewRail completed={0} total={RAIL_STEPS.length} steps={RAIL_STEPS} /> : null}
+  );
+  if (!rail) return body;
+  return (
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
+      {body}
+      <OnboardingPreviewRail completed={0} total={RAIL_STEPS.length} steps={RAIL_STEPS} />
     </div>
   );
 }
