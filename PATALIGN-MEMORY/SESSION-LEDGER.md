@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · Depth box, commit f857939b — dead ends (flag-off, approved): user-insight and engagement score unlinked; direct hits redirect to the workspace with a one-line notice. — Forge.
+
 ## 2026-09-09 · Depth box, commit fd9259e8 — membership prices (flag-off, approved): Firm Pro $4,800, Firm Elite $24,000, Vendor Pro $9,000, Vendor Elite ecosystem license; user tier hidden. Copy only. — Forge.
 
 ## 2026-09-09 · Depth box, commit b0535a66 — hover ruling applied (.pat-hover-card on hero band, Pro and Elite insight cards); public footer = TRUST_FOOTER_LINKS row, door accordion removed. — Forge.
