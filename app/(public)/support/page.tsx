@@ -33,7 +33,6 @@ export default function SupportPage() {
             <a href={`mailto:${SUPPORT_EMAIL}`} className="pat-h2 mt-2 block text-[var(--shell-ink)] underline decoration-[var(--shell-border)] underline-offset-4">
               {SUPPORT_EMAIL}
             </a>
-            <p className="pat-body mt-3 text-[var(--shell-muted)]">{surface.summary}</p>
             <a href={`mailto:${SUPPORT_EMAIL}`} className="pat-button-primary mt-5 inline-flex">
               Email support
             </a>

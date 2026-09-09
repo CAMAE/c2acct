@@ -805,9 +805,10 @@ export function readVendorAlignmentInsightHeadline(
     return {
       score: null,
       displayValue: `${Math.round(report.moduleVariance)}`,
-      suffix: "pts",
+      // V3 box 6: "1 pt spread", "7 pts spread" — the unit agrees with the number.
+      suffix: `${Math.round(report.moduleVariance) === 1 ? "pt" : "pts"} spread`,
       showBand: false,
-      caption: "spread across modules",
+      caption: "across modules",
       statusLabel: report.confidenceLabel,
     };
   }

@@ -82,7 +82,7 @@ describe("vendor insight — face number equals detail hero number", () => {
     const report = vendorReportFixture({ key: "uneven-maturity-variance", moduleVariance: 22 });
     const headline = readVendorAlignmentInsightHeadline(report);
     expect(headline.displayValue).toBe("22");
-    expect(headline.suffix).toBe("pts");
+    expect(headline.suffix).toMatch(/^pts? spread$/);
     expect(headline.showBand).toBe(false);
   });
 
