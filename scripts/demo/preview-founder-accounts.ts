@@ -5,10 +5,11 @@
  *     (set -a; . ./.env.preview; set +a; node --import tsx scripts/demo/preview-founder-accounts.ts)
  *   Provision (writes; temporary passwords go to ONE local file, never stdout):
  *     (set -a; . ./.env.preview; set +a; node --import tsx scripts/demo/preview-founder-accounts.ts --provision \
- *       --out ~/work/preview-accounts.txt [--domain garrettandgarrett.info] [--people leslie,cam]
+ *       --out ~/work/preview-accounts.txt [--people "Leslie:lesliegarrettphd@gmail.com,Cam:cameron@garrettandgarrett.info"]
  *
  * Six roles per person: firm-pro, firm-elite, vendor-pro, vendor-elite, consultant,
- * admin — as plus-addresses `<person>+<role>@<domain>`. Same credential path as
+ * admin — as plus-addresses `<local>+<role>@<domain>` of each person's own address
+ * (Cam's ruling 2026-09-10: lesliegarrettphd+<role>@gmail.com, cameron+<role>@garrettandgarrett.info). Same credential path as
  * lib/provisioning/account.ts (hashPilotPassword + mustChangePassword=TRUE, so the
  * first sign-in lands on /sign-in/password-update), but ATTACHED to existing DEMO
  * companies instead of creating new ones:
@@ -45,8 +46,18 @@ const flag = (name: string, fallback: string) => {
   const hit = args.find((a) => a.startsWith(`--${name}=`));
   return hit ? hit.slice(name.length + 3) : fallback;
 };
-const DOMAIN = flag("domain", "garrettandgarrett.info");
-const PEOPLE = flag("people", "leslie,cam").split(",").map((p) => p.trim()).filter(Boolean);
+type Person = { label: string; local: string; domain: string };
+const PEOPLE: Person[] = flag("people", "Leslie:lesliegarrettphd@gmail.com,Cam:cameron@garrettandgarrett.info")
+  .split(",")
+  .map((entry) => entry.trim())
+  .filter(Boolean)
+  .map((entry) => {
+    const [label, address] = entry.includes(":") ? entry.split(":", 2) : [entry.split("@")[0], entry];
+    const [local, domain] = address.split("@");
+    if (!local || !domain) throw new Error(`--people entry "${entry}" is not Label:local@domain`);
+    return { label, local, domain };
+  });
+const emailFor = (person: Person, role: string) => `${person.local}+${role}@${person.domain}`;
 const OUT = flag("out", path.join(process.env.HOME ?? "~", "work", "preview-accounts.txt"));
 const ECOSYSTEM_HINT = flag("ecosystem", "sentinel").toLowerCase();
 const ROLES = ["firm-pro", "firm-elite", "vendor-pro", "vendor-elite", "consultant", "admin"] as const;
@@ -182,7 +193,7 @@ async function main() {
   const prod = prodHost();
   if (prod && prod === host) throw new Error(`DATABASE_URL host is the PROD host — refusing (this box never writes prod).`);
 
-  const founders = new Set(PEOPLE.flatMap((p) => ROLES.map((r) => `${p}+${r}@${DOMAIN}`)));
+  const founders = new Set(PEOPLE.flatMap((p) => ROLES.map((r) => emailFor(p, r))));
   const firmPro = await firmPick("PRO");
   const firmElite = await firmPick("ELITE");
   const vendorPro = await vendorPick("PRO", null);
@@ -208,7 +219,7 @@ async function main() {
   for (const row of table) console.log(`  ${row.role.padEnd(13)} → ${row.target}${row.id ? `  [${row.id}]` : ""}`);
   PEOPLE.forEach((person, i) => {
     const e = ecoQueue[i];
-    console.log(`  consultant    (${person}) → ${e ? `ecosystem "${e.name}" (${e.firms} firms, holder now: ${e.holder ?? "none"})  [${e.id}]` : "NONE"}`);
+    console.log(`  consultant    (${person.label}) → ${e ? `ecosystem "${e.name}" (${e.firms} firms, holder now: ${e.holder ?? "none"})  [${e.id}]` : "NONE"}`);
   });
   if (!hinted) console.log(`  ⚠️  no ecosystem matches "${ECOSYSTEM_HINT}" — first person gets the richest unprotected ecosystem instead.`);
   const missing = table.filter((r) => r.role !== "admin" && !r.id).map((r) => r.role);
@@ -225,9 +236,9 @@ async function main() {
   const lines: string[] = [`# PAT founders preview accounts · ${new Date().toISOString()} · target ${host}`, `# first sign-in enforces a password update (/sign-in/password-update)`, ""];
   let written = 0;
   for (const [i, person] of PEOPLE.entries()) {
-    const label = person.charAt(0).toUpperCase() + person.slice(1);
+    const label = person.label;
     for (const role of ROLES) {
-      const email = `${person}+${role}@${DOMAIN}`;
+      const email = emailFor(person, role);
       const password = generateTemporaryPassword();
       let where = "";
       if (role === "admin") {
