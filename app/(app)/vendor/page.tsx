@@ -1,6 +1,9 @@
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import HeroChips from "@/app/components/pat/HeroChips";
 import WorkspaceNotice from "@/app/components/shell/WorkspaceNotice";
+import VendorWorkspaceDashboard from "@/app/components/workspace/VendorWorkspaceDashboard";
+import { getVendorWorkspaceDashboard } from "@/lib/vendorWorkspaceDashboard";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
@@ -132,6 +135,12 @@ export default async function VendorPage({
   // portal-home card — the v1 duplicate was navigation noise, removed per §4).
 
 
+  // Depth box 1 (flag-on): the vendor's dashboard replaces the slogan and the navigation cards.
+  const dashboard =
+    isNewFrontDoorEnabled() && vendorContext.company?.type === "VENDOR" && activePanel === "workspace"
+      ? await getVendorWorkspaceDashboard(vendorContext.company.id, sessionUser?.id ?? null)
+      : null;
+  const todayLabel = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
   return (
     <div className="space-y-8">
       <WorkspaceNotice notice={params?.notice} />
@@ -149,9 +158,17 @@ export default async function VendorPage({
           audienceTerms={[messages.nav.vendor]}
           className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]"
         />
-        <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          {messages.portal.vendor.body}
-        </p>
+        {dashboard ? (
+          <p className="mt-4 text-base leading-7 text-[var(--shell-muted)]" data-testid="workspace-dateline">
+            <span className="font-semibold text-[var(--shell-ink)]">{dashboard.companyName}</span> · {todayLabel} ·{" "}
+            <span className="pat-mono text-[var(--shell-ink)]">{dashboard.firmReviewsOnFile}</span> firm review
+            {dashboard.firmReviewsOnFile === 1 ? "" : "s"} on file
+          </p>
+        ) : (
+          <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
+            {messages.portal.vendor.body}
+          </p>
+        )}
         <div className="mt-6">
           <PortalPanelSelector activeKey={activePanel} options={panelOptions} />
         </div>
@@ -176,6 +193,8 @@ export default async function VendorPage({
         </div>
       ) : activePanel === "help" ? (
         <VendorHelpInlineContent />
+      ) : dashboard ? (
+        <VendorWorkspaceDashboard data={dashboard} />
       ) : (
         <>
           <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">

@@ -3,6 +3,9 @@ import { redirect } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import HeroChips from "@/app/components/pat/HeroChips";
 import WorkspaceNotice from "@/app/components/shell/WorkspaceNotice";
+import FirmWorkspaceDashboard from "@/app/components/workspace/FirmWorkspaceDashboard";
+import { getFirmWorkspaceDashboard } from "@/lib/firmWorkspaceDashboard";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
@@ -82,6 +85,12 @@ export default async function FirmPage({
     : null;
 
   const moduleProgress = company?.type === "FIRM" ? await getFirmAssessmentProgress(company.id) : [];
+  // Depth box 1 (flag-on): the firm's dashboard replaces the slogan and the navigation cards.
+  const dashboard =
+    isNewFrontDoorEnabled() && company?.type === "FIRM" && activePanel === "workspace"
+      ? await getFirmWorkspaceDashboard(company.id, company.name, sessionUser?.id ?? null)
+      : null;
+  const todayLabel = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
   const completedModules = moduleProgress.filter((module) => module.latestSubmittedAt).length;
   const panelOptions = [
     { key: "workspace", label: messages.common.workspace, href: getPanelHref("workspace") },
@@ -225,9 +234,20 @@ export default async function FirmPage({
           audienceTerms={[messages.nav.firm]}
           className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]"
         />
-        <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          {messages.portal.firm.body}
-        </p>
+        {dashboard ? (
+          <p className="mt-4 text-base leading-7 text-[var(--shell-muted)]" data-testid="workspace-dateline">
+            <span className="font-semibold text-[var(--shell-ink)]">{dashboard.companyName}</span> · {todayLabel}
+            {dashboard.alignmentIndex !== null ? (
+              <>
+                {" "}· alignment index <span className="pat-mono text-[var(--shell-ink)]">{dashboard.alignmentIndex}</span>
+              </>
+            ) : null}
+          </p>
+        ) : (
+          <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
+            {messages.portal.firm.body}
+          </p>
+        )}
         <div className="mt-6">
           <PortalPanelSelector activeKey={activePanel} options={panelOptions} />
         </div>
@@ -250,6 +270,8 @@ export default async function FirmPage({
         </div>
       ) : activePanel === "help" ? (
         <FirmHelpInlineContent />
+      ) : dashboard ? (
+        <FirmWorkspaceDashboard data={dashboard} />
       ) : (
         <>
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
