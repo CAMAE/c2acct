@@ -52,7 +52,7 @@ describe("self-signup flag gating contract", () => {
     expect(homepage).toContain("href={CREATE_ACCOUNT_PATH}");
     expect(homepage).not.toContain("getCreateAccountHref");
 
-    const landing = readFileSync(path.join(process.cwd(), "app/(app)/onboarding/[audience]/page.tsx"), "utf8");
+    const landing = readFileSync(path.join(process.cwd(), "app/(public)/onboarding/[audience]/page.tsx"), "utf8");
     expect(landing).toContain("isSelfSignupEnabled()");
     expect(landing).toContain("{selfSignupEnabled ? (");
     expect(landing).toContain("href={CREATE_ACCOUNT_PATH}");
