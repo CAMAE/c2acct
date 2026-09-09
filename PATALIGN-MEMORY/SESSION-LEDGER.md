@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · Depth box, commit 721573da — atlas fixture for /help/[slug] (pat-for-firms). — Forge.
+
 ## 2026-09-09 · Depth box, commit 4a3f91d8 — depth-box test window widened for the shared hover selector list. — Forge.
 
 ## 2026-09-09 · Depth box, commit b13c2b2f — insight cards keep flag-off markup (hover via the token-layer scope flag-on); firm list grid class exact. — Forge.
