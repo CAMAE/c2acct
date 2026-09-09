@@ -19,6 +19,8 @@ const ROOT = path.resolve(__dirname, "..");
 const read = (rel: string) => readFileSync(path.join(ROOT, rel), "utf8");
 const src = read("app/components/frontdoor/V7FrontDoor.tsx"); // content only
 const shell = read("app/components/frontdoor/V7PublicShell.tsx"); // shared public shell
+const band = read("app/components/frontdoor/V7DoorBand.tsx"); // the V3 hero CTA band (depth box 2: shared with /pat)
+const radar = read("app/components/frontdoor/V7RadarFigure.tsx"); // the radar figure (shared with /pat)
 const pageSrc = read("app/(public)/page.tsx");
 const publicLayout = read("app/(public)/layout.tsx");
 
@@ -51,13 +53,13 @@ describe("V7 front door — content (V7FrontDoor)", () => {
       "Top decile",
       "You",
     ]) {
-      expect(src, `missing locked copy: ${phrase}`).toContain(phrase);
+      expect(src + band + radar, `missing locked copy: ${phrase}`).toContain(phrase);
     }
   });
 
   it("content order: hero → band (doors) → radar → cohort (doors above the charts)", () => {
     const iHero = src.indexOf("Product selection, without the sales pitch.");
-    const iDoors = src.indexOf('data-testid="v7-door-firm"');
+    const iDoors = src.indexOf('<V7DoorBand ');
     const iRadar = src.indexOf("Alignment radar");
     const iCohort = src.indexOf("Cohort standing");
     const iTrust = src.lastIndexOf("Cohort standing"); // the door ends on the cohort panel (accordion removed, depth box 0.2)
@@ -82,34 +84,36 @@ describe("V7 front door — content (V7FrontDoor)", () => {
   });
 
   it("V3 hero CTA band — one band at the container width, three cells, no circle-arrow icons", () => {
-    const srcPxBefore = 6; // text-[Npx] utilities left in V7FrontDoor (hero, radar, cohort) — the band adds none
-    // One band replaces the Enter/Meet cta-card row and the Firms/Vendors door row.
-    expect(src).toMatch(/data-testid="v7-hero-band"/);
-    expect(src).toMatch(/rounded-\[28px\][^"]*md:grid-cols-\[1\.2fr_1fr_1fr\]/);
-    expect(src).not.toContain("ArrowGlyph"); // the circle-arrow chips are gone
+    // One band replaces the Enter/Meet cta-card row and the Firms/Vendors door row (V7DoorBand, shared with /pat).
+    expect(src).toContain("<V7DoorBand askPatEntry={askPatEntry} />");
+    expect(band).toMatch(/data-testid="v7-hero-band"/);
+    expect(band).toContain('md:grid-cols-[1.2fr_1fr_1fr]');
+    expect(band).not.toContain("ArrowGlyph");
+    expect(src).not.toContain("ArrowGlyph");
     // Cell 1: tinted, eyebrow, filled Enter PAT pill (white label, 46px) + ghost Meet PAT pill.
-    expect(src).toMatch(/pat-hover-card[^"]*bg-\[#f4f7fb\]/);
-    expect(src).toContain("Start here");
-    expect(src).toMatch(/href="\/sign-in"[\s\S]{0,240}v7-band-pill[^"]*rounded-full bg-\[var\(--brand-c2-blue\)\][^"]*text-white[\s\S]{0,160}data-testid="v7-cta-enter"/);
-    expect(src).toMatch(/href="\/sign-in\?view=pat"[\s\S]{0,240}v7-band-pill[^"]*rounded-full border[\s\S]{0,360}data-testid="v7-cta-meet"/);
-    expect((src.match(/text-\[\d+px\]/g) || []).length).toBe(srcPxBefore); // no new px utilities for the band
+    expect(band).toMatch(/pat-hover-card[^"]*bg-\[#f4f7fb\]/);
+    expect(band).toContain("Start here");
+    expect(band).toMatch(/href="\/sign-in"[\s\S]{0,240}v7-band-pill[^"]*rounded-full bg-\[var\(--brand-c2-blue\)\][^"]*text-white[\s\S]{0,160}data-testid="v7-cta-enter"/);
+    expect(band).toMatch(/href="\/sign-in\?view=pat"[\s\S]{0,240}v7-band-pill[^"]*rounded-full border[\s\S]{0,360}data-testid="v7-cta-meet"/);
+    expect((band.match(/text-\[\d+px\]/g) || []).length).toBe(2); // the two 27px door lines only
     // Cells 2/3: the whole cell is the link — eyebrow, line, inline arrow in blue.
-    expect(src).toMatch(/<Link\s+href="\/sign-in\?view=firm"\s+className="pat-hover-card[\s\S]{0,500}Score your stack\.[\s\S]{0,240}text-\[var\(--brand-c2-blue\)\]/);
-    expect(src).toMatch(/<Link\s+href="\/sign-in\?view=vendor"\s+className="pat-hover-card[\s\S]{0,500}Earn the evidence\./);
-    // Hairline dividers: stacked at 390 (border-t), side by side from md (border-l).
-    expect((src.match(/border-t border-\[var\(--shell-border\)\][^"]*md:border-l md:border-t-0/g) || []).length).toBe(2);
+    expect(band).toMatch(/<Link\s+href="\/sign-in\?view=firm"\s+className=\{`pat-hover-card[\s\S]{0,600}Score your stack\.[\s\S]{0,240}text-\[var\(--brand-c2-blue\)\]/);
+    expect(band).toMatch(/<Link\s+href="\/sign-in\?view=vendor"\s+className="pat-hover-card[\s\S]{0,500}Earn the evidence\./);
+    // Hairline dividers: stacked at 390 (border-t), side by side from md.
+    expect(band).toContain('border-t border-[var(--shell-border)] px-[34px] py-8 md:border-l md:border-t-0');
     // Hover: the ONE shared card hover (depth box 0.1) — border to blue, ≤2% tint, 150ms.
     const css = read("app/globals.css");
     expect(css).toMatch(/\.v7-band-pill \{\s*height: 46px;\s*font-size: 16px;/);
     expect(css).toMatch(/\.v7-band-arrow \{\s*font-size: 28px;/);
     expect(css.indexOf(".pat-hover-card {")).toBeLessThan(css.indexOf("Facelift Part 2 — portal token pass"));
-    expect((src.match(/className="pat-hover-card /g) || []).length).toBe(3); // start cell + two door cells
-    expect(src).not.toContain("v7-band-cell");
+    expect((band.match(/[`"]pat-hover-card /g) || []).length).toBe(3); // start cell + two door cells
+    expect(band).not.toContain("v7-band-cell");
+    expect(radar).toContain('<svg viewBox="0 0 400 330"');
   });
 
   it("hero CTAs route correctly", () => {
-    expect(src).toMatch(/href="\/sign-in"[\s\S]{0,400}data-testid="v7-cta-enter"/);
-    expect(src).toContain('href="/sign-in?view=pat"'); // Meet PAT
+    expect(band).toMatch(/href="\/sign-in"[\s\S]{0,400}data-testid="v7-cta-enter"/);
+    expect(band).toContain('href="/sign-in?view=pat"'); // Meet PAT
   });
 
   it("cohort you-dots are semantic (green above / amber within / red below)", () => {
@@ -145,11 +149,11 @@ describe("V7 front door — content (V7FrontDoor)", () => {
   });
 
   it("radar carries the dashed peer overlay + You/Peers legend (shape-only)", () => {
-    expect(src).toMatch(/stroke="#8ba1bd"[^>]*strokeDasharray="6 5"/);
-    expect(src).toMatch(/border-dashed border-\[#8ba1bd\]/);
-    expect(src).toContain("You");
-    expect(src).toContain("Peers");
-    expect(src).not.toMatch(/stroke="#8ba1bd"[^>]*>\s*\d/);
+    expect(radar).toMatch(/stroke="#8ba1bd"[^>]*strokeDasharray="6 5"/);
+    expect(radar).toMatch(/border-dashed border-\[#8ba1bd\]/);
+    expect(radar).toContain("You");
+    expect(radar).toContain("Peers");
+    expect(radar).not.toMatch(/stroke="#8ba1bd"[^>]*>\s*\d/);
   });
 
   it("the cohort panel shares the radar's card-header grammar", () => {
@@ -180,8 +184,8 @@ describe("V7 front door — content (V7FrontDoor)", () => {
   });
 
   it("door cards route to sign-in with the role preselected", () => {
-    expect(src).toContain("/sign-in?view=firm");
-    expect(src).toContain("/sign-in?view=vendor");
+    expect(band).toContain("/sign-in?view=firm");
+    expect(band).toContain("/sign-in?view=vendor");
   });
 
   it("the radar is data-free — no fabricated scores/percentages on the front door", () => {
@@ -214,17 +218,19 @@ describe("V7 front door — Ask Pat entry (gated on the public tier)", () => {
 
   it("the door's /ask link is inside the gate and nowhere else", () => {
     expect(src).toContain("const askPatEntry = isAskPatDoorEntryEnabled();");
-    expect(src).toMatch(/\{askPatEntry \? \([\s\S]{0,80}<Link href="\/ask"[^>]*data-testid="v7-cta-ask"/);
-    expect((src.match(/href="\/ask"/g) || []).length).toBe(1);
-    expect(src).toContain("Ask Pat");
+    expect(src).toContain("<V7DoorBand askPatEntry={askPatEntry} />");
+    expect(band).toMatch(/\{askPatEntry \? \([\s\S]{0,80}<Link href="\/ask"[^>]*data-testid="v7-cta-ask"/);
+    expect((band.match(/href="\/ask"/g) || []).length).toBe(1);
+    expect((src.match(/href="\/ask"/g) || []).length).toBe(0);
+    expect(band).toContain("Ask Pat");
     // The gate reuses the /ask page's own availability function (no second opinion).
     expect(read("lib/frontDoor.ts")).toMatch(/return publicTierAvailability\(env\)\.available;/);
     expect(read("app/(public)/ask/page.tsx")).toContain("publicTierAvailability().available");
   });
 
   it("hero CTA band stacks at 390 (single column below md) instead of overflowing", () => {
-    expect(src).toMatch(/className="grid overflow-hidden rounded-\[28px\][^"]*md:grid-cols-\[1\.2fr_1fr_1fr\]"/);
-    expect(src).not.toMatch(/data-testid="v7-hero-band"[^>]*grid-cols-3/);
+    expect(band).toContain('${start ? "md:grid-cols-[1.2fr_1fr_1fr]" : "md:grid-cols-2"}');
+    expect(band).not.toMatch(/data-testid="v7-hero-band"[^>]*grid-cols-3/);
   });
 });
 

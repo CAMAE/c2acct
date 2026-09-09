@@ -1,5 +1,6 @@
-import Link from "next/link";
 import { isAskPatDoorEntryEnabled } from "@/lib/frontDoor";
+import V7DoorBand from "@/app/components/frontdoor/V7DoorBand";
+import V7RadarFigure from "@/app/components/frontdoor/V7RadarFigure";
 
 /**
  * Block 19 — V7 product-native front door. A faithful build of
@@ -69,80 +70,7 @@ export default function V7FrontDoor() {
         </div>
       </header>
 
-      {/* HERO CTA BAND — V3 (Finish box 2, 2026-09-09). One band at the token
-          container width (same as the radar card): three cells with hairline
-          dividers. Cell 1 (tinted) carries the two pills; cells 2 and 3 ARE the
-          links (whole cell), with an inline arrow at the right. Hover is the shared
-          .pat-hover-card (border to blue, ≤2% tint, 150ms — the Pro insight-card
-          hover); keyboard focus shows the same state plus the ring. Copy unchanged. At 390 the cells stack, same order. */}
-      <section className="px-9 pb-6 pt-2">
-        <div className="mx-auto max-w-[1120px]">
-        <div
-          className="grid overflow-hidden rounded-[28px] border border-[var(--shell-border)] bg-white md:grid-cols-[1.2fr_1fr_1fr]"
-          style={{ boxShadow: shadow }}
-          data-testid="v7-hero-band"
-        >
-          <div
-            className="pat-hover-card flex flex-col justify-center gap-5 bg-[#f4f7fb] px-[34px] py-8"
-            data-testid="v7-hero-band-start"
-          >
-            <div className="pat-label">Start here</div>
-            <div className="flex flex-wrap items-center gap-3">
-              <Link
-                href="/sign-in"
-                className="v7-band-pill inline-flex items-center rounded-full bg-[var(--brand-c2-blue)] px-7 font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-c2-blue)] focus-visible:ring-offset-2"
-                data-testid="v7-cta-enter"
-              >
-                Enter PAT
-              </Link>
-              <Link
-                href="/sign-in?view=pat"
-                className="v7-band-pill inline-flex items-center rounded-full border border-[var(--shell-ink)] px-7 font-bold text-[var(--shell-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-c2-blue)] focus-visible:ring-offset-2"
-                data-testid="v7-cta-meet"
-              >
-                Meet PAT
-              </Link>
-              {/* Ask Pat — the door's path to its headline feature. Gated on the same
-                  availability check /ask itself uses, so this link is never dead. */}
-              {askPatEntry ? (
-                <Link href="/ask"
-                  className="v7-band-pill inline-flex items-center rounded-full border border-[var(--shell-ink)] px-7 font-bold text-[var(--shell-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-c2-blue)] focus-visible:ring-offset-2"
-                  data-testid="v7-cta-ask"
-                >
-                  Ask Pat
-                </Link>
-              ) : null}
-            </div>
-          </div>
-          <Link
-            href="/sign-in?view=firm"
-            className="pat-hover-card flex items-center justify-between gap-6 border-t border-[var(--shell-border)] px-[34px] py-8 md:border-l md:border-t-0"
-            data-testid="v7-door-firm"
-          >
-            <div>
-              <div className="pat-label">Firms</div>
-              <h3 className="mt-3 text-[27px] font-bold tracking-[-0.01em]">Score your stack.</h3>
-            </div>
-            <span aria-hidden="true" className="v7-band-arrow shrink-0 leading-none text-[var(--brand-c2-blue)]">
-              →
-            </span>
-          </Link>
-          <Link
-            href="/sign-in?view=vendor"
-            className="pat-hover-card flex items-center justify-between gap-6 border-t border-[var(--shell-border)] px-[34px] py-8 md:border-l md:border-t-0"
-            data-testid="v7-door-vendor"
-          >
-            <div>
-              <div className="pat-label">Vendors</div>
-              <h3 className="mt-3 text-[27px] font-bold tracking-[-0.01em]">Earn the evidence.</h3>
-            </div>
-            <span aria-hidden="true" className="v7-band-arrow shrink-0 leading-none text-[var(--brand-c2-blue)]">
-              →
-            </span>
-          </Link>
-        </div>
-        </div>
-      </section>
+      <V7DoorBand askPatEntry={askPatEntry} />
 
       {/* PANELS — data-free shape only: alignment radar, then cohort standing. */}
       <section className="px-9 pb-[88px] pt-6">
@@ -162,42 +90,7 @@ export default function V7FrontDoor() {
               </span>
             </div>
             <div className="px-12 pb-10 pt-11">
-              <svg viewBox="0 0 400 330" className="mx-auto block h-auto w-full max-w-[520px]" role="img" aria-label="Five-pillar alignment radar — shape only, no scores">
-                <defs>
-                  <radialGradient id="v7rg" cx="50%" cy="52%" r="60%">
-                    <stop offset="0%" stopColor="var(--brand-c2-blue)" stopOpacity=".16" />
-                    <stop offset="100%" stopColor="var(--brand-c2-blue)" stopOpacity=".05" />
-                  </radialGradient>
-                </defs>
-                <g stroke="#d9e0ea" fill="none" strokeWidth="1">
-                  <polygon points="200,58 322,146 275,282 125,282 78,146" />
-                  <polygon points="200,98 283,158 251,249 149,249 117,158" opacity=".8" />
-                  <polygon points="200,138 244,169 227,218 173,218 156,169" opacity=".6" />
-                  <path d="M200,178 L200,58 M200,178 L322,146 M200,178 L275,282 M200,178 L125,282 M200,178 L78,146" />
-                </g>
-                {/* Peer overlay — dashed, under the solid navy "you" shape. */}
-                <polygon points="200,96 286,152 249,236 153,244 116,152" fill="none" stroke="#8ba1bd" strokeWidth="2" strokeDasharray="6 5" strokeLinejoin="round" />
-                <polygon points="200,82 298,154 247,246 151,262 121,154" fill="url(#v7rg)" stroke="var(--brand-c2-blue)" strokeWidth="2.5" strokeLinejoin="round" />
-                <g fill="var(--brand-c2-blue)" stroke="#fff" strokeWidth="1.5">
-                  <circle cx="200" cy="82" r="5" />
-                  <circle cx="298" cy="154" r="5" />
-                  <circle cx="247" cy="246" r="5" />
-                  <circle cx="151" cy="262" r="5" />
-                  <circle cx="121" cy="154" r="5" />
-                </g>
-                <g fontSize="14" fill="var(--shell-muted)" fontWeight="700" textAnchor="middle">
-                  <text x="200" y="34">Strategy</text>
-                  <text x="358" y="140">Operations</text>
-                  <text x="297" y="314">Automation</text>
-                  <text x="103" y="314">Integration</text>
-                  <text x="42" y="140">Governance</text>
-                </g>
-              </svg>
-              {/* Legend beneath the radar — You (solid navy) vs Peers (dashed). */}
-              <div className="mt-6 flex items-center justify-center gap-[26px] text-[14.5px] text-[var(--shell-muted)]">
-                <span className="flex items-center gap-2"><span className="inline-block h-[11px] w-[11px] rounded-full bg-[var(--brand-c2-blue)]" /> You</span>
-                <span className="flex items-center gap-2"><span className="inline-block w-[26px] border-t-2 border-dashed border-[#8ba1bd]" /> Peers</span>
-              </div>
+              <V7RadarFigure />
               {/* Five per-pillar value sentences — plain language, locked verbatim. */}
               <div className="mx-auto mt-[26px] max-w-[640px] border-t pt-[22px]" style={{ borderColor: borderLt }}>
                 {PILLAR_SENTENCES.map((s) => (

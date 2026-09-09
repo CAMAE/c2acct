@@ -64,6 +64,18 @@ const EXPECTED_NON_2XX: Record<string, { status: number; reason: string }> = {
   "/firm/modules/[templateId]": { status: 404, reason: "PAT_ENABLE_ADAPTIVE_MODULES off → notFound() (lib/modules/portal.ts gate)" },
 };
 
+/**
+ * Depth box (2026-09-09): the workspace homes are captured for four identities
+ * — firm-pro / vendor-pro (the review accounts, above) plus the Elite fixtures
+ * (pilot form). These rows are appended to the atlas with the identity in the
+ * file name.
+ */
+const EXTRA_IDENTITIES: { identity: "firm-elite" | "vendor-elite"; email: string; view: string; routes: string[] }[] = [
+  { identity: "firm-elite", email: "demo-firm-elite@pat.local", view: "firm", routes: ["/firm", "/firm/alignment-board"] },
+  { identity: "vendor-elite", email: "demo-vendor-elite@pat.local", view: "vendor", routes: ["/vendor", "/vendor/battlecard"] },
+];
+const ELITE_PASSWORD = process.env.PAT_DEMO_ELITE_PASSWORD ?? "PatEliteDemo7x";
+
 const PANELS: Record<string, string[]> = {
   "/user": ["workspace", "profile", "pat", "help"],
   "/firm": ["workspace", "admin", "pat", "help"],
@@ -73,7 +85,7 @@ const PANELS: Record<string, string[]> = {
   "/consultants/ecosystems/[ecosystemId]/vendor-brief": ["exec", "positioning", "product", "strengths", "roadmap", "method", "pat", "help"],
 };
 
-type Identity = "public" | "firm" | "vendor" | "individual" | "consultant" | "admin";
+type Identity = "public" | "firm" | "vendor" | "individual" | "consultant" | "admin" | "firm-elite" | "vendor-elite";
 function identityFor(route: string): Identity {
   if (route.startsWith("/admin")) return "admin";
   if (route.startsWith("/consultants")) return "consultant";
@@ -208,6 +220,45 @@ async function main() {
         const flag = status === null || status >= 400 ? "  !!" : "";
         console.log(`${identity.padEnd(10)} ${String(status).padEnd(4)} ${route}${panel ? ` ?panel=${panel}` : ""}${flag}`);
       }
+    }
+    await ctx.close();
+  }
+  // Depth box: the workspace homes for firm-elite / vendor-elite (the review
+  // accounts above are the Pro identities).
+  for (const extra of EXTRA_IDENTITIES) {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const page = await ctx.newPage();
+    let signInNote: string | null = null;
+    try {
+      await page.goto(`${base}/sign-in?view=${extra.view}`, { waitUntil: "load" });
+      const form = page.locator('form:has(input[placeholder="Provisioned pilot email"])');
+      await form.locator('input[placeholder="Provisioned pilot email"]').fill(extra.email);
+      await form.locator('input[placeholder="Provisioned pilot password"]').fill(ELITE_PASSWORD);
+      await Promise.all([page.waitForURL((u) => !u.pathname.startsWith("/sign-in"), { timeout: 60_000 }), form.locator('button[type="submit"]').click()]);
+    } catch (error) {
+      signInNote = `sign-in unavailable for ${extra.identity} (${error instanceof Error ? error.message.split("\n")[0].slice(0, 60) : "unknown"}); captured signed out`;
+      console.log(`${extra.identity.padEnd(12)} note ${signInNote}`);
+    }
+    const dir = path.join(outDir, extra.identity);
+    mkdirSync(dir, { recursive: true });
+    for (const route of extra.routes) {
+      const url = `${base}${route}`;
+      const files: string[] = [];
+      const notes: string[] = signInNote ? [signInNote] : [];
+      let status: number | null = null;
+      let finalUrl = "";
+      for (const width of [1440, 390]) {
+        const file = path.join(dir, `${slug(route)}-${width}.png`);
+        const result = await capture(page, url, file, width);
+        if (width === 1440) {
+          status = result.status;
+          finalUrl = result.finalUrl;
+        }
+        if (result.note) notes.push(`${width}: ${result.note}`);
+        files.push(path.relative(outRoot, file));
+      }
+      rows.push({ route, url, identity: extra.identity as Identity, panel: null, status, finalUrl, files, notes });
+      console.log(`${extra.identity.padEnd(12)} ${String(status).padEnd(4)} ${route}${status === null || status >= 400 ? "  !!" : ""}`);
     }
     await ctx.close();
   }
