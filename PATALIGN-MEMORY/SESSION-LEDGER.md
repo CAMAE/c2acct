@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · Depth box, commit 97515bfb — locked Pro pages (flag-on): real board / Product Fit Card behind blur + 60% white with the Elite lock card (what unlocks, memo price, Upgrade to Elite). — Forge.
+
 ## 2026-09-09 · Depth box, commit f857939b — dead ends (flag-off, approved): user-insight and engagement score unlinked; direct hits redirect to the workspace with a one-line notice. — Forge.
 
 ## 2026-09-09 · Depth box, commit fd9259e8 — membership prices (flag-off, approved): Firm Pro $4,800, Firm Elite $24,000, Vendor Pro $9,000, Vendor Elite ecosystem license; user tier hidden. Copy only. — Forge.
