@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { getPublicOnboardingHomeCards } from "@/lib/publicOnboarding";
+import OnboardingPreviewRail from "@/app/components/onboarding/OnboardingPreviewRail";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
+
+const RAIL_STEPS = ["Choose your path", "Pick a plan", "Create your account", "First assessment module", "First insight"] as const;
 
 export const metadata = {
   title: "PAT Onboarding | Patalign",
@@ -9,7 +13,9 @@ export const metadata = {
 export default function PublicOnboardingPage() {
   const cards = getPublicOnboardingHomeCards();
 
+  const rail = isNewFrontDoorEnabled();
   return (
+    <div className={rail ? "grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]" : ""}>
     <div className="space-y-8">
       <section className="pat-card px-7 py-8 sm:px-10 sm:py-10">
         <div className="pat-label">Public onboarding</div>
@@ -51,6 +57,8 @@ export default function PublicOnboardingPage() {
           Free onboarding starts with assessment evidence. Paid paths connect to the existing membership checkout pages, which show Stripe-hosted checkout only when billing is configured and otherwise state that no live charge will be created.
         </p>
       </section>
+    </div>
+      {rail ? <OnboardingPreviewRail completed={0} total={RAIL_STEPS.length} steps={RAIL_STEPS} /> : null}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import CreateAccountWizard, {
 } from "@/app/components/create-account/CreateAccountWizard";
 import { completeSelfSignup } from "@/app/(public)/create-account/actions";
 import { getSessionUser } from "@/lib/auth/session";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import { resolvePortalExperience } from "@/lib/portalVisibility";
 import { CREATE_ACCOUNT_PATH, getSelfSignupPlanCards, isSelfSignupEnabled } from "@/lib/selfSignup";
@@ -91,5 +92,5 @@ export default async function CreateAccountPage() {
     ) as CreateAccountWizardContent["byRole"],
   };
 
-  return <CreateAccountWizard content={content} action={completeSelfSignup} />;
+  return <CreateAccountWizard content={content} action={completeSelfSignup} showRail={isNewFrontDoorEnabled()} />;
 }

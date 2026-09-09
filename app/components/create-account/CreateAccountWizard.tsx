@@ -1,6 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import OnboardingPreviewRail from "@/app/components/onboarding/OnboardingPreviewRail";
+
+const RAIL_STEPS = ["Choose your path", "Pick a plan", "Create your account", "First assessment module", "First insight"] as const;
 import { useActionState, useState } from "react";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import type { CreateAccountActionState } from "@/app/(public)/create-account/actions";
@@ -47,9 +50,12 @@ const INITIAL_ACTION_STATE: CreateAccountActionState = { error: null };
 export default function CreateAccountWizard({
   content,
   action,
+  showRail = false,
 }: {
   content: CreateAccountWizardContent;
   action: (state: CreateAccountActionState, formData: FormData) => Promise<CreateAccountActionState>;
+  /** Depth box 8 (flag-on): the "in 20 minutes" preview rail, filling as steps complete. */
+  showRail?: boolean;
 }) {
   const [draft, setDraft] = useState<SelfSignupDraft>(createEmptySelfSignupDraft);
   const [step, setStep] = useState<SelfSignupStep>("role");
@@ -101,8 +107,10 @@ export default function CreateAccountWizard({
 
   const error = stepError ?? (step === "account" ? actionState.error : null);
 
+  const railCompleted = Math.min(RAIL_STEPS.length, SELF_SIGNUP_STEPS.indexOf(step) + 1);
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6">
+    <div className={showRail ? "mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[minmax(0,1fr)_280px]" : "mx-auto w-full max-w-3xl"}>
+    <div className="space-y-6">
       <section className="pat-card px-7 py-7 sm:px-9 sm:py-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <PatLogoLockup mode="header" tone="light" />
@@ -375,6 +383,8 @@ export default function CreateAccountWizard({
           Sign in
         </Link>
       </p>
+    </div>
+      {showRail ? <OnboardingPreviewRail completed={railCompleted} total={RAIL_STEPS.length} steps={RAIL_STEPS} /> : null}
     </div>
   );
 }

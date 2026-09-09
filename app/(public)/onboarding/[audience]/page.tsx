@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
+import OnboardingPreviewRail from "@/app/components/onboarding/OnboardingPreviewRail";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
+
+const RAIL_STEPS = ["Choose your path", "Pick a plan", "Create your account", "First assessment module", "First insight"] as const;
 import { notFound } from "next/navigation";
 import {
   PUBLIC_ONBOARDING_COOKIE,
@@ -65,7 +69,12 @@ export default async function PublicOnboardingAudiencePage({
   // in favor of the /create-account wizard.
   const selfSignupEnabled = isSelfSignupEnabled();
 
+  const rail = isNewFrontDoorEnabled();
+  // Depth box 8: the rail fills as steps complete — the path is chosen here (1);
+  // a saved plan for this audience counts as the second step.
+  const railCompleted = savedState?.audience === audience ? 2 : 1;
   return (
+    <div className={rail ? "grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]" : ""}>
     <div className="space-y-8">
       <section className="pat-card px-7 py-8 sm:px-10 sm:py-10">
         <div className="pat-label">{model.label} first-value onboarding</div>
@@ -183,6 +192,8 @@ export default async function PublicOnboardingAudiencePage({
           ) : null}
         </div>
       </section>
+    </div>
+      {rail ? <OnboardingPreviewRail completed={railCompleted} total={RAIL_STEPS.length} steps={RAIL_STEPS} /> : null}
     </div>
   );
 }
