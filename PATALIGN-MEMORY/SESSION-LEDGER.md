@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · Depth box CLOSE (HEAD d885d555 + bank) — unit 1615/1615 (187 files), typecheck 0, lint 0, copy-lint 67, ratchet at ceilings; chain on 2c400bc9: build 0, e2e 45 passed / 1 failed / 7 skipped (pat-signin-canonical /login shim; 12/12 in isolation → suite flake), release:prelaunch 0, validate:launch PASS, launch:proof 0, perf reseed 0; flag-off diff vs 0cfaf48d: portals 67/98 byte-identical, rendered HTML differs only on admin countdowns + approved membership prices, public 38/40 (help 404 shape, release branch row); atlas 107 routes / 144 captures / non-2xx 6 expected / 0 unexpected incl. firm-elite + vendor-elite homes. Not pushed; awaiting Mythos. — Forge.
+
 ## 2026-09-09 · Depth box, commit d885d555 — Fig. 03 provenance matches its values (visual self-check). — Forge.
 
 ## 2026-09-09 · Depth box, commit 721573da — atlas fixture for /help/[slug] (pat-for-firms). — Forge.
