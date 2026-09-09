@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-10 · Founders preview box, commit ac14a9b7 — founder addresses ruled: lesliegarrettphd+<role>@gmail.com, cameron+<role>@garrettandgarrett.info; six roles each; passwords to ~/work/preview-accounts.txt only. Still at gate 1.1 (Neon branch). — Forge.
+
 ## 2026-09-10 · Founders preview box, commit 9a5b46b9 — scripts/demo/preview-founder-accounts.ts (discovery + --provision, prod-host refusal, passwords to ~/work/preview-accounts.txt only). Local discovery smoke OK; eslint 0; tsc 0. Pre-gate inventory: no Neon CLI/API key on this Mac (Cam creates the branch in the dashboard); Vercel Preview scope today = AUTH_SECRET, DATABASE_URL, DIRECT_URL, PAT_ENABLE_CONSULTANT_ACCESS; Production scope adds AUTH_URL, NEXTAUTH_URL, ANTHROPIC_API_KEY, AGENT_APPROVAL_HMAC_SECRET, PAT_ENABLE_ALIGNMENT_BOARD/BATTLECARD/PAT_ASSISTANT/PINGS/SELF_SIGNUP; 7 migration dirs dated after the 0157d40 baseline (box says six; migrate status on the branch settles it). Stopped at gate 1.1. — Forge.
 
 ## 2026-09-09 · Depth box PUSHED on Cam's typed push — origin/feature/engagement-v1 0cfaf48d → 51b185e0 (fast-forward; app tree 016bbd85 + proof bank). Prod untouched at 0157d40. Flags off. :3011 flag-on preview up. — Forge.
