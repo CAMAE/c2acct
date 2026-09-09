@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · Depth box, commit b13c2b2f — insight cards keep flag-off markup (hover via the token-layer scope flag-on); firm list grid class exact. — Forge.
+
 ## 2026-09-09 · Depth box, commit 0ffef7d1 — week cards gated on the flag (the flag-off diff caught them rendering). — Forge.
 
 ## 2026-09-09 · Depth box, commit 56b1ebca — flag-off byte identity restored (onboarding wrappers, wizard prop, /pat + /help metadata); dashboard prop renamed so copy-lint reads 67 again. — Forge.
