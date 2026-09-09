@@ -75,7 +75,8 @@ export default function V7FrontDoor() {
           links (whole cell), with an inline arrow at the right. Hover tints the
           cell over 150ms and nothing else moves; keyboard focus shows the tint
           plus the focus ring. Copy unchanged. At 390 the cells stack, same order. */}
-      <section className="mx-auto max-w-[1120px] px-9 pb-6 pt-2">
+      <section className="px-9 pb-6 pt-2">
+        <div className="mx-auto max-w-[1120px]">
         <div
           className="grid overflow-hidden rounded-[28px] border border-[var(--shell-border)] bg-white md:grid-cols-[1.2fr_1fr_1fr]"
           style={{ boxShadow: shadow }}
@@ -139,6 +140,7 @@ export default function V7FrontDoor() {
               →
             </span>
           </Link>
+        </div>
         </div>
       </section>
 
