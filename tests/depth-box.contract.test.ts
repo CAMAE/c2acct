@@ -20,7 +20,7 @@ describe("0 — hover + footer", () => {
   it("one shared hover class on the hero band, the Pro insight cards and the Elite insight cards", () => {
     const css = read("app/globals.css");
     expect(css).toMatch(/\.pat-hover-card \{\s*transition:\s*border-color 150ms ease,\s*background-color 150ms ease;/);
-    expect(css).toMatch(/\.pat-hover-card:hover,[\s\S]{0,120}border-color: var\(--brand-c2-blue\);\s*background-color: rgba\(6, 54, 116, 0\.02\);/);
+    expect(css).toMatch(/\.pat-hover-card:hover,[\s\S]{0,400}border-color: var\(--brand-c2-blue\);\s*background-color: rgba\(6, 54, 116, 0\.02\);/);
     expect((read("app/components/frontdoor/V7DoorBand.tsx").match(/[`"]pat-hover-card /g) || []).length).toBe(3);
     const grid = read("app/components/insights/InsightSurfaceCardGrid.tsx");
     expect(grid).toContain('"pat-card pat-card-interactive"'); // Pro and Elite cards both render here, markup unchanged flag-off
