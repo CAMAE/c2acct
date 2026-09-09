@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · Depth box, commit 68447982 — onboarding rail (flag-on): radar filling per completed step on /onboarding, /onboarding/[audience], /create-account. — Forge.
+
 ## 2026-09-09 · Depth box, commit 56e4358c — product lists (flag-on): status strip (features · reviews on file · last updated · divergence), table at 1440 / cards at 390, needs-attention first. — Forge.
 
 ## 2026-09-09 · Depth box, commit a3bc8dc6 — help (flag-on): /help + /help/[slug] article pages; Ask Pat card first on four help surfaces; every card links to its help/public article; guide packet not in help/ yet. — Forge.
