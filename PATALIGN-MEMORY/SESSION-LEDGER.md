@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · V3 box, commit ed8c8028 — firm product assessment on one page (flag-off, approved): pager, Next/Back and per-page gate removed; submit gating unchanged; no draft API on this surface so nothing to autosave. — Forge.
+
 ## 2026-09-09 · V3 box, commit 17480e7c — leaks: chips under the eyebrow below lg + full-width roots (flag-on); Payment details → Billing contact name/email + 'PAT never collects card numbers here.' (flag-off, approved); vendor profile contract JSON admin-only (flag-off, approved); method panel plain sources + /methodology link (flag-on). — Forge.
 
 ## 2026-09-09 · V3 box, commit 48bbae69 — create-account, onboarding(+audience), pat moved to the (public) group (V7 shell flag-on, AppShell flag-off); 404 in V7PublicShell flag-on; /sign-in/firm|vendor redirect to the hub view flag-on. — Forge.
