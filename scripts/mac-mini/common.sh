@@ -513,11 +513,31 @@ mac_mini_build_if_needed() {
   local reason="existing-build"
   if ! mac_mini_standalone_server_present; then
     reason="missing-build"
-    mac_mini_log "No usable standalone build artifact found; running pnpm build."
-    (
-      cd "${MAC_MINI_ROOT}"
-      pnpm build
-    )
+    # Build race guard (2026-09-08): if another builder holds the lock (a manual
+    # pnpm build replacing .next under us), wait for it instead of competing.
+    local lock_dir="${MAC_MINI_ROOT}/artifacts/mac-mini/state/build.lock"
+    local waited=0
+    while [ -d "${lock_dir}" ] && [ "${waited}" -lt 1800 ]; do
+      local holder_pid
+      holder_pid="$(sed -n 's/.*"pid":\([0-9]*\).*/\1/p' "${lock_dir}/holder.json" 2>/dev/null | head -n 1)"
+      if [ -n "${holder_pid}" ] && ! kill -0 "${holder_pid}" 2>/dev/null; then
+        break
+      fi
+      if [ "${waited}" -eq 0 ]; then
+        mac_mini_log "Another build holds ${lock_dir} (pid ${holder_pid:-unknown}); waiting instead of starting a competing build."
+      fi
+      sleep 5
+      waited=$((waited + 5))
+    done
+    if mac_mini_standalone_server_present; then
+      mac_mini_log "Standalone build appeared while waiting (${waited}s); skipping build."
+    else
+      mac_mini_log "No usable standalone build artifact found; running pnpm build."
+      (
+        cd "${MAC_MINI_ROOT}"
+        pnpm build
+      )
+    fi
   fi
 
   if ! mac_mini_standalone_server_present; then
