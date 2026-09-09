@@ -25,7 +25,6 @@ export default function TrustPage() {
         chips={[{ label: `Last updated ${surface.lastUpdated}`, mono: true }]}
         links={TRUST_FOOTER_LINKS.filter((link) => link.href !== "/trust")}
         disclosureTitle="No unsupported claims"
-        faq
       />
     );
   }

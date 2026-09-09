@@ -32,7 +32,8 @@ export type TrustSurfaceV7Props = {
   /** Section titles whose bullets render in .pat-mono (e.g. Subprocessors). */
   monoBulletTitles?: readonly string[];
   /** Render the remaining sections as an FAQ accordion instead of sections. */
-  faq?: boolean;
+  /** Optional question/answer items. The accordion renders only when there are items. */
+  faqItems?: readonly { question: string; answer: string }[];
   /** Compact link list (e.g. the trust set) rendered after the lead. */
   links?: readonly { href: string; label: string }[];
   /** Extra content after the sections (release table, changelog). */
@@ -70,7 +71,7 @@ export default function TrustSurfaceV7({
   numbered = false,
   disclosureTitle,
   monoBulletTitles = [],
-  faq = false,
+  faqItems = [],
   links,
   children,
 }: TrustSurfaceV7Props) {
@@ -112,12 +113,12 @@ export default function TrustSurfaceV7({
           <p className="pat-body mt-2 text-[var(--shell-ink)]">{disclosure.body}</p>
         </aside>
       ) : null}
-      {faq ? (
+      {faqItems.length > 0 ? (
         <div className="mt-8 border-t border-[var(--shell-border)]" data-testid="trust-faq">
-          {body.map((section) => (
-            <details key={section.title} className="group border-b border-[var(--shell-border)] py-4">
+          {faqItems.map((item) => (
+            <details key={item.question} className="group border-b border-[var(--shell-border)] py-4">
               <summary className="pat-h3 flex cursor-pointer list-none items-center justify-between gap-4 text-[var(--shell-ink)] [&::-webkit-details-marker]:hidden">
-                {section.title}
+                {item.question}
                 <span aria-hidden="true" className="pat-mono text-[var(--shell-muted)] group-open:hidden">
                   +
                 </span>
@@ -125,12 +126,12 @@ export default function TrustSurfaceV7({
                   −
                 </span>
               </summary>
-              <SectionBody section={section} mono={false} />
+              <p className="pat-body mt-3 max-w-[44rem] whitespace-pre-line text-[var(--shell-muted)]">{item.answer}</p>
             </details>
           ))}
         </div>
-      ) : (
-        <div className="mt-8 grid gap-8">
+      ) : null}
+      <div className="mt-8 grid gap-8">
           {body.map((section, index) => (
             <section key={section.title} id={sectionId(index)} className="scroll-mt-24">
               <h2 className="pat-h2 text-[var(--shell-ink)]">
@@ -141,7 +142,6 @@ export default function TrustSurfaceV7({
             </section>
           ))}
         </div>
-      )}
       {children}
     </div>
   );

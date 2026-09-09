@@ -34,7 +34,7 @@ describe("B3 — every trust surface is re-laid flag-on and unchanged flag-off",
   it("the V7 frame: token container, right-rail TOC, numbered sections, native FAQ, disclosure, mono chips", () => {
     expect(component).toContain('className="pat-container px-6 pb-20 pt-12"');
     expect(component).toMatch(/aria-label="On this page"[^>]*className="order-first lg:order-none lg:sticky/);
-    expect(component).toMatch(/<details key=\{section\.title\}[\s\S]*?<summary/);
+    expect(component).toMatch(/<details key=\{item\.question\}[\s\S]*?<summary/);
     expect(component).not.toMatch(/useState|onClick|"use client"/);
     expect(component).toContain('data-testid="trust-disclosure"');
     expect(component).toMatch(/chip\.mono \? "pat-mono"/);
@@ -47,7 +47,11 @@ describe("B3 — every trust surface is re-laid flag-on and unchanged flag-off",
     expect(source).toContain('title="How PAT earns trust"');
     expect(source).toContain('links={TRUST_FOOTER_LINKS.filter((link) => link.href !== "/trust")}');
     expect(source).toContain('disclosureTitle="No unsupported claims"');
-    expect(source).toMatch(/\bfaq\b/);
+    // Finish box 4.3: no FAQ copy exists, so the page passes no faqItems and the
+    // accordion is not rendered (TrustSurfaceV7 renders it only with items).
+    expect(source).not.toMatch(/\bfaq\b/);
+    expect(component).toMatch(/\{faqItems\.length > 0 \? \(/);
+    expect(component).not.toMatch(/faq\?: boolean/);
     expect(getTrustSurface("trust").sections.some((section) => section.title === "No unsupported claims")).toBe(true);
     expect(TRUST_FOOTER_LINKS.filter((link) => link.href !== "/trust")).toHaveLength(8);
   });

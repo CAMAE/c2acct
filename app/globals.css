@@ -980,3 +980,18 @@ textarea {
   contain: inline-size;
   overflow-x: auto;
 }
+
+/* Finish box 4.1 — one wordmark per page. The top bar already carries the
+   wordmark; flag-on the hero card's brand lockup keeps only its eyebrow text
+   (the mark and the divider are hidden). */
+[data-v7-portal] .flex.flex-wrap.items-center.gap-3.text-left:has(> .w-px) > :not(.uppercase) {
+  display: none;
+}
+
+/* Finish box 4.2 — consultant and admin roots are single flex children of
+   main and sized to their content (597px / 780px on the consultant home and
+   /admin/followup-other at 1440). Flag-on they take the container width. */
+[data-v7-shell] > [data-v7-portal="consultants"],
+[data-v7-shell] > [data-v7-portal="admin"] {
+  width: 100%;
+}
