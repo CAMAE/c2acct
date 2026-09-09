@@ -18,11 +18,16 @@ import {
   type EcosystemListCardData,
 } from "@/lib/ecosystem";
 import { isPingsEnabled } from "@/lib/patAssistant/flags";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import {
   getConsultantFreshnessBoard,
   type ConsultantFreshnessBoard,
 } from "@/lib/consultantFreshness";
 import { listPendingNudgeDrafts } from "@/lib/notifications/nudgeDraft";
+import { getEcosystemDetailForConsultant, type EcosystemDetailData } from "@/lib/ecosystem";
+import { getConsultantWeek } from "@/lib/consultantWeek";
+import ConsultantWeekCards from "./_components/ConsultantWeekCards";
+import LowestEngagementFirmsCard from "./ecosystems/[ecosystemId]/_components/LowestEngagementFirmsCard";
 
 export const dynamic = "force-dynamic";
 
@@ -49,8 +54,11 @@ export default async function ConsultantOverviewPage({
     return null;
   }
 
-  // The freshness board is part of the engagement system — dark until pings ship.
-  const freshnessEnabled = isPingsEnabled();
+  // The freshness board and the nudge queue were built with the engagement
+  // system and gated on PAT_ENABLE_PINGS ("dark until pings ship") — the panel
+  // keys were wired, the panels rendered nothing because the gate fell back to
+  // Ecosystems. Depth box 4 (2026-09-09): they open with the new front door too.
+  const freshnessEnabled = isPingsEnabled() || isNewFrontDoorEnabled();
 
   const params = searchParams ? await searchParams : undefined;
   const requestedPanel = params?.panel;
@@ -66,7 +74,7 @@ export default async function ConsultantOverviewPage({
     ...(freshnessEnabled
       ? [
           { key: "freshness", label: "Freshness", href: getPanelHref("freshness") },
-          { key: "nudges", label: "Nudge queue", href: getPanelHref("nudges") },
+          { key: "nudges", label: "Nudges", href: getPanelHref("nudges") },
         ]
       : []),
     { key: "pat", label: "Meet PAT", href: getPanelHref("pat") },
@@ -92,9 +100,19 @@ export default async function ConsultantOverviewPage({
 
   // Fetch the pending nudge queue only when its panel is active.
   let nudgeDrafts: QueueDraft[] = [];
+  let taskLists: EcosystemDetailData[] = [];
   if (activePanel === "nudges") {
     nudgeDrafts = await listPendingNudgeDrafts(consultantAccess.sessionUser);
+    // Depth box 4: the engagement task list from every ecosystem page, stacked.
+    const details = await Promise.all(
+      consultantAccess.ecosystems.map((scope) =>
+        getEcosystemDetailForConsultant(consultantAccess.consultantProfileId, scope.ecosystemId).catch(() => null)
+      )
+    );
+    taskLists = details.filter((detail): detail is EcosystemDetailData => detail !== null);
   }
+  // Depth box 4: next briefing + this week, on the Ecosystems panel.
+  const week = activePanel === "ecosystems" ? await getConsultantWeek(consultantAccess) : null;
 
   return (
     <div className="space-y-8">
@@ -125,6 +143,7 @@ export default async function ConsultantOverviewPage({
         </div>
       </section>
 
+      {week ? <ConsultantWeekCards week={week} /> : null}
       {activePanel === "ecosystems" ? (
         <section
           data-testid="consultant-ecosystems-panel"
@@ -156,6 +175,9 @@ export default async function ConsultantOverviewPage({
 
       {activePanel === "nudges" ? (
         <section data-testid="consultant-nudges-panel" className="space-y-4">
+          {taskLists.map((detail) => (
+            <LowestEngagementFirmsCard key={detail.ecosystemId} data={detail} />
+          ))}
           <div className="pat-card p-6">
             <div className="pat-label">Nudge queue</div>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">
