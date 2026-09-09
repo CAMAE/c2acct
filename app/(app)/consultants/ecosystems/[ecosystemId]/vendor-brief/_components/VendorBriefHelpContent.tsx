@@ -48,7 +48,7 @@ export default function VendorBriefHelpContent() {
             vendor is over-claiming.{" "}
             <span className="font-semibold text-[var(--shell-positive)]">Green</span> means firms
             rate the vendor higher than the vendor&apos;s self-report — the vendor
-            is under-claiming. Neutral ink means no directional signal yet.
+            is under-claiming. Neutral ink means no signal yet.
           </p>
         </div>
 

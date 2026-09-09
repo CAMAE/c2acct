@@ -216,7 +216,7 @@ export default async function FirmInsightsPage({
       elitePanel={{
         title: messages.insights.firm.eliteTitle,
         intro: eliteEntitlement.allowed
-          ? "Live with your Elite membership. Open any card for the grounded, directional readout built from your firm-reviewed evidence."
+          ? "Live with your Elite membership. Open any card for the grounded readout built from your firm-reviewed evidence."
           : messages.insights.firm.eliteBody,
         // B9c: Elite members see the live cards; Pro sees one honest
         // LockedElitePreview per surface (v2 name + blurred chart).

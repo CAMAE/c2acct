@@ -33,10 +33,10 @@ describe("methodology content — versioned + changelogged", () => {
     expect(text).toMatch(/25%/);
   });
 
-  it("keeps copy honest — disclaims advice/significance, presents figures as directional", () => {
+  it("keeps copy honest — disclaims advice/significance; the word directional is gone (V3 box 4.2)", () => {
     const allText = METHODOLOGY_SECTIONS.flatMap((s) => [...s.paragraphs, ...(s.bullets ?? [])]).join(" ");
     expect(allText).toMatch(/professional advice/i);
-    expect(allText).toMatch(/directional/i);
+    expect(allText).not.toMatch(/directional/i);
     // Significance/p-value language only ever appears as a DISCLAIMER (negated),
     // never as a positive claim.
     expect(allText).toMatch(/no claimed statistical basis|never imply a p-value|no.{0,20}statistical/i);

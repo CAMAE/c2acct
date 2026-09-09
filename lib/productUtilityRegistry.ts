@@ -861,7 +861,7 @@ export const PRODUCT_OPEN_ENDED_MODULE = {
     { key: "weakest_workflow", prompt: "In which workflow or operating situation does this product currently look weakest, and what evidence gap or operating limit drives that read?" },
     { key: "implementation_risk", prompt: "What is the most material implementation or rollout risk for this product right now?" },
     { key: "change_management_risk", prompt: "What user, operator, or buyer-side change-management risk is most likely to slow adoption?" },
-    { key: "integration_gap", prompt: "What integration, data, or interoperability gap matters most before PAT should treat this product as stronger than directional?" },
+    { key: "integration_gap", prompt: "What integration, data, or interoperability gap matters most before PAT should treat this product as stronger than early evidence?" },
     { key: "control_concern", prompt: "What control, approval, auditability, or governance concern deserves explicit follow-up?" },
     { key: "best_fit_customer", prompt: "Based on current evidence, what firm size (FTEs) and firm type appear to be the best-fit customer or operator for this product today?" },
     { key: "poor_fit_customer", prompt: "Based on current evidence, what firm size (FTEs) and firm type appear to be the worst-fit customer or operator for this product today, and why?" },

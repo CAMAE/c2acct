@@ -46,7 +46,7 @@ export const FIRM_ELITE_V2_META: Record<string, EliteCardMeta> = {
   },
   firm_tier2_projection: {
     title: "Trajectory",
-    description: "Your alignment index over time, with momentum and a directional projection of where you are heading.",
+    description: "Your alignment index over time, with momentum and a projection of where you are heading.",
   },
 };
 
@@ -1001,7 +1001,7 @@ export function firmEliteHubMetrics(input: {
         points: trajectory.history.slice(-7).map((h) => h.score),
         projection: trajectory.projection ? trajectory.projection.score : null,
       },
-      sub: "alignment index · directional",
+      sub: "alignment index · projection",
     };
   }
 

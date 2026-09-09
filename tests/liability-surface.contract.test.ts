@@ -14,8 +14,8 @@ const repoRoot = process.cwd();
 const read = (rel: string) => fs.readFileSync(path.join(repoRoot, rel), "utf8");
 
 describe("in-product output disclaimer", () => {
-  it("carries the exact directional/not-advice copy and links to methodology", () => {
-    expect(OUTPUT_DISCLAIMER_TEXT).toBe("Directional, informational — not professional advice.");
+  it("carries the exact not-advice copy and links to methodology", () => {
+    expect(OUTPUT_DISCLAIMER_TEXT).toBe("Informational, not professional advice.");
     const component = read("app/components/trust/OutputDisclaimer.tsx");
     expect(component).toContain('href="/methodology"');
     expect(component).toContain("methodology");

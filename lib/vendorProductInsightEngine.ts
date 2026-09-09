@@ -1402,7 +1402,7 @@ export function buildVendorProductInsightDetailSurfaceContent(input: {
           },
           {
             title: "Forward demand projection",
-            body: "The directional demand signal for this product's capability area across the firm base — a projection, not a guarantee.",
+            body: "The demand signal for this product's capability area across the firm base — a projection, not a guarantee.",
           },
           {
             title: "Locked Elite boundary",

@@ -45,7 +45,7 @@ export const METHODOLOGY_CHANGELOG: readonly MethodologyChangelogEntry[] = [
     version: "1.0",
     date: "July 9, 2026",
     summary:
-      "Initial published methodology: equal-weight averaging, directional-divergence sample floor, unified confidence bands, single-pass display rounding.",
+      "Initial published methodology: equal-weight averaging, divergence sample floor, unified confidence bands, single-pass display rounding.",
   },
 ];
 
@@ -61,7 +61,7 @@ export const METHODOLOGY_SECTIONS: readonly MethodologySection[] = [
     key: "scope",
     title: "What these numbers are — and are not",
     paragraphs: [
-      "Patalign reports directional, informational readings built from firm and vendor assessments. Figures are presented as plain averages with the sample size shown. Nothing here is a weighted, percentile, or significance-tested statistic, and nothing is professional advice.",
+      "Patalign reports informational readings built from firm and vendor assessments. Figures are presented as plain averages with the sample size shown. Nothing here is a weighted, percentile, or significance-tested statistic, and nothing is professional advice.",
       "Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, we show an insufficient-data state instead of a number.",
     ],
   },
@@ -77,7 +77,7 @@ export const METHODOLOGY_SECTIONS: readonly MethodologySection[] = [
     key: "divergence",
     title: "Divergence — a sample floor before we assert a gap",
     paragraphs: [
-      "When a vendor's self-report differs from the firm-reviewed average, we only call it a directional divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.",
+      "When a vendor's self-report differs from the firm-reviewed average, we only call it a divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.",
     ],
   },
   {

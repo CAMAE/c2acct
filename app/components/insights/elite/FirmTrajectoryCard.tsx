@@ -98,7 +98,7 @@ export default function FirmTrajectoryCard({
                   {data.provenance.avgDelta}
                 </span>{" "}
                 points per snapshot one step forward; the shaded band is ±{data.provenance.volatility} (your recent
-                volatility). It is a directional estimate, not a forecast.
+                volatility). It is an estimate, not a forecast.
               </dd>
             </div>
           </dl>
@@ -115,7 +115,7 @@ export default function FirmTrajectoryCard({
             <span className="font-semibold text-[var(--shell-positive)]">
               {ordinal(data.swapMovement.toPercentile)} percentile
             </span>{" "}
-            among peer firms — a directional projection, not a guaranteed outcome.
+            among peer firms — a projection, not a guaranteed outcome.
           </p>
         </section>
       ) : null}

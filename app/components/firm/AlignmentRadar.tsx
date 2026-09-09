@@ -153,7 +153,7 @@ export default function AlignmentRadar({
         ) : null}
         <p className="mt-3 max-w-[16rem] text-xs leading-5 text-[var(--shell-muted)]">
           Each axis is the mean of your stack&rsquo;s stored per-section review evidence. The projected
-          shape re-means with the swap — directional, drawn from real answers, not a firm-verified
+          shape re-means with the swap — an estimate, drawn from real answers, not a firm-verified
           forecast. These are product-fit dimensions, not the firm alignment modules.
         </p>
         {evidenceNote ? (

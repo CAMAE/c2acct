@@ -11,7 +11,7 @@ describe("admin briefing engine contracts", () => {
       weakestModuleTitle: "Data Flow and Controls",
       weakestProductTitle: "LedgerFlow",
       missingUserCoverage: true,
-      ecosystemCaveat: "The ecosystem layer remains directional.",
+      ecosystemCaveat: "The ecosystem layer remains early evidence.",
     });
 
     expect(actions).toHaveLength(3);
@@ -21,7 +21,7 @@ describe("admin briefing engine contracts", () => {
     // via "additional operating evidence" + reference to firm-side signal.
     expect(actions[0].detail).toMatch(/additional operating evidence|firm-side signal/i);
     expect(actions[1].detail).toMatch(/LedgerFlow/);
-    expect(actions[2].evidence).toMatch(/directional/i);
+    expect(actions[2].evidence).toMatch(/early evidence/i);
   });
 
   it("builds risk and opportunity panels from weakest and strongest evidence", () => {
@@ -110,7 +110,7 @@ describe("admin briefing engine contracts", () => {
         vendorName: "Vendor B",
         questionId: "product_open_ended_v1__integration_gap",
         questionKey: "integration_gap",
-        questionPrompt: "What integration, data, or interoperability gap matters most before PAT should treat this product as stronger than directional?",
+        questionPrompt: "What integration, data, or interoperability gap matters most before PAT should treat this product as stronger than early evidence?",
         sectionTitle: "Follow-up, evidence, and next action",
         sectionDescription: "Narrative PAT context.",
         responseText: "ERP mapping remains the main integration gap.",

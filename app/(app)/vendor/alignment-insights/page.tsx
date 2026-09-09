@@ -136,7 +136,7 @@ export default async function VendorAlignmentInsightsPage({
         bundle.sampleSize === 0
           ? "PAT does not have enough current firm alignment evidence yet to open a grounded vendor alignment readout."
           : peerBenchmarkSuppressed
-            ? "Insufficient peer data — fewer than 5 contributing firms. PAT shows these cross-firm readings as directional only and does not publish them as a peer benchmark until the peer set clears the safe harbor."
+            ? "Insufficient peer data — fewer than 5 contributing firms. PAT shows these cross-firm readings as early evidence only and does not publish them as a peer benchmark until the peer set clears the safe harbor."
             : "PAT is summarizing current firm alignment signal so you can see where vendor-facing demand, friction, and implementation conditions look strongest right now."
       }
       toggleAriaLabel="Vendor alignment insight modes"
@@ -150,7 +150,7 @@ export default async function VendorAlignmentInsightsPage({
       elitePanel={{
         title: "Elite insights",
         intro: eliteEntitlement.allowed
-          ? "Live with your Elite membership. Open any card for the grounded, directional readout built from current firm-reviewed evidence."
+          ? "Live with your Elite membership. Open any card for the grounded readout built from current firm-reviewed evidence."
           : "Live with Elite membership.",
         // B9c: Elite members see the live cards; Pro sees one honest
         // LockedElitePreview per surface (v2 name + blurred chart).

@@ -477,7 +477,7 @@ function getConfidenceFromCoverage(sampleSize: number, completeTarget: number, l
     return {
       band: "directional",
       label: "Early signal",
-      summary: `${label} is based on ${sampleSize} completed data point${sampleSize === 1 ? "" : "s"}, so it remains directional.`,
+      summary: `${label} is based on ${sampleSize} completed data point${sampleSize === 1 ? "" : "s"}, so it remains early evidence.`,
     };
   }
   if (sampleSize < completeTarget) {
@@ -672,7 +672,7 @@ export function buildBriefingActionPlan(input: {
         ? "Schedule firm-side evidence outreach"
         : `Refresh self-report on ${input.weakestModuleTitle ?? "the weakest capability area"}`,
       detail: input.missingUserCoverage
-        ? "Reach out to firm contacts to capture additional operating evidence. The current alignment readout is thin on firm-side signal — broader firm responses are what take the brief from directional to grounded across products and capabilities."
+        ? "Reach out to firm contacts to capture additional operating evidence. The current alignment readout is thin on firm-side signal — broader firm responses are what take the brief from early evidence to grounded across products and capabilities."
         : `Firms are rating your product below your stated position on ${input.weakestModuleTitle ?? "the weakest capability"}. Calibrate the self-report before the next operating review so the public claim set tracks firm experience, not the vendor's internal benchmark.`,
       evidence: input.missingUserCoverage
         ? "Firm-side sample size is currently thin."
@@ -694,7 +694,7 @@ export function buildBriefingActionPlan(input: {
       window: "90 days",
       title: "Refresh public positioning after remediation lands",
       detail: input.ecosystemCaveat
-        ? "Once the next round of firm responses arrives, restate your public position on the products and capabilities that have shifted. Today's ecosystem evidence is directional rather than grounded — re-anchor messaging, technical claims, and case-study language after the next cohort lands so the public claim set matches the new firm consensus."
+        ? "Once the next round of firm responses arrives, restate your public position on the products and capabilities that have shifted. Today's ecosystem evidence is early rather than grounded — re-anchor messaging, technical claims, and case-study language after the next cohort lands so the public claim set matches the new firm consensus."
         : "Bring the cleaner post-remediation evidence to your messaging and product-marketing teams. Update product positioning, capability claims, and case-study language so the external story matches the firm consensus the network now reflects.",
       evidence: input.ecosystemCaveat ?? "The current evidence set is strong enough for a post-remediation re-read.",
     },

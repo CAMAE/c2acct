@@ -3,7 +3,8 @@ import Link from "next/link";
 /**
  * Shared in-product disclaimer (Governance Phase 3, A7/B8). Mounted near every
  * score, benchmark, recommendation, and projection render across all portals:
- * "Directional, informational — not professional advice · methodology".
+ * "Informational, not professional advice · methodology" (V3 box 4.2: the word
+ * "directional" left every customer surface on 2026-09-09).
  *
  * The audit rule: the "informational purposes, not professional advice" line
  * must appear IN-PRODUCT near outputs, not only in the ToS. Keep the copy stable
@@ -11,7 +12,7 @@ import Link from "next/link";
  */
 
 export const OUTPUT_DISCLAIMER_TEXT =
-  "Directional, informational — not professional advice.";
+  "Informational, not professional advice.";
 
 type OutputDisclaimerProps = {
   /** Compact inline caption (default) or a bordered note block. */

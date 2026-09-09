@@ -36,7 +36,7 @@ export default function FirmThemeEliteDepthCard({
               <p className="mt-3 text-sm leading-6 text-[var(--shell-ink)]">
                 Close <span className="font-semibold">{data.rankedAction.moduleLabel}</span>&rsquo;s{" "}
                 <span className="font-semibold">{data.rankedAction.deficit}-pt</span> gap to the peer top quartile
-                first — it is the largest single move available on this theme. A directional estimate from stored
+                first — it is the largest single move available on this theme. An estimate from stored
                 peer evidence, not a guarantee.
               </p>
             ) : (

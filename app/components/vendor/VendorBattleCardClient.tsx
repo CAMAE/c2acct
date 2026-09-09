@@ -76,7 +76,7 @@ export default function VendorBattleCardClient({
       {/* Header: stat lockup + explainer (no collision) */}
       <section className="pat-card relative p-6 sm:p-8">
         {heroChips}
-        <div className="pat-label">BattleCard</div>
+        <div className="pat-label">Product Fit Card</div>
         <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div>
             <div className="pat-stat-number text-4xl sm:text-5xl">
@@ -96,7 +96,7 @@ export default function VendorBattleCardClient({
             <p className="mt-4 max-w-xl text-sm leading-6 text-[var(--shell-muted)]">
               <strong className="text-[var(--shell-ink)]">Alignment delta</strong> is how much your
               product strengths sit above a firm&rsquo;s current alignment — the headroom you could
-              lift. Firms with the most headroom rank first; deltas stay directional while a
+              lift. Firms with the most headroom rank first; deltas stay estimates while a
               firm&rsquo;s sample is thin.
             </p>
           </div>

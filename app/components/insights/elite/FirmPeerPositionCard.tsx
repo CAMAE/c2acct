@@ -106,7 +106,7 @@ export default function FirmPeerPositionCard({
             you from the{" "}
             <span className="font-semibold">{ordinal(data.bestAction.fromPercentile)}</span> to about the{" "}
             <span className="font-semibold text-[var(--shell-positive)]">{ordinal(data.bestAction.toPercentile)}</span>{" "}
-            percentile — a directional estimate, not a guarantee.
+            percentile — an estimate, not a guarantee.
           </p>
         </section>
       ) : null}

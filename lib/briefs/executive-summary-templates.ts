@@ -93,7 +93,7 @@ export const BODY_PATTERNS: ExecutiveSummaryBodyPattern[] = [
       if (firmCount === 0) return null;
       const lowConfidence = sampleThinCount + earlySignalCount + noSignalCount;
       if (lowConfidence * 2 <= firmCount) return null;
-      return `${lowConfidence} of ${firmCount} firm${firmCount === 1 ? "" : "s"} are on sample-thin, early, or no-signal status — read the numbers in this brief as directional until more submissions land.`;
+      return `${lowConfidence} of ${firmCount} firm${firmCount === 1 ? "" : "s"} are on sample-thin, early, or no-signal status — read the numbers in this brief as early evidence until more submissions land.`;
     },
   },
   {

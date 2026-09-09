@@ -341,8 +341,8 @@ export default function AlignmentBoardClient({
                 ? null
                 : "Lift a piece from your stack, then drop in a Secret candidate to see your projected alignment shape move. "}
               {data.confidence === "sample_thin" || data.confidence === "no_signal"
-                ? "Sample is thin, so projections are directional — PAT won't fake precision."
-                : "Projections are directional, drawn from cross-firm benchmarks."}
+                ? "Sample is thin, so projections are estimates — PAT won't fake precision."
+                : "Projections are estimates, drawn from cross-firm benchmarks."}
             </p>
             {liftedIds.length > 0 ? (
               <button type="button" className="pat-button-secondary mt-4 text-sm" onClick={resetSwap}>

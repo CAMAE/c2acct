@@ -105,7 +105,7 @@ export default function TrajectoryChart({
         </span>
         {projection ? (
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-2.5 w-4 bg-[rgba(242,130,12,0.16)]" /> directional projection (not verified)
+            <span className="h-2.5 w-4 bg-[rgba(242,130,12,0.16)]" /> projection (not verified)
           </span>
         ) : null}
       </figcaption>

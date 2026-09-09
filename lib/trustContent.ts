@@ -327,7 +327,7 @@ export const TRUST_SURFACES = {
     lastUpdated: "July 10, 2026",
     sections: [
       {
-        title: "Directional, not professional advice",
+        title: "Not professional advice",
         body:
           "Figures are plain averages with the sample size shown — never weighted, percentile, or significance-tested statistics, and never professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, an insufficient-data state is shown instead of a number.",
       },

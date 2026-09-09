@@ -79,7 +79,7 @@ export default function ProductEliteDepthCard({
                 ) : (
                   "."
                 )}{" "}
-                Directional, not a guarantee.
+                An estimate, not a guarantee.
               </>
             ) : (
               <>

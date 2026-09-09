@@ -517,7 +517,7 @@ export function buildVendorAdaptiveOpenEndedQuestions(input: {
         break;
       case "implementation_risk":
         if (implementationFocus) {
-          prompt = `PAT currently sees the most implementation pressure in ${implementationFocus}. What rollout or implementation risk matters most before this product should be treated as stronger than directional?`;
+          prompt = `PAT currently sees the most implementation pressure in ${implementationFocus}. What rollout or implementation risk matters most before this product should be treated as stronger than early evidence?`;
         }
         break;
       case "change_management_risk":
@@ -529,7 +529,7 @@ export function buildVendorAdaptiveOpenEndedQuestions(input: {
       case "integration_gap":
         if (integrationFocus) {
           const posture = normalizedProfile.integrationPosture || "the current integration posture";
-          prompt = `PAT currently sees the most integration pressure in ${integrationFocus}. Given ${posture}, what integration, data, or interoperability gap matters most before PAT should treat this product as stronger than directional?`;
+          prompt = `PAT currently sees the most integration pressure in ${integrationFocus}. Given ${posture}, what integration, data, or interoperability gap matters most before PAT should treat this product as stronger than early evidence?`;
         }
         break;
       case "control_concern":

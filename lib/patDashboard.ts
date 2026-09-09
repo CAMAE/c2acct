@@ -64,7 +64,7 @@ export function deriveIntegrityNarrative(signalIntegrityScore: number): {
   if (signalIntegrityScore < 0.65) {
     return {
       label: "Low confidence",
-      detail: "Responses show low coverage or pattern-quality concerns. Treat the submission as directional only.",
+      detail: "Responses show low coverage or pattern-quality concerns. Treat the submission as early evidence only.",
       tone: "amber",
     };
   }
