@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-08 · Finish box, commit 619ef111 — admin catalog ordering: loaders extracted to lib/adminCatalogQueries.ts with orderBy on all six nested includes (key, then name); DB-backed contract test 4/4. Flag-off change, approved. — Forge.
+
 ## 2026-09-08 · Finish box, commit bfca36e7 — help/public data pass: 222 → 103 lines with the word, 0 plain-language left (data classes / data layer / data-flow kept), 135 phrase rules, glossary untouched, re-indexed 18 articles. — Forge.
 
 ## 2026-09-08 · Facelift 2 box PUSHED — origin/feature/engagement-v1 = db256219
