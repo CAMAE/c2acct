@@ -6,6 +6,9 @@ import MembershipSurfaceGate from "@/app/components/membership/MembershipSurface
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import CardChip, { CardChipRow } from "@/app/components/cards/CardChip";
 import { getSessionUser } from "@/lib/auth/session";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
+import ProductStatusStrip from "@/app/components/products/ProductStatusStrip";
+import { buildFirmProductStatusRows } from "@/lib/productStatusRows";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { getVendorUtilityLabels } from "@/lib/vendorPat";
 import { getFirmProductCatalog } from "@/lib/firmPat";
@@ -56,6 +59,8 @@ export default async function FirmProductAssessmentsPage({
   }
   const params = searchParams ? await searchParams : undefined;
   const products = await getFirmProductCatalog(sessionUser.companyId);
+  // Depth box 7 (flag-on): status strip rows, needs-attention first.
+  const firmStrip = isNewFrontDoorEnabled() ? await buildFirmProductStatusRows(products) : null;
   const reviewableProducts = products.filter((product) => product.reviewAvailable);
   // WS2-B (manual-review items 8/9): card-level Available|Completed toggle
   // replaces the per-card status pill. Completion is keyed on
@@ -103,7 +108,10 @@ export default async function FirmProductAssessmentsPage({
       ) : null}
 
       <section className="space-y-4">
-        <div className="grid gap-5 md:grid-cols-2">
+        {firmStrip && visibleProducts.length > 0 ? (
+          <ProductStatusStrip rows={firmStrip.filter((row) => visibleProducts.some((p) => p.id === row.id))} caption="Products you can review" />
+        ) : null}
+        <div className={`grid gap-5 md:grid-cols-2 ${firmStrip && visibleProducts.length > 0 ? "hidden" : ""}`}>
           {visibleProducts.length === 0 ? (
             <div className="pat-card p-6 text-sm leading-6 text-[var(--shell-muted)]">
               {activeFilter === "completed"

@@ -430,6 +430,7 @@ export type FirmProductCatalogItem = {
   id: string;
   name: string;
   vendorName: string;
+  vendorCompanyId: string | null;
   summary: string | null;
   utilityKeys: string[];
   questionCount: number;
@@ -1147,7 +1148,7 @@ export async function getFirmProductCatalog(companyId?: string | null) {
       summary: true,
       slug: true,
       Company: {
-        select: { name: true },
+        select: { id: true, name: true },
       },
     },
   }).catch(() => []);
@@ -1300,6 +1301,7 @@ export async function getFirmProductCatalog(companyId?: string | null) {
       id: product.id,
       name: product.name,
       vendorName: product.Company?.name ?? "Vendor",
+      vendorCompanyId: product.Company?.id ?? null,
       summary: product.summary,
       utilityKeys: vendorAssessmentStatus.utilityKeys,
       questionCount: vendorAssessmentStatus.scoredQuestionCount,

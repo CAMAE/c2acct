@@ -88,6 +88,7 @@ function firmCatalogProduct(input: {
     id: input.id,
     name: input.name ?? `Product ${input.id}`,
     vendorName: input.vendor ?? "Vendor",
+    vendorCompanyId: null,
     summary: null,
     utilityKeys: [],
     questionCount: 20,
@@ -113,7 +114,8 @@ function briefingWithFirmReviews(
       products: productScores.map((entry) => ({
         productId: entry.productId,
         productName: `Product ${entry.productId}`,
-        vendorName: "Vendor",
+        vendorCompanyId: null,
+  vendorName: "Vendor",
         canonicalFirmReviewScore: entry.firmScore,
         firmReviewCount: 1,
         vendorSelfReportedScore: null,

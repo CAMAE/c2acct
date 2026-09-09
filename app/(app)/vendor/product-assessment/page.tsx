@@ -14,6 +14,9 @@ import {
   replaceUtilityTermsForDisplay,
 } from "@/lib/displayCopy";
 import { getSessionUser } from "@/lib/auth/session";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
+import ProductStatusStrip from "@/app/components/products/ProductStatusStrip";
+import { buildVendorProductStatusRows } from "@/lib/productStatusRows";
 import { resolveVendorSurfaceAccess } from "@/lib/consultantAccess";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import prisma from "@/lib/prisma";
@@ -270,6 +273,11 @@ export default async function VendorProductAssessmentPage({
   );
 
   const sortedProductEntries = sortVendorProductAssessmentEntries(productEntries);
+  // Depth box 7 (flag-on): the per-product status strip — features · firm
+  // reviews on file · last updated · divergence — needs-attention first.
+  const statusStrip = isNewFrontDoorEnabled() && vendorContext.company
+    ? await buildVendorProductStatusRows(vendorContext.company.id, sortedProductEntries)
+    : null;
   const buckets = bucketVendorProductsByAssessmentStatus(sortedProductEntries);
   const activeMode =
     params?.mode
@@ -331,7 +339,11 @@ export default async function VendorProductAssessmentPage({
             </p>
           </div>
           <div className="grid gap-5 md:grid-cols-2">
-            {buckets.completed.length === 0 ? (
+            {statusStrip ? (
+              <div className="md:col-span-2">
+                <ProductStatusStrip rows={statusStrip.filter((row) => statusStrip && buckets.completed.some((e) => e.product.id === row.id))} caption="Completed vendor product assessments" />
+              </div>
+            ) : buckets.completed.length === 0 ? (
               <div className="pat-card p-6 text-sm leading-6 text-[var(--shell-muted)]">
                 No products have a completed final vendor product assessment yet. Use Existing to finish current products or Add New to register another product.
               </div>
@@ -349,7 +361,11 @@ export default async function VendorProductAssessmentPage({
             </p>
           </div>
           <div className="grid gap-5 md:grid-cols-2">
-            {buckets.existing.length === 0 ? (
+            {statusStrip && buckets.existing.length > 0 ? (
+              <div className="md:col-span-2">
+                <ProductStatusStrip rows={statusStrip.filter((row) => buckets.existing.some((e) => e.product.id === row.id))} caption="Existing products still in progress" />
+              </div>
+            ) : buckets.existing.length === 0 ? (
               <div className="pat-card p-6 text-sm leading-6 text-[var(--shell-muted)]">
                 {productEntries.length === 0
                   ? "No products exist yet. Use Add New to create an inventory record, then open that product from Existing to complete the assessment."
