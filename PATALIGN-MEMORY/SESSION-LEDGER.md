@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-10 · Founders preview 1.1–1.4 on Neon branch preview-2026-09-10 (endpoint ep-wispy-snow-apevna3q, pooled-host fp 125111bf1f8334a7; a prod copy: 844 users / 166 companies / 50 migrations at branch time). migrate deploy via DIRECT_URL: 7 applied (20260820…20260907; the box said six) → status 57 applied / 0 pending. backfill-item-responses --apply: 15,950 rows over 5 firm modules; re-run 0 rows (638 submissions already present). Help corpus seed --apply: see the report line. Prod untouched. — Forge.
+
 ## 2026-09-10 · Founders preview box, commit ac14a9b7 — founder addresses ruled: lesliegarrettphd+<role>@gmail.com, cameron+<role>@garrettandgarrett.info; six roles each; passwords to ~/work/preview-accounts.txt only. Still at gate 1.1 (Neon branch). — Forge.
 
 ## 2026-09-10 · Founders preview box, commit 9a5b46b9 — scripts/demo/preview-founder-accounts.ts (discovery + --provision, prod-host refusal, passwords to ~/work/preview-accounts.txt only). Local discovery smoke OK; eslint 0; tsc 0. Pre-gate inventory: no Neon CLI/API key on this Mac (Cam creates the branch in the dashboard); Vercel Preview scope today = AUTH_SECRET, DATABASE_URL, DIRECT_URL, PAT_ENABLE_CONSULTANT_ACCESS; Production scope adds AUTH_URL, NEXTAUTH_URL, ANTHROPIC_API_KEY, AGENT_APPROVAL_HMAC_SECRET, PAT_ENABLE_ALIGNMENT_BOARD/BATTLECARD/PAT_ASSISTANT/PINGS/SELF_SIGNUP; 7 migration dirs dated after the 0157d40 baseline (box says six; migrate status on the branch settles it). Stopped at gate 1.1. — Forge.
