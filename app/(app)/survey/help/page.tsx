@@ -1,4 +1,7 @@
 import Link from "next/link";
+import AskPatCard from "@/app/components/help/AskPatCard";
+import HelpArticleLink from "@/app/components/help/HelpArticleLink";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import { getSessionUser } from "@/lib/auth/session";
 import { resolvePortalExperience } from "@/lib/portalVisibility";
 import { getCanonicalPatHref, type PatNavigationAudience } from "@/lib/patNavigation";
@@ -47,11 +50,13 @@ export default async function SurveyHelpPage() {
         </p>
       </section>
 
-      <section className="grid gap-5 md:grid-cols-3">
+      <section className={`grid gap-5 ${isNewFrontDoorEnabled() ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-3"}`}>
+        {isNewFrontDoorEnabled() ? <AskPatCard /> : null}
         {assessmentGuidance.map((item) => (
           <article key={item.title} className="pat-card p-6">
             <h2 className="text-xl font-semibold text-[var(--shell-ink)]">{item.title}</h2>
             <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">{item.body}</p>
+            {isNewFrontDoorEnabled() ? <HelpArticleLink cardTitle={item.title} /> : null}
           </article>
         ))}
       </section>

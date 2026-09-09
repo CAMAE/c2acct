@@ -2,6 +2,9 @@ import Link from "next/link";
 import MeetPatContent from "@/app/components/pat/MeetPatContent";
 import type { PortalSurface } from "@/lib/portalVisibility";
 import { FIRM_HELP_CARDS } from "@/lib/firmPat";
+import AskPatCard from "@/app/components/help/AskPatCard";
+import HelpArticleLink from "@/app/components/help/HelpArticleLink";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 
 export const firmWorkspaceCards: PortalSurface[] = [
   {
@@ -149,6 +152,7 @@ function renderFirmHelpCard(card: (typeof FIRM_HELP_CARDS)[number]) {
           <span className="font-semibold text-[var(--shell-ink)]">How to use it:</span> {card.how}
         </div>
       </div>
+      {isNewFrontDoorEnabled() ? <HelpArticleLink cardTitle={card.title} /> : null}
     </div>
   );
 }
@@ -184,6 +188,7 @@ export function FirmHelpInlineContent({
       </section>
 
       <section className={`grid gap-5 ${scopedCard ? "md:grid-cols-1 xl:grid-cols-1" : "md:grid-cols-2 xl:grid-cols-3"}`}>
+        {isNewFrontDoorEnabled() ? <AskPatCard /> : null}
         {visibleCards.map((card) => renderFirmHelpCard(card))}
       </section>
 

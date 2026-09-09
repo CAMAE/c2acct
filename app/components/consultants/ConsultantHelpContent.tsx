@@ -1,3 +1,7 @@
+import AskPatCard from "@/app/components/help/AskPatCard";
+import HelpArticleLink from "@/app/components/help/HelpArticleLink";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
+
 export default function ConsultantHelpContent() {
   return (
     <section className="pat-card p-8">
@@ -12,6 +16,7 @@ export default function ConsultantHelpContent() {
       </p>
 
       <div className="mt-8 grid gap-6 md:grid-cols-2">
+        {isNewFrontDoorEnabled() ? <AskPatCard className="md:col-span-2" /> : null}
         <div className="pat-soft-panel p-5">
           <h3 className="text-base font-semibold text-[var(--shell-ink)]">
             What is an ecosystem?
@@ -21,6 +26,7 @@ export default function ConsultantHelpContent() {
             PAT. Each card on the Ecosystems panel rolls up coverage, alignment scores,
             module completion, and active divergences for one ecosystem.
           </p>
+          {isNewFrontDoorEnabled() ? <HelpArticleLink cardTitle="What is an ecosystem?" /> : null}
         </div>
 
         <div className="pat-soft-panel p-5">
@@ -33,6 +39,7 @@ export default function ConsultantHelpContent() {
             into one firm: operating alignment score, stack fit per product,
             6-quarter roadmap.
           </p>
+          {isNewFrontDoorEnabled() ? <HelpArticleLink cardTitle="Vendor brief vs firm brief" /> : null}
         </div>
 
         <div className="pat-soft-panel p-5">
@@ -47,6 +54,7 @@ export default function ConsultantHelpContent() {
             rate the vendor higher than the vendor&apos;s self-report — the vendor
             is under-claiming. Neutral ink means no signal yet.
           </p>
+          {isNewFrontDoorEnabled() ? <HelpArticleLink cardTitle="Reading the deltas" /> : null}
         </div>
 
         <div className="pat-soft-panel p-5">
@@ -58,6 +66,7 @@ export default function ConsultantHelpContent() {
             data, a delta you can&apos;t explain, a firm that should be in scope
             but isn&apos;t — is worth flagging directly.
           </p>
+          {isNewFrontDoorEnabled() ? <HelpArticleLink cardTitle="Need more?" /> : null}
         </div>
       </div>
     </section>
