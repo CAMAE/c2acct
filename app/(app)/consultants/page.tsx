@@ -112,7 +112,7 @@ export default async function ConsultantOverviewPage({
     taskLists = details.filter((detail): detail is EcosystemDetailData => detail !== null);
   }
   // Depth box 4: next briefing + this week, on the Ecosystems panel.
-  const week = activePanel === "ecosystems" ? await getConsultantWeek(consultantAccess) : null;
+  const week = isNewFrontDoorEnabled() && activePanel === "ecosystems" ? await getConsultantWeek(consultantAccess) : null;
 
   return (
     <div className="space-y-8">

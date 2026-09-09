@@ -82,6 +82,7 @@ describe("4 — guide home (flag-on)", () => {
     expect(page).toContain("const freshnessEnabled = isPingsEnabled() || isNewFrontDoorEnabled();");
     expect(page).toContain("<LowestEngagementFirmsCard key={detail.ecosystemId} data={detail} />");
     expect(page).toContain("<ConsultantWeekCards week={week} />");
+    expect(page).toContain('const week = isNewFrontDoorEnabled() && activePanel === "ecosystems"'); // never flag-off
     expect(read("app/(app)/consultants/_components/FreshnessBoard.tsx")).toContain('label="Request refresh"');
     expect(read("lib/consultantWeek.ts")).toContain("quarterCutoff(now)");
   });
