@@ -55,17 +55,17 @@ describe("V7 front door — content (V7FrontDoor)", () => {
     }
   });
 
-  it("content order: hero → band (doors) → radar → cohort → trust (doors above the charts)", () => {
+  it("content order: hero → band (doors) → radar → cohort (doors above the charts)", () => {
     const iHero = src.indexOf("Product selection, without the sales pitch.");
     const iDoors = src.indexOf('data-testid="v7-door-firm"');
     const iRadar = src.indexOf("Alignment radar");
     const iCohort = src.indexOf("Cohort standing");
-    const iTrust = src.indexOf('data-testid="v7-trust-accordion"'); // the trust accordion
+    const iTrust = src.lastIndexOf("Cohort standing"); // the door ends on the cohort panel (accordion removed, depth box 0.2)
     expect(iHero).toBeGreaterThan(-1);
     expect(iDoors).toBeGreaterThan(iHero);
     expect(iRadar).toBeGreaterThan(iDoors);
     expect(iCohort).toBeGreaterThan(iRadar);
-    expect(iTrust).toBeGreaterThan(iCohort);
+    expect(iTrust).toBeGreaterThanOrEqual(iCohort);
   });
 
   it("DEDUPE — content carries NO shell chrome of its own (nav/footer/escape/wrapper)", () => {
@@ -82,32 +82,29 @@ describe("V7 front door — content (V7FrontDoor)", () => {
   });
 
   it("V3 hero CTA band — one band at the container width, three cells, no circle-arrow icons", () => {
-    const srcPxBefore = 8; // text-[Npx] utilities left in V7FrontDoor (hero, radar, cohort, trust) — the band adds none
+    const srcPxBefore = 6; // text-[Npx] utilities left in V7FrontDoor (hero, radar, cohort) — the band adds none
     // One band replaces the Enter/Meet cta-card row and the Firms/Vendors door row.
     expect(src).toMatch(/data-testid="v7-hero-band"/);
     expect(src).toMatch(/rounded-\[28px\][^"]*md:grid-cols-\[1\.2fr_1fr_1fr\]/);
     expect(src).not.toContain("ArrowGlyph"); // the circle-arrow chips are gone
     // Cell 1: tinted, eyebrow, filled Enter PAT pill (white label, 46px) + ghost Meet PAT pill.
-    expect(src).toMatch(/v7-band-cell--start[^"]*bg-\[#f4f7fb\]/);
+    expect(src).toMatch(/pat-hover-card[^"]*bg-\[#f4f7fb\]/);
     expect(src).toContain("Start here");
     expect(src).toMatch(/href="\/sign-in"[\s\S]{0,240}v7-band-pill[^"]*rounded-full bg-\[var\(--brand-c2-blue\)\][^"]*text-white[\s\S]{0,160}data-testid="v7-cta-enter"/);
     expect(src).toMatch(/href="\/sign-in\?view=pat"[\s\S]{0,240}v7-band-pill[^"]*rounded-full border[\s\S]{0,360}data-testid="v7-cta-meet"/);
     expect((src.match(/text-\[\d+px\]/g) || []).length).toBe(srcPxBefore); // no new px utilities for the band
     // Cells 2/3: the whole cell is the link — eyebrow, line, inline arrow in blue.
-    expect(src).toMatch(/<Link\s+href="\/sign-in\?view=firm"\s+className="v7-band-cell[\s\S]{0,500}Score your stack\.[\s\S]{0,240}text-\[var\(--brand-c2-blue\)\]/);
-    expect(src).toMatch(/<Link\s+href="\/sign-in\?view=vendor"\s+className="v7-band-cell[\s\S]{0,500}Earn the evidence\./);
+    expect(src).toMatch(/<Link\s+href="\/sign-in\?view=firm"\s+className="pat-hover-card[\s\S]{0,500}Score your stack\.[\s\S]{0,240}text-\[var\(--brand-c2-blue\)\]/);
+    expect(src).toMatch(/<Link\s+href="\/sign-in\?view=vendor"\s+className="pat-hover-card[\s\S]{0,500}Earn the evidence\./);
     // Hairline dividers: stacked at 390 (border-t), side by side from md (border-l).
     expect((src.match(/border-t border-\[var\(--shell-border\)\][^"]*md:border-l md:border-t-0/g) || []).length).toBe(2);
-    // Hover/focus: tint only, 150ms ease, nothing moves — in globals.css.
+    // Hover: the ONE shared card hover (depth box 0.1) — border to blue, ≤2% tint, 150ms.
     const css = read("app/globals.css");
     expect(css).toMatch(/\.v7-band-pill \{\s*height: 46px;\s*font-size: 16px;/);
     expect(css).toMatch(/\.v7-band-arrow \{\s*font-size: 28px;/);
-    // The band rules sit BEFORE the portal token layer (that layer is attribute-scoped only).
-    expect(css.indexOf(".v7-band-cell {")).toBeLessThan(css.indexOf("Facelift Part 2 — portal token pass"));
-    expect(css).toMatch(/\.v7-band-cell \{\s*transition: background-color 150ms ease;/);
-    expect(css).toMatch(/\.v7-band-cell:hover,[\s\S]{0,80}background-color: #e6ecf5;/);
-    expect(css).toMatch(/\.v7-band-cell--start:hover,[\s\S]{0,60}background-color: #dfe7f2;/);
-    expect(css).toMatch(/a\.v7-band-cell:focus-visible \{\s*outline: 2px solid var\(--brand-c2-blue\);/);
+    expect(css.indexOf(".pat-hover-card {")).toBeLessThan(css.indexOf("Facelift Part 2 — portal token pass"));
+    expect((src.match(/className="pat-hover-card /g) || []).length).toBe(3); // start cell + two door cells
+    expect(src).not.toContain("v7-band-cell");
   });
 
   it("hero CTAs route correctly", () => {
@@ -160,29 +157,15 @@ describe("V7 front door — content (V7FrontDoor)", () => {
     expect(src).toMatch(/Peer view/);
   });
 
-  it("trust section is a native <details> accordion (no client JS) with a ghost-pill summary", () => {
+  it("depth box 0.2 — the door carries no trust accordion; the nine trust links live in the shell footer", () => {
     expect(src).not.toContain("Every number shows its work.");
-    expect(src).toMatch(/<details className="group" data-testid="v7-trust-accordion">/);
-    expect(src).toMatch(/<summary className="[^"]*rounded-full border[^"]*text-\[17px\][^"]*">\s*How PAT earns trust/);
+    expect(src).not.toContain("v7-trust-accordion");
+    expect(src).not.toContain("How PAT earns trust");
+    expect(src).not.toContain("TRUST_FOOTER_LINKS");
     expect(src).not.toContain('"use client"');
     expect(src).not.toMatch(/onClick|useState/);
-  });
-
-  it("trust accordion gives reach to all nine product-footer targets, in footer order", () => {
-    expect(src).toMatch(/\{TRUST_FOOTER_LINKS\.map\(\(link\) => \([\s\S]*?<Link href=\{link\.href\}[\s\S]*?\{link\.label\}/);
     expect(TRUST_FOOTER_LINKS.map((l) => l.label)).toEqual([
-      "Trust",
-      "Privacy",
-      "Terms",
-      "Security",
-      "Support",
-      "Billing policy",
-      "Methodology",
-      "How Pat is governed",
-      "Build proof",
-    ]);
-    expect(TRUST_FOOTER_LINKS.map((l) => l.href)).toEqual([
-      "/trust", "/privacy", "/terms", "/security", "/support", "/billing-policy", "/methodology", "/trust/pat", "/release",
+      "Trust", "Privacy", "Terms", "Security", "Support", "Billing policy", "Methodology", "How Pat is governed", "Build proof",
     ]);
   });
 
@@ -255,10 +238,10 @@ describe("V7 public shell (V7PublicShell)", () => {
     expect(shell).toContain('href="/sign-in"');
   });
 
-  it("owns the product footer — Trust/Privacy/Terms + Build proof + attribution (Methodology lives in the nav)", () => {
+  it("owns the product footer — the AppShell's nine-link row (TRUST_FOOTER_LINKS) + attribution", () => {
     expect(shell).toContain("<footer");
-    expect(shell).toMatch(/<footer[\s\S]*href="\/trust"[\s\S]*href="\/privacy"[\s\S]*href="\/terms"[\s\S]*href="\/release"/);
-    expect(shell).toMatch(/href="\/release"[^>]*>\s*Build proof/);
+    expect(shell).toMatch(/<footer[\s\S]*\{TRUST_FOOTER_LINKS\.map\(\(link\) => \([\s\S]*?<Link key=\{link\.href\} href=\{link\.href\}/);
+    expect(read("app/components/shell/AppShell.tsx")).toContain("TRUST_FOOTER_LINKS.map((link) =>");
     expect(shell).toContain("a Patalign™ product");
   });
 

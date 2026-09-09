@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TRUST_FOOTER_LINKS } from "@/lib/trustContent";
 import type { ReactNode } from "react";
 import { getRequestLocale } from "@/lib/requestLocale";
 import LanguageSelector from "@/app/components/shell/LanguageSelector";
@@ -53,15 +54,14 @@ export default async function V7PublicShell({ children }: { children: ReactNode 
       {/* PRODUCT FOOTER */}
       <footer className="mt-auto bg-white pb-11 pt-8 text-center" style={{ borderTop: `1px solid ${borderLt}` }}>
         <div className="mx-auto max-w-[1120px] px-9">
-          <div className="flex flex-wrap justify-center gap-[26px] text-[14px] font-semibold text-[var(--shell-muted)]">
-            <Link href="/trust">Trust</Link>
-            <Link href="/privacy">Privacy</Link>
-            <Link href="/terms">Terms</Link>
-            {/* Methodology is NOT repeated here: the nav carries it on every public
-                page and the door's trust accordion lists it — two occurrences on the
-                door, per the 21a verdict. */}
-            {/* Footer parity with the product: "Build proof" → /release. */}
-            <Link href="/release">Build proof</Link>
+          {/* Depth box 0.2: the same link row the AppShell footer renders —
+              TRUST_FOOTER_LINKS, nine links, one row (wraps at 390). */}
+          <div className="flex flex-wrap justify-center gap-x-[26px] gap-y-2 text-[14px] font-semibold text-[var(--shell-muted)]">
+            {TRUST_FOOTER_LINKS.map((link) => (
+              <Link key={link.href} href={link.href} className="hover:text-[var(--shell-ink)]">
+                {link.label}
+              </Link>
+            ))}
           </div>
           <div className="mt-4 text-[13.5px] text-[var(--shell-muted)]">
             Copyright 2026 C2Acct · PAT — Performance Alignment Technology · a Patalign™ product

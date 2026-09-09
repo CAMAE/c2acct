@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { isAskPatDoorEntryEnabled } from "@/lib/frontDoor";
-import { TRUST_FOOTER_LINKS } from "@/lib/trustContent";
 
 /**
  * Block 19 — V7 product-native front door. A faithful build of
@@ -20,7 +19,8 @@ import { TRUST_FOOTER_LINKS } from "@/lib/trustContent";
  * V7PublicShell's [data-testid="v7-public-shell"] wrapper.
  *
  * Content order: hero → hero CTA band (V3: pills + firm/vendor door cells) →
- * radar panel → cohort-standing panel → trust band. Revision 3 (2026-07-27): type scale backed off halfway; the cohort legend
+ * radar panel → cohort-standing panel. (The trust accordion left in the depth
+ * box; the shell footer carries the nine trust links on every public page.) Revision 3 (2026-07-27): type scale backed off halfway; the cohort legend
  * drops the color-key words; the single pillar sentence becomes five per-pillar
  * value sentences under the radar; the methodology/trust band is condensed.
  */
@@ -72,9 +72,9 @@ export default function V7FrontDoor() {
       {/* HERO CTA BAND — V3 (Finish box 2, 2026-09-09). One band at the token
           container width (same as the radar card): three cells with hairline
           dividers. Cell 1 (tinted) carries the two pills; cells 2 and 3 ARE the
-          links (whole cell), with an inline arrow at the right. Hover tints the
-          cell over 150ms and nothing else moves; keyboard focus shows the tint
-          plus the focus ring. Copy unchanged. At 390 the cells stack, same order. */}
+          links (whole cell), with an inline arrow at the right. Hover is the shared
+          .pat-hover-card (border to blue, ≤2% tint, 150ms — the Pro insight-card
+          hover); keyboard focus shows the same state plus the ring. Copy unchanged. At 390 the cells stack, same order. */}
       <section className="px-9 pb-6 pt-2">
         <div className="mx-auto max-w-[1120px]">
         <div
@@ -83,7 +83,7 @@ export default function V7FrontDoor() {
           data-testid="v7-hero-band"
         >
           <div
-            className="v7-band-cell v7-band-cell--start flex flex-col justify-center gap-5 bg-[#f4f7fb] px-[34px] py-8"
+            className="pat-hover-card flex flex-col justify-center gap-5 bg-[#f4f7fb] px-[34px] py-8"
             data-testid="v7-hero-band-start"
           >
             <div className="pat-label">Start here</div>
@@ -116,7 +116,7 @@ export default function V7FrontDoor() {
           </div>
           <Link
             href="/sign-in?view=firm"
-            className="v7-band-cell flex items-center justify-between gap-6 border-t border-[var(--shell-border)] px-[34px] py-8 md:border-l md:border-t-0"
+            className="pat-hover-card flex items-center justify-between gap-6 border-t border-[var(--shell-border)] px-[34px] py-8 md:border-l md:border-t-0"
             data-testid="v7-door-firm"
           >
             <div>
@@ -129,7 +129,7 @@ export default function V7FrontDoor() {
           </Link>
           <Link
             href="/sign-in?view=vendor"
-            className="v7-band-cell flex items-center justify-between gap-6 border-t border-[var(--shell-border)] px-[34px] py-8 md:border-l md:border-t-0"
+            className="pat-hover-card flex items-center justify-between gap-6 border-t border-[var(--shell-border)] px-[34px] py-8 md:border-l md:border-t-0"
             data-testid="v7-door-vendor"
           >
             <div>
@@ -253,33 +253,6 @@ export default function V7FrontDoor() {
         </div>
       </section>
 
-      {/* TRUST — a native <details> accordion (no client JS). The ghost-pill summary
-          opens the full trust reach: the SAME nine links as the product footer
-          (TRUST_FOOTER_LINKS — Trust, Privacy, Terms, Security, Support, Billing
-          policy, Methodology, How Pat is governed, Build proof). It replaces the
-          single Methodology pill; with the V7 shell footer no longer repeating
-          Methodology, the door carries that word exactly twice (nav + this list). */}
-      <div className="bg-white py-[34px] text-center" style={{ borderTop: `1px solid ${borderLt}` }}>
-        <div className="mx-auto max-w-[1120px] px-9">
-          <details className="group" data-testid="v7-trust-accordion">
-            <summary className="inline-flex cursor-pointer select-none list-none items-center gap-3 rounded-full border border-[var(--shell-border)] bg-white px-10 py-4 text-[17px] font-semibold text-[var(--shell-ink)] [&::-webkit-details-marker]:hidden">
-              How PAT earns trust
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="block h-[18px] w-[18px] transition-transform group-open:rotate-180" aria-hidden="true">
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-            </summary>
-            <ul className="mx-auto mt-6 flex max-w-[760px] flex-wrap justify-center gap-x-[26px] gap-y-3 text-[15px] font-semibold text-[var(--shell-muted)]">
-              {TRUST_FOOTER_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="hover:text-[var(--shell-ink)]">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </details>
-        </div>
-      </div>
     </>
   );
 }

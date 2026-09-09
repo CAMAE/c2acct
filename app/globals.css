@@ -842,21 +842,22 @@ textarea {
   font-variant-numeric: tabular-nums;
 }
 
-/* V7 front door — hero CTA band (V3). Whole-cell hover tint over 150ms, nothing
-   moves; keyboard focus shows the same tint plus the ring. Flag-on component. */
-.v7-band-cell {
-  transition: background-color 150ms ease;
+/* Depth box 0.1 — ONE hover for every interactive card (Pro insight cards, Elite
+   insight cards, the home hero band cells): border lights to --brand-c2-blue,
+   background at most a 2% tint, 150ms, nothing moves. Keyboard focus shows the
+   same state. */
+.pat-hover-card {
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
 }
-.v7-band-cell:hover,
-.v7-band-cell:focus-visible,
-.v7-band-cell:focus-within {
-  background-color: #e6ecf5;
+.pat-hover-card:hover,
+.pat-hover-card:focus-visible,
+.pat-hover-card:focus-within {
+  border-color: var(--brand-c2-blue);
+  background-color: rgba(6, 54, 116, 0.02);
 }
-.v7-band-cell--start:hover,
-.v7-band-cell--start:focus-within {
-  background-color: #dfe7f2;
-}
-a.v7-band-cell:focus-visible {
+a.pat-hover-card:focus-visible {
   outline: 2px solid var(--brand-c2-blue);
   outline-offset: -2px;
 }
