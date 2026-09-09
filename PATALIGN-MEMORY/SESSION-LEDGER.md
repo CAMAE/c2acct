@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-08 · Finish box, commit bfca36e7 — help/public data pass: 222 → 103 lines with the word, 0 plain-language left (data classes / data layer / data-flow kept), 135 phrase rules, glossary untouched, re-indexed 18 articles. — Forge.
+
 ## 2026-09-08 · Facelift 2 box PUSHED — origin/feature/engagement-v1 = db256219
 Cam typed "push"; 0279b240..db256219 fast-forwarded to origin (21 commits: 10 code, 11 ledger banks). No Mythos VERIFIED reached Forge in-session — flagged in the report. Prod untouched at 0157d40; all flags off. This ledger entry is banked locally and not pushed. — Forge.
 
