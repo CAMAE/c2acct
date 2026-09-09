@@ -6,6 +6,10 @@ import VendorBattleCardClient from "@/app/components/vendor/VendorBattleCardClie
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
 import { getVendorBattleCardData, isBattleCardEnabled } from "@/lib/battleCard";
+import LockedSurfaceVeil from "@/app/components/membership/LockedSurfaceVeil";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
+
+const DEMO_VENDOR_COMPANY_ID = "demo-vendor-company-pat-demo-vendor";
 import {
   getConsultantAccessStateForUser,
   requireConsultantCompanyAccess,
@@ -83,6 +87,32 @@ export default async function VendorBattleCardPage({
       return <EmptyBattleCard audience="consultant" />;
     }
     const entitlement = await resolveMembershipEntitlement(sessionUser!, "vendor", MEMBERSHIP_PLAN.ELITE);
+    if (!entitlement.allowed && isNewFrontDoorEnabled()) {
+      // Depth box 3: the real Product Fit Card (own values, demo vendor when none) behind a veil.
+      const previewData =
+        (await getVendorBattleCardData(vendorCompanyId)) ?? (await getVendorBattleCardData(DEMO_VENDOR_COMPANY_ID));
+      return (
+        <div className="space-y-8">
+          {previewData ? (
+            <LockedSurfaceVeil
+              surfaceLabel="Product Fit Card"
+              unlocks={[
+                "The firms in your ecosystem ranked by how well your product strengths close their current gaps",
+                "One claim, one evidence line and one next action per firm",
+                "The per-firm strengths and gaps anatomy behind each rank",
+              ]}
+              price="Ecosystem license · contact us"
+              upgradeHref={entitlement.upgradeHref}
+              membershipHref={entitlement.membershipHref}
+            >
+              <VendorBattleCardClient data={previewData} entitled={false} membershipHref={entitlement.membershipHref} />
+            </LockedSurfaceVeil>
+          ) : (
+            <EmptyBattleCard audience="vendor" />
+          )}
+        </div>
+      );
+    }
     if (!entitlement.allowed) {
       return (
         <MembershipSurfaceGate

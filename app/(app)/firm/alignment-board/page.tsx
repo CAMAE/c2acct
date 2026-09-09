@@ -3,7 +3,11 @@ import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import AlignmentBoardClient from "@/app/components/firm/AlignmentBoardClient";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
-import { getAlignmentBoardData, isAlignmentBoardEnabled } from "@/lib/alignmentBoard";
+import { BOARD_PRICE_BAND, getAlignmentBoardData, isAlignmentBoardEnabled } from "@/lib/alignmentBoard";
+import LockedSurfaceVeil from "@/app/components/membership/LockedSurfaceVeil";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
+
+const DEMO_FIRM_COMPANY_ID = "demo-firm-company-demo-company";
 import {
   getConsultantAccessStateForUser,
   requireConsultantCompanyAccess,
@@ -81,6 +85,32 @@ export default async function FirmAlignmentBoardPage({
       return <EmptyAlignmentBoard />;
     }
     const entitlement = await resolveMembershipEntitlement(sessionUser!, "firm", MEMBERSHIP_PLAN.ELITE);
+    if (!entitlement.allowed && isNewFrontDoorEnabled()) {
+      // Depth box 3: the real board (own values, demo firm when none) behind a veil.
+      const previewData =
+        (await getAlignmentBoardData(firmCompanyId)) ?? (await getAlignmentBoardData(DEMO_FIRM_COMPANY_ID));
+      return (
+        <div className="space-y-8">
+          {previewData ? (
+            <LockedSurfaceVeil
+              surfaceLabel="Alignment Board"
+              unlocks={[
+                "Your stack laid out as pieces you can swap, with the projected alignment index recomputing in front of you",
+                "Named products, not pseudonyms, in every slot and candidate",
+                "The alternative that closes your largest gap, ranked by projected lift",
+              ]}
+              price={`${BOARD_PRICE_BAND} · Firm Elite`}
+              upgradeHref={entitlement.upgradeHref}
+              membershipHref={entitlement.membershipHref}
+            >
+              <AlignmentBoardClient data={previewData} entitled={false} membershipHref={entitlement.membershipHref} readOnly />
+            </LockedSurfaceVeil>
+          ) : (
+            <EmptyAlignmentBoard />
+          )}
+        </div>
+      );
+    }
     if (!entitlement.allowed) {
       return (
         <MembershipSurfaceGate
