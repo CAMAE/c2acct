@@ -34,7 +34,7 @@ const CHAPTERS = [
       "The delta is the distance between the two bars: self-report minus the firm-reviewed average, in points.",
       "PAT calls a gap a divergence only once at least three firm reviews exist; ten points or more is hot and worth a conversation.",
     ],
-    provenance: "Fig. 03 — one hot divergence (12 pt) and one within range (3 pt), invented values.",
+    provenance: "Fig. 03 — one hot divergence (19 pt) and one within range (7 pt), invented values.",
   },
   {
     number: "04",
