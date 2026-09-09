@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-10 · Founders preview 3.1–3.3 on the preview branch — 12 accounts (lesliegarrettphd+<role>@gmail.com, cameron+<role>@garrettandgarrett.info): firm-pro → Greenfield & Marsh (PRO, 5/5), firm-elite → Alderwood CPAs (ELITE, 5/5), vendor-pro → Bridgepath Suite (4 products), vendor-elite → Meridian Practice Cloud (6 products), consultant → Sentinel ecosystem (Leslie) / Bridgepath ecosystem (Cam; one consultant per ecosystem is a schema constraint), admin → company-less ADMIN. All mustChangePassword=true; passwords only in ~/work/preview-accounts.txt (mode 600). reset-demo --fixtures-only: 0/0/0 e2e rows present on the prod copy. Help seed 1.4: 30 indexed / 36 unchanged / 66 total, re-run 0. — Forge.
+
 ## 2026-09-10 · Founders preview 1.1–1.4 on Neon branch preview-2026-09-10 (endpoint ep-wispy-snow-apevna3q, pooled-host fp 125111bf1f8334a7; a prod copy: 844 users / 166 companies / 50 migrations at branch time). migrate deploy via DIRECT_URL: 7 applied (20260820…20260907; the box said six) → status 57 applied / 0 pending. backfill-item-responses --apply: 15,950 rows over 5 firm modules; re-run 0 rows (638 submissions already present). Help corpus seed --apply: see the report line. Prod untouched. — Forge.
 
 ## 2026-09-10 · Founders preview box, commit ac14a9b7 — founder addresses ruled: lesliegarrettphd+<role>@gmail.com, cameron+<role>@garrettandgarrett.info; six roles each; passwords to ~/work/preview-accounts.txt only. Still at gate 1.1 (Neon branch). — Forge.
