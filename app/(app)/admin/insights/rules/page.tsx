@@ -1,40 +1,11 @@
-import prisma from "@/lib/prisma";
+import { loadAdminInsightRules } from "@/lib/adminCatalogQueries";
 import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
 import { updateInsightAction, upsertInsightCapabilityRuleAction, upsertInsightUnlockRuleAction } from "@/app/(app)/admin/actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminInsightsPage() {
-  const [insights, capabilityNodes, badges] = await Promise.all([
-    prisma.insight.findMany({
-      orderBy: { key: "asc" },
-      include: {
-        InsightCapabilityRule: {
-          include: {
-            CapabilityNode: {
-              select: { title: true },
-            },
-          },
-        },
-        InsightUnlockRule: {
-          include: {
-            Badge: {
-              select: { name: true },
-            },
-          },
-        },
-      },
-    }),
-    prisma.capabilityNode.findMany({
-      where: { active: true },
-      orderBy: { title: "asc" },
-      select: { id: true, title: true },
-    }),
-    prisma.badge.findMany({
-      orderBy: { name: "asc" },
-      select: { id: true, name: true },
-    }),
-  ]);
+  const { insights, capabilityNodes, badges } = await loadAdminInsightRules();
 
   return (
     <div className="space-y-8">
