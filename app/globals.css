@@ -995,3 +995,50 @@ textarea {
 [data-v7-shell] > [data-v7-portal="admin"] {
   width: 100%;
 }
+
+/* V7 front door — hero CTA band (V3). Whole-cell hover tint over 150ms, nothing
+   moves; keyboard focus shows the same tint plus the ring. Flag-on component. */
+.v7-band-cell {
+  transition: background-color 150ms ease;
+}
+.v7-band-cell:hover,
+.v7-band-cell:focus-visible,
+.v7-band-cell:focus-within {
+  background-color: #e6ecf5;
+}
+.v7-band-cell--start:hover,
+.v7-band-cell--start:focus-within {
+  background-color: #dfe7f2;
+}
+a.v7-band-cell:focus-visible {
+  outline: 2px solid var(--brand-c2-blue);
+  outline-offset: -2px;
+}
+
+/* Finish box 2, 3.1 — firm/vendor page roots are flex children of main via the
+   display:contents wrapper; a content-sized root (e.g. ?panel=pat, user-insight,
+   the vendor assessment) takes the container width like every other panel. The
+   survey page carries its own 72rem cap; flag-on it uses the token container. */
+[data-v7-shell] > .contents > .space-y-8,
+[data-v7-shell] > .max-w-\[72rem\] {
+  width: 100%;
+  max-width: var(--container);
+}
+
+/* 3.1 — below lg the hero chips leave their top-right corner and sit under the
+   eyebrow (eyebrow first, chips second, then the rest), never over it. */
+@media (max-width: 1023.98px) {
+  [data-v7-portal] .pat-card:has(> .absolute.right-6.top-6) {
+    display: flex;
+    flex-direction: column;
+  }
+  [data-v7-portal] .pat-card > .absolute.right-6.top-6 {
+    position: static;
+    order: -1;
+    justify-content: flex-start;
+    margin: 0.75rem 0 1rem;
+  }
+  [data-v7-portal] .pat-card > .flex.flex-wrap.items-center.gap-3.text-left:has(> .w-px) {
+    order: -2;
+  }
+}

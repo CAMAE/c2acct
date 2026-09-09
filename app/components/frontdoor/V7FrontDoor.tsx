@@ -19,8 +19,8 @@ import { TRUST_FOOTER_LINKS } from "@/lib/trustContent";
  * the front-door CONTENT — a fragment. The V7-scoped pat-label 12px size lives on
  * V7PublicShell's [data-testid="v7-public-shell"] wrapper.
  *
- * Content order: hero → door cards → radar panel → cohort-standing panel → trust
- * band. Revision 3 (2026-07-27): type scale backed off halfway; the cohort legend
+ * Content order: hero → hero CTA band (V3: pills + firm/vendor door cells) →
+ * radar panel → cohort-standing panel → trust band. Revision 3 (2026-07-27): type scale backed off halfway; the cohort legend
  * drops the color-key words; the single pillar sentence becomes five per-pillar
  * value sentences under the radar; the methodology/trust band is condensed.
  */
@@ -47,12 +47,6 @@ const PILLAR_SENTENCES: { pillar: string; rest: string }[] = [
   { pillar: "Governance", rest: "the controls and vendor oversight your clients assume you already have." },
 ];
 
-const ArrowGlyph = ({ px }: { px: number }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="block" style={{ width: px, height: px }} aria-hidden="true">
-    <path d="M5 12h14" />
-    <path d="m13 6 6 6-6 6" />
-  </svg>
-);
 
 export default function V7FrontDoor() {
   const shadow = "var(--shadow-card)";
@@ -72,56 +66,80 @@ export default function V7FrontDoor() {
           <p className="mt-5 text-[20px] font-medium text-[var(--shell-muted)]">
             Real assessments. Evidence both sides can trust.
           </p>
-          {/* Hero CTAs — compact cta-cards (same family as the doors, smaller).
-              flex-wrap so a third card (Ask Pat) or a narrow viewport stacks instead
-              of overflowing the 390px column. */}
-          <div className="mt-[38px] flex flex-wrap justify-center gap-[18px]">
-            <Link href="/sign-in" className="pat-card flex items-center gap-[22px] px-[30px] py-[22px] text-[19px] font-bold" style={{ boxShadow: shadow }} data-testid="v7-cta-enter">
-              <span>Enter PAT</span>
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--shell-border)] leading-none text-[var(--shell-ink)]">
-                <ArrowGlyph px={19} />
-              </span>
-            </Link>
-            <Link href="/sign-in?view=pat" className="pat-card flex items-center gap-[22px] px-[30px] py-[22px] text-[19px] font-bold" style={{ boxShadow: shadow }} data-testid="v7-cta-meet">
-              <span>Meet PAT</span>
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--shell-border)] leading-none text-[var(--shell-ink)]">
-                <ArrowGlyph px={19} />
-              </span>
-            </Link>
-            {/* Ask Pat — the door's path to its headline feature. Gated on the same
-                availability check /ask itself uses, so this link is never dead. */}
-            {askPatEntry ? (
-              <Link href="/ask" className="pat-card flex items-center gap-[22px] px-[30px] py-[22px] text-[19px] font-bold" style={{ boxShadow: shadow }} data-testid="v7-cta-ask">
-                <span>Ask Pat</span>
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--shell-border)] leading-none text-[var(--shell-ink)]">
-                  <ArrowGlyph px={19} />
-                </span>
-              </Link>
-            ) : null}
-          </div>
         </div>
       </header>
 
-      {/* DOOR CARDS — sign-in with role preselected. Above the panels. */}
-      <section className="mx-auto grid max-w-[1120px] grid-cols-1 gap-6 px-9 pb-6 pt-10 md:grid-cols-2">
-        <Link href="/sign-in?view=firm" className="pat-card flex items-center justify-between gap-6 px-[42px] py-10" style={{ boxShadow: shadow }} data-testid="v7-door-firm">
-          <div>
-            <div className="pat-label">Firms</div>
-            <h3 className="mt-3 text-[27px] font-bold tracking-[-0.01em]">Score your stack.</h3>
+      {/* HERO CTA BAND — V3 (Finish box 2, 2026-09-09). One band at the token
+          container width (same as the radar card): three cells with hairline
+          dividers. Cell 1 (tinted) carries the two pills; cells 2 and 3 ARE the
+          links (whole cell), with an inline arrow at the right. Hover tints the
+          cell over 150ms and nothing else moves; keyboard focus shows the tint
+          plus the focus ring. Copy unchanged. At 390 the cells stack, same order. */}
+      <section className="mx-auto max-w-[1120px] px-9 pb-6 pt-2">
+        <div
+          className="grid overflow-hidden rounded-[28px] border border-[var(--shell-border)] bg-white md:grid-cols-[1.2fr_1fr_1fr]"
+          style={{ boxShadow: shadow }}
+          data-testid="v7-hero-band"
+        >
+          <div
+            className="v7-band-cell v7-band-cell--start flex flex-col justify-center gap-5 bg-[#f4f7fb] px-[34px] py-8"
+            data-testid="v7-hero-band-start"
+          >
+            <div className="pat-label">Start here</div>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/sign-in"
+                className="inline-flex h-[46px] items-center rounded-full bg-[var(--brand-c2-blue)] px-7 text-[16px] font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-c2-blue)] focus-visible:ring-offset-2"
+                data-testid="v7-cta-enter"
+              >
+                Enter PAT
+              </Link>
+              <Link
+                href="/sign-in?view=pat"
+                className="inline-flex h-[46px] items-center rounded-full border border-[var(--shell-ink)] px-7 text-[16px] font-bold text-[var(--shell-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-c2-blue)] focus-visible:ring-offset-2"
+                data-testid="v7-cta-meet"
+              >
+                Meet PAT
+              </Link>
+              {/* Ask Pat — the door's path to its headline feature. Gated on the same
+                  availability check /ask itself uses, so this link is never dead. */}
+              {askPatEntry ? (
+                <Link href="/ask"
+                  className="inline-flex h-[46px] items-center rounded-full border border-[var(--shell-ink)] px-7 text-[16px] font-bold text-[var(--shell-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-c2-blue)] focus-visible:ring-offset-2"
+                  data-testid="v7-cta-ask"
+                >
+                  Ask Pat
+                </Link>
+              ) : null}
+            </div>
           </div>
-          <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border border-[var(--shell-border)] leading-none text-[var(--shell-ink)]">
-            <ArrowGlyph px={22} />
-          </span>
-        </Link>
-        <Link href="/sign-in?view=vendor" className="pat-card flex items-center justify-between gap-6 px-[42px] py-10" style={{ boxShadow: shadow }} data-testid="v7-door-vendor">
-          <div>
-            <div className="pat-label">Vendors</div>
-            <h3 className="mt-3 text-[27px] font-bold tracking-[-0.01em]">Earn the evidence.</h3>
-          </div>
-          <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border border-[var(--shell-border)] leading-none text-[var(--shell-ink)]">
-            <ArrowGlyph px={22} />
-          </span>
-        </Link>
+          <Link
+            href="/sign-in?view=firm"
+            className="v7-band-cell flex items-center justify-between gap-6 border-t border-[var(--shell-border)] px-[34px] py-8 md:border-l md:border-t-0"
+            data-testid="v7-door-firm"
+          >
+            <div>
+              <div className="pat-label">Firms</div>
+              <h3 className="mt-3 text-[27px] font-bold tracking-[-0.01em]">Score your stack.</h3>
+            </div>
+            <span aria-hidden="true" className="shrink-0 text-[28px] leading-none text-[var(--brand-c2-blue)]">
+              →
+            </span>
+          </Link>
+          <Link
+            href="/sign-in?view=vendor"
+            className="v7-band-cell flex items-center justify-between gap-6 border-t border-[var(--shell-border)] px-[34px] py-8 md:border-l md:border-t-0"
+            data-testid="v7-door-vendor"
+          >
+            <div>
+              <div className="pat-label">Vendors</div>
+              <h3 className="mt-3 text-[27px] font-bold tracking-[-0.01em]">Earn the evidence.</h3>
+            </div>
+            <span aria-hidden="true" className="shrink-0 text-[28px] leading-none text-[var(--brand-c2-blue)]">
+              →
+            </span>
+          </Link>
+        </div>
       </section>
 
       {/* PANELS — data-free shape only: alignment radar, then cohort standing. */}

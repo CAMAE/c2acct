@@ -55,7 +55,7 @@ describe("V7 front door — content (V7FrontDoor)", () => {
     }
   });
 
-  it("content order: hero → doors → radar → cohort → trust (doors above the charts)", () => {
+  it("content order: hero → band (doors) → radar → cohort → trust (doors above the charts)", () => {
     const iHero = src.indexOf("Product selection, without the sales pitch.");
     const iDoors = src.indexOf('data-testid="v7-door-firm"');
     const iRadar = src.indexOf("Alignment radar");
@@ -81,17 +81,31 @@ describe("V7 front door — content (V7FrontDoor)", () => {
     expect(src).not.toMatch(/className="[^"]*min-h-screen/);
   });
 
-  it("arrows are inline SVG glyphs (shared ArrowGlyph), not text glyphs", () => {
-    expect((src.match(/d="m13 6 6 6-6 6"/g) || []).length).toBe(1);
-    expect((src.match(/<ArrowGlyph /g) || []).length).toBe(5); // enter, meet, ask (gated), 2 doors
-    expect(src).toMatch(/<ArrowGlyph px=\{22\} \/>/); // doors
-    expect(src).toMatch(/<ArrowGlyph px=\{19\} \/>/); // hero cta-cards
-    expect(src).not.toMatch(/rounded-full[^>]*>\s*→\s*</); // no text-glyph chip
+  it("V3 hero CTA band — one band at the container width, three cells, no circle-arrow icons", () => {
+    // One band replaces the Enter/Meet cta-card row and the Firms/Vendors door row.
+    expect(src).toMatch(/data-testid="v7-hero-band"/);
+    expect(src).toMatch(/rounded-\[28px\][^"]*md:grid-cols-\[1\.2fr_1fr_1fr\]/);
+    expect(src).not.toContain("ArrowGlyph"); // the circle-arrow chips are gone
+    // Cell 1: tinted, eyebrow, filled Enter PAT pill (white label, 46px) + ghost Meet PAT pill.
+    expect(src).toMatch(/v7-band-cell--start[^"]*bg-\[#f4f7fb\]/);
+    expect(src).toContain("Start here");
+    expect(src).toMatch(/href="\/sign-in"[\s\S]{0,240}h-\[46px\][^"]*rounded-full bg-\[var\(--brand-c2-blue\)\][^"]*text-white[\s\S]{0,160}data-testid="v7-cta-enter"/);
+    expect(src).toMatch(/href="\/sign-in\?view=pat"[\s\S]{0,240}h-\[46px\][^"]*rounded-full border[\s\S]{0,360}data-testid="v7-cta-meet"/);
+    // Cells 2/3: the whole cell is the link — eyebrow, line, inline arrow in blue.
+    expect(src).toMatch(/<Link\s+href="\/sign-in\?view=firm"\s+className="v7-band-cell[\s\S]{0,500}Score your stack\.[\s\S]{0,240}text-\[var\(--brand-c2-blue\)\]/);
+    expect(src).toMatch(/<Link\s+href="\/sign-in\?view=vendor"\s+className="v7-band-cell[\s\S]{0,500}Earn the evidence\./);
+    // Hairline dividers: stacked at 390 (border-t), side by side from md (border-l).
+    expect((src.match(/border-t border-\[var\(--shell-border\)\][^"]*md:border-l md:border-t-0/g) || []).length).toBe(2);
+    // Hover/focus: tint only, 150ms ease, nothing moves — in globals.css.
+    const css = read("app/globals.css");
+    expect(css).toMatch(/\.v7-band-cell \{\s*transition: background-color 150ms ease;/);
+    expect(css).toMatch(/\.v7-band-cell:hover,[\s\S]{0,80}background-color: #e6ecf5;/);
+    expect(css).toMatch(/\.v7-band-cell--start:hover,[\s\S]{0,60}background-color: #dfe7f2;/);
+    expect(css).toMatch(/a\.v7-band-cell:focus-visible \{\s*outline: 2px solid var\(--brand-c2-blue\);/);
   });
 
-  it("hero CTAs are compact cta-cards (pat-card family), routing correctly", () => {
-    expect(src).toMatch(/pat-card[^>]*data-testid="v7-cta-enter"/);
-    expect(src).toMatch(/pat-card[^>]*data-testid="v7-cta-meet"/);
+  it("hero CTAs route correctly", () => {
+    expect(src).toMatch(/href="\/sign-in"[\s\S]{0,400}data-testid="v7-cta-enter"/);
     expect(src).toContain('href="/sign-in?view=pat"'); // Meet PAT
   });
 
@@ -219,8 +233,9 @@ describe("V7 front door — Ask Pat entry (gated on the public tier)", () => {
     expect(read("app/(public)/ask/page.tsx")).toContain("publicTierAvailability().available");
   });
 
-  it("hero CTA row wraps (a third card or a 390px column stacks instead of overflowing)", () => {
-    expect(src).toMatch(/className="mt-\[38px\] flex flex-wrap justify-center gap-\[18px\]"/);
+  it("hero CTA band stacks at 390 (single column below md) instead of overflowing", () => {
+    expect(src).toMatch(/className="grid overflow-hidden rounded-\[28px\][^"]*md:grid-cols-\[1\.2fr_1fr_1fr\]"/);
+    expect(src).not.toMatch(/data-testid="v7-hero-band"[^>]*grid-cols-3/);
   });
 });
 
