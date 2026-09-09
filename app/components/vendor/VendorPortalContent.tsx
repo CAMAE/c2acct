@@ -34,7 +34,7 @@ export const vendorWorkspaceCards: PortalSurface[] = [
     // R5: entry point to the BattleCard. Filtered out in app/vendor/page.tsx
     // unless PAT_ENABLE_BATTLECARD is on.
     id: "vendor-battlecard",
-    title: "BattleCard",
+    title: "Product Fit Card",
     description: "Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap.",
     href: "/vendor/battlecard",
     audience: ["vendor"],

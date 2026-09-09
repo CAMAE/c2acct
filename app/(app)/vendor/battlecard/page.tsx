@@ -15,8 +15,8 @@ import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership"
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "BattleCard | Patalign",
-  description: "Elite vendor BattleCard — the firms in your ecosystem, ranked by fit.",
+  title: "Product Fit Card | Patalign",
+  description: "Elite vendor Product Fit Card — the firms in your ecosystem, ranked by fit.",
 };
 
 type SearchParams = { vendor?: string };
@@ -33,12 +33,12 @@ function EmptyBattleCard({ audience }: { audience: HeroAudience }) {
       <section className="pat-card relative p-8">
         <HeroChips audience={audience} />
         <PatLogoLockup mode="hero" tone="light" />
-        <div className="pat-label mt-6">BattleCard</div>
+        <div className="pat-label mt-6">Product Fit Card</div>
         <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
           The firms in your ecosystem, ranked by fit
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          The BattleCard ranks the firms in your ecosystem by how well your product strengths close
+          The Product Fit Card ranks the firms in your ecosystem by how well your product strengths close
           their current gaps — one claim, one evidence line, one next action per firm. No reviewed
           firms in your ecosystem yet; ranked cards appear as firms complete their alignment
           assessments.
@@ -87,9 +87,9 @@ export default async function VendorBattleCardPage({
       return (
         <MembershipSurfaceGate
           audience="vendor"
-          surfaceLabel="BattleCard"
-          title="The BattleCard is an Elite feature"
-          body="The BattleCard ranks the firms in your ecosystem by fit and shows where your products close their gaps. PAT keeps this route visible so the upgrade path stays explicit, but the ranked cards open only with Elite membership."
+          surfaceLabel="Product Fit Card"
+          title="The Product Fit Card is an Elite feature"
+          body="The Product Fit Card ranks the firms in your ecosystem by fit and shows where your products close their gaps. PAT keeps this route visible so the upgrade path stays explicit, but the ranked cards open only with Elite membership."
           displayName={entitlement.membership.displayName}
           currentPlan={entitlement.membership.plan}
           currentStatus={entitlement.membership.status}
@@ -99,7 +99,7 @@ export default async function VendorBattleCardPage({
           workspaceHref="/vendor"
           workspaceLabel="Open vendor workspace"
           availableNow="Your current tier keeps the vendor workspace, product insight, and membership routing available."
-          upgradeNote="The BattleCard is the Elite packaging layer around your ecosystem's firm signal, so PAT does not open it from a Pro tier."
+          upgradeNote="The Product Fit Card is the Elite packaging layer around your ecosystem's firm signal, so PAT does not open it from a Pro tier."
         />
       );
     }
@@ -117,9 +117,9 @@ export default async function VendorBattleCardPage({
       return (
         <MembershipSurfaceGate
           audience="vendor"
-          surfaceLabel="BattleCard"
-          title="The BattleCard needs Pro membership"
-          body="The BattleCard is part of the paid vendor tiers. PAT keeps this route visible so the membership path stays explicit; the ranked cards open once Pro is active, and Elite reveals the firm names."
+          surfaceLabel="Product Fit Card"
+          title="The Product Fit Card needs Pro membership"
+          body="The Product Fit Card is part of the paid vendor tiers. PAT keeps this route visible so the membership path stays explicit; the ranked cards open once Pro is active, and Elite reveals the firm names."
           displayName={proEntitlement.membership.displayName}
           currentPlan={proEntitlement.membership.plan}
           currentStatus={proEntitlement.membership.status}
@@ -129,7 +129,7 @@ export default async function VendorBattleCardPage({
           workspaceHref="/vendor"
           workspaceLabel="Open vendor workspace"
           availableNow="Your current tier keeps the vendor workspace, product insight, and membership routing available."
-          upgradeNote="The BattleCard is the paid packaging layer around your ecosystem's firm signal."
+          upgradeNote="The Product Fit Card is the paid packaging layer around your ecosystem's firm signal."
         />
       );
     }
