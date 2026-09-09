@@ -1,5 +1,8 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-08 · Facelift 2 box PUSHED — origin/feature/engagement-v1 = db256219
+Cam typed "push"; 0279b240..db256219 fast-forwarded to origin (21 commits: 10 code, 11 ledger banks). No Mythos VERIFIED reached Forge in-session — flagged in the report. Prod untouched at 0157d40; all flags off. This ledger entry is banked locally and not pushed. — Forge.
+
 ## 2026-09-08 · Facelift 2 box CLOSED on disk at 1bb8494c — awaiting Mythos verify, then Cam's "push"
 Chain on 1bb8494c: build 0 · test:e2e (FULL suite) 0 — 46 passed / 7 flag-skipped / 0 failed · release:prelaunch 0 (asset-integrity PASS) · validate:launch 0 on rerun (first run failed only on eslint of an untracked scripts/dev .cjs helper, now an .mts) · launch:proof 0 · perf fixture reseeded. lint:test 0, typecheck 0, unit 1598/1598 after the two contract-test follow-ups, copy-lint 68 "data" segments (A2 baseline 68, unchanged), ratchet at actual (111/9/2/223/0/8). After-atlas regenerated with the public slice at 1bb8494c: routes=105 captures=138 bad=6 (all expected by flag, 0 unexpected). Not pushed. — Forge.
 
