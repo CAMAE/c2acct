@@ -1,5 +1,8 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · Finish box PUSHED — origin/feature/engagement-v1 = 9b365244
+Cam typed "push" after Mythos VERIFIED db256219; db256219..9b365244 fast-forwarded (10 commits incl. the a29c224b bank). Prod untouched at 0157d40; flags off. This entry is banked locally, not pushed. — Forge.
+
 ## 2026-09-09 · Finish box CLOSED on disk at HEAD (b3508ccd + this bank) — awaiting Mythos verify, then Cam's "push"
 Chain on b3508ccd: build 0 (through the new build lock: acquired/released logged) · test:e2e full 46 passed / 7 flag-skipped / 0 failed · release:prelaunch 0 · validate:launch 0 · launch:proof 0 · perf reseed 0. lint:test 0, typecheck 0, unit 1605/1605 (186 files), copy-lint 68 (unchanged), ratchet at actual. Flag-off diff db256219-build vs b3508ccd-build on the same DB: public 24/24 identical; portals 82/98 identical, remaining 16 = the two approved ordering pages (8 files), agent countdowns ticking (4), detached-worktree branch name on /admin/launch (2), chunk-manifest rows on 3 insight pages (6 files… by page 3) — zero unexplained. Atlas after at b3508ccd: 6 (expected by flag: 6, unexpected: 0) — /ask (404, expected (before = Part 2 after: 105/138/6). Not pushed. — Forge.
 
