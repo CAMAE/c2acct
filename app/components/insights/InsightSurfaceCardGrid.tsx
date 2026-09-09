@@ -71,7 +71,7 @@ export default function InsightSurfaceCardGrid({
             : tone === "locked"
               ? "pat-card pat-card-muted"
               : card.interactive
-                ? "pat-card pat-hover-card"
+                ? "pat-card pat-card-interactive"
                 : "pat-card";
         const className = `${cardClassName} block p-6`;
         const expanded = expandedKey === card.key;

@@ -111,7 +111,7 @@ export default async function FirmProductAssessmentsPage({
         {firmStrip && visibleProducts.length > 0 ? (
           <ProductStatusStrip rows={firmStrip.filter((row) => visibleProducts.some((p) => p.id === row.id))} caption="Products you can review" />
         ) : null}
-        <div className={`grid gap-5 md:grid-cols-2 ${firmStrip && visibleProducts.length > 0 ? "hidden" : ""}`}>
+        <div className={firmStrip && visibleProducts.length > 0 ? "hidden grid gap-5 md:grid-cols-2" : "grid gap-5 md:grid-cols-2"}>
           {visibleProducts.length === 0 ? (
             <div className="pat-card p-6 text-sm leading-6 text-[var(--shell-muted)]">
               {activeFilter === "completed"

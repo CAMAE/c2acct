@@ -853,9 +853,19 @@ textarea {
 }
 .pat-hover-card:hover,
 .pat-hover-card:focus-visible,
-.pat-hover-card:focus-within {
+.pat-hover-card:focus-within,
+[data-v7-portal] .pat-card-interactive:hover,
+[data-v7-portal] .pat-card-interactive:focus-visible,
+[data-v7-portal] .pat-card-interactive:focus-within {
   border-color: var(--brand-c2-blue);
   background-color: rgba(6, 54, 116, 0.02);
+}
+/* The Pro and Elite insight cards keep their pat-card-interactive markup flag-off
+   (byte-identical); flag-on, inside [data-v7-portal], they take the same hover. */
+[data-v7-portal] .pat-card-interactive {
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
 }
 a.pat-hover-card:focus-visible {
   outline: 2px solid var(--brand-c2-blue);

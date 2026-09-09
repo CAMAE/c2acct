@@ -23,8 +23,8 @@ describe("0 — hover + footer", () => {
     expect(css).toMatch(/\.pat-hover-card:hover,[\s\S]{0,120}border-color: var\(--brand-c2-blue\);\s*background-color: rgba\(6, 54, 116, 0\.02\);/);
     expect((read("app/components/frontdoor/V7DoorBand.tsx").match(/[`"]pat-hover-card /g) || []).length).toBe(3);
     const grid = read("app/components/insights/InsightSurfaceCardGrid.tsx");
-    expect(grid).toContain('"pat-card pat-hover-card"'); // Pro and Elite cards both render here
-    expect(grid).not.toContain("pat-card-interactive");
+    expect(grid).toContain('"pat-card pat-card-interactive"'); // Pro and Elite cards both render here, markup unchanged flag-off
+    expect(css).toMatch(/\[data-v7-portal\] \.pat-card-interactive:hover,[\s\S]{0,200}border-color: var\(--brand-c2-blue\);/); // flag-on they take the shared hover
     expect(css).not.toMatch(/\.v7-band-cell/); // the fill tint is gone
   });
   it("the public footer renders the portal's nine-link row; the door has no trust accordion", () => {
