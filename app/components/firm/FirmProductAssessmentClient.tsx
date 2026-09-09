@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import { sliderValueFromPointer } from "@/lib/scoreSlider";
@@ -11,6 +11,17 @@ import {
 import { getVendorUtilityLabels } from "@/lib/vendorPat";
 import type { FirmProductCatalogItem } from "@/lib/firmPat";
 import { buildFirmProductQuestions } from "@/lib/firmPat";
+
+/**
+ * Firm-side product assessment on ONE page (V3 box 4.1, 2026-09-09 — Leslie's
+ * one-page rule, the firm twin of f2e7713d). Every section stacks on one
+ * screen with its header, questions numbered continuously; the 10-per-page
+ * pager, its Next/Back buttons and the top-scroll on page change are gone.
+ * Submit gating is unchanged: every question scored, then one POST to
+ * /api/firm/product-assessment/submit. (This surface has no draft API — the
+ * firm review has always been score-then-submit — so there is no autosave to
+ * carry; the vendor twin's save/resume paths are its own.)
+ */
 
 type Props = {
   product: FirmProductCatalogItem;
@@ -25,12 +36,6 @@ type QuestionGroup = {
   label: string;
   questions: FirmProductQuestion[];
 };
-
-const QUESTIONS_PER_PAGE = 10;
-
-function clampPageIndex(page: number, totalPages: number) {
-  return Math.min(Math.max(page, 1), Math.max(totalPages, 1));
-}
 
 function groupQuestionsBySection(questions: ReturnType<typeof buildFirmProductQuestions>) {
   const groups = new Map<string, QuestionGroup>();
@@ -54,60 +59,21 @@ function groupQuestionsBySection(questions: ReturnType<typeof buildFirmProductQu
   return Array.from(groups.values());
 }
 
-export default function FirmProductAssessmentClient({
-  product,
-}: Props) {
+export default function FirmProductAssessmentClient({ product }: Props) {
   const router = useRouter();
-  const hasMountedRef = useRef(false);
   const questions = useMemo(() => buildFirmProductQuestions(product.utilityKeys), [product.utilityKeys]);
-  const pages = useMemo(() => {
-    const builtPages: ReturnType<typeof buildFirmProductQuestions>[] = [];
-
-    for (let index = 0; index < questions.length; index += QUESTIONS_PER_PAGE) {
-      builtPages.push(questions.slice(index, index + QUESTIONS_PER_PAGE));
-    }
-
-    return builtPages;
-  }, [questions]);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [currentPageIndex, setCurrentPageIndex] = useState(1);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [pageError, setPageError] = useState<string | null>(null);
-
-  const answeredCount = questions.filter((question) => typeof answers[question.id] === "number").length;
-  const progress = questions.length === 0 ? 0 : Math.round((answeredCount / questions.length) * 100);
-  const totalPages = Math.max(pages.length, 1);
-  const visibleCurrentPageIndex = clampPageIndex(currentPageIndex, totalPages);
-  const currentPageQuestions = useMemo(
-    () => pages[visibleCurrentPageIndex - 1] ?? [],
-    [pages, visibleCurrentPageIndex]
-  );
-  const currentPageGroups = useMemo(() => groupQuestionsBySection(currentPageQuestions), [currentPageQuestions]);
+  const groups = useMemo(() => groupQuestionsBySection(questions), [questions]);
   const questionNumberById = useMemo(
     () => new Map(questions.map((question, index) => [question.id, index + 1])),
     [questions]
   );
-  const currentPageAnsweredCount = currentPageQuestions.filter(
-    (question) => typeof answers[question.id] === "number"
-  ).length;
-  const currentPageMissingCount = currentPageQuestions.length - currentPageAnsweredCount;
-  const currentPageTitle =
-    currentPageGroups.length > 0
-      ? currentPageGroups.map((group) => group.title).join(" / ")
-      : "Feature-scoped product review";
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!hasMountedRef.current) {
-      hasMountedRef.current = true;
-      return;
-    }
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  }, [visibleCurrentPageIndex]);
+  const answeredCount = questions.filter((question) => typeof answers[question.id] === "number").length;
+  const progress = questions.length === 0 ? 0 : Math.round((answeredCount / questions.length) * 100);
+  const missingCount = questions.length - answeredCount;
 
   function setScoredAnswer(questionId: string, nextValue: string) {
     setAnswers((current) => ({
@@ -125,23 +91,6 @@ export default function FirmProductAssessmentClient({
     return typeof answers[questionId] === "number";
   }
 
-  function goToPage(nextPage: number) {
-    setCurrentPageIndex(clampPageIndex(nextPage, totalPages));
-    setPageError(null);
-    setError(null);
-  }
-
-  function continueToNextPage() {
-    if (currentPageMissingCount > 0) {
-      setPageError(
-        `Complete the remaining ${currentPageMissingCount} required question${currentPageMissingCount === 1 ? "" : "s"} on this page before continuing.`
-      );
-      return;
-    }
-
-    goToPage(visibleCurrentPageIndex + 1);
-  }
-
   async function submitAssessment() {
     if (questions.length === 0) {
       setError("This product has no declared features yet, so the firm assessment cannot open.");
@@ -154,7 +103,6 @@ export default function FirmProductAssessmentClient({
 
     setSubmitting(true);
     setError(null);
-    setPageError(null);
 
     const response = await fetch("/api/firm/product-assessment/submit", {
       method: "POST",
@@ -182,16 +130,10 @@ export default function FirmProductAssessmentClient({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" data-testid="firm-assessment-stacked">
       <section className="pat-card p-6">
         <PatLogoLockup mode="hero" tone="light" />
-        <div className="mt-4 grid gap-4 md:grid-cols-4">
-          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Page:{" "}
-            <span className="font-semibold text-[var(--shell-ink)]">
-              {visibleCurrentPageIndex} / {totalPages}
-            </span>
-          </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
           <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
             Progress: <strong className="font-semibold text-[var(--shell-ink)]">{progress}%</strong>
           </div>
@@ -208,17 +150,14 @@ export default function FirmProductAssessmentClient({
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <div className="pat-soft-panel p-5">
             <div className="pat-label">Progress</div>
-            <div className="mt-3 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">{currentPageTitle}</div>
+            <div className="mt-3 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">
+              {groups.length > 0 ? groups.map((group) => group.title).join(" / ") : "Feature-scoped product review"}
+            </div>
             <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-              Move through this review in 10-question pages and score each prompt based on how the product fits your firm’s current operating reality.
+              Score each prompt based on how the product fits your firm’s current operating reality. Every question sits on
+              this one page; submit when all of them are scored.
             </div>
             <div className="mt-4 grid gap-2 text-sm leading-6 text-[var(--shell-muted)]">
-              <div>
-                Current page completion:{" "}
-                <span className="font-semibold text-[var(--shell-ink)]">
-                  {currentPageAnsweredCount} of {currentPageQuestions.length}
-                </span>
-              </div>
               <div>
                 Product: <span className="font-semibold text-[var(--shell-ink)]">{product.name}</span>
               </div>
@@ -232,13 +171,16 @@ export default function FirmProductAssessmentClient({
             </div>
             <div className="mt-4 grid gap-3 text-sm leading-6 text-[var(--shell-muted)]">
               <div>
-                <span className="font-semibold text-[var(--shell-ink)]">How to take it:</span> Score each prompt with the slider, move page by page through the review, and submit once every active question is complete.
+                <span className="font-semibold text-[var(--shell-ink)]">How to take it:</span> Score each prompt with the
+                slider, work down the page section by section, then submit once every question is answered.
               </div>
               <div>
-                <span className="font-semibold text-[var(--shell-ink)]">Why it matters:</span> Your answers add current-state firm-side evidence about how this product performs in real operating conditions.
+                <span className="font-semibold text-[var(--shell-ink)]">Why it matters:</span> Your answers add current-state
+                firm-side evidence about how this product performs in practice.
               </div>
               <div>
-                <span className="font-semibold text-[var(--shell-ink)]">What happens next:</span> After submission, PAT carries this review into the current product and firm insight surfaces.
+                <span className="font-semibold text-[var(--shell-ink)]">What happens next:</span> After submission, PAT carries
+                this review into the current product evidence set and your firm insights.
               </div>
             </div>
           </div>
@@ -260,8 +202,8 @@ export default function FirmProductAssessmentClient({
       </section>
 
       <section className="space-y-4">
-        {currentPageGroups.map((group) => (
-          <div key={group.key} className="pat-card p-6">
+        {groups.map((group) => (
+          <div key={group.key} className="pat-card p-6" data-testid="firm-assessment-section">
             <div className="pat-label">{group.label}</div>
             <h3 className="mt-4 text-xl font-semibold text-[var(--shell-ink)]">{group.title}</h3>
             <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{group.description}</div>
@@ -328,19 +270,15 @@ export default function FirmProductAssessmentClient({
       </section>
 
       <section className="pat-card p-6">
-        <div className="pat-label">{visibleCurrentPageIndex < totalPages ? "Next" : "Submit"}</div>
-        <div className="mt-3 text-xl font-semibold text-[var(--shell-ink)]">
-          {visibleCurrentPageIndex < totalPages ? "Next" : "Submit"}
-        </div>
+        <div className="pat-label">Submit</div>
+        <div className="mt-3 text-xl font-semibold text-[var(--shell-ink)]">Submit</div>
         <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-          {visibleCurrentPageIndex < totalPages
-            ? "Continue to the next page of this product review."
-            : "Submit this review once every question is scored so PAT can carry the result into the current product evidence set."}
+          Submit this review once every question is scored so PAT can carry the result into the current product evidence set.
         </p>
-        {pageError ? (
-          <div className="mt-4 rounded-[18px] border border-amber-200 bg-amber-50/90 p-4 text-sm leading-6 text-amber-900">
-            {pageError}
-          </div>
+        {missingCount > 0 ? (
+          <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]" data-testid="firm-assessment-remaining">
+            {missingCount} question{missingCount === 1 ? "" : "s"} still unanswered.
+          </p>
         ) : null}
         {error ? (
           <div className="mt-4 rounded-[18px] border border-amber-200 bg-amber-50/90 p-4 text-sm leading-6 text-amber-900">
@@ -348,25 +286,14 @@ export default function FirmProductAssessmentClient({
           </div>
         ) : null}
         <div className="mt-6 flex flex-wrap gap-3">
-          {visibleCurrentPageIndex > 1 ? (
-            <button type="button" onClick={() => goToPage(visibleCurrentPageIndex - 1)} className="pat-button-secondary">
-              Back a page
-            </button>
-          ) : null}
-          {visibleCurrentPageIndex < totalPages ? (
-            <button type="button" onClick={continueToNextPage} className="pat-button-primary">
-              Continue to next page
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => void submitAssessment()}
-              className="pat-button-primary"
-              disabled={submitting}
-            >
-              {submitting ? "Submitting..." : "Submit firm product assessment"}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => void submitAssessment()}
+            className="pat-button-primary"
+            disabled={submitting}
+          >
+            {submitting ? "Submitting..." : "Submit firm product assessment"}
+          </button>
         </div>
       </section>
     </div>
