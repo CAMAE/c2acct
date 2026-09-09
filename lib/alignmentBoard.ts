@@ -39,8 +39,8 @@ export function isAlignmentBoardEnabled(): boolean {
 
 export type BoardConfidence = "no_signal" | "sample_thin" | "emerging" | "grounded";
 
-/** "$—" until real Stripe product prices exist (no live-charge copy leaks). */
-export const BOARD_PRICE_BAND = "$—";
+/** Firm Elite, the agreed annual price (depth box 5; Stripe prices are a separate box). */
+export const BOARD_PRICE_BAND = "$24,000/yr";
 
 export type BoardPiece = {
   productId: string;

@@ -820,6 +820,23 @@ const MEMBERSHIP_TIER_ORDER: readonly MembershipPlan[] = [
   MEMBERSHIP_PLAN.ELITE,
 ];
 
+/**
+ * Depth box 5 (2026-09-09, APPROVED flag-off): the agreed annual prices from the
+ * pricing memo, copy only — Stripe prices are a separate box on Cam's GO.
+ * The user tier stays hidden until 2027 (individual surfaces are off), so it
+ * keeps the placeholder.
+ */
+export const MEMBERSHIP_PRICE_DISPLAY: Record<string, Partial<Record<MembershipPlan, { priceDisplay: string; cadence: string }>>> = {
+  firm: {
+    PRO: { priceDisplay: "$4,800", cadence: "per year" },
+    ELITE: { priceDisplay: "$24,000", cadence: "per year" },
+  },
+  vendor: {
+    PRO: { priceDisplay: "$9,000", cadence: "per year" },
+    ELITE: { priceDisplay: "Ecosystem license", cadence: "contact us" },
+  },
+};
+
 function buildMembershipTierCard(
   audience: MembershipAudience,
   plan: MembershipPlan,
@@ -851,11 +868,12 @@ function buildMembershipTierCard(
     ctaLabel = `Included with ${formatMembershipValue(currentPlan)}`;
     ctaHref = null;
   }
+  const price = MEMBERSHIP_PRICE_DISPLAY[audience]?.[plan] ?? { priceDisplay: "$—", cadence: "annual" };
   return {
     plan,
     label: formatMembershipValue(plan),
-    priceDisplay: "$—",
-    cadence: "annual",
+    priceDisplay: price.priceDisplay,
+    cadence: price.cadence,
     tagline: seed.tagline,
     features: seed.features,
     ctaLabel,
