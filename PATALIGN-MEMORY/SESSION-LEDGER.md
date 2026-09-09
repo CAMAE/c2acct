@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · V3 box, commit d552b64d — layout/labels: support summary de-duplicated; '1 pt spread'; widths covered by the 3.1 rule (measured 1161px); consultants freshness/nudges are PAT_ENABLE_PINGS-gated by design, not a key bug. — Forge.
+
 ## 2026-09-09 · V3 box, commit d108ac58 — data pass remainder under the ruling: public 222→60 lines, glossary 106→35, 0 occurrences outside demo/pilot/production data + Data Flow; data layer → evidence layer; re-indexed. — Forge.
 
 ## 2026-09-09 · V3 box, commit 58cc0c91 — BattleCard → Product Fit Card in headings and copy (route path kept; flag-off approved). — Forge.
