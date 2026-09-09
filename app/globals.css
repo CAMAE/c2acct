@@ -842,6 +842,33 @@ textarea {
   font-variant-numeric: tabular-nums;
 }
 
+/* V7 front door — hero CTA band (V3). Whole-cell hover tint over 150ms, nothing
+   moves; keyboard focus shows the same tint plus the ring. Flag-on component. */
+.v7-band-cell {
+  transition: background-color 150ms ease;
+}
+.v7-band-cell:hover,
+.v7-band-cell:focus-visible,
+.v7-band-cell:focus-within {
+  background-color: #e6ecf5;
+}
+.v7-band-cell--start:hover,
+.v7-band-cell--start:focus-within {
+  background-color: #dfe7f2;
+}
+a.v7-band-cell:focus-visible {
+  outline: 2px solid var(--brand-c2-blue);
+  outline-offset: -2px;
+}
+/* Band type/size tokens live here, not as px utilities (ratchet). */
+.v7-band-pill {
+  height: 46px;
+  font-size: 16px;
+}
+.v7-band-arrow {
+  font-size: 28px;
+}
+
 /* ---------------------------------------------------------------------------
    Facelift Part 2 — portal token pass. Flag-on ONLY: [data-v7-portal] is set by
    a portal group layout, and [data-v7-shell] by AppShell, only when
@@ -994,25 +1021,6 @@ textarea {
 [data-v7-shell] > [data-v7-portal="consultants"],
 [data-v7-shell] > [data-v7-portal="admin"] {
   width: 100%;
-}
-
-/* V7 front door — hero CTA band (V3). Whole-cell hover tint over 150ms, nothing
-   moves; keyboard focus shows the same tint plus the ring. Flag-on component. */
-.v7-band-cell {
-  transition: background-color 150ms ease;
-}
-.v7-band-cell:hover,
-.v7-band-cell:focus-visible,
-.v7-band-cell:focus-within {
-  background-color: #e6ecf5;
-}
-.v7-band-cell--start:hover,
-.v7-band-cell--start:focus-within {
-  background-color: #dfe7f2;
-}
-a.v7-band-cell:focus-visible {
-  outline: 2px solid var(--brand-c2-blue);
-  outline-offset: -2px;
 }
 
 /* Finish box 2, 3.1 — firm/vendor page roots are flex children of main via the

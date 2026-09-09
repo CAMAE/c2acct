@@ -90,14 +90,14 @@ export default function V7FrontDoor() {
             <div className="flex flex-wrap items-center gap-3">
               <Link
                 href="/sign-in"
-                className="inline-flex h-[46px] items-center rounded-full bg-[var(--brand-c2-blue)] px-7 text-[16px] font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-c2-blue)] focus-visible:ring-offset-2"
+                className="v7-band-pill inline-flex items-center rounded-full bg-[var(--brand-c2-blue)] px-7 font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-c2-blue)] focus-visible:ring-offset-2"
                 data-testid="v7-cta-enter"
               >
                 Enter PAT
               </Link>
               <Link
                 href="/sign-in?view=pat"
-                className="inline-flex h-[46px] items-center rounded-full border border-[var(--shell-ink)] px-7 text-[16px] font-bold text-[var(--shell-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-c2-blue)] focus-visible:ring-offset-2"
+                className="v7-band-pill inline-flex items-center rounded-full border border-[var(--shell-ink)] px-7 font-bold text-[var(--shell-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-c2-blue)] focus-visible:ring-offset-2"
                 data-testid="v7-cta-meet"
               >
                 Meet PAT
@@ -106,7 +106,7 @@ export default function V7FrontDoor() {
                   availability check /ask itself uses, so this link is never dead. */}
               {askPatEntry ? (
                 <Link href="/ask"
-                  className="inline-flex h-[46px] items-center rounded-full border border-[var(--shell-ink)] px-7 text-[16px] font-bold text-[var(--shell-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-c2-blue)] focus-visible:ring-offset-2"
+                  className="v7-band-pill inline-flex items-center rounded-full border border-[var(--shell-ink)] px-7 font-bold text-[var(--shell-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-c2-blue)] focus-visible:ring-offset-2"
                   data-testid="v7-cta-ask"
                 >
                   Ask Pat
@@ -123,7 +123,7 @@ export default function V7FrontDoor() {
               <div className="pat-label">Firms</div>
               <h3 className="mt-3 text-[27px] font-bold tracking-[-0.01em]">Score your stack.</h3>
             </div>
-            <span aria-hidden="true" className="shrink-0 text-[28px] leading-none text-[var(--brand-c2-blue)]">
+            <span aria-hidden="true" className="v7-band-arrow shrink-0 leading-none text-[var(--brand-c2-blue)]">
               →
             </span>
           </Link>
@@ -136,7 +136,7 @@ export default function V7FrontDoor() {
               <div className="pat-label">Vendors</div>
               <h3 className="mt-3 text-[27px] font-bold tracking-[-0.01em]">Earn the evidence.</h3>
             </div>
-            <span aria-hidden="true" className="shrink-0 text-[28px] leading-none text-[var(--brand-c2-blue)]">
+            <span aria-hidden="true" className="v7-band-arrow shrink-0 leading-none text-[var(--brand-c2-blue)]">
               →
             </span>
           </Link>

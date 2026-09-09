@@ -82,6 +82,7 @@ describe("V7 front door — content (V7FrontDoor)", () => {
   });
 
   it("V3 hero CTA band — one band at the container width, three cells, no circle-arrow icons", () => {
+    const srcPxBefore = 8; // text-[Npx] utilities left in V7FrontDoor (hero, radar, cohort, trust) — the band adds none
     // One band replaces the Enter/Meet cta-card row and the Firms/Vendors door row.
     expect(src).toMatch(/data-testid="v7-hero-band"/);
     expect(src).toMatch(/rounded-\[28px\][^"]*md:grid-cols-\[1\.2fr_1fr_1fr\]/);
@@ -89,8 +90,9 @@ describe("V7 front door — content (V7FrontDoor)", () => {
     // Cell 1: tinted, eyebrow, filled Enter PAT pill (white label, 46px) + ghost Meet PAT pill.
     expect(src).toMatch(/v7-band-cell--start[^"]*bg-\[#f4f7fb\]/);
     expect(src).toContain("Start here");
-    expect(src).toMatch(/href="\/sign-in"[\s\S]{0,240}h-\[46px\][^"]*rounded-full bg-\[var\(--brand-c2-blue\)\][^"]*text-white[\s\S]{0,160}data-testid="v7-cta-enter"/);
-    expect(src).toMatch(/href="\/sign-in\?view=pat"[\s\S]{0,240}h-\[46px\][^"]*rounded-full border[\s\S]{0,360}data-testid="v7-cta-meet"/);
+    expect(src).toMatch(/href="\/sign-in"[\s\S]{0,240}v7-band-pill[^"]*rounded-full bg-\[var\(--brand-c2-blue\)\][^"]*text-white[\s\S]{0,160}data-testid="v7-cta-enter"/);
+    expect(src).toMatch(/href="\/sign-in\?view=pat"[\s\S]{0,240}v7-band-pill[^"]*rounded-full border[\s\S]{0,360}data-testid="v7-cta-meet"/);
+    expect((src.match(/text-\[\d+px\]/g) || []).length).toBe(srcPxBefore); // no new px utilities for the band
     // Cells 2/3: the whole cell is the link — eyebrow, line, inline arrow in blue.
     expect(src).toMatch(/<Link\s+href="\/sign-in\?view=firm"\s+className="v7-band-cell[\s\S]{0,500}Score your stack\.[\s\S]{0,240}text-\[var\(--brand-c2-blue\)\]/);
     expect(src).toMatch(/<Link\s+href="\/sign-in\?view=vendor"\s+className="v7-band-cell[\s\S]{0,500}Earn the evidence\./);
@@ -98,6 +100,10 @@ describe("V7 front door — content (V7FrontDoor)", () => {
     expect((src.match(/border-t border-\[var\(--shell-border\)\][^"]*md:border-l md:border-t-0/g) || []).length).toBe(2);
     // Hover/focus: tint only, 150ms ease, nothing moves — in globals.css.
     const css = read("app/globals.css");
+    expect(css).toMatch(/\.v7-band-pill \{\s*height: 46px;\s*font-size: 16px;/);
+    expect(css).toMatch(/\.v7-band-arrow \{\s*font-size: 28px;/);
+    // The band rules sit BEFORE the portal token layer (that layer is attribute-scoped only).
+    expect(css.indexOf(".v7-band-cell {")).toBeLessThan(css.indexOf("Facelift Part 2 — portal token pass"));
     expect(css).toMatch(/\.v7-band-cell \{\s*transition: background-color 150ms ease;/);
     expect(css).toMatch(/\.v7-band-cell:hover,[\s\S]{0,80}background-color: #e6ecf5;/);
     expect(css).toMatch(/\.v7-band-cell--start:hover,[\s\S]{0,60}background-color: #dfe7f2;/);

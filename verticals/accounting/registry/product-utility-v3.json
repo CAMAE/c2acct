@@ -2678,7 +2678,7 @@
       },
       {
         "key": "integration_gap",
-        "prompt": "What integration, data, or interoperability gap matters most before PAT should treat this product as stronger than directional?"
+        "prompt": "What integration, data, or interoperability gap matters most before PAT should treat this product as stronger than early evidence?"
       },
       {
         "key": "control_concern",
