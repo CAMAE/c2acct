@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · Depth box, commit 70f8c74e — guide home: freshness/nudges were gated on PAT_ENABLE_PINGS (not mis-wired) — open flag-on; Request refresh label; task lists aggregated; NEXT BRIEFING + THIS WEEK cards. — Forge.
+
 ## 2026-09-09 · Depth box, commit 97515bfb — locked Pro pages (flag-on): real board / Product Fit Card behind blur + 60% white with the Elite lock card (what unlocks, memo price, Upgrade to Elite). — Forge.
 
 ## 2026-09-09 · Depth box, commit f857939b — dead ends (flag-off, approved): user-insight and engagement score unlinked; direct hits redirect to the workspace with a one-line notice. — Forge.
