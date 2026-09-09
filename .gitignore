@@ -104,7 +104,8 @@ artifacts/brand-screenshots/
 artifacts/*-shots/
 
 # Block-2 runtime-proof probe scratchpad (Day 16; never committed)
-scripts/dev/
+scripts/dev/*
+!scripts/dev/reset-demo.ts
 
 
 # pilot login reset output (plaintext credentials — never commit)

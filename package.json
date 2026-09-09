@@ -74,6 +74,7 @@
     "prisma:db:push": "node --import tsx scripts/prisma-safe.ts db push",
     "seed:baseline": "node --import tsx prisma/seed.ts",
     "seed:pat-runtime": "node --import tsx scripts/seed-pat-runtime.ts",
+    "reset:demo": "node --import tsx scripts/dev/reset-demo.ts",
     "index:help": "node --import tsx scripts/index-help.ts",
     "compute:benchmarks": "node --import tsx scripts/compute-benchmarks.ts",
     "backfill:firm-maturity": "node --import tsx scripts/backfill-firm-maturity.ts",

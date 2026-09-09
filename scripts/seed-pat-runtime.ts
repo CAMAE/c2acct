@@ -39,6 +39,12 @@ async function main() {
   const { seedReviewFirmFullAssessment } = await import("@/lib/demo-seed/reviewFirm");
   const reviewFirmSeed = localReviewSeed.seeded ? await seedReviewFirmFullAssessment(prisma) : null;
   console.log("review.firm full assessment:", reviewFirmSeed ? `${reviewFirmSeed.modulesSeeded}/5 modules` : "skipped");
+  const { seedReviewFollowUpOptions } = await import("@/lib/demo-seed/reviewFollowUps");
+  const followUpSeed = await seedReviewFollowUpOptions(prisma);
+  console.log(
+    "review ecosystem follow-up options:",
+    followUpSeed ? `${followUpSeed.companyName}: ${followUpSeed.rowsWritten} rows across ${followUpSeed.submissionsSeeded} submissions` : "skipped"
+  );
   // Phase 2 / Day 11: minimal consultant ecosystem so /consultants is non-empty
   // when review.consultant@pat.local signs in. Runs after ensureLocalReviewUsers
   // so the consultant User row exists. Phase 6 expands this to 4 ecosystems.
