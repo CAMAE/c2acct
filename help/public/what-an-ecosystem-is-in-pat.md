@@ -35,7 +35,7 @@ An ecosystem is a managed construct, not an open room. The consultant who manage
 
 This is worth stating clearly to anyone weighing participation, because joining a managed set can sound like surrendering visibility into your own operations to everyone else in it. In PAT it does not work that way. Role boundaries hold inside an ecosystem just as they do outside one. The construct widens the view for the person responsible for the whole — it does not widen everyone's view of everyone.
 
-The same principle carries into assistance. Ask Pat, the assistant that answers questions from PAT's own documented content, is role-scoped: each user sees only content for their role, enforced at the data layer. Being part of an ecosystem does not change what a firm or vendor can ask their way into. And because Ask Pat's answers cite the documented content they draw from, even the consultant's assisted questions stay traceable: an answer shows where it came from, and each role's Pat retrieves only that role's permitted content.
+The same principle carries into assistance. Ask Pat, the assistant that answers questions from PAT's own documented content, is role-scoped: each user sees only content for their role, enforced at the evidence layer. Being part of an ecosystem does not change what a firm or vendor can ask their way into. And because Ask Pat's answers cite the documented content they draw from, even the consultant's assisted questions stay traceable: an answer shows where it came from, and each role's Pat retrieves only that role's permitted content.
 
 ## How a consultant reads an ecosystem
 
@@ -75,7 +75,7 @@ The ecosystem construct exists to replace that with something that can bear weig
 
 ## Why PAT works this way
 
-The ecosystem construct leans on three design decisions that run through the rest of PAT. The first is that role permissions live in the data layer, not in the manners of an interface or assistant. Security that depends on an assistant's good behavior fails; permissions that live in the data query itself cannot be talked out of. That is why the visibility boundaries inside a managed set are dependable rather than aspirational: an ecosystem gathers parties with different interests into one construct, and can only do that safely because the boundaries between them are structural.
+The ecosystem construct leans on three design decisions that run through the rest of PAT. The first is that role permissions live in the evidence layer, not in the manners of an interface or assistant. Security that depends on an assistant's good behavior fails; permissions that live in the evidence query itself cannot be talked out of. That is why the visibility boundaries inside a managed set are dependable rather than aspirational: an ecosystem gathers parties with different interests into one construct, and can only do that safely because the boundaries between them are structural.
 
 The second is the identical wording of assessment questions across all five pillars. A measurement instrument must stay constant so that only the lens changes; if wording varied per pillar, score differences could be wording artifacts. For an ecosystem this discipline pays twice over: it makes one firm's five pillar results comparable to each other, and many firms' results comparable across a managed set. A portfolio view assembled from differently worded instruments would be a collage; assembled from one constant instrument, it is a picture.
 

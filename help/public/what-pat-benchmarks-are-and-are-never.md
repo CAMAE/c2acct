@@ -73,7 +73,7 @@ None of this is squeamishness about hard truths. PAT measures real gaps — incl
 
 ## What feeds the picture — and what never does
 
-Benchmark context is only as good as what is allowed into it, so PAT is strict about the inputs. Production, pilot, and demo data are kept strictly separate, and demo or synthetic data and pilot data never enter published benchmarks. The comparison backdrop you consult is built from real assessments by real participants, full stop.
+Benchmark context is only as good as what is allowed into it, so PAT is strict about the inputs. Production, pilot, and demo data are kept strictly separate, and demo or synthetic records and pilot data never enter published benchmarks. The comparison backdrop you consult is built from real assessments by real participants, full stop.
 
 Participation is part of the same logic. PAT has paid membership tiers only — Pro and Elite, with no free tier — because benchmark quality depends on committed participants. A comparison picture assembled from drive-by responses would not deserve anyone's trust; one assembled from members with a stake in accurate measurement can earn it. What you see in a PAT benchmark, in other words, is a picture that has been guarded at every gate: real answers in, thin cuts refused, contributors anonymous, and no scoreboard anywhere.
 
@@ -125,7 +125,7 @@ Can anyone identify my firm inside a benchmark? No. Contributors are anonymous w
 
 What does it mean when a benchmark shows as suppressed? The comparison group was too small or too dominated by one contributor to publish honestly, so PAT shows nothing rather than something misleading; the mechanics live in the article on benchmark integrity.
 
-What feeds published benchmarks? Production assessments only. Pilot and demo or synthetic data are strictly separated and never enter them.
+What feeds published benchmarks? Production assessments only. Pilot and demo or synthetic records are strictly separated and never enter them.
 
 Do I need Elite to see benchmark context? Pro covers assessment, scores, bands, and core insights; Elite adds interpretive depth such as position within a distribution of peers — always under the same suppression rules.
 

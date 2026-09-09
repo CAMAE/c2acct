@@ -21,7 +21,7 @@ PAT's scoring model is deliberately simple to trust: the same answers always pro
 
 Signal integrity exists to close that gap. Because the scoring path is deterministic and transparent, the honest place to talk about confidence is beside the score, not inside it. Rather than quietly adjusting results or discarding responses, PAT keeps the computation untouched and adds a second channel of information: the quality of the signal that produced the result. This fits PAT's broader evidence philosophy — evidence, not advertising — in which displayed numbers trace to their sources and nothing asks to be taken on faith. A score's source is a set of responses; the integrity reading tells you something about that source.
 
-There is also a benchmarking reason. PAT benchmarks are comparison context, never rankings, and their value depends on the quality of contributed data. Knowing how much weight an individual result can bear matters to everyone who reads results in context.
+There is also a benchmarking reason. PAT benchmarks are comparison context, never rankings, and their value depends on the quality of contributed answers. Knowing how much weight an individual result can bear matters to everyone who reads results in context.
 
 ## How integrity checks work
 
@@ -69,7 +69,7 @@ There is a longer arc here too. If Harbor & Slate keeps re-assessing on a quarte
 
 ## How Ask Pat relates to integrity readings
 
-A firm that encounters an integrity flag and wants to understand it can ask Pat. Ask Pat is PAT's assistant, and it answers questions using PAT's own documented content only — so a question like "what does an integrity flag mean?" gets an answer drawn from the documentation that defines the flag, with the answer citing the documented content it draws from so the user can see where it came from. Each role's Pat retrieves only that role's permitted content, enforced at the data layer, and when the documentation does not cover a question, Pat says so plainly rather than guessing.
+A firm that encounters an integrity flag and wants to understand it can ask Pat. Ask Pat is PAT's assistant, and it answers questions using PAT's own documented content only — so a question like "what does an integrity flag mean?" gets an answer drawn from the documentation that defines the flag, with the answer citing the documented content it draws from so the user can see where it came from. Each role's Pat retrieves only that role's permitted content, enforced at the evidence layer, and when the documentation does not cover a question, Pat says so plainly rather than guessing.
 
 What Pat will not do is as important as what it will. Pat assists with understanding; it never generates scores. It cannot re-score a flagged module, cannot judge the intent behind a response pattern, and cannot offer a speculative reading the documentation does not support. The explanation of an integrity flag therefore lives inside the same discipline as the flag itself: documented, sourced, and informational.
 

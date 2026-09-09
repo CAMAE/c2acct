@@ -75,7 +75,7 @@ That exchange is the mechanics of PAT in miniature. One side commits to a specif
 
 The declare-and-verify model rests on a rule that sounds simple and is demanding in practice: every displayed figure must be able to answer the question "where did you come from." A number whose origin cannot be traced is marketing, whatever screen it appears on, and a model built to hold claims and experience against each other cannot afford a single untraceable figure. Evidence lineage is therefore enforced as a discipline, not offered as a feature: a figure that cannot trace back to the declarations and assessments behind it does not appear.
 
-The role boundaries that keep each side seeing only what its position permits are enforced where enforcement cannot be argued with: in the data layer itself. Security that depends on an assistant's good behavior fails; a permission that lives in the data query cannot be talked out of. That is why firms, vendors, and consultants can all draw on the same shared evidence base without seeing past their role's wall — and why even Ask Pat retrieves only the content the asking user's role permits.
+The role boundaries that keep each side seeing only what its position permits are enforced where enforcement cannot be argued with: in the evidence layer itself. Security that depends on an assistant's good behavior fails; a permission that lives in the evidence query cannot be talked out of. That is why firms, vendors, and consultants can all draw on the same shared evidence base without seeing past their role's wall — and why even Ask Pat retrieves only the content the asking user's role permits.
 
 ## How this looks for a firm, a vendor, and a consultant
 
@@ -115,7 +115,7 @@ A fifth is that consultants overseeing an ecosystem can read the firms' answer t
 
 **Can a product outperform its declaration?** Yes. When firms experience more capability than the vendor claimed, the delta records that outperformance as a finding, not an anomaly.
 
-**Do vendors see individual firms' answers?** No. Vendors receive structured alignment evidence about their own products; benchmark contributors are anonymous, and role scoping is enforced in the data layer.
+**Do vendors see individual firms' answers?** No. Vendors receive structured alignment evidence about their own products; benchmark contributors are anonymous, and role scoping is enforced in the evidence layer.
 
 **Where do consultants fit in the declare-and-verify model?** Above it: they manage ecosystems of firms and products and see cross-firm alignment structure — not firms' private answer text.
 

@@ -59,7 +59,7 @@ Your records belong to you — that is PAT's stewardship position for every tena
 
 ## What is Ask Pat, and what can it see?
 
-Ask Pat is PAT's assistant. It answers questions using PAT's own documented content only, and it is role-scoped — each user sees only content for their role, enforced at the data layer, not just at the interface. When Ask Pat lacks documented evidence for an answer, it says so rather than guessing. It assists with understanding what is in front of you; it never generates scores. "Why PAT scores are not AI-generated" covers where Ask Pat sits relative to scoring, and "Security and privacy posture" covers how its role-scoping works at trust-page level.
+Ask Pat is PAT's assistant. It answers questions using PAT's own documented content only, and it is role-scoped — each user sees only content for their role, enforced at the evidence layer, not just at the interface. When Ask Pat lacks documented evidence for an answer, it says so rather than guessing. It assists with understanding what is in front of you; it never generates scores. "Why PAT scores are not AI-generated" covers where Ask Pat sits relative to scoring, and "Security and privacy posture" covers how its role-scoping works at trust-page level.
 
 ## What is an ecosystem in PAT?
 
@@ -87,7 +87,7 @@ Every piece of learning and assessment content passes a governance discipline be
 
 ## Can a consultant read our firm's answers?
 
-Consultants see structure and alignment signal across the ecosystem they manage — per-firm cards summarizing alignment status, structured firm briefs, and cross-ecosystem comparison views — but not a firm's private answer text beyond what the role permits. The boundary is enforced at the data layer, not just at the interface, so it holds regardless of how a question is asked. "PAT for consultants and ecosystem owners" describes what the consultant role sees, and "Security and privacy posture" covers how role walls are enforced.
+Consultants see structure and alignment signal across the ecosystem they manage — per-firm cards summarizing alignment status, structured firm briefs, and cross-ecosystem comparison views — but not a firm's private answer text beyond what the role permits. The boundary is enforced at the evidence layer, not just at the interface, so it holds regardless of how a question is asked. "PAT for consultants and ecosystem owners" describes what the consultant role sees, and "Security and privacy posture" covers how role walls are enforced.
 
 ## Are there modules beyond the core five?
 

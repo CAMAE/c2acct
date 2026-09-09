@@ -71,7 +71,7 @@ Benchmarks follow the same spirit. Where comparison context is available, it is 
 
 ## Assistance that respects the role
 
-Ask Pat, PAT's assistant, is available to help you understand the platform's documented content — and it is role-scoped, enforced at the data layer, so each user sees only content for their role. It answers from PAT's own documented material, and when it lacks documented evidence for a question, it says so rather than guessing. Pat assists with understanding; it never generates scores. For a consultant navigating results across many firms, that means a place to ask orientation questions without any risk of the assistant inventing an answer or reaching beyond your role's scope.
+Ask Pat, PAT's assistant, is available to help you understand the platform's documented content — and it is role-scoped, enforced at the evidence layer, so each user sees only content for their role. It answers from PAT's own documented material, and when it lacks documented evidence for a question, it says so rather than guessing. Pat assists with understanding; it never generates scores. For a consultant navigating results across many firms, that means a place to ask orientation questions without any risk of the assistant inventing an answer or reaching beyond your role's scope.
 
 ## Membership for ecosystem work
 
@@ -79,7 +79,7 @@ PAT membership comes in two paid tiers, Pro and Elite, with no free tier by desi
 
 ## Why PAT works this way
 
-Three design decisions shape the consultant seat. The first is that role boundaries live in the data layer. Security that depends on an assistant's good behavior fails; permissions that live in the data query itself cannot be talked out of. When PAT says a consultant sees structure and alignment signal but not a member firm's private answer text, that is what the data layer returns for the consultant role — a wall that is architectural rather than behavioral.
+Three design decisions shape the consultant seat. The first is that role boundaries live in the evidence layer. Security that depends on an assistant's good behavior fails; permissions that live in the evidence query itself cannot be talked out of. When PAT says a consultant sees structure and alignment signal but not a member firm's private answer text, that is what the evidence layer returns for the consultant role — a wall that is architectural rather than behavioral.
 
 The second is that a score is a point-in-time reading, never a permanent label. Operations change, so a permanent label would be false, and re-assessment on a working rhythm is the honest design. A card describes where a firm stood at its last reading, the next reading can differ, and the consultant's craft lives in that gap: directing attention and watching whether it registered.
 
@@ -91,7 +91,7 @@ An ecosystem is one construct seen from three vantage points, each walled to its
 
 ## A closer look: one scenario, start to finish
 
-An invented scenario, carried across two quarters: a consultant manages an ecosystem of a dozen member firms, several relying on the same practice-software product. In the first quarter, three firms read Developing on Integration, the alignment delta on the shared product runs persistently below the vendor's declaration, and one of the three readings carries an integrity note, so the other two carry the case. Two conversations follow: one with the firms about integration and data-flow practice, one with the vendor about the function areas where declaration and experience diverge — both resting on traceable numbers.
+An invented scenario, carried across two quarters: a consultant manages an ecosystem of a dozen member firms, several relying on the same practice-software product. In the first quarter, three firms read Developing on Integration, the alignment delta on the shared product runs persistently below the vendor's declaration, and one of the three readings carries an integrity note, so the other two carry the case. Two conversations follow: one with the firms about integration practice, one with the vendor about the function areas where declaration and experience diverge — both resting on traceable numbers.
 
 The quarterly rhythm then does its work. Firms re-assess as their schedules allow, and the second-quarter picture fills in module by module. When it settles, two of the three firms' Integration readings have moved from Developing to Building, and the third has re-assessed with a clean response pattern, so its reading now bears full weight. The delta on the shared product has narrowed for most function areas — but not for one, where assessed experience still runs below the declaration. That residue becomes the next quarter's agenda: a precise, evidence-backed item for the vendor conversation. At no point did the consultant chase completion or reconcile incompatible surveys — the construct carried the signal, and every number could answer where it came from.
 

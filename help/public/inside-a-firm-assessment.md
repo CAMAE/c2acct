@@ -17,7 +17,7 @@ Together the five modules cover the ground a firm leader would want covered: how
 
 ## Why the same questions repeat in every module
 
-Every module asks the same twenty questions, in identical wording, and this is by design rather than economy. When a question refers to "this area," the module you are inside supplies the meaning: in the integration module, "this area" is your integration and data-flow practice; in the governance module, the very same words point at governance. The question holds still while the context moves.
+Every module asks the same twenty questions, in identical wording, and this is by design rather than economy. When a question refers to "this area," the module you are inside supplies the meaning: in the integration module, "this area" is your integration practice; in the governance module, the very same words point at governance. The question holds still while the context moves.
 
 The payoff is comparability. Because each pillar's score is built from answers to identically worded questions, the five scores can be read against one another honestly. A firm that scores higher on Operations than on Automation is seeing a real difference in its own maturity, not an artifact of one module's questions being phrased more generously than another's. If each module had its own bespoke question set, a gap between two pillar scores could always be argued away as a difference in the questions. With a shared question set, the gap means what it appears to mean.
 

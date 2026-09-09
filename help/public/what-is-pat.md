@@ -53,7 +53,7 @@ Scores travel with signal integrity: response-pattern quality checks — straigh
 
 Benchmarks provide comparison context, never rankings or league tables. A benchmark cut is published only when the cohort has at least five contributors and no single contributor supplies more than a quarter of the answers; otherwise it shows as suppressed rather than publishing something misleading. Contributors are anonymous within benchmarks.
 
-Data boundaries are strict. Production, pilot, and demo data are separated, and demo or synthetic data — along with pilot data — never enters published benchmarks. What you compare against is real.
+Class boundaries are strict. Production, pilot, and demo data are separated, and demo or synthetic records — along with pilot data — never enters published benchmarks. What you compare against is real.
 
 And every number has a lineage. PAT's evidence philosophy means displayed figures trace to their sources: no orphan numbers, no statistics that appear from nowhere.
 
@@ -63,7 +63,7 @@ The discipline extends behind the numbers to the content itself. Learning and as
 
 ## Your records remain yours
 
-PAT's position on ownership is plain: a tenant's records belong to the tenant. When a member leaves the platform, their records are removed, and the removal is receipted — an accounted-for act, not a silent assurance. The one thing that persists is what was already anonymous: benchmark aggregates that passed PAT's publication standards remain aggregate, and individual contributions cannot be reconstructed from them. A firm's participation therefore strengthens the comparison context everyone relies on, while nothing that outlives its membership can point back at the firm. The same strict separation that governs data classes — production, pilot, and demo kept apart — governs the end of the relationship too.
+PAT's position on ownership is plain: a tenant's records belong to the tenant. When a member leaves the platform, their records are removed, and the removal is receipted — an accounted-for act, not a silent assurance. The one thing that persists is what was already anonymous: benchmark aggregates that passed PAT's publication standards remain aggregate, and individual contributions cannot be reconstructed from them. A firm's participation therefore strengthens the comparison context everyone relies on, while nothing that outlives its membership can point back at the firm. The same strict separation that governs record classes — production, pilot, and demo kept apart — governs the end of the relationship too.
 
 ## Membership: why PAT is paid only
 
@@ -71,7 +71,7 @@ PAT offers paid membership tiers only — Pro and Elite — and has no free tier
 
 ## Ask Pat: assistance that knows its limits
 
-Signed-in members can put questions to Ask Pat, an assistant that answers using PAT's own documented content only. Pat is role-scoped — each user sees only content appropriate to their role, enforced at the data layer — and when Pat lacks documented evidence for an answer, it says so rather than guessing. Pat helps you understand what you are looking at; it never generates scores. The scores come from arithmetic, and only from arithmetic.
+Signed-in members can put questions to Ask Pat, an assistant that answers using PAT's own documented content only. Pat is role-scoped — each user sees only content appropriate to their role, enforced at the evidence layer — and when Pat lacks documented evidence for an answer, it says so rather than guessing. Pat helps you understand what you are looking at; it never generates scores. The scores come from arithmetic, and only from arithmetic.
 
 ## What PAT is not
 
@@ -87,9 +87,9 @@ What ties the three together is the same commitment: structured questions, deter
 
 Three convictions run underneath everything described above, and stating them plainly explains most of PAT's shape.
 
-The first: a number whose origin cannot be traced is marketing. Every figure PAT displays must be able to answer the question "where did you come from?" — which assessment produced it, which data class it belongs to, what stands behind it. Evidence lineage is a platform rule rather than a feature, because the moment one orphan number is tolerated, confidence in every number becomes negotiable.
+The first: a number whose origin cannot be traced is marketing. Every figure PAT displays must be able to answer the question "where did you come from?" — which assessment produced it, which record class it belongs to, what stands behind it. Evidence lineage is a platform rule rather than a feature, because the moment one orphan number is tolerated, confidence in every number becomes negotiable.
 
-The second: permissions belong in the data layer, not in etiquette. Security that depends on an assistant's good behavior fails, so PAT's role boundaries live in the data queries themselves — a firm's view, a vendor's view, and a consultant's view differ because the records each role can reach differ, not because a well-mannered interface declines to show more. A wall built that way cannot be talked out of.
+The second: permissions belong in the evidence layer, not in etiquette. Security that depends on an assistant's good behavior fails, so PAT's role boundaries live in the evidence queries themselves — a firm's view, a vendor's view, and a consultant's view differ because the records each role can reach differ, not because a well-mannered interface declines to show more. A wall built that way cannot be talked out of.
 
 The third: operations change, so a permanent label would be false. PAT treats every score as a reading at a point in time and is built for re-assessment on a working rhythm. A platform that froze its findings into verdicts would drift away from the truth it claims to measure; one designed around the next reading stays honest.
 

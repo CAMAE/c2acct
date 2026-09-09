@@ -65,7 +65,7 @@ PAT's stewardship applies to vendors as it does to every tenant: your records be
 
 PAT is built on role boundaries, and vendors sit inside them like everyone else. As a vendor you see your own declarations and the alignment evidence that answers them; you do not see into individual firms' private assessment detail, and firms within benchmarks remain anonymous to you. Firms, for their part, see what their own role permits — not your vendor-side surfaces. Those walls are what make honest participation safe on both sides: firms can answer candidly because candor is not exposure, and the candor is exactly what gives the evidence you receive its weight.
 
-Signed-in vendor users also have Ask Pat, an assistant that answers questions from PAT's own documented content, scoped at the data layer to what a vendor role can see. Pat is there to help you understand your evidence — what a term means, how to read a surface — and when it lacks documented evidence for an answer it says so plainly. It never generates scores; nothing conversational ever touches the arithmetic.
+Signed-in vendor users also have Ask Pat, an assistant that answers questions from PAT's own documented content, scoped at the evidence layer to what a vendor role can see. Pat is there to help you understand your evidence — what a term means, how to read a surface — and when it lacks documented evidence for an answer it says so plainly. It never generates scores; nothing conversational ever touches the arithmetic.
 
 ## Why vendors participate
 
@@ -97,7 +97,7 @@ The vendor's product team takes the second area's gap as a question rather than 
 
 "The alignment delta only measures shortfall." The delta flows both ways by design. Firms' assessed experience can read above a declaration just as easily as below it, and the outperform finding — a product delivering more than its own account claims — is surfaced with the same rigor as any gap.
 
-"Vendors can see which firms produced the readings." They cannot. Firms are anonymous within benchmarks, and individual firms' private assessment detail sits behind role walls enforced at the data layer. That protection is not a limitation on the evidence; it is what makes firms candid enough for the evidence to mean anything.
+"Vendors can see which firms produced the readings." They cannot. Firms are anonymous within benchmarks, and individual firms' private assessment detail sits behind role walls enforced at the evidence layer. That protection is not a limitation on the evidence; it is what makes firms candid enough for the evidence to mean anything.
 
 "Alignment evidence is a rating PAT assigns to your product." PAT assigns nothing. The evidence is the measured distance between your own structured declaration and firms' assessed experience — both sides supplied by participants, with deterministic arithmetic doing the rest. There is no editorial judgment, panel opinion, or model interpretation anywhere in it.
 

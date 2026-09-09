@@ -33,9 +33,9 @@ The firm side supplies the verification. Firms assess their own operations throu
 
 The arithmetic that connects the two sides is deterministic. Scores in PAT are computed on a 0–100 scale by arithmetic alone; no AI model sits anywhere in the scoring path, and the same answers always produce the same result. What holds for scores in general holds for capability evidence in particular: the numbers that show how firm experience relates to a declared capability are produced by the same deterministic machinery, not by a model's judgment.
 
-Rolled up, capability-level evidence becomes the alignment picture each role sees at its own scope. Vendors receive alignment evidence for their declared capabilities. Consultants see alignment structure across the set of firms and products in an ecosystem they manage. Firms see their own assessed position. In every case, evidence lineage applies: any displayed number traces to the declaration and assessment data behind it. PAT does not surface orphan numbers, at the capability level or anywhere else.
+Rolled up, capability-level evidence becomes the alignment picture each role sees at its own scope. Vendors receive alignment evidence for their declared capabilities. Consultants see alignment structure across the set of firms and products in an ecosystem they manage. Firms see their own assessed position. In every case, evidence lineage applies: any displayed number traces to the declaration and assessment answers behind it. PAT does not surface orphan numbers, at the capability level or anywhere else.
 
-Signal quality travels with the evidence. Response-pattern integrity checks accompany scores so a reader knows how much weight a result can bear — an integrity flag is information about the data, not an accusation against anyone who supplied it.
+Signal quality travels with the evidence. Response-pattern integrity checks accompany scores so a reader knows how much weight a result can bear — an integrity flag is information about the answers, not an accusation against anyone who supplied it.
 
 ## Function areas: where capabilities sit in a declaration
 
@@ -57,7 +57,7 @@ Read over a longer horizon, this is what gives the capability construct its work
 
 Capability evidence is role-scoped, like everything else in PAT. A vendor receives alignment evidence for its own declared capabilities. A consultant managing an ecosystem sees alignment structure across the member firms and the products in play — structure and alignment signal, not a firm's private answer text beyond what the role permits. A firm sees its own assessed position. Each role reads the capability layer at its own scope, and no role reads past it.
 
-Ask Pat operates inside those same walls. A signed-in user can ask Pat about capability-related content, and Pat answers from PAT's own documented content only, retrieving just what that user's role permits — the scoping is enforced at the data layer, not by convention. Pat's answers cite the documented content they draw from, so a user can see where an answer came from; when the documentation does not cover a question, Pat says so plainly rather than guessing. And Pat assists with understanding only: it never generates scores, and it plays no part in producing capability evidence.
+Ask Pat operates inside those same walls. A signed-in user can ask Pat about capability-related content, and Pat answers from PAT's own documented content only, retrieving just what that user's role permits — the scoping is enforced at the evidence layer, not by convention. Pat's answers cite the documented content they draw from, so a user can see where an answer came from; when the documentation does not cover a question, Pat says so plainly rather than guessing. And Pat assists with understanding only: it never generates scores, and it plays no part in producing capability evidence.
 
 ## Design rationale — why the capability construct was built this way
 
@@ -67,7 +67,7 @@ The first is evidence lineage. PAT's rule is that a number whose origin cannot b
 
 The second is deterministic scoring. PAT holds that measurements must be repeatable and auditable, and that model behavior can shift over time — a score that could read the same answers differently on different days is an opinion with a timestamp, not a measurement. Capability evidence inherits this discipline from both of its sides: the declaration holds still by construction, and the firm-side answers pass through arithmetic that returns the same result every time it runs. That is what lets a vendor bring capability evidence into a product or sales conversation with confidence — the figure under discussion could be re-derived from its sources and come out identical.
 
-The third is role walls enforced in the data layer. PAT's position is that security which depends on an assistant's good behavior fails, while permissions that live in the data query itself cannot be talked out of. Capability evidence is exactly the kind of material this discipline protects: it is commercially meaningful to vendors, operationally revealing about firms, and structurally interesting to consultants — three audiences with three different entitlements. Scoping each role's view at the data layer means the boundary holds whether a user is browsing surfaces directly or asking Pat questions, because Pat's retrieval simply cannot reach past the asker's role.
+The third is role walls enforced in the evidence layer. PAT's position is that security which depends on an assistant's good behavior fails, while permissions that live in the evidence query itself cannot be talked out of. Capability evidence is exactly the kind of material this discipline protects: it is commercially meaningful to vendors, operationally revealing about firms, and structurally interesting to consultants — three audiences with three different entitlements. Scoping each role's view at the evidence layer means the boundary holds whether a user is browsing surfaces directly or asking Pat questions, because Pat's retrieval simply cannot reach past the asker's role.
 
 ## A worked example
 
@@ -117,7 +117,7 @@ Finally, capability evidence is not AI-generated. Ask Pat can help a signed-in u
 
 **Is capability evidence permanent?** No. It is a reading at a point in time: as firms re-assess, the firm side of the comparison updates while the declaration holds still.
 
-**Who sees capability evidence?** Each role at its own scope — vendors for their own declarations, consultants as alignment structure across a managed ecosystem, firms for their own assessed position — with the scoping enforced at the data layer.
+**Who sees capability evidence?** Each role at its own scope — vendors for their own declarations, consultants as alignment structure across a managed ecosystem, firms for their own assessed position — with the scoping enforced at the evidence layer.
 
 **Does any AI produce capability evidence?** No. The evidence comes from deterministic arithmetic. Ask Pat can explain documented capability content within a role's scope, but it never generates scores.
 

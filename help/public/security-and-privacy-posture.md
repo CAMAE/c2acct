@@ -7,7 +7,7 @@ vertical: global
 words: 2989
 ---
 
-PAT's security and privacy posture rests on a simple principle: every participant sees exactly what their role permits, and nothing else. Firms, vendors, and consultants each work behind role walls; each participant's records live in their own isolated tenancy; and even PAT's built-in assistant is permission-scoped at the data layer, so it can only ever answer from content the asking user is entitled to see. This page describes that posture at the level a trust review needs — what is walled from what, and why the walls are structural rather than procedural.
+PAT's security and privacy posture rests on a simple principle: every participant sees exactly what their role permits, and nothing else. Firms, vendors, and consultants each work behind role walls; each participant's records live in their own isolated tenancy; and even PAT's built-in assistant is permission-scoped at the evidence layer, so it can only ever answer from content the asking user is entitled to see. This page describes that posture at the level a trust review needs — what is walled from what, and why the walls are structural rather than procedural.
 
 ## Three roles, three views, one rule
 
@@ -21,7 +21,7 @@ This matters most where the platform's value is created — at the meeting point
 
 Underneath the role walls sits tenancy isolation. Each participant's records belong to that participant's own tenancy — a firm's assessment answers and results are the firm's; a vendor's declarations and evidence are the vendor's. Isolation means the separation is a property of where records live, not merely of what an interface chooses to display.
 
-The distinction is worth pausing on, because it is the difference between a curtain and a wall. A platform could hold everyone's records in one undifferentiated pool and rely on screens to show each user only their slice; the records would be mingled, and only the presentation would be private. PAT's posture is the opposite: separation first, presentation second. What a user's screen shows is a consequence of what their role and tenancy actually reach, so a presentation-layer mistake cannot expose material the data layer never served.
+The distinction is worth pausing on, because it is the difference between a curtain and a wall. A platform could hold everyone's records in one undifferentiated pool and rely on screens to show each user only their slice; the records would be mingled, and only the presentation would be private. PAT's posture is the opposite: separation first, presentation second. What a user's screen shows is a consequence of what their role and tenancy actually reach, so a presentation-layer mistake cannot expose material the evidence layer never served.
 
 This is also the design stance behind PAT's other boundaries. Production, pilot, and demo data are strictly separated as classes — a wall covered in detail in its own article — and the same philosophy applies here: important separations are built into how the system holds records, not enforced by remembering to filter it.
 
@@ -37,7 +37,7 @@ One class of material remains after a departure, and its remaining is itself a p
 
 An assistant embedded in a platform is a common place for privacy postures to quietly fail, because assistants are designed to be helpful and helpfulness tempts systems to reach across boundaries. PAT's assistant, Ask Pat, is built so that this temptation has no mechanism.
 
-Ask Pat answers questions using PAT's own documented content only, and it is role-scoped: each user sees only content for their role. Critically, that scoping is enforced at the data layer — the assistant is not trusted to decline politely after retrieving something it shouldn't have; the content outside your permissions is simply not available to it when it answers you. A firm user asking Pat a question is served from firm-visible content; a vendor user from vendor-visible content. The wall the rest of the platform enforces is the same wall the assistant operates behind.
+Ask Pat answers questions using PAT's own documented content only, and it is role-scoped: each user sees only content for their role. Critically, that scoping is enforced at the evidence layer — the assistant is not trusted to decline politely after retrieving something it shouldn't have; the content outside your permissions is simply not available to it when it answers you. A firm user asking Pat a question is served from firm-visible content; a vendor user from vendor-visible content. The wall the rest of the platform enforces is the same wall the assistant operates behind.
 
 Two further habits complete the picture. When Ask Pat lacks documented evidence for a question, it says so rather than guessing — so the assistant never papers over a permission boundary with invention. And Pat never generates scores: scoring in PAT is deterministic arithmetic with no AI model anywhere in the scoring path, so the assistant's job is understanding, not measurement. Assistance and scoring are kept apart on purpose, which means there is no route by which a conversational system could influence the numbers your organization is described by.
 
@@ -75,7 +75,7 @@ None of this posture is decorative, because PAT's entire premise depends on it. 
 
 ## Why PAT works this way
 
-The choice to enforce role walls in the data layer, rather than at the interface or in the assistant's manners, comes from a blunt premise: security that depends on an assistant's good behavior fails. An assistant instructed to decline politely can, in principle, be coaxed, confused, or misled into forgetting its instructions — but permissions that live in the data query itself cannot be talked out of. When content outside a user's role is simply never served, there is nothing for cleverness to extract. PAT places the wall where failure is structural rather than behavioral.
+The choice to enforce role walls in the evidence layer, rather than at the interface or in the assistant's manners, comes from a blunt premise: security that depends on an assistant's good behavior fails. An assistant instructed to decline politely can, in principle, be coaxed, confused, or misled into forgetting its instructions — but permissions that live in the evidence query itself cannot be talked out of. When content outside a user's role is simply never served, there is nothing for cleverness to extract. PAT places the wall where failure is structural rather than behavioral.
 
 The suppression thresholds on benchmarks come from a related discipline with a long pedigree: small-cell suppression, the same practice statistical agencies use. Below a minimum group size, a "group" number is barely distinguishable from someone's private answers — an average of three is uncomfortably close to a disclosure of one. The five-contributor minimum keeps every published figure genuinely collective, and the dominance cap — no single contributor supplying more than a quarter of the answers — stops any one participant's results from steering a number presented as a peer group. Together they make PAT's shared surfaces incapable of pointing back at an individual — suppression is a privacy control, not merely a statistical nicety.
 
@@ -91,17 +91,17 @@ For a consultant or ecosystem owner, the posture means your cross-firm vantage i
 
 Picture an illustrative ecosystem: a consultant manages a set of member firms, among them an invented practice called Merrow & Voss, which uses a product from a vendor in the same ecosystem. One shared measurement runs through all three parties — the vendor has declared its product's capabilities, Merrow & Voss has assessed its experience, and an alignment delta has been computed — yet each party's window onto that measurement is different.
 
-Merrow & Voss sees its own assessment work: scores, bands, and insights built from its own answers, in its own tenancy. The vendor sees evidence — where firm experience supports its declarations and where it diverges — without ever seeing the firm's private material. The consultant sees the alignment structure across the whole managed set, Merrow & Voss included, as signal rather than as anyone's raw answer text. Now let each of them ask Ask Pat a question about what they are looking at. Three users, three role-scoped retrievals: each Pat answers from that role's permitted content only, cites what it drew on, and says so plainly when documentation is silent. No question, however phrased, pulls material from behind another party's wall — the data layer never serves it. One measurement, three entitled views, zero crossings — that is the posture working end to end.
+Merrow & Voss sees its own assessment work: scores, bands, and insights built from its own answers, in its own tenancy. The vendor sees evidence — where firm experience supports its declarations and where it diverges — without ever seeing the firm's private material. The consultant sees the alignment structure across the whole managed set, Merrow & Voss included, as signal rather than as anyone's raw answer text. Now let each of them ask Ask Pat a question about what they are looking at. Three users, three role-scoped retrievals: each Pat answers from that role's permitted content only, cites what it drew on, and says so plainly when documentation is silent. No question, however phrased, pulls material from behind another party's wall — the evidence layer never serves it. One measurement, three entitled views, zero crossings — that is the posture working end to end.
 
 ## Common misconceptions
 
 "Consultants can read the private answers of the firms they manage." A consultant's vantage is cross-firm structure and alignment signal — not a firm's private answer text beyond what the role permits. Managing an ecosystem widens the view of alignment, not the view into any firm's working records.
 
-"A cleverly worded question could get Ask Pat to reveal another role's content." No phrasing works, because the constraint is not in Pat's judgment: scoping is enforced at the data layer, and content outside the asking user's role is never available to the assistant.
+"A cleverly worded question could get Ask Pat to reveal another role's content." No phrasing works, because the constraint is not in Pat's judgment: scoping is enforced at the evidence layer, and content outside the asking user's role is never available to the assistant.
 
 "Being in the same ecosystem relaxes the walls between participants." It does not. Adjacency creates shared measurement, never shared access: no participant's window widens because someone else's engagement touches theirs.
 
-"Tenancy isolation is just the interface showing each user their slice." That would be a curtain, not a wall. In PAT, separation is a property of where records live; presentation is downstream of it, so a display mistake cannot expose what the data layer never served.
+"Tenancy isolation is just the interface showing each user their slice." That would be a curtain, not a wall. In PAT, separation is a property of where records live; presentation is downstream of it, so a display mistake cannot expose what the evidence layer never served.
 
 "A signal-integrity flag is a public mark against a firm." An integrity flag is information, not an accusation — and it accompanies a result for the parties entitled to that result, not as anything broadcast beyond them.
 
@@ -115,8 +115,8 @@ What is tenancy isolation? The principle that each participant's records live in
 
 Who owns the records a participant puts into PAT? The tenant it describes. A firm's assessment material is the firm's and a vendor's declarations are the vendor's; PAT holds the material to serve the participant, not the reverse.
 
-How is Ask Pat prevented from crossing role boundaries? Its role scoping is enforced at the data layer: each role's Pat can only retrieve that role's permitted content, so out-of-scope material is unavailable to it rather than merely off-limits.
+How is Ask Pat prevented from crossing role boundaries? Its role scoping is enforced at the evidence layer: each role's Pat can only retrieve that role's permitted content, so out-of-scope material is unavailable to it rather than merely off-limits.
 
 Could someone identify a contributor inside a published benchmark? No. Contributors are anonymous, benchmarks are context rather than rankings, and a cut publishes only with at least five contributors and no contributor above a quarter of the answers — otherwise it shows as suppressed.
 
-For a closer look at the strict separation between real, trial, and demonstration data, the article on why production, pilot, and demo data never mix is the natural next read.
+For a closer look at the strict separation between real, trial, and demonstration records, the article on why production, pilot, and demo data never mix is the natural next read.

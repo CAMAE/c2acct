@@ -53,13 +53,13 @@ The platform's cadence philosophy matches. PAT paces engagement around deliberat
 
 A first session with PAT never asks you to compete, and it helps to know that going in. PAT's benchmarks are comparison context, never rankings or league tables, and contributors within them are anonymous. Nothing you answer on day one — or any day — feeds a public leaderboard, because no such leaderboard exists anywhere in the platform. Benchmarks publish only when a cohort has at least five contributors and no single contributor supplies more than a quarter of the answers; below that, the cut simply shows as suppressed.
 
-You will also never be asked to work against synthetic or throwaway data without knowing it. PAT strictly separates production, pilot, and demo data, and demo or pilot data never enters published benchmarks. If your first session involves exploring with demo data to learn the interface, that exploration is walled off from anything real by design.
+You will also never be asked to work against synthetic or throwaway records without knowing it. PAT strictly separates production, pilot, and demo data, and demo or pilot data never enters published benchmarks. If your first session involves exploring with demo data to learn the interface, that exploration is walled off from anything real by design.
 
 And no first session asks you to interpret your results alone against silence. Scores travel with signal-integrity information — response-pattern quality checks such as straight-lining detection — so readers know how much weight a result can bear. An integrity flag is information, not an accusation, and understanding that early makes everything you later read in the platform easier to weigh.
 
 ## Where Ask Pat fits on day one
 
-Ask Pat is the assistant built into the platform, and a first session is a natural time to meet it. Ask Pat answers questions using PAT's own documented content only, and it is role-scoped: each user sees only content for their role, enforced at the data layer. When it lacks documented evidence for an answer, it says so rather than guessing.
+Ask Pat is the assistant built into the platform, and a first session is a natural time to meet it. Ask Pat answers questions using PAT's own documented content only, and it is role-scoped: each user sees only content for their role, enforced at the evidence layer. When it lacks documented evidence for an answer, it says so rather than guessing.
 
 Two boundaries define what Ask Pat is for. It assists with understanding — what a pillar covers, what a band means, how declarations work — and it never generates scores. On day one, that makes it a good companion for exactly the orientation work a first session is about: you can ask it what a term means or where something lives, and the answer comes from the platform's documentation rather than from improvisation. If a question falls outside what is documented for your role, Ask Pat will tell you that plainly, which is itself a useful early lesson in how the platform treats evidence. Its answers also cite the documented content they draw from, so even on day one you can see where an answer came from rather than taking it on faith.
 
@@ -81,7 +81,7 @@ Several design choices a new member meets on day one have reasons behind them. T
 
 The absence of a free tier follows a similar logic: comparison context is only as good as the care behind the answers that feed it, and a free tier optimizes for volume over signal — which is why day one begins inside a real membership rather than a trial shell.
 
-The unhurried pacing comes from the platform's view of what a score is: operations change, so a permanent label would be false, and re-assessment on a working rhythm is the honest design — there is no reason to rush toward a snapshot built to be revisited. And each role's first session looks different because the boundaries live in the data layer: security that depends on an assistant's good behavior fails, while permissions that live in the data query cannot be talked out of. What you see on day one is exactly what your role can ever see — a guarantee, not a first impression.
+The unhurried pacing comes from the platform's view of what a score is: operations change, so a permanent label would be false, and re-assessment on a working rhythm is the honest design — there is no reason to rush toward a snapshot built to be revisited. And each role's first session looks different because the boundaries live in the evidence layer: security that depends on an assistant's good behavior fails, while permissions that live in the evidence query cannot be talked out of. What you see on day one is exactly what your role can ever see — a guarantee, not a first impression.
 
 ## A closer look: one first week, start to finish
 

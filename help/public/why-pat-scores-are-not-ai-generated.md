@@ -27,7 +27,7 @@ And trust in the shared picture demands it. Firm scores feed the comparison cont
 
 ## Where assistance does sit: Ask Pat
 
-PAT is not a platform without an assistant — it is a platform with a carefully placed one. Ask Pat answers questions using PAT's own documented content only. It is role-scoped, so each user sees only content for their role, and that scoping is enforced at the data layer rather than left to the assistant's discretion. When Ask Pat lacks documented evidence for a question, it says so rather than guessing.
+PAT is not a platform without an assistant — it is a platform with a carefully placed one. Ask Pat answers questions using PAT's own documented content only. It is role-scoped, so each user sees only content for their role, and that scoping is enforced at the evidence layer rather than left to the assistant's discretion. When Ask Pat lacks documented evidence for a question, it says so rather than guessing.
 
 The boundary is simple to state: Pat assists with understanding; it never generates scores. Ask Pat can help you make sense of what a term means, where to look, or how something in PAT works, as documented. It has no hand in what any score is. Understanding is a good use of an assistant, because a wrong turn there is visible and correctable — you can check what Pat says against the documentation it draws from. Scoring is a bad place for one, because a score is a claim of measurement, and measurement should not depend on anything that might answer differently twice.
 
@@ -35,7 +35,7 @@ The boundary is simple to state: Pat assists with understanding; it never genera
 
 Ask Pat's answers cite the documented content they draw from, so a user can see where an answer came from and check it against the source. This is the assistant-side expression of the same principle that governs scores: nothing presented should be untraceable. A score traces to the answers that produced it; an Ask Pat answer traces to the documentation it drew on. In neither case is anyone asked to take an output on faith.
 
-The role scoping works the same transparent way. Each role's Pat retrieves only that role's permitted content — the restriction lives at the data layer, in what the assistant can reach, not in a promise about what it will choose to say. And when the documentation does not cover a question, Pat says so plainly instead of improvising. Between the citations, the data-layer scoping, and the willingness to say "the documentation doesn't cover that," the assistant is built to be checkable at every point — which is exactly the standard a platform keeps when it has decided that unverifiable output has no place anywhere in it, scoring path first of all.
+The role scoping works the same transparent way. Each role's Pat retrieves only that role's permitted content — the restriction lives at the evidence layer, in what the assistant can reach, not in a promise about what it will choose to say. And when the documentation does not cover a question, Pat says so plainly instead of improvising. Between the citations, the evidence-layer scoping, and the willingness to say "the documentation doesn't cover that," the assistant is built to be checkable at every point — which is exactly the standard a platform keeps when it has decided that unverifiable output has no place anywhere in it, scoring path first of all.
 
 ## Measuring AI readiness without AI-generated measurement
 
@@ -109,7 +109,7 @@ Two quarters later, after tightening its vendor-risk controls, the firm re-asses
 
 **Can the same answers ever produce a different PAT score?** No — deterministic means the same answers always produce the same score, on any day, for any firm.
 
-**What is Ask Pat, and what can it do?** An assistant that answers questions from PAT's own documented content, scoped to each user's role at the data layer. It helps with understanding and never generates scores.
+**What is Ask Pat, and what can it do?** An assistant that answers questions from PAT's own documented content, scoped to each user's role at the evidence layer. It helps with understanding and never generates scores.
 
 **What does Ask Pat do when the documentation doesn't cover a question?** It says so plainly rather than guessing, and the answers it does give cite the documented content they draw from.
 
