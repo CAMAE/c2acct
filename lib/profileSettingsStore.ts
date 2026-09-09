@@ -7,7 +7,9 @@ export type CompanyProfileSettings = {
   workEmail: string;
   phone: string;
   businessAddress: string;
-  paymentDetails: string;
+  /** Finish box 2 (3.2): the free-text "Payment details" field is gone; PAT never collects card numbers here. */
+  billingContactName: string;
+  billingContactEmail: string;
   companyDescription: string;
   website: string;
 };
@@ -71,7 +73,8 @@ export async function saveCompanyProfileSettings(scopeKey: string, settings: Com
     workEmail: normalizeString(settings.workEmail),
     phone: normalizeString(settings.phone),
     businessAddress: normalizeString(settings.businessAddress),
-    paymentDetails: normalizeString(settings.paymentDetails),
+    billingContactName: normalizeString(settings.billingContactName),
+    billingContactEmail: normalizeString(settings.billingContactEmail),
     companyDescription: normalizeString(settings.companyDescription),
     website: normalizeString(settings.website),
   };

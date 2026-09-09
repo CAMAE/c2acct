@@ -6,7 +6,8 @@ type ProfileSettings = {
   workEmail: string;
   phone: string;
   businessAddress: string;
-  paymentDetails: string;
+  billingContactName: string;
+  billingContactEmail: string;
   companyDescription: string;
   website: string;
 };

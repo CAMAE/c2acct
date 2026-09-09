@@ -37,10 +37,17 @@ export function CompanyProfileSettingsFields({ defaults }: CompanyProfileSetting
         <FieldLabel>Business address</FieldLabel>
         <textarea name="businessAddress" rows={3} className="pat-textarea" defaultValue={defaults.businessAddress} placeholder="Business address" />
       </label>
-      <label className="grid gap-2">
-        <FieldLabel>Payment details</FieldLabel>
-        <textarea name="paymentDetails" rows={3} className="pat-textarea" defaultValue={defaults.paymentDetails} placeholder="Payment details" />
-      </label>
+      <div className="grid gap-4 md:grid-cols-2">
+        <label className="grid gap-2">
+          <FieldLabel>Billing contact name</FieldLabel>
+          <input name="billingContactName" className="pat-input" defaultValue={defaults.billingContactName} placeholder="Billing contact name" />
+        </label>
+        <label className="grid gap-2">
+          <FieldLabel>Billing contact email</FieldLabel>
+          <input name="billingContactEmail" type="email" className="pat-input" defaultValue={defaults.billingContactEmail} placeholder="billing@example.com" />
+        </label>
+      </div>
+      <p className="text-xs leading-5 text-[var(--shell-muted)]">PAT never collects card numbers here.</p>
       <label className="grid gap-2">
         <FieldLabel>Company description</FieldLabel>
         <textarea name="companyDescription" rows={5} className="pat-textarea" defaultValue={defaults.companyDescription} placeholder="Company description" />

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getAdminAccessState } from "@/lib/adminControlPlane";
 import { getSessionUser } from "@/lib/auth/session";
 import { CompanyProfileSettingsFields } from "@/app/components/profile/ProfileSettingsFields";
 import { getCompanyProfileSettings, saveCompanyProfileSettings } from "@/lib/profileSettingsStore";
@@ -18,6 +19,7 @@ export const metadata = {
 
 export default async function VendorProfilePage() {
   const sessionUser = await getSessionUser();
+  const adminAccess = await getAdminAccessState();
   const vendorContext = await getVendorCompanyContext(sessionUser?.companyId);
 
   async function updateVendorProfile(formData: FormData) {
@@ -37,7 +39,8 @@ export default async function VendorProfilePage() {
       workEmail: String(formData.get("workEmail") ?? "").trim(),
       phone: String(formData.get("phone") ?? "").trim(),
       businessAddress: String(formData.get("businessAddress") ?? "").trim(),
-      paymentDetails: String(formData.get("paymentDetails") ?? "").trim(),
+      billingContactName: String(formData.get("billingContactName") ?? "").trim(),
+      billingContactEmail: String(formData.get("billingContactEmail") ?? "").trim(),
       companyDescription: String(formData.get("companyDescription") ?? "").trim(),
       website,
     };
@@ -72,7 +75,8 @@ export default async function VendorProfilePage() {
     workEmail: sessionUser?.email ?? "",
     phone: "",
     businessAddress: "",
-    paymentDetails: "",
+    billingContactName: "",
+    billingContactEmail: "",
     companyDescription: vendorContext.vendorProfile?.notes ?? "",
     website: vendorContext.vendorProfile?.website ?? "",
   });
@@ -83,7 +87,8 @@ export default async function VendorProfilePage() {
     workEmail: profileSettings.workEmail || null,
     phone: profileSettings.phone || null,
     businessAddress: profileSettings.businessAddress || null,
-    paymentDetails: profileSettings.paymentDetails || null,
+    billingContactName: profileSettings.billingContactName || null,
+    billingContactEmail: profileSettings.billingContactEmail || null,
     companyDescription: profileSettings.companyDescription || null,
     website: profileSettings.website || null,
     products: vendorContext.products.map((product) => ({
@@ -127,15 +132,21 @@ export default async function VendorProfilePage() {
         </div>
 
         <div className="pat-card p-6">
-        <div className="pat-label">External data contract</div>
-          <div className="mt-4 max-h-[24rem] overflow-auto rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
-            <pre className="text-xs leading-6 text-[var(--shell-muted)] whitespace-pre-wrap break-words">
-              {JSON.stringify(contract, null, 2)}
-            </pre>
-          </div>
-          <div className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-            Source is currently manual app entry. Future sync should update this contract instead of pretending an active connection already exists.
-          </div>
+          <div className="pat-label">Connection</div>
+          {adminAccess.isAdmin ? (
+            <>
+              <div className="mt-4 max-h-[24rem] overflow-auto rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
+                <pre className="text-xs leading-6 text-[var(--shell-muted)] whitespace-pre-wrap break-words">
+                  {JSON.stringify(contract, null, 2)}
+                </pre>
+              </div>
+              <div className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
+                Admin view. Source is currently manual app entry. Future sync should update this contract instead of pretending an active connection already exists.
+              </div>
+            </>
+          ) : (
+            <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">Connection to c2acct.com is not configured yet.</p>
+          )}
         </div>
       </section>
 

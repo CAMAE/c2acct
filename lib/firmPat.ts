@@ -1464,7 +1464,8 @@ export function buildFirmExternalProfileContract(input: {
   workEmail: string | null;
   phone: string | null;
   businessAddress: string | null;
-  paymentDetails: string | null;
+  billingContactName: string | null;
+  billingContactEmail: string | null;
   companyDescription: string | null;
   users: Array<{ email: string; role: UserRole; status: "invited" | "active" }>;
   productsUnderReview: string[];
@@ -1478,7 +1479,8 @@ export function buildFirmExternalProfileContract(input: {
       workEmail: input.workEmail,
       phone: input.phone,
       businessAddress: input.businessAddress,
-      paymentDetails: input.paymentDetails,
+      billingContactName: input.billingContactName,
+      billingContactEmail: input.billingContactEmail,
       companyDescription: input.companyDescription,
       users: input.users,
       productsUnderReview: input.productsUnderReview,

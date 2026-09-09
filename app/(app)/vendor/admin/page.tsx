@@ -61,7 +61,8 @@ export default async function VendorAdminPage() {
       workEmail: String(formData.get("workEmail") ?? "").trim(),
       phone: String(formData.get("phone") ?? "").trim(),
       businessAddress: String(formData.get("businessAddress") ?? "").trim(),
-      paymentDetails: String(formData.get("paymentDetails") ?? "").trim(),
+      billingContactName: String(formData.get("billingContactName") ?? "").trim(),
+      billingContactEmail: String(formData.get("billingContactEmail") ?? "").trim(),
       companyDescription: String(formData.get("companyDescription") ?? "").trim(),
       website: String(formData.get("website") ?? "").trim(),
     });
@@ -75,7 +76,8 @@ export default async function VendorAdminPage() {
     workEmail: sessionUser?.email ?? "",
     phone: "",
     businessAddress: "",
-    paymentDetails: "",
+    billingContactName: "",
+    billingContactEmail: "",
     companyDescription: vendorContext.vendorProfile?.notes ?? "",
     website: vendorContext.vendorProfile?.website ?? "",
   });

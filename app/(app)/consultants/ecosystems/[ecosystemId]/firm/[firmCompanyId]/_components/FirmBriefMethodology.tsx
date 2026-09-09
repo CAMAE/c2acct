@@ -1,4 +1,6 @@
+import Link from "next/link";
 import type { FirmBriefData } from "@/lib/firmBriefs";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 
 export default function FirmBriefMethodology({ data }: { data: FirmBriefData }) {
   const generated = new Date(data.generatedAt);
@@ -16,10 +18,22 @@ export default function FirmBriefMethodology({ data }: { data: FirmBriefData }) 
         This brief is engine-derived. No consultant interpretation has been applied at this stage.
       </p>
       <dl className="mt-4 space-y-2 text-xs text-[var(--shell-muted)]">
-        <div>
-          <dt className="inline font-semibold uppercase tracking-[0.18em]">Data sources:</dt>{" "}
-          <dd className="inline">{data.methodology.dataSources.join(", ")}</dd>
-        </div>
+        {isNewFrontDoorEnabled() ? (
+          <div>
+            <dt className="inline font-semibold uppercase tracking-[0.18em]">Sources:</dt>{" "}
+            <dd className="inline">
+              this firm&apos;s module answers, its product reviews, and the peer firms in scope ·{" "}
+              <Link href="/methodology" className="underline decoration-dotted underline-offset-2">
+                methodology
+              </Link>
+            </dd>
+          </div>
+        ) : (
+          <div>
+            <dt className="inline font-semibold uppercase tracking-[0.18em]">Data sources:</dt>{" "}
+            <dd className="inline">{data.methodology.dataSources.join(", ")}</dd>
+          </div>
+        )}
         <div>
           <dt className="inline font-semibold uppercase tracking-[0.18em]">Sample sizes:</dt>{" "}
           <dd className="inline">

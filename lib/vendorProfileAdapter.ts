@@ -17,7 +17,8 @@ export type VendorExternalProfileContract = {
     workEmail: string | null;
     phone: string | null;
     businessAddress: string | null;
-    paymentDetails: string | null;
+    billingContactName: string | null;
+    billingContactEmail: string | null;
     companyDescription: string | null;
     website: string | null;
     products: Array<{
@@ -35,7 +36,8 @@ export function buildVendorExternalProfileContract(input: {
   workEmail: string | null;
   phone: string | null;
   businessAddress: string | null;
-  paymentDetails: string | null;
+  billingContactName: string | null;
+  billingContactEmail: string | null;
   companyDescription: string | null;
   website: string | null;
   products: Array<{
@@ -53,7 +55,8 @@ export function buildVendorExternalProfileContract(input: {
     workEmail: input.workEmail,
     phone: input.phone,
     businessAddress: input.businessAddress,
-    paymentDetails: input.paymentDetails,
+    billingContactName: input.billingContactName,
+    billingContactEmail: input.billingContactEmail,
     companyDescription: input.companyDescription,
     website: input.website,
     products: input.products,
