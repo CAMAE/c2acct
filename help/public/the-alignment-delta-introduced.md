@@ -51,7 +51,7 @@ The vendor side is a structured declaration: vendors state their product's capab
 
 The firm side is the assessment: firms work through five modules of consistent, identically worded questions about their own operations, scored by deterministic arithmetic on a 0–100 scale and presented in bands. No AI model sits anywhere in the scoring path; the same answers always produce the same score.
 
-Everything displayed traces back to those sources. PAT calls this evidence lineage: no number appears without a path back to the data that produced it. So when you see an alignment delta, you are not looking at an editorial judgment about a product — you are looking at the measured distance between a declaration a vendor made and an experience firms assessed, with both ends of that measurement accounted for.
+Everything displayed traces back to those sources. PAT calls this evidence lineage: no number appears without a path back to the answers that produced it. So when you see an alignment delta, you are not looking at an editorial judgment about a product — you are looking at the measured distance between a declaration a vendor made and an experience firms assessed, with both ends of that measurement accounted for.
 
 ## An illustrative delta, in both directions
 
@@ -83,7 +83,7 @@ That shared measurement is the point. When a firm, a vendor, and a consultant di
 
 For a consultant or ecosystem owner managing a set of firms, the alignment delta scales from a single measurement into a landscape. At concept level, consultant surfaces include per-firm cards summarizing alignment status, structured firm briefs for deeper review, and comparison views across the ecosystem — and alignment signal is much of what those surfaces summarize.
 
-Read across a portfolio, deltas start to form patterns. A gap between one product's declaration and one firm's experience is a data point; the same gap appearing across many managed firms says something about the product; a gap appearing at only one firm says something about that firm's situation. Distinguishing the two is exactly the kind of judgment an ecosystem view exists to support.
+Read across a portfolio, deltas start to form patterns. A gap between one product's declaration and one firm's experience is a single reading; the same gap appearing across many managed firms says something about the product; a gap appearing at only one firm says something about that firm's situation. Distinguishing the two is exactly the kind of judgment an ecosystem view exists to support.
 
 Role boundaries hold throughout. Consultants see structure and alignment signal across their managed firms — not a firm's private answer text beyond what their role permits. The delta gives the ecosystem view its substance without turning any firm's assessment into an open book.
 

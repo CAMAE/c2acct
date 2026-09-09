@@ -51,7 +51,7 @@ A measurement platform is only as useful as the discipline behind its numbers, s
 
 Scores travel with signal integrity: response-pattern quality checks — straight-lining detection is one example — accompany results so readers know how much weight a given score can bear. An integrity flag is information, not an accusation; it simply tells you how confident to be.
 
-Benchmarks provide comparison context, never rankings or league tables. A benchmark cut is published only when the cohort has at least five contributors and no single contributor supplies more than a quarter of the data; otherwise it shows as suppressed rather than publishing something misleading. Contributors are anonymous within benchmarks.
+Benchmarks provide comparison context, never rankings or league tables. A benchmark cut is published only when the cohort has at least five contributors and no single contributor supplies more than a quarter of the answers; otherwise it shows as suppressed rather than publishing something misleading. Contributors are anonymous within benchmarks.
 
 Data boundaries are strict. Production, pilot, and demo data are separated, and demo or synthetic data — along with pilot data — never enters published benchmarks. What you compare against is real.
 
@@ -61,13 +61,13 @@ And every number has a lineage. PAT's evidence philosophy means displayed figure
 
 The discipline extends behind the numbers to the content itself. Learning and assessment module content must cite authoritative sources to enter the system at all — unsourced content is rejected mechanically at import, not set aside for someone to reconsider later. And content goes live only after a named human reviewer has signed off on it, with that review recorded: who reviewed it, and when. Nothing a member encounters inside an assessment arrived there casually. For a platform whose entire premise is that claims should be verifiable, this is simply the premise applied to itself — the questions that measure a firm's operations are held to a sourcing standard before they are allowed to measure anything.
 
-## Your data remains yours
+## Your records remain yours
 
-PAT's position on data ownership is plain: a tenant's data belongs to the tenant. When a member leaves the platform, their data is removed, and the removal is receipted — an accounted-for act, not a silent assurance. The one thing that persists is what was already anonymous: benchmark aggregates that passed PAT's publication standards remain aggregate, and individual contributions cannot be reconstructed from them. A firm's participation therefore strengthens the comparison context everyone relies on, while nothing that outlives its membership can point back at the firm. The same strict separation that governs data classes — production, pilot, and demo kept apart — governs the end of the relationship too.
+PAT's position on ownership is plain: a tenant's records belong to the tenant. When a member leaves the platform, their records are removed, and the removal is receipted — an accounted-for act, not a silent assurance. The one thing that persists is what was already anonymous: benchmark aggregates that passed PAT's publication standards remain aggregate, and individual contributions cannot be reconstructed from them. A firm's participation therefore strengthens the comparison context everyone relies on, while nothing that outlives its membership can point back at the firm. The same strict separation that governs data classes — production, pilot, and demo kept apart — governs the end of the relationship too.
 
 ## Membership: why PAT is paid only
 
-PAT offers paid membership tiers only — Pro and Elite — and has no free tier by design. Benchmark quality depends on committed participants: comparison data drawn from people with something at stake is worth more than data drawn from drive-by curiosity. Elite membership adds deeper interpretive surfaces, such as a firm's position within a distribution and its trajectory over time, on top of what Pro provides.
+PAT offers paid membership tiers only — Pro and Elite — and has no free tier by design. Benchmark quality depends on committed participants: comparison evidence drawn from people with something at stake is worth more than evidence drawn from drive-by curiosity. Elite membership adds deeper interpretive surfaces, such as a firm's position within a distribution and its trajectory over time, on top of what Pro provides.
 
 ## Ask Pat: assistance that knows its limits
 
@@ -89,7 +89,7 @@ Three convictions run underneath everything described above, and stating them pl
 
 The first: a number whose origin cannot be traced is marketing. Every figure PAT displays must be able to answer the question "where did you come from?" — which assessment produced it, which data class it belongs to, what stands behind it. Evidence lineage is a platform rule rather than a feature, because the moment one orphan number is tolerated, confidence in every number becomes negotiable.
 
-The second: permissions belong in the data layer, not in etiquette. Security that depends on an assistant's good behavior fails, so PAT's role boundaries live in the data queries themselves — a firm's view, a vendor's view, and a consultant's view differ because the data each role can reach differs, not because a well-mannered interface declines to show more. A wall built that way cannot be talked out of.
+The second: permissions belong in the data layer, not in etiquette. Security that depends on an assistant's good behavior fails, so PAT's role boundaries live in the data queries themselves — a firm's view, a vendor's view, and a consultant's view differ because the records each role can reach differ, not because a well-mannered interface declines to show more. A wall built that way cannot be talked out of.
 
 The third: operations change, so a permanent label would be false. PAT treats every score as a reading at a point in time and is built for re-assessment on a working rhythm. A platform that froze its findings into verdicts would drift away from the truth it claims to measure; one designed around the next reading stays honest.
 

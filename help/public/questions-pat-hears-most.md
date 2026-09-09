@@ -35,7 +35,7 @@ The alignment delta is the measured gap between what a vendor declares a product
 
 ## What are PAT benchmarks, and why do some show as suppressed?
 
-PAT benchmarks are comparison context, never rankings or league tables, and contributors are anonymous within them. A benchmark cut publishes only when its cohort has at least 5 contributors and no single contributor supplies more than 25% of the data; when a cut fails either test, it shows as suppressed rather than publishing a number that could mislead or expose someone. Suppression is not a malfunction — it is the integrity rule doing its job. "How PAT protects benchmark integrity" explains the contributor floor and dominance cap in plain terms.
+PAT benchmarks are comparison context, never rankings or league tables, and contributors are anonymous within them. A benchmark cut publishes only when its cohort has at least 5 contributors and no single contributor supplies more than 25% of the answers; when a cut fails either test, it shows as suppressed rather than publishing a number that could mislead or expose someone. Suppression is not a malfunction — it is the integrity rule doing its job. "How PAT protects benchmark integrity" explains the contributor floor and dominance cap in plain terms.
 
 ## Are benchmarks a ranking of firms or vendors?
 
@@ -51,11 +51,11 @@ No. PAT keeps production, pilot, and demo data strictly separated, and demo, syn
 
 ## Is there a free tier?
 
-No, and that is a design decision rather than an omission. PAT offers paid membership at two tiers, Pro and Elite, because benchmark quality depends on committed participants: comparison context is only worth having when the people contributing to it are serious about the data they contribute. Elite adds deeper interpretive surfaces, such as where a result sits within a distribution and how it trends over time. "Why PAT has no free tier" explains the membership philosophy in full.
+No, and that is a design decision rather than an omission. PAT offers paid membership at two tiers, Pro and Elite, because benchmark quality depends on committed participants: comparison context is only worth having when the people contributing to it are serious about the answers they contribute. Elite adds deeper interpretive surfaces, such as where a result sits within a distribution and how it trends over time. "Why PAT has no free tier" explains the membership philosophy in full.
 
-## What happens to our data if we leave?
+## What happens to our records if we leave?
 
-Your data belongs to you — that is PAT's stewardship position for every tenant. If a tenant leaves the platform, their data is removed, and the removal is receipted rather than simply asserted. The only thing that persists is what was always anonymous: benchmark aggregates that already passed the suppression rules remain aggregate, and individual contributions cannot be reconstructed from them. "Security and privacy posture" covers this stewardship position alongside the platform's role walls and permission scoping.
+Your records belong to you — that is PAT's stewardship position for every tenant. If a tenant leaves the platform, their records are removed, and the removal is receipted rather than simply asserted. The only thing that persists is what was always anonymous: benchmark aggregates that already passed the suppression rules remain aggregate, and individual contributions cannot be reconstructed from them. "Security and privacy posture" covers this stewardship position alongside the platform's role walls and permission scoping.
 
 ## What is Ask Pat, and what can it see?
 

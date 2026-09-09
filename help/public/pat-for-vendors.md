@@ -45,9 +45,9 @@ In the third area, firms' assessed experience reads above the declaration: they 
 
 ## Comparison context with real protections
 
-Alignment evidence also comes with context. PAT benchmarks let you see readings against comparison cohorts — but benchmarks are context, never rankings, and the protections that shield firms shield vendors equally. There are no league tables. Contributors are anonymous within benchmarks. A benchmark cut publishes only when at least five contributors stand behind it and no single contributor supplies more than a quarter of its data; anything short of that shows as suppressed rather than publishing a number too thin to trust.
+Alignment evidence also comes with context. PAT benchmarks let you see readings against comparison cohorts — but benchmarks are context, never rankings, and the protections that shield firms shield vendors equally. There are no league tables. Contributors are anonymous within benchmarks. A benchmark cut publishes only when at least five contributors stand behind it and no single contributor supplies more than a quarter of its answers; anything short of that shows as suppressed rather than publishing a number too thin to trust.
 
-The data behind those comparisons is kept clean by hard boundaries: production, pilot, and demo data are strictly separated, and demo, synthetic, and pilot data never enter published benchmarks. Evidence about how your product lands in the real world is drawn only from the real world.
+The answers behind those comparisons is kept clean by hard boundaries: production, pilot, and demo data are strictly separated, and demo, synthetic, and pilot data never enter published benchmarks. Evidence about how your product lands in the real world is drawn only from the real world.
 
 ## Evidence for honest conversations
 
@@ -57,9 +57,9 @@ What a vendor receives is structured and evidence-based by design, and that shap
 
 A vendor being measured has a legitimate interest in how the measuring instrument is governed, and PAT's answer is deliberately strict. Assessment and learning module content must cite authoritative sources to enter the system at all — unsourced content is rejected mechanically at import — and content goes live only after a named human reviewer signs off, with the review recorded: who reviewed it, and when. The questions through which firms assess their experience of your product are therefore sourced, reviewed, and accountable, and the scoring that follows them is deterministic arithmetic applied identically to every firm. When alignment evidence arrives on your desk, the instrument that produced it can explain itself all the way down.
 
-## Your data, and what leaving would mean
+## Your records, and what leaving would mean
 
-PAT's data stewardship applies to vendors as it does to every tenant: your data belongs to you. Your declarations and vendor-side data are yours, and if you ever leave the platform, that data is removed — with the removal receipted, not merely promised. What persists afterward is only what was already anonymous and aggregate: benchmark figures that passed PAT's suppression rules remain aggregate, and no individual contribution can be reconstructed from them. The same boundary that protects firms' candor protects your participation — nothing that outlives your membership can be traced back to you.
+PAT's stewardship applies to vendors as it does to every tenant: your records belong to you. Your declarations and vendor-side records are yours, and if you ever leave the platform, those records are removed — with the removal receipted, not merely promised. What persists afterward is only what was already anonymous and aggregate: benchmark figures that passed PAT's suppression rules remain aggregate, and no individual contribution can be reconstructed from them. The same boundary that protects firms' candor protects your participation — nothing that outlives your membership can be traced back to you.
 
 ## What you see, and what you don't
 
@@ -113,9 +113,9 @@ The vendor's product team takes the second area's gap as a question rather than 
 
 **Do vendors learn which firms said what?** No. Contributors are anonymous within benchmarks, and firms' private assessment detail is never visible to vendors.
 
-**What protects the quality of vendor-facing comparisons?** A benchmark cut publishes only with at least five contributors, none supplying more than a quarter of its data; anything short shows as suppressed, and production, pilot, and demo data never mix.
+**What protects the quality of vendor-facing comparisons?** A benchmark cut publishes only with at least five contributors, none supplying more than a quarter of its answers; anything short shows as suppressed, and production, pilot, and demo data never mix.
 
-**What happens to vendor data if you leave?** It is removed, and the removal is receipted. Only already-anonymous benchmark aggregates persist, and no individual contribution can be reconstructed from them.
+**What happens to vendor records if you leave?** It is removed, and the removal is receipted. Only already-anonymous benchmark aggregates persist, and no individual contribution can be reconstructed from them.
 
 **Is there a free vendor tier?** No. Membership is paid — Pro or Elite — by design, because evidence quality depends on committed participants on both sides of the measurement.
 

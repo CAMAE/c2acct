@@ -27,7 +27,7 @@ An ecosystem brings these two kinds of members into one frame. On their own, a f
 
 The reason to gather firms into an ecosystem is the view it makes possible. A consultant looking across their managed set can see cross-firm alignment structure — how the products in play are landing across the firms that use them, seen through the same consistent assessment rather than through anecdote.
 
-This matters because a single firm's experience of a product is one data point, and one data point is hard to interpret. Is a rough experience a product problem, an implementation problem, or something particular to that firm? Seen across an ecosystem, patterns become legible in a way they cannot be firm by firm. That legibility rests on PAT's evidence philosophy — evidence, not advertising. Vendors make structured declarations; firm assessments verify them; and displayed numbers trace back to their sources. The ecosystem view inherits all of that. It is not a collection of opinions about tools. It is the same verified alignment evidence, read at portfolio width.
+This matters because a single firm's experience of a product is one reading, and one reading is hard to interpret. Is a rough experience a product problem, an implementation problem, or something particular to that firm? Seen across an ecosystem, patterns become legible in a way they cannot be firm by firm. That legibility rests on PAT's evidence philosophy — evidence, not advertising. Vendors make structured declarations; firm assessments verify them; and displayed numbers trace back to their sources. The ecosystem view inherits all of that. It is not a collection of opinions about tools. It is the same verified alignment evidence, read at portfolio width.
 
 ## Who sees what — and who does not
 
@@ -55,11 +55,11 @@ For the consultant, this matters because a portfolio view is only as useful as i
 
 PAT's cadence philosophy shapes that rhythm without forcing it. Engagement is paced — quarterly rhythms are the kind of tempo PAT has in mind — and its reminders are deliberately no-guilt: informative nudges, never shame mechanics. A managed set of busy firms does not need another source of pressure; it needs a steady, humane cadence that keeps readings reasonably fresh. That is the cadence the construct assumes.
 
-## What membership does not change about data ownership
+## What membership does not change about who owns your records
 
-Joining a consultant-managed set does not alter who a firm's data belongs to. In PAT, tenants' data belongs to them — full stop, ecosystem or no ecosystem. If a participant leaves, their data is removed, and the removal is receipted: leaving is a documented exit, not a formality with residue.
+Joining a consultant-managed set does not alter who a firm's records belong to. In PAT, tenants' records belong to them — full stop, ecosystem or no ecosystem. If a participant leaves, their records are removed, and the removal is receipted: leaving is a documented exit, not a formality with residue.
 
-One further boundary deserves the same plainness. Anonymous benchmark aggregates that have already passed PAT's suppression rules remain aggregate — individual contributions are not reconstructable from them. A firm's participation can inform comparison context while it participates, but that context never becomes a back door to the firm. Ownership, exit, and anonymity hold inside an ecosystem exactly as they do outside one. The managed frame changes who can see alignment structure; it changes nothing about whose data it is.
+One further boundary deserves the same plainness. Anonymous benchmark aggregates that have already passed PAT's suppression rules remain aggregate — individual contributions are not reconstructable from them. A firm's participation can inform comparison context while it participates, but that context never becomes a back door to the firm. Ownership, exit, and anonymity hold inside an ecosystem exactly as they do outside one. The managed frame changes who can see alignment structure; it changes nothing about whose records they are.
 
 ## What an ecosystem is not
 
@@ -83,7 +83,7 @@ The third is evidence lineage. A number whose origin cannot be traced is marketi
 
 ## How this looks for a firm, a vendor, and a consultant
 
-For a firm, ecosystem membership changes little about daily experience. The firm runs its assessment as any firm does — same five modules, same questions, same bands — and its results inform the alignment picture its consultant manages. Other member firms gain no view into it, and its data remains its own.
+For a firm, ecosystem membership changes little about daily experience. The firm runs its assessment as any firm does — same five modules, same questions, same bands — and its results inform the alignment picture its consultant manages. Other member firms gain no view into it, and its records remain its own.
 
 For a vendor, an ecosystem is where a declaration meets experience at more than one firm at a time. Inside a managed set, several firms may be assessing their experience of the same product, and the vendor receives structured, evidence-based views of where alignment holds and where it diverges — with no window into any individual firm beyond what its role permits.
 
@@ -121,7 +121,7 @@ What exactly does the consultant see? Structure and alignment signal — per-fir
 
 Does a vendor whose product is in play see the member firms? No. A vendor receives structured, evidence-based views of where alignment holds and diverges, with no window into individual firms beyond what its role allows.
 
-Does joining an ecosystem change who owns our data? No. Tenants' data belongs to them, ecosystem or not, and a departing tenant's data is removed with a receipted removal.
+Does joining an ecosystem change who owns our records? No. Tenants' records belong to them, ecosystem or not, and a departing tenant's records are removed with a receipted removal.
 
 How does an ecosystem picture stay current? Member firms complete modules and re-assess over time; results update as modules complete, so the alignment picture reflects present-tense readings rather than a dated snapshot.
 

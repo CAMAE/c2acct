@@ -15,7 +15,7 @@ A first session with PAT exists to let you find your footing in a structured env
 
 That means your opening hour is spent on orientation rather than obligation. You are looking at how assessments are organized if you are a firm, or how capability declarations are structured if you are a vendor. You are learning the vocabulary — pillars, bands, alignment — that everything else in the platform is built on. The aim is that by the end of a first session you can answer one question confidently: what does PAT measure, and what will my part in that measurement look like?
 
-One thing worth knowing before you start: PAT is a paid membership platform, with two tiers, Pro and Elite. There is no free tier, and that is a deliberate design decision rather than an omission — the quality of the comparative data PAT holds depends on committed participants. So by the time you are having a first session, you are already a member, and the platform treats you as one: what you see is the real structure, not a demonstration shell.
+One thing worth knowing before you start: PAT is a paid membership platform, with two tiers, Pro and Elite. There is no free tier, and that is a deliberate design decision rather than an omission — the quality of the comparison evidence PAT holds depends on committed participants. So by the time you are having a first session, you are already a member, and the platform treats you as one: what you see is the real structure, not a demonstration shell.
 
 ## Arriving as a firm
 
@@ -51,7 +51,7 @@ The platform's cadence philosophy matches. PAT paces engagement around deliberat
 
 ## What you will not be asked to do
 
-A first session with PAT never asks you to compete, and it helps to know that going in. PAT's benchmarks are comparison context, never rankings or league tables, and contributors within them are anonymous. Nothing you answer on day one — or any day — feeds a public leaderboard, because no such leaderboard exists anywhere in the platform. Benchmarks publish only when a cohort has at least five contributors and no single contributor supplies more than a quarter of the data; below that, the cut simply shows as suppressed.
+A first session with PAT never asks you to compete, and it helps to know that going in. PAT's benchmarks are comparison context, never rankings or league tables, and contributors within them are anonymous. Nothing you answer on day one — or any day — feeds a public leaderboard, because no such leaderboard exists anywhere in the platform. Benchmarks publish only when a cohort has at least five contributors and no single contributor supplies more than a quarter of the answers; below that, the cut simply shows as suppressed.
 
 You will also never be asked to work against synthetic or throwaway data without knowing it. PAT strictly separates production, pilot, and demo data, and demo or pilot data never enters published benchmarks. If your first session involves exploring with demo data to learn the interface, that exploration is walled off from anything real by design.
 
@@ -69,9 +69,9 @@ The material a new member encounters in PAT — assessment content, learning con
 
 There is a shorter way to say why the platform feels the way it does: PAT was built inside the profession it serves — by people who run and advise practices — not adapted from a generic survey tool. That origin shows up less as a story the platform tells and more as a set of choices you notice in a first session, from the pillar structure to the insistence that every number trace to its sources.
 
-## Your data, from the first session onward
+## Your answers, from the first session onward
 
-From the moment you begin, the data you put into PAT belongs to you. PAT's stewardship position is that tenants' data is theirs: if a tenant leaves the platform, their data is removed, and the removal is receipted rather than merely promised. The one thing that persists is what was always anonymous — benchmark aggregates that already passed the suppression rules remain aggregate, and individual contributions are not reconstructable from them.
+From the moment you begin, the answers you put into PAT belong to you. PAT's stewardship position is that tenants' records are theirs: if a tenant leaves the platform, their records are removed, and the removal is receipted rather than merely promised. The one thing that persists is what was always anonymous — benchmark aggregates that already passed the suppression rules remain aggregate, and individual contributions are not reconstructable from them.
 
 That matters on day one because it changes the calculus of answering honestly. A firm working through its first module is not signing its responses over to an open-ended future; it is contributing readings to its own picture, under boundaries it can see. Candid answers are what make the scores worth having, and the stewardship position exists so that candor costs nothing.
 

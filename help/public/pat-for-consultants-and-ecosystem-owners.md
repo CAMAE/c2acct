@@ -67,7 +67,7 @@ That is a working picture, not a verdict. The structural signal — a repeated g
 
 The consultant's view is broad, but it is not unlimited, and the same is true in the other direction: firms and vendors see only what their role permits. An ecosystem view does not turn member firms into open books for one another, and it does not expose firms to vendors beyond what the roles allow. These role boundaries are part of what makes participation workable — firms can assess honestly, vendors can declare openly, and the ecosystem owner can see the structural picture, each within a defined scope.
 
-Benchmarks follow the same spirit. Where comparison context is available, it is context, never a ranking or a league table. Contributors are anonymous within benchmarks, and a benchmark cut only publishes when a cohort has at least five contributors with no single contributor supplying more than a quarter of the data; otherwise it shows as suppressed. Production, pilot, and demo data are strictly separated, so nothing synthetic or exploratory leaks into the published picture. For an ecosystem owner, these rules mean the comparative context you and your firms see is context you can rely on.
+Benchmarks follow the same spirit. Where comparison context is available, it is context, never a ranking or a league table. Contributors are anonymous within benchmarks, and a benchmark cut only publishes when a cohort has at least five contributors with no single contributor supplying more than a quarter of the answers; otherwise it shows as suppressed. Production, pilot, and demo data are strictly separated, so nothing synthetic or exploratory leaks into the published picture. For an ecosystem owner, these rules mean the comparative context you and your firms see is context you can rely on.
 
 ## Assistance that respects the role
 
@@ -83,7 +83,7 @@ Three design decisions shape the consultant seat. The first is that role boundar
 
 The second is that a score is a point-in-time reading, never a permanent label. Operations change, so a permanent label would be false, and re-assessment on a working rhythm is the honest design. A card describes where a firm stood at its last reading, the next reading can differ, and the consultant's craft lives in that gap: directing attention and watching whether it registered.
 
-The third is small-cell suppression wherever comparison context appears. Below a minimum group size, a "group" number is barely distinguishable from someone's private data, and a dominance cap stops any single contributor from steering a figure presented as a peer group — the same discipline statistical agencies use. The cuts that publish, with at least five contributors and none supplying more than a quarter of the data, are the ones sturdy enough to put in front of a member firm.
+The third is small-cell suppression wherever comparison context appears. Below a minimum group size, a "group" number is barely distinguishable from someone's private answers, and a dominance cap stops any single contributor from steering a figure presented as a peer group — the same discipline statistical agencies use. The cuts that publish, with at least five contributors and none supplying more than a quarter of the answers, are the ones sturdy enough to put in front of a member firm.
 
 ## How this looks for a firm, a vendor, and a consultant
 

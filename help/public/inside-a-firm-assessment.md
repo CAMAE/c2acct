@@ -13,7 +13,7 @@ A PAT firm assessment is five modules of twenty questions each — one hundred q
 
 The assessment walks through five modules, each examining a different domain of how your firm operates, and each feeding one of PAT's five pillars. Operating Model & Workflow Discipline feeds the Operations pillar. Automation & AI Readiness feeds Automation. Integration & Data Flow Maturity feeds Integration. Governance, Controls & Vendor Risk feeds Governance. Strategy, Change Readiness & Market Alignment feeds Strategy.
 
-Together the five modules cover the ground a firm leader would want covered: how work actually gets done day to day, how ready the practice is to automate, how well its systems and data connect, how it governs itself and its vendor relationships, and how deliberately it faces its market. No single module tries to capture the whole firm; each takes one domain seriously, and the five together assemble the full picture.
+Together the five modules cover the ground a firm leader would want covered: how work actually gets done day to day, how ready the practice is to automate, how well its systems and records connect, how it governs itself and its vendor relationships, and how deliberately it faces its market. No single module tries to capture the whole firm; each takes one domain seriously, and the five together assemble the full picture.
 
 ## Why the same questions repeat in every module
 

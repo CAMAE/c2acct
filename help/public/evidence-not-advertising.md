@@ -55,7 +55,7 @@ Lineage is also what keeps the rest of the philosophy honest over time. A system
 
 A philosophy like this would be hollow if it bound only one side. In PAT it binds all three roles. Vendors are held to their declarations. Firms are measured by their answers, with signal-integrity checks accompanying scores so readers know how much weight a result can bear. Consultants and ecosystem owners see alignment structure across the firms they manage — but what they see is built from the same verified material, not from summaries anyone composed to please them.
 
-Even PAT's benchmarks follow the standard. They exist to provide comparison context, never rankings, and they publish only when a cohort is substantial enough — at least five contributors, with no single contributor supplying more than a quarter of the data — for the comparison to mean something. A benchmark that cannot bear evidential weight is suppressed rather than shown. Withholding a weak number is itself an act of the same philosophy: showing it would be advertising the appearance of insight without the substance.
+Even PAT's benchmarks follow the standard. They exist to provide comparison context, never rankings, and they publish only when a cohort is substantial enough — at least five contributors, with no single contributor supplying more than a quarter of the answers — for the comparison to mean something. A benchmark that cannot bear evidential weight is suppressed rather than shown. Withholding a weak number is itself an act of the same philosophy: showing it would be advertising the appearance of insight without the substance.
 
 And Ask Pat, the assistant available inside PAT, is bound too: it answers only from PAT's own documented content, and when it lacks documented evidence for a question, it says so rather than guessing. It helps you understand the evidence; it never invents any, and it never generates scores.
 
@@ -111,7 +111,7 @@ The story does not end there: PAT treats every score as a point-in-time reading,
 
 "A firm can improve its standing by writing strong qualitative answers." Open-ended questions carry zero score weight by design: they preserve the firm's context in its own words, but no eloquence enters the arithmetic.
 
-"Evidence lineage means the raw data behind every figure is published." Lineage means a displayed figure can answer where it came from — for the people entitled to that figure. Tracing operates within PAT's role permissions; it makes numbers accountable, not public.
+"Evidence lineage means the raw answers behind every figure is published." Lineage means a displayed figure can answer where it came from — for the people entitled to that figure. Tracing operates within PAT's role permissions; it makes numbers accountable, not public.
 
 "Ask Pat weighs evidence or contributes to scores." Pat assists with understanding only. It answers from PAT's documented content, cites what it draws on, admits when documentation is silent — and it never generates scores, because no AI model sits anywhere in the scoring path.
 

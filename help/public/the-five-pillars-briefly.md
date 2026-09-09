@@ -13,7 +13,7 @@ PAT assesses accounting firms across five pillars — Operations, Automation, In
 
 A single blended score would be easy to read and almost useless to act on. Two firms with the same overall number can be in completely different situations: one strong on process and weak on technology, the other the reverse. Averaging those differences away hides exactly the information a managing partner, a vendor, or a consultant needs.
 
-So PAT keeps the dimensions separate. Each pillar corresponds to one assessment module, each module carries twenty questions, and each pillar receives its own score from 0 to 100, presented first as one of five bands — Early, Developing, Building, Established, Leading — with the raw number in support. The five dimensions were chosen to cover the things that determine whether a firm and its technology are pulling in the same direction: how work runs, what is automated, how data moves, how risk is controlled, and where the firm is heading.
+So PAT keeps the dimensions separate. Each pillar corresponds to one assessment module, each module carries twenty questions, and each pillar receives its own score from 0 to 100, presented first as one of five bands — Early, Developing, Building, Established, Leading — with the raw number in support. The five dimensions were chosen to cover the things that determine whether a firm and its technology are pulling in the same direction: how work runs, what is automated, how records move, how risk is controlled, and where the firm is heading.
 
 One design decision makes the five scores genuinely comparable rather than five separate surveys stapled together: every module asks the same twenty questions, with identical wording, on purpose. The module supplies the context — when a question refers to "this area," that means the module's own domain. Because the wording never shifts, a 70 on one pillar means the same kind of thing as a 70 on another, and the differences between your five scores are real differences, not artifacts of how questions were phrased.
 
@@ -43,9 +43,9 @@ One clarification worth making, since this pillar has "AI" in its module name: P
 
 ## Integration: how data flows between your systems
 
-The Integration pillar is measured by the module called Integration & Data Flow Maturity. It looks at how mature the firm's data flows are — how well the systems the firm relies on actually connect, and how data moves between them.
+The Integration pillar is measured by the module called Integration & Data Flow Maturity. It looks at how mature the firm's data flows are — how well the systems the firm relies on actually connect, and how records move between them.
 
-Most accounting firms run on more than one system, and the seams between systems are where friction tends to live: the same data entered more than once, information that exists in one tool but never reaches another, workarounds that quietly become permanent. Integration maturity is the difference between a collection of software and a working stack.
+Most accounting firms run on more than one system, and the seams between systems are where friction tends to live: the same record entered more than once, information that exists in one tool but never reaches another, workarounds that quietly become permanent. Integration maturity is the difference between a collection of software and a working stack.
 
 This pillar tends to be revealing precisely because it is hard to see from inside. Day to day, people adapt to poor data flow until it feels normal. A structured score gives the firm a way to look at that maturity directly, in the same banded terms as everything else it measures.
 
