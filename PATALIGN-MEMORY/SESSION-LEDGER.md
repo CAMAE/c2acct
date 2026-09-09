@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · Depth box, commit 0ffef7d1 — week cards gated on the flag (the flag-off diff caught them rendering). — Forge.
+
 ## 2026-09-09 · Depth box, commit 56b1ebca — flag-off byte identity restored (onboarding wrappers, wizard prop, /pat + /help metadata); dashboard prop renamed so copy-lint reads 67 again. — Forge.
 
 ## 2026-09-09 · Depth box, commit 2a69ce3d — /pat = How it works (flag-on): 01 radar, 02 evidence both ways, 03 delta / hot divergence, 04 fork band; radar + band extracted for reuse; depth-box contract test; atlas gains firm-elite / vendor-elite homes. — Forge.
