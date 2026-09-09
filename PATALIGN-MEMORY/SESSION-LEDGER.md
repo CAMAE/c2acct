@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · V3 box, commit 48bbae69 — create-account, onboarding(+audience), pat moved to the (public) group (V7 shell flag-on, AppShell flag-off); 404 in V7PublicShell flag-on; /sign-in/firm|vendor redirect to the hub view flag-on. — Forge.
+
 ## 2026-09-09 · V3 box, commit 7659cb52 — front door hero CTA band V3 (flag-on): one band, three cells, pills, whole-cell hover tint 150ms; ArrowGlyph removed; reference renders not readable from this seat. — Forge.
 
 ## 2026-09-09 · Finish box PUSHED — origin/feature/engagement-v1 = 9b365244
