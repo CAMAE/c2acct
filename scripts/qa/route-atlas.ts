@@ -34,6 +34,7 @@ const FIXTURES: Record<string, string> = {
   "[vendorId]": "demo-vendor-company-pat-demo-vendor",
   "[audience]": "firm",
   "[id]": "demo-engagement",
+  "[slug]": "pat-for-firms", // help/public article (depth box 6: /help/[slug])
 };
 /** Per-route overrides where the generic fixture would not resolve. */
 const ROUTE_FIXTURES: Record<string, Record<string, string>> = {
