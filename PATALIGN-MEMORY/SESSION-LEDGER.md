@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-09 · V3 box, commit b6b2fa8a — chain fixes: band sizes as CSS classes (ratchet back at 111), band rules above the token layer, e2e teardown reads DATABASE_URL from .env.local, accounting pack prompt follows 4.2. — Forge.
+
 ## 2026-09-09 · V3 box, commit 64318e34 — fixture hygiene: e2e globalTeardown + scripts/dev/reset-demo.ts (tracked) remove E2E rows and restore the seed; follow-up option seed for Atlas Family Office Services (32 rows / 5 submissions), idempotent, hooked into seed:pat-runtime. — Forge.
 
 ## 2026-09-09 · V3 box, commit d552b64d — layout/labels: support summary de-duplicated; '1 pt spread'; widths covered by the 3.1 rule (measured 1161px); consultants freshness/nudges are PAT_ENABLE_PINGS-gated by design, not a key bug. — Forge.
