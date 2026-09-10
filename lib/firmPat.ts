@@ -501,7 +501,7 @@ export const FIRM_PRODUCT_MODULE_TITLE = "Firm Product Assessment";
 export const REGISTRY_MEMO_TTL_MS = 10 * 60 * 1000;
 let firmRegistryMemo: { at: number; value: Promise<Array<{ id: string; key: string; title: string }>> } | null = null;
 
-export function isRegistryMemoEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+export function isRegistryMemoEnabled(env: Record<string, string | undefined> = process.env): boolean {
   return env.PAT_ENABLE_REGISTRY_MEMO === "1";
 }
 
