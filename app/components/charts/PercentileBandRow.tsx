@@ -106,7 +106,7 @@ export default function PercentileBandRow({
               stroke={markerColor}
               strokeWidth={2}
             />
-            <circle cx={markerX} cy={TRACK_Y + TRACK_H / 2} r={5} fill={markerColor} stroke="white" strokeWidth={1.5} />
+            <circle cx={markerX} cy={TRACK_Y + TRACK_H / 2} r={5} fill="var(--brand-c2-blue)" stroke="white" strokeWidth={2} />
             <text
               x={Math.max(PAD + 10, Math.min(W - PAD - 10, markerX))}
               y={TRACK_Y - 8}

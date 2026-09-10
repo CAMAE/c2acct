@@ -1,4 +1,3 @@
-import { getScoreBand } from "@/lib/scoreBands";
 import { ordinal } from "@/lib/ordinal";
 
 /**
@@ -31,7 +30,6 @@ export default function PercentileBand({ rows, title }: { rows: PercentileRow[];
   return (
     <div className="space-y-3" role="group" aria-label={title}>
       {rows.map((row) => {
-        const band = typeof row.score === "number" ? getScoreBand(row.score) : null;
         return (
           <div key={row.key} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
             <div>
@@ -65,11 +63,8 @@ export default function PercentileBand({ rows, title }: { rows: PercentileRow[];
                   {/* your marker */}
                   {typeof row.score === "number" ? (
                     <div
-                      className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow"
-                      style={{
-                        left: `${pct(row.score)}%`,
-                        backgroundColor: band ? `var(${band.colorVar})` : "var(--brand-c2-blue)",
-                      }}
+                      className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[var(--brand-c2-blue)] shadow"
+                      style={{ left: `${pct(row.score)}%` }}
                       aria-hidden="true"
                     />
                   ) : null}
