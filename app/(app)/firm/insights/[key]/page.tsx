@@ -32,7 +32,7 @@ import {
   FIRM_MODULE_DEFINITIONS,
   FIRM_TIER1_INSIGHT_DEFINITIONS,
   FIRM_TIER2_INSIGHT_DEFINITIONS,
-  ensureFirmAlignmentSystem,
+  ensureFirmAlignmentSystemMemo,
 } from "@/lib/firmPat";
 
 export const dynamic = "force-dynamic";
@@ -156,7 +156,7 @@ export default async function FirmInsightDetailPage({
     );
   }
 
-  await ensureFirmAlignmentSystem();
+  await ensureFirmAlignmentSystemMemo();
 
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const { key } = await params;

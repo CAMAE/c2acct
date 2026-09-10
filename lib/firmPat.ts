@@ -488,6 +488,40 @@ export function deriveFirmProductReviewStatus(input: {
 export const FIRM_PRODUCT_MODULE_KEY = "firm_product_review_v1";
 export const FIRM_PRODUCT_MODULE_TITLE = "Firm Product Assessment";
 
+/**
+ * Wait-state box item 4 (2026-09-10): the firm insights hub and readout ran
+ * ensureFirmAlignmentSystem() on EVERY request — a few hundred serial upserts
+ * and deletes that cost ~1 ms each locally and a Neon round trip each on
+ * Vercel (8–10 s per page on the preview; vendor pages, which never call it,
+ * answer in 300 ms). Behind PAT_ENABLE_REGISTRY_MEMO=1 the ensure runs once per
+ * server process and is reused for REGISTRY_MEMO_TTL_MS; flag off, every call
+ * still runs the full ensure exactly as before. The rendered page is identical
+ * either way — the registry it seeds is static code.
+ */
+export const REGISTRY_MEMO_TTL_MS = 10 * 60 * 1000;
+let firmRegistryMemo: { at: number; value: Promise<Array<{ id: string; key: string; title: string }>> } | null = null;
+
+export function isRegistryMemoEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env.PAT_ENABLE_REGISTRY_MEMO === "1";
+}
+
+export function ensureFirmAlignmentSystemMemo(now = Date.now()) {
+  if (!isRegistryMemoEnabled()) return ensureFirmAlignmentSystem();
+  if (!firmRegistryMemo || now - firmRegistryMemo.at > REGISTRY_MEMO_TTL_MS) {
+    const value = ensureFirmAlignmentSystem().catch((error) => {
+      firmRegistryMemo = null; // a failed ensure is not remembered
+      throw error;
+    });
+    firmRegistryMemo = { at: now, value };
+  }
+  return firmRegistryMemo.value;
+}
+
+/** Test seam: forget the memo. */
+export function resetFirmRegistryMemoForTests() {
+  firmRegistryMemo = null;
+}
+
 export async function ensureFirmAlignmentSystem() {
   const now = new Date();
   const ensuredModules: Array<{ id: string; key: string; title: string }> = [];

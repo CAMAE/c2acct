@@ -26,7 +26,7 @@ import { evaluateUnlocked } from "@/lib/insights/evaluateUnlocked";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import {
-  ensureFirmAlignmentSystem,
+  ensureFirmAlignmentSystemMemo,
   getFirmAssessmentProgress,
   FIRM_TIER1_INSIGHT_DEFINITIONS,
 } from "@/lib/firmPat";
@@ -80,7 +80,7 @@ export default async function FirmInsightsPage({
     );
   }
 
-  await ensureFirmAlignmentSystem();
+  await ensureFirmAlignmentSystemMemo();
 
   const [moduleProgress, unlocked, insightReports, alignmentSignal] = await Promise.all([
     getFirmAssessmentProgress(sessionUser.companyId),
