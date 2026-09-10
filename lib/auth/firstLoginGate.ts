@@ -17,7 +17,7 @@
  */
 
 export type MiddlewareGate = "password-update" | "pass";
-export type PageGate = "sign-in" | "invalid" | "form" | "refresh-claim" | "return-to";
+export type PageGate = "sign-in" | "invalid" | "form" | "refresh-claim";
 
 /** proxy.ts: protected page + token claim → send to the password-update page. */
 export function middlewareGate(input: { isProtectedPage: boolean; tokenMustChangePassword: boolean }): MiddlewareGate {
@@ -30,14 +30,19 @@ export function pageGate(input: {
   userFound: boolean;
   dbMustChangePassword: boolean;
   hasPasswordHash: boolean;
+  /** What the session reports; informational only — see the comment below. */
   tokenMustChangePassword: boolean;
 }): PageGate {
   if (!input.hasSession) return "sign-in";
   if (!input.userFound) return "invalid";
   if (input.dbMustChangePassword || !input.hasPasswordHash) return "form";
-  // DB says done. If the token still carries the claim, the middleware will
-  // bounce `returnTo` straight back here — refresh the claim first.
-  return input.tokenMustChangePassword ? "refresh-claim" : "return-to";
+  // DB says done. The page cannot see the cookie's claim: `auth()` runs the
+  // jwt callback, which re-reads the user row, so the session in a server
+  // component always reflects the DB even while the cookie still says true
+  // (proved live on the 2026-09-10 preview: the "return-to" branch looped).
+  // The only way onto this page with the DB done is the middleware acting on
+  // a stale cookie — so always refresh the claim, then return.
+  return "refresh-claim";
 }
 
 export const CLAIM_REFRESH_PATH = "/api/auth/claims";

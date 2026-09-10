@@ -66,9 +66,6 @@ export default async function FirstLoginPasswordUpdatePage({
   if (gate === "refresh-claim") {
     redirect(claimRefreshHref(returnTo));
   }
-  if (gate === "return-to") {
-    redirect(returnTo);
-  }
 
   return (
     <div className="space-y-8">
