@@ -13,10 +13,10 @@ const ROOT = process.cwd();
 
 describe("registry memo (PAT_ENABLE_REGISTRY_MEMO)", () => {
   it("is off unless the flag is exactly \"1\"", () => {
-    expect(isRegistryMemoEnabled({})).toBe(false);
-    expect(isRegistryMemoEnabled({ PAT_ENABLE_REGISTRY_MEMO: "true" })).toBe(false);
-    expect(isRegistryMemoEnabled({ PAT_ENABLE_REGISTRY_MEMO: "0" })).toBe(false);
-    expect(isRegistryMemoEnabled({ PAT_ENABLE_REGISTRY_MEMO: "1" })).toBe(true);
+    expect(isRegistryMemoEnabled({} as NodeJS.ProcessEnv)).toBe(false);
+    expect(isRegistryMemoEnabled({ PAT_ENABLE_REGISTRY_MEMO: "true" } as NodeJS.ProcessEnv)).toBe(false);
+    expect(isRegistryMemoEnabled({ PAT_ENABLE_REGISTRY_MEMO: "0" } as NodeJS.ProcessEnv)).toBe(false);
+    expect(isRegistryMemoEnabled({ PAT_ENABLE_REGISTRY_MEMO: "1" } as NodeJS.ProcessEnv)).toBe(true);
   });
 
   it("the memo is bounded by a TTL of ten minutes", () => {
