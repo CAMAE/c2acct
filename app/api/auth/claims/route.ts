@@ -21,8 +21,18 @@ export async function GET(request: NextRequest) {
   const returnTo = sanitizeReturnTo(request.nextUrl.searchParams.get("returnTo"));
   const session = await auth();
   if (!session?.user) {
-    return NextResponse.redirect(new URL(`/sign-in?callbackUrl=${encodeURIComponent(returnTo)}`, request.nextUrl));
+    return relativeRedirect(`/sign-in?callbackUrl=${encodeURIComponent(returnTo)}`);
   }
   await unstable_update({});
-  return NextResponse.redirect(new URL(returnTo, request.nextUrl));
+  return relativeRedirect(returnTo);
+}
+
+/**
+ * A relative Location keeps the browser on the host it arrived from. Behind
+ * the standalone server request.nextUrl resolves to the internal hostname
+ * (localhost), which would send the cookie-bearing session to a host it has
+ * no cookie for.
+ */
+function relativeRedirect(location: string) {
+  return new NextResponse(null, { status: 307, headers: { Location: location } });
 }
