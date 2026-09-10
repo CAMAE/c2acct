@@ -7,6 +7,7 @@ import {
   unauthorizedResponse,
 } from "@/lib/authz";
 import { getResolvedAuthSecret } from "@/lib/auth/env";
+import { middlewareGate } from "@/lib/auth/firstLoginGate";
 import { REQUEST_ID_HEADER, resolveRequestId } from "@/lib/observability/requestId";
 
 const resolvedAuthSecret = getResolvedAuthSecret();
@@ -54,7 +55,7 @@ export default async function proxy(req: NextRequest) {
   }).catch(() => null);
 
   if (token?.sub) {
-    if (isProtectedPage && token.mustChangePassword === true) {
+    if (middlewareGate({ isProtectedPage, tokenMustChangePassword: token.mustChangePassword === true }) === "password-update") {
       const returnTo = `${pathname}${req.nextUrl.search}`;
       const passwordUpdateUrl = new URL("/sign-in/password-update", req.nextUrl);
       passwordUpdateUrl.searchParams.set("returnTo", returnTo);

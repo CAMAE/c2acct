@@ -48,7 +48,7 @@ async function findOrEnsureUserByEmail(email: string) {
   return findUserByEmail(email);
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   ...authConfig,
   secret: getResolvedAuthEnv().values.secret ?? undefined,
   trustHost: true,

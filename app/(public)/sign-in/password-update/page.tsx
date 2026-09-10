@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { updateFirstLoginPasswordAction } from "@/lib/auth/pilotPasswordActions";
 import { getSessionUser } from "@/lib/auth/session";
+import { claimRefreshHref, pageGate } from "@/lib/auth/firstLoginGate";
 import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -51,7 +52,21 @@ export default async function FirstLoginPasswordUpdatePage({
     redirect("/sign-in?error=pilot_password_invalid");
   }
 
-  if (!user.mustChangePassword && user.passwordHash) {
+  // One decision table with the middleware (lib/auth/firstLoginGate.ts). A token
+  // that still carries the claim after the DB flag was cleared goes through
+  // /api/auth/claims, which re-reads the DB into the cookie — otherwise the
+  // middleware would send `returnTo` straight back here forever.
+  const gate = pageGate({
+    hasSession: true,
+    userFound: true,
+    dbMustChangePassword: user.mustChangePassword,
+    hasPasswordHash: Boolean(user.passwordHash),
+    tokenMustChangePassword: sessionUser.mustChangePassword === true,
+  });
+  if (gate === "refresh-claim") {
+    redirect(claimRefreshHref(returnTo));
+  }
+  if (gate === "return-to") {
     redirect(returnTo);
   }
 
