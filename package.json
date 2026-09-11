@@ -25,7 +25,7 @@
     "validate:release-surfaces": "pnpm release:prelaunch",
     "lint": "eslint --max-warnings=-1",
     "lint:repo": "eslint app lib prisma scripts evals --max-warnings=0",
-    "lint:test": "eslint app lib prisma scripts evals tests e2e --max-warnings=0",
+    "lint:test": "eslint app lib prisma scripts tools evals tests e2e --max-warnings=0",
     "typecheck": "next typegen && tsc --noEmit",
     "export:safe": "bash scripts/export-codebase-safe.sh",
     "secrets:scan": "bash scripts/secret-scan-precheck.sh",
