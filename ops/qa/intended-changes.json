@@ -2,7 +2,7 @@
   {
     "id": "help-pass",
     "box": "Finish box 2026-09-08 / V3 2026-09-09",
-    "pattern": "help/glossary|help/global|evidence layer|Ask Pat|help library|What PAT does, in plain terms|about # min|Open the help article|Read the article",
+    "pattern": "help/glossary|help/global|evidence layer|Ask Pat|help library|What PAT does, in plain terms|about # min|Open the help article|Read the article|Read: ",
     "note": "help data pass wording; 'the data layer' → 'the evidence layer'; help cards link to /help articles"
   },
   {
@@ -38,13 +38,13 @@
   {
     "id": "product-fit-card",
     "box": "R7 (ruling)",
-    "pattern": "Product Fit Card|BattleCard",
+    "pattern": "Product Fit Card|BattleCard|BattleCard|battlecard|Product Fit Card",
     "note": "'BattleCard' → 'Product Fit Card' everywhere"
   },
   {
     "id": "dashboards",
     "box": "Depth 1 2026-09-09 (R18 keep; R2 restores cards under them)",
-    "pattern": "CURRENT OPERATING PICTURE|CURRENT EVIDENCE PICTURE|ALIGNMENT INDEX|MODULES COMPLETE|CAPABILITIES MET|NEXT BEST STEP|LATEST INSIGHT|SINCE YOUR LAST VISIT|PRODUCTS DECLARED|FIRM REVIEWS ON FILE|LARGEST DIVERGENCE|NEXT BRIEFING|alignment index #|firm reviews on file|This is your first visit on record",
+    "pattern": "CURRENT OPERATING PICTURE|CURRENT EVIDENCE PICTURE|ALIGNMENT INDEX|MODULES COMPLETE|CAPABILITIES MET|NEXT BEST STEP|LATEST INSIGHT|SINCE YOUR LAST VISIT|PRODUCTS DECLARED|FIRM REVIEWS ON FILE|LARGEST DIVERGENCE|NEXT BRIEFING|alignment index #|firm reviews on file|This is your first visit on record|Since your last visit|Modules complete|Capabilities met|Next best step|Latest insight|Current operating picture|Current evidence picture|Firm reviews on file|Largest divergence|Next briefing|Open readout|Open insights|alignment index|firm reviews? on file|Quarterly benchmark cut|Average of your final module scores|Full assessment on record|Distinct capabilities|maturity profile|operating floor averages|Products declared|first visit on record|Latest product readout|Unlock a more connected (firm|vendor) experience|Performance Alignment Technology (Firm|Vendor) portal|^Elite$|^Pro$|firms you reach",
     "note": "workspace dashboards (kept per R18)"
   },
   {
@@ -76,5 +76,41 @@
     "box": "Depth 9 2026-09-09 (APPROVED flag-off)",
     "pattern": "Engagement scoring is not part of PAT|user insight|no longer a separate page",
     "note": "dead-end redirects with a one-line notice"
+  },
+  {
+    "id": "release-fingerprint",
+    "box": "every build",
+    "pattern": "Copyright \\d+ C\\d?Acct.*Release [0-9a-f]+:",
+    "note": "footer release id differs by build — never a content change"
+  },
+  {
+    "id": "cards-under-dashboards",
+    "box": "box 2 2026-09-11 (R2)",
+    "pattern": "Firm account:|Modules completed:|Product review loop|Current vendor context|Vendor company:|Account: |Products: \\d+",
+    "note": "production's context lines re-grouped under the dashboard (same words, new paragraph boundaries)"
+  },
+  {
+    "id": "products-block",
+    "box": "box 2 2026-09-11 (R19)",
+    "pattern": "pt divergence|Vendor self-reported|Firm-reviewed|self-reported · no firm-reviewed signal yet|Manage products|final · \\d+ reviews?|in progress · \\d+ reviews?|too few to read divergence|Early signal|Vendor self-view|closely aligned|with a final vendor assessment|Final firm product reviews across your products|^Products$",
+    "note": "vendor workspace products block: self-reported vs firm-reviewed bars + divergence chip per product"
+  },
+  {
+    "id": "help-panels-r16",
+    "box": "box 2 2026-09-11 (R16)",
+    "pattern": "Your product stack as interactive pieces|closes your largest gap before anyone commits|Lift a piece from your stack, drop in a candidate|turns your alignment index into a position|read your band and peer position|ranked by fit, with the alignment gap|one ranked firm at a time|where your product lands first|read why it fits and where it struggles|How current the firm reviews of your products are, and which|one row per product with its freshness|Stale reviews weaken|find the products entering their window|What PAT benchmarks are, and are never|Evidence, not advertising|From early to leading",
+    "note": "help panels list the Sandbox, Quarterly benchmark, Product Fit Card and Review refresh"
+  },
+  {
+    "id": "signed-in-shell-r3",
+    "box": "box 2 2026-09-11 (R3)",
+    "pattern": "^Navigation$|Signed in as|Return to C\\d?Acct|Open navigation menu",
+    "note": "signed-in header controls on the V7 public shell"
+  },
+  {
+    "id": "followup-mc",
+    "box": "R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC)",
+    "pattern": "Other answers|Other \\(short answer\\)|Not a significant issue here|Response captured|Awaiting response|Absent / ad hoc|Strong / repeatable|^slider: |^radio ",
+    "note": "the five written follow-ups are multiple choice by design; option rows, sliders and radios replace the textareas flag-on"
   }
 ]

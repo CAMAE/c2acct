@@ -1,0 +1,7017 @@
+# Content diff A2 → D · 2026-09-11T16:00:09.317Z
+
+Route × identity pairs compared: 121; pairs with text changes: 121; changed paragraphs: 3923; classified as intended: 2007; RULINGS NEEDED (unclassified): 1916
+
+## Unclassified paragraphs per portal
+
+| portal | unclassified |
+|---|---|
+| methodology | 390 |
+| pat | 350 |
+| trust | 348 |
+| vendor | 231 |
+| public | 206 |
+| survey | 182 |
+| firm | 154 |
+| consultants | 55 |
+
+## RULINGS NEEDED (unclassified), by route × identity
+
+### / · admin
+- REMOVED: img "PAT logo"
+- CHANGED
+  - old: text: Performance Alignment Technology PAT intelligence layer
+  - new: text: Performance Alignment Technology
+- REMOVED: heading "The intelligence layer inside C#Acct" [level=#]
+- REMOVED: paragraph: PAT is the intelligence layer within C#Acct, designed to transform structured signals into usable, decision-grade insight with minimal friction and full contextual continuity.
+- REMOVED: text: WELCOME
+- REMOVED: paragraph: Understand how PAT turns assessments, capability signal, and product evidence into current-state decision support.
+- REMOVED: text: Learn more about PAT
+- REMOVED: article
+- REMOVED: text: Signed in
+- REMOVED: heading "Your account type isn't part of the current pilot" [level=#]
+- REMOVED: paragraph: You are signed in with a person-level account, and person-level surfaces are shelved for the current vendor/firm pilot. Sign out and use a vendor or firm account to reach a pilot workspace.
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Firms
+- ADDED: text: Vendors
+- ADDED: img "PAT"
+- ADDED: text: You Peers
+- ADDED: paragraph: Strategy — whether your technology plans point where your practice is actually heading.
+- ADDED: paragraph: Operations — the daily workflow discipline that separates smooth closes from late nights.
+- ADDED: paragraph: Automation — where software genuinely saves hours, and where it only promises to.
+- ADDED: paragraph: Integration — whether your systems share data cleanly or make your team re-key it.
+- ADDED: paragraph: Governance — the controls and vendor oversight your clients assume you already have.
+- ADDED: img "PAT"
+- ADDED: text: Cohort standing Peer view Strategy Operations Automation Integration Governance Peers Top decile You
+
+### /methodology · admin
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology Aggregation methodology Versioned · public
+- REMOVED: link "Trust center"
+- REMOVED: region "Methodology version": Version # Public, versioned methodology. Material changes are announced with the changelog below.
+- REMOVED: region "Methodology detail"
+- REMOVED: article
+- REMOVED: heading "What these numbers are — and are not" [level=#]
+- REMOVED: article
+- REMOVED: heading "Averaging — equal-weight by design" [level=#]
+- REMOVED: paragraph: Firm and vendor alignment readings average self-normalized #–# module scores. The five assessment modules are equal pillars of the framework; each emits one #–# score, so within-module question counts are already absorbed. Weighting by question or response count would distort the framework's stated structure, so we do not do it.
+- CHANGED
+  - old: paragraph: "Product readings use one-firm-one-vote: each firm's review of a product counts once, so multi-utility reviews cannot dominate the market read."
+  - new: paragraph: "Firm and vendor alignment readings average self-normalized #–# module scores. The five assessment modules are equal pillars of the framework; each emits one #–# score, so within-module question counts are already absorbed. Weighting by question or response count would distort the framework's stated structure, so we do not do it. Product readings use one-firm-one-vote: each firm's review of a product counts once, so multi-utility reviews cannot dominate the market read."
+- REMOVED: article
+- REMOVED: article
+- REMOVED: heading "Confidence bands — UX conventions, not statistics" [level=#]
+- REMOVED: article
+- REMOVED: heading "Benchmark suppression — a minimum-n safe harbor" [level=#]
+- CHANGED
+  - old: paragraph: "Confidence bands label thin evidence; suppression removes it. A cross-firm or peer benchmark is not published when either guard fails: fewer than five distinct contributing firms, or a single firm supplying more than # of the cut. This is the compensation-survey safe-harbor rule, adopted verbatim."
+  - new: paragraph: "Confidence bands label thin evidence; suppression removes it. A cross-firm or peer benchmark is not published when either guard fails: fewer than five distinct contributing firms, or a single firm supplying more than # of the cut. This is the compensation-survey safe-harbor rule, adopted verbatim. A suppressed benchmark shows an insufficient-peer-data state — never a number. Equal-weight cuts of five or more firms always clear the dominance guard by construction."
+- REMOVED: paragraph: A suppressed benchmark shows an insufficient-peer-data state — never a number. Equal-weight cuts of five or more firms always clear the dominance guard by construction.
+- REMOVED: article
+- REMOVED: heading "Integrity walls" [level=#]
+- REMOVED: article
+- REMOVED: heading "Rounding — a single authoritative pass" [level=#]
+- REMOVED: article
+- REMOVED: heading "Freshness windows — evidence age is labelled, never decayed" [level=#]
+- CHANGED
+  - old: paragraph: "Every score carries the age of the evidence behind it — the most recent module submission, product assessment, or firm review that fed it. Patalign classifies that age into three published windows: Fresh (under <rel>), Aging (#–<rel>), and Stale (over <rel>)."
+  - new: paragraph: "Every score carries the age of the evidence behind it — the most recent module submission, product assessment, or firm review that fed it. Patalign classifies that age into three published windows: Fresh (under <rel>), Aging (#–<rel>), and Stale (over <rel>). Age changes the label, never the number. Patalign does not silently decay, discount, or otherwise alter a score because it is old — the figure stays exactly as computed and the freshness state sits beside it so you can weigh its currency yourself. Absence of an evidence date is treated as unknown, not as stale."
+- REMOVED: paragraph: Age changes the label, never the number. Patalign does not silently decay, discount, or otherwise alter a score because it is old — the figure stays exactly as computed and the freshness state sits beside it so you can weigh its currency yourself. Absence of an evidence date is treated as unknown, not as stale.
+- REMOVED: article
+- REMOVED: paragraph: The cutoff governs inclusion, not value. It never changes, weights, or decays a score that has already been computed — a figure completed after the cutoff simply lands in the next quarter's cut instead of the current one. Membership tier changes what you see inside the benchmark (bands and percentiles for all members; deeper ranked position for Elite), never whether the cutoff applies to you.
+- REMOVED: article
+- REMOVED: paragraph: Figures are plain averages with the sample size shown — never weighted, percentile, or significance-tested statistics, and never professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, an insufficient-data state is shown instead of a number.
+- REMOVED: article
+- REMOVED: heading "Versioned and changelogged" [level=#]
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- CHANGED
+  - old: navigation "PAT trust and launch links"
+  - new: navigation "On this page"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Aggregation methodology
+- ADDED: heading "#What these numbers are — and are not" [level=#]
+- ADDED: heading "#Averaging — equal-weight by design" [level=#]
+- ADDED: heading "#Confidence bands — UX conventions, not statistics" [level=#]
+- ADDED: heading "#Benchmark suppression — a minimum-n safe harbor" [level=#]
+- ADDED: heading "#Integrity walls" [level=#]
+- ADDED: heading "#Rounding — a single authoritative pass" [level=#]
+- ADDED: heading "#Freshness windows — evidence age is labelled, never decayed" [level=#]
+- ADDED: text: On this page
+- ADDED: link "# What these numbers are — and are not"
+- ADDED: link "# Averaging — equal-weight by design"
+- ADDED: link "# Confidence bands — UX conventions, not statistics"
+- ADDED: link "# Benchmark suppression — a minimum-n safe harbor"
+- ADDED: link "# Integrity walls"
+- ADDED: link "# Rounding — a single authoritative pass"
+- ADDED: link "# Freshness windows — evidence age is labelled, never decayed"
+
+### /pat · admin
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology The Analytical Core Inside C#Acct
+- REMOVED: heading "PAT Intelligence Layer" [level=#]
+- REMOVED: paragraph: Pat is Patalign’s AI guide. Turn Pat on and you can ask questions about using the platform — and, on Elite, about your own scores and alignment data — in plain language, any time.
+- REMOVED: paragraph
+- REMOVED: text: Pat is optional and off by default. It doesn’t change your platform experience, your scores, or how Patalign’s aggregated, anonymized benchmarks work, as described in the
+- REMOVED: link "Terms of Service"
+- REMOVED: text: and
+- REMOVED: link "Privacy Policy"
+- REMOVED: text: .
+- REMOVED: paragraph
+- REMOVED: text: — human approval, audit logging, spend caps, a named stop-authority, and AI disclosure.
+- REMOVED: checkbox "Turn on Pat. I understand Pat is an AI assistant, not a person." [checked]
+- REMOVED: text: Turn on Pat. I understand Pat is an AI assistant, not a person.
+- REMOVED: text: What PAT does
+- REMOVED: paragraph: PAT captures structured operating and product signals, preserves context, and turns those signals into actionable interpretation across firm and vendor views.
+- REMOVED: text: Why it matters
+- CHANGED
+  - old: paragraph: The model is useful because it keeps assessment, capability, and insight layers connected instead of scattering them across disconnected routes and generic summaries.
+  - new: paragraph: The radar is those five scores drawn as one shape, over the dashed outline of the firm's peers.
+- REMOVED: text: How PAT grows
+- REMOVED: paragraph: PAT starts with current-state interpretation, then expands into stronger recommendation, comparison, and projection layers only when the underlying evidence is honest enough to support them.
+- REMOVED: text: Instant Value
+- CHANGED
+  - old: paragraph: The assessment is how PAT begins, not all that PAT is. The real asset is the intelligence layer that turns operating and product signals into reflective insight now, then expands into stronger recommendation and comparison layers as the model and data deepen.
+  - new: paragraph: The same two doors as the home page.
+- REMOVED: link "Sign in to PAT"
+- REMOVED: link "Back to home"
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: paragraph: What PAT measures, how both sides contribute evidence, and what each side gets back.
+- ADDED: text: "#"
+- ADDED: paragraph: Every firm answers the same five modules — strategy, operations, automation, integration, governance — and each one scores # to #
+- ADDED: img "PAT"
+- ADDED: text: You Peers
+- ADDED: paragraph: Fig. # — the home radar; shape only, no live numbers.
+- ADDED: text: "#"
+- ADDED: heading "Evidence both ways" [level=#]
+- ADDED: paragraph: A vendor declares what its product does and scores it; the firms that use it score the same features from experience.
+- ADDED: paragraph: Both bars sit side by side, so a claim and the field's reading of it are never separated.
+- ADDED: img "PAT"
+- ADDED: text: Evidence both ways Per feature
+- ADDED: text: "#"
+- ADDED: heading "The alignment delta" [level=#]
+- ADDED: img "PAT"
+- ADDED: text: Alignment delta Points
+- ADDED: text: "#"
+- ADDED: heading "What each side gets" [level=#]
+- ADDED: text: Firms
+- ADDED: text: Vendors
+
+### /trust · admin
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology PAT trust center Launch review surface
+- REMOVED: heading "Launch-readiness information for PAT review." [level=#]
+- REMOVED: paragraph: This hub links the current privacy, terms, security, support, billing, and release transparency surfaces for PAT. The language is intentionally conservative while the product is in local review and pre-public launch.
+- REMOVED: link "Trust center"
+- REMOVED: region "PAT trust surfaces"
+- REMOVED: link "Privacy policy draft Privacy This draft describes the data PAT expects to process during review and early launch. It is not a final legal policy until approved by counsel or the operator of record. Review privacy"
+- REMOVED: text: Privacy policy draft
+- REMOVED: heading "Privacy" [level=#]
+- REMOVED: paragraph: This draft describes the data PAT expects to process during review and early launch. It is not a final legal policy until approved by counsel or the operator of record.
+- REMOVED: text: Review privacy
+- REMOVED: link "Terms of service draft Terms These draft terms set expectations for review access and early launch use. They do not replace signed commercial terms or legal review. Review terms"
+- REMOVED: text: Terms of service draft
+- REMOVED: heading "Terms" [level=#]
+- REMOVED: paragraph: These draft terms set expectations for review access and early launch use. They do not replace signed commercial terms or legal review.
+- REMOVED: text: Review terms
+- REMOVED: link "Security posture Security This page summarizes implemented safeguards and current boundaries without claiming external certification or audit completion. Review security"
+- REMOVED: text: Security posture
+- REMOVED: heading "Security" [level=#]
+- REMOVED: paragraph: This page summarizes implemented safeguards and current boundaries without claiming external certification or audit completion.
+- REMOVED: text: Review security
+- REMOVED: link "Support and contact Support Support expectations are intentionally scoped for local review and early launch. Always-on public support is not claimed here. Review support"
+- REMOVED: text: Support and contact
+- REMOVED: heading "Support" [level=#]
+- REMOVED: paragraph: Support expectations are intentionally scoped for local review and early launch. Always-on public support is not claimed here.
+- REMOVED: text: Review support
+- REMOVED: paragraph: This draft explains how billing should behave when provider configuration is present and how the UI must stay honest when it is absent.
+- REMOVED: text: Aggregation methodology
+- REMOVED: heading "Methodology" [level=#]
+- REMOVED: text: Review methodology
+- REMOVED: text: AI governance
+- CHANGED
+  - old: paragraph: Pat is Patalign's AI assistant. It helps with questions, reminders, and reports. Here is exactly how we keep it in bounds — these are system controls, not policies.
+  - new: paragraph: Privacy, terms, security, support, billing, and release transparency for PAT — each linked below.
+- REMOVED: text: Release transparency
+- REMOVED: heading "Release" [level=#]
+- REMOVED: text: Review release
+- REMOVED: article
+- REMOVED: article
+- REMOVED: heading "No unsupported claims" [level=#]
+- CHANGED
+  - old: paragraph: PAT does not claim third-party certification, audited status, uptime SLA, public customer references, or regulated-industry compliance certification at this stage.
+  - new: paragraph: PAT runs on verified releases — every release is checked against its source — with provider-backed billing and role-specific access.
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- CHANGED
+  - old: navigation "PAT trust and launch links"
+  - new: navigation "Trust surfaces"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Trust Center #
+- ADDED: note "No unsupported claims"
+- ADDED: text: No unsupported claims
+
+### / · consultant
+- REMOVED: img "PAT logo"
+- CHANGED
+  - old: text: Performance Alignment Technology PAT intelligence layer
+  - new: text: Performance Alignment Technology
+- REMOVED: heading "The intelligence layer inside C#Acct" [level=#]
+- REMOVED: paragraph: PAT is the intelligence layer within C#Acct, designed to transform structured signals into usable, decision-grade insight with minimal friction and full contextual continuity.
+- REMOVED: text: WELCOME
+- REMOVED: paragraph: Understand how PAT turns assessments, capability signal, and product evidence into current-state decision support.
+- REMOVED: text: Learn more about PAT
+- REMOVED: text: Signed in
+- REMOVED: heading "Continue to your workspace" [level=#]
+- REMOVED: text: Continue to your workspace
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Firms
+- ADDED: text: Vendors
+- ADDED: img "PAT"
+- ADDED: text: You Peers
+- ADDED: paragraph: Strategy — whether your technology plans point where your practice is actually heading.
+- ADDED: paragraph: Operations — the daily workflow discipline that separates smooth closes from late nights.
+- ADDED: paragraph: Automation — where software genuinely saves hours, and where it only promises to.
+- ADDED: paragraph: Integration — whether your systems share data cleanly or make your team re-key it.
+- ADDED: paragraph: Governance — the controls and vendor oversight your clients assume you already have.
+- ADDED: img "PAT"
+- ADDED: text: Cohort standing Peer view Strategy Operations Automation Integration Governance Peers Top decile You
+
+### /consultants/ecosystems/demo-…/firm/demo-…?panel=help · consultant
+- REMOVED: heading "Whitfield Group" [level=#]
+- REMOVED: strong: Whitfield Group
+- ADDED: heading "Boltway Practice Co." [level=#]
+- ADDED: strong: Boltway Practice Co.
+- ADDED: button "Follow-ups"
+
+### /consultants/ecosystems/demo-…/vendor-brief?panel=exec · consultant
+- REMOVED: 'heading "Sentinel Practice Cloud Ecosystem: # firms in scope." [level=#]'
+- CHANGED
+  - old: listitem: Vendor catalog covers # of # function buckets; # buckets remain unmapped in this ecosystem.
+  - new: listitem: Vendor catalog covers # of # function buckets; # bucket remain unmapped in this ecosystem.
+- CHANGED
+  - old: text: "Alignment delta Awaiting firm review Firm average # Vendor self-report — Based on responses from # firms in your network · last refreshed <date> · Confidence band across # firms: # grounded, # emerging. · scoring methodology: see Section # below."
+  - new: text: "Alignment delta -# vendor-higher Firm average # Vendor self-report # Based on responses from # firms in your network · last refreshed <date> · Confidence band across # firms: # grounded, # emerging. · scoring methodology: see Section # below."
+- ADDED: heading "Sentinel Practice Cloud Ecosystem's # firms average # alignment vs # self-report." [level=#]
+
+### /methodology · consultant
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology Aggregation methodology Versioned · public
+- REMOVED: link "Trust center"
+- REMOVED: region "Methodology version": Version # Public, versioned methodology. Material changes are announced with the changelog below.
+- REMOVED: region "Methodology detail"
+- REMOVED: article
+- REMOVED: heading "What these numbers are — and are not" [level=#]
+- REMOVED: article
+- REMOVED: heading "Averaging — equal-weight by design" [level=#]
+- REMOVED: paragraph: Firm and vendor alignment readings average self-normalized #–# module scores. The five assessment modules are equal pillars of the framework; each emits one #–# score, so within-module question counts are already absorbed. Weighting by question or response count would distort the framework's stated structure, so we do not do it.
+- CHANGED
+  - old: paragraph: "Product readings use one-firm-one-vote: each firm's review of a product counts once, so multi-utility reviews cannot dominate the market read."
+  - new: paragraph: "Firm and vendor alignment readings average self-normalized #–# module scores. The five assessment modules are equal pillars of the framework; each emits one #–# score, so within-module question counts are already absorbed. Weighting by question or response count would distort the framework's stated structure, so we do not do it. Product readings use one-firm-one-vote: each firm's review of a product counts once, so multi-utility reviews cannot dominate the market read."
+- REMOVED: article
+- REMOVED: article
+- REMOVED: heading "Confidence bands — UX conventions, not statistics" [level=#]
+- REMOVED: article
+- REMOVED: heading "Benchmark suppression — a minimum-n safe harbor" [level=#]
+- CHANGED
+  - old: paragraph: "Confidence bands label thin evidence; suppression removes it. A cross-firm or peer benchmark is not published when either guard fails: fewer than five distinct contributing firms, or a single firm supplying more than # of the cut. This is the compensation-survey safe-harbor rule, adopted verbatim."
+  - new: paragraph: "Confidence bands label thin evidence; suppression removes it. A cross-firm or peer benchmark is not published when either guard fails: fewer than five distinct contributing firms, or a single firm supplying more than # of the cut. This is the compensation-survey safe-harbor rule, adopted verbatim. A suppressed benchmark shows an insufficient-peer-data state — never a number. Equal-weight cuts of five or more firms always clear the dominance guard by construction."
+- REMOVED: paragraph: A suppressed benchmark shows an insufficient-peer-data state — never a number. Equal-weight cuts of five or more firms always clear the dominance guard by construction.
+- REMOVED: article
+- REMOVED: heading "Integrity walls" [level=#]
+- REMOVED: article
+- REMOVED: heading "Rounding — a single authoritative pass" [level=#]
+- REMOVED: article
+- REMOVED: heading "Freshness windows — evidence age is labelled, never decayed" [level=#]
+- CHANGED
+  - old: paragraph: "Every score carries the age of the evidence behind it — the most recent module submission, product assessment, or firm review that fed it. Patalign classifies that age into three published windows: Fresh (under <rel>), Aging (#–<rel>), and Stale (over <rel>)."
+  - new: paragraph: "Every score carries the age of the evidence behind it — the most recent module submission, product assessment, or firm review that fed it. Patalign classifies that age into three published windows: Fresh (under <rel>), Aging (#–<rel>), and Stale (over <rel>). Age changes the label, never the number. Patalign does not silently decay, discount, or otherwise alter a score because it is old — the figure stays exactly as computed and the freshness state sits beside it so you can weigh its currency yourself. Absence of an evidence date is treated as unknown, not as stale."
+- REMOVED: paragraph: Age changes the label, never the number. Patalign does not silently decay, discount, or otherwise alter a score because it is old — the figure stays exactly as computed and the freshness state sits beside it so you can weigh its currency yourself. Absence of an evidence date is treated as unknown, not as stale.
+- REMOVED: article
+- REMOVED: paragraph: The cutoff governs inclusion, not value. It never changes, weights, or decays a score that has already been computed — a figure completed after the cutoff simply lands in the next quarter's cut instead of the current one. Membership tier changes what you see inside the benchmark (bands and percentiles for all members; deeper ranked position for Elite), never whether the cutoff applies to you.
+- REMOVED: article
+- REMOVED: paragraph: Figures are plain averages with the sample size shown — never weighted, percentile, or significance-tested statistics, and never professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, an insufficient-data state is shown instead of a number.
+- REMOVED: article
+- REMOVED: heading "Versioned and changelogged" [level=#]
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- CHANGED
+  - old: navigation "PAT trust and launch links"
+  - new: navigation "On this page"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Aggregation methodology
+- ADDED: heading "#What these numbers are — and are not" [level=#]
+- ADDED: heading "#Averaging — equal-weight by design" [level=#]
+- ADDED: heading "#Confidence bands — UX conventions, not statistics" [level=#]
+- ADDED: heading "#Benchmark suppression — a minimum-n safe harbor" [level=#]
+- ADDED: heading "#Integrity walls" [level=#]
+- ADDED: heading "#Rounding — a single authoritative pass" [level=#]
+- ADDED: heading "#Freshness windows — evidence age is labelled, never decayed" [level=#]
+- ADDED: text: On this page
+- ADDED: link "# What these numbers are — and are not"
+- ADDED: link "# Averaging — equal-weight by design"
+- ADDED: link "# Confidence bands — UX conventions, not statistics"
+- ADDED: link "# Benchmark suppression — a minimum-n safe harbor"
+- ADDED: link "# Integrity walls"
+- ADDED: link "# Rounding — a single authoritative pass"
+- ADDED: link "# Freshness windows — evidence age is labelled, never decayed"
+
+### /pat · consultant
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology The Analytical Core Inside C#Acct
+- REMOVED: heading "PAT Intelligence Layer" [level=#]
+- REMOVED: paragraph: Pat is Patalign’s AI guide. Turn Pat on and you can ask questions about using the platform — and, on Elite, about your own scores and alignment data — in plain language, any time.
+- REMOVED: paragraph
+- REMOVED: text: Pat is optional and off by default. It doesn’t change your platform experience, your scores, or how Patalign’s aggregated, anonymized benchmarks work, as described in the
+- REMOVED: link "Terms of Service"
+- REMOVED: text: and
+- REMOVED: link "Privacy Policy"
+- REMOVED: text: .
+- REMOVED: paragraph
+- REMOVED: text: — human approval, audit logging, spend caps, a named stop-authority, and AI disclosure.
+- REMOVED: checkbox "Turn on Pat. I understand Pat is an AI assistant, not a person."
+- REMOVED: text: Turn on Pat. I understand Pat is an AI assistant, not a person.
+- REMOVED: text: What PAT does
+- REMOVED: paragraph: PAT captures structured operating and product signals, preserves context, and turns those signals into actionable interpretation across firm and vendor views.
+- REMOVED: text: Why it matters
+- CHANGED
+  - old: paragraph: The model is useful because it keeps assessment, capability, and insight layers connected instead of scattering them across disconnected routes and generic summaries.
+  - new: paragraph: The radar is those five scores drawn as one shape, over the dashed outline of the firm's peers.
+- REMOVED: text: How PAT grows
+- REMOVED: paragraph: PAT starts with current-state interpretation, then expands into stronger recommendation, comparison, and projection layers only when the underlying evidence is honest enough to support them.
+- REMOVED: text: Instant Value
+- CHANGED
+  - old: paragraph: The assessment is how PAT begins, not all that PAT is. The real asset is the intelligence layer that turns operating and product signals into reflective insight now, then expands into stronger recommendation and comparison layers as the model and data deepen.
+  - new: paragraph: The same two doors as the home page.
+- REMOVED: link "Sign in to PAT"
+- REMOVED: link "Back to home"
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: paragraph: What PAT measures, how both sides contribute evidence, and what each side gets back.
+- ADDED: text: "#"
+- ADDED: paragraph: Every firm answers the same five modules — strategy, operations, automation, integration, governance — and each one scores # to #
+- ADDED: img "PAT"
+- ADDED: text: You Peers
+- ADDED: paragraph: Fig. # — the home radar; shape only, no live numbers.
+- ADDED: text: "#"
+- ADDED: heading "Evidence both ways" [level=#]
+- ADDED: paragraph: A vendor declares what its product does and scores it; the firms that use it score the same features from experience.
+- ADDED: paragraph: Both bars sit side by side, so a claim and the field's reading of it are never separated.
+- ADDED: img "PAT"
+- ADDED: text: Evidence both ways Per feature
+- ADDED: text: "#"
+- ADDED: heading "The alignment delta" [level=#]
+- ADDED: img "PAT"
+- ADDED: text: Alignment delta Points
+- ADDED: text: "#"
+- ADDED: heading "What each side gets" [level=#]
+- ADDED: text: Firms
+- ADDED: text: Vendors
+
+### /trust · consultant
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology PAT trust center Launch review surface
+- REMOVED: heading "Launch-readiness information for PAT review." [level=#]
+- REMOVED: paragraph: This hub links the current privacy, terms, security, support, billing, and release transparency surfaces for PAT. The language is intentionally conservative while the product is in local review and pre-public launch.
+- REMOVED: link "Trust center"
+- REMOVED: region "PAT trust surfaces"
+- REMOVED: link "Privacy policy draft Privacy This draft describes the data PAT expects to process during review and early launch. It is not a final legal policy until approved by counsel or the operator of record. Review privacy"
+- REMOVED: text: Privacy policy draft
+- REMOVED: heading "Privacy" [level=#]
+- REMOVED: paragraph: This draft describes the data PAT expects to process during review and early launch. It is not a final legal policy until approved by counsel or the operator of record.
+- REMOVED: text: Review privacy
+- REMOVED: link "Terms of service draft Terms These draft terms set expectations for review access and early launch use. They do not replace signed commercial terms or legal review. Review terms"
+- REMOVED: text: Terms of service draft
+- REMOVED: heading "Terms" [level=#]
+- REMOVED: paragraph: These draft terms set expectations for review access and early launch use. They do not replace signed commercial terms or legal review.
+- REMOVED: text: Review terms
+- REMOVED: link "Security posture Security This page summarizes implemented safeguards and current boundaries without claiming external certification or audit completion. Review security"
+- REMOVED: text: Security posture
+- REMOVED: heading "Security" [level=#]
+- REMOVED: paragraph: This page summarizes implemented safeguards and current boundaries without claiming external certification or audit completion.
+- REMOVED: text: Review security
+- REMOVED: link "Support and contact Support Support expectations are intentionally scoped for local review and early launch. Always-on public support is not claimed here. Review support"
+- REMOVED: text: Support and contact
+- REMOVED: heading "Support" [level=#]
+- REMOVED: paragraph: Support expectations are intentionally scoped for local review and early launch. Always-on public support is not claimed here.
+- REMOVED: text: Review support
+- REMOVED: paragraph: This draft explains how billing should behave when provider configuration is present and how the UI must stay honest when it is absent.
+- REMOVED: text: Aggregation methodology
+- REMOVED: heading "Methodology" [level=#]
+- REMOVED: text: Review methodology
+- REMOVED: text: AI governance
+- CHANGED
+  - old: paragraph: Pat is Patalign's AI assistant. It helps with questions, reminders, and reports. Here is exactly how we keep it in bounds — these are system controls, not policies.
+  - new: paragraph: Privacy, terms, security, support, billing, and release transparency for PAT — each linked below.
+- REMOVED: text: Release transparency
+- REMOVED: heading "Release" [level=#]
+- REMOVED: text: Review release
+- REMOVED: article
+- REMOVED: article
+- REMOVED: heading "No unsupported claims" [level=#]
+- CHANGED
+  - old: paragraph: PAT does not claim third-party certification, audited status, uptime SLA, public customer references, or regulated-industry compliance certification at this stage.
+  - new: paragraph: PAT runs on verified releases — every release is checked against its source — with provider-backed billing and role-specific access.
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- CHANGED
+  - old: navigation "PAT trust and launch links"
+  - new: navigation "Trust surfaces"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Trust Center #
+- ADDED: note "No unsupported claims"
+- ADDED: text: No unsupported claims
+
+### / · firm-elite
+- REMOVED: img "PAT logo"
+- CHANGED
+  - old: text: Performance Alignment Technology PAT intelligence layer
+  - new: text: Performance Alignment Technology
+- REMOVED: heading "The intelligence layer inside C#Acct" [level=#]
+- REMOVED: paragraph: PAT is the intelligence layer within C#Acct, designed to transform structured signals into usable, decision-grade insight with minimal friction and full contextual continuity.
+- REMOVED: text: WELCOME
+- REMOVED: paragraph: Understand how PAT turns assessments, capability signal, and product evidence into current-state decision support.
+- REMOVED: text: Learn more about PAT
+- REMOVED: text: Signed in
+- REMOVED: heading "Continue to your workspace" [level=#]
+- REMOVED: text: Continue to your workspace
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Firms
+- ADDED: text: Vendors
+- ADDED: img "PAT"
+- ADDED: text: You Peers
+- ADDED: paragraph: Strategy — whether your technology plans point where your practice is actually heading.
+- ADDED: paragraph: Operations — the daily workflow discipline that separates smooth closes from late nights.
+- ADDED: paragraph: Automation — where software genuinely saves hours, and where it only promises to.
+- ADDED: paragraph: Integration — whether your systems share data cleanly or make your team re-key it.
+- ADDED: paragraph: Governance — the controls and vendor oversight your clients assume you already have.
+- ADDED: img "PAT"
+- ADDED: text: Cohort standing Peer view Strategy Operations Automation Integration Governance Peers Top decile You
+
+### /consultants/ecosystems/demo-…/firm/demo-…?panel=help · firm-elite
+- REMOVED: text: Elite
+
+### /consultants/ecosystems/demo-…/vendor-brief?panel=exec · firm-elite
+- REMOVED: text: Elite
+
+### /firm · firm-elite
+- REMOVED: text: Elite
+
+### /firm/alignment-board · firm-elite
+- CHANGED
+  - old: text: Alignment Sandbox — Kirkland Reyes LLP · stack alignment · from stored product-review evidence
+  - new: text: Alignment Sandbox # Kirkland Reyes LLP · stack alignment · from stored product-review evidence
+- CHANGED
+  - old: img "Alignment positioning radar": Workflow Fit · Integration & Data · Implementation · Support & Trust · Value Clarity ·
+  - new: img "Alignment positioning radar": Workflow Fit Integration & Data Implementation Support & Trust Value Clarity
+- CHANGED
+  - old: text: Product-fit dimensions Current stack shape Thin evidence (·) — held, not projected
+  - new: text: Product-fit dimensions Current stack shape
+- REMOVED: paragraph: No reviewed products yet. Complete product reviews to place pieces on the board.
+- ADDED: button "Meridian Tax Meridian Practice Cloud #"
+- ADDED: button "Meridian Practice Meridian Practice Cloud #"
+- ADDED: button "Meridian Payroll Meridian Practice Cloud #"
+- ADDED: button "Meridian CAS Meridian Practice Cloud #"
+- ADDED: button "Meridian Audit Meridian Practice Cloud #"
+- ADDED: paragraph: Ranked by projected fit — every rank is backed by real firm reviews.
+- ADDED: button "## · Strong fit APStream Control PAT Demo Vendor +#" [disabled]
+- ADDED: button "## · Strong fit Atlas Pulse Atlas PerfScale +#" [disabled]
+- ADDED: button "## · Strong fit Northwind Tax Northwind Practice OS +#" [disabled]
+- ADDED: button "## · Strong fit Atlas Payables # Atlas PerfScale +#" [disabled]
+- ADDED: button "## · Strong fit Bridgepath Docs Bridgepath Suite +#" [disabled]
+- ADDED: button "## · Strong fit Atlas Payroll # Atlas PerfScale +#" [disabled]
+- ADDED: button "## · Strong fit Lumen Insights Lumen Modern +#" [disabled]
+- ADDED: button "## · Strong fit Stratabind Comply Stratabind Audit & Compliance +#" [disabled]
+- ADDED: button "## · Strong fit Sentinel Tax Sentinel Practice Cloud +#" [disabled]
+- ADDED: button "## · Weak fit Atlas Atlas Core Atlas PerfScale -#" [disabled]
+- ADDED: button "## · Weak fit Atlas Receivables # Atlas PerfScale -#" [disabled]
+- ADDED: button "## · Weak fit Northwind Close Northwind Practice OS -#" [disabled]
+- ADDED: paragraph: Swappable to explore, but the projection is the vendor’s own claim — not firm-verified, so these carry wider confidence bands and never rank against the fits above.
+- ADDED: button "## · Self-reported Northstar GL Hub Northstar Ledger Systems +#" [disabled]
+- ADDED: button "## · Self-reported Variance Room SignalWise Reporting +#" [disabled]
+- ADDED: button "## · Self-reported PayGrid PeopleLedger +#" [disabled]
+- ADDED: button "## · Self-reported Bridge Portal ClientBridge Collab +#" [disabled]
+- ADDED: button "## · Self-reported Revenue Bridge RevenueCraft +#" [disabled]
+- ADDED: button "## · Self-reported ReconNorth Northstar Ledger Systems +#" [disabled]
+- ADDED: button "## · Self-reported SafeSign Tax ClearPath Tax Automation +#" [disabled]
+- ADDED: button "## · Self-reported SignalBoard SignalWise Reporting +#" [disabled]
+- ADDED: button "## · Self-reported Forge Workpapers Workpaper Forge +#" [disabled]
+- ADDED: button "## · Self-reported Pipeline Practice PracticePilot +#" [disabled]
+- ADDED: button "## · Self-reported Nexus Guard ClearPath Tax Automation +#" [disabled]
+- ADDED: button "## · Self-reported CashRail Connect Orbit Payables +#" [disabled]
+
+### /firm?panel=help · firm-elite
+- REMOVED: text: Elite
+
+### /methodology · firm-elite
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology Aggregation methodology Versioned · public
+- REMOVED: link "Trust center"
+- REMOVED: region "Methodology version": Version # Public, versioned methodology. Material changes are announced with the changelog below.
+- REMOVED: region "Methodology detail"
+- REMOVED: article
+- REMOVED: heading "What these numbers are — and are not" [level=#]
+- REMOVED: article
+- REMOVED: heading "Averaging — equal-weight by design" [level=#]
+- REMOVED: paragraph: Firm and vendor alignment readings average self-normalized #–# module scores. The five assessment modules are equal pillars of the framework; each emits one #–# score, so within-module question counts are already absorbed. Weighting by question or response count would distort the framework's stated structure, so we do not do it.
+- CHANGED
+  - old: paragraph: "Product readings use one-firm-one-vote: each firm's review of a product counts once, so multi-utility reviews cannot dominate the market read."
+  - new: paragraph: "Firm and vendor alignment readings average self-normalized #–# module scores. The five assessment modules are equal pillars of the framework; each emits one #–# score, so within-module question counts are already absorbed. Weighting by question or response count would distort the framework's stated structure, so we do not do it. Product readings use one-firm-one-vote: each firm's review of a product counts once, so multi-utility reviews cannot dominate the market read."
+- REMOVED: article
+- REMOVED: article
+- REMOVED: heading "Confidence bands — UX conventions, not statistics" [level=#]
+- REMOVED: article
+- REMOVED: heading "Benchmark suppression — a minimum-n safe harbor" [level=#]
+- CHANGED
+  - old: paragraph: "Confidence bands label thin evidence; suppression removes it. A cross-firm or peer benchmark is not published when either guard fails: fewer than five distinct contributing firms, or a single firm supplying more than # of the cut. This is the compensation-survey safe-harbor rule, adopted verbatim."
+  - new: paragraph: "Confidence bands label thin evidence; suppression removes it. A cross-firm or peer benchmark is not published when either guard fails: fewer than five distinct contributing firms, or a single firm supplying more than # of the cut. This is the compensation-survey safe-harbor rule, adopted verbatim. A suppressed benchmark shows an insufficient-peer-data state — never a number. Equal-weight cuts of five or more firms always clear the dominance guard by construction."
+- REMOVED: paragraph: A suppressed benchmark shows an insufficient-peer-data state — never a number. Equal-weight cuts of five or more firms always clear the dominance guard by construction.
+- REMOVED: article
+- REMOVED: heading "Integrity walls" [level=#]
+- REMOVED: article
+- REMOVED: heading "Rounding — a single authoritative pass" [level=#]
+- REMOVED: article
+- REMOVED: heading "Freshness windows — evidence age is labelled, never decayed" [level=#]
+- CHANGED
+  - old: paragraph: "Every score carries the age of the evidence behind it — the most recent module submission, product assessment, or firm review that fed it. Patalign classifies that age into three published windows: Fresh (under <rel>), Aging (#–<rel>), and Stale (over <rel>)."
+  - new: paragraph: "Every score carries the age of the evidence behind it — the most recent module submission, product assessment, or firm review that fed it. Patalign classifies that age into three published windows: Fresh (under <rel>), Aging (#–<rel>), and Stale (over <rel>). Age changes the label, never the number. Patalign does not silently decay, discount, or otherwise alter a score because it is old — the figure stays exactly as computed and the freshness state sits beside it so you can weigh its currency yourself. Absence of an evidence date is treated as unknown, not as stale."
+- REMOVED: paragraph: Age changes the label, never the number. Patalign does not silently decay, discount, or otherwise alter a score because it is old — the figure stays exactly as computed and the freshness state sits beside it so you can weigh its currency yourself. Absence of an evidence date is treated as unknown, not as stale.
+- REMOVED: article
+- REMOVED: paragraph: The cutoff governs inclusion, not value. It never changes, weights, or decays a score that has already been computed — a figure completed after the cutoff simply lands in the next quarter's cut instead of the current one. Membership tier changes what you see inside the benchmark (bands and percentiles for all members; deeper ranked position for Elite), never whether the cutoff applies to you.
+- REMOVED: article
+- REMOVED: paragraph: Figures are plain averages with the sample size shown — never weighted, percentile, or significance-tested statistics, and never professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, an insufficient-data state is shown instead of a number.
+- REMOVED: article
+- REMOVED: heading "Versioned and changelogged" [level=#]
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- CHANGED
+  - old: navigation "PAT trust and launch links"
+  - new: navigation "On this page"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Aggregation methodology
+- ADDED: heading "#What these numbers are — and are not" [level=#]
+- ADDED: heading "#Averaging — equal-weight by design" [level=#]
+- ADDED: heading "#Confidence bands — UX conventions, not statistics" [level=#]
+- ADDED: heading "#Benchmark suppression — a minimum-n safe harbor" [level=#]
+- ADDED: heading "#Integrity walls" [level=#]
+- ADDED: heading "#Rounding — a single authoritative pass" [level=#]
+- ADDED: heading "#Freshness windows — evidence age is labelled, never decayed" [level=#]
+- ADDED: text: On this page
+- ADDED: link "# What these numbers are — and are not"
+- ADDED: link "# Averaging — equal-weight by design"
+- ADDED: link "# Confidence bands — UX conventions, not statistics"
+- ADDED: link "# Benchmark suppression — a minimum-n safe harbor"
+- ADDED: link "# Integrity walls"
+- ADDED: link "# Rounding — a single authoritative pass"
+- ADDED: link "# Freshness windows — evidence age is labelled, never decayed"
+
+### /pat · firm-elite
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology The Analytical Core Inside C#Acct
+- REMOVED: heading "PAT Intelligence Layer" [level=#]
+- REMOVED: paragraph: Pat is Patalign’s AI guide. Turn Pat on and you can ask questions about using the platform — and, on Elite, about your own scores and alignment data — in plain language, any time.
+- REMOVED: paragraph
+- REMOVED: text: Pat is optional and off by default. It doesn’t change your platform experience, your scores, or how Patalign’s aggregated, anonymized benchmarks work, as described in the
+- REMOVED: link "Terms of Service"
+- REMOVED: text: and
+- REMOVED: link "Privacy Policy"
+- REMOVED: text: .
+- REMOVED: paragraph
+- REMOVED: text: — human approval, audit logging, spend caps, a named stop-authority, and AI disclosure.
+- REMOVED: checkbox "Turn on Pat. I understand Pat is an AI assistant, not a person." [checked]
+- REMOVED: text: Turn on Pat. I understand Pat is an AI assistant, not a person.
+- REMOVED: text: What PAT does
+- REMOVED: paragraph: PAT captures structured operating and product signals, preserves context, and turns those signals into actionable interpretation across firm and vendor views.
+- REMOVED: text: Why it matters
+- CHANGED
+  - old: paragraph: The model is useful because it keeps assessment, capability, and insight layers connected instead of scattering them across disconnected routes and generic summaries.
+  - new: paragraph: The radar is those five scores drawn as one shape, over the dashed outline of the firm's peers.
+- REMOVED: text: How PAT grows
+- REMOVED: paragraph: PAT starts with current-state interpretation, then expands into stronger recommendation, comparison, and projection layers only when the underlying evidence is honest enough to support them.
+- REMOVED: text: Instant Value
+- CHANGED
+  - old: paragraph: The assessment is how PAT begins, not all that PAT is. The real asset is the intelligence layer that turns operating and product signals into reflective insight now, then expands into stronger recommendation and comparison layers as the model and data deepen.
+  - new: paragraph: The same two doors as the home page.
+- REMOVED: link "Sign in to PAT"
+- REMOVED: link "Back to home"
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: paragraph: What PAT measures, how both sides contribute evidence, and what each side gets back.
+- ADDED: text: "#"
+- ADDED: paragraph: Every firm answers the same five modules — strategy, operations, automation, integration, governance — and each one scores # to #
+- ADDED: img "PAT"
+- ADDED: text: You Peers
+- ADDED: paragraph: Fig. # — the home radar; shape only, no live numbers.
+- ADDED: text: "#"
+- ADDED: heading "Evidence both ways" [level=#]
+- ADDED: paragraph: A vendor declares what its product does and scores it; the firms that use it score the same features from experience.
+- ADDED: paragraph: Both bars sit side by side, so a claim and the field's reading of it are never separated.
+- ADDED: img "PAT"
+- ADDED: text: Evidence both ways Per feature
+- ADDED: text: "#"
+- ADDED: heading "The alignment delta" [level=#]
+- ADDED: img "PAT"
+- ADDED: text: Alignment delta Points
+- ADDED: text: "#"
+- ADDED: heading "What each side gets" [level=#]
+- ADDED: text: Firms
+- ADDED: text: Vendors
+
+### /survey/firm_alignment_strategy_v1 · firm-elite
+- REMOVED: paragraph: PAT keeps this module in ten-question pages while preserving the same # to # scoring, draft-saving, and unlock logic underneath.
+- REMOVED: text: "Page: # / # Progress:"
+- CHANGED
+  - old: text: "Questions: # Autosave: Draft not saved — will retry Process Questions #-#"
+  - new: text: "Questions: # Autosave: Draft not saved — will retry"
+- REMOVED: paragraph: "PAT keeps this page to # questions while preserving section scoring across Strategy, Change Readiness, and Market Alignment: Operating baseline and visibility and Strategy, Change Readiness, and Market Alignment: Execution friction and automation readiness."
+- REMOVED: text: "Current page completion: # of # Page range: #-# Total answered: # of # Help Ten-question pacing with the same scoring contract"
+- REMOVED: paragraph: Use the range slider for the current-state # to # PAT score. Question numbering, draft saving, resume behavior, and unlock rules stay grounded in the same module contract.
+- REMOVED: paragraph: The final five follow-up questions are module-specific and fixed today. PAT is not claiming adaptive firm follow-up wording yet.
+- REMOVED: text: "Strategy, Change Readiness, and Market Alignment: Operating baseline and visibility"
+- REMOVED: paragraph: Current-state definition, consistency, visibility, review, and handoff evidence.
+- REMOVED: text: "Question # of # · Required Strategy, Change Readiness, and Market Alignment: How clearly is the current-state approach defined in this area? Score the current reality on a # to # scale, not the intended future state."
+- REMOVED: text: "Question # of # · Required Strategy, Change Readiness, and Market Alignment: How consistently is this area executed across the firm? Score the current reality on a # to # scale, not the intended future state."
+- REMOVED: text: "Question # of # · Required Strategy, Change Readiness, and Market Alignment: How visible is current performance in this area to leadership? Score the current reality on a # to # scale, not the intended future state."
+- REMOVED: text: "Question # of # · Required Strategy, Change Readiness, and Market Alignment: How disciplined are review and escalation practices in this area? Score the current reality on a # to # scale, not the intended future state."
+- REMOVED: text: "Question # of # · Required Strategy, Change Readiness, and Market Alignment: How well do cross-functional handoffs work in this area? Score the current reality on a # to # scale, not the intended future state."
+- REMOVED: text: "Strategy, Change Readiness, and Market Alignment: Execution friction and automation readiness"
+- REMOVED: paragraph: Operational friction, automation readiness, AI readiness, data reliability, and system linkage.
+- REMOVED: text: "Question # of # · Required Strategy, Change Readiness, and Market Alignment: How manageable is day-to-day operational friction in this area? Score the current reality on a # to # scale, not the intended future state."
+- REMOVED: text: "Question # of # · Required Strategy, Change Readiness, and Market Alignment: How ready is this area for repeatable automation support? Score the current reality on a # to # scale, not the intended future state."
+- REMOVED: text: "Question # of # · Required Strategy, Change Readiness, and Market Alignment: How ready is this area for responsible AI-assisted work? Score the current reality on a # to # scale, not the intended future state."
+- REMOVED: text: "Question # of # · Required Strategy, Change Readiness, and Market Alignment: How strong is data reliability for this area today? Score the current reality on a # to # scale, not the intended future state."
+- REMOVED: text: "Question # of # · Required Strategy, Change Readiness, and Market Alignment: How well do current systems connect around this area? Score the current reality on a # to # scale, not the intended future state."
+- REMOVED: text: Next Next
+- REMOVED: paragraph: Continue to next page of the assessment
+- REMOVED: text: # required questions still need a response before PAT can open the next page.
+- REMOVED: button "Continue to next page" [disabled]
+- ADDED: text: "Progress:"
+- ADDED: text: Question # of # How clearly is the current-state approach defined in this area? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How consistently is this area executed across the firm? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How visible is current performance in this area to leadership? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How disciplined are review and escalation practices in this area? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How well do cross-functional handoffs work in this area? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How manageable is day-to-day operational friction in this area? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How ready is this area for repeatable automation support? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How ready is this area for responsible AI-assisted work? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How strong is data reliability for this area today? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How well do current systems connect around this area? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How much confidence do teams have in current controls here? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How resilient is this area under deadline or volume pressure? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How strong is change adoption in this area? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How clearly are ownership and accountability defined here? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How strong is vendor or tool oversight for this area? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How clearly is measurable value understood here? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How well is risk surfaced before it becomes operational drag? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How aligned is this area with current firm strategy? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How well can this area adapt to market or client change? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How ready is this area for the next stage of PAT insight depth? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # Which strategic priority is hardest to translate into day-to-day execution in this area, and why?
+- ADDED: radiogroup "Which strategic priority is hardest to translate into day-to-day execution in this area, and why?"
+- ADDED: text: Shift more work to automation and AI breaks down when teams don't trust outputs and revert to manual steps
+- ADDED: text: Standardize processes across teams breaks down when local preferences override shared methods and create drift
+- ADDED: text: Strengthen data‑driven decision‑making breaks down when source data is unreliable or reporting lags
+- ADDED: text: Accelerate cycle times breaks down when bottlenecks (reviews, approvals, handoffs) remain unchanged
+- ADDED: text: Enhance cross‑team coordination breaks down when ownership at handoffs is unclear or signals don't sync
+- ADDED: text: Increase scalability of core workflows breaks down when integrations aren't stable enough to support higher volume
+- ADDED: text: Question # of # Where do change efforts lose traction most often in this area today?
+- ADDED: radiogroup "Where do change efforts lose traction most often in this area today?"
+- ADDED: text: After initial alignment meetings expectations aren't translated into concrete steps, so teams revert to old habits
+- ADDED: text: During early pilot execution uneven results weaken confidence before improvements stabilize
+- ADDED: text: At cross‑team handoffs unclear ownership stalls progress and no one drives the new process forward
+- ADDED: text: When training shifts from concept to practice teams lack time to apply new methods and fall back to familiar workflows
+- ADDED: text: During tool or system adoption integrations aren't ready, creating frustration and workarounds
+- ADDED: text: When exceptions arise undefined edge cases cause teams to pause the new process to avoid risk
+- ADDED: text: Question # of # What market, client, or competitive pressure is forcing the biggest reprioritization in this area right now?
+- ADDED: radiogroup "What market, client, or competitive pressure is forcing the biggest reprioritization in this area right now?"
+- ADDED: text: Clients demanding faster turnaround shifts decisions toward cycle‑time reduction and automation readiness
+- ADDED: text: Rising expectations for data accuracy forces prioritization of integration stability and stronger quality controls
+- ADDED: text: Competitive pressure to modernize accelerates AI‑enabled workflows and process standardization
+- ADDED: text: Market movement toward automation‑first delivery reprioritizes manual steps, reviews, and handoffs that slow scale
+- ADDED: text: Increasing regulatory scrutiny pushes governance, auditability, and vendor‑risk controls ahead of new initiatives
+- ADDED: text: Pressure to reduce operational cost drives consolidation, elimination of redundant steps, and tighter integration
+- ADDED: text: Question # of # What risk is most likely to cause the current roadmap or change plan in this area to miss expectations?
+- ADDED: radiogroup "What risk is most likely to cause the current roadmap or change plan in this area to miss expectations?"
+- ADDED: text: Integration instability at launch early sync failures undermine adoption and confidence
+- ADDED: text: Uneven team adoption inconsistent uptake stalls momentum and fragments execution
+- ADDED: text: Unclear ownership of new steps missing accountability at handoffs slows or halts progress
+- ADDED: text: Insufficient training time teams can't practice new behaviors, reducing readiness
+- ADDED: text: Vendor dependency or outage external shifts or downtime disrupt continuity and timelines
+- ADDED: text: Underestimated change load volume of process and behavior changes exceeds capacity, causing slippage
+- ADDED: text: Question # of # What signal would tell you this area is ready for a more advanced intelligence layer, broader change, or faster execution?
+- ADDED: radiogroup "What signal would tell you this area is ready for a more advanced intelligence layer, broader change, or faster execution?"
+- ADDED: text: Stable, reliable data flows indicates integrations are mature enough for deeper insight and faster execution
+- ADDED: text: Consistent adoption of current steps shows teams execute the baseline predictably, enabling broader change
+- ADDED: text: Reduced exception volume signals workflows are stable enough to support acceleration and advanced insight
+- ADDED: text: Clear ownership at handoffs confirms governance strength for deeper intelligence insight use without confusion
+- ADDED: text: High accuracy in current reporting shows the foundation is strong enough for more advanced analytics
+- ADDED: text: Positive feedback on early automation indicates trust levels that support faster execution and expanded insight use
+- ADDED: text: Submit Submit
+- ADDED: paragraph: Submit this module to preserve the scored PAT record, unlock evaluation state, and carry the current module signal into the live firm results flow.
+- ADDED: text: # questions still need a response before PAT can submit this module.
+- ADDED: button "Submit assessment" [disabled]
+
+### /trust · firm-elite
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology PAT trust center Launch review surface
+- REMOVED: heading "Launch-readiness information for PAT review." [level=#]
+- REMOVED: paragraph: This hub links the current privacy, terms, security, support, billing, and release transparency surfaces for PAT. The language is intentionally conservative while the product is in local review and pre-public launch.
+- REMOVED: link "Trust center"
+- REMOVED: region "PAT trust surfaces"
+- REMOVED: link "Privacy policy draft Privacy This draft describes the data PAT expects to process during review and early launch. It is not a final legal policy until approved by counsel or the operator of record. Review privacy"
+- REMOVED: text: Privacy policy draft
+- REMOVED: heading "Privacy" [level=#]
+- REMOVED: paragraph: This draft describes the data PAT expects to process during review and early launch. It is not a final legal policy until approved by counsel or the operator of record.
+- REMOVED: text: Review privacy
+- REMOVED: link "Terms of service draft Terms These draft terms set expectations for review access and early launch use. They do not replace signed commercial terms or legal review. Review terms"
+- REMOVED: text: Terms of service draft
+- REMOVED: heading "Terms" [level=#]
+- REMOVED: paragraph: These draft terms set expectations for review access and early launch use. They do not replace signed commercial terms or legal review.
+- REMOVED: text: Review terms
+- REMOVED: link "Security posture Security This page summarizes implemented safeguards and current boundaries without claiming external certification or audit completion. Review security"
+- REMOVED: text: Security posture
+- REMOVED: heading "Security" [level=#]
+- REMOVED: paragraph: This page summarizes implemented safeguards and current boundaries without claiming external certification or audit completion.
+- REMOVED: text: Review security
+- REMOVED: link "Support and contact Support Support expectations are intentionally scoped for local review and early launch. Always-on public support is not claimed here. Review support"
+- REMOVED: text: Support and contact
+- REMOVED: heading "Support" [level=#]
+- REMOVED: paragraph: Support expectations are intentionally scoped for local review and early launch. Always-on public support is not claimed here.
+- REMOVED: text: Review support
+- REMOVED: paragraph: This draft explains how billing should behave when provider configuration is present and how the UI must stay honest when it is absent.
+- REMOVED: text: Aggregation methodology
+- REMOVED: heading "Methodology" [level=#]
+- REMOVED: text: Review methodology
+- REMOVED: text: AI governance
+- CHANGED
+  - old: paragraph: Pat is Patalign's AI assistant. It helps with questions, reminders, and reports. Here is exactly how we keep it in bounds — these are system controls, not policies.
+  - new: paragraph: Privacy, terms, security, support, billing, and release transparency for PAT — each linked below.
+- REMOVED: text: Release transparency
+- REMOVED: heading "Release" [level=#]
+- REMOVED: text: Review release
+- REMOVED: article
+- REMOVED: article
+- REMOVED: heading "No unsupported claims" [level=#]
+- CHANGED
+  - old: paragraph: PAT does not claim third-party certification, audited status, uptime SLA, public customer references, or regulated-industry compliance certification at this stage.
+  - new: paragraph: PAT runs on verified releases — every release is checked against its source — with provider-backed billing and role-specific access.
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- CHANGED
+  - old: navigation "PAT trust and launch links"
+  - new: navigation "Trust surfaces"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Trust Center #
+- ADDED: note "No unsupported claims"
+- ADDED: text: No unsupported claims
+
+### /vendor · firm-elite
+- REMOVED: text: Elite
+
+### /vendor/battlecard · firm-elite
+- REMOVED: text: Elite
+
+### /vendor/help · firm-elite
+- REMOVED: text: Elite
+
+### /vendor/product-assessment · firm-elite
+- REMOVED: text: Elite
+
+### /vendor/product-insight · firm-elite
+- REMOVED: text: Elite
+
+### /vendor?panel=help · firm-elite
+- REMOVED: text: Elite
+
+### / · firm-pro
+- REMOVED: img "PAT logo"
+- CHANGED
+  - old: text: Performance Alignment Technology PAT intelligence layer
+  - new: text: Performance Alignment Technology
+- REMOVED: heading "The intelligence layer inside C#Acct" [level=#]
+- REMOVED: paragraph: PAT is the intelligence layer within C#Acct, designed to transform structured signals into usable, decision-grade insight with minimal friction and full contextual continuity.
+- REMOVED: text: WELCOME
+- REMOVED: paragraph: Understand how PAT turns assessments, capability signal, and product evidence into current-state decision support.
+- REMOVED: text: Learn more about PAT
+- REMOVED: text: Signed in
+- REMOVED: heading "Continue to your workspace" [level=#]
+- REMOVED: text: Continue to your workspace
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Firms
+- ADDED: text: Vendors
+- ADDED: img "PAT"
+- ADDED: text: You Peers
+- ADDED: paragraph: Strategy — whether your technology plans point where your practice is actually heading.
+- ADDED: paragraph: Operations — the daily workflow discipline that separates smooth closes from late nights.
+- ADDED: paragraph: Automation — where software genuinely saves hours, and where it only promises to.
+- ADDED: paragraph: Integration — whether your systems share data cleanly or make your team re-key it.
+- ADDED: paragraph: Governance — the controls and vendor oversight your clients assume you already have.
+- ADDED: img "PAT"
+- ADDED: text: Cohort standing Peer view Strategy Operations Automation Integration Governance Peers Top decile You
+
+### /firm/alignment-board · firm-pro
+- CHANGED
+  - old: text: Alignment Sandbox — Demo Company · stack alignment · from stored product-review evidence
+  - new: text: Alignment Sandbox # Demo Company · stack alignment · from stored product-review evidence
+- CHANGED
+  - old: img "Alignment positioning radar": Workflow Fit · Integration & Data · Implementation · Support & Trust · Value Clarity ·
+  - new: img "Alignment positioning radar": Workflow Fit Integration & Data Implementation Support & Trust Value Clarity
+- CHANGED
+  - old: text: Product-fit dimensions Current stack shape Thin evidence (·) — held, not projected
+  - new: text: Product-fit dimensions Current stack shape
+- CHANGED
+  - old: text: Your stack — click a piece to lift it out
+  - new: text: Your stack — click a piece to lift it out Showing your top # of # reviewed products
+- REMOVED: paragraph: No reviewed products yet. Complete product reviews to place pieces on the board.
+- REMOVED: text: Secret candidates · lift a stack piece first
+- ADDED: button "APStream Control PAT Demo Vendor #"
+- ADDED: button "CashWatch AR RevenueCraft #"
+- ADDED: button "Nexus Guard ClearPath Tax Automation #"
+- ADDED: button "Forge Workpapers Workpaper Forge #"
+- ADDED: button "ConsoliQ Northstar Ledger Systems #"
+- ADDED: button "LedgerFlow Close PAT Demo Vendor #"
+- ADDED: button "SignalBoard SignalWise Reporting #"
+- ADDED: button "Timekeeper Link PeopleLedger #"
+- ADDED: text: "Secret candidates · lift a stack piece first Your Sandbox Fit ## piece exists —"
+- ADDED: link "Reveal with Elite"
+- ADDED: paragraph: Ranked by projected fit — every rank is backed by real firm reviews.
+- ADDED: button "## · Good fit Secret Product # Vendor hidden +#" [disabled]
+- ADDED: button "## · Good fit Secret Product # Vendor hidden +#" [disabled]
+- ADDED: button "## · Good fit Secret Product # Vendor hidden +#" [disabled]
+- ADDED: button "## · Good fit Secret Product # Vendor hidden +#" [disabled]
+- ADDED: button "## · Good fit Secret Product # Vendor hidden +#" [disabled]
+- ADDED: button "## · Good fit Secret Product # Vendor hidden +#" [disabled]
+- ADDED: button "## · Good fit Secret Product # Vendor hidden +#" [disabled]
+- ADDED: button "## · Good fit Secret Product # Vendor hidden +#" [disabled]
+- ADDED: button "## · Good fit Secret Product # Vendor hidden +#" [disabled]
+- ADDED: button "## · Weak fit Secret Product # Vendor hidden -#" [disabled]
+- ADDED: button "## · Weak fit Secret Product # Vendor hidden -#" [disabled]
+- ADDED: button "## · Weak fit Secret Product # Vendor hidden -#" [disabled]
+
+### /methodology · firm-pro
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology Aggregation methodology Versioned · public
+- REMOVED: link "Trust center"
+- REMOVED: region "Methodology version": Version # Public, versioned methodology. Material changes are announced with the changelog below.
+- REMOVED: region "Methodology detail"
+- REMOVED: article
+- REMOVED: heading "What these numbers are — and are not" [level=#]
+- REMOVED: article
+- REMOVED: heading "Averaging — equal-weight by design" [level=#]
+- REMOVED: paragraph: Firm and vendor alignment readings average self-normalized #–# module scores. The five assessment modules are equal pillars of the framework; each emits one #–# score, so within-module question counts are already absorbed. Weighting by question or response count would distort the framework's stated structure, so we do not do it.
+- CHANGED
+  - old: paragraph: "Product readings use one-firm-one-vote: each firm's review of a product counts once, so multi-utility reviews cannot dominate the market read."
+  - new: paragraph: "Firm and vendor alignment readings average self-normalized #–# module scores. The five assessment modules are equal pillars of the framework; each emits one #–# score, so within-module question counts are already absorbed. Weighting by question or response count would distort the framework's stated structure, so we do not do it. Product readings use one-firm-one-vote: each firm's review of a product counts once, so multi-utility reviews cannot dominate the market read."
+- REMOVED: article
+- REMOVED: article
+- REMOVED: heading "Confidence bands — UX conventions, not statistics" [level=#]
+- REMOVED: article
+- REMOVED: heading "Benchmark suppression — a minimum-n safe harbor" [level=#]
+- CHANGED
+  - old: paragraph: "Confidence bands label thin evidence; suppression removes it. A cross-firm or peer benchmark is not published when either guard fails: fewer than five distinct contributing firms, or a single firm supplying more than # of the cut. This is the compensation-survey safe-harbor rule, adopted verbatim."
+  - new: paragraph: "Confidence bands label thin evidence; suppression removes it. A cross-firm or peer benchmark is not published when either guard fails: fewer than five distinct contributing firms, or a single firm supplying more than # of the cut. This is the compensation-survey safe-harbor rule, adopted verbatim. A suppressed benchmark shows an insufficient-peer-data state — never a number. Equal-weight cuts of five or more firms always clear the dominance guard by construction."
+- REMOVED: paragraph: A suppressed benchmark shows an insufficient-peer-data state — never a number. Equal-weight cuts of five or more firms always clear the dominance guard by construction.
+- REMOVED: article
+- REMOVED: heading "Integrity walls" [level=#]
+- REMOVED: article
+- REMOVED: heading "Rounding — a single authoritative pass" [level=#]
+- REMOVED: article
+- REMOVED: heading "Freshness windows — evidence age is labelled, never decayed" [level=#]
+- CHANGED
+  - old: paragraph: "Every score carries the age of the evidence behind it — the most recent module submission, product assessment, or firm review that fed it. Patalign classifies that age into three published windows: Fresh (under <rel>), Aging (#–<rel>), and Stale (over <rel>)."
+  - new: paragraph: "Every score carries the age of the evidence behind it — the most recent module submission, product assessment, or firm review that fed it. Patalign classifies that age into three published windows: Fresh (under <rel>), Aging (#–<rel>), and Stale (over <rel>). Age changes the label, never the number. Patalign does not silently decay, discount, or otherwise alter a score because it is old — the figure stays exactly as computed and the freshness state sits beside it so you can weigh its currency yourself. Absence of an evidence date is treated as unknown, not as stale."
+- REMOVED: paragraph: Age changes the label, never the number. Patalign does not silently decay, discount, or otherwise alter a score because it is old — the figure stays exactly as computed and the freshness state sits beside it so you can weigh its currency yourself. Absence of an evidence date is treated as unknown, not as stale.
+- REMOVED: article
+- REMOVED: paragraph: The cutoff governs inclusion, not value. It never changes, weights, or decays a score that has already been computed — a figure completed after the cutoff simply lands in the next quarter's cut instead of the current one. Membership tier changes what you see inside the benchmark (bands and percentiles for all members; deeper ranked position for Elite), never whether the cutoff applies to you.
+- REMOVED: article
+- REMOVED: paragraph: Figures are plain averages with the sample size shown — never weighted, percentile, or significance-tested statistics, and never professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, an insufficient-data state is shown instead of a number.
+- REMOVED: article
+- REMOVED: heading "Versioned and changelogged" [level=#]
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- CHANGED
+  - old: navigation "PAT trust and launch links"
+  - new: navigation "On this page"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Aggregation methodology
+- ADDED: heading "#What these numbers are — and are not" [level=#]
+- ADDED: heading "#Averaging — equal-weight by design" [level=#]
+- ADDED: heading "#Confidence bands — UX conventions, not statistics" [level=#]
+- ADDED: heading "#Benchmark suppression — a minimum-n safe harbor" [level=#]
+- ADDED: heading "#Integrity walls" [level=#]
+- ADDED: heading "#Rounding — a single authoritative pass" [level=#]
+- ADDED: heading "#Freshness windows — evidence age is labelled, never decayed" [level=#]
+- ADDED: text: On this page
+- ADDED: link "# What these numbers are — and are not"
+- ADDED: link "# Averaging — equal-weight by design"
+- ADDED: link "# Confidence bands — UX conventions, not statistics"
+- ADDED: link "# Benchmark suppression — a minimum-n safe harbor"
+- ADDED: link "# Integrity walls"
+- ADDED: link "# Rounding — a single authoritative pass"
+- ADDED: link "# Freshness windows — evidence age is labelled, never decayed"
+
+### /pat · firm-pro
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology The Analytical Core Inside C#Acct
+- REMOVED: heading "PAT Intelligence Layer" [level=#]
+- REMOVED: paragraph: Pat is Patalign’s AI guide. Turn Pat on and you can ask questions about using the platform — and, on Elite, about your own scores and alignment data — in plain language, any time.
+- REMOVED: paragraph
+- REMOVED: text: Pat is optional and off by default. It doesn’t change your platform experience, your scores, or how Patalign’s aggregated, anonymized benchmarks work, as described in the
+- REMOVED: link "Terms of Service"
+- REMOVED: text: and
+- REMOVED: link "Privacy Policy"
+- REMOVED: text: .
+- REMOVED: paragraph
+- REMOVED: text: — human approval, audit logging, spend caps, a named stop-authority, and AI disclosure.
+- REMOVED: checkbox "Turn on Pat. I understand Pat is an AI assistant, not a person." [checked]
+- REMOVED: text: Turn on Pat. I understand Pat is an AI assistant, not a person.
+- REMOVED: text: What PAT does
+- REMOVED: paragraph: PAT captures structured operating and product signals, preserves context, and turns those signals into actionable interpretation across firm and vendor views.
+- REMOVED: text: Why it matters
+- CHANGED
+  - old: paragraph: The model is useful because it keeps assessment, capability, and insight layers connected instead of scattering them across disconnected routes and generic summaries.
+  - new: paragraph: The radar is those five scores drawn as one shape, over the dashed outline of the firm's peers.
+- REMOVED: text: How PAT grows
+- REMOVED: paragraph: PAT starts with current-state interpretation, then expands into stronger recommendation, comparison, and projection layers only when the underlying evidence is honest enough to support them.
+- REMOVED: text: Instant Value
+- CHANGED
+  - old: paragraph: The assessment is how PAT begins, not all that PAT is. The real asset is the intelligence layer that turns operating and product signals into reflective insight now, then expands into stronger recommendation and comparison layers as the model and data deepen.
+  - new: paragraph: The same two doors as the home page.
+- REMOVED: link "Sign in to PAT"
+- REMOVED: link "Back to home"
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: paragraph: What PAT measures, how both sides contribute evidence, and what each side gets back.
+- ADDED: text: "#"
+- ADDED: paragraph: Every firm answers the same five modules — strategy, operations, automation, integration, governance — and each one scores # to #
+- ADDED: img "PAT"
+- ADDED: text: You Peers
+- ADDED: paragraph: Fig. # — the home radar; shape only, no live numbers.
+- ADDED: text: "#"
+- ADDED: heading "Evidence both ways" [level=#]
+- ADDED: paragraph: A vendor declares what its product does and scores it; the firms that use it score the same features from experience.
+- ADDED: paragraph: Both bars sit side by side, so a claim and the field's reading of it are never separated.
+- ADDED: img "PAT"
+- ADDED: text: Evidence both ways Per feature
+- ADDED: text: "#"
+- ADDED: heading "The alignment delta" [level=#]
+- ADDED: img "PAT"
+- ADDED: text: Alignment delta Points
+- ADDED: text: "#"
+- ADDED: heading "What each side gets" [level=#]
+- ADDED: text: Firms
+- ADDED: text: Vendors
+
+### /survey/firm_alignment_strategy_v1 · firm-pro
+- REMOVED: paragraph: PAT keeps this module in ten-question pages while preserving the same # to # scoring, draft-saving, and unlock logic underneath.
+- REMOVED: text: "Page: # / # Progress:"
+- CHANGED
+  - old: text: "Questions: # Autosave: Draft saved · <time> PM Process Questions #-#"
+  - new: text: "Questions: # Autosave: Draft saved · <time> AM"
+- REMOVED: paragraph: Five module-specific follow-up questions capture current operating context that PAT cannot read from numeric scores alone. PAT keeps this wording fixed today rather than overstating adaptive follow-up logic.
+- REMOVED: text: "Current page completion: # of # Page range: #-# Total answered: # of # Help Ten-question pacing with the same scoring contract"
+- REMOVED: paragraph: Use the range slider for the current-state # to # PAT score. Question numbering, draft saving, resume behavior, and unlock rules stay grounded in the same module contract.
+- REMOVED: paragraph: The final five follow-up questions are module-specific and fixed today. PAT is not claiming adaptive firm follow-up wording yet.
+- REMOVED: text: "Strategy, Change Readiness, and Market Alignment: Module follow-up"
+- REMOVED: paragraph: Five module-specific follow-up questions capture current operating context that PAT cannot read from numeric scores alone. PAT keeps this wording fixed today rather than overstating adaptive follow-up logic.
+- REMOVED: text: "Question # of # · Required Strategy, Change Readiness, and Market Alignment: Which strategic priority is hardest to translate into day-to-day execution in this area, and why? Use current-state examples and operating detail. This response is required for context quality, but it does not change the numeric PAT score."
+- REMOVED: textbox "Describe the priority and where execution breaks down."
+- REMOVED: text: "Question # of # · Required Strategy, Change Readiness, and Market Alignment: Where do change efforts lose traction most often in this area today? Use current-state examples and operating detail. This response is required for context quality, but it does not change the numeric PAT score."
+- REMOVED: textbox "Name the point in the change cycle where momentum usually drops."
+- REMOVED: text: "Question # of # · Required Strategy, Change Readiness, and Market Alignment: What market, client, or competitive pressure is forcing the biggest reprioritization in this area right now? Use current-state examples and operating detail. This response is required for context quality, but it does not change the numeric PAT score."
+- REMOVED: textbox "Explain the pressure and how it is changing current decisions."
+- REMOVED: text: "Question # of # · Required Strategy, Change Readiness, and Market Alignment: What risk is most likely to cause the current roadmap or change plan in this area to miss expectations? Use current-state examples and operating detail. This response is required for context quality, but it does not change the numeric PAT score."
+- REMOVED: textbox "Focus on the risk with the highest near-term consequence."
+- REMOVED: text: "Question # of # · Required Strategy, Change Readiness, and Market Alignment: What signal would tell you this area is ready for deeper PAT insight use, broader change, or faster execution? Use current-state examples and operating detail. This response is required for context quality, but it does not change the numeric PAT score."
+- REMOVED: textbox "Describe the concrete signal or condition you would look for."
+- REMOVED: text: # required questions still need a response before PAT can submit this module.
+- REMOVED: button "Back a page"
+- ADDED: text: "Progress:"
+- ADDED: text: Question # of # How clearly is the current-state approach defined in this area? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How consistently is this area executed across the firm? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How visible is current performance in this area to leadership? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How disciplined are review and escalation practices in this area? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How well do cross-functional handoffs work in this area? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How manageable is day-to-day operational friction in this area? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How ready is this area for repeatable automation support? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How ready is this area for responsible AI-assisted work? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How strong is data reliability for this area today? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How well do current systems connect around this area? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How much confidence do teams have in current controls here? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How resilient is this area under deadline or volume pressure? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How strong is change adoption in this area? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How clearly are ownership and accountability defined here? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How strong is vendor or tool oversight for this area? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How clearly is measurable value understood here? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How well is risk surfaced before it becomes operational drag? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How aligned is this area with current firm strategy? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How well can this area adapt to market or client change? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # How ready is this area for the next stage of PAT insight depth? Score the current reality on a # to # scale, not the intended future state.
+- ADDED: text: Question # of # Which strategic priority is hardest to translate into day-to-day execution in this area, and why?
+- ADDED: radiogroup "Which strategic priority is hardest to translate into day-to-day execution in this area, and why?"
+- ADDED: text: Shift more work to automation and AI breaks down when teams don't trust outputs and revert to manual steps
+- ADDED: text: Standardize processes across teams breaks down when local preferences override shared methods and create drift
+- ADDED: text: Strengthen data‑driven decision‑making breaks down when source data is unreliable or reporting lags
+- ADDED: text: Accelerate cycle times breaks down when bottlenecks (reviews, approvals, handoffs) remain unchanged
+- ADDED: text: Enhance cross‑team coordination breaks down when ownership at handoffs is unclear or signals don't sync
+- ADDED: text: Increase scalability of core workflows breaks down when integrations aren't stable enough to support higher volume
+- ADDED: text: Question # of # Where do change efforts lose traction most often in this area today?
+- ADDED: radiogroup "Where do change efforts lose traction most often in this area today?"
+- ADDED: text: After initial alignment meetings expectations aren't translated into concrete steps, so teams revert to old habits
+- ADDED: text: During early pilot execution uneven results weaken confidence before improvements stabilize
+- ADDED: text: At cross‑team handoffs unclear ownership stalls progress and no one drives the new process forward
+- ADDED: text: When training shifts from concept to practice teams lack time to apply new methods and fall back to familiar workflows
+- ADDED: text: During tool or system adoption integrations aren't ready, creating frustration and workarounds
+- ADDED: text: When exceptions arise undefined edge cases cause teams to pause the new process to avoid risk
+- ADDED: text: Question # of # What market, client, or competitive pressure is forcing the biggest reprioritization in this area right now?
+- ADDED: radiogroup "What market, client, or competitive pressure is forcing the biggest reprioritization in this area right now?"
+- ADDED: text: Clients demanding faster turnaround shifts decisions toward cycle‑time reduction and automation readiness
+- ADDED: text: Rising expectations for data accuracy forces prioritization of integration stability and stronger quality controls
+- ADDED: text: Competitive pressure to modernize accelerates AI‑enabled workflows and process standardization
+- ADDED: text: Market movement toward automation‑first delivery reprioritizes manual steps, reviews, and handoffs that slow scale
+- ADDED: text: Increasing regulatory scrutiny pushes governance, auditability, and vendor‑risk controls ahead of new initiatives
+- ADDED: text: Pressure to reduce operational cost drives consolidation, elimination of redundant steps, and tighter integration
+- ADDED: text: Question # of # What risk is most likely to cause the current roadmap or change plan in this area to miss expectations?
+- ADDED: radiogroup "What risk is most likely to cause the current roadmap or change plan in this area to miss expectations?"
+- ADDED: text: Integration instability at launch early sync failures undermine adoption and confidence
+- ADDED: text: Uneven team adoption inconsistent uptake stalls momentum and fragments execution
+- ADDED: text: Unclear ownership of new steps missing accountability at handoffs slows or halts progress
+- ADDED: text: Insufficient training time teams can't practice new behaviors, reducing readiness
+- ADDED: text: Vendor dependency or outage external shifts or downtime disrupt continuity and timelines
+- ADDED: text: Underestimated change load volume of process and behavior changes exceeds capacity, causing slippage
+- ADDED: text: Question # of # What signal would tell you this area is ready for a more advanced intelligence layer, broader change, or faster execution?
+- ADDED: radiogroup "What signal would tell you this area is ready for a more advanced intelligence layer, broader change, or faster execution?"
+- ADDED: text: Stable, reliable data flows indicates integrations are mature enough for deeper insight and faster execution
+- ADDED: text: Consistent adoption of current steps shows teams execute the baseline predictably, enabling broader change
+- ADDED: text: Reduced exception volume signals workflows are stable enough to support acceleration and advanced insight
+- ADDED: text: Clear ownership at handoffs confirms governance strength for deeper intelligence insight use without confusion
+- ADDED: text: High accuracy in current reporting shows the foundation is strong enough for more advanced analytics
+- ADDED: text: Positive feedback on early automation indicates trust levels that support faster execution and expanded insight use
+- ADDED: text: # questions still need a response before PAT can submit this module.
+
+### /trust · firm-pro
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology PAT trust center Launch review surface
+- REMOVED: heading "Launch-readiness information for PAT review." [level=#]
+- REMOVED: paragraph: This hub links the current privacy, terms, security, support, billing, and release transparency surfaces for PAT. The language is intentionally conservative while the product is in local review and pre-public launch.
+- REMOVED: link "Trust center"
+- REMOVED: region "PAT trust surfaces"
+- REMOVED: link "Privacy policy draft Privacy This draft describes the data PAT expects to process during review and early launch. It is not a final legal policy until approved by counsel or the operator of record. Review privacy"
+- REMOVED: text: Privacy policy draft
+- REMOVED: heading "Privacy" [level=#]
+- REMOVED: paragraph: This draft describes the data PAT expects to process during review and early launch. It is not a final legal policy until approved by counsel or the operator of record.
+- REMOVED: text: Review privacy
+- REMOVED: link "Terms of service draft Terms These draft terms set expectations for review access and early launch use. They do not replace signed commercial terms or legal review. Review terms"
+- REMOVED: text: Terms of service draft
+- REMOVED: heading "Terms" [level=#]
+- REMOVED: paragraph: These draft terms set expectations for review access and early launch use. They do not replace signed commercial terms or legal review.
+- REMOVED: text: Review terms
+- REMOVED: link "Security posture Security This page summarizes implemented safeguards and current boundaries without claiming external certification or audit completion. Review security"
+- REMOVED: text: Security posture
+- REMOVED: heading "Security" [level=#]
+- REMOVED: paragraph: This page summarizes implemented safeguards and current boundaries without claiming external certification or audit completion.
+- REMOVED: text: Review security
+- REMOVED: link "Support and contact Support Support expectations are intentionally scoped for local review and early launch. Always-on public support is not claimed here. Review support"
+- REMOVED: text: Support and contact
+- REMOVED: heading "Support" [level=#]
+- REMOVED: paragraph: Support expectations are intentionally scoped for local review and early launch. Always-on public support is not claimed here.
+- REMOVED: text: Review support
+- REMOVED: paragraph: This draft explains how billing should behave when provider configuration is present and how the UI must stay honest when it is absent.
+- REMOVED: text: Aggregation methodology
+- REMOVED: heading "Methodology" [level=#]
+- REMOVED: text: Review methodology
+- REMOVED: text: AI governance
+- CHANGED
+  - old: paragraph: Pat is Patalign's AI assistant. It helps with questions, reminders, and reports. Here is exactly how we keep it in bounds — these are system controls, not policies.
+  - new: paragraph: Privacy, terms, security, support, billing, and release transparency for PAT — each linked below.
+- REMOVED: text: Release transparency
+- REMOVED: heading "Release" [level=#]
+- REMOVED: text: Review release
+- REMOVED: article
+- REMOVED: article
+- REMOVED: heading "No unsupported claims" [level=#]
+- CHANGED
+  - old: paragraph: PAT does not claim third-party certification, audited status, uptime SLA, public customer references, or regulated-industry compliance certification at this stage.
+  - new: paragraph: PAT runs on verified releases — every release is checked against its source — with provider-backed billing and role-specific access.
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- CHANGED
+  - old: navigation "PAT trust and launch links"
+  - new: navigation "Trust surfaces"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Trust Center #
+- ADDED: note "No unsupported claims"
+- ADDED: text: No unsupported claims
+
+### / · public
+- REMOVED: img "PAT logo"
+- CHANGED
+  - old: text: Performance Alignment Technology PAT intelligence layer
+  - new: text: Performance Alignment Technology
+- REMOVED: heading "The intelligence layer inside C#Acct" [level=#]
+- REMOVED: paragraph: PAT is the intelligence layer within C#Acct, designed to transform structured signals into usable, decision-grade insight with minimal friction and full contextual continuity.
+- REMOVED: text: WELCOME
+- REMOVED: paragraph: Understand how PAT turns assessments, capability signal, and product evidence into current-state decision support.
+- REMOVED: text: Learn more about PAT
+- REMOVED: link "Sign in Continue to your workspace Vendors and firms sign in here to access their PAT workspace. Person-level and access-code paths are shelved for the current pilot. Continue to sign-in"
+- REMOVED: text: Sign in
+- REMOVED: heading "Continue to your workspace" [level=#]
+- REMOVED: paragraph: Vendors and firms sign in here to access their PAT workspace. Person-level and access-code paths are shelved for the current pilot.
+- REMOVED: text: Continue to sign-in
+- REMOVED: heading "Create an account" [level=#]
+- REMOVED: paragraph: Pick the role that matches your work — vendor or firm — answer two quick onboarding questions, and choose the plan that fits. Paid conversion stays clearly staged unless Stripe billing is configured.
+- REMOVED: text: Create an account
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: dialog "Navigation"
+- REMOVED: text: Navigation
+- REMOVED: link "Home"
+- REMOVED: link "Firm"
+- REMOVED: link "Consultant"
+- REMOVED: link "Return to C#Acct"
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Firms
+- ADDED: text: Vendors
+- ADDED: img "PAT"
+- ADDED: text: You Peers
+- ADDED: paragraph: Strategy — whether your technology plans point where your practice is actually heading.
+- ADDED: paragraph: Operations — the daily workflow discipline that separates smooth closes from late nights.
+- ADDED: paragraph: Automation — where software genuinely saves hours, and where it only promises to.
+- ADDED: paragraph: Integration — whether your systems share data cleanly or make your team re-key it.
+- ADDED: paragraph: Governance — the controls and vendor oversight your clients assume you already have.
+- ADDED: img "PAT"
+- ADDED: text: Cohort standing Peer view Strategy Operations Automation Integration Governance Peers Top decile You
+
+### /consultants/ecosystems/demo-…/firm/demo-…?panel=help · public
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: dialog "Navigation"
+- REMOVED: text: Navigation
+- REMOVED: link "Home"
+- REMOVED: link "Return to C#Acct"
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+
+### /consultants/ecosystems/demo-…/vendor-brief?panel=exec · public
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: dialog "Navigation"
+- REMOVED: text: Navigation
+- REMOVED: link "Home"
+- REMOVED: link "Return to C#Acct"
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+
+### /firm · public
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: dialog "Navigation"
+- REMOVED: text: Navigation
+- REMOVED: link "Home"
+- REMOVED: link "Return to C#Acct"
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+
+### /firm/alignment-board · public
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: dialog "Navigation"
+- REMOVED: text: Navigation
+- REMOVED: link "Home"
+- REMOVED: link "Return to C#Acct"
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+
+### /firm/help · public
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: dialog "Navigation"
+- REMOVED: text: Navigation
+- REMOVED: link "Home"
+- REMOVED: link "Return to C#Acct"
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+
+### /firm?panel=help · public
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: dialog "Navigation"
+- REMOVED: text: Navigation
+- REMOVED: link "Home"
+- REMOVED: link "Return to C#Acct"
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+
+### /methodology · public
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology Aggregation methodology Versioned · public
+- REMOVED: link "Trust center"
+- REMOVED: region "Methodology version": Version # Public, versioned methodology. Material changes are announced with the changelog below.
+- REMOVED: region "Methodology detail"
+- REMOVED: article
+- REMOVED: heading "What these numbers are — and are not" [level=#]
+- REMOVED: article
+- REMOVED: heading "Averaging — equal-weight by design" [level=#]
+- REMOVED: paragraph: Firm and vendor alignment readings average self-normalized #–# module scores. The five assessment modules are equal pillars of the framework; each emits one #–# score, so within-module question counts are already absorbed. Weighting by question or response count would distort the framework's stated structure, so we do not do it.
+- CHANGED
+  - old: paragraph: "Product readings use one-firm-one-vote: each firm's review of a product counts once, so multi-utility reviews cannot dominate the market read."
+  - new: paragraph: "Firm and vendor alignment readings average self-normalized #–# module scores. The five assessment modules are equal pillars of the framework; each emits one #–# score, so within-module question counts are already absorbed. Weighting by question or response count would distort the framework's stated structure, so we do not do it. Product readings use one-firm-one-vote: each firm's review of a product counts once, so multi-utility reviews cannot dominate the market read."
+- REMOVED: article
+- REMOVED: article
+- REMOVED: heading "Confidence bands — UX conventions, not statistics" [level=#]
+- REMOVED: article
+- REMOVED: heading "Benchmark suppression — a minimum-n safe harbor" [level=#]
+- CHANGED
+  - old: paragraph: "Confidence bands label thin evidence; suppression removes it. A cross-firm or peer benchmark is not published when either guard fails: fewer than five distinct contributing firms, or a single firm supplying more than # of the cut. This is the compensation-survey safe-harbor rule, adopted verbatim."
+  - new: paragraph: "Confidence bands label thin evidence; suppression removes it. A cross-firm or peer benchmark is not published when either guard fails: fewer than five distinct contributing firms, or a single firm supplying more than # of the cut. This is the compensation-survey safe-harbor rule, adopted verbatim. A suppressed benchmark shows an insufficient-peer-data state — never a number. Equal-weight cuts of five or more firms always clear the dominance guard by construction."
+- REMOVED: paragraph: A suppressed benchmark shows an insufficient-peer-data state — never a number. Equal-weight cuts of five or more firms always clear the dominance guard by construction.
+- REMOVED: article
+- REMOVED: heading "Integrity walls" [level=#]
+- REMOVED: article
+- REMOVED: heading "Rounding — a single authoritative pass" [level=#]
+- REMOVED: article
+- REMOVED: heading "Freshness windows — evidence age is labelled, never decayed" [level=#]
+- CHANGED
+  - old: paragraph: "Every score carries the age of the evidence behind it — the most recent module submission, product assessment, or firm review that fed it. Patalign classifies that age into three published windows: Fresh (under <rel>), Aging (#–<rel>), and Stale (over <rel>)."
+  - new: paragraph: "Every score carries the age of the evidence behind it — the most recent module submission, product assessment, or firm review that fed it. Patalign classifies that age into three published windows: Fresh (under <rel>), Aging (#–<rel>), and Stale (over <rel>). Age changes the label, never the number. Patalign does not silently decay, discount, or otherwise alter a score because it is old — the figure stays exactly as computed and the freshness state sits beside it so you can weigh its currency yourself. Absence of an evidence date is treated as unknown, not as stale."
+- REMOVED: paragraph: Age changes the label, never the number. Patalign does not silently decay, discount, or otherwise alter a score because it is old — the figure stays exactly as computed and the freshness state sits beside it so you can weigh its currency yourself. Absence of an evidence date is treated as unknown, not as stale.
+- REMOVED: article
+- REMOVED: paragraph: The cutoff governs inclusion, not value. It never changes, weights, or decays a score that has already been computed — a figure completed after the cutoff simply lands in the next quarter's cut instead of the current one. Membership tier changes what you see inside the benchmark (bands and percentiles for all members; deeper ranked position for Elite), never whether the cutoff applies to you.
+- REMOVED: article
+- REMOVED: paragraph: Figures are plain averages with the sample size shown — never weighted, percentile, or significance-tested statistics, and never professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, an insufficient-data state is shown instead of a number.
+- REMOVED: article
+- REMOVED: heading "Versioned and changelogged" [level=#]
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: dialog "Navigation"
+- REMOVED: text: Navigation
+- REMOVED: link "Home"
+- REMOVED: link "Vendor"
+- REMOVED: link "Firm"
+- REMOVED: link "Consultant"
+- REMOVED: link "Return to C#Acct"
+- CHANGED
+  - old: navigation "PAT trust and launch links"
+  - new: navigation "On this page"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Aggregation methodology
+- ADDED: heading "#What these numbers are — and are not" [level=#]
+- ADDED: heading "#Averaging — equal-weight by design" [level=#]
+- ADDED: heading "#Confidence bands — UX conventions, not statistics" [level=#]
+- ADDED: heading "#Benchmark suppression — a minimum-n safe harbor" [level=#]
+- ADDED: heading "#Integrity walls" [level=#]
+- ADDED: heading "#Rounding — a single authoritative pass" [level=#]
+- ADDED: heading "#Freshness windows — evidence age is labelled, never decayed" [level=#]
+- ADDED: text: On this page
+- ADDED: link "# What these numbers are — and are not"
+- ADDED: link "# Averaging — equal-weight by design"
+- ADDED: link "# Confidence bands — UX conventions, not statistics"
+- ADDED: link "# Benchmark suppression — a minimum-n safe harbor"
+- ADDED: link "# Integrity walls"
+- ADDED: link "# Rounding — a single authoritative pass"
+- ADDED: link "# Freshness windows — evidence age is labelled, never decayed"
+
+### /pat · public
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology The Analytical Core Inside C#Acct
+- REMOVED: heading "PAT Intelligence Layer" [level=#]
+- REMOVED: text: What PAT does
+- REMOVED: paragraph: PAT captures structured operating and product signals, preserves context, and turns those signals into actionable interpretation across firm and vendor views.
+- REMOVED: text: Why it matters
+- CHANGED
+  - old: paragraph: The model is useful because it keeps assessment, capability, and insight layers connected instead of scattering them across disconnected routes and generic summaries.
+  - new: paragraph: The radar is those five scores drawn as one shape, over the dashed outline of the firm's peers.
+- REMOVED: text: How PAT grows
+- REMOVED: paragraph: PAT starts with current-state interpretation, then expands into stronger recommendation, comparison, and projection layers only when the underlying evidence is honest enough to support them.
+- REMOVED: text: Instant Value
+- CHANGED
+  - old: paragraph: The assessment is how PAT begins, not all that PAT is. The real asset is the intelligence layer that turns operating and product signals into reflective insight now, then expands into stronger recommendation and comparison layers as the model and data deepen.
+  - new: paragraph: The same two doors as the home page.
+- REMOVED: link "Sign in to PAT"
+- REMOVED: link "Back to home"
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: dialog "Navigation"
+- REMOVED: text: Navigation
+- REMOVED: link "Home"
+- REMOVED: link "Firm"
+- REMOVED: link "Consultant"
+- REMOVED: link "Return to C#Acct"
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: paragraph: What PAT measures, how both sides contribute evidence, and what each side gets back.
+- ADDED: text: "#"
+- ADDED: paragraph: Every firm answers the same five modules — strategy, operations, automation, integration, governance — and each one scores # to #
+- ADDED: img "PAT"
+- ADDED: text: You Peers
+- ADDED: paragraph: Fig. # — the home radar; shape only, no live numbers.
+- ADDED: text: "#"
+- ADDED: heading "Evidence both ways" [level=#]
+- ADDED: paragraph: A vendor declares what its product does and scores it; the firms that use it score the same features from experience.
+- ADDED: paragraph: Both bars sit side by side, so a claim and the field's reading of it are never separated.
+- ADDED: img "PAT"
+- ADDED: text: Evidence both ways Per feature
+- ADDED: text: "#"
+- ADDED: heading "The alignment delta" [level=#]
+- ADDED: img "PAT"
+- ADDED: text: Alignment delta Points
+- ADDED: text: "#"
+- ADDED: heading "What each side gets" [level=#]
+- ADDED: text: Firms
+- ADDED: text: Vendors
+
+### /survey/help · public
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: dialog "Navigation"
+- REMOVED: text: Navigation
+- REMOVED: link "Home"
+- REMOVED: link "Return to C#Acct"
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+
+### /trust · public
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology PAT trust center Launch review surface
+- REMOVED: heading "Launch-readiness information for PAT review." [level=#]
+- REMOVED: paragraph: This hub links the current privacy, terms, security, support, billing, and release transparency surfaces for PAT. The language is intentionally conservative while the product is in local review and pre-public launch.
+- REMOVED: link "Trust center"
+- REMOVED: region "PAT trust surfaces"
+- REMOVED: link "Privacy policy draft Privacy This draft describes the data PAT expects to process during review and early launch. It is not a final legal policy until approved by counsel or the operator of record. Review privacy"
+- REMOVED: text: Privacy policy draft
+- REMOVED: heading "Privacy" [level=#]
+- REMOVED: paragraph: This draft describes the data PAT expects to process during review and early launch. It is not a final legal policy until approved by counsel or the operator of record.
+- REMOVED: text: Review privacy
+- REMOVED: link "Terms of service draft Terms These draft terms set expectations for review access and early launch use. They do not replace signed commercial terms or legal review. Review terms"
+- REMOVED: text: Terms of service draft
+- REMOVED: heading "Terms" [level=#]
+- REMOVED: paragraph: These draft terms set expectations for review access and early launch use. They do not replace signed commercial terms or legal review.
+- REMOVED: text: Review terms
+- REMOVED: link "Security posture Security This page summarizes implemented safeguards and current boundaries without claiming external certification or audit completion. Review security"
+- REMOVED: text: Security posture
+- REMOVED: heading "Security" [level=#]
+- REMOVED: paragraph: This page summarizes implemented safeguards and current boundaries without claiming external certification or audit completion.
+- REMOVED: text: Review security
+- REMOVED: link "Support and contact Support Support expectations are intentionally scoped for local review and early launch. Always-on public support is not claimed here. Review support"
+- REMOVED: text: Support and contact
+- REMOVED: heading "Support" [level=#]
+- REMOVED: paragraph: Support expectations are intentionally scoped for local review and early launch. Always-on public support is not claimed here.
+- REMOVED: text: Review support
+- REMOVED: paragraph: This draft explains how billing should behave when provider configuration is present and how the UI must stay honest when it is absent.
+- REMOVED: text: Aggregation methodology
+- REMOVED: heading "Methodology" [level=#]
+- REMOVED: text: Review methodology
+- REMOVED: text: AI governance
+- CHANGED
+  - old: paragraph: Pat is Patalign's AI assistant. It helps with questions, reminders, and reports. Here is exactly how we keep it in bounds — these are system controls, not policies.
+  - new: paragraph: Privacy, terms, security, support, billing, and release transparency for PAT — each linked below.
+- REMOVED: text: Release transparency
+- REMOVED: heading "Release" [level=#]
+- REMOVED: text: Review release
+- REMOVED: article
+- REMOVED: article
+- REMOVED: heading "No unsupported claims" [level=#]
+- CHANGED
+  - old: paragraph: PAT does not claim third-party certification, audited status, uptime SLA, public customer references, or regulated-industry compliance certification at this stage.
+  - new: paragraph: PAT runs on verified releases — every release is checked against its source — with provider-backed billing and role-specific access.
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: dialog "Navigation"
+- REMOVED: text: Navigation
+- REMOVED: link "Home"
+- REMOVED: link "Vendor"
+- REMOVED: link "Firm"
+- REMOVED: link "Consultant"
+- REMOVED: link "Return to C#Acct"
+- CHANGED
+  - old: navigation "PAT trust and launch links"
+  - new: navigation "Trust surfaces"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Trust Center #
+- ADDED: note "No unsupported claims"
+- ADDED: text: No unsupported claims
+
+### /vendor · public
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: dialog "Navigation"
+- REMOVED: text: Navigation
+- REMOVED: link "Home"
+- REMOVED: link "Return to C#Acct"
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+
+### /vendor/battlecard · public
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: dialog "Navigation"
+- REMOVED: text: Navigation
+- REMOVED: link "Home"
+- REMOVED: link "Return to C#Acct"
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+
+### /vendor/help · public
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: dialog "Navigation"
+- REMOVED: text: Navigation
+- REMOVED: link "Home"
+- REMOVED: link "Return to C#Acct"
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+
+### /vendor/product-assessment · public
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: dialog "Navigation"
+- REMOVED: text: Navigation
+- REMOVED: link "Home"
+- REMOVED: link "Return to C#Acct"
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+
+### /vendor/product-insight · public
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: dialog "Navigation"
+- REMOVED: text: Navigation
+- REMOVED: link "Home"
+- REMOVED: link "Return to C#Acct"
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+
+### /vendor?panel=help · public
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: dialog "Navigation"
+- REMOVED: text: Navigation
+- REMOVED: link "Home"
+- REMOVED: link "Return to C#Acct"
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+
+### / · vendor-elite
+- REMOVED: img "PAT logo"
+- CHANGED
+  - old: text: Performance Alignment Technology PAT intelligence layer
+  - new: text: Performance Alignment Technology
+- REMOVED: heading "The intelligence layer inside C#Acct" [level=#]
+- REMOVED: paragraph: PAT is the intelligence layer within C#Acct, designed to transform structured signals into usable, decision-grade insight with minimal friction and full contextual continuity.
+- REMOVED: text: WELCOME
+- REMOVED: paragraph: Understand how PAT turns assessments, capability signal, and product evidence into current-state decision support.
+- REMOVED: text: Learn more about PAT
+- REMOVED: text: Signed in
+- REMOVED: heading "Continue to your workspace" [level=#]
+- REMOVED: text: Continue to your workspace
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Firms
+- ADDED: text: Vendors
+- ADDED: img "PAT"
+- ADDED: text: You Peers
+- ADDED: paragraph: Strategy — whether your technology plans point where your practice is actually heading.
+- ADDED: paragraph: Operations — the daily workflow discipline that separates smooth closes from late nights.
+- ADDED: paragraph: Automation — where software genuinely saves hours, and where it only promises to.
+- ADDED: paragraph: Integration — whether your systems share data cleanly or make your team re-key it.
+- ADDED: paragraph: Governance — the controls and vendor oversight your clients assume you already have.
+- ADDED: img "PAT"
+- ADDED: text: Cohort standing Peer view Strategy Operations Automation Integration Governance Peers Top decile You
+
+### /consultants/ecosystems/demo-…/firm/demo-…?panel=help · vendor-elite
+- REMOVED: text: Elite
+- ADDED: text: Products
+- ADDED: link "Meridian Audit"
+- ADDED: link "Meridian CAS"
+- ADDED: link "Meridian Payroll"
+- ADDED: link "Meridian Portal"
+- ADDED: link "Meridian Practice"
+- ADDED: link "Meridian Tax"
+
+### /consultants/ecosystems/demo-…/vendor-brief?panel=exec · vendor-elite
+- REMOVED: text: Elite
+- ADDED: text: Products
+- ADDED: link "Meridian Audit"
+- ADDED: link "Meridian CAS"
+- ADDED: link "Meridian Payroll"
+- ADDED: link "Meridian Portal"
+- ADDED: link "Meridian Practice"
+- ADDED: link "Meridian Tax"
+
+### /firm · vendor-elite
+- REMOVED: text: Elite
+- ADDED: text: Products
+- ADDED: link "Meridian Audit"
+- ADDED: link "Meridian CAS"
+- ADDED: link "Meridian Payroll"
+- ADDED: link "Meridian Portal"
+- ADDED: link "Meridian Practice"
+- ADDED: link "Meridian Tax"
+
+### /firm/alignment-board · vendor-elite
+- REMOVED: text: Elite
+- ADDED: text: Products
+- ADDED: link "Meridian Audit"
+- ADDED: link "Meridian CAS"
+- ADDED: link "Meridian Payroll"
+- ADDED: link "Meridian Portal"
+- ADDED: link "Meridian Practice"
+- ADDED: link "Meridian Tax"
+
+### /firm/help · vendor-elite
+- REMOVED: text: Elite
+- ADDED: text: Products
+- ADDED: link "Meridian Audit"
+- ADDED: link "Meridian CAS"
+- ADDED: link "Meridian Payroll"
+- ADDED: link "Meridian Portal"
+- ADDED: link "Meridian Practice"
+- ADDED: link "Meridian Tax"
+
+### /firm?panel=help · vendor-elite
+- REMOVED: text: Elite
+- ADDED: text: Products
+- ADDED: link "Meridian Audit"
+- ADDED: link "Meridian CAS"
+- ADDED: link "Meridian Payroll"
+- ADDED: link "Meridian Portal"
+- ADDED: link "Meridian Practice"
+- ADDED: link "Meridian Tax"
+
+### /methodology · vendor-elite
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology Aggregation methodology Versioned · public
+- REMOVED: link "Trust center"
+- REMOVED: region "Methodology version": Version # Public, versioned methodology. Material changes are announced with the changelog below.
+- REMOVED: region "Methodology detail"
+- REMOVED: article
+- REMOVED: heading "What these numbers are — and are not" [level=#]
+- REMOVED: article
+- REMOVED: heading "Averaging — equal-weight by design" [level=#]
+- REMOVED: paragraph: Firm and vendor alignment readings average self-normalized #–# module scores. The five assessment modules are equal pillars of the framework; each emits one #–# score, so within-module question counts are already absorbed. Weighting by question or response count would distort the framework's stated structure, so we do not do it.
+- CHANGED
+  - old: paragraph: "Product readings use one-firm-one-vote: each firm's review of a product counts once, so multi-utility reviews cannot dominate the market read."
+  - new: paragraph: "Firm and vendor alignment readings average self-normalized #–# module scores. The five assessment modules are equal pillars of the framework; each emits one #–# score, so within-module question counts are already absorbed. Weighting by question or response count would distort the framework's stated structure, so we do not do it. Product readings use one-firm-one-vote: each firm's review of a product counts once, so multi-utility reviews cannot dominate the market read."
+- REMOVED: article
+- REMOVED: article
+- REMOVED: heading "Confidence bands — UX conventions, not statistics" [level=#]
+- REMOVED: article
+- REMOVED: heading "Benchmark suppression — a minimum-n safe harbor" [level=#]
+- CHANGED
+  - old: paragraph: "Confidence bands label thin evidence; suppression removes it. A cross-firm or peer benchmark is not published when either guard fails: fewer than five distinct contributing firms, or a single firm supplying more than # of the cut. This is the compensation-survey safe-harbor rule, adopted verbatim."
+  - new: paragraph: "Confidence bands label thin evidence; suppression removes it. A cross-firm or peer benchmark is not published when either guard fails: fewer than five distinct contributing firms, or a single firm supplying more than # of the cut. This is the compensation-survey safe-harbor rule, adopted verbatim. A suppressed benchmark shows an insufficient-peer-data state — never a number. Equal-weight cuts of five or more firms always clear the dominance guard by construction."
+- REMOVED: paragraph: A suppressed benchmark shows an insufficient-peer-data state — never a number. Equal-weight cuts of five or more firms always clear the dominance guard by construction.
+- REMOVED: article
+- REMOVED: heading "Integrity walls" [level=#]
+- REMOVED: article
+- REMOVED: heading "Rounding — a single authoritative pass" [level=#]
+- REMOVED: article
+- REMOVED: heading "Freshness windows — evidence age is labelled, never decayed" [level=#]
+- CHANGED
+  - old: paragraph: "Every score carries the age of the evidence behind it — the most recent module submission, product assessment, or firm review that fed it. Patalign classifies that age into three published windows: Fresh (under <rel>), Aging (#–<rel>), and Stale (over <rel>)."
+  - new: paragraph: "Every score carries the age of the evidence behind it — the most recent module submission, product assessment, or firm review that fed it. Patalign classifies that age into three published windows: Fresh (under <rel>), Aging (#–<rel>), and Stale (over <rel>). Age changes the label, never the number. Patalign does not silently decay, discount, or otherwise alter a score because it is old — the figure stays exactly as computed and the freshness state sits beside it so you can weigh its currency yourself. Absence of an evidence date is treated as unknown, not as stale."
+- REMOVED: paragraph: Age changes the label, never the number. Patalign does not silently decay, discount, or otherwise alter a score because it is old — the figure stays exactly as computed and the freshness state sits beside it so you can weigh its currency yourself. Absence of an evidence date is treated as unknown, not as stale.
+- REMOVED: article
+- REMOVED: paragraph: The cutoff governs inclusion, not value. It never changes, weights, or decays a score that has already been computed — a figure completed after the cutoff simply lands in the next quarter's cut instead of the current one. Membership tier changes what you see inside the benchmark (bands and percentiles for all members; deeper ranked position for Elite), never whether the cutoff applies to you.
+- REMOVED: article
+- REMOVED: paragraph: Figures are plain averages with the sample size shown — never weighted, percentile, or significance-tested statistics, and never professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, an insufficient-data state is shown instead of a number.
+- REMOVED: article
+- REMOVED: heading "Versioned and changelogged" [level=#]
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- CHANGED
+  - old: navigation "PAT trust and launch links"
+  - new: navigation "On this page"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Aggregation methodology
+- ADDED: heading "#What these numbers are — and are not" [level=#]
+- ADDED: heading "#Averaging — equal-weight by design" [level=#]
+- ADDED: heading "#Confidence bands — UX conventions, not statistics" [level=#]
+- ADDED: heading "#Benchmark suppression — a minimum-n safe harbor" [level=#]
+- ADDED: heading "#Integrity walls" [level=#]
+- ADDED: heading "#Rounding — a single authoritative pass" [level=#]
+- ADDED: heading "#Freshness windows — evidence age is labelled, never decayed" [level=#]
+- ADDED: text: On this page
+- ADDED: link "# What these numbers are — and are not"
+- ADDED: link "# Averaging — equal-weight by design"
+- ADDED: link "# Confidence bands — UX conventions, not statistics"
+- ADDED: link "# Benchmark suppression — a minimum-n safe harbor"
+- ADDED: link "# Integrity walls"
+- ADDED: link "# Rounding — a single authoritative pass"
+- ADDED: link "# Freshness windows — evidence age is labelled, never decayed"
+
+### /pat · vendor-elite
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology The Analytical Core Inside C#Acct
+- REMOVED: heading "PAT Intelligence Layer" [level=#]
+- REMOVED: paragraph: Pat is Patalign’s AI guide. Turn Pat on and you can ask questions about using the platform — and, on Elite, about your own scores and alignment data — in plain language, any time.
+- REMOVED: paragraph
+- REMOVED: text: Pat is optional and off by default. It doesn’t change your platform experience, your scores, or how Patalign’s aggregated, anonymized benchmarks work, as described in the
+- REMOVED: link "Terms of Service"
+- REMOVED: text: and
+- REMOVED: link "Privacy Policy"
+- REMOVED: text: .
+- REMOVED: paragraph
+- REMOVED: text: — human approval, audit logging, spend caps, a named stop-authority, and AI disclosure.
+- REMOVED: checkbox "Turn on Pat. I understand Pat is an AI assistant, not a person." [checked]
+- REMOVED: text: Turn on Pat. I understand Pat is an AI assistant, not a person.
+- REMOVED: text: What PAT does
+- REMOVED: paragraph: PAT captures structured operating and product signals, preserves context, and turns those signals into actionable interpretation across firm and vendor views.
+- REMOVED: text: Why it matters
+- CHANGED
+  - old: paragraph: The model is useful because it keeps assessment, capability, and insight layers connected instead of scattering them across disconnected routes and generic summaries.
+  - new: paragraph: The radar is those five scores drawn as one shape, over the dashed outline of the firm's peers.
+- REMOVED: text: How PAT grows
+- REMOVED: paragraph: PAT starts with current-state interpretation, then expands into stronger recommendation, comparison, and projection layers only when the underlying evidence is honest enough to support them.
+- REMOVED: text: Instant Value
+- CHANGED
+  - old: paragraph: The assessment is how PAT begins, not all that PAT is. The real asset is the intelligence layer that turns operating and product signals into reflective insight now, then expands into stronger recommendation and comparison layers as the model and data deepen.
+  - new: paragraph: The same two doors as the home page.
+- REMOVED: link "Sign in to PAT"
+- REMOVED: link "Back to home"
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: paragraph: What PAT measures, how both sides contribute evidence, and what each side gets back.
+- ADDED: text: "#"
+- ADDED: paragraph: Every firm answers the same five modules — strategy, operations, automation, integration, governance — and each one scores # to #
+- ADDED: img "PAT"
+- ADDED: text: You Peers
+- ADDED: paragraph: Fig. # — the home radar; shape only, no live numbers.
+- ADDED: text: "#"
+- ADDED: heading "Evidence both ways" [level=#]
+- ADDED: paragraph: A vendor declares what its product does and scores it; the firms that use it score the same features from experience.
+- ADDED: paragraph: Both bars sit side by side, so a claim and the field's reading of it are never separated.
+- ADDED: img "PAT"
+- ADDED: text: Evidence both ways Per feature
+- ADDED: text: "#"
+- ADDED: heading "The alignment delta" [level=#]
+- ADDED: img "PAT"
+- ADDED: text: Alignment delta Points
+- ADDED: text: "#"
+- ADDED: heading "What each side gets" [level=#]
+- ADDED: text: Firms
+- ADDED: text: Vendors
+
+### /trust · vendor-elite
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology PAT trust center Launch review surface
+- REMOVED: heading "Launch-readiness information for PAT review." [level=#]
+- REMOVED: paragraph: This hub links the current privacy, terms, security, support, billing, and release transparency surfaces for PAT. The language is intentionally conservative while the product is in local review and pre-public launch.
+- REMOVED: link "Trust center"
+- REMOVED: region "PAT trust surfaces"
+- REMOVED: link "Privacy policy draft Privacy This draft describes the data PAT expects to process during review and early launch. It is not a final legal policy until approved by counsel or the operator of record. Review privacy"
+- REMOVED: text: Privacy policy draft
+- REMOVED: heading "Privacy" [level=#]
+- REMOVED: paragraph: This draft describes the data PAT expects to process during review and early launch. It is not a final legal policy until approved by counsel or the operator of record.
+- REMOVED: text: Review privacy
+- REMOVED: link "Terms of service draft Terms These draft terms set expectations for review access and early launch use. They do not replace signed commercial terms or legal review. Review terms"
+- REMOVED: text: Terms of service draft
+- REMOVED: heading "Terms" [level=#]
+- REMOVED: paragraph: These draft terms set expectations for review access and early launch use. They do not replace signed commercial terms or legal review.
+- REMOVED: text: Review terms
+- REMOVED: link "Security posture Security This page summarizes implemented safeguards and current boundaries without claiming external certification or audit completion. Review security"
+- REMOVED: text: Security posture
+- REMOVED: heading "Security" [level=#]
+- REMOVED: paragraph: This page summarizes implemented safeguards and current boundaries without claiming external certification or audit completion.
+- REMOVED: text: Review security
+- REMOVED: link "Support and contact Support Support expectations are intentionally scoped for local review and early launch. Always-on public support is not claimed here. Review support"
+- REMOVED: text: Support and contact
+- REMOVED: heading "Support" [level=#]
+- REMOVED: paragraph: Support expectations are intentionally scoped for local review and early launch. Always-on public support is not claimed here.
+- REMOVED: text: Review support
+- REMOVED: paragraph: This draft explains how billing should behave when provider configuration is present and how the UI must stay honest when it is absent.
+- REMOVED: text: Aggregation methodology
+- REMOVED: heading "Methodology" [level=#]
+- REMOVED: text: Review methodology
+- REMOVED: text: AI governance
+- CHANGED
+  - old: paragraph: Pat is Patalign's AI assistant. It helps with questions, reminders, and reports. Here is exactly how we keep it in bounds — these are system controls, not policies.
+  - new: paragraph: Privacy, terms, security, support, billing, and release transparency for PAT — each linked below.
+- REMOVED: text: Release transparency
+- REMOVED: heading "Release" [level=#]
+- REMOVED: text: Review release
+- REMOVED: article
+- REMOVED: article
+- REMOVED: heading "No unsupported claims" [level=#]
+- CHANGED
+  - old: paragraph: PAT does not claim third-party certification, audited status, uptime SLA, public customer references, or regulated-industry compliance certification at this stage.
+  - new: paragraph: PAT runs on verified releases — every release is checked against its source — with provider-backed billing and role-specific access.
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- CHANGED
+  - old: navigation "PAT trust and launch links"
+  - new: navigation "Trust surfaces"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Trust Center #
+- ADDED: note "No unsupported claims"
+- ADDED: text: No unsupported claims
+
+### /vendor · vendor-elite
+- REMOVED: text: Elite
+- ADDED: text: Products
+- ADDED: link "Meridian Audit"
+- ADDED: link "Meridian CAS"
+- ADDED: link "Meridian Payroll"
+- ADDED: link "Meridian Portal"
+- ADDED: link "Meridian Practice"
+- ADDED: link "Meridian Tax"
+
+### /vendor/battlecard · vendor-elite
+- CHANGED
+  - old: img "Firm alignment vs your product strength": Automation Operations Integration Strategy Governance
+  - new: img "Firm alignment vs your product strength": Integration Strategy Automation Governance Operations
+- CHANGED
+  - old: row "Automation and AI Readiness # — scored"
+  - new: row "Automation and AI Readiness # -# scored"
+- REMOVED: cell "—"
+- CHANGED
+  - old: row "Operating Model and Workflow Discipline # — scored"
+  - new: row "Operating Model and Workflow Discipline # -# scored"
+- REMOVED: cell "—"
+- CHANGED
+  - old: row "Integration and Data Flow Maturity # — scored"
+  - new: row "Integration and Data Flow Maturity # +# scored"
+- REMOVED: cell "—"
+- CHANGED
+  - old: row "Strategy, Change Readiness, and Market Alignment # — scored"
+  - new: row "Strategy, Change Readiness, and Market Alignment # +# scored"
+- REMOVED: cell "—"
+- CHANGED
+  - old: row "Governance, Controls, and Vendor Risk # — scored"
+  - new: row "Governance, Controls, and Vendor Risk # -# scored"
+- REMOVED: cell "—"
+- CHANGED
+  - old: listitem: # Weakest area is Automation and AI Readiness at # — a completed assessment sharpens this card.
+  - new: listitem: # Attach product evidence to these modules before the outreach so the pitch is grounded, not generic.
+- REMOVED: listitem: No high-band products yet — fit is emerging at the mid-band.
+- REMOVED: listitem: No low-band products or calibration gaps on file for this firm yet.
+- REMOVED: listitem: Complete a product review with this firm to unlock tailored discovery questions.
+- CHANGED
+  - old: listitem: Firm weakness in Automation and AI Readiness
+  - new: listitem: Firm weakness in Integration and Data Flow Maturity
+- CHANGED
+  - old: listitem: Meridian Payroll is the current product constraint
+  - new: listitem: Meridian Audit is the current product constraint
+- ADDED: cell "+#"
+- ADDED: cell "+#"
+- ADDED: cell "-#"
+- ADDED: cell "-#"
+- ADDED: cell "-#"
+- ADDED: listitem: "# Lead with Integration and Data Flow Maturity: firm sits at #, ~# pts of headroom for your product strength."
+- ADDED: listitem: "# Lead with Strategy, Change Readiness, and Market Alignment: firm sits at #, ~# pts of headroom for your product strength."
+- ADDED: listitem: "Meridian Tax: firms rate it # — a proven strength to lead with."
+- ADDED: listitem: "Meridian Payroll: your self-report (#) sits # pts above the firm review (#) — a calibration gap to close."
+- ADDED: listitem: "Meridian Practice: your self-report (#) sits # pts above the firm review (#) — a calibration gap to close."
+- ADDED: listitem: Kirkland Reyes LLP=# vs Meridian Practice Cloud=# on Meridian Practice (+# points) — is this an adoption-curve gap that closes <rel>, or a structural mismatch that won't?
+- ADDED: listitem: Vendor-higher gap on Meridian Practice at the mid band — what would Kirkland Reyes LLP need to see in the next quarterly cycle to validate Meridian Practice Cloud's higher self-assessment?
+- ADDED: listitem: Kirkland Reyes LLP reviews Meridian Tax at #; Meridian Practice Cloud reads it slightly higher. What detail does Meridian Practice Cloud see that hasn't yet shown up in Kirkland Reyes LLP's day-to-day use?
+
+### /vendor/help · vendor-elite
+- CHANGED
+  - old: text: "Product Assessment What it is: A per-product PAT assessment driven by declared feature coverage. Where it goes: Routes to the product list, then into a product-specific assessment page. Why it matters: Each product needs its own self-signal and cannot be buried under one generic vendor score. How to use it: Choose a product, declare features, complete the scaled question bank, and submit. Product Insight What it is: A product intelligence catalog with one standalone intelligence page per product. Where it goes: Routes to the product insight catalog and then into a selected product intelligence page. Why it matters: Vendors need product-specific intelligence, not only broad vendor-level commentary. How to use it: Open a product, review vendor self-signal, then see current Pro membership and locked Elite membership framing. Alignment Insight What it is: Vendor-facing alignment insights tied to the current firm alignment layer. Where it goes: Routes to the vendor alignment insight catalog and then into detail pages. Why it matters: This connects vendor decision support back to actual firm assessment signal. How to use it: Open the insight group, then inspect each detail page for what, why, and how to use it."
+  - new: text: "Product Assessment What it is: A per-product PAT assessment driven by declared feature coverage. Where it goes: Routes to the product list, then into a product-specific assessment page. Why it matters: Each product needs its own self-signal and cannot be buried under one generic vendor score. How to use it: Choose a product, declare features, complete the scaled question bank, and submit."
+- ADDED: text: "Product Insight What it is: A product intelligence catalog with one standalone intelligence page per product. Where it goes: Routes to the product insight catalog and then into a selected product intelligence page. Why it matters: Vendors need product-specific intelligence, not only broad vendor-level commentary. How to use it: Open a product, review vendor self-signal, then see current Pro membership and locked Elite membership framing."
+- ADDED: text: "Alignment Insight What it is: Vendor-facing alignment insights tied to the current firm alignment layer. Where it goes: Routes to the vendor alignment insight catalog and then into detail pages. Why it matters: This connects vendor decision support back to actual firm assessment signal. How to use it: Open the insight group, then inspect each detail page for what, why, and how to use it."
+
+### /vendor/product-assessment · vendor-elite
+- REMOVED: text: Elite
+- REMOVED: text: Performance Alignment Technology
+- REMOVED: article
+- REMOVED: link "Meridian Audit"
+- REMOVED: text: In progress, final evidence incomplete Meridian Practice Cloud # feature
+- REMOVED: paragraph: Meridian Audit is Meridian Practice Cloud's audit_workflow_workpapers_evidence module.
+- REMOVED: text: Latest score # # · Developing
+- REMOVED: paragraph: "Features: Audit workflow / workpapers / evidence · Latest final submission #/#/#"
+- REMOVED: 'img "Meridian Audit latest score: # of #"'
+- REMOVED: link "Open assessment"
+- REMOVED: link "Product URL"
+- REMOVED: article
+- REMOVED: link "Meridian CAS"
+- REMOVED: text: In progress, final evidence incomplete Meridian Practice Cloud # features
+- REMOVED: paragraph: Meridian CAS is Meridian Practice Cloud's close_reconciliation_consolidation module.
+- REMOVED: text: Latest score # # · Building
+- REMOVED: paragraph: "Features: Close / reconciliation / consolidation, AR / billing / collections · Latest final submission #/#/#"
+- REMOVED: 'img "Meridian CAS latest score: # of #"'
+- REMOVED: link "Open assessment"
+- REMOVED: link "Product URL"
+- REMOVED: article
+- REMOVED: link "Meridian Payroll"
+- REMOVED: text: In progress, final evidence incomplete Meridian Practice Cloud # feature
+- REMOVED: paragraph: Meridian Payroll is Meridian Practice Cloud's payroll_workforce_support module.
+- REMOVED: text: Latest score # # · Established
+- REMOVED: paragraph: "Features: Payroll / workforce support · Latest final submission #/#/#"
+- REMOVED: 'img "Meridian Payroll latest score: # of #"'
+- REMOVED: link "Open assessment"
+- REMOVED: link "Product URL"
+- REMOVED: article
+- REMOVED: link "Meridian Portal"
+- REMOVED: text: In progress, final evidence incomplete Meridian Practice Cloud # features
+- REMOVED: paragraph: Meridian Portal is Meridian Practice Cloud's client_collaboration_portal_requests module.
+- REMOVED: text: Latest score # # · Established
+- REMOVED: paragraph: "Features: Client collaboration / portal / requests, Document capture / document management / e-signature · Latest final submission #/#/#"
+- REMOVED: 'img "Meridian Portal latest score: # of #"'
+- REMOVED: link "Open assessment"
+- REMOVED: link "Product URL"
+- REMOVED: article
+- REMOVED: link "Meridian Practice"
+- REMOVED: text: In progress, final evidence incomplete Meridian Practice Cloud # feature
+- REMOVED: paragraph: Meridian Practice is Meridian Practice Cloud's workflow_practice_operations_task_routing module.
+- REMOVED: text: Latest score # # · Established
+- REMOVED: paragraph: "Features: Workflow / practice operations / task routing · Latest final submission #/#/#"
+- REMOVED: 'img "Meridian Practice latest score: # of #"'
+- REMOVED: link "Open assessment"
+- REMOVED: link "Product URL"
+- REMOVED: article
+- REMOVED: link "Meridian Tax"
+- REMOVED: text: In progress, final evidence incomplete Meridian Practice Cloud # feature
+- REMOVED: paragraph: Meridian Tax is Meridian Practice Cloud's tax_workflow_compliance module.
+- REMOVED: text: Latest score # # · Established
+- REMOVED: paragraph: "Features: Tax workflow / compliance · Latest final submission #/#/#"
+- REMOVED: 'img "Meridian Tax latest score: # of #"'
+- REMOVED: link "Open assessment"
+- REMOVED: link "Product URL"
+- ADDED: text: Elite Performance Alignment Technology
+- ADDED: text: Every current product already has a completed final vendor product assessment. Use Completed to review them or Add New to register another product.
+
+### /vendor/product-insight · vendor-elite
+- REMOVED: text: Elite
+- REMOVED: text: Performance Alignment Technology Product intelligence
+- REMOVED: text: No products have a completed final vendor product assessment yet. Complete a product assessment first, then return here to access product intelligence insights.
+- ADDED: text: Elite Performance Alignment Technology Product intelligence
+- ADDED: heading "Meridian Audit" [level=#]
+- ADDED: paragraph: Tax & Compliance · # declared feature · # firm assessments
+- ADDED: heading "Meridian CAS" [level=#]
+- ADDED: heading "Meridian Payroll" [level=#]
+- ADDED: paragraph: Payroll & Workforce · # declared feature · # firm assessments
+- ADDED: heading "Meridian Portal" [level=#]
+- ADDED: heading "Meridian Practice" [level=#]
+- ADDED: paragraph: Workflow & Practice Ops · # declared feature · # firm assessments
+- ADDED: heading "Meridian Tax" [level=#]
+- ADDED: paragraph: Tax & Compliance · # declared feature · # firm assessments
+
+### /vendor?panel=help · vendor-elite
+- REMOVED: text: Elite
+- CHANGED
+  - old: text: "Product Assessment What it is: A per-product PAT assessment driven by declared feature coverage. Where it goes: Routes to the product list, then into a product-specific assessment page. Why it matters: Each product needs its own self-signal and cannot be buried under one generic vendor score. How to use it: Choose a product, declare features, complete the scaled question bank, and submit. Product Insight What it is: A product intelligence catalog with one standalone intelligence page per product. Where it goes: Routes to the product insight catalog and then into a selected product intelligence page. Why it matters: Vendors need product-specific intelligence, not only broad vendor-level commentary. How to use it: Open a product, review vendor self-signal, then see current Pro membership and locked Elite membership framing. Alignment Insight What it is: Vendor-facing alignment insights tied to the current firm alignment layer. Where it goes: Routes to the vendor alignment insight catalog and then into detail pages. Why it matters: This connects vendor decision support back to actual firm assessment signal. How to use it: Open the insight group, then inspect each detail page for what, why, and how to use it."
+  - new: text: "Product Assessment What it is: A per-product PAT assessment driven by declared feature coverage. Where it goes: Routes to the product list, then into a product-specific assessment page. Why it matters: Each product needs its own self-signal and cannot be buried under one generic vendor score. How to use it: Choose a product, declare features, complete the scaled question bank, and submit."
+- ADDED: text: "Product Insight What it is: A product intelligence catalog with one standalone intelligence page per product. Where it goes: Routes to the product insight catalog and then into a selected product intelligence page. Why it matters: Vendors need product-specific intelligence, not only broad vendor-level commentary. How to use it: Open a product, review vendor self-signal, then see current Pro membership and locked Elite membership framing."
+- ADDED: text: "Alignment Insight What it is: Vendor-facing alignment insights tied to the current firm alignment layer. Where it goes: Routes to the vendor alignment insight catalog and then into detail pages. Why it matters: This connects vendor decision support back to actual firm assessment signal. How to use it: Open the insight group, then inspect each detail page for what, why, and how to use it."
+
+### / · vendor-pro
+- REMOVED: img "PAT logo"
+- CHANGED
+  - old: text: Performance Alignment Technology PAT intelligence layer
+  - new: text: Performance Alignment Technology
+- REMOVED: heading "The intelligence layer inside C#Acct" [level=#]
+- REMOVED: paragraph: PAT is the intelligence layer within C#Acct, designed to transform structured signals into usable, decision-grade insight with minimal friction and full contextual continuity.
+- REMOVED: text: WELCOME
+- REMOVED: paragraph: Understand how PAT turns assessments, capability signal, and product evidence into current-state decision support.
+- REMOVED: text: Learn more about PAT
+- REMOVED: text: Signed in
+- REMOVED: heading "Continue to your workspace" [level=#]
+- REMOVED: text: Continue to your workspace
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Firms
+- ADDED: text: Vendors
+- ADDED: img "PAT"
+- ADDED: text: You Peers
+- ADDED: paragraph: Strategy — whether your technology plans point where your practice is actually heading.
+- ADDED: paragraph: Operations — the daily workflow discipline that separates smooth closes from late nights.
+- ADDED: paragraph: Automation — where software genuinely saves hours, and where it only promises to.
+- ADDED: paragraph: Integration — whether your systems share data cleanly or make your team re-key it.
+- ADDED: paragraph: Governance — the controls and vendor oversight your clients assume you already have.
+- ADDED: img "PAT"
+- ADDED: text: Cohort standing Peer view Strategy Operations Automation Integration Governance Peers Top decile You
+
+### /consultants/ecosystems/demo-…/firm/demo-…?panel=help · vendor-pro
+- ADDED: text: Products
+- ADDED: link "APStream Control"
+- ADDED: link "ClientVault Requests"
+- ADDED: link "LedgerFlow Close"
+- ADDED: link "MetricBoard FP&A"
+
+### /consultants/ecosystems/demo-…/vendor-brief?panel=exec · vendor-pro
+- ADDED: text: Products
+- ADDED: link "APStream Control"
+- ADDED: link "ClientVault Requests"
+- ADDED: link "LedgerFlow Close"
+- ADDED: link "MetricBoard FP&A"
+
+### /firm · vendor-pro
+- ADDED: text: Products
+- ADDED: link "APStream Control"
+- ADDED: link "ClientVault Requests"
+- ADDED: link "LedgerFlow Close"
+- ADDED: link "MetricBoard FP&A"
+
+### /firm/alignment-board · vendor-pro
+- ADDED: text: Products
+- ADDED: link "APStream Control"
+- ADDED: link "ClientVault Requests"
+- ADDED: link "LedgerFlow Close"
+- ADDED: link "MetricBoard FP&A"
+
+### /firm/help · vendor-pro
+- ADDED: text: Products
+- ADDED: link "APStream Control"
+- ADDED: link "ClientVault Requests"
+- ADDED: link "LedgerFlow Close"
+- ADDED: link "MetricBoard FP&A"
+
+### /firm?panel=help · vendor-pro
+- ADDED: text: Products
+- ADDED: link "APStream Control"
+- ADDED: link "ClientVault Requests"
+- ADDED: link "LedgerFlow Close"
+- ADDED: link "MetricBoard FP&A"
+
+### /methodology · vendor-pro
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology Aggregation methodology Versioned · public
+- REMOVED: link "Trust center"
+- REMOVED: region "Methodology version": Version # Public, versioned methodology. Material changes are announced with the changelog below.
+- REMOVED: region "Methodology detail"
+- REMOVED: article
+- REMOVED: heading "What these numbers are — and are not" [level=#]
+- REMOVED: article
+- REMOVED: heading "Averaging — equal-weight by design" [level=#]
+- REMOVED: paragraph: Firm and vendor alignment readings average self-normalized #–# module scores. The five assessment modules are equal pillars of the framework; each emits one #–# score, so within-module question counts are already absorbed. Weighting by question or response count would distort the framework's stated structure, so we do not do it.
+- CHANGED
+  - old: paragraph: "Product readings use one-firm-one-vote: each firm's review of a product counts once, so multi-utility reviews cannot dominate the market read."
+  - new: paragraph: "Firm and vendor alignment readings average self-normalized #–# module scores. The five assessment modules are equal pillars of the framework; each emits one #–# score, so within-module question counts are already absorbed. Weighting by question or response count would distort the framework's stated structure, so we do not do it. Product readings use one-firm-one-vote: each firm's review of a product counts once, so multi-utility reviews cannot dominate the market read."
+- REMOVED: article
+- REMOVED: article
+- REMOVED: heading "Confidence bands — UX conventions, not statistics" [level=#]
+- REMOVED: article
+- REMOVED: heading "Benchmark suppression — a minimum-n safe harbor" [level=#]
+- CHANGED
+  - old: paragraph: "Confidence bands label thin evidence; suppression removes it. A cross-firm or peer benchmark is not published when either guard fails: fewer than five distinct contributing firms, or a single firm supplying more than # of the cut. This is the compensation-survey safe-harbor rule, adopted verbatim."
+  - new: paragraph: "Confidence bands label thin evidence; suppression removes it. A cross-firm or peer benchmark is not published when either guard fails: fewer than five distinct contributing firms, or a single firm supplying more than # of the cut. This is the compensation-survey safe-harbor rule, adopted verbatim. A suppressed benchmark shows an insufficient-peer-data state — never a number. Equal-weight cuts of five or more firms always clear the dominance guard by construction."
+- REMOVED: paragraph: A suppressed benchmark shows an insufficient-peer-data state — never a number. Equal-weight cuts of five or more firms always clear the dominance guard by construction.
+- REMOVED: article
+- REMOVED: heading "Integrity walls" [level=#]
+- REMOVED: article
+- REMOVED: heading "Rounding — a single authoritative pass" [level=#]
+- REMOVED: article
+- REMOVED: heading "Freshness windows — evidence age is labelled, never decayed" [level=#]
+- CHANGED
+  - old: paragraph: "Every score carries the age of the evidence behind it — the most recent module submission, product assessment, or firm review that fed it. Patalign classifies that age into three published windows: Fresh (under <rel>), Aging (#–<rel>), and Stale (over <rel>)."
+  - new: paragraph: "Every score carries the age of the evidence behind it — the most recent module submission, product assessment, or firm review that fed it. Patalign classifies that age into three published windows: Fresh (under <rel>), Aging (#–<rel>), and Stale (over <rel>). Age changes the label, never the number. Patalign does not silently decay, discount, or otherwise alter a score because it is old — the figure stays exactly as computed and the freshness state sits beside it so you can weigh its currency yourself. Absence of an evidence date is treated as unknown, not as stale."
+- REMOVED: paragraph: Age changes the label, never the number. Patalign does not silently decay, discount, or otherwise alter a score because it is old — the figure stays exactly as computed and the freshness state sits beside it so you can weigh its currency yourself. Absence of an evidence date is treated as unknown, not as stale.
+- REMOVED: article
+- REMOVED: paragraph: The cutoff governs inclusion, not value. It never changes, weights, or decays a score that has already been computed — a figure completed after the cutoff simply lands in the next quarter's cut instead of the current one. Membership tier changes what you see inside the benchmark (bands and percentiles for all members; deeper ranked position for Elite), never whether the cutoff applies to you.
+- REMOVED: article
+- REMOVED: paragraph: Figures are plain averages with the sample size shown — never weighted, percentile, or significance-tested statistics, and never professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, an insufficient-data state is shown instead of a number.
+- REMOVED: article
+- REMOVED: heading "Versioned and changelogged" [level=#]
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- CHANGED
+  - old: navigation "PAT trust and launch links"
+  - new: navigation "On this page"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Aggregation methodology
+- ADDED: heading "#What these numbers are — and are not" [level=#]
+- ADDED: heading "#Averaging — equal-weight by design" [level=#]
+- ADDED: heading "#Confidence bands — UX conventions, not statistics" [level=#]
+- ADDED: heading "#Benchmark suppression — a minimum-n safe harbor" [level=#]
+- ADDED: heading "#Integrity walls" [level=#]
+- ADDED: heading "#Rounding — a single authoritative pass" [level=#]
+- ADDED: heading "#Freshness windows — evidence age is labelled, never decayed" [level=#]
+- ADDED: text: On this page
+- ADDED: link "# What these numbers are — and are not"
+- ADDED: link "# Averaging — equal-weight by design"
+- ADDED: link "# Confidence bands — UX conventions, not statistics"
+- ADDED: link "# Benchmark suppression — a minimum-n safe harbor"
+- ADDED: link "# Integrity walls"
+- ADDED: link "# Rounding — a single authoritative pass"
+- ADDED: link "# Freshness windows — evidence age is labelled, never decayed"
+
+### /pat · vendor-pro
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology The Analytical Core Inside C#Acct
+- REMOVED: heading "PAT Intelligence Layer" [level=#]
+- REMOVED: paragraph: Pat is Patalign’s AI guide. Turn Pat on and you can ask questions about using the platform — and, on Elite, about your own scores and alignment data — in plain language, any time.
+- REMOVED: paragraph
+- REMOVED: text: Pat is optional and off by default. It doesn’t change your platform experience, your scores, or how Patalign’s aggregated, anonymized benchmarks work, as described in the
+- REMOVED: link "Terms of Service"
+- REMOVED: text: and
+- REMOVED: link "Privacy Policy"
+- REMOVED: text: .
+- REMOVED: paragraph
+- REMOVED: text: — human approval, audit logging, spend caps, a named stop-authority, and AI disclosure.
+- REMOVED: checkbox "Turn on Pat. I understand Pat is an AI assistant, not a person." [checked]
+- REMOVED: text: Turn on Pat. I understand Pat is an AI assistant, not a person.
+- REMOVED: text: What PAT does
+- REMOVED: paragraph: PAT captures structured operating and product signals, preserves context, and turns those signals into actionable interpretation across firm and vendor views.
+- REMOVED: text: Why it matters
+- CHANGED
+  - old: paragraph: The model is useful because it keeps assessment, capability, and insight layers connected instead of scattering them across disconnected routes and generic summaries.
+  - new: paragraph: The radar is those five scores drawn as one shape, over the dashed outline of the firm's peers.
+- REMOVED: text: How PAT grows
+- REMOVED: paragraph: PAT starts with current-state interpretation, then expands into stronger recommendation, comparison, and projection layers only when the underlying evidence is honest enough to support them.
+- REMOVED: text: Instant Value
+- CHANGED
+  - old: paragraph: The assessment is how PAT begins, not all that PAT is. The real asset is the intelligence layer that turns operating and product signals into reflective insight now, then expands into stronger recommendation and comparison layers as the model and data deepen.
+  - new: paragraph: The same two doors as the home page.
+- REMOVED: link "Sign in to PAT"
+- REMOVED: link "Back to home"
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- REMOVED: navigation "PAT trust and launch links"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: paragraph: What PAT measures, how both sides contribute evidence, and what each side gets back.
+- ADDED: text: "#"
+- ADDED: paragraph: Every firm answers the same five modules — strategy, operations, automation, integration, governance — and each one scores # to #
+- ADDED: img "PAT"
+- ADDED: text: You Peers
+- ADDED: paragraph: Fig. # — the home radar; shape only, no live numbers.
+- ADDED: text: "#"
+- ADDED: heading "Evidence both ways" [level=#]
+- ADDED: paragraph: A vendor declares what its product does and scores it; the firms that use it score the same features from experience.
+- ADDED: paragraph: Both bars sit side by side, so a claim and the field's reading of it are never separated.
+- ADDED: img "PAT"
+- ADDED: text: Evidence both ways Per feature
+- ADDED: text: "#"
+- ADDED: heading "The alignment delta" [level=#]
+- ADDED: img "PAT"
+- ADDED: text: Alignment delta Points
+- ADDED: text: "#"
+- ADDED: heading "What each side gets" [level=#]
+- ADDED: text: Firms
+- ADDED: text: Vendors
+
+### /trust · vendor-pro
+- REMOVED: img "PAT logo"
+- REMOVED: text: Performance Alignment Technology PAT trust center Launch review surface
+- REMOVED: heading "Launch-readiness information for PAT review." [level=#]
+- REMOVED: paragraph: This hub links the current privacy, terms, security, support, billing, and release transparency surfaces for PAT. The language is intentionally conservative while the product is in local review and pre-public launch.
+- REMOVED: link "Trust center"
+- REMOVED: region "PAT trust surfaces"
+- REMOVED: link "Privacy policy draft Privacy This draft describes the data PAT expects to process during review and early launch. It is not a final legal policy until approved by counsel or the operator of record. Review privacy"
+- REMOVED: text: Privacy policy draft
+- REMOVED: heading "Privacy" [level=#]
+- REMOVED: paragraph: This draft describes the data PAT expects to process during review and early launch. It is not a final legal policy until approved by counsel or the operator of record.
+- REMOVED: text: Review privacy
+- REMOVED: link "Terms of service draft Terms These draft terms set expectations for review access and early launch use. They do not replace signed commercial terms or legal review. Review terms"
+- REMOVED: text: Terms of service draft
+- REMOVED: heading "Terms" [level=#]
+- REMOVED: paragraph: These draft terms set expectations for review access and early launch use. They do not replace signed commercial terms or legal review.
+- REMOVED: text: Review terms
+- REMOVED: link "Security posture Security This page summarizes implemented safeguards and current boundaries without claiming external certification or audit completion. Review security"
+- REMOVED: text: Security posture
+- REMOVED: heading "Security" [level=#]
+- REMOVED: paragraph: This page summarizes implemented safeguards and current boundaries without claiming external certification or audit completion.
+- REMOVED: text: Review security
+- REMOVED: link "Support and contact Support Support expectations are intentionally scoped for local review and early launch. Always-on public support is not claimed here. Review support"
+- REMOVED: text: Support and contact
+- REMOVED: heading "Support" [level=#]
+- REMOVED: paragraph: Support expectations are intentionally scoped for local review and early launch. Always-on public support is not claimed here.
+- REMOVED: text: Review support
+- REMOVED: paragraph: This draft explains how billing should behave when provider configuration is present and how the UI must stay honest when it is absent.
+- REMOVED: text: Aggregation methodology
+- REMOVED: heading "Methodology" [level=#]
+- REMOVED: text: Review methodology
+- REMOVED: text: AI governance
+- CHANGED
+  - old: paragraph: Pat is Patalign's AI assistant. It helps with questions, reminders, and reports. Here is exactly how we keep it in bounds — these are system controls, not policies.
+  - new: paragraph: Privacy, terms, security, support, billing, and release transparency for PAT — each linked below.
+- REMOVED: text: Release transparency
+- REMOVED: heading "Release" [level=#]
+- REMOVED: text: Review release
+- REMOVED: article
+- REMOVED: article
+- REMOVED: heading "No unsupported claims" [level=#]
+- CHANGED
+  - old: paragraph: PAT does not claim third-party certification, audited status, uptime SLA, public customer references, or regulated-industry compliance certification at this stage.
+  - new: paragraph: PAT runs on verified releases — every release is checked against its source — with provider-backed billing and role-specific access.
+- REMOVED: link "Open home"
+- REMOVED: img "PAT logo"
+- REMOVED: banner: Notifications
+- CHANGED
+  - old: navigation "PAT trust and launch links"
+  - new: navigation "Trust surfaces"
+- ADDED: link "PAT"
+- ADDED: img "PAT"
+- ADDED: text: Notifications
+- ADDED: text: Trust Center #
+- ADDED: note "No unsupported claims"
+- ADDED: text: No unsupported claims
+
+### /vendor · vendor-pro
+- ADDED: text: Products
+- ADDED: link "APStream Control"
+- ADDED: link "ClientVault Requests"
+- ADDED: link "LedgerFlow Close"
+- ADDED: link "MetricBoard FP&A"
+
+### /vendor/battlecard · vendor-pro
+- CHANGED
+  - old: definition: Governance, Controls, and Vendor Risk
+  - new: definition: Strategy, Change Readiness, and Market Alignment
+- CHANGED
+  - old: definition: —
+  - new: definition: "-#"
+
+### /vendor/help · vendor-pro
+- CHANGED
+  - old: text: "Product Assessment What it is: A per-product PAT assessment driven by declared feature coverage. Where it goes: Routes to the product list, then into a product-specific assessment page. Why it matters: Each product needs its own self-signal and cannot be buried under one generic vendor score. How to use it: Choose a product, declare features, complete the scaled question bank, and submit. Product Insight What it is: A product intelligence catalog with one standalone intelligence page per product. Where it goes: Routes to the product insight catalog and then into a selected product intelligence page. Why it matters: Vendors need product-specific intelligence, not only broad vendor-level commentary. How to use it: Open a product, review vendor self-signal, then see current Pro membership and locked Elite membership framing. Alignment Insight What it is: Vendor-facing alignment insights tied to the current firm alignment layer. Where it goes: Routes to the vendor alignment insight catalog and then into detail pages. Why it matters: This connects vendor decision support back to actual firm assessment signal. How to use it: Open the insight group, then inspect each detail page for what, why, and how to use it."
+  - new: text: "Product Assessment What it is: A per-product PAT assessment driven by declared feature coverage. Where it goes: Routes to the product list, then into a product-specific assessment page. Why it matters: Each product needs its own self-signal and cannot be buried under one generic vendor score. How to use it: Choose a product, declare features, complete the scaled question bank, and submit."
+- ADDED: text: "Product Insight What it is: A product intelligence catalog with one standalone intelligence page per product. Where it goes: Routes to the product insight catalog and then into a selected product intelligence page. Why it matters: Vendors need product-specific intelligence, not only broad vendor-level commentary. How to use it: Open a product, review vendor self-signal, then see current Pro membership and locked Elite membership framing."
+- ADDED: text: "Alignment Insight What it is: Vendor-facing alignment insights tied to the current firm alignment layer. Where it goes: Routes to the vendor alignment insight catalog and then into detail pages. Why it matters: This connects vendor decision support back to actual firm assessment signal. How to use it: Open the insight group, then inspect each detail page for what, why, and how to use it."
+
+### /vendor/product-assessment · vendor-pro
+- REMOVED: article
+- REMOVED: link "APStream Control"
+- REMOVED: text: In progress, final evidence incomplete PAT Demo Vendor # features
+- REMOVED: paragraph: AP intake, approval routing, and payment evidence for firms managing vendor spend across clients.
+- REMOVED: text: Latest score # # · Leading
+- REMOVED: paragraph: "Features: AP / payables / spend, Document capture / document management / e-signature, Controls / compliance / audit trail / approvals · Latest final submission #/#/#"
+- REMOVED: 'img "APStream Control latest score: # of #"'
+- REMOVED: link "Open assessment"
+- REMOVED: link "Product URL"
+- REMOVED: article
+- REMOVED: link "ClientVault Requests"
+- REMOVED: text: In progress, final evidence incomplete PAT Demo Vendor # features
+- REMOVED: text: Latest score # # · Building
+- REMOVED: paragraph: "Features: Client collaboration / portal / requests, Document capture / document management / e-signature, Workflow / practice operations / task routing · Latest final submission #/#/#"
+- REMOVED: 'img "ClientVault Requests latest score: # of #"'
+- REMOVED: link "Open assessment"
+- REMOVED: link "Product URL"
+- REMOVED: article
+- REMOVED: link "LedgerFlow Close"
+- REMOVED: text: In progress, final evidence incomplete PAT Demo Vendor # features
+- REMOVED: paragraph: Close orchestration for firms with recurring reconciliations, review gates, and entity-level signoff.
+- REMOVED: text: Latest score # # · Leading
+- REMOVED: paragraph: "Features: Close / reconciliation / consolidation, Workflow / practice operations / task routing, Controls / compliance / audit trail / approvals · Latest final submission #/#/#"
+- REMOVED: 'img "LedgerFlow Close latest score: # of #"'
+- REMOVED: link "Open assessment"
+- REMOVED: link "Product URL"
+- REMOVED: article
+- REMOVED: link "MetricBoard FP&A"
+- REMOVED: text: In progress, final evidence incomplete PAT Demo Vendor # features
+- REMOVED: paragraph: Management reporting and lightweight planning for firms standardizing advisory packages.
+- REMOVED: text: Latest score # # · Building
+- REMOVED: paragraph: "Features: Reporting / analytics / FP&A, Forecasting / planning, ERP / GL / core ledger · Latest final submission #/#/#"
+- REMOVED: 'img "MetricBoard FP&A latest score: # of #"'
+- REMOVED: link "Open assessment"
+- REMOVED: link "Product URL"
+- ADDED: text: Every current product already has a completed final vendor product assessment. Use Completed to review them or Add New to register another product.
+
+### /vendor/product-insight · vendor-pro
+- REMOVED: text: No products have a completed final vendor product assessment yet. Complete a product assessment first, then return here to access product intelligence insights.
+- ADDED: heading "APStream Control" [level=#]
+- ADDED: heading "ClientVault Requests" [level=#]
+- ADDED: heading "LedgerFlow Close" [level=#]
+- ADDED: heading "MetricBoard FP&A" [level=#]
+
+### /vendor?panel=help · vendor-pro
+- CHANGED
+  - old: text: "Product Assessment What it is: A per-product PAT assessment driven by declared feature coverage. Where it goes: Routes to the product list, then into a product-specific assessment page. Why it matters: Each product needs its own self-signal and cannot be buried under one generic vendor score. How to use it: Choose a product, declare features, complete the scaled question bank, and submit. Product Insight What it is: A product intelligence catalog with one standalone intelligence page per product. Where it goes: Routes to the product insight catalog and then into a selected product intelligence page. Why it matters: Vendors need product-specific intelligence, not only broad vendor-level commentary. How to use it: Open a product, review vendor self-signal, then see current Pro membership and locked Elite membership framing. Alignment Insight What it is: Vendor-facing alignment insights tied to the current firm alignment layer. Where it goes: Routes to the vendor alignment insight catalog and then into detail pages. Why it matters: This connects vendor decision support back to actual firm assessment signal. How to use it: Open the insight group, then inspect each detail page for what, why, and how to use it."
+  - new: text: "Product Assessment What it is: A per-product PAT assessment driven by declared feature coverage. Where it goes: Routes to the product list, then into a product-specific assessment page. Why it matters: Each product needs its own self-signal and cannot be buried under one generic vendor score. How to use it: Choose a product, declare features, complete the scaled question bank, and submit."
+- ADDED: text: "Product Insight What it is: A product intelligence catalog with one standalone intelligence page per product. Where it goes: Routes to the product insight catalog and then into a selected product intelligence page. Why it matters: Vendors need product-specific intelligence, not only broad vendor-level commentary. How to use it: Open a product, review vendor self-signal, then see current Pro membership and locked Elite membership framing."
+- ADDED: text: "Alignment Insight What it is: Vendor-facing alignment insights tied to the current firm alignment layer. Where it goes: Routes to the vendor alignment insight catalog and then into detail pages. Why it matters: This connects vendor decision support back to actual firm assessment signal. How to use it: Open the insight group, then inspect each detail page for what, why, and how to use it."
+
+## Classified as intended, by route × identity
+
+### / · admin
+- REMOVED: link "WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into current-state decision support. Learn more about PAT"
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: heading "Meet PAT" [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: heading "Product selection, without the sales pitch." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: Real assessments. Evidence both sides can trust.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Start here
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Enter PAT"
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Firms Score your stack."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Score your stack." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Vendors Earn the evidence."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Earn the evidence." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Alignment radar Five pillars
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Five-pillar alignment radar — shape only, no scores": Strategy Operations Automation Integration Governance
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+
+### /consultants/ecosystems/demo-…/firm/demo-…?panel=help · admin
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Other answers"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+
+### /consultants/ecosystems/demo-…/vendor-brief?panel=exec · admin
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Other answers"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+
+### /firm · admin
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Other answers"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+
+### /firm/alignment-board · admin
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Other answers"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+
+### /firm/help · admin
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Other answers"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+
+### /firm?panel=help · admin
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Other answers"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+
+### /methodology · admin
+- REMOVED: text: "Last updated: <date>"
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: paragraph: Patalign reports directional, informational readings built from firm and vendor assessments. Figures are presented as plain averages with the sample size shown. Nothing here is a weighted, percentile, or significance-tested statistic, and nothing is professional advice.
+  - new: paragraph: Patalign reports informational readings built from firm and vendor assessments. Figures are presented as plain averages with the sample size shown. Nothing here is a weighted, percentile, or significance-tested statistic, and nothing is professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, we show an insufficient-data state instead of a number.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- CHANGED
+  - old: paragraph: Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, we show an insufficient-data state instead of a number.
+  - new: paragraph: When a vendor's self-report differs from the firm-reviewed average, we only call it a divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: heading "Divergence — a sample floor before we assert a gap" [level=#]
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: paragraph: When a vendor's self-report differs from the firm-reviewed average, we only call it a directional divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: heading "Quarterly benchmark cutoff — a published deadline, not a score change" [level=#]
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: paragraph: "Patalign publishes a quarterly benchmark cut. Each calendar quarter has a cutoff date — the last day of the quarter — and an assessment counts toward that quarter's benchmark only if it was completed on or before that date. This is the same calendar-deadline pattern used by established B#B benchmark reports: a predictable date that tells everyone which evidence is included next."
+  - new: paragraph: "Patalign publishes a quarterly benchmark cut. Each calendar quarter has a cutoff date — the last day of the quarter — and an assessment counts toward that quarter's benchmark only if it was completed on or before that date. This is the same calendar-deadline pattern used by established B#B benchmark reports: a predictable date that tells everyone which evidence is included next. The cutoff governs inclusion, not value. It never changes, weights, or decays a score that has already been computed — a figure completed after the cutoff simply lands in the next quarter's cut instead of the current one. Membership tier changes what you see inside the benchmark (bands and percentiles for all members; deeper ranked position for Elite), never whether the cutoff applies to you."
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: paragraph: "Initial published methodology: equal-weight averaging, directional-divergence sample floor, unified confidence bands, single-pass display rounding."
+  - new: paragraph: "Initial published methodology: equal-weight averaging, divergence sample floor, unified confidence bands, single-pass display rounding."
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: heading "Directional, not professional advice" [level=#]
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: paragraph: Material changes to the methodology are versioned with a public changelog. The full detail — averaging, divergence floor, confidence bands, suppression, integrity walls, and rounding — is rendered below and mirrors the source aggregation-methodology document.
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: v# Last updated <date>
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: heading "#Divergence — a sample floor before we assert a gap" [level=#]
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: heading "#Quarterly benchmark cutoff — a published deadline, not a score change" [level=#]
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "# Divergence — a sample floor before we assert a gap"
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "# Quarterly benchmark cutoff — a published deadline, not a score change"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /pat · admin
+- CHANGED
+  - old: paragraph: PAT is the insight layer within C#Acct, built to convert structured signals into decision-grade direction with minimal friction and full contextual continuity.
+  - new: paragraph: PAT calls a gap a divergence only once at least three firm reviews exist; ten points or more is hot and worth a conversation.
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: text: Meet Pat — optional AI assistant
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: link "Learn how Pat is governed"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: How it works
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Four chapters, one measured picture." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "The Alignment Radar" [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Alignment radar Five pillars
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Five-pillar alignment radar — shape only, no scores": Strategy Operations Automation Integration Governance
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Vendor self-report next to the firm-reviewed average, per feature": Client portal Vendor self-report # Firm-reviewed # Close workflow Vendor self-report # Firm-reviewed # Bank feeds Vendor self-report # Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: paragraph: Fig. # — vendor self-report vs firm-reviewed, invented values for illustration.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: "The delta is the distance between the two bars: self-report minus the firm-reviewed average, in points."
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: img "Vendor self-report next to the firm-reviewed average, per feature": Client portal +# pt Vendor self-report # Firm-reviewed # Bank feeds +# pt · hot Vendor self-report # Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: paragraph: Fig. # — one hot divergence (# pt) and one within range (# pt), invented values.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: Firms get their own radar, an alignment index and the readouts that follow from it — comparison context, never a ranking.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Vendors get the firm-reviewed evidence for each product, product by product, and where the divergence sits.
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Firms Score your stack."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Score your stack." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Vendors Earn the evidence."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Earn the evidence." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+
+### /survey/help · admin
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Ask Pat Ask a question in your own words Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page. Open Ask Pat →"
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Ask Pat Ask a question in your own words
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: paragraph: Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page.
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Open Ask Pat →
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: Inside a firm assessment →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: Your first session with PAT →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: How PAT scoring works →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+
+### /trust · admin
+- REMOVED: text: "Last updated: <date>"
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: link "Billing policy draft Billing policy This draft explains how billing should behave when provider configuration is present and how the UI must stay honest when it is absent. Review billing policy"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Billing policy draft
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: heading "Billing policy" [level=#]
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Review billing policy
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: 'link "Aggregation methodology Methodology The stated, versioned methodology behind every alignment score, divergence reading, and peer benchmark: equal-weight averaging, sample floors, confidence bands, minimum-n benchmark suppression, and the integrity walls that keep demo data and vendor self-report out of peer aggregates. Review methodology"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: paragraph: "The stated, versioned methodology behind every alignment score, divergence reading, and peer benchmark: equal-weight averaging, sample floors, confidence bands, minimum-n benchmark suppression, and the integrity walls that keep demo data and vendor self-report out of peer aggregates."
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: link "AI governance How Pat is governed Pat is Patalign's AI assistant. It helps with questions, reminders, and reports. Here is exactly how we keep it in bounds — these are system controls, not policies. Review how pat is governed"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: heading "How Pat is governed" [level=#]
+  - new: heading "How PAT earns trust" [level=#]
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Review how pat is governed
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: link "Release transparency Release This page shows the public runtime fingerprint for the currently served PAT build and explains which release fields are validated together. Review release"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: paragraph: This page shows the public runtime fingerprint for the currently served PAT build and explains which release fields are validated together.
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: paragraph: PAT is being prepared for public launch with local validation, release fingerprints, provider-backed billing scaffolding, and role-specific onboarding. Public-live state remains unverified unless a reachable deployment URL is supplied and validated.
+  - new: paragraph: PAT does not claim third-party certification, audited status, uptime SLA, public customer references, or regulated-industry compliance certification.
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Last updated <date>
+  - intended: status-strip (Depth 7 2026-09-09)
+
+### /vendor · admin
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Other answers"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+
+### /vendor/battlecard · admin
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Other answers"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+
+### /vendor/help · admin
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Other answers"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+
+### /vendor/product-assessment · admin
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Other answers"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+
+### /vendor/product-insight · admin
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Other answers"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+
+### /vendor?panel=help · admin
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Other answers"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+
+### / · consultant
+- REMOVED: link "WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into current-state decision support. Learn more about PAT"
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: heading "Meet PAT" [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: link "Signed in Continue to your workspace You are signed in. Choose your path to access your designed workspace. Continue to your workspace"
+  - intended: onboarding-rail (Depth 8 2026-09-09)
+- REMOVED: paragraph: You are signed in. Choose your path to access your designed workspace.
+  - intended: onboarding-rail (Depth 8 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: heading "Product selection, without the sales pitch." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: Real assessments. Evidence both sides can trust.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Start here
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Enter PAT"
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Firms Score your stack."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Score your stack." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Vendors Earn the evidence."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Earn the evidence." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Alignment radar Five pillars
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Five-pillar alignment radar — shape only, no scores": Strategy Operations Automation Integration Governance
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+
+### /consultants/ecosystems/demo-…/firm/demo-…?panel=help · consultant
+- CHANGED
+  - old: paragraph: The Stack fit table feeds the vendor brief's Section # (Strengths / cautions) per-firm battlecard for this firm. The #-quarter roadmap will pull from the vendor brief's Action Roadmap once the rebuild lands (AUDIT-WS#-#); for now the roadmap is populated by the deterministic builder in lib/firmBriefs.ts.
+  - new: paragraph: The Stack fit table feeds the vendor brief's Section # (Strengths / cautions) per-firm Product Fit Card for this firm. The #-quarter roadmap will pull from the vendor brief's Action Roadmap once the rebuild lands (AUDIT-WS#-#); for now the roadmap is populated by the deterministic builder in lib/firmBriefs.ts.
+  - intended: product-fit-card (R7 (ruling))
+- REMOVED: text: Directional, informational — not professional advice.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Informational, not professional advice.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+
+### /consultants/ecosystems/demo-…/vendor-brief?panel=exec · consultant
+- REMOVED: text: Directional, informational — not professional advice.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: listitem: # products show a material gap between vendor self-report and firm-reviewed scores. The Self-vs-Market Delta section below ranks these by magnitude.
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Informational, not professional advice.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+
+### /firm · consultant
+- CHANGED
+  - old: button "Nudge queue"
+  - new: button "Nudges"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- CHANGED
+  - old: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions No hot divergences"
+  - new: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions # hot divergences"
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: modules · # actions No hot divergences
+  - new: text: modules · # actions # hot divergences
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Next briefing Sentinel Practice Cloud <date> · quarterly benchmark cut # firms in Sentinel Practice Cloud Ecosystem
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Check freshness before the cut"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: text: This week # assessment modules submitted # firm insights refreshed
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: paragraph: Since <date>, across # firms you reach.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /firm/alignment-board · consultant
+- CHANGED
+  - old: button "Nudge queue"
+  - new: button "Nudges"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- CHANGED
+  - old: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions No hot divergences"
+  - new: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions # hot divergences"
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: modules · # actions No hot divergences
+  - new: text: modules · # actions # hot divergences
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Next briefing Sentinel Practice Cloud <date> · quarterly benchmark cut # firms in Sentinel Practice Cloud Ecosystem
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Check freshness before the cut"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: text: This week # assessment modules submitted # firm insights refreshed
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: paragraph: Since <date>, across # firms you reach.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /firm/help · consultant
+- CHANGED
+  - old: button "Nudge queue"
+  - new: button "Nudges"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- CHANGED
+  - old: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions No hot divergences"
+  - new: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions # hot divergences"
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: modules · # actions No hot divergences
+  - new: text: modules · # actions # hot divergences
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Next briefing Sentinel Practice Cloud <date> · quarterly benchmark cut # firms in Sentinel Practice Cloud Ecosystem
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Check freshness before the cut"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: text: This week # assessment modules submitted # firm insights refreshed
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: paragraph: Since <date>, across # firms you reach.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /firm?panel=help · consultant
+- CHANGED
+  - old: button "Nudge queue"
+  - new: button "Nudges"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- CHANGED
+  - old: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions No hot divergences"
+  - new: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions # hot divergences"
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: modules · # actions No hot divergences
+  - new: text: modules · # actions # hot divergences
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Next briefing Sentinel Practice Cloud <date> · quarterly benchmark cut # firms in Sentinel Practice Cloud Ecosystem
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Check freshness before the cut"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: text: This week # assessment modules submitted # firm insights refreshed
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: paragraph: Since <date>, across # firms you reach.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /methodology · consultant
+- REMOVED: text: "Last updated: <date>"
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: paragraph: Patalign reports directional, informational readings built from firm and vendor assessments. Figures are presented as plain averages with the sample size shown. Nothing here is a weighted, percentile, or significance-tested statistic, and nothing is professional advice.
+  - new: paragraph: Patalign reports informational readings built from firm and vendor assessments. Figures are presented as plain averages with the sample size shown. Nothing here is a weighted, percentile, or significance-tested statistic, and nothing is professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, we show an insufficient-data state instead of a number.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- CHANGED
+  - old: paragraph: Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, we show an insufficient-data state instead of a number.
+  - new: paragraph: When a vendor's self-report differs from the firm-reviewed average, we only call it a divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: heading "Divergence — a sample floor before we assert a gap" [level=#]
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: paragraph: When a vendor's self-report differs from the firm-reviewed average, we only call it a directional divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: heading "Quarterly benchmark cutoff — a published deadline, not a score change" [level=#]
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: paragraph: "Patalign publishes a quarterly benchmark cut. Each calendar quarter has a cutoff date — the last day of the quarter — and an assessment counts toward that quarter's benchmark only if it was completed on or before that date. This is the same calendar-deadline pattern used by established B#B benchmark reports: a predictable date that tells everyone which evidence is included next."
+  - new: paragraph: "Patalign publishes a quarterly benchmark cut. Each calendar quarter has a cutoff date — the last day of the quarter — and an assessment counts toward that quarter's benchmark only if it was completed on or before that date. This is the same calendar-deadline pattern used by established B#B benchmark reports: a predictable date that tells everyone which evidence is included next. The cutoff governs inclusion, not value. It never changes, weights, or decays a score that has already been computed — a figure completed after the cutoff simply lands in the next quarter's cut instead of the current one. Membership tier changes what you see inside the benchmark (bands and percentiles for all members; deeper ranked position for Elite), never whether the cutoff applies to you."
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: paragraph: "Initial published methodology: equal-weight averaging, directional-divergence sample floor, unified confidence bands, single-pass display rounding."
+  - new: paragraph: "Initial published methodology: equal-weight averaging, divergence sample floor, unified confidence bands, single-pass display rounding."
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: heading "Directional, not professional advice" [level=#]
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: paragraph: Material changes to the methodology are versioned with a public changelog. The full detail — averaging, divergence floor, confidence bands, suppression, integrity walls, and rounding — is rendered below and mirrors the source aggregation-methodology document.
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: v# Last updated <date>
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: heading "#Divergence — a sample floor before we assert a gap" [level=#]
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: heading "#Quarterly benchmark cutoff — a published deadline, not a score change" [level=#]
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "# Divergence — a sample floor before we assert a gap"
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "# Quarterly benchmark cutoff — a published deadline, not a score change"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /pat · consultant
+- CHANGED
+  - old: paragraph: PAT is the insight layer within C#Acct, built to convert structured signals into decision-grade direction with minimal friction and full contextual continuity.
+  - new: paragraph: PAT calls a gap a divergence only once at least three firm reviews exist; ten points or more is hot and worth a conversation.
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: text: Meet Pat — optional AI assistant
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: link "Learn how Pat is governed"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: How it works
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Four chapters, one measured picture." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "The Alignment Radar" [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Alignment radar Five pillars
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Five-pillar alignment radar — shape only, no scores": Strategy Operations Automation Integration Governance
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Vendor self-report next to the firm-reviewed average, per feature": Client portal Vendor self-report # Firm-reviewed # Close workflow Vendor self-report # Firm-reviewed # Bank feeds Vendor self-report # Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: paragraph: Fig. # — vendor self-report vs firm-reviewed, invented values for illustration.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: "The delta is the distance between the two bars: self-report minus the firm-reviewed average, in points."
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: img "Vendor self-report next to the firm-reviewed average, per feature": Client portal +# pt Vendor self-report # Firm-reviewed # Bank feeds +# pt · hot Vendor self-report # Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: paragraph: Fig. # — one hot divergence (# pt) and one within range (# pt), invented values.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: Firms get their own radar, an alignment index and the readouts that follow from it — comparison context, never a ranking.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Vendors get the firm-reviewed evidence for each product, product by product, and where the divergence sits.
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Firms Score your stack."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Score your stack." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Vendors Earn the evidence."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Earn the evidence." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+
+### /survey/help · consultant
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Ask Pat Ask a question in your own words Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page. Open Ask Pat →"
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Ask Pat Ask a question in your own words
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: paragraph: Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page.
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Open Ask Pat →
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: Inside a firm assessment →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: Your first session with PAT →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: How PAT scoring works →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+
+### /trust · consultant
+- REMOVED: text: "Last updated: <date>"
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: link "Billing policy draft Billing policy This draft explains how billing should behave when provider configuration is present and how the UI must stay honest when it is absent. Review billing policy"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Billing policy draft
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: heading "Billing policy" [level=#]
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Review billing policy
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: 'link "Aggregation methodology Methodology The stated, versioned methodology behind every alignment score, divergence reading, and peer benchmark: equal-weight averaging, sample floors, confidence bands, minimum-n benchmark suppression, and the integrity walls that keep demo data and vendor self-report out of peer aggregates. Review methodology"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: paragraph: "The stated, versioned methodology behind every alignment score, divergence reading, and peer benchmark: equal-weight averaging, sample floors, confidence bands, minimum-n benchmark suppression, and the integrity walls that keep demo data and vendor self-report out of peer aggregates."
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: link "AI governance How Pat is governed Pat is Patalign's AI assistant. It helps with questions, reminders, and reports. Here is exactly how we keep it in bounds — these are system controls, not policies. Review how pat is governed"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: heading "How Pat is governed" [level=#]
+  - new: heading "How PAT earns trust" [level=#]
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Review how pat is governed
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: link "Release transparency Release This page shows the public runtime fingerprint for the currently served PAT build and explains which release fields are validated together. Review release"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: paragraph: This page shows the public runtime fingerprint for the currently served PAT build and explains which release fields are validated together.
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: paragraph: PAT is being prepared for public launch with local validation, release fingerprints, provider-backed billing scaffolding, and role-specific onboarding. Public-live state remains unverified unless a reachable deployment URL is supplied and validated.
+  - new: paragraph: PAT does not claim third-party certification, audited status, uptime SLA, public customer references, or regulated-industry compliance certification.
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Last updated <date>
+  - intended: status-strip (Depth 7 2026-09-09)
+
+### /vendor · consultant
+- CHANGED
+  - old: button "Nudge queue"
+  - new: button "Nudges"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- CHANGED
+  - old: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions No hot divergences"
+  - new: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions # hot divergences"
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: modules · # actions No hot divergences
+  - new: text: modules · # actions # hot divergences
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Next briefing Sentinel Practice Cloud <date> · quarterly benchmark cut # firms in Sentinel Practice Cloud Ecosystem
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Check freshness before the cut"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: text: This week # assessment modules submitted # firm insights refreshed
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: paragraph: Since <date>, across # firms you reach.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /vendor/battlecard · consultant
+- CHANGED
+  - old: button "Nudge queue"
+  - new: button "Nudges"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- CHANGED
+  - old: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions No hot divergences"
+  - new: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions # hot divergences"
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: modules · # actions No hot divergences
+  - new: text: modules · # actions # hot divergences
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Next briefing Sentinel Practice Cloud <date> · quarterly benchmark cut # firms in Sentinel Practice Cloud Ecosystem
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Check freshness before the cut"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: text: This week # assessment modules submitted # firm insights refreshed
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: paragraph: Since <date>, across # firms you reach.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /vendor/help · consultant
+- CHANGED
+  - old: button "Nudge queue"
+  - new: button "Nudges"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- CHANGED
+  - old: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions No hot divergences"
+  - new: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions # hot divergences"
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: modules · # actions No hot divergences
+  - new: text: modules · # actions # hot divergences
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Next briefing Sentinel Practice Cloud <date> · quarterly benchmark cut # firms in Sentinel Practice Cloud Ecosystem
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Check freshness before the cut"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: text: This week # assessment modules submitted # firm insights refreshed
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: paragraph: Since <date>, across # firms you reach.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /vendor/product-assessment · consultant
+- CHANGED
+  - old: button "Nudge queue"
+  - new: button "Nudges"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- CHANGED
+  - old: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions No hot divergences"
+  - new: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions # hot divergences"
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: modules · # actions No hot divergences
+  - new: text: modules · # actions # hot divergences
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Next briefing Sentinel Practice Cloud <date> · quarterly benchmark cut # firms in Sentinel Practice Cloud Ecosystem
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Check freshness before the cut"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: text: This week # assessment modules submitted # firm insights refreshed
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: paragraph: Since <date>, across # firms you reach.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /vendor/product-insight · consultant
+- CHANGED
+  - old: button "Nudge queue"
+  - new: button "Nudges"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- CHANGED
+  - old: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions No hot divergences"
+  - new: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions # hot divergences"
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: modules · # actions No hot divergences
+  - new: text: modules · # actions # hot divergences
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Next briefing Sentinel Practice Cloud <date> · quarterly benchmark cut # firms in Sentinel Practice Cloud Ecosystem
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Check freshness before the cut"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: text: This week # assessment modules submitted # firm insights refreshed
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: paragraph: Since <date>, across # firms you reach.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /vendor?panel=help · consultant
+- CHANGED
+  - old: button "Nudge queue"
+  - new: button "Nudges"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- CHANGED
+  - old: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions No hot divergences"
+  - new: link "Sentinel Practice Cloud Ecosystem Sentinel Practice Cloud · # invited firms Avg # # of # invited firms Grounded, # Early signal # modules · # actions # hot divergences"
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: modules · # actions No hot divergences
+  - new: text: modules · # actions # hot divergences
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Next briefing Sentinel Practice Cloud <date> · quarterly benchmark cut # firms in Sentinel Practice Cloud Ecosystem
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Check freshness before the cut"
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: text: This week # assessment modules submitted # firm insights refreshed
+  - intended: consultant-week (Depth 4 2026-09-09)
+- ADDED: paragraph: Since <date>, across # firms you reach.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### / · firm-elite
+- REMOVED: link "WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into current-state decision support. Learn more about PAT"
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: heading "Meet PAT" [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: link "Signed in Continue to your workspace You are signed in. Choose your path to access your designed workspace. Continue to your workspace"
+  - intended: onboarding-rail (Depth 8 2026-09-09)
+- REMOVED: paragraph: You are signed in. Choose your path to access your designed workspace.
+  - intended: onboarding-rail (Depth 8 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: heading "Product selection, without the sales pitch." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: Real assessments. Evidence both sides can trust.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Start here
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Enter PAT"
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Firms Score your stack."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Score your stack." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Vendors Earn the evidence."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Earn the evidence." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Alignment radar Five pillars
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Five-pillar alignment radar — shape only, no scores": Strategy Operations Automation Integration Governance
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+
+### /consultants/ecosystems/demo-…/firm/demo-…?panel=help · firm-elite
+- REMOVED: text: Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Kirkland Reyes LLP · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Building
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /consultants/ecosystems/demo-…/vendor-brief?panel=exec · firm-elite
+- REMOVED: text: Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Kirkland Reyes LLP · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Building
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /firm · firm-elite
+- REMOVED: text: Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Kirkland Reyes LLP · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Building
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /firm/alignment-board · firm-elite
+- CHANGED
+  - old: paragraph: Lift a piece from your stack, then drop in a Secret candidate to see your projected alignment shape move. Projections are directional, drawn from cross-firm benchmarks.
+  - new: paragraph: Lift a piece from your stack, then drop in a Secret candidate to see your projected alignment shape move. Projections are estimates, drawn from cross-firm benchmarks.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- CHANGED
+  - old: paragraph: Each axis is the mean of your stack’s stored per-section review evidence. The projected shape re-means with the swap — directional, drawn from real answers, not a firm-verified forecast. These are product-fit dimensions, not the firm alignment modules.
+  - new: paragraph: Each axis is the mean of your stack’s stored per-section review evidence. The projected shape re-means with the swap — an estimate, drawn from real answers, not a firm-verified forecast. These are product-fit dimensions, not the firm alignment modules.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: paragraph: No firm-reviewed candidates yet — see the not-yet-reviewed set below.
+  - intended: products-block (box 2 2026-09-11 (R19))
+- REMOVED: text: Directional, informational — not professional advice.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Not yet firm-reviewed Vendor self-reported · needs firm reviews to enter ranked fits
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Informational, not professional advice.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+
+### /firm/help · firm-elite
+- CHANGED
+  - old: text: "Alignment Assessment What it is: The five-module, #-question firm alignment system. Why it matters: This is the main intake for firm-side Pro membership PAT insight unlocking. How to use it: Open the module overview, complete each module, and submit through the live PAT flow. Product Assessments What it is: Firm-side product reviews aligned only to vendor-declared features. Why it matters: This is the firm-to-vendor product intelligence loop inside PAT. How to use it: Choose a product, answer the feature-aligned questions, and persist the review. Alignment Insights What it is: Firm-facing Pro and Elite PAT alignment insights. Why it matters: This turns alignment assessment and product signal into usable current-state decision support. How to use it: Open firm alignment insight cards, review grounded Pro detail, and inspect staged Elite cards without overstating what is live."
+  - new: text: "Alignment Assessment What it is: The five-module, #-question firm alignment system. Why it matters: This is the main intake for firm-side Pro membership PAT insight unlocking. How to use it: Open the module overview, complete each module, and submit through the live PAT flow."
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Ask Pat Ask a question in your own words Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page. Open Ask Pat →"
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Ask Pat Ask a question in your own words
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: paragraph: Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page.
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Open Ask Pat →
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: Inside a firm assessment →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Product Assessments What it is: Firm-side product reviews aligned only to vendor-declared features. Why it matters: This is the firm-to-vendor product intelligence loop inside PAT. How to use it: Choose a product, answer the feature-aligned questions, and persist the review."
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'link "Read: What vendors declare and firms verify →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Alignment Insights What it is: Firm-facing Pro and Elite PAT alignment insights. Why it matters: This turns alignment assessment and product signal into usable current-state decision support. How to use it: Open firm alignment insight cards, review grounded Pro detail, and inspect staged Elite cards without overstating what is live. Alignment Sandbox What it is: Your product stack as interactive pieces, with the projected firm alignment recomputing as you swap candidates in. Why it matters: It shows which alternative closes your largest gap before anyone commits to a change. How to use it: Lift a piece from your stack, drop in a candidate, and read the projected shape; Elite reveals candidate names."
+  - intended: help-panels-r16 (box 2 2026-09-11 (R16))
+- ADDED: 'link "Read: The alignment delta, introduced →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Quarterly benchmark What it is: Where your firm stands against its cohort this quarter, with the published cutoff date. Why it matters: It turns your alignment index into a position you can act on, refreshed on a known schedule. How to use it: Open the benchmark, read your band and peer position, and request a refresh when your evidence has moved."
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'link "Read: What PAT benchmarks are, and are never →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+
+### /firm?panel=help · firm-elite
+- REMOVED: text: Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: "Alignment Assessment What it is: The five-module, #-question firm alignment system. Why it matters: This is the main intake for firm-side Pro membership PAT insight unlocking. How to use it: Open the module overview, complete each module, and submit through the live PAT flow. Product Assessments What it is: Firm-side product reviews aligned only to vendor-declared features. Why it matters: This is the firm-to-vendor product intelligence loop inside PAT. How to use it: Choose a product, answer the feature-aligned questions, and persist the review. Alignment Insights What it is: Firm-facing Pro and Elite PAT alignment insights. Why it matters: This turns alignment assessment and product signal into usable current-state decision support. How to use it: Open firm alignment insight cards, review grounded Pro detail, and inspect staged Elite cards without overstating what is live."
+  - new: text: "Alignment Assessment What it is: The five-module, #-question firm alignment system. Why it matters: This is the main intake for firm-side Pro membership PAT insight unlocking. How to use it: Open the module overview, complete each module, and submit through the live PAT flow."
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: button "Ask Pat Ask a question in your own words Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page. Open Ask Pat →"
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Ask Pat Ask a question in your own words
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: paragraph: Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page.
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Open Ask Pat →
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: Inside a firm assessment →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Product Assessments What it is: Firm-side product reviews aligned only to vendor-declared features. Why it matters: This is the firm-to-vendor product intelligence loop inside PAT. How to use it: Choose a product, answer the feature-aligned questions, and persist the review."
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'link "Read: What vendors declare and firms verify →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Alignment Insights What it is: Firm-facing Pro and Elite PAT alignment insights. Why it matters: This turns alignment assessment and product signal into usable current-state decision support. How to use it: Open firm alignment insight cards, review grounded Pro detail, and inspect staged Elite cards without overstating what is live. Alignment Sandbox What it is: Your product stack as interactive pieces, with the projected firm alignment recomputing as you swap candidates in. Why it matters: It shows which alternative closes your largest gap before anyone commits to a change. How to use it: Lift a piece from your stack, drop in a candidate, and read the projected shape; Elite reveals candidate names."
+  - intended: help-panels-r16 (box 2 2026-09-11 (R16))
+- ADDED: 'link "Read: The alignment delta, introduced →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Quarterly benchmark What it is: Where your firm stands against its cohort this quarter, with the published cutoff date. Why it matters: It turns your alignment index into a position you can act on, refreshed on a known schedule. How to use it: Open the benchmark, read your band and peer position, and request a refresh when your evidence has moved."
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'link "Read: What PAT benchmarks are, and are never →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+
+### /methodology · firm-elite
+- REMOVED: text: "Last updated: <date>"
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: paragraph: Patalign reports directional, informational readings built from firm and vendor assessments. Figures are presented as plain averages with the sample size shown. Nothing here is a weighted, percentile, or significance-tested statistic, and nothing is professional advice.
+  - new: paragraph: Patalign reports informational readings built from firm and vendor assessments. Figures are presented as plain averages with the sample size shown. Nothing here is a weighted, percentile, or significance-tested statistic, and nothing is professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, we show an insufficient-data state instead of a number.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- CHANGED
+  - old: paragraph: Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, we show an insufficient-data state instead of a number.
+  - new: paragraph: When a vendor's self-report differs from the firm-reviewed average, we only call it a divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: heading "Divergence — a sample floor before we assert a gap" [level=#]
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: paragraph: When a vendor's self-report differs from the firm-reviewed average, we only call it a directional divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: heading "Quarterly benchmark cutoff — a published deadline, not a score change" [level=#]
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: paragraph: "Patalign publishes a quarterly benchmark cut. Each calendar quarter has a cutoff date — the last day of the quarter — and an assessment counts toward that quarter's benchmark only if it was completed on or before that date. This is the same calendar-deadline pattern used by established B#B benchmark reports: a predictable date that tells everyone which evidence is included next."
+  - new: paragraph: "Patalign publishes a quarterly benchmark cut. Each calendar quarter has a cutoff date — the last day of the quarter — and an assessment counts toward that quarter's benchmark only if it was completed on or before that date. This is the same calendar-deadline pattern used by established B#B benchmark reports: a predictable date that tells everyone which evidence is included next. The cutoff governs inclusion, not value. It never changes, weights, or decays a score that has already been computed — a figure completed after the cutoff simply lands in the next quarter's cut instead of the current one. Membership tier changes what you see inside the benchmark (bands and percentiles for all members; deeper ranked position for Elite), never whether the cutoff applies to you."
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: paragraph: "Initial published methodology: equal-weight averaging, directional-divergence sample floor, unified confidence bands, single-pass display rounding."
+  - new: paragraph: "Initial published methodology: equal-weight averaging, divergence sample floor, unified confidence bands, single-pass display rounding."
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: heading "Directional, not professional advice" [level=#]
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: paragraph: Material changes to the methodology are versioned with a public changelog. The full detail — averaging, divergence floor, confidence bands, suppression, integrity walls, and rounding — is rendered below and mirrors the source aggregation-methodology document.
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: v# Last updated <date>
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: heading "#Divergence — a sample floor before we assert a gap" [level=#]
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: heading "#Quarterly benchmark cutoff — a published deadline, not a score change" [level=#]
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "# Divergence — a sample floor before we assert a gap"
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "# Quarterly benchmark cutoff — a published deadline, not a score change"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /pat · firm-elite
+- CHANGED
+  - old: paragraph: PAT is the insight layer within C#Acct, built to convert structured signals into decision-grade direction with minimal friction and full contextual continuity.
+  - new: paragraph: PAT calls a gap a divergence only once at least three firm reviews exist; ten points or more is hot and worth a conversation.
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: text: Meet Pat — optional AI assistant
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: link "Learn how Pat is governed"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: How it works
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Four chapters, one measured picture." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "The Alignment Radar" [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Alignment radar Five pillars
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Five-pillar alignment radar — shape only, no scores": Strategy Operations Automation Integration Governance
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Vendor self-report next to the firm-reviewed average, per feature": Client portal Vendor self-report # Firm-reviewed # Close workflow Vendor self-report # Firm-reviewed # Bank feeds Vendor self-report # Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: paragraph: Fig. # — vendor self-report vs firm-reviewed, invented values for illustration.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: "The delta is the distance between the two bars: self-report minus the firm-reviewed average, in points."
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: img "Vendor self-report next to the firm-reviewed average, per feature": Client portal +# pt Vendor self-report # Firm-reviewed # Bank feeds +# pt · hot Vendor self-report # Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: paragraph: Fig. # — one hot divergence (# pt) and one within range (# pt), invented values.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: Firms get their own radar, an alignment index and the readouts that follow from it — comparison context, never a ranking.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Vendors get the firm-reviewed evidence for each product, product by product, and where the divergence sits.
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Firms Score your stack."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Score your stack." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Vendors Earn the evidence."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Earn the evidence." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+
+### /survey/firm_alignment_strategy_v1 · firm-elite
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: radio "Shift more work to automation and AI breaks down when teams don't trust outputs and revert to manual steps"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Standardize processes across teams breaks down when local preferences override shared methods and create drift"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Strengthen data‑driven decision‑making breaks down when source data is unreliable or reporting lags"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Accelerate cycle times breaks down when bottlenecks (reviews, approvals, handoffs) remain unchanged"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Enhance cross‑team coordination breaks down when ownership at handoffs is unclear or signals don't sync"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Increase scalability of core workflows breaks down when integrations aren't stable enough to support higher volume"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Not a significant issue here"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Not a significant issue here
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Other (short answer)"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Other (short answer)
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Awaiting response
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "After initial alignment meetings expectations aren't translated into concrete steps, so teams revert to old habits"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "During early pilot execution uneven results weaken confidence before improvements stabilize"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "At cross‑team handoffs unclear ownership stalls progress and no one drives the new process forward"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "When training shifts from concept to practice teams lack time to apply new methods and fall back to familiar workflows"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "During tool or system adoption integrations aren't ready, creating frustration and workarounds"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "When exceptions arise undefined edge cases cause teams to pause the new process to avoid risk"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Not a significant issue here"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Not a significant issue here
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Other (short answer)"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Other (short answer)
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Awaiting response
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Clients demanding faster turnaround shifts decisions toward cycle‑time reduction and automation readiness"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Rising expectations for data accuracy forces prioritization of integration stability and stronger quality controls"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Competitive pressure to modernize accelerates AI‑enabled workflows and process standardization"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Market movement toward automation‑first delivery reprioritizes manual steps, reviews, and handoffs that slow scale"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Increasing regulatory scrutiny pushes governance, auditability, and vendor‑risk controls ahead of new initiatives"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Pressure to reduce operational cost drives consolidation, elimination of redundant steps, and tighter integration"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Not a significant issue here"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Not a significant issue here
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Other (short answer)"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Other (short answer)
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Awaiting response
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Integration instability at launch early sync failures undermine adoption and confidence"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Uneven team adoption inconsistent uptake stalls momentum and fragments execution"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Unclear ownership of new steps missing accountability at handoffs slows or halts progress"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Insufficient training time teams can't practice new behaviors, reducing readiness"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Vendor dependency or outage external shifts or downtime disrupt continuity and timelines"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Underestimated change load volume of process and behavior changes exceeds capacity, causing slippage"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Not a significant issue here"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Not a significant issue here
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Other (short answer)"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Other (short answer)
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Awaiting response
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Stable, reliable data flows indicates integrations are mature enough for deeper insight and faster execution"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Consistent adoption of current steps shows teams execute the baseline predictably, enabling broader change"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Reduced exception volume signals workflows are stable enough to support acceleration and advanced insight"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Clear ownership at handoffs confirms governance strength for deeper intelligence insight use without confusion"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "High accuracy in current reporting shows the foundation is strong enough for more advanced analytics"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Positive feedback on early automation indicates trust levels that support faster execution and expanded insight use"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Not a significant issue here"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Not a significant issue here
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Other (short answer)"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Other (short answer)
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Awaiting response
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+
+### /survey/help · firm-elite
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Ask Pat Ask a question in your own words Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page. Open Ask Pat →"
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Ask Pat Ask a question in your own words
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: paragraph: Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page.
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Open Ask Pat →
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: Inside a firm assessment →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: Your first session with PAT →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: How PAT scoring works →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+
+### /trust · firm-elite
+- REMOVED: text: "Last updated: <date>"
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: link "Billing policy draft Billing policy This draft explains how billing should behave when provider configuration is present and how the UI must stay honest when it is absent. Review billing policy"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Billing policy draft
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: heading "Billing policy" [level=#]
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Review billing policy
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: 'link "Aggregation methodology Methodology The stated, versioned methodology behind every alignment score, divergence reading, and peer benchmark: equal-weight averaging, sample floors, confidence bands, minimum-n benchmark suppression, and the integrity walls that keep demo data and vendor self-report out of peer aggregates. Review methodology"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: paragraph: "The stated, versioned methodology behind every alignment score, divergence reading, and peer benchmark: equal-weight averaging, sample floors, confidence bands, minimum-n benchmark suppression, and the integrity walls that keep demo data and vendor self-report out of peer aggregates."
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: link "AI governance How Pat is governed Pat is Patalign's AI assistant. It helps with questions, reminders, and reports. Here is exactly how we keep it in bounds — these are system controls, not policies. Review how pat is governed"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: heading "How Pat is governed" [level=#]
+  - new: heading "How PAT earns trust" [level=#]
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Review how pat is governed
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: link "Release transparency Release This page shows the public runtime fingerprint for the currently served PAT build and explains which release fields are validated together. Review release"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: paragraph: This page shows the public runtime fingerprint for the currently served PAT build and explains which release fields are validated together.
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: paragraph: PAT is being prepared for public launch with local validation, release fingerprints, provider-backed billing scaffolding, and role-specific onboarding. Public-live state remains unverified unless a reachable deployment URL is supplied and validated.
+  - new: paragraph: PAT does not claim third-party certification, audited status, uptime SLA, public customer references, or regulated-industry compliance certification.
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Last updated <date>
+  - intended: status-strip (Depth 7 2026-09-09)
+
+### /vendor · firm-elite
+- REMOVED: text: Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Kirkland Reyes LLP · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Building
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /vendor/battlecard · firm-elite
+- REMOVED: text: Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Kirkland Reyes LLP · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Building
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /vendor/help · firm-elite
+- REMOVED: text: Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Kirkland Reyes LLP · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Building
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /vendor/product-assessment · firm-elite
+- REMOVED: text: Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Kirkland Reyes LLP · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Building
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /vendor/product-insight · firm-elite
+- REMOVED: text: Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Kirkland Reyes LLP · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Building
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /vendor?panel=help · firm-elite
+- REMOVED: text: Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Firm portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Kirkland Reyes LLP · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Building
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Operating Model and Workflow Discipline at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Kirkland Reyes LLP Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### / · firm-pro
+- REMOVED: link "WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into current-state decision support. Learn more about PAT"
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: heading "Meet PAT" [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: link "Signed in Continue to your workspace You are signed in. Choose your path to access your designed workspace. Continue to your workspace"
+  - intended: onboarding-rail (Depth 8 2026-09-09)
+- REMOVED: paragraph: You are signed in. Choose your path to access your designed workspace.
+  - intended: onboarding-rail (Depth 8 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: heading "Product selection, without the sales pitch." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: Real assessments. Evidence both sides can trust.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Start here
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Enter PAT"
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Firms Score your stack."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Score your stack." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Vendors Earn the evidence."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Earn the evidence." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Alignment radar Five pillars
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Five-pillar alignment radar — shape only, no scores": Strategy Operations Automation Integration Governance
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+
+### /consultants/ecosystems/demo-…/firm/demo-…?panel=help · firm-pro
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: paragraph: Demo Company · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Established
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /consultants/ecosystems/demo-…/vendor-brief?panel=exec · firm-pro
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: paragraph: Demo Company · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Established
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /firm · firm-pro
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: paragraph: Demo Company · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Established
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /firm/alignment-board · firm-pro
+- CHANGED
+  - old: paragraph: Lift a piece from your stack, then drop in a Secret candidate to see your projected alignment shape move. Projections are directional, drawn from cross-firm benchmarks.
+  - new: paragraph: Lift a piece from your stack, then drop in a Secret candidate to see your projected alignment shape move. Projections are estimates, drawn from cross-firm benchmarks.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- CHANGED
+  - old: paragraph: Each axis is the mean of your stack’s stored per-section review evidence. The projected shape re-means with the swap — directional, drawn from real answers, not a firm-verified forecast. These are product-fit dimensions, not the firm alignment modules.
+  - new: paragraph: Each axis is the mean of your stack’s stored per-section review evidence. The projected shape re-means with the swap — an estimate, drawn from real answers, not a firm-verified forecast. These are product-fit dimensions, not the firm alignment modules.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: paragraph: No firm-reviewed candidates yet — see the not-yet-reviewed set below.
+  - intended: products-block (box 2 2026-09-11 (R19))
+- REMOVED: text: Directional, informational — not professional advice.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Informational, not professional advice.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+
+### /firm/help · firm-pro
+- CHANGED
+  - old: text: "Alignment Assessment What it is: The five-module, #-question firm alignment system. Why it matters: This is the main intake for firm-side Pro membership PAT insight unlocking. How to use it: Open the module overview, complete each module, and submit through the live PAT flow. Product Assessments What it is: Firm-side product reviews aligned only to vendor-declared features. Why it matters: This is the firm-to-vendor product intelligence loop inside PAT. How to use it: Choose a product, answer the feature-aligned questions, and persist the review. Alignment Insights What it is: Firm-facing Pro and Elite PAT alignment insights. Why it matters: This turns alignment assessment and product signal into usable current-state decision support. How to use it: Open firm alignment insight cards, review grounded Pro detail, and inspect staged Elite cards without overstating what is live."
+  - new: text: "Alignment Assessment What it is: The five-module, #-question firm alignment system. Why it matters: This is the main intake for firm-side Pro membership PAT insight unlocking. How to use it: Open the module overview, complete each module, and submit through the live PAT flow."
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Ask Pat Ask a question in your own words Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page. Open Ask Pat →"
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Ask Pat Ask a question in your own words
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: paragraph: Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page.
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Open Ask Pat →
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: Inside a firm assessment →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Product Assessments What it is: Firm-side product reviews aligned only to vendor-declared features. Why it matters: This is the firm-to-vendor product intelligence loop inside PAT. How to use it: Choose a product, answer the feature-aligned questions, and persist the review."
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'link "Read: What vendors declare and firms verify →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Alignment Insights What it is: Firm-facing Pro and Elite PAT alignment insights. Why it matters: This turns alignment assessment and product signal into usable current-state decision support. How to use it: Open firm alignment insight cards, review grounded Pro detail, and inspect staged Elite cards without overstating what is live. Alignment Sandbox What it is: Your product stack as interactive pieces, with the projected firm alignment recomputing as you swap candidates in. Why it matters: It shows which alternative closes your largest gap before anyone commits to a change. How to use it: Lift a piece from your stack, drop in a candidate, and read the projected shape; Elite reveals candidate names."
+  - intended: help-panels-r16 (box 2 2026-09-11 (R16))
+- ADDED: 'link "Read: The alignment delta, introduced →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Quarterly benchmark What it is: Where your firm stands against its cohort this quarter, with the published cutoff date. Why it matters: It turns your alignment index into a position you can act on, refreshed on a known schedule. How to use it: Open the benchmark, read your band and peer position, and request a refresh when your evidence has moved."
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'link "Read: What PAT benchmarks are, and are never →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+
+### /firm?panel=help · firm-pro
+- CHANGED
+  - old: text: "Alignment Assessment What it is: The five-module, #-question firm alignment system. Why it matters: This is the main intake for firm-side Pro membership PAT insight unlocking. How to use it: Open the module overview, complete each module, and submit through the live PAT flow. Product Assessments What it is: Firm-side product reviews aligned only to vendor-declared features. Why it matters: This is the firm-to-vendor product intelligence loop inside PAT. How to use it: Choose a product, answer the feature-aligned questions, and persist the review. Alignment Insights What it is: Firm-facing Pro and Elite PAT alignment insights. Why it matters: This turns alignment assessment and product signal into usable current-state decision support. How to use it: Open firm alignment insight cards, review grounded Pro detail, and inspect staged Elite cards without overstating what is live."
+  - new: text: "Alignment Assessment What it is: The five-module, #-question firm alignment system. Why it matters: This is the main intake for firm-side Pro membership PAT insight unlocking. How to use it: Open the module overview, complete each module, and submit through the live PAT flow."
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Ask Pat Ask a question in your own words Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page. Open Ask Pat →"
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Ask Pat Ask a question in your own words
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: paragraph: Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page.
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Open Ask Pat →
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: Inside a firm assessment →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Product Assessments What it is: Firm-side product reviews aligned only to vendor-declared features. Why it matters: This is the firm-to-vendor product intelligence loop inside PAT. How to use it: Choose a product, answer the feature-aligned questions, and persist the review."
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'link "Read: What vendors declare and firms verify →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Alignment Insights What it is: Firm-facing Pro and Elite PAT alignment insights. Why it matters: This turns alignment assessment and product signal into usable current-state decision support. How to use it: Open firm alignment insight cards, review grounded Pro detail, and inspect staged Elite cards without overstating what is live. Alignment Sandbox What it is: Your product stack as interactive pieces, with the projected firm alignment recomputing as you swap candidates in. Why it matters: It shows which alternative closes your largest gap before anyone commits to a change. How to use it: Lift a piece from your stack, drop in a candidate, and read the projected shape; Elite reveals candidate names."
+  - intended: help-panels-r16 (box 2 2026-09-11 (R16))
+- ADDED: 'link "Read: The alignment delta, introduced →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Quarterly benchmark What it is: Where your firm stands against its cohort this quarter, with the published cutoff date. Why it matters: It turns your alignment index into a position you can act on, refreshed on a known schedule. How to use it: Open the benchmark, read your band and peer position, and request a refresh when your evidence has moved."
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'link "Read: What PAT benchmarks are, and are never →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+
+### /methodology · firm-pro
+- REMOVED: text: "Last updated: <date>"
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: paragraph: Patalign reports directional, informational readings built from firm and vendor assessments. Figures are presented as plain averages with the sample size shown. Nothing here is a weighted, percentile, or significance-tested statistic, and nothing is professional advice.
+  - new: paragraph: Patalign reports informational readings built from firm and vendor assessments. Figures are presented as plain averages with the sample size shown. Nothing here is a weighted, percentile, or significance-tested statistic, and nothing is professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, we show an insufficient-data state instead of a number.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- CHANGED
+  - old: paragraph: Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, we show an insufficient-data state instead of a number.
+  - new: paragraph: When a vendor's self-report differs from the firm-reviewed average, we only call it a divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: heading "Divergence — a sample floor before we assert a gap" [level=#]
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: paragraph: When a vendor's self-report differs from the firm-reviewed average, we only call it a directional divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: heading "Quarterly benchmark cutoff — a published deadline, not a score change" [level=#]
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: paragraph: "Patalign publishes a quarterly benchmark cut. Each calendar quarter has a cutoff date — the last day of the quarter — and an assessment counts toward that quarter's benchmark only if it was completed on or before that date. This is the same calendar-deadline pattern used by established B#B benchmark reports: a predictable date that tells everyone which evidence is included next."
+  - new: paragraph: "Patalign publishes a quarterly benchmark cut. Each calendar quarter has a cutoff date — the last day of the quarter — and an assessment counts toward that quarter's benchmark only if it was completed on or before that date. This is the same calendar-deadline pattern used by established B#B benchmark reports: a predictable date that tells everyone which evidence is included next. The cutoff governs inclusion, not value. It never changes, weights, or decays a score that has already been computed — a figure completed after the cutoff simply lands in the next quarter's cut instead of the current one. Membership tier changes what you see inside the benchmark (bands and percentiles for all members; deeper ranked position for Elite), never whether the cutoff applies to you."
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: paragraph: "Initial published methodology: equal-weight averaging, directional-divergence sample floor, unified confidence bands, single-pass display rounding."
+  - new: paragraph: "Initial published methodology: equal-weight averaging, divergence sample floor, unified confidence bands, single-pass display rounding."
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: heading "Directional, not professional advice" [level=#]
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: paragraph: Material changes to the methodology are versioned with a public changelog. The full detail — averaging, divergence floor, confidence bands, suppression, integrity walls, and rounding — is rendered below and mirrors the source aggregation-methodology document.
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: v# Last updated <date>
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: heading "#Divergence — a sample floor before we assert a gap" [level=#]
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: heading "#Quarterly benchmark cutoff — a published deadline, not a score change" [level=#]
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "# Divergence — a sample floor before we assert a gap"
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "# Quarterly benchmark cutoff — a published deadline, not a score change"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /pat · firm-pro
+- CHANGED
+  - old: paragraph: PAT is the insight layer within C#Acct, built to convert structured signals into decision-grade direction with minimal friction and full contextual continuity.
+  - new: paragraph: PAT calls a gap a divergence only once at least three firm reviews exist; ten points or more is hot and worth a conversation.
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: text: Meet Pat — optional AI assistant
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: link "Learn how Pat is governed"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: How it works
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Four chapters, one measured picture." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "The Alignment Radar" [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Alignment radar Five pillars
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Five-pillar alignment radar — shape only, no scores": Strategy Operations Automation Integration Governance
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Vendor self-report next to the firm-reviewed average, per feature": Client portal Vendor self-report # Firm-reviewed # Close workflow Vendor self-report # Firm-reviewed # Bank feeds Vendor self-report # Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: paragraph: Fig. # — vendor self-report vs firm-reviewed, invented values for illustration.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: "The delta is the distance between the two bars: self-report minus the firm-reviewed average, in points."
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: img "Vendor self-report next to the firm-reviewed average, per feature": Client portal +# pt Vendor self-report # Firm-reviewed # Bank feeds +# pt · hot Vendor self-report # Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: paragraph: Fig. # — one hot divergence (# pt) and one within range (# pt), invented values.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: Firms get their own radar, an alignment index and the readouts that follow from it — comparison context, never a ranking.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Vendors get the firm-reviewed evidence for each product, product by product, and where the divergence sits.
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Firms Score your stack."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Score your stack." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Vendors Earn the evidence."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Earn the evidence." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+
+### /survey/firm_alignment_strategy_v1 · firm-pro
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc # Strong / repeatable Response captured
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc # Strong / repeatable Response captured
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc # Strong / repeatable Response captured
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc # Strong / repeatable Response captured
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc # Strong / repeatable Response captured
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc # Strong / repeatable Response captured
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc # Strong / repeatable Response captured
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc # Strong / repeatable Response captured
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc # Strong / repeatable Response captured
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc # Strong / repeatable Response captured
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc # Strong / repeatable Response captured
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc # Strong / repeatable Response captured
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc Not answered Strong / repeatable Awaiting response
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc Not answered Strong / repeatable Awaiting response
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc Not answered Strong / repeatable Awaiting response
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc Not answered Strong / repeatable Awaiting response
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc Not answered Strong / repeatable Awaiting response
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc Not answered Strong / repeatable Awaiting response
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc Not answered Strong / repeatable Awaiting response
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: slider: "#"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Absent / ad hoc Not answered Strong / repeatable Awaiting response
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Shift more work to automation and AI breaks down when teams don't trust outputs and revert to manual steps"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Standardize processes across teams breaks down when local preferences override shared methods and create drift"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Strengthen data‑driven decision‑making breaks down when source data is unreliable or reporting lags"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Accelerate cycle times breaks down when bottlenecks (reviews, approvals, handoffs) remain unchanged"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Enhance cross‑team coordination breaks down when ownership at handoffs is unclear or signals don't sync"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Increase scalability of core workflows breaks down when integrations aren't stable enough to support higher volume"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Not a significant issue here"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Not a significant issue here
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Other (short answer)"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Other (short answer)
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "After initial alignment meetings expectations aren't translated into concrete steps, so teams revert to old habits"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "During early pilot execution uneven results weaken confidence before improvements stabilize"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "At cross‑team handoffs unclear ownership stalls progress and no one drives the new process forward"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "When training shifts from concept to practice teams lack time to apply new methods and fall back to familiar workflows"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "During tool or system adoption integrations aren't ready, creating frustration and workarounds"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "When exceptions arise undefined edge cases cause teams to pause the new process to avoid risk"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Not a significant issue here"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Not a significant issue here
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Other (short answer)"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Other (short answer)
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Clients demanding faster turnaround shifts decisions toward cycle‑time reduction and automation readiness"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Rising expectations for data accuracy forces prioritization of integration stability and stronger quality controls"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Competitive pressure to modernize accelerates AI‑enabled workflows and process standardization"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Market movement toward automation‑first delivery reprioritizes manual steps, reviews, and handoffs that slow scale"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Increasing regulatory scrutiny pushes governance, auditability, and vendor‑risk controls ahead of new initiatives"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Pressure to reduce operational cost drives consolidation, elimination of redundant steps, and tighter integration"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Not a significant issue here"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Not a significant issue here
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Other (short answer)"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Other (short answer)
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Integration instability at launch early sync failures undermine adoption and confidence"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Uneven team adoption inconsistent uptake stalls momentum and fragments execution"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Unclear ownership of new steps missing accountability at handoffs slows or halts progress"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Insufficient training time teams can't practice new behaviors, reducing readiness"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Vendor dependency or outage external shifts or downtime disrupt continuity and timelines"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Underestimated change load volume of process and behavior changes exceeds capacity, causing slippage"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Not a significant issue here"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Not a significant issue here
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Other (short answer)"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Other (short answer)
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Stable, reliable data flows indicates integrations are mature enough for deeper insight and faster execution"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Consistent adoption of current steps shows teams execute the baseline predictably, enabling broader change"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Reduced exception volume signals workflows are stable enough to support acceleration and advanced insight"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Clear ownership at handoffs confirms governance strength for deeper intelligence insight use without confusion"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "High accuracy in current reporting shows the foundation is strong enough for more advanced analytics"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Positive feedback on early automation indicates trust levels that support faster execution and expanded insight use"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Not a significant issue here"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Not a significant issue here
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: radio "Other (short answer)"
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+- ADDED: text: Other (short answer)
+  - intended: followup-mc (R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC))
+
+### /survey/help · firm-pro
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Ask Pat Ask a question in your own words Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page. Open Ask Pat →"
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Ask Pat Ask a question in your own words
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: paragraph: Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page.
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Open Ask Pat →
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: Inside a firm assessment →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: Your first session with PAT →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: How PAT scoring works →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+
+### /trust · firm-pro
+- REMOVED: text: "Last updated: <date>"
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: link "Billing policy draft Billing policy This draft explains how billing should behave when provider configuration is present and how the UI must stay honest when it is absent. Review billing policy"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Billing policy draft
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: heading "Billing policy" [level=#]
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Review billing policy
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: 'link "Aggregation methodology Methodology The stated, versioned methodology behind every alignment score, divergence reading, and peer benchmark: equal-weight averaging, sample floors, confidence bands, minimum-n benchmark suppression, and the integrity walls that keep demo data and vendor self-report out of peer aggregates. Review methodology"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: paragraph: "The stated, versioned methodology behind every alignment score, divergence reading, and peer benchmark: equal-weight averaging, sample floors, confidence bands, minimum-n benchmark suppression, and the integrity walls that keep demo data and vendor self-report out of peer aggregates."
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: link "AI governance How Pat is governed Pat is Patalign's AI assistant. It helps with questions, reminders, and reports. Here is exactly how we keep it in bounds — these are system controls, not policies. Review how pat is governed"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: heading "How Pat is governed" [level=#]
+  - new: heading "How PAT earns trust" [level=#]
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Review how pat is governed
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: link "Release transparency Release This page shows the public runtime fingerprint for the currently served PAT build and explains which release fields are validated together. Review release"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: paragraph: This page shows the public runtime fingerprint for the currently served PAT build and explains which release fields are validated together.
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: paragraph: PAT is being prepared for public launch with local validation, release fingerprints, provider-backed billing scaffolding, and role-specific onboarding. Public-live state remains unverified unless a reachable deployment URL is supplied and validated.
+  - new: paragraph: PAT does not claim third-party certification, audited status, uptime SLA, public customer references, or regulated-industry compliance certification.
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Last updated <date>
+  - intended: status-strip (Depth 7 2026-09-09)
+
+### /vendor · firm-pro
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: paragraph: Demo Company · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Established
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /vendor/battlecard · firm-pro
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: paragraph: Demo Company · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Established
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /vendor/help · firm-pro
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: paragraph: Demo Company · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Established
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /vendor/product-assessment · firm-pro
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: paragraph: Demo Company · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Established
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /vendor/product-insight · firm-pro
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: paragraph: Demo Company · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Established
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /vendor?panel=help · firm-pro
+- REMOVED: paragraph: Unlock a more connected firm experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: text: "Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: paragraph: Demo Company · <date> · alignment index #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current operating picture Alignment index # # · Established
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Average of your final module scores
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Modules complete #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Full assessment on record since <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Capabilities met #/#
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Distinct capabilities at or above their unlock threshold
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: 'img "Five-module maturity profile: Operating Model #, Automation #, Integration #, Governance #, Strategy #"': Operating Model Automation Integration Governance Strategy
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Next best step Review your firm insights All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next. Open insights"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Next best step Review your firm insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: All five modules are on record. The readout is grounded; open it to see what the evidence unlocks next.
+  - intended: locked-veil (Depth 3 2026-09-09 (board veil reversed by R1 in box 2, 2026-09-11; vendor Product Fit Card veil stands))
+- ADDED: text: Open insights
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest insight Operating baseline # average module score The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #. Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Latest insight Operating baseline # average module score
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: The operating floor averages # across scored modules, anchored by Strategy, Change Readiness, and Market Alignment at #.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Open readout →
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: "Since your last visit This is your first visit on record. Firm account: Demo Company Modules completed: # / # Product review loop: Opens when vendor product assessment is complete"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### / · public
+- REMOVED: link "WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into current-state decision support. Learn more about PAT"
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: heading "Meet PAT" [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: link "Choose your path Create an account Pick the role that matches your work — vendor or firm — answer two quick onboarding questions, and choose the plan that fits. Paid conversion stays clearly staged unless Stripe billing is configured. Create an account"
+  - intended: onboarding-rail (Depth 8 2026-09-09)
+- REMOVED: text: Choose your path
+  - intended: onboarding-rail (Depth 8 2026-09-09)
+- REMOVED: button "Open navigation menu" [expanded]
+  - intended: signed-in-shell-r3 (box 2 2026-09-11 (R3))
+- CHANGED
+  - old: link "Vendor"
+  - new: link "Vendors Earn the evidence."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: heading "Product selection, without the sales pitch." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: Real assessments. Evidence both sides can trust.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Start here
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Enter PAT"
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Firms Score your stack."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Score your stack." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Earn the evidence." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Alignment radar Five pillars
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Five-pillar alignment radar — shape only, no scores": Strategy Operations Automation Integration Governance
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+
+### /consultants/ecosystems/demo-…/firm/demo-…?panel=help · public
+- REMOVED: button "Open navigation menu" [expanded]
+  - intended: signed-in-shell-r3 (box 2 2026-09-11 (R3))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+
+### /consultants/ecosystems/demo-…/vendor-brief?panel=exec · public
+- REMOVED: button "Open navigation menu" [expanded]
+  - intended: signed-in-shell-r3 (box 2 2026-09-11 (R3))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+
+### /firm · public
+- REMOVED: button "Open navigation menu" [expanded]
+  - intended: signed-in-shell-r3 (box 2 2026-09-11 (R3))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+
+### /firm/alignment-board · public
+- REMOVED: button "Open navigation menu" [expanded]
+  - intended: signed-in-shell-r3 (box 2 2026-09-11 (R3))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+
+### /firm/help · public
+- REMOVED: button "Open navigation menu" [expanded]
+  - intended: signed-in-shell-r3 (box 2 2026-09-11 (R3))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+
+### /firm?panel=help · public
+- REMOVED: button "Open navigation menu" [expanded]
+  - intended: signed-in-shell-r3 (box 2 2026-09-11 (R3))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+
+### /methodology · public
+- REMOVED: text: "Last updated: <date>"
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: paragraph: Patalign reports directional, informational readings built from firm and vendor assessments. Figures are presented as plain averages with the sample size shown. Nothing here is a weighted, percentile, or significance-tested statistic, and nothing is professional advice.
+  - new: paragraph: Patalign reports informational readings built from firm and vendor assessments. Figures are presented as plain averages with the sample size shown. Nothing here is a weighted, percentile, or significance-tested statistic, and nothing is professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, we show an insufficient-data state instead of a number.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- CHANGED
+  - old: paragraph: Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, we show an insufficient-data state instead of a number.
+  - new: paragraph: When a vendor's self-report differs from the firm-reviewed average, we only call it a divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: heading "Divergence — a sample floor before we assert a gap" [level=#]
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: paragraph: When a vendor's self-report differs from the firm-reviewed average, we only call it a directional divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: heading "Quarterly benchmark cutoff — a published deadline, not a score change" [level=#]
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: paragraph: "Patalign publishes a quarterly benchmark cut. Each calendar quarter has a cutoff date — the last day of the quarter — and an assessment counts toward that quarter's benchmark only if it was completed on or before that date. This is the same calendar-deadline pattern used by established B#B benchmark reports: a predictable date that tells everyone which evidence is included next."
+  - new: paragraph: "Patalign publishes a quarterly benchmark cut. Each calendar quarter has a cutoff date — the last day of the quarter — and an assessment counts toward that quarter's benchmark only if it was completed on or before that date. This is the same calendar-deadline pattern used by established B#B benchmark reports: a predictable date that tells everyone which evidence is included next. The cutoff governs inclusion, not value. It never changes, weights, or decays a score that has already been computed — a figure completed after the cutoff simply lands in the next quarter's cut instead of the current one. Membership tier changes what you see inside the benchmark (bands and percentiles for all members; deeper ranked position for Elite), never whether the cutoff applies to you."
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: paragraph: "Initial published methodology: equal-weight averaging, directional-divergence sample floor, unified confidence bands, single-pass display rounding."
+  - new: paragraph: "Initial published methodology: equal-weight averaging, divergence sample floor, unified confidence bands, single-pass display rounding."
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: heading "Directional, not professional advice" [level=#]
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: paragraph: Material changes to the methodology are versioned with a public changelog. The full detail — averaging, divergence floor, confidence bands, suppression, integrity walls, and rounding — is rendered below and mirrors the source aggregation-methodology document.
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: button "Open navigation menu" [expanded]
+  - intended: signed-in-shell-r3 (box 2 2026-09-11 (R3))
+- REMOVED: link "Meet PAT"
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: v# Last updated <date>
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: heading "#Divergence — a sample floor before we assert a gap" [level=#]
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: heading "#Quarterly benchmark cutoff — a published deadline, not a score change" [level=#]
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "# Divergence — a sample floor before we assert a gap"
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "# Quarterly benchmark cutoff — a published deadline, not a score change"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /pat · public
+- CHANGED
+  - old: paragraph: PAT is the insight layer within C#Acct, built to convert structured signals into decision-grade direction with minimal friction and full contextual continuity.
+  - new: paragraph: PAT calls a gap a divergence only once at least three firm reviews exist; ten points or more is hot and worth a conversation.
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: button "Open navigation menu" [expanded]
+  - intended: signed-in-shell-r3 (box 2 2026-09-11 (R3))
+- REMOVED: link "Meet PAT"
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- CHANGED
+  - old: link "Vendor"
+  - new: link "Vendors Earn the evidence."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: How it works
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Four chapters, one measured picture." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "The Alignment Radar" [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Alignment radar Five pillars
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Five-pillar alignment radar — shape only, no scores": Strategy Operations Automation Integration Governance
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Vendor self-report next to the firm-reviewed average, per feature": Client portal Vendor self-report # Firm-reviewed # Close workflow Vendor self-report # Firm-reviewed # Bank feeds Vendor self-report # Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: paragraph: Fig. # — vendor self-report vs firm-reviewed, invented values for illustration.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: "The delta is the distance between the two bars: self-report minus the firm-reviewed average, in points."
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: img "Vendor self-report next to the firm-reviewed average, per feature": Client portal +# pt Vendor self-report # Firm-reviewed # Bank feeds +# pt · hot Vendor self-report # Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: paragraph: Fig. # — one hot divergence (# pt) and one within range (# pt), invented values.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: Firms get their own radar, an alignment index and the readouts that follow from it — comparison context, never a ranking.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Vendors get the firm-reviewed evidence for each product, product by product, and where the divergence sits.
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Firms Score your stack."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Score your stack." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Earn the evidence." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+
+### /survey/help · public
+- REMOVED: button "Open navigation menu" [expanded]
+  - intended: signed-in-shell-r3 (box 2 2026-09-11 (R3))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+
+### /trust · public
+- REMOVED: text: "Last updated: <date>"
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: link "Billing policy draft Billing policy This draft explains how billing should behave when provider configuration is present and how the UI must stay honest when it is absent. Review billing policy"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Billing policy draft
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: heading "Billing policy" [level=#]
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Review billing policy
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: 'link "Aggregation methodology Methodology The stated, versioned methodology behind every alignment score, divergence reading, and peer benchmark: equal-weight averaging, sample floors, confidence bands, minimum-n benchmark suppression, and the integrity walls that keep demo data and vendor self-report out of peer aggregates. Review methodology"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: paragraph: "The stated, versioned methodology behind every alignment score, divergence reading, and peer benchmark: equal-weight averaging, sample floors, confidence bands, minimum-n benchmark suppression, and the integrity walls that keep demo data and vendor self-report out of peer aggregates."
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: link "AI governance How Pat is governed Pat is Patalign's AI assistant. It helps with questions, reminders, and reports. Here is exactly how we keep it in bounds — these are system controls, not policies. Review how pat is governed"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: heading "How Pat is governed" [level=#]
+  - new: heading "How PAT earns trust" [level=#]
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Review how pat is governed
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: link "Release transparency Release This page shows the public runtime fingerprint for the currently served PAT build and explains which release fields are validated together. Review release"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: paragraph: This page shows the public runtime fingerprint for the currently served PAT build and explains which release fields are validated together.
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: paragraph: PAT is being prepared for public launch with local validation, release fingerprints, provider-backed billing scaffolding, and role-specific onboarding. Public-live state remains unverified unless a reachable deployment URL is supplied and validated.
+  - new: paragraph: PAT does not claim third-party certification, audited status, uptime SLA, public customer references, or regulated-industry compliance certification.
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: button "Open navigation menu" [expanded]
+  - intended: signed-in-shell-r3 (box 2 2026-09-11 (R3))
+- REMOVED: link "Meet PAT"
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Last updated <date>
+  - intended: status-strip (Depth 7 2026-09-09)
+
+### /vendor · public
+- REMOVED: button "Open navigation menu" [expanded]
+  - intended: signed-in-shell-r3 (box 2 2026-09-11 (R3))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+
+### /vendor/battlecard · public
+- REMOVED: button "Open navigation menu" [expanded]
+  - intended: signed-in-shell-r3 (box 2 2026-09-11 (R3))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+
+### /vendor/help · public
+- REMOVED: button "Open navigation menu" [expanded]
+  - intended: signed-in-shell-r3 (box 2 2026-09-11 (R3))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+
+### /vendor/product-assessment · public
+- REMOVED: button "Open navigation menu" [expanded]
+  - intended: signed-in-shell-r3 (box 2 2026-09-11 (R3))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+
+### /vendor/product-insight · public
+- REMOVED: button "Open navigation menu" [expanded]
+  - intended: signed-in-shell-r3 (box 2 2026-09-11 (R3))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+
+### /vendor?panel=help · public
+- REMOVED: button "Open navigation menu" [expanded]
+  - intended: signed-in-shell-r3 (box 2 2026-09-11 (R3))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+
+### / · vendor-elite
+- REMOVED: link "WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into current-state decision support. Learn more about PAT"
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: heading "Meet PAT" [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: link "Signed in Continue to your workspace You are signed in. Choose your path to access your designed workspace. Continue to your workspace"
+  - intended: onboarding-rail (Depth 8 2026-09-09)
+- REMOVED: paragraph: You are signed in. Choose your path to access your designed workspace.
+  - intended: onboarding-rail (Depth 8 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: heading "Product selection, without the sales pitch." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: Real assessments. Evidence both sides can trust.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Start here
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Enter PAT"
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Firms Score your stack."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Score your stack." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Vendors Earn the evidence."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Earn the evidence." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Alignment radar Five pillars
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Five-pillar alignment radar — shape only, no scores": Strategy Operations Automation Integration Governance
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+
+### /consultants/ecosystems/demo-…/firm/demo-…?panel=help · vendor-elite
+- REMOVED: text: Performance Alignment Technology Vendor portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: paragraph: Unlock a more connected vendor experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: link "BattleCard Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- REMOVED: text: BattleCard
+  - intended: product-fit-card (R7 (ruling))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Vendor portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Meridian Practice Cloud · <date> · # firm reviews on file
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current evidence picture Products <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: # with a final vendor assessment
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Firm reviews on file #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Final firm product reviews across your products
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Largest divergence # pt
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Meridian Payroll · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Next briefing <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Quarterly benchmark cut · # firms reviewing
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest product readout Meridian Payroll self-reported # firm-reviewed # # firm reviews Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Audit: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian CAS: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Payroll: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Portal: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Early signal · # firm reviews — too few to read divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'img "Meridian Practice: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Tax: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Manage products →"
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Since your last visit This is your first visit on record.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Product Fit Card Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: text: Product Fit Card
+  - intended: product-fit-card (R7 (ruling))
+
+### /consultants/ecosystems/demo-…/vendor-brief?panel=exec · vendor-elite
+- REMOVED: text: Performance Alignment Technology Vendor portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: paragraph: Unlock a more connected vendor experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: link "BattleCard Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- REMOVED: text: BattleCard
+  - intended: product-fit-card (R7 (ruling))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Vendor portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Meridian Practice Cloud · <date> · # firm reviews on file
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current evidence picture Products <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: # with a final vendor assessment
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Firm reviews on file #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Final firm product reviews across your products
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Largest divergence # pt
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Meridian Payroll · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Next briefing <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Quarterly benchmark cut · # firms reviewing
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest product readout Meridian Payroll self-reported # firm-reviewed # # firm reviews Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Audit: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian CAS: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Payroll: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Portal: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Early signal · # firm reviews — too few to read divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'img "Meridian Practice: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Tax: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Manage products →"
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Since your last visit This is your first visit on record.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Product Fit Card Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: text: Product Fit Card
+  - intended: product-fit-card (R7 (ruling))
+
+### /firm · vendor-elite
+- REMOVED: text: Performance Alignment Technology Vendor portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: paragraph: Unlock a more connected vendor experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: link "BattleCard Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- REMOVED: text: BattleCard
+  - intended: product-fit-card (R7 (ruling))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Vendor portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Meridian Practice Cloud · <date> · # firm reviews on file
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current evidence picture Products <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: # with a final vendor assessment
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Firm reviews on file #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Final firm product reviews across your products
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Largest divergence # pt
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Meridian Payroll · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Next briefing <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Quarterly benchmark cut · # firms reviewing
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest product readout Meridian Payroll self-reported # firm-reviewed # # firm reviews Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Audit: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian CAS: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Payroll: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Portal: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Early signal · # firm reviews — too few to read divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'img "Meridian Practice: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Tax: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Manage products →"
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Since your last visit This is your first visit on record.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Product Fit Card Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: text: Product Fit Card
+  - intended: product-fit-card (R7 (ruling))
+
+### /firm/alignment-board · vendor-elite
+- REMOVED: text: Performance Alignment Technology Vendor portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: paragraph: Unlock a more connected vendor experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: link "BattleCard Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- REMOVED: text: BattleCard
+  - intended: product-fit-card (R7 (ruling))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Vendor portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Meridian Practice Cloud · <date> · # firm reviews on file
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current evidence picture Products <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: # with a final vendor assessment
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Firm reviews on file #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Final firm product reviews across your products
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Largest divergence # pt
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Meridian Payroll · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Next briefing <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Quarterly benchmark cut · # firms reviewing
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest product readout Meridian Payroll self-reported # firm-reviewed # # firm reviews Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Audit: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian CAS: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Payroll: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Portal: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Early signal · # firm reviews — too few to read divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'img "Meridian Practice: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Tax: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Manage products →"
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Since your last visit This is your first visit on record.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Product Fit Card Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: text: Product Fit Card
+  - intended: product-fit-card (R7 (ruling))
+
+### /firm/help · vendor-elite
+- REMOVED: text: Performance Alignment Technology Vendor portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: paragraph: Unlock a more connected vendor experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: link "BattleCard Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- REMOVED: text: BattleCard
+  - intended: product-fit-card (R7 (ruling))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Vendor portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Meridian Practice Cloud · <date> · # firm reviews on file
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current evidence picture Products <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: # with a final vendor assessment
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Firm reviews on file #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Final firm product reviews across your products
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Largest divergence # pt
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Meridian Payroll · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Next briefing <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Quarterly benchmark cut · # firms reviewing
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest product readout Meridian Payroll self-reported # firm-reviewed # # firm reviews Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Audit: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian CAS: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Payroll: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Portal: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Early signal · # firm reviews — too few to read divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'img "Meridian Practice: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Tax: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Manage products →"
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Since your last visit This is your first visit on record.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Product Fit Card Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: text: Product Fit Card
+  - intended: product-fit-card (R7 (ruling))
+
+### /firm?panel=help · vendor-elite
+- REMOVED: text: Performance Alignment Technology Vendor portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: paragraph: Unlock a more connected vendor experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: link "BattleCard Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- REMOVED: text: BattleCard
+  - intended: product-fit-card (R7 (ruling))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Vendor portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Meridian Practice Cloud · <date> · # firm reviews on file
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current evidence picture Products <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: # with a final vendor assessment
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Firm reviews on file #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Final firm product reviews across your products
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Largest divergence # pt
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Meridian Payroll · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Next briefing <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Quarterly benchmark cut · # firms reviewing
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest product readout Meridian Payroll self-reported # firm-reviewed # # firm reviews Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Audit: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian CAS: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Payroll: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Portal: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Early signal · # firm reviews — too few to read divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'img "Meridian Practice: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Tax: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Manage products →"
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Since your last visit This is your first visit on record.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Product Fit Card Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: text: Product Fit Card
+  - intended: product-fit-card (R7 (ruling))
+
+### /methodology · vendor-elite
+- REMOVED: text: "Last updated: <date>"
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: paragraph: Patalign reports directional, informational readings built from firm and vendor assessments. Figures are presented as plain averages with the sample size shown. Nothing here is a weighted, percentile, or significance-tested statistic, and nothing is professional advice.
+  - new: paragraph: Patalign reports informational readings built from firm and vendor assessments. Figures are presented as plain averages with the sample size shown. Nothing here is a weighted, percentile, or significance-tested statistic, and nothing is professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, we show an insufficient-data state instead of a number.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- CHANGED
+  - old: paragraph: Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, we show an insufficient-data state instead of a number.
+  - new: paragraph: When a vendor's self-report differs from the firm-reviewed average, we only call it a divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: heading "Divergence — a sample floor before we assert a gap" [level=#]
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: paragraph: When a vendor's self-report differs from the firm-reviewed average, we only call it a directional divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: heading "Quarterly benchmark cutoff — a published deadline, not a score change" [level=#]
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: paragraph: "Patalign publishes a quarterly benchmark cut. Each calendar quarter has a cutoff date — the last day of the quarter — and an assessment counts toward that quarter's benchmark only if it was completed on or before that date. This is the same calendar-deadline pattern used by established B#B benchmark reports: a predictable date that tells everyone which evidence is included next."
+  - new: paragraph: "Patalign publishes a quarterly benchmark cut. Each calendar quarter has a cutoff date — the last day of the quarter — and an assessment counts toward that quarter's benchmark only if it was completed on or before that date. This is the same calendar-deadline pattern used by established B#B benchmark reports: a predictable date that tells everyone which evidence is included next. The cutoff governs inclusion, not value. It never changes, weights, or decays a score that has already been computed — a figure completed after the cutoff simply lands in the next quarter's cut instead of the current one. Membership tier changes what you see inside the benchmark (bands and percentiles for all members; deeper ranked position for Elite), never whether the cutoff applies to you."
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: paragraph: "Initial published methodology: equal-weight averaging, directional-divergence sample floor, unified confidence bands, single-pass display rounding."
+  - new: paragraph: "Initial published methodology: equal-weight averaging, divergence sample floor, unified confidence bands, single-pass display rounding."
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: heading "Directional, not professional advice" [level=#]
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: paragraph: Material changes to the methodology are versioned with a public changelog. The full detail — averaging, divergence floor, confidence bands, suppression, integrity walls, and rounding — is rendered below and mirrors the source aggregation-methodology document.
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: v# Last updated <date>
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: heading "#Divergence — a sample floor before we assert a gap" [level=#]
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: heading "#Quarterly benchmark cutoff — a published deadline, not a score change" [level=#]
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "# Divergence — a sample floor before we assert a gap"
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "# Quarterly benchmark cutoff — a published deadline, not a score change"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /pat · vendor-elite
+- CHANGED
+  - old: paragraph: PAT is the insight layer within C#Acct, built to convert structured signals into decision-grade direction with minimal friction and full contextual continuity.
+  - new: paragraph: PAT calls a gap a divergence only once at least three firm reviews exist; ten points or more is hot and worth a conversation.
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: text: Meet Pat — optional AI assistant
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: link "Learn how Pat is governed"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: How it works
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Four chapters, one measured picture." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "The Alignment Radar" [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Alignment radar Five pillars
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Five-pillar alignment radar — shape only, no scores": Strategy Operations Automation Integration Governance
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Vendor self-report next to the firm-reviewed average, per feature": Client portal Vendor self-report # Firm-reviewed # Close workflow Vendor self-report # Firm-reviewed # Bank feeds Vendor self-report # Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: paragraph: Fig. # — vendor self-report vs firm-reviewed, invented values for illustration.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: "The delta is the distance between the two bars: self-report minus the firm-reviewed average, in points."
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: img "Vendor self-report next to the firm-reviewed average, per feature": Client portal +# pt Vendor self-report # Firm-reviewed # Bank feeds +# pt · hot Vendor self-report # Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: paragraph: Fig. # — one hot divergence (# pt) and one within range (# pt), invented values.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: Firms get their own radar, an alignment index and the readouts that follow from it — comparison context, never a ranking.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Vendors get the firm-reviewed evidence for each product, product by product, and where the divergence sits.
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Firms Score your stack."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Score your stack." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Vendors Earn the evidence."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Earn the evidence." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+
+### /survey/help · vendor-elite
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Ask Pat Ask a question in your own words Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page. Open Ask Pat →"
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Ask Pat Ask a question in your own words
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: paragraph: Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page.
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Open Ask Pat →
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: Inside a firm assessment →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: Your first session with PAT →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: How PAT scoring works →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+
+### /trust · vendor-elite
+- REMOVED: text: "Last updated: <date>"
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: link "Billing policy draft Billing policy This draft explains how billing should behave when provider configuration is present and how the UI must stay honest when it is absent. Review billing policy"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Billing policy draft
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: heading "Billing policy" [level=#]
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Review billing policy
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: 'link "Aggregation methodology Methodology The stated, versioned methodology behind every alignment score, divergence reading, and peer benchmark: equal-weight averaging, sample floors, confidence bands, minimum-n benchmark suppression, and the integrity walls that keep demo data and vendor self-report out of peer aggregates. Review methodology"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: paragraph: "The stated, versioned methodology behind every alignment score, divergence reading, and peer benchmark: equal-weight averaging, sample floors, confidence bands, minimum-n benchmark suppression, and the integrity walls that keep demo data and vendor self-report out of peer aggregates."
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: link "AI governance How Pat is governed Pat is Patalign's AI assistant. It helps with questions, reminders, and reports. Here is exactly how we keep it in bounds — these are system controls, not policies. Review how pat is governed"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: heading "How Pat is governed" [level=#]
+  - new: heading "How PAT earns trust" [level=#]
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Review how pat is governed
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: link "Release transparency Release This page shows the public runtime fingerprint for the currently served PAT build and explains which release fields are validated together. Review release"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: paragraph: This page shows the public runtime fingerprint for the currently served PAT build and explains which release fields are validated together.
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: paragraph: PAT is being prepared for public launch with local validation, release fingerprints, provider-backed billing scaffolding, and role-specific onboarding. Public-live state remains unverified unless a reachable deployment URL is supplied and validated.
+  - new: paragraph: PAT does not claim third-party certification, audited status, uptime SLA, public customer references, or regulated-industry compliance certification.
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Last updated <date>
+  - intended: status-strip (Depth 7 2026-09-09)
+
+### /vendor · vendor-elite
+- REMOVED: text: Performance Alignment Technology Vendor portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: paragraph: Unlock a more connected vendor experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: link "BattleCard Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- REMOVED: text: BattleCard
+  - intended: product-fit-card (R7 (ruling))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Vendor portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Meridian Practice Cloud · <date> · # firm reviews on file
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current evidence picture Products <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: # with a final vendor assessment
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Firm reviews on file #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Final firm product reviews across your products
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Largest divergence # pt
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Meridian Payroll · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Next briefing <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Quarterly benchmark cut · # firms reviewing
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest product readout Meridian Payroll self-reported # firm-reviewed # # firm reviews Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Audit: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian CAS: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Payroll: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Portal: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Early signal · # firm reviews — too few to read divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'img "Meridian Practice: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "Meridian Tax: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Manage products →"
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Since your last visit This is your first visit on record.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Product Fit Card Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: text: Product Fit Card
+  - intended: product-fit-card (R7 (ruling))
+
+### /vendor/battlecard · vendor-elite
+- CHANGED
+  - old: text: Elite BattleCard — Meridian Practice Cloud · product strength across your catalog Vendor self-reported — no firm reviews yet; not firm-verified.
+  - new: text: Elite Product Fit Card # Meridian Practice Cloud · product strength across your catalog Firm-reviewed · # products
+  - intended: product-fit-card (R7 (ruling))
+- CHANGED
+  - old: text: is how much your product strengths sit above a firm’s current alignment — the headroom you could lift. Firms with the most headroom rank first; deltas stay directional while a firm’s sample is thin.
+  - new: text: is how much your product strengths sit above a firm’s current alignment — the headroom you could lift. Firms with the most headroom rank first; deltas stay estimates while a firm’s sample is thin.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- CHANGED
+  - old: 'button "Belmont Crossing Advisory Fit ## Operating Model and Workflow Discipline · Early signal Fresh Pending — Open brief"'
+  - new: 'button "Belmont Crossing Advisory Fit ## Operating Model and Workflow Discipline · Early signal Fresh Strong fit +# Open brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Harlow & Pike Fit ## Governance, Controls, and Vendor Risk · Early signal Fresh Pending — Open brief"'
+  - new: 'button "Harlow & Pike Fit ## Governance, Controls, and Vendor Risk · Early signal Fresh Strong fit +# Open brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Kirkland Reyes LLP Fit ## Integration and Data Flow Maturity · Early signal Fresh Pending — Open brief"'
+  - new: 'button "Kirkland Reyes LLP Fit ## Integration and Data Flow Maturity · Early signal Fresh Weak fit -# Hide brief" [expanded]'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Maple Ridge CPAs Fit ## Integration and Data Flow Maturity · Early signal Fresh Pending — Open brief"'
+  - new: 'button "Maple Ridge CPAs Fit ## Integration and Data Flow Maturity · Early signal Fresh Good fit +# Open brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Quarry Lane Tax Fit ## Integration and Data Flow Maturity · Early signal Fresh Pending — Open brief"'
+  - new: 'button "Quarry Lane Tax Fit ## Integration and Data Flow Maturity · Early signal Fresh Weak fit -# Open brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Vandenberg CPAs Fit ## Automation and AI Readiness · Early signal Fresh Pending — Hide brief" [expanded]'
+  - new: 'button "Vandenberg CPAs Fit ## Automation and AI Readiness · Early signal Fresh Weak fit -# Open brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- REMOVED: text: Pending · headroom over their alignment — Their alignment # · your product strength — across # products Vendor self-reported — no firm reviews yet; not firm-verified. Alignment shape
+  - intended: products-block (box 2 2026-09-11 (R19))
+- REMOVED: text: Directional, informational — not professional advice.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Weak fit · headroom over their alignment -# Their alignment # · your product strength # across # products Firm-reviewed · # products Alignment shape
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: "Hot vendor-higher divergence on Meridian Payroll at mid band (+# points): is Meridian Practice Cloud selling a roadmap commitment as current capability? What would change Kirkland Reyes LLP's mid-band read?"
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: Informational, not professional advice.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+
+### /vendor/help · vendor-elite
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Ask Pat Ask a question in your own words Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page. Open Ask Pat →"
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Ask Pat Ask a question in your own words
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: paragraph: Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page.
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Open Ask Pat →
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: What vendors declare and firms verify →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: The alignment delta, introduced →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: PAT for vendors →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Product Fit Card What it is: The firms in your ecosystem ranked by fit, with the alignment gap each of your product strengths closes. Where it goes: Routes to the Product Fit Card, one ranked firm at a time, with a brief behind each. Why it matters: It shows where your product lands first, on firm-reviewed evidence rather than a pitch. How to use it: Open a firm, read why it fits and where it struggles; Elite reveals the Secret Firm names."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: 'link "Read: Evidence, not advertising →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Review refresh What it is: How current the firm reviews of your products are, and which are entering their refresh window. Where it goes: Routes to the review refresh list, one row per product with its freshness. Why it matters: Stale reviews weaken your firm-reviewed signal; the window tells you when to ask. How to use it: Open the list, find the products entering their window, and request a refresh from the firms that reviewed them."
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'link "Read: From early to leading: the bands →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+
+### /vendor/product-assessment · vendor-elite
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+
+### /vendor/product-insight · vendor-elite
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: 'link "Meridian Audit Tax & Compliance · # declared feature · # firm assessments Meridian Audit: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'img "Meridian Audit: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'link "Meridian CAS Ledger & Close · # declared features · # firm assessments Meridian CAS: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: paragraph: Ledger & Close · # declared features · # firm assessments
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'img "Meridian CAS: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'link "Meridian Payroll Payroll & Workforce · # declared feature · # firm assessments Meridian Payroll: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'img "Meridian Payroll: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'link "Meridian Portal Client & Documents · # declared features · # firm assessments Meridian Portal: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: paragraph: Client & Documents · # declared features · # firm assessments
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'img "Meridian Portal: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'link "Meridian Practice Workflow & Practice Ops · # declared feature · # firm assessments Meridian Practice: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'img "Meridian Practice: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'link "Meridian Tax Tax & Compliance · # declared feature · # firm assessments Meridian Tax: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'img "Meridian Tax: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+
+### /vendor?panel=help · vendor-elite
+- REMOVED: text: Performance Alignment Technology Vendor portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Elite Performance Alignment Technology Vendor portal
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: button "Ask Pat Ask a question in your own words Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page. Open Ask Pat →"
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Ask Pat Ask a question in your own words
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: paragraph: Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page.
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Open Ask Pat →
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: What vendors declare and firms verify →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: The alignment delta, introduced →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: PAT for vendors →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Product Fit Card What it is: The firms in your ecosystem ranked by fit, with the alignment gap each of your product strengths closes. Where it goes: Routes to the Product Fit Card, one ranked firm at a time, with a brief behind each. Why it matters: It shows where your product lands first, on firm-reviewed evidence rather than a pitch. How to use it: Open a firm, read why it fits and where it struggles; Elite reveals the Secret Firm names."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: 'link "Read: Evidence, not advertising →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Review refresh What it is: How current the firm reviews of your products are, and which are entering their refresh window. Where it goes: Routes to the review refresh list, one row per product with its freshness. Why it matters: Stale reviews weaken your firm-reviewed signal; the window tells you when to ask. How to use it: Open the list, find the products entering their window, and request a refresh from the firms that reviewed them."
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'link "Read: From early to leading: the bands →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+
+### / · vendor-pro
+- REMOVED: link "WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into current-state decision support. Learn more about PAT"
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: heading "Meet PAT" [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: link "Signed in Continue to your workspace You are signed in. Choose your path to access your designed workspace. Continue to your workspace"
+  - intended: onboarding-rail (Depth 8 2026-09-09)
+- REMOVED: paragraph: You are signed in. Choose your path to access your designed workspace.
+  - intended: onboarding-rail (Depth 8 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: heading "Product selection, without the sales pitch." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: Real assessments. Evidence both sides can trust.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Start here
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Enter PAT"
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Firms Score your stack."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Score your stack." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Vendors Earn the evidence."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Earn the evidence." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Alignment radar Five pillars
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Five-pillar alignment radar — shape only, no scores": Strategy Operations Automation Integration Governance
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+
+### /consultants/ecosystems/demo-…/firm/demo-…?panel=help · vendor-pro
+- REMOVED: paragraph: Unlock a more connected vendor experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: link "BattleCard Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- REMOVED: text: BattleCard
+  - intended: product-fit-card (R7 (ruling))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: paragraph: PAT Demo Vendor · <date> · # firm reviews on file
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current evidence picture Products <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: # with a final vendor assessment
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Firm reviews on file #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Final firm product reviews across your products
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Largest divergence # pt
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: LedgerFlow Close · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Next briefing <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Quarterly benchmark cut · # firms reviewing
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest product readout APStream Control self-reported # firm-reviewed # # firm reviews Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "APStream Control: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "ClientVault Requests: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "LedgerFlow Close: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "MetricBoard FP&A: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Manage products →"
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Since your last visit This is your first visit on record.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Product Fit Card Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: text: Product Fit Card
+  - intended: product-fit-card (R7 (ruling))
+
+### /consultants/ecosystems/demo-…/vendor-brief?panel=exec · vendor-pro
+- REMOVED: paragraph: Unlock a more connected vendor experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: link "BattleCard Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- REMOVED: text: BattleCard
+  - intended: product-fit-card (R7 (ruling))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: paragraph: PAT Demo Vendor · <date> · # firm reviews on file
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current evidence picture Products <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: # with a final vendor assessment
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Firm reviews on file #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Final firm product reviews across your products
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Largest divergence # pt
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: LedgerFlow Close · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Next briefing <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Quarterly benchmark cut · # firms reviewing
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest product readout APStream Control self-reported # firm-reviewed # # firm reviews Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "APStream Control: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "ClientVault Requests: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "LedgerFlow Close: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "MetricBoard FP&A: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Manage products →"
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Since your last visit This is your first visit on record.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Product Fit Card Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: text: Product Fit Card
+  - intended: product-fit-card (R7 (ruling))
+
+### /firm · vendor-pro
+- REMOVED: paragraph: Unlock a more connected vendor experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: link "BattleCard Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- REMOVED: text: BattleCard
+  - intended: product-fit-card (R7 (ruling))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: paragraph: PAT Demo Vendor · <date> · # firm reviews on file
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current evidence picture Products <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: # with a final vendor assessment
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Firm reviews on file #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Final firm product reviews across your products
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Largest divergence # pt
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: LedgerFlow Close · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Next briefing <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Quarterly benchmark cut · # firms reviewing
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest product readout APStream Control self-reported # firm-reviewed # # firm reviews Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "APStream Control: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "ClientVault Requests: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "LedgerFlow Close: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "MetricBoard FP&A: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Manage products →"
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Since your last visit This is your first visit on record.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Product Fit Card Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: text: Product Fit Card
+  - intended: product-fit-card (R7 (ruling))
+
+### /firm/alignment-board · vendor-pro
+- REMOVED: paragraph: Unlock a more connected vendor experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: link "BattleCard Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- REMOVED: text: BattleCard
+  - intended: product-fit-card (R7 (ruling))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: paragraph: PAT Demo Vendor · <date> · # firm reviews on file
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current evidence picture Products <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: # with a final vendor assessment
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Firm reviews on file #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Final firm product reviews across your products
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Largest divergence # pt
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: LedgerFlow Close · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Next briefing <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Quarterly benchmark cut · # firms reviewing
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest product readout APStream Control self-reported # firm-reviewed # # firm reviews Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "APStream Control: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "ClientVault Requests: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "LedgerFlow Close: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "MetricBoard FP&A: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Manage products →"
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Since your last visit This is your first visit on record.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Product Fit Card Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: text: Product Fit Card
+  - intended: product-fit-card (R7 (ruling))
+
+### /firm/help · vendor-pro
+- REMOVED: paragraph: Unlock a more connected vendor experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: link "BattleCard Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- REMOVED: text: BattleCard
+  - intended: product-fit-card (R7 (ruling))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: paragraph: PAT Demo Vendor · <date> · # firm reviews on file
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current evidence picture Products <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: # with a final vendor assessment
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Firm reviews on file #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Final firm product reviews across your products
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Largest divergence # pt
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: LedgerFlow Close · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Next briefing <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Quarterly benchmark cut · # firms reviewing
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest product readout APStream Control self-reported # firm-reviewed # # firm reviews Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "APStream Control: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "ClientVault Requests: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "LedgerFlow Close: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "MetricBoard FP&A: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Manage products →"
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Since your last visit This is your first visit on record.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Product Fit Card Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: text: Product Fit Card
+  - intended: product-fit-card (R7 (ruling))
+
+### /firm?panel=help · vendor-pro
+- REMOVED: paragraph: Unlock a more connected vendor experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: link "BattleCard Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- REMOVED: text: BattleCard
+  - intended: product-fit-card (R7 (ruling))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: paragraph: PAT Demo Vendor · <date> · # firm reviews on file
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current evidence picture Products <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: # with a final vendor assessment
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Firm reviews on file #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Final firm product reviews across your products
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Largest divergence # pt
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: LedgerFlow Close · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Next briefing <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Quarterly benchmark cut · # firms reviewing
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest product readout APStream Control self-reported # firm-reviewed # # firm reviews Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "APStream Control: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "ClientVault Requests: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "LedgerFlow Close: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "MetricBoard FP&A: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Manage products →"
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Since your last visit This is your first visit on record.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Product Fit Card Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: text: Product Fit Card
+  - intended: product-fit-card (R7 (ruling))
+
+### /methodology · vendor-pro
+- REMOVED: text: "Last updated: <date>"
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: paragraph: Patalign reports directional, informational readings built from firm and vendor assessments. Figures are presented as plain averages with the sample size shown. Nothing here is a weighted, percentile, or significance-tested statistic, and nothing is professional advice.
+  - new: paragraph: Patalign reports informational readings built from firm and vendor assessments. Figures are presented as plain averages with the sample size shown. Nothing here is a weighted, percentile, or significance-tested statistic, and nothing is professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, we show an insufficient-data state instead of a number.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- CHANGED
+  - old: paragraph: Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, we show an insufficient-data state instead of a number.
+  - new: paragraph: When a vendor's self-report differs from the firm-reviewed average, we only call it a divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: heading "Divergence — a sample floor before we assert a gap" [level=#]
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: paragraph: When a vendor's self-report differs from the firm-reviewed average, we only call it a directional divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: heading "Quarterly benchmark cutoff — a published deadline, not a score change" [level=#]
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: paragraph: "Patalign publishes a quarterly benchmark cut. Each calendar quarter has a cutoff date — the last day of the quarter — and an assessment counts toward that quarter's benchmark only if it was completed on or before that date. This is the same calendar-deadline pattern used by established B#B benchmark reports: a predictable date that tells everyone which evidence is included next."
+  - new: paragraph: "Patalign publishes a quarterly benchmark cut. Each calendar quarter has a cutoff date — the last day of the quarter — and an assessment counts toward that quarter's benchmark only if it was completed on or before that date. This is the same calendar-deadline pattern used by established B#B benchmark reports: a predictable date that tells everyone which evidence is included next. The cutoff governs inclusion, not value. It never changes, weights, or decays a score that has already been computed — a figure completed after the cutoff simply lands in the next quarter's cut instead of the current one. Membership tier changes what you see inside the benchmark (bands and percentiles for all members; deeper ranked position for Elite), never whether the cutoff applies to you."
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- CHANGED
+  - old: paragraph: "Initial published methodology: equal-weight averaging, directional-divergence sample floor, unified confidence bands, single-pass display rounding."
+  - new: paragraph: "Initial published methodology: equal-weight averaging, divergence sample floor, unified confidence bands, single-pass display rounding."
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: heading "Directional, not professional advice" [level=#]
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- REMOVED: paragraph: Material changes to the methodology are versioned with a public changelog. The full detail — averaging, divergence floor, confidence bands, suppression, integrity walls, and rounding — is rendered below and mirrors the source aggregation-methodology document.
+  - intended: status-strip (Depth 7 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: v# Last updated <date>
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: heading "#Divergence — a sample floor before we assert a gap" [level=#]
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: heading "#Quarterly benchmark cutoff — a published deadline, not a score change" [level=#]
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "# Divergence — a sample floor before we assert a gap"
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "# Quarterly benchmark cutoff — a published deadline, not a score change"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+
+### /pat · vendor-pro
+- CHANGED
+  - old: paragraph: PAT is the insight layer within C#Acct, built to convert structured signals into decision-grade direction with minimal friction and full contextual continuity.
+  - new: paragraph: PAT calls a gap a divergence only once at least three firm reviews exist; ten points or more is hot and worth a conversation.
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: text: Meet Pat — optional AI assistant
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- REMOVED: link "Learn how Pat is governed"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: How it works
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Four chapters, one measured picture." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "The Alignment Radar" [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: text: Alignment radar Five pillars
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Five-pillar alignment radar — shape only, no scores": Strategy Operations Automation Integration Governance
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: img "Vendor self-report next to the firm-reviewed average, per feature": Client portal Vendor self-report # Firm-reviewed # Close workflow Vendor self-report # Firm-reviewed # Bank feeds Vendor self-report # Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: paragraph: Fig. # — vendor self-report vs firm-reviewed, invented values for illustration.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: "The delta is the distance between the two bars: self-report minus the firm-reviewed average, in points."
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: img "Vendor self-report next to the firm-reviewed average, per feature": Client portal +# pt Vendor self-report # Firm-reviewed # Bank feeds +# pt · hot Vendor self-report # Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: paragraph: Fig. # — one hot divergence (# pt) and one within range (# pt), invented values.
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: paragraph: Firms get their own radar, an alignment index and the readouts that follow from it — comparison context, never a ranking.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Vendors get the firm-reviewed evidence for each product, product by product, and where the divergence sits.
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Firms Score your stack."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Score your stack." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: link "Vendors Earn the evidence."
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+- ADDED: heading "Earn the evidence." [level=#]
+  - intended: v7-front-door (V7 / V3 / Depth 2026-09-05..09)
+
+### /survey/help · vendor-pro
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Ask Pat Ask a question in your own words Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page. Open Ask Pat →"
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Ask Pat Ask a question in your own words
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: paragraph: Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page.
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Open Ask Pat →
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: Inside a firm assessment →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: Your first session with PAT →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: How PAT scoring works →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+
+### /trust · vendor-pro
+- REMOVED: text: "Last updated: <date>"
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: link "Billing policy draft Billing policy This draft explains how billing should behave when provider configuration is present and how the UI must stay honest when it is absent. Review billing policy"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Billing policy draft
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: heading "Billing policy" [level=#]
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Review billing policy
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: 'link "Aggregation methodology Methodology The stated, versioned methodology behind every alignment score, divergence reading, and peer benchmark: equal-weight averaging, sample floors, confidence bands, minimum-n benchmark suppression, and the integrity walls that keep demo data and vendor self-report out of peer aggregates. Review methodology"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: paragraph: "The stated, versioned methodology behind every alignment score, divergence reading, and peer benchmark: equal-weight averaging, sample floors, confidence bands, minimum-n benchmark suppression, and the integrity walls that keep demo data and vendor self-report out of peer aggregates."
+  - intended: status-strip (Depth 7 2026-09-09)
+- REMOVED: link "AI governance How Pat is governed Pat is Patalign's AI assistant. It helps with questions, reminders, and reports. Here is exactly how we keep it in bounds — these are system controls, not policies. Review how pat is governed"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: heading "How Pat is governed" [level=#]
+  - new: heading "How PAT earns trust" [level=#]
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: text: Review how pat is governed
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: link "Release transparency Release This page shows the public runtime fingerprint for the currently served PAT build and explains which release fields are validated together. Review release"
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- REMOVED: paragraph: This page shows the public runtime fingerprint for the currently served PAT build and explains which release fields are validated together.
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: paragraph: PAT is being prepared for public launch with local validation, release fingerprints, provider-backed billing scaffolding, and role-specific onboarding. Public-live state remains unverified unless a reachable deployment URL is supplied and validated.
+  - new: paragraph: PAT does not claim third-party certification, audited status, uptime SLA, public customer references, or regulated-industry compliance certification.
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct · PAT — Performance Alignment Technology · a Patalign™ product
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Last updated <date>
+  - intended: status-strip (Depth 7 2026-09-09)
+
+### /vendor · vendor-pro
+- REMOVED: paragraph: Unlock a more connected vendor experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- REMOVED: link "BattleCard Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- REMOVED: text: BattleCard
+  - intended: product-fit-card (R7 (ruling))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: paragraph: PAT Demo Vendor · <date> · # firm reviews on file
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: Current evidence picture Products <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: # with a final vendor assessment
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Firm reviews on file #
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Final firm product reviews across your products
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Largest divergence # pt
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: LedgerFlow Close · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Next briefing <date>
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: paragraph: Quarterly benchmark cut · # firms reviewing
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Latest product readout APStream Control self-reported # firm-reviewed # # firm reviews Open readout →"
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "APStream Control: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "ClientVault Requests: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view is running above firm-reviewed signal
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "LedgerFlow Close: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: text: final · # reviews # pt · Vendor self-view and firm review are closely aligned
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'img "MetricBoard FP&A: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: link "Manage products →"
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Since your last visit This is your first visit on record.
+  - intended: dashboards (Depth 1 2026-09-09 (R18 keep; R2 restores cards under them))
+- ADDED: link "Product Fit Card Rank the firms in your ecosystem by fit and see exactly where your product strengths close each firm's alignment gap."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: text: Product Fit Card
+  - intended: product-fit-card (R7 (ruling))
+
+### /vendor/battlecard · vendor-pro
+- REMOVED: text: BattleCard — PAT Demo Vendor · product strength across your catalog Vendor self-reported — no firm reviews yet; not firm-verified.
+  - intended: product-fit-card (R7 (ruling))
+- CHANGED
+  - old: text: is how much your product strengths sit above a firm’s current alignment — the headroom you could lift. Firms with the most headroom rank first; deltas stay directional while a firm’s sample is thin.
+  - new: text: is how much your product strengths sit above a firm’s current alignment — the headroom you could lift. Firms with the most headroom rank first; deltas stay estimates while a firm’s sample is thin.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- CHANGED
+  - old: 'button "Secret Firm # Fit ## Strategy, Change Readiness, and Market Alignment · Early signal Fresh Pending — Preview brief"'
+  - new: 'button "Secret Firm # Fit ## Operating Model and Workflow Discipline · Early signal Fresh Strong fit +# Preview brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Secret Firm # Fit ## Governance, Controls, and Vendor Risk · Early signal Fresh Pending — Preview brief"'
+  - new: 'button "Secret Firm # Fit ## Governance, Controls, and Vendor Risk · Early signal Fresh Good fit +# Preview brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Secret Firm # Fit ## Integration and Data Flow Maturity · Early signal Fresh Pending — Preview brief"'
+  - new: 'button "Secret Firm # Fit ## Governance, Controls, and Vendor Risk · Early signal Fresh Good fit +# Preview brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Secret Firm # Fit ## Governance, Controls, and Vendor Risk · Early signal Fresh Pending — Preview brief"'
+  - new: 'button "Secret Firm # Fit ## Operating Model and Workflow Discipline · Early signal Fresh Good fit +# Preview brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Secret Firm # Fit ## Strategy, Change Readiness, and Market Alignment · Early signal Fresh Pending — Preview brief"'
+  - new: 'button "Secret Firm # Fit ## Strategy, Change Readiness, and Market Alignment · Early signal Fresh Weak fit -# Preview brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Secret Firm # Fit ## Integration and Data Flow Maturity · Early signal Fresh Pending — Preview brief"'
+  - new: 'button "Secret Firm # Fit ## Integration and Data Flow Maturity · Early signal Fresh Weak fit -# Preview brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Secret Firm # Fit ## Operating Model and Workflow Discipline · Early signal Fresh Pending — Preview brief"'
+  - new: 'button "Secret Firm # Fit ## Integration and Data Flow Maturity · Early signal Fresh Weak fit -# Preview brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Secret Firm # Fit ## Operating Model and Workflow Discipline · Early signal Fresh Pending — Preview brief"'
+  - new: 'button "Secret Firm # Fit ## Automation and AI Readiness · Early signal Fresh Weak fit -# Preview brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Secret Firm # Fit ## Automation and AI Readiness · Early signal Fresh Pending — Preview brief"'
+  - new: 'button "Secret Firm # Fit ## Automation and AI Readiness · Early signal Fresh Weak fit -# Preview brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Secret Firm # Fit ## Integration and Data Flow Maturity · Early signal Fresh Pending — Preview brief"'
+  - new: 'button "Secret Firm # Fit ## Strategy, Change Readiness, and Market Alignment · Early signal Fresh Weak fit -# Preview brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Secret Firm # Fit ## Automation and AI Readiness · Early signal Fresh Pending — Preview brief"'
+  - new: 'button "Secret Firm # Fit ## Governance, Controls, and Vendor Risk · Early signal Fresh Weak fit -# Preview brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Secret Firm # Fit ## Governance, Controls, and Vendor Risk · Early signal Fresh Pending — Preview brief"'
+  - new: 'button "Secret Firm # Fit ## Governance, Controls, and Vendor Risk · Early signal Fresh Weak fit -# Preview brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Secret Firm # Fit ## Strategy, Change Readiness, and Market Alignment · Early signal Fresh Pending — Preview brief"'
+  - new: 'button "Secret Firm # Fit ## Integration and Data Flow Maturity · Early signal Fresh Weak fit -# Preview brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Secret Firm # Fit ## Automation and AI Readiness · Early signal Fresh Pending — Preview brief"'
+  - new: 'button "Secret Firm # Fit ## Automation and AI Readiness · Early signal Fresh Weak fit -# Preview brief"'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- CHANGED
+  - old: 'button "Secret Firm # Fit ## Governance, Controls, and Vendor Risk · Early signal Fresh Pending — Hide brief" [expanded]'
+  - new: 'button "Secret Firm # Fit ## Strategy, Change Readiness, and Market Alignment · Early signal Fresh Weak fit -# Hide brief" [expanded]'
+  - intended: products-block (box 2 2026-09-11 (R19))
+- REMOVED: text: Pending · headroom over their alignment — Their alignment # · your product strength — across # products Vendor self-reported — no firm reviews yet; not firm-verified.
+  - intended: products-block (box 2 2026-09-11 (R19))
+- REMOVED: text: Directional, informational — not professional advice.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: text: Product Fit Card # PAT Demo Vendor · product strength across your catalog Firm-reviewed · # products
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: text: Weak fit · headroom over their alignment -# Their alignment # · your product strength # across # products Firm-reviewed · # products
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: Informational, not professional advice.
+  - intended: directional-to-informational (V3 2026-09-09 (R15))
+
+### /vendor/help · vendor-pro
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Ask Pat Ask a question in your own words Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page. Open Ask Pat →"
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Ask Pat Ask a question in your own words
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: paragraph: Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page.
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Open Ask Pat →
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: What vendors declare and firms verify →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: The alignment delta, introduced →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: PAT for vendors →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Product Fit Card What it is: The firms in your ecosystem ranked by fit, with the alignment gap each of your product strengths closes. Where it goes: Routes to the Product Fit Card, one ranked firm at a time, with a brief behind each. Why it matters: It shows where your product lands first, on firm-reviewed evidence rather than a pitch. How to use it: Open a firm, read why it fits and where it struggles; Elite reveals the Secret Firm names."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: 'link "Read: Evidence, not advertising →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Review refresh What it is: How current the firm reviews of your products are, and which are entering their refresh window. Where it goes: Routes to the review refresh list, one row per product with its freshness. Why it matters: Stale reviews weaken your firm-reviewed signal; the window tells you when to ask. How to use it: Open the list, find the products entering their window, and request a refresh from the firms that reviewed them."
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'link "Read: From early to leading: the bands →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+
+### /vendor/product-assessment · vendor-pro
+- REMOVED: paragraph: Client request portal with document collection, status nudges, and request-level evidence.
+  - intended: consultant-week (Depth 4 2026-09-09)
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+
+### /vendor/product-insight · vendor-pro
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: 'link "APStream Control Payments & Billing · # declared features · # firm assessments APStream Control: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: paragraph: Payments & Billing · # declared features · # firm assessments
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'img "APStream Control: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'link "ClientVault Requests Client & Documents · # declared features · # firm assessments ClientVault Requests: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: paragraph: Client & Documents · # declared features · # firm assessments
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'img "ClientVault Requests: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'link "LedgerFlow Close Ledger & Close · # declared features · # firm assessments LedgerFlow Close: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: paragraph: Ledger & Close · # declared features · # firm assessments
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'img "LedgerFlow Close: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'link "MetricBoard FP&A Reporting & Advisory · # declared features · # firm assessments MetricBoard FP&A: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: paragraph: Reporting & Advisory · # declared features · # firm assessments
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: 'img "MetricBoard FP&A: vendor self-reported vs firm-reviewed signal: Vendor self-reported #, Firm-reviewed #, # pt divergence"'
+  - intended: status-strip (Depth 7 2026-09-09)
+- ADDED: listitem: Vendor self-reported #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: listitem: Firm-reviewed #
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: text: # pt divergence
+  - intended: status-strip (Depth 7 2026-09-09)
+
+### /vendor?panel=help · vendor-pro
+- CHANGED
+  - old: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release #d#:ufGssEe#cfmgW#Z#T#lz
+  - new: text: Copyright # C#Acct PAT — Performance Alignment Technology · a Patalign™ product Release c#a#:TC#qI#oAh#U#bMOOa#
+  - intended: footer-row (Depth 0.2 2026-09-09)
+- ADDED: button "Ask Pat Ask a question in your own words Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page. Open Ask Pat →"
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Ask Pat Ask a question in your own words
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: paragraph: Pat answers from PAT's own documented content for your role and says so when it has no documented answer. Start typing in the Ask Pat bar at the top of the page.
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: Open Ask Pat →
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: What vendors declare and firms verify →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: The alignment delta, introduced →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: 'link "Read: PAT for vendors →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Product Fit Card What it is: The firms in your ecosystem ranked by fit, with the alignment gap each of your product strengths closes. Where it goes: Routes to the Product Fit Card, one ranked firm at a time, with a brief behind each. Why it matters: It shows where your product lands first, on firm-reviewed evidence rather than a pitch. How to use it: Open a firm, read why it fits and where it struggles; Elite reveals the Secret Firm names."
+  - intended: product-fit-card (R7 (ruling))
+- ADDED: 'link "Read: Evidence, not advertising →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+- ADDED: text: "Review refresh What it is: How current the firm reviews of your products are, and which are entering their refresh window. Where it goes: Routes to the review refresh list, one row per product with its freshness. Why it matters: Stale reviews weaken your firm-reviewed signal; the window tells you when to ask. How to use it: Open the list, find the products entering their window, and request a refresh from the firms that reviewed them."
+  - intended: products-block (box 2 2026-09-11 (R19))
+- ADDED: 'link "Read: From early to leading: the bands →"'
+  - intended: help-pass (Finish box 2026-09-08 / V3 2026-09-09)
+
