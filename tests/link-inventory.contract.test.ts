@@ -1,33 +1,34 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, mkdtempSync, readFileSync, readdirSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * Link inventory guard (Mythos method 2026-09-10 §7; wait-state box item 2).
+ * Link inventory guard v2 (production-baseline box, 2026-09-11).
  *
- * For every route × identity crawled by scripts/dev/click-inventory.mts, the
- * FLAG-ON build's set of controls (role, name, href) must be a superset of the
- * FLAG-OFF build's set, minus the entries in ops/qa/link-removals.json — each
- * of which carries the route, the control, the ledger line with Cam's ruling
- * and the ruling date. A door that vanishes when the flags flip fails here
- * unless its removal was ruled.
+ * The floor is ops/qa/baseline-inventory.json: every control (role, name,
+ * href, region) production served, per route × identity, captured from the
+ * production commit run with production's flag values. This test crawls the
+ * standalone it is pointed at (LINK_INVENTORY_BASE_URL, with the flag set the
+ * caller chose, LINK_INVENTORY_LABEL naming it) using scripts/qa/click-inventory.mts
+ * on the manifest seeds, and requires every baseline control to survive unless
+ * ops/qa/link-removals.json carries Cam's ruling for it.
  *
- * Inputs: the crawl output (default ~/work/click-inventory; override with
- * CLICK_INVENTORY_DIR). B = HEAD flag-off, C = HEAD flag-on (D adds the board
- * flag and is checked the same way). Dynamic labels are normalised the same way
- * for both sides: digits, dates and relative times collapse to placeholders.
- * The suite reports SKIP with the reason when the crawl output is absent.
+ * No skip: without a server to crawl the test FAILS. Run it through
+ * `pnpm guard:doors` (starts the standalone twice — flags off, flags as
+ * Preview — and runs this file against each), or point it at a server:
+ *   LINK_INVENTORY_BASE_URL=http://127.0.0.1:3031 LINK_INVENTORY_LABEL=flags-off pnpm vitest run tests/link-inventory.contract.test.ts
  */
-const INVENTORY = process.env.CLICK_INVENTORY_DIR ?? path.join(os.homedir(), "work", "click-inventory");
-const REMOVALS_FILE = path.join(process.cwd(), "ops", "qa", "link-removals.json");
-const IDENTITIES = ["public", "firm-pro", "firm-elite", "vendor-pro", "vendor-elite", "consultant", "admin"];
-const PAIRS: Array<[string, string]> = [
-  ["B", "C"],
-  ["B", "D"],
-];
+const ROOT = process.cwd();
+const BASELINE_FILE = path.join(ROOT, "ops", "qa", "baseline-inventory.json");
+const REMOVALS_FILE = path.join(ROOT, "ops", "qa", "link-removals.json");
+const BASE_URL = process.env.LINK_INVENTORY_BASE_URL ?? "";
+const LABEL = process.env.LINK_INVENTORY_LABEL ?? "unlabelled";
+const IDENTITIES = process.env.LINK_INVENTORY_IDENTITIES ?? "public,firm-pro,firm-elite,vendor-pro,vendor-elite,consultant,admin";
 
 type Removal = { route: string; control: string; ledgerLine: string; rulingDate: string };
+type Baseline = { routes: Record<string, Record<string, { controls: string[][] }>> };
 
 function normalizeLabel(name: string): string {
   return name
@@ -38,61 +39,43 @@ function normalizeLabel(name: string): string {
     .replace(/\d[\d,.]*%?/g, "#")
     .replace(/\s+/g, " ")
     .trim()
-    // The crawl stores tabbable names truncated (120–160 chars) and ARIA names in
-    // full; key on the first 100 chars so one door is one entry.
     .slice(0, 100);
 }
-
 function normalizeHref(href: string | null | undefined): string | null {
   if (!href) return null;
-  return href.replace(/\d[\d,.]*/g, "#");
+  return href.replace(/demo-[a-z0-9-]+/g, "demo-…").replace(/perf-scale-[a-z0-9-]+/g, "perf-scale-…").replace(/\d[\d,.]*/g, "#");
 }
-
-/** (role, name, href) from the ARIA snapshot of main + shell, plus the tabbable list. */
-function controlsOf(record: {
-  aria?: { main?: string | null; shell?: string | null };
-  tabbable?: Array<{ role?: string; name?: string; href?: string | null }>;
-}): Set<string> {
+function normalizeRoute(route: string): string {
+  return route.replace(/demo-[a-z0-9-]+/g, "demo-…").replace(/perf-scale-[a-z0-9-]+/g, "perf-scale-…");
+}
+function controlsOf(record: { aria?: { main?: string | null; shell?: string | null }; tabbable?: Array<{ role?: string; name?: string; href?: string | null; region?: string }> }): Set<string> {
   const out = new Set<string>();
-  for (const yaml of [record.aria?.main ?? "", record.aria?.shell ?? ""]) {
-    const lines = yaml.split("\n");
+  for (const region of ["main", "shell"] as const) {
+    const lines = (record.aria?.[region] ?? "").split("\n");
     for (let i = 0; i < lines.length; i += 1) {
       const m = /^\s*- (link|button|tab|menuitem|checkbox|radio|combobox|textbox|switch|slider|searchbox) "([^"]*)"/.exec(lines[i]);
       if (!m) continue;
       const url = i + 1 < lines.length ? /^\s*- \/url: (.*)$/.exec(lines[i + 1])?.[1]?.trim() ?? null : null;
-      out.add(JSON.stringify([m[1], normalizeLabel(m[2]), normalizeHref(url)]));
+      out.add(JSON.stringify([m[1], normalizeLabel(m[2]), normalizeHref(url), region]));
     }
   }
   for (const t of record.tabbable ?? []) {
     if (!t.role || !t.name) continue;
-    out.add(JSON.stringify([t.role, normalizeLabel(t.name), normalizeHref(t.href)]));
+    out.add(JSON.stringify([t.role, normalizeLabel(t.name), normalizeHref(t.href), t.region ?? "shell"]));
   }
   return out;
 }
-
-function readRecords(build: string, identity: string): Map<string, { route: string; controls: Set<string> }> {
-  const dir = path.join(INVENTORY, build, identity);
-  const out = new Map<string, { route: string; controls: Set<string> }>();
-  if (!existsSync(dir)) return out;
-  for (const file of readdirSync(dir)) {
-    if (!file.endsWith(".json") || file.startsWith("_")) continue;
-    const record = JSON.parse(readFileSync(path.join(dir, file), "utf8"));
-    out.set(file, { route: record.route, controls: controlsOf(record) });
-  }
-  return out;
-}
-
 function describeControl(key: string): string {
-  const [role, name, href] = JSON.parse(key) as [string, string, string | null];
-  return `${role} "${name}"${href ? ` → ${href}` : ""}`;
+  const [role, name, href, region] = JSON.parse(key) as [string, string, string | null, string];
+  return `${role} "${name}"${href ? ` → ${href}` : ""} [${region}]`;
 }
 
-const available = PAIRS.every(([off, on]) => existsSync(path.join(INVENTORY, off, "_summary.json")) && existsSync(path.join(INVENTORY, on, "_summary.json")));
-
-describe("link inventory: flag-on controls ⊇ flag-off controls per route × identity", () => {
-  it("ops/qa/link-removals.json exists and every entry carries route, control, ledgerLine and rulingDate", () => {
+describe(`link inventory guard v2 (${LABEL})`, () => {
+  it("baseline and removals files are well-formed", () => {
+    const baseline = JSON.parse(readFileSync(BASELINE_FILE, "utf8")) as Baseline & { flags: Record<string, string>; build: { commit: string } };
+    expect(baseline.build.commit).toBe("0157d40f");
+    expect(Object.keys(baseline.routes).length).toBeGreaterThan(100);
     const removals = JSON.parse(readFileSync(REMOVALS_FILE, "utf8")) as Removal[];
-    expect(Array.isArray(removals)).toBe(true);
     for (const entry of removals) {
       expect(typeof entry.route).toBe("string");
       expect(typeof entry.control).toBe("string");
@@ -101,44 +84,60 @@ describe("link inventory: flag-on controls ⊇ flag-off controls per route × id
     }
   });
 
-  it.skipIf(!available)(`crawl output present at ${INVENTORY}`, () => {
-    expect(available).toBe(true);
+  it("a server to crawl is configured (LINK_INVENTORY_BASE_URL)", () => {
+    expect(BASE_URL, "LINK_INVENTORY_BASE_URL is not set — the guard crawls a running standalone; use pnpm guard:doors").toMatch(/^https?:\/\//);
   });
 
-  for (const [off, on] of PAIRS) {
-    it.skipIf(!available)(`${off} (flag-off) → ${on} (flag-on): no control disappears without a ruling`, () => {
-      const removals = JSON.parse(readFileSync(REMOVALS_FILE, "utf8")) as Removal[];
-      const allowed = new Set(removals.map((r) => `${r.route}|${r.control}`));
-      // Grouped by (identity, control): one line per lost door with the routes it
-      // vanished from, so a shell-wide rename reads as one line, not one per page.
-      const missingBy = new Map<string, string[]>();
-      let pairs = 0;
-      let occurrences = 0;
-      for (const identity of IDENTITIES) {
-        const left = readRecords(off, identity);
-        const right = readRecords(on, identity);
-        for (const [file, l] of left) {
-          const r = right.get(file);
-          if (!r) continue;
-          pairs += 1;
-          for (const key of l.controls) {
-            if (r.controls.has(key)) continue;
-            const label = describeControl(key);
-            if (allowed.has(`${l.route}|${label}`)) continue;
-            occurrences += 1;
-            const groupKey = `${identity} · ${label}`;
-            missingBy.set(groupKey, [...(missingBy.get(groupKey) ?? []), l.route]);
-          }
+  it(`every production control survives on the crawled build (${LABEL}) unless ruled in ops/qa/link-removals.json`, { timeout: 30 * 60_000 }, () => {
+    expect(BASE_URL).toMatch(/^https?:\/\//);
+    const baseline = JSON.parse(readFileSync(BASELINE_FILE, "utf8")) as Baseline;
+    const removals = JSON.parse(readFileSync(REMOVALS_FILE, "utf8")) as Removal[];
+    // A ruling names the route as its template ("/engagements/[id]/score") or its
+    // normalized instance, and may list several controls separated by " / ".
+    const isRuled = (route: string, template: string | null | undefined, name: string, label: string) =>
+      removals.some((r) => (r.route === route || (template && r.route === template)) && (r.control === label || r.control.split(" / ").map((c) => c.trim()).includes(name)));
+    const out = mkdtempSync(path.join(os.tmpdir(), "link-inventory-"));
+    const tools = process.env.LINK_INVENTORY_TOOLS ?? ROOT; // tabbable + axe-core are devDependencies
+    execFileSync("node", ["--import", "tsx", "scripts/qa/click-inventory.mts"], {
+      cwd: ROOT,
+      env: { ...process.env, BASE: BASE_URL, BUILD: "current", BUILD_DIR: ROOT, OUT: out, TOOLS: tools, IDENTITIES, MAX_DEPTH: "0", BUILD_FLAGS: LABEL },
+      stdio: "pipe",
+      timeout: 25 * 60_000,
+    });
+    // crawled records → per (normalized route, identity) control sets
+    const current = new Map<string, Set<string>>();
+    for (const identity of IDENTITIES.split(",")) {
+      const dir = path.join(out, "current", identity);
+      if (!existsSync(dir)) continue;
+      for (const file of readdirSync(dir)) {
+        if (!file.endsWith(".json") || file.startsWith("_")) continue;
+        const record = JSON.parse(readFileSync(path.join(dir, file), "utf8"));
+        current.set(`${normalizeRoute(record.route)}|${identity}`, controlsOf(record));
+      }
+    }
+    expect(current.size, "the crawl produced no records").toBeGreaterThan(50);
+    const missingBy = new Map<string, string[]>();
+    let compared = 0;
+    for (const [route, byIdentity] of Object.entries(baseline.routes)) {
+      for (const [identity, entry] of Object.entries(byIdentity)) {
+        const cur = current.get(`${route}|${identity}`);
+        if (!cur) continue;
+        compared += 1;
+        for (const c of entry.controls) {
+          const key = JSON.stringify(c);
+          if (cur.has(key)) continue;
+          const label = describeControl(key);
+          if (isRuled(route, (entry as { template?: string | null }).template, c[1], label.replace(/ \[(main|shell)\]$/, ""))) continue;
+          const group = `${route} · ${identity}`;
+          missingBy.set(group, [...(missingBy.get(group) ?? []), label]);
         }
       }
-      expect(pairs).toBeGreaterThan(0);
-      const failures = [...missingBy.entries()]
-        .sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]))
-        .map(([group, routes]) => `${group} — missing on ${routes.length} route(s): ${routes.slice(0, 3).join(", ")}${routes.length > 3 ? ", …" : ""}`);
-      expect(
-        failures,
-        `${missingBy.size} control(s) (${occurrences} route occurrences) present in ${off} but absent in ${on} with no ruling in ops/qa/link-removals.json:\n  ${failures.join("\n  ")}`
-      ).toEqual([]);
-    });
-  }
+    }
+    expect(compared, "no baseline route × identity pair was reachable in the crawl").toBeGreaterThan(50);
+    const lines = [...missingBy.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([group, labels]) => `${group}\n    ${labels.join("\n    ")}`);
+    expect(
+      lines,
+      `${missingBy.size} route × identity pair(s) lost ${[...missingBy.values()].reduce((n, l) => n + l.length, 0)} production control(s) on the ${LABEL} build (${compared} pairs compared) with no ruling in ops/qa/link-removals.json:\n  ${lines.join("\n  ")}`
+    ).toEqual([]);
+  });
 });

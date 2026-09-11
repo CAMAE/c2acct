@@ -87,6 +87,9 @@ const steps = [
   { command: packageManagerCommand, args: ["typecheck"], proofKey: "typecheck" },
   { command: packageManagerCommand, args: ["test:unit"], proofKey: "unit" },
   { command: packageManagerCommand, args: ["build"], proofKey: "build" },
+  // Production-baseline box (2026-09-11): every control production serves must
+  // survive on the built standalone, flags off and flags as Preview.
+  { command: packageManagerCommand, args: ["guard:doors"], proofKey: "guardDoors" },
   { command: packageManagerCommand, args: ["standalone:local:check"] },
   { command: packageManagerCommand, args: ["release:prelaunch"], proofKey: "releasePrelaunch" },
   // AUDIT-D16-001 closer (Day-18 Block 1, option a): always promote

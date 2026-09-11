@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "route": "/engagements/[id]/score",
+    "control": "Open firm PAT / Open vendor PAT / Open individual PAT",
+    "ledgerLine": "score chooser replaced by redirect to workspace, Cam 9/11",
+    "rulingDate": "2026-09-11"
+  }
+]
