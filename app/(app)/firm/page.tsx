@@ -217,6 +217,51 @@ export default async function FirmPage({
   // Elite Insights v2: reached ONLY via the Insights tab toggle (no portal-home
   // card — the v1 duplicate was navigation noise, removed per the v2 verdict §4).
 
+  // R2 (box 2, 2026-09-11): production's card row — context lines, the
+  // surface cards, the Quarterly benchmark link — is one fragment rendered on
+  // both paths. Flag-off it is the whole workspace (unchanged JSX); flag-on it
+  // sits UNDER the dashboard, never instead of it.
+  const cardRow = (
+    <>
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+          {messages.portal.firm.account}: <span className="font-semibold text-[var(--shell-ink)]">{company?.name ?? inviteeAccess?.companyName ?? messages.common.unbound}</span>
+        </div>
+        <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+          {messages.portal.firm.modulesCompleted}: <span className="font-semibold text-[var(--shell-ink)]">{completedModules} / 5</span>
+        </div>
+        <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+          {messages.portal.firm.productReviewLoop}:{" "}
+          <span className="font-semibold text-[var(--shell-ink)]">
+            Opens when vendor product assessment is complete
+          </span>
+        </div>
+      </section>
+
+      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {localizedCards.map((card) => (
+          <PortalSurfaceCard key={card.id} surface={card} />
+        ))}
+      </section>
+
+      {isPingsEnabled() ? (
+        <a
+          href="/firm/benchmark"
+          className="pat-card pat-card-interactive block p-6"
+          data-testid="firm-benchmark-link"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-lg font-semibold text-[var(--shell-ink)]">Quarterly benchmark</div>
+            <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
+          </div>
+          <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
+            Where your firm stands against its cohort this quarter, with the published cutoff date.
+          </p>
+        </a>
+      ) : null}
+    </>
+  );
+
   return (
     <div className="space-y-8">
       <WorkspaceNotice notice={params?.notice} />
@@ -271,46 +316,12 @@ export default async function FirmPage({
       ) : activePanel === "help" ? (
         <FirmHelpInlineContent />
       ) : dashboard ? (
-        <FirmWorkspaceDashboard view={dashboard} />
-      ) : (
         <>
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-              {messages.portal.firm.account}: <span className="font-semibold text-[var(--shell-ink)]">{company?.name ?? inviteeAccess?.companyName ?? messages.common.unbound}</span>
-            </div>
-            <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-              {messages.portal.firm.modulesCompleted}: <span className="font-semibold text-[var(--shell-ink)]">{completedModules} / 5</span>
-            </div>
-            <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-              {messages.portal.firm.productReviewLoop}:{" "}
-              <span className="font-semibold text-[var(--shell-ink)]">
-                Opens when vendor product assessment is complete
-              </span>
-            </div>
-          </section>
-
-          <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {localizedCards.map((card) => (
-              <PortalSurfaceCard key={card.id} surface={card} />
-            ))}
-          </section>
-
-          {isPingsEnabled() ? (
-            <a
-              href="/firm/benchmark"
-              className="pat-card pat-card-interactive block p-6"
-              data-testid="firm-benchmark-link"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div className="text-lg font-semibold text-[var(--shell-ink)]">Quarterly benchmark</div>
-                <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
-              </div>
-              <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
-                Where your firm stands against its cohort this quarter, with the published cutoff date.
-              </p>
-            </a>
-          ) : null}
+          <FirmWorkspaceDashboard view={dashboard} />
+          {cardRow}
         </>
+      ) : (
+        cardRow
       )}
     </div>
   );

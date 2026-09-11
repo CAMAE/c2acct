@@ -3,6 +3,8 @@ import { TRUST_FOOTER_LINKS } from "@/lib/trustContent";
 import type { ReactNode } from "react";
 import { getRequestLocale } from "@/lib/requestLocale";
 import LanguageSelector from "@/app/components/shell/LanguageSelector";
+import SignedInHeaderControls from "@/app/components/shell/SignedInHeaderControls";
+import { getSessionUser } from "@/lib/auth/session";
 
 /**
  * Block 21a — the V7 product-native public shell: the front-door nav (now with the
@@ -14,11 +16,18 @@ import LanguageSelector from "@/app/components/shell/LanguageSelector";
  * longer any app chrome to hide, so the STEP-1 full-bleed escape is gone; this shell
  * is a plain min-h-screen block child of body.pat-shell. The only scoped rule left is
  * the V7 pat-label size (the shared product class is 11px; 12px inside this shell).
+ *
+ * R3 (box 2, 2026-09-11): session-aware. Signed out the nav is byte-for-byte what it
+ * was (Methodology · Trust · language · Sign in). Signed in, the Sign in pill gives
+ * way to the same controls AppShell shows — Ask Pat (consent-gated), the bell
+ * (pings flag), Membership, the navigation menu, Sign out — via
+ * SignedInHeaderControls, so a signed-in user keeps their shell on every public page.
  */
 const borderLt = "rgba(12,33,66,.07)";
 
 export default async function V7PublicShell({ children }: { children: ReactNode }) {
   const currentLocale = await getRequestLocale();
+  const signedIn = !!(await getSessionUser());
 
   return (
     <div className="flex min-h-screen shrink-0 flex-col bg-[#fbfcfe] text-[var(--shell-ink)]" data-testid="v7-public-shell">
@@ -42,9 +51,13 @@ export default async function V7PublicShell({ children }: { children: ReactNode 
             <Link href="/methodology">Methodology</Link>
             <Link href="/trust">Trust</Link>
             <LanguageSelector currentLocale={currentLocale} />
-            <Link href="/sign-in" className="shrink-0 whitespace-nowrap rounded-full bg-[var(--shell-ink)] px-5 py-[11px] font-semibold text-white sm:px-6">
-              Sign in
-            </Link>
+            {signedIn ? (
+              <SignedInHeaderControls />
+            ) : (
+              <Link href="/sign-in" className="shrink-0 whitespace-nowrap rounded-full bg-[var(--shell-ink)] px-5 py-[11px] font-semibold text-white sm:px-6">
+                Sign in
+              </Link>
+            )}
           </div>
         </div>
       </nav>

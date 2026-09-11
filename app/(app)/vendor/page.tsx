@@ -141,6 +141,53 @@ export default async function VendorPage({
       ? await getVendorWorkspaceDashboard(vendorContext.company.id, sessionUser?.id ?? null)
       : null;
   const todayLabel = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  // R2 (box 2, 2026-09-11): production's card row — the surface cards, the
+  // Review refresh link, the current vendor context — is one fragment rendered
+  // on both paths. Flag-off it is the whole workspace (unchanged JSX); flag-on
+  // it sits UNDER the dashboard, never instead of it.
+  const cardRow = (
+    <>
+      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {localizedCards.map((card) => (
+          <PortalSurfaceCard key={card.id} surface={card} />
+        ))}
+      </section>
+
+      {isPingsEnabled() ? (
+        <a
+          href="/vendor/review-refresh"
+          className="pat-card pat-card-interactive block p-6"
+          data-testid="vendor-review-refresh-link"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-lg font-semibold text-[var(--shell-ink)]">Review refresh</div>
+            <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
+          </div>
+          <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
+            How current the firm reviews of your products are — and which are entering their refresh window.
+          </p>
+        </a>
+      ) : null}
+
+      {/* P3 (Mythos punch list): "Products at a glance" strip removed —
+          product intelligence lives on the product-insight surfaces. */}
+
+      <section className="pat-card p-6">
+        <div className="pat-label">{messages.portal.vendor.currentVendorContext}</div>
+        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+            {messages.portal.vendor.account}: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser?.email ?? inviteeAccess?.label ?? messages.common.notSignedIn}</span>
+          </div>
+          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+            {messages.portal.vendor.vendorCompany}: <span className="font-semibold text-[var(--shell-ink)]">{vendorContext.company?.name ?? messages.common.unbound}</span>
+          </div>
+          <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
+            {messages.portal.vendor.products}: <span className="font-semibold text-[var(--shell-ink)]">{vendorContext.products.length}</span>
+          </div>
+        </div>
+      </section>
+    </>
+  );
   return (
     <div className="space-y-8">
       <WorkspaceNotice notice={params?.notice} />
@@ -194,49 +241,12 @@ export default async function VendorPage({
       ) : activePanel === "help" ? (
         <VendorHelpInlineContent />
       ) : dashboard ? (
-        <VendorWorkspaceDashboard view={dashboard} />
-      ) : (
         <>
-          <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {localizedCards.map((card) => (
-              <PortalSurfaceCard key={card.id} surface={card} />
-            ))}
-          </section>
-
-          {isPingsEnabled() ? (
-            <a
-              href="/vendor/review-refresh"
-              className="pat-card pat-card-interactive block p-6"
-              data-testid="vendor-review-refresh-link"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div className="text-lg font-semibold text-[var(--shell-ink)]">Review refresh</div>
-                <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
-              </div>
-              <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
-                How current the firm reviews of your products are — and which are entering their refresh window.
-              </p>
-            </a>
-          ) : null}
-
-          {/* P3 (Mythos punch list): "Products at a glance" strip removed —
-              product intelligence lives on the product-insight surfaces. */}
-
-          <section className="pat-card p-6">
-            <div className="pat-label">{messages.portal.vendor.currentVendorContext}</div>
-            <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-                {messages.portal.vendor.account}: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser?.email ?? inviteeAccess?.label ?? messages.common.notSignedIn}</span>
-              </div>
-              <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-                {messages.portal.vendor.vendorCompany}: <span className="font-semibold text-[var(--shell-ink)]">{vendorContext.company?.name ?? messages.common.unbound}</span>
-              </div>
-              <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]">
-                {messages.portal.vendor.products}: <span className="font-semibold text-[var(--shell-ink)]">{vendorContext.products.length}</span>
-              </div>
-            </div>
-          </section>
+          <VendorWorkspaceDashboard view={dashboard} />
+          {cardRow}
         </>
+      ) : (
+        cardRow
       )}
     </div>
   );

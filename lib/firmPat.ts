@@ -1436,6 +1436,22 @@ export const FIRM_HELP_CARDS = [
     how: "Use it as the firm-side map to each PAT surface.",
     href: "/firm/help",
   },
+  // R16 (box 2, 2026-09-11): the two surfaces the help panel never listed.
+  // Rendered flag-on only, each behind the same flag as its workspace entry.
+  {
+    title: "Alignment Sandbox",
+    what: "Your product stack as interactive pieces, with the projected firm alignment recomputing as you swap candidates in.",
+    why: "It shows which alternative closes your largest gap before anyone commits to a change.",
+    how: "Lift a piece from your stack, drop in a candidate, and read the projected shape; Elite reveals candidate names.",
+    href: "/firm/alignment-board",
+  },
+  {
+    title: "Quarterly benchmark",
+    what: "Where your firm stands against its cohort this quarter, with the published cutoff date.",
+    why: "It turns your alignment index into a position you can act on, refreshed on a known schedule.",
+    how: "Open the benchmark, read your band and peer position, and request a refresh when your evidence has moved.",
+    href: "/firm/benchmark",
+  },
 ] as const;
 
 export type FirmUserInsightRecord = {

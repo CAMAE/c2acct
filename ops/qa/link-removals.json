@@ -4,5 +4,29 @@
     "control": "Open firm PAT / Open vendor PAT / Open individual PAT",
     "ledgerLine": "score chooser replaced by redirect to workspace, Cam 9/11",
     "rulingDate": "2026-09-11"
+  },
+  {
+    "route": "/survey/firm_alignment_strategy_v1",
+    "control": "Describe the concrete signal or condition you would look for. / Describe the priority and where execution breaks down. / Explain the pressure and how it is changing current decisions. / Focus on the risk with the highest near-term consequence. / Name the point in the change cycle where momentum usually drops.",
+    "ledgerLine": "R20: the five follow-ups are multiple choice by design (Leslie's options 9/4, verbatim with a 'something else' box); the written textareas leave under PAT_ENABLE_FOLLOWUP_MC. Cam, box 2 DOORS, 9/11",
+    "rulingDate": "2026-09-11"
+  },
+  {
+    "route": "/firm/admin",
+    "control": "Payment details",
+    "ledgerLine": "textarea 'Payment details' -> billing contact fields (rename). Cam, box 2 DOORS, 9/11",
+    "rulingDate": "2026-09-11"
+  },
+  {
+    "route": "/vendor/admin",
+    "control": "Payment details",
+    "ledgerLine": "textarea 'Payment details' -> billing contact fields (rename). Cam, box 2 DOORS, 9/11",
+    "rulingDate": "2026-09-11"
+  },
+  {
+    "route": "/vendor/profile",
+    "control": "Payment details",
+    "ledgerLine": "textarea 'Payment details' -> billing contact fields (rename). Cam, box 2 DOORS, 9/11",
+    "rulingDate": "2026-09-11"
   }
 ]

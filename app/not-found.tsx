@@ -1,11 +1,16 @@
 import Link from "next/link";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import V7PublicShell from "@/app/components/frontdoor/V7PublicShell";
+import AppShell from "@/app/components/shell/AppShell";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 
 /**
  * B8-4: branded light-theme 404, replacing Next's dark default. PAT header
  * lockup + plain-language copy + links back to sign-in and each portal home.
+ *
+ * R4 (box 2, 2026-09-11): the 404 renders inside the shell in BOTH flag modes —
+ * V7PublicShell flag-on (since 48bbae69), AppShell flag-off (this box). The root
+ * not-found boundary sits above the route-group layouts, so it wraps itself.
  */
 export default function NotFound() {
   const destinations: { href: string; label: string; hint: string }[] = [
@@ -43,7 +48,8 @@ export default function NotFound() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[var(--shell-bg)] px-6 py-16 text-[var(--shell-ink)]">
+    <AppShell>
+    <div className="flex flex-1 items-center justify-center bg-[var(--shell-bg)] px-6 py-16 text-[var(--shell-ink)]">
       <div className="w-full max-w-xl">
         <PatLogoLockup mode="hero" tone="light" />
         <p className="mt-10 text-sm font-medium uppercase tracking-[0.14em] text-[var(--shell-muted)]">
@@ -69,6 +75,7 @@ export default function NotFound() {
           ))}
         </nav>
       </div>
-    </main>
+    </div>
+    </AppShell>
   );
 }

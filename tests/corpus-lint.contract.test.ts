@@ -144,7 +144,7 @@ describe("financial claims, prices, competitors, roadmap tone, AI marketing", ()
 
 describe("near-duplicate gate", () => {
   const base =
-    "The BattleCard ranks the firms in your ecosystem by how well your product fits them, using firm-reviewed evidence where it exists. Alignment delta is the core metric.";
+    "The Product Fit Card ranks the firms in your ecosystem by how well your product fits them, using firm-reviewed evidence where it exists. Alignment delta is the core metric.";
 
   it("flags a copy-paste-and-edit duplicate", () => {
     const pairs = lintNearDuplicates([

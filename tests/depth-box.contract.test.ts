@@ -67,9 +67,13 @@ describe("3 — locked pages (flag-on)", () => {
     expect(veil).toContain("blur-[3px]");
     expect(veil).toContain("bg-white/60");
     expect(veil).toContain("Upgrade to Elite");
+    // R1 (box 2, 2026-09-11): the board veil is reversed — Pro gets the
+    // playable teaser board with the board flag on (production's value), the
+    // membership gate with it off. The vendor Product Fit Card veil stands.
     const board = read("app/(app)/firm/alignment-board/page.tsx");
-    expect(board).toMatch(/!entitlement\.allowed && isNewFrontDoorEnabled\(\)[\s\S]{0,400}<LockedSurfaceVeil/);
-    expect(board).toContain("price={`${BOARD_PRICE_BAND} · Firm Elite`}");
+    expect(board).not.toContain("LockedSurfaceVeil");
+    expect(board).not.toContain("isNewFrontDoorEnabled");
+    expect(board).toMatch(/if \(!entitlement\.allowed\) \{[\s\S]{0,200}<MembershipSurfaceGate/);
     const card = read("app/(app)/vendor/battlecard/page.tsx");
     expect(card).toMatch(/!entitlement\.allowed && isNewFrontDoorEnabled\(\)[\s\S]{0,400}<LockedSurfaceVeil/);
     expect(card).toContain('price="Ecosystem license · contact us"');

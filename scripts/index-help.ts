@@ -220,18 +220,18 @@ export const HELP_ARTICLES: HelpArticle[] = [
     body: "The recommendation engine sequences prioritized next actions across 30, 60, and 90-day windows, ranked by how strongly your firm-reviewed evidence points to each. Recommendations are grounded in your own gaps, not generic advice, and carry a confidence band based on how much alignment evidence you have completed.",
   },
 
-  // ---- Vendor Elite Insights + BattleCard ----
+  // ---- Vendor Elite Insights + Product Fit Card ----
   {
     path: "help/vendor/battlecard-secret-firms.md",
-    title: "How do I unlock Secret Firms on the BattleCard?",
+    title: "How do I unlock Secret Firms on the Product Fit Card?",
     roleAccess: ["vendor"],
-    body: "On the vendor BattleCard, the firms that best fit your product are ranked by alignment fit. With Pro membership those firms are shown anonymized as 'Secret Firm 1', 'Secret Firm 2', and so on — you can see the fit and the ranking, but not who they are. Upgrading to Elite membership reveals the real firm names next to each ranked fit, so you can act on the match. To unlock Secret Firms, move from Pro to Elite on your vendor membership page; the ranking itself is the same, Elite simply names the firms.",
+    body: "On the vendor Product Fit Card, the firms that best fit your product are ranked by alignment fit. With Pro membership those firms are shown anonymized as 'Secret Firm 1', 'Secret Firm 2', and so on — you can see the fit and the ranking, but not who they are. Upgrading to Elite membership reveals the real firm names next to each ranked fit, so you can act on the match. To unlock Secret Firms, move from Pro to Elite on your vendor membership page; the ranking itself is the same, Elite simply names the firms.",
   },
   {
     path: "help/vendor/battlecard.md",
-    title: "Vendor BattleCard",
+    title: "Vendor Product Fit Card",
     roleAccess: ["vendor"],
-    body: "The BattleCard ranks the firms in your ecosystem by how well your product fits them, using firm-reviewed evidence where it exists. Alignment delta is the core metric on the BattleCard: it is how much your product's strengths sit above a firm's current alignment — the headroom you could lift them. Firms with the most headroom (the highest alignment delta) rank first. A large positive alignment delta is a Strong fit; a smaller positive delta is a Good fit; a delta at or below the firm's own alignment is a Weak fit. Deltas stay directional while a firm's review sample is still thin. Filter by fit tier (Strong, Good, Weak), open a firm to see the per-module gap table and headroom, and review the ranked next actions. Pro shows firms anonymized as Secret Firms; Elite names them. Find it at /vendor/battlecard.",
+    body: "The Product Fit Card ranks the firms in your ecosystem by how well your product fits them, using firm-reviewed evidence where it exists. Alignment delta is the core metric on the Product Fit Card: it is how much your product's strengths sit above a firm's current alignment — the headroom you could lift them. Firms with the most headroom (the highest alignment delta) rank first. A large positive alignment delta is a Strong fit; a smaller positive delta is a Good fit; a delta at or below the firm's own alignment is a Weak fit. Deltas stay directional while a firm's review sample is still thin. Filter by fit tier (Strong, Good, Weak), open a firm to see the per-module gap table and headroom, and review the ranked next actions. Pro shows firms anonymized as Secret Firms; Elite names them. Find it at /vendor/battlecard.",
   },
   {
     path: "help/vendor/elite-insights.md",
@@ -261,7 +261,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     path: "help/vendor/membership.md",
     title: "Vendor membership and upgrading",
     roleAccess: ["vendor"],
-    body: "Your vendor membership controls what opens: Pro unlocks the current-state alignment and product insight catalog and the anonymized BattleCard; Elite adds the Elite Insights and reveals Secret Firm names on the BattleCard. Manage or upgrade your plan at /vendor/membership.",
+    body: "Your vendor membership controls what opens: Pro unlocks the current-state alignment and product insight catalog and the anonymized Product Fit Card; Elite adds the Elite Insights and reveals Secret Firm names on the Product Fit Card. Manage or upgrade your plan at /vendor/membership.",
   },
 
   // ---- Consultant ----

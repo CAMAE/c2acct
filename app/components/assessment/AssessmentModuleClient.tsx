@@ -26,6 +26,10 @@ import {
 
 type Props = {
   moduleKey: string;
+  /** R4 (box 2, 2026-09-11): flag-on, the one-page firm modules keep production's
+   *  exits — "Review current results" and "Open assessment help" — beside
+   *  "Back to readiness". Flag-off (false) the one-page header is unchanged. */
+  surveyExits?: boolean;
 };
 
 type VisiblePageSection = {
@@ -417,7 +421,7 @@ function renderQuestionInput(
   );
 }
 
-export default function AssessmentModuleClient({ moduleKey }: Props) {
+export default function AssessmentModuleClient({ moduleKey, surveyExits = false }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -893,6 +897,16 @@ export default function AssessmentModuleClient({ moduleKey }: Props) {
             <Link href={assessmentLandingHref} className="hover:text-[var(--shell-accent-strong)]">
               Back to readiness
             </Link>
+            {surveyExits ? (
+              <>
+                <Link href={resultsLandingHref} className="hover:text-[var(--shell-accent-strong)]">
+                  Review current results
+                </Link>
+                <Link href="/survey/help" className="hover:text-[var(--shell-accent-strong)]">
+                  Open assessment help
+                </Link>
+              </>
+            ) : null}
           </div>
         ) : (
         <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">

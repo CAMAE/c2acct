@@ -4,6 +4,7 @@ import AssessmentModuleClient from "@/app/components/assessment/AssessmentModule
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { buildCanonicalSignInPath } from "@/lib/auth/routes";
 import { getSessionUser } from "@/lib/auth/session";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import { ensureFirmAlignmentSystem } from "@/lib/firmPat";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { USER_ALIGNMENT_MODULE_KEY, ensureUserAlignmentSystem } from "@/lib/userPat";
@@ -77,7 +78,7 @@ export default async function SurveyModulePage({
   return (
     <>
       <EnsureCompanySelected />
-      <AssessmentModuleClient moduleKey={key} />
+      <AssessmentModuleClient moduleKey={key} surveyExits={isNewFrontDoorEnabled()} />
     </>
   );
 }

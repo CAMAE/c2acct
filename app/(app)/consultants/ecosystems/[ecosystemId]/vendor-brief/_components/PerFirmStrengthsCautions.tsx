@@ -86,7 +86,7 @@ function actionTitleFromData(
   firmCards: FirmCardData[]
 ): string {
   if (firmCards.length === 0 || firmCards.every((card) => !card.hasAnySignal)) {
-    return `Awaiting capability response from firms to surface per-firm battlecards.`;
+    return `Awaiting capability response from firms to surface per-firm Product Fit Cards.`;
   }
   const hotDivergenceFirmCount = firmCards.filter(
     (card) => card.hotDivergenceRows.length > 0
@@ -447,7 +447,7 @@ function FirmCard({
             {card.firmName} &mdash; capability responses pending.
           </p>
           <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-            Per-firm battlecard unlocks once {card.firmName} completes the round-one capability review.
+            Per-firm Product Fit Card unlocks once {card.firmName} completes the round-one capability review.
           </p>
         </div>
       )}
@@ -495,7 +495,7 @@ export default function PerFirmStrengthsCautions({
       </h2>
 
       <p className="mt-3 text-sm text-[var(--shell-muted)]">
-        Battlecard view per firm. Why fit · where struggle · questions to ask · quick disqualifiers.
+        Product Fit Card view per firm. Why fit · where struggle · questions to ask · quick disqualifiers.
       </p>
 
       {firmCards.length === 0 ? (
@@ -504,7 +504,7 @@ export default function PerFirmStrengthsCautions({
             className="text-base font-semibold leading-snug text-[var(--shell-ink)]"
             data-testid="strengths-cautions-empty"
           >
-            Awaiting firm assignments to populate per-firm battlecards.
+            Awaiting firm assignments to populate per-firm Product Fit Cards.
           </div>
           <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
             This section populates once at least one firm is on file for this ecosystem.

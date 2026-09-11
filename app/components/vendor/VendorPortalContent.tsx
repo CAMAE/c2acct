@@ -2,6 +2,8 @@ import Link from "next/link";
 import AskPatCard from "@/app/components/help/AskPatCard";
 import HelpArticleLink from "@/app/components/help/HelpArticleLink";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
+import { isBattleCardEnabled } from "@/lib/battleCard";
+import { isPingsEnabled } from "@/lib/patAssistant/flags";
 import MeetPatContent from "@/app/components/pat/MeetPatContent";
 import type { PortalSurface } from "@/lib/portalVisibility";
 
@@ -46,6 +48,8 @@ export const vendorWorkspaceCards: PortalSurface[] = [
   },
 ];
 
+type VendorHelpCard = { title: string; what: string; where: string; why: string; how: string; href: string };
+
 export const vendorHelpCards = [
   {
     title: "Product Assessment",
@@ -70,6 +74,27 @@ export const vendorHelpCards = [
     why: "This connects vendor decision support back to actual firm assessment signal.",
     how: "Open the insight group, then inspect each detail page for what, why, and how to use it.",
     href: "/vendor/alignment-insights",
+  },
+] as const;
+
+// R16 (box 2, 2026-09-11): the two surfaces the help panel never listed.
+// Rendered flag-on only, each behind the same flag as its workspace entry.
+export const vendorHelpCardsFlagOn = [
+  {
+    title: "Product Fit Card",
+    what: "The firms in your ecosystem ranked by fit, with the alignment gap each of your product strengths closes.",
+    where: "Routes to the Product Fit Card, one ranked firm at a time, with a brief behind each.",
+    why: "It shows where your product lands first, on firm-reviewed evidence rather than a pitch.",
+    how: "Open a firm, read why it fits and where it struggles; Elite reveals the Secret Firm names.",
+    href: "/vendor/battlecard",
+  },
+  {
+    title: "Review refresh",
+    what: "How current the firm reviews of your products are, and which are entering their refresh window.",
+    where: "Routes to the review refresh list, one row per product with its freshness.",
+    why: "Stale reviews weaken your firm-reviewed signal; the window tells you when to ask.",
+    how: "Open the list, find the products entering their window, and request a refresh from the firms that reviewed them.",
+    href: "/vendor/review-refresh",
   },
 ] as const;
 
@@ -145,7 +170,7 @@ export function VendorAdminInlineContent() {
   );
 }
 
-function renderVendorHelpCard(card: (typeof vendorHelpCards)[number]) {
+function renderVendorHelpCard(card: VendorHelpCard) {
   return (
     <div key={card.title} className="pat-card p-6">
       <div className="text-xl font-semibold text-[var(--shell-ink)]">{card.title}</div>
@@ -177,9 +202,19 @@ export function VendorHelpInlineContent({
     topic === "product-assessment"
       ? vendorHelpCards.find((card) => card.title === "Product Assessment")
       : undefined;
-  const visibleCards = scopedCard ? [scopedCard] : vendorHelpCards;
+  const panelCards = [
+    ...vendorHelpCards,
+    ...(isNewFrontDoorEnabled()
+      ? vendorHelpCardsFlagOn.filter(
+          (card) =>
+            (card.title !== "Product Fit Card" || isBattleCardEnabled()) &&
+            (card.title !== "Review refresh" || isPingsEnabled())
+        )
+      : []),
+  ];
+  const visibleCards = scopedCard ? [scopedCard] : panelCards;
   const supportingCards = scopedCard
-    ? vendorHelpCards.filter((card) => card.title !== scopedCard.title)
+    ? panelCards.filter((card) => card.title !== scopedCard.title)
     : [];
   const assessmentHref = productId ? `/vendor/product-assessment/${productId}` : "/vendor/product-assessment";
 

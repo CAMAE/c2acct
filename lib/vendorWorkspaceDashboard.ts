@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import { quarterCutoff } from "@/lib/consultantFreshness";
 import { getVendorCompanyContext } from "@/lib/vendorPat";
-import { getVendorProductInsightCatalog, type VendorProductInsightSnapshot } from "@/lib/vendorProductInsightEngine";
+import { buildVendorProductGapCallout, getVendorProductInsightCatalog, type VendorProductInsightSnapshot } from "@/lib/vendorProductInsightEngine";
 
 /**
  * Depth box 1 (2026-09-09): the vendor workspace home is the vendor's
@@ -19,7 +19,21 @@ export type VendorWorkspaceDashboard = {
   nextBriefing: { dateLabel: string; firmsReviewing: number };
   latestReadout: { productId: string; productName: string; firmReviews: number; selfReported: number | null; firmReviewed: number | null; href: string } | null;
   sinceLastVisit: { sinceLabel: string | null; firmReviewsReceived: number; readoutsRefreshed: number };
-  products: { id: string; name: string; final: boolean; firmReviews: number; divergenceLabel: string }[];
+  /** R19 (box 2, 2026-09-11): per product, the same signal the Product
+   *  Intelligence catalog card shows — self-reported vs firm-reviewed scores
+   *  (0-100, null when absent) and the divergence chip label/tone. */
+  products: {
+    id: string;
+    name: string;
+    final: boolean;
+    firmReviews: number;
+    divergenceLabel: string;
+    selfReported: number | null;
+    firmReviewed: number | null;
+    divergencePoints: number | null;
+    divergenceTone: "positive" | "amber" | "muted";
+    gapLabel: string | null;
+  }[];
 };
 
 export async function getVendorWorkspaceDashboard(companyId: string, userId: string | null, now = new Date()): Promise<VendorWorkspaceDashboard> {
@@ -31,12 +45,19 @@ export async function getVendorWorkspaceDashboard(companyId: string, userId: str
   const byProduct = new Map(catalog.map((snapshot) => [snapshot.product.id, snapshot]));
   const products = context.products.map((product) => {
     const snapshot = byProduct.get(product.id);
+    const points = snapshot && snapshot.divergence.points !== null ? Math.round(snapshot.divergence.points) : null;
+    const hot = !!snapshot && points !== null && !snapshot.divergence.belowFloor && Math.abs(points) >= 10;
     return {
       id: product.id,
       name: product.name,
       final: snapshot?.vendorAssessmentStatus.completed ?? false,
       firmReviews: snapshot?.firmReviewed.assessmentCount ?? 0,
       divergenceLabel: snapshot?.divergence.label ?? "No firm reviews yet",
+      selfReported: snapshot?.vendorSelfReported.latestScore ?? null,
+      firmReviewed: snapshot?.firmReviewed.averageScore ?? null,
+      divergencePoints: points,
+      divergenceTone: (points === null ? "muted" : hot ? "amber" : "positive") as "positive" | "amber" | "muted",
+      gapLabel: snapshot ? buildVendorProductGapCallout(snapshot).magnitudeLabel : null,
     };
   });
   const divergences = catalog

@@ -9,7 +9,7 @@ import type { ProductStatusRow } from "@/app/components/products/ProductStatusSt
  * to the top; ties keep the list's own order.
  */
 type VendorEntry = {
-  product: { id: string; name: string; vendorName: string };
+  product: { id: string; name: string; vendorName: string; website?: string | null };
   status: { completed: boolean; latestSubmissionId: string | null; latestSubmittedAt: Date | null; utilityKeys: string[] };
 };
 
@@ -18,6 +18,18 @@ function divergenceChip(snapshot: VendorProductInsightSnapshot | undefined): Pro
   const points = Math.round(snapshot.divergence.points);
   const hot = !snapshot.divergence.belowFloor && Math.abs(points) >= 10;
   return { label: snapshot.divergence.label, tone: hot ? "amber" : "positive", points };
+}
+
+// R5 (box 2, 2026-09-11): the product's own URL, http/https only — the same
+// rule production's ProductAssessmentCard applies before its "Product URL" link.
+function productUrlFrom(website: string | null | undefined): string | null {
+  if (!website) return null;
+  try {
+    const parsed = new URL(website);
+    return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.toString() : null;
+  } catch {
+    return null;
+  }
 }
 
 function latest(...dates: (Date | null | undefined)[]): Date | null {
@@ -38,6 +50,7 @@ export async function buildVendorProductStatusRows(vendorCompanyId: string, entr
       id: entry.product.id,
       name: entry.product.name,
       vendorName: entry.product.vendorName,
+      productUrl: productUrlFrom(entry.product.website),
       href: `/vendor/product-assessment/${entry.product.id}`,
       ctaLabel: entry.status.completed ? "Open assessment" : "Continue assessment",
       statusLabel: entry.status.completed ? "Final" : entry.status.latestSubmissionId ? "In progress" : entry.status.utilityKeys.length ? "Ready" : "Needs features",
@@ -76,6 +89,7 @@ export async function buildFirmProductStatusRows(products: FirmProductCatalogIte
       id: product.id,
       name: product.name,
       vendorName: product.vendorName,
+      productUrl: null,
       href: `/firm/product-assessments/${product.id}`,
       ctaLabel: reviewed ? "Open review" : product.reviewAvailable ? "Start review" : "View",
       statusLabel: product.firmReviewStatusLabel,

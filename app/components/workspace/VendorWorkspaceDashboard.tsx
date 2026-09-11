@@ -1,4 +1,6 @@
 import Link from "next/link";
+import CardChip from "@/app/components/cards/CardChip";
+import DivergenceBar from "@/app/components/charts/DivergenceBar";
 import ScoreLockup from "@/app/components/charts/ScoreLockup";
 import type { VendorWorkspaceDashboard as Data } from "@/lib/vendorWorkspaceDashboard";
 
@@ -76,17 +78,47 @@ export default function VendorWorkspaceDashboard({ view }: { view: Data }) {
               <span className="mt-4 inline-flex text-sm font-semibold text-[var(--brand-c2-blue)]">Open readout →</span>
             </Link>
           ) : null}
-          <div className="pat-card p-6">
+          <div className="pat-card p-6" data-testid="workspace-products">
             <div className="pat-label">Products</div>
-            <ul className="mt-3 grid gap-2 text-sm">
+            {/* R19 (box 2, 2026-09-11): each product carries the Product
+                Intelligence pieces — self-reported vs firm-reviewed bars and
+                the divergence chip (DivergenceBar, CardChip); the name keeps
+                its row (no wrap); the row opens the product's intelligence
+                page; the assessment stays behind "Manage products". */}
+            <ul className="mt-3 grid gap-4 text-sm">
               {view.products.map((product) => (
-                <li key={product.id} className="flex flex-wrap items-center justify-between gap-2">
-                  <Link href={`/vendor/product-insight/${product.id}`} className="font-semibold text-[var(--shell-ink)] hover:underline">
-                    {product.name}
-                  </Link>
-                  <span className="pat-meta text-[var(--shell-muted)]">
-                    {product.final ? "final" : "in progress"} · <span className="pat-mono">{product.firmReviews}</span> review{product.firmReviews === 1 ? "" : "s"} · {product.divergenceLabel}
-                  </span>
+                <li key={product.id} className="border-t border-[var(--shell-border)] pt-3 first:border-t-0 first:pt-0" data-testid="workspace-product">
+                  <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                    <Link
+                      href={`/vendor/product-insight/${product.id}`}
+                      className="whitespace-nowrap font-semibold text-[var(--shell-ink)] hover:underline"
+                    >
+                      {product.name}
+                    </Link>
+                    <span className="pat-meta flex flex-wrap items-center gap-2 text-[var(--shell-muted)]">
+                      <span>
+                        {product.final ? "final" : "in progress"} · <span className="pat-mono">{product.firmReviews}</span> review{product.firmReviews === 1 ? "" : "s"}
+                      </span>
+                      <CardChip tone={product.divergenceTone}>
+                        {product.divergencePoints !== null ? `${product.divergencePoints} pt · ` : ""}
+                        {product.divergenceLabel}
+                      </CardChip>
+                    </span>
+                  </div>
+                  {product.selfReported !== null && product.firmReviewed !== null ? (
+                    <div className="mt-2">
+                      <DivergenceBar
+                        title={`${product.name}: vendor self-reported vs firm-reviewed signal`}
+                        a={{ label: "Vendor self-reported", value: product.selfReported }}
+                        b={{ label: "Firm-reviewed", value: product.firmReviewed }}
+                        gapLabel={product.gapLabel ?? undefined}
+                      />
+                    </div>
+                  ) : product.selfReported !== null ? (
+                    <p className="pat-meta mt-2 text-[var(--shell-muted)]">
+                      <span className="pat-mono text-[var(--shell-ink)]">{Math.round(product.selfReported)}%</span> self-reported · no firm-reviewed signal yet
+                    </p>
+                  ) : null}
                 </li>
               ))}
             </ul>

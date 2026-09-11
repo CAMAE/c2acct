@@ -68,7 +68,7 @@ export default function FirmBriefHelpContent() {
           </h3>
           <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
             The Stack fit table feeds the vendor brief&apos;s Section 4
-            (Strengths / cautions) per-firm battlecard for this firm. The
+            (Strengths / cautions) per-firm Product Fit Card for this firm. The
             6-quarter roadmap will pull from the vendor brief&apos;s Action
             Roadmap once the rebuild lands (AUDIT-WS11-001); for now the roadmap
             is populated by the deterministic builder in lib/firmBriefs.ts.

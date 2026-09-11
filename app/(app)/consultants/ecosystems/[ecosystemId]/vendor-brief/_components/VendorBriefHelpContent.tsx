@@ -27,7 +27,7 @@ export default function VendorBriefHelpContent() {
             is over-claiming), followed by the per-product paired bars for the
             granular drill-down.{" "}
             <span className="font-semibold">Strengths / cautions</span> — per-firm
-            battlecards.{" "}
+            Product Fit Cards.{" "}
             <span className="font-semibold">Product comparison</span> — the
             full scoreboard plus the per-firm coverage heatmap.{" "}
             <span className="font-semibold">Action roadmap</span> — vendor-actionable

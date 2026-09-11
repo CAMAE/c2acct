@@ -5,6 +5,8 @@ import { FIRM_HELP_CARDS } from "@/lib/firmPat";
 import AskPatCard from "@/app/components/help/AskPatCard";
 import HelpArticleLink from "@/app/components/help/HelpArticleLink";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
+import { isAlignmentBoardEnabled } from "@/lib/alignmentBoard";
+import { isPingsEnabled } from "@/lib/patAssistant/flags";
 
 export const firmWorkspaceCards: PortalSurface[] = [
   {
@@ -162,7 +164,19 @@ export function FirmHelpInlineContent({
   productId,
   productName,
 }: FirmHelpInlineContentProps = {}) {
-  const workspaceHelpCards = FIRM_HELP_CARDS.slice(0, 3);
+  // R16 (box 2, 2026-09-11): flag-on the panel also lists the Alignment
+  // Sandbox (board flag) and the Quarterly benchmark (pings flag); flag-off
+  // the three-card panel is unchanged.
+  const workspaceHelpCards = [
+    ...FIRM_HELP_CARDS.slice(0, 3),
+    ...(isNewFrontDoorEnabled()
+      ? FIRM_HELP_CARDS.slice(5).filter(
+          (card) =>
+            (card.title !== "Alignment Sandbox" || isAlignmentBoardEnabled()) &&
+            (card.title !== "Quarterly benchmark" || isPingsEnabled())
+        )
+      : []),
+  ];
   const scopedCard =
     topic === "product-assessment"
       ? workspaceHelpCards.find((card) => card.title === "Product Assessments")

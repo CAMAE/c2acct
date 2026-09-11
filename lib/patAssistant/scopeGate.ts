@@ -119,7 +119,7 @@ const OUT_OF_SCOPE_SIGNALS: ReadonlyArray<{ id: string; pattern: RegExp }> = [
  * Python script" is a real question about the product.
  */
 const IN_SCOPE_SIGNALS: RegExp =
-  /\b(patalign|pat\b|alignment|assessment|module|benchmark|vendor|firm|insight|battlecard|battle card|membership|elite|pro\b|score|scoring|board|product|ecosystem|consultant|survey|question bank|percentile|cohort|taxonomy|onboarding|sign[- ]?in|dashboard|portal|subscription|invoice|upgrade|downgrade|gap map|demand signal|category position)\b/i;
+  /\b(patalign|pat\b|alignment|assessment|module|benchmark|vendor|firm|insight|battlecard|battle card|product fit card|membership|elite|pro\b|score|scoring|board|product|ecosystem|consultant|survey|question bank|percentile|cohort|taxonomy|onboarding|sign[- ]?in|dashboard|portal|subscription|invoice|upgrade|downgrade|gap map|demand signal|category position)\b/i;
 
 /** The deterministic classifier. Pure, exported, and the reference behaviour. */
 export function classifyScopeByKeyword(question: string): ScopeVerdict {
