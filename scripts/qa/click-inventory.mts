@@ -170,12 +170,23 @@ async function inspect(page: Page, url: string) {
       try { name = w.axe?.commons?.text?.accessibleText(el) ?? ""; } catch { name = ""; }
       if (!name) name = (el.getAttribute("aria-label") ?? el.getAttribute("title") ?? (el as HTMLElement).innerText ?? "").trim().replace(/\s+/g, " ").slice(0, 120);
       if (!name) name = (el.querySelector("img[alt]")?.getAttribute("alt") ?? el.querySelector("svg title")?.textContent ?? "").trim().slice(0, 120);
+      // v3 (box 1b item 2): form fields keyed by their <label> / aria-labelledby text when the
+      // accessible name is empty, so relabeled or dropped inputs are visible in the record.
+      let label: string | null = null;
+      if (/^(input|textarea|select)$/.test(tag)) {
+        const byId = el.id ? document.querySelector<HTMLElement>(`label[for="${CSS.escape(el.id)}"]`) : null;
+        const byLabelledby = el.getAttribute("aria-labelledby") ? document.getElementById(el.getAttribute("aria-labelledby")!) : null;
+        const wrapping = el.closest("label");
+        label = (byId?.textContent ?? byLabelledby?.textContent ?? wrapping?.textContent ?? el.getAttribute("placeholder") ?? "").trim().replace(/\s+/g, " ").slice(0, 120) || null;
+        if (!name && label) name = label;
+      }
       const href = el.getAttribute("href");
       const testid = el.getAttribute("data-testid");
       const region = el.closest("main") ? "main" : "shell";
       const disabled = (el as HTMLButtonElement).disabled === true || el.getAttribute("aria-disabled") === "true";
       const locked = Boolean(el.closest('[data-locked="true"], [data-locked], [aria-disabled="true"]')) && !disabled;
-      return { index, tag, role, name: name.slice(0, 160), href: href ?? undefined, testid: testid ?? undefined, region, state: disabled ? "disabled" : locked ? "locked" : "enabled" };
+      const fieldType = tag === "input" ? (el as HTMLInputElement).type : /^(textarea|select)$/.test(tag) ? tag : undefined;
+      return { index, tag, role, name: name.slice(0, 160), href: href ?? undefined, testid: testid ?? undefined, region, state: disabled ? "disabled" : locked ? "locked" : "enabled", ...(fieldType ? { field: { type: fieldType, label, fieldName: el.getAttribute("name") ?? undefined } } : {}) };
     });
   }).catch(() => []);
   const axe = LIGHT ? { violations: [], note: "LIGHT mode: ARIA snapshot and axe skipped (page too large to serialize)" } : await Promise.race([page.evaluate(async () => {
@@ -205,7 +216,7 @@ async function main() {
   for (const r of manifest) { if (r.startsWith("/dev")) continue; seeds.set(resolve(r), r); for (const p of PANELS[r] ?? []) seeds.set(`${resolve(r)}?panel=${p}`, `${r}?panel=${p}`); for (const m of MODES[r] ?? []) seeds.set(`${resolve(r)}?mode=${m}`, `${r}?mode=${m}`); }
   if (process.env.ONLY_ROUTES) { seeds.clear(); for (const r of process.env.ONLY_ROUTES.split(",")) seeds.set(r, r); }
   const browser = await chromium.launch();
-  const summary: Record<string, unknown> = { crawler: "click-inventory v2 (menus opened)", build: BUILD, base: BASE, fingerprint, buildDir: BUILD_DIR, flags: process.env.BUILD_FLAGS ?? null, manifestSources: Object.fromEntries(Object.entries(sources).map(([k, v]) => [k, v.length])), seeds: seeds.size, identities: {} };
+  const summary: Record<string, unknown> = { crawler: "click-inventory v3 (menus opened; fields keyed by label)", build: BUILD, base: BASE, fingerprint, buildDir: BUILD_DIR, flags: process.env.BUILD_FLAGS ?? null, manifestSources: Object.fromEntries(Object.entries(sources).map(([k, v]) => [k, v.length])), seeds: seeds.size, identities: {} };
   await Promise.all(IDENTITIES.map(async (identity) => {
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const auth = await signIn(ctx, identity);
