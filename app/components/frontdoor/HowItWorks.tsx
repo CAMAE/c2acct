@@ -1,5 +1,8 @@
 import V7DoorBand from "@/app/components/frontdoor/V7DoorBand";
 import V7RadarFigure from "@/app/components/frontdoor/V7RadarFigure";
+import { getRequestLocaleMessages } from "@/lib/requestLocale";
+import PatConsentPanelMount from "@/app/components/pat/PatConsentPanelMount";
+import Link from "next/link";
 
 /**
  * Depth box 2 (2026-09-09, flag-on): /pat is "How it works" — four numbered
@@ -114,7 +117,8 @@ function FigureCard({ label, chip, children }: { label: string; chip: string; ch
   );
 }
 
-export default function HowItWorks() {
+export default async function HowItWorks() {
+  const messages = await getRequestLocaleMessages();
   return (
     <>
       <header className="px-9 pb-[40px] pt-24 text-center">
@@ -157,6 +161,21 @@ export default function HowItWorks() {
                   </FigureCard>
                 ) : (
                   <V7DoorBand start={false} />
+      {/* Box 2b (R-A, production is the floor): the doors production's Meet PAT page carried —
+          the Pat consent panel (signed-in, assistant flag; it carries the governance / privacy /
+          terms links) and the two actions — composed under the chapters, exactly as
+          MeetPatContent mounts them. */}
+      <div className="pat-container space-y-6 px-6 pb-16">
+        <PatConsentPanelMount />
+        <div className="flex flex-wrap gap-3">
+          <Link className="pat-button-primary" href="/sign-in">
+            {messages.common.signInToPat}
+          </Link>
+          <Link className="pat-button-secondary" href="/">
+            {messages.common.backToHome}
+          </Link>
+        </div>
+      </div>
                 )}
                 <p className="pat-meta mt-3 text-[var(--shell-muted)]">{chapter.provenance}</p>
               </div>
