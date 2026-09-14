@@ -277,6 +277,7 @@ export default async function FirmPage({
         ))}
         {isNewFrontDoorEnabled() ? pingsCard : null}
       </section>
+      {isNewFrontDoorEnabled() ? null : pingsCard}
 
     </>
   );

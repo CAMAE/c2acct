@@ -48,11 +48,15 @@ export type InsightSurfaceGridCard = {
 type InsightSurfaceCardGridProps = {
   cards: readonly InsightSurfaceGridCard[];
   columnsClassName?: string;
+  /** R30: "drawer" (flag-on) opens the readout beside the grid; "inline" is production's
+   *  in-place expansion, byte-identical flag-off. */
+  readoutMode?: "inline" | "drawer";
 };
 
 export default function InsightSurfaceCardGrid({
   cards,
   columnsClassName = "md:grid-cols-2 xl:grid-cols-3",
+  readoutMode = "inline",
 }: InsightSurfaceCardGridProps) {
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
   // R30 (box 2b, 2026-09-14): the readout opens in a right-hand drawer on desktop and a
@@ -65,7 +69,7 @@ export default function InsightSurfaceCardGrid({
     .map((card) => card.key);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   useEffect(() => {
-    if (!expandedKey) return;
+    if (!expandedKey || readoutMode !== "drawer") return;
     const previousOverflow = document.body.style.overflow;
     const previousPaddingRight = document.body.style.paddingRight;
     // Lock the page scroll without shifting the grid: keep the scrollbar's width as padding.
@@ -82,7 +86,7 @@ export default function InsightSurfaceCardGrid({
       document.body.style.paddingRight = previousPaddingRight;
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [expandedKey]);
+  }, [expandedKey, readoutMode]);
 
   return (
     // Block 12h: items-start so cards size independently. R30: the open readout is a
@@ -158,7 +162,7 @@ export default function InsightSurfaceCardGrid({
             <div
               key={card.key}
               data-insight-key={card.key}
-              className={className}
+              className={`${className} ${expanded && readoutMode === "inline" ? "xl:col-span-2" : ""}`}
               data-expanded={expanded ? "1" : "0"}
             >
               <button
@@ -173,7 +177,15 @@ export default function InsightSurfaceCardGrid({
                   <span aria-hidden="true">{expanded ? "▾" : "▸"}</span>
                 </span>
               </button>
-              {expanded ? (
+              {expanded && readoutMode === "inline" ? (
+                <div className="mt-4 border-t border-[var(--shell-border)] pt-4">
+                  <div className="space-y-6">{inlineBody}</div>
+                  <Link href={card.href} className="pat-button-secondary mt-5 inline-flex">
+                    Open full view
+                  </Link>
+                </div>
+              ) : null}
+              {expanded && readoutMode === "drawer" ? (
                 <>
                   <div
                     className="fixed inset-0 z-[70] bg-[rgba(12,33,66,0.28)]"
