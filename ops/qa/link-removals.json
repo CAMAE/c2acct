@@ -207,5 +207,17 @@
     "control": "Back to readiness",
     "ledgerLine": "VEHICLE: a vendor identity opening a firm module is bounced by the company gate; whether the module header renders before the bounce depends on the crawl's timing (the firm identities keep the link)",
     "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/sign-in/firm",
+    "control": "Membership",
+    "ledgerLine": "PRIOR RULING (21d sign-in redesign, V7): the role sign-in sub-pages redirect to /sign-in?view=<role>, and production's own header rule shows no Membership link on /sign-in; a signed-in identity is redirected to its workspace, where Membership points at its own portal (present, different href) — flag-on only",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/sign-in/vendor",
+    "control": "Membership",
+    "ledgerLine": "PRIOR RULING (21d sign-in redesign, V7): the role sign-in sub-pages redirect to /sign-in?view=<role>, and production's own header rule shows no Membership link on /sign-in; a signed-in identity is redirected to its workspace, where Membership points at its own portal (present, different href) — flag-on only",
+    "rulingDate": "2026-09-14"
   }
 ]
