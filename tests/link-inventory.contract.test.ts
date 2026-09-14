@@ -27,7 +27,10 @@ const BASE_URL = process.env.LINK_INVENTORY_BASE_URL ?? "";
 const LABEL = process.env.LINK_INVENTORY_LABEL ?? "unlabelled";
 const IDENTITIES = process.env.LINK_INVENTORY_IDENTITIES ?? "public,firm-pro,firm-elite,vendor-pro,vendor-elite,consultant,admin";
 
-type Removal = { route: string; control: string; ledgerLine: string; rulingDate: string };
+// A ruling names exact control labels/names, or (box 2b, Cam 9/14 "all as recommended" — the
+// admin briefing product ordering ruling of 9/9) a `controlPrefix`: every control on that route
+// whose name starts with the prefix is ruled. Prefixes are for data-ordered lists only.
+type Removal = { route: string; control: string; controlPrefix?: string; ledgerLine: string; rulingDate: string };
 type Baseline = { routes: Record<string, Record<string, { controls: string[][] }>> };
 
 function normalizeLabel(name: string): string {
@@ -81,8 +84,15 @@ const RENAMES: Array<[RegExp, string]> = [
   [/^Open Alignment Board\b/, "Open Tech Stack Sandbox"],
   [/^Alignment Board · read-only$/, "Tech Stack Sandbox · read-only"],
   // A6: "# pts spread across modules" → "# pt spread across modules" (unit agrees with the
-  // rounded number; V3 box 6). Digits are already "#", so both sides read "pt".
-  [/ # pts spread across modules /, " # pt spread across modules "],
+  // rounded number; V3 box 6). The unit shifts the 100-char cap, so both sides collapse to
+  // the shared prefix.
+  [/^Uneven maturity and module variance # pts? spread across modules Uneven maturity and module variance.*$/, "Uneven maturity and module variance # pt spread across modules"],
+  // Depth box (2026-09-09): the freshness panel's "Draft a reminder" reads "Request refresh".
+  [/Draft a reminder$/, "Request refresh"],
+  // 6d090155 (FREE retired) + pilot cohort seed: pilot rows read "Membership PRO / ACTIVE".
+  [/ · Membership FREE \/ ACTIVE /, " · Membership PRO / ACTIVE "],
+  // The consultant board's back link names whichever firm the normalized demo-… route resolves to.
+  [/^← Back to .+ brief$/, "← Back to <firm> brief"],
   // A10 (trust cards): the eyebrow/summary voice rewrite (95901dcf, 6c2360c6) renamed the
   // four cards; box 2b composes the cards themselves back into the V7 surface.
   [/^PRIVACY POLICY DRAFT Privacy This draft describes the data PAT expects to process during review and $/, "PRIVACY POLICY Privacy What PAT processes and why. It is not a final legal policy until approved by "],
@@ -151,7 +161,7 @@ describe(`link inventory guard v2 (${LABEL})`, () => {
     // A ruling names the route as its template ("/engagements/[id]/score") or its
     // normalized instance, and may list several controls separated by " / ".
     const isRuled = (route: string, template: string | null | undefined, name: string, label: string) =>
-      removals.some((r) => (r.route === route || (template && r.route === template)) && (r.control === label || r.control.split(" / ").map((c) => c.trim()).includes(name)));
+      removals.some((r) => (r.route === route || (template && r.route === template)) && ((r.controlPrefix !== undefined && name.startsWith(r.controlPrefix)) || r.control === label || r.control.split(" / ").map((c) => c.trim()).includes(name)));
     const out = mkdtempSync(path.join(os.tmpdir(), "link-inventory-"));
     const tools = process.env.LINK_INVENTORY_TOOLS ?? ROOT; // tabbable + axe-core are devDependencies
     execFileSync("node", ["--import", "tsx", "scripts/qa/click-inventory.mts"], {

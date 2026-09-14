@@ -118,5 +118,70 @@
     "control": "Secret Firm # FIT ## Automation and AI Readiness · Early signal Fresh PENDING — Preview brief ▸ / Secret Firm # FIT ## Governance, Controls, and Vendor Risk · Early signal Fresh PENDING — Hide brief / Secret Firm # FIT ## Governance, Controls, and Vendor Risk · Early signal Fresh PENDING — Preview br / Secret Firm # FIT ## Integration and Data Flow Maturity · Early signal Fresh PENDING — Preview brief / Secret Firm # FIT ## Operating Model and Workflow Discipline · Early signal Fresh PENDING — Preview  / Secret Firm # FIT ## Strategy, Change Readiness, and Market Alignment · Early signal Fresh PENDING —",
     "ledgerLine": "DIAGNOSED data, not code (box 2b A11): lib/battleCard.ts is byte-identical to 0157d40f; on the production build the vendor's product catalog read as Existing (registry drift), so vendorStrength was null and every firm row read 'PENDING —' unsorted; HEAD reads 4 firm-reviewed products, real deltas, re-sorted ranks. Same 15 rows, renamed by rank/tier — Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/admin/briefings/demo-…",
+    "control": "(prefix) Atlas ",
+    "ledgerLine": "ACCEPT: admin briefing product ordering (Cam's orderBy ruling 9/9); the product list is data-ordered and its rows renumber with the demo seed — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14",
+    "controlPrefix": "Atlas "
+  },
+  {
+    "route": "/admin/briefings/demo-…/print",
+    "control": "(prefix) Meridian ",
+    "ledgerLine": "ACCEPT: admin briefing product ordering (orderBy ruling 9/9), print view — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14",
+    "controlPrefix": "Meridian "
+  },
+  {
+    "route": "/admin/briefings/demo-…/products/demo-…",
+    "control": "(prefix) https://",
+    "ledgerLine": "ACCEPT: the product's own URL link names its data-seeded product (orderBy ruling 9/9) — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14",
+    "controlPrefix": "https://"
+  },
+  {
+    "route": "/consultants/briefings/demo-…",
+    "control": "(prefix) Sentinel ",
+    "ledgerLine": "ACCEPT: the consultant briefing renders the same data-ordered product list (orderBy ruling 9/9) — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14",
+    "controlPrefix": "Sentinel "
+  },
+  {
+    "route": "/consultants/briefings/demo-…/products/demo-…",
+    "control": "(prefix) https://",
+    "ledgerLine": "ACCEPT: the product's own URL link names its data-seeded product (orderBy ruling 9/9) — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14",
+    "controlPrefix": "https://"
+  },
+  {
+    "route": "/consultants/ecosystems/demo-…/vendor-brief?panel=exec",
+    "control": "(prefix) ",
+    "ledgerLine": "VEHICLE: the production crawl expanded the 'Strengths / cautions' toggle in place and recorded the per-firm buttons on the exec panel; on HEAD the toggle navigates to its own panel, so the exec panel carries no per-firm buttons — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/",
+    "control": "WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into  / Welcome Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into ",
+    "ledgerLine": "ACCEPT: production's home path cards replaced by the V7 front door (R18) — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/login",
+    "control": "WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into  / Welcome Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into ",
+    "ledgerLine": "ACCEPT: production's home path cards replaced by the V7 front door (R18) — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/admin/organizations/demo-…",
+    "control": "ControlPaper Active / Evidence Bridge Active / Forge Workpapers Active",
+    "ledgerLine": "VEHICLE: the normalized demo-… route resolves to a different demo organization in each crawl (product links are that organization's data) — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/consultants/ecosystems/demo-…/vendor-brief?panel=exec",
+    "control": "Boltway Practice Co. # strengths · # cautions ▸ / Calder, Pierce & Boon # strengths · # cautions ▸ / Crestbridge Partners # strengths · # cautions ▸ / Drumlin Advisory # strengths · # cautions ▸ / Fennimore Holt # strengths · # cautions ▸ / Greenfield & <date> strengths · # cautions ▸ / Hartwell Cross & Co. # strengths · # cautions ▸ / Mariner Audit Group # strengths · # cautions ▸ / Northstar CPA # strengths · # cautions ▸ / Sunbelt Practice Advisors # strengths · # cautions ▸",
+    "ledgerLine": "VEHICLE: the production crawl expanded the 'Strengths / cautions' toggle in place and recorded the per-firm buttons on the exec panel; on HEAD the toggle navigates to its own panel — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
   }
 ]
