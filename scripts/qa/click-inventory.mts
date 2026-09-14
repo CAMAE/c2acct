@@ -129,7 +129,13 @@ function stripMain(body: string): string {
 }
 
 async function inspect(page: Page, url: string) {
-  const response = await page.goto(url, { waitUntil: "load", timeout: 60_000 }).catch(() => null);
+  let response = await page.goto(url, { waitUntil: "load", timeout: 60_000 }).catch(() => null);
+  // Box 2b: a 5xx on a shared local database is usually a transient pool exhaustion
+  // (three standalones plus the crawl); retry once after a pause before recording it.
+  if (response && response.status() >= 500) {
+    await page.waitForTimeout(3_000);
+    response = await page.goto(url, { waitUntil: "load", timeout: 60_000 }).catch(() => response);
+  }
   await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
   await page.waitForTimeout(250);
   const finalUrl = page.url().replace(BASE, "");

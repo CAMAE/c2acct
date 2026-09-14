@@ -179,9 +179,15 @@
     "rulingDate": "2026-09-14"
   },
   {
-    "route": "/consultants/ecosystems/demo-…/vendor-brief?panel=exec",
-    "control": "Boltway Practice Co. # strengths · # cautions ▸ / Calder, Pierce & Boon # strengths · # cautions ▸ / Crestbridge Partners # strengths · # cautions ▸ / Drumlin Advisory # strengths · # cautions ▸ / Fennimore Holt # strengths · # cautions ▸ / Greenfield & <date> strengths · # cautions ▸ / Hartwell Cross & Co. # strengths · # cautions ▸ / Mariner Audit Group # strengths · # cautions ▸ / Northstar CPA # strengths · # cautions ▸ / Sunbelt Practice Advisors # strengths · # cautions ▸",
-    "ledgerLine": "VEHICLE: the production crawl expanded the 'Strengths / cautions' toggle in place and recorded the per-firm buttons on the exec panel; on HEAD the toggle navigates to its own panel — Cam 9/14 \"all as recommended\"",
+    "route": "/consultants/ecosystems/demo-…/vendor-brief?panel=strengths",
+    "control": "Boltway Practice Co. # strengths · # cautions ▸ / Calder, Pierce & Boon # strengths · # cautions ▸ / Crestbridge Partners # strengths · # cautions ▸ / Drumlin Advisory # strengths · # cautions ▸ / Fennimore Holt # strengths · # cautions ▸ / Greenfield & <date> strengths · # cautions ▸ / Hartwell Cross & Co. # strengths · # cautions ▸ / Mariner Audit Group # strengths · # cautions ▸ / Northstar CPA # strengths · # cautions ▸ / Sunbelt Practice Advisors # strengths · # cautions ▸ / Whitfield Group # strengths · # cautions ▸",
+    "ledgerLine": "VEHICLE: the production crawl expanded the 'Strengths / cautions' toggle in place and recorded the per-firm buttons on the strengths panel; on HEAD the toggle navigates to its own panel — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/vendor/battlecard",
+    "control": "Belmont Crossing Advisory FIT ## Operating Model and Workflow Discipline · Early signal Fresh PENDIN / Harlow & Pike FIT ## Governance, Controls, and Vendor Risk · Early signal Fresh PENDING — Open brief / Kirkland Reyes LLP FIT ## Integration and Data Flow Maturity · Early signal Fresh PENDING — Open bri / Maple Ridge CPAs FIT ## Integration and Data Flow Maturity · Early signal Fresh PENDING — Open brief / Quarry Lane Tax FIT ## Integration and Data Flow Maturity · Early signal Fresh PENDING — Open brief  / Vandenberg CPAs FIT ## Automation and AI Readiness · Early signal Fresh PENDING — Hide brief ▾ / Secret Firm # FIT ## Operating Model and Workflow Discipline · Early signal Fresh PENDING — Preview ",
+    "ledgerLine": "DIAGNOSED data, not code (box 2b A11): on the production build every firm row read 'PENDING —' (vendorStrength null, registry drift); HEAD reads real tiers and deltas and re-sorts the ranks — the same rows under new names (Elite sees firm names) — Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   }
 ]

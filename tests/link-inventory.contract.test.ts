@@ -108,9 +108,10 @@ function canonicalKey(key: string): string {
   const [role, name, href, region] = JSON.parse(key) as [string, string, string | null, string];
   let label = name;
   for (const [from, to] of RENAMES) label = label.replace(from, to);
-  // Labels are capped at 100 chars on both sides; re-cap after the rename so a longer
-  // new name compares on the same prefix as the crawl's (already capped) label.
-  return JSON.stringify([role, label.slice(0, 100), href, region]);
+  // Labels are capped at 100 chars on both sides; re-cap after the renames at 96 so a rename
+  // that shortens or lengthens a name by a few characters cannot shift the cap and split an
+  // otherwise identical control into two keys.
+  return JSON.stringify([role, label.slice(0, 96), href, region]);
 }
 // The local-review / provisioned sign-in form and the sign-in view tabs are the crawl's
 // VEHICLE (PAT_ENABLE_LOCAL_REVIEW_AUTH=1 is set for the crawl only, never in production's
