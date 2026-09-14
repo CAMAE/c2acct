@@ -197,7 +197,7 @@ export default function InsightSurfaceCardGrid({
                     aria-modal="true"
                     aria-labelledby={`insight-readout-${card.key}-title`}
                     data-testid="insight-readout-drawer"
-                    className="fixed inset-0 z-[71] flex flex-col overflow-y-auto bg-white text-left shadow-[0_0_48px_rgba(12,33,66,0.18)] md:inset-y-0 md:left-auto md:right-0 md:w-[min(44rem,100vw)] md:border-l md:border-[var(--shell-border)]"
+                    className="fixed inset-0 z-[71] flex flex-col overflow-y-auto bg-white text-left md:inset-y-0 md:left-auto md:right-0 md:w-[min(44rem,100vw)] md:border-l md:border-[var(--shell-border)]"
                   >
                     <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[var(--shell-border)] bg-white/95 px-6 py-4 backdrop-blur-[6px]">
                       <div className="min-w-0">

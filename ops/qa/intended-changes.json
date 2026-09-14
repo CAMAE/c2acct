@@ -112,5 +112,53 @@
     "box": "R20 closed 2026-09-11 (Leslie's options 9/4; PAT_ENABLE_FOLLOWUP_MC)",
     "pattern": "Other answers|Other \\(short answer\\)|Not a significant issue here|Response captured|Awaiting response|Absent / ad hoc|Strong / repeatable|^slider: |^radio ",
     "note": "the five written follow-ups are multiple choice by design; option rows, sliders and radios replace the textareas flag-on"
+  },
+  {
+    "id": "tech-stack-sandbox",
+    "box": "box 2b 2026-09-14 (R24)",
+    "pattern": "Tech Stack Sandbox|Alignment Sandbox|Alignment Board|Open Alignment Board",
+    "note": "R24 rename; flag-on only"
+  },
+  {
+    "id": "live-numbers-r28",
+    "box": "box 2b 2026-09-14 (R28)",
+    "pattern": "stack alignment|modules complete|products? to review|products final|firms? reviewing|entering the refresh window|firm reviews? on file|largest divergence|(st|nd|rd|th) percentile|to cutoff|alignment index",
+    "note": "live number on every workspace card, flag-on"
+  },
+  {
+    "id": "demo-data-r23",
+    "box": "box 2b 2026-09-14 (R23)",
+    "pattern": "Secret Product|Vendor hidden|Self-reported|Strong fit|Good fit|Weak fit|stack alignment|Current stack",
+    "note": "demo seed change moves the board's pieces/candidates (names/ranks are data)"
+  },
+  {
+    "id": "trust-v7-rewrite",
+    "box": "21-0 / Facelift B3 (prior boxes)",
+    "pattern": "On this page|How PAT billing behaves|This draft explains how billing|What PAT processes and why|Terms for PAT use|How to reach PAT support|Trust center|Review (privacy|terms|security|support|billing policy|methodology|how pat is governed|release)",
+    "note": "V7 trust surfaces (toc, voice rewrite) and the restored Trust center link / trust cards"
+  },
+  {
+    "id": "signed-out-nav-a1",
+    "box": "box 2b 2026-09-14 (A1/A2)",
+    "pattern": "Open navigation menu|Open home|Return to C\\d?Acct|^Navigation$",
+    "note": "production's nav menu and logo name restored on the V7 shell"
+  },
+  {
+    "id": "readout-drawer-r30",
+    "box": "box 2b 2026-09-14 (R30)",
+    "pattern": "^dialog \"|^text: Readout$|Previous insight|Next insight|Close readout|Open readout|Hide readout|Open full view",
+    "note": "insight readouts open in a drawer flag-on: dialog, Readout eyebrow, Previous/Next/Close"
+  },
+  {
+    "id": "shell-swap",
+    "box": "21a / box 2 / box 2b (V7 public shell vs AppShell)",
+    "pattern": "img \"PAT logo\"|img \"PAT\"|navigation \"PAT trust and launch links\"|dialog \"Navigation\"|dialog \"Notifications\"|banner: Notifications|View all notifications|all caught up|^text: Language$|button \"(English|Español|Français)|^text: Notifications$|^text: Elite$|^text: Pro$|Performance Alignment Technology (Firm|Vendor|Product) ",
+    "note": "the V7 shell renders the same controls with different landmarks/labels; the crawl opens the nav/notification dialogs"
+  },
+  {
+    "id": "demo-data-rows",
+    "box": "box 2b 2026-09-14 (R23 reseed; data)",
+    "pattern": "Meridian (Audit|CAS|Payroll|Portal|Practice|Tax)|APStream Control|Whitfield Group|Boltway Practice|Ranked by projected fit|Swappable to explore|No reviewed products yet|Secret candidates|declared features? · # firm assessments|No products have a completed|cell \"|Lead with |No high-band|No low-band|Complete a product review with this firm",
+    "note": "rows that changed because the demo data moved (reseed, registry drift, which firm the seeded route resolves to)"
   }
 ]
