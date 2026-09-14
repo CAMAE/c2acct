@@ -195,6 +195,17 @@ describe(`link inventory guard v2 (${LABEL})`, () => {
       }
     }
     expect(current.size, "the crawl produced no records").toBeGreaterThan(50);
+    // Box 2b: the shell (header, nav menu, language menu, notifications, footer) is ONE
+    // component rendered on every page; the crawl opens its menus per page within a budget,
+    // so a slow page can record the shell without its menu contents. A shell control counts
+    // as present for an identity when any page of that identity's crawl recorded it.
+    const shellUnion = new Map<string, Set<string>>();
+    for (const [routeKey, keys] of current) {
+      const identity = routeKey.slice(routeKey.lastIndexOf("|") + 1);
+      const union = shellUnion.get(identity) ?? new Set<string>();
+      for (const key of keys) if (key.endsWith('"shell"]')) union.add(key);
+      shellUnion.set(identity, union);
+    }
     const missingBy = new Map<string, string[]>();
     let compared = 0;
     for (const [route, byIdentity] of Object.entries(baseline.routes)) {
@@ -205,6 +216,7 @@ describe(`link inventory guard v2 (${LABEL})`, () => {
         for (const c of entry.controls) {
           const key = canonicalKey(JSON.stringify(c));
           if (cur.has(key)) continue;
+          if (c[3] === "shell" && shellUnion.get(identity)?.has(key)) continue;
           if (isVehicle(identity, key, route)) continue;
           const label = describeControl(key);
           if (isRuled(route, (entry as { template?: string | null }).template, c[1], label.replace(/ \[(main|shell)\]$/, ""))) continue;

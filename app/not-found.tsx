@@ -25,7 +25,7 @@ export default function NotFound() {
   if (isNewFrontDoorEnabled()) {
     return (
       <V7PublicShell>
-        <main className="pat-container flex items-center justify-center px-6 py-16 text-[var(--shell-ink)]">
+        <div className="pat-container flex items-center justify-center px-6 py-16 text-[var(--shell-ink)]">
           <div className="w-full max-w-xl">
             <p className="pat-label">Page not found</p>
             <h1 className="pat-h1 mt-3">We couldn&apos;t find that page.</h1>
@@ -42,7 +42,7 @@ export default function NotFound() {
               ))}
             </nav>
           </div>
-        </main>
+        </div>
       </V7PublicShell>
     );
   }

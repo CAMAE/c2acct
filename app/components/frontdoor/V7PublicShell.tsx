@@ -72,7 +72,10 @@ export default async function V7PublicShell({ children }: { children: ReactNode 
         </div>
       </nav>
 
-      {children}
+      {/* Box 2b: one <main> landmark around the page, as production's AppShell gives every
+          page (the pat-shell-main element) — the guard keys controls by region, and V7 pages rendered
+          without one filed their content under the shell. */}
+      <main className="flex flex-1 flex-col">{children}</main>
 
       {/* PRODUCT FOOTER */}
       <footer className="mt-auto bg-white pb-11 pt-8 text-center" style={{ borderTop: `1px solid ${borderLt}` }}>

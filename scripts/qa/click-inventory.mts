@@ -137,6 +137,16 @@ async function inspect(page: Page, url: string) {
     await page.waitForTimeout(3_000);
     response = await page.goto(url, { waitUntil: "load", timeout: GOTO_MS }).catch(() => response);
   }
+  // A 200 that captured no focusable control is a blank capture (error boundary or a
+  // navigation caught mid-flight); reload once before recording it.
+  if (response && response.status() === 200) {
+    await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
+    const focusable = await page.locator("a[href], button, input, select, textarea, [tabindex]").count().catch(() => 0);
+    if (focusable === 0) {
+      await page.waitForTimeout(2_000);
+      response = await page.goto(url, { waitUntil: "load", timeout: GOTO_MS }).catch(() => response);
+    }
+  }
   await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
   await page.waitForTimeout(250);
   const finalUrl = page.url().replace(BASE, "");

@@ -147,9 +147,7 @@ export default function TrustSurfaceV7({
   );
 
   return (
-    // Box 2b: a <main> landmark, as production's AppShell gives every page — the guard keys
-    // controls by region, and the trust pages rendered without one flag-on.
-    <main className="pat-container px-6 pb-20 pt-12" data-testid="trust-surface-v7" data-surface={surface.key}>
+    <div className="pat-container px-6 pb-20 pt-12" data-testid="trust-surface-v7" data-surface={surface.key}>
       <header className="max-w-[44rem]">
         <div className="pat-label">{surface.eyebrow}</div>
         <h1 className="pat-h1 mt-3 text-[var(--shell-ink)]">{title ?? surface.title}</h1>
@@ -194,6 +192,6 @@ export default function TrustSurfaceV7({
       ) : (
         <div className="mt-10">{contents}</div>
       )}
-    </main>
+    </div>
   );
 }
