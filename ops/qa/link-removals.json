@@ -189,5 +189,17 @@
     "control": "Belmont Crossing Advisory FIT ## Operating Model and Workflow Discipline · Early signal Fresh PENDIN / Harlow & Pike FIT ## Governance, Controls, and Vendor Risk · Early signal Fresh PENDING — Open brief / Kirkland Reyes LLP FIT ## Integration and Data Flow Maturity · Early signal Fresh PENDING — Open bri / Maple Ridge CPAs FIT ## Integration and Data Flow Maturity · Early signal Fresh PENDING — Open brief / Quarry Lane Tax FIT ## Integration and Data Flow Maturity · Early signal Fresh PENDING — Open brief  / Vandenberg CPAs FIT ## Automation and AI Readiness · Early signal Fresh PENDING — Hide brief ▾ / Secret Firm # FIT ## Operating Model and Workflow Discipline · Early signal Fresh PENDING — Preview ",
     "ledgerLine": "DIAGNOSED data, not code (box 2b A11): on the production build every firm row read 'PENDING —' (vendorStrength null, registry drift); HEAD reads real tiers and deltas and re-sorts the ranks — the same rows under new names (Elite sees firm names) — Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/firm/admin/user-insight",
+    "control": "Back to firm admin / Open firm workspace",
+    "ledgerLine": "PRIOR RULING (Depth box 9 'dead ends', 2026-09-09; Cam accepted the depth box): /firm/admin/user-insight now redirects into the firm admin panel with a workspace notice (/firm?panel=admin&notice=user-insight), so the standalone page's two back links have no page to sit on — the same doors exist as the admin panel's own navigation",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/firm/product-assessments/demo-…",
+    "control": "Available # / Completed #",
+    "ledgerLine": "PRIOR RULING (V3 box 4.1, 2026-09-09, Leslie's one-page rule): the firm product assessment is one page; the paged layout's Available/Completed toggles left with the pager",
+    "rulingDate": "2026-09-14"
   }
 ]
