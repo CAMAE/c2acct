@@ -161,6 +161,13 @@ export default async function HowItWorks() {
                   </FigureCard>
                 ) : (
                   <V7DoorBand start={false} />
+                )}
+                <p className="pat-meta mt-3 text-[var(--shell-muted)]">{chapter.provenance}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
       {/* Box 2b (R-A, production is the floor): the doors production's Meet PAT page carried —
           the Pat consent panel (signed-in, assistant flag; it carries the governance / privacy /
           terms links) and the two actions — composed under the chapters, exactly as
@@ -176,13 +183,6 @@ export default async function HowItWorks() {
           </Link>
         </div>
       </div>
-                )}
-                <p className="pat-meta mt-3 text-[var(--shell-muted)]">{chapter.provenance}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
     </>
   );
 }
