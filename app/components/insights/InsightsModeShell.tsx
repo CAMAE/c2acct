@@ -8,6 +8,7 @@ import LockedElitePreview, { type LockedElitePreviewProps } from "@/app/componen
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import PatModeToggle from "@/app/components/pat/PatModeToggle";
 import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 
 export type InsightsModeKey = "pro" | "elite" | "help";
 
@@ -118,6 +119,7 @@ export default function InsightsModeShell({
           </section>
         ) : activePanel.cards ? (
           <InsightSurfaceCardGrid
+            readoutMode={isNewFrontDoorEnabled() ? "drawer" : "inline"}
             cards={activePanel.cards}
             columnsClassName={activePanel.columnsClassName}
           />
