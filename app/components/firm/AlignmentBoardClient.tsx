@@ -305,7 +305,7 @@ export default function AlignmentBoardClient({
 
       {/* Header: stat lockup (left) + radar (right) */}
       <section className="pat-card p-6 sm:p-8">
-        <div className="pat-label">Alignment Sandbox</div>
+        <div className="pat-label">Tech Stack Sandbox</div>
         <div className="mt-4 grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div>
             <div className="flex flex-wrap items-end gap-x-5 gap-y-2">

@@ -96,6 +96,8 @@ export default function FirmWorkspaceDashboard({ view }: { view: Data }) {
         )}
       </section>
 
+      {/* R26 (box 2b, 2026-09-14): the strip renders only when something happened since the last visit. */}
+      {view.sinceLastVisit.sinceLabel && view.sinceLastVisit.assessmentsSubmitted + view.sinceLastVisit.insightsRefreshed > 0 ? (
       <section className="pat-soft-panel flex flex-wrap items-center gap-x-6 gap-y-2 p-4 text-sm text-[var(--shell-muted)]" data-testid="since-last-visit">
         <span className="pat-label">Since your last visit</span>
         {view.sinceLastVisit.sinceLabel ? (
@@ -114,6 +116,7 @@ export default function FirmWorkspaceDashboard({ view }: { view: Data }) {
           <span>This is your first visit on record.</span>
         )}
       </section>
+      ) : null}
     </div>
   );
 }

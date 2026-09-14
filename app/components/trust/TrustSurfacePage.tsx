@@ -27,13 +27,13 @@ export default function TrustSurfacePage({ surface, children }: TrustSurfacePage
         <p className="mt-5 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           {surface.summary}
         </p>
-        {surface.key !== "trust" ? (
-          <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-[var(--shell-muted)]">
-            <Link href="/trust" className="font-semibold text-[var(--shell-ink)] hover:text-[var(--shell-accent)]">
-              Trust center
-            </Link>
-          </div>
-        ) : null}
+        {/* A3 (box 2b, Cam 9/14): production renders the Trust center link on every
+            trust surface, /trust included — the 6c2360c6 key guard is reversed. */}
+        <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-[var(--shell-muted)]">
+          <Link href="/trust" className="font-semibold text-[var(--shell-ink)] hover:text-[var(--shell-accent)]">
+            Trust center
+          </Link>
+        </div>
       </section>
 
       {children}

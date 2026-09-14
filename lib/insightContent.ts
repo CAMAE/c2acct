@@ -308,7 +308,7 @@ const vendorAlignmentInsights = [
     audience: "vendor",
     domain: "vendor_alignment",
     summary: "How firms move your products in and out of simulated stacks — pipeline and churn.",
-    what: "First-party demand evidence: the swaps firms make in the Alignment Sandbox that add or drop your products, netted to a pipeline and churn read.",
+    what: "First-party demand evidence: the swaps firms make in the Tech Stack Sandbox that add or drop your products, netted to a pipeline and churn read.",
     why: "Real in/out movement is a stronger demand signal than intent surveys.",
     how: "Live with Elite membership.",
     basisTemplate: "Built from first-party sandbox swap events over the current window.",

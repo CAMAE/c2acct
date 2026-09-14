@@ -72,6 +72,27 @@ function controlsOf(record: { aria?: { main?: string | null; shell?: string | nu
 const RENAMES: Array<[RegExp, string]> = [
   [/^BattleCard\b/, "Product Fit Card"],
   [/^Nudge queue$/, "Nudges"],
+  // Box 2b (Cam 9/14 "all as recommended"): the admin membership plan select lost its FREE
+  // option by ruling (6d090155, AUDIT-OMNIBUS-A-001: FREE is unassignable forward) — same
+  // control, shorter option list. Vendor alignment insight card wording (A6).
+  [/^FREE PRO ELITE$/, "PRO ELITE"],
+  // R24 (Cam 9/14): "Alignment Sandbox" / "Alignment Board" read "Tech Stack Sandbox".
+  [/^Alignment Sandbox\b/, "Tech Stack Sandbox"],
+  [/^Open Alignment Board\b/, "Open Tech Stack Sandbox"],
+  [/^Alignment Board · read-only$/, "Tech Stack Sandbox · read-only"],
+  // A6: "# pts spread across modules" → "# pt spread across modules" (unit agrees with the
+  // rounded number; V3 box 6). Digits are already "#", so both sides read "pt".
+  [/ # pts spread across modules /, " # pt spread across modules "],
+  // A10 (trust cards): the eyebrow/summary voice rewrite (95901dcf, 6c2360c6) renamed the
+  // four cards; box 2b composes the cards themselves back into the V7 surface.
+  [/^PRIVACY POLICY DRAFT Privacy This draft describes the data PAT expects to process during review and $/, "PRIVACY POLICY Privacy What PAT processes and why. It is not a final legal policy until approved by "],
+  [/^Privacy policy draft Privacy This draft describes the data PAT expects to process during review and $/, "Privacy policy Privacy What PAT processes and why. It is not a final legal policy until approved by "],
+  [/^TERMS OF SERVICE DRAFT Terms These draft terms set expectations for review access and early launch u$/, "TERMS OF SERVICE Terms Terms for PAT use. They do not replace signed commercial terms or legal revie"],
+  [/^Terms of service draft Terms These draft terms set expectations for review access and early launch u$/, "Terms of service Terms Terms for PAT use. They do not replace signed commercial terms or legal revie"],
+  [/^SUPPORT AND CONTACT Support Support expectations are intentionally scoped for local review and early$/, "SUPPORT AND CONTACT Support How to reach PAT support. Always-on public support is not claimed here. "],
+  [/^Support and contact Support Support expectations are intentionally scoped for local review and early$/, "Support and contact Support How to reach PAT support. Always-on public support is not claimed here. "],
+  [/^BILLING POLICY DRAFT Billing policy This draft explains how billing should behave when provider conf$/, "BILLING POLICY Billing policy How PAT billing behaves when a payment provider is configured — and ho"],
+  [/^Billing policy draft Billing policy This draft explains how billing should behave when provider conf$/, "Billing policy Billing policy How PAT billing behaves when a payment provider is configured — and ho"],
 ];
 function canonicalKey(key: string): string {
   const [role, name, href, region] = JSON.parse(key) as [string, string, string | null, string];

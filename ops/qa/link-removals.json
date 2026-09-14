@@ -46,5 +46,77 @@
     "control": "Payment details",
     "ledgerLine": "textarea 'Payment details' -> billing contact fields (rename); the admin panel routes the crawl records for /firm/admin, /vendor/admin, /vendor/profile. Cam, box 2 DOORS, 9/11",
     "rulingDate": "2026-09-11"
+  },
+  {
+    "route": "/admin/briefings/demo-…/print",
+    "control": "Meridian Audit Meridian Practice Cloud Firm raw score # No live signal No product-level combined PAT / Meridian CAS Meridian Practice Cloud Firm raw score # No live signal No product-level combined PAT r / Meridian Payroll Meridian Practice Cloud Firm raw score # No live signal No product-level combined P / Meridian Practice Meridian Practice Cloud Firm raw score # No live signal No product-level combined  / Meridian Tax Meridian Practice Cloud Firm raw score # No live signal No product-level combined PAT r",
+    "ledgerLine": "ACCEPT: vendor product list Completed/Existing registry drift (0157d40f reads the same snapshot's products as Existing, HEAD as Completed; the list, Product URL and Open assessment sit on the other tab) — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/vendor/product-assessment/demo-…",
+    "control": "Meridian Audit / Meridian CAS / Meridian Payroll / Meridian Portal / Meridian Practice / Meridian Tax / Open assessment / Open assessment → / Product URL",
+    "ledgerLine": "ACCEPT: vendor product list Completed/Existing registry drift (0157d40f reads the same snapshot's products as Existing, HEAD as Completed; the list, Product URL and Open assessment sit on the other tab) — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/vendor/product-assessment",
+    "control": "APStream Control / ClientVault Requests / LedgerFlow Close / Meridian Audit / Meridian CAS / Meridian Payroll / Meridian Portal / Meridian Practice / Meridian Tax / MetricBoard FP&A / Open assessment / Open assessment → / Product URL",
+    "ledgerLine": "ACCEPT: vendor product list Completed/Existing registry drift (0157d40f reads the same snapshot's products as Existing, HEAD as Completed; the list, Product URL and Open assessment sit on the other tab) — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/survey",
+    "control": "APStream Control / ClientVault Requests / LedgerFlow Close / Meridian Audit / Meridian CAS / Meridian Payroll / Meridian Portal / Meridian Practice / Meridian Tax / MetricBoard FP&A / Open assessment / Open assessment → / Product URL",
+    "ledgerLine": "ACCEPT: vendor product list Completed/Existing registry drift (0157d40f reads the same snapshot's products as Existing, HEAD as Completed; the list, Product URL and Open assessment sit on the other tab) — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/vendor/product-insight/demo-…/current-product-fit",
+    "control": "Consultant portal Ecosystems and briefs / Firm portal Your firm workspace / Sign in Return to the sign-in page / Vendor portal Your vendor workspace",
+    "ledgerLine": "ACCEPT: 404 destination cards on product-insight routes that now render — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/vendor/product-insight/demo-…",
+    "control": "Consultant portal Ecosystems and briefs / Firm portal Your firm workspace / Sign in Return to the sign-in page / Vendor portal Your vendor workspace",
+    "ledgerLine": "ACCEPT: 404 destination cards on product-insight routes that now render — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/admin/briefings/demo-…",
+    "control": "Atlas Atlas Core Atlas PerfScale Firm raw score # No live signal No product-level combined PAT reado / Atlas Audit # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout  / Atlas Audit Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout is / Atlas Bridge # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout / Atlas Bridge Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout i / Atlas Close # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout  / Atlas Close Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout is / Atlas Connect # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readou / Atlas Connect Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout  / Atlas Controls # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT reado / Atlas Controls Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout / Atlas Docs # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout i / Atlas Docs Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout is  / Atlas Expense # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readou / Atlas Expense Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout  / Atlas Flow # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout i / Atlas Flow Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout is  / Atlas Forecast # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT reado / Atlas Forecast Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout / Atlas Insight # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readou / Atlas Insight Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout  / Atlas Ledger # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout / Atlas Ledger Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout i / Atlas Payables # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT reado / Atlas Payables Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout / Atlas Payroll # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readou / Atlas Payroll Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout  / Atlas Portal # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout / Atlas Portal Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout i / Atlas Pulse Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout is / Atlas Receivables # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT re / Atlas Receivables Atlas PerfScale Firm raw score # No live signal No product-level combined PAT read / Atlas Signal Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout i / Atlas Tax # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout is / Atlas Tax Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout is a / Atlas Vault # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout  / Atlas Vault Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout is",
+    "ledgerLine": "ACCEPT: admin briefing product ordering (Cam's orderBy ruling 9/9) — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/survey/firm_alignment_operating_model_v1",
+    "control": "Continue to next page / Open assessment help / Review current results",
+    "ledgerLine": "ACCEPT: survey one-page ruling (flag-off one page keeps 'Back to readiness' only; exits return flag-on per R4) — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/vendor/product-assessment/demo-…",
+    "control": "Continue to next page",
+    "ledgerLine": "ACCEPT: one-page ruling (vendor product assessment) — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/",
+    "control": "CHOOSE YOUR PATH Create an account Pick the role that matches your work — vendor or firm — answer tw / Choose your path Create an account Pick the role that matches your work — vendor or firm — answer tw / SIGN IN Continue to your workspace Vendors and firms sign in here to access their PAT workspace. Per / SIGNED IN Continue to your workspace You are signed in. Choose your path to access your designed wor / Sign in Continue to your workspace Vendors and firms sign in here to access their PAT workspace. Per / Signed in Continue to your workspace You are signed in. Choose your path to access your designed wor / WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into ",
+    "ledgerLine": "ACCEPT: production's home path cards replaced by the V7 front door (R18) — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/sign-in/password-update",
+    "control": "SIGNED IN Continue to your workspace You are signed in. Choose your path to access your designed wor / Signed in Continue to your workspace You are signed in. Choose your path to access your designed wor / WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into ",
+    "ledgerLine": "ACCEPT: production's home path cards replaced by the V7 front door (R18) — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/vendor/battlecard",
+    "control": "Secret Firm # FIT ## Automation and AI Readiness · Early signal Fresh PENDING — Preview brief ▸ / Secret Firm # FIT ## Governance, Controls, and Vendor Risk · Early signal Fresh PENDING — Hide brief / Secret Firm # FIT ## Governance, Controls, and Vendor Risk · Early signal Fresh PENDING — Preview br / Secret Firm # FIT ## Integration and Data Flow Maturity · Early signal Fresh PENDING — Preview brief / Secret Firm # FIT ## Operating Model and Workflow Discipline · Early signal Fresh PENDING — Preview  / Secret Firm # FIT ## Strategy, Change Readiness, and Market Alignment · Early signal Fresh PENDING —",
+    "ledgerLine": "DIAGNOSED data, not code (box 2b A11): lib/battleCard.ts is byte-identical to 0157d40f; on the production build the vendor's product catalog read as Existing (registry drift), so vendorStrength was null and every firm row read 'PENDING —' unsorted; HEAD reads 4 firm-reviewed products, real deltas, re-sorted ranks. Same 15 rows, renamed by rank/tier — Cam 9/14 \"all as recommended\"",
+    "rulingDate": "2026-09-14"
   }
 ]

@@ -8,8 +8,8 @@ import { requireConsultantSession } from "@/lib/consultantAccess";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Firm Alignment Board | Patalign",
-  description: "Read-only Alignment Board for a firm in your assigned ecosystem.",
+  title: "Firm Tech Stack Sandbox | Patalign",
+  description: "Read-only Tech Stack Sandbox for a firm in your assigned ecosystem.",
 };
 
 /**
@@ -44,7 +44,7 @@ export default async function ConsultantFirmAlignmentBoardPage({
   const Header = (
     <section className="pat-card p-8" data-testid="consultant-board-header">
       <PatLogoLockup mode="hero" tone="light" />
-      <div className="pat-label mt-6">Alignment Board · read-only</div>
+      <div className="pat-label mt-6">Tech Stack Sandbox · read-only</div>
       <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
         {firm.name}
       </h1>
@@ -63,7 +63,7 @@ export default async function ConsultantFirmAlignmentBoardPage({
       <div className="space-y-8">
         {Header}
         <div className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-5 text-sm leading-6 text-[var(--shell-muted)]">
-          The Alignment Board appears once this firm has completed its alignment assessment and has products in its stack.
+          The Tech Stack Sandbox appears once this firm has completed its alignment assessment and has products in its stack.
         </div>
       </div>
     );
@@ -75,7 +75,7 @@ export default async function ConsultantFirmAlignmentBoardPage({
       <div className="space-y-8">
         {Header}
         <div className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-5 text-sm leading-6 text-[var(--shell-muted)]">
-          The Alignment Board appears once this firm has completed its alignment assessment and has products in its stack.
+          The Tech Stack Sandbox appears once this firm has completed its alignment assessment and has products in its stack.
         </div>
       </div>
     );

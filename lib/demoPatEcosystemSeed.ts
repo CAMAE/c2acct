@@ -145,9 +145,42 @@ function productVariancePattern(productIndex: number) {
   return PRODUCT_VARIANCE_PATTERNS[productIndex % PRODUCT_VARIANCE_PATTERNS.length]!;
 }
 
-function vendorSelfAssessmentTarget(product: DemoProductInput, productIndex: number) {
+// R23 (box 2b, 2026-09-14): the Pro vendor demo (PAT Demo Vendor, review.vendor)
+// carries one product whose self-view runs well above the firm-reviewed
+// signal — MetricBoard FP&A self-assesses at ~88% against a ~60% firm average
+// (n≈14, above the divergence floor), the same contrast the Elite vendor demo
+// shows on Meridian Payroll (+30). Deterministic: same ids, one target.
+const DEMO_VENDOR_SELF_TARGET_OVERRIDES: Readonly<Record<string, number>> = {
+  "pat-demo-vendor:metricboard-fpa": 4.4,
+};
+
+function vendorSelfAssessmentTarget(product: DemoProductInput, productIndex: number, vendorKey?: string) {
+  const override = vendorKey ? DEMO_VENDOR_SELF_TARGET_OVERRIDES[`${vendorKey}:${product.key}`] : undefined;
+  if (override !== undefined) return clampTarget(override);
   const pattern = productVariancePattern(productIndex);
   return clampTarget(product.scoreTarget + pattern.vendorOffset);
+}
+
+// R23 (box 2b, 2026-09-14): Demo Company's Sandbox stack. The board shows a
+// firm's eight highest-scoring reviews (lib/alignmentBoard.ts SANDBOX_STACK_LIMIT)
+// and a swap lifts the index by (candidate − piece) / stackSize, so a firm that
+// has reviewed every demo product can never show a weak piece. Demo Company
+// keeps FOUR completed reviews — APStream Control and LedgerFlow Close (PAT Demo
+// Vendor, as before), Nexus Guard (ClearPath Tax) and PayGrid (PeopleLedger) —
+// with PayGrid forced to a clearly weak ~24%, so the best candidate (~86%)
+// lifts the projected index by 15+ on one swap, as the Elite demo does with
+// three. MetricBoard FP&A stays a draft and ClientVault Requests not-started
+// (WS11-I). Every other demo-company review row is deleted by its stable id
+// (idempotent). Total firm×vendor relationships stay ≥ 100 (health floor).
+const DEMO_COMPANY_STACK: ReadonlyArray<{ vendorKey: string; productKey: string; target?: number }> = [
+  { vendorKey: "pat-demo-vendor", productKey: "apstream-control" },
+  { vendorKey: "pat-demo-vendor", productKey: "ledgerflow-close" },
+  { vendorKey: "clearpath-tax", productKey: "nexus-guard" },
+  { vendorKey: "peopleledger", productKey: "paygrid", target: 1.2 },
+];
+
+function demoCompanyStackEntry(vendorKey: string, productKey: string) {
+  return DEMO_COMPANY_STACK.find((entry) => entry.vendorKey === vendorKey && entry.productKey === productKey) ?? null;
 }
 
 function firmProductReviewTarget(input: {
@@ -155,6 +188,10 @@ function firmProductReviewTarget(input: {
   product: SeededProduct;
   relationshipIndex: number;
 }) {
+  if (input.firm.key === "demo-company") {
+    const entry = demoCompanyStackEntry(input.product.vendor.key, input.product.input.key);
+    if (entry?.target !== undefined) return clampTarget(entry.target);
+  }
   const pattern = productVariancePattern(input.product.productIndex);
   const relationshipOffset = ((input.relationshipIndex % 5) - 2) * 0.16;
   return clampTarget(
@@ -574,7 +611,7 @@ export async function seedVendorProductAssessment(client: DemoSeedClient, input:
 }) {
   const product = input.product.input;
   const variancePattern = productVariancePattern(input.productIndex);
-  const assessmentTarget = vendorSelfAssessmentTarget(product, input.productIndex);
+  const assessmentTarget = vendorSelfAssessmentTarget(product, input.productIndex, input.product.vendor.key);
   const subject = await ensureProductSubject({ id: input.product.id, name: product.name });
   const questions = buildVendorProductQuestions(product.utilityKeys);
   const answers = Object.fromEntries(
@@ -1369,6 +1406,20 @@ export async function ensureDemoPatEcosystem(client: DemoSeedClient) {
     // relationships keep the default completed-submission seed.
     const isDemoCompanyDemoVendor =
       relationship.firm.key === "demo-company" && relationship.vendor.key === "pat-demo-vendor";
+    // R23: outside its four-piece stack (and the two in-workflow rows below),
+    // Demo Company has no review on record — delete any stale row.
+    if (
+      relationship.firm.key === "demo-company" &&
+      !isDemoCompanyDemoVendor &&
+      !demoCompanyStackEntry(relationship.vendor.key, relationship.product.key)
+    ) {
+      const staleId = stableId(
+        "demo-firm-product-submission",
+        `${relationship.firm.key}-${relationship.vendor.key}-${relationship.product.key}`
+      );
+      await client.surveySubmission.deleteMany({ where: { id: staleId } });
+      continue;
+    }
     if (isDemoCompanyDemoVendor) {
       if (relationship.product.key === "clientvault-requests") {
         // Not-started: ensure no submission row exists. Pre-WS11-I runs

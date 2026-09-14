@@ -152,6 +152,13 @@ export default function TrustSurfaceV7({
         <div className="pat-label">{surface.eyebrow}</div>
         <h1 className="pat-h1 mt-3 text-[var(--shell-ink)]">{title ?? surface.title}</h1>
         <p className="pat-body mt-4 text-[var(--shell-muted)]">{surface.summary}</p>
+        {/* A3 (box 2b, Cam 9/14 "all as recommended"): production's "Trust center" link on
+            every trust surface, composed into the V7 header. */}
+        <div className="mt-5 text-sm">
+          <Link href="/trust" className="font-semibold text-[var(--shell-ink)] hover:text-[var(--shell-accent)]">
+            Trust center
+          </Link>
+        </div>
         {chips.length > 0 ? (
           <div className="mt-5 flex flex-wrap gap-2" data-testid="trust-chips">
             {chips.map((chip) => (

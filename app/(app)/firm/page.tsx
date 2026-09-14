@@ -5,6 +5,7 @@ import HeroChips from "@/app/components/pat/HeroChips";
 import WorkspaceNotice from "@/app/components/shell/WorkspaceNotice";
 import FirmWorkspaceDashboard from "@/app/components/workspace/FirmWorkspaceDashboard";
 import { getFirmWorkspaceDashboard } from "@/lib/firmWorkspaceDashboard";
+import { getFirmWorkspaceCardStats, type WorkspaceCardStats } from "@/lib/workspaceCardStats";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
@@ -90,6 +91,9 @@ export default async function FirmPage({
     isNewFrontDoorEnabled() && company?.type === "FIRM" && activePanel === "workspace"
       ? await getFirmWorkspaceDashboard(company.id, company.name, sessionUser?.id ?? null)
       : null;
+  // R28 (box 2b): live numbers on the cards, flag-on only (the dashboard's own values plus the
+  // four the dashboard does not carry).
+  const cardStats: WorkspaceCardStats = dashboard && company ? await getFirmWorkspaceCardStats(company.id, dashboard) : {};
   const todayLabel = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
   const completedModules = moduleProgress.filter((module) => module.latestSubmittedAt).length;
   const panelOptions = [
@@ -213,7 +217,9 @@ export default async function FirmPage({
       ...card,
       title: messages.portal.cards.firm[card.id]?.title ?? card.title,
       description: messages.portal.cards.firm[card.id]?.description ?? card.description,
-    }));
+    }))
+    // R29 (box 2b, 2026-09-14): the Sandbox card leads the firm card row.
+    .sort((a, b) => Number(b.id === "firm-alignment-sandbox") - Number(a.id === "firm-alignment-sandbox"));
   // Elite Insights v2: reached ONLY via the Insights tab toggle (no portal-home
   // card — the v1 duplicate was navigation noise, removed per the v2 verdict §4).
 
@@ -240,25 +246,32 @@ export default async function FirmPage({
 
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {localizedCards.map((card) => (
-          <PortalSurfaceCard key={card.id} surface={card} />
+          <PortalSurfaceCard key={card.id} surface={card} stat={cardStats[card.id] ?? null} />
         ))}
+        {/* R25 (box 2b, 2026-09-14): the pings-gated card sits in the grid at the same size as the others. */}
+        {isPingsEnabled() ? (
+          <a
+            href="/firm/benchmark"
+            className={`pat-card pat-card-interactive block p-6${cardStats["firm-benchmark"] ? " relative" : ""}`}
+            data-testid="firm-benchmark-link"
+          >
+            <div className={`flex items-center justify-between gap-3${cardStats["firm-benchmark"] ? " pr-28" : ""}`}>
+              <div className="text-lg font-semibold text-[var(--shell-ink)]">Quarterly benchmark</div>
+              <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
+            </div>
+            <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
+              Where your firm stands against its cohort this quarter, with the published cutoff date.
+            </p>
+            {cardStats["firm-benchmark"] ? (
+              <div className="absolute right-6 top-6 text-right" data-testid="card-stat">
+                <div className="pat-mono text-2xl font-semibold leading-none text-[var(--shell-ink)]">{cardStats["firm-benchmark"].value}</div>
+                <div className="pat-meta mt-1 text-[var(--shell-muted)]">{cardStats["firm-benchmark"].label}</div>
+              </div>
+            ) : null}
+          </a>
+        ) : null}
       </section>
 
-      {isPingsEnabled() ? (
-        <a
-          href="/firm/benchmark"
-          className="pat-card pat-card-interactive block p-6"
-          data-testid="firm-benchmark-link"
-        >
-          <div className="flex items-center justify-between gap-3">
-            <div className="text-lg font-semibold text-[var(--shell-ink)]">Quarterly benchmark</div>
-            <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
-          </div>
-          <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
-            Where your firm stands against its cohort this quarter, with the published cutoff date.
-          </p>
-        </a>
-      ) : null}
     </>
   );
 

@@ -136,7 +136,7 @@ describe("financial claims, prices, competitors, roadmap tone, AI marketing", ()
   it("passes ordinary, honest product copy untouched", () => {
     expect(
       rules(
-        "The Alignment Board lays your current product stack out as pieces, each carrying its live alignment score. Swap a piece for a candidate and your projected firm alignment recomputes, with a confidence band when the sample is thin."
+        "The Tech Stack Sandbox lays your current product stack out as pieces, each carrying its live alignment score. Swap a piece for a candidate and your projected firm alignment recomputes, with a confidence band when the sample is thin."
       )
     ).toEqual([]);
   });

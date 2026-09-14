@@ -3,14 +3,19 @@ import type { PortalSurface } from "@/lib/portalVisibility";
 
 type PortalSurfaceCardProps = {
   surface: PortalSurface;
+  /** R28 (box 2b): the card's live number. Rendered after the description in
+   *  DOM order (the link's accessible name keeps production's prefix) and
+   *  placed top-right visually. Omitted flag-off. */
+  stat?: { value: string; label: string } | null;
 };
 
 export default function PortalSurfaceCard({
   surface,
+  stat = null,
 }: PortalSurfaceCardProps) {
   const content = (
     <>
-      <div>
+      <div className={stat ? "pr-24" : undefined}>
         <div className="text-lg font-semibold text-[var(--shell-ink)]">
           {surface.title}
         </div>
@@ -18,6 +23,12 @@ export default function PortalSurfaceCard({
           {surface.description}
         </p>
       </div>
+      {stat ? (
+        <div className="absolute right-6 top-6 text-right" data-testid="card-stat">
+          <div className="pat-mono text-2xl font-semibold leading-none text-[var(--shell-ink)]">{stat.value}</div>
+          <div className="pat-meta mt-1 text-[var(--shell-muted)]">{stat.label}</div>
+        </div>
+      ) : null}
       {surface.reason ? (
         <div className="mt-5 text-sm text-[var(--shell-muted)]">
           {surface.reason}
@@ -30,7 +41,7 @@ export default function PortalSurfaceCard({
   // --shell-panel bg) — the same "law" the firm-pro insight cards use — instead
   // of the off-law rounded-[24px]/bg-white override, so every portal home card
   // matches the insight cards.
-  const className = "pat-card pat-card-interactive group block p-6";
+  const className = `pat-card pat-card-interactive group block p-6${stat ? " relative" : ""}`;
 
   if (surface.availability === "enabled" && surface.href) {
     return <Link href={surface.href} className={className}>{content}</Link>;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import InsightStatusBadge from "@/app/components/insights/InsightStatusBadge";
 import EliteHubFaceView from "@/app/components/insights/EliteHubFaceView";
@@ -55,10 +55,38 @@ export default function InsightSurfaceCardGrid({
   columnsClassName = "md:grid-cols-2 xl:grid-cols-3",
 }: InsightSurfaceCardGridProps) {
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  // R30 (box 2b, 2026-09-14): the readout opens in a right-hand drawer on desktop and a
+  // full-height sheet on phone — the grid never moves. The drawer is rendered INSIDE the
+  // open card's element (fixed positioning takes it out of flow) so per-card scoping
+  // (data-insight-key → button → "Open full view") is unchanged. Escape and the X close
+  // it; Previous/Next step between the readouts of this grid.
+  const readoutKeys = cards
+    .filter((card) => card.interactive && card.href != null && (card.expandedNode || card.expandedContent))
+    .map((card) => card.key);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  useEffect(() => {
+    if (!expandedKey) return;
+    const previousOverflow = document.body.style.overflow;
+    const previousPaddingRight = document.body.style.paddingRight;
+    // Lock the page scroll without shifting the grid: keep the scrollbar's width as padding.
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
+    closeButtonRef.current?.focus();
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setExpandedKey(null);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.paddingRight = previousPaddingRight;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [expandedKey]);
 
   return (
-    // Block 12h: items-start so expanding one card (into the full inline body)
-    // never stretches its row siblings to match — each card sizes independently.
+    // Block 12h: items-start so cards size independently. R30: the open readout is a
+    // drawer, so no card grows and no row moves.
     <section className={`grid items-start gap-5 ${columnsClassName}`}>
       {cards.map((card) => {
         const tone = card.tone ?? "active";
@@ -130,7 +158,7 @@ export default function InsightSurfaceCardGrid({
             <div
               key={card.key}
               data-insight-key={card.key}
-              className={`${className} ${expanded ? "xl:col-span-2" : ""}`}
+              className={className}
               data-expanded={expanded ? "1" : "0"}
             >
               <button
@@ -146,12 +174,67 @@ export default function InsightSurfaceCardGrid({
                 </span>
               </button>
               {expanded ? (
-                <div className="mt-4 border-t border-[var(--shell-border)] pt-4">
-                  <div className="space-y-6">{inlineBody}</div>
-                  <Link href={card.href} className="pat-button-secondary mt-5 inline-flex">
-                    Open full view
-                  </Link>
-                </div>
+                <>
+                  <div
+                    className="fixed inset-0 z-[70] bg-[rgba(12,33,66,0.28)]"
+                    aria-hidden="true"
+                    onClick={() => setExpandedKey(null)}
+                  />
+                  <div
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby={`insight-readout-${card.key}-title`}
+                    data-testid="insight-readout-drawer"
+                    className="fixed inset-0 z-[71] flex flex-col overflow-y-auto bg-white text-left shadow-[0_0_48px_rgba(12,33,66,0.18)] md:inset-y-0 md:left-auto md:right-0 md:w-[min(44rem,100vw)] md:border-l md:border-[var(--shell-border)]"
+                  >
+                    <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[var(--shell-border)] bg-white/95 px-6 py-4 backdrop-blur-[6px]">
+                      <div className="min-w-0">
+                        <div className="pat-label">Readout</div>
+                        <h2 id={`insight-readout-${card.key}-title`} className="mt-1 text-xl font-semibold text-[var(--shell-ink)]">
+                          {card.title}
+                        </h2>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <button
+                          type="button"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--shell-border)] text-[var(--shell-muted)] hover:text-[var(--shell-ink)] disabled:opacity-40"
+                          aria-label="Previous insight"
+                          title="Previous insight"
+                          disabled={readoutKeys.indexOf(card.key) <= 0}
+                          onClick={() => setExpandedKey(readoutKeys[readoutKeys.indexOf(card.key) - 1] ?? card.key)}
+                        >
+                          <span aria-hidden="true">‹</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--shell-border)] text-[var(--shell-muted)] hover:text-[var(--shell-ink)] disabled:opacity-40"
+                          aria-label="Next insight"
+                          title="Next insight"
+                          disabled={readoutKeys.indexOf(card.key) >= readoutKeys.length - 1}
+                          onClick={() => setExpandedKey(readoutKeys[readoutKeys.indexOf(card.key) + 1] ?? card.key)}
+                        >
+                          <span aria-hidden="true">›</span>
+                        </button>
+                        <button
+                          ref={closeButtonRef}
+                          type="button"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--shell-border)] text-[var(--shell-ink)] hover:border-[rgba(6,54,116,0.32)] focus:outline-none focus:ring-2 focus:ring-[rgba(6,54,116,0.18)]"
+                          aria-label="Close readout"
+                          title="Close readout"
+                          onClick={() => setExpandedKey(null)}
+                        >
+                          <span aria-hidden="true">×</span>
+                        </button>
+                      </div>
+                    </div>
+                    <div className="px-6 py-5">
+                      <div className="space-y-6">{inlineBody}</div>
+                      <Link href={card.href} className="pat-button-secondary mt-5 inline-flex">
+                        Open full view
+                      </Link>
+                    </div>
+                  </div>
+                </>
               ) : null}
             </div>
           );

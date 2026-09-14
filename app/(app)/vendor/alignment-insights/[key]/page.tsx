@@ -74,8 +74,8 @@ async function renderVendorEliteSurface(
         title="Demand Signals"
         summary={
           identityAllowed
-            ? "First-party intent from the Alignment Sandbox: how firms moved your products in and out of their simulated stacks, by category — with the direction each is trending, your most-swapped product, and a ranked next move."
-            : "First-party intent from the Alignment Sandbox: how many firms moved your products in and out of their simulated stacks, by category. Elite adds who is moving, which products, and what to do about it."
+            ? "First-party intent from the Tech Stack Sandbox: how firms moved your products in and out of their simulated stacks, by category — with the direction each is trending, your most-swapped product, and a ranked next move."
+            : "First-party intent from the Tech Stack Sandbox: how many firms moved your products in and out of their simulated stacks, by category. Elite adds who is moving, which products, and what to do about it."
         }
       >
         <VendorDemandSignalsCard data={data} />

@@ -87,9 +87,9 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     path: "help/firm/alignment-board.md",
-    title: "Firm Alignment Board (Elite)",
+    title: "Firm Tech Stack Sandbox (Elite)",
     roleAccess: ["firm"],
-    body: "The Alignment Board lays your current product stack out as pieces, each carrying its live alignment score against your firm's five-module shape. Swap a piece for a candidate and your projected firm alignment recomputes, with a confidence band when the sample is thin. Elite reveals candidate product names; Pro shows an anonymized teaser. Find it at /firm/alignment-board.",
+    body: "The Tech Stack Sandbox lays your current product stack out as pieces, each carrying its live alignment score against your firm's five-module shape. Swap a piece for a candidate and your projected firm alignment recomputes, with a confidence band when the sample is thin. Elite reveals candidate product names; Pro shows an anonymized teaser. Find it at /firm/alignment-board.",
   },
 
   // ---- Vendor ----

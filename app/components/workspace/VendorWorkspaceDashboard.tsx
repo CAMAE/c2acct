@@ -58,8 +58,9 @@ export default function VendorWorkspaceDashboard({ view }: { view: Data }) {
         )}
       </section>
 
+      {/* R27 (box 2b, 2026-09-14): the latest readout sits full width above the Products block. */}
       {!empty ? (
-        <section className="grid gap-5 md:grid-cols-2">
+        <section className="grid gap-5">
           {view.latestReadout ? (
             <Link href={view.latestReadout.href} className="pat-card pat-hover-card block p-6" data-testid="latest-insight">
               <div className="pat-label">Latest product readout</div>
@@ -129,6 +130,8 @@ export default function VendorWorkspaceDashboard({ view }: { view: Data }) {
         </section>
       ) : null}
 
+      {/* R26 (box 2b, 2026-09-14): the strip renders only when something happened since the last visit. */}
+      {view.sinceLastVisit.sinceLabel && view.sinceLastVisit.firmReviewsReceived + view.sinceLastVisit.readoutsRefreshed > 0 ? (
       <section className="pat-soft-panel flex flex-wrap items-center gap-x-6 gap-y-2 p-4 text-sm text-[var(--shell-muted)]" data-testid="since-last-visit">
         <span className="pat-label">Since your last visit</span>
         {view.sinceLastVisit.sinceLabel ? (
@@ -147,6 +150,7 @@ export default function VendorWorkspaceDashboard({ view }: { view: Data }) {
           <span>This is your first visit on record.</span>
         )}
       </section>
+      ) : null}
     </div>
   );
 }

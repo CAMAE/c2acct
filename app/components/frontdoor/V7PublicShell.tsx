@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { getRequestLocale } from "@/lib/requestLocale";
 import LanguageSelector from "@/app/components/shell/LanguageSelector";
 import SignedInHeaderControls from "@/app/components/shell/SignedInHeaderControls";
+import SignedOutHeaderMenu from "@/app/components/shell/SignedOutHeaderMenu";
 import { getSessionUser } from "@/lib/auth/session";
 
 /**
@@ -43,7 +44,8 @@ export default async function V7PublicShell({ children }: { children: ReactNode 
         style={{ borderColor: borderLt }}
       >
         <div className="mx-auto flex h-[78px] max-w-[1120px] items-center justify-between gap-3 px-4 sm:px-9">
-          <Link href="/">
+          {/* A2 (box 2b, Cam 9/14): production's logo link name, "Open home". */}
+          <Link href="/" aria-label="Open home">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/PAT.png" alt="PAT" className="block h-9 w-auto" />
           </Link>
@@ -54,9 +56,17 @@ export default async function V7PublicShell({ children }: { children: ReactNode 
             {signedIn ? (
               <SignedInHeaderControls />
             ) : (
-              <Link href="/sign-in" className="shrink-0 whitespace-nowrap rounded-full bg-[var(--shell-ink)] px-5 py-[11px] font-semibold text-white sm:px-6">
-                Sign in
-              </Link>
+              <>
+                <Link href="/sign-in" className="shrink-0 whitespace-nowrap rounded-full bg-[var(--shell-ink)] px-5 py-[11px] font-semibold text-white sm:px-6">
+                  Sign in
+                </Link>
+                {/* A1 (box 2b, Cam 9/14 "all as recommended"): production's navigation
+                    menu for a signed-out visitor — Home / Meet PAT / Sign in / Vendor /
+                    Firm / [Consultant] / Trust / Return to C2Acct — composed from the
+                    same HeaderControlsMenu the signed-in shell uses (no bell, no
+                    Membership, no Sign out). The look of the nav is unchanged. */}
+                <SignedOutHeaderMenu />
+              </>
             )}
           </div>
         </div>

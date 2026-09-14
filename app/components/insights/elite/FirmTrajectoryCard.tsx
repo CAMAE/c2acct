@@ -86,7 +86,7 @@ export default function FirmTrajectoryCard({
               <dd className="inline text-[var(--shell-muted)]">
                 your alignment index recomputed each time you submit a module — {data.provenance.snapshotCount}{" "}
                 submission snapshots from {data.provenance.firstLabel} to {data.provenance.lastLabel}. This is your PAT
-                assessment history over time, not Alignment Sandbox swap activity.
+                assessment history over time, not Tech Stack Sandbox swap activity.
               </dd>
             </div>
             <div>
@@ -110,7 +110,7 @@ export default function FirmTrajectoryCard({
         <section className="pat-card p-6">
           <div className="pat-label">Best available move (Sandbox)</div>
           <p className="mt-3 text-sm leading-6 text-[var(--shell-ink)]">
-            Your best available swap in the Alignment Sandbox moves you from the{" "}
+            Your best available swap in the Tech Stack Sandbox moves you from the{" "}
             <span className="font-semibold">{ordinal(data.swapMovement.fromPercentile)} percentile</span> to the{" "}
             <span className="font-semibold text-[var(--shell-positive)]">
               {ordinal(data.swapMovement.toPercentile)} percentile

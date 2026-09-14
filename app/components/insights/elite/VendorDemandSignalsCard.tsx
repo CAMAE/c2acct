@@ -118,7 +118,7 @@ export default function VendorDemandSignalsCard({ data }: { data: VendorDemandSi
         rows={[
           { label: "Window", value: data.windowLabel },
           { label: "Volume", value: `${data.totalIn} swapped in · ${data.totalOut} swapped out` },
-          { label: "Source", value: "First-party Alignment Sandbox swap events, by product category" },
+          { label: "Source", value: "First-party Tech Stack Sandbox swap events, by product category" },
         ]}
         note="Counts are every firm swap of your products in or out of a simulated stack during the window — raw first-party intent, not a survey. Identity of the moving firms and per-category trend detail are Elite-gated and shown only when the safe harbor allows."
       />

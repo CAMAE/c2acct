@@ -52,7 +52,7 @@ export const firmWorkspaceCards: PortalSurface[] = [
     // R4: entry point to the Alignment Board. Filtered out in app/firm/page.tsx
     // unless PAT_ENABLE_ALIGNMENT_BOARD is on. Cam's naming: "Alignment Sandbox".
     id: "firm-alignment-sandbox",
-    title: "Alignment Sandbox",
+    title: "Tech Stack Sandbox",
     description: "Play with your product stack as interactive pieces — swap candidates in and watch your projected firm alignment recompute live.",
     href: "/firm/alignment-board",
     audience: ["firm"],
@@ -172,7 +172,7 @@ export function FirmHelpInlineContent({
     ...(isNewFrontDoorEnabled()
       ? FIRM_HELP_CARDS.slice(5).filter(
           (card) =>
-            (card.title !== "Alignment Sandbox" || isAlignmentBoardEnabled()) &&
+            (card.title !== "Tech Stack Sandbox" || isAlignmentBoardEnabled()) &&
             (card.title !== "Quarterly benchmark" || isPingsEnabled())
         )
       : []),

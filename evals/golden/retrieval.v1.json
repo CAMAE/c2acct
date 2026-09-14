@@ -211,7 +211,7 @@
       "id": "RET-012",
       "suite": "retrieval",
       "judge": "exact",
-      "question": "A firm asking about the Alignment Board gets the Elite board doc.",
+      "question": "A firm asking about the Tech Stack Sandbox gets the Elite board doc.",
       "query": "firm alignment board product stack Elite",
       "k": 5,
       "kinds": [
