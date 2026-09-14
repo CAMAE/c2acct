@@ -161,7 +161,7 @@ describe(`link inventory guard v2 (${LABEL})`, () => {
     expect(BASE_URL, "LINK_INVENTORY_BASE_URL is not set — the guard crawls a running standalone; use pnpm guard:doors").toMatch(/^https?:\/\//);
   });
 
-  it(`every production control survives on the crawled build (${LABEL}) unless ruled in ops/qa/link-removals.json`, { timeout: 30 * 60_000 }, () => {
+  it(`every production control survives on the crawled build (${LABEL}) unless ruled in ops/qa/link-removals.json`, { timeout: 70 * 60_000 }, () => {
     expect(BASE_URL).toMatch(/^https?:\/\//);
     const baseline = JSON.parse(readFileSync(BASELINE_FILE, "utf8")) as Baseline;
     const removals = JSON.parse(readFileSync(REMOVALS_FILE, "utf8")) as Removal[];
@@ -175,7 +175,7 @@ describe(`link inventory guard v2 (${LABEL})`, () => {
       cwd: ROOT,
       env: { ...process.env, BASE: BASE_URL, BUILD: "current", BUILD_DIR: ROOT, OUT: out, TOOLS: tools, IDENTITIES, MAX_DEPTH: "0", BUILD_FLAGS: LABEL },
       stdio: "pipe",
-      timeout: 25 * 60_000,
+      timeout: 65 * 60_000, // box 2b: the crawler retries slow/blank pages, so a set can pass 25 min
     });
     // crawled records → per (normalized route, identity) control sets
     const current = new Map<string, Set<string>>();
