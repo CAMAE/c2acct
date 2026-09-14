@@ -10,8 +10,13 @@ if [ -f .env.local ]; then set -a; . ./.env.local; set +a; fi
 PROD_FLAGS="PAT_ENABLE_ALIGNMENT_BOARD=1 PAT_ENABLE_BATTLECARD=1 PAT_ENABLE_CONSULTANT_ACCESS=1 PAT_ENABLE_PAT_ASSISTANT=1 PAT_ENABLE_PINGS=1 PAT_ENABLE_SELF_SIGNUP=1"
 PREVIEW_FLAGS="$PROD_FLAGS PAT_ENABLE_NEW_FRONT_DOOR=1 PAT_ENABLE_FOLLOWUP_MC=1 PAT_ENABLE_REGISTRY_MEMO=1"
 status=0
+reap_orphans() { # PAT_GUARD_REAP_ORPHANS=1: kill Prisma query engines whose parent is gone
+  [ "${PAT_GUARD_REAP_ORPHANS:-0}" = "1" ] || return 0
+  for pid in $(ps -axo pid,ppid,command | grep "@prisma+client" | grep -v grep | awk '$2==1{print $1}'); do kill "$pid" 2>/dev/null; done
+}
 run_one() { # label port flags
   local label=$1 port=$2 flags=$3
+  reap_orphans
   env PAT_ENABLE_LOCAL_REVIEW_AUTH=1 $flags PORT=$port HOSTNAME=127.0.0.1 node .next/standalone/server.js > "/tmp/guard-doors-$label.log" 2>&1 &
   local pid=$!
   for i in $(seq 1 60); do sleep 1; curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:$port/trust" | grep -q 200 && break; done

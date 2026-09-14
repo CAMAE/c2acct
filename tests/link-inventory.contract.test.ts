@@ -125,11 +125,17 @@ const VEHICLE_NAMES = new Set([
   "Provisioned pilot password",
 ]);
 const VEHICLE_TAB_NAMES = new Set(["Vendor", "Firm", "Consultant", "Admin", "Help", "Meet PAT", "Individual", "Invitee"]);
-function isVehicle(identity: string, key: string): boolean {
-  if (identity !== "public") return false;
+// Box 2b: the same form on the /sign-in/* sub-pages is the vehicle for every identity (a
+// signed-in crawl identity that lands on /sign-in/firm sees the form it signed in with), and
+// the sub-pages' "Open sign-in hub" / "Back to sign-in hub" links belong to that form.
+const VEHICLE_HUB_NAMES = new Set(["Open sign-in hub", "Back to sign-in hub"]);
+function isVehicle(identity: string, key: string, route = ""): boolean {
   const [role, name, href, region] = JSON.parse(key) as [string, string, string | null, string];
   if (region !== "main") return false;
+  const onSignInRoute = route.startsWith("/sign-in");
+  if (identity !== "public" && !onSignInRoute) return false;
   if (VEHICLE_NAMES.has(name)) return true;
+  if (onSignInRoute && VEHICLE_HUB_NAMES.has(name)) return true;
   return role === "link" && !!href && (href.startsWith("/sign-in?view=") || href === "/sign-in") && VEHICLE_TAB_NAMES.has(name);
 }
 function describeControl(key: string): string {
@@ -162,7 +168,7 @@ describe(`link inventory guard v2 (${LABEL})`, () => {
     // A ruling names the route as its template ("/engagements/[id]/score") or its
     // normalized instance, and may list several controls separated by " / ".
     const isRuled = (route: string, template: string | null | undefined, name: string, label: string) =>
-      removals.some((r) => (r.route === route || (template && r.route === template)) && ((r.controlPrefix !== undefined && name.startsWith(r.controlPrefix)) || r.control === label || r.control.split(" / ").map((c) => c.trim()).includes(name)));
+      removals.some((r) => (r.route === route || (template && r.route === template)) && ((r.controlPrefix !== undefined && name.startsWith(r.controlPrefix)) || r.control === label || r.control.split(" / ").map((c) => c.trim()).includes(name.trim())));
     const out = mkdtempSync(path.join(os.tmpdir(), "link-inventory-"));
     const tools = process.env.LINK_INVENTORY_TOOLS ?? ROOT; // tabbable + axe-core are devDependencies
     execFileSync("node", ["--import", "tsx", "scripts/qa/click-inventory.mts"], {
@@ -179,7 +185,13 @@ describe(`link inventory guard v2 (${LABEL})`, () => {
       for (const file of readdirSync(dir)) {
         if (!file.endsWith(".json") || file.startsWith("_")) continue;
         const record = JSON.parse(readFileSync(path.join(dir, file), "utf8"));
-        current.set(`${normalizeRoute(record.route)}|${identity}`, new Set([...controlsOf(record)].map(canonicalKey)));
+        // Box 2b: several crawled instances can normalize to one baseline route (demo-… ids);
+        // a control present on ANY instance counts, so a single slow or failed instance does
+        // not erase the controls the others recorded.
+        const routeKey = `${normalizeRoute(record.route)}|${identity}`;
+        const merged = current.get(routeKey) ?? new Set<string>();
+        for (const key of [...controlsOf(record)].map(canonicalKey)) merged.add(key);
+        current.set(routeKey, merged);
       }
     }
     expect(current.size, "the crawl produced no records").toBeGreaterThan(50);
@@ -193,7 +205,7 @@ describe(`link inventory guard v2 (${LABEL})`, () => {
         for (const c of entry.controls) {
           const key = canonicalKey(JSON.stringify(c));
           if (cur.has(key)) continue;
-          if (isVehicle(identity, key)) continue;
+          if (isVehicle(identity, key, route)) continue;
           const label = describeControl(key);
           if (isRuled(route, (entry as { template?: string | null }).template, c[1], label.replace(/ \[(main|shell)\]$/, ""))) continue;
           const group = `${route} · ${identity}`;

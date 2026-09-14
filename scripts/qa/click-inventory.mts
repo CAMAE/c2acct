@@ -129,12 +129,13 @@ function stripMain(body: string): string {
 }
 
 async function inspect(page: Page, url: string) {
-  let response = await page.goto(url, { waitUntil: "load", timeout: 60_000 }).catch(() => null);
-  // Box 2b: a 5xx on a shared local database is usually a transient pool exhaustion
-  // (three standalones plus the crawl); retry once after a pause before recording it.
-  if (response && response.status() >= 500) {
+  const GOTO_MS = Number(process.env.PAGE_GOTO_MS ?? 120_000);
+  let response = await page.goto(url, { waitUntil: "load", timeout: GOTO_MS }).catch(() => null);
+  // Box 2b: a 5xx (or a timeout) on a shared local database is usually a transient pool
+  // exhaustion; retry once after a pause before recording it. Slow admin pages get 120 s.
+  if (!response || response.status() >= 500) {
     await page.waitForTimeout(3_000);
-    response = await page.goto(url, { waitUntil: "load", timeout: 60_000 }).catch(() => response);
+    response = await page.goto(url, { waitUntil: "load", timeout: GOTO_MS }).catch(() => response);
   }
   await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
   await page.waitForTimeout(250);
