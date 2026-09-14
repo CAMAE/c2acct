@@ -65,6 +65,41 @@ function controlsOf(record: { aria?: { main?: string | null; shell?: string | nu
   }
   return out;
 }
+// Box 2 (2026-09-13), Cam's rulings applied as NORMALIZATION rather than allowlist entries:
+// a ruled rename is the same door under a new name, so both sides are canonicalized before
+// comparison and the door must still be there. R7: the vendor workspace card "BattleCard …"
+// is "Product Fit Card …". Consultant workspace: the "Nudge queue" button is "Nudges".
+const RENAMES: Array<[RegExp, string]> = [
+  [/^BattleCard\b/, "Product Fit Card"],
+  [/^Nudge queue$/, "Nudges"],
+];
+function canonicalKey(key: string): string {
+  const [role, name, href, region] = JSON.parse(key) as [string, string, string | null, string];
+  let label = name;
+  for (const [from, to] of RENAMES) label = label.replace(from, to);
+  // Labels are capped at 100 chars on both sides; re-cap after the rename so a longer
+  // new name compares on the same prefix as the crawl's (already capped) label.
+  return JSON.stringify([role, label.slice(0, 100), href, region]);
+}
+// The local-review / provisioned sign-in form and the sign-in view tabs are the crawl's
+// VEHICLE (PAT_ENABLE_LOCAL_REVIEW_AUTH=1 is set for the crawl only, never in production's
+// table), so for the signed-out identity they are not production doors and are not compared.
+const VEHICLE_NAMES = new Set([
+  "Continue with local review",
+  "Continue with provisioned account",
+  "Continue with GitHub",
+  "Local review password",
+  "Provisioned pilot email",
+  "Provisioned pilot password",
+]);
+const VEHICLE_TAB_NAMES = new Set(["Vendor", "Firm", "Consultant", "Admin", "Help", "Meet PAT", "Individual", "Invitee"]);
+function isVehicle(identity: string, key: string): boolean {
+  if (identity !== "public") return false;
+  const [role, name, href, region] = JSON.parse(key) as [string, string, string | null, string];
+  if (region !== "main") return false;
+  if (VEHICLE_NAMES.has(name)) return true;
+  return role === "link" && !!href && (href.startsWith("/sign-in?view=") || href === "/sign-in") && VEHICLE_TAB_NAMES.has(name);
+}
 function describeControl(key: string): string {
   const [role, name, href, region] = JSON.parse(key) as [string, string, string | null, string];
   return `${role} "${name}"${href ? ` → ${href}` : ""} [${region}]`;
@@ -112,7 +147,7 @@ describe(`link inventory guard v2 (${LABEL})`, () => {
       for (const file of readdirSync(dir)) {
         if (!file.endsWith(".json") || file.startsWith("_")) continue;
         const record = JSON.parse(readFileSync(path.join(dir, file), "utf8"));
-        current.set(`${normalizeRoute(record.route)}|${identity}`, controlsOf(record));
+        current.set(`${normalizeRoute(record.route)}|${identity}`, new Set([...controlsOf(record)].map(canonicalKey)));
       }
     }
     expect(current.size, "the crawl produced no records").toBeGreaterThan(50);
@@ -124,8 +159,9 @@ describe(`link inventory guard v2 (${LABEL})`, () => {
         if (!cur) continue;
         compared += 1;
         for (const c of entry.controls) {
-          const key = JSON.stringify(c);
+          const key = canonicalKey(JSON.stringify(c));
           if (cur.has(key)) continue;
+          if (isVehicle(identity, key)) continue;
           const label = describeControl(key);
           if (isRuled(route, (entry as { template?: string | null }).template, c[1], label.replace(/ \[(main|shell)\]$/, ""))) continue;
           const group = `${route} · ${identity}`;
