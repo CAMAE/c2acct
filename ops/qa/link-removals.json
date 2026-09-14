@@ -201,5 +201,11 @@
     "control": "Available # / Completed #",
     "ledgerLine": "PRIOR RULING (V3 box 4.1, 2026-09-09, Leslie's one-page rule): the firm product assessment is one page; the paged layout's Available/Completed toggles left with the pager",
     "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/survey/firm_alignment_operating_model_v1",
+    "control": "Back to readiness",
+    "ledgerLine": "VEHICLE: a vendor identity opening a firm module is bounced by the company gate; whether the module header renders before the bounce depends on the crawl's timing (the firm identities keep the link)",
+    "rulingDate": "2026-09-14"
   }
 ]
