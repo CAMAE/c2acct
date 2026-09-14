@@ -122,10 +122,13 @@ export default function AlignmentBoardClient({
   entitled,
   membershipHref,
   readOnly = false,
+  sandboxLabel = "Alignment Sandbox",
 }: {
   data: AlignmentBoardData;
   entitled: boolean;
   membershipHref: string;
+  /** R24: the surface name (server-resolved; flag-off "Alignment Sandbox"). */
+  sandboxLabel?: string;
   /** F14: a managing consultant views a scoped firm's board read-only — piece
    *  inspection stays, but swap staging is disabled (no what-if mutations). */
   readOnly?: boolean;
@@ -305,7 +308,7 @@ export default function AlignmentBoardClient({
 
       {/* Header: stat lockup (left) + radar (right) */}
       <section className="pat-card p-6 sm:p-8">
-        <div className="pat-label">Tech Stack Sandbox</div>
+        <div className="pat-label">{sandboxLabel}</div>
         <div className="mt-4 grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div>
             <div className="flex flex-wrap items-end gap-x-5 gap-y-2">

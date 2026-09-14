@@ -30,6 +30,7 @@ import {
   getFirmAssessmentProgress,
   FIRM_TIER1_INSIGHT_DEFINITIONS,
 } from "@/lib/firmPat";
+import { boardLabel } from "@/lib/sandboxLabel";
 
 export const dynamic = "force-dynamic";
 
@@ -174,7 +175,7 @@ export default async function FirmInsightsPage({
             <ScoreLockup
               label="Alignment index"
               score={alignmentIndex}
-              context="Avg of your final module scores — distinct from the Tech Stack Sandbox's stack number"
+              context={`Avg of your final module scores — distinct from the ${boardLabel()}'s stack number`}
             />
             <ScoreLockup
               label="Modules complete"

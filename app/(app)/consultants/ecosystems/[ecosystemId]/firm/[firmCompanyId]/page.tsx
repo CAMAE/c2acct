@@ -22,6 +22,7 @@ import FirmBriefMethodology from "./_components/FirmBriefMethodology";
 import FiveModuleRadar from "./_components/FiveModuleRadar";
 import SixQuarterRoadmap from "./_components/SixQuarterRoadmap";
 import StackFitAnalysis from "./_components/StackFitAnalysis";
+import { boardLabel } from "@/lib/sandboxLabel";
 
 export const dynamic = "force-dynamic";
 
@@ -142,7 +143,7 @@ export default async function FirmBriefPage({
               className="inline-flex items-center gap-2 rounded-full border border-[rgba(6,54,116,0.16)] bg-[rgba(6,54,116,0.06)] px-4 py-2 text-sm font-semibold text-[var(--shell-ink)] transition-colors hover:bg-[rgba(6,54,116,0.1)]"
               data-testid="firm-brief-open-board"
             >
-              Open Tech Stack Sandbox <span aria-hidden="true">→</span>
+              Open {boardLabel()} <span aria-hidden="true">→</span>
             </Link>
           ) : null}
         </div>

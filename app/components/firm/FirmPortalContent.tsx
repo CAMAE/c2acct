@@ -7,6 +7,7 @@ import HelpArticleLink from "@/app/components/help/HelpArticleLink";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import { isAlignmentBoardEnabled } from "@/lib/alignmentBoard";
 import { isPingsEnabled } from "@/lib/patAssistant/flags";
+import { sandboxLabel } from "@/lib/sandboxLabel";
 
 export const firmWorkspaceCards: PortalSurface[] = [
   {
@@ -52,7 +53,7 @@ export const firmWorkspaceCards: PortalSurface[] = [
     // R4: entry point to the Alignment Board. Filtered out in app/firm/page.tsx
     // unless PAT_ENABLE_ALIGNMENT_BOARD is on. Cam's naming: "Alignment Sandbox".
     id: "firm-alignment-sandbox",
-    title: "Tech Stack Sandbox",
+    title: sandboxLabel(),
     description: "Play with your product stack as interactive pieces — swap candidates in and watch your projected firm alignment recompute live.",
     href: "/firm/alignment-board",
     audience: ["firm"],
@@ -172,7 +173,7 @@ export function FirmHelpInlineContent({
     ...(isNewFrontDoorEnabled()
       ? FIRM_HELP_CARDS.slice(5).filter(
           (card) =>
-            (card.title !== "Tech Stack Sandbox" || isAlignmentBoardEnabled()) &&
+            (card.title !== sandboxLabel() || isAlignmentBoardEnabled()) &&
             (card.title !== "Quarterly benchmark" || isPingsEnabled())
         )
       : []),

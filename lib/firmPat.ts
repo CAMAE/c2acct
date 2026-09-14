@@ -25,6 +25,7 @@ import {
 } from "@/lib/vendorPat";
 import { buildProductAssessmentPlan } from "@/lib/vendorProductQuestionBank";
 import { insightContent } from "@/lib/insightContent";
+import { sandboxLabel } from "@/lib/sandboxLabel";
 
 export const FIRM_MODULE_DEFINITIONS = [
   {
@@ -1439,7 +1440,7 @@ export const FIRM_HELP_CARDS = [
   // R16 (box 2, 2026-09-11): the two surfaces the help panel never listed.
   // Rendered flag-on only, each behind the same flag as its workspace entry.
   {
-    title: "Tech Stack Sandbox",
+    title: sandboxLabel(),
     what: "Your product stack as interactive pieces, with the projected firm alignment recomputing as you swap candidates in.",
     why: "It shows which alternative closes your largest gap before anyone commits to a change.",
     how: "Lift a piece from your stack, drop in a candidate, and read the projected shape; Elite reveals candidate names.",

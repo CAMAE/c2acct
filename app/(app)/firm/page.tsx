@@ -218,8 +218,8 @@ export default async function FirmPage({
       title: messages.portal.cards.firm[card.id]?.title ?? card.title,
       description: messages.portal.cards.firm[card.id]?.description ?? card.description,
     }))
-    // R29 (box 2b, 2026-09-14): the Sandbox card leads the firm card row.
-    .sort((a, b) => Number(b.id === "firm-alignment-sandbox") - Number(a.id === "firm-alignment-sandbox"));
+    // R29 (box 2b, 2026-09-14): flag-on the Sandbox card leads the firm card row.
+    .sort((a, b) => (isNewFrontDoorEnabled() ? Number(b.id === "firm-alignment-sandbox") - Number(a.id === "firm-alignment-sandbox") : 0));
   // Elite Insights v2: reached ONLY via the Insights tab toggle (no portal-home
   // card — the v1 duplicate was navigation noise, removed per the v2 verdict §4).
 
@@ -227,6 +227,33 @@ export default async function FirmPage({
   // surface cards, the Quarterly benchmark link — is one fragment rendered on
   // both paths. Flag-off it is the whole workspace (unchanged JSX); flag-on it
   // sits UNDER the dashboard, never instead of it.
+  // R25 (box 2b, 2026-09-14): flag-on the pings-gated card sits in the grid at the same size as
+  // the others; flag-off it keeps production's place after the grid.
+  const pingsCard = (
+    <>
+      {isPingsEnabled() ? (
+        <a
+          href="/firm/benchmark"
+          className={`pat-card pat-card-interactive block p-6${cardStats["firm-benchmark"] ? " relative" : ""}`}
+          data-testid="firm-benchmark-link"
+        >
+          <div className={`flex items-center justify-between gap-3${cardStats["firm-benchmark"] ? " pr-28" : ""}`}>
+            <div className="text-lg font-semibold text-[var(--shell-ink)]">Quarterly benchmark</div>
+            <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
+          </div>
+          <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
+            Where your firm stands against its cohort this quarter, with the published cutoff date.
+          </p>
+          {cardStats["firm-benchmark"] ? (
+            <div className="absolute right-6 top-6 text-right" data-testid="card-stat">
+              <div className="pat-mono text-2xl font-semibold leading-none text-[var(--shell-ink)]">{cardStats["firm-benchmark"].value}</div>
+              <div className="pat-meta mt-1 text-[var(--shell-muted)]">{cardStats["firm-benchmark"].label}</div>
+            </div>
+          ) : null}
+        </a>
+      ) : null}
+    </>
+  );
   const cardRow = (
     <>
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -248,28 +275,7 @@ export default async function FirmPage({
         {localizedCards.map((card) => (
           <PortalSurfaceCard key={card.id} surface={card} stat={cardStats[card.id] ?? null} />
         ))}
-        {/* R25 (box 2b, 2026-09-14): the pings-gated card sits in the grid at the same size as the others. */}
-        {isPingsEnabled() ? (
-          <a
-            href="/firm/benchmark"
-            className={`pat-card pat-card-interactive block p-6${cardStats["firm-benchmark"] ? " relative" : ""}`}
-            data-testid="firm-benchmark-link"
-          >
-            <div className={`flex items-center justify-between gap-3${cardStats["firm-benchmark"] ? " pr-28" : ""}`}>
-              <div className="text-lg font-semibold text-[var(--shell-ink)]">Quarterly benchmark</div>
-              <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
-            </div>
-            <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
-              Where your firm stands against its cohort this quarter, with the published cutoff date.
-            </p>
-            {cardStats["firm-benchmark"] ? (
-              <div className="absolute right-6 top-6 text-right" data-testid="card-stat">
-                <div className="pat-mono text-2xl font-semibold leading-none text-[var(--shell-ink)]">{cardStats["firm-benchmark"].value}</div>
-                <div className="pat-meta mt-1 text-[var(--shell-muted)]">{cardStats["firm-benchmark"].label}</div>
-              </div>
-            ) : null}
-          </a>
-        ) : null}
+        {isNewFrontDoorEnabled() ? pingsCard : null}
       </section>
 
     </>

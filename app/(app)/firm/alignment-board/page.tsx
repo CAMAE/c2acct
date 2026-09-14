@@ -9,12 +9,13 @@ import {
   requireConsultantCompanyAccess,
 } from "@/lib/consultantAccess";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
+import { boardLabel, sandboxLabel } from "@/lib/sandboxLabel";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Tech Stack Sandbox | Patalign",
-  description: "Elite firm Tech Stack Sandbox — the interactive stack-and-swap forecaster.",
+  title: `${boardLabel()} | Patalign`,
+  description: `Elite firm ${boardLabel()} — the interactive stack-and-swap forecaster.`,
 };
 
 type SearchParams = { firm?: string };
@@ -29,7 +30,7 @@ function EmptyAlignmentBoard() {
     <div className="space-y-8">
       <section className="pat-card p-8">
         <PatLogoLockup mode="hero" tone="light" />
-        <div className="pat-label mt-6">Tech Stack Sandbox</div>
+        <div className="pat-label mt-6">{boardLabel()}</div>
         <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
           Your stack, as a board you can play with
         </h1>
@@ -90,9 +91,9 @@ export default async function FirmAlignmentBoardPage({
       return (
         <MembershipSurfaceGate
           audience="firm"
-          surfaceLabel="Tech Stack Sandbox"
-          title="The Tech Stack Sandbox is an Elite feature"
-          body="The Tech Stack Sandbox lays your current stack out as pieces you can swap to see projected firm alignment recompute in front of you. PAT keeps this route visible so the upgrade path stays explicit, but the board opens only with Elite membership."
+          surfaceLabel={boardLabel()}
+          title={`The ${boardLabel()} is an Elite feature`}
+          body={`The ${boardLabel()} lays your current stack out as pieces you can swap to see projected firm alignment recompute in front of you. PAT keeps this route visible so the upgrade path stays explicit, but the board opens only with Elite membership.`}
           displayName={entitlement.membership.displayName}
           currentPlan={entitlement.membership.plan}
           currentStatus={entitlement.membership.status}
@@ -102,7 +103,7 @@ export default async function FirmAlignmentBoardPage({
           workspaceHref="/firm"
           workspaceLabel="Open firm workspace"
           availableNow="Your current tier keeps the firm workspace, insights, and membership routing available."
-          upgradeNote="The Tech Stack Sandbox is the Elite packaging layer around your live alignment evidence, so PAT does not open it from a Pro tier."
+          upgradeNote={`The ${boardLabel()} is the Elite packaging layer around your live alignment evidence, so PAT does not open it from a Pro tier.`}
         />
       );
     }
@@ -122,9 +123,9 @@ export default async function FirmAlignmentBoardPage({
       return (
         <MembershipSurfaceGate
           audience="firm"
-          surfaceLabel="Tech Stack Sandbox"
-          title="The Tech Stack Sandbox needs Pro membership"
-          body="The Tech Stack Sandbox is part of the paid firm tiers. PAT keeps this route visible so the membership path stays explicit; the board opens once Pro is active, and Elite reveals the candidate product names."
+          surfaceLabel={boardLabel()}
+          title={`The ${boardLabel()} needs Pro membership`}
+          body={`The ${boardLabel()} is part of the paid firm tiers. PAT keeps this route visible so the membership path stays explicit; the board opens once Pro is active, and Elite reveals the candidate product names.`}
           displayName={proEntitlement.membership.displayName}
           currentPlan={proEntitlement.membership.plan}
           currentStatus={proEntitlement.membership.status}
@@ -134,7 +135,7 @@ export default async function FirmAlignmentBoardPage({
           workspaceHref="/firm"
           workspaceLabel="Open firm workspace"
           availableNow="Your current tier keeps the firm workspace, insights, and membership routing available."
-          upgradeNote="The Tech Stack Sandbox is the paid packaging layer around your live alignment evidence."
+          upgradeNote={`The ${boardLabel()} is the paid packaging layer around your live alignment evidence.`}
         />
       );
     }
@@ -148,5 +149,5 @@ export default async function FirmAlignmentBoardPage({
     notFound();
   }
 
-  return <AlignmentBoardClient data={data} entitled={entitled} membershipHref={membershipHref} />;
+  return <AlignmentBoardClient data={data} entitled={entitled} membershipHref={membershipHref} sandboxLabel={sandboxLabel()} />;
 }

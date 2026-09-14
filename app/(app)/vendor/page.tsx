@@ -149,36 +149,43 @@ export default async function VendorPage({
   // Review refresh link, the current vendor context — is one fragment rendered
   // on both paths. Flag-off it is the whole workspace (unchanged JSX); flag-on
   // it sits UNDER the dashboard, never instead of it.
+  // R25 (box 2b, 2026-09-14): flag-on the pings-gated card sits in the grid at the same size as
+  // the others; flag-off it keeps production's place after the grid.
+  const pingsCard = (
+    <>
+      {isPingsEnabled() ? (
+        <a
+          href="/vendor/review-refresh"
+          className={`pat-card pat-card-interactive block p-6${cardStats["vendor-review-refresh"] ? " relative" : ""}`}
+          data-testid="vendor-review-refresh-link"
+        >
+          <div className={`flex items-center justify-between gap-3${cardStats["vendor-review-refresh"] ? " pr-28" : ""}`}>
+            <div className="text-lg font-semibold text-[var(--shell-ink)]">Review refresh</div>
+            <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
+          </div>
+          <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
+            How current the firm reviews of your products are — and which are entering their refresh window.
+          </p>
+          {cardStats["vendor-review-refresh"] ? (
+            <div className="absolute right-6 top-6 text-right" data-testid="card-stat">
+              <div className="pat-mono text-2xl font-semibold leading-none text-[var(--shell-ink)]">{cardStats["vendor-review-refresh"].value}</div>
+              <div className="pat-meta mt-1 text-[var(--shell-muted)]">{cardStats["vendor-review-refresh"].label}</div>
+            </div>
+          ) : null}
+        </a>
+      ) : null}
+    </>
+  );
   const cardRow = (
     <>
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {localizedCards.map((card) => (
           <PortalSurfaceCard key={card.id} surface={card} stat={cardStats[card.id] ?? null} />
         ))}
-        {/* R25 (box 2b, 2026-09-14): the pings-gated card sits in the grid at the same size as the others. */}
-        {isPingsEnabled() ? (
-          <a
-            href="/vendor/review-refresh"
-            className={`pat-card pat-card-interactive block p-6${cardStats["vendor-review-refresh"] ? " relative" : ""}`}
-            data-testid="vendor-review-refresh-link"
-          >
-            <div className={`flex items-center justify-between gap-3${cardStats["vendor-review-refresh"] ? " pr-28" : ""}`}>
-              <div className="text-lg font-semibold text-[var(--shell-ink)]">Review refresh</div>
-              <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
-            </div>
-            <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
-              How current the firm reviews of your products are — and which are entering their refresh window.
-            </p>
-            {cardStats["vendor-review-refresh"] ? (
-              <div className="absolute right-6 top-6 text-right" data-testid="card-stat">
-                <div className="pat-mono text-2xl font-semibold leading-none text-[var(--shell-ink)]">{cardStats["vendor-review-refresh"].value}</div>
-                <div className="pat-meta mt-1 text-[var(--shell-muted)]">{cardStats["vendor-review-refresh"].label}</div>
-              </div>
-            ) : null}
-          </a>
-        ) : null}
+        {isNewFrontDoorEnabled() ? pingsCard : null}
       </section>
 
+      {isNewFrontDoorEnabled() ? null : pingsCard}
 
       {/* P3 (Mythos punch list): "Products at a glance" strip removed —
           product intelligence lives on the product-insight surfaces. */}
