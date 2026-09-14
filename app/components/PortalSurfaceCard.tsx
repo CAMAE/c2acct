@@ -15,20 +15,22 @@ export default function PortalSurfaceCard({
 }: PortalSurfaceCardProps) {
   const content = (
     <>
-      <div className={stat ? "pr-24" : undefined}>
-        <div className="text-lg font-semibold text-[var(--shell-ink)]">
-          {surface.title}
+      <div className={stat ? "flex items-start justify-between gap-4" : undefined}>
+        <div className={stat ? "min-w-0 flex-1" : undefined}>
+          <div className="text-lg font-semibold text-[var(--shell-ink)]">
+            {surface.title}
+          </div>
+          <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
+            {surface.description}
+          </p>
         </div>
-        <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-          {surface.description}
-        </p>
+        {stat ? (
+          <div className="w-28 shrink-0 text-right" data-testid="card-stat">
+            <div className="pat-mono text-2xl font-semibold leading-none text-[var(--shell-ink)]">{stat.value}</div>
+            <div className="pat-meta mt-1 text-[var(--shell-muted)]">{stat.label}</div>
+          </div>
+        ) : null}
       </div>
-      {stat ? (
-        <div className="absolute right-6 top-6 text-right" data-testid="card-stat">
-          <div className="pat-mono text-2xl font-semibold leading-none text-[var(--shell-ink)]">{stat.value}</div>
-          <div className="pat-meta mt-1 text-[var(--shell-muted)]">{stat.label}</div>
-        </div>
-      ) : null}
       {surface.reason ? (
         <div className="mt-5 text-sm text-[var(--shell-muted)]">
           {surface.reason}
@@ -41,7 +43,7 @@ export default function PortalSurfaceCard({
   // --shell-panel bg) — the same "law" the firm-pro insight cards use — instead
   // of the off-law rounded-[24px]/bg-white override, so every portal home card
   // matches the insight cards.
-  const className = `pat-card pat-card-interactive group block p-6${stat ? " relative" : ""}`;
+  const className = "pat-card pat-card-interactive group block p-6";
 
   if (surface.availability === "enabled" && surface.href) {
     return <Link href={surface.href} className={className}>{content}</Link>;
