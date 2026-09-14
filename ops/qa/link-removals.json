@@ -28,5 +28,23 @@
     "control": "Payment details",
     "ledgerLine": "textarea 'Payment details' -> billing contact fields (rename). Cam, box 2 DOORS, 9/11",
     "rulingDate": "2026-09-11"
+  },
+  {
+    "route": "/firm?panel=admin",
+    "control": "Payment details",
+    "ledgerLine": "textarea 'Payment details' -> billing contact fields (rename); the admin panel routes the crawl records for /firm/admin, /vendor/admin, /vendor/profile. Cam, box 2 DOORS, 9/11",
+    "rulingDate": "2026-09-11"
+  },
+  {
+    "route": "/vendor?panel=admin",
+    "control": "Payment details",
+    "ledgerLine": "textarea 'Payment details' -> billing contact fields (rename); the admin panel routes the crawl records for /firm/admin, /vendor/admin, /vendor/profile. Cam, box 2 DOORS, 9/11",
+    "rulingDate": "2026-09-11"
+  },
+  {
+    "route": "/profiles",
+    "control": "Payment details",
+    "ledgerLine": "textarea 'Payment details' -> billing contact fields (rename); the admin panel routes the crawl records for /firm/admin, /vendor/admin, /vendor/profile. Cam, box 2 DOORS, 9/11",
+    "rulingDate": "2026-09-11"
   }
 ]
