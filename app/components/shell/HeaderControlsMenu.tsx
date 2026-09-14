@@ -30,6 +30,14 @@ export type HeaderControlsMenuProps = {
   };
 };
 
+function resolveMembershipHrefByPath(pathname: string | null, fallbackHref: string | null) {
+  if (pathname === "/sign-in" || pathname?.startsWith("/admin") || pathname?.startsWith("/consultants")) return null;
+  if (!pathname) return fallbackHref;
+  if (pathname.startsWith("/vendor") || pathname.startsWith("/sign-in/vendor")) return "/vendor/membership";
+  if (pathname.startsWith("/firm") || pathname.startsWith("/sign-in/firm")) return "/firm/membership";
+  return fallbackHref;
+}
+
 export default function HeaderControlsMenu({
   buttonClassName,
   membershipHref,
@@ -43,8 +51,11 @@ export default function HeaderControlsMenu({
   const [open, setOpen] = useState(false);
   const cardRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
-  const membershipActive = membershipHref
-    ? pathname === membershipHref || pathname?.startsWith(`${membershipHref}/`)
+  // Same path rule as AppHeader.resolveMembershipHref (production): the path decides the
+  // membership target on the portal and sign-in sub-pages; the audience fallback elsewhere.
+  const resolvedMembershipHref = resolveMembershipHrefByPath(pathname, membershipHref);
+  const membershipActive = resolvedMembershipHref
+    ? pathname === resolvedMembershipHref || pathname?.startsWith(`${resolvedMembershipHref}/`)
     : false;
 
   useEffect(() => {
@@ -75,9 +86,9 @@ export default function HeaderControlsMenu({
     <div className="flex shrink-0 items-center gap-2" data-testid="signed-in-header-controls">
       {showNotificationBell ? <HeaderNotificationBell buttonClassName={buttonClassName} /> : null}
 
-      {membershipHref ? (
+      {resolvedMembershipHref ? (
         <Link
-          href={membershipHref}
+          href={resolvedMembershipHref}
           className={buttonClassName}
           aria-label={uiText.membership}
           title={uiText.membership}

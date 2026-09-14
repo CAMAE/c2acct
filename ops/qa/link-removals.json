@@ -103,8 +103,8 @@
   },
   {
     "route": "/",
-    "control": "CHOOSE YOUR PATH Create an account Pick the role that matches your work — vendor or firm — answer tw / Choose your path Create an account Pick the role that matches your work — vendor or firm — answer tw / SIGN IN Continue to your workspace Vendors and firms sign in here to access their PAT workspace. Per / SIGNED IN Continue to your workspace You are signed in. Choose your path to access your designed wor / Sign in Continue to your workspace Vendors and firms sign in here to access their PAT workspace. Per / Signed in Continue to your workspace You are signed in. Choose your path to access your designed wor / WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into ",
-    "ledgerLine": "ACCEPT: production's home path cards replaced by the V7 front door (R18) — Cam 9/14 \"all as recommended\"",
+    "control": "CHOOSE YOUR PATH Create an account Pick the role that matches your work — vendor or firm — answer tw / Choose your path Create an account Pick the role that matches your work — vendor or firm — answer tw / SIGN IN Continue to your workspace Vendors and firms sign in here to access their PAT workspace. Per / SIGNED IN Continue to your workspace You are signed in. Choose your path to access your designed wor / Sign in Continue to your workspace Vendors and firms sign in here to access their PAT workspace. Per / Signed in Continue to your workspace You are signed in. Choose your path to access your designed wor / WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into  / Sign out",
+    "ledgerLine": "ACCEPT: production's home path cards (and the signed-in card's Sign out button) replaced by the V7 front door (R18) — Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
@@ -162,8 +162,8 @@
   },
   {
     "route": "/",
-    "control": "WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into  / Welcome Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into ",
-    "ledgerLine": "ACCEPT: production's home path cards replaced by the V7 front door (R18) — Cam 9/14 \"all as recommended\"",
+    "control": "WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into  / Welcome Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into  / Sign out",
+    "ledgerLine": "ACCEPT: production's home path cards (and the signed-in card's Sign out button) replaced by the V7 front door (R18) — Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
