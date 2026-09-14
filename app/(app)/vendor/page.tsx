@@ -156,22 +156,26 @@ export default async function VendorPage({
       {isPingsEnabled() ? (
         <a
           href="/vendor/review-refresh"
-          className={`pat-card pat-card-interactive block p-6${cardStats["vendor-review-refresh"] ? " relative" : ""}`}
+          className="pat-card pat-card-interactive block p-6"
           data-testid="vendor-review-refresh-link"
         >
-          <div className={`flex items-center justify-between gap-3${cardStats["vendor-review-refresh"] ? " pr-28" : ""}`}>
-            <div className="text-lg font-semibold text-[var(--shell-ink)]">Review refresh</div>
-            <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
-          </div>
-          <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
+          <div className={cardStats["vendor-review-refresh"] ? "flex items-start justify-between gap-4" : undefined}>
+            <div className={cardStats["vendor-review-refresh"] ? "min-w-0 flex-1" : undefined}>
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-lg font-semibold text-[var(--shell-ink)]">Review refresh</div>
+                <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
+              </div>
+              <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
             How current the firm reviews of your products are — and which are entering their refresh window.
-          </p>
+              </p>
+            </div>
           {cardStats["vendor-review-refresh"] ? (
-            <div className="absolute right-6 top-6 text-right" data-testid="card-stat">
+            <div className="w-28 shrink-0 text-right" data-testid="card-stat">
               <div className="pat-mono text-2xl font-semibold leading-none text-[var(--shell-ink)]">{cardStats["vendor-review-refresh"].value}</div>
               <div className="pat-meta mt-1 text-[var(--shell-muted)]">{cardStats["vendor-review-refresh"].label}</div>
             </div>
           ) : null}
+          </div>
         </a>
       ) : null}
     </>

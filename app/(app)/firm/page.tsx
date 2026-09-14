@@ -234,22 +234,26 @@ export default async function FirmPage({
       {isPingsEnabled() ? (
         <a
           href="/firm/benchmark"
-          className={`pat-card pat-card-interactive block p-6${cardStats["firm-benchmark"] ? " relative" : ""}`}
+          className="pat-card pat-card-interactive block p-6"
           data-testid="firm-benchmark-link"
         >
-          <div className={`flex items-center justify-between gap-3${cardStats["firm-benchmark"] ? " pr-28" : ""}`}>
-            <div className="text-lg font-semibold text-[var(--shell-ink)]">Quarterly benchmark</div>
-            <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
-          </div>
-          <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
+          <div className={cardStats["firm-benchmark"] ? "flex items-start justify-between gap-4" : undefined}>
+            <div className={cardStats["firm-benchmark"] ? "min-w-0 flex-1" : undefined}>
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-lg font-semibold text-[var(--shell-ink)]">Quarterly benchmark</div>
+                <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
+              </div>
+              <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
             Where your firm stands against its cohort this quarter, with the published cutoff date.
-          </p>
+              </p>
+            </div>
           {cardStats["firm-benchmark"] ? (
-            <div className="absolute right-6 top-6 text-right" data-testid="card-stat">
+            <div className="w-28 shrink-0 text-right" data-testid="card-stat">
               <div className="pat-mono text-2xl font-semibold leading-none text-[var(--shell-ink)]">{cardStats["firm-benchmark"].value}</div>
               <div className="pat-meta mt-1 text-[var(--shell-muted)]">{cardStats["firm-benchmark"].label}</div>
             </div>
           ) : null}
+          </div>
         </a>
       ) : null}
     </>
