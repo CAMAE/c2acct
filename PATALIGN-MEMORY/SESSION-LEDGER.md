@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-14 · PUSHED on Cam's typed push — origin/feature/engagement-v1 92fd64a8 → 485686d2 (box 2: c52a5629 code, 669d7349 diff+rules, d792eeb4 rulings, fcf3dccf guard normalization, fb27e621 guard-remaining, ledger banks). Prod untouched at 0157d40. Vercel builds nothing on push; preview dpl_3UbyH5Pi9Qj5MKYA24cjHEoEyKSK stands.
+
 ## 2026-09-13 · Box 2 finish: rulings committed (d792eeb4), guard normalization (fcf3dccf), guard re-run, ops/qa/guard-remaining.md; NOT pushed
 - Guard v2 now canonicalizes the two ruled renames (BattleCard→Product Fit Card card; Nudge queue→Nudges) on both sides and skips the sign-in vehicle for the public identity. Re-run on both sets: flags-off 225 lost on 23 routes (was 617); flags-as-preview 1,792 on 140 routes (was 3,670). Offline re-score reproduces both numbers exactly.
 - Remaining, by disposition (ops/qa/guard-remaining.md): flags-as-preview — signed-out V7 nav menu 1,120 (ruling-needed, untouched per Cam), sign-in form seen by signed-in identities 88 (vehicle), "Open home" logo name 93, Trust center 63, vendor list Completed/Existing registry drift ~50, home path cards, Atlas admin list, Uneven maturity, checkout consent checkbox. flags-off — the same non-shell groups (drift, Atlas, Uneven maturity, checkout).
