@@ -1,5 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-15 · PUSHED on Cam's typed push — origin/feature/engagement-v1 e05f8962 → a747742a (two ledger banks: box 2b push, pre-send state). No code. Prod untouched at 0157d40; preview dpl_Crz1EhDsMqbAGU97tGo9N5ETzCw1 stands.
+
 ## 2026-09-15 · pre-send state (R9, R14) — read-only check before Leslie's email
 - Newest Preview deployment: dpl_Crz1EhDsMqbAGU97tGo9N5ETzCw1 (pat-c2acct-live-ca3gbiiga…, Ready, created 2026-09-14 06:43 CDT), release fingerprint eea310c:eea310c-mu16dpjq = commit eea310c6 (box 2b's last code commit). Origin HEAD e05f8962 differs from eea310c6 only in tests/, ops/qa and the ledger (git diff eea310c6..e05f8962 -- app lib is empty). Share link (one line, mode 600) in ~/work/preview-link.txt; curl: share URL 307 → home 200, V7 front door ("Product selection, without the sales pitch.", data-testid v7-public-shell).
 - Preview flag table (vercel env pull, values by name): ALIGNMENT_BOARD=1, BATTLECARD=1, FOLLOWUP_MC=1, NEW_FRONT_DOOR=1, PAT_ASSISTANT=1, PINGS=1, REGISTRY_MEMO=1, SELF_SIGNUP=1; CONSULTANT_ACCESS is a "sensitive" variable (value unreadable; the consultant portal renders on the deployment, so it behaves as 1). Secrets present by name: AUTH_SECRET, DATABASE_URL, DIRECT_URL. Diff vs Production's six: Preview adds NEW_FRONT_DOOR, FOLLOWUP_MC, REGISTRY_MEMO; nothing removed.
