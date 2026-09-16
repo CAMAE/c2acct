@@ -1,4 +1,4 @@
-import { getAdminCompanyBriefing } from "@/lib/adminBriefingEngine";
+import { buildAdminBriefingContext, getAdminCompanyBriefing, getBriefingProductsForFirms } from "@/lib/adminBriefingEngine";
 import type { BriefingProductSummary, BriefingRiskOpportunity } from "@/lib/adminBriefingEngine";
 import { getVendorProductInsightCatalog } from "@/lib/vendorProductInsightEngine";
 import { getVendorScopedFirms } from "@/lib/tenancy";
@@ -328,9 +328,21 @@ export async function getVendorBattleCardData(vendorCompanyId: string): Promise<
   const firmReviewedProductCount = firmReviewedScores.length;
   const selfReportedOnlyProductCount = selfReportedOnlyScores.length;
 
+  // R35 (box 2c): one AdminBriefingContext for the whole card — the vendor-level maps and the
+  // per-firm product layers are computed once and shared, instead of every firm's briefing
+  // re-deriving them (the memo pattern the ecosystem route uses, 6686f4b6); the per-firm
+  // briefings and freshness reads then run concurrently. Output is byte-identical (dump/diff).
+  const briefingContext = await buildAdminBriefingContext(vendorCompanyId);
+  const briefingProductsByFirmId = await getBriefingProductsForFirms(firmIds, briefingContext);
+  const sharedContext = { ...briefingContext, briefingProductsByFirmId };
+  const briefings = await Promise.all(firmIds.map((firmCompanyId) => getAdminCompanyBriefing(firmCompanyId, sharedContext)));
+  const freshnessByFirm = new Map(
+    await Promise.all(firmIds.map(async (firmCompanyId) => [firmCompanyId, await getFirmEvidenceFreshness(prisma, firmCompanyId)] as const))
+  );
+
   const firms: Array<Omit<RankedFirm, "fitRank">> = [];
-  for (const firmCompanyId of firmIds) {
-    const briefing = await getAdminCompanyBriefing(firmCompanyId);
+  for (const [index, firmCompanyId] of firmIds.entries()) {
+    const briefing = briefings[index];
     if (!briefing) {
       continue;
     }
@@ -384,7 +396,7 @@ export async function getVendorBattleCardData(vendorCompanyId: string): Promise<
       nextActions.push("Attach product evidence to these modules before the outreach so the pitch is grounded, not generic.");
     }
 
-    const alignmentFreshness = await getFirmEvidenceFreshness(prisma, firmCompanyId);
+    const alignmentFreshness = freshnessByFirm.get(firmCompanyId)!;
 
     firms.push({
       firmCompanyId,
