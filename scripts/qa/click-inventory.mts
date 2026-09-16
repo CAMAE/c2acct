@@ -236,7 +236,15 @@ async function main() {
   const summary: Record<string, unknown> = { crawler: "click-inventory v3 (menus opened; fields keyed by label)", build: BUILD, base: BASE, fingerprint, buildDir: BUILD_DIR, flags: process.env.BUILD_FLAGS ?? null, manifestSources: Object.fromEntries(Object.entries(sources).map(([k, v]) => [k, v.length])), seeds: seeds.size, identities: {} };
   await Promise.all(IDENTITIES.map(async (identity) => {
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-    const auth = await signIn(ctx, identity);
+    // Box 2c: the local launchd app job (com.c2acct.app) re-mirrors ops/release into the
+    // standalone every few seconds; a page rendered inside that window 500s (missing
+    // runtime contract) and a sign-in that lands on it never finds the form. Retry the
+    // sign-in twice, spaced out, before recording the identity as signed-out.
+    let auth = await signIn(ctx, identity);
+    for (let attempt = 2; !auth.ok && attempt <= 3; attempt++) {
+      await new Promise((r) => setTimeout(r, 5000));
+      auth = await signIn(ctx, identity);
+    }
     let page = await ctx.newPage();
     const dir = path.join(OUT, identity); mkdirSync(dir, { recursive: true });
     const queue: Array<{ url: string; template: string | null; depth: number; from: string | null }> = [...seeds].map(([url, template]) => ({ url, template, depth: 0, from: null }));
