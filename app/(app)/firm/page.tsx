@@ -249,8 +249,9 @@ export default async function FirmPage({
             </div>
           {cardStats["firm-benchmark"] ? (
             <div className="w-28 shrink-0 text-right" data-testid="card-stat">
-              <div className="pat-mono text-2xl font-semibold leading-none text-[var(--shell-ink)]">{cardStats["firm-benchmark"].value}</div>
-              <div className="pat-meta mt-1 text-[var(--shell-muted)]">{cardStats["firm-benchmark"].label}</div>
+              <div className="pat-mono whitespace-nowrap text-2xl font-semibold leading-none text-[var(--shell-ink)]">{cardStats["firm-benchmark"].value}</div>
+              <div className="pat-meta mt-1 text-[var(--shell-muted)]">{cardStats["firm-benchmark"].unit}</div>
+              {cardStats["firm-benchmark"].context ? <div className="pat-meta mt-0.5 text-[var(--shell-muted)]">{cardStats["firm-benchmark"].context}</div> : null}
             </div>
           ) : null}
           </div>

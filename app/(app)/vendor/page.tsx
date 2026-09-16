@@ -171,8 +171,9 @@ export default async function VendorPage({
             </div>
           {cardStats["vendor-review-refresh"] ? (
             <div className="w-28 shrink-0 text-right" data-testid="card-stat">
-              <div className="pat-mono text-2xl font-semibold leading-none text-[var(--shell-ink)]">{cardStats["vendor-review-refresh"].value}</div>
-              <div className="pat-meta mt-1 text-[var(--shell-muted)]">{cardStats["vendor-review-refresh"].label}</div>
+              <div className="pat-mono whitespace-nowrap text-2xl font-semibold leading-none text-[var(--shell-ink)]">{cardStats["vendor-review-refresh"].value}</div>
+              <div className="pat-meta mt-1 text-[var(--shell-muted)]">{cardStats["vendor-review-refresh"].unit}</div>
+              {cardStats["vendor-review-refresh"].context ? <div className="pat-meta mt-0.5 text-[var(--shell-muted)]">{cardStats["vendor-review-refresh"].context}</div> : null}
             </div>
           ) : null}
           </div>

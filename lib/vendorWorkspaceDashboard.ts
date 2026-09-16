@@ -100,7 +100,8 @@ export async function getVendorWorkspaceDashboard(companyId: string, userId: str
           firmReviews: mostReviewed.firmReviewed.assessmentCount,
           selfReported: mostReviewed.vendorSelfReported.latestScore,
           firmReviewed: mostReviewed.firmReviewed.averageScore,
-          href: `/vendor/product-insight/${mostReviewed.product.id}`,
+          // R34: opens the product's first Pro readout in the drawer on the product insight page.
+          href: `/vendor/product-insight/${mostReviewed.product.id}?readout=current-product-fit`,
         }
       : null,
     sinceLastVisit: {

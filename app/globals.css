@@ -1064,3 +1064,19 @@ a.pat-hover-card:focus-visible {
     order: -2;
   }
 }
+
+/* R33 (box 2c): a readout opened in the drawer reads single-column — the detail bodies'
+   two-column grid collapses, evidence bars run full width, and every pill (band, unlock,
+   divergence callout) wraps instead of overflowing. Scoped to the drawer only. */
+[data-readout-drawer] .grid.lg\:grid-cols-2 {
+  grid-template-columns: minmax(0, 1fr);
+}
+[data-readout-drawer] .inline-flex.rounded-full {
+  max-width: 100%;
+  height: auto;
+  white-space: normal;
+  text-align: left;
+}
+[data-readout-drawer] .max-w-3xl {
+  max-width: none;
+}

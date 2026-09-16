@@ -6,7 +6,7 @@ type PortalSurfaceCardProps = {
   /** R28 (box 2b): the card's live number. Rendered after the description in
    *  DOM order (the link's accessible name keeps production's prefix) and
    *  placed top-right visually. Omitted flag-off. */
-  stat?: { value: string; label: string } | null;
+  stat?: { value: string; unit: string; context?: string | null } | null;
 };
 
 export default function PortalSurfaceCard({
@@ -26,8 +26,9 @@ export default function PortalSurfaceCard({
         </div>
         {stat ? (
           <div className="w-28 shrink-0 text-right" data-testid="card-stat">
-            <div className="pat-mono text-2xl font-semibold leading-none text-[var(--shell-ink)]">{stat.value}</div>
-            <div className="pat-meta mt-1 text-[var(--shell-muted)]">{stat.label}</div>
+            <div className="pat-mono whitespace-nowrap text-2xl font-semibold leading-none text-[var(--shell-ink)]">{stat.value}</div>
+            <div className="pat-meta mt-1 text-[var(--shell-muted)]">{stat.unit}</div>
+            {stat.context ? <div className="pat-meta mt-0.5 text-[var(--shell-muted)]">{stat.context}</div> : null}
           </div>
         ) : null}
       </div>

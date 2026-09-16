@@ -20,6 +20,8 @@ type Params = {
 
 type SearchParams = {
   mode?: string;
+  /** R34: card key whose readout opens on load. */
+  readout?: string;
 };
 
 function getModeHref(productId: string, mode: "pro" | "elite" | "help") {
@@ -96,6 +98,7 @@ export default async function VendorProductInsightDetailPage({
 
   return (
     <InsightsModeShell
+      initialReadoutKey={typeof resolvedSearchParams?.readout === "string" ? resolvedSearchParams.readout : null}
       activeMode={activeMode}
       audience="vendor"
       eyebrow="Product intelligence"

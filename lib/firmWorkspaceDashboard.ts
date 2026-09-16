@@ -87,7 +87,8 @@ export async function getFirmWorkspaceDashboard(companyId: string, companyName: 
           value: firstLive.metric?.value ?? null,
           caption: firstLive.metric?.caption ?? null,
           summary: firstLive.summary,
-          href: `/firm/insights/${firstLive.key}`,
+          // R34: the workspace opens the readout in the insights page drawer; the full-page route stays reachable from it.
+          href: `/firm/insights?readout=${firstLive.key}`,
         }
       : null,
     sinceLastVisit: {

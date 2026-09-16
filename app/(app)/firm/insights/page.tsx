@@ -41,6 +41,8 @@ export const metadata = {
 
 type SearchParams = {
   mode?: string;
+  /** R34: card key whose readout opens on load. */
+  readout?: string;
 };
 
 function getModeHref(mode: "pro" | "elite" | "help") {
@@ -198,6 +200,7 @@ export default async function FirmInsightsPage({
 
   return (
     <InsightsModeShell
+      initialReadoutKey={typeof resolvedSearchParams?.readout === "string" ? resolvedSearchParams.readout : null}
       activeMode={activeMode}
       audience="firm"
       eyebrow="Firm alignment insights"

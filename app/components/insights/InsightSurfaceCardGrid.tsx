@@ -51,14 +51,22 @@ type InsightSurfaceCardGridProps = {
   /** R30: "drawer" (flag-on) opens the readout beside the grid; "inline" is production's
    *  in-place expansion, byte-identical flag-off. */
   readoutMode?: "inline" | "drawer";
+  /** R34: open this card's readout on mount (from ?readout=<key>); ignored when the key
+   *  is not one of this grid's readouts. */
+  initialReadoutKey?: string | null;
 };
 
 export default function InsightSurfaceCardGrid({
   cards,
   columnsClassName = "md:grid-cols-2 xl:grid-cols-3",
   readoutMode = "inline",
+  initialReadoutKey = null,
 }: InsightSurfaceCardGridProps) {
-  const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  const [expandedKey, setExpandedKey] = useState<string | null>(() =>
+    initialReadoutKey && cards.some((card) => card.key === initialReadoutKey && card.interactive && card.href != null && (card.expandedNode || card.expandedContent))
+      ? initialReadoutKey
+      : null
+  );
   // R30 (box 2b, 2026-09-14): the readout opens in a right-hand drawer on desktop and a
   // full-height sheet on phone — the grid never moves. The drawer is rendered INSIDE the
   // open card's element (fixed positioning takes it out of flow) so per-card scoping
@@ -239,7 +247,11 @@ export default function InsightSurfaceCardGrid({
                         </button>
                       </div>
                     </div>
-                    <div className="px-6 py-5">
+                    {/* R33: inside the drawer the readout reflows to one column — the
+                        bodies' lg:grid-cols-2 collapses and every pill wraps (app/globals.css
+                        [data-readout-drawer]); the bodies themselves are untouched, so the
+                        inline (flag-off) and full-page renders keep their layout. */}
+                    <div className="px-6 py-5" data-readout-drawer="">
                       <div className="space-y-6">{inlineBody}</div>
                       <Link href={card.href} className="pat-button-secondary mt-5 inline-flex">
                         Open full view

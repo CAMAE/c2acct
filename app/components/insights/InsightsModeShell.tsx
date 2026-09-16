@@ -34,6 +34,8 @@ type InsightsModePanel = {
 };
 
 type InsightsModeShellProps = {
+  /** R34: the card key whose readout opens on load (?readout=<key>). */
+  initialReadoutKey?: string | null;
   activeMode: InsightsModeKey;
   /** 14a — portal the hero chips point their "← Workspace" back link at. Omitted
       on flag-dark surfaces (individual insights) → no chips. */
@@ -57,6 +59,7 @@ type InsightsModeShellProps = {
 };
 
 export default function InsightsModeShell({
+  initialReadoutKey,
   activeMode,
   audience,
   eyebrow,
@@ -120,6 +123,7 @@ export default function InsightsModeShell({
         ) : activePanel.cards ? (
           <InsightSurfaceCardGrid
             readoutMode={isNewFrontDoorEnabled() ? "drawer" : "inline"}
+            initialReadoutKey={isNewFrontDoorEnabled() ? initialReadoutKey ?? null : null}
             cards={activePanel.cards}
             columnsClassName={activePanel.columnsClassName}
           />
