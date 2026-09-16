@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CardChip from "@/app/components/cards/CardChip";
 import { PAT_DISCLOSURE_SHORT } from "@/lib/patDisclosure";
 
@@ -29,6 +29,11 @@ type CardState = { editing: boolean; title: string; body: string; busy: boolean 
 export default function NudgeQueue({ initialDrafts }: { initialDrafts: QueueDraft[] }) {
   const [drafts, setDrafts] = useState<QueueDraft[]>(initialDrafts);
   const [state, setState] = useState<Record<string, CardState>>({});
+  // Box 2c (R42): follow the server's list whenever it is re-read (router.refresh
+  // after a draft, a panel re-render) instead of keeping the first snapshot.
+  useEffect(() => {
+    setDrafts(initialDrafts);
+  }, [initialDrafts]);
 
   function cardState(d: QueueDraft): CardState {
     return state[d.id] ?? { editing: false, title: d.title, body: d.body, busy: false };
