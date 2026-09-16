@@ -14,7 +14,12 @@ vi.mock("@/lib/prisma", () => ({
     firmMaturitySnapshot: { findFirst: vi.fn(async () => null) },
   },
 }));
-vi.mock("@/lib/adminBriefingEngine", () => ({ getAdminCompanyBriefing: vi.fn() }));
+vi.mock("@/lib/adminBriefingEngine", () => ({
+  getAdminCompanyBriefing: vi.fn(),
+  // Box 2c (R35): the battlecard shares one briefing context across firms.
+  buildAdminBriefingContext: vi.fn(async () => ({})),
+  getBriefingProductsForFirms: vi.fn(async () => new Map()),
+}));
 vi.mock("@/lib/vendorProductInsightEngine", () => ({ getVendorProductInsightCatalog: vi.fn() }));
 vi.mock("@/lib/tenancy", () => ({ getVendorScopedFirms: vi.fn() }));
 
