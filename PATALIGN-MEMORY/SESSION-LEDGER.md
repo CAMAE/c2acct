@@ -2,6 +2,7 @@
 
 ## 2026-09-16 · PAT-RULES install box (Part 5, R50) — on disk, NOT pushed
 - Commit: PAT-RULES.md at the root (diff against ~/work/inbox-from-mythos/PAT-RULES.md empty); docs/BOX-TEMPLATE.md (Part 3 + R50 PROOF line); docs/DEPLOY-NIGHT.md Phase 5 R50 verify line + Phase 10 Z2 bootstrap step for com.c2acct.app on a clean tree; package.json `sweep:pair` → scripts/qa/sweep-pair.mts (paired 1440/390 captures per identity, accounts file only, share URL visited first). Proof: `pnpm sweep:pair --url <preview link> --identities firm-pro` → 2 PNGs in ~/work/sweep-pair/<host>/, both 200 "Your firm workspace in PAT"; tsc 0, eslint 0 on the script.
+- PUSHED 2026-09-16 on Cam's typed "push": origin feature/engagement-v1 → 76c7fec5 (6bcd7818 + banks). This bank sits one commit ahead.
 - CLAUDE.md is gitignored (.gitignore:96): first line "Read PAT-RULES.md before any box." installed on disk only — Cam decides whether to un-ignore it. Note: pnpm echoes the script line, so the share token shows in the terminal that runs sweep:pair (never in files).
 
 ## 2026-09-15 · 2c in progress — banked mid-box (re-read this first after any compaction)
