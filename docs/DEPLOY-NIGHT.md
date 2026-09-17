@@ -183,6 +183,10 @@ Ready; the preview passes the SSO gate; **Cam promotes `--prod`**; then G1
 printed). This is the deploy that makes Phases 1b, 1c, 2 and 3 take effect.
 
 - **VERIFY** the AUTH_SECRET proof (1b): old session cookie → signed out.
+- **VERIFY (R50)** the deploy worktree carries `.vercel/project.json` (project
+  `pat-c2acct-live`) BEFORE any `vercel deploy` — a fresh detached worktree
+  without it auto-creates a new Vercel project (the 2026-09-16 stray
+  `deploy-a61a82a1`). `cp .vercel/project.json <worktree>/.vercel/` first.
 - **EXPECT** the first firm-module page load after deploy rewrites the 25
   open-ended help texts via `ensureFirmAlignmentSystem` (intended content
   change from 8fabe6eb, not drift) — record it in the Z6 ledger as such.
@@ -263,6 +267,13 @@ deploy ledger.
 - **Z1** Bootstrap the supervisor and bot (already re-rendered in 1a/1c);
   confirm `artifacts/agents/supervisor-heartbeat.json` advances.
 - **Z2** Restart `com.c2acct.app` + watchdog LAST; `pnpm asset-integrity`.
+  The app job was booted out on 2026-09-16 (keepalive crash loop: "Dirty git
+  tree is forbidden for startup", 80,305 runs, re-mirroring `ops/release` into
+  `.next/standalone`). Bootstrap it only on a clean tree (`git status --short`
+  empty, HEAD = the deploy commit):
+  `launchctl bootstrap gui/501 ~/Library/LaunchAgents/com.c2acct.app.plist`,
+  then `launchctl print gui/501/com.c2acct.app` shows `state = running` and
+  `runs` stays at 1.
 - **Z3** Re-boot any `com.aae.c2acct.*` sibling jobs.
 - **Z4** Disable the OLD Anthropic key in the old org (Phase 8 passed).
   Delete `.env.night.old` and the `.env.prod.bak.*` from tonight.
