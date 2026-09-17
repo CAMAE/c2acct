@@ -1,6 +1,5 @@
 import { ModuleScope, QuestionInputType, type UserRole } from "@prisma/client";
-import { createHash, randomUUID } from "node:crypto";
-import os from "node:os";
+import { createHash, randomUUID } from "crypto";
 import prisma from "@/lib/prisma";
 import { buildIntegrationEnvelope } from "@/lib/integrations/c2acct";
 import {
@@ -550,7 +549,7 @@ export type FirmRegistryEnsureDeps = {
 
 export function describeFirmRegistryEnsurer(env: Record<string, string | undefined> = process.env): string {
   const commit = (env.PAT_COMMIT_SHA ?? env.VERCEL_GIT_COMMIT_SHA ?? "local").slice(0, 8);
-  const host = env.VERCEL_DEPLOYMENT_ID ?? os.hostname();
+  const host = env.VERCEL_DEPLOYMENT_ID ?? env.HOSTNAME ?? "local-host";
   return `${host}:${commit}`;
 }
 
