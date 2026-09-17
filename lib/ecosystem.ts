@@ -1,5 +1,6 @@
 import {
   buildAdminBriefingContext,
+  buildFirmBriefingPreload,
   getAdminBriefingCatalog,
   getAdminCompanyBriefing,
   getBriefingProductsForFirms,
@@ -9,12 +10,13 @@ import {
 } from "@/lib/adminBriefingEngine";
 import {
   getFirmAssessmentProgress,
-  getFirmProductCatalog,
+  getFirmAssessmentProgressForFirms,
+  getFirmProductCatalogForFirms,
   summarizeFirmAlignmentProgress,
   type FirmAlignmentProgressSummary,
 } from "@/lib/firmPat";
 import prisma from "@/lib/prisma";
-import { assertEcosystemPair, getVendorScopedFirms } from "@/lib/tenancy";
+import { assertEcosystemPair, assertEcosystemPairs, getVendorScopedFirms } from "@/lib/tenancy";
 import { DIVERGENCE_MIN_FIRM_REVIEWS } from "@/lib/vendorProductInsightEngine";
 import {
   getVendorProductInsightCatalog,
@@ -589,16 +591,13 @@ export async function getEcosystemDetailForConsultant(
 
   const firmIds = await getVendorScopedFirms(vendorCompanyId);
 
-  await Promise.all(
-    firmIds.map(async (firmId) => {
-      const ok = await assertEcosystemPair(vendorCompanyId, firmId);
-      if (!ok) {
-        throw new Error(
-          `Tenancy violation in getEcosystemDetailForConsultant: firm ${firmId} is not in ecosystem of vendor ${vendorCompanyId}`
-        );
-      }
-    })
-  );
+  // R49: the same pair check as before, one read for the firm set.
+  const failingFirmIds = await assertEcosystemPairs(vendorCompanyId, firmIds);
+  if (failingFirmIds.length > 0) {
+    throw new Error(
+      `Tenancy violation in getEcosystemDetailForConsultant: firm ${failingFirmIds[0]} is not in ecosystem of vendor ${vendorCompanyId}`
+    );
+  }
 
   // The vendor-level work — the 37 product snapshots, the latest vendor
   // assessments, the two module ids — is computed ONCE here and handed to every
@@ -607,11 +606,18 @@ export async function getEcosystemDetailForConsultant(
   // 47 firms rebuilt the vendor's snapshots twice over (94 x 37 builds, each
   // decoding the vendor's whole firm-review set), which is where the route's
   // CPU went. The vendor catalog is the same snapshots filtered to completed.
+  const briefingContextWork = buildAdminBriefingContext(vendorCompanyId);
   const briefingWork = (async () => {
-    const briefingContext = await buildAdminBriefingContext(vendorCompanyId);
+    const briefingContext = await briefingContextWork;
+    // R49: the per-firm rows of every briefing loader, read once for the set.
+    const [briefingProductsByFirmId, firmPreload] = await Promise.all([
+      getBriefingProductsForFirms(firmIds, briefingContext),
+      buildFirmBriefingPreload(firmIds),
+    ]);
     const context: AdminBriefingContext = {
       ...briefingContext,
-      briefingProductsByFirmId: await getBriefingProductsForFirms(firmIds, briefingContext),
+      briefingProductsByFirmId,
+      firmPreload,
     };
     const [catalog, briefings] = await Promise.all([
       firmIds.length > 0
@@ -626,17 +632,19 @@ export async function getEcosystemDetailForConsultant(
 
   const [{ catalog, briefings, vendorCatalog }, progresses, firmProductCatalogs] = await Promise.all([
     briefingWork,
-    Promise.all(
-      firmIds.map(async (firmId) => {
-        const modules = await getFirmAssessmentProgress(firmId);
-        return { firmId, summary: summarizeFirmAlignmentProgress(modules) };
-      })
+    // R49: getFirmAssessmentProgress and getFirmProductCatalog for the firm set.
+    getFirmAssessmentProgressForFirms(firmIds).then((byFirm) =>
+      firmIds.map((firmId) => ({ firmId, summary: summarizeFirmAlignmentProgress(byFirm.get(firmId) ?? []) }))
     ),
-    Promise.all(
-      firmIds.map(async (firmId) => ({
-        firmId,
-        catalog: await getFirmProductCatalog(firmId),
-      }))
+    briefingContextWork
+      .then((briefingContext) =>
+        getFirmProductCatalogForFirms(firmIds, {
+          vendorProductModuleId: briefingContext.vendorProductModuleId,
+          firmProductModuleId: briefingContext.firmProductModuleId,
+        })
+      )
+      .then((byFirm) =>
+      firmIds.map((firmId) => ({ firmId, catalog: byFirm.get(firmId) ?? [] }))
     ),
   ]);
 

@@ -1,5 +1,6 @@
 import { ModuleScope, QuestionInputType, type UserRole } from "@prisma/client";
-import { randomUUID } from "crypto";
+import { createHash, randomUUID } from "node:crypto";
+import os from "node:os";
 import prisma from "@/lib/prisma";
 import { buildIntegrationEnvelope } from "@/lib/integrations/c2acct";
 import {
@@ -9,7 +10,7 @@ import {
 import { computeScore } from "@/lib/scoring";
 import { getSurveyDraftWhere, getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { TIER1_ALIGNMENT_BADGE_ID, TIER1_ALIGNMENT_BADGE_NAME } from "@/lib/patUnlocks";
-import { getFirmScopedVendors } from "@/lib/tenancy";
+import { getFirmScopedVendors, getFirmScopedVendorsForFirms } from "@/lib/tenancy";
 import {
   FIRM_CAPABILITY_DEFINITIONS,
   FIRM_TIER1_INSIGHT_CAPABILITY_RULES,
@@ -506,10 +507,103 @@ export function isRegistryMemoEnabled(env: Record<string, string | undefined> = 
   return env.PAT_ENABLE_REGISTRY_MEMO === "1";
 }
 
+/**
+ * R49 (2026-09-16): the per-process memo above only helps within one serverless
+ * instance; every fresh instance still paid the full ensure (~660 upserts, 9–12 s
+ * on Neon) before its first firm/insights render. The seed the ensure applies is
+ * static code, so its content is hashed into a seed version; after a successful
+ * ensure the version is recorded in RegistryEnsure, and a fresh instance that
+ * finds its own version already recorded skips the ensure (one indexed read).
+ * A differing version — new module text, a new capability rule — or no row at
+ * all still runs the full ensure, which then records itself. Flag off, none of
+ * this runs. Bump FIRM_REGISTRY_SEED_REVISION when ensureFirmAlignmentSystem's
+ * inline literals (badge copy, rule shapes) change without a definition change.
+ */
+export const FIRM_REGISTRY_SEED_REVISION = 1;
+
+export function getFirmRegistrySeedVersion(): string {
+  const payload = JSON.stringify({
+    revision: FIRM_REGISTRY_SEED_REVISION,
+    capabilities: FIRM_CAPABILITY_DEFINITIONS,
+    capabilityRules: FIRM_TIER1_INSIGHT_CAPABILITY_RULES,
+    modules: FIRM_MODULE_DEFINITIONS,
+    moduleCapabilityKeys: FIRM_MODULE_DEFINITIONS.map((definition) => getFirmModuleCapabilityKeys(definition.sectionKey)),
+    questionStems: FIRM_MODULE_QUESTION_STEMS,
+    questionCapabilityKeys: FIRM_MODULE_DEFINITIONS.map((definition) =>
+      FIRM_MODULE_QUESTION_STEMS.map((_, index) => getFirmQuestionCapabilityKeys(definition.sectionKey, index))
+    ),
+    openEndedPrompts: FIRM_MODULE_DEFINITIONS.map((definition) => buildFirmModuleOpenEndedPrompts(definition)),
+    insights: FIRM_TIER1_INSIGHT_DEFINITIONS,
+    badge: [TIER1_ALIGNMENT_BADGE_ID, TIER1_ALIGNMENT_BADGE_NAME],
+  });
+  return `firm-alignment-system@${createHash("sha256").update(payload).digest("hex").slice(0, 16)}`;
+}
+
+export type FirmRegistryEnsureDeps = {
+  seedVersion: () => string;
+  readMarker: (seedVersion: string) => Promise<{ ensuredAt: Date } | null>;
+  writeMarker: (seedVersion: string, ensuredBy: string) => Promise<void>;
+  ensure: () => Promise<Array<{ id: string; key: string; title: string }>>;
+  loadEnsured: () => Promise<Array<{ id: string; key: string; title: string }>>;
+  ensuredBy: () => string;
+};
+
+export function describeFirmRegistryEnsurer(env: Record<string, string | undefined> = process.env): string {
+  const commit = (env.PAT_COMMIT_SHA ?? env.VERCEL_GIT_COMMIT_SHA ?? "local").slice(0, 8);
+  const host = env.VERCEL_DEPLOYMENT_ID ?? os.hostname();
+  return `${host}:${commit}`;
+}
+
+const defaultFirmRegistryEnsureDeps: FirmRegistryEnsureDeps = {
+  seedVersion: getFirmRegistrySeedVersion,
+  readMarker: (seedVersion) =>
+    prisma.registryEnsure.findUnique({ where: { seedVersion }, select: { ensuredAt: true } }),
+  writeMarker: async (seedVersion, ensuredBy) => {
+    const ensuredAt = new Date();
+    await prisma.registryEnsure.upsert({
+      where: { seedVersion },
+      update: { ensuredAt, ensuredBy },
+      create: { id: randomUUID(), seedVersion, ensuredAt, ensuredBy },
+    });
+  },
+  ensure: () => ensureFirmAlignmentSystem(),
+  loadEnsured: async () => {
+    const modules = await prisma.surveyModule.findMany({
+      where: { key: { in: FIRM_MODULE_DEFINITIONS.map((definition) => definition.key) } },
+      select: { id: true, key: true, title: true },
+    });
+    const byKey = new Map(modules.map((record) => [record.key, record]));
+    return FIRM_MODULE_DEFINITIONS.flatMap((definition) => {
+      const record = byKey.get(definition.key);
+      return record ? [record] : [];
+    });
+  },
+  ensuredBy: () => describeFirmRegistryEnsurer(),
+};
+
+/**
+ * Runs the ensure unless the current seed version is already recorded. Returns
+ * the same module list the ensure returns. `force` runs the ensure regardless
+ * and re-records the marker (deploy night's manual re-ensure).
+ */
+export async function ensureFirmAlignmentSystemAtSeedVersion(
+  options: { force?: boolean; deps?: Partial<FirmRegistryEnsureDeps> } = {}
+): Promise<{ modules: Array<{ id: string; key: string; title: string }>; ran: boolean; seedVersion: string }> {
+  const deps = { ...defaultFirmRegistryEnsureDeps, ...options.deps };
+  const seedVersion = deps.seedVersion();
+  if (!options.force) {
+    const marker = await deps.readMarker(seedVersion);
+    if (marker) return { modules: await deps.loadEnsured(), ran: false, seedVersion };
+  }
+  const modules = await deps.ensure();
+  await deps.writeMarker(seedVersion, deps.ensuredBy());
+  return { modules, ran: true, seedVersion };
+}
+
 export function ensureFirmAlignmentSystemMemo(now = Date.now()) {
   if (!isRegistryMemoEnabled()) return ensureFirmAlignmentSystem();
   if (!firmRegistryMemo || now - firmRegistryMemo.at > REGISTRY_MEMO_TTL_MS) {
-    const value = ensureFirmAlignmentSystem().catch((error) => {
+    const value = ensureFirmAlignmentSystemAtSeedVersion().then((result) => result.modules).catch((error) => {
       firmRegistryMemo = null; // a failed ensure is not remembered
       throw error;
     });
@@ -1110,6 +1204,85 @@ export async function getFirmAssessmentProgress(companyId: string) {
     }),
   ]);
 
+  return buildFirmAssessmentProgress(modules, submissions, drafts);
+}
+
+type FirmProgressRows = Awaited<ReturnType<typeof loadFirmAssessmentProgressRows>>;
+
+/**
+ * R49 (2026-09-16): getFirmAssessmentProgress's three reads for a firm set — the
+ * module shape once, finals and drafts once with companyId IN — each firm handed
+ * its slice to the same pure builder. The consultant ecosystem detail used to
+ * run the three reads per firm.
+ */
+async function loadFirmAssessmentProgressRows(firmIds: string[]) {
+  const [modules, submissions, drafts] = await Promise.all([
+    prisma.surveyModule.findMany({
+      where: { key: { in: FIRM_MODULE_DEFINITIONS.map((definition) => definition.key) } },
+      select: {
+        id: true,
+        key: true,
+        title: true,
+        description: true,
+        SurveyQuestion: { select: { id: true } },
+      },
+    }),
+    prisma.surveySubmission.findMany({
+      where: getSurveyFinalWhere({
+        companyId: { in: firmIds },
+        SurveyModule: {
+          key: { in: FIRM_MODULE_DEFINITIONS.map((definition) => definition.key) },
+        },
+      }),
+      orderBy: { createdAt: "desc" },
+      select: {
+        companyId: true,
+        moduleId: true,
+        score: true,
+        createdAt: true,
+      },
+    }),
+    prisma.surveySubmission.findMany({
+      where: getSurveyDraftWhere({
+        companyId: { in: firmIds },
+        SurveyModule: {
+          key: { in: FIRM_MODULE_DEFINITIONS.map((definition) => definition.key) },
+        },
+      }),
+      orderBy: { createdAt: "desc" },
+      select: {
+        companyId: true,
+        moduleId: true,
+        answeredCount: true,
+        createdAt: true,
+      },
+    }),
+  ]);
+  return { modules, submissions, drafts };
+}
+
+export async function getFirmAssessmentProgressForFirms(firmIds: string[]): Promise<Map<string, FirmModuleProgress[]>> {
+  const result = new Map<string, FirmModuleProgress[]>();
+  if (firmIds.length === 0) return result;
+  const rows: FirmProgressRows = await loadFirmAssessmentProgressRows(firmIds);
+  for (const firmId of firmIds) {
+    result.set(
+      firmId,
+      buildFirmAssessmentProgress(
+        rows.modules,
+        rows.submissions.filter((submission) => submission.companyId === firmId),
+        rows.drafts.filter((draft) => draft.companyId === firmId)
+      )
+    );
+  }
+  return result;
+}
+
+function buildFirmAssessmentProgress(
+  modules: Array<{ id: string; key: string; title: string; description: string | null; SurveyQuestion: Array<{ id: string }> }>,
+  submissions: Array<{ moduleId: string; score: number; createdAt: Date }>,
+  drafts: Array<{ moduleId: string; answeredCount: number; createdAt: Date }>
+): FirmModuleProgress[] {
   return FIRM_MODULE_DEFINITIONS.map((definition) => {
     const moduleRecord = modules.find((entry) => entry.key === definition.key);
     if (!moduleRecord) {
@@ -1170,8 +1343,77 @@ export async function getFirmProductCatalog(companyId?: string | null) {
   // (admin-context invocation), preserve the global catalog. Open mode returns
   // all VENDOR-type companies so the IN-clause becomes a no-op filter.
   const scopedVendorIds = companyId ? await getFirmScopedVendors(companyId) : null;
+  const products = await loadFirmCatalogProducts(scopedVendorIds);
+  const { vendorProductModule, firmProductModule } = await loadFirmCatalogModules();
+  const productIds = products.map((product) => product.id);
+  const vendorSubmissions =
+    vendorProductModule && products.length > 0 ? await loadFirmCatalogVendorSubmissions(vendorProductModule.id, productIds) : [];
+  const { firmSubmissions, firmDrafts } =
+    firmProductModule && companyId && products.length > 0
+      ? await loadFirmCatalogFirmRows(firmProductModule.id, [companyId], productIds)
+      : { firmSubmissions: [], firmDrafts: [] };
+  return buildFirmProductCatalog({ companyId, products, vendorProductModule, firmProductModule, vendorSubmissions, firmSubmissions, firmDrafts });
+}
 
-  const products = await prisma.product.findMany({
+/**
+ * R49 (2026-09-16): getFirmProductCatalog for a firm set. Vendor scope resolves
+ * for the whole set at once; the product list loads once per distinct vendor
+ * scope (one, for an ecosystem's firms); the two module lookups and the vendor
+ * submissions load once; the firm finals and drafts load once with companyId IN
+ * and are sliced per firm. Each firm's catalog is built by the same pure builder
+ * as the single-firm path.
+ */
+export async function getFirmProductCatalogForFirms(
+  firmIds: string[],
+  options: { vendorProductModuleId?: string | null; firmProductModuleId?: string | null } = {}
+): Promise<Map<string, FirmProductCatalogItem[]>> {
+  const result = new Map<string, FirmProductCatalogItem[]>();
+  if (firmIds.length === 0) return result;
+  const scopedVendorsByFirm = await getFirmScopedVendorsForFirms(firmIds);
+  const productsByScope = new Map<string, FirmProductCatalogProductRow[]>();
+  for (const firmId of firmIds) {
+    const scopeKey = JSON.stringify(scopedVendorsByFirm.get(firmId) ?? []);
+    if (!productsByScope.has(scopeKey)) productsByScope.set(scopeKey, await loadFirmCatalogProducts(scopedVendorsByFirm.get(firmId) ?? []));
+  }
+  // The two module ids are the same lookups buildAdminBriefingContext already made;
+  // a caller holding them passes them in and saves the two reads.
+  const { vendorProductModule, firmProductModule } =
+    options.vendorProductModuleId !== undefined && options.firmProductModuleId !== undefined
+      ? {
+          vendorProductModule: options.vendorProductModuleId ? { id: options.vendorProductModuleId } : null,
+          firmProductModule: options.firmProductModuleId ? { id: options.firmProductModuleId } : null,
+        }
+      : await loadFirmCatalogModules();
+  const productsFor = (firmId: string) => productsByScope.get(JSON.stringify(scopedVendorsByFirm.get(firmId) ?? [])) ?? [];
+  const allProductIds = [...new Set(firmIds.flatMap((firmId) => productsFor(firmId).map((product) => product.id)))];
+  const vendorSubmissions =
+    vendorProductModule && allProductIds.length > 0 ? await loadFirmCatalogVendorSubmissions(vendorProductModule.id, allProductIds) : [];
+  const firmRows =
+    firmProductModule && allProductIds.length > 0
+      ? await loadFirmCatalogFirmRows(firmProductModule.id, firmIds, allProductIds)
+      : { firmSubmissions: [], firmDrafts: [] };
+  for (const firmId of firmIds) {
+    const products = productsFor(firmId);
+    const productIdSet = new Set(products.map((product) => product.id));
+    const scopedVendor = (row: FirmCatalogVendorSubmissionRow) => row.Subject?.productId !== null && row.Subject?.productId !== undefined && productIdSet.has(row.Subject.productId);
+    result.set(
+      firmId,
+      buildFirmProductCatalog({
+        companyId: firmId,
+        products,
+        vendorProductModule,
+        firmProductModule,
+        vendorSubmissions: vendorSubmissions.filter(scopedVendor),
+        firmSubmissions: firmRows.firmSubmissions.filter((row) => row.companyId === firmId && row.Subject?.productId != null && productIdSet.has(row.Subject.productId)),
+        firmDrafts: firmRows.firmDrafts.filter((row) => row.companyId === firmId && row.Subject?.productId != null && productIdSet.has(row.Subject.productId)),
+      })
+    );
+  }
+  return result;
+}
+
+async function loadFirmCatalogProducts(scopedVendorIds: string[] | null) {
+  return prisma.product.findMany({
     where: {
       active: true,
       ...(scopedVendorIds ? { companyId: { in: scopedVendorIds } } : {}),
@@ -1187,7 +1429,9 @@ export async function getFirmProductCatalog(companyId?: string | null) {
       },
     },
   }).catch(() => []);
+}
 
+async function loadFirmCatalogModules() {
   const vendorProductModule = await prisma.surveyModule.findUnique({
     where: { key: VENDOR_PRODUCT_MODULE_KEY },
     select: { id: true },
@@ -1197,26 +1441,17 @@ export async function getFirmProductCatalog(companyId?: string | null) {
     select: { id: true },
   }).catch(() => null);
 
-  const latestVendorSubmissionByProductId = new Map<
-    string,
-    {
-      id: string;
-      score: number;
-      createdAt: Date;
-      answeredCount: number;
-      answers: unknown;
-    }
-  >();
-  const latestFirmSubmissionByProductId = new Map<string, { createdAt: Date }>();
-  const latestFirmDraftByProductId = new Map<string, { answeredCount: number; createdAt: Date }>();
+  return { vendorProductModule, firmProductModule };
+}
 
-  if (vendorProductModule && products.length > 0) {
-    const submissions = await prisma.surveySubmission.findMany({
+async function loadFirmCatalogVendorSubmissions(vendorProductModuleId: string, productIds: string[]): Promise<FirmCatalogVendorSubmissionRow[]> {
+  if (productIds.length === 0) return [];
+  return prisma.surveySubmission.findMany({
       where: getSurveyFinalWhere({
-        moduleId: vendorProductModule.id,
+        moduleId: vendorProductModuleId,
         Subject: {
           productId: {
-            in: products.map((product) => product.id),
+            in: productIds,
           },
         },
       }),
@@ -1233,7 +1468,91 @@ export async function getFirmProductCatalog(companyId?: string | null) {
           },
         },
       },
-    }).catch(() => []);
+  }).catch(() => []);
+}
+
+async function loadFirmCatalogFirmRows(firmProductModuleId: string, firmIds: string[], productIds: string[]) {
+  if (firmIds.length === 0 || productIds.length === 0) {
+    return { firmSubmissions: [] as Array<FirmCatalogFirmSubmissionRow & { companyId: string | null }>, firmDrafts: [] as Array<FirmCatalogFirmDraftRow & { companyId: string | null }> };
+  }
+  const [firmSubmissions, firmDrafts] = await Promise.all([
+      prisma.surveySubmission.findMany({
+        where: getSurveyFinalWhere({
+          moduleId: firmProductModuleId,
+          companyId: { in: firmIds },
+          Subject: {
+            productId: {
+              in: productIds,
+            },
+          },
+        }),
+        orderBy: { createdAt: "desc" },
+        select: {
+          companyId: true,
+          createdAt: true,
+          Subject: {
+            select: {
+              productId: true,
+            },
+          },
+        },
+      }).catch(() => []),
+      prisma.surveySubmission.findMany({
+        where: getSurveyDraftWhere({
+          moduleId: firmProductModuleId,
+          companyId: { in: firmIds },
+          Subject: {
+            productId: {
+              in: productIds,
+            },
+          },
+        }),
+        orderBy: { createdAt: "desc" },
+        select: {
+          companyId: true,
+          answeredCount: true,
+          createdAt: true,
+          Subject: {
+            select: {
+              productId: true,
+            },
+          },
+        },
+      }).catch(() => []),
+    ]);
+  return { firmSubmissions, firmDrafts };
+}
+
+type FirmProductCatalogProductRow = Awaited<ReturnType<typeof loadFirmCatalogProducts>>[number];
+type FirmCatalogVendorSubmissionRow = { id: string; score: number; createdAt: Date; answeredCount: number; answers: unknown; Subject: { productId: string | null } | null };
+type FirmCatalogFirmSubmissionRow = { createdAt: Date; Subject: { productId: string | null } | null };
+type FirmCatalogFirmDraftRow = { answeredCount: number; createdAt: Date; Subject: { productId: string | null } | null };
+
+function buildFirmProductCatalog(input: {
+  companyId: string | null | undefined;
+  products: FirmProductCatalogProductRow[];
+  vendorProductModule: { id: string } | null;
+  firmProductModule: { id: string } | null;
+  vendorSubmissions: FirmCatalogVendorSubmissionRow[];
+  firmSubmissions: FirmCatalogFirmSubmissionRow[];
+  firmDrafts: FirmCatalogFirmDraftRow[];
+}): FirmProductCatalogItem[] {
+  const { companyId, products, vendorProductModule, firmProductModule, vendorSubmissions, firmSubmissions, firmDrafts } = input;
+  const latestVendorSubmissionByProductId = new Map<
+    string,
+    {
+      id: string;
+      score: number;
+      createdAt: Date;
+      answeredCount: number;
+      answers: unknown;
+    }
+  >();
+  const latestFirmSubmissionByProductId = new Map<string, { createdAt: Date }>();
+  const latestFirmDraftByProductId = new Map<string, { answeredCount: number; createdAt: Date }>();
+
+  if (vendorProductModule && products.length > 0) {
+    const submissions = vendorSubmissions;
 
     for (const submission of submissions) {
       const productId = submission.Subject?.productId;
@@ -1252,51 +1571,6 @@ export async function getFirmProductCatalog(companyId?: string | null) {
   }
 
   if (firmProductModule && companyId && products.length > 0) {
-    const productIds = products.map((product) => product.id);
-    const [firmSubmissions, firmDrafts] = await Promise.all([
-      prisma.surveySubmission.findMany({
-        where: getSurveyFinalWhere({
-          moduleId: firmProductModule.id,
-          companyId,
-          Subject: {
-            productId: {
-              in: productIds,
-            },
-          },
-        }),
-        orderBy: { createdAt: "desc" },
-        select: {
-          createdAt: true,
-          Subject: {
-            select: {
-              productId: true,
-            },
-          },
-        },
-      }).catch(() => []),
-      prisma.surveySubmission.findMany({
-        where: getSurveyDraftWhere({
-          moduleId: firmProductModule.id,
-          companyId,
-          Subject: {
-            productId: {
-              in: productIds,
-            },
-          },
-        }),
-        orderBy: { createdAt: "desc" },
-        select: {
-          answeredCount: true,
-          createdAt: true,
-          Subject: {
-            select: {
-              productId: true,
-            },
-          },
-        },
-      }).catch(() => []),
-    ]);
-
     for (const submission of firmSubmissions) {
       const productId = submission.Subject?.productId;
       if (!productId || latestFirmSubmissionByProductId.has(productId)) {

@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { poolForViewerBoundary, resolveCompanyBoundary } from "@/lib/dataBoundary";
+import { DataBoundary } from "@prisma/client";
 
 /**
  * Pilot tenancy boundary (5.7 audit §6.4 / Q6 of the locked consultant scope).
@@ -111,6 +112,83 @@ export async function getFirmScopedVendors(
     select: { id: true },
   });
   return vendor ? [vendor.id] : [];
+}
+
+/**
+ * R49 (2026-09-16): assertEcosystemPair for a firm set in one read per mode. Same
+ * rule as the single-pair check: ecosystem-bounded → the firm's EcosystemFirm row
+ * points at the vendor's ecosystem; open → company types. Returns the firms that
+ * FAIL the check (empty = every pair holds).
+ */
+export async function assertEcosystemPairs(
+  vendorCompanyId: string,
+  firmCompanyIds: string[],
+  env: NodeJS.ProcessEnv = process.env
+): Promise<string[]> {
+  if (firmCompanyIds.length === 0) return [];
+  if (getTenancyMode(env) === "open") {
+    const companies = await prisma.company.findMany({
+      where: { id: { in: [vendorCompanyId, ...firmCompanyIds] } },
+      select: { id: true, type: true },
+    });
+    const typeById = new Map(companies.map((company) => [company.id, company.type]));
+    const vendorOk = typeById.get(vendorCompanyId) === "VENDOR";
+    return firmCompanyIds.filter((firmId) => !(vendorOk && typeById.get(firmId) === "FIRM"));
+  }
+  const memberships = await prisma.ecosystemFirm.findMany({
+    where: { firmCompanyId: { in: firmCompanyIds } },
+    select: { firmCompanyId: true, Ecosystem: { select: { vendorCompanyId: true } } },
+  });
+  const vendorByFirm = new Map(memberships.map((row) => [row.firmCompanyId, row.Ecosystem.vendorCompanyId]));
+  return firmCompanyIds.filter((firmId) => vendorByFirm.get(firmId) !== vendorCompanyId);
+}
+
+/**
+ * R49 (2026-09-16): getFirmScopedVendors for a firm set — the same rule (viewer
+ * pool from the firm's boundary; open mode → every VENDOR in the pool; bounded →
+ * the firm's ecosystem vendor if it is in the pool), three reads for the whole
+ * set instead of three per firm. Unknown firm → PRODUCTION boundary, as
+ * resolveCompanyBoundary fails closed.
+ */
+export async function getFirmScopedVendorsForFirms(
+  firmCompanyIds: string[],
+  env: NodeJS.ProcessEnv = process.env
+): Promise<Map<string, string[]>> {
+  const result = new Map<string, string[]>();
+  if (firmCompanyIds.length === 0) return result;
+  const firms = await prisma.company.findMany({
+    where: { id: { in: firmCompanyIds } },
+    select: { id: true, dataBoundary: true },
+  });
+  const boundaryById = new Map(firms.map((firm) => [firm.id, firm.dataBoundary]));
+  const poolFor = (firmId: string) => poolForViewerBoundary(boundaryById.get(firmId) ?? DataBoundary.PRODUCTION);
+  if (getTenancyMode(env) === "open") {
+    const vendors = await prisma.company.findMany({
+      where: { type: "VENDOR" },
+      select: { id: true, dataBoundary: true },
+    });
+    for (const firmId of firmCompanyIds) {
+      const pool = new Set(poolFor(firmId));
+      result.set(firmId, vendors.filter((vendor) => pool.has(vendor.dataBoundary)).map((vendor) => vendor.id));
+    }
+    return result;
+  }
+  const memberships = await prisma.ecosystemFirm.findMany({
+    where: { firmCompanyId: { in: firmCompanyIds } },
+    select: { firmCompanyId: true, Ecosystem: { select: { vendorCompanyId: true } } },
+  });
+  const vendorIdByFirm = new Map(memberships.map((row) => [row.firmCompanyId, row.Ecosystem.vendorCompanyId]));
+  const vendorIds = [...new Set([...vendorIdByFirm.values()].filter((id): id is string => typeof id === "string"))];
+  const vendors = vendorIds.length
+    ? await prisma.company.findMany({ where: { id: { in: vendorIds } }, select: { id: true, dataBoundary: true } })
+    : [];
+  const vendorBoundaryById = new Map(vendors.map((vendor) => [vendor.id, vendor.dataBoundary]));
+  for (const firmId of firmCompanyIds) {
+    const vendorId = vendorIdByFirm.get(firmId) ?? null;
+    const boundary = vendorId ? vendorBoundaryById.get(vendorId) : undefined;
+    result.set(firmId, vendorId && boundary !== undefined && poolFor(firmId).includes(boundary) ? [vendorId] : []);
+  }
+  return result;
 }
 
 /**

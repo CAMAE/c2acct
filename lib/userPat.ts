@@ -751,6 +751,18 @@ export async function getFirmManagedUserRecords(companyId: string, search: strin
       }).catch(() => [])
     : [];
 
+  return buildFirmManagedUserRecords(users, memberships, submissions);
+}
+
+type FirmManagedUserRow = { id: string; email: string; name: string | null; role: UserRole; companyId: string | null };
+type FirmManagedMembershipRow = { userId: string; subjectId: string };
+type FirmManagedSubmissionRow = { subjectId: string | null; score: number; createdAt: Date };
+
+function buildFirmManagedUserRecords(
+  users: FirmManagedUserRow[],
+  memberships: FirmManagedMembershipRow[],
+  submissions: FirmManagedSubmissionRow[]
+): FirmManagedUserRecord[] {
   const subjectIdByUserId = new Map(memberships.map((membership) => [membership.userId, membership.subjectId]));
 
   return users.map((user) => {
@@ -780,4 +792,60 @@ export async function getFirmManagedUserRecords(companyId: string, search: strin
       assessmentProgress,
     } satisfies FirmManagedUserRecord;
   });
+}
+
+/**
+ * R49 (2026-09-16): the same three reads as getFirmManagedUserRecords, once for a
+ * firm set (companyId IN), each firm handed its own slice of the rows to the same
+ * pure builder. The consultant ecosystem detail used to call the per-firm loader
+ * once per firm.
+ */
+export async function getFirmManagedUserRecordsForFirms(
+  firmIds: string[]
+): Promise<Map<string, FirmManagedUserRecord[]>> {
+  const result = new Map<string, FirmManagedUserRecord[]>();
+  if (firmIds.length === 0) return result;
+  const allUsers = await prisma.user.findMany({
+    where: { companyId: { in: firmIds } },
+    orderBy: { email: "asc" },
+    select: { id: true, email: true, name: true, role: true, companyId: true },
+  });
+  let allMemberships: FirmManagedMembershipRow[] = [];
+  try {
+    allMemberships = await prisma.subjectMembership.findMany({
+      where: {
+        userId: { in: allUsers.map((user) => user.id) },
+        active: true,
+        isPrimary: true,
+        Subject: { kind: SubjectKind.PERSON },
+      },
+      select: { userId: true, subjectId: true },
+    });
+  } catch (error) {
+    if (matchesPrismaMissingSchemaTarget(error, ["subjectmembership"])) {
+      warnPrismaCompatibilityOnce(
+        "firm-user-insight-subject-fallback",
+        "Firm user insight is omitting subject-backed user progress because SubjectMembership is missing locally."
+      );
+    } else {
+      throw error;
+    }
+  }
+  const allSubjectIds = allMemberships.map((membership) => membership.subjectId);
+  const allSubmissions: FirmManagedSubmissionRow[] = allSubjectIds.length
+    ? await prisma.surveySubmission.findMany({
+        where: getSurveyFinalWhere({ subjectId: { in: allSubjectIds } }),
+        orderBy: { createdAt: "desc" },
+        select: { subjectId: true, score: true, createdAt: true },
+      }).catch(() => [])
+    : [];
+  for (const firmId of firmIds) {
+    const users = allUsers.filter((user) => user.companyId === firmId);
+    const userIds = new Set(users.map((user) => user.id));
+    const memberships = allMemberships.filter((membership) => userIds.has(membership.userId));
+    const subjectIds = new Set(memberships.map((membership) => membership.subjectId));
+    const submissions = allSubmissions.filter((submission) => submission.subjectId !== null && subjectIds.has(submission.subjectId));
+    result.set(firmId, buildFirmManagedUserRecords(users, memberships, submissions));
+  }
+  return result;
 }

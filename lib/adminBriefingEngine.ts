@@ -1,6 +1,6 @@
 import { Prisma, QuestionInputType } from "@prisma/client";
 import { normalizeQuestionRuntime, type NormalizedAnswer } from "@/lib/assessmentRuntime";
-import { getFirmInsightReports } from "@/lib/firmInsightEngine";
+import { getFirmInsightReports, getFirmInsightReportsForFirms } from "@/lib/firmInsightEngine";
 import {
   FIRM_MODULE_DEFINITIONS,
   FIRM_PRODUCT_MODULE_KEY,
@@ -8,7 +8,7 @@ import {
 import prisma from "@/lib/prisma";
 import { CUSTOMER_FACING_BOUNDARIES } from "@/lib/dataBoundary";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
-import { getFirmManagedUserRecords } from "@/lib/userPat";
+import { getFirmManagedUserRecords, getFirmManagedUserRecordsForFirms, type FirmManagedUserRecord } from "@/lib/userPat";
 import { getVendorAlignmentInsightBundle } from "@/lib/vendorAlignmentInsightEngine";
 import {
   createVendorInsightContextResolver,
@@ -931,7 +931,16 @@ export type AdminBriefingContext = {
    * same firms — share one computation instead of each running their own.
    */
   briefingProductsByFirmId?: ReadonlyMap<string, BriefingProduct[]>;
+  /**
+   * R49 (2026-09-16): the per-firm rows getAdminCompanyBriefing and
+   * getAdminBriefingCatalog read, loaded once for a firm set by
+   * buildFirmBriefingPreload. A firm absent from the maps falls back to its own
+   * reads, so the preload only ever removes queries.
+   */
+  firmPreload?: FirmBriefingPreload;
 };
+
+export type FirmBriefingPreload = Awaited<ReturnType<typeof buildFirmBriefingPreload>>;
 
 export async function buildAdminBriefingContext(
   vendorCompanyId: string
@@ -979,36 +988,47 @@ export async function getBriefingProductsForFirms(
   firmIds: readonly string[],
   context: AdminBriefingContext
 ): Promise<Map<string, BriefingProduct[]>> {
+  // R49 (2026-09-16): one submissions read for the firm set and one product read
+  // for the union of reviewed products, then the same per-firm item build. This
+  // used to run getBriefingProducts (two reads plus the per-product work) per firm.
+  if (!context.firmProductModuleId) {
+    return new Map(firmIds.map((firmId) => [firmId, [] as BriefingProduct[]]));
+  }
+  const submissions = await loadBriefingProductSubmissions(firmIds, context.firmProductModuleId);
+  const latestByFirm = new Map(
+    firmIds.map((firmId) => [
+      firmId,
+      buildLatestSubmissionByProductId(submissions.filter((submission) => submission.companyId === firmId)),
+    ])
+  );
+  const allProductIds = [...new Set([...latestByFirm.values()].flatMap((latest) => Array.from(latest.keys())))];
+  const products = allProductIds.length > 0 ? await loadBriefingProductRows(allProductIds) : [];
   const layers = await Promise.all(
-    firmIds.map(async (firmId) => [firmId, await getBriefingProducts(firmId, context)] as const)
+    firmIds.map(async (firmId) => {
+      const latest = latestByFirm.get(firmId)!;
+      return [firmId, await buildBriefingProductItems(latest, products.filter((product) => latest.has(product.id)), context)] as const;
+    })
   );
   return new Map(layers);
 }
 
 export type BriefingProduct = Awaited<ReturnType<typeof getBriefingProducts>>[number];
 
-async function getBriefingProducts(companyId: string, context?: AdminBriefingContext) {
-  const firmModule = context
-    ? context.firmProductModuleId
-      ? { id: context.firmProductModuleId }
-      : null
-    : await prisma.surveyModule.findUnique({
-        where: { key: FIRM_PRODUCT_MODULE_KEY },
-        select: { id: true },
-      });
-  if (!firmModule) {
-    return [];
-  }
+type BriefingProductSubmissionRow = Awaited<ReturnType<typeof loadBriefingProductSubmissions>>[number];
+type BriefingProductRow = Awaited<ReturnType<typeof loadBriefingProductRows>>[number];
 
-  const submissions = await prisma.surveySubmission.findMany({
+/** The firm's final product reviews (Subject kind PRODUCT), for a firm set. */
+function loadBriefingProductSubmissions(firmIds: readonly string[], firmModuleId: string) {
+  return prisma.surveySubmission.findMany({
     where: getSurveyFinalWhere({
-      companyId,
-      moduleId: firmModule.id,
+      companyId: { in: [...firmIds] },
+      moduleId: firmModuleId,
       Subject: { kind: "PRODUCT" },
     }),
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
+      companyId: true,
       score: true,
       signalIntegrityScore: true,
       createdAt: true,
@@ -1020,29 +1040,12 @@ async function getBriefingProducts(companyId: string, context?: AdminBriefingCon
       },
     },
   }).catch(() => []);
+}
 
-  const latestSubmissionByProductId = new Map<
-    string,
-    {
-      score: number;
-      signalIntegrityScore: number;
-      createdAt: Date;
-    }
-  >();
-  for (const submission of submissions) {
-    const productId = submission.Subject?.productId;
-    if (!productId || latestSubmissionByProductId.has(productId)) {
-      continue;
-    }
-    latestSubmissionByProductId.set(productId, {
-      score: submission.score,
-      signalIntegrityScore: submission.signalIntegrityScore,
-      createdAt: submission.createdAt,
-    });
-  }
-
-  const products = await prisma.product.findMany({
-    where: { id: { in: Array.from(latestSubmissionByProductId.keys()) } },
+/** The product rows the product layer renders, for a product id set. */
+function loadBriefingProductRows(productIds: string[]) {
+  return prisma.product.findMany({
+    where: { id: { in: productIds } },
     select: {
       id: true,
       name: true,
@@ -1072,6 +1075,56 @@ async function getBriefingProducts(companyId: string, context?: AdminBriefingCon
       },
     },
   });
+}
+
+async function getBriefingProducts(companyId: string, context?: AdminBriefingContext) {
+  const firmModule = context
+    ? context.firmProductModuleId
+      ? { id: context.firmProductModuleId }
+      : null
+    : await prisma.surveyModule.findUnique({
+        where: { key: FIRM_PRODUCT_MODULE_KEY },
+        select: { id: true },
+      });
+  if (!firmModule) {
+    return [];
+  }
+  const submissions = await loadBriefingProductSubmissions([companyId], firmModule.id);
+  const latestSubmissionByProductId = buildLatestSubmissionByProductId(submissions);
+  const products = await loadBriefingProductRows(Array.from(latestSubmissionByProductId.keys()));
+  return buildBriefingProductItems(latestSubmissionByProductId, products, context);
+}
+
+function buildLatestSubmissionByProductId(submissions: BriefingProductSubmissionRow[]) {
+
+  const latestSubmissionByProductId = new Map<
+    string,
+    {
+      score: number;
+      signalIntegrityScore: number;
+      createdAt: Date;
+    }
+  >();
+  for (const submission of submissions) {
+    const productId = submission.Subject?.productId;
+    if (!productId || latestSubmissionByProductId.has(productId)) {
+      continue;
+    }
+    latestSubmissionByProductId.set(productId, {
+      score: submission.score,
+      signalIntegrityScore: submission.signalIntegrityScore,
+      createdAt: submission.createdAt,
+    });
+  }
+
+  return latestSubmissionByProductId;
+}
+
+async function buildBriefingProductItems(
+  latestSubmissionByProductId: ReturnType<typeof buildLatestSubmissionByProductId>,
+  products: BriefingProductRow[],
+  context?: AdminBriefingContext
+) {
 
   // Products the context covers take their vendor-level results from it; any
   // other product (another vendor's) is computed here exactly as before.
@@ -1182,18 +1235,19 @@ export async function getAdminBriefingCatalog(input?: {
   const catalog = await Promise.all(
     companies.map(async (company) => {
       const [assessmentProgress, products] = await Promise.all([
-        prisma.surveySubmission.findMany({
-          where: getSurveyFinalWhere({
-            companyId: company.id,
-            SurveyModule: { key: { in: FIRM_MODULE_DEFINITIONS.map((entry) => entry.key) } },
+        context?.firmPreload?.catalogSubmissionsByFirmId.get(company.id) ??
+          prisma.surveySubmission.findMany({
+            where: getSurveyFinalWhere({
+              companyId: company.id,
+              SurveyModule: { key: { in: FIRM_MODULE_DEFINITIONS.map((entry) => entry.key) } },
+            }),
+            orderBy: { createdAt: "desc" },
+            select: {
+              moduleId: true,
+              score: true,
+              createdAt: true,
+            },
           }),
-          orderBy: { createdAt: "desc" },
-          select: {
-            moduleId: true,
-            score: true,
-            createdAt: true,
-          },
-        }),
         context?.briefingProductsByFirmId?.get(company.id) ?? getBriefingProducts(company.id, context),
       ]);
 
@@ -1230,81 +1284,150 @@ export async function getAdminBriefingCatalog(input?: {
   return catalog;
 }
 
+
+const BRIEFING_COMPANY_SELECT = {
+  id: true,
+  name: true,
+  type: true,
+  _count: { select: { User: true } },
+} satisfies Prisma.CompanySelect;
+
+/** The registry-wide module shape getAdminCompanyBriefing heat-maps against. */
+function loadBriefingFirmModules() {
+  return prisma.surveyModule.findMany({
+  where: { key: { in: FIRM_MODULE_DEFINITIONS.map((entry) => entry.key) } },
+  orderBy: { key: "asc" },
+  select: {
+    id: true,
+    key: true,
+    title: true,
+    SurveyQuestion: {
+      orderBy: { order: "asc" },
+      select: {
+        id: true,
+        key: true,
+        prompt: true,
+        inputType: true,
+        weight: true,
+        order: true,
+        required: true,
+        meta: true,
+        SurveySection: {
+          select: {
+            id: true,
+            key: true,
+            title: true,
+            description: true,
+            order: true,
+            utilityFamily: true,
+            utilityKey: true,
+            utilityLabel: true,
+            subcategoryKey: true,
+            subcategoryTitle: true,
+            basisKey: true,
+          },
+        },
+      },
+    },
+  },
+});
+}
+
+/** The firm finals getAdminCompanyBriefing heat-maps, for a firm set (companyId IN). */
+function loadBriefingFirmSubmissions(firmIds: readonly string[]) {
+  return prisma.surveySubmission.findMany({
+  where: getSurveyFinalWhere({
+    companyId: { in: [...firmIds] },
+    SurveyModule: { key: { in: FIRM_MODULE_DEFINITIONS.map((entry) => entry.key) } },
+  }),
+  orderBy: { createdAt: "desc" },
+  select: {
+    id: true,
+    companyId: true,
+    moduleId: true,
+    score: true,
+    signalIntegrityScore: true,
+    createdAt: true,
+    answers: true,
+  },
+});
+}
+
+/** The firm finals getAdminBriefingCatalog summarises, for a firm set (companyId IN). */
+function loadCatalogFirmSubmissions(firmIds: readonly string[]) {
+  return prisma.surveySubmission.findMany({
+    where: getSurveyFinalWhere({
+      companyId: { in: [...firmIds] },
+      SurveyModule: { key: { in: FIRM_MODULE_DEFINITIONS.map((entry) => entry.key) } },
+    }),
+    orderBy: { createdAt: "desc" },
+    select: {
+      companyId: true,
+      moduleId: true,
+      score: true,
+      createdAt: true,
+    },
+  });
+}
+
+function groupByCompany<T extends { companyId: string | null }>(rows: T[], firmIds: readonly string[]) {
+  const byFirm = new Map<string, T[]>(firmIds.map((firmId) => [firmId, []]));
+  for (const row of rows) {
+    if (row.companyId && byFirm.has(row.companyId)) byFirm.get(row.companyId)!.push(row);
+  }
+  return byFirm;
+}
+
+/**
+ * R49 (2026-09-16): every per-firm read of getAdminCompanyBriefing and
+ * getAdminBriefingCatalog, loaded once for a firm set — company rows, the
+ * registry module shape, firm finals (both shapes), managed users, insight
+ * reports, the vendor alignment bundle. Handed in on the AdminBriefingContext.
+ */
+export async function buildFirmBriefingPreload(firmIds: readonly string[]) {
+  const ids = [...firmIds];
+  const [companies, firmModules, firmSubmissions, managedUsersByFirmId, insightReportsByFirmId, vendorAlignmentBundle, catalogSubmissions] =
+    await Promise.all([
+      prisma.company.findMany({ where: { id: { in: ids } }, select: BRIEFING_COMPANY_SELECT }),
+      loadBriefingFirmModules(),
+      loadBriefingFirmSubmissions(ids),
+      getFirmManagedUserRecordsForFirms(ids),
+      getFirmInsightReportsForFirms(ids),
+      getVendorAlignmentInsightBundle(),
+      loadCatalogFirmSubmissions(ids),
+    ]);
+  return {
+    companyById: new Map(companies.map((company) => [company.id, company])),
+    firmModules,
+    firmSubmissionsByFirmId: groupByCompany(firmSubmissions, ids),
+    managedUsersByFirmId: managedUsersByFirmId as ReadonlyMap<string, FirmManagedUserRecord[]>,
+    insightReportsByFirmId,
+    vendorAlignmentBundle,
+    catalogSubmissionsByFirmId: groupByCompany(catalogSubmissions, ids),
+  };
+}
+
 export async function getAdminCompanyBriefing(
   companyId: string,
   context?: AdminBriefingContext
 ): Promise<AdminCompanyBriefing | null> {
-  const company = await prisma.company.findUnique({
-    where: { id: companyId },
-    select: {
-      id: true,
-      name: true,
-      type: true,
-      _count: { select: { User: true } },
-    },
-  });
-
+  const preload = context?.firmPreload;
+  const company =
+    preload?.companyById.get(companyId) ??
+    (await prisma.company.findUnique({
+      where: { id: companyId },
+      select: BRIEFING_COMPANY_SELECT,
+    }));
   if (!company || company.type !== "FIRM") {
     return null;
   }
-
   const [firmModules, firmSubmissions, managedUsers, insightReports, ecosystemBundle, products] =
     await Promise.all([
-      prisma.surveyModule.findMany({
-        where: { key: { in: FIRM_MODULE_DEFINITIONS.map((entry) => entry.key) } },
-        orderBy: { key: "asc" },
-        select: {
-          id: true,
-          key: true,
-          title: true,
-          SurveyQuestion: {
-            orderBy: { order: "asc" },
-            select: {
-              id: true,
-              key: true,
-              prompt: true,
-              inputType: true,
-              weight: true,
-              order: true,
-              required: true,
-              meta: true,
-              SurveySection: {
-                select: {
-                  id: true,
-                  key: true,
-                  title: true,
-                  description: true,
-                  order: true,
-                  utilityFamily: true,
-                  utilityKey: true,
-                  utilityLabel: true,
-                  subcategoryKey: true,
-                  subcategoryTitle: true,
-                  basisKey: true,
-                },
-              },
-            },
-          },
-        },
-      }),
-      prisma.surveySubmission.findMany({
-        where: getSurveyFinalWhere({
-          companyId,
-          SurveyModule: { key: { in: FIRM_MODULE_DEFINITIONS.map((entry) => entry.key) } },
-        }),
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          moduleId: true,
-          score: true,
-          signalIntegrityScore: true,
-          createdAt: true,
-          answers: true,
-        },
-      }),
-      getFirmManagedUserRecords(companyId, null),
-      getFirmInsightReports(companyId),
-      getVendorAlignmentInsightBundle(),
+      preload ? preload.firmModules : loadBriefingFirmModules(),
+      preload?.firmSubmissionsByFirmId.get(companyId) ?? loadBriefingFirmSubmissions([companyId]),
+      preload?.managedUsersByFirmId.get(companyId) ?? getFirmManagedUserRecords(companyId, null),
+      preload?.insightReportsByFirmId.get(companyId) ?? getFirmInsightReports(companyId),
+      preload ? preload.vendorAlignmentBundle : getVendorAlignmentInsightBundle(),
       context?.briefingProductsByFirmId?.get(companyId) ?? getBriefingProducts(companyId, context),
     ]);
 

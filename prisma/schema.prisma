@@ -2061,3 +2061,17 @@ enum ModuleSourceLicense {
   CITED
   LICENSED
 }
+
+/// R49 (2026-09-16): one row per registry seed version that has been ensured.
+/// ensureFirmAlignmentSystemMemo (PAT_ENABLE_REGISTRY_MEMO=1) reads the latest row
+/// on a fresh serverless instance and skips the ~660-upsert ensure when the
+/// deployed seed hash is already recorded; a differing hash or no row still runs
+/// the ensure, which then writes its row. Additive; nothing else references it.
+model RegistryEnsure {
+  id          String   @id @default(cuid())
+  seedVersion String   @unique
+  ensuredAt   DateTime
+  ensuredBy   String
+
+  @@index([ensuredAt])
+}

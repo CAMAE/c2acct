@@ -1072,11 +1072,18 @@ export function buildFirmLockedInsightDetailSurfaceContent(input: {
   }
 }
 
-export async function getFirmInsightReports(companyId: string) {
+type FirmInsightRows = Awaited<ReturnType<typeof loadFirmInsightRows>>;
+
+/**
+ * R49 (2026-09-16): the read phase of getFirmInsightReports, for a firm set. The
+ * module and capability-node shapes are registry-wide and load once; the
+ * submissions and capability scores load once with companyId IN and are sliced
+ * per firm. The consultant ecosystem detail used to run all four reads per firm.
+ */
+async function loadFirmInsightRows(firmIds: string[]) {
   const moduleKeys = FIRM_MODULE_DEFINITIONS.map((module) => module.key);
   const capabilityKeySet = new Set(FIRM_CAPABILITY_DEFINITIONS.map((capability) => capability.key));
-
-  const [modules, submissions, capabilityScores] = await Promise.all([
+  const [modules, submissions, capabilityScores, liveCapabilityNodes] = await Promise.all([
     prisma.surveyModule.findMany({
       where: { key: { in: moduleKeys } },
       select: {
@@ -1105,7 +1112,7 @@ export async function getFirmInsightReports(companyId: string) {
     }),
     prisma.surveySubmission.findMany({
       where: getSurveyFinalWhere({
-        companyId,
+        companyId: { in: firmIds },
         SurveyModule: {
           key: { in: moduleKeys },
         },
@@ -1113,6 +1120,7 @@ export async function getFirmInsightReports(companyId: string) {
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
+        companyId: true,
         moduleId: true,
         score: true,
         answers: true,
@@ -1121,15 +1129,51 @@ export async function getFirmInsightReports(companyId: string) {
     }),
     prisma.companyCapabilityScore.findMany({
       where: {
-        companyId,
+        companyId: { in: firmIds },
       },
       select: {
+        companyId: true,
         nodeId: true,
         score: true,
       },
     }).catch(() => []),
+    prisma.capabilityNode.findMany({
+    where: { key: { in: Array.from(capabilityKeySet) } },
+    select: { id: true, key: true },
+    }).catch(() => []),
   ]);
+  return { modules, submissions, capabilityScores, liveCapabilityNodes };
+}
 
+function sliceFirmInsightRows(rows: FirmInsightRows, companyId: string) {
+  return {
+    modules: rows.modules,
+    submissions: rows.submissions.filter((submission) => submission.companyId === companyId),
+    capabilityScores: rows.capabilityScores.filter((score) => score.companyId === companyId),
+    liveCapabilityNodes: rows.liveCapabilityNodes,
+  };
+}
+
+export async function getFirmInsightReports(companyId: string) {
+  const rows = await loadFirmInsightRows([companyId]);
+  return computeFirmInsightReports(companyId, sliceFirmInsightRows(rows, companyId));
+}
+
+/** R49: one read phase for a firm set, the same computation per firm. */
+export async function getFirmInsightReportsForFirms(firmIds: string[]) {
+  const result = new Map<string, Awaited<ReturnType<typeof getFirmInsightReports>>>();
+  if (firmIds.length === 0) return result;
+  const rows = await loadFirmInsightRows(firmIds);
+  for (const companyId of firmIds) {
+    result.set(companyId, computeFirmInsightReports(companyId, sliceFirmInsightRows(rows, companyId)));
+  }
+  return result;
+}
+
+function computeFirmInsightReports(
+  companyId: string,
+  { modules, submissions, capabilityScores, liveCapabilityNodes }: ReturnType<typeof sliceFirmInsightRows>
+) {
   const latestSubmissionByModuleId = new Map<string, (typeof submissions)[number]>();
   for (const submission of submissions) {
     if (!latestSubmissionByModuleId.has(submission.moduleId)) {
@@ -1147,10 +1191,6 @@ export async function getFirmInsightReports(companyId: string) {
     FIRM_CAPABILITY_DEFINITIONS.map((capability) => [capability.key, capability])
   );
   const capabilityDefinitionByNodeId = new Map<string, (typeof FIRM_CAPABILITY_DEFINITIONS)[number]>();
-  const liveCapabilityNodes = await prisma.capabilityNode.findMany({
-    where: { key: { in: Array.from(capabilityKeySet) } },
-    select: { id: true, key: true },
-  }).catch(() => []);
   for (const node of liveCapabilityNodes) {
     const definition = capabilityDefinitionByKey.get(node.key);
     if (definition) {
