@@ -16,6 +16,14 @@ reap_orphans() { # PAT_GUARD_REAP_ORPHANS=1: kill Prisma query engines whose par
 }
 run_one() { # label port flags
   local label=$1 port=$2 flags=$3
+  # R49 (2026-09-17): a stale standalone on the port answers the readiness probe and the
+  # crawl silently inventories the wrong build (a 09-16 01:07 server sat on 3032 through
+  # three guard runs). Refuse to run over anything already listening.
+  if lsof -nP -iTCP:"$port" -sTCP:LISTEN -t >/dev/null 2>&1; then
+    echo "guard:doors: port $port is already in use (pid $(lsof -nP -iTCP:"$port" -sTCP:LISTEN -t | head -1)) — kill it first; refusing to crawl an unknown server" >&2
+    status=3
+    return
+  fi
   reap_orphans
   env PAT_ENABLE_LOCAL_REVIEW_AUTH=1 $flags PORT=$port HOSTNAME=127.0.0.1 node .next/standalone/server.js > "/tmp/guard-doors-$label.log" 2>&1 &
   local pid=$!
