@@ -11,7 +11,7 @@ PAT assesses accounting firms across five pillars — Operations, Automation, In
 
 ## Why five pillars instead of one score
 
-A single blended score would be easy to read and almost useless to act on. Two firms with the same overall number can be in completely different situations: one strong on process and weak on technology, the other the reverse. Averaging those differences away hides exactly the information a managing partner, a vendor, or a consultant needs.
+A single blended score would be easy to read and almost useless to act on. Two firms with the same overall number can be in completely different situations: one strong on process and weak on technology, the other the reverse. Averaging those differences away hides exactly the information a managing partner, a vendor, or a guide needs.
 
 So PAT keeps the dimensions separate. Each pillar corresponds to one assessment module, each module carries twenty questions, and each pillar receives its own score from 0 to 100, presented first as one of five bands — Early, Developing, Building, Established, Leading — with the raw number in support. The five dimensions were chosen to cover the things that determine whether a firm and its technology are pulling in the same direction: how work runs, what is automated, how records move, how risk is controlled, and where the firm is heading.
 
@@ -87,13 +87,13 @@ The cadence around this is deliberately calm. PAT paces engagement in steady rhy
 
 The five pillars were not adapted from a generic maturity survey. PAT was built inside the profession it serves — by people who run and advise accounting practices — and the pillar structure reflects that origin: Operations, Automation, Integration, Governance, and Strategy are the dimensions along which an accounting firm and its technology either pull together or pull apart.
 
-That is also why PAT confines itself to one ecosystem — accounting firms, the software vendors who serve them, and the consultants and advisors who manage firm ecosystems — rather than stretching one instrument across every industry. Every firm assessed answers the same five modules; every vendor's alignment evidence is expressed against the same five pillars; every consultant reads the same five-part vocabulary across a portfolio. A pillar score carries more meaning when everyone reading it works in the same profession and is measured against the same structure.
+That is also why PAT confines itself to one ecosystem — accounting firms, the software vendors who serve them, and the guides and advisors who manage firm ecosystems — rather than stretching one instrument across every industry. Every firm assessed answers the same five modules; every vendor's alignment evidence is expressed against the same five pillars; every guide reads the same five-part vocabulary across a portfolio. A pillar score carries more meaning when everyone reading it works in the same profession and is measured against the same structure.
 
 ## Five scores, read side by side
 
 The payoff of the five-pillar design is the moment you see all five bands next to each other. The pattern is the insight: which pillars lead, which lag, and how wide the spread is. A firm whose five scores cluster tightly is in a different position from a firm with one Leading pillar and one Early pillar, even if their averages happen to match — and because every module asks the same questions in the same words, that spread reflects the firm, not the instrument.
 
-The same five-pillar structure serves everyone in the PAT ecosystem. Firms see their own shape across the five dimensions. Vendors receive alignment evidence expressed against the same structure firms are assessed on. Consultants who manage an ecosystem of firms see the alignment picture across their portfolio in one consistent vocabulary.
+The same five-pillar structure serves everyone in the PAT ecosystem. Firms see their own shape across the five dimensions. Vendors receive alignment evidence expressed against the same structure firms are assessed on. Guides who manage an ecosystem of firms see the alignment picture across their portfolio in one consistent vocabulary.
 
 ## Why PAT works this way
 
@@ -103,13 +103,13 @@ The open-ended questions carry zero score weight because qualitative context sho
 
 And bands lead the presentation because a single-point score invites false precision. A 0–100 number looks exact; what the measurement can honestly support is a band, with the raw number behind it. Movement between bands over time is the reading that matters.
 
-## How the pillars look for a firm, a vendor, and a consultant
+## How the pillars look for a firm, a vendor, and a guide
 
 For a firm, the pillars are lived one module at a time. The assessment runs as a paged flow with autosave, so a firm can stop and resume; modules can be completed in any order over time, progress is tracked per module, and results update as modules complete.
 
 For a vendor, the pillars are the vocabulary its alignment evidence is expressed in. Vendors declare product capabilities across defined function areas of practice software, and firms' assessed experience is measured against those declarations — evidence delivered against the same five-pillar structure every firm is assessed on, usable in honest sales and product conversations.
 
-For a consultant or ecosystem owner, the pillars are a portfolio vocabulary. Consultant surfaces — per-firm cards summarizing alignment status, structured firm briefs for deeper review, and cross-ecosystem comparison views — speak in the same five pillars, so patterns across managed firms are visible without exposing any firm's private answer text beyond what the role permits.
+For a guide or ecosystem owner, the pillars are a portfolio vocabulary. Guide surfaces — per-firm cards summarizing alignment status, structured firm briefs for deeper review, and cross-ecosystem comparison views — speak in the same five pillars, so patterns across managed firms are visible without exposing any firm's private answer text beyond what the role permits.
 
 ## A closer look: one scenario, start to finish
 

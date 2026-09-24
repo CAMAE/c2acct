@@ -8,6 +8,7 @@ import {
   updateUserMembershipAction,
 } from "@/app/(app)/admin/actions";
 import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
+import { guideWord } from "@/lib/roleWords";
 
 export const dynamic = "force-dynamic";
 
@@ -75,7 +76,7 @@ export default async function AdminUsersPage() {
           <div>
             <div className="text-lg font-semibold text-[var(--shell-ink)]">Provision pilot account</div>
             <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-              Creates or updates a vendor, firm, consultant, or admin account with a stored salted password hash. Do not enter live card, bank, or shared production secrets here.
+              Creates or updates a vendor, firm, {guideWord("consultant")}, or admin account with a stored salted password hash. Do not enter live card, bank, or shared production secrets here.
             </p>
           </div>
           <div className="grid gap-3 lg:grid-cols-2">
@@ -84,7 +85,7 @@ export default async function AdminUsersPage() {
             <select name="accountKind" defaultValue="firm" className="pat-select">
               <option value="vendor">Vendor pilot user</option>
               <option value="firm">Firm pilot user</option>
-              <option value="consultant">Consultant pilot user</option>
+              <option value="consultant">{guideWord()} pilot user</option>
               <option value="admin">Admin/operator pilot user</option>
             </select>
             <select name="role" defaultValue="MEMBER" className="pat-select">
@@ -142,7 +143,7 @@ export default async function AdminUsersPage() {
                   <div className="text-lg font-semibold text-[var(--shell-ink)]">{user.email}</div>
                   <div className="mt-1 text-sm text-[var(--shell-muted)]">
                     {user.role} · {user.Company ? `${user.Company.name} (${user.Company.type})` : "No company linked"}
-                    {user.ConsultantProfile?.active ? " · Consultant access active" : ""}
+                    {user.ConsultantProfile?.active ? ` · ${guideWord()} access active` : ""}
                   </div>
                   <div className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--shell-muted)]">
                     Password {user.passwordHash ? "provisioned" : "not provisioned"} · First-login update {user.mustChangePassword ? "required" : "not required"} · Updated {user.passwordUpdatedAt ? user.passwordUpdatedAt.toLocaleString() : "never"}

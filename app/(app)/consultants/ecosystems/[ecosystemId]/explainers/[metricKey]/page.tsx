@@ -9,6 +9,7 @@ import {
   EXPLAINER_CONTENT,
   isMetricKey,
 } from "../_content/explainerContent";
+import { guideWord } from "@/lib/roleWords";
 
 export const dynamic = "force-dynamic";
 
@@ -48,8 +49,8 @@ export default async function MetricExplainerPage({
         <PatLogoLockup mode="hero" tone="light" />
         <PortalAudienceEyebrow
           className="pat-label mt-6"
-          label={`${ecosystem.vendorCompanyName} · Consultant`}
-          audienceLabel="Consultant"
+          label={`${ecosystem.vendorCompanyName} · ${guideWord()}`}
+          audienceLabel={guideWord()}
         />
         <PatAudienceTitle
           as="h1"

@@ -16,6 +16,7 @@ import SelfVsMarketDelta from "./_components/SelfVsMarketDelta";
 import VendorBriefExecutiveSummary from "./_components/VendorBriefExecutiveSummary";
 import VendorBriefHelpContent from "./_components/VendorBriefHelpContent";
 import VendorProductPositioningRadar from "./_components/VendorProductPositioningRadar";
+import { guideWord } from "@/lib/roleWords";
 
 export const dynamic = "force-dynamic";
 
@@ -103,8 +104,8 @@ export default async function VendorBriefPage({
         <PatLogoLockup mode="hero" tone="light" />
         <PortalAudienceEyebrow
           className="pat-label mt-6"
-          label="Vendor brief · Consultant"
-          audienceLabel="Consultant"
+          label={`Vendor brief · ${guideWord()}`}
+          audienceLabel={guideWord()}
         />
         <PatAudienceTitle
           as="h1"

@@ -11,7 +11,7 @@ People considering PAT tend to ask the same questions, and this article answers 
 
 ## What is PAT, and who is it for?
 
-PAT is Performance Alignment Technology, a Patalign™ product built for the accounting ecosystem. It serves three roles. Accounting firms use it to assess their own operations across five pillars. Software vendors who serve those firms use it to declare their products' capabilities and receive evidence of how those capabilities land in practice. Consultants and ecosystem owners who manage sets of firms use it to see the alignment picture across the whole group they look after. Each role sees what its role permits, and nothing more. The full front-door answer lives in "What is PAT," and each role has a dedicated article: "PAT for firms," "PAT for vendors," and "PAT for consultants and ecosystem owners."
+PAT is Performance Alignment Technology, a Patalign™ product built for the accounting ecosystem. It serves three roles. Accounting firms use it to assess their own operations across five pillars. Software vendors who serve those firms use it to declare their products' capabilities and receive evidence of how those capabilities land in practice. Guides and ecosystem owners who manage sets of firms use it to see the alignment picture across the whole group they look after. Each role sees what its role permits, and nothing more. The full front-door answer lives in "What is PAT," and each role has a dedicated article: "PAT for firms," "PAT for vendors," and "PAT for guides and ecosystem owners."
 
 ## What does a firm assessment actually involve?
 
@@ -63,7 +63,7 @@ Ask Pat is PAT's assistant. It answers questions using PAT's own documented cont
 
 ## What is an ecosystem in PAT?
 
-An ecosystem is a consultant-managed construct: a set of member firms plus the products in play across them. The consultant or ecosystem owner sees the cross-firm alignment structure — how the group's operations and tool stacks line up — while firms and vendors within the ecosystem each see only what their role permits. It is how someone responsible for many firms gets a structured signal across all of them without any firm's view leaking into another's. "What an ecosystem is in PAT" describes the construct, and "PAT for consultants and ecosystem owners" describes the role that manages it.
+An ecosystem is a guide-managed construct: a set of member firms plus the products in play across them. The guide or ecosystem owner sees the cross-firm alignment structure — how the group's operations and tool stacks line up — while firms and vendors within the ecosystem each see only what their role permits. It is how someone responsible for many firms gets a structured signal across all of them without any firm's view leaking into another's. "What an ecosystem is in PAT" describes the construct, and "PAT for guides and ecosystem owners" describes the role that manages it.
 
 ## What happens when I first sign in?
 
@@ -85,9 +85,9 @@ At concept level, Pro covers the core of membership: assessment, scores, bands, 
 
 Every piece of learning and assessment content passes a governance discipline before it can serve. Content must cite authoritative sources to enter the system at all — unsourced material is rejected mechanically at import — and what passes that gate goes live only after named human review sign-off, with the review recorded: who reviewed it, and when. So the questions a firm answers and the documentation Ask Pat draws on carry a recorded chain behind them. "Evidence, not advertising" describes the philosophy this discipline serves.
 
-## Can a consultant read our firm's answers?
+## Can a guide read our firm's answers?
 
-Consultants see structure and alignment signal across the ecosystem they manage — per-firm cards summarizing alignment status, structured firm briefs, and cross-ecosystem comparison views — but not a firm's private answer text beyond what the role permits. The boundary is enforced at the evidence layer, not just at the interface, so it holds regardless of how a question is asked. "PAT for consultants and ecosystem owners" describes what the consultant role sees, and "Security and privacy posture" covers how role walls are enforced.
+Guides see structure and alignment signal across the ecosystem they manage — per-firm cards summarizing alignment status, structured firm briefs, and cross-ecosystem comparison views — but not a firm's private answer text beyond what the role permits. The boundary is enforced at the evidence layer, not just at the interface, so it holds regardless of how a question is asked. "PAT for guides and ecosystem owners" describes what the guide role sees, and "Security and privacy posture" covers how role walls are enforced.
 
 ## Are there modules beyond the core five?
 

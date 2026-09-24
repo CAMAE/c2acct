@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import FreshnessChip from "@/app/components/freshness/FreshnessChip";
 import PatModeToggle from "@/app/components/pat/PatModeToggle";
+import ReadoutDrawer from "@/app/components/insights/ReadoutDrawer";
 import SalesFitRadar from "@/app/components/vendor/SalesFitRadar";
 import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import { formatDelta, formatScoreValue } from "@/lib/formatDelta";
@@ -39,12 +40,18 @@ export default function VendorBattleCardClient({
   entitled,
   membershipHref,
   heroChips,
+  briefMode = "inline",
 }: {
   data: VendorBattleCardData;
   entitled: boolean;
   membershipHref: string;
   /** 14a/b/c hero chips slot (server-rendered, passed in). */
   heroChips?: React.ReactNode;
+  /**
+   * R37 (box 2d, 2026-09-25): "drawer" (flag-on) opens the firm brief in the same
+   * right-hand drawer the insights use; "inline" is production's in-place expansion.
+   */
+  briefMode?: "inline" | "drawer";
 }) {
   const [detailId, setDetailId] = useState<string | null>(null);
   const [tierFilter, setTierFilter] = useState<TierFilter>("");
@@ -154,7 +161,7 @@ export default function VendorBattleCardClient({
                     data-anonymized={entitled ? "0" : "1"}
                     data-firm-name={entitled ? firm.firmName : undefined}
                     data-expanded={expanded ? "1" : "0"}
-                    className={`pat-card p-5 ${expanded ? "md:col-span-2 xl:col-span-3" : ""}`}
+                    className={`pat-card p-5 ${expanded && briefMode === "inline" ? "md:col-span-2 xl:col-span-3" : ""}`}
                   >
                     <button
                       type="button"
@@ -196,7 +203,7 @@ export default function VendorBattleCardClient({
                     {/* Inline expansion (same law as insights): the clicked card grows
                         to a full-width own-row and renders the consultant brief in
                         place — never a detached panel at the page bottom. */}
-                    {expanded ? (
+                    {expanded && briefMode === "inline" ? (
                       <div className="mt-4 border-t border-[var(--shell-border)] pt-4" data-testid="battlecard-detail">
                         <BattleCardDetailBody
                           detail={firm}
@@ -205,6 +212,40 @@ export default function VendorBattleCardClient({
                           membershipHref={membershipHref}
                         />
                       </div>
+                    ) : null}
+                    {/* R37: flag-on the brief opens beside the grid — no card grows, no row
+                        moves; Previous/Next step through the visible firms in rank order. */}
+                    {briefMode === "drawer" ? (
+                      <ReadoutDrawer
+                        open={expanded}
+                        titleId={`battlecard-brief-${firm.firmCompanyId}-title`}
+                        title={firmLabel(firm, entitled)}
+                        eyebrow={`Firm brief · Fit #${firm.fitRank}`}
+                        testId="battlecard-brief-drawer"
+                        closeLabel="Close brief"
+                        previousLabel="Previous firm"
+                        nextLabel="Next firm"
+                        onClose={() => setDetailId(null)}
+                        onPrevious={
+                          visibleFirms.indexOf(firm) > 0
+                            ? () => setDetailId(visibleFirms[visibleFirms.indexOf(firm) - 1]?.firmCompanyId ?? firm.firmCompanyId)
+                            : null
+                        }
+                        onNext={
+                          visibleFirms.indexOf(firm) < visibleFirms.length - 1
+                            ? () => setDetailId(visibleFirms[visibleFirms.indexOf(firm) + 1]?.firmCompanyId ?? firm.firmCompanyId)
+                            : null
+                        }
+                      >
+                        <div data-testid="battlecard-detail">
+                          <BattleCardDetailBody
+                            detail={firm}
+                            data={data}
+                            entitled={entitled}
+                            membershipHref={membershipHref}
+                          />
+                        </div>
+                      </ReadoutDrawer>
                     ) : null}
                   </article>
                 );

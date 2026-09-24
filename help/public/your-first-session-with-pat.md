@@ -11,7 +11,7 @@ Your first session with PAT is an orientation, not an exam. Whether you arrive a
 
 ## What a first session is for
 
-A first session with PAT exists to let you find your footing in a structured environment before any serious measurement happens. PAT — Performance Alignment Technology, a Patalign™ product — serves the accounting ecosystem: accounting firms, the software vendors who serve them, and the consultants and advisors who manage firm ecosystems. Each of those three roles sees a different side of the platform, so the first thing PAT does for a new member is show you your side of it clearly.
+A first session with PAT exists to let you find your footing in a structured environment before any serious measurement happens. PAT — Performance Alignment Technology, a Patalign™ product — serves the accounting ecosystem: accounting firms, the software vendors who serve them, and the guides and advisors who manage firm ecosystems. Each of those three roles sees a different side of the platform, so the first thing PAT does for a new member is show you your side of it clearly.
 
 That means your opening hour is spent on orientation rather than obligation. You are looking at how assessments are organized if you are a firm, or how capability declarations are structured if you are a vendor. You are learning the vocabulary — pillars, bands, alignment — that everything else in the platform is built on. The aim is that by the end of a first session you can answer one question confidently: what does PAT measure, and what will my part in that measurement look like?
 
@@ -33,13 +33,13 @@ That framing matters on day one because it sets the right posture for declaring.
 
 New vendors sometimes expect to see alignment evidence immediately. That evidence accumulates as member firms assess, so a vendor's first session is about setting the declaration side of the ledger carefully and understanding what the firm-assessed side looks like when it arrives.
 
-## Arriving as a consultant or ecosystem owner
+## Arriving as a guide or ecosystem owner
 
-If you manage or advise a set of firms, your first session with PAT centers on the ecosystem: a consultant-managed construct made up of member firms plus the products in play across them. Your side of the platform is built to show alignment structure across that whole set — how the group's operations and tool experiences line up — while each firm and vendor inside the ecosystem continues to see only what its own role permits. Day one, for a consultant, is about learning the shape of that cross-firm view before there is much in it.
+If you manage or advise a set of firms, your first session with PAT centers on the ecosystem: a guide-managed construct made up of member firms plus the products in play across them. Your side of the platform is built to show alignment structure across that whole set — how the group's operations and tool experiences line up — while each firm and vendor inside the ecosystem continues to see only what its own role permits. Day one, for a guide, is about learning the shape of that cross-firm view before there is much in it.
 
-At concept level, the surfaces you are orienting to are per-firm cards that summarize each member firm's alignment status, structured firm briefs for deeper review of a single firm, and cross-ecosystem comparison views that let you read the group as a group. What you will not find, on day one or any day, is a window into a firm's private answer text beyond what the role permits: consultants see structure and alignment signal, not raw responses. That boundary is worth absorbing early, because it defines the posture of the consultant role — you are reading a measured picture of the ecosystem, not auditing individual firms' answers.
+At concept level, the surfaces you are orienting to are per-firm cards that summarize each member firm's alignment status, structured firm briefs for deeper review of a single firm, and cross-ecosystem comparison views that let you read the group as a group. What you will not find, on day one or any day, is a window into a firm's private answer text beyond what the role permits: guides see structure and alignment signal, not raw responses. That boundary is worth absorbing early, because it defines the posture of the guide role — you are reading a measured picture of the ecosystem, not auditing individual firms' answers.
 
-How quickly that picture fills in depends on the member firms themselves. Cards and comparison views become meaningful as firms complete assessment modules, so a consultant's first session is usually part orientation and part planning: understanding what the surfaces will show, and thinking about the rhythm at which the firms you manage will assess.
+How quickly that picture fills in depends on the member firms themselves. Cards and comparison views become meaningful as firms complete assessment modules, so a guide's first session is usually part orientation and part planning: understanding what the surfaces will show, and thinking about the rhythm at which the firms you manage will assess.
 
 ## Pacing, autosave, and picking up where you left off
 
@@ -95,7 +95,7 @@ A few misreadings surface often enough in first sessions to be worth correcting 
 
 The second is assuming you need to prepare before signing in — gathering documents, pulling reports, briefing the team. The assessment asks for structured answers about how the practice operates, given from working knowledge, and autosave means any question you want to sit with can simply wait.
 
-The third belongs to consultants: reading a sparse day-one ecosystem view as something being wrong. Per-firm cards and comparison views fill in as member firms complete modules, so an early session showing structure but little signal is the system working as designed.
+The third belongs to guides: reading a sparse day-one ecosystem view as something being wrong. Per-firm cards and comparison views fill in as member firms complete modules, so an early session showing structure but little signal is the system working as designed.
 
 The fourth is expecting Ask Pat to improvise when documentation runs out. It will not — it says so plainly rather than guessing; the refusal is the platform's evidence discipline applied to its own assistant.
 
@@ -115,6 +115,6 @@ Can Ask Pat help me on day one? Yes — with understanding: it answers from your
 
 ## Leaving your first session
 
-A good first session ends with orientation, not exhaustion. As a firm, you leave knowing that five modules await, that their repeated questions are the point rather than a quirk, and that your eventual results will speak in bands backed by numbers. As a vendor, you leave knowing what a structured declaration is and how firm assessments will meet it. As a consultant, you leave knowing what an ecosystem is and that its cross-firm picture fills in as member firms assess. Both leave knowing that nothing in PAT ranks you, that scores are deterministic arithmetic rather than model output, and that Ask Pat is there for questions the documentation can answer.
+A good first session ends with orientation, not exhaustion. As a firm, you leave knowing that five modules await, that their repeated questions are the point rather than a quirk, and that your eventual results will speak in bands backed by numbers. As a vendor, you leave knowing what a structured declaration is and how firm assessments will meet it. As a guide, you leave knowing what an ecosystem is and that its cross-firm picture fills in as member firms assess. Both leave knowing that nothing in PAT ranks you, that scores are deterministic arithmetic rather than model output, and that Ask Pat is there for questions the documentation can answer.
 
 If you want to see the road that opens after day one, "Inside a firm assessment" walks the firm journey in full, and "What vendors declare and firms verify" does the same for the two-sided model.

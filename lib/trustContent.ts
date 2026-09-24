@@ -1,4 +1,5 @@
 import type { PublicReleaseFingerprintView } from "@/lib/release/fingerprint";
+import { guideWord } from "@/lib/roleWords";
 
 export type TrustSurfaceKey =
   | "trust"
@@ -191,7 +192,7 @@ export const TRUST_SURFACES = {
       {
         title: "Access and acceptable use",
         body:
-          "PAT access is role-based for vendors, firms, consultants, and operators. Users are responsible for using the correct sign-in path (vendor, firm, consultant, admin) and for keeping any assigned credentials secure.",
+          `PAT access is role-based for vendors, firms, ${guideWord("consultants")}, and operators. Users are responsible for using the correct sign-in path (vendor, firm, ${guideWord("consultant")}, admin) and for keeping any assigned credentials secure.`,
       },
       {
         title: "Product output",
@@ -273,7 +274,7 @@ export const TRUST_SURFACES = {
       {
         title: "If something fails",
         body:
-          "Report which access path you used (vendor, firm, consultant, or admin) and any command or step that failed.",
+          `Report which access path you used (vendor, firm, ${guideWord("consultant")}, or admin) and any command or step that failed.`,
       },
       {
         title: "Billing support",

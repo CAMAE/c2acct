@@ -49,7 +49,7 @@ The pillar is also the unit at which deeper interpretation happens. Pro membersh
 
 ## Pillars as the shared unit across roles
 
-The pillar construct is the common vocabulary through which PAT's roles read firm alignment, each at its own scope. A firm sees its own five-pillar profile. A consultant managing an ecosystem works from per-firm cards summarizing alignment status, structured firm briefs for deeper review, and cross-ecosystem comparison views — surfaces that read the same pillar constructs across many firms at once. What consultants see is structure and alignment signal; they do not see a firm's private answer text beyond what the role permits.
+The pillar construct is the common vocabulary through which PAT's roles read firm alignment, each at its own scope. A firm sees its own five-pillar profile. A guide managing an ecosystem works from per-firm cards summarizing alignment status, structured firm briefs for deeper review, and cross-ecosystem comparison views — surfaces that read the same pillar constructs across many firms at once. What guides see is structure and alignment signal; they do not see a firm's private answer text beyond what the role permits.
 
 Ask Pat sits inside the same boundaries. A signed-in user can ask Pat what a pillar result means, and Pat answers from PAT's documented content only, retrieving only what that user's role permits and citing the content it draws from. When the documentation does not cover a question, Pat says so plainly. Pat helps with understanding pillar results; it never generates the scores behind them.
 
@@ -113,7 +113,7 @@ A pillar score is not an AI judgment. No model sits in the scoring path. It is a
 
 **Can a pillar score change?** Yes. A score is a reading at a point in time; firms re-assess as operations change, and because the instrument is constant, movement between readings reflects the firm.
 
-**Who sees a firm's pillar profile?** The firm sees its own five-pillar profile; a consultant managing an ecosystem reads the same pillar constructs through per-firm cards, briefs, and comparison views — structure and alignment signal, not private answer text beyond what the role permits.
+**Who sees a firm's pillar profile?** The firm sees its own five-pillar profile; a guide managing an ecosystem reads the same pillar constructs through per-firm cards, briefs, and comparison views — structure and alignment signal, not private answer text beyond what the role permits.
 
 ## Related terms
 

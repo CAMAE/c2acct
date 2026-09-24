@@ -1,11 +1,14 @@
 import { redirect } from "next/navigation";
 import { buildCanonicalSignInPath } from "@/lib/auth/routes";
 import { isConsultantAccessEnabled } from "@/lib/consultantAccess";
+import { guideWord } from "@/lib/roleWords";
 
-export const metadata = {
-  title: "Consultant Sign In | Patalign",
-  description: "Consultant entry route for PAT.",
-};
+export function generateMetadata() {
+  return {
+    title: `${guideWord()} Sign In | Patalign`,
+    description: `${guideWord()} entry route for PAT.`,
+  };
+}
 
 export default function ConsultantSignInPage() {
   if (!isConsultantAccessEnabled()) {

@@ -1,3 +1,4 @@
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import InsightDetailShell from "@/app/components/insights/InsightDetailShell";
@@ -56,7 +57,7 @@ async function renderVendorEliteSurface(
         title="Category Position"
         summary="Where your products rank in their category's firm-reviewed distribution — a percentile and rank, not an average. Categories below the minimum-n safe harbor are withheld."
       >
-        <VendorCategoryPositionCard data={data} />
+        <VendorCategoryPositionCard data={data} chartDesign={isNewFrontDoorEnabled() ? "labelled" : "classic"} />
       </EliteCardShell>
     );
   }

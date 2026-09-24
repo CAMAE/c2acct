@@ -29,7 +29,7 @@ Three boundary rules govern a cohort in PAT.
 
 The first is the record-class boundary. A cohort is built from production data only. PAT keeps production, pilot, and demo data strictly separated, and demo or synthetic records and pilot data never enter published benchmarks. This is an admission rule, applied before any question of size or balance: records of the wrong class is simply never in the cohort.
 
-The second is anonymity. Contributors are anonymous within benchmarks. A published cut never reveals which firms make up its cohort, and a reader cannot resolve the aggregate back into named members. Role boundaries reinforce this — firms, vendors, and consultants each see only what their role permits, and none of those views includes a cohort roster.
+The second is anonymity. Contributors are anonymous within benchmarks. A published cut never reveals which firms make up its cohort, and a reader cannot resolve the aggregate back into named members. Role boundaries reinforce this — firms, vendors, and guides each see only what their role permits, and none of those views includes a cohort roster.
 
 The third is the publication gate, formally the province of benchmark suppression but decided on the cohort's composition: a cut publishes only when its cohort has at least 5 contributors and no single contributor supplies more than 25% of the answers. The floor is the first test — a cohort below 5 contributors is suppressed regardless of how evenly its answers are spread — and the dominance cap then applies to cohorts that clear it. A cohort that fails either condition still exists as a construct; its cut simply displays as suppressed until its composition meets both conditions.
 
@@ -45,7 +45,7 @@ Those readings are also current rather than fixed. PAT treats a score as a readi
 
 No role ever reads a cohort directly; every role reads published aggregates through the surfaces its membership and role permit. For firms, PAT's paid tiers draw the line. Pro covers assessment, scores, bands, and core insights — a Pro firm's own results stand on their own, without reference to any cohort. Elite adds deeper interpretive surfaces, and this is where cohorts become visible in use: Elite shows where a firm sits within a distribution of peers, and only when the benchmark behind that distribution publishes under the suppression rules. The distribution is the cohort's aggregate, read interpretively; the cohort's membership remains as anonymous on an Elite screen as anywhere else.
 
-Consultants read cohort-derived context through their own surfaces — per-firm cards summarizing alignment status, structured firm briefs, and cross-ecosystem comparison views — but those views are bounded by role permissions and benchmark rules alike. A consultant sees structure and alignment signal across the firms they manage, not a firm's private answer text beyond what the role permits, and never a cohort roster. Vendors, for their part, receive structured, evidence-based views of where alignment holds and diverges between their declarations and firms' assessed experience. Across all three roles the pattern is the same: the cohort does the aggregating out of sight, and each role sees only the published, role-permitted reading of it.
+Guides read cohort-derived context through their own surfaces — per-firm cards summarizing alignment status, structured firm briefs, and cross-ecosystem comparison views — but those views are bounded by role permissions and benchmark rules alike. A guide sees structure and alignment signal across the firms they manage, not a firm's private answer text beyond what the role permits, and never a cohort roster. Vendors, for their part, receive structured, evidence-based views of where alignment holds and diverges between their declarations and firms' assessed experience. Across all three roles the pattern is the same: the cohort does the aggregating out of sight, and each role sees only the published, role-permitted reading of it.
 
 ## Cohorts when a contributor leaves
 
@@ -55,7 +55,7 @@ What departure does not do is reach backward. Anonymous benchmark aggregates tha
 
 ## Design rationale — why it was built this way
 
-The cohort's defining property — anonymity that no role can see past — rests on where PAT chooses to enforce permissions. PAT's position is that security depending on an assistant's good behavior fails: permissions that live in the evidence query itself cannot be talked out of. That is why cohort anonymity is structural rather than cosmetic. A firm's benchmark view, a consultant's cross-ecosystem comparison, and a vendor's alignment evidence are all produced by queries that return role-permitted aggregates and nothing else; there is no roster field being politely hidden, because the roster is not in what any role's queries return. Ask Pat inherits the same wall — each role's Pat retrieves only that role's permitted content, enforced at the evidence layer, so no phrasing of a question can coax a membership list out of an assistant that cannot retrieve one.
+The cohort's defining property — anonymity that no role can see past — rests on where PAT chooses to enforce permissions. PAT's position is that security depending on an assistant's good behavior fails: permissions that live in the evidence query itself cannot be talked out of. That is why cohort anonymity is structural rather than cosmetic. A firm's benchmark view, a guide's cross-ecosystem comparison, and a vendor's alignment evidence are all produced by queries that return role-permitted aggregates and nothing else; there is no roster field being politely hidden, because the roster is not in what any role's queries return. Ask Pat inherits the same wall — each role's Pat retrieves only that role's permitted content, enforced at the evidence layer, so no phrasing of a question can coax a membership list out of an assistant that cannot retrieve one.
 
 The cohort's second defining property — that it aggregates current readings rather than an archive — follows from the point-in-time principle. Operations change, so a permanent label would be false, and re-assessment on a working rhythm is the honest design. A comparison group built from frozen snapshots would drift away from the firms it claims to describe; a cohort read as its contributors' present readings stays the thing it is offered as, which is context about where a peer group is now. This is also why the cohort, not any stored artifact, is the unit the publication rules evaluate: the honest question is always what the group looks like today.
 
@@ -77,17 +77,17 @@ Now suppose one of the nine contributing firms leaves PAT altogether. As a depar
 
 A cohort is not a league table roster. Benchmarks in PAT are never rankings, so a cohort is never a list of positions; it is an anonymous comparison group, and no view orders its members against each other.
 
-A cohort is not identifiable. No role — firm, vendor, or consultant — sees which contributors compose a cohort. Anonymity within benchmarks is a stated property of the construct, not a display option.
+A cohort is not identifiable. No role — firm, vendor, or guide — sees which contributors compose a cohort. Anonymity within benchmarks is a stated property of the construct, not a display option.
 
 A cohort is not a mix of record classes. Pilot and demo data are not "lightly weighted" or footnoted into a cohort; they are excluded entirely. A published benchmark's cohort is production data, full stop.
 
-And a cohort is not the same thing as an ecosystem. An ecosystem is a consultant-managed construct — a set of member firms plus the products in play — with its own role-scoped visibility. A cohort is a benchmark construct, defined for aggregation and bound by anonymity and suppression rules, whoever manages the firms inside it.
+And a cohort is not the same thing as an ecosystem. An ecosystem is a guide-managed construct — a set of member firms plus the products in play — with its own role-scoped visibility. A cohort is a benchmark construct, defined for aggregation and bound by anonymity and suppression rules, whoever manages the firms inside it.
 
 ## Common misconceptions
 
 "A cohort is a fixed group a firm joins once." A cohort's composition is not enrollment; it is whatever set of contributors currently stands behind a cut. Contributors' answers join as firms assess, shifts as they re-assess, and leaves when a tenant departs — and each publication decision reads the cohort as it stands at that moment.
 
-"Somewhere in PAT, someone's screen shows the cohort roster." No role's view includes one. Firms, vendors, and consultants each see only role-permitted aggregates; the anonymity of contributors within benchmarks is a property of the construct, enforced where the records are queried, not a display setting that a different screen could toggle.
+"Somewhere in PAT, someone's screen shows the cohort roster." No role's view includes one. Firms, vendors, and guides each see only role-permitted aggregates; the anonymity of contributors within benchmarks is a property of the construct, enforced where the records are queried, not a display setting that a different screen could toggle.
 
 "A cohort aggregate is an estimate or a modeled figure." It is arithmetic over reproducible readings. Each contribution is the output of deterministic scoring — the same answers always produce the same score, with no AI model in the scoring path — so the aggregate is a computation over stable inputs, not a blend of predictions.
 
@@ -99,13 +99,13 @@ And a cohort is not the same thing as an ecosystem. An ecosystem is a consultant
 
 **What is a benchmark cohort?** The defined group of contributors whose production assessment answers are aggregated to form one benchmark cut. Every benchmark view has a cohort behind it, and the cohort is the unit against which publication rules are evaluated.
 
-**Can anyone see which firms are in a cohort?** No. Contributors are anonymous within benchmarks, and no role — firm, vendor, or consultant — has a view that includes a cohort roster. The permission lives in the evidence layer, so no surface or assistant can be talked into revealing membership.
+**Can anyone see which firms are in a cohort?** No. Contributors are anonymous within benchmarks, and no role — firm, vendor, or guide — has a view that includes a cohort roster. The permission lives in the evidence layer, so no surface or assistant can be talked into revealing membership.
 
 **What is allowed into a cohort?** Production data only. Production, pilot, and demo data are strictly separated, and demo, synthetic, and pilot data never enter published benchmarks — this is an admission rule applied before any question of size or balance.
 
 **How does a cohort relate to benchmark suppression?** Suppression is decided on the cohort's composition: the cut publishes only when the cohort has at least 5 contributors and no single contributor supplies more than 25% of the answers, with the floor checked first. The cohort is what the gate examines; the gate itself is the province of benchmark suppression.
 
-**Is a cohort the same thing as an ecosystem?** No. An ecosystem is a consultant-managed construct — member firms plus the products in play — with role-scoped visibility. A cohort is a benchmark construct, anonymous by rule and defined for aggregation, whoever manages the firms inside it.
+**Is a cohort the same thing as an ecosystem?** No. An ecosystem is a guide-managed construct — member firms plus the products in play — with role-scoped visibility. A cohort is a benchmark construct, anonymous by rule and defined for aggregation, whoever manages the firms inside it.
 
 **Does a cohort's aggregate change over time?** Yes, continuously. A cohort holds its contributors' current readings — scores are point-in-time readings, and results update as firms re-assess — so the context it offers is a picture of where its contributors are now.
 
@@ -115,4 +115,4 @@ And a cohort is not the same thing as an ecosystem. An ecosystem is a consultant
 
 ## Related terms
 
-Benchmark Suppression — the publication gate evaluated on a cohort's composition: the 5-contributor floor, the 25% dominance cap, and the floor's precedence. Evidence Lineage — the rule that every displayed number traces to its sources; the cohort is what a published benchmark traces to. Pillar — the five scoring constructs whose scores benchmark cuts contextualize. Band — the five-level lexicon (Early through Leading) in which results and their context are read. Ecosystem — the consultant-managed set of firms and products, a distinct construct from the anonymous cohort.
+Benchmark Suppression — the publication gate evaluated on a cohort's composition: the 5-contributor floor, the 25% dominance cap, and the floor's precedence. Evidence Lineage — the rule that every displayed number traces to its sources; the cohort is what a published benchmark traces to. Pillar — the five scoring constructs whose scores benchmark cuts contextualize. Band — the five-level lexicon (Early through Leading) in which results and their context are read. Ecosystem — the guide-managed set of firms and products, a distinct construct from the anonymous cohort.

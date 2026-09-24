@@ -7,6 +7,7 @@ import {
   type UserRole,
 } from "@prisma/client";
 import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
+import { guideWord } from "@/lib/roleWords";
 
 export const LOCAL_REVIEW_AUTH_FLAG_ENV = "PAT_ENABLE_LOCAL_REVIEW_AUTH";
 export const LOCAL_REVIEW_PASSWORD_ENV = "PAT_LOCAL_REVIEW_PASSWORD";
@@ -76,7 +77,7 @@ export const LOCAL_REVIEW_USERS: LocalReviewUserDefinition[] = [
   },
   {
     key: "consultant",
-    label: "Consultant review",
+    label: `${guideWord()} review`,
     email: "review.consultant@pat.local",
     role: "MEMBER",
     companyType: null,

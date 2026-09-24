@@ -95,7 +95,7 @@ The firm's scoring pattern may also open an adaptive module — a short diagnost
 
 "An integrity flag means our people are accused of dishonesty." An integrity flag is information about how much weight a reading can bear, never an accusation. It tells you the response pattern weakened the signal — and a careful retake resolves the question.
 
-"Other members can see our results." No other firm, vendor, or consultant sees your firm's results beyond what role boundaries permit, contributors to benchmarks are anonymous within them, and no published ordering of firms exists anywhere in the product.
+"Other members can see our results." No other firm, vendor, or guide sees your firm's results beyond what role boundaries permit, contributors to benchmarks are anonymous within them, and no published ordering of firms exists anywhere in the product.
 
 "A Developing band is a verdict on the firm." A band is a reading at a point in time, not a label. The intended long-term reading is movement — whether an area shifts band between assessments — and movement in either direction is information, not judgment.
 

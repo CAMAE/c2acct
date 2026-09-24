@@ -1,3 +1,4 @@
+import { guideWord } from "@/lib/roleWords";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
@@ -23,16 +24,16 @@ export default async function AdminConsultantsPage() {
     return (
       <div className="space-y-8">
         <AdminPageIntro
-          title="Consultants"
-          description="Consultant access is currently disabled by default because the active PAT implementation is still company-scoped and remains behind an explicit proof gate until end-to-end validation is complete."
+          title={guideWord("Consultants")}
+          description={`${guideWord()} access is currently disabled by default because the active PAT implementation is still company-scoped and remains behind an explicit proof gate until end-to-end validation is complete.`}
         />
 
         <AdminPanel
-          title="Consultant access gate"
-          description="This admin surface stays hidden in routine local and release runtime until consultant proof is intentionally enabled."
+          title={`${guideWord()} access gate`}
+          description={`This admin surface stays hidden in routine local and release runtime until ${guideWord("consultant")} proof is intentionally enabled.`}
         >
           <div className="rounded-[22px] border border-amber-200 bg-amber-50/90 p-5 text-sm leading-6 text-amber-900">
-            Set <code>{CONSULTANT_ACCESS_FLAG_ENV}=1</code> only in a proof environment where consultant create, assignment, allowed access, and denied access are being validated end to end.
+            Set <code>{CONSULTANT_ACCESS_FLAG_ENV}=1</code> only in a proof environment where {guideWord("consultant")} create, assignment, allowed access, and denied access are being validated end to end.
           </div>
         </AdminPanel>
       </div>
@@ -155,24 +156,24 @@ export default async function AdminConsultantsPage() {
   return (
     <div className="space-y-8">
       <AdminPageIntro
-        title="Consultants"
-        description="Add consultant profiles and assign firm-company briefing scope. Consultant access is intentionally company-scoped today because PAT derives ecosystem context inside each firm briefing rather than from a separate persisted ecosystem model."
+        title={guideWord("Consultants")}
+        description={`Add ${guideWord("consultant")} profiles and assign firm-company briefing scope. ${guideWord()} access is intentionally company-scoped today because PAT derives ecosystem context inside each firm briefing rather than from a separate persisted ecosystem model.`}
       />
 
       {compatibilityMode ? (
         <AdminPanel
-          title="Consultant schema required"
+          title={`${guideWord()} schema required`}
           description="This admin surface is additive, but it depends on the latest Prisma migration."
         >
           <div className="rounded-[22px] border border-amber-200 bg-amber-50/90 p-5 text-sm leading-6 text-amber-900">
-            The current database is missing the consultant access tables. Run the latest Prisma migrations and regenerate the client before adding consultants or company assignments.
+            The current database is missing the {guideWord("consultant")} access tables. Run the latest Prisma migrations and regenerate the client before adding {guideWord("consultants")} or company assignments.
           </div>
         </AdminPanel>
       ) : (
         <>
           <AdminPanel
-            title="Add consultant"
-            description="Creating a consultant profile does not create a separate credentials plane or change PAT audience roles. It adds company-scoped consultant briefing access on top of the existing user account."
+            title={`Add ${guideWord("consultant")}`}
+            description={`Creating a ${guideWord("consultant")} profile does not create a separate credentials plane or change PAT audience roles. It adds company-scoped ${guideWord("consultant")} briefing access on top of the existing user account.`}
           >
             <form action={createConsultantAction} className="grid gap-4 md:grid-cols-[1.2fr_1fr_auto]">
               <input type="hidden" name="returnTo" value="/admin/consultants" />
@@ -180,29 +181,29 @@ export default async function AdminConsultantsPage() {
                 name="email"
                 type="email"
                 required
-                placeholder="consultant@company.com"
+                placeholder={`${guideWord("consultant")}@company.com`}
                 className="pat-input"
               />
               <input
                 name="name"
                 type="text"
-                placeholder="Consultant name"
+                placeholder={`${guideWord()} name`}
                 className="pat-input"
               />
               <button type="submit" className="pat-button-primary">
-                Add consultant
+                Add {guideWord("consultant")}
               </button>
             </form>
           </AdminPanel>
 
           <AdminPanel
-            title="Consultant roster"
-            description="Assignments control which firm-company briefings a consultant can open. Unassigned firm briefings remain inaccessible because the consultant routes check company scope directly."
+            title={`${guideWord()} roster`}
+            description={`Assignments control which firm-company briefings a ${guideWord("consultant")} can open. Unassigned firm briefings remain inaccessible because the ${guideWord("consultant")} routes check company scope directly.`}
           >
             <div className="grid gap-4">
               {consultantProfiles.length === 0 ? (
                 <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5 text-sm leading-6 text-[var(--shell-muted)]">
-                  No consultant profiles have been added yet.
+                  No {guideWord("consultant")} profiles have been added yet.
                 </div>
               ) : (
                 consultantProfiles.map((consultant) => (
@@ -256,7 +257,7 @@ export default async function AdminConsultantsPage() {
                           </button>
                         </form>
                         <div className="text-xs leading-5 text-[var(--shell-muted)]">
-                          Current consultant scope is company-based. Ecosystem context still comes from the assigned firm briefing itself.
+                          Current {guideWord("consultant")} scope is company-based. Ecosystem context still comes from the assigned firm briefing itself.
                         </div>
                       </div>
 
@@ -280,7 +281,7 @@ export default async function AdminConsultantsPage() {
                                     {assignment.Company.name}
                                   </div>
                                   <div className="mt-1 text-xs text-[var(--shell-muted)]">
-                                    Consultant route: {`/consultants/briefings/${assignment.companyId}`}
+                                    {guideWord()} route: {`/consultants/briefings/${assignment.companyId}`}
                                   </div>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
@@ -310,7 +311,7 @@ export default async function AdminConsultantsPage() {
                         <input type="hidden" name="consultantProfileId" value={consultant.id} />
                         <input type="hidden" name="returnTo" value="/admin/consultants" />
                         <button type="submit" className="pat-button-secondary">
-                          Remove consultant access
+                          Remove {guideWord("consultant")} access
                         </button>
                       </form>
                     </div>

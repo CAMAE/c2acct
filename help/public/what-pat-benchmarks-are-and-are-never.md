@@ -85,13 +85,13 @@ The second is small-cell suppression, and here a sentence of orientation is enou
 
 The third is the absence of a free tier. Benchmark quality depends on committed participants; a free tier optimizes for volume over signal, and the numbers everyone compares against are only as good as the care behind the answers. Paid-only membership is, among other things, a benchmark-quality decision.
 
-## How benchmark context looks for a firm, a vendor, and a consultant
+## How benchmark context looks for a firm, a vendor, and a guide
 
 For a firm, benchmark context is a backdrop behind its own results: a way to read a pillar score as a position in a landscape rather than a number floating alone. On Elite, that reading deepens into where the firm sits within a distribution of peers — only when the cohort publishes under the suppression rules.
 
 For a vendor, context arrives through the alignment lens. Firm assessments measure experienced reality against declared capabilities, and the vendor receives structured, evidence-based views of where alignment holds and where it diverges — a comparison against its own declaration, across the firms experiencing the product, never a named list of which firm said what.
 
-For a consultant, comparison is portfolio-shaped: reading alignment structure across a managed set. The rule this article keeps stating holds at that width too — context, never rankings.
+For a guide, comparison is portfolio-shaped: reading alignment structure across a managed set. The rule this article keeps stating holds at that width too — context, never rankings.
 
 ## A closer look: one scenario, start to finish
 

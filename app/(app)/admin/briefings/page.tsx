@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
 import { getAdminBriefingCatalog } from "@/lib/adminBriefingEngine";
 import { buildOperatorBriefings, getAdminOverviewData } from "@/lib/adminControlPlane";
+import { guideWord } from "@/lib/roleWords";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,7 @@ export default async function AdminBriefingsPage() {
     <div className="space-y-8">
       <AdminPageIntro
         title="Briefings"
-        description="Consultant and operator briefings that summarize firm, product, and ecosystem signal from the live PAT engine only."
+        description={`${guideWord()} and operator briefings that summarize firm, product, and ecosystem signal from the live PAT engine only.`}
       />
 
       <AdminPanel
@@ -32,7 +33,7 @@ export default async function AdminBriefingsPage() {
         <div className="grid gap-4 lg:grid-cols-2">
           {catalog.length === 0 ? (
             <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5 text-sm leading-6 text-[var(--shell-muted)]">
-              No firm organizations are ready for consultant/operator briefings yet.
+              No firm organizations are ready for {guideWord("consultant")}/operator briefings yet.
             </div>
           ) : (
             catalog.map((item) => (

@@ -7,11 +7,11 @@ vertical: global
 words: 2994
 ---
 
-PAT — Performance Alignment Technology, a Patalign™ product — is a measurement platform for the accounting ecosystem. It gives accounting firms a structured way to assess their own operations, gives the software vendors who serve them evidence of how their products actually land in practice, and gives the consultants who manage firm ecosystems a clear view of alignment across all of it. The problem it solves is a simple and persistent one: in this ecosystem, what a product claims to do, what a firm believes it is doing, and what is actually happening day to day are three different things, and until now there has been no consistent way to measure the gaps between them.
+PAT — Performance Alignment Technology, a Patalign™ product — is a measurement platform for the accounting ecosystem. It gives accounting firms a structured way to assess their own operations, gives the software vendors who serve them evidence of how their products actually land in practice, and gives the guides who manage firm ecosystems a clear view of alignment across all of it. The problem it solves is a simple and persistent one: in this ecosystem, what a product claims to do, what a firm believes it is doing, and what is actually happening day to day are three different things, and until now there has been no consistent way to measure the gaps between them.
 
 ## The problem PAT addresses
 
-Accounting firms invest heavily in software, process change, and advice, yet most have no consistent instrument for asking whether any of it is working the way everyone assumed it would. A vendor describes a capability. A firm adopts it. A consultant recommends it. Then everyone moves on, and the question of whether the described capability matches the experienced reality goes unmeasured. When something feels off, the conversation runs on anecdote: one partner's frustration, one demo that went well, one integration that quietly stopped being used.
+Accounting firms invest heavily in software, process change, and advice, yet most have no consistent instrument for asking whether any of it is working the way everyone assumed it would. A vendor describes a capability. A firm adopts it. A guide recommends it. Then everyone moves on, and the question of whether the described capability matches the experienced reality goes unmeasured. When something feels off, the conversation runs on anecdote: one partner's frustration, one demo that went well, one integration that quietly stopped being used.
 
 PAT exists to replace that anecdote with measurement. It treats alignment — the fit between what is claimed, what is expected, and what is experienced — as something you can assess with structured questions, score with transparent arithmetic, and compare responsibly over time and across peers. The platform's guiding idea is "evidence, not advertising": vendors make structured declarations about what their products do, firm assessments verify how those declarations hold up in real operations, and every displayed number traces back to its sources.
 
@@ -23,13 +23,13 @@ Firms use PAT to assess their own operations. A firm works through a structured 
 
 Vendors — the software companies serving accounting firms — use PAT to declare what their products are built to do and to receive alignment evidence in return: a measured picture of how firms actually experience those products. That evidence flows both ways. A product can outperform its own declaration just as easily as it can underperform it, and both findings are useful.
 
-Consultants and ecosystem owners — the advisors who manage a set of firms and the tools those firms run on — use PAT to see the alignment picture across their whole portfolio. Where a firm sees its own operations and a vendor sees its own products, a consultant sees the structure that connects them: a managed set of member firms, the products in play, and how well the pieces fit together.
+Guides and ecosystem owners — the advisors who manage a set of firms and the tools those firms run on — use PAT to see the alignment picture across their whole portfolio. Where a firm sees its own operations and a vendor sees its own products, a guide sees the structure that connects them: a managed set of member firms, the products in play, and how well the pieces fit together.
 
-Each role sees only what its role permits. Firms and vendors do not see into each other's private detail; consultants see cross-firm structure for the ecosystems they manage. Those boundaries are part of the design, not an afterthought.
+Each role sees only what its role permits. Firms and vendors do not see into each other's private detail; guides see cross-firm structure for the ecosystems they manage. Those boundaries are part of the design, not an afterthought.
 
 ## Built inside the profession it serves
 
-PAT was built inside the profession it serves — by people who run and advise accounting practices — not adapted from a generic survey tool and pointed at accounting afterward. That origin is visible in the platform's shape. The three roles mirror how the accounting ecosystem actually organizes itself: firms doing the work, vendors building the software the work runs on, and consultants managing the relationships between them. The five pillars are named for the things a practice genuinely has to manage — its operating model, its automation readiness, its integrations, its governance, its strategy — rather than for abstractions imported from somewhere else. And the platform's insistence on evidence over advertising reflects a working reality practitioners know first-hand: in this ecosystem, claims are plentiful and verification is scarce. PAT was built to supply the verification.
+PAT was built inside the profession it serves — by people who run and advise accounting practices — not adapted from a generic survey tool and pointed at accounting afterward. That origin is visible in the platform's shape. The three roles mirror how the accounting ecosystem actually organizes itself: firms doing the work, vendors building the software the work runs on, and guides managing the relationships between them. The five pillars are named for the things a practice genuinely has to manage — its operating model, its automation readiness, its integrations, its governance, its strategy — rather than for abstractions imported from somewhere else. And the platform's insistence on evidence over advertising reflects a working reality practitioners know first-hand: in this ecosystem, claims are plentiful and verification is scarce. PAT was built to supply the verification.
 
 ## How a firm assessment works, at a glance
 
@@ -75,7 +75,7 @@ Signed-in members can put questions to Ask Pat, an assistant that answers using 
 
 ## What PAT is not
 
-A platform is sometimes easiest to place by what it declines to be. PAT is not a ranking service: benchmarks are comparison context, never league tables, and no public ordering of firms or vendors exists anywhere in the product. It is not an advice engine: PAT measures alignment and presents the results honestly, and what a firm, vendor, or consultant does with the measurement is their own work. It is not AI-graded: scores come from deterministic arithmetic, and the assistant that helps members understand their results never generates a score. It is not free: membership is paid — Pro and Elite — because benchmark quality depends on committed participants. And it is not a labeling exercise: PAT treats a score as a reading at a point in time, not a permanent verdict, and assessments can be re-taken as operations change. Even its reminders follow that temperament — deliberately no-guilt, informative nudges rather than shame mechanics — because a measurement platform works best when people return to it willingly.
+A platform is sometimes easiest to place by what it declines to be. PAT is not a ranking service: benchmarks are comparison context, never league tables, and no public ordering of firms or vendors exists anywhere in the product. It is not an advice engine: PAT measures alignment and presents the results honestly, and what a firm, vendor, or guide does with the measurement is their own work. It is not AI-graded: scores come from deterministic arithmetic, and the assistant that helps members understand their results never generates a score. It is not free: membership is paid — Pro and Elite — because benchmark quality depends on committed participants. And it is not a labeling exercise: PAT treats a score as a reading at a point in time, not a permanent verdict, and assessments can be re-taken as operations change. Even its reminders follow that temperament — deliberately no-guilt, informative nudges rather than shame mechanics — because a measurement platform works best when people return to it willingly.
 
 ## Where PAT fits in your world
 
@@ -89,7 +89,7 @@ Three convictions run underneath everything described above, and stating them pl
 
 The first: a number whose origin cannot be traced is marketing. Every figure PAT displays must be able to answer the question "where did you come from?" — which assessment produced it, which record class it belongs to, what stands behind it. Evidence lineage is a platform rule rather than a feature, because the moment one orphan number is tolerated, confidence in every number becomes negotiable.
 
-The second: permissions belong in the evidence layer, not in etiquette. Security that depends on an assistant's good behavior fails, so PAT's role boundaries live in the evidence queries themselves — a firm's view, a vendor's view, and a consultant's view differ because the records each role can reach differ, not because a well-mannered interface declines to show more. A wall built that way cannot be talked out of.
+The second: permissions belong in the evidence layer, not in etiquette. Security that depends on an assistant's good behavior fails, so PAT's role boundaries live in the evidence queries themselves — a firm's view, a vendor's view, and a guide's view differ because the records each role can reach differ, not because a well-mannered interface declines to show more. A wall built that way cannot be talked out of.
 
 The third: operations change, so a permanent label would be false. PAT treats every score as a reading at a point in time and is built for re-assessment on a working rhythm. A platform that froze its findings into verdicts would drift away from the truth it claims to measure; one designed around the next reading stays honest.
 
@@ -99,7 +99,7 @@ For a firm, PAT is an assessment experience built to fit a working practice: a p
 
 For a vendor, PAT is a declaration surface and an evidence return: capabilities declared across defined function areas of practice software, then structured, evidence-based views of where firm-experienced reality aligns with those declarations and where it diverges — material fit for honest sales and product conversations.
 
-For a consultant or ecosystem owner, PAT is a set of working views over a managed portfolio: per-firm cards summarizing alignment status, structured firm briefs for deeper review, and cross-ecosystem comparison views. Consultants see structure and alignment signal — not a firm's private answer text beyond what the role permits.
+For a guide or ecosystem owner, PAT is a set of working views over a managed portfolio: per-firm cards summarizing alignment status, structured firm briefs for deeper review, and cross-ecosystem comparison views. Guides see structure and alignment signal — not a firm's private answer text beyond what the role permits.
 
 Three seats, one instrument: the same assessments, scores, and bands feed all three views, filtered by role.
 
@@ -117,13 +117,13 @@ Signal-integrity checks accompany the firm-side readings, so everyone knows how 
 
 "A strong reading in one area means the firm is Leading overall." PAT produces five pillar scores, each carrying its own band, precisely so that strong and weak areas stay distinct. The five readings are comparable with one another, not blended into a single verdict.
 
-"PAT is a tool for firms only." Firms are one of three roles. Vendors participate as declaring parties who receive alignment evidence, and consultants and ecosystem owners work from cross-firm views of the ecosystems they manage. The platform is built around the interaction of the three, not around any one of them.
+"PAT is a tool for firms only." Firms are one of three roles. Vendors participate as declaring parties who receive alignment evidence, and guides and ecosystem owners work from cross-firm views of the ecosystems they manage. The platform is built around the interaction of the three, not around any one of them.
 
 ## Questions this article answers
 
 **What does PAT stand for?** Performance Alignment Technology, a Patalign™ product — a measurement platform for the accounting ecosystem.
 
-**Who uses PAT?** Three roles: accounting firms assessing their own operations, software vendors declaring product capabilities and receiving alignment evidence, and consultants or ecosystem owners viewing alignment across a managed set of firms.
+**Who uses PAT?** Three roles: accounting firms assessing their own operations, software vendors declaring product capabilities and receiving alignment evidence, and guides or ecosystem owners viewing alignment across a managed set of firms.
 
 **What problem does PAT solve?** The unmeasured gap between what a product claims, what a firm expects, and what actually happens in practice — PAT measures that alignment with structured questions and transparent arithmetic.
 
@@ -137,4 +137,4 @@ Signal-integrity checks accompany the firm-side readings, so everyone knows how 
 
 **What is Ask Pat?** A role-scoped assistant that answers from PAT's own documented content, says so plainly when documentation doesn't cover a question, and never generates scores.
 
-A natural next step is to read how PAT looks from your own seat — there are dedicated introductions for firms, for vendors, and for consultants and ecosystem owners.
+A natural next step is to read how PAT looks from your own seat — there are dedicated introductions for firms, for vendors, and for guides and ecosystem owners.

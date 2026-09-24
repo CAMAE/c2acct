@@ -11,7 +11,7 @@ PAT is built around a single editorial rule: a claim only counts when evidence s
 
 ## What "evidence, not advertising" means
 
-Performance Alignment Technology (PAT), a Patalign product serving the accounting ecosystem, treats claims and evidence as two different things and refuses to blur them. Advertising is a statement someone hopes you will believe. Evidence is a statement that has been checked against something real. PAT's role is to move conversations between accounting firms, software vendors, and the consultants who manage firm ecosystems from the first category into the second.
+Performance Alignment Technology (PAT), a Patalign product serving the accounting ecosystem, treats claims and evidence as two different things and refuses to blur them. Advertising is a statement someone hopes you will believe. Evidence is a statement that has been checked against something real. PAT's role is to move conversations between accounting firms, software vendors, and the guides who manage firm ecosystems from the first category into the second.
 
 That sounds simple, and in one sense it is. But it has a demanding consequence: nothing in PAT gets to be persuasive on charm alone. A vendor cannot raise a score by writing a better description. A firm cannot look more mature by choosing flattering words. The system is designed so that the only way to look good in PAT is to be measured well — and the measurement itself is deterministic arithmetic, not opinion.
 
@@ -53,7 +53,7 @@ Lineage is also what keeps the rest of the philosophy honest over time. A system
 
 ## The same standard, applied to everyone
 
-A philosophy like this would be hollow if it bound only one side. In PAT it binds all three roles. Vendors are held to their declarations. Firms are measured by their answers, with signal-integrity checks accompanying scores so readers know how much weight a result can bear. Consultants and ecosystem owners see alignment structure across the firms they manage — but what they see is built from the same verified material, not from summaries anyone composed to please them.
+A philosophy like this would be hollow if it bound only one side. In PAT it binds all three roles. Vendors are held to their declarations. Firms are measured by their answers, with signal-integrity checks accompanying scores so readers know how much weight a result can bear. Guides and ecosystem owners see alignment structure across the firms they manage — but what they see is built from the same verified material, not from summaries anyone composed to please them.
 
 Even PAT's benchmarks follow the standard. They exist to provide comparison context, never rankings, and they publish only when a cohort is substantial enough — at least five contributors, with no single contributor supplying more than a quarter of the answers — for the comparison to mean something. A benchmark that cannot bear evidential weight is suppressed rather than shown. Withholding a weak number is itself an act of the same philosophy: showing it would be advertising the appearance of insight without the substance.
 
@@ -75,7 +75,7 @@ Two boundaries keep that promise firm. Each role's Pat retrieves only the conten
 
 ## What this asks of you — and gives back
 
-Participating in an evidence-first system asks something of everyone involved. Vendors must commit to statements specific enough to be tested. Firms must answer a structured assessment honestly rather than aspirationally. Consultants must let the measured picture speak, even where it complicates a tidy story.
+Participating in an evidence-first system asks something of everyone involved. Vendors must commit to statements specific enough to be tested. Firms must answer a structured assessment honestly rather than aspirationally. Guides must let the measured picture speak, even where it complicates a tidy story.
 
 What each side gets back is the thing advertising can never deliver: credibility that does not depend on who is speaking. A vendor's strong result means more because it could have come out otherwise. A firm's profile means more because it was measured, not composed. In a market where every product page says roughly the same confident things, evidence that has survived verification is a different kind of asset altogether.
 
@@ -87,13 +87,13 @@ The sourced-content gate is the same logic applied to words instead of numbers. 
 
 Deterministic scoring completes the set. A measurement must be repeatable and auditable to serve as evidence, and model behavior can shift over time — a score that could read the same answers differently on different days would be an opinion with a timestamp, not a measurement. PAT keeps AI models out of the scoring path entirely, so the same answers always produce the same score — and evidence only stays evidence if remeasuring yields the same result.
 
-## How this looks for a firm, a vendor, and a consultant
+## How this looks for a firm, a vendor, and a guide
 
 For a firm, evidence-first means your operational standing in PAT is built from your answers to the five-module, 100-question assessment and nothing else. Signal-integrity checks accompany your scores so readers know how much weight each result can bear, and your open-ended responses add context in your own words without adding points.
 
 For a vendor, evidence-first means your product's story is told twice — once by your structured declaration, once by firms' assessed experience — and the alignment delta between the two runs in both directions. The result is material for honest sales and product conversations, because a favorable number came from the same measurement that could have produced an unfavorable one.
 
-For a consultant or ecosystem owner, evidence-first means the cross-firm alignment picture you work from is assembled from verified declarations and deterministic scores, not from summaries composed to satisfy anyone. What you see across your managed firms carries the same lineage as everything else.
+For a guide or ecosystem owner, evidence-first means the cross-firm alignment picture you work from is assembled from verified declarations and deterministic scores, not from summaries composed to satisfy anyone. What you see across your managed firms carries the same lineage as everything else.
 
 ## A closer look: one scenario, start to finish
 

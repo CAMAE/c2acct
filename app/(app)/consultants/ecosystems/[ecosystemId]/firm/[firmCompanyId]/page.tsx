@@ -23,6 +23,7 @@ import FiveModuleRadar from "./_components/FiveModuleRadar";
 import SixQuarterRoadmap from "./_components/SixQuarterRoadmap";
 import StackFitAnalysis from "./_components/StackFitAnalysis";
 import { boardLabel } from "@/lib/sandboxLabel";
+import { guideWord } from "@/lib/roleWords";
 
 export const dynamic = "force-dynamic";
 
@@ -123,8 +124,8 @@ export default async function FirmBriefPage({
         <PatLogoLockup mode="hero" tone="light" />
         <PortalAudienceEyebrow
           className="pat-label mt-6"
-          label="Firm brief · Consultant"
-          audienceLabel="Consultant"
+          label={`Firm brief · ${guideWord()}`}
+          audienceLabel={guideWord()}
         />
         <PatAudienceTitle
           as="h1"

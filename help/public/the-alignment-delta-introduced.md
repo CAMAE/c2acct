@@ -33,7 +33,7 @@ For a firm, the alignment delta turns tool decisions from acts of faith into act
 
 Choosing software has always meant weighing claims you cannot fully verify until after you have committed. The delta gives a firm something no brochure can: the measured relationship between what a product says about itself and what firms like yours actually experience. That context matters before a decision, when you are weighing options, and it matters after one, when you are trying to understand whether what you are experiencing is typical.
 
-There is a subtler benefit as well. A firm that has completed its own assessment sees its experience become part of a structured picture rather than a private frustration or a private delight. "This tool is not doing what we hoped" is a feeling; a measured gap between declaration and experience is a fact you can discuss — with your team, with your consultant, and with the vendor.
+There is a subtler benefit as well. A firm that has completed its own assessment sees its experience become part of a structured picture rather than a private frustration or a private delight. "This tool is not doing what we hoped" is a feeling; a measured gap between declaration and experience is a fact you can discuss — with your team, with your guide, and with the vendor.
 
 ## Why the delta matters to vendors
 
@@ -75,17 +75,17 @@ For the alignment delta, this matters because the firm side of the measurement i
 
 Part of what makes the alignment delta PAT's headline concept is that all three of PAT's audiences read the same measurement and each gets something different from it.
 
-Firms read it as buying and using context: how declared capability compares with experienced reality for the products in their world. Vendors read it as alignment evidence: structured confirmation of where their product delivers as declared, and early, specific signal where it does not. Consultants and ecosystem owners read it across a whole portfolio: where alignment is strong across the firms they manage, and where a pattern of gaps deserves attention.
+Firms read it as buying and using context: how declared capability compares with experienced reality for the products in their world. Vendors read it as alignment evidence: structured confirmation of where their product delivers as declared, and early, specific signal where it does not. Guides and ecosystem owners read it across a whole portfolio: where alignment is strong across the firms they manage, and where a pattern of gaps deserves attention.
 
-That shared measurement is the point. When a firm, a vendor, and a consultant discuss a product, the alignment delta gives them a common fact to stand on instead of three competing impressions.
+That shared measurement is the point. When a firm, a vendor, and a guide discuss a product, the alignment delta gives them a common fact to stand on instead of three competing impressions.
 
 ## The delta across an ecosystem of firms
 
-For a consultant or ecosystem owner managing a set of firms, the alignment delta scales from a single measurement into a landscape. At concept level, consultant surfaces include per-firm cards summarizing alignment status, structured firm briefs for deeper review, and comparison views across the ecosystem — and alignment signal is much of what those surfaces summarize.
+For a guide or ecosystem owner managing a set of firms, the alignment delta scales from a single measurement into a landscape. At concept level, guide surfaces include per-firm cards summarizing alignment status, structured firm briefs for deeper review, and comparison views across the ecosystem — and alignment signal is much of what those surfaces summarize.
 
 Read across a portfolio, deltas start to form patterns. A gap between one product's declaration and one firm's experience is a single reading; the same gap appearing across many managed firms says something about the product; a gap appearing at only one firm says something about that firm's situation. Distinguishing the two is exactly the kind of judgment an ecosystem view exists to support.
 
-Role boundaries hold throughout. Consultants see structure and alignment signal across their managed firms — not a firm's private answer text beyond what their role permits. The delta gives the ecosystem view its substance without turning any firm's assessment into an open book.
+Role boundaries hold throughout. Guides see structure and alignment signal across their managed firms — not a firm's private answer text beyond what their role permits. The delta gives the ecosystem view its substance without turning any firm's assessment into an open book.
 
 ## A measurement that can move
 
@@ -141,7 +141,7 @@ Then time passes, and both parties keep moving. Firms re-take assessments as the
 
 **Is the delta a review score?** No. It is not a rating, ranking, or satisfaction measure; it is a traceable measurement between a declaration and assessed experience.
 
-**Who reads the alignment delta?** All three PAT roles: firms as buying and using context, vendors as alignment evidence, and consultants as a pattern across the firms they manage — each within what their role permits.
+**Who reads the alignment delta?** All three PAT roles: firms as buying and using context, vendors as alignment evidence, and guides as a pattern across the firms they manage — each within what their role permits.
 
 **Does the delta change over time?** Yes. Firms re-assess as operations change, so the delta is a living reading rather than a permanent verdict on either party.
 

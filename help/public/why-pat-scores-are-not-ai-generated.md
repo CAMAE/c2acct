@@ -23,7 +23,7 @@ Comparability demands it. PAT's five pillar scores are designed to be compared �
 
 Accountability demands it too. PAT's evidence philosophy is that displayed numbers trace to their sources — evidence lineage, with no orphan numbers. A deterministic score honors that fully: you can follow the path from any score back to the answers that produced it, and the path explains the number completely. A model-generated score cannot offer that. "The model weighed your responses" is not a lineage; it is a shrug with confidence.
 
-And trust in the shared picture demands it. Firm scores feed the comparison context PAT provides, and participants — firms, vendors, and the consultants who manage ecosystems of both — rely on that context meaning the same thing for everyone. An instrument with a model inside would ask every participant to trust not just the questions and the math, but an opaque intermediary. PAT chose to have no such intermediary.
+And trust in the shared picture demands it. Firm scores feed the comparison context PAT provides, and participants — firms, vendors, and the guides who manage ecosystems of both — rely on that context meaning the same thing for everyone. An instrument with a model inside would ask every participant to trust not just the questions and the math, but an opaque intermediary. PAT chose to have no such intermediary.
 
 ## Where assistance does sit: Ask Pat
 
@@ -73,7 +73,7 @@ For a firm, deterministic scoring means your scores are yours in the strictest s
 
 For a vendor, it means the alignment evidence you receive is stable ground. The measured relationship between what you declare and what firms experience rests on scores that cannot drift underneath you.
 
-For a consultant or ecosystem owner, it means comparisons across a portfolio are honest. Two firms' scores differ only because their answers differ, so the structure you see across an ecosystem reflects the firms, not an intermediary's variance.
+For a guide or ecosystem owner, it means comparisons across a portfolio are honest. Two firms' scores differ only because their answers differ, so the structure you see across an ecosystem reflects the firms, not an intermediary's variance.
 
 And for anyone reading any PAT number, it means one clean rule: if a score appears in PAT, arithmetic produced it, answers explain it, and no model touched it. Assistance in PAT talks about the numbers; it never makes them.
 

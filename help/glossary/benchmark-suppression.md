@@ -45,7 +45,7 @@ The underlying answers also move. PAT treats a score as a reading at a point in 
 
 Suppression is not a back-office filter; its effects are visible in the surfaces members use. PAT's membership is paid tiers only — Pro and Elite. Pro covers assessment, scores, bands, and core insights: a Pro firm's own results do not depend on any benchmark publishing. Elite adds deeper interpretive surfaces, and one of them is exactly where suppression bites: Elite shows where a firm sits within a distribution of peers only when benchmarks publish under the suppression rules. If the relevant cut is suppressed, there is no distribution position to show — not an estimate, not a partial percentile, nothing that would let an interpretive surface become a route around the gate. The Elite reading is deeper interpretation of published aggregates, never a substitute for publication conditions.
 
-The same holds across roles. Consultants see cross-ecosystem comparison views, but those views are bounded by role permissions and benchmark rules alike — managing an ecosystem does not unlock a suppressed cut. Vendors receive structured, evidence-based alignment views, and Ask Pat answers each role's questions from that role's permitted documented content only. Whatever the surface and whoever the reader, a cut that fails the floor or the cap shows as suppressed to everyone. That uniformity is itself part of the rule: a cut that fails publication conditions does not publish to a privileged subset of readers.
+The same holds across roles. Guides see cross-ecosystem comparison views, but those views are bounded by role permissions and benchmark rules alike — managing an ecosystem does not unlock a suppressed cut. Vendors receive structured, evidence-based alignment views, and Ask Pat answers each role's questions from that role's permitted documented content only. Whatever the surface and whoever the reader, a cut that fails the floor or the cap shows as suppressed to everyone. That uniformity is itself part of the rule: a cut that fails publication conditions does not publish to a privileged subset of readers.
 
 ## Suppression and long-term stewardship
 
@@ -89,7 +89,7 @@ And suppression is not permanent by definition. It describes a cut's current sta
 
 "Suppressed means the answers are missing or lost." Nothing is missing. The cut is a defined view, the cohort behind it exists, and its contributors' answers are intact; the cohort's size or composition simply does not meet publication conditions right now. Suppressed is a stated status, not a blank or an error.
 
-"Elite members, or consultants, can see through a suppressed cut." No reader can. A cut that fails either condition does not publish to a privileged subset: Elite's distribution-of-peers surface appears only when the underlying benchmark publishes under the suppression rules, and a consultant's cross-ecosystem views are bounded by benchmark rules just as firmly. A suppressed cut shows as suppressed to everyone.
+"Elite members, or guides, can see through a suppressed cut." No reader can. A cut that fails either condition does not publish to a privileged subset: Elite's distribution-of-peers surface appears only when the underlying benchmark publishes under the suppression rules, and a guide's cross-ecosystem views are bounded by benchmark rules just as firmly. A suppressed cut shows as suppressed to everyone.
 
 "The dominance cap excludes large contributors." The cap governs publication of the cut, not admission to the cohort. A contributor supplying more than 25% of a cut's answers is not removed or trimmed; the cut waits, suppressed, until composition rebalances, and then publishes with everyone's answers included.
 
@@ -109,7 +109,7 @@ And suppression is not permanent by definition. It describes a cut's current sta
 
 **Does demo or pilot data help a cohort reach the 5-contributor floor?** No. Demo, synthetic, and pilot data never enter published benchmarks; the strict record-class separation decides what is eligible before suppression ever counts contributors.
 
-**Does any role or tier get access to suppressed cuts?** No. A cut that fails publication conditions does not publish to a privileged subset of readers — not Elite members, not consultants managing an ecosystem, and not through Ask Pat, which answers only from role-permitted documented content.
+**Does any role or tier get access to suppressed cuts?** No. A cut that fails publication conditions does not publish to a privileged subset of readers — not Elite members, not guides managing an ecosystem, and not through Ask Pat, which answers only from role-permitted documented content.
 
 **Why is the dominance threshold a share of the answers rather than a count of firms?** Because a cohort can be large and still be one contributor's answers wearing an aggregate's clothing. The cap stops a single contributor's results from steering a number presented as a peer group, which is a question of weight, not headcount.
 
@@ -117,4 +117,4 @@ And suppression is not permanent by definition. It describes a cut's current sta
 
 ## Related terms
 
-Benchmark Cohort — the contributor group a suppression decision evaluates. Integrity Score — the signal-quality reading that accompanies individual results, a distinct protection from the cohort-level gate described here. Evidence Lineage — the rule that displayed numbers trace to their sources, of which suppression is the aggregate-level expression. Band — the five-level presentation lexicon in which published comparison context is read. Ecosystem — a consultant-managed construct whose cross-firm views are still bound by role permissions and benchmark rules.
+Benchmark Cohort — the contributor group a suppression decision evaluates. Integrity Score — the signal-quality reading that accompanies individual results, a distinct protection from the cohort-level gate described here. Evidence Lineage — the rule that displayed numbers trace to their sources, of which suppression is the aggregate-level expression. Band — the five-level presentation lexicon in which published comparison context is read. Ecosystem — a guide-managed construct whose cross-firm views are still bound by role permissions and benchmark rules.

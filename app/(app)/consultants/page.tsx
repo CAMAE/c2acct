@@ -28,6 +28,7 @@ import { getEcosystemDetailForConsultant, type EcosystemDetailData } from "@/lib
 import { getConsultantWeek } from "@/lib/consultantWeek";
 import ConsultantWeekCards from "./_components/ConsultantWeekCards";
 import LowestEngagementFirmsCard from "./ecosystems/[ecosystemId]/_components/LowestEngagementFirmsCard";
+import { guideWord } from "@/lib/roleWords";
 
 export const dynamic = "force-dynamic";
 
@@ -121,8 +122,8 @@ export default async function ConsultantOverviewPage({
         <PatLogoLockup mode="hero" tone="light" />
         <PortalAudienceEyebrow
           className="pat-label mt-6"
-          label="Consultant portal"
-          audienceLabel="Consultant"
+          label={`${guideWord()} portal`}
+          audienceLabel={guideWord()}
         />
         <PatAudienceTitle
           as="h1"

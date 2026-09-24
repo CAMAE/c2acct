@@ -43,7 +43,7 @@ For a firm considering PAT, the boundary answers a fair question: when I eventua
 
 For a vendor, the same boundary protects the meaning of alignment evidence. Evidence that your product's declared capability holds up in firms' experience is only persuasive because the experience side is real. A vendor gains nothing from a favorable number built partly on synthetic inputs — and loses everything if anyone could suspect it was. The wall between record classes is what makes PAT's evidence worth showing to someone skeptical.
 
-For consultants and ecosystem owners, who look at alignment structure across a managed set of firms, the boundary means the picture is composed of actual firms' actual signals. A cross-firm view is a decision-support surface; it can only support decisions if none of its inputs are placeholders.
+For guides and ecosystem owners, who look at alignment structure across a managed set of firms, the boundary means the picture is composed of actual firms' actual signals. A cross-firm view is a decision-support surface; it can only support decisions if none of its inputs are placeholders.
 
 ## Exploring safely: what demo data is for
 
@@ -85,13 +85,13 @@ The class wall is one expression of a broader conviction: the numbers everyone c
 
 Suppression thresholds carry the same logic to the moment of publication. Small-cell suppression is the discipline statistical agencies use, and PAT applies it for the same reason: below a minimum group size, a "group" number is barely distinguishable from someone's private answers, and the dominance cap stops any single contributor's results from steering a figure presented as a peer group. So even after the wall has guaranteed that only production data can reach a benchmark, a cut publishes only when at least five contributors stand behind it and none supplies more than a quarter of it. The wall governs what kind of records may enter; the thresholds govern when the entered answers are enough to mean something. A benchmark that clears both is real twice over — real in origin, and real in weight.
 
-## How this looks for a firm, a vendor, and a consultant
+## How this looks for a firm, a vendor, and a guide
 
 For a firm, the wall shapes each stage of engagement differently. As a prospect you explore surfaces built on openly synthetic demo content; as a trial participant your pilot answers serve your own trial and nothing beyond it; as a live member your production answers are the only ones that ever feed your real results or, within suppression rules, a benchmark.
 
 For a vendor, the wall means the alignment evidence you receive was measured entirely against production reality. No demonstration record and no trial-stage answer sits behind a delta you might show a skeptical prospect — which is exactly what makes the delta worth showing.
 
-For a consultant or ecosystem owner, the wall means every cross-firm view you work from is composed of actual firms' actual production signals. A comparison surface meant to support decisions contains no placeholders, because placeholders were never in the pool it draws from.
+For a guide or ecosystem owner, the wall means every cross-firm view you work from is composed of actual firms' actual production signals. A comparison surface meant to support decisions contains no placeholders, because placeholders were never in the pool it draws from.
 
 ## A closer look: one scenario, start to finish
 

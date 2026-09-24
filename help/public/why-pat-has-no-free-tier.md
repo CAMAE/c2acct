@@ -19,7 +19,7 @@ The point is not exclusivity for its own sake. It is that the product PAT sells 
 
 ## What membership means in PAT
 
-Joining PAT means joining a shared evidence base, not just licensing a piece of software. Each of PAT's three roles contributes something and draws something. Firms assess their own operations and receive a structured view of where they stand. Vendors declare what their products are built to do and receive alignment evidence — how declared capability meets firm-experienced reality. Consultants and ecosystem owners see the alignment picture across the set of firms they manage. Every role's view is built, in part, from other members' contributions.
+Joining PAT means joining a shared evidence base, not just licensing a piece of software. Each of PAT's three roles contributes something and draws something. Firms assess their own operations and receive a structured view of where they stand. Vendors declare what their products are built to do and receive alignment evidence — how declared capability meets firm-experienced reality. Guides and ecosystem owners see the alignment picture across the set of firms they manage. Every role's view is built, in part, from other members' contributions.
 
 That mutual dependence is why membership is framed as participation rather than access. A member is not simply a reader of PAT's outputs; a member is one of the reasons those outputs mean anything. The paid tiers exist to keep that circle honest — a community of participants who have each made the same commitment to contribute real signal.
 
@@ -121,4 +121,4 @@ A fifth is that a paid commitment implies a demanding engagement schedule. PAT p
 
 **Is membership just software access?** No. Membership is participation in a shared evidence base: every role contributes signal to, and draws meaning from, the contributions of other committed members.
 
-If you want to see what membership involves in day-to-day terms, the articles on what PAT offers firms, vendors, and consultants are the natural next read.
+If you want to see what membership involves in day-to-day terms, the articles on what PAT offers firms, vendors, and guides are the natural next read.

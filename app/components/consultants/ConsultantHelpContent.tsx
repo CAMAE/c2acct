@@ -1,16 +1,17 @@
 import AskPatCard from "@/app/components/help/AskPatCard";
 import HelpArticleLink from "@/app/components/help/HelpArticleLink";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
+import { guideWord } from "@/lib/roleWords";
 
 export default function ConsultantHelpContent() {
   return (
     <section className="pat-card p-8">
-      <div className="pat-label">Consultant portal · Help</div>
+      <div className="pat-label">{guideWord()} portal · Help</div>
       <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
         How to use this portal
       </h2>
       <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-        The consultant portal surfaces alignment patterns across the ecosystems you
+        The {guideWord("consultant")} portal surfaces alignment patterns across the ecosystems you
         have been assigned to. Use it to review vendor and firm briefings, spot
         divergences worth flagging, and draft the next conversation with either side.
       </p>

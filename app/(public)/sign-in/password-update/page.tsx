@@ -3,6 +3,7 @@ import { updateFirstLoginPasswordAction } from "@/lib/auth/pilotPasswordActions"
 import { getSessionUser } from "@/lib/auth/session";
 import { claimRefreshHref, pageGate } from "@/lib/auth/firstLoginGate";
 import prisma from "@/lib/prisma";
+import { guideWord } from "@/lib/roleWords";
 
 export const dynamic = "force-dynamic";
 
@@ -75,7 +76,7 @@ export default async function FirstLoginPasswordUpdatePage({
           Set your permanent PAT password
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          This provisioned pilot account signed in with a temporary or imported credential. Set a new password before opening protected vendor, firm, admin, or consultant surfaces.
+          This provisioned pilot account signed in with a temporary or imported credential. Set a new password before opening protected vendor, firm, admin, or {guideWord("consultant")} surfaces.
         </p>
         <div className="mt-4 rounded-[18px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4 text-sm leading-6 text-[var(--shell-muted)]">
           Account: <span className="font-semibold text-[var(--shell-ink)]">{user.email}</span>

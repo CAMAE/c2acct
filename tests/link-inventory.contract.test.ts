@@ -73,6 +73,21 @@ function controlsOf(record: { aria?: { main?: string | null; shell?: string | nu
 // comparison and the door must still be there. R7: the vendor workspace card "BattleCard …"
 // is "Product Fit Card …". Consultant workspace: the "Nudge queue" button is "Nudges".
 const RENAMES: Array<[RegExp, string]> = [
+  // R17 (box 2d, 2026-09-25): flag-on, "Consultant" reads "Guide" everywhere a user reads
+  // it (routes unchanged). Canonicalize the flag-on words back to production's.
+  [/^Guide$/, "Consultant"],
+  [/^Guides$/, "Consultants"],
+  [/^Guides Guide roster\b/, "Consultants Consultant roster"],
+  [/^Add guide$/, "Add consultant"],
+  [/^Remove guide access$/, "Remove consultant access"],
+  [/^Guide name$/, "Consultant name"],
+  [/^guide@company\.com$/, "consultant@company.com"],
+  [/^Guide portal\b/, "Consultant portal"],
+  [/^Guide pilot user$/, "Consultant pilot user"],
+  [/^Open guide management$/, "Open consultant management"],
+  [/^Guide review$/, "Consultant review"],
+  [/ · Guide$/, " · Consultant"],
+  [/^PAT for guides and ecosystem owners/, "PAT for consultants and ecosystem owners"],
   [/^BattleCard\b/, "Product Fit Card"],
   [/^Nudge queue$/, "Nudges"],
   // Box 2b (Cam 9/14 "all as recommended"): the admin membership plan select lost its FREE

@@ -9,6 +9,7 @@ import {
   buildOperatorBriefings,
   getAdminOverviewData,
 } from "@/lib/adminControlPlane";
+import { guideWord } from "@/lib/roleWords";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ export default async function AdminOverviewPage() {
     <div className="space-y-8">
       <AdminPageIntro
         title="Operator control plane (data & insights)"
-        description={`Live operator work areas: organizations, users${overview.consultantAccessEnabled ? ", consultants" : ""}, taxonomy, modules, insight rules, products, briefings, and runtime controls. Agent ops (the default /admin surface) now lives one level up; this is the preserved data/insights console.`}
+        description={`Live operator work areas: organizations, users${overview.consultantAccessEnabled ? `, ${guideWord("consultants")}` : ""}, taxonomy, modules, insight rules, products, briefings, and runtime controls. Agent ops (the default /admin surface) now lives one level up; this is the preserved data/insights console.`}
       />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
@@ -42,9 +43,9 @@ export default async function AdminOverviewPage() {
         />
         {overview.consultantAccessEnabled ? (
           <AdminMetricCard
-            label="Consultants"
+            label={guideWord("Consultants")}
             value={String(overview.metrics.consultants)}
-            detail="Active consultant profiles with scoped briefing access"
+            detail={`Active ${guideWord("consultant")} profiles with scoped briefing access`}
           />
         ) : null}
         <AdminMetricCard
@@ -87,8 +88,8 @@ export default async function AdminOverviewPage() {
           {overview.consultantAccessEnabled ? (
             <AdminActionLink
               href="/admin/consultants"
-              title="Consultants"
-              body="Consultant roster, assigned firm scopes, and briefing access management without changing PAT audience roles."
+              title={guideWord("Consultants")}
+              body={`${guideWord()} roster, assigned firm scopes, and briefing access management without changing PAT audience roles.`}
             />
           ) : null}
           <AdminActionLink
@@ -214,7 +215,7 @@ export default async function AdminOverviewPage() {
           </Link>
           {overview.consultantAccessEnabled ? (
             <Link className="pat-button-secondary" href="/admin/consultants">
-              Open consultant management
+              Open {guideWord("consultant")} management
             </Link>
           ) : null}
         </div>

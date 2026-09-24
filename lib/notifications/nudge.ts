@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import type { SessionUser } from "@/lib/auth/session";
 import { isAdminRole } from "@/lib/authz";
 import { getConsultantAccessStateForUser } from "@/lib/consultantAccess";
+import { guideWord } from "@/lib/roleWords";
 
 /**
  * Nudge authorization + message helpers (Phase B2b → 16c). A consultant may nudge
@@ -62,14 +63,14 @@ export function buildNudgeMessage(
 ): { title: string; body: string; ctaLabel: string; ctaHref: string } {
   if (audience === "vendor") {
     return {
-      title: "A friendly reminder from your Patalign consultant",
+      title: `A friendly reminder from your Patalign ${guideWord("consultant")}`,
       body: `${fromLabel} sent a nudge: when you have a moment, please finish your product self-assessment so your alignment stays current.`,
       ctaLabel: "Open your product assessment",
       ctaHref: "/vendor/product-assessment",
     };
   }
   return {
-    title: "A friendly reminder from your Patalign consultant",
+    title: `A friendly reminder from your Patalign ${guideWord("consultant")}`,
     body: `${fromLabel} sent a nudge: when you have a moment, please finish your alignment assessment modules so your briefing stays current.`,
     ctaLabel: "Open your alignment assessment",
     ctaHref: "/firm/alignment-assessment",

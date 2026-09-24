@@ -6,7 +6,14 @@ import { ordinal } from "@/lib/ordinal";
 
 const MIN_CONTRIBUTORS = 5;
 
-export default function VendorCategoryPositionCard({ data }: { data: VendorCategoryPosition }) {
+export default function VendorCategoryPositionCard({
+  data,
+  chartDesign = "classic",
+}: {
+  data: VendorCategoryPosition;
+  /** R40 (box 2d): flag-on callers pass "labelled". */
+  chartDesign?: "classic" | "labelled";
+}) {
   if (!data.available) {
     return <EliteEmptyState message={data.emptyReason ?? "Category position not available yet."} />;
   }
@@ -47,6 +54,7 @@ export default function VendorCategoryPositionCard({ data }: { data: VendorCateg
                   marker={cat.score}
                   percentile={cat.percentile}
                   title={`Vendor strength field in ${cat.category}`}
+                  design={chartDesign}
                 />
               </div>
             </div>

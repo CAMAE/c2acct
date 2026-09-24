@@ -14,6 +14,7 @@ import { getScoreBand } from "@/lib/scoreBands";
 
 const W = 340;
 const H = 58;
+const H_LABELLED = 80;
 const PAD = 14;
 const TRACK_Y = 16;
 const TRACK_H = 18;
@@ -25,6 +26,7 @@ export default function PercentileBandRow({
   marker,
   percentile,
   title,
+  design = "classic",
 }: {
   p25?: number | null;
   p75?: number | null;
@@ -33,7 +35,10 @@ export default function PercentileBandRow({
   /** Your percentile in the field (0-100), for the marker label. */
   percentile?: number | null;
   title: string;
+  /** R40 (box 2d): "labelled" adds the quartile edge values, the peer-mean label, zone captions and an axis title. */
+  design?: "classic" | "labelled";
 }) {
+  const labelled = design === "labelled";
   const innerW = W - PAD * 2;
   const xTo = (score: number) => PAD + (Math.max(0, Math.min(100, score)) / 100) * innerW;
 
@@ -47,7 +52,7 @@ export default function PercentileBandRow({
 
   return (
     <figure className="m-0">
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={title}>
+      <svg viewBox={`0 0 ${W} ${labelled ? H_LABELLED : H}`} className="w-full" role="img" aria-label={title}>
         <title>{title}</title>
 
         {/* base field track */}
@@ -94,6 +99,33 @@ export default function PercentileBandRow({
           stroke="rgba(12,33,66,0.32)"
           strokeWidth={1}
         />
+        {labelled ? (
+          <>
+            <text x={Math.max(PAD + 14, Math.min(W - PAD - 14, meanX))} y={TRACK_Y + TRACK_H + 20} textAnchor="middle" fontSize={6.5} fill="var(--shell-muted)">
+              peer mean {Math.round(mean)}
+            </text>
+            {hasQuartiles ? (
+              <>
+                <text x={p25x as number} y={TRACK_Y + TRACK_H + 10} textAnchor="middle" fontSize={6} fill="var(--shell-muted)">
+                  p25 {Math.round(p25 as number)}
+                </text>
+                <text x={p75x as number} y={TRACK_Y + TRACK_H + 10} textAnchor="middle" fontSize={6} fill="var(--shell-positive)">
+                  p75 {Math.round(p75 as number)}
+                </text>
+                {(p75x as number) - (p25x as number) >= 44 && (markerX === null || Math.abs(markerX - ((p25x as number) + (p75x as number)) / 2) > 16) ? (
+                  <text x={((p25x as number) + (p75x as number)) / 2} y={TRACK_Y + TRACK_H / 2 + 2.5} textAnchor="middle" fontSize={6.5} fontWeight={600} fill="rgba(12,33,66,0.62)">
+                    pack
+                  </text>
+                ) : null}
+                {W - PAD - (p75x as number) >= 64 ? (
+                  <text x={(p75x as number) + 6} y={TRACK_Y + TRACK_H / 2 + 2.5} textAnchor="start" fontSize={6.5} fontWeight={600} fill="var(--shell-positive)">
+                    top quartile
+                  </text>
+                ) : null}
+              </>
+            ) : null}
+          </>
+        ) : null}
 
         {/* your position marker */}
         {markerX !== null ? (
@@ -111,7 +143,7 @@ export default function PercentileBandRow({
               x={Math.max(PAD + 10, Math.min(W - PAD - 10, markerX))}
               y={TRACK_Y - 8}
               textAnchor="middle"
-              fontSize={9}
+              fontSize={labelled ? 7 : 9}
               fontWeight={600}
               fill="var(--shell-ink)"
             >
@@ -123,10 +155,15 @@ export default function PercentileBandRow({
 
         {/* scale ticks */}
         {[0, 25, 50, 75, 100].map((g) => (
-          <text key={g} x={xTo(g)} y={H - 4} textAnchor="middle" fontSize={8} fill="var(--shell-muted)">
+          <text key={g} x={xTo(g)} y={(labelled ? H_LABELLED : H) - (labelled ? 12 : 4)} textAnchor="middle" fontSize={labelled ? 6.5 : 8} fill="var(--shell-muted)">
             {g}
           </text>
         ))}
+        {labelled ? (
+          <text x={W / 2} y={H_LABELLED - 3} textAnchor="middle" fontSize={6.5} fill="var(--shell-muted)">
+            firm-reviewed strength, 0–100
+          </text>
+        ) : null}
       </svg>
       <figcaption className="mt-1 flex flex-wrap gap-3 text-[0.7rem] text-[var(--shell-muted)]">
         <span className="inline-flex items-center gap-1.5">
@@ -135,6 +172,11 @@ export default function PercentileBandRow({
         <span className="inline-flex items-center gap-1.5">
           <span className="h-2.5 w-4 rounded-sm bg-[rgba(34,163,101,0.16)]" /> top quartile
         </span>
+        {labelled ? (
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-3 w-px bg-[rgba(12,33,66,0.32)]" /> peer mean
+          </span>
+        ) : null}
         <span className="inline-flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full border-2 border-white bg-[var(--brand-c2-blue)] shadow" /> you
         </span>

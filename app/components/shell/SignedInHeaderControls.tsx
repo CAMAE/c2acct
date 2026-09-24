@@ -11,6 +11,7 @@ import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import { resolvePortalExperience } from "@/lib/portalVisibility";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import type { HeaderNavLabelKey } from "@/lib/locale";
+import { guideWord } from "@/lib/roleWords";
 
 /**
  * R3 (box 2, 2026-09-11): the signed-in header controls as ONE server
@@ -59,7 +60,7 @@ export default async function SignedInHeaderControls({
   ];
   const translatedNavItems: HeaderNavItem[] = [
     ...navItems.map((item) => ({ href: item.href, label: messages.nav[item.key] })),
-    ...(consultantAccessEnabled ? [{ href: "/consultants", label: "Consultant" }] : []),
+    ...(consultantAccessEnabled ? [{ href: "/consultants", label: guideWord() }] : []),
     { href: "/trust", label: "Trust" },
     { href: "https://www.c2acct.com", label: "Return to C2Acct" },
   ];

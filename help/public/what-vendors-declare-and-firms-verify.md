@@ -53,15 +53,15 @@ The same discipline extends to what the numbers are built from. PAT keeps produc
 
 ## What each side sees
 
-The two-sided model is also role-scoped: each participant sees what its role permits, and no more. Firms see the assessment picture of their own operations. Vendors receive alignment evidence about their own products — how declared capability compares with the assessed experience of firms — rather than a window into any individual firm's internals. Consultants and ecosystem owners, the third role in PAT's world, see the alignment picture across the set of firms they manage.
+The two-sided model is also role-scoped: each participant sees what its role permits, and no more. Firms see the assessment picture of their own operations. Vendors receive alignment evidence about their own products — how declared capability compares with the assessed experience of firms — rather than a window into any individual firm's internals. Guides and ecosystem owners, the third role in PAT's world, see the alignment picture across the set of firms they manage.
 
 Within benchmark comparisons, contributors are anonymous, so participating in the verification side of the model does not mean exposing your firm to the vendors whose products you use. The model needs firms' experience in aggregate; it does not need, and does not provide, a way to trace that experience back to a named contributor in a benchmark.
 
-## Where consultants fit in the two-sided model
+## Where guides fit in the two-sided model
 
-Consultants and ecosystem owners stand in a third position: they manage ecosystems — a set of member firms plus the products in play across them — and so they see the declare-and-verify model from above rather than from either side. At concept level, their surfaces reflect that vantage: per-firm cards summarizing each firm's alignment status at a glance, structured firm briefs for deeper review of a single firm, and cross-ecosystem comparison views for reading the alignment structure across the whole managed set.
+Guides and ecosystem owners stand in a third position: they manage ecosystems — a set of member firms plus the products in play across them — and so they see the declare-and-verify model from above rather than from either side. At concept level, their surfaces reflect that vantage: per-firm cards summarizing each firm's alignment status at a glance, structured firm briefs for deeper review of a single firm, and cross-ecosystem comparison views for reading the alignment structure across the whole managed set.
 
-What consultants see is structure and alignment signal — not a firm's private answer text beyond what the role permits. The consultant's value in this model comes from pattern, not surveillance: seeing that several managed firms show the same divergence around the same product capability is actionable structure, and it requires no access to any firm's individual open-ended responses. Role scoping holds here as it holds everywhere in PAT — each of the three roles draws from the shared evidence base exactly what its position justifies, and no more.
+What guides see is structure and alignment signal — not a firm's private answer text beyond what the role permits. The guide's value in this model comes from pattern, not surveillance: seeing that several managed firms show the same divergence around the same product capability is actionable structure, and it requires no access to any firm's individual open-ended responses. Role scoping holds here as it holds everywhere in PAT — each of the three roles draws from the shared evidence base exactly what its position justifies, and no more.
 
 ## Why the model has two sides at all
 
@@ -75,15 +75,15 @@ That exchange is the mechanics of PAT in miniature. One side commits to a specif
 
 The declare-and-verify model rests on a rule that sounds simple and is demanding in practice: every displayed figure must be able to answer the question "where did you come from." A number whose origin cannot be traced is marketing, whatever screen it appears on, and a model built to hold claims and experience against each other cannot afford a single untraceable figure. Evidence lineage is therefore enforced as a discipline, not offered as a feature: a figure that cannot trace back to the declarations and assessments behind it does not appear.
 
-The role boundaries that keep each side seeing only what its position permits are enforced where enforcement cannot be argued with: in the evidence layer itself. Security that depends on an assistant's good behavior fails; a permission that lives in the evidence query cannot be talked out of. That is why firms, vendors, and consultants can all draw on the same shared evidence base without seeing past their role's wall — and why even Ask Pat retrieves only the content the asking user's role permits.
+The role boundaries that keep each side seeing only what its position permits are enforced where enforcement cannot be argued with: in the evidence layer itself. Security that depends on an assistant's good behavior fails; a permission that lives in the evidence query cannot be talked out of. That is why firms, vendors, and guides can all draw on the same shared evidence base without seeing past their role's wall — and why even Ask Pat retrieves only the content the asking user's role permits.
 
-## How this looks for a firm, a vendor, and a consultant
+## How this looks for a firm, a vendor, and a guide
 
 For a firm, the two-sided model asks nothing beyond what the firm is already doing in its own interest: assessing its own operations through structured questions on a consistent scale. The verification the model needs is a by-product of that self-assessment, and the firm's exposure is bounded — benchmark contributions are anonymous, and no vendor receives a window into its individual answers. In return, the firm gains a product picture grounded in evidence rather than assertion.
 
 For a vendor, the model begins with work: declaring product capabilities across defined function areas, specifically enough to be checkable. What comes back is alignment evidence — a structured view of where declared capability and firm-experienced reality hold together and where they diverge, function area by function area, usable in honest sales and product conversations. The vendor never sees which firm contributed what; it sees how its product's story survives contact with the field.
 
-For a consultant managing an ecosystem — a set of member firms plus the products in play across them — the model reads from above. Per-firm cards summarize alignment status at a glance, structured firm briefs support deeper review, and cross-ecosystem comparison views expose the alignment structure across the managed set. The consultant sees structure and alignment signal, not private answer text beyond what the role permits: pattern, not surveillance.
+For a guide managing an ecosystem — a set of member firms plus the products in play across them — the model reads from above. Per-firm cards summarize alignment status at a glance, structured firm briefs support deeper review, and cross-ecosystem comparison views expose the alignment structure across the managed set. The guide sees structure and alignment signal, not private answer text beyond what the role permits: pattern, not surveillance.
 
 ## A closer look: one scenario, start to finish
 
@@ -91,7 +91,7 @@ To carry the earlier sketch through a full arc, give its parties invented names:
 
 Alder & Gray, meanwhile, completes its firm assessment for its own reasons: it wants the five-pillar picture of its own operations. In describing that reality, it describes its experience of the products in play, Fernhill's among them — evidence that travels with signal-integrity context, so readers know how much weight it can bear.
 
-When enough firms' assessments accumulate, the alignment picture forms. In the area Fernhill declared as its strength, assessed experience matches the declaration — alignment holds, and Fernhill can point to field-grounded evidence instead of restating its claim more loudly. In a second area, experience falls short; the delta records a located divergence, which Fernhill's product team takes up as a finding rather than a rumor. In a third, the field reports more than was claimed — a modest declaration outperformed by its own product. And a consultant whose ecosystem includes Alder & Gray sees the same divergence recurring across several member firms in the same function area: actionable structure, visible without access to any firm's individual responses. Every displayed number in that chain traces back to the declarations and assessments that produced it.
+When enough firms' assessments accumulate, the alignment picture forms. In the area Fernhill declared as its strength, assessed experience matches the declaration — alignment holds, and Fernhill can point to field-grounded evidence instead of restating its claim more loudly. In a second area, experience falls short; the delta records a located divergence, which Fernhill's product team takes up as a finding rather than a rumor. In a third, the field reports more than was claimed — a modest declaration outperformed by its own product. And a guide whose ecosystem includes Alder & Gray sees the same divergence recurring across several member firms in the same function area: actionable structure, visible without access to any firm's individual responses. Every displayed number in that chain traces back to the declarations and assessments that produced it.
 
 ## Common misconceptions
 
@@ -103,7 +103,7 @@ A third is that vendors can see which firm reported what. Vendors receive struct
 
 A fourth is that a declaration is marketing copy hosted in a platform. A declaration is a structured claim, organized across defined function areas and specific enough for firm experience to be held against it — prose can flex to fit any evidence after the fact; a structured declaration cannot.
 
-A fifth is that consultants overseeing an ecosystem can read the firms' answer text. Consultants see structure and alignment signal — cards, briefs, comparisons — not a firm's private responses beyond what the role permits.
+A fifth is that guides overseeing an ecosystem can read the firms' answer text. Guides see structure and alignment signal — cards, briefs, comparisons — not a firm's private responses beyond what the role permits.
 
 ## Questions this article answers
 
@@ -117,7 +117,7 @@ A fifth is that consultants overseeing an ecosystem can read the firms' answer t
 
 **Do vendors see individual firms' answers?** No. Vendors receive structured alignment evidence about their own products; benchmark contributors are anonymous, and role scoping is enforced in the evidence layer.
 
-**Where do consultants fit in the declare-and-verify model?** Above it: they manage ecosystems of firms and products and see cross-firm alignment structure — not firms' private answer text.
+**Where do guides fit in the declare-and-verify model?** Above it: they manage ecosystems of firms and products and see cross-firm alignment structure — not firms' private answer text.
 
 **What is evidence lineage?** The rule that every displayed number must trace to the declarations and assessments that produced it — no orphan numbers anywhere.
 

@@ -1,3 +1,5 @@
+import { guideWord } from "@/lib/roleWords";
+
 /**
  * Depth box 6 (2026-09-09): every what/why/how help card links to the public
  * help article that explains it (help/public/<slug>.md, served at /help/<slug>
@@ -24,7 +26,7 @@ export const HELP_ARTICLE_BY_CARD: Record<string, { slug: string; label: string 
   "Submit once at the end": { slug: "how-pat-scoring-works", label: "How PAT scoring works" },
   // consultant help
   "What is an ecosystem?": { slug: "what-an-ecosystem-is-in-pat", label: "What an ecosystem is in PAT" },
-  "Vendor brief vs firm brief": { slug: "pat-for-consultants-and-ecosystem-owners", label: "PAT for consultants and ecosystem owners" },
+  "Vendor brief vs firm brief": { slug: "pat-for-consultants-and-ecosystem-owners", label: `PAT for ${guideWord("consultants")} and ecosystem owners` },
   "Reading the deltas": { slug: "the-alignment-delta-introduced", label: "The alignment delta, introduced" },
   "Need more?": { slug: "questions-pat-hears-most", label: "Questions PAT hears most" },
 };

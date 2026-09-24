@@ -3,6 +3,7 @@ import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import V7PublicShell from "@/app/components/frontdoor/V7PublicShell";
 import AppShell from "@/app/components/shell/AppShell";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
+import { guideWord } from "@/lib/roleWords";
 
 /**
  * B8-4: branded light-theme 404, replacing Next's dark default. PAT header
@@ -17,7 +18,7 @@ export default function NotFound() {
     { href: "/sign-in", label: "Sign in", hint: "Return to the sign-in page" },
     { href: "/firm", label: "Firm portal", hint: "Your firm workspace" },
     { href: "/vendor", label: "Vendor portal", hint: "Your vendor workspace" },
-    { href: "/consultants", label: "Consultant portal", hint: "Ecosystems and briefs" },
+    { href: "/consultants", label: `${guideWord()} portal`, hint: "Ecosystems and briefs" },
   ];
 
   // Finish box 2 (item 2): flag-on the 404 sits inside the V7 public shell

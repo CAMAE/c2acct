@@ -15,6 +15,7 @@ import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import { TRUST_FOOTER_LINKS } from "@/lib/trustContent";
 import { APP_LOCALE_COOKIE, getLocaleMessages, resolveLocale, type HeaderNavLabelKey } from "@/lib/locale";
 import { resolvePortalExperience } from "@/lib/portalVisibility";
+import { guideWord } from "@/lib/roleWords";
 
 /**
  * Block 21a — the standard app shell (AppHeader + main + product footer), factored
@@ -51,7 +52,7 @@ export default async function AppShell({ children }: { children: ReactNode }) {
       href: item.href,
       label: messages.nav[item.key],
     })),
-    ...(consultantAccessEnabled ? [{ href: "/consultants", label: "Consultant" }] : []),
+    ...(consultantAccessEnabled ? [{ href: "/consultants", label: guideWord() }] : []),
     { href: "/trust", label: "Trust" },
     { href: "https://www.c2acct.com", label: "Return to C2Acct" },
   ];

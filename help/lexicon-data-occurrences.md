@@ -30,7 +30,7 @@ The Pat answer template now avoids the word (say answers / scores / results / re
 | `help/glossary/evidence-lineage.md:16` |  | The companion principle is the no-orphan-numbers rule: no figure appears on any surface without a source it can point to. A score exists because a specific set  |
 | `help/glossary/evidence-lineage.md:30` |  | Second, record-class separation keeps lineage honest at the source. Production, pilot, and demo data are strictly separated, and demo or synthetic records and p |
 | `help/glossary/evidence-lineage.md:48` |  | What survives a tenant's departure are only the anonymous benchmark aggregates that had already passed PAT's suppression rules — the requirement of at least fiv |
-| `help/glossary/evidence-lineage.md:60` |  | The names in this example are invented for illustration. Suppose a consultant reviewing an ecosystem sees an alignment delta for a product called Cloudform Book |
+| `help/glossary/evidence-lineage.md:60` |  | The names in this example are invented for illustration. Suppose a guide reviewing an ecosystem sees an alignment delta for a product called Cloudform Book |
 | `help/glossary/evidence-lineage.md:84` |  | A fifth misreading holds that demo or pilot data could appear in published figures so long as it were labeled as such. PAT's separation is stricter than labelin |
 | `help/glossary/evidence-lineage.md:92` |  | Can a published benchmark include demo or pilot data? No. Production, pilot, and demo data are strictly separated, and only production data stands behind publis |
 | `help/glossary/integrity-score.md:60` | yes | The names here are invented for illustration. Suppose Harbor & Slate, a firm working through its assessment, completes all five modules in one sitting. Its Inte |

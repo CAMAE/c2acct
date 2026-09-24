@@ -30,6 +30,7 @@ import {
   isInviteeSurfacesEnabled,
 } from "@/lib/pilotSurfaces";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
+import { guideWord } from "@/lib/roleWords";
 
 export const metadata = {
   title: "Sign In | Patalign",
@@ -244,7 +245,7 @@ function RoleAccessCard({
       <div className={r.provisionedBox}>
         <div className="font-semibold text-[var(--shell-ink)]">Provisioned pilot account</div>
         <p className="mt-2">
-          Vendor, firm, admin, and consultant pilot users sign in here after an operator provisions their account. First-login password updates are enforced when the account is flagged for a temporary or imported credential.
+          Vendor, firm, admin, and {guideWord("consultant")} pilot users sign in here after an operator provisions their account. First-login password updates are enforced when the account is flagged for a temporary or imported credential.
         </p>
         <form className="mt-4 grid gap-3 md:max-w-md" action={signInWithPilotCredentials}>
           <input type="hidden" name="redirectTo" value={roleRedirect} />
@@ -453,7 +454,7 @@ export default async function SignInHubPage({
     { id: "vendor", label: messages.signIn.vendor },
     { id: "firm", label: messages.signIn.firm },
     ...(individualSurfacesEnabled ? [{ id: "individual" as const, label: messages.signIn.individual }] : []),
-    ...(consultantAccessEnabled ? [{ id: "consultant" as const, label: "Consultant" }] : []),
+    ...(consultantAccessEnabled ? [{ id: "consultant" as const, label: guideWord() }] : []),
     // Admin tab is always shown (operators sign in via the provisioned-account
     // form in the admin card; the form renders regardless of local-review state).
     // Previously gated on authRuntime.localReviewEnabled, which is false in
@@ -493,7 +494,7 @@ export default async function SignInHubPage({
         ) : null}
         {consultantViewDisabled ? (
           <div className="mt-5 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-6 text-amber-900">
-            Consultant access is disabled in this runtime until the company-scoped consultant plane is explicitly re-enabled for proof. The vendor entry remains the default sign-in path here.
+            {guideWord()} access is disabled in this runtime until the company-scoped {guideWord("consultant")} plane is explicitly re-enabled for proof. The vendor entry remains the default sign-in path here.
           </div>
         ) : null}
         {pilotDisabledMessage ? (
@@ -596,9 +597,9 @@ export default async function SignInHubPage({
 
       {activeView === "consultant" ? (
         <RoleAccessCard
-          title="Consultant"
+          title={guideWord()}
           subtitle="Assigned briefing access"
-          body="Use the consultant path to open only the firm briefings and product briefing slices explicitly assigned to this PAT user account. Consultant access is additive on the current user record, not a separate credentials plane, and it does not add fabricated executive narrative."
+          body={`Use the ${guideWord("consultant")} path to open only the firm briefings and product briefing slices explicitly assigned to this PAT user account. ${guideWord()} access is additive on the current user record, not a separate credentials plane, and it does not add fabricated executive narrative.`}
           roleRedirect={requestedRoleRedirects.consultant}
           view="consultant"
           signInLabel={messages.common.continueWithGitHub}

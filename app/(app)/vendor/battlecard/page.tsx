@@ -105,7 +105,7 @@ export default async function VendorBattleCardPage({
               upgradeHref={entitlement.upgradeHref}
               membershipHref={entitlement.membershipHref}
             >
-              <VendorBattleCardClient data={previewData} entitled={false} membershipHref={entitlement.membershipHref} />
+              <VendorBattleCardClient data={previewData} entitled={false} membershipHref={entitlement.membershipHref} briefMode="drawer" />
             </LockedSurfaceVeil>
           ) : (
             <EmptyBattleCard audience="vendor" />
@@ -179,6 +179,7 @@ export default async function VendorBattleCardPage({
       entitled={entitled}
       membershipHref={membershipHref}
       heroChips={<HeroChips audience={readOnlyConsultant ? "consultant" : "vendor"} />}
+      briefMode={isNewFrontDoorEnabled() ? "drawer" : "inline"}
     />
   );
 }

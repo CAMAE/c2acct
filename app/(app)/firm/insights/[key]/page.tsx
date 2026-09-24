@@ -1,3 +1,4 @@
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import InsightDetailShell from "@/app/components/insights/InsightDetailShell";
@@ -67,7 +68,7 @@ async function renderFirmEliteSurface(key: string, companyId: string) {
         title="Peer Position Report"
         summary="Where your firm ranks against peer firms, module by module — a percentile position, not an average. Cuts below the minimum-n safe harbor are withheld."
       >
-        <FirmPeerPositionCard data={data} freshness={freshness} />
+        <FirmPeerPositionCard data={data} freshness={freshness} chartDesign={isNewFrontDoorEnabled() ? "labelled" : "classic"} />
       </EliteCardShell>
     );
   }

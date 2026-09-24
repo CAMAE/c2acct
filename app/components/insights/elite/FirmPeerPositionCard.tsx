@@ -16,9 +16,12 @@ const VERDICT_CHIP: Record<FirmPeerPosition["reportCard"][number]["verdict"], { 
 export default function FirmPeerPositionCard({
   data,
   freshness,
+  chartDesign = "classic",
 }: {
   data: FirmPeerPosition;
   freshness?: FreshnessReading | null;
+  /** R40 (box 2d): flag-on callers pass "labelled". */
+  chartDesign?: "classic" | "labelled";
 }) {
   if (!data.available) {
     return <EliteEmptyState message={data.emptyReason ?? "Peer position is not available yet."} />;
@@ -60,7 +63,7 @@ export default function FirmPeerPositionCard({
       <section className="pat-card p-6">
         <div className="pat-label">Where you sit in each module</div>
         <div className="mt-4">
-          <PercentileBand rows={data.rows} title="Per-module percentile position vs peer firms" />
+          <PercentileBand rows={data.rows} title="Per-module percentile position vs peer firms" design={chartDesign} />
         </div>
       </section>
 

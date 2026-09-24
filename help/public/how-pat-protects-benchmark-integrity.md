@@ -107,13 +107,13 @@ The suppression thresholds are not an invention of PAT's — small-cell suppress
 
 The absence of a free tier is part of the same story. PAT's membership is paid tiers only — Pro and Elite — because benchmark quality depends on committed participants. A free tier optimizes for volume over signal, and the numbers everyone compares against are only as good as the care behind the answers. The suppression rules govern how many contributors stand behind a figure and how balanced their shares are; the membership design governs the commitment of the people supplying the answers in the first place.
 
-## How benchmark integrity looks for a firm, a vendor, and a consultant
+## How benchmark integrity looks for a firm, a vendor, and a guide
 
 For a firm, the rules mostly surface as confidence at reading time: any comparison that appears has already cleared the floor and the cap, and any cut that has not shows plainly as suppressed. An Elite firm's distribution view — where it sits among peers — appears only when the benchmark behind it publishes under those same rules.
 
 For a vendor, the rules are the terms of anonymous participation. A vendor's answers can inform published aggregates, but never as an identifiable voice and never as a dominant one — no cut publishes where any single contributor supplies more than a quarter of the answers.
 
-For a consultant or ecosystem owner, the rules hold even at portfolio height. Cross-ecosystem comparison views summarize alignment structure across managed firms, but benchmark cuts inside that picture obey the same floor and cap as everywhere else — an ecosystem view widens what a consultant can see across their own managed firms, not what any benchmark is allowed to reveal.
+For a guide or ecosystem owner, the rules hold even at portfolio height. Cross-ecosystem comparison views summarize alignment structure across managed firms, but benchmark cuts inside that picture obey the same floor and cap as everywhere else — an ecosystem view widens what a guide can see across their own managed firms, not what any benchmark is allowed to reveal.
 
 ## A closer look: one scenario, start to finish
 

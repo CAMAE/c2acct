@@ -7,13 +7,13 @@ vertical: global
 words: 2989
 ---
 
-PAT's security and privacy posture rests on a simple principle: every participant sees exactly what their role permits, and nothing else. Firms, vendors, and consultants each work behind role walls; each participant's records live in their own isolated tenancy; and even PAT's built-in assistant is permission-scoped at the evidence layer, so it can only ever answer from content the asking user is entitled to see. This page describes that posture at the level a trust review needs — what is walled from what, and why the walls are structural rather than procedural.
+PAT's security and privacy posture rests on a simple principle: every participant sees exactly what their role permits, and nothing else. Firms, vendors, and guides each work behind role walls; each participant's records live in their own isolated tenancy; and even PAT's built-in assistant is permission-scoped at the evidence layer, so it can only ever answer from content the asking user is entitled to see. This page describes that posture at the level a trust review needs — what is walled from what, and why the walls are structural rather than procedural.
 
 ## Three roles, three views, one rule
 
-Performance Alignment Technology (PAT), a Patalign product serving the accounting ecosystem, is used by three kinds of participants: accounting firms assessing their own operations, software vendors declaring product capabilities and receiving alignment evidence, and consultants or ecosystem owners viewing the alignment picture across a managed set of firms. Because these three roles work with material that is sensitive in different ways, PAT's first privacy commitment is that role determines visibility.
+Performance Alignment Technology (PAT), a Patalign product serving the accounting ecosystem, is used by three kinds of participants: accounting firms assessing their own operations, software vendors declaring product capabilities and receiving alignment evidence, and guides or ecosystem owners viewing the alignment picture across a managed set of firms. Because these three roles work with material that is sensitive in different ways, PAT's first privacy commitment is that role determines visibility.
 
-A firm sees its own assessment work and results. A vendor sees its own declarations and the alignment evidence the platform produces for it. A consultant sees cross-firm alignment structure for the ecosystem of firms they manage — and firms and vendors within that ecosystem see only what their own role permits, not the consultant's cross-firm vantage and not each other's private material. The rule is uniform: no role inherits another role's view, and no participant's window widens because someone else's engagement happens to touch theirs.
+A firm sees its own assessment work and results. A vendor sees its own declarations and the alignment evidence the platform produces for it. A guide sees cross-firm alignment structure for the ecosystem of firms they manage — and firms and vendors within that ecosystem see only what their own role permits, not the guide's cross-firm vantage and not each other's private material. The rule is uniform: no role inherits another role's view, and no participant's window widens because someone else's engagement happens to touch theirs.
 
 This matters most where the platform's value is created — at the meeting point of vendor claims and firm experience. PAT can measure the gap between a vendor's declared capability and firms' assessed experience precisely because both sides contribute; the role walls exist so that contributing to that shared measurement never means surrendering your private working records to the other side.
 
@@ -79,23 +79,23 @@ The choice to enforce role walls in the evidence layer, rather than at the inter
 
 The suppression thresholds on benchmarks come from a related discipline with a long pedigree: small-cell suppression, the same practice statistical agencies use. Below a minimum group size, a "group" number is barely distinguishable from someone's private answers — an average of three is uncomfortably close to a disclosure of one. The five-contributor minimum keeps every published figure genuinely collective, and the dominance cap — no single contributor supplying more than a quarter of the answers — stops any one participant's results from steering a number presented as a peer group. Together they make PAT's shared surfaces incapable of pointing back at an individual — suppression is a privacy control, not merely a statistical nicety.
 
-## How this looks for a firm, a vendor, and a consultant
+## How this looks for a firm, a vendor, and a guide
 
 For a firm, the posture means your assessment answers and results live in your own tenancy, your version of Ask Pat draws only on firm-visible content, and your contribution to any benchmark is anonymous inside a cohort that cannot be reverse-read. What others gain from your participation is context; what they never gain is you.
 
 For a vendor, the posture means your declarations and your alignment evidence are yours, and what you learn about firms arrives as structured, evidence-based views of where alignment holds and diverges — never as access to any firm's private working material. The evidence you can show a skeptical prospect was produced without either side surrendering its records to the other.
 
-For a consultant or ecosystem owner, the posture means your cross-firm vantage is real but bounded: you see alignment structure and signal across the firms you manage, not their private answer text beyond what the role permits. Your view is wider than any single participant's and still walled like everyone else's.
+For a guide or ecosystem owner, the posture means your cross-firm vantage is real but bounded: you see alignment structure and signal across the firms you manage, not their private answer text beyond what the role permits. Your view is wider than any single participant's and still walled like everyone else's.
 
 ## A closer look: one scenario, start to finish
 
-Picture an illustrative ecosystem: a consultant manages a set of member firms, among them an invented practice called Merrow & Voss, which uses a product from a vendor in the same ecosystem. One shared measurement runs through all three parties — the vendor has declared its product's capabilities, Merrow & Voss has assessed its experience, and an alignment delta has been computed — yet each party's window onto that measurement is different.
+Picture an illustrative ecosystem: a guide manages a set of member firms, among them an invented practice called Merrow & Voss, which uses a product from a vendor in the same ecosystem. One shared measurement runs through all three parties — the vendor has declared its product's capabilities, Merrow & Voss has assessed its experience, and an alignment delta has been computed — yet each party's window onto that measurement is different.
 
-Merrow & Voss sees its own assessment work: scores, bands, and insights built from its own answers, in its own tenancy. The vendor sees evidence — where firm experience supports its declarations and where it diverges — without ever seeing the firm's private material. The consultant sees the alignment structure across the whole managed set, Merrow & Voss included, as signal rather than as anyone's raw answer text. Now let each of them ask Ask Pat a question about what they are looking at. Three users, three role-scoped retrievals: each Pat answers from that role's permitted content only, cites what it drew on, and says so plainly when documentation is silent. No question, however phrased, pulls material from behind another party's wall — the evidence layer never serves it. One measurement, three entitled views, zero crossings — that is the posture working end to end.
+Merrow & Voss sees its own assessment work: scores, bands, and insights built from its own answers, in its own tenancy. The vendor sees evidence — where firm experience supports its declarations and where it diverges — without ever seeing the firm's private material. The guide sees the alignment structure across the whole managed set, Merrow & Voss included, as signal rather than as anyone's raw answer text. Now let each of them ask Ask Pat a question about what they are looking at. Three users, three role-scoped retrievals: each Pat answers from that role's permitted content only, cites what it drew on, and says so plainly when documentation is silent. No question, however phrased, pulls material from behind another party's wall — the evidence layer never serves it. One measurement, three entitled views, zero crossings — that is the posture working end to end.
 
 ## Common misconceptions
 
-"Consultants can read the private answers of the firms they manage." A consultant's vantage is cross-firm structure and alignment signal — not a firm's private answer text beyond what the role permits. Managing an ecosystem widens the view of alignment, not the view into any firm's working records.
+"Guides can read the private answers of the firms they manage." A guide's vantage is cross-firm structure and alignment signal — not a firm's private answer text beyond what the role permits. Managing an ecosystem widens the view of alignment, not the view into any firm's working records.
 
 "A cleverly worded question could get Ask Pat to reveal another role's content." No phrasing works, because the constraint is not in Pat's judgment: scoping is enforced at the evidence layer, and content outside the asking user's role is never available to the assistant.
 
@@ -107,7 +107,7 @@ Merrow & Voss sees its own assessment work: scores, bands, and insights built fr
 
 ## Questions this article answers
 
-Who can see a firm's assessment answers and results? The firm itself, within its own tenancy. Consultants managing an ecosystem see alignment structure and signal across firms — not private answer text beyond what their role permits — and vendors see none of a firm's private material.
+Who can see a firm's assessment answers and results? The firm itself, within its own tenancy. Guides managing an ecosystem see alignment structure and signal across firms — not private answer text beyond what their role permits — and vendors see none of a firm's private material.
 
 What can a vendor see about the firms using its product? Structured, evidence-based views of where firm experience aligns with its declarations and where it diverges — alignment evidence, never firms' private working records.
 

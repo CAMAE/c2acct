@@ -1080,3 +1080,8 @@ a.pat-hover-card:focus-visible {
 [data-v7-shell] [data-readout-drawer] .max-w-3xl {
   max-width: none;
 }
+/* R37 (box 2d): the Product Fit Card brief inside the drawer — the radar + gap-table
+   two-column body and the facts grid read as one column at the drawer's width. */
+[data-v7-shell] [data-readout-drawer] [data-testid="battlecard-detail"] .grid {
+  grid-template-columns: minmax(0, 1fr);
+}
