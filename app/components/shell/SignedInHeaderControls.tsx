@@ -12,6 +12,7 @@ import { resolvePortalExperience } from "@/lib/portalVisibility";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import type { HeaderNavLabelKey } from "@/lib/locale";
 import { guideWord } from "@/lib/roleWords";
+import { getEnterpriseForUser, isEnterpriseEnabled } from "@/lib/enterprise";
 
 /**
  * R3 (box 2, 2026-09-11): the signed-in header controls as ONE server
@@ -42,6 +43,7 @@ export default async function SignedInHeaderControls({
   const messages = await getRequestLocaleMessages();
   const individualSurfacesEnabled = isIndividualSurfacesEnabled();
   const consultantAccessEnabled = isConsultantAccessEnabled();
+  const enterpriseEntry = isEnterpriseEnabled() ? await getEnterpriseForUser(sessionUser.id) : null;
   const experience = await resolvePortalExperience(sessionUser);
   const enabledHrefs = new Set(
     experience.surfaces
@@ -61,6 +63,7 @@ export default async function SignedInHeaderControls({
   const translatedNavItems: HeaderNavItem[] = [
     ...navItems.map((item) => ({ href: item.href, label: messages.nav[item.key] })),
     ...(consultantAccessEnabled ? [{ href: "/consultants", label: guideWord() }] : []),
+    ...(enterpriseEntry ? [{ href: "/enterprise", label: "Enterprise" }] : []),
     { href: "/trust", label: "Trust" },
     { href: "https://www.c2acct.com", label: "Return to C2Acct" },
   ];
