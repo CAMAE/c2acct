@@ -120,6 +120,9 @@ model Company {
   name                   String
   type                   CompanyType
   verticalId             String                   @default("accounting")
+  /// 3e (R51): the parent Enterprise that owns this VENDOR company; null for every existing row.
+  enterpriseId           String?
+  Enterprise             Enterprise?              @relation(fields: [enterpriseId], references: [id])
   // Data-integrity boundary (2026-07-09 audit, CLASS 1). PRODUCTION = real
   // customer data; DEMO = seeded/synthetic (demo-benchmark, demo-expand, local
   // review); PILOT = pilot-cohort. Every cross-entity aggregate filters on this
@@ -152,6 +155,7 @@ model Company {
   EcosystemFirm          EcosystemFirm[]          @relation("EcosystemFirmCompany")
 
   @@index([verticalId])
+  @@index([enterpriseId])
   @@index([type, dataBoundary])
   @@index([deletedAt])
 }
@@ -1045,6 +1049,8 @@ model User {
   AiAssistantConsent     AiAssistantConsent?
 
   @@index([companyId])
+  EnterpriseMembership EnterpriseMembership[]
+
 }
 
 model ConsultantProfile {
@@ -2074,4 +2080,29 @@ model RegistryEnsure {
   ensuredBy   String
 
   @@index([ensuredAt])
+}
+
+/// 3e (R51, 2026-09-25): a parent company that owns one or more VENDOR companies.
+/// Additive; nothing reads it unless PAT_ENABLE_ENTERPRISE=1.
+model Enterprise {
+  id                   String                 @id @default(cuid())
+  name                 String
+  slug                 String                 @unique
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  Company              Company[]
+  EnterpriseMembership EnterpriseMembership[]
+}
+
+model EnterpriseMembership {
+  id           String     @id @default(cuid())
+  enterpriseId String
+  userId       String
+  role         UserRole   @default(MEMBER)
+  createdAt    DateTime   @default(now())
+  Enterprise   Enterprise @relation(fields: [enterpriseId], references: [id])
+  User         User       @relation(fields: [userId], references: [id])
+
+  @@unique([enterpriseId, userId])
+  @@index([userId])
 }
