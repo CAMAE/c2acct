@@ -101,7 +101,7 @@ export default async function EnterprisePortalPage() {
       <section className="space-y-4" data-testid="enterprise-ecosystems">
         <div className="pat-label">Your channels&apos; ecosystems</div>
         {ecosystems.length === 0 ? (
-          <div className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-5 text-sm leading-6 text-[var(--shell-muted)]">
+          <div className="rounded-3xl border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-5 text-sm leading-6 text-[var(--shell-muted)]">
             No ecosystems are attached to your vendor companies yet.
           </div>
         ) : (

@@ -58,7 +58,7 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
   if (data.firmGrid.length === 0) {
     return (
       <section
-        className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-5"
+        className="rounded-3xl border border-[var(--shell-border)] bg-[var(--shell-panel)] p-5"
         data-testid="ecosystem-detail-firm-grid"
       >
         <h2 className="text-xl font-semibold tracking-tight text-[var(--shell-ink)]">
@@ -71,7 +71,7 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
 
   return (
     <section
-      className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-5"
+      className="rounded-3xl border border-[var(--shell-border)] bg-[var(--shell-panel)] p-5"
       data-testid="ecosystem-detail-firm-grid"
     >
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">

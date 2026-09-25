@@ -78,7 +78,7 @@ export default function LowestEngagementFirmsCard({
 
   return (
     <section
-      className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-5"
+      className="rounded-3xl border border-[var(--shell-border)] bg-[var(--shell-panel)] p-5"
       data-testid="lowest-engagement-firms-card"
     >
       <div className="flex flex-wrap items-baseline justify-between gap-3">
@@ -129,7 +129,7 @@ export default function LowestEngagementFirmsCard({
           </li>
         ))}
       </ol>
-      <div className="mt-3 text-[11px] text-[var(--shell-muted)]">
+      <div className="mt-3 text-xs text-[var(--shell-muted)]">
         Goal text is suggested; persistence comes in a follow-up session.
       </div>
     </section>

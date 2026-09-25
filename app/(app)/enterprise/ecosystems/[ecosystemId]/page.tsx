@@ -7,7 +7,6 @@ import EcosystemHeader from "./_components/EcosystemHeader";
 import FirmGrid from "./_components/FirmGrid";
 import HeadlineMetricsRow from "./_components/HeadlineMetricsRow";
 import LowestEngagementFirmsCard from "./_components/LowestEngagementFirmsCard";
-import OpenEndedPanel from "./_components/OpenEndedPanel";
 import FollowUpAggregatePanel from "@/app/components/assessment/FollowUpAggregatePanel";
 import { getEcosystemFollowUpAggregate } from "@/lib/assessment/followUpEvidence";
 import { isFollowUpMcEnabled } from "@/lib/followUpMc";
@@ -60,7 +59,6 @@ export default async function EcosystemDetailPage({
           <LowestEngagementFirmsCard data={detail} />
         </div>
       </div>
-      <OpenEndedPanel data={detail} />
       {followUpMcEnabled && followUpAggregate ? (
         <FollowUpAggregatePanel
           rows={followUpAggregate.rows}

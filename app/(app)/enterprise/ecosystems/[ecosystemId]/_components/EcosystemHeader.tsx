@@ -47,7 +47,7 @@ function formatRelativeTimestamp(iso: string | null): string {
 export default function EcosystemHeader({ data }: { data: EcosystemDetailData }) {
   return (
     <section
-      className="rounded-[22px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-5"
+      className="rounded-3xl border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-5"
       data-testid="ecosystem-detail-header"
     >
       <div className="flex flex-wrap items-baseline justify-between gap-3">

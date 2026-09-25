@@ -25,7 +25,7 @@ function MetricTileLink({
   void ecosystemId;
   void metricKey;
   return (
-    <div className="block h-full rounded-[22px]" data-testid="headline-metric-tile" aria-label={label}>
+    <div className="block h-full rounded-3xl" data-testid="headline-metric-tile" aria-label={label}>
       {children}
     </div>
   );

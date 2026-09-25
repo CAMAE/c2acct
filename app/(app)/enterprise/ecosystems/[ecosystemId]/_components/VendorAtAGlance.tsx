@@ -9,7 +9,7 @@ export default function VendorAtAGlance({ data }: { data: EcosystemDetailData })
 
   return (
     <section
-      className="self-start rounded-[22px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-5"
+      className="self-start rounded-3xl border border-[var(--shell-border)] bg-[var(--shell-panel)] p-5"
       data-testid="ecosystem-detail-vendor-glance"
     >
       <div className="mb-4 flex items-baseline justify-between gap-3">
@@ -60,7 +60,7 @@ export default function VendorAtAGlance({ data }: { data: EcosystemDetailData })
       {/* WS2-C (manual-review items 11/12): coverage map gets an inline
           descriptor + a subtle panel-soft sub-card to differentiate from
           the strongest/weakest header above. */}
-      <div className="mt-6 rounded-[18px] bg-[var(--shell-panel-soft)]/40 p-4">
+      <div className="mt-6 rounded-2xl bg-[var(--shell-panel-soft)]/40 p-4">
         <div className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
           Primary software categories
         </div>

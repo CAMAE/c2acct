@@ -81,10 +81,7 @@ export default function EcosystemListCard({ data }: { data: EcosystemListCardDat
       </div>
 
       <div className="mt-5 flex items-baseline gap-3">
-        <span
-          className="font-semibold tracking-tight text-[var(--shell-ink)]"
-          style={{ fontSize: "var(--pat-hero-title-size)" }}
-        >
+        <span className="text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
           Avg {formatAvgScore(data.avgFirmAlignmentScore)}
         </span>
       </div>
