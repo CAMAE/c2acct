@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { AdminPageIntro } from "@/app/components/admin/AdminShell";
 import { ProductBriefingView } from "@/app/components/admin/briefings/BriefingBoard";
 import { getAdminProductBriefing } from "@/lib/adminBriefingEngine";
-import { requireEnterpriseCompanyAccess } from "@/lib/enterprise";
+import { requireEnterpriseCompanyAccess } from "@/lib/enterpriseAccess";
 
 export const dynamic = "force-dynamic";
 

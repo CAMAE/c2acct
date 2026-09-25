@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { requireEnterpriseAccess } from "@/lib/enterprise";
+import { requireEnterpriseAccess } from "@/lib/enterpriseAccess";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 
 export const dynamic = "force-dynamic";

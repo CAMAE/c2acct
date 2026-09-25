@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { AdminPageIntro } from "@/app/components/admin/AdminShell";
 import { CompanyBriefingView } from "@/app/components/admin/briefings/BriefingBoard";
 import { getAdminCompanyBriefing } from "@/lib/adminBriefingEngine";
-import { requireEnterpriseCompanyAccess } from "@/lib/enterprise";
+import { requireEnterpriseCompanyAccess } from "@/lib/enterpriseAccess";
 import FollowUpEvidencePanel from "@/app/components/assessment/FollowUpEvidencePanel";
 import { getFirmFollowUpEvidence } from "@/lib/assessment/followUpEvidence";
 import { isFollowUpMcEnabled } from "@/lib/followUpMc";

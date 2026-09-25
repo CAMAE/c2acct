@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminPageIntro } from "@/app/components/admin/AdminShell";
-import { listEnterpriseChannels, marketView, requireEnterpriseAccess } from "@/lib/enterprise";
+import { listEnterpriseChannels, marketView } from "@/lib/enterprise";
+import { requireEnterpriseAccess } from "@/lib/enterpriseAccess";
 
 export const dynamic = "force-dynamic";
 

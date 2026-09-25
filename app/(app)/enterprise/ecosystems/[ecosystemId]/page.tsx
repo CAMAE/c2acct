@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { AdminPageIntro } from "@/app/components/admin/AdminShell";
-import { ownsEcosystem, requireEnterpriseAccess } from "@/lib/enterprise";
+import { ownsEcosystem } from "@/lib/enterprise";
+import { requireEnterpriseAccess } from "@/lib/enterpriseAccess";
 import { getEcosystemDetailForVendorCompany } from "@/lib/ecosystem";
 import EcosystemHeader from "./_components/EcosystemHeader";
 import FirmGrid from "./_components/FirmGrid";

@@ -2,9 +2,8 @@ import { CompanyType } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { poolForViewerBoundary, resolveCompanyBoundary } from "@/lib/dataBoundary";
 import type { SessionUser } from "@/lib/auth/session";
-import { getVendorProductInsightCatalog } from "@/lib/vendorProductInsightEngine";
-import { getSessionUser } from "@/lib/auth/session";
-import { notFound } from "next/navigation";
+import { FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat";
+import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 
 /**
  * 3e (R51, 2026-09-25) — Enterprise portal v0, DARK behind PAT_ENABLE_ENTERPRISE.
@@ -204,27 +203,55 @@ function compareBySignal(a: ProductSignalInput, b: ProductSignalInput): number {
 }
 
 // ---------------------------------------------------------------------------
-// Readers that project the vendor product insight catalog onto the pure inputs.
+// Reader that projects the raw firm reviews onto the pure inputs.
+//
+// score = mean of the latest FINAL firm review per (reviewing firm, product); n = the
+// number of such reviews; lastSubmissionAt = the newest of them — the same definition
+// tools/score-parity.ts uses. The reviewing firm ids are used only to keep one review
+// per firm and are never emitted: ProductSignalInput has no firm field.
 
 async function productSignalsForVendors(vendors: EnterpriseVendorCompany[]): Promise<ProductSignalInput[]> {
-  const catalogs = await Promise.all(vendors.map((vendor) => getVendorProductInsightCatalog(vendor.id)));
-  const productIds = catalogs.flatMap((catalog) => catalog.map((snapshot) => snapshot.product.id));
-  const verticals = productIds.length
-    ? await prisma.product.findMany({ where: { id: { in: productIds } }, select: { id: true, verticalId: true } })
-    : [];
-  const verticalById = new Map(verticals.map((product) => [product.id, product.verticalId]));
-  return vendors.flatMap((vendor, index) =>
-    catalogs[index].map((snapshot) => ({
-      productId: snapshot.product.id,
-      productName: snapshot.product.name,
-      vendorCompanyId: vendor.id,
-      vendorCompanyName: vendor.name,
-      verticalId: verticalById.get(snapshot.product.id) ?? vendor.verticalId,
-      score: snapshot.firmReviewed.averageScore,
-      n: snapshot.firmReviewed.assessmentCount,
-      lastSubmissionAt: snapshot.firmReviewed.latestSubmittedAt,
-    }))
-  );
+  if (vendors.length === 0) return [];
+  const vendorById = new Map(vendors.map((vendor) => [vendor.id, vendor]));
+  const [products, firmModule] = await Promise.all([
+    prisma.product.findMany({
+      where: { companyId: { in: vendors.map((vendor) => vendor.id) }, active: true },
+      orderBy: [{ name: "asc" }],
+      select: { id: true, name: true, companyId: true, verticalId: true },
+    }),
+    prisma.surveyModule.findUnique({ where: { key: FIRM_PRODUCT_MODULE_KEY }, select: { id: true } }),
+  ]);
+  const reviews =
+    firmModule && products.length > 0
+      ? await prisma.surveySubmission.findMany({
+          where: getSurveyFinalWhere({
+            moduleId: firmModule.id,
+            Subject: { kind: "PRODUCT", productId: { in: products.map((product) => product.id) } },
+          }),
+          orderBy: { createdAt: "desc" },
+          select: { companyId: true, score: true, createdAt: true, Subject: { select: { productId: true } } },
+        })
+      : [];
+  const latestByProductAndFirm = new Map<string, { score: number; createdAt: Date }>();
+  for (const review of reviews) {
+    const productId = review.Subject?.productId;
+    if (!productId || !review.companyId) continue;
+    const key = `${productId}\u0000${review.companyId}`;
+    if (!latestByProductAndFirm.has(key)) latestByProductAndFirm.set(key, { score: review.score, createdAt: review.createdAt });
+  }
+  const byProduct = new Map<string, Array<{ score: number; createdAt: Date }>>();
+  for (const [key, value] of latestByProductAndFirm) {
+    const productId = key.split("\u0000")[0];
+    byProduct.set(productId, [...(byProduct.get(productId) ?? []), value]);
+  }
+  return products.flatMap((product) => {
+    const vendor = product.companyId ? vendorById.get(product.companyId) : undefined;
+    if (!vendor) return [];
+    const signals = byProduct.get(product.id) ?? [];
+    const score = signals.length ? Math.round((signals.reduce((sum, s) => sum + s.score, 0) / signals.length) * 10) / 10 : null;
+    const last = signals.reduce<Date | null>((latest, s) => (latest === null || s.createdAt > latest ? s.createdAt : latest), null);
+    return [{ productId: product.id, productName: product.name, vendorCompanyId: vendor.id, vendorCompanyName: vendor.name, verticalId: product.verticalId, score, n: signals.length, lastSubmissionAt: last }];
+  });
 }
 
 /** (b) the portfolio roll-up. Null when the flag is off. */
@@ -266,21 +293,4 @@ export async function listEnterpriseChannels(enterpriseId: string): Promise<stri
   const channels = new Set(products.map((product) => product.verticalId));
   for (const vendor of vendors) channels.add(vendor.verticalId);
   return [...channels].sort();
-}
-
-/**
- * Route gate for app/(app)/enterprise/*: the flag off, no session or no membership all
- * read as notFound() — the portal does not exist for anyone else (R51).
- */
-export async function requireEnterpriseAccess(): Promise<EnterpriseAccessState> {
-  if (!isEnterpriseEnabled()) notFound();
-  const state = await getEnterpriseAccessStateForUser(await getSessionUser());
-  if (!state) notFound();
-  return state;
-}
-
-/** Owned-company gate for briefing routes: null when the company is outside the enterprise. */
-export async function requireEnterpriseCompanyAccess(companyId: string): Promise<EnterpriseAccessState | null> {
-  const state = await requireEnterpriseAccess();
-  return ownsCompany(state, companyId) ? state : null;
 }

@@ -4,7 +4,8 @@ import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import EcosystemListCard from "./_components/EcosystemListCard";
 import { getEcosystemListForVendorCompanies } from "@/lib/ecosystem";
-import { listEnterpriseChannels, portfolioRollup, requireEnterpriseAccess } from "@/lib/enterprise";
+import { listEnterpriseChannels, portfolioRollup } from "@/lib/enterprise";
+import { requireEnterpriseAccess } from "@/lib/enterpriseAccess";
 
 export const dynamic = "force-dynamic";
 
