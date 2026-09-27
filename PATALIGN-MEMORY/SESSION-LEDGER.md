@@ -11,7 +11,72 @@
 - WORK 6 first attempt: flags-off RED 237 pairs / 2,636 controls, all vendor-elite (sign-in `pilot_password_invalid`: the reseed gave demo-vendor-elite a different password than the crawler contract "PatEliteDemo7x" — re-hashed to the contract) and admin (rows of "PAT Validation Company", created by the launch chain's `validate:db` step my reseed had skipped — run now, company present). Chain killed and restarted 15:55 with both fixed; consultant ecosystem detail/list re-proven byte-identical to the base code on the reseeded data (377,696 / 635 bytes).
 - CORRECTION 2026-09-27 (resume): the 15:55 restart did NOT reach the guard. Its saved outputs: typecheck exit 2 and build exit 1 (a stale gitignored dev harness, scripts/dev/box3e-eco-parity.ts, imported the deleted lib/__old_ecosystem.ts), guardoff/guardon exit 2 ("standalone missing"), e2e exit 1 (web server could not start). No flag-off guard pass exists in command output for this branch; the only completed flags-off crawl (15:38) was RED (vendor-elite password, validate:db rows — both since fixed). Harness removed, tsc 0; WORK 6 relaunched in full (lint → typecheck → unit → build → guard off → guard on → e2e → captures).
 - 2026-09-27 12:2x: WORK 6 relaunch → lint 0, typecheck 0, unit 1653/1653, build 0; flags-off set RED on 2 pairs / 4 controls only: the /admin/briefings and /admin/organizations links to "PAT Validation Company" — the baseline (production) carries its id bbe5b09c-9818-4183-92ca-8f6fc089a91b, the reseeded validate:db row had a fresh random id. All seven sign-ins fine. Fix (local data, all 18 FKs cascade on update): company id set to production's. Guard stages relaunched from the existing build ($S/b3e2.sh: guard off → guard on → e2e; watcher $S/b3e-post.sh).
-- WORK 6 running: $S/b3e.sh — lint 0, typecheck 0, unit 1653/1653 (193 files), build 0 on 28e204fd; guard flag off (both sets, 3031/3032) → guard flag on (PAT_ENABLE_ENTERPRISE=1 added to both sets, 3033/3034) → e2e flag off; then $S/b3e-post.sh captures (enterprise flag-on as cameron+enterprise: /enterprise, /enterprise/channels/accounting, owned ecosystem, owned briefing; consultant post capture; flag-off /enterprise 404 check).
+- WORK 6 DONE 2026-09-27 15:07 local — full report (copied verbatim from ~/work/inbox-from-mythos/FORGE-REPORT-3E.md):
+
+    # FORGE REPORT — BOX 3e Enterprise portal v0 (dark, flagged, branch only) · 2026-09-27
+    
+    Branch `feat/3e-enterprise-portal-v0` · base sha **8649dc55** (the local feature/engagement-v1 head, origin 071818d4 + one bank) · head sha **10127680** (last ledger bank; last code commit 28e204fd) · 23 files, +1,808 / −2 · NOT pushed, NOT deployed. Every number below is from command output.
+    
+    ## REQUIREMENTS
+    R51 filed in ~/work/inbox-from-mythos/REQUIREMENTS.md (Mythos's file; the repo carries no REQUIREMENTS.md), commit "3e: R51" = ledger bank 0a9f5241.
+    
+    ## ENVIRONMENT
+    PAT_ENABLE_ENTERPRISE absent/off by default (same `=== "1"` law as lib/followUpMc.ts). Local docker DB only. Preview and Production untouched (no env change, no deploy).
+    
+    ## EXISTS → fate
+    - prisma: Company, Product, Ecosystem, EcosystemFirm, ConsultantProfile, ConsultantAssignment untouched; additive Enterprise, EnterpriseMembership, Company.enterpriseId (nullable, indexed, FK) — migration 20260925120000_3e_enterprise_v0 (hand-written SQL, applied with prisma migrate deploy, client regenerated).
+    - app/(app)/consultants/*, app/components/consultants/*, firm, vendor, admin: **zero diff** (`git diff --stat 8649dc55..HEAD` on those paths is empty). The enterprise portal is a copy; nothing was extracted from the consultant portal.
+    - lib/ecosystem.ts: two additive exports (getEcosystemDetailForVendorCompany, getEcosystemListForVendorCompanies); the consultant path is a pure move — getEcosystemDetailForConsultant 377,696 bytes and getEcosystemListForConsultant 635 bytes byte-identical against the base code on the reseeded data.
+    - lib/adminControlPlane.ts: untouched (seed only).
+    
+    ## INTENDED CHANGES (delivered)
+    1. Prisma additive — 4e69e5b8.
+    2. lib/enterprise.ts — 5620776a, dde5c952: PAT_ENTERPRISE_FLAG_ENV, isEnterpriseEnabled, getEnterpriseForUser, listOwnedVendorCompanies, listOwnedEcosystems, getEnterpriseAccessStateForUser, ownsEcosystem/ownsCompany, portfolioRollup, marketView, listEnterpriseChannels. The two cross-vendor views are pure functions over ProductSignalInput (product and vendor fields only): buildPortfolioRollup, rankMarketView. Readers aggregate the firm product module's FINAL reviews directly (score = mean of the latest review per reviewing firm, n, newest — the tools/score-parity.ts definition); reviewing firm ids dedupe only and are never emitted. Route gates in lib/enterpriseAccess.ts (notFound when the flag is off, signed out, or no membership).
+    3. app/(app)/enterprise/* — ef04cc12, 28e204fd: layout (gate), page (portfolio table + channel list + owned ecosystem cards), channels/[verticalId] (ranked market view, owned rows flagged, vendor names only), ecosystems/[ecosystemId] + six copied components (words Consultant/Guide → Enterprise, "your ecosystem" → "your portfolio"; links rewritten to /enterprise; firm links go to the owned briefing; explainer tiles static; vendor-brief link and OpenEndedPanel dropped — see NOT VERIFIED), briefings/[companyId] (+ products/[productId]) with the ownership gate.
+    4. Nav — the Enterprise entry only when the flag is on and a membership exists (AppShell + SignedInHeaderControls).
+    5. Seed — 2fd8e575, `pnpm seed:enterprise`: Meridian Group (demo-enterprise-meridian-group) owns Meridian Practice Cloud + Bridgepath Suite; cameron+enterprise@garrettandgarrett.info and lesliegarrettphd+enterprise@gmail.com OWNER, temporary passwords appended to ~/work/preview-accounts.txt (mode 600) in the existing format; unowned Northwind Ledger (DEMO boundary) with product Northwind Ledger Core, firm "Copperfield & Vance CPAs" in its own ecosystem, one FINAL firm review and a vendor self-assessment.
+    6. Copy registries: none required; no public or pricing copy changed.
+    
+    ## DOORS (LAW 11)
+    Consultant, firm, vendor and admin portals: zero diff. Guard GREEN, flag off and flag on (below).
+    
+    ## WORK 0–6
+    Branch created at 8649dc55 and banked; R51; migration; lib + tests; portal + nav; seed; proof.
+    
+    ## PROOF
+    | check | result |
+    |---|---|
+    | guard flag off (`pnpm guard:doors`, ports 3031/3032) | flags-off **3/3**, flags-as-preview **3/3** (b3e-guardoff.log) |
+    | guard flag on (PAT_ENABLE_ENTERPRISE=1 added to both sets, ports 3033/3034) | flags-off **3/3**, flags-as-preview **3/3** (b3e-guardon.log) |
+    | lint / typecheck | 0 / 0 |
+    | unit (`pnpm test:unit`) | **1653 / 1653**, 193 files (incl. tests/enterprise.contract.test.ts: flag law, flag-off nulls, roll-up ordering and freshness, market ranking and ownership, no /firm/i key and no fixture firm name in any row, empty channel) |
+    | e2e local-review, flag off | **12 + 16 passed, 1 skipped** |
+    | flag on, standalone :3023, cameron+enterprise | /enterprise 200 "Your portfolio" (10 portfolio rows, 1 channel link, 2 ecosystem cards); /enterprise/channels/accounting 200 (128 ranked rows: 118 unowned, 10 flagged yours; Northwind Ledger Core rank 1, score 91, n 1); /enterprise/ecosystems/demo-expand-ecosystem-meridian 200 "Meridian Practice Cloud Ecosystem"; /enterprise/briefings/demo-firm-company-demo-expand-firm-belmont-crossing-advisory-6-0 200 "Belmont Crossing Advisory briefing" — 1440 and 390 |
+    | neutrality (rendered HTML) | "Copperfield & Vance" occurrences across the four enterprise pages: **0, 0, 0, 0**; no Northwind text outside the channel ranking |
+    | flag off, same account | /enterprise and /enterprise/channels/accounting → **404** at 1440 and 390 |
+    | nav | RSC payload: Enterprise item present flag-on for the member (2), absent flag-off (0), absent for the consultant (0) |
+    | consultant unchanged | /consultants and ?panel=freshness as the sentinel consultant, pre (base build, reseeded DB) vs post: text identical except the rolling "Since <date>" week line and the release footer (4 and 2 diff lines) |
+    | zero-occurrence search | "Consultant" / "Guide" under app/(app)/enterprise: **0** |
+    | R50 | not applicable — no deploy in this box |
+    
+    Captures (~/work/box3e-proof): pre--consultants*.png/.txt/.html, post--consultants*.png/.txt/.html, enterprise--enterprise--{1440,390}.png, enterprise--enterprise_channels_accounting--{1440,390}.png, enterprise--enterprise_ecosystems_demo-expand-ecosystem-meridian--{1440,390}.png, enterprise--enterprise_briefings_demo-firm-company-demo-expand-firm-belmont-crossing-advisory-6-0--{1440,390}.png (+ .html/.txt at 1440), flagoff--enterprise--{1440,390}.png, flagoff--enterprise_channels_accounting--{1440,390}.png.
+    
+    ## INCIDENT — local database wipe (2026-09-25)
+    After applying the 3e migration I ran `prisma migrate diff --from-schema-datamodel … --to-migrations … --shadow-database-url <the local DATABASE_URL>` as an agreement check. Prisma resets the shadow database it is given; pointed at the live local docker dev DB it wiped every table. Prod and the Neon preview branch were never involved. Recovery: the repo's own chain (db:recreate → migrate → seed:baseline → seed:pat-runtime → seed:demo-benchmark → preview:pat-setup → seed:demo-expand → compute:benchmarks → seed:demo-swaps → preview:pat-setup → perf-scale --depth=demo → seed:help-prod → validate:db), then two data alignments the old DB had carried: the demo vendor-elite account re-hashed to the crawler's contract password, and "PAT Validation Company" given production's id bbe5b09c-9818-4183-92ca-8f6fc089a91b (all 18 FKs cascade on update) so the admin list links match the baseline. Lesson banked: never pass a real database as --shadow-database-url.
+    
+    ## NOT VERIFIED / NOT-CLOSED
+    - Nothing deployed; Leslie's review not included; the enterprise accounts exist only in the local DB (the preview branch has no Enterprise rows and its accounts file lines are local).
+    - The first sign-in of cameron+enterprise rotated its temporary password (enforced password update); the accounts file carries the current one.
+    - OpenEndedPanel is excluded from the enterprise ecosystem page (tests/consultant-openended-scoping keeps firm open-ended text inside the consultant portal); the vendor-brief link and explainer links are not part of v0 (tiles static, link dropped) — "the same cards" minus those two.
+    - Multi-channel: the seed has only accounting; the channel list and market view are written for any verticalId but proven on one.
+    - Enterprise billing, pricing, public copy: untouched.
+    - Enterprise users land on /vendor after sign-in (the sign-in form's vendor view); the portal is reached via the nav entry or /enterprise.
+    - Guard rulings unchanged (no control added or removed); RENAMES unchanged.
+    - The market view loads every DEMO vendor's reviews in the channel (128 products) in one query; not timed on Neon.
+    
+    Nothing pushed; Cam types push. NOT-CLOSED.
+    
+- (superseded) WORK 6 running: $S/b3e.sh — lint 0, typecheck 0, unit 1653/1653 (193 files), build 0 on 28e204fd; guard flag off (both sets, 3031/3032) → guard flag on (PAT_ENABLE_ENTERPRISE=1 added to both sets, 3033/3034) → e2e flag off; then $S/b3e-post.sh captures (enterprise flag-on as cameron+enterprise: /enterprise, /enterprise/channels/accounting, owned ecosystem, owned briefing; consultant post capture; flag-off /enterprise 404 check).
 - WORK 1: R51 added to ~/work/inbox-from-mythos/REQUIREMENTS.md (Mythos's file; no REQUIREMENTS.md exists in the repo) under "Filed 9/25 from Cam's box 3e" — text verbatim from the box. The "3e: R51" commit is this ledger bank (the requirements file is outside the repo).
 
 ## 2026-09-25 · Box 2d (R17 Guide rename, R37 PFC drawer, R40 chart pass, R38 ruling flagged) — in progress, overnight, NOT pushed
