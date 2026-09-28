@@ -4,6 +4,7 @@ import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import HeroChips from "@/app/components/pat/HeroChips";
 import WorkspaceNotice from "@/app/components/shell/WorkspaceNotice";
 import FirmWorkspaceDashboard from "@/app/components/workspace/FirmWorkspaceDashboard";
+import FirmWorkspaceCards from "@/app/components/workspace/FirmWorkspaceCards";
 import { getFirmWorkspaceDashboard } from "@/lib/firmWorkspaceDashboard";
 import { getFirmWorkspaceCardStats, type WorkspaceCardStats } from "@/lib/workspaceCardStats";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
@@ -383,7 +384,15 @@ export default async function FirmPage({
       ) : dashboard ? (
         <>
           <FirmWorkspaceDashboard view={dashboard} />
-          {cardRow}
+          {/* Box 3f item I (flag-on): the fixed-format cards; the status strip is gone. */}
+          <FirmWorkspaceCards
+            stats={cardStats}
+            completedModules={dashboard.completedModules}
+            totalModules={dashboard.totalModules}
+            alignmentIndex={dashboard.alignmentIndex}
+            sandboxEnabled={isAlignmentBoardEnabled()}
+            benchmarkEnabled={isPingsEnabled()}
+          />
         </>
       ) : (
         cardRow

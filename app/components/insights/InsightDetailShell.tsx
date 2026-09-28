@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import PageHead from "@/app/components/shell/PageHead";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import PatModeToggle, { type PatModeToggleOption } from "@/app/components/pat/PatModeToggle";
 import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import type { InsightSurfaceContent } from "@/lib/insightSurface";
@@ -69,6 +71,29 @@ export default function InsightDetailShell({
 
   return (
     <div className="space-y-8">
+      {isNewFrontDoorEnabled() ? (
+        // Box 3f items A and H (2026-09-28, flag-on): the shared page head (eyebrow, one H1,
+        // the summary as the subline); the "Combined evidence" note is gone; the surface
+        // toggle stays under the head.
+        <section className="space-y-4">
+          <PageHead
+            variant="portal"
+            wordmark
+            eyebrow={eyebrow}
+            title={title}
+            subline={
+              subtitle ? (
+                <>
+                  {summary} <span className="pat-meta block pt-1 font-medium">{subtitle}</span>
+                </>
+              ) : (
+                summary
+              )
+            }
+          />
+          <PatModeToggle activeKey={activeKey} ariaLabel={toggleAriaLabel} options={toggleOptions} />
+        </section>
+      ) : (
       <section className={`${muted ? "pat-card pat-card-muted" : "pat-card"} p-8`}>
         <PatLogoLockup mode="hero" tone="light" />
         <div className="pat-label mt-6">{eyebrow}</div>
@@ -92,6 +117,7 @@ export default function InsightDetailShell({
           />
         </div>
       </section>
+      )}
 
       {visibleVisualLead}
 

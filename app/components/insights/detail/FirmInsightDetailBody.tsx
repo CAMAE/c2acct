@@ -1,3 +1,4 @@
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import ChartEmptyState from "@/app/components/charts/ChartEmptyState";
 import ProgressMeter from "@/app/components/charts/ProgressMeter";
 import RankedBars from "@/app/components/charts/RankedBars";
@@ -62,7 +63,8 @@ export default function FirmInsightDetailBody({
   return (
     <>
       <section className="pat-card p-6">
-        <div className="grid gap-8 lg:grid-cols-2">
+        {/* Box 3f item H (D3): one column at 1100px and below, two above (flag-on). */}
+        <div className={isNewFrontDoorEnabled() ? "grid gap-8 min-[1101px]:grid-cols-2" : "grid gap-8 lg:grid-cols-2"}>
           <div>
             <ScoreLockup
               label={headline.caption}

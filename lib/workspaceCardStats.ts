@@ -24,7 +24,7 @@ import type { VendorWorkspaceDashboard } from "@/lib/vendorWorkspaceDashboard";
  */
 /** R32 (box 2c): value is one short token that never wraps ("90th", "68%", "5/5"); unit
  *  sits under it ("percentile"); context is the optional third line ("15 days to cutoff"). */
-export type WorkspaceCardStat = { value: string; unit: string; context?: string | null };
+export type WorkspaceCardStat = { value: string; unit: string; context?: string | null; days?: number | null };
 export type WorkspaceCardStats = Record<string, WorkspaceCardStat>;
 
 async function settle<T>(work: Promise<T>): Promise<T | null> {
@@ -66,8 +66,8 @@ export async function getFirmWorkspaceCardStats(companyId: string, dashboard: Fi
     const days = `${meta.daysToCutoff} day${meta.daysToCutoff === 1 ? "" : "s"} to cutoff`;
     stats["firm-benchmark"] =
       peer?.overall
-        ? { value: ordinal(peer.overall.percentile), unit: "percentile", context: days }
-        : { value: "—", unit: "percentile", context: days };
+        ? { value: ordinal(peer.overall.percentile), unit: "percentile", context: days, days: meta.daysToCutoff }
+        : { value: "—", unit: "percentile", context: days, days: meta.daysToCutoff };
   }
   return stats;
 }

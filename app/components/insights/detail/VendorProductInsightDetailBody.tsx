@@ -1,3 +1,4 @@
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import DivergenceBar from "@/app/components/charts/DivergenceBar";
 import RankedBars from "@/app/components/charts/RankedBars";
 import ScoreLockup from "@/app/components/charts/ScoreLockup";
@@ -45,7 +46,8 @@ export default function VendorProductInsightDetailBody({
   return (
     <>
       <section className="pat-card p-6">
-        <div className="grid gap-8 lg:grid-cols-2">
+        {/* Box 3f item H (D3): one column at 1100px and below, two above (flag-on). */}
+        <div className={isNewFrontDoorEnabled() ? "grid gap-8 min-[1101px]:grid-cols-2" : "grid gap-8 lg:grid-cols-2"}>
           <div>
             <div className="pat-label">Vendor story vs firm review</div>
             <div className="mt-4">

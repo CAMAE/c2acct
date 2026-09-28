@@ -243,5 +243,40 @@
     "control": "Pro Insights / Elite Insights / Help",
     "ledgerLine": "box 3f item F (Cam 9/28): the insight pills collapse flag-on to one text link (Elite insights on Pro, Pro insights from another mode, nothing on Elite); Help sits in the page footer beside the disclaimer. Flag-off unchanged.",
     "rulingDate": "2026-09-28"
+  },
+  {
+    "route": "/firm",
+    "control": "Alignment Assessment Open the",
+    "controlPrefix": "Alignment Assessment Open the",
+    "ledgerLine": "box 3f item I (Cam 9/28): the firm workspace cards take the fixed format with Cam's verbatim copy (title, live stat lines, one sentence, one action link); the card link's accessible name changes flag-on. Flag-off unchanged.",
+    "rulingDate": "2026-09-28"
+  },
+  {
+    "route": "/firm",
+    "control": "Alignment Insights Open firm-facing",
+    "controlPrefix": "Alignment Insights Open firm-facing",
+    "ledgerLine": "box 3f item I (Cam 9/28): the firm workspace cards take the fixed format with Cam's verbatim copy (title, live stat lines, one sentence, one action link); the card link's accessible name changes flag-on. Flag-off unchanged.",
+    "rulingDate": "2026-09-28"
+  },
+  {
+    "route": "/firm",
+    "control": "Alignment Sandbox Play with",
+    "controlPrefix": "Alignment Sandbox Play with",
+    "ledgerLine": "box 3f item I (Cam 9/28): the firm workspace cards take the fixed format with Cam's verbatim copy (title, live stat lines, one sentence, one action link); the card link's accessible name changes flag-on. Flag-off unchanged.",
+    "rulingDate": "2026-09-28"
+  },
+  {
+    "route": "/firm",
+    "control": "Product Assessment Review vendor products",
+    "controlPrefix": "Product Assessment Review vendor products",
+    "ledgerLine": "box 3f item I (Cam 9/28): the firm workspace cards take the fixed format with Cam's verbatim copy (title, live stat lines, one sentence, one action link); the card link's accessible name changes flag-on. Flag-off unchanged.",
+    "rulingDate": "2026-09-28"
+  },
+  {
+    "route": "/firm",
+    "control": "Quarterly benchmark",
+    "controlPrefix": "Quarterly benchmark",
+    "ledgerLine": "box 3f item I (Cam 9/28): the firm workspace cards take the fixed format with Cam's verbatim copy (title, live stat lines, one sentence, one action link); the card link's accessible name changes flag-on. Flag-off unchanged.",
+    "rulingDate": "2026-09-28"
   }
 ]

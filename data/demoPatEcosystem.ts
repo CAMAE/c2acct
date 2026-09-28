@@ -60,7 +60,10 @@ export type DemoFirmInput = {
 };
 
 export const DEMO_PAT_ECOSYSTEM_VERSION = "2026-04-26-pat-demo-ecosystem-v2";
-export const DEMO_SEED_BASE_DATE = "2026-04-26T12:00:00.000Z";
+// Box 3f item H (2026-09-28): every seeded "updated" / "as of" date is relative to seed
+// time (four days before the run, on the hour), never a hard-coded calendar string. The
+// seed offsets (lib/demoPatEcosystemSeed.ts) add hours to this base.
+export const DEMO_SEED_BASE_DATE = new Date(Math.floor((Date.now() - 4 * 24 * 60 * 60 * 1000) / 3_600_000) * 3_600_000).toISOString();
 export const DEMO_VENDOR_COUNT_MINIMUM = 10;
 export const DEMO_PRODUCT_COUNT_MINIMUM = 30;
 export const DEMO_FIRM_VENDOR_RELATIONSHIP_MINIMUM = 100;
