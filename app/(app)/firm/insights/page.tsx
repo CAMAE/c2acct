@@ -30,7 +30,6 @@ import {
   getFirmAssessmentProgress,
   FIRM_TIER1_INSIGHT_DEFINITIONS,
 } from "@/lib/firmPat";
-import { boardLabel } from "@/lib/sandboxLabel";
 
 export const dynamic = "force-dynamic";
 
@@ -129,10 +128,11 @@ export default async function FirmInsightsPage({
     { key: "help", label: "Help", href: getModeHref("help") },
   ] as const;
 
+  // Box 3f item F (F3): only the zero state renders as a callout; the filler line is gone.
   const currentStateSummary =
     completedModules === 0
       ? "PAT needs completed firm alignment modules before it can open a grounded firm insight readout."
-      : "PAT is summarizing current firm alignment and product-review evidence so you can review the operating picture in one place.";
+      : undefined;
 
   // Block 12f: the visible Alignment index reads the ONE shared signal, so it
   // equals the Trajectory face-card "current" and the what-this-means prose.
@@ -161,7 +161,7 @@ export default async function FirmInsightsPage({
 
   const operatingPicture = (
     <section className="pat-card p-8">
-      <div className="pat-label">Current operating picture</div>
+      <div className="pat-label">Operating brief</div>
       {completedModules === 0 ? (
         <div className="mt-5">
           <ChartEmptyState
@@ -177,7 +177,7 @@ export default async function FirmInsightsPage({
             <ScoreLockup
               label="Alignment index"
               score={alignmentIndex}
-              context={`Avg of your final module scores — distinct from the ${boardLabel()}'s stack number`}
+              context="Average of your five module scores"
             />
             <ScoreLockup
               label="Modules complete"

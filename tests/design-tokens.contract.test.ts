@@ -25,7 +25,7 @@ const sources = walk(path.join(ROOT, "app")).map((file) => readFileSync(file, "u
 const count = (pattern: RegExp) => (sources.match(pattern) ?? []).length;
 
 const CEILINGS = {
-  fontSizePxClass: { pattern: /text-\[[0-9.]+px\]/g, ceiling: 111 },
+  fontSizePxClass: { pattern: /text-\[[0-9.]+px\]/g, ceiling: 107 }, // box 3f: 111 -> 107 (hero, footer, disclaimer literals moved to tokens)
   fontSizeInlineLiteral: { pattern: /fontSize:\s*["'`0-9]/g, ceiling: 9 },
   fontSizeCssProp: { pattern: /font-size:/g, ceiling: 2 },
   borderRadiusPxClass: { pattern: /rounded-\[[0-9]+px\]/g, ceiling: 223 },

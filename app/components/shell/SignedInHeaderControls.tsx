@@ -1,3 +1,4 @@
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import type { HeaderNavItem } from "@/app/components/header/AppHeader";
 import PatTopBar from "@/app/components/pat/PatTopBar";
 import HeaderControlsMenu from "@/app/components/shell/HeaderControlsMenu";
@@ -63,6 +64,14 @@ export default async function SignedInHeaderControls({
     ...(consultantAccessEnabled ? [{ href: "/consultants", label: guideWord() }] : []),
     { href: "/trust", label: "Trust" },
     { href: "https://www.c2acct.com", label: "Return to C2Acct" },
+    // Box 3f item F (2026-09-28, flag-on): Admin and Help left the portal pill row for the
+    // account menu (firm and vendor panels).
+    ...(isNewFrontDoorEnabled() && (experience.audience === "firm" || experience.audience === "vendor")
+      ? [
+          { href: `/${experience.audience}?panel=admin`, label: "Admin" },
+          { href: `/${experience.audience}?panel=help`, label: "Help" },
+        ]
+      : []),
   ];
   const membershipHref =
     experience.audience === "vendor" ||

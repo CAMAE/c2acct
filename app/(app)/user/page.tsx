@@ -6,6 +6,8 @@ import CardChip, { CardChipRow } from "@/app/components/cards/CardChip";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
+import PageHead from "@/app/components/shell/PageHead";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import {
   IndividualHelpInlineContent,
   IndividualMeetPatContent,
@@ -108,6 +110,18 @@ export default async function UserPage({
 
   return (
     <div className="space-y-8">
+      {isNewFrontDoorEnabled() ? (
+        <section className="space-y-4">
+          <PageHead
+            variant="portal"
+            wordmark
+            eyebrow={messages.portal.individual.eyebrow}
+            title={<PatAudienceTitle as="span" title={messages.portal.individual.title} audienceTerms={[messages.nav.individual, "User"]} />}
+            subline={messages.portal.individual.body}
+          />
+          <PortalPanelSelector activeKey={activePanel} options={panelOptions} />
+        </section>
+      ) : (
       <section className="pat-card p-8">
         <PatLogoLockup mode="hero" tone="light" />
         <PortalAudienceEyebrow
@@ -128,6 +142,7 @@ export default async function UserPage({
           <PortalPanelSelector activeKey={activePanel} options={panelOptions} />
         </div>
       </section>
+      )}
 
       {activePanel === "pat" ? (
         <IndividualMeetPatContent />

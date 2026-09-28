@@ -4,6 +4,7 @@ import HeroChips from "@/app/components/pat/HeroChips";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
+import PageHead from "@/app/components/shell/PageHead";
 import MeetPatContent from "@/app/components/pat/MeetPatContent";
 import ConsultantHelpContent from "@/app/components/consultants/ConsultantHelpContent";
 import EcosystemListCard from "./_components/EcosystemListCard";
@@ -117,6 +118,21 @@ export default async function ConsultantOverviewPage({
 
   return (
     <div className="space-y-8">
+      {isNewFrontDoorEnabled() ? (
+        // Box 3f item A (flag-on): the shared page head. The panel row stays: Ecosystems,
+        // Freshness and Nudges are working panels, not pills (reported for a ruling).
+        <section data-testid="consultant-portal-hero" className="space-y-4">
+          <PageHead
+            variant="portal"
+            wordmark
+            eyebrow={`${guideWord()} portal`}
+            title={<PatAudienceTitle as="span" title="Your assigned ecosystems" audienceTerms={["ecosystems"]} />}
+            subline="An ecosystem is a software vendor and the firms invited to assess its products."
+            aside={<HeroChips audience="consultant" />}
+          />
+          <PortalPanelSelector activeKey={activePanel} options={panelOptions} />
+        </section>
+      ) : (
       <section className="pat-card relative p-8" data-testid="consultant-portal-hero">
         <HeroChips audience="consultant" />
         <PatLogoLockup mode="hero" tone="light" />
@@ -143,6 +159,7 @@ export default async function ConsultantOverviewPage({
           <PortalPanelSelector activeKey={activePanel} options={panelOptions} />
         </div>
       </section>
+      )}
 
       {week ? <ConsultantWeekCards week={week} /> : null}
       {activePanel === "ecosystems" ? (

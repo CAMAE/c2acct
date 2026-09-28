@@ -15,7 +15,7 @@ export default function FirmWorkspaceDashboard({ view }: { view: Data }) {
   return (
     <div className="space-y-8" data-testid="firm-workspace-dashboard">
       <section className="pat-card p-8">
-        <div className="pat-label">Current operating picture</div>
+        <div className="pat-label">Operating brief</div>
         {empty ? (
           <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
             <div>
@@ -40,7 +40,7 @@ export default function FirmWorkspaceDashboard({ view }: { view: Data }) {
         ) : (
           <div className="mt-5 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-center">
             <div className="grid gap-8 sm:grid-cols-3">
-              <ScoreLockup label="Alignment index" score={view.alignmentIndex} context="Average of your final module scores" />
+              <ScoreLockup label="Alignment index" score={view.alignmentIndex} context="Average of your five module scores" />
               <ScoreLockup
                 label="Modules complete"
                 score={null}

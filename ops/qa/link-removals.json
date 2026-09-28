@@ -48,156 +48,156 @@
     "rulingDate": "2026-09-11"
   },
   {
-    "route": "/admin/briefings/demo-…/print",
+    "route": "/admin/briefings/demo-\u2026/print",
     "control": "Meridian Audit Meridian Practice Cloud Firm raw score # No live signal No product-level combined PAT / Meridian CAS Meridian Practice Cloud Firm raw score # No live signal No product-level combined PAT r / Meridian Payroll Meridian Practice Cloud Firm raw score # No live signal No product-level combined P / Meridian Practice Meridian Practice Cloud Firm raw score # No live signal No product-level combined  / Meridian Tax Meridian Practice Cloud Firm raw score # No live signal No product-level combined PAT r",
-    "ledgerLine": "ACCEPT: vendor product list Completed/Existing registry drift (0157d40f reads the same snapshot's products as Existing, HEAD as Completed; the list, Product URL and Open assessment sit on the other tab) — Cam 9/14 \"all as recommended\"",
+    "ledgerLine": "ACCEPT: vendor product list Completed/Existing registry drift (0157d40f reads the same snapshot's products as Existing, HEAD as Completed; the list, Product URL and Open assessment sit on the other tab) \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
-    "route": "/vendor/product-assessment/demo-…",
-    "control": "Meridian Audit / Meridian CAS / Meridian Payroll / Meridian Portal / Meridian Practice / Meridian Tax / Open assessment / Open assessment → / Product URL",
-    "ledgerLine": "ACCEPT: vendor product list Completed/Existing registry drift (0157d40f reads the same snapshot's products as Existing, HEAD as Completed; the list, Product URL and Open assessment sit on the other tab) — Cam 9/14 \"all as recommended\"",
+    "route": "/vendor/product-assessment/demo-\u2026",
+    "control": "Meridian Audit / Meridian CAS / Meridian Payroll / Meridian Portal / Meridian Practice / Meridian Tax / Open assessment / Open assessment \u2192 / Product URL",
+    "ledgerLine": "ACCEPT: vendor product list Completed/Existing registry drift (0157d40f reads the same snapshot's products as Existing, HEAD as Completed; the list, Product URL and Open assessment sit on the other tab) \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
     "route": "/vendor/product-assessment",
-    "control": "APStream Control / ClientVault Requests / LedgerFlow Close / Meridian Audit / Meridian CAS / Meridian Payroll / Meridian Portal / Meridian Practice / Meridian Tax / MetricBoard FP&A / Open assessment / Open assessment → / Product URL",
-    "ledgerLine": "ACCEPT: vendor product list Completed/Existing registry drift (0157d40f reads the same snapshot's products as Existing, HEAD as Completed; the list, Product URL and Open assessment sit on the other tab) — Cam 9/14 \"all as recommended\"",
+    "control": "APStream Control / ClientVault Requests / LedgerFlow Close / Meridian Audit / Meridian CAS / Meridian Payroll / Meridian Portal / Meridian Practice / Meridian Tax / MetricBoard FP&A / Open assessment / Open assessment \u2192 / Product URL",
+    "ledgerLine": "ACCEPT: vendor product list Completed/Existing registry drift (0157d40f reads the same snapshot's products as Existing, HEAD as Completed; the list, Product URL and Open assessment sit on the other tab) \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
     "route": "/survey",
-    "control": "APStream Control / ClientVault Requests / LedgerFlow Close / Meridian Audit / Meridian CAS / Meridian Payroll / Meridian Portal / Meridian Practice / Meridian Tax / MetricBoard FP&A / Open assessment / Open assessment → / Product URL",
-    "ledgerLine": "ACCEPT: vendor product list Completed/Existing registry drift (0157d40f reads the same snapshot's products as Existing, HEAD as Completed; the list, Product URL and Open assessment sit on the other tab) — Cam 9/14 \"all as recommended\"",
+    "control": "APStream Control / ClientVault Requests / LedgerFlow Close / Meridian Audit / Meridian CAS / Meridian Payroll / Meridian Portal / Meridian Practice / Meridian Tax / MetricBoard FP&A / Open assessment / Open assessment \u2192 / Product URL",
+    "ledgerLine": "ACCEPT: vendor product list Completed/Existing registry drift (0157d40f reads the same snapshot's products as Existing, HEAD as Completed; the list, Product URL and Open assessment sit on the other tab) \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
-    "route": "/vendor/product-insight/demo-…/current-product-fit",
+    "route": "/vendor/product-insight/demo-\u2026/current-product-fit",
     "control": "Consultant portal Ecosystems and briefs / Firm portal Your firm workspace / Sign in Return to the sign-in page / Vendor portal Your vendor workspace",
-    "ledgerLine": "ACCEPT: 404 destination cards on product-insight routes that now render — Cam 9/14 \"all as recommended\"",
+    "ledgerLine": "ACCEPT: 404 destination cards on product-insight routes that now render \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
-    "route": "/vendor/product-insight/demo-…",
+    "route": "/vendor/product-insight/demo-\u2026",
     "control": "Consultant portal Ecosystems and briefs / Firm portal Your firm workspace / Sign in Return to the sign-in page / Vendor portal Your vendor workspace",
-    "ledgerLine": "ACCEPT: 404 destination cards on product-insight routes that now render — Cam 9/14 \"all as recommended\"",
+    "ledgerLine": "ACCEPT: 404 destination cards on product-insight routes that now render \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
-    "route": "/admin/briefings/demo-…",
+    "route": "/admin/briefings/demo-\u2026",
     "control": "Atlas Atlas Core Atlas PerfScale Firm raw score # No live signal No product-level combined PAT reado / Atlas Audit # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout  / Atlas Audit Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout is / Atlas Bridge # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout / Atlas Bridge Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout i / Atlas Close # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout  / Atlas Close Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout is / Atlas Connect # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readou / Atlas Connect Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout  / Atlas Controls # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT reado / Atlas Controls Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout / Atlas Docs # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout i / Atlas Docs Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout is  / Atlas Expense # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readou / Atlas Expense Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout  / Atlas Flow # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout i / Atlas Flow Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout is  / Atlas Forecast # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT reado / Atlas Forecast Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout / Atlas Insight # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readou / Atlas Insight Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout  / Atlas Ledger # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout / Atlas Ledger Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout i / Atlas Payables # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT reado / Atlas Payables Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout / Atlas Payroll # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readou / Atlas Payroll Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout  / Atlas Portal # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout / Atlas Portal Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout i / Atlas Pulse Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout is / Atlas Receivables # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT re / Atlas Receivables Atlas PerfScale Firm raw score # No live signal No product-level combined PAT read / Atlas Signal Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout i / Atlas Tax # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout is / Atlas Tax Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout is a / Atlas Vault # Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout  / Atlas Vault Atlas PerfScale Firm raw score # No live signal No product-level combined PAT readout is",
-    "ledgerLine": "ACCEPT: admin briefing product ordering (Cam's orderBy ruling 9/9) — Cam 9/14 \"all as recommended\"",
+    "ledgerLine": "ACCEPT: admin briefing product ordering (Cam's orderBy ruling 9/9) \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
     "route": "/survey/firm_alignment_operating_model_v1",
     "control": "Continue to next page / Open assessment help / Review current results",
-    "ledgerLine": "ACCEPT: survey one-page ruling (flag-off one page keeps 'Back to readiness' only; exits return flag-on per R4) — Cam 9/14 \"all as recommended\"",
+    "ledgerLine": "ACCEPT: survey one-page ruling (flag-off one page keeps 'Back to readiness' only; exits return flag-on per R4) \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
-    "route": "/vendor/product-assessment/demo-…",
+    "route": "/vendor/product-assessment/demo-\u2026",
     "control": "Continue to next page",
-    "ledgerLine": "ACCEPT: one-page ruling (vendor product assessment) — Cam 9/14 \"all as recommended\"",
+    "ledgerLine": "ACCEPT: one-page ruling (vendor product assessment) \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
     "route": "/",
-    "control": "CHOOSE YOUR PATH Create an account Pick the role that matches your work — vendor or firm — answer tw / Choose your path Create an account Pick the role that matches your work — vendor or firm — answer tw / SIGN IN Continue to your workspace Vendors and firms sign in here to access their PAT workspace. Per / SIGNED IN Continue to your workspace You are signed in. Choose your path to access your designed wor / Sign in Continue to your workspace Vendors and firms sign in here to access their PAT workspace. Per / Signed in Continue to your workspace You are signed in. Choose your path to access your designed wor / WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into  / Sign out",
-    "ledgerLine": "ACCEPT: production's home path cards (and the signed-in card's Sign out button) replaced by the V7 front door (R18) — Cam 9/14 \"all as recommended\"",
+    "control": "CHOOSE YOUR PATH Create an account Pick the role that matches your work \u2014 vendor or firm \u2014 answer tw / Choose your path Create an account Pick the role that matches your work \u2014 vendor or firm \u2014 answer tw / SIGN IN Continue to your workspace Vendors and firms sign in here to access their PAT workspace. Per / SIGNED IN Continue to your workspace You are signed in. Choose your path to access your designed wor / Sign in Continue to your workspace Vendors and firms sign in here to access their PAT workspace. Per / Signed in Continue to your workspace You are signed in. Choose your path to access your designed wor / WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into  / Sign out",
+    "ledgerLine": "ACCEPT: production's home path cards (and the signed-in card's Sign out button) replaced by the V7 front door (R18) \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
     "route": "/sign-in/password-update",
     "control": "SIGNED IN Continue to your workspace You are signed in. Choose your path to access your designed wor / Signed in Continue to your workspace You are signed in. Choose your path to access your designed wor / WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into ",
-    "ledgerLine": "ACCEPT: production's home path cards replaced by the V7 front door (R18) — Cam 9/14 \"all as recommended\"",
+    "ledgerLine": "ACCEPT: production's home path cards replaced by the V7 front door (R18) \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
     "route": "/vendor/battlecard",
-    "control": "Secret Firm # FIT ## Automation and AI Readiness · Early signal Fresh PENDING — Preview brief ▸ / Secret Firm # FIT ## Governance, Controls, and Vendor Risk · Early signal Fresh PENDING — Hide brief / Secret Firm # FIT ## Governance, Controls, and Vendor Risk · Early signal Fresh PENDING — Preview br / Secret Firm # FIT ## Integration and Data Flow Maturity · Early signal Fresh PENDING — Preview brief / Secret Firm # FIT ## Operating Model and Workflow Discipline · Early signal Fresh PENDING — Preview  / Secret Firm # FIT ## Strategy, Change Readiness, and Market Alignment · Early signal Fresh PENDING —",
-    "ledgerLine": "DIAGNOSED data, not code (box 2b A11): lib/battleCard.ts is byte-identical to 0157d40f; on the production build the vendor's product catalog read as Existing (registry drift), so vendorStrength was null and every firm row read 'PENDING —' unsorted; HEAD reads 4 firm-reviewed products, real deltas, re-sorted ranks. Same 15 rows, renamed by rank/tier — Cam 9/14 \"all as recommended\"",
+    "control": "Secret Firm # FIT ## Automation and AI Readiness \u00b7 Early signal Fresh PENDING \u2014 Preview brief \u25b8 / Secret Firm # FIT ## Governance, Controls, and Vendor Risk \u00b7 Early signal Fresh PENDING \u2014 Hide brief / Secret Firm # FIT ## Governance, Controls, and Vendor Risk \u00b7 Early signal Fresh PENDING \u2014 Preview br / Secret Firm # FIT ## Integration and Data Flow Maturity \u00b7 Early signal Fresh PENDING \u2014 Preview brief / Secret Firm # FIT ## Operating Model and Workflow Discipline \u00b7 Early signal Fresh PENDING \u2014 Preview  / Secret Firm # FIT ## Strategy, Change Readiness, and Market Alignment \u00b7 Early signal Fresh PENDING \u2014",
+    "ledgerLine": "DIAGNOSED data, not code (box 2b A11): lib/battleCard.ts is byte-identical to 0157d40f; on the production build the vendor's product catalog read as Existing (registry drift), so vendorStrength was null and every firm row read 'PENDING \u2014' unsorted; HEAD reads 4 firm-reviewed products, real deltas, re-sorted ranks. Same 15 rows, renamed by rank/tier \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
-    "route": "/admin/briefings/demo-…",
+    "route": "/admin/briefings/demo-\u2026",
     "control": "(prefix) Atlas ",
-    "ledgerLine": "ACCEPT: admin briefing product ordering (Cam's orderBy ruling 9/9); the product list is data-ordered and its rows renumber with the demo seed — Cam 9/14 \"all as recommended\"",
+    "ledgerLine": "ACCEPT: admin briefing product ordering (Cam's orderBy ruling 9/9); the product list is data-ordered and its rows renumber with the demo seed \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14",
     "controlPrefix": "Atlas "
   },
   {
-    "route": "/admin/briefings/demo-…/print",
+    "route": "/admin/briefings/demo-\u2026/print",
     "control": "(prefix) Meridian ",
-    "ledgerLine": "ACCEPT: admin briefing product ordering (orderBy ruling 9/9), print view — Cam 9/14 \"all as recommended\"",
+    "ledgerLine": "ACCEPT: admin briefing product ordering (orderBy ruling 9/9), print view \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14",
     "controlPrefix": "Meridian "
   },
   {
-    "route": "/admin/briefings/demo-…/products/demo-…",
+    "route": "/admin/briefings/demo-\u2026/products/demo-\u2026",
     "control": "(prefix) https://",
-    "ledgerLine": "ACCEPT: the product's own URL link names its data-seeded product (orderBy ruling 9/9) — Cam 9/14 \"all as recommended\"",
+    "ledgerLine": "ACCEPT: the product's own URL link names its data-seeded product (orderBy ruling 9/9) \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14",
     "controlPrefix": "https://"
   },
   {
-    "route": "/consultants/briefings/demo-…",
+    "route": "/consultants/briefings/demo-\u2026",
     "control": "(prefix) Sentinel ",
-    "ledgerLine": "ACCEPT: the consultant briefing renders the same data-ordered product list (orderBy ruling 9/9) — Cam 9/14 \"all as recommended\"",
+    "ledgerLine": "ACCEPT: the consultant briefing renders the same data-ordered product list (orderBy ruling 9/9) \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14",
     "controlPrefix": "Sentinel "
   },
   {
-    "route": "/consultants/briefings/demo-…/products/demo-…",
+    "route": "/consultants/briefings/demo-\u2026/products/demo-\u2026",
     "control": "(prefix) https://",
-    "ledgerLine": "ACCEPT: the product's own URL link names its data-seeded product (orderBy ruling 9/9) — Cam 9/14 \"all as recommended\"",
+    "ledgerLine": "ACCEPT: the product's own URL link names its data-seeded product (orderBy ruling 9/9) \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14",
     "controlPrefix": "https://"
   },
   {
-    "route": "/consultants/ecosystems/demo-…/vendor-brief?panel=exec",
+    "route": "/consultants/ecosystems/demo-\u2026/vendor-brief?panel=exec",
     "control": "(prefix) ",
-    "ledgerLine": "VEHICLE: the production crawl expanded the 'Strengths / cautions' toggle in place and recorded the per-firm buttons on the exec panel; on HEAD the toggle navigates to its own panel, so the exec panel carries no per-firm buttons — Cam 9/14 \"all as recommended\"",
+    "ledgerLine": "VEHICLE: the production crawl expanded the 'Strengths / cautions' toggle in place and recorded the per-firm buttons on the exec panel; on HEAD the toggle navigates to its own panel, so the exec panel carries no per-firm buttons \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
     "route": "/",
     "control": "WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into  / Welcome Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into  / Sign out",
-    "ledgerLine": "ACCEPT: production's home path cards (and the signed-in card's Sign out button) replaced by the V7 front door (R18) — Cam 9/14 \"all as recommended\"",
+    "ledgerLine": "ACCEPT: production's home path cards (and the signed-in card's Sign out button) replaced by the V7 front door (R18) \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
     "route": "/login",
     "control": "WELCOME Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into  / Welcome Meet PAT Understand how PAT turns assessments, capability signal, and product evidence into ",
-    "ledgerLine": "ACCEPT: production's home path cards replaced by the V7 front door (R18) — Cam 9/14 \"all as recommended\"",
+    "ledgerLine": "ACCEPT: production's home path cards replaced by the V7 front door (R18) \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
-    "route": "/admin/organizations/demo-…",
+    "route": "/admin/organizations/demo-\u2026",
     "control": "ControlPaper Active / Evidence Bridge Active / Forge Workpapers Active",
-    "ledgerLine": "VEHICLE: the normalized demo-… route resolves to a different demo organization in each crawl (product links are that organization's data) — Cam 9/14 \"all as recommended\"",
+    "ledgerLine": "VEHICLE: the normalized demo-\u2026 route resolves to a different demo organization in each crawl (product links are that organization's data) \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
-    "route": "/consultants/ecosystems/demo-…/vendor-brief?panel=strengths",
-    "control": "Boltway Practice Co. # strengths · # cautions ▸ / Calder, Pierce & Boon # strengths · # cautions ▸ / Crestbridge Partners # strengths · # cautions ▸ / Drumlin Advisory # strengths · # cautions ▸ / Fennimore Holt # strengths · # cautions ▸ / Greenfield & <date> strengths · # cautions ▸ / Hartwell Cross & Co. # strengths · # cautions ▸ / Mariner Audit Group # strengths · # cautions ▸ / Northstar CPA # strengths · # cautions ▸ / Sunbelt Practice Advisors # strengths · # cautions ▸ / Whitfield Group # strengths · # cautions ▸",
-    "ledgerLine": "VEHICLE: the production crawl expanded the 'Strengths / cautions' toggle in place and recorded the per-firm buttons on the strengths panel; on HEAD the toggle navigates to its own panel — Cam 9/14 \"all as recommended\"",
+    "route": "/consultants/ecosystems/demo-\u2026/vendor-brief?panel=strengths",
+    "control": "Boltway Practice Co. # strengths \u00b7 # cautions \u25b8 / Calder, Pierce & Boon # strengths \u00b7 # cautions \u25b8 / Crestbridge Partners # strengths \u00b7 # cautions \u25b8 / Drumlin Advisory # strengths \u00b7 # cautions \u25b8 / Fennimore Holt # strengths \u00b7 # cautions \u25b8 / Greenfield & <date> strengths \u00b7 # cautions \u25b8 / Hartwell Cross & Co. # strengths \u00b7 # cautions \u25b8 / Mariner Audit Group # strengths \u00b7 # cautions \u25b8 / Northstar CPA # strengths \u00b7 # cautions \u25b8 / Sunbelt Practice Advisors # strengths \u00b7 # cautions \u25b8 / Whitfield Group # strengths \u00b7 # cautions \u25b8",
+    "ledgerLine": "VEHICLE: the production crawl expanded the 'Strengths / cautions' toggle in place and recorded the per-firm buttons on the strengths panel; on HEAD the toggle navigates to its own panel \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
     "route": "/vendor/battlecard",
-    "control": "Belmont Crossing Advisory FIT ## Operating Model and Workflow Discipline · Early signal Fresh PENDIN / Harlow & Pike FIT ## Governance, Controls, and Vendor Risk · Early signal Fresh PENDING — Open brief / Kirkland Reyes LLP FIT ## Integration and Data Flow Maturity · Early signal Fresh PENDING — Open bri / Maple Ridge CPAs FIT ## Integration and Data Flow Maturity · Early signal Fresh PENDING — Open brief / Quarry Lane Tax FIT ## Integration and Data Flow Maturity · Early signal Fresh PENDING — Open brief  / Vandenberg CPAs FIT ## Automation and AI Readiness · Early signal Fresh PENDING — Hide brief ▾ / Secret Firm # FIT ## Operating Model and Workflow Discipline · Early signal Fresh PENDING — Preview ",
-    "ledgerLine": "DIAGNOSED data, not code (box 2b A11): on the production build every firm row read 'PENDING —' (vendorStrength null, registry drift); HEAD reads real tiers and deltas and re-sorts the ranks — the same rows under new names (Elite sees firm names) — Cam 9/14 \"all as recommended\"",
+    "control": "Belmont Crossing Advisory FIT ## Operating Model and Workflow Discipline \u00b7 Early signal Fresh PENDIN / Harlow & Pike FIT ## Governance, Controls, and Vendor Risk \u00b7 Early signal Fresh PENDING \u2014 Open brief / Kirkland Reyes LLP FIT ## Integration and Data Flow Maturity \u00b7 Early signal Fresh PENDING \u2014 Open bri / Maple Ridge CPAs FIT ## Integration and Data Flow Maturity \u00b7 Early signal Fresh PENDING \u2014 Open brief / Quarry Lane Tax FIT ## Integration and Data Flow Maturity \u00b7 Early signal Fresh PENDING \u2014 Open brief  / Vandenberg CPAs FIT ## Automation and AI Readiness \u00b7 Early signal Fresh PENDING \u2014 Hide brief \u25be / Secret Firm # FIT ## Operating Model and Workflow Discipline \u00b7 Early signal Fresh PENDING \u2014 Preview ",
+    "ledgerLine": "DIAGNOSED data, not code (box 2b A11): on the production build every firm row read 'PENDING \u2014' (vendorStrength null, registry drift); HEAD reads real tiers and deltas and re-sorts the ranks \u2014 the same rows under new names (Elite sees firm names) \u2014 Cam 9/14 \"all as recommended\"",
     "rulingDate": "2026-09-14"
   },
   {
     "route": "/firm/admin/user-insight",
     "control": "Back to firm admin / Open firm workspace",
-    "ledgerLine": "PRIOR RULING (Depth box 9 'dead ends', 2026-09-09; Cam accepted the depth box): /firm/admin/user-insight now redirects into the firm admin panel with a workspace notice (/firm?panel=admin&notice=user-insight), so the standalone page's two back links have no page to sit on — the same doors exist as the admin panel's own navigation",
+    "ledgerLine": "PRIOR RULING (Depth box 9 'dead ends', 2026-09-09; Cam accepted the depth box): /firm/admin/user-insight now redirects into the firm admin panel with a workspace notice (/firm?panel=admin&notice=user-insight), so the standalone page's two back links have no page to sit on \u2014 the same doors exist as the admin panel's own navigation",
     "rulingDate": "2026-09-14"
   },
   {
-    "route": "/firm/product-assessments/demo-…",
+    "route": "/firm/product-assessments/demo-\u2026",
     "control": "Available # / Completed #",
     "ledgerLine": "PRIOR RULING (V3 box 4.1, 2026-09-09, Leslie's one-page rule): the firm product assessment is one page; the paged layout's Available/Completed toggles left with the pager",
     "rulingDate": "2026-09-14"
@@ -211,13 +211,37 @@
   {
     "route": "/sign-in/firm",
     "control": "Membership",
-    "ledgerLine": "PRIOR RULING (21d sign-in redesign, V7): the role sign-in sub-pages redirect to /sign-in?view=<role>, and production's own header rule shows no Membership link on /sign-in; a signed-in identity is redirected to its workspace, where Membership points at its own portal (present, different href) — flag-on only",
+    "ledgerLine": "PRIOR RULING (21d sign-in redesign, V7): the role sign-in sub-pages redirect to /sign-in?view=<role>, and production's own header rule shows no Membership link on /sign-in; a signed-in identity is redirected to its workspace, where Membership points at its own portal (present, different href) \u2014 flag-on only",
     "rulingDate": "2026-09-14"
   },
   {
     "route": "/sign-in/vendor",
     "control": "Membership",
-    "ledgerLine": "PRIOR RULING (21d sign-in redesign, V7): the role sign-in sub-pages redirect to /sign-in?view=<role>, and production's own header rule shows no Membership link on /sign-in; a signed-in identity is redirected to its workspace, where Membership points at its own portal (present, different href) — flag-on only",
+    "ledgerLine": "PRIOR RULING (21d sign-in redesign, V7): the role sign-in sub-pages redirect to /sign-in?view=<role>, and production's own header rule shows no Membership link on /sign-in; a signed-in identity is redirected to its workspace, where Membership points at its own portal (present, different href) \u2014 flag-on only",
     "rulingDate": "2026-09-14"
+  },
+  {
+    "route": "/firm",
+    "control": "Workspace / Meet PAT / Admin / Help",
+    "ledgerLine": "box 3f item F (Cam 9/28): the workspace pill row collapses flag-on to one contextual link (Meet PAT; Workspace from a panel); Admin and Help move to the account menu. Flag-off unchanged.",
+    "rulingDate": "2026-09-28"
+  },
+  {
+    "route": "/vendor",
+    "control": "Workspace / Meet PAT / Admin / Help",
+    "ledgerLine": "box 3f item F (Cam 9/28): the workspace pill row collapses flag-on to one contextual link (Meet PAT; Workspace from a panel); Admin and Help move to the account menu. Flag-off unchanged.",
+    "rulingDate": "2026-09-28"
+  },
+  {
+    "route": "/firm/insights",
+    "control": "Pro Insights / Elite Insights / Help",
+    "ledgerLine": "box 3f item F (Cam 9/28): the insight pills collapse flag-on to one text link (Elite insights on Pro, Pro insights from another mode, nothing on Elite); Help sits in the page footer beside the disclaimer. Flag-off unchanged.",
+    "rulingDate": "2026-09-28"
+  },
+  {
+    "route": "/vendor/alignment-insights",
+    "control": "Pro Insights / Elite Insights / Help",
+    "ledgerLine": "box 3f item F (Cam 9/28): the insight pills collapse flag-on to one text link (Elite insights on Pro, Pro insights from another mode, nothing on Elite); Help sits in the page footer beside the disclaimer. Flag-off unchanged.",
+    "rulingDate": "2026-09-28"
   }
 ]

@@ -4,7 +4,7 @@ type PatAudienceTitleProps = {
   title: string;
   audienceTerms: readonly string[];
   className?: string;
-  as?: "h1" | "h2";
+  as?: "h1" | "h2" | "span";
 };
 
 export default function PatAudienceTitle({

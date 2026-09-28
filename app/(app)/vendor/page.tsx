@@ -5,10 +5,12 @@ import VendorWorkspaceDashboard from "@/app/components/workspace/VendorWorkspace
 import { getVendorWorkspaceDashboard } from "@/lib/vendorWorkspaceDashboard";
 import { getVendorWorkspaceCardStats, type WorkspaceCardStats } from "@/lib/workspaceCardStats";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
+import Link from "next/link";
 import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
+import PageHead from "@/app/components/shell/PageHead";
 import VendorAdminPanels from "@/app/components/vendor/VendorAdminPanels";
 import {
   VendorAdminInlineContent,
@@ -211,9 +213,48 @@ export default async function VendorPage({
       </section>
     </>
   );
+  // Box 3f items A and F (2026-09-28, flag-on): the shared page head and the pill row
+  // collapsed to one contextual link (Meet PAT on the workspace; Workspace from any panel).
+  const dateline = dashboard ? (
+    <span data-testid="workspace-dateline">
+      <span className="font-semibold text-[var(--shell-ink)]">{dashboard.companyName}</span> · {todayLabel} ·{" "}
+      <span className="pat-mono text-[var(--shell-ink)]">{dashboard.firmReviewsOnFile}</span> firm review
+      {dashboard.firmReviewsOnFile === 1 ? "" : "s"} on file
+    </span>
+  ) : null;
+  const pageHead = (
+    <>
+      <PageHead
+        variant="portal"
+        wordmark
+        eyebrow={messages.portal.vendor.eyebrow}
+        title={<PatAudienceTitle as="span" title={messages.portal.vendor.title} audienceTerms={[messages.nav.vendor]} />}
+        subline={dateline ?? messages.portal.vendor.body}
+        aside={<HeroChips audience="vendor" />}
+        actions={
+          activePanel === "workspace" ? (
+            <Link href={getPanelHref("pat")} className="text-[var(--brand-c2-blue)] hover:underline">
+              {messages.nav.meet_pat}
+            </Link>
+          ) : (
+            <Link href={getPanelHref("workspace")} className="text-[var(--brand-c2-blue)] hover:underline">
+              {messages.common.workspace}
+            </Link>
+          )
+        }
+      />
+      {vendorContext.compatibilityMode ? (
+        <div className="rounded-[var(--radius-card)] border border-amber-200 bg-amber-50/90 p-4 text-sm leading-6 text-amber-900">
+          {messages.portal.vendor.compatibilityMode}
+        </div>
+      ) : null}
+    </>
+  );
+
   return (
     <div className="space-y-8">
       <WorkspaceNotice notice={params?.notice} />
+      {isNewFrontDoorEnabled() ? pageHead : (
       <section className="pat-card relative p-8">
         <HeroChips audience="vendor" />
         <PatLogoLockup mode="hero" tone="light" />
@@ -248,6 +289,7 @@ export default async function VendorPage({
           </div>
         ) : null}
       </section>
+      )}
 
       {activePanel === "pat" ? (
         <VendorMeetPatContent />

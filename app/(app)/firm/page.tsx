@@ -11,6 +11,8 @@ import PortalSurfaceCard from "@/app/components/PortalSurfaceCard";
 import PortalAudienceEyebrow from "@/app/components/pat/PortalAudienceEyebrow";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import PortalPanelSelector from "@/app/components/pat/PortalPanelSelector";
+import PageHead from "@/app/components/shell/PageHead";
+import Link from "next/link";
 import FirmAdminPanels from "@/app/components/firm/FirmAdminPanels";
 import {
   FirmAdminInlineContent,
@@ -287,9 +289,46 @@ export default async function FirmPage({
     </>
   );
 
+  // Box 3f items A and F (2026-09-28, flag-on): the shared page head — portal name,
+  // one H1, the dateline as the subline, the hero chips top-right — and the pill row
+  // collapsed to one contextual link (Meet PAT on the workspace; Workspace from any
+  // panel). Admin and Help live in the account menu and the shell footer.
+  const dateline = dashboard ? (
+    <span data-testid="workspace-dateline">
+      <span className="font-semibold text-[var(--shell-ink)]">{dashboard.companyName}</span> · {todayLabel}
+      {dashboard.alignmentIndex !== null ? (
+        <>
+          {" "}· alignment index <span className="pat-mono text-[var(--shell-ink)]">{dashboard.alignmentIndex}</span>
+        </>
+      ) : null}
+    </span>
+  ) : null;
+  const pageHead = (
+    <PageHead
+      variant="portal"
+      wordmark
+      eyebrow={messages.portal.firm.eyebrow}
+      title={<PatAudienceTitle as="span" title={messages.portal.firm.title} audienceTerms={[messages.nav.firm]} />}
+      subline={dateline ?? messages.portal.firm.body}
+      aside={<HeroChips audience="firm" />}
+      actions={
+        activePanel === "workspace" ? (
+          <Link href={getPanelHref("pat")} className="text-[var(--brand-c2-blue)] hover:underline">
+            {messages.nav.meet_pat}
+          </Link>
+        ) : (
+          <Link href={getPanelHref("workspace")} className="text-[var(--brand-c2-blue)] hover:underline">
+            {messages.common.workspace}
+          </Link>
+        )
+      }
+    />
+  );
+
   return (
     <div className="space-y-8">
       <WorkspaceNotice notice={params?.notice} />
+      {isNewFrontDoorEnabled() ? pageHead : (
       <section className="pat-card relative p-8">
         <HeroChips audience="firm" />
         <PatLogoLockup mode="hero" tone="light" />
@@ -322,6 +361,7 @@ export default async function FirmPage({
           <PortalPanelSelector activeKey={activePanel} options={panelOptions} />
         </div>
       </section>
+      )}
 
       {activePanel === "pat" ? (
         <FirmMeetPatContent />
