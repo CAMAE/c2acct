@@ -106,7 +106,11 @@
     "ops:mac-mini:launchd:check": "bash scripts/mac-mini/launchd-check.sh",
     "ops:mac-mini:stale-port-guide": "bash scripts/mac-mini/stale-port-guidance.sh",
     "ops:mac-mini:verify": "bash scripts/mac-mini/nightly-verify.sh",
-    "ops:mac-mini:validate-runtime": "bash scripts/mac-mini/validate-runtime-contract.sh --check"
+    "ops:mac-mini:validate-runtime": "bash scripts/mac-mini/validate-runtime-contract.sh --check",
+    "font:proof": "node --import tsx scripts/qa/font-floor-proof.mts",
+    "truncation:proof": "node --import tsx scripts/qa/truncation-proof.mts",
+    "hero:proof": "node --import tsx scripts/qa/hero-proof.mts",
+    "zero:occurrence": "bash scripts/qa/zero-occurrence.sh"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",

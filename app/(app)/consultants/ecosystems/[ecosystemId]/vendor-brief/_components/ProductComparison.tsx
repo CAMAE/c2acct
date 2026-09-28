@@ -103,7 +103,7 @@ export default function ProductComparison({ data }: { data: VendorBriefData }) {
             className="text-base font-semibold leading-snug text-[var(--shell-ink)]"
             data-testid="product-comparison-empty"
           >
-            Awaiting product responses from {firmsNeeded} more firm{firmsNeeded === 1 ? "" : "s"} to surface peer-validated comparisons.
+            Awaiting product responses from {firmsNeeded} more firm{firmsNeeded === 1 ? "" : "s"} to surface firm-reviewed comparisons.
           </div>
           <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
             The product table populates once {data.vendorCompanyName} publishes a product catalog AND at least one firm-side review lands. Vendor self-report alone is not enough — peer grounding is the whole point of the section.

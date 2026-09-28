@@ -73,7 +73,7 @@ export default function InsightDetailShell({
     <div className="space-y-8">
       {isNewFrontDoorEnabled() ? (
         // Box 3f items A and H (2026-09-28, flag-on): the shared page head (eyebrow, one H1,
-        // the summary as the subline); the "Combined evidence" note is gone; the surface
+        // the summary as the subline); the evidence note is gone; the surface
         // toggle stays under the head.
         <section className="space-y-4">
           <PageHead
