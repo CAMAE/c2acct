@@ -43,7 +43,9 @@ describe("V7 front door — content (V7FrontDoor)", () => {
     expect(src).not.toContain("Performance Alignment Technology");
     for (const phrase of [
       "Product selection, without the sales pitch.",
-      "Real assessments. Evidence both sides can trust.",
+      "Real assessments. Arithmetic scoring. Evidence both sides can trust.",
+      "Five modules. One score per module. Your position against firms like yours, with the n shown.",
+      "Your invited firms complete a five part assessment. You see how your product scores with the firms that run it, with the n and the date.",
       "Enter PAT",
       "Meet PAT",
       "Alignment radar",

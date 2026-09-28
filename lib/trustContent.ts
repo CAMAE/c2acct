@@ -126,11 +126,11 @@ export const TRUST_SURFACES = {
     key: "trust",
     href: "/trust",
     label: "Trust",
-    eyebrow: "Trust Center 2026",
+    eyebrow: "Trust",
     title: "How PAT earns trust.",
     summary:
       "Privacy, terms, security, support, billing, and release transparency for PAT — each linked below.",
-    statusLabel: "Trust Center 2026",
+    statusLabel: "Trust",
     lastUpdated: TRUST_SURFACE_LAST_UPDATED,
     sections: [
       {

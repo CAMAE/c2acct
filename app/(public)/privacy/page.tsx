@@ -15,7 +15,7 @@ export default function PrivacyPage() {
   // B3 (flag-on): right-rail TOC and a "Last updated" chip only; the legal text
   // is the surface's sections, verbatim.
   if (isNewFrontDoorEnabled()) {
-    return <TrustSurfaceV7 surface={surface} toc />;
+    return <TrustSurfaceV7 surface={surface} />;
   }
 
   return <TrustSurfacePage surface={surface} />;

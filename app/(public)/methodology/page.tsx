@@ -27,7 +27,6 @@ export default function MethodologyPage() {
         surface={surface}
         title="How PAT scores and ranks data"
         updated={`Methodology v${METHODOLOGY_VERSION}, updated ${monthYear(surface.lastUpdated)}`}
-        toc
         numbered
         sections={METHODOLOGY_SECTIONS.map((section) => ({
           title: section.title,

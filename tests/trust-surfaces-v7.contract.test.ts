@@ -31,12 +31,12 @@ describe("B3 — every trust surface is re-laid flag-on and unchanged flag-off",
     expect(source).toMatch(/<TrustSurfacePage surface=/);
   });
 
-  it("the V7 frame: token container, right-rail TOC, numbered sections, native FAQ, disclosure, mono chips", () => {
-    expect(component).toContain('className="pat-container px-6 pb-20 pt-12"');
-    expect(component).toMatch(/aria-label="On this page"[^>]*className="order-first lg:order-none lg:sticky/);
+  it("the V7 frame: shared page head, one centred 760px reading column, no rail, numbered sections, native FAQ (box 3f items A and D)", () => {
+    expect(component).toContain('className="mx-auto w-full max-w-[760px] px-6 pb-20 pt-12"');
+    expect(component).not.toMatch(/On this page|lg:grid-cols-\[minmax\(0,1fr\)_240px\]|\btoc\b/);
+    expect(component).not.toMatch(/aria-label="Trust surfaces"|trust-disclosure|disclosureTitle/);
     expect(component).toMatch(/<details key=\{item\.question\}[\s\S]*?<summary/);
     expect(component).not.toMatch(/useState|onClick|"use client"/);
-    expect(component).toContain('data-testid="trust-disclosure"');
     // Box 3f item A: the shared PageHead band replaces the chips (one quiet updated line).
     expect(component).toMatch(/<PageHead[\s\S]*?updated=\{updated \?\? `Updated \$\{monthYear\(surface\.lastUpdated\)\}`\}/);
     expect(component).not.toMatch(/chips/);
@@ -44,11 +44,14 @@ describe("B3 — every trust surface is re-laid flag-on and unchanged flag-off",
     expect(component).not.toMatch(/PAT does not claim|support@/);
   });
 
-  it("/trust: H1 per the ruling, compact link list (the trust set minus itself), disclosure + FAQ", () => {
+  it("/trust: H1 per the ruling, eyebrow Trust, cards at container width, no link strip, sections plain (box 3f item D)", () => {
     const source = read(PAGES.trust);
     expect(source).toContain('title="How PAT earns trust"');
-    expect(source).toContain('links={TRUST_FOOTER_LINKS.filter((link) => link.href !== "/trust")}');
-    expect(source).toContain('disclosureTitle="No unsupported claims"');
+    expect(source).toContain('eyebrow="Trust"');
+    expect(source).toContain("wide={<TrustSurfaceCards cards={cards} />}");
+    expect(source).not.toMatch(/links=|disclosureTitle|TRUST_FOOTER_LINKS/);
+    expect(getTrustSurface("trust").eyebrow).toBe("Trust");
+    expect(getTrustSurface("trust").sections.map((s) => s.title)).toEqual(["Current stage", "No unsupported claims"]);
     // Finish box 4.3: no FAQ copy exists, so the page passes no faqItems and the
     // accordion is not rendered (TrustSurfaceV7 renders it only with items).
     expect(source).not.toMatch(/\bfaq\b/);
@@ -80,9 +83,11 @@ describe("B3 — every trust surface is re-laid flag-on and unchanged flag-off",
     expect(methodology).toContain('title="How PAT scores and ranks data"');
     expect(methodology).toMatch(/updated=\{`Methodology v\$\{METHODOLOGY_VERSION\}, updated \$\{monthYear\(surface\.lastUpdated\)\}`\}/);
     expect(methodology).toContain("sections={METHODOLOGY_SECTIONS.map((section) => ({");
-    expect(methodology).toMatch(/\btoc\b[\s\S]{0,40}\bnumbered\b/);
+    expect(methodology).toMatch(/\bnumbered\b/);
+    expect(methodology).not.toMatch(/\btoc\b/);
     const governance = read(PAGES.governance);
-    expect(governance).toMatch(/\btoc\b[\s\S]{0,40}\bnumbered\b/);
+    expect(governance).toMatch(/\bnumbered\b/);
+    expect(governance).not.toMatch(/\btoc\b/);
     expect(governance).toContain("updated={`${surface.statusLabel} · Updated ${monthYear(surface.lastUpdated)}`}");
     for (const source of [methodology, governance]) {
       // No new prose in the flag-on branch: nothing that looks like a sentence literal.
@@ -98,10 +103,10 @@ describe("B3 — every trust surface is re-laid flag-on and unchanged flag-off",
     expect(source).toContain("data-release-fingerprint={fingerprint.releaseId}");
   });
 
-  it("/privacy /terms /billing-policy: TOC + the default updated line only (box 3f item A)", () => {
+  it("/privacy /terms /billing-policy: the surface alone (default updated line, no rail; box 3f items A and D)", () => {
     for (const rel of [PAGES.privacy, PAGES.terms, PAGES.billing]) {
       const source = read(rel);
-      expect(source).toMatch(/<TrustSurfaceV7 surface=\{surface\} toc \/>/);
+      expect(source).toMatch(/<TrustSurfaceV7 surface=\{surface\} \/>/);
     }
   });
 });

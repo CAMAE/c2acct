@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 import type { TrustSurface, TrustSurfaceSection } from "@/lib/trustContent";
 import PageHead, { monthYear } from "@/app/components/shell/PageHead";
@@ -17,6 +16,10 @@ import PageHead, { monthYear } from "@/app/components/shell/PageHead";
  * full-width H1, the summary as the subline, one quiet updated line, "Trust center"
  * as the contextual link). The version/date badges are gone; `updated` carries the
  * one line ("Updated April 2026" by default, from the surface's lastUpdated).
+ * Box 3f item D: one centred reading column (760px), no right rail (the contents rail
+ * stays a help-center pattern), no link strip, no disclosure aside — every section
+ * renders the same way. `wide` renders at the container width above the column
+ * (the trust cards).
  */
 
 export type TrustSurfaceV7Props = {
@@ -31,19 +34,14 @@ export type TrustSurfaceV7Props = {
   lead?: ReactNode;
   /** Sections to render; defaults to the surface's own. */
   sections?: readonly TrustSurfaceSection[];
-  /** Right-rail table of contents on desktop (built from the sections). */
-  toc?: boolean;
   /** Prefix each section heading with its number. */
   numbered?: boolean;
-  /** Section title rendered as the designed disclosure instead of a section. */
-  disclosureTitle?: string;
   /** Section titles whose bullets render in .pat-mono (e.g. Subprocessors). */
   monoBulletTitles?: readonly string[];
-  /** Render the remaining sections as an FAQ accordion instead of sections. */
   /** Optional question/answer items. The accordion renders only when there are items. */
   faqItems?: readonly { question: string; answer: string }[];
-  /** Compact link list (e.g. the trust set) rendered after the lead. */
-  links?: readonly { href: string; label: string }[];
+  /** Rendered at the container width between the head and the reading column (the trust cards). */
+  wide?: ReactNode;
   /** Extra content after the sections (release table, changelog). */
   children?: ReactNode;
 };
@@ -76,52 +74,17 @@ export default function TrustSurfaceV7({
   updated,
   lead,
   sections,
-  toc = false,
   numbered = false,
-  disclosureTitle,
   monoBulletTitles = [],
   faqItems = [],
-  links,
+  wide,
   children,
 }: TrustSurfaceV7Props) {
-  const all = sections ?? surface.sections;
-  const disclosure = disclosureTitle ? all.find((section) => section.title === disclosureTitle) ?? null : null;
-  const body = all.filter((section) => section !== disclosure);
-  const tocItems = toc ? body.map((section, index) => ({ id: sectionId(index), label: section.title, n: index + 1 })) : [];
+  const body = sections ?? surface.sections;
 
   const contents = (
     <div className="min-w-0">
       {lead}
-      {links ? (
-        <nav aria-label="Trust surfaces" className="mt-8">
-          <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {links.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className="pat-body flex items-center justify-between rounded-[var(--radius-card)] border border-[var(--shell-border)] bg-white px-4 py-3 font-semibold text-[var(--shell-ink)] hover:border-[var(--shell-ink)]"
-                >
-                  {link.label}
-                  <span aria-hidden="true" className="text-[var(--shell-muted)]">
-                    →
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      ) : null}
-      {disclosure ? (
-        <aside
-          role="note"
-          aria-label={disclosure.title}
-          className="mt-8 rounded-[var(--radius-card)] border border-[var(--shell-ink)] bg-white px-5 py-4"
-          data-testid="trust-disclosure"
-        >
-          <div className="pat-label">{disclosure.title}</div>
-          <p className="pat-body mt-2 text-[var(--shell-ink)]">{disclosure.body}</p>
-        </aside>
-      ) : null}
       {faqItems.length > 0 ? (
         <div className="mt-8 border-t border-[var(--shell-border)]" data-testid="trust-faq">
           {faqItems.map((item) => (
@@ -140,7 +103,7 @@ export default function TrustSurfaceV7({
           ))}
         </div>
       ) : null}
-      <div className="mt-8 grid gap-8">
+      <div className={`grid gap-8 ${lead || faqItems.length > 0 ? "mt-8" : ""}`}>
           {body.map((section, index) => (
             <section key={section.title} id={sectionId(index)} className="scroll-mt-24">
               <h2 className="pat-h2 text-[var(--shell-ink)]">
@@ -166,27 +129,9 @@ export default function TrustSurfaceV7({
         updated={updated ?? `Updated ${monthYear(surface.lastUpdated)}`}
         link={{ href: "/trust", label: "Trust center" }}
       />
-    <div className="pat-container px-6 pb-20 pt-12" data-testid="trust-surface-v7" data-surface={surface.key}>
-      {toc && tocItems.length > 0 ? (
-        <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_240px]">
-          {contents}
-          <nav aria-label="On this page" className="order-first lg:order-none lg:sticky lg:top-24 lg:self-start" data-testid="trust-toc">
-            <div className="pat-label">On this page</div>
-            <ol className="pat-meta mt-3 grid gap-1.5">
-              {tocItems.map((item) => (
-                <li key={item.id}>
-                  <a href={`#${item.id}`} className="flex gap-2 text-[var(--shell-muted)] hover:text-[var(--shell-ink)]">
-                    <span className="pat-mono w-6 shrink-0">{item.n}.</span>
-                    <span className="min-w-0">{item.label}</span>
-                  </a>
-                </li>
-              ))}
-            </ol>
-          </nav>
-        </div>
-      ) : (
-        <div className="mt-10">{contents}</div>
-      )}
+    {wide ? <div className="pat-container px-6 pt-12">{wide}</div> : null}
+    <div className="mx-auto w-full max-w-[760px] px-6 pb-20 pt-12" data-testid="trust-surface-v7" data-surface={surface.key}>
+      {contents}
     </div>
     </>
   );

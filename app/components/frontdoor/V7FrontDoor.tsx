@@ -60,7 +60,7 @@ export default function V7FrontDoor() {
     <>
       {/* HERO — box 3f item A: the shared page head (the descriptor sits under the
           wordmark in V7PublicShell; the hero is H1 + subline). */}
-      <PageHead variant="hero" title="Product selection, without the sales pitch." subline="Real assessments. Evidence both sides can trust." />
+      <PageHead variant="hero" title="Product selection, without the sales pitch." subline="Real assessments. Arithmetic scoring. Evidence both sides can trust." />
 
       <V7DoorBand askPatEntry={askPatEntry} />
 
@@ -81,15 +81,25 @@ export default function V7FrontDoor() {
                 Five pillars
               </span>
             </div>
-            <div className="px-12 pb-10 pt-11">
-              <V7RadarFigure />
-              {/* Five per-pillar value sentences — plain language, locked verbatim. */}
-              <div className="mx-auto mt-[26px] max-w-[640px] border-t pt-[22px]" style={{ borderColor: borderLt }}>
-                {PILLAR_SENTENCES.map((s) => (
-                  <p key={s.pillar} className="mt-2 text-[15px] text-[var(--shell-muted)]">
-                    <b className="text-[var(--shell-ink)]">{s.pillar}</b> — {s.rest}
-                  </p>
-                ))}
+            <div className="px-6 pb-10 pt-8 sm:px-12">
+              {/* H6 (box 3f item E): the explainer above the radar. */}
+              <p className="pat-body max-w-[640px] text-[var(--shell-muted)]" data-testid="v7-radar-explainer">
+                Five modules. One score per module. Your position against firms like yours, with the n shown.
+              </p>
+              {/* H5 / H7: radar on the left, the module key as the legend on the right on
+                  desktop; stacked on mobile. Five per-pillar value sentences — plain
+                  language, locked verbatim. */}
+              <div className="mt-6 grid items-center gap-8 md:grid-cols-[1.2fr_1fr]">
+                <div>
+                  <V7RadarFigure />
+                </div>
+                <div className="border-t pt-5 md:border-l md:border-t-0 md:pl-8 md:pt-0" style={{ borderColor: borderLt }} data-testid="v7-radar-legend">
+                  {PILLAR_SENTENCES.map((s, i) => (
+                    <p key={s.pillar} className={`pat-meta text-[var(--shell-muted)] ${i === 0 ? "" : "mt-3"}`}>
+                      <b className="text-[var(--shell-ink)]">{s.pillar}</b> — {s.rest}
+                    </p>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

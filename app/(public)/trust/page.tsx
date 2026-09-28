@@ -1,12 +1,12 @@
 import TrustSurfacePage from "@/app/components/trust/TrustSurfacePage";
-import { getTrustSurface, getTrustSurfaceCards, TRUST_FOOTER_LINKS } from "@/lib/trustContent";
+import { getTrustSurface, getTrustSurfaceCards } from "@/lib/trustContent";
 import TrustSurfaceCards from "@/app/components/trust/TrustSurfaceCards";
 import TrustSurfaceV7 from "@/app/components/trust/TrustSurfaceV7";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 
 
 export const metadata = {
-  title: "PAT Trust Center | Patalign",
+  title: "Trust | Patalign",
   description: "Launch-readiness, policy, support, billing, and release transparency for PAT.",
 };
 
@@ -14,22 +14,14 @@ export default function TrustPage() {
   const surface = getTrustSurface("trust");
   const cards = getTrustSurfaceCards();
 
-  // B3 (flag-on): one column, H1 per the ruling, the trust set as a compact link
-  // list instead of eight cards, "No unsupported claims" as a designed disclosure,
-  // the remaining statements as an FAQ accordion. Copy is the surface's own.
+  // B3 (flag-on): H1 per the ruling. Box 3f item D (T2 to T5, T7): eyebrow "Trust",
+  // one quiet "Updated April 2026" line, the link strip gone (it duplicated the
+  // cards), the cards at the container width under the head (A10), then the
+  // reading column with "Current stage" and "No unsupported claims" rendered the
+  // same way, text unchanged. Copy is the surface's own.
   if (isNewFrontDoorEnabled()) {
     return (
-      <TrustSurfaceV7
-        surface={surface}
-        title="How PAT earns trust"
-        links={TRUST_FOOTER_LINKS.filter((link) => link.href !== "/trust")}
-        disclosureTitle="No unsupported claims"
-      >
-        {/* A10 (box 2b, Cam 9/14): production's trust cards composed back under the V7 surface. */}
-        <div className="mt-10">
-          <TrustSurfaceCards cards={cards} />
-        </div>
-      </TrustSurfaceV7>
+      <TrustSurfaceV7 surface={surface} eyebrow="Trust" title="How PAT earns trust" wide={<TrustSurfaceCards cards={cards} />} />
     );
   }
 

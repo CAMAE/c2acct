@@ -71,6 +71,10 @@ export default function V7DoorBand({ askPatEntry = false, start = true }: { askP
             <div>
               <div className="pat-label v7-band-label">Vendors</div>
               <h3 className="mt-3 text-[27px] font-bold tracking-[-0.01em]">Earn the evidence.</h3>
+              {/* H10 (box 3f item E): the vendor card explainer. */}
+              <p className="pat-meta mt-3 max-w-[28em] text-[var(--shell-muted)]" data-testid="v7-door-vendor-explainer">
+                Your invited firms complete a five part assessment. You see how your product scores with the firms that run it, with the n and the date.
+              </p>
             </div>
             <span aria-hidden="true" className="v7-band-arrow shrink-0 leading-none text-[var(--brand-c2-blue)]">
               →

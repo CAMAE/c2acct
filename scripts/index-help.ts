@@ -191,7 +191,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     path: "help/global/trust-center.md",
     title: "Where is Patalign's trust and security information?",
     roleAccess: [],
-    body: "The Trust Center at /trust links the privacy, terms, security, support, billing, methodology, and release-proof pages. The security page lists Patalign's subprocessors (Vercel for hosting, Neon for the database, Stripe for payments, Anthropic for optional AI) and its data practices, including encryption in transit and tested tenant export and deletion paths.",
+    body: "The Trust page at /trust links the privacy, terms, security, support, billing, methodology, and release-proof pages. The security page lists Patalign's subprocessors (Vercel for hosting, Neon for the database, Stripe for payments, Anthropic for optional AI) and its data practices, including encryption in transit and tested tenant export and deletion paths.",
   },
 
   // ---- Firm Elite Insights (Block 3 surfaces) ----

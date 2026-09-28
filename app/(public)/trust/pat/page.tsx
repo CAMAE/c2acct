@@ -21,7 +21,6 @@ export default function PatGovernancePage() {
       <TrustSurfaceV7
         surface={surface}
         updated={`${surface.statusLabel} · Updated ${monthYear(surface.lastUpdated)}`}
-        toc
         numbered
       />
     );
