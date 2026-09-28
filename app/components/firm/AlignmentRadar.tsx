@@ -67,8 +67,10 @@ export default function AlignmentRadar({
   const anyThin = axes.some((axis) => axis.thin);
 
   return (
-    <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-6">
-      <svg viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`} className="h-64 w-64 shrink-0" role="img" aria-label="Alignment positioning radar">
+    // Box 3f item J (S2): larger radar with the legend beside it on desktop (stacked on
+    // mobile); the viewBox carries a margin so the axis labels (12px) are never clipped.
+    <div className="flex flex-col items-center gap-4 lg:flex-row lg:items-center lg:gap-8" data-testid="alignment-radar">
+      <svg viewBox={`-64 -14 ${VIEWBOX + 128} ${VIEWBOX + 28}`} className="h-auto w-full max-w-[420px] shrink-0 overflow-visible" role="img" aria-label="Alignment positioning radar">
         {/* rings */}
         {Array.from({ length: RING_COUNT }, (_, ring) => {
           const r = (RADIUS * (ring + 1)) / RING_COUNT;
@@ -151,13 +153,13 @@ export default function AlignmentRadar({
             <span className="text-[var(--shell-muted)]">Thin evidence (·) — held, not projected</span>
           </div>
         ) : null}
-        <p className="mt-3 max-w-[16rem] text-xs leading-5 text-[var(--shell-muted)]">
+        <p className="mt-3 max-w-[20rem] text-xs leading-5 text-[var(--shell-muted)]">
           Each axis is the mean of your stack&rsquo;s stored per-section review evidence. The projected
           shape re-means with the swap — an estimate, drawn from real answers, not a firm-verified
           forecast. These are product-fit dimensions, not the firm alignment modules.
         </p>
         {evidenceNote ? (
-          <p className="mt-2 max-w-[16rem] text-xs leading-5 text-[var(--brand-orange)]">{evidenceNote}</p>
+          <p className="mt-2 max-w-[20rem] text-xs leading-5 text-[var(--brand-orange)]">{evidenceNote}</p>
         ) : null}
       </div>
     </div>

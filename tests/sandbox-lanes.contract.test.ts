@@ -1,10 +1,13 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { sharesUtility, slotFitDelta, splitCandidatesForSlot } from "@/lib/sandboxLanes";
+import { sharesUtility, slotFitDelta, splitCandidatesForSlot, SANDBOX_LANE_LABELS } from "@/lib/sandboxLanes";
 import type { ProductFitDimensionScore } from "@/lib/productFitDimensions";
 
 /**
  * Sandbox utility lanes (Cam's rulings):
- *  - a candidate enters "Fits this slot" iff it shares ≥1 utilityKey with the
+ *  - a candidate enters the fits-slot lane ("Firm-reviewed alternatives for this slot",
+ *    box 3f item J) iff it shares ≥1 utilityKey with the
  *    lifted piece;
  *  - rank within lane by slot-fit delta over the SHARED (both-have-signal)
  *    dimensions;
@@ -66,5 +69,21 @@ describe("splitCandidatesForSlot", () => {
     const { fitsSlot, wholeFirm } = splitCandidatesForSlot(isolated, [c1, c2, c3]);
     expect(fitsSlot).toHaveLength(0);
     expect(wholeFirm).toHaveLength(3);
+  });
+});
+
+describe("lane labels (box 3f item J, Cam 9/28)", () => {
+  it("read as common sense, verbatim from the box", () => {
+    expect(SANDBOX_LANE_LABELS.fitsSlot).toBe("Firm-reviewed alternatives for this slot");
+    expect(SANDBOX_LANE_LABELS.wholeFirm).toBe("Every product on your board");
+    expect(SANDBOX_LANE_LABELS.unreviewed).toBe("Not yet firm-reviewed (vendor self-reported)");
+  });
+
+  it("are the strings the board renders (no other lane wording)", () => {
+    const client = readFileSync(path.join(process.cwd(), "app/components/firm/AlignmentBoardClient.tsx"), "utf8");
+    expect(client).toContain("SANDBOX_LANE_LABELS.fitsSlot");
+    expect(client).toContain("SANDBOX_LANE_LABELS.wholeFirm");
+    expect(client).toContain("SANDBOX_LANE_LABELS.unreviewed");
+    expect(client).not.toMatch(/Fits this slot ·|Whole firm ·|shares a job with/);
   });
 });

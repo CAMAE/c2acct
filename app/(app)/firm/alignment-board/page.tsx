@@ -1,5 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
+import HeroChips from "@/app/components/pat/HeroChips";
+import PageHead, { portalEyebrow } from "@/app/components/shell/PageHead";
+import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import AlignmentBoardClient from "@/app/components/firm/AlignmentBoardClient";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
@@ -149,5 +152,22 @@ export default async function FirmAlignmentBoardPage({
     notFound();
   }
 
-  return <AlignmentBoardClient data={data} entitled={entitled} membershipHref={membershipHref} sandboxLabel={sandboxLabel()} />;
+  // Box 3f items A and J (S1, flag-on): the shared page head with the Workspace link (the
+  // hero chips) above the board; the board's inner label yields to the head.
+  if (!isNewFrontDoorEnabled()) {
+    return <AlignmentBoardClient data={data} entitled={entitled} membershipHref={membershipHref} sandboxLabel={sandboxLabel()} />;
+  }
+  return (
+    <div className="space-y-6">
+      <PageHead
+        variant="portal"
+        wordmark
+        eyebrow={readOnlyConsultant ? portalEyebrow("consultant") : portalEyebrow("firm")}
+        title={sandboxLabel()}
+        subline="Move your products around like puzzle pieces, swap in firm-reviewed alternatives, and watch your alignment recompute live."
+        aside={<HeroChips audience={readOnlyConsultant ? "consultant" : "firm"} />}
+      />
+      <AlignmentBoardClient data={data} entitled={entitled} membershipHref={membershipHref} sandboxLabel={sandboxLabel()} headless />
+    </div>
+  );
 }

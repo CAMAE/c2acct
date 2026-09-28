@@ -24,6 +24,16 @@ export function recomputeProjectedAlignment(scores: Array<number | null>): numbe
  * contract test can pin the ruling.
  */
 
+/**
+ * Box 3f item J (Cam 9/28): the three lane labels, in plain words that need no
+ * explanation. Rendered by AlignmentBoardClient; pinned by the contract test.
+ */
+export const SANDBOX_LANE_LABELS = {
+  fitsSlot: "Firm-reviewed alternatives for this slot",
+  wholeFirm: "Every product on your board",
+  unreviewed: "Not yet firm-reviewed (vendor self-reported)",
+} as const;
+
 type UtilityBearing = { utilityKeys: string[] };
 type DimensionBearing = { dimensionScores: ProductFitDimensionScore[] };
 

@@ -72,7 +72,11 @@ describe("3 — locked pages (flag-on)", () => {
     // membership gate with it off. The vendor Product Fit Card veil stands.
     const board = read("app/(app)/firm/alignment-board/page.tsx");
     expect(board).not.toContain("LockedSurfaceVeil");
-    expect(board).not.toContain("isNewFrontDoorEnabled");
+    // Box 3f item J (S1): the front-door flag gates ONLY the shared page head above the
+    // board; the board itself renders on both branches and the gate logic is unchanged.
+    expect(board).toMatch(/if \(!isNewFrontDoorEnabled\(\)\) \{\s*return <AlignmentBoardClient/);
+    expect((board.match(/<AlignmentBoardClient /g) || []).length).toBe(2);
+    expect(board).not.toMatch(/isNewFrontDoorEnabled\(\)[\s\S]{0,120}MembershipSurfaceGate/);
     expect(board).toMatch(/if \(!entitlement\.allowed\) \{[\s\S]{0,200}<MembershipSurfaceGate/);
     const card = read("app/(app)/vendor/battlecard/page.tsx");
     expect(card).toMatch(/!entitlement\.allowed && isNewFrontDoorEnabled\(\)[\s\S]{0,400}<LockedSurfaceVeil/);

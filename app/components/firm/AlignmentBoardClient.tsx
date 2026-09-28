@@ -8,7 +8,7 @@ import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import { formatDelta, formatScoreValue } from "@/lib/formatDelta";
 import { fitHeatColor, fitTierLabel } from "@/lib/fitHeat";
 import type { AlignmentBoardData, BoardCandidate, BoardPiece } from "@/lib/alignmentBoard";
-import { recomputeProjectedAlignment, splitCandidatesForSlot } from "@/lib/sandboxLanes";
+import { recomputeProjectedAlignment, splitCandidatesForSlot, SANDBOX_LANE_LABELS } from "@/lib/sandboxLanes";
 import type { ProductFitDimensionScore } from "@/lib/productFitDimensions";
 import { CONFIDENCE_BAND_LABEL } from "@/lib/confidenceBands";
 
@@ -69,10 +69,11 @@ function tileEdges(index: number, cols: number, count: number): PieceEdges {
 }
 
 /** Columns for the connected stack — a clean strip/grid, never a ragged single. */
+// Box 3f item J (S5): at most three pieces per row so names and deltas wrap instead of
+// truncating (the piece text block no longer clamps or truncates).
 function stackColumns(count: number): number {
-  if (count <= 5) return Math.max(1, count);
-  if (count === 6) return 3;
-  return 4;
+  if (count <= 3) return Math.max(1, count);
+  return 3;
 }
 
 function edgeSeg(x0: number, y0: number, x1: number, y1: number, kind: EdgeKind): string {
@@ -123,12 +124,15 @@ export default function AlignmentBoardClient({
   membershipHref,
   readOnly = false,
   sandboxLabel = "Alignment Sandbox",
+  headless = false,
 }: {
   data: AlignmentBoardData;
   entitled: boolean;
   membershipHref: string;
   /** R24: the surface name (server-resolved; flag-off "Alignment Sandbox"). */
   sandboxLabel?: string;
+  /** Box 3f item J: the page renders the shared page head above the board; hide the inner label. */
+  headless?: boolean;
   /** F14: a managing consultant views a scoped firm's board read-only — piece
    *  inspection stays, but swap staging is disabled (no what-if mutations). */
   readOnly?: boolean;
@@ -308,7 +312,7 @@ export default function AlignmentBoardClient({
 
       {/* Header: stat lockup (left) + radar (right) */}
       <section className="pat-card p-6 sm:p-8">
-        <div className="pat-label">{sandboxLabel}</div>
+        {headless ? null : <div className="pat-label">{sandboxLabel}</div>}
         <div className="mt-4 grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div>
             <div className="flex flex-wrap items-end gap-x-5 gap-y-2">
@@ -382,7 +386,7 @@ export default function AlignmentBoardClient({
             className="mt-4 grid gap-0"
             style={{
               gridTemplateColumns: `repeat(${stackCols}, minmax(0, 1fr))`,
-              maxWidth: `${stackCols * 210}px`,
+              maxWidth: `${stackCols * 272}px`,
             }}
           >
             {data.stack.map((piece, index) => {
@@ -451,7 +455,7 @@ export default function AlignmentBoardClient({
               const pieceDelta = isSwap && before !== null && after !== null ? after - before : null;
               return (
                 <li key={piece.productId} className="flex items-center gap-3">
-                  <span className="w-36 shrink-0 truncate text-sm text-[var(--shell-ink)]">
+                  <span className="w-44 shrink-0 whitespace-normal text-sm leading-tight text-[var(--shell-ink)]">
                     {isSwap && slotCand ? candidateLabel(slotCand) : piece.productName}
                   </span>
                   <div className="relative h-3 flex-1 overflow-hidden rounded-full bg-[rgba(6,54,116,0.08)]">
@@ -570,14 +574,14 @@ export default function AlignmentBoardClient({
                 {fitsSlot.length > 0 ? (
                   <div className="mt-4">
                     <div className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-ink)]">
-                      Fits this slot · shares a job with {entitled ? activePiece.productName : "your lifted piece"}
+                      {SANDBOX_LANE_LABELS.fitsSlot}
                     </div>
                     {renderLane(fitsSlot)}
                   </div>
                 ) : null}
                 <div className="mt-5">
                   <div className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--shell-muted)]">
-                    {fitsSlot.length > 0 ? "Whole firm · every candidate" : "Whole firm · no utility-match candidate"}
+                    {SANDBOX_LANE_LABELS.wholeFirm}
                   </div>
                   {renderLane(rest)}
                 </div>
@@ -613,7 +617,7 @@ export default function AlignmentBoardClient({
       {data.unreviewedCandidates.length > 0 ? (
         <section className="pat-card border-dashed border-[var(--brand-orange)]/40 p-6">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <div className="pat-label text-[var(--brand-orange)]">Not yet firm-reviewed</div>
+            <div className="pat-label text-[var(--brand-orange)]">{SANDBOX_LANE_LABELS.unreviewed}</div>
             <span className="text-xs text-[var(--brand-orange)]">
               Vendor self-reported · needs firm reviews to enter ranked fits
             </span>
@@ -873,18 +877,18 @@ function PuzzlePiece({
           strokeDasharray={strokeDashed ? "5 4" : undefined}
         />
       </svg>
-      {/* Centered text block; padding clears the tab/blank zones on every edge.
-          overflow-hidden + per-line clamps keep long labels (e.g. the
-          "Self-reported" tier tag, B7-3) inside the piece border. */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 overflow-hidden px-[16%] py-[15%] text-center">
+      {/* Centered text block; padding clears the tab/blank zones on every edge. Box 3f
+          item J (S5): no truncation and no line clamps — the pieces are wide enough
+          (three per row) for names and deltas to wrap. */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 px-[13%] py-[14%] text-center" data-testid="piece-text">
         {typeof rank === "number" ? (
-          <div className={`w-full truncate text-[9px] font-semibold uppercase tracking-[0.1em] ${mutedClass}`}>
+          <div className={`w-full text-[12px] font-semibold uppercase tracking-[0.1em] ${mutedClass}`}>
             #{rank}
             {tierLabel ? ` · ${tierLabel}` : ""}
           </div>
         ) : null}
-        <div className={`line-clamp-2 max-w-full text-[13px] font-semibold leading-tight ${textClass}`}>{title}</div>
-        <div className={`line-clamp-1 text-[10px] ${mutedClass}`}>{subtitle}</div>
+        <div className={`max-w-full text-[13px] font-semibold leading-tight ${textClass}`}>{title}</div>
+        <div className={`text-[12px] leading-tight ${mutedClass}`}>{subtitle}</div>
         <div className={`mt-0.5 text-lg font-bold tabular-nums ${textClass}`}>{scoreText}</div>
       </div>
     </button>

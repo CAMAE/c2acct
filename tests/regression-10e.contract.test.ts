@@ -76,11 +76,16 @@ describe("10e(3) — vendor alignment Elite surface prose", () => {
 });
 
 describe("10e(2) — self-reported puzzle piece cannot overrun its border", () => {
-  it("the piece text block clips and clamps every line", () => {
+  it("the piece text wraps inside a wide piece and never truncates (box 3f item J, S5)", () => {
     const src = read("app/components/firm/AlignmentBoardClient.tsx");
-    // the centered text container clips anything past the piece rectangle
-    expect(src).toContain("justify-center gap-0.5 overflow-hidden");
-    // the rank / tier line (which carries the "Self-reported" tag) truncates
-    expect(src).toContain("w-full truncate text-[9px]");
+    // Box 3f item J: no clamps and no truncation on the piece text; the pieces are wide
+    // enough (three per row, 272px columns) for names, tier tags and deltas to wrap.
+    const pieceText = src.slice(src.indexOf('data-testid="piece-text"') - 200, src.indexOf('data-testid="piece-text"') + 900);
+    expect(pieceText).not.toMatch(/truncate|line-clamp-/);
+    expect(pieceText).toContain('text-[12px] font-semibold uppercase tracking-[0.1em]');
+    expect(src).toContain("if (count <= 3) return Math.max(1, count);\n  return 3;");
+    expect(src).toContain("maxWidth: `${stackCols * 272}px`");
+    // the "Self-reported" tier tag still renders on the rank line
+    expect(pieceText).toContain("{tierLabel ? ` · ${tierLabel}` : \"\"}");
   });
 });
