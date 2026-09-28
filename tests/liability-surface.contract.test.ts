@@ -15,10 +15,11 @@ const read = (rel: string) => fs.readFileSync(path.join(repoRoot, rel), "utf8");
 
 describe("in-product output disclaimer", () => {
   it("carries the exact not-advice copy and links to methodology", () => {
-    expect(OUTPUT_DISCLAIMER_TEXT).toBe("Informational, not professional advice.");
+    // Box 3f item K (2026-09-28): "Not professional advice. Methodology", Methodology is the link.
+    expect(OUTPUT_DISCLAIMER_TEXT).toBe("Not professional advice.");
     const component = read("app/components/trust/OutputDisclaimer.tsx");
     expect(component).toContain('href="/methodology"');
-    expect(component).toContain("methodology");
+    expect(component).toMatch(/>\s*Methodology\s*<\/Link>/);
   });
 
   it("is mounted near scores/benchmarks/recommendations in every portal", () => {

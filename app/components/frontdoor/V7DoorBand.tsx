@@ -21,7 +21,7 @@ export default function V7DoorBand({ askPatEntry = false, start = true }: { askP
             className="pat-hover-card flex flex-col justify-center gap-5 bg-[#f4f7fb] px-[34px] py-8"
             data-testid="v7-hero-band-start"
           >
-            <div className="pat-label">Start here</div>
+            <div className="pat-label v7-band-label">Start here</div>
             <div className="flex flex-wrap items-center gap-3">
               <Link
                 href="/sign-in"
@@ -56,7 +56,7 @@ export default function V7DoorBand({ askPatEntry = false, start = true }: { askP
             data-testid="v7-door-firm"
           >
             <div>
-              <div className="pat-label">Firms</div>
+              <div className="pat-label v7-band-label">Firms</div>
               <h3 className="mt-3 text-[27px] font-bold tracking-[-0.01em]">Score your stack.</h3>
             </div>
             <span aria-hidden="true" className="v7-band-arrow shrink-0 leading-none text-[var(--brand-c2-blue)]">
@@ -69,7 +69,7 @@ export default function V7DoorBand({ askPatEntry = false, start = true }: { askP
             data-testid="v7-door-vendor"
           >
             <div>
-              <div className="pat-label">Vendors</div>
+              <div className="pat-label v7-band-label">Vendors</div>
               <h3 className="mt-3 text-[27px] font-bold tracking-[-0.01em]">Earn the evidence.</h3>
             </div>
             <span aria-hidden="true" className="v7-band-arrow shrink-0 leading-none text-[var(--brand-c2-blue)]">

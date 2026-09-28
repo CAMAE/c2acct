@@ -3,16 +3,16 @@ import Link from "next/link";
 /**
  * Shared in-product disclaimer (Governance Phase 3, A7/B8). Mounted near every
  * score, benchmark, recommendation, and projection render across all portals:
- * "Informational, not professional advice · methodology" (V3 box 4.2: the word
- * "directional" left every customer surface on 2026-09-09).
+ * "Not professional advice. Methodology" (V3 box 4.2: the word "directional"
+ * left every customer surface on 2026-09-09; box 3f item K, 2026-09-28: the
+ * line shortened to "Not professional advice." with Methodology as the link).
  *
  * The audit rule: the "informational purposes, not professional advice" line
  * must appear IN-PRODUCT near outputs, not only in the ToS. Keep the copy stable
  * — tests/output-disclaimer.contract.test.ts locks the phrasing and the link.
  */
 
-export const OUTPUT_DISCLAIMER_TEXT =
-  "Informational, not professional advice.";
+export const OUTPUT_DISCLAIMER_TEXT = "Not professional advice.";
 
 type OutputDisclaimerProps = {
   /** Compact inline caption (default) or a bordered note block. */
@@ -38,7 +38,7 @@ export default function OutputDisclaimer({ variant = "inline", className = "" }:
         href="/methodology"
         className="font-medium text-[var(--shell-ink)] underline decoration-dotted underline-offset-2 hover:text-[var(--shell-accent)]"
       >
-        methodology
+        Methodology
       </Link>
     </p>
   );

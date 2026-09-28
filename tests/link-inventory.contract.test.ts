@@ -89,6 +89,9 @@ const RENAMES: Array<[RegExp, string]> = [
   [/ · Guide$/, " · Consultant"],
   [/^PAT for guides and ecosystem owners/, "PAT for consultants and ecosystem owners"],
   [/^BattleCard\b/, "Product Fit Card"],
+  // Box 3f item K (Cam 9/28): the in-product disclaimer link reads "Methodology" (was
+  // "methodology"); same href, same mount points, every flag set.
+  [/^Methodology$/, "methodology"],
   [/^Nudge queue$/, "Nudges"],
   // Box 2b (Cam 9/14 "all as recommended"): the admin membership plan select lost its FREE
   // option by ruling (6d090155, AUDIT-OMNIBUS-A-001: FREE is unassignable forward) — same

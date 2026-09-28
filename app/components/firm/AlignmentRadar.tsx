@@ -120,7 +120,7 @@ export default function AlignmentRadar({
               y={y}
               textAnchor={anchor}
               dominantBaseline="middle"
-              className={axis.thin ? "fill-[var(--shell-muted)] text-[9px] italic" : "fill-[var(--shell-muted)] text-[9px]"}
+              className={axis.thin ? "fill-[var(--shell-muted)] text-[12px] italic" : "fill-[var(--shell-muted)] text-[12px]"}
             >
               {pillarForModule(axis.title)}
               {axis.thin ? " ·" : ""}
@@ -129,7 +129,7 @@ export default function AlignmentRadar({
         })}
       </svg>
       <div className="text-sm">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
+        <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[var(--shell-muted)]">
           {label}
         </div>
         <div className="mt-1.5 flex items-center gap-2">

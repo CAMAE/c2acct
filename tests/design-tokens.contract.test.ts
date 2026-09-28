@@ -41,7 +41,7 @@ describe("design tokens (B1)", () => {
       "--fs-h2: 24px",
       "--fs-h3: 18px",
       "--fs-body: 16px",
-      "--fs-meta: 13px",
+      "--fs-meta: 14px",
       "--fw-heading: 600",
       "--fw-display: 700",
       "--radius-card: 12px",

@@ -67,7 +67,7 @@
   --fs-h2: 24px;
   --fs-h3: 18px;
   --fs-body: 16px;
-  --fs-meta: 13px;
+  --fs-meta: 14px; /* box 3f item C (2026-09-28): meta floor 14px, was 13px */
   --fw-heading: 600;
   --fw-display: 700;
   --radius-card: 12px;
@@ -252,7 +252,7 @@ textarea {
 
 .brand-pat-submark {
   margin-top: 0.22rem;
-  font-size: 0.62rem;
+  font-size: 12px; /* box 3f item C: eyebrow floor 12px (was 0.62rem = 7px at the 11.5px root) */
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -875,6 +875,24 @@ a.pat-hover-card:focus-visible {
 .v7-figure-card {
   border-radius: 28px;
 }
+/* Box 3f item C (H2): the public shell's small text classes sit on the meta token
+   (14px) instead of rem sizes that the 11.5px root shrinks to 8.6px / 10px. Flag-on
+   only (the V7 public shell renders only under PAT_ENABLE_NEW_FRONT_DOOR). */
+[data-testid="v7-public-shell"] .text-sm,
+[data-testid="v7-public-shell"] .text-xs,
+[data-testid="v7-public-shell"] .text-\[11px\],
+[data-testid="v7-public-shell"] .text-\[13px\] {
+  font-size: var(--fs-meta);
+  line-height: 1.5;
+}
+
+/* Box 3f item C (H3): the door band labels (START HERE / FIRMS / VENDORS) are all caps,
+   larger than the eyebrow floor, and stay semibold. Flag-on only (the band is V7). */
+[data-testid="v7-public-shell"] .pat-label.v7-band-label {
+  font-size: var(--fs-meta);
+  font-weight: 600;
+}
+
 .v7-band-pill {
   height: 46px;
   font-size: 16px;

@@ -130,7 +130,7 @@ export default function RadarChart({ axes, title, benchmarkLabel, className }: R
               y={y.toFixed(2)}
               textAnchor={anchor}
               dominantBaseline="middle"
-              fontSize="10"
+              fontSize="12"
               fill="var(--shell-muted)"
             >
               {pillarForModule(axis.label)}
