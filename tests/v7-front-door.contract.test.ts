@@ -37,8 +37,11 @@ describe("V7 front door — dark behind the flag", () => {
 
 describe("V7 front door — content (V7FrontDoor)", () => {
   it("copy is locked to the mockup", () => {
+    // Box 3f item A: the descriptor "Performance Alignment Technology" sits under the
+    // wordmark in the shell header, not in the hero.
+    expect(shell).toMatch(/data-testid="wordmark-descriptor">Performance Alignment Technology</);
+    expect(src).not.toContain("Performance Alignment Technology");
     for (const phrase of [
-      "Performance Alignment Technology",
       "Product selection, without the sales pitch.",
       "Real assessments. Evidence both sides can trust.",
       "Enter PAT",
@@ -173,14 +176,17 @@ describe("V7 front door — content (V7FrontDoor)", () => {
     ]);
   });
 
-  it('"Methodology" appears exactly twice on the door: the shell nav + the accordion list', () => {
+  it('"Methodology" reaches the door once, through the footer row (box 3f item B: not in the nav)', () => {
     // Content: no literal Methodology link of its own (the word reaches the door only
-    // through TRUST_FOOTER_LINKS). Shell: the nav link stays, the footer repeat is gone.
+    // through TRUST_FOOTER_LINKS). Shell: the nav carries no methodology link; the
+    // footer row (TRUST_FOOTER_LINKS) does.
     expect(src).not.toMatch(/>\s*Methodology\s*</);
     expect(src).not.toContain('href="/methodology"');
-    expect((shell.match(/>Methodology</g) || []).length).toBe(1);
-    expect(shell).toMatch(/<nav[\s\S]*<Link href="\/methodology">Methodology<\/Link>[\s\S]*<\/nav>/);
-    expect(shell).not.toMatch(/<footer[\s\S]*href="\/methodology"[\s\S]*<\/footer>/);
+    expect((shell.match(/>Methodology</g) || []).length).toBe(0);
+    expect(shell).not.toMatch(/<nav[\s\S]*href="\/methodology"[\s\S]*<\/nav>/);
+    expect(shell).not.toMatch(/<nav[\s\S]*href="\/trust"[\s\S]*<\/nav>/);
+    expect(TRUST_FOOTER_LINKS.some((l) => l.href === "/methodology")).toBe(true);
+    expect(TRUST_FOOTER_LINKS.some((l) => l.href === "/trust")).toBe(true);
   });
 
   it("door cards route to sign-in with the role preselected", () => {
@@ -235,12 +241,12 @@ describe("V7 front door — Ask Pat entry (gated on the public tier)", () => {
 });
 
 describe("V7 public shell (V7PublicShell)", () => {
-  it("owns the single shared nav — logo, Methodology, Trust, EN/FR/ES selector, Sign in", () => {
+  it("owns the single shared nav — logo + descriptor, For firms, For vendors, EN/FR/ES selector, Sign in (box 3f item B)", () => {
     expect(shell).toContain("<nav");
     expect(shell).toContain("<LanguageSelector");
     expect(shell).toContain('src="/PAT.png"');
-    expect(shell).toMatch(/<Link href="\/methodology">Methodology<\/Link>/);
-    expect(shell).toMatch(/<Link href="\/trust">Trust<\/Link>/);
+    expect(shell).toMatch(/<Link href="\/sign-in\?view=firm"[^>]*>For firms<\/Link>/);
+    expect(shell).toMatch(/<Link href="\/sign-in\?view=vendor"[^>]*>For vendors<\/Link>/);
     expect(shell).toContain('href="/sign-in"');
   });
 
@@ -248,7 +254,10 @@ describe("V7 public shell (V7PublicShell)", () => {
     expect(shell).toContain("<footer");
     expect(shell).toMatch(/<footer[\s\S]*\{TRUST_FOOTER_LINKS\.map\(\(link\) => \([\s\S]*?<Link key=\{link\.href\} href=\{link\.href\}/);
     expect(read("app/components/shell/AppShell.tsx")).toContain("TRUST_FOOTER_LINKS.map((link) =>");
-    expect(shell).toContain("a Patalign™ product");
+    // Box 3f item B (A1, A2): "Copyright 2026 Patalign LLC"; no "a Patalign product", no C2Acct.
+    expect(shell).toContain(">Copyright 2026 Patalign LLC<");
+    expect(shell).not.toContain("a Patalign™ product");
+    expect(shell).not.toContain("C2Acct");
   });
 
   it("is a direct block child of body — the STEP-1 full-bleed escape is retired", () => {

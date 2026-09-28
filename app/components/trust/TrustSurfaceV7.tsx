@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { TrustSurface, TrustSurfaceSection } from "@/lib/trustContent";
+import PageHead, { monthYear } from "@/app/components/shell/PageHead";
 
 /**
  * Facelift Part 1 (B3) — the re-laid trust surface, rendered ONLY behind
@@ -8,17 +9,24 @@ import type { TrustSurface, TrustSurfaceSection } from "@/lib/trustContent";
  * branch untouched). One column at the token container width, optional
  * right-rail table of contents on desktop (a compact list above the content on
  * narrow screens, so 390px never scrolls sideways), numbered sections, a
- * designed disclosure block, an FAQ accordion (native <details>, no JS), mono
- * chips for versions / dates / release ids, and a compact link list. Every
- * string comes from the content model handed in — no wording lives here.
+ * designed disclosure block, an FAQ accordion (native <details>, no JS), and a
+ * compact link list. Every string comes from the content model handed in — no
+ * wording lives here.
+ *
+ * Box 3f item A (2026-09-28): the header is the shared PageHead band (eyebrow, one
+ * full-width H1, the summary as the subline, one quiet updated line, "Trust center"
+ * as the contextual link). The version/date badges are gone; `updated` carries the
+ * one line ("Updated April 2026" by default, from the surface's lastUpdated).
  */
-export type TrustChip = { label: string; mono?: boolean };
 
 export type TrustSurfaceV7Props = {
   surface: TrustSurface;
   /** Overrides the surface title (used once, for /trust per the ruling). */
   title?: string;
-  chips?: TrustChip[];
+  /** Overrides the surface eyebrow (box 3f item D: /trust reads "Trust"). */
+  eyebrow?: string;
+  /** The quiet updated line; defaults to "Updated <Month Year>" from the surface. */
+  updated?: string;
   /** Rendered first, above the sections (e.g. the support contact block). */
   lead?: ReactNode;
   /** Sections to render; defaults to the surface's own. */
@@ -64,7 +72,8 @@ function SectionBody({ section, mono }: { section: TrustSurfaceSection; mono: bo
 export default function TrustSurfaceV7({
   surface,
   title,
-  chips = [],
+  eyebrow,
+  updated,
   lead,
   sections,
   toc = false,
@@ -147,31 +156,17 @@ export default function TrustSurfaceV7({
   );
 
   return (
+    <>
+      {/* A3 (box 2b, Cam 9/14 "all as recommended"): production's "Trust center" link on
+          every trust surface — the page head's one contextual link. */}
+      <PageHead
+        eyebrow={eyebrow ?? surface.eyebrow}
+        title={title ?? surface.title}
+        subline={surface.summary}
+        updated={updated ?? `Updated ${monthYear(surface.lastUpdated)}`}
+        link={{ href: "/trust", label: "Trust center" }}
+      />
     <div className="pat-container px-6 pb-20 pt-12" data-testid="trust-surface-v7" data-surface={surface.key}>
-      <header className="max-w-[44rem]">
-        <div className="pat-label">{surface.eyebrow}</div>
-        <h1 className="pat-h1 mt-3 text-[var(--shell-ink)]">{title ?? surface.title}</h1>
-        <p className="pat-body mt-4 text-[var(--shell-muted)]">{surface.summary}</p>
-        {/* A3 (box 2b, Cam 9/14 "all as recommended"): production's "Trust center" link on
-            every trust surface, composed into the V7 header. */}
-        <div className="mt-5 text-sm">
-          <Link href="/trust" className="font-semibold text-[var(--shell-ink)] hover:text-[var(--shell-accent)]">
-            Trust center
-          </Link>
-        </div>
-        {chips.length > 0 ? (
-          <div className="mt-5 flex flex-wrap gap-2" data-testid="trust-chips">
-            {chips.map((chip) => (
-              <span
-                key={chip.label}
-                className={`inline-flex items-center rounded-[var(--radius-control)] border border-[var(--shell-border)] bg-white px-2.5 py-1 text-[var(--shell-ink)] ${chip.mono ? "pat-mono" : "pat-meta font-semibold"}`}
-              >
-                {chip.label}
-              </span>
-            ))}
-          </div>
-        ) : null}
-      </header>
       {toc && tocItems.length > 0 ? (
         <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_240px]">
           {contents}
@@ -193,5 +188,6 @@ export default function TrustSurfaceV7({
         <div className="mt-10">{contents}</div>
       )}
     </div>
+    </>
   );
 }

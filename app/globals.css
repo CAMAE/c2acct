@@ -68,6 +68,7 @@
   --fs-h3: 18px;
   --fs-body: 16px;
   --fs-meta: 14px; /* box 3f item C (2026-09-28): meta floor 14px, was 13px */
+  --fs-lead: 19px; /* box 3f item A: the page-head subline (the mock's 19px) */
   --fw-heading: 600;
   --fw-display: 700;
   --radius-card: 12px;
@@ -875,6 +876,34 @@ a.pat-hover-card:focus-visible {
 .v7-figure-card {
   border-radius: 28px;
 }
+/* Box 3f item A: the shared page head (app/components/shell/PageHead.tsx). Display
+   size for the public H1, the H1 token inside portals; the subline on --fs-lead. */
+.pat-page-head-title {
+  font-family: var(--font-barlow-display), var(--font-barlow), "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: var(--fs-display);
+  font-weight: var(--fw-display);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+}
+.pat-page-head-sub {
+  font-size: var(--fs-lead);
+  line-height: 1.45;
+}
+[data-page-head="portal"] .pat-page-head-title {
+  font-size: var(--fs-h1);
+}
+[data-page-head="portal"] .pat-page-head-sub {
+  font-size: var(--fs-body);
+}
+@media (max-width: 640px) {
+  .pat-page-head-title {
+    font-size: var(--fs-h1);
+  }
+  .pat-page-head-sub {
+    font-size: var(--fs-body);
+  }
+}
+
 /* Box 3f item C (H2): the public shell's small text classes sit on the meta token
    (14px) instead of rem sizes that the 11.5px root shrinks to 8.6px / 10px. Flag-on
    only (the V7 public shell renders only under PAT_ENABLE_NEW_FRONT_DOOR). */

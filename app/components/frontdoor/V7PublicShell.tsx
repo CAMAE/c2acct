@@ -18,8 +18,13 @@ import { getSessionUser } from "@/lib/auth/session";
  * is a plain min-h-screen block child of body.pat-shell. The only scoped rule left is
  * the V7 pat-label size (the shared product class is 11px; 12px inside this shell).
  *
- * R3 (box 2, 2026-09-11): session-aware. Signed out the nav is byte-for-byte what it
- * was (Methodology · Trust · language · Sign in). Signed in, the Sign in pill gives
+ * Box 3f items A and B (Cam 9/28, R52): the wordmark carries the descriptor
+ * "Performance Alignment Technology" directly under the PAT logo; the nav is
+ * For firms · For vendors · language · Sign in (Methodology and Trust live in the
+ * footer's TRUST_FOOTER_LINKS row); the copyright reads "Copyright 2026 Patalign LLC".
+ *
+ * R3 (box 2, 2026-09-11): session-aware. Signed out the nav was
+ * Methodology · Trust · language · Sign in until box 3f. Signed in, the Sign in pill gives
  * way to the same controls AppShell shows — Ask Pat (consent-gated), the bell
  * (pings flag), Membership, the navigation menu, Sign out — via
  * SignedInHeaderControls, so a signed-in user keeps their shell on every public page.
@@ -45,13 +50,14 @@ export default async function V7PublicShell({ children }: { children: ReactNode 
       >
         <div className="mx-auto flex h-[78px] max-w-[1120px] items-center justify-between gap-3 px-4 sm:px-9">
           {/* A2 (box 2b, Cam 9/14): production's logo link name, "Open home". */}
-          <Link href="/" aria-label="Open home">
+          <Link href="/" aria-label="Open home" className="flex flex-col items-start gap-1">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/PAT.png" alt="PAT" className="block h-9 w-auto" />
+            <span className="brand-pat-submark leading-none" data-testid="wordmark-descriptor">Performance Alignment Technology</span>
           </Link>
           <div className="flex items-center gap-3 text-[15px] font-semibold text-[var(--shell-muted)] sm:gap-[24px]">
-            <Link href="/methodology">Methodology</Link>
-            <Link href="/trust">Trust</Link>
+            <Link href="/sign-in?view=firm" className="hidden sm:inline">For firms</Link>
+            <Link href="/sign-in?view=vendor" className="hidden sm:inline">For vendors</Link>
             <LanguageSelector currentLocale={currentLocale} />
             {signedIn ? (
               <SignedInHeaderControls />
@@ -62,9 +68,9 @@ export default async function V7PublicShell({ children }: { children: ReactNode 
                 </Link>
                 {/* A1 (box 2b, Cam 9/14 "all as recommended"): production's navigation
                     menu for a signed-out visitor — Home / Meet PAT / Sign in / Vendor /
-                    Firm / [Consultant] / Trust / Return to C2Acct — composed from the
-                    same HeaderControlsMenu the signed-in shell uses (no bell, no
-                    Membership, no Sign out). The look of the nav is unchanged. */}
+                    Firm / [Consultant] / Trust — composed from the same
+                    HeaderControlsMenu the signed-in shell uses (no bell, no
+                    Membership, no Sign out). */}
                 <SignedOutHeaderMenu />
               </>
             )}
@@ -89,9 +95,7 @@ export default async function V7PublicShell({ children }: { children: ReactNode 
               </Link>
             ))}
           </div>
-          <div className="mt-4 text-[13.5px] text-[var(--shell-muted)]">
-            Copyright 2026 C2Acct · PAT — Performance Alignment Technology · a Patalign™ product
-          </div>
+          <div className="pat-meta mt-4 text-[var(--shell-muted)]">Copyright 2026 Patalign LLC</div>
         </div>
       </footer>
     </div>

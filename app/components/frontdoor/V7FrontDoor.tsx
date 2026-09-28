@@ -1,6 +1,7 @@
 import { isAskPatDoorEntryEnabled } from "@/lib/frontDoor";
 import V7DoorBand from "@/app/components/frontdoor/V7DoorBand";
 import V7RadarFigure from "@/app/components/frontdoor/V7RadarFigure";
+import PageHead from "@/app/components/shell/PageHead";
 
 /**
  * Block 19 — V7 product-native front door. A faithful build of
@@ -57,18 +58,9 @@ export default function V7FrontDoor() {
 
   return (
     <>
-      {/* HERO */}
-      <header className="px-9 pb-[60px] pt-28 text-center">
-        <div className="mx-auto max-w-[1120px]">
-          <div className="pat-label">Performance Alignment Technology</div>
-          <h1 className="mx-auto mt-[22px] max-w-[12em] text-[64px] font-extrabold leading-[1.04] tracking-[-0.02em]">
-            Product selection, without the sales pitch.
-          </h1>
-          <p className="mt-5 text-[20px] font-medium text-[var(--shell-muted)]">
-            Real assessments. Evidence both sides can trust.
-          </p>
-        </div>
-      </header>
+      {/* HERO — box 3f item A: the shared page head (the descriptor sits under the
+          wordmark in V7PublicShell; the hero is H1 + subline). */}
+      <PageHead variant="hero" title="Product selection, without the sales pitch." subline="Real assessments. Evidence both sides can trust." />
 
       <V7DoorBand askPatEntry={askPatEntry} />
 

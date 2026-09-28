@@ -1,6 +1,7 @@
 import TrustSurfacePage from "@/app/components/trust/TrustSurfacePage";
 import { getTrustSurface } from "@/lib/trustContent";
 import TrustSurfaceV7 from "@/app/components/trust/TrustSurfaceV7";
+import { monthYear } from "@/app/components/shell/PageHead";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 
 
@@ -19,7 +20,7 @@ export default function PatGovernancePage() {
     return (
       <TrustSurfaceV7
         surface={surface}
-        chips={[{ label: surface.statusLabel }, { label: `Last updated ${surface.lastUpdated}`, mono: true }]}
+        updated={`${surface.statusLabel} · Updated ${monthYear(surface.lastUpdated)}`}
         toc
         numbered
       />

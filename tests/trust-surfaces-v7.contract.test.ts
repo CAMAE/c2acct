@@ -37,7 +37,9 @@ describe("B3 — every trust surface is re-laid flag-on and unchanged flag-off",
     expect(component).toMatch(/<details key=\{item\.question\}[\s\S]*?<summary/);
     expect(component).not.toMatch(/useState|onClick|"use client"/);
     expect(component).toContain('data-testid="trust-disclosure"');
-    expect(component).toMatch(/chip\.mono \? "pat-mono"/);
+    // Box 3f item A: the shared PageHead band replaces the chips (one quiet updated line).
+    expect(component).toMatch(/<PageHead[\s\S]*?updated=\{updated \?\? `Updated \$\{monthYear\(surface\.lastUpdated\)\}`\}/);
+    expect(component).not.toMatch(/chips/);
     // No copy of its own beyond labels for the frame.
     expect(component).not.toMatch(/PAT does not claim|support@/);
   });
@@ -75,12 +77,13 @@ describe("B3 — every trust surface is re-laid flag-on and unchanged flag-off",
 
   it("/methodology + governance: TOC, numbered, version/date chips in mono; wording is the lib's", () => {
     const methodology = read(PAGES.methodology);
-    expect(methodology).toMatch(/chips=\{\[\{ label: `v\$\{METHODOLOGY_VERSION\}`, mono: true \}/);
+    expect(methodology).toContain('title="How PAT scores and ranks data"');
+    expect(methodology).toMatch(/updated=\{`Methodology v\$\{METHODOLOGY_VERSION\}, updated \$\{monthYear\(surface\.lastUpdated\)\}`\}/);
     expect(methodology).toContain("sections={METHODOLOGY_SECTIONS.map((section) => ({");
     expect(methodology).toMatch(/\btoc\b[\s\S]{0,40}\bnumbered\b/);
     const governance = read(PAGES.governance);
     expect(governance).toMatch(/\btoc\b[\s\S]{0,40}\bnumbered\b/);
-    expect(governance).toContain("Last updated ${surface.lastUpdated}");
+    expect(governance).toContain("updated={`${surface.statusLabel} · Updated ${monthYear(surface.lastUpdated)}`}");
     for (const source of [methodology, governance]) {
       // No new prose in the flag-on branch: nothing that looks like a sentence literal.
       const branch = source.slice(source.indexOf("if (isNewFrontDoorEnabled())"), source.indexOf("return (", source.indexOf("if (isNewFrontDoorEnabled())") + 30));
@@ -95,10 +98,10 @@ describe("B3 — every trust surface is re-laid flag-on and unchanged flag-off",
     expect(source).toContain("data-release-fingerprint={fingerprint.releaseId}");
   });
 
-  it("/privacy /terms /billing-policy: TOC + Last updated chip only", () => {
+  it("/privacy /terms /billing-policy: TOC + the default updated line only (box 3f item A)", () => {
     for (const rel of [PAGES.privacy, PAGES.terms, PAGES.billing]) {
       const source = read(rel);
-      expect(source).toMatch(/<TrustSurfaceV7 surface=\{surface\} chips=\{\[\{ label: `Last updated \$\{surface\.lastUpdated\}`, mono: true \}\]\} toc \/>/);
+      expect(source).toMatch(/<TrustSurfaceV7 surface=\{surface\} toc \/>/);
     }
   });
 });

@@ -28,7 +28,7 @@ export default function ReleaseTransparencyPage() {
     return (
       <TrustSurfaceV7
         surface={surface}
-        chips={[{ label: fingerprint.releaseId, mono: true }, { label: `Git tree: ${fingerprint.gitDirty}`, mono: true }]}
+        updated={`Release ${fingerprint.releaseId} · Git tree: ${fingerprint.gitDirty}`}
         sections={[]}
       >
         <section

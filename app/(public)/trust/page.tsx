@@ -22,7 +22,6 @@ export default function TrustPage() {
       <TrustSurfaceV7
         surface={surface}
         title="How PAT earns trust"
-        chips={[{ label: `Last updated ${surface.lastUpdated}`, mono: true }]}
         links={TRUST_FOOTER_LINKS.filter((link) => link.href !== "/trust")}
         disclosureTitle="No unsupported claims"
       >

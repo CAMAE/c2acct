@@ -6,6 +6,7 @@ import {
   METHODOLOGY_SECTIONS,
 } from "@/lib/methodology";
 import TrustSurfaceV7 from "@/app/components/trust/TrustSurfaceV7";
+import { monthYear } from "@/app/components/shell/PageHead";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 
 
@@ -24,7 +25,8 @@ export default function MethodologyPage() {
     return (
       <TrustSurfaceV7
         surface={surface}
-        chips={[{ label: `v${METHODOLOGY_VERSION}`, mono: true }, { label: `Last updated ${surface.lastUpdated}`, mono: true }]}
+        title="How PAT scores and ranks data"
+        updated={`Methodology v${METHODOLOGY_VERSION}, updated ${monthYear(surface.lastUpdated)}`}
         toc
         numbered
         sections={METHODOLOGY_SECTIONS.map((section) => ({
