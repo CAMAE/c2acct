@@ -114,7 +114,7 @@ export const vendorAdminHelpCards = [
   {
     title: "Future sync contract",
     what: "The integration-ready contract view showing the current vendor profile and product payload shape.",
-    when: "Use it when reviewing field coverage, validating mapping shape, or preparing for later c2acct.com / six-site connection work.",
+    when: "Use it when reviewing field coverage, validating mapping shape, or preparing for later external sync work.",
     why: "It keeps the adapter boundary explicit and professional without overstating current integration status.",
   },
 ] as const;

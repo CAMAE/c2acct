@@ -11,11 +11,11 @@ import prisma from "@/lib/prisma";
 import { setConsent } from "@/lib/patAssistant/consent";
 
 const EMAILS = [
-  "firm-pro@c2acct.com",
-  "firm-elite@c2acct.com",
-  "vendor-pro@c2acct.com",
-  "vendor-elite@c2acct.com",
-  "consultant@c2acct.com",
+  "firm-pro@patalignhq.com",
+  "firm-elite@patalignhq.com",
+  "vendor-pro@patalignhq.com",
+  "vendor-elite@patalignhq.com",
+  "consultant@patalignhq.com",
 ];
 
 async function main() {

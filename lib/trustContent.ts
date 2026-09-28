@@ -143,6 +143,10 @@ export const TRUST_SURFACES = {
         body:
           "PAT does not claim third-party certification, audited status, uptime SLA, public customer references, or regulated-industry compliance certification.",
       },
+      {
+        title: "Entity",
+        body: "PAT is operated by Patalign LLC, registered office 202 N Cedar Ave Ste 1, Owatonna, MN 55060. Contact: cam@patalignhq.com.",
+      },
     ],
   },
   privacy: {
@@ -176,6 +180,10 @@ export const TRUST_SURFACES = {
         body:
           "Support and operator review may inspect account, billing status, assessment, and release proof records to diagnose product issues. PAT should not be used to submit sensitive client files unless a production data handling policy has been approved.",
       },
+      {
+        title: "Entity and contact",
+        body: "The data controller for PAT is Patalign LLC, registered office 202 N Cedar Ave Ste 1, Owatonna, MN 55060. Privacy questions go to cam@patalignhq.com. This policy is governed by the laws of the State of Minnesota.",
+      },
     ],
   },
   terms: {
@@ -203,6 +211,10 @@ export const TRUST_SURFACES = {
         title: "Availability and changes",
         body:
           "Features, plan packaging, onboarding, and billing may change. No availability SLA is offered.",
+      },
+      {
+        title: "Entity and governing law",
+        body: "PAT is operated by Patalign LLC, registered office 202 N Cedar Ave Ste 1, Owatonna, MN 55060. These terms are governed by the laws of the State of Minnesota. Questions about these terms go to cam@patalignhq.com.",
       },
     ],
   },
@@ -252,6 +264,10 @@ export const TRUST_SURFACES = {
         title: "Data practices and methodology",
         body:
           "Data is transmitted over encrypted connections. Retention is configured per data class with a soft-delete window before hard purge, and tested tenant export and deletion paths exist for contractual data-subject requests. How PAT computes its scores and benchmarks — including the integrity walls that keep demo data and vendor self-report out of peer aggregates — is published on the versioned methodology page at /methodology.",
+      },
+      {
+        title: "Entity",
+        body: "PAT is operated by Patalign LLC, registered office 202 N Cedar Ave Ste 1, Owatonna, MN 55060. Security questions go to cam@patalignhq.com.",
       },
     ],
   },
@@ -313,6 +329,10 @@ export const TRUST_SURFACES = {
         title: "Refunds and cancellation",
         body:
           "Refund and cancellation procedures remain a policy draft until commercial terms are finalized. Provider records remain the source of truth for billing status.",
+      },
+      {
+        title: "Entity",
+        body: "Billing is operated by Patalign LLC, registered office 202 N Cedar Ave Ste 1, Owatonna, MN 55060. Billing questions go to cam@patalignhq.com.",
       },
     ],
   },
@@ -417,6 +437,10 @@ export const TRUST_SURFACES = {
         title: "Public-live status",
         body:
           "Manual QA is local-only unless a public deployment artifact exists. Public-live release state remains UNVERIFIED without live URL proof.",
+      },
+      {
+        title: "Entity",
+        body: "PAT is operated by Patalign LLC, registered office 202 N Cedar Ave Ste 1, Owatonna, MN 55060. Contact: cam@patalignhq.com.",
       },
     ],
   },

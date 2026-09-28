@@ -5,7 +5,7 @@ import { APP_LOCALE_COOKIE, resolveLocale } from "@/lib/locale";
 
 export const metadata = {
   title: "Patalign",
-  description: "C2Acct corporate surface for the PAT platform workspace.",
+  description: "PAT (Performance Alignment Technology) by Patalign LLC: real assessments, arithmetic scoring, and evidence both sides can trust.",
 };
 
 export default async function RootLayout({

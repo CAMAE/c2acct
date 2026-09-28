@@ -278,5 +278,11 @@
     "controlPrefix": "Quarterly benchmark",
     "ledgerLine": "box 3f item I (Cam 9/28): the firm workspace cards take the fixed format with Cam's verbatim copy (title, live stat lines, one sentence, one action link); the card link's accessible name changes flag-on. Flag-off unchanged.",
     "rulingDate": "2026-09-28"
+  },
+  {
+    "route": "*",
+    "control": "Return to C2Acct",
+    "ledgerLine": "box 3f item L (Cam 9/28, A4): the Return to C2Acct menu link leaves every shell (signed out and signed in, every flag set); PAT is Patalign LLC's product and C2Acct appears nowhere. Route * = the shell menu on every page.",
+    "rulingDate": "2026-09-28"
   }
 ]

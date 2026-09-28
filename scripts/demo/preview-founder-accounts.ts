@@ -21,7 +21,7 @@
  *             is UNIQUE (one consultant per ecosystem), so the first person gets the
  *             ecosystem matching --ecosystem (default "sentinel") and each further person
  *             gets the next-richest ecosystem whose current consultant is a seeded
- *             throwaway (never a @c2acct.com review account, never a founder).
+ *             throwaway (never a @patalignhq.com review account, never a founder).
  *   admin     company-less ADMIN (audienceHomeFor → /admin)
  *
  * Safety: refuses to run when DATABASE_URL's host equals the host in .env.prod
@@ -144,7 +144,7 @@ async function ecosystems(): Promise<Eco[]> {
 
 function holderIsProtected(email: string | null, founders: Set<string>) {
   if (!email) return false;
-  return email.endsWith("@c2acct.com") || founders.has(email);
+  return email.endsWith("@patalignhq.com") || founders.has(email);
 }
 
 async function upsertUser(email: string, name: string, role: "MEMBER" | "ADMIN", companyId: string | null, password: string) {

@@ -11,12 +11,12 @@
  * Auth path = provisioned-pilot (credentials → JWT sessions → concurrent logins
  * on one account are server-side safe).
  *
- *   firm-pro@c2acct.com     MEMBER on richest PRO demo-bench FIRM
- *   firm-elite@c2acct.com   MEMBER on richest ELITE demo-bench FIRM  (twin — membership is
+ *   firm-pro@patalignhq.com     MEMBER on richest PRO demo-bench FIRM
+ *   firm-elite@patalignhq.com   MEMBER on richest ELITE demo-bench FIRM  (twin — membership is
  *                           per-company/@@unique(subjectId), so Pro+Elite CANNOT share one firm)
- *   vendor-pro@c2acct.com   MEMBER on richest PRO demo VENDOR (twin of Meridian)
- *   vendor-elite@c2acct.com MEMBER on Meridian Practice Cloud (ELITE vendor)
- *   consultant@c2acct.com   ConsultantProfile + reassigned ownership of one rich ecosystem
+ *   vendor-pro@patalignhq.com   MEMBER on richest PRO demo VENDOR (twin of Meridian)
+ *   vendor-elite@patalignhq.com MEMBER on Meridian Practice Cloud (ELITE vendor)
+ *   consultant@patalignhq.com   ConsultantProfile + reassigned ownership of one rich ecosystem
  *                           (ecosystem↔consultant is 1:1; displaces a throwaway seeded consultant)
  *
  * Data-parallelism caveat: firm/vendor twins are the richest of each tier by
@@ -32,10 +32,10 @@ const prisma = new PrismaClient();
 const PROVISION = process.argv.includes("--provision");
 
 const COMPANY_ACCOUNTS = [
-  { email: "firm-pro@c2acct.com", type: "FIRM", tier: "PRO", preferClass: "demo-bench-firm", preferId: null },
-  { email: "firm-elite@c2acct.com", type: "FIRM", tier: "ELITE", preferClass: "demo-bench-firm", preferId: null },
-  { email: "vendor-pro@c2acct.com", type: "VENDOR", tier: "PRO", preferClass: null, preferId: null },
-  { email: "vendor-elite@c2acct.com", type: "VENDOR", tier: "ELITE", preferClass: null, preferId: "meridian" },
+  { email: "firm-pro@patalignhq.com", type: "FIRM", tier: "PRO", preferClass: "demo-bench-firm", preferId: null },
+  { email: "firm-elite@patalignhq.com", type: "FIRM", tier: "ELITE", preferClass: "demo-bench-firm", preferId: null },
+  { email: "vendor-pro@patalignhq.com", type: "VENDOR", tier: "PRO", preferClass: null, preferId: null },
+  { email: "vendor-elite@patalignhq.com", type: "VENDOR", tier: "ELITE", preferClass: null, preferId: "meridian" },
 ] as const;
 
 function strongPassword() {
@@ -115,17 +115,17 @@ async function main() {
   const ecos = await prisma.ecosystem.findMany({ select: { id: true, name: true, consultantProfileId: true, vendorCompanyId: true, _count: { select: { EcosystemFirm: true } } } });
   const target = ecos.find((e) => e.vendorCompanyId?.includes("meridian")) ?? [...ecos].sort((a, b) => b._count.EcosystemFirm - a._count.EcosystemFirm)[0];
   if (!target) {
-    console.log(`  ⚠️  consultant@c2acct.com: no ecosystem to assign.`);
+    console.log(`  ⚠️  consultant@patalignhq.com: no ecosystem to assign.`);
   } else {
-    console.log(`  ${"consultant@c2acct.com".padEnd(24)} → ecosystem "${target.name}" (${target._count.EcosystemFirm} firms)${target.consultantProfileId ? `  [reassigns from current owner profile ${target.consultantProfileId}]` : ""}`);
+    console.log(`  ${"consultant@patalignhq.com".padEnd(24)} → ecosystem "${target.name}" (${target._count.EcosystemFirm} firms)${target.consultantProfileId ? `  [reassigns from current owner profile ${target.consultantProfileId}]` : ""}`);
     if (PROVISION) {
       const pw = strongPassword();
       const hash = await hashPilotPassword(pw);
       const now = new Date();
       const user = await prisma.user.upsert({
-        where: { email: "consultant@c2acct.com" },
+        where: { email: "consultant@patalignhq.com" },
         update: { name: "Review Consultant", role: "MEMBER", companyId: null, passwordHash: hash, mustChangePassword: false, passwordUpdatedAt: now, updatedAt: now },
-        create: { id: hex(), email: "consultant@c2acct.com", name: "Review Consultant", role: "MEMBER", passwordHash: hash, mustChangePassword: false, passwordUpdatedAt: now, updatedAt: now },
+        create: { id: hex(), email: "consultant@patalignhq.com", name: "Review Consultant", role: "MEMBER", passwordHash: hash, mustChangePassword: false, passwordUpdatedAt: now, updatedAt: now },
         select: { id: true },
       });
       const profile = await prisma.consultantProfile.upsert({
@@ -143,7 +143,7 @@ async function main() {
         update: { ecosystemId: target.id, active: true },
         create: { id: hex(), consultantProfileId: profile.id, ecosystemId: target.id, active: true },
       });
-      creds.push({ email: "consultant@c2acct.com", where: `consultant portal → "${target.name}"`, password: pw });
+      creds.push({ email: "consultant@patalignhq.com", where: `consultant portal → "${target.name}"`, password: pw });
     }
   }
 

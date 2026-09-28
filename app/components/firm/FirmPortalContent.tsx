@@ -83,7 +83,7 @@ export const firmAdminHelpCards = [
   },
   {
     title: "Future sync contract",
-    what: "The integration-ready contract view that shows the current firm data shape available for future c2acct.com / six-site connection work.",
+    what: "The integration-ready contract view that shows the current firm data shape available for future external sync work.",
     when: "Use it when validating field coverage, reviewing external contract shape, or preparing future integration mapping.",
     why: "It keeps the integration boundary explicit and truthful without pretending a live sync already exists.",
   },

@@ -276,7 +276,7 @@ export default function AppHeader({
                   <nav className="px-1 pt-3">
                     <ul className="space-y-1.5">
                       {navItems.map((item) => {
-                        // R3: external links (e.g. "Return to C2Acct") must leave
+                        // R3: external links (an off-site href) must leave
                         // the app entirely. A Next <Link> to an absolute URL can be
                         // intercepted as a client navigation inside a portal — render
                         // a plain <a> so it hard-navigates in every portal.

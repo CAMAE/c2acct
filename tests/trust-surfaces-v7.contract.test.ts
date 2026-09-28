@@ -51,7 +51,7 @@ describe("B3 — every trust surface is re-laid flag-on and unchanged flag-off",
     expect(source).toContain("wide={<TrustSurfaceCards cards={cards} />}");
     expect(source).not.toMatch(/links=|disclosureTitle|TRUST_FOOTER_LINKS/);
     expect(getTrustSurface("trust").eyebrow).toBe("Trust");
-    expect(getTrustSurface("trust").sections.map((s) => s.title)).toEqual(["Current stage", "No unsupported claims"]);
+    expect(getTrustSurface("trust").sections.map((s) => s.title)).toEqual(["Current stage", "No unsupported claims", "Entity"]);
     // Finish box 4.3: no FAQ copy exists, so the page passes no faqItems and the
     // accordion is not rendered (TrustSurfaceV7 renders it only with items).
     expect(source).not.toMatch(/\bfaq\b/);

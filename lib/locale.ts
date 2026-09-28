@@ -266,7 +266,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
       open_language_menu: "Open language menu",
       open_navigation_menu: "Open navigation menu",
       close_navigation_menu: "Close navigation menu",
-      copyright: "Copyright 2026 C2Acct",
+      copyright: "Copyright 2026 Patalign LLC",
       pat: "PAT — Performance Alignment Technology · a Patalign\u2122 product",
     },
     common: {
@@ -291,9 +291,9 @@ const messages: Record<AppLocale, LocaleMessages> = {
     home: {
       productName: "Performance Alignment Technology",
       eyebrow: "PAT intelligence layer",
-      heroTitle: "The intelligence layer inside C2Acct",
+      heroTitle: "The intelligence layer for the accounting profession",
       heroBody:
-        "PAT is the intelligence layer within C2Acct, designed to transform structured signals into usable, decision-grade insight with minimal friction and full contextual continuity.",
+        "PAT is the intelligence layer for the accounting profession, designed to transform structured signals into usable, decision-grade insight with minimal friction and full contextual continuity.",
       welcomeLabel: "WELCOME",
       meetPatTitle: "Meet PAT",
       meetPatBody:
@@ -348,10 +348,10 @@ const messages: Record<AppLocale, LocaleMessages> = {
       localAuthCookies: "Local auth cookies",
     },
     meetPat: {
-      eyebrow: "The Analytical Core Inside C2Acct",
+      eyebrow: "The analytical core of PAT",
       heroTitle: "PAT Intelligence Layer",
       heroBody:
-        "PAT is the insight layer within C2Acct, built to convert structured signals into decision-grade direction with minimal friction and full contextual continuity.",
+        "PAT is the insight layer for the accounting profession, built to convert structured signals into decision-grade direction with minimal friction and full contextual continuity.",
       sections: [
         {
           title: "What PAT does",
@@ -578,7 +578,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
       open_language_menu: "Abrir menú de idioma",
       open_navigation_menu: "Abrir menú de navegación",
       close_navigation_menu: "Cerrar menú de navegación",
-      copyright: "Copyright 2026 C2Acct",
+      copyright: "Copyright 2026 Patalign LLC",
       pat: "PAT — Performance Alignment Technology · a Patalign\u2122 product",
     },
     common: {
@@ -603,9 +603,9 @@ const messages: Record<AppLocale, LocaleMessages> = {
     home: {
       productName: "Performance Alignment Technology",
       eyebrow: "Capa de inteligencia PAT",
-      heroTitle: "La capa de inteligencia dentro de C2Acct",
+      heroTitle: "La capa de inteligencia para la profesión contable",
       heroBody:
-        "PAT es la capa de inteligencia dentro de C2Acct, diseñada para convertir señales estructuradas en insights utilizables y aptos para la toma de decisiones con fricción mínima y continuidad contextual completa.",
+        "PAT es la capa de inteligencia para la profesión contable, diseñada para convertir señales estructuradas en insights utilizables y aptos para la toma de decisiones con fricción mínima y continuidad contextual completa.",
       welcomeLabel: "BIENVENIDA",
       meetPatTitle: "Conoce PAT",
       meetPatBody:
@@ -891,7 +891,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
       open_language_menu: "Ouvrir le menu de langue",
       open_navigation_menu: "Ouvrir le menu de navigation",
       close_navigation_menu: "Fermer le menu de navigation",
-      copyright: "Copyright 2026 C2Acct",
+      copyright: "Copyright 2026 Patalign LLC",
       pat: "PAT — Performance Alignment Technology · a Patalign\u2122 product",
     },
     common: {
@@ -916,9 +916,9 @@ const messages: Record<AppLocale, LocaleMessages> = {
     home: {
       productName: "Performance Alignment Technology",
       eyebrow: "Couche d’intelligence PAT",
-      heroTitle: "La couche d’intelligence au sein de C2Acct",
+      heroTitle: "La couche d’intelligence pour la profession comptable",
       heroBody:
-        "PAT est la couche d’intelligence au sein de C2Acct, conçue pour transformer des signaux structurés en insight exploitable et utile à la décision avec un minimum de friction et une continuité contextuelle complète.",
+        "PAT est la couche d’intelligence pour la profession comptable, conçue pour transformer des signaux structurés en insight exploitable et utile à la décision avec un minimum de friction et une continuité contextuelle complète.",
       welcomeLabel: "BIENVENUE",
       meetPatTitle: "Découvrir PAT",
       meetPatBody:

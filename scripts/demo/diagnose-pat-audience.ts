@@ -7,7 +7,7 @@
  * fallback despite a healthy corpus.
  *
  *   set -a; source .env.prod; set +a; \
- *     DATABASE_URL="$DIRECT_URL" node --import tsx scripts/demo/diagnose-pat-audience.ts vendor-elite@c2acct.com
+ *     DATABASE_URL="$DIRECT_URL" node --import tsx scripts/demo/diagnose-pat-audience.ts vendor-elite@patalignhq.com
  */
 import prisma from "@/lib/prisma";
 import { resolvePatAudience } from "@/lib/patAssistant/audience";
@@ -15,7 +15,7 @@ import { retrieveHelp, buildHelpContext } from "@/lib/patAssistant/retrieveHelp"
 import { generatePatReply } from "@/lib/patAssistant/model";
 import { anthropicApiKeyPresent } from "@/lib/agents/llm";
 
-const email = process.argv[2] ?? "vendor-elite@c2acct.com";
+const email = process.argv[2] ?? "vendor-elite@patalignhq.com";
 const Q = "what does alignment delta mean on the battlecard";
 
 async function main() {

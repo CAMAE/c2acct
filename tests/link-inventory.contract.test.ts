@@ -186,7 +186,7 @@ describe(`link inventory guard v2 (${LABEL})`, () => {
     // A ruling names the route as its template ("/engagements/[id]/score") or its
     // normalized instance, and may list several controls separated by " / ".
     const isRuled = (route: string, template: string | null | undefined, name: string, label: string) =>
-      removals.some((r) => (r.route === route || (template && r.route === template)) && ((r.controlPrefix !== undefined && name.startsWith(r.controlPrefix)) || r.control === label || r.control.split(" / ").map((c) => c.trim()).includes(name.trim())));
+      removals.some((r) => (r.route === "*" || r.route === route || (template && r.route === template)) && ((r.controlPrefix !== undefined && name.startsWith(r.controlPrefix)) || r.control === label || r.control.split(" / ").map((c) => c.trim()).includes(name.trim())));
     const out = mkdtempSync(path.join(os.tmpdir(), "link-inventory-"));
     const tools = process.env.LINK_INVENTORY_TOOLS ?? ROOT; // tabbable + axe-core are devDependencies
     execFileSync("node", ["--import", "tsx", "scripts/qa/click-inventory.mts"], {

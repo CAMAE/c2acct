@@ -1,16 +1,16 @@
-import { buildIntegrationEnvelope } from "@/lib/integrations/c2acct";
+import { buildIntegrationEnvelope } from "@/lib/integrations/envelope";
 
 export type VendorExternalProfileContract = {
   entity: string;
   integration: {
-    provider: "c2acct-six-site";
+    provider: "none";
     mode: "manual-fallback" | "integration-ready";
     baseUrl: string | null;
     missingEnv: string[];
     notes: string[];
   };
   payload: {
-    source: "manual-app-entry" | "c2acct-six-site";
+    source: "manual-app-entry" | "external-sync";
     syncStatus: "manual" | "pending" | "synced";
     companyName: string;
     contactName: string | null;

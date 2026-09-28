@@ -1,7 +1,7 @@
 import { ModuleScope, QuestionInputType, type UserRole } from "@prisma/client";
 import { createHash, randomUUID } from "crypto";
 import prisma from "@/lib/prisma";
-import { buildIntegrationEnvelope } from "@/lib/integrations/c2acct";
+import { buildIntegrationEnvelope } from "@/lib/integrations/envelope";
 import {
   PRODUCT_ASSESSMENT_SCALE_MAX,
   PRODUCT_ASSESSMENT_SCALE_MIN,

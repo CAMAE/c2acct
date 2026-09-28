@@ -23,7 +23,7 @@ import { guideWord } from "@/lib/roleWords";
  * bell behind PAT_ENABLE_PINGS, Membership for the viewer's audience, the
  * navigation menu with production's menu contents (Home, Meet PAT, Sign in,
  * Vendor, Firm, [Individual], [C2Core], [Consultant], Trust, Return to
- * C2Acct), and Sign out — and renders them through the same leaf components
+ * Trust), and Sign out — and renders them through the same leaf components
  * AppHeader uses (PatTopBar, HeaderNotificationBell) plus HeaderControlsMenu.
  * AppShell/AppHeader keep their own copy verbatim (LAW 13; pinned by the 21a
  * flag-off contract tests), so this file is the V7 mount, not a rewrite.
@@ -63,7 +63,6 @@ export default async function SignedInHeaderControls({
     ...navItems.map((item) => ({ href: item.href, label: messages.nav[item.key] })),
     ...(consultantAccessEnabled ? [{ href: "/consultants", label: guideWord() }] : []),
     { href: "/trust", label: "Trust" },
-    { href: "https://www.c2acct.com", label: "Return to C2Acct" },
     // Box 3f item F (2026-09-28, flag-on): Admin and Help left the portal pill row for the
     // account menu (firm and vendor panels).
     ...(isNewFrontDoorEnabled() && (experience.audience === "firm" || experience.audience === "vendor")

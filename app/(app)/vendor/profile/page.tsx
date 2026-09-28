@@ -108,7 +108,7 @@ export default async function VendorProfilePage() {
           General, editable, and prepared for future integration
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          This profile is the clean vendor-facing contract inside PAT. It is editable in the app now and designed to receive future data from the c2acct.com / six-site connection when the real adapter is available.
+          This profile is the clean vendor-facing contract inside PAT. It is editable in the app now and designed to receive data from an external sync when one is configured.
         </p>
       </section>
 
@@ -145,7 +145,7 @@ export default async function VendorProfilePage() {
               </div>
             </>
           ) : (
-            <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">Connection to c2acct.com is not configured yet.</p>
+            <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">No external sync is configured yet.</p>
           )}
         </div>
       </section>

@@ -10,7 +10,7 @@ import type { HeaderNavLabelKey } from "@/lib/locale";
  * navigation menu on the V7 public shell — exactly the list AppShell builds
  * for a visitor (app/components/shell/AppShell.tsx navItems with no session:
  * Home, Meet PAT, Sign in, Vendor, Firm, [Individual], [Consultant], Trust,
- * Return to C2Acct). Rendered through HeaderControlsMenu with no bell, no
+ * Trust). Rendered through HeaderControlsMenu with no bell, no
  * Membership and no Sign out, so the control names match production's
  * ("Open navigation menu", the links) without touching AppShell.
  */
@@ -35,7 +35,6 @@ export default async function SignedOutHeaderMenu() {
     ...navItems.map((item) => ({ href: item.href, label: messages.nav[item.key] })),
     ...(isConsultantAccessEnabled() ? [{ href: "/consultants", label: "Consultant" }] : []),
     { href: "/trust", label: "Trust" },
-    { href: "https://www.c2acct.com", label: "Return to C2Acct" },
   ];
   return (
     <HeaderControlsMenu
