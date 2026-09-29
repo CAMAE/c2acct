@@ -281,8 +281,8 @@
   },
   {
     "route": "*",
-    "control": "Return to C2Acct",
-    "ledgerLine": "box 3f item L (Cam 9/28, A4): the Return to C2Acct menu link leaves every shell (signed out and signed in, every flag set); PAT is Patalign LLC's product and C2Acct appears nowhere. Route * = the shell menu on every page.",
+    "control": "Return to C#Acct / Return to C2Acct",
+    "ledgerLine": "box 3f item L (Cam 9/28, A4): the Return to C2Acct menu link leaves every shell (signed out and signed in, every flag set); PAT is Patalign LLC's product and C2Acct appears nowhere. Route * = the shell menu on every page. (the crawl normalizes digits to #, so the baseline name reads \"Return to C#Acct\").",
     "rulingDate": "2026-09-28"
   }
 ]
