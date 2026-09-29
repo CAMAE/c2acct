@@ -256,6 +256,33 @@ export async function getEcosystemListForConsultant(
   return cards.filter((card): card is EcosystemListCardData => card !== null);
 }
 
+/**
+ * 3e (R51): the same list cards for the ecosystems of a set of vendor companies —
+ * the enterprise portal's owned ecosystems. Additive; the consultant path above is
+ * untouched.
+ */
+export async function getEcosystemListForVendorCompanies(vendorCompanyIds: string[]): Promise<EcosystemListCardData[]> {
+  if (vendorCompanyIds.length === 0) return [];
+  const ecosystems = await prisma.ecosystem.findMany({
+    where: { vendorCompanyId: { in: vendorCompanyIds } },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, vendorCompanyId: true, VendorCompany: { select: { id: true, name: true } } },
+  });
+  const cards = await Promise.all(
+    ecosystems.map(async (ecosystem) =>
+      ecosystem.vendorCompanyId && ecosystem.VendorCompany
+        ? buildEcosystemCard({
+            ecosystemId: ecosystem.id,
+            ecosystemName: ecosystem.name,
+            vendorCompanyId: ecosystem.vendorCompanyId,
+            vendorCompanyName: ecosystem.VendorCompany.name,
+          })
+        : null
+    )
+  );
+  return cards.filter((card): card is EcosystemListCardData => card !== null);
+}
+
 async function buildEcosystemCard(input: {
   ecosystemId: string;
   ecosystemName: string;
@@ -588,6 +615,35 @@ export async function getEcosystemDetailForConsultant(
   }
   const vendorCompanyId = ecosystem.vendorCompanyId;
   const vendorCompanyName = ecosystem.VendorCompany.name;
+  return buildEcosystemDetail({ ecosystemId: ecosystem.id, ecosystemName: ecosystem.name, vendorCompanyId, vendorCompanyName });
+}
+
+/**
+ * 3e (R51, 2026-09-25): the ecosystem detail for a vendor company, gated by the
+ * CALLER (the consultant gate above; the enterprise portal's ownership check).
+ * Pure move of the body getEcosystemDetailForConsultant always ran after its
+ * assignment check — same reads, same output.
+ */
+export async function getEcosystemDetailForVendorCompany(input: {
+  ecosystemId: string;
+  ecosystemName: string;
+  vendorCompanyId: string;
+  vendorCompanyName: string;
+}): Promise<EcosystemDetailData | null> {
+  return buildEcosystemDetail(input);
+}
+
+async function buildEcosystemDetail({
+  ecosystemId,
+  ecosystemName,
+  vendorCompanyId,
+  vendorCompanyName,
+}: {
+  ecosystemId: string;
+  ecosystemName: string;
+  vendorCompanyId: string;
+  vendorCompanyName: string;
+}): Promise<EcosystemDetailData | null> {
 
   const firmIds = await getVendorScopedFirms(vendorCompanyId);
 
@@ -720,8 +776,8 @@ export async function getEcosystemDetailForConsultant(
   const openEnded = openEndedResponsesForEcosystem(briefings, undefined, vendorProductIds);
 
   return {
-    ecosystemId: ecosystem.id,
-    ecosystemName: ecosystem.name,
+    ecosystemId: ecosystemId,
+    ecosystemName: ecosystemName,
     vendorCompanyId,
     vendorCompanyName,
     firmCount: firmIds.length,

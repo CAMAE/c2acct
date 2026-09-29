@@ -16,6 +16,7 @@ import { TRUST_FOOTER_LINKS } from "@/lib/trustContent";
 import { APP_LOCALE_COOKIE, getLocaleMessages, resolveLocale, type HeaderNavLabelKey } from "@/lib/locale";
 import { resolvePortalExperience } from "@/lib/portalVisibility";
 import { guideWord } from "@/lib/roleWords";
+import { getEnterpriseForUser, isEnterpriseEnabled } from "@/lib/enterprise";
 
 /**
  * Block 21a — the standard app shell (AppHeader + main + product footer), factored
@@ -31,6 +32,8 @@ export default async function AppShell({ children }: { children: ReactNode }) {
   const sessionUser = await getSessionUser();
   const individualSurfacesEnabled = isIndividualSurfacesEnabled();
   const consultantAccessEnabled = isConsultantAccessEnabled();
+  // 3e (R51): the enterprise entry exists only flag-on for a member; nothing else changes when off.
+  const enterpriseEntry = isEnterpriseEnabled() && sessionUser ? await getEnterpriseForUser(sessionUser.id) : null;
   const releaseFingerprint = getPublicReleaseFingerprint();
   const experience = await resolvePortalExperience(sessionUser);
   const enabledHrefs = new Set(
@@ -53,6 +56,7 @@ export default async function AppShell({ children }: { children: ReactNode }) {
       label: messages.nav[item.key],
     })),
     ...(consultantAccessEnabled ? [{ href: "/consultants", label: guideWord() }] : []),
+    ...(enterpriseEntry ? [{ href: "/enterprise", label: "Enterprise" }] : []),
     { href: "/trust", label: "Trust" },
     // Box 3f item F (2026-09-28, flag-on): Admin and Help left the portal pill row for the
     // account menu (firm and vendor panels).
