@@ -241,8 +241,13 @@ function firmModuleAssessmentTarget(firm: DemoFirmInput, firmIndex: number, modu
   return clampTarget(firm.scoreTarget + moduleOffset + firmOffset);
 }
 
+// Box 3f item H (2026-09-28): seeded dates are relative to seed time and never in the
+// future. The perf fixture reuses the per-firm hour offsets (firmIndex * 6) for ~1,500 firms,
+// which pushed its submissions a year ahead; every offset is clamped to two hours before
+// the run (ordering stays non-decreasing).
 export function demoDate(offsetHours: number) {
-  return new Date(new Date(DEMO_SEED_BASE_DATE).getTime() + offsetHours * 60 * 60 * 1000);
+  const at = new Date(DEMO_SEED_BASE_DATE).getTime() + offsetHours * 60 * 60 * 1000;
+  return new Date(Math.min(at, Date.now() - 2 * 60 * 60 * 1000));
 }
 
 // Canonical maturity bands now live in lib/firmMaturity.ts (B5-5).
