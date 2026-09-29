@@ -915,6 +915,26 @@ a.pat-hover-card:focus-visible {
   line-height: 1.5;
 }
 
+/* Box 3f item C (H2), measured by scripts/qa/font-floor-proof.mts: the rem-based control
+   classes sit below the 12px floor at the 11.5px root (.pat-button-* 0.92rem = 10.6px,
+   .pat-mode-toggle__option 0.875rem = 10px, .text-base 1rem = 11.5px, the AppShell footer's
+   text-[11px]). Flag-on only: scoped to the V7 public shell, the portal group and the shell. */
+[data-testid="v7-public-shell"] .pat-button-primary,
+[data-testid="v7-public-shell"] .pat-button-secondary,
+[data-v7-portal] .pat-button-primary,
+[data-v7-portal] .pat-button-secondary,
+[data-v7-portal] .pat-mode-toggle__option,
+[data-v7-shell] .text-\[11px\] {
+  font-size: var(--fs-meta);
+}
+[data-v7-portal] .pat-mode-toggle__status {
+  font-size: 12px;
+}
+[data-testid="v7-public-shell"] .text-base,
+[data-v7-portal] .text-base {
+  font-size: var(--fs-body);
+}
+
 /* Box 3f item C (H3): the door band labels (START HERE / FIRMS / VENDORS) are all caps,
    larger than the eyebrow floor, and stay semibold. Flag-on only (the band is V7). */
 [data-testid="v7-public-shell"] .pat-label.v7-band-label {
