@@ -221,62 +221,62 @@
     "rulingDate": "2026-09-14"
   },
   {
-    "route": "/firm",
+    "route": "*",
     "control": "Workspace / Meet PAT / Admin / Help",
-    "ledgerLine": "box 3f item F (Cam 9/28): the workspace pill row collapses flag-on to one contextual link (Meet PAT; Workspace from a panel); Admin and Help move to the account menu. Flag-off unchanged.",
+    "ledgerLine": "box 3f item F (Cam 9/28): the workspace pill row collapses flag-on to one contextual link (Meet PAT; Workspace from a panel); Admin and Help move to the account menu. Flag-off unchanged. Route * (was /firm): the crawl records the home the identity is redirected to under every route it requested, so the collapsed controls are missing under hundreds of routes.",
     "rulingDate": "2026-09-28"
   },
   {
-    "route": "/vendor",
+    "route": "*",
     "control": "Workspace / Meet PAT / Admin / Help",
-    "ledgerLine": "box 3f item F (Cam 9/28): the workspace pill row collapses flag-on to one contextual link (Meet PAT; Workspace from a panel); Admin and Help move to the account menu. Flag-off unchanged.",
+    "ledgerLine": "box 3f item F (Cam 9/28): the workspace pill row collapses flag-on to one contextual link (Meet PAT; Workspace from a panel); Admin and Help move to the account menu. Flag-off unchanged. Route * (was /vendor): the crawl records the home the identity is redirected to under every route it requested, so the collapsed controls are missing under hundreds of routes.",
     "rulingDate": "2026-09-28"
   },
   {
-    "route": "/firm/insights",
+    "route": "*",
     "control": "Pro Insights / Elite Insights / Help",
-    "ledgerLine": "box 3f item F (Cam 9/28): the insight pills collapse flag-on to one text link (Elite insights on Pro, Pro insights from another mode, nothing on Elite); Help sits in the page footer beside the disclaimer. Flag-off unchanged.",
+    "ledgerLine": "box 3f item F (Cam 9/28): the insight pills collapse flag-on to one text link (Elite insights on Pro, Pro insights from another mode, nothing on Elite); Help sits in the page footer beside the disclaimer. Flag-off unchanged. Route * (was /firm/insights): the crawl records the home the identity is redirected to under every route it requested, so the collapsed controls are missing under hundreds of routes.",
     "rulingDate": "2026-09-28"
   },
   {
-    "route": "/vendor/alignment-insights",
+    "route": "*",
     "control": "Pro Insights / Elite Insights / Help",
-    "ledgerLine": "box 3f item F (Cam 9/28): the insight pills collapse flag-on to one text link (Elite insights on Pro, Pro insights from another mode, nothing on Elite); Help sits in the page footer beside the disclaimer. Flag-off unchanged.",
+    "ledgerLine": "box 3f item F (Cam 9/28): the insight pills collapse flag-on to one text link (Elite insights on Pro, Pro insights from another mode, nothing on Elite); Help sits in the page footer beside the disclaimer. Flag-off unchanged. Route * (was /vendor/alignment-insights): the crawl records the home the identity is redirected to under every route it requested, so the collapsed controls are missing under hundreds of routes.",
     "rulingDate": "2026-09-28"
   },
   {
-    "route": "/firm",
+    "route": "*",
     "control": "Alignment Assessment Open the",
     "controlPrefix": "Alignment Assessment Open the",
-    "ledgerLine": "box 3f item I (Cam 9/28): the firm workspace cards take the fixed format with Cam's verbatim copy (title, live stat lines, one sentence, one action link); the card link's accessible name changes flag-on. Flag-off unchanged.",
+    "ledgerLine": "box 3f item I (Cam 9/28): the firm workspace cards take the fixed format with Cam's verbatim copy (title, live stat lines, one sentence, one action link); the card link's accessible name changes flag-on. Flag-off unchanged. Route * (was /firm): the crawl records the home the identity is redirected to under every route it requested, so the collapsed controls are missing under hundreds of routes.",
     "rulingDate": "2026-09-28"
   },
   {
-    "route": "/firm",
+    "route": "*",
     "control": "Alignment Insights Open firm-facing",
     "controlPrefix": "Alignment Insights Open firm-facing",
-    "ledgerLine": "box 3f item I (Cam 9/28): the firm workspace cards take the fixed format with Cam's verbatim copy (title, live stat lines, one sentence, one action link); the card link's accessible name changes flag-on. Flag-off unchanged.",
+    "ledgerLine": "box 3f item I (Cam 9/28): the firm workspace cards take the fixed format with Cam's verbatim copy (title, live stat lines, one sentence, one action link); the card link's accessible name changes flag-on. Flag-off unchanged. Route * (was /firm): the crawl records the home the identity is redirected to under every route it requested, so the collapsed controls are missing under hundreds of routes.",
     "rulingDate": "2026-09-28"
   },
   {
-    "route": "/firm",
+    "route": "*",
     "control": "Alignment Sandbox Play with",
     "controlPrefix": "Alignment Sandbox Play with",
-    "ledgerLine": "box 3f item I (Cam 9/28): the firm workspace cards take the fixed format with Cam's verbatim copy (title, live stat lines, one sentence, one action link); the card link's accessible name changes flag-on. Flag-off unchanged.",
+    "ledgerLine": "box 3f item I (Cam 9/28): the firm workspace cards take the fixed format with Cam's verbatim copy (title, live stat lines, one sentence, one action link); the card link's accessible name changes flag-on. Flag-off unchanged. Route * (was /firm): the crawl records the home the identity is redirected to under every route it requested, so the collapsed controls are missing under hundreds of routes.",
     "rulingDate": "2026-09-28"
   },
   {
-    "route": "/firm",
+    "route": "*",
     "control": "Product Assessment Review vendor products",
     "controlPrefix": "Product Assessment Review vendor products",
-    "ledgerLine": "box 3f item I (Cam 9/28): the firm workspace cards take the fixed format with Cam's verbatim copy (title, live stat lines, one sentence, one action link); the card link's accessible name changes flag-on. Flag-off unchanged.",
+    "ledgerLine": "box 3f item I (Cam 9/28): the firm workspace cards take the fixed format with Cam's verbatim copy (title, live stat lines, one sentence, one action link); the card link's accessible name changes flag-on. Flag-off unchanged. Route * (was /firm): the crawl records the home the identity is redirected to under every route it requested, so the collapsed controls are missing under hundreds of routes.",
     "rulingDate": "2026-09-28"
   },
   {
-    "route": "/firm",
+    "route": "*",
     "control": "Quarterly benchmark",
     "controlPrefix": "Quarterly benchmark",
-    "ledgerLine": "box 3f item I (Cam 9/28): the firm workspace cards take the fixed format with Cam's verbatim copy (title, live stat lines, one sentence, one action link); the card link's accessible name changes flag-on. Flag-off unchanged.",
+    "ledgerLine": "box 3f item I (Cam 9/28): the firm workspace cards take the fixed format with Cam's verbatim copy (title, live stat lines, one sentence, one action link); the card link's accessible name changes flag-on. Flag-off unchanged. Route * (was /firm): the crawl records the home the identity is redirected to under every route it requested, so the collapsed controls are missing under hundreds of routes.",
     "rulingDate": "2026-09-28"
   },
   {
