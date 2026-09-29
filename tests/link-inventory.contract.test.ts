@@ -105,6 +105,10 @@ const RENAMES: Array<[RegExp, string]> = [
   // rounded number; V3 box 6). The unit shifts the 100-char cap, so both sides collapse to
   // the shared prefix.
   [/^Uneven maturity and module variance # pts? spread across modules Uneven maturity and module variance.*$/, "Uneven maturity and module variance # pt spread across modules"],
+  // Box 3f (2026-09-29): the admin home's "Avg alignment index" card pluralizes its firm count
+  // ("across N scored firm(s)"); production's crawl had one scored firm, the local seed has
+  // hundreds, so the plural collapses to production's singular form (data, not a code change).
+  [/^(AVG ALIGNMENT INDEX|Avg alignment index) # # · Leading Average of latest final module scores across # scored firms\b/, "$1 # # · Leading Average of latest final module scores across # scored firm"],
   // Depth box (2026-09-09): the freshness panel's "Draft a reminder" reads "Request refresh".
   [/Draft a reminder$/, "Request refresh"],
   // 6d090155 (FREE retired) + pilot cohort seed: pilot rows read "Membership PRO / ACTIVE".
