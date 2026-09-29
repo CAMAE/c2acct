@@ -149,6 +149,7 @@ export default async function VendorProductInsightSlicePage({
   return (
     <InsightDetailShell
       activeKey={activeSurface}
+      audience="vendor"
       eyebrow="Product insight"
       title={pageTitle}
       summary={heroBody}

@@ -261,6 +261,7 @@ export default async function FirmInsightDetailPage({
   return (
     <InsightDetailShell
       activeKey={visibleSurfaceKey}
+      audience="firm"
       eyebrow="Firm alignment insight"
       title={insight.title}
       summary={

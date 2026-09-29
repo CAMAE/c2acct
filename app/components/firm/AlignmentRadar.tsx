@@ -70,7 +70,7 @@ export default function AlignmentRadar({
     // Box 3f item J (S2): larger radar with the legend beside it on desktop (stacked on
     // mobile); the viewBox carries a margin so the axis labels (12px) are never clipped.
     <div className="flex flex-col items-center gap-4 lg:flex-row lg:items-center lg:gap-8" data-testid="alignment-radar">
-      <svg viewBox={`-64 -14 ${VIEWBOX + 128} ${VIEWBOX + 28}`} className="h-auto w-full max-w-[420px] shrink-0 overflow-visible" role="img" aria-label="Alignment positioning radar">
+      <svg viewBox={`-64 -14 ${VIEWBOX + 128} ${VIEWBOX + 28}`} className="h-auto w-full max-w-[380px] shrink-0 overflow-visible" role="img" aria-label="Alignment positioning radar">
         {/* rings */}
         {Array.from({ length: RING_COUNT }, (_, ring) => {
           const r = (RADIUS * (ring + 1)) / RING_COUNT;

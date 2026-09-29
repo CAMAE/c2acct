@@ -89,6 +89,7 @@ export default async function UserInsightPage({
   return (
     <InsightDetailShell
       activeKey={activeSurface}
+      audience="individual"
       eyebrow="Individual insight"
       title={insight.title}
       summary={

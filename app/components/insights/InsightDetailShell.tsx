@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
-import PageHead from "@/app/components/shell/PageHead";
+import PageHead, { portalEyebrow } from "@/app/components/shell/PageHead";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import PatModeToggle, { type PatModeToggleOption } from "@/app/components/pat/PatModeToggle";
 import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
@@ -9,6 +9,8 @@ import type { InsightSurfaceContent } from "@/lib/insightSurface";
 type InsightDetailShellProps = {
   activeKey: string;
   eyebrow: string;
+  /** Box 3f item A (F7): flag-on the eyebrow is the portal name, never the surface's own. */
+  audience?: "firm" | "vendor" | "consultant" | "individual";
   title: ReactNode;
   summary: ReactNode;
   surfaceContent: InsightSurfaceContent;
@@ -29,6 +31,7 @@ type InsightDetailShellProps = {
 export default function InsightDetailShell({
   activeKey,
   eyebrow,
+  audience,
   title,
   summary,
   surfaceContent,
@@ -79,7 +82,7 @@ export default function InsightDetailShell({
           <PageHead
             variant="portal"
             wordmark
-            eyebrow={eyebrow}
+            eyebrow={audience ? portalEyebrow(audience) : eyebrow}
             title={title}
             subline={
               subtitle ? (

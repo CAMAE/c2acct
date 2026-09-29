@@ -192,6 +192,7 @@ export default async function VendorAlignmentInsightDetailPage({
   return (
     <InsightDetailShell
       activeKey={activeSurface}
+      audience="vendor"
       eyebrow="Vendor alignment insight"
       title={report.title}
       summary={report.locked ? (content?.lockedState?.summary ?? report.currentStateSummary) : report.currentStateSummary}

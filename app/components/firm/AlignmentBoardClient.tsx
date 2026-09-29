@@ -313,7 +313,7 @@ export default function AlignmentBoardClient({
       {/* Header: stat lockup (left) + radar (right) */}
       <section className="pat-card p-6 sm:p-8">
         {headless ? null : <div className="pat-label">{sandboxLabel}</div>}
-        <div className="mt-4 grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="mt-4 grid items-center gap-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
           <div>
             <div className="flex flex-wrap items-end gap-x-5 gap-y-2">
               <div>
@@ -357,7 +357,7 @@ export default function AlignmentBoardClient({
               </button>
             ) : null}
           </div>
-          <div className="lg:justify-self-end">
+          <div>
             <AlignmentRadar axes={radarAxes} showProjected={swapStaged} evidenceNote={radarEvidenceNote} />
           </div>
         </div>
@@ -552,7 +552,7 @@ export default function AlignmentBoardClient({
             const fitsIds = new Set(fitsSlot.map((c) => c.productId));
             const rest = wholeFirm.filter((c) => !fitsIds.has(c.productId));
             const renderLane = (list: readonly BoardCandidate[]) => (
-              <div className="mt-3 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(168px,1fr))]">
+              <div className="mt-3 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
                 {list.map((candidate) => (
                   <CandidatePiece
                     key={candidate.productId}
@@ -593,7 +593,7 @@ export default function AlignmentBoardClient({
             <p className="mt-3 text-xs text-[var(--shell-muted)]">
               Ranked by projected fit — every rank is backed by real firm reviews.
             </p>
-            <div className="mt-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(168px,1fr))]">
+            <div className="mt-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
               {data.candidates.map((candidate) => (
                 <CandidatePiece
                   key={candidate.productId}
@@ -626,7 +626,7 @@ export default function AlignmentBoardClient({
             Swappable to explore, but the projection is the vendor&rsquo;s own claim — not firm-verified,
             so these carry wider confidence bands and never rank against the fits above.
           </p>
-          <div className="mt-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(168px,1fr))]">
+          <div className="mt-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
             {data.unreviewedCandidates.map((candidate) => (
               <CandidatePiece
                 key={candidate.productId}

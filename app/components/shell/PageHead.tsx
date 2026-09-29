@@ -75,7 +75,7 @@ export default function PageHead({
     <header className={`${outer} ${className}`.trim()} data-page-head={variant} data-testid="page-head">
       {aside}
       <div className={inner}>
-        <div className={hero ? "" : "min-w-0 max-w-[52rem]"}>
+        <div className={hero ? "" : "min-w-0 max-w-[900px]"}>
           {wordmark ? (
             <div className="mb-5 flex flex-col items-start gap-1" data-testid="page-head-wordmark">
               <PatBrandMark mode="hero" />
@@ -86,7 +86,7 @@ export default function PageHead({
           <h1 className={`pat-page-head-title text-[var(--shell-ink)] ${eyebrow ? "mt-3" : ""} ${hero ? "mx-auto max-w-[18em]" : ""}`.trim()}>
             {title}
           </h1>
-          {subline ? <p className={`pat-page-head-sub mt-4 text-[var(--shell-muted)] ${hero ? "mx-auto max-w-[40em]" : ""}`.trim()}>{subline}</p> : null}
+          {subline ? <p className={`pat-page-head-sub mt-4 text-[var(--shell-muted)] ${hero ? "mx-auto max-w-[40em]" : "max-w-[720px]"}`.trim()}>{subline}</p> : null}
           {updated ? (
             <p className="pat-meta mt-4 text-[var(--shell-muted)]" data-testid="page-head-updated">
               {updated}
