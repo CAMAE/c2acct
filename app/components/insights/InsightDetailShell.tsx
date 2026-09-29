@@ -64,7 +64,8 @@ export default function InsightDetailShell({
             key={`${surfaceContent.key}-${item.title}`}
             className="rounded-[18px] border border-[var(--shell-border)] bg-white/70 p-4"
           >
-            <div className="font-semibold text-[var(--shell-ink)]">{item.title}</div>
+            {/* Box 3f item C: the item title inherits 11.5px from the root; flag-on it sits on the body token. */}
+            <div className={isNewFrontDoorEnabled() ? "pat-body font-semibold text-[var(--shell-ink)]" : "font-semibold text-[var(--shell-ink)]"}>{item.title}</div>
             <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{item.body}</p>
           </article>
         ))}
