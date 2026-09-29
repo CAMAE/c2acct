@@ -39,7 +39,7 @@ function listRoutes(): string[] {
   walk(path.join(ROOT, "app"), "");
   return [...out].sort();
 }
-const DEMO: Record<string, string> = { "/firm/insights/[key]": "/firm/insights/firm_tier1_operating_baseline", "/vendor/alignment-insights/[key]": "/vendor/alignment-insights/operating-discipline" };
+const DEMO: Record<string, string> = { "/firm/insights/[key]": "/firm/insights/firm_tier1_operating_baseline", "/vendor/alignment-insights/[key]": "/vendor/alignment-insights/implementation-risk-posture" };
 // The pages that carry the page head (box 3f item A; the mock's rule: portal homes, the
 // insight hubs and drill downs, the sandbox, Methodology, Trust and the trust set, help).
 // Everything else on the atlas (assessment steps, readouts, tables, briefings, admin, flows
