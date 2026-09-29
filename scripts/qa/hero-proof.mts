@@ -2,10 +2,8 @@
  * pnpm hero:proof -- --base http://127.0.0.1:3000
  *
  * 3f (R52) hero and header proof over the route atlas list (every app/**\/page.tsx, the
- * same walk scripts/qa/route-atlas.ts does), restricted to the pages that carry a page
- * head: public reading pages and portal pages. Excluded and listed: flows (sign-in,
- * create-account, onboarding, invitee, password-update, /ask), admin, dynamic segments
- * without a demo id, and flag-dark groups (user, enterprise). For each page in scope:
+ * same walk scripts/qa/route-atlas.ts does), restricted to the pages that carry the page
+ * head (IN_SCOPE below); every other atlas route is listed as excluded. For each page in scope:
  *   - exactly one <h1>;
  *   - the descriptor "Performance Alignment Technology" ([data-testid="wordmark-descriptor"])
  *     is rendered and sits DIRECTLY UNDER the PAT logo (its top at or below the logo's
@@ -42,7 +40,16 @@ function listRoutes(): string[] {
   return [...out].sort();
 }
 const DEMO: Record<string, string> = { "/firm/insights/[key]": "/firm/insights/firm_tier1_operating_baseline", "/vendor/alignment-insights/[key]": "/vendor/alignment-insights/operating-discipline" };
-const EXCLUDE = /^\/(sign-in|create-account|onboarding|ask|api|admin|user|enterprise|engagements|survey|invite)|\[/;
+// The pages that carry the page head (box 3f item A; the mock's rule: portal homes, the
+// insight hubs and drill downs, the sandbox, Methodology, Trust and the trust set, help).
+// Everything else on the atlas (assessment steps, readouts, tables, briefings, admin, flows
+// and flag-dark groups) keeps a slim title line and is listed as excluded.
+const IN_SCOPE = new Set([
+  "/", "/methodology", "/trust", "/trust/pat", "/terms", "/privacy", "/support", "/billing-policy", "/security", "/release", "/help", "/pat",
+  "/firm", "/firm/insights", "/firm/insights/[key]", "/firm/alignment-board",
+  "/vendor", "/vendor/alignment-insights", "/vendor/alignment-insights/[key]",
+  "/consultants",
+]);
 function identityFor(route: string): string | null {
   if (route.startsWith("/firm/alignment-board")) return "firm-elite";
   if (route.startsWith("/firm")) return "firm-pro";
@@ -74,8 +81,8 @@ const PAGE_SCRIPT = String.raw`
 `;
 async function main() {
   const routes = listRoutes();
-  const inScope = routes.map((r) => DEMO[r] ?? r).filter((r) => !EXCLUDE.test(r));
-  const excluded = routes.filter((r) => EXCLUDE.test(DEMO[r] ?? r));
+  const inScope = routes.filter((r) => IN_SCOPE.has(r)).map((r) => DEMO[r] ?? r);
+  const excluded = routes.filter((r) => !IN_SCOPE.has(r));
   console.log(`routes ${routes.length} · in scope ${inScope.length} · excluded ${excluded.length}: ${excluded.join(" ")}`);
   const browser = await chromium.launch();
   const byIdent = new Map<string, BrowserContext>();
@@ -85,7 +92,8 @@ async function main() {
     let ctx = byIdent.get(ident);
     if (!ctx) { ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } }); if (ident !== "public") await signIn(ctx, ident); byIdent.set(ident, ctx); }
     const page = await ctx.newPage();
-    const res = await page.goto(`${BASE}${route}`, { waitUntil: "networkidle", timeout: 120_000 }).catch(() => null);
+    const res = await page.goto(`${BASE}${route}`, { waitUntil: "load", timeout: 120_000 }).catch(() => null);
+    await page.waitForTimeout(1500);
     const r = (await page.evaluate(new Function("args", PAGE_SCRIPT) as unknown as () => unknown, {})) as { h1: string[]; descriptor: boolean; under: boolean; navLinks: string[]; footerLinks: string[] };
     const isPublic = ident === "public";
     const navOk = !isPublic || (r.navLinks.filter((l) => ["For firms", "For vendors", "Sign in"].includes(l)).length === 3 && !r.navLinks.includes("Methodology") && !r.navLinks.includes("Trust"));
