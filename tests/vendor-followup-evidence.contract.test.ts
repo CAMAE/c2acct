@@ -86,7 +86,7 @@ describe("source pins — every vendor mount is behind isVendorFollowUpMcEnabled
     for (const rel of ["app/(app)/consultants/ecosystems/[ecosystemId]/page.tsx", "app/(app)/enterprise/ecosystems/[ecosystemId]/page.tsx"]) {
       const source = read(rel);
       expect(source).toMatch(/vendorFollowUpMcEnabled \? await getVendorFollowUpAggregate\(detail\.vendorProductIds\) : null/);
-      expect(source).toMatch(/\{vendorFollowUpMcEnabled && vendorFollowUpAggregate \? \([\s\S]*?eyebrow="Vendor follow-up picks"/);
+      expect(source).toMatch(/\{vendorFollowUpMcEnabled && vendorFollowUpAggregate \? \([\s\S]*?eyebrow=\{vendorFollowUpMessages\?\.panelEyebrow \?\? "Vendor follow-up picks"\}/);
     }
     const admin = read("app/(app)/admin/followup-other/page.tsx");
     expect(admin).toContain("vendorEnabled ? await getVendorFollowUpOtherTexts() : []");
