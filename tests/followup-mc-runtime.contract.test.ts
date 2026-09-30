@@ -124,10 +124,15 @@ describe("source pins — every flag-on path is behind the flag; option sets nev
     expect(client).not.toContain("Not a significant issue here");
     expect(client).not.toContain("Unclear ownership in handoffs");
     expect(client).toContain('from "@/lib/assessment/firmFollowUpOptions"');
+    // vendor-followup-mc box: the option rows are the shared component; the firm client
+    // mounts it with its own Other max length, and the markup pins move with the rows.
     // Label first (bold), consequence muted beneath; radio for SINGLE, checkbox for MULTI.
-    expect(client).toMatch(/type=\{single \? "radio" : "checkbox"\}/);
-    expect(client).toMatch(/<span className="font-semibold text-\[var\(--shell-ink\)\]">\{option\.label\}<\/span>/);
-    expect(client).toMatch(/text-\[var\(--shell-muted\)\]">\{option\.consequence\}/);
-    expect(client).toMatch(/maxLength=\{FIRM_FOLLOWUP_OTHER_MAX_LENGTH\}/);
+    const rows = read("app/components/assessment/FollowUpMcOptionRows.tsx");
+    expect(client).toMatch(/<FollowUpMcOptionRows[\s\S]*?otherMaxLength=\{FIRM_FOLLOWUP_OTHER_MAX_LENGTH\}/);
+    expect(rows).toMatch(/type=\{single \? "radio" : "checkbox"\}/);
+    expect(rows).toMatch(/<span className="font-semibold text-\[var\(--shell-ink\)\]">\{option\.label\}<\/span>/);
+    expect(rows).toMatch(/text-\[var\(--shell-muted\)\]">\{option\.consequence\}/);
+    expect(rows).toMatch(/maxLength=\{otherMaxLength\}/);
+    expect(rows).not.toContain("Not a significant issue here");
   });
 });

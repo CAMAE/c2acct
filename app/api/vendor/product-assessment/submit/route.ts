@@ -16,6 +16,7 @@ import {
   serializeVendorAdaptiveOpenEndedQuestionSnapshot,
   serializeVendorProductAssessmentPlan,
 } from "@/lib/vendorProductAssessmentPlan";
+import { validateVendorOpenEndedResponses } from "@/lib/assessment/vendorFollowUpMcRuntime";
 import {
   VENDOR_PRODUCT_MODULE_KEY,
   VENDOR_PRODUCT_QUESTIONS_PER_UTILITY,
@@ -183,6 +184,17 @@ export async function POST(request: Request) {
       { status: 400, headers: NO_STORE_HEADERS }
     );
   }
+  // vendor-followup-mc box: flag-on, every encoded pick is validated and normalised
+  // (exclusive none, Other non-empty and at most 280, SINGLE one pick, MULTI allows
+  // Other plus picks); flag-off the record is stored exactly as received.
+  const openEndedCheck = validateVendorOpenEndedResponses(openEndedResponses, adaptiveOpenEndedQuestions, {
+    enabled: process.env,
+    required: true,
+  });
+  if (!openEndedCheck.ok) {
+    return NextResponse.json({ ok: false, error: openEndedCheck.error }, { status: 400, headers: NO_STORE_HEADERS });
+  }
+  const storedOpenEndedResponses = openEndedCheck.responses;
 
   const submission = await prisma.$transaction(async (tx) => {
     await tx.product.update({
@@ -271,7 +283,7 @@ export async function POST(request: Request) {
         answers: {
           utilitySelection: utilityKeys,
           profile: normalizedProfile,
-          openEndedResponses,
+          openEndedResponses: storedOpenEndedResponses,
           openEndedPlan: adaptiveOpenEndedQuestions,
           assessmentPlanId: persistedPlan.id,
           registryVersion: assessmentPlan.registryVersion,

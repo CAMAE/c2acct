@@ -5,6 +5,8 @@ import prisma from "@/lib/prisma";
 import { unauthorizedResponse, forbiddenResponse } from "@/lib/authz";
 import { getSessionUser } from "@/lib/auth/session";
 import { ensureProductSubject, ensureVendorProductModule } from "@/lib/vendorPat";
+import { serializeVendorAdaptiveOpenEndedQuestionSnapshot } from "@/lib/vendorProductAssessmentPlan";
+import { validateVendorOpenEndedResponses } from "@/lib/assessment/vendorFollowUpMcRuntime";
 import {
   SURVEY_DRAFT_SCORE_VERSION,
   buildSurveyDraftIntegrityFlags,
@@ -77,18 +79,31 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Product not found" }, { status: 404, headers: NO_STORE_HEADERS });
   }
 
+  // vendor-followup-mc box: flag-on, an encoded pick is validated against the option
+  // set (exclusive none, Other at most 280, SINGLE one pick); a partial draft passes.
+  // Flag-off the record is returned untouched.
+  const openEndedCheck = validateVendorOpenEndedResponses(
+    openEndedResponses,
+    serializeVendorAdaptiveOpenEndedQuestionSnapshot({ selectedUtilityKeys: utilityKeys, profile, answers }),
+    { enabled: process.env, required: false }
+  );
+  if (!openEndedCheck.ok) {
+    return NextResponse.json({ ok: false, error: openEndedCheck.error }, { status: 400, headers: NO_STORE_HEADERS });
+  }
+  const validatedOpenEndedResponses = openEndedCheck.responses;
+
   const moduleRecord = await ensureVendorProductModule();
   const subject = await ensureProductSubject(product);
 
   const answersPayload = {
     utilitySelection: utilityKeys,
     responses: answers,
-    openEndedResponses,
+    openEndedResponses: validatedOpenEndedResponses,
     profile,
   };
   const answeredCount =
     Object.keys(answers).length +
-    Object.values(openEndedResponses).filter((value) => value.trim().length > 0).length +
+    Object.values(validatedOpenEndedResponses).filter((value) => value.trim().length > 0).length +
     Object.values(profile).filter((value) => value.trim().length > 0).length;
 
   const draftData = {

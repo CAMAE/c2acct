@@ -1,3 +1,4 @@
+import { isVendorFollowUpMcEnabled } from "@/lib/vendorFollowUpMc";
 import { randomUUID } from "node:crypto";
 import { ProductAssessmentPerspective } from "@prisma/client";
 import { redirect } from "next/navigation";
@@ -219,6 +220,19 @@ export default async function VendorProductAssessmentDetailPage({
       initialOpenEndedAnswers={initialOpenEndedAnswers}
       initialProfile={initialProfile}
       initialCurrentPage={initialCurrentPage}
+      {...(isVendorFollowUpMcEnabled()
+        ? {
+            followUpMc: {
+              enabled: true,
+              strings: {
+                captured: "Response captured",
+                awaiting: "Awaiting response",
+                shortAnswer: "Short answer",
+                otherAria: "Other, short answer",
+              },
+            },
+          }
+        : {})}
     />
   );
 }

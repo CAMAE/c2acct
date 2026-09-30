@@ -6,6 +6,7 @@ import { QuestionInputType } from "@prisma/client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import DraftSavedIndicator from "@/app/components/assessment/DraftSavedIndicator";
+import FollowUpMcOptionRows from "@/app/components/assessment/FollowUpMcOptionRows";
 import { buildCanonicalSignInPath } from "@/lib/auth/routes";
 import { sliderValueFromPointer } from "@/lib/scoreSlider";
 import { displayPrompt, isFlatAssessmentLayout } from "@/lib/assessmentDisplay";
@@ -19,9 +20,7 @@ import {
 } from "@/lib/assessmentRuntime";
 import {
   FIRM_FOLLOWUP_OTHER_MAX_LENGTH,
-  applyFollowUpPick,
   isFollowUpMcAnswer,
-  type FollowUpQuestion,
 } from "@/lib/assessment/firmFollowUpOptions";
 
 type Props = {
@@ -168,58 +167,16 @@ function renderFollowUpMcInput(
   if (!mc) {
     return null;
   }
-  const registryQuestion: FollowUpQuestion = { ...mc, moduleKey: "", moduleSectionKey: "", pillar: "", index: 0, hint: null };
-  const current = isFollowUpMcAnswer(value) ? value : { optionKeys: [], otherText: null };
-  const single = mc.selectionMode === "SINGLE";
-  const otherKey = mc.options.find((option) => option.kind === "other")?.key ?? null;
-  const otherSelected = otherKey ? current.optionKeys.includes(otherKey) : false;
-  const pick = (optionKey: string) => setAnswer(applyFollowUpPick(registryQuestion, current, optionKey));
-
+  // vendor-followup-mc box: the option rows are the shared component
+  // (app/components/assessment/FollowUpMcOptionRows.tsx); the markup is unchanged.
   return (
-    <div
-      className="grid gap-2"
-      role={single ? "radiogroup" : "group"}
-      aria-label={mc.stem}
-      data-testid="followup-mc"
-      data-selection-mode={mc.selectionMode}
-    >
-      {mc.options.map((option) => {
-        const checked = current.optionKeys.includes(option.key);
-        return (
-          <label key={option.key} data-active={checked} className="pat-question-choice pat-sans cursor-pointer">
-            <input
-              type={single ? "radio" : "checkbox"}
-              name={`followup-${question.id}`}
-              value={option.key}
-              checked={checked}
-              className="mt-1 shrink-0"
-              onChange={() => pick(option.key)}
-              // A checked radio fires no change event on re-click; route that click
-              // through the same pick so SINGLE can be cleared too.
-              onClick={single && checked ? () => pick(option.key) : undefined}
-            />
-            <span className="grid min-w-0 gap-1">
-              <span className="font-semibold text-[var(--shell-ink)]">{option.label}</span>
-              {option.consequence ? (
-                <span className="text-sm leading-6 text-[var(--shell-muted)]">{option.consequence}</span>
-              ) : null}
-            </span>
-          </label>
-        );
-      })}
-      {otherSelected ? (
-        <input
-          type="text"
-          value={current.otherText ?? ""}
-          maxLength={FIRM_FOLLOWUP_OTHER_MAX_LENGTH}
-          placeholder="Short answer"
-          aria-label="Other — short answer"
-          className="pat-input"
-          data-testid="followup-mc-other"
-          onChange={(event) => setAnswer({ optionKeys: current.optionKeys, otherText: event.target.value })}
-        />
-      ) : null}
-    </div>
+    <FollowUpMcOptionRows
+      questionId={question.id}
+      mc={mc}
+      value={isFollowUpMcAnswer(value) ? value : undefined}
+      onChange={setAnswer}
+      otherMaxLength={FIRM_FOLLOWUP_OTHER_MAX_LENGTH}
+    />
   );
 }
 

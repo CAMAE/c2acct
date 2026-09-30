@@ -20,6 +20,14 @@ import {
   type VendorProductProfileInput,
 } from "@/lib/vendorProductAssessmentPlan";
 import type { ProductAssessmentQuestion } from "@/lib/vendorProductQuestionBank";
+import FollowUpMcOptionRows from "@/app/components/assessment/FollowUpMcOptionRows";
+import {
+  decodeVendorFollowUpAnswer,
+  decorateVendorFollowUpMcQuestions,
+  encodeVendorFollowUpAnswer,
+  isVendorFollowUpAnswerComplete,
+  VENDOR_FOLLOWUP_OTHER_MAX,
+} from "@/lib/assessment/vendorFollowUpMcRuntime";
 import {
   PRODUCT_ASSESSMENT_SCALE_MAX,
   PRODUCT_ASSESSMENT_SCALE_MIN,
@@ -37,6 +45,12 @@ type Props = {
   initialProfile: VendorProductProfileInput;
   /** Kept for the draft contract (resume position); the page is one screen now. */
   initialCurrentPage?: number;
+  /** vendor-followup-mc box: the server reads PAT_ENABLE_VENDOR_FOLLOWUP_MC; on, the ten
+   *  open-ended questions render as option rows (strings from the locale). Absent flag-off. */
+  followUpMc?: {
+    enabled: boolean;
+    strings: { captured: string; awaiting: string; shortAnswer: string; otherAria: string };
+  };
 };
 
 type QuestionGroup = {
@@ -95,6 +109,7 @@ export default function VendorProductAssessmentClient({
   initialOpenEndedAnswers,
   initialProfile,
   initialCurrentPage,
+  followUpMc,
 }: Props) {
   const router = useRouter();
   const topCardRef = useRef<HTMLElement | null>(null);
@@ -130,7 +145,16 @@ export default function VendorProductAssessmentClient({
 
   const profileQuestions = pagePlan.profileQuestions;
   const activeQuestions = pagePlan.scoredQuestions;
-  const openEndedQuestions = pagePlan.openEndedQuestions;
+  // vendor-followup-mc: flag-on the open-ended questions carry their option set (the
+  // adaptive prompt is the stem); flag-off this is the plan's own array instance.
+  const openEndedQuestions = useMemo(
+    () => decorateVendorFollowUpMcQuestions(pagePlan.openEndedQuestions, followUpMc?.enabled ?? false),
+    [pagePlan.openEndedQuestions, followUpMc?.enabled]
+  );
+  const followUpMcById = useMemo(
+    () => new Map(openEndedQuestions.map((question) => [question.id, question.followUpMc ?? null] as const)),
+    [openEndedQuestions]
+  );
   // A3 (route atlas box): ONE page, every question. The page plan still drives the
   // question sets and the draft's page bookkeeping (so what the server receives is
   // what it received before); the pager itself is gone. Scored and open-ended
@@ -161,6 +185,9 @@ export default function VendorProductAssessmentClient({
       return typeof answers[question.id] === "number";
     }
 
+    if (followUpMc?.enabled) {
+      return isVendorFollowUpAnswerComplete(question, openEndedAnswers[question.id]);
+    }
     return openEndedAnswers[question.id]?.trim().length > 0;
   }
 
@@ -586,6 +613,33 @@ export default function VendorProductAssessmentClient({
                       <h4 className="mt-3 text-lg font-semibold text-[var(--shell-ink)]">
                         {questionNumberById.get(question.id) ?? 1}. {question.prompt}
                       </h4>
+                      {followUpMcById.get(question.id) && followUpMc ? (
+                        // vendor-followup-mc box: the shared option rows; the pick is stored
+                        // in the same string record, encoded.
+                        <div className="mt-5 grid gap-3">
+                          <FollowUpMcOptionRows
+                            questionId={question.id}
+                            mc={followUpMcById.get(question.id)!}
+                            value={decodeVendorFollowUpAnswer(openEndedAnswers[question.id])}
+                            onChange={(answer) =>
+                              setOpenEndedAnswers((current) => ({
+                                ...current,
+                                [question.id]: encodeVendorFollowUpAnswer(answer),
+                              }))
+                            }
+                            otherMaxLength={VENDOR_FOLLOWUP_OTHER_MAX}
+                            otherPlaceholder={followUpMc.strings.shortAnswer}
+                            otherAriaLabel={followUpMc.strings.otherAria}
+                          />
+                          <div
+                            className="pat-meta text-[var(--shell-muted)]"
+                            data-testid="vendor-followup-state"
+                            data-answered={isQuestionAnswered(question) ? "1" : "0"}
+                          >
+                            {isQuestionAnswered(question) ? followUpMc.strings.captured : followUpMc.strings.awaiting}
+                          </div>
+                        </div>
+                      ) : (
                       <textarea
                         className="pat-textarea mt-5"
                         rows={4}
@@ -597,6 +651,7 @@ export default function VendorProductAssessmentClient({
                           }))
                         }
                       />
+                      )}
                     </div>
                   )
                 )}
