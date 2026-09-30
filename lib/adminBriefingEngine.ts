@@ -18,6 +18,8 @@ import {
   type VendorProductInsightSnapshot,
 } from "@/lib/vendorProductInsightEngine";
 import type { VendorAdaptiveOpenEndedQuestionSnapshot } from "@/lib/vendorProductAssessmentPlan";
+import { describeVendorFollowUpAnswer } from "@/lib/assessment/vendorFollowUpMcRuntime";
+import { isVendorFollowUpMcEnabled } from "@/lib/vendorFollowUpMc";
 import { buildProductAssessmentPlan } from "@/lib/vendorProductQuestionBank";
 import {
   VENDOR_PRODUCT_MODULE_KEY,
@@ -383,13 +385,16 @@ function extractProductOpenEndedResponses(input: {
 
       const runtimeQuestion = resolveProductOpenEndedQuestion(questionId);
       const storedQuestion = storedOpenEndedQuestionMap.get(questionId);
+      const questionKey = storedQuestion?.key ?? runtimeQuestion?.key ?? getProductQuestionKeyFromId(questionId);
+      // vendor-followup-mc box (change 6a): flag-on, an encoded pick reads as its selected
+      // labels joined with "; " plus the Other text; flag-off the string is shown as stored.
+      const pickText = isVendorFollowUpMcEnabled() ? describeVendorFollowUpAnswer(questionKey, trimmedResponse) : null;
       return {
         productId: input.productId,
         productName: input.productName,
         vendorName: input.vendorName,
         questionId,
-        questionKey:
-          storedQuestion?.key ?? runtimeQuestion?.key ?? getProductQuestionKeyFromId(questionId),
+        questionKey,
         questionPrompt:
           storedQuestion?.prompt ??
           runtimeQuestion?.prompt ??
@@ -400,7 +405,7 @@ function extractProductOpenEndedResponses(input: {
           storedQuestion?.sectionDescription ??
           runtimeQuestion?.section.description ??
           "Narrative vendor responses from the latest completed product assessment.",
-        responseText: trimmedResponse,
+        responseText: pickText ?? trimmedResponse,
         submittedAt: input.submittedAt,
       } satisfies BriefingProductOpenEndedResponse;
     })

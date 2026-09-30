@@ -137,3 +137,21 @@ export function validateVendorOpenEndedResponses(
 }
 
 export const VENDOR_FOLLOWUP_OTHER_MAX = Math.min(VENDOR_FOLLOWUP_OTHER_MAX_LENGTH, FIRM_FOLLOWUP_OTHER_MAX_LENGTH);
+
+/**
+ * Change 6a: an encoded pick read as text for the briefing readers (BriefingBoard,
+ * the Guide OpenEndedPanel, the Enterprise pages): the selected labels in registry
+ * order joined with "; ", the Other pick replaced by its write-in. Null when the
+ * value is not a pick for a registry question (the reader keeps the string).
+ */
+export function describeVendorFollowUpAnswer(questionKey: string, value: string | null | undefined): string | null {
+  const registry = getVendorFollowUpQuestion(questionKey);
+  const decoded = decodeVendorFollowUpAnswer(value);
+  if (!registry || !decoded) return null;
+  const picked = new Set(decoded.optionKeys);
+  const parts = registry.options
+    .filter((option) => picked.has(option.key))
+    .map((option) => (option.kind === "other" ? (decoded.otherText ?? "").trim() : option.label))
+    .filter((part) => part.length > 0);
+  return parts.length > 0 ? parts.join("; ") : null;
+}

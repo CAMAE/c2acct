@@ -11,18 +11,27 @@ export default function FollowUpAggregatePanel({
   rows,
   firmCount,
   firmsWithSelections,
+  eyebrow = "Follow-up picks · ecosystem",
+  title = "Top-picked option per question",
+  unit = { singular: "firm", plural: "firms" },
+  testId = "followup-aggregate-panel",
 }: {
   rows: FollowUpAggregateRow[];
   firmCount: number;
   firmsWithSelections: number;
+  /** vendor-followup-mc box: the vendor mount passes its own title and counts products; the firm defaults are unchanged. */
+  eyebrow?: string;
+  title?: string;
+  unit?: { singular: string; plural: string };
+  testId?: string;
 }) {
   const withSignal = rows.filter((row) => row.topOption);
   return (
-    <section className="pat-card p-6" data-testid="followup-aggregate-panel">
-      <div className="pat-label">Follow-up picks · ecosystem</div>
-      <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">Top-picked option per question</h2>
+    <section className="pat-card p-6" data-testid={testId}>
+      <div className="pat-label">{eyebrow}</div>
+      <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">{title}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">
-        {firmsWithSelections} of {firmCount} firms have option-based follow-ups. n counts named options only;
+        {firmsWithSelections} of {firmCount} {unit.plural} have option-based follow-ups. n counts named options only;
         &ldquo;Not a significant issue here&rdquo; and &ldquo;Other&rdquo; are excluded and shown separately.
       </p>
       {withSignal.length === 0 ? (
@@ -47,8 +56,8 @@ export default function FollowUpAggregatePanel({
               <div className="min-w-0 text-sm">
                 <div className="font-semibold text-[var(--shell-ink)]">{row.topOption?.label}</div>
                 <div className="mt-1 text-[var(--shell-muted)]">
-                  n = <span className="pat-stat-number text-[var(--shell-ink)]">{row.topOption?.count}</span> · {row.firmsAnswered} firm
-                  {row.firmsAnswered === 1 ? "" : "s"} · {row.includedPicks} picks · {row.excludedPicks} excluded
+                  n = <span className="pat-stat-number text-[var(--shell-ink)]">{row.topOption?.count}</span> · {row.firmsAnswered}{" "}
+                  {row.firmsAnswered === 1 ? unit.singular : unit.plural} · {row.includedPicks} picks · {row.excludedPicks} excluded
                 </div>
               </div>
             </li>

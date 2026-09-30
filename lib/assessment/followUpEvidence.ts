@@ -9,6 +9,11 @@ import {
   type FollowUpSelectionMode,
 } from "@/lib/assessment/firmFollowUpOptions";
 import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
+import {
+  VENDOR_FOLLOWUP_MC_QUESTIONS,
+  VENDOR_FOLLOWUP_MODULE_KEY,
+  getVendorFollowUpQuestion,
+} from "@/lib/assessment/vendorFollowUpOptions";
 import { isPrismaMissingSchemaError, warnPrismaCompatibilityOnce } from "@/lib/prisma-compat";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 
@@ -346,3 +351,151 @@ export async function getFollowUpOtherTexts(): Promise<FollowUpOtherGroup[]> {
 }
 
 export { MODULE_BY_KEY as FIRM_MODULE_BY_KEY, getFirmFollowUpQuestion };
+
+// ---------------------------------------------------------------------------
+// vendor-followup-mc box (change 6b) — the vendor aggregate, through the same
+// exclusion helper: top-picked option per question with n over the latest FINAL
+// submission per product; the same over an ecosystem's products. None and Other
+// never count. Pure builders first, Prisma readers after.
+// ---------------------------------------------------------------------------
+const VENDOR_QUESTION_KEYS = VENDOR_FOLLOWUP_MC_QUESTIONS.map((question) => question.questionKey);
+
+/** Pure: option rows (with submissionId) → per-question top option with n; "firmsAnswered" counts products here. */
+export function summarizeVendorFollowUpAggregate(
+  rows: ReadonlyArray<{ questionKey: string; optionKey: string | null; submissionId: string }>
+): FollowUpAggregateRow[] {
+  const counts = aggregateFollowUpOptionCounts(rows, getVendorFollowUpQuestion);
+  return VENDOR_FOLLOWUP_MC_QUESTIONS.map((question) => {
+    const bucket = counts[question.questionKey];
+    const products = new Set(rows.filter((row) => row.questionKey === question.questionKey && row.optionKey).map((row) => row.submissionId));
+    let topOption: FollowUpAggregateRow["topOption"] = null;
+    if (bucket) {
+      for (const option of question.options) {
+        const count = bucket.counts[option.key] ?? 0;
+        if (count > 0 && (!topOption || count > topOption.count)) {
+          topOption = { key: option.key, label: option.label, count };
+        }
+      }
+    }
+    return {
+      questionKey: question.questionKey,
+      moduleKey: question.moduleKey,
+      pillar: question.pillar,
+      index: question.index,
+      stem: question.stem,
+      topOption,
+      includedPicks: bucket?.includedPicks ?? 0,
+      excludedPicks: bucket?.excludedPicks ?? 0,
+      firmsAnswered: products.size,
+    };
+  });
+}
+
+/** Pure: newest-first or any order in → the latest submission per product. */
+export function pickLatestFinalPerProduct<T extends { id: string; productId: string; createdAt: Date }>(submissions: readonly T[]): T[] {
+  const latest = new Map<string, T>();
+  for (const submission of submissions) {
+    const current = latest.get(submission.productId);
+    if (!current || submission.createdAt > current.createdAt) latest.set(submission.productId, submission);
+  }
+  return Array.from(latest.values());
+}
+
+/** Pure: all vendor option rows → per question: Other write-ins, counts, Other-rate (the admin gauge). */
+export function summarizeVendorFollowUpOtherTexts(
+  rows: ReadonlyArray<{ questionKey: string; optionKey: string | null; otherText: string | null; companyId: string; createdAt: Date }>,
+  companyNames: ReadonlyMap<string, string> = new Map()
+): FollowUpOtherGroup[] {
+  return VENDOR_FOLLOWUP_MC_QUESTIONS.map((question) => {
+    const picks = rows.filter((row) => row.questionKey === question.questionKey && row.optionKey);
+    const others = picks.filter((row) => row.optionKey?.endsWith(".other"));
+    const texts = others
+      .filter((row) => row.otherText && row.otherText.trim().length > 0)
+      .map((row) => ({
+        text: row.otherText as string,
+        companyId: row.companyId,
+        companyName: companyNames.get(row.companyId) ?? null,
+        submittedAt: row.createdAt.toISOString(),
+      }))
+      .sort((left, right) => (left.submittedAt < right.submittedAt ? 1 : -1));
+    return {
+      questionKey: question.questionKey,
+      moduleKey: question.moduleKey,
+      pillar: question.pillar,
+      index: question.index,
+      stem: question.stem,
+      otherCount: others.length,
+      totalPicks: picks.length,
+      otherRate: picks.length > 0 ? others.length / picks.length : null,
+      texts,
+    };
+  });
+}
+
+async function vendorFollowUpRowsFor(submissionIds: string[]): Promise<ItemRow[]> {
+  if (submissionIds.length === 0) return [];
+  try {
+    return await prisma.assessmentItemResponse.findMany({
+      where: { submissionId: { in: submissionIds }, questionKey: { in: VENDOR_QUESTION_KEYS }, optionKey: { not: null } },
+      select: { submissionId: true, questionKey: true, selectionMode: true, optionKey: true, otherText: true },
+      orderBy: { createdAt: "asc" },
+    });
+  } catch (error) {
+    if (isPrismaMissingSchemaError(error)) {
+      warnPrismaCompatibilityOnce(
+        "vendor-followup-aggregate-item-response-missing",
+        "AssessmentItemResponse is missing in the local database. The vendor follow-up aggregate is empty until local Prisma migrations are applied."
+      );
+      return [];
+    }
+    throw error;
+  }
+}
+
+/** The latest final vendor product submission per product (by product id). */
+export async function getVendorFollowUpAggregate(productIds: string[]): Promise<{
+  rows: FollowUpAggregateRow[];
+  productCount: number;
+  productsWithSelections: number;
+}> {
+  if (productIds.length === 0) return { rows: summarizeVendorFollowUpAggregate([]), productCount: 0, productsWithSelections: 0 };
+  const submissions = await prisma.surveySubmission.findMany({
+    where: getSurveyFinalWhere({
+      SurveyModule: { key: VENDOR_FOLLOWUP_MODULE_KEY },
+      Subject: { productId: { in: productIds } },
+    }),
+    orderBy: { createdAt: "desc" },
+    select: { id: true, createdAt: true, Subject: { select: { productId: true } } },
+  });
+  const latest = pickLatestFinalPerProduct(
+    submissions.flatMap((submission) => (submission.Subject?.productId ? [{ id: submission.id, productId: submission.Subject.productId, createdAt: submission.createdAt }] : []))
+  );
+  const rows = await vendorFollowUpRowsFor(latest.map((submission) => submission.id));
+  const submissionProduct = new Map(latest.map((submission) => [submission.id, submission.productId]));
+  const productsWithSelections = new Set(rows.map((row) => submissionProduct.get(row.submissionId))).size;
+  return { rows: summarizeVendorFollowUpAggregate(rows), productCount: productIds.length, productsWithSelections };
+}
+
+export async function getVendorFollowUpOtherTexts(): Promise<FollowUpOtherGroup[]> {
+  try {
+    const rows = await prisma.assessmentItemResponse.findMany({
+      where: { optionKey: { not: null }, questionKey: { in: VENDOR_QUESTION_KEYS } },
+      select: { questionKey: true, optionKey: true, otherText: true, companyId: true, createdAt: true },
+      orderBy: { createdAt: "desc" },
+    });
+    const companyIds = [...new Set(rows.map((row) => row.companyId))];
+    const companies = companyIds.length
+      ? await prisma.company.findMany({ where: { id: { in: companyIds } }, select: { id: true, name: true } })
+      : [];
+    return summarizeVendorFollowUpOtherTexts(rows, new Map(companies.map((company) => [company.id, company.name])));
+  } catch (error) {
+    if (isPrismaMissingSchemaError(error)) {
+      warnPrismaCompatibilityOnce(
+        "vendor-followup-other-item-response-missing",
+        "AssessmentItemResponse is missing in the local database. The vendor Other-rate gauge is empty until local Prisma migrations are applied."
+      );
+      return summarizeVendorFollowUpOtherTexts([]);
+    }
+    throw error;
+  }
+}

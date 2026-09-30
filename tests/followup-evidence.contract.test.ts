@@ -121,7 +121,10 @@ describe("source pins — every consumer mount is flag-gated; option copy lives 
   });
 
   it("admin Other page 404s flag-off and the nav item exists only flag-on", () => {
-    expect(otherPage).toMatch(/if \(!isFollowUpMcEnabled\(\)\) \{\s*notFound\(\);/);
+    // vendor-followup-mc box: the page opens behind either flag; the firm groups stay behind the firm flag.
+    expect(otherPage).toMatch(/if \(!firmEnabled && !vendorEnabled\) \{\s*notFound\(\);/);
+    expect(otherPage).toContain("const firmEnabled = isFollowUpMcEnabled();");
+    expect(otherPage).toContain("firmEnabled ? await getFollowUpOtherTexts() : []");
     expect(nav).toMatch(/isFollowUpMcEnabled\(\)[\s\S]{0,120}\/admin\/followup-other/);
   });
 

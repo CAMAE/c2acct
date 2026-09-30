@@ -447,6 +447,8 @@ export type EcosystemDetailData = {
   // Open-ended responses (most-recent 10 + total count for "Show all")
   openEndedResponses: EcosystemDetailOpenEndedResponse[];
   openEndedTotalCount: number;
+  /** vendor-followup-mc box: the ecosystem vendor's product ids (the vendor follow-up aggregate reads them). */
+  vendorProductIds: string[];
 };
 
 // ---------- Day-14 helpers (pure; exported for unit tests) ----------
@@ -792,6 +794,7 @@ async function buildEcosystemDetail({
     vendorCoverageMap: vendorCoverageMapForVendor(vendorCatalog),
     firmGrid,
     openEndedResponses: openEnded.responses,
+    vendorProductIds: [...vendorProductIds],
     openEndedTotalCount: openEnded.totalCount,
   };
 }

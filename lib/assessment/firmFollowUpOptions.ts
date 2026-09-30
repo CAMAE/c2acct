@@ -702,11 +702,13 @@ export function isFollowUpMcAnswer(value: unknown): value is FollowUpMcAnswer {
  * "not an issue" aggregates to zero, not to a phantom leader.
  */
 export function aggregateFollowUpOptionCounts(
-  rows: ReadonlyArray<{ questionKey: string; optionKey: string | null }>
+  rows: ReadonlyArray<{ questionKey: string; optionKey: string | null }>,
+  // vendor-followup-mc box: the vendor registry passes its own lookup; the firm default is unchanged.
+  lookup: (questionKey: string) => FollowUpQuestion | null = getFirmFollowUpQuestion
 ): Record<string, { counts: Record<string, number>; includedPicks: number; excludedPicks: number }> {
   const result: Record<string, { counts: Record<string, number>; includedPicks: number; excludedPicks: number }> = {};
   for (const row of rows) {
-    const question = getFirmFollowUpQuestion(row.questionKey);
+    const question = lookup(row.questionKey);
     if (!question) {
       continue;
     }

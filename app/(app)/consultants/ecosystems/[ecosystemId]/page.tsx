@@ -8,8 +8,9 @@ import HeadlineMetricsRow from "./_components/HeadlineMetricsRow";
 import LowestEngagementFirmsCard from "./_components/LowestEngagementFirmsCard";
 import OpenEndedPanel from "./_components/OpenEndedPanel";
 import FollowUpAggregatePanel from "@/app/components/assessment/FollowUpAggregatePanel";
-import { getEcosystemFollowUpAggregate } from "@/lib/assessment/followUpEvidence";
+import { getEcosystemFollowUpAggregate, getVendorFollowUpAggregate } from "@/lib/assessment/followUpEvidence";
 import { isFollowUpMcEnabled } from "@/lib/followUpMc";
+import { isVendorFollowUpMcEnabled } from "@/lib/vendorFollowUpMc";
 import VendorAtAGlance from "./_components/VendorAtAGlance";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +33,9 @@ export default async function EcosystemDetailPage({
   }
   // MC follow-on box: top-picked follow-up option per question with n, dark.
   const followUpMcEnabled = isFollowUpMcEnabled();
+  // vendor-followup-mc box (change 6c): the vendor picks over this ecosystem's products.
+  const vendorFollowUpMcEnabled = isVendorFollowUpMcEnabled();
+  const vendorFollowUpAggregate = vendorFollowUpMcEnabled ? await getVendorFollowUpAggregate(detail.vendorProductIds) : null;
   const followUpAggregate = followUpMcEnabled
     ? await getEcosystemFollowUpAggregate(detail.firmGrid.map((row) => row.firmCompanyId))
     : null;
@@ -57,6 +61,17 @@ export default async function EcosystemDetailPage({
         </div>
       </div>
       <OpenEndedPanel data={detail} />
+      {vendorFollowUpMcEnabled && vendorFollowUpAggregate ? (
+        <FollowUpAggregatePanel
+          rows={vendorFollowUpAggregate.rows}
+          firmCount={vendorFollowUpAggregate.productCount}
+          firmsWithSelections={vendorFollowUpAggregate.productsWithSelections}
+          eyebrow="Vendor follow-up picks"
+          title="Top-picked option per product question"
+          unit={{ singular: "product", plural: "products" }}
+          testId="vendor-followup-aggregate-panel"
+        />
+      ) : null}
       {followUpMcEnabled && followUpAggregate ? (
         <FollowUpAggregatePanel
           rows={followUpAggregate.rows}

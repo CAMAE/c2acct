@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
-import { getFollowUpOtherTexts } from "@/lib/assessment/followUpEvidence";
+import { getFollowUpOtherTexts, getVendorFollowUpOtherTexts } from "@/lib/assessment/followUpEvidence";
 import { isFollowUpMcEnabled } from "@/lib/followUpMc";
+import { isVendorFollowUpMcEnabled } from "@/lib/vendorFollowUpMc";
 
 export const dynamic = "force-dynamic";
 
@@ -17,10 +18,17 @@ function formatRate(rate: number | null) {
 }
 
 export default async function AdminFollowUpOtherPage() {
-  if (!isFollowUpMcEnabled()) {
+  // vendor-followup-mc box (change 6d): the vendor questions join the gauge behind their
+  // own flag; the page opens when either flag is on, the firm groups only behind the firm flag.
+  const firmEnabled = isFollowUpMcEnabled();
+  const vendorEnabled = isVendorFollowUpMcEnabled();
+  if (!firmEnabled && !vendorEnabled) {
     notFound();
   }
-  const groups = await getFollowUpOtherTexts();
+  const groups = [
+    ...(firmEnabled ? await getFollowUpOtherTexts() : []),
+    ...(vendorEnabled ? await getVendorFollowUpOtherTexts() : []),
+  ];
   const totalOther = groups.reduce((sum, group) => sum + group.otherCount, 0);
   const totalPicks = groups.reduce((sum, group) => sum + group.totalPicks, 0);
   const ranked = [...groups].sort((left, right) => (right.otherRate ?? -1) - (left.otherRate ?? -1));
