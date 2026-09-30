@@ -1,4 +1,5 @@
 import { isVendorFollowUpMcEnabled } from "@/lib/vendorFollowUpMc";
+import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import { randomUUID } from "node:crypto";
 import { ProductAssessmentPerspective } from "@prisma/client";
 import { redirect } from "next/navigation";
@@ -170,6 +171,7 @@ export default async function VendorProductAssessmentDetailPage({
       profile: productRecord?.ProductProfile ?? null,
     });
 
+  const followUpMessages = (await getRequestLocaleMessages()).vendorFollowUp;
   const persistedPlanSnapshot = serializeVendorProductAssessmentPlan(initialUtilityKeys);
   await prisma.productAssessmentPlan.upsert({
     where: {
@@ -225,10 +227,10 @@ export default async function VendorProductAssessmentDetailPage({
             followUpMc: {
               enabled: true,
               strings: {
-                captured: "Response captured",
-                awaiting: "Awaiting response",
-                shortAnswer: "Short answer",
-                otherAria: "Other, short answer",
+                captured: followUpMessages.captured,
+                awaiting: followUpMessages.awaiting,
+                shortAnswer: followUpMessages.shortAnswer,
+                otherAria: followUpMessages.otherAria,
               },
             },
           }

@@ -1,3 +1,9 @@
+import { encodeVendorFollowUpAnswer } from "@/lib/assessment/vendorFollowUpMcRuntime";
+import { buildVendorAssessmentItemResponseRows } from "@/lib/assessment/vendorItemResponses";
+import { getVendorFollowUpQuestion } from "@/lib/assessment/vendorFollowUpOptions";
+import type { FollowUpMcAnswer } from "@/lib/assessment/firmFollowUpOptions";
+import { isVendorFollowUpMcEnabled } from "@/lib/vendorFollowUpMc";
+import { isPrismaMissingSchemaError, warnPrismaCompatibilityOnce } from "@/lib/prisma-compat";
 import {
   CompanyType,
   MembershipPlan,
@@ -692,8 +698,17 @@ export async function seedVendorProductAssessment(client: DemoSeedClient, input:
   // varies the starting phrase across firms/products; the risk flag advances on
   // its own coprime step so the watch-item also changes response to response.
   const templateCount = openEndedTemplates.length;
+  // vendor-followup-mc box (change 7): with PAT_ENABLE_VENDOR_FOLLOWUP_MC=1 every seeded
+  // product answers all ten follow-ups as picks, spread by product and question so no
+  // question shows one option at 100 percent (Q9 carries an Other write-in on every fourth
+  // product). Flag-off the free-text templates below are written exactly as before.
+  const vendorFollowUpMc = isVendorFollowUpMcEnabled();
   const openEndedResponses = Object.fromEntries(
     openEndedPlan.map((question, index) => {
+      if (vendorFollowUpMc) {
+        const pick = demoVendorFollowUpPick(question.key, input.productIndex);
+        if (pick) return [question.id, encodeVendorFollowUpAnswer(pick)];
+      }
       const riskCount = product.riskFlags.length || 1;
       const riskFlag = product.riskFlags[index % riskCount] ?? "implementation governance";
       const templateIndex = openEndedTemplateIndex(product.key, index, templateCount);
@@ -744,10 +759,63 @@ export async function seedVendorProductAssessment(client: DemoSeedClient, input:
 
   await upsertVendorProductSignals(client, input.product.id, product.utilityKeys, score.score.rawScorePct);
 
+  // vendor-followup-mc box (change 7): the picks as AssessmentItemResponse rows, the same
+  // builder the submit route uses; idempotent (the submission's rows are replaced); missing
+  // schema warns once, as the readers do.
+  if (vendorFollowUpMc) {
+    const { rows } = buildVendorAssessmentItemResponseRows({
+      submissionId,
+      companyId: input.product.companyId,
+      moduleVersion: input.moduleVersion,
+      questions: openEndedPlan,
+      openEndedResponses,
+      enabled: true,
+    });
+    try {
+      await client.assessmentItemResponse.deleteMany({ where: { submissionId } });
+      if (rows.length > 0) await client.assessmentItemResponse.createMany({ data: rows });
+    } catch (error) {
+      if (isPrismaMissingSchemaError(error)) {
+        warnPrismaCompatibilityOnce(
+          "demo-seed-vendor-followup-item-response-missing",
+          "AssessmentItemResponse is missing in the local database. Seeded vendor follow-up picks are skipped until local Prisma migrations are applied."
+        );
+      } else {
+        throw error;
+      }
+    }
+  }
+
   return {
     submissionId,
     score: score.score.rawScorePct,
   };
+}
+
+/**
+ * Deterministic pick per (question, product): six choices rotate with the product index and
+ * the question index, MULTI questions take two, Q9 adds an Other write-in on every fourth
+ * product, Q6 answers "Not a significant issue here" on every fifth. Null for unknown keys.
+ */
+export function demoVendorFollowUpPick(questionKey: string, productIndex: number): FollowUpMcAnswer | null {
+  const question = getVendorFollowUpQuestion(questionKey);
+  if (!question) return null;
+  const choices = question.options.filter((option) => option.kind === "choice");
+  const none = question.options.find((option) => option.kind === "not_significant");
+  const other = question.options.find((option) => option.kind === "other");
+  const first = (productIndex * 5 + question.index * 3) % choices.length;
+  if (question.index === 6 && none && productIndex % 5 === 4) {
+    return { optionKeys: [none.key], otherText: null };
+  }
+  if (question.selectionMode === "MULTI") {
+    const second = (first + 2) % choices.length;
+    const keys = [choices[first].key, choices[second].key];
+    if (question.index === 9 && other && productIndex % 4 === 0) {
+      return { optionKeys: [...keys, other.key], otherText: "Renewal and seat-growth figures from the first-year cohort." };
+    }
+    return { optionKeys: keys, otherText: null };
+  }
+  return { optionKeys: [choices[first].key], otherText: null };
 }
 
 export async function ensureFirm(client: DemoSeedClient, firm: DemoFirmInput) {

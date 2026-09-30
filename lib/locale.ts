@@ -116,6 +116,17 @@ type LocaleMessages = {
     | "pat",
     string
   >;
+  /** vendor-followup-mc box: the vendor follow-up option rows and the "Vendor follow-up picks" panel. */
+  vendorFollowUp: {
+    panelEyebrow: string;
+    panelTitle: string;
+    unitSingular: string;
+    unitPlural: string;
+    captured: string;
+    awaiting: string;
+    shortAnswer: string;
+    otherAria: string;
+  };
   common: {
     scoped: string;
     queued: string;
@@ -268,6 +279,16 @@ const messages: Record<AppLocale, LocaleMessages> = {
       close_navigation_menu: "Close navigation menu",
       copyright: "Copyright 2026 Patalign LLC",
       pat: "PAT — Performance Alignment Technology · a Patalign\u2122 product",
+    },
+    vendorFollowUp: {
+      panelEyebrow: "Vendor follow-up picks",
+      panelTitle: "Top-picked option per product question",
+      unitSingular: "product",
+      unitPlural: "products",
+      captured: "Response captured",
+      awaiting: "Awaiting response",
+      shortAnswer: "Short answer",
+      otherAria: "Other, short answer",
     },
     common: {
       scoped: "Scoped",
@@ -581,6 +602,16 @@ const messages: Record<AppLocale, LocaleMessages> = {
       copyright: "Copyright 2026 Patalign LLC",
       pat: "PAT — Performance Alignment Technology · a Patalign\u2122 product",
     },
+    vendorFollowUp: {
+      panelEyebrow: "Selecciones de seguimiento del proveedor",
+      panelTitle: "Opción más elegida por pregunta de producto",
+      unitSingular: "producto",
+      unitPlural: "productos",
+      captured: "Respuesta registrada",
+      awaiting: "Pendiente de respuesta",
+      shortAnswer: "Respuesta breve",
+      otherAria: "Otro, respuesta breve",
+    },
     common: {
       scoped: "Acotado",
       queued: "En cola",
@@ -893,6 +924,16 @@ const messages: Record<AppLocale, LocaleMessages> = {
       close_navigation_menu: "Fermer le menu de navigation",
       copyright: "Copyright 2026 Patalign LLC",
       pat: "PAT — Performance Alignment Technology · a Patalign\u2122 product",
+    },
+    vendorFollowUp: {
+      panelEyebrow: "Choix de suivi du fournisseur",
+      panelTitle: "Option la plus choisie par question produit",
+      unitSingular: "produit",
+      unitPlural: "produits",
+      captured: "Réponse enregistrée",
+      awaiting: "En attente de réponse",
+      shortAnswer: "Réponse courte",
+      otherAria: "Autre, réponse courte",
     },
     common: {
       scoped: "Cadré",

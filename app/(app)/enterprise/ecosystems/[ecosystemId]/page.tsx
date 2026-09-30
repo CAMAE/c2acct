@@ -13,6 +13,7 @@ import FollowUpAggregatePanel from "@/app/components/assessment/FollowUpAggregat
 import { getEcosystemFollowUpAggregate, getVendorFollowUpAggregate } from "@/lib/assessment/followUpEvidence";
 import { isFollowUpMcEnabled } from "@/lib/followUpMc";
 import { isVendorFollowUpMcEnabled } from "@/lib/vendorFollowUpMc";
+import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import VendorAtAGlance from "./_components/VendorAtAGlance";
 
 export const dynamic = "force-dynamic";
@@ -41,6 +42,7 @@ export default async function EcosystemDetailPage({
   // vendor-followup-mc box (change 6c): the vendor picks over this ecosystem's products.
   const vendorFollowUpMcEnabled = isVendorFollowUpMcEnabled();
   const vendorFollowUpAggregate = vendorFollowUpMcEnabled ? await getVendorFollowUpAggregate(detail.vendorProductIds) : null;
+  const vendorFollowUpMessages = vendorFollowUpMcEnabled ? (await getRequestLocaleMessages()).vendorFollowUp : null;
   const followUpAggregate = followUpMcEnabled
     ? await getEcosystemFollowUpAggregate(detail.firmGrid.map((row) => row.firmCompanyId))
     : null;
@@ -82,9 +84,9 @@ export default async function EcosystemDetailPage({
           rows={vendorFollowUpAggregate.rows}
           firmCount={vendorFollowUpAggregate.productCount}
           firmsWithSelections={vendorFollowUpAggregate.productsWithSelections}
-          eyebrow="Vendor follow-up picks"
-          title="Top-picked option per product question"
-          unit={{ singular: "product", plural: "products" }}
+          eyebrow={vendorFollowUpMessages?.panelEyebrow ?? "Vendor follow-up picks"}
+          title={vendorFollowUpMessages?.panelTitle ?? "Top-picked option per product question"}
+          unit={{ singular: vendorFollowUpMessages?.unitSingular ?? "product", plural: vendorFollowUpMessages?.unitPlural ?? "products" }}
           testId="vendor-followup-aggregate-panel"
         />
       ) : null}

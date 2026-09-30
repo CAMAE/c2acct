@@ -14,6 +14,8 @@ import {
 } from "@/lib/assessment/vendorFollowUpOptions";
 import { applyFollowUpPick, validateFollowUpMcAnswer } from "@/lib/assessment/firmFollowUpOptions";
 import { isVendorFollowUpMcEnabled, PAT_VENDOR_FOLLOWUP_MC_FLAG_ENV } from "@/lib/vendorFollowUpMc";
+import { getLocaleMessages, SUPPORTED_LOCALES } from "@/lib/locale";
+import { demoVendorFollowUpPick } from "@/lib/demoPatEcosystemSeed";
 
 /**
  * vendor-followup-mc box (2026-09-30). The registry is generated from Mythos's
@@ -121,5 +123,37 @@ describe("vendor follow-up registry — verbatim from the options file", () => {
     expect(isVendorFollowUpMcEnabled({ PAT_ENABLE_VENDOR_FOLLOWUP_MC: "true" } as unknown as NodeJS.ProcessEnv)).toBe(false);
     expect(isVendorFollowUpMcEnabled({ PAT_ENABLE_FOLLOWUP_MC: "1" } as unknown as NodeJS.ProcessEnv)).toBe(false);
     expect(isVendorFollowUpMcEnabled({ PAT_ENABLE_VENDOR_FOLLOWUP_MC: "1" } as unknown as NodeJS.ProcessEnv)).toBe(true);
+  });
+});
+
+describe("change 8 — locale carries the panel title and the row states in all three languages", () => {
+  it("every locale has the vendorFollowUp group with non-empty, distinct strings", () => {
+    const seen = new Set<string>();
+    for (const locale of SUPPORTED_LOCALES) {
+      const group = getLocaleMessages(locale).vendorFollowUp;
+      for (const key of ["panelEyebrow", "panelTitle", "unitSingular", "unitPlural", "captured", "awaiting", "shortAnswer", "otherAria"] as const) {
+        expect(group[key].trim().length).toBeGreaterThan(0);
+      }
+      seen.add(group.panelEyebrow);
+    }
+    expect(seen.size).toBe(3);
+  });
+});
+
+describe("change 7 — seeded picks answer every question and never one option at 100 percent", () => {
+  it("over twenty products every registry question sees at least two distinct choices; MULTI takes two; Q9 carries an Other write-in", () => {
+    for (const question of VENDOR_FOLLOWUP_MC_QUESTIONS) {
+      const keys = new Set<string>();
+      for (let productIndex = 0; productIndex < 20; productIndex += 1) {
+        const pick = demoVendorFollowUpPick(question.questionKey, productIndex)!;
+        expect(pick.optionKeys.length).toBeGreaterThan(0);
+        for (const key of pick.optionKeys) keys.add(key);
+        if (question.selectionMode === "MULTI") expect(pick.optionKeys.length).toBeGreaterThanOrEqual(2);
+        if (pick.optionKeys.some((key) => key.endsWith(".other"))) expect(pick.otherText?.length ?? 0).toBeGreaterThan(0);
+      }
+      expect([...keys].filter((key) => !key.endsWith(".none") && !key.endsWith(".other")).length).toBeGreaterThanOrEqual(2);
+    }
+    expect(demoVendorFollowUpPick("evidence_needed_next", 0)!.optionKeys.some((key) => key === "prod.q9.other")).toBe(true);
+    expect(demoVendorFollowUpPick("unknown_key", 0)).toBeNull();
   });
 });
