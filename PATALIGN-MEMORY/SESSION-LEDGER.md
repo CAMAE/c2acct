@@ -1,5 +1,9 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-09-30 · vendor-followup-mc (vendor product follow-up questions as multiple choice) — in progress, unattended
+- Cam pasted this box on top of the 3g session; 3g stops after its WORK 1 (branch feat/3g-leslie-closeout at daddfdfe with R53 to R55 filed) until Cam says otherwise. No feat/3g-lite exists, so this branch feat/vendor-followup-mc is from 265b7ea7 (the 3f head). Read: the box, PAT-RULES.md, PATALIGN-VENDOR-FOLLOWUP-MC-OPTIONS-2026-09-30.md (sha256 05375dc5a8383f8ca8f1deb520960e17bf80de0ce41068b7f0654fcf145ac726). Nothing else.
+- WORK 1: R56 filed in ~/work/inbox-from-mythos/REQUIREMENTS.md verbatim from the box; this commit is the ledger bank.
+
 ## 2026-09-28 · 3f Layout and review pass — in progress, unattended
 - WORK 0: branch feat/3f-layout-review from the local feature/engagement-v1 head; BASE SHA 8649dc55. Base build served on :3000 with the preview flag set; before-captures → ~/work/box3f-proof/before (Home, Methodology, Trust, firm/insights, firm_tier1_operating_baseline drill down, firm/alignment-board, firm home, vendor home; 1440 + 390; .html/.txt at 1440). Baseline type census by scripts/qa/font-floor-proof.mts (new PROOF tool) → $S/b3f-census-base.log.
 - WORK 1: R52 filed in ~/work/inbox-from-mythos/REQUIREMENTS.md (Mythos's file; no REQUIREMENTS.md in the repo), text verbatim from the box; commit "3f: R52" = this ledger bank.
