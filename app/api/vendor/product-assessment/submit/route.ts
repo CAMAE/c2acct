@@ -17,6 +17,9 @@ import {
   serializeVendorProductAssessmentPlan,
 } from "@/lib/vendorProductAssessmentPlan";
 import { validateVendorOpenEndedResponses } from "@/lib/assessment/vendorFollowUpMcRuntime";
+import { buildVendorAssessmentItemResponseRows } from "@/lib/assessment/vendorItemResponses";
+import { recordPatDiagnostic } from "@/lib/patDiagnostics";
+import { isPrismaMissingSchemaError, warnPrismaCompatibilityOnce } from "@/lib/prisma-compat";
 import {
   VENDOR_PRODUCT_MODULE_KEY,
   VENDOR_PRODUCT_QUESTIONS_PER_UTILITY,
@@ -304,6 +307,48 @@ export async function POST(request: Request) {
     await upsertVendorProductSignals(tx, product.id, utilityKeys, score.rawScorePct);
     return createdSubmission;
   });
+
+  // vendor-followup-mc box (change 5): DUAL-WRITE beside the submission JSON, the
+  // firm submit route's choice made the same way — best-effort AFTER the commit (a
+  // failed statement inside a Postgres transaction would abort the submission), one
+  // AssessmentItemResponse row per selected option flag-on and a TEXT row per free
+  // text answer either way; missing schema warns once, anything else is a
+  // diagnostic, never a thrown error. The stored JSON above is untouched.
+  {
+    const { rows } = buildVendorAssessmentItemResponseRows({
+      submissionId: submission.id,
+      companyId: company.id,
+      moduleVersion: moduleRecord.version ?? 1,
+      questions: adaptiveOpenEndedQuestions,
+      openEndedResponses: storedOpenEndedResponses,
+      enabled: process.env,
+    });
+    try {
+      if (rows.length > 0) {
+        await prisma.assessmentItemResponse.createMany({ data: rows });
+      }
+    } catch (error) {
+      if (isPrismaMissingSchemaError(error)) {
+        warnPrismaCompatibilityOnce(
+          "vendor-submit-assessment-item-response-missing",
+          "AssessmentItemResponse writes are unavailable in the local database. Row-wise vendor follow-up responses are skipped until local Prisma migrations are applied."
+        );
+      } else {
+        recordPatDiagnostic({
+          area: "vendor_product",
+          level: "error",
+          status: "error",
+          summary: "AssessmentItemResponse dual-write failed on the vendor product submit; submission kept.",
+          details: {
+            moduleKey: VENDOR_PRODUCT_MODULE_KEY,
+            submissionId: submission.id,
+            rowCount: rows.length,
+            error: error instanceof Error ? error.message.slice(0, 180) : "unknown",
+          },
+        });
+      }
+    }
+  }
 
   return NextResponse.json(
     {
