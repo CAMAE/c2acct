@@ -2,20 +2,16 @@ import type { ReactNode } from "react";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
 import PageHead, { portalEyebrow } from "@/app/components/shell/PageHead";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
-import PatModeToggle, { type PatModeToggleOption } from "@/app/components/pat/PatModeToggle";
 import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import type { InsightSurfaceContent } from "@/lib/insightSurface";
 
 type InsightDetailShellProps = {
-  activeKey: string;
   eyebrow: string;
   /** Box 3f item A (F7): flag-on the eyebrow is the portal name, never the surface's own. */
   audience?: "firm" | "vendor" | "consultant" | "individual";
   title: ReactNode;
   summary: ReactNode;
   surfaceContent: InsightSurfaceContent;
-  toggleAriaLabel: string;
-  toggleOptions: readonly PatModeToggleOption[];
   combinedEvidenceText: ReactNode;
   children?: ReactNode;
   combinedEvidenceLabel?: string;
@@ -29,14 +25,11 @@ type InsightDetailShellProps = {
 };
 
 export default function InsightDetailShell({
-  activeKey,
   eyebrow,
   audience,
   title,
   summary,
   surfaceContent,
-  toggleAriaLabel,
-  toggleOptions,
   combinedEvidenceText,
   children,
   combinedEvidenceLabel = "Combined evidence",
@@ -52,7 +45,7 @@ export default function InsightDetailShell({
   // paywalled readout. The elite surface carries key "elite" across every insight
   // surface (firm, vendor alignment, vendor product), so gating here fixes all of
   // them at the shared component. Keyboard/other surfaces are unaffected.
-  const isEliteBoundarySurface = activeKey === "elite" || surfaceContent.key === "elite";
+  const isEliteBoundarySurface = surfaceContent.key === "elite";
   const visibleVisualLead = isEliteBoundarySurface ? null : visualLead;
 
   const surfaceBody = (
@@ -77,8 +70,8 @@ export default function InsightDetailShell({
     <div className="space-y-8">
       {isNewFrontDoorEnabled() ? (
         // Box 3f items A and H (2026-09-28, flag-on): the shared page head (eyebrow, one H1,
-        // the summary as the subline); the evidence note is gone; the surface
-        // toggle stays under the head.
+        // the summary as the subline); the evidence note is gone. Box 3h (R58, Cam 10/01):
+        // no Pro / Elite / Help pill on any full view.
         <section className="space-y-4">
           <PageHead
             variant="portal"
@@ -95,7 +88,6 @@ export default function InsightDetailShell({
               )
             }
           />
-          <PatModeToggle activeKey={activeKey} ariaLabel={toggleAriaLabel} options={toggleOptions} />
         </section>
       ) : (
       <section className={`${muted ? "pat-card pat-card-muted" : "pat-card"} p-8`}>
@@ -112,13 +104,6 @@ export default function InsightDetailShell({
           {combinedEvidenceNote ? (
             <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{combinedEvidenceNote}</div>
           ) : null}
-        </div>
-        <div className="mt-6">
-          <PatModeToggle
-            activeKey={activeKey}
-            ariaLabel={toggleAriaLabel}
-            options={toggleOptions}
-          />
         </div>
       </section>
       )}

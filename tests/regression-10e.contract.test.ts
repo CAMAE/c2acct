@@ -55,14 +55,15 @@ function alignmentReport(
 const CONTRADICTION = /not live|not yet live|should stay unavailable|is muted|not claiming/i;
 
 describe("10e(3) — vendor alignment Elite surface prose", () => {
-  it("a LIVE (non-locked) insight's elite surface makes no 'not live' claim", () => {
+  it("a LIVE (non-locked) insight has no Elite surface (box 3h): 'elite' yields the Pro content with no 'not live' claim", () => {
     const content = buildVendorAlignmentInsightDetailSurfaceContent({
       report: alignmentReport({ locked: false, tier: 1 }),
       surface: "elite",
     });
     const allText = [content.intro, ...content.items.map((i) => i.body)].join(" ");
-    expect(CONTRADICTION.test(allText)).toBe(false);
-    expect(content.intro).toContain("Elite Insights build on this Pro readout");
+    expect(content.title).toBe("Pro");
+    expect(allText).not.toContain("What Elite adds here");
+    expect(allText).not.toMatch(/not yet live|should stay unavailable/i); // the Pro limits may say "not claiming"; no Elite-tab claim remains
   });
 
   it("a genuinely locked (tier-2) insight still shows the honest locked boundary", () => {
@@ -71,7 +72,7 @@ describe("10e(3) — vendor alignment Elite surface prose", () => {
       surface: "elite",
     });
     const allText = [content.intro, ...content.items.map((i) => i.body)].join(" ");
-    expect(allText).toMatch(/not (a live|live)/i); // placeholder preserved for locked
+    expect(allText).toContain("no live Pro readout"); // the locked boundary stays honest (box 3h: Pro content only)
   });
 });
 

@@ -284,5 +284,17 @@
     "control": "Return to C#Acct / Return to C2Acct",
     "ledgerLine": "box 3f item L (Cam 9/28, A4): the Return to C2Acct menu link leaves every shell (signed out and signed in, every flag set); PAT is Patalign LLC's product and C2Acct appears nowhere. Route * = the shell menu on every page. (the crawl normalizes digits to #, so the baseline name reads \"Return to C#Acct\").",
     "rulingDate": "2026-09-28"
+  },
+  {
+    "route": "*",
+    "control": "Pro / Elite / Help",
+    "ledgerLine": "box 3h (Cam 10/01, Leslie F3 / D2): the Pro / Elite / Help surface pill leaves every insight full view (firm and vendor, tier 1 and tier 2); the full view is one surface, Help sits beside the disclaimer on the hub. Route *: the pill rendered under every ?surface variant.",
+    "rulingDate": "2026-10-01"
+  },
+  {
+    "route": "*",
+    "control": "Open Elite Insights",
+    "ledgerLine": "box 3h (Cam 10/01, Leslie F3 / D2): the Elite tab's placeholder block (\"What Elite adds here\", the duplicate Evidence provenance paragraph, the \"Open Elite Insights\" button) is ruled out of every full view; the Elite cards live on the hub's main page.",
+    "rulingDate": "2026-10-01"
   }
 ]

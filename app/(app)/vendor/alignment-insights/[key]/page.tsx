@@ -1,5 +1,4 @@
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import InsightDetailShell from "@/app/components/insights/InsightDetailShell";
 import VendorAlignmentInsightDetailBody from "@/app/components/insights/detail/VendorAlignmentInsightDetailBody";
@@ -8,9 +7,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import { getVendorAlignmentInsightContent } from "@/lib/insightContent";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import {
-  buildVendorAlignmentInsightDetailSurfaceCards,
   buildVendorAlignmentInsightDetailSurfaceContent,
-  getRequestedVendorAlignmentInsightDetailSurface,
   getVendorAlignmentInsightBundle,
 } from "@/lib/vendorAlignmentInsightEngine";
 import prisma from "@/lib/prisma";
@@ -35,7 +32,6 @@ type Params = {
   key: string;
 };
 
-type SearchParams = { surface?: string };
 
 /**
  * Elite Insights v2 (verdict §4) — render a vendor Tier-2 decision product: V1
@@ -110,15 +106,8 @@ async function renderVendorEliteSurface(
   return null;
 }
 
-export default async function VendorAlignmentInsightDetailPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<Params>;
-  searchParams?: Promise<SearchParams>;
-}) {
+export default async function VendorAlignmentInsightDetailPage({ params }: { params: Promise<Params> }) {
   const { key } = await params;
-  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
     redirect("/sign-in/vendor");
@@ -149,7 +138,6 @@ export default async function VendorAlignmentInsightDetailPage({
   });
   const report = bundle.reports.find((entry) => entry.key === key);
   const content = getVendorAlignmentInsightContent(key);
-  const activeSurface = getRequestedVendorAlignmentInsightDetailSurface(resolvedSearchParams?.surface);
 
   if (!report) {
     notFound();
@@ -171,16 +159,8 @@ export default async function VendorAlignmentInsightDetailPage({
     }
   }
 
-  const surfaceCards = buildVendorAlignmentInsightDetailSurfaceCards({ report });
-  const surfaceContent = buildVendorAlignmentInsightDetailSurfaceContent({
-    report,
-    surface: activeSurface,
-  });
-  const toggleOptions = surfaceCards.map((card) => ({
-    key: card.key,
-    label: card.title,
-    href: card.href ?? `/vendor/alignment-insights/${report.key}?surface=${card.key}`,
-  }));
+  // Box 3h (R58, Cam 10/01): one surface, no Pro / Elite / Help pill, no ?surface.
+  const surfaceContent = buildVendorAlignmentInsightDetailSurfaceContent({ report, surface: "pro" });
   // Block 12a: the full Pro insight body is a shared component rendered here AND
   // inline when a face card expands on /vendor/alignment-insights.
   const visualLead = report.locked ? null : <VendorAlignmentInsightDetailBody report={report} />;
@@ -191,49 +171,29 @@ export default async function VendorAlignmentInsightDetailPage({
 
   return (
     <InsightDetailShell
-      activeKey={activeSurface}
       audience="vendor"
       eyebrow="Vendor alignment insight"
       title={report.title}
       summary={report.locked ? (content?.lockedState?.summary ?? report.currentStateSummary) : report.currentStateSummary}
       surfaceContent={surfaceContent}
-      toggleAriaLabel="Vendor alignment insight views"
-      toggleOptions={toggleOptions}
       combinedEvidenceText={combinedEvidenceText}
       combinedEvidenceNote={report.locked ? "Live with Elite membership." : undefined}
       muted={report.locked}
       visualLead={visualLead}
     >
-      {activeSurface === "elite" ? (
+      {report.locked ? (
+        // A Pro viewer on a tier-2 key: the honest locked preview (v2 name + blurred chart),
+        // never Elite-classified data. Elite viewers never reach here for tier 2.
         <section className="pat-card p-6">
-          <div className="pat-label">Elite Insights</div>
-          {eliteEntitlement.allowed ? (
-            <>
-              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-                Your Elite Insights are live — benchmark comparison, future demand, and an expansion
-                simulation, each grounded in current firm-reviewed evidence.
-              </p>
-              <Link href="/vendor/alignment-insights?mode=elite" className="pat-button-secondary mt-4 inline-flex">
-                Open Elite Insights
-              </Link>
-            </>
-          ) : (
-            <LockedElitePreview
-              title={VENDOR_ELITE_V2_META[report.key as keyof typeof VENDOR_ELITE_V2_META]?.title ?? report.title}
-              description={
-                VENDOR_ELITE_V2_META[report.key as keyof typeof VENDOR_ELITE_V2_META]?.description ??
-                "A deeper, firm-reviewed Elite readout."
-              }
-              shape={
-                report.key === "forward-projection"
-                  ? "bars"
-                  : report.key === "benchmark-comparison"
-                    ? "distribution"
-                    : "bars"
-              }
-              upgradeHref={eliteEntitlement.upgradeHref}
-            />
-          )}
+          <LockedElitePreview
+            title={VENDOR_ELITE_V2_META[report.key as keyof typeof VENDOR_ELITE_V2_META]?.title ?? report.title}
+            description={
+              VENDOR_ELITE_V2_META[report.key as keyof typeof VENDOR_ELITE_V2_META]?.description ??
+              "A deeper, firm-reviewed Elite readout."
+            }
+            shape={report.key === "benchmark-comparison" ? "distribution" : "bars"}
+            upgradeHref={eliteEntitlement.upgradeHref}
+          />
         </section>
       ) : null}
     </InsightDetailShell>

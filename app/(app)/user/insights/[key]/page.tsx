@@ -70,13 +70,6 @@ export default async function UserInsightPage({
 
   const isElite = insight.tier === 2;
   const activeSurface = isElite ? "help" : getRequestedUserInsightDetailSurface(resolvedSearchParams?.surface);
-  const surfaceOptions = isElite
-    ? [{ key: "help", label: "Help", href: `/user/insights/${key}?surface=help` }]
-    : [
-        { key: "help", label: "Help", href: `/user/insights/${key}?surface=help` },
-        { key: "current-evidence", label: "Current evidence", href: `/user/insights/${key}?surface=current-evidence` },
-        { key: "next-step", label: "Next step", href: `/user/insights/${key}?surface=next-step` },
-      ];
 
   const combinedEvidenceText = buildUserCombinedEvidenceText({ insight, userPatContext });
   const surfaceContent = buildUserInsightDetailSurfaceContent({
@@ -88,7 +81,6 @@ export default async function UserInsightPage({
 
   return (
     <InsightDetailShell
-      activeKey={activeSurface}
       audience="individual"
       eyebrow="Individual insight"
       title={insight.title}
@@ -98,8 +90,6 @@ export default async function UserInsightPage({
           : `${insight.description} PAT keeps this view tied to current person-level evidence rather than a fabricated deeper individual engine.`
       }
       surfaceContent={surfaceContent}
-      toggleAriaLabel="Individual insight views"
-      toggleOptions={surfaceOptions}
       combinedEvidenceText={combinedEvidenceText}
       combinedEvidenceNote={isElite ? ELITE_PLACEHOLDER_MESSAGE : undefined}
       muted={isElite}

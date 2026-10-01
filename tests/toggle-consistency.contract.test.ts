@@ -47,7 +47,6 @@ const CANONICAL_TOGGLE_FILES = [
 ] as const;
 
 const CANONICAL_TOGGLE_CONSUMERS = [
-  "app/components/insights/InsightDetailShell.tsx",
   "app/components/pat/PortalPanelSelector.tsx",
   "app/components/membership/MembershipPageShell.tsx",
   "app/components/membership/MembershipCheckoutShell.tsx",

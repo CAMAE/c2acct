@@ -1,17 +1,13 @@
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import InsightDetailShell from "@/app/components/insights/InsightDetailShell";
 import FirmInsightDetailBody from "@/app/components/insights/detail/FirmInsightDetailBody";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
 import {
-  buildFirmInsightDetailSurfaceCards,
   buildFirmInsightDetailSurfaceContent,
-  buildFirmLockedInsightDetailSurfaceCards,
   buildFirmLockedInsightDetailSurfaceContent,
   getFirmInsightReports,
-  getRequestedFirmInsightDetailSurface,
 } from "@/lib/firmInsightEngine";
 import { getFirmInsightContent } from "@/lib/insightContent";
 import { evaluateUnlocked } from "@/lib/insights/evaluateUnlocked";
@@ -21,12 +17,11 @@ import prisma from "@/lib/prisma";
 import { getAlignmentBoardData } from "@/lib/alignmentBoard";
 import { resolveCompanyBoundary } from "@/lib/dataBoundary";
 import { getFirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
-import { buildFirmPeerPosition, buildFirmGapPlan, buildFirmTrajectory, buildFirmThemeDepth, getFirmEvidenceFreshness } from "@/lib/eliteInsightsV2";
+import { buildFirmPeerPosition, buildFirmGapPlan, buildFirmTrajectory, getFirmEvidenceFreshness } from "@/lib/eliteInsightsV2";
 import EliteCardShell from "@/app/components/insights/elite/EliteCardShell";
 import LockedElitePreview from "@/app/components/insights/LockedElitePreview";
 import { FIRM_ELITE_V2_META } from "@/lib/eliteInsightsV2";
 import FirmPeerPositionCard from "@/app/components/insights/elite/FirmPeerPositionCard";
-import FirmThemeEliteDepthCard from "@/app/components/insights/elite/FirmThemeEliteDepthCard";
 import FirmGapPlanCard from "@/app/components/insights/elite/FirmGapPlanCard";
 import FirmTrajectoryCard from "@/app/components/insights/elite/FirmTrajectoryCard";
 import {
@@ -40,10 +35,6 @@ export const dynamic = "force-dynamic";
 
 type Params = {
   key: string;
-};
-
-type SearchParams = {
-  surface?: string;
 };
 
 /**
@@ -123,13 +114,7 @@ async function renderFirmEliteSurface(key: string, companyId: string) {
   return null;
 }
 
-export default async function FirmInsightDetailPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<Params>;
-  searchParams?: Promise<SearchParams>;
-}) {
+export default async function FirmInsightDetailPage({ params }: { params: Promise<Params> }) {
   const sessionUser = await getSessionUser();
   const messages = await getRequestLocaleMessages();
   if (!sessionUser?.companyId) {
@@ -159,7 +144,6 @@ export default async function FirmInsightDetailPage({
 
   await ensureFirmAlignmentSystemMemo();
 
-  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const { key } = await params;
   const tier1Insight = FIRM_TIER1_INSIGHT_DEFINITIONS.find((item) => item.key === key);
   const tier2Insight = FIRM_TIER2_INSIGHT_DEFINITIONS.find((item) => item.key === key);
@@ -187,51 +171,16 @@ export default async function FirmInsightDetailPage({
   const unlockedKeys = new Set(unlockedRecords.map((item) => item.key));
   const unlocked = isTier2 ? false : unlockedKeys.has(key);
   const report = !isTier2 ? insightReports.get(key as (typeof FIRM_TIER1_INSIGHT_DEFINITIONS)[number]["key"]) : null;
-  const activeSurface = getRequestedFirmInsightDetailSurface(resolvedSearchParams?.surface);
-  const visibleSurfaceKey = activeSurface;
 
-  // Block 12b: a tier-1 Elite pane for an ENTITLED firm is REAL theme-scoped peer
-  // depth (percentile band + ranked action), not locked-boundary boilerplate.
-  // Pro-only firms fall through and keep the LockedElitePreview grammar below.
-  if (!isTier2 && isElite && report && activeSurface === "elite" && sessionUser.companyId) {
-    const boundary = await resolveCompanyBoundary(sessionUser.companyId);
-    const signal = await getFirmAlignmentSignal(sessionUser.companyId);
-    const peer = await buildFirmPeerPosition(prisma, sessionUser.companyId, boundary, signal);
-    const depth = buildFirmThemeDepth(
-      peer,
-      report.contributingModules.map((module) => module.key)
-    );
-    return <FirmThemeEliteDepthCard data={depth} themeTitle={insight.title} />;
-  }
-
-  const surfaceCards = report
-    ? buildFirmInsightDetailSurfaceCards({
-        insightKey: key,
-        report,
-        locked: false,
-      })
-    : buildFirmLockedInsightDetailSurfaceCards({
-        insightKey: key,
-        summary: content?.lockedState?.summary,
-      });
-  const toggleOptions = surfaceCards.map((card) => ({
-    key: card.key,
-    label: card.title,
-    href: card.href ?? `/firm/insights/${key}?surface=${card.key}`,
-  }));
-
+  // Box 3h (R58, Cam 10/01): one surface, no Pro / Elite / Help pill, no ?surface.
   const surfaceContent = report
-    ? buildFirmInsightDetailSurfaceContent({
-        report,
-        surface: visibleSurfaceKey,
-      })
+    ? buildFirmInsightDetailSurfaceContent({ report, surface: "pro" })
     : buildFirmLockedInsightDetailSurfaceContent({
-        surface: visibleSurfaceKey,
+        surface: "pro",
         summary: content?.lockedState?.summary,
         what: content?.lockedState?.what,
         why: content?.lockedState?.why,
         how: content?.lockedState?.how,
-        entitled: isElite,
       });
 
   // Block 12a: the full Pro insight body (headline + module completion + colored
@@ -260,7 +209,6 @@ export default async function FirmInsightDetailPage({
 
   return (
     <InsightDetailShell
-      activeKey={visibleSurfaceKey}
       audience="firm"
       eyebrow="Firm alignment insight"
       title={insight.title}
@@ -272,38 +220,25 @@ export default async function FirmInsightDetailPage({
             : (content?.lockedState?.summary ?? "Available with Elite membership.")
       }
       surfaceContent={surfaceContent}
-      toggleAriaLabel="Firm alignment insight views"
-      toggleOptions={toggleOptions}
       combinedEvidenceText={combinedEvidenceText}
       combinedEvidenceNote={isTier2 && !isElite ? "Available with Elite membership." : undefined}
       muted={isTier2}
       visualLead={visualLead}
-      surfaceCollapsed={Boolean(visualLead) && scoredModules.length > 0 && visibleSurfaceKey === "pro"}
+      surfaceCollapsed={Boolean(visualLead) && scoredModules.length > 0}
     >
-      {visibleSurfaceKey === "elite" ? (
+      {isTier2 && !isElite ? (
+        // A Pro viewer on a tier-2 key: the honest locked preview (v2 name + blurred chart),
+        // never Elite-classified data. Elite viewers never reach here for tier 2.
         <section className="pat-card p-6">
-          <div className="pat-label">Elite Insights</div>
-          {isElite ? (
-            <>
-              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-                Your Elite Insights are live — future-state projection, a peer benchmark, and a recommendation
-                engine, each grounded in your firm-reviewed evidence.
-              </p>
-              <Link href="/firm/insights?mode=elite" className="pat-button-secondary mt-4 inline-flex">
-                Open Elite Insights
-              </Link>
-            </>
-          ) : (
-            <LockedElitePreview
-              title={FIRM_ELITE_V2_META[key as keyof typeof FIRM_ELITE_V2_META]?.title ?? insight.title}
-              description={
-                FIRM_ELITE_V2_META[key as keyof typeof FIRM_ELITE_V2_META]?.description ??
-                "A deeper, firm-reviewed Elite readout."
-              }
-              shape={key === "firm_tier2_projection" ? "line" : key === "firm_tier2_benchmark" ? "distribution" : "bars"}
-              upgradeHref={eliteEntitlement.upgradeHref}
-            />
-          )}
+          <LockedElitePreview
+            title={FIRM_ELITE_V2_META[key as keyof typeof FIRM_ELITE_V2_META]?.title ?? insight.title}
+            description={
+              FIRM_ELITE_V2_META[key as keyof typeof FIRM_ELITE_V2_META]?.description ??
+              "A deeper, firm-reviewed Elite readout."
+            }
+            shape={key === "firm_tier2_projection" ? "line" : key === "firm_tier2_benchmark" ? "distribution" : "bars"}
+            upgradeHref={eliteEntitlement.upgradeHref}
+          />
         </section>
       ) : null}
       {!isTier2 && !unlocked ? (

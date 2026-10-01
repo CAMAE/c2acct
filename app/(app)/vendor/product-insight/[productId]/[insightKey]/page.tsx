@@ -15,7 +15,6 @@ import {
 } from "@/lib/insightContent";
 import { PRODUCT_TIER2_INSIGHTS } from "@/lib/vendorPat";
 import {
-  buildVendorProductInsightDetailSurfaceCards,
   buildVendorProductInsightDetailSurfaceContent,
   getRequestedVendorProductInsightDetailSurface,
   getVendorProductInsightSnapshot,
@@ -92,13 +91,6 @@ export default async function VendorProductInsightSlicePage({
   const heroBody = isTier2
     ? content.lockedState?.summary ?? ELITE_PLACEHOLDER_MESSAGE
     : tier1Record?.currentStateSummary ?? content.summary;
-  const surfaceCards = buildVendorProductInsightDetailSurfaceCards({
-    snapshot,
-    insightKey,
-    record: tier1Record ?? null,
-    locked: isTier2,
-    showElite: showEliteToggle,
-  });
   const surfaceContent = buildVendorProductInsightDetailSurfaceContent({
     snapshot,
     insightKey,
@@ -107,11 +99,6 @@ export default async function VendorProductInsightSlicePage({
     locked: isTier2,
     eliteEntitled,
   });
-  const toggleOptions = surfaceCards.map((card) => ({
-    key: card.key,
-    label: card.title,
-    href: card.href ?? `/vendor/product-insight/${snapshot.product.id}/${insightKey}?surface=${card.key}`,
-  }));
   const vendorSignalNode =
     snapshot.vendorSelfReported.latestScore === null ? (
       "--"
@@ -148,15 +135,12 @@ export default async function VendorProductInsightSlicePage({
 
   return (
     <InsightDetailShell
-      activeKey={activeSurface}
       audience="vendor"
       eyebrow="Product insight"
       title={pageTitle}
       summary={heroBody}
       subtitle={snapshot.product.name}
       surfaceContent={surfaceContent}
-      toggleAriaLabel="Product insight views"
-      toggleOptions={toggleOptions}
       combinedEvidenceText={combinedEvidenceText}
       combinedEvidenceNote={isTier2 ? `${ELITE_PLACEHOLDER_CTA}.` : undefined}
       muted={isTier2}

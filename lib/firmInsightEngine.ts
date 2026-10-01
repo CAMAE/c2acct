@@ -13,7 +13,6 @@ import {
   getFirmInsightContent,
 } from "@/lib/insightContent";
 import {
-  buildElitePlaceholderSurfaceContent,
   buildHelpSurfaceContent,
   type InsightSurfaceContent,
 } from "@/lib/insightSurface";
@@ -917,21 +916,6 @@ export function buildFirmInsightDetailSurfaceContent(input: {
           },
         ],
       } satisfies FirmInsightDetailSurfaceContent;
-    case "elite":
-      {
-        const eliteSurface = buildElitePlaceholderSurfaceContent<FirmInsightDetailSurfaceKey>({
-          key: "elite",
-          intro: `${ELITE_PLACEHOLDER_MESSAGE} This is not a live Elite interpretation and does not expose benchmark, projection, recommendation, or comparative content.`,
-          what: "A deeper PAT interpretation layer reserved for benchmark, projection, and recommendation work that is not yet live in this route.",
-          why: "The deeper comparative layer should stay unavailable until PAT can support it honestly with more than current-state evidence alone.",
-          how: `${ELITE_PLACEHOLDER_TITLE}. ${ELITE_PLACEHOLDER_CTA}.`,
-        });
-
-        return {
-          ...eliteSurface,
-          items: [...eliteSurface.items, buildLockedEliteBoundaryItem()],
-        } satisfies FirmInsightDetailSurfaceContent;
-      }
     case "help":
       {
         const helpSurface = buildHelpSurfaceContent<FirmInsightDetailSurfaceKey>({
@@ -981,11 +965,6 @@ export function buildFirmLockedInsightDetailSurfaceContent(input: {
   what?: string | null;
   why?: string | null;
   how?: string | null;
-  // Block 11 N2: when the viewer is ENTITLED to Elite, the tier-2 layer is live,
-  // so the elite surface must NOT render the "not a live Elite interpretation"
-  // placeholder — that contradicted the live Elite pane on the same page. The
-  // placeholder stays only for non-entitled (Pro) viewers.
-  entitled?: boolean;
 }) {
   const summary =
     input.summary ?? "This Elite insight is not live. PAT is not exposing unavailable benchmark, projection, recommendation, or comparative content.";
@@ -996,42 +975,6 @@ export function buildFirmLockedInsightDetailSurfaceContent(input: {
   };
 
   switch (input.surface) {
-    case "elite":
-      if (input.entitled) {
-        return {
-          key: "elite",
-          title: "Elite",
-          intro:
-            "Your Elite Insights for this view are live — a future-state projection, a peer benchmark, and a recommendation engine, each grounded in your firm-reviewed evidence.",
-          items: [
-            {
-              title: "What Elite adds here",
-              body: "Elite turns your current-state alignment into forward and comparative views: where your trajectory is heading, where you sit against peers, and the highest-leverage next moves — all from your firm-reviewed evidence, not new claims.",
-            },
-            {
-              title: "Evidence provenance",
-              body: "Every Elite view is computed from your completed firm module, capability, and question-pattern evidence — no external, forecast, or fabricated data.",
-            },
-          ],
-        } satisfies FirmInsightDetailSurfaceContent;
-      }
-      // Non-entitled (Pro) viewer: keep the governance-compliant locked copy —
-      // the boundary is explicit and named Elite features (peer benchmark,
-      // forecast) are NOT teased on the locked surface. The N2 contradiction
-      // was on the ENTITLED path only (handled above); this branch is unchanged.
-      return {
-        key: "elite",
-        title: "Elite",
-        intro: `${summary} This is not a live Elite interpretation.`,
-        items: [
-          {
-            title: "What it is",
-            body: input.what ?? "A restricted future Elite insight layer.",
-          },
-          lockedBoundary,
-          evidenceStatus,
-        ],
-      } satisfies FirmInsightDetailSurfaceContent;
     case "help":
       return {
         key: "help",

@@ -17,7 +17,6 @@ import {
   getVendorAlignmentInsightContent,
 } from "@/lib/insightContent";
 import {
-  buildElitePlaceholderSurfaceContent,
   buildHelpSurfaceContent,
   type InsightSurfaceContent,
 } from "@/lib/insightSurface";
@@ -1096,49 +1095,6 @@ export function buildVendorAlignmentInsightDetailSurfaceContent(input: {
           },
         ],
       } satisfies VendorAlignmentInsightDetailSurfaceContent;
-    case "elite":
-      {
-      // Block 10e / B8-8: Elite Insights v2 ARE live. For a NON-locked (tier-1)
-      // insight, the elite surface must NOT render the old "not yet live /
-      // should stay unavailable" placeholder — that directly contradicted the
-      // live "Your Elite Insights are live" pane rendered on the same page.
-      // The placeholder is kept only for genuinely locked (tier-2) reports.
-      if (!input.report.locked) {
-        return {
-          key: "elite",
-          title: "Elite",
-          intro:
-            "Elite Insights build on this Pro readout — peer benchmark position, forward demand, and an expansion simulation, each grounded in the same firm-reviewed evidence behind this insight.",
-          items: [
-            {
-              title: "What Elite adds here",
-              body: "Elite turns this current-state signal into comparative and forward views: where you sit against peers, where demand is heading, and how an expansion would land — all from the firm-reviewed evidence behind this insight, not new claims.",
-            },
-            buildAlignmentEvidenceProvenanceItem(
-              input.report,
-              "Every Elite view is computed from this same firm-reviewed PAT evidence — peer position from the cross-firm distribution, demand from the aggregated firm signal, expansion from your current stack — with no external, forecast, or fabricated data."
-            ),
-          ],
-        } satisfies VendorAlignmentInsightDetailSurfaceContent;
-      }
-      const eliteSurface = buildElitePlaceholderSurfaceContent<VendorAlignmentInsightDetailSurfaceKey>({
-        key: "elite",
-        intro: `This is not a live Elite interpretation. ${lockedState?.summary ?? ELITE_PLACEHOLDER_MESSAGE}`,
-        what: lockedState?.what ?? content?.what ?? ELITE_PLACEHOLDER_TITLE,
-        why: lockedState?.why ?? content?.why ?? ELITE_PLACEHOLDER_CTA,
-        how: lockedState?.how ?? content?.how ?? ELITE_PLACEHOLDER_CTA,
-      });
-      return {
-        ...eliteSurface,
-        items: [
-          ...eliteSurface.items,
-          {
-            title: "Locked Elite boundary",
-            body: `${lockedState?.basis ?? "Elite evidence is not available in the current PAT product."} The page is muted because this Elite layer is not live; PAT is not claiming benchmark, projection, scenario, customer, or market-wide proof here.`,
-          },
-        ],
-      } satisfies VendorAlignmentInsightDetailSurfaceContent;
-    }
     case "help":
       {
       const helpSurface = buildHelpSurfaceContent<VendorAlignmentInsightDetailSurfaceKey>({

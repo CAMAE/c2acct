@@ -285,12 +285,10 @@ describe("firm pro unlock rules", () => {
     expect(proSurfaceText).not.toContain("Freshness:");
     expect(proSurfaceText).not.toContain("Sample:");
     expect(proSurfaceText).not.toMatch(/Caveat \d+/);
-    expect(eliteSurface.title).toBe("Elite");
-    expect(eliteSurfaceText).toContain("Live with Elite membership");
-    expect(eliteSurfaceText).not.toContain("Coming soon");
-    expect(eliteSurfaceText).toContain("Locked Elite boundary");
-    expect(eliteSurfaceText).toContain("This is not a live Elite interpretation");
-    expect(eliteSurfaceText).toContain("does not expose unavailable findings");
+    // Box 3h (R58): there is no Elite surface on a full view; "elite" yields the Pro content.
+    expect(eliteSurface.title).toBe("Pro");
+    expect(eliteSurfaceText).toBe(proSurfaceText);
+    expect(eliteSurfaceText).not.toContain("What Elite adds here");
   });
 
   it("keeps no-module and partial-module firm insight surfaces conservative", () => {
@@ -351,7 +349,7 @@ describe("firm pro unlock rules", () => {
     expect(cards.every((card) => card.interactive && card.href?.startsWith("/firm/insights/"))).toBe(true);
     expect(lockedText).toContain("Locked Elite boundary");
     expect(lockedText).toContain("Complete more modules");
-    expect(lockedText).toContain("not a live Elite interpretation");
+    expect(eliteSurface.title).toBe("Pro"); // box 3h: no Elite surface on a full view
     expect(lockedText).not.toContain("peer benchmark");
     expect(lockedText).not.toContain("forecast");
   });
@@ -364,9 +362,9 @@ describe("firm pro unlock rules", () => {
 
     expect(text).toContain('import InsightDetailShell from "@/app/components/insights/InsightDetailShell";');
     expect(text).toContain("<InsightDetailShell");
-    expect(text).toContain("buildFirmLockedInsightDetailSurfaceCards");
     expect(text).toContain("buildFirmLockedInsightDetailSurfaceContent");
-    expect(text).toContain("const visibleSurfaceKey = activeSurface;");
+    expect(text).not.toMatch(/toggleOptions|\?surface=|Open Elite Insights/); // box 3h: no pill
+    expect(text).toContain('buildFirmInsightDetailSurfaceContent({ report, surface: "pro" })'); // box 3h: one surface
     expect(text).not.toContain("PatModeToggle");
     expect(text).not.toContain("Confidence and caveats");
     expect(text).not.toContain("Assessment basis");
