@@ -1,5 +1,8 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-10-01 · 3h insight surfaces, both portals — in progress, unattended
+- WORK 1: branch feat/3h-insight-surfaces from f69f19e6 (feat/vendor-followup-mc head, contains 3f). R58 filed in ~/work/inbox-from-mythos/REQUIREMENTS.md verbatim from the box; this commit is the ledger bank. Read: the box and PAT-RULES.md only.
+
 ## 2026-09-30 · vendor-followup-mc (vendor product follow-up questions as multiple choice) — in progress, unattended
 - Cam pasted this box on top of the 3g session; 3g stops after its WORK 1 (branch feat/3g-leslie-closeout at daddfdfe with R53 to R55 filed) until Cam says otherwise. No feat/3g-lite exists, so this branch feat/vendor-followup-mc is from 265b7ea7 (the 3f head). Read: the box, PAT-RULES.md, PATALIGN-VENDOR-FOLLOWUP-MC-OPTIONS-2026-09-30.md (sha256 05375dc5a8383f8ca8f1deb520960e17bf80de0ce41068b7f0654fcf145ac726). Nothing else.
 - WORK 2: docs/assessment/vendor-followup-mc-options-2026-09-30.md (copy of the option file, sha256 05375dc5...c726 recorded in the registry header); lib/assessment/vendorFollowUpOptions.ts generated from the file (10 questions x 8 options, keys prod.q<n>.<a-f|none|other>, MULTI = best_fit_customer, poor_fit_customer, evidence_needed_next; firm types imported; none/other labels follow the firm registry's "Not a significant issue here" / "Other (short answer)" without the file's trailing period); lib/vendorFollowUpMc.ts flag PAT_ENABLE_VENDOR_FOLLOWUP_MC === "1"; tests/vendor-followup-mc.contract.test.ts re-parses the file and compares every label and consequence verbatim (6 tests green).
