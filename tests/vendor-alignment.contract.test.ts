@@ -233,7 +233,7 @@ describe("vendor alignment catalog", () => {
     expect(emptySurfaceText).toMatch(/Evidence provenance/i);
     expect(emptySurfaceText).toMatch(/Firm PAT source: 0 assessed firms and 0 final firm module submissions/i);
     expect(emptySurfaceText).toMatch(/insufficient module-pattern evidence/i);
-    expect(emptySurfaceText).toMatch(/Insufficient current firm PAT evidence/i);
+    expect(emptySurfaceText).toMatch(/No completed firm PAT/i); // box 3h: the summary lives in the page head, the limits carry the empty state
     expect(partial.confidenceBand).toBe("sample_thin");
     expect(partialReport.confidenceCaveats.join(" ")).toMatch(/based on 1 assessed firm/i);
     expect(full.confidenceBand).toBe("grounded");
@@ -482,13 +482,8 @@ describe("vendor alignment catalog", () => {
     const lockedHelpSurfaceText = lockedHelpSurface.items.map((item) => `${item.title} ${item.body}`).join(" ");
 
     expect(proSurface.title).toBe("Pro");
-    expect(proSurface.items.map((item) => item.title)).toEqual([
-      "Current PAT picture",
-      "Evidence provenance",
-      "Where the signal is strongest",
-      "Where the signal is under pressure",
-      "Current limits",
-    ]);
+    // Box 3h (R58, change 3): the full view is a superset of the panel; the prose cards are gone.
+    expect(proSurface.items.map((item) => item.title)).toEqual(["Current limits", "Evidence provenance"]);
     expect(proSurfaceText).toMatch(/Firm PAT source: 9 assessed firms and 45 final firm module submissions/i);
     expect(proSurfaceText).toMatch(/Module patterns:/i);
     expect(proSurfaceText).toMatch(/Capability evidence:/i);
@@ -511,16 +506,10 @@ describe("vendor alignment catalog", () => {
     expect(proSurfaceText).not.toContain("Freshness:");
     expect(proSurfaceText).not.toContain("Sample:");
     expect(proSurfaceText).not.toMatch(/Caveat \d+/);
-    expect(eliteSurface.title).toBe("Elite");
-    expect(eliteSurface.items.map((item) => item.title)).toEqual([
-      "What it is",
-      "Why it matters",
-      "How to use it",
-      "Locked Elite boundary",
-    ]);
-    expect(eliteSurfaceText).toContain("not a live Elite interpretation");
-    expect(eliteSurfaceText).toContain("Live with Elite membership");
-    expect(eliteSurfaceText).toContain("not claiming benchmark, projection, scenario, customer, or market-wide proof");
+    // Box 3h (R58): there is no Elite surface on a full view; "elite" yields the Pro content.
+    expect(eliteSurface.title).toBe("Pro");
+    expect(eliteSurface.items.map((item) => item.title)).toEqual(["Current limits", "Evidence provenance"]);
+    expect(eliteSurfaceText).not.toContain("What Elite adds here");
     expect(eliteSurfaceText).not.toMatch(/Elite insight is live/i);
     expect(
       lockedHelpSurface.items.map((item) => item.title)

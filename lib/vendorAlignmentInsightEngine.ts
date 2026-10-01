@@ -971,43 +971,7 @@ export function buildVendorAlignmentInsightDetailSurfaceCards(input: {
   ] satisfies VendorAlignmentInsightDetailSurfaceCard[];
 }
 
-function summarizeAlignmentStrengths(report: VendorAlignmentInsightReport) {
-  if (!report.strongestModules.length && !report.contributingCapabilities.length) {
-    return "Insufficient current firm PAT evidence: PAT does not have enough grounded module or capability evidence yet to separate the strongest supports cleanly.";
-  }
 
-  const moduleText = report.strongestModules.length
-    ? `Strongest contributing modules right now: ${report.strongestModules
-        .map((module) => `${module.title} (${formatScore(module.averageScore)})`)
-        .join(", ")}.`
-    : "";
-  const capabilityText = report.contributingCapabilities.length
-    ? `Most relevant supporting capabilities: ${report.contributingCapabilities
-        .map((capability) => `${capability.title} (${formatScore(capability.averageScore)})`)
-        .join(", ")}.`
-    : "";
-
-  return [moduleText, capabilityText].filter(Boolean).join(" ");
-}
-
-function summarizeAlignmentPressure(report: VendorAlignmentInsightReport) {
-  if (!report.weakestModules.length && !report.notableQuestionClusters.length) {
-    return "Insufficient current firm PAT evidence: PAT does not have enough grounded module or question-pattern evidence yet to separate the pressure points cleanly.";
-  }
-
-  const moduleText = report.weakestModules.length
-    ? `Current pressure is showing most clearly in ${report.weakestModules
-        .map((module) => `${module.title} (${formatScore(module.averageScore)})`)
-        .join(", ")}.`
-    : "";
-  const clusterText = report.notableQuestionClusters.length
-    ? `The most visible operating patterns in this readout are ${report.notableQuestionClusters
-        .map((cluster) => `${cluster.title} (${formatScore(cluster.averageScore)})`)
-        .join(", ")}.`
-    : "";
-
-  return [moduleText, clusterText].filter(Boolean).join(" ");
-}
 
 function summarizeAlignmentLimits(report: VendorAlignmentInsightReport) {
   return [report.confidenceSummary, ...report.confidenceCaveats.slice(0, 2)]
@@ -1070,29 +1034,16 @@ export function buildVendorAlignmentInsightDetailSurfaceContent(input: {
         intro: input.report.locked
           ? "This locked Elite insight has no live Pro readout. PAT only shows the current evidence boundary while the deeper Elite layer remains muted and unavailable."
           : "PAT keeps the Pro surface focused on the grounded evidence behind this current vendor alignment readout.",
+        // Box 3h (R58, change 3): the full view is a superset of the inline panel. The
+        // headline, the two bar lists and "What this means" render from the shared body;
+        // the prose cards whose numbers already live in the bars are gone. Order: limits,
+        // then provenance.
         items: [
-          {
-            title: "Current PAT picture",
-            body:
-              `${input.report.currentStateSummary} ` +
-              `The current relevant module average is ${formatScore(input.report.averageModuleScore)}, ` +
-              `with cross-module variance ${
-                input.report.moduleVariance === null ? "not yet separated cleanly" : `of ${round1(input.report.moduleVariance)} points`
-              }.`,
-          },
-          buildAlignmentEvidenceProvenanceItem(input.report),
-          {
-            title: "Where the signal is strongest",
-            body: summarizeAlignmentStrengths(input.report),
-          },
-          {
-            title: "Where the signal is under pressure",
-            body: summarizeAlignmentPressure(input.report),
-          },
           {
             title: "Current limits",
             body: summarizeAlignmentLimits(input.report),
           },
+          buildAlignmentEvidenceProvenanceItem(input.report),
         ],
       } satisfies VendorAlignmentInsightDetailSurfaceContent;
     case "help":
@@ -1126,29 +1077,16 @@ export function buildVendorAlignmentInsightDetailSurfaceContent(input: {
         intro: input.report.locked
           ? "This locked Elite insight has no live Pro readout. PAT only shows the current evidence boundary while the deeper Elite layer remains muted and unavailable."
           : "PAT keeps the Pro surface focused on the grounded evidence behind this current vendor alignment readout.",
+        // Box 3h (R58, change 3): the full view is a superset of the inline panel. The
+        // headline, the two bar lists and "What this means" render from the shared body;
+        // the prose cards whose numbers already live in the bars are gone. Order: limits,
+        // then provenance.
         items: [
-          {
-            title: "Current PAT picture",
-            body:
-              `${input.report.currentStateSummary} ` +
-              `The current relevant module average is ${formatScore(input.report.averageModuleScore)}, ` +
-              `with cross-module variance ${
-                input.report.moduleVariance === null ? "not yet separated cleanly" : `of ${round1(input.report.moduleVariance)} points`
-              }.`,
-          },
-          buildAlignmentEvidenceProvenanceItem(input.report),
-          {
-            title: "Where the signal is strongest",
-            body: summarizeAlignmentStrengths(input.report),
-          },
-          {
-            title: "Where the signal is under pressure",
-            body: summarizeAlignmentPressure(input.report),
-          },
           {
             title: "Current limits",
             body: summarizeAlignmentLimits(input.report),
           },
+          buildAlignmentEvidenceProvenanceItem(input.report),
         ],
       } satisfies VendorAlignmentInsightDetailSurfaceContent;
   }

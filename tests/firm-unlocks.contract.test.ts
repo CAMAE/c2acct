@@ -264,15 +264,8 @@ describe("firm pro unlock rules", () => {
       "Evidence provenance",
     ]);
     expect(proSurface.title).toBe("Pro");
-    expect(proSurface.items.map((item) => item.title)).toEqual([
-      "Current PAT picture",
-      "Evidence provenance",
-      "Where the signal is strongest",
-      "Where the signal is under pressure",
-      "Current limits",
-    ]);
-    expect(proSurfaceText).toContain("Operating model (78%)");
-    expect(proSurfaceText).toContain("Operating model discipline (74%)");
+    // Box 3h (R58, change 3): the full view is a superset of the panel; the prose cards are gone.
+    expect(proSurface.items.map((item) => item.title)).toEqual(["Current limits", "Evidence provenance"]);
     expect(proSurfaceText).toContain("Only 3 relevant modules");
     expect(proSurfaceText).toContain("Firm module source: 3 final firm module submissions");
     expect(proSurfaceText).toContain("Module evidence: Operating model (78%, submitted 2026-04-10T12:00:00.000Z)");

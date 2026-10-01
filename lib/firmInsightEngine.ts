@@ -841,44 +841,7 @@ function buildLockedEliteBoundaryItem() {
   };
 }
 
-function summarizeFirmInsightStrengths(report: FirmInsightReport) {
-  if (!report.strongestModules.length && !report.contributingCapabilities.length) {
-    return "Complete more modules: PAT does not yet have enough grounded module or capability evidence to separate the strongest supports clearly.";
-  }
 
-  const moduleText = report.strongestModules.length
-    ? `Strongest supporting modules right now: ${report.strongestModules
-        .map((module) => `${module.title} (${typeof module.score === "number" ? `${Math.round(module.score)}%` : "--"})`)
-        .join(", ")}.`
-    : "";
-  const capabilityText = report.contributingCapabilities.length
-    ? `Most relevant supporting capabilities: ${report.contributingCapabilities
-        .filter((capability) => capability.score !== null)
-        .map((capability) => `${capability.title} (${Math.round(capability.score ?? 0)}%)`)
-        .join(", ")}.`
-    : "";
-
-  return [moduleText, capabilityText].filter(Boolean).join(" ");
-}
-
-function summarizeFirmInsightPressure(report: FirmInsightReport) {
-  if (!report.weakestModules.length && !report.notableQuestionClusters.length) {
-    return "Complete more modules: PAT does not yet have enough grounded module or question-pattern evidence to separate the current pressure points clearly.";
-  }
-
-  const moduleText = report.weakestModules.length
-    ? `The current drag is showing most clearly in ${report.weakestModules
-        .map((module) => `${module.title} (${typeof module.score === "number" ? `${Math.round(module.score)}%` : "--"})`)
-        .join(", ")}.`
-    : "";
-  const clusterText = report.notableQuestionClusters.length
-    ? `The most visible operating patterns in this readout are ${report.notableQuestionClusters
-        .map((cluster) => `${cluster.title} (${Math.round(cluster.averageScore)}%)`)
-        .join(", ")}.`
-    : "";
-
-  return [moduleText, clusterText].filter(Boolean).join(" ");
-}
 
 function summarizeFirmInsightLimits(report: FirmInsightReport) {
   return [report.confidenceSummary, ...report.confidenceCaveats.slice(0, 2)]
@@ -896,24 +859,16 @@ export function buildFirmInsightDetailSurfaceContent(input: {
         key: "pro",
         title: "Pro",
         intro: "PAT keeps the Pro surface focused on the grounded evidence behind this current firm alignment readout.",
+        // Box 3h (R58, change 3): the full view is a superset of the inline panel. The
+        // headline, the two bar lists and "What this means" render from the shared body;
+        // the prose cards whose numbers already live in the bars are gone. Order: limits,
+        // then provenance.
         items: [
-          {
-            title: "Current PAT picture",
-            body: `${input.report.currentStateSummary} ${input.report.basisSummary}`,
-          },
-          buildFirmInsightEvidenceProvenanceItem(input.report),
-          {
-            title: "Where the signal is strongest",
-            body: summarizeFirmInsightStrengths(input.report),
-          },
-          {
-            title: "Where the signal is under pressure",
-            body: summarizeFirmInsightPressure(input.report),
-          },
           {
             title: "Current limits",
             body: summarizeFirmInsightLimits(input.report),
           },
+          buildFirmInsightEvidenceProvenanceItem(input.report),
         ],
       } satisfies FirmInsightDetailSurfaceContent;
     case "help":
@@ -936,24 +891,16 @@ export function buildFirmInsightDetailSurfaceContent(input: {
         key: "pro",
         title: "Pro",
         intro: "PAT keeps the Pro surface focused on the grounded evidence behind this current firm alignment readout.",
+        // Box 3h (R58, change 3): the full view is a superset of the inline panel. The
+        // headline, the two bar lists and "What this means" render from the shared body;
+        // the prose cards whose numbers already live in the bars are gone. Order: limits,
+        // then provenance.
         items: [
-          {
-            title: "Current PAT picture",
-            body: `${input.report.currentStateSummary} ${input.report.basisSummary}`,
-          },
-          buildFirmInsightEvidenceProvenanceItem(input.report),
-          {
-            title: "Where the signal is strongest",
-            body: summarizeFirmInsightStrengths(input.report),
-          },
-          {
-            title: "Where the signal is under pressure",
-            body: summarizeFirmInsightPressure(input.report),
-          },
           {
             title: "Current limits",
             body: summarizeFirmInsightLimits(input.report),
           },
+          buildFirmInsightEvidenceProvenanceItem(input.report),
         ],
       } satisfies FirmInsightDetailSurfaceContent;
   }

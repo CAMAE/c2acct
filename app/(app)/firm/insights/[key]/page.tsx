@@ -186,10 +186,6 @@ export default async function FirmInsightDetailPage({ params }: { params: Promis
   // Block 12a: the full Pro insight body (headline + module completion + colored
   // module/capability evidence bars + "what this means") is a single shared
   // component rendered here AND inline when a face card expands.
-  const scoredModules = report
-    ? report.contributingModules.filter((module) => typeof module.score === "number")
-    : [];
-
   let visualLead = null;
   if (report) {
     visualLead = <FirmInsightDetailBody report={report} insightKey={key} />;
@@ -224,7 +220,6 @@ export default async function FirmInsightDetailPage({ params }: { params: Promis
       combinedEvidenceNote={isTier2 && !isElite ? "Available with Elite membership." : undefined}
       muted={isTier2}
       visualLead={visualLead}
-      surfaceCollapsed={Boolean(visualLead) && scoredModules.length > 0}
     >
       {isTier2 && !isElite ? (
         // A Pro viewer on a tier-2 key: the honest locked preview (v2 name + blurred chart),
