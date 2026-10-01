@@ -52,7 +52,6 @@ function alignmentReport(
   };
 }
 
-const CONTRADICTION = /not live|not yet live|should stay unavailable|is muted|not claiming/i;
 
 describe("10e(3) — vendor alignment Elite surface prose", () => {
   it("a LIVE (non-locked) insight has no Elite surface (box 3h): 'elite' yields the Pro content with no 'not live' claim", () => {
