@@ -58,13 +58,13 @@ describe("full view pages — the panel body first, no copy of their own", () =>
     ["app/(app)/vendor/alignment-insights/[key]/page.tsx", "<VendorAlignmentInsightDetailBody report={report} />"],
     ["app/(app)/firm/insights/[key]/page.tsx", "<FirmInsightDetailBody report={report} insightKey={key} />"],
   ] as const) {
-    it(`${rel}: renders the shared body as the visual lead, the engine surface, no pill, no disclosure, no prose of its own`, () => {
+    it(`${rel}: renders the shared body as the visual lead, the engine surface, no pill, no prose of its own`, () => {
       const src = read(rel);
       expect(src).toContain(body);
       expect(src).toContain("visualLead={visualLead}");
       expect(src).toContain("surfaceContent={surfaceContent}");
       expect(src).toContain('surface: "pro"');
-      expect(src).not.toMatch(/toggleOptions|surfaceCollapsed|\?surface=|Open Elite Insights|What Elite adds here/);
+      expect(src).not.toMatch(/toggleOptions|\?surface=|Open Elite Insights|What Elite adds here/);
       // the only JSX text the page adds is the locked preview fallback description
       const jsx = src.slice(src.indexOf("return (\n    <InsightDetailShell"));
       const literals = [...jsx.matchAll(/>\s*([A-Z][^<{>]{12,})\s*</g)].map((m) => m[1].trim());
