@@ -19,7 +19,6 @@ import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import {
   buildVendorAlignmentEliteInsightCards,
   buildVendorAlignmentProInsightCards,
-  getRequestedVendorAlignmentInsightOverviewMode,
   getVendorAlignmentInsightBundle,
 } from "@/lib/vendorAlignmentInsightEngine";
 
@@ -36,16 +35,16 @@ type SearchParams = {
   readout?: string;
 };
 
-function getModeHref(mode: "pro" | "elite" | "help") {
-  return `/vendor/alignment-insights?mode=${mode}`;
-}
-
 export default async function VendorAlignmentInsightsPage({
   searchParams,
 }: {
   searchParams?: Promise<SearchParams>;
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  // Box 3h (R58): the hub has no modes; a saved ?mode link lands on the hub itself.
+  if (typeof resolvedSearchParams?.mode === "string") {
+    redirect("/vendor/alignment-insights");
+  }
   const messages = await getRequestLocaleMessages();
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
@@ -84,7 +83,6 @@ export default async function VendorAlignmentInsightsPage({
   // tells the vendor so instead of presenting the averages as settled.
   const peerBenchmarkSuppressed = bundle.benchmarkSuppression.suppressed && bundle.sampleSize > 0;
   const eliteEntitlement = await resolveMembershipEntitlement(sessionUser, "vendor", MEMBERSHIP_PLAN.ELITE);
-  const activeMode = getRequestedVendorAlignmentInsightOverviewMode(resolvedSearchParams?.mode);
   // Block 12a: every Pro face card expands inline into the COMPLETE insight body
   // (same component the detail route renders), not a text-only readout.
   const reportByKey = new Map(bundle.reports.map((report) => [report.key, report]));
@@ -120,19 +118,13 @@ export default async function VendorAlignmentInsightsPage({
       return eliteFace ? { ...card, eliteFace } : card;
     });
   }
-  const toggleOptions = [
-    { key: "pro", label: "Pro Insights", href: getModeHref("pro") },
-    { key: "elite", label: "Elite Insights", href: getModeHref("elite") },
-    { key: "help", label: "Help", href: getModeHref("help") },
-  ] as const;
-
   return (
     <InsightsModeShell
       initialReadoutKey={typeof resolvedSearchParams?.readout === "string" ? resolvedSearchParams.readout : null}
-      activeMode={activeMode}
       audience="vendor"
       eyebrow="Vendor alignment insights"
       title={messages.insights.vendorAlignment.heroTitle}
+      helpHref="/vendor?panel=help"
       audienceTerms={["Vendor"]}
       heroBody={messages.insights.vendorAlignment.heroBody}
       currentStateSummary={
@@ -142,8 +134,6 @@ export default async function VendorAlignmentInsightsPage({
             ? "Insufficient peer data — fewer than 5 contributing firms. PAT shows these cross-firm readings as early evidence only and does not publish them as a peer benchmark until the peer set clears the safe harbor."
             : undefined
       }
-      toggleAriaLabel="Vendor alignment insight modes"
-      toggleOptions={toggleOptions}
       proPanel={{
         title: "Pro insights",
         intro: "Concise current-state vendor alignment insight grounded in current firm PAT evidence.",
@@ -181,27 +171,6 @@ export default async function VendorAlignmentInsightsPage({
               },
             ],
         columnsClassName: "md:grid-cols-2 xl:grid-cols-3",
-      }}
-      helpPanel={{
-        title: "Help",
-        intro: "Use this page to review the current vendor-facing alignment readouts built from current firm evidence, then open the insight that best matches the adoption conditions you need to understand.",
-        infoCards: [
-          {
-            title: "Pro insights",
-            body: "Open these cards for current-state alignment readouts grounded in completed firm PAT modules, capability scores, and answer-cluster evidence.",
-          },
-          {
-            title: "Elite insights",
-            body: "Live with Elite membership.",
-            tone: "muted",
-            badgeLabel: "Elite",
-            badgeTone: "locked",
-          },
-          {
-            title: "Why it is useful",
-            body: "These insights help vendors understand the current operating environment they are selling into before they shape messaging, rollout, or implementation expectations.",
-          },
-        ],
       }}
     />
   );

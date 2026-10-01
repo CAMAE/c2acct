@@ -688,7 +688,7 @@ export function buildFirmEliteInsightCards({ elite = false }: { elite?: boolean 
         title: meta?.title ?? insight.title,
         summary: meta?.description ?? insight.title,
         tone: "active",
-        href: `/firm/insights/${insight.key}?surface=elite`,
+        href: `/firm/insights/${insight.key}`,
         interactive: true,
         supportingText: null,
       } satisfies FirmInsightOverviewCard;

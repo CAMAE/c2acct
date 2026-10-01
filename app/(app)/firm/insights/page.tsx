@@ -20,7 +20,6 @@ import {
   buildFirmEliteInsightCards,
   buildFirmProInsightCards,
   getFirmInsightReports,
-  getRequestedFirmInsightOverviewMode,
 } from "@/lib/firmInsightEngine";
 import { evaluateUnlocked } from "@/lib/insights/evaluateUnlocked";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
@@ -44,16 +43,16 @@ type SearchParams = {
   readout?: string;
 };
 
-function getModeHref(mode: "pro" | "elite" | "help") {
-  return `/firm/insights?mode=${mode}`;
-}
-
 export default async function FirmInsightsPage({
   searchParams,
 }: {
   searchParams?: Promise<SearchParams>;
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  // Box 3h (R58): the hub has no modes; a saved ?mode link lands on the hub itself.
+  if (typeof resolvedSearchParams?.mode === "string") {
+    redirect("/firm/insights");
+  }
   const messages = await getRequestLocaleMessages();
   const sessionUser = await getSessionUser();
   if (!sessionUser?.companyId) {
@@ -92,7 +91,6 @@ export default async function FirmInsightsPage({
   ]);
 
   const unlockedKeys = new Set(unlocked.map((item) => item.key));
-  const activeMode = getRequestedFirmInsightOverviewMode(resolvedSearchParams?.mode);
   const completedModules = moduleProgress.filter((module) => module.latestSubmittedAt).length;
   // Block 12a: every Pro face card expands inline into the COMPLETE insight body
   // (same component the detail route renders), not a text-only readout — so all
@@ -122,12 +120,6 @@ export default async function FirmInsightsPage({
       return eliteFace ? { ...card, eliteFace } : card;
     });
   }
-  const toggleOptions = [
-    { key: "pro", label: "Pro Insights", href: getModeHref("pro") },
-    { key: "elite", label: "Elite Insights", href: getModeHref("elite") },
-    { key: "help", label: "Help", href: getModeHref("help") },
-  ] as const;
-
   // Box 3f item F (F3): only the zero state renders as a callout; the filler line is gone.
   const currentStateSummary =
     completedModules === 0
@@ -201,16 +193,14 @@ export default async function FirmInsightsPage({
   return (
     <InsightsModeShell
       initialReadoutKey={typeof resolvedSearchParams?.readout === "string" ? resolvedSearchParams.readout : null}
-      activeMode={activeMode}
       audience="firm"
       eyebrow="Firm alignment insights"
       title={messages.insights.firm.heroTitle}
+      helpHref="/firm?panel=help"
       audienceTerms={["Firm"]}
       heroBody={messages.insights.firm.heroBody}
       currentStateSummary={currentStateSummary}
-      heroSupplement={activeMode === "pro" ? operatingPicture : undefined}
-      toggleAriaLabel="Firm alignment insight modes"
-      toggleOptions={toggleOptions}
+      heroSupplement={operatingPicture}
       proPanel={{
         title: messages.insights.firm.proTitle,
         intro: messages.insights.firm.proBody,
@@ -248,27 +238,6 @@ export default async function FirmInsightsPage({
               },
             ],
         columnsClassName: "md:grid-cols-2 xl:grid-cols-3",
-      }}
-      helpPanel={{
-        title: "Help",
-        intro: "Use this page to review the current firm-side operating picture, then open the insight that best matches the decision you need to make next.",
-        infoCards: [
-          {
-            title: "Pro insights",
-            body: "Open these cards for grounded current-state readouts built from current module, capability, and question-pattern evidence.",
-          },
-          {
-            title: "Elite insights",
-            body: "Live with Elite membership.",
-            tone: "muted",
-            badgeLabel: "Elite",
-            badgeTone: "locked",
-          },
-          {
-            title: "How to use it",
-            body: "Start with the insight that matches your biggest current operating question, then use the insight page to review the grounded Pro evidence or the Help view in simpler PAT language.",
-          },
-        ],
       }}
     />
   );

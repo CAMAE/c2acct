@@ -918,7 +918,7 @@ export function buildVendorAlignmentEliteInsightCards(
           title: meta?.title ?? report.title,
           summary: meta?.description ?? report.currentStateSummary,
           tone: "active",
-          href: `/vendor/alignment-insights/${report.key}?surface=elite`,
+          href: `/vendor/alignment-insights/${report.key}`,
           interactive: true,
           supportingText: null,
         } satisfies VendorAlignmentInsightOverviewCard;

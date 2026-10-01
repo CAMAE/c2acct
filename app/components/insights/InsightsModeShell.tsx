@@ -8,12 +8,17 @@ import InsightStatusBadge from "@/app/components/insights/InsightStatusBadge";
 import InsightSurfaceCardGrid, { type InsightSurfaceGridCard } from "@/app/components/insights/InsightSurfaceCardGrid";
 import LockedElitePreview, { type LockedElitePreviewProps } from "@/app/components/insights/LockedElitePreview";
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
-import PatModeToggle from "@/app/components/pat/PatModeToggle";
 import OutputDisclaimer from "@/app/components/trust/OutputDisclaimer";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 
-export type InsightsModeKey = "pro" | "elite" | "help";
-
+/**
+ * Box 3h (R58, Cam 10/01): the insight hub has no modes. One page: the head, the
+ * zero-state callout, the operating brief (firm), then the ELITE section above the
+ * Pro section. An Elite account sees its live Elite cards; a Pro account sees the
+ * locked previews and one "Elite insights" text link in the head that jumps to
+ * them. Help sits in the page footer beside the disclaimer. The ?mode param and the
+ * Pro / Elite / Help pills are gone (the hubs redirect ?mode to themselves).
+ */
 type InsightInfoCard = {
   title: string;
   body: string;
@@ -23,14 +28,14 @@ type InsightInfoCard = {
   tone?: "default" | "muted";
 };
 
-type InsightsModePanel = {
+export type InsightsModePanel = {
   title: string;
   intro: string;
   cards?: readonly InsightSurfaceGridCard[];
   infoCards?: readonly InsightInfoCard[];
   // B9c: honest locked-Elite previews (v2 name + blurred chart) — one component
   // for the index cards, matching the detail surfaces. Takes precedence over
-  // `cards` when present (Pro user on the Elite tab).
+  // `cards` when present (a Pro account's Elite section).
   lockedPreviews?: readonly LockedElitePreviewProps[];
   columnsClassName?: string;
 };
@@ -38,82 +43,61 @@ type InsightsModePanel = {
 type InsightsModeShellProps = {
   /** R34: the card key whose readout opens on load (?readout=<key>). */
   initialReadoutKey?: string | null;
-  activeMode: InsightsModeKey;
   /** 14a — portal the hero chips point their "← Workspace" back link at. Omitted
       on flag-dark surfaces (individual insights) → no chips. */
   audience?: HeroAudience;
   eyebrow: string;
   heroBody: ReactNode;
   proPanel: InsightsModePanel;
-  // B8-8: optional — surfaces with no Elite layer omit it (and render no Elite toggle).
+  /** The Elite section, rendered ABOVE the Pro section. Surfaces with no Elite layer omit it. */
   elitePanel?: InsightsModePanel;
-  helpPanel: InsightsModePanel;
+  /** The page-footer Help link (the portal's help panel). */
+  helpHref: string;
   title: string;
-  toggleAriaLabel: string;
-  toggleOptions: ReadonlyArray<{
-    key: InsightsModeKey;
-    label: string;
-    href: string;
-  }>;
   audienceTerms?: string[];
   currentStateSummary?: ReactNode;
   heroSupplement?: ReactNode;
 };
 
-export default function InsightsModeShell({
-  initialReadoutKey,
-  activeMode,
-  audience,
-  eyebrow,
-  heroBody,
-  proPanel,
-  elitePanel,
-  helpPanel,
-  title,
-  toggleAriaLabel,
-  toggleOptions,
-  audienceTerms,
-  currentStateSummary,
-  heroSupplement,
-}: InsightsModeShellProps) {
-  const activePanel =
-    activeMode === "pro"
-      ? proPanel
-      : activeMode === "elite" && elitePanel
-        ? elitePanel
-        : helpPanel;
+const ELITE_SECTION_ID = "elite-insights";
 
-  const panelSection = (
-    <section className="space-y-4" key={activeMode}>
+function PanelSection({
+  panel,
+  id,
+  initialReadoutKey,
+  testId,
+}: {
+  panel: InsightsModePanel;
+  id?: string;
+  initialReadoutKey: string | null;
+  testId: string;
+}) {
+  return (
+    <section className="space-y-4 scroll-mt-24" id={id} data-testid={testId}>
       <div>
-        <h2 className="text-2xl font-semibold text-[var(--shell-ink)]">{activePanel.title}</h2>
-        <p className="mt-1 text-sm text-[var(--shell-muted)]">{activePanel.intro}</p>
+        <h2 className="text-2xl font-semibold text-[var(--shell-ink)]">{panel.title}</h2>
+        <p className="mt-1 text-sm text-[var(--shell-muted)]">{panel.intro}</p>
       </div>
-      {activePanel.lockedPreviews && activePanel.lockedPreviews.length > 0 ? (
-        <section className={`grid gap-5 ${activePanel.columnsClassName ?? "md:grid-cols-2 xl:grid-cols-3"}`}>
-          {activePanel.lockedPreviews.map((preview) => (
+      {panel.lockedPreviews && panel.lockedPreviews.length > 0 ? (
+        <section className={`grid gap-5 ${panel.columnsClassName ?? "md:grid-cols-2 xl:grid-cols-3"}`}>
+          {panel.lockedPreviews.map((preview) => (
             <LockedElitePreview key={preview.title} {...preview} />
           ))}
         </section>
-      ) : activePanel.cards ? (
+      ) : panel.cards ? (
         <InsightSurfaceCardGrid
           readoutMode={isNewFrontDoorEnabled() ? "drawer" : "inline"}
-          initialReadoutKey={isNewFrontDoorEnabled() ? initialReadoutKey ?? null : null}
-          cards={activePanel.cards}
-          columnsClassName={activePanel.columnsClassName}
+          initialReadoutKey={isNewFrontDoorEnabled() ? initialReadoutKey : null}
+          cards={panel.cards}
+          columnsClassName={panel.columnsClassName}
         />
-      ) : activePanel.infoCards ? (
-        <section className={`grid gap-5 ${activePanel.columnsClassName ?? "xl:grid-cols-3"}`}>
-          {activePanel.infoCards.map((card) => (
-            <article
-              key={card.title}
-              className={`${card.tone === "muted" ? "pat-card pat-card-muted" : "pat-card"} p-6`}
-            >
+      ) : panel.infoCards ? (
+        <section className={`grid gap-5 ${panel.columnsClassName ?? "xl:grid-cols-3"}`}>
+          {panel.infoCards.map((card) => (
+            <article key={card.title} className={`${card.tone === "muted" ? "pat-card pat-card-muted" : "pat-card"} p-6`}>
               <div className="flex items-start justify-between gap-4">
                 <div className="text-lg font-semibold text-[var(--shell-ink)]">{card.title}</div>
-                {card.badgeLabel ? (
-                  <InsightStatusBadge label={card.badgeLabel} tone={card.badgeTone} />
-                ) : null}
+                {card.badgeLabel ? <InsightStatusBadge label={card.badgeLabel} tone={card.badgeTone} /> : null}
               </div>
               <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{card.body}</p>
               {card.actions ? <div className="mt-5 flex flex-wrap gap-3">{card.actions}</div> : null}
@@ -123,23 +107,42 @@ export default function InsightsModeShell({
       ) : null}
     </section>
   );
+}
+
+export default function InsightsModeShell({
+  initialReadoutKey,
+  audience,
+  eyebrow,
+  heroBody,
+  proPanel,
+  elitePanel,
+  helpHref,
+  title,
+  audienceTerms,
+  currentStateSummary,
+  heroSupplement,
+}: InsightsModeShellProps) {
+  const readoutKey = initialReadoutKey ?? null;
+  const proAccount = !!(elitePanel?.lockedPreviews && elitePanel.lockedPreviews.length > 0);
+  const eliteLink = proAccount ? (
+    <Link href={`#${ELITE_SECTION_ID}`} className="text-[var(--brand-c2-blue)] hover:underline" data-testid="insights-contextual-link">
+      Elite insights
+    </Link>
+  ) : null;
+  const sections = (
+    <>
+      {elitePanel ? <PanelSection panel={elitePanel} id={ELITE_SECTION_ID} initialReadoutKey={readoutKey} testId="insights-elite-section" /> : null}
+      <PanelSection panel={proPanel} initialReadoutKey={readoutKey} testId="insights-pro-section" />
+      <div className="flex flex-wrap items-center justify-between gap-4" data-testid="insights-page-footer">
+        <OutputDisclaimer variant="note" />
+        <Link href={helpHref} className="pat-meta font-semibold text-[var(--shell-muted)] hover:text-[var(--shell-ink)]">
+          Help
+        </Link>
+      </div>
+    </>
+  );
 
   if (isNewFrontDoorEnabled()) {
-    // Box 3f items A and F (2026-09-28): the shared page head (portal name as the eyebrow,
-    // one H1, the hero body as the subline, the hero chips top-right); the pills collapse
-    // to one contextual text link ("Elite insights" on a Pro account, "Pro insights" when
-    // another mode is open, nothing on Elite); Help sits in the page footer beside the
-    // disclaimer; the grey callout renders only for the zero state the pages pass.
-    const proOption = toggleOptions.find((option) => option.key === "pro");
-    const eliteOption = toggleOptions.find((option) => option.key === "elite");
-    const helpOption = toggleOptions.find((option) => option.key === "help");
-    const proAccount = !!(elitePanel?.lockedPreviews && elitePanel.lockedPreviews.length > 0);
-    const contextual =
-      activeMode !== "pro" && proOption
-        ? { href: proOption.href, label: "Pro insights" }
-        : proAccount && eliteOption
-          ? { href: eliteOption.href, label: "Elite insights" }
-          : null;
     return (
       <div className="space-y-8">
         <PageHead
@@ -149,13 +152,7 @@ export default function InsightsModeShell({
           title={<PatAudienceTitle as="span" title={title} audienceTerms={audienceTerms ?? []} />}
           subline={heroBody}
           aside={audience ? <HeroChips audience={audience} /> : null}
-          actions={
-            contextual ? (
-              <Link href={contextual.href} className="text-[var(--brand-c2-blue)] hover:underline" data-testid="insights-contextual-link">
-                {contextual.label}
-              </Link>
-            ) : null
-          }
+          actions={eliteLink}
         />
         {currentStateSummary ? (
           <div className="pat-soft-panel p-4 text-sm leading-6 text-[var(--shell-muted)]" data-testid="insights-zero-state">
@@ -163,15 +160,7 @@ export default function InsightsModeShell({
           </div>
         ) : null}
         {heroSupplement}
-        {panelSection}
-        <div className="flex flex-wrap items-center justify-between gap-4" data-testid="insights-page-footer">
-          <OutputDisclaimer variant="note" />
-          {helpOption ? (
-            <Link href={helpOption.href} className="pat-meta font-semibold text-[var(--shell-muted)] hover:text-[var(--shell-ink)]">
-              Help
-            </Link>
-          ) : null}
-        </div>
+        {sections}
       </div>
     );
   }
@@ -194,18 +183,10 @@ export default function InsightsModeShell({
             {currentStateSummary}
           </div>
         ) : null}
-        <div className="mt-6">
-          <PatModeToggle
-            activeKey={activeMode}
-            ariaLabel={toggleAriaLabel}
-            options={toggleOptions}
-          />
-        </div>
+        {eliteLink ? <div className="pat-meta mt-6 font-semibold">{eliteLink}</div> : null}
       </section>
       {heroSupplement}
-
-      {panelSection}
-      <OutputDisclaimer variant="note" />
+      {sections}
     </div>
   );
 }

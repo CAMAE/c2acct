@@ -8,7 +8,6 @@ import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership"
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
 import {
   buildVendorProductProInsightCards,
-  getRequestedVendorProductInsightDetailMode,
   getVendorProductInsightSnapshot,
 } from "@/lib/vendorProductInsightEngine";
 
@@ -23,10 +22,6 @@ type SearchParams = {
   /** R34: card key whose readout opens on load. */
   readout?: string;
 };
-
-function getModeHref(productId: string, mode: "pro" | "elite" | "help") {
-  return `/vendor/product-insight/${productId}?mode=${mode}`;
-}
 
 function formatScore(score: number | null) {
   if (score === null) {
@@ -44,6 +39,10 @@ export default async function VendorProductInsightDetailPage({
 }) {
   const { productId } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  // Box 3h (R58): the shell has no modes; a saved ?mode link lands on this hub itself.
+  if (typeof resolvedSearchParams?.mode === "string") {
+    redirect(`/vendor/product-insight/${(await params).productId}`);
+  }
   const messages = await getRequestLocaleMessages();
   const sessionUser = await getSessionUser();
 
@@ -81,13 +80,8 @@ export default async function VendorProductInsightDetailPage({
     notFound();
   }
 
-  const activeMode = getRequestedVendorProductInsightDetailMode(resolvedSearchParams?.mode);
   // B8-8: no Elite layer exists for product intelligence yet — render NO Elite
   // toggle (honest), only Pro + Help.
-  const toggleOptions = [
-    { key: "pro", label: "Pro Insights", href: getModeHref(snapshot.product.id, "pro") },
-    { key: "help", label: "Help", href: getModeHref(snapshot.product.id, "help") },
-  ] as const;
   // Block 12a: every product Pro face card expands inline into the COMPLETE
   // insight body (same component the detail route renders). Previously these
   // cards navigated away with no inline readout.
@@ -99,10 +93,10 @@ export default async function VendorProductInsightDetailPage({
   return (
     <InsightsModeShell
       initialReadoutKey={typeof resolvedSearchParams?.readout === "string" ? resolvedSearchParams.readout : null}
-      activeMode={activeMode}
       audience="vendor"
       eyebrow="Product intelligence"
       title={`Vendor product intelligence for ${snapshot.product.name}`}
+      helpHref="/vendor?panel=help"
       audienceTerms={["Vendor"]}
       heroBody={snapshot.combinedCurrentPatReadout}
       heroSupplement={(
@@ -141,27 +135,11 @@ export default async function VendorProductInsightDetailPage({
           </div>
         </section>
       )}
-      toggleAriaLabel="Vendor product intelligence modes"
-      toggleOptions={toggleOptions}
       proPanel={{
         title: "Pro insights",
         intro: "Concise current-state product intelligence tied to current vendor and firm evidence.",
         cards: proCards,
         columnsClassName: "md:grid-cols-2 xl:grid-cols-3",
-      }}
-      helpPanel={{
-        title: "Help",
-        intro: "Use Pro Insights for the current grounded product-intelligence readouts.",
-        infoCards: [
-          {
-            title: "Pro insights",
-            body: "Open these cards when you want the current product-intelligence slices backed by current vendor self-report and firm-reviewed evidence.",
-          },
-          {
-            title: "Current product view",
-            body: "Use this page to compare the vendor-side readout, the firm-reviewed readout, and the current product-intelligence cards for this product.",
-          },
-        ],
       }}
     />
   );

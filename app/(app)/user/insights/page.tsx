@@ -1,14 +1,12 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import InsightsModeShell from "@/app/components/insights/InsightsModeShell";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import { getSessionUser } from "@/lib/auth/session";
-import { ELITE_PLACEHOLDER_MESSAGE, ELITE_PLACEHOLDER_TITLE } from "@/lib/insightContent";
+import { ELITE_PLACEHOLDER_MESSAGE } from "@/lib/insightContent";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import {
   buildUserInsightOverviewState,
   getUserAlignmentProgress,
-  getRequestedUserInsightOverviewMode,
 } from "@/lib/userPat";
 
 export const dynamic = "force-dynamic";
@@ -16,10 +14,6 @@ export const dynamic = "force-dynamic";
 type SearchParams = {
   mode?: string;
 };
-
-function getModeHref(mode: "pro" | "elite" | "help") {
-  return `/user/insights?mode=${mode}`;
-}
 
 export default async function UserInsightsPage({
   searchParams,
@@ -53,27 +47,22 @@ export default async function UserInsightsPage({
   }
 
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const activeMode = getRequestedUserInsightOverviewMode(resolvedSearchParams?.mode);
+  // Box 3h (R58): the hub has no modes; a saved ?mode link lands on the hub itself.
+  if (typeof resolvedSearchParams?.mode === "string") {
+    redirect("/user/insights");
+  }
   const alignmentProgress = await getUserAlignmentProgress(sessionUser);
 
   const proAvailable = Boolean(alignmentProgress?.tier1Unlocked);
   const insightOverview = buildUserInsightOverviewState({ tier1Unlocked: proAvailable });
-  const toggleOptions = [
-    { key: "pro", label: "Pro Insights", href: getModeHref("pro") },
-    { key: "elite", label: "Elite Insights", href: getModeHref("elite") },
-    { key: "help", label: "Help", href: getModeHref("help") },
-  ] as const;
-
   return (
     <InsightsModeShell
-      activeMode={activeMode}
       eyebrow="Individual insights"
       title="Individual insights"
+      helpHref="/user?panel=help"
       audienceTerms={["Individual"]}
       heroBody="Use this page to review the current person-level PAT readouts that can be supported from your individual alignment submissions today."
       currentStateSummary={insightOverview.currentStateSummary}
-      toggleAriaLabel="Individual insight modes"
-      toggleOptions={toggleOptions}
       proPanel={{
         title: "Pro Insights",
         intro: "Open these cards for current person-level readouts tied to the alignment evidence PAT can support today.",
@@ -85,37 +74,6 @@ export default async function UserInsightsPage({
         intro: ELITE_PLACEHOLDER_MESSAGE,
         cards: insightOverview.eliteCards,
         columnsClassName: "md:grid-cols-2",
-      }}
-      helpPanel={{
-        title: "Help",
-        intro: "Use this page to review the current person-level picture, then open the insight that best matches the work question you need to understand next.",
-        infoCards: [
-          {
-            title: "Pro insights",
-            body: "These cards stay tied to person-level alignment evidence only. PAT does not invent a separate individual analysis model beyond the submissions it actually has.",
-          },
-          {
-            title: "Elite insights",
-            body: ELITE_PLACEHOLDER_MESSAGE,
-            tone: "muted",
-            badgeLabel: ELITE_PLACEHOLDER_TITLE,
-            badgeTone: "locked",
-          },
-          {
-            title: "Next step",
-            body: "The individual alignment assessment remains the current input path that strengthens these readouts and opens more grounded person-level interpretation.",
-            actions: (
-              <>
-                <Link className="pat-button-primary" href="/user/alignment-assessment">
-                  {proAvailable ? "Review alignment assessment" : "Start alignment assessment"}
-                </Link>
-                <Link className="pat-button-secondary" href="/user/help">
-                  Review individual help
-                </Link>
-              </>
-            ),
-          },
-        ],
       }}
     />
   );

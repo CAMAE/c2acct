@@ -192,13 +192,13 @@ describe("Block 12c — Elite hub face metrics (own headline number per card)", 
 });
 
 describe("reachability — Elite hub cards live for Elite viewers", () => {
-  it("firm: Elite viewers get interactive cards linking to each ?surface=elite; Pro stays locked", async () => {
+  it("firm: Elite viewers get interactive cards linking to each key's own full view (box 3h: no ?surface); Pro stays locked", async () => {
     const { buildFirmEliteInsightCards } = await import("@/lib/firmInsightEngine");
     const live = buildFirmEliteInsightCards({ elite: true });
     expect(live.length).toBe(3);
     for (const card of live) {
       expect(card.interactive).toBe(true);
-      expect(card.href).toBe(`/firm/insights/${card.key}?surface=elite`);
+      expect(card.href).toBe(`/firm/insights/${card.key}`);
     }
     const locked = buildFirmEliteInsightCards({ elite: false });
     for (const card of locked) expect(card.href).toBeNull();
@@ -219,7 +219,7 @@ describe("reachability — Elite hub cards live for Elite viewers", () => {
     expect(live.length).toBe(3);
     for (const card of live) {
       expect(card.interactive).toBe(true);
-      expect(card.href).toBe(`/vendor/alignment-insights/${card.key}?surface=elite`);
+      expect(card.href).toBe(`/vendor/alignment-insights/${card.key}`);
     }
     const locked = buildVendorAlignmentEliteInsightCards(bundle, { elite: false });
     for (const card of locked) expect(card.href).toBeNull();

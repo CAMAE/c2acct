@@ -1,6 +1,7 @@
 # SESSION LEDGER — append-only. Newest first.
 
 ## 2026-10-01 · 3h insight surfaces, both portals — in progress, unattended
+- WORK 2 (change 1, both portals): InsightsModeShell rewritten without modes (Elite section above Pro, locked previews + one "Elite insights" link for Pro, Help beside the disclaimer at the portal help panel); the vendor and firm hubs, the individual hub and the vendor product-intelligence hub (a fourth consumer of the shell, not named in the box; it had to change the same way to compile) drop getModeHref/toggleOptions/helpPanel/activeMode and redirect ?mode to themselves; Elite hub cards link to /firm/insights/<key> and /vendor/alignment-insights/<key> (no ?surface); the firm operating brief always renders. Tests: tests/insight-hub-elite.contract.test.ts (source pins + builders, budget mode), elite-insights hrefs, toggle-consistency consumer list. tsc 0, lint 0, 59 tests across the touched suites.
 - WORK 1: branch feat/3h-insight-surfaces from f69f19e6 (feat/vendor-followup-mc head, contains 3f). R58 filed in ~/work/inbox-from-mythos/REQUIREMENTS.md verbatim from the box; this commit is the ledger bank. Read: the box and PAT-RULES.md only.
 
 ## 2026-09-30 · vendor-followup-mc (vendor product follow-up questions as multiple choice) — in progress, unattended
