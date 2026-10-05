@@ -1,6 +1,7 @@
 import type { FirmProductCatalogItem } from "@/lib/firmPat";
 import { getVendorProductInsightSnapshotsByProductId, type VendorProductInsightSnapshot } from "@/lib/vendorProductInsightEngine";
 import type { ProductStatusRow } from "@/app/components/products/ProductStatusStrip";
+import { formatDraftInProgressLabel } from "@/lib/vendorPat";
 
 /**
  * Depth box 7 (2026-09-09): rows for the per-product status strip on both
@@ -10,7 +11,14 @@ import type { ProductStatusRow } from "@/app/components/products/ProductStatusSt
  */
 type VendorEntry = {
   product: { id: string; name: string; vendorName: string; website?: string | null };
-  status: { completed: boolean; latestSubmissionId: string | null; latestSubmittedAt: Date | null; utilityKeys: string[] };
+  status: {
+    completed: boolean;
+    latestSubmissionId: string | null;
+    latestSubmittedAt: Date | null;
+    utilityKeys: string[];
+    /** R59 V1: a draft newer than the final submission; the row stays Completed. */
+    draftInProgressSince?: Date | null;
+  };
 };
 
 function divergenceChip(snapshot: VendorProductInsightSnapshot | undefined): ProductStatusRow["divergence"] {
@@ -46,6 +54,8 @@ export async function buildVendorProductStatusRows(vendorCompanyId: string, entr
     if (!entry.status.completed) reasons.push(entry.status.utilityKeys.length ? "vendor assessment not final" : "no features declared");
     if (entry.status.completed && reviews === 0) reasons.push("no firm review on file");
     if (divergence.tone === "amber") reasons.push("divergence above the floor");
+    // R59 V1: the newer draft is a note on the completed row, never an attention reason.
+    const notes = entry.status.completed && entry.status.draftInProgressSince ? [formatDraftInProgressLabel(entry.status.draftInProgressSince)] : [];
     return {
       id: entry.product.id,
       name: entry.product.name,
@@ -60,7 +70,7 @@ export async function buildVendorProductStatusRows(vendorCompanyId: string, entr
       lastUpdated: latest(entry.status.latestSubmittedAt, snapshot?.latestUpdatedAt, snapshot?.firmReviewed.latestSubmittedAt),
       divergence,
       needsAttention: reasons.length > 0,
-      attentionReason: reasons.length ? reasons.join(" · ") : null,
+      attentionReason: reasons.length || notes.length ? [...reasons, ...notes].join(" · ") : null,
     };
   });
   return [...rows.filter((row) => row.needsAttention), ...rows.filter((row) => !row.needsAttention)];

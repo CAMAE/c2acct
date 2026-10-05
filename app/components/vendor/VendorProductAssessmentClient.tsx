@@ -7,7 +7,6 @@ import DraftSavedIndicator, { type DraftSaveState } from "@/app/components/asses
 import PatAudienceTitle from "@/app/components/pat/PatAudienceTitle";
 import { sliderValueFromPointer } from "@/lib/scoreSlider";
 import {
-  VENDOR_PRODUCT_TIER2_HOVER,
   type UtilityDefinition,
 } from "@/lib/vendorPat";
 import { formatFeatureCountLabel } from "@/lib/displayCopy";
@@ -693,12 +692,6 @@ export default function VendorProductAssessmentClient({
           >
             {submitState === "submitting" ? "Submitting..." : "Submit product assessment"}
           </button>
-        </div>
-
-        <div className="mt-4 flex flex-wrap gap-3 text-sm text-[var(--shell-muted)]">
-          <div className="rounded-[18px] border border-[var(--shell-border)] bg-[rgba(79,191,226,0.12)] px-4 py-3" title={VENDOR_PRODUCT_TIER2_HOVER}>
-            Elite membership remains staged behind locked blue cards until membership unlock is available.
-          </div>
         </div>
       </section>
     </div>

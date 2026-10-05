@@ -24,7 +24,9 @@ import {
   VENDOR_PRODUCT_MODULE_KEY,
   bucketVendorProductsByAssessmentStatus,
   deriveVendorProductOverviewStatus,
+  deriveVendorProductOverviewStatusFromHistory,
   ensureVendorProfileForCompany,
+  formatDraftInProgressLabel,
   extractUtilityKeysFromSignals,
   getRequestedVendorProductAssessmentOverviewMode,
   getVendorCompanyContext,
@@ -41,6 +43,8 @@ export const metadata = {
 
 type SearchParams = {
   mode?: string;
+  /** R59 V2: ?tab= is honoured as an alias of ?mode= (the tab links keep ?mode=, the baseline's routes). */
+  tab?: string;
 };
 
 function getModeHref(mode: "completed" | "existing" | "add-new" | "help") {
@@ -129,7 +133,9 @@ function ProductAssessmentCard({
         <ScoreLockup
           label="Latest score"
           score={entry.status.latestScore}
-          context={`Features: ${featureSummary} · Latest final submission ${formatSubmittedDate(entry.status.latestSubmittedAt)}`}
+          context={`Features: ${featureSummary} · Latest final submission ${formatSubmittedDate(entry.status.latestSubmittedAt)}${
+            entry.status.completed && entry.status.draftInProgressSince ? ` · ${formatDraftInProgressLabel(entry.status.draftInProgressSince)}` : ""
+          }`}
         />
         <div className="mt-3">
           <ScoreBar score={entry.status.latestScore} title={`${entry.product.name} latest score`} />
@@ -236,8 +242,11 @@ export default async function VendorProductAssessmentPage({
 
   const productEntries: ProductAssessmentEntry[] = await Promise.all(
     vendorContext.products.map(async (product) => {
-      const latestSubmission = moduleRecord
-        ? await prisma.surveySubmission.findFirst({
+      // R59 V1: every submission row for the product, newest first. The newest row is
+      // a draft whenever the vendor re-opened a completed product; the overview status
+      // is derived from the latest FINAL row and the draft is reported beside it.
+      const submissions = moduleRecord
+        ? await prisma.surveySubmission.findMany({
             where: {
               companyId: vendorContext.company?.id,
               moduleId: moduleRecord.id,
@@ -253,8 +262,8 @@ export default async function VendorProductAssessmentPage({
               answeredCount: true,
               answers: true,
             },
-          }).catch(() => null)
-        : null;
+          }).catch(() => [])
+        : [];
 
       return {
         product: {
@@ -264,8 +273,8 @@ export default async function VendorProductAssessmentPage({
           website: product.website,
           vendorName: vendorContext.company?.name ?? "Vendor workspace",
         },
-        status: deriveVendorProductOverviewStatus({
-          latestSubmission,
+        status: deriveVendorProductOverviewStatusFromHistory({
+          submissions,
           signalUtilityKeys: extractUtilityKeysFromSignals(product.signals),
         }),
       };
@@ -279,9 +288,12 @@ export default async function VendorProductAssessmentPage({
     ? await buildVendorProductStatusRows(vendorContext.company.id, sortedProductEntries)
     : null;
   const buckets = bucketVendorProductsByAssessmentStatus(sortedProductEntries);
+  // R59 V2: the Completed / Existing / Add New tabs switch the list from ?mode= (the
+  // tab links) or ?tab= (deep links from the audit and the briefing pages).
+  const requestedMode = params?.mode ?? params?.tab;
   const activeMode =
-    params?.mode
-      ? getRequestedVendorProductAssessmentOverviewMode(params.mode)
+    requestedMode
+      ? getRequestedVendorProductAssessmentOverviewMode(requestedMode)
       : productEntries.length > 0
         ? "existing"
         : "add-new";

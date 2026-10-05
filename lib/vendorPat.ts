@@ -111,6 +111,12 @@ export type VendorProductOverviewStatus = {
   questionCount: number;
   statusLabel: string;
   reason: string;
+  /**
+   * hotfix-demo-1 (R59, V1): when a FINAL submission exists and a newer draft row
+   * sits above it, the draft's createdAt. The product stays Completed; the list
+   * shows "Draft in progress since <date>" on the completed row.
+   */
+  draftInProgressSince: Date | null;
 };
 
 export type VendorProductAssessmentSortableEntry = {
@@ -466,6 +472,7 @@ export function deriveVendorProductOverviewStatus(input: {
       questionCount,
       statusLabel: completionStatus.statusLabel,
       reason: completionStatus.reason,
+      draftInProgressSince: null,
     };
   }
 
@@ -487,7 +494,38 @@ export function deriveVendorProductOverviewStatus(input: {
       input.signalUtilityKeys.length === 0
         ? "Declare at least one feature before PAT can build the full assessment for this product."
         : "This product exists in PAT, but it does not yet have a completed final vendor product assessment submission.",
+    draftInProgressSince: null,
   };
+}
+
+/**
+ * hotfix-demo-1 (R59, V1): the overview status from the product's whole submission
+ * history, not only the newest row. The newest row is a DRAFT whenever the vendor
+ * re-opened a completed product (app/api/vendor/product-assessment/draft writes a
+ * SurveySubmission row with partial answers), and reading it alone demoted a
+ * Completed product to "not final" in the Existing bucket. The latest FINAL
+ * submission wins; a newer draft is reported as draftInProgressSince.
+ */
+export function deriveVendorProductOverviewStatusFromHistory(input: {
+  submissions: readonly VendorProductAssessmentSubmissionRecord[];
+  signalUtilityKeys: string[];
+}): VendorProductOverviewStatus {
+  const ordered = [...input.submissions].sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime());
+  const latestFinal =
+    ordered.find((submission) => deriveVendorProductAssessmentCompletionStatus({ latestSubmission: submission }).completed) ?? null;
+  if (!latestFinal) {
+    return deriveVendorProductOverviewStatus({ latestSubmission: ordered[0] ?? null, signalUtilityKeys: input.signalUtilityKeys });
+  }
+  const status = deriveVendorProductOverviewStatus({ latestSubmission: latestFinal, signalUtilityKeys: input.signalUtilityKeys });
+  const newest = ordered[0];
+  const draftInProgressSince =
+    newest && newest.id !== latestFinal.id && newest.createdAt.getTime() > latestFinal.createdAt.getTime() ? newest.createdAt : null;
+  return { ...status, draftInProgressSince };
+}
+
+/** hotfix-demo-1 (R59, V1): the one label both product lists show for a newer draft. */
+export function formatDraftInProgressLabel(since: Date): string {
+  return `Draft in progress since ${since.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
 }
 
 export function bucketVendorProductsByAssessmentStatus<T extends { status: { completed: boolean } }>(items: readonly T[]) {
