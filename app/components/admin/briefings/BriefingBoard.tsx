@@ -394,6 +394,62 @@ export function ConfidenceEvidencePanel({
   );
 }
 
+/** The insight narrative, the four layer summaries and the 30 / 60 / 90 plan — one copy, mounted by both briefing views. */
+function InsightNarrativePanel({ briefing }: { briefing: AdminCompanyBriefing }) {
+  return (
+    <AdminPanel title="Insight narrative">
+      <div className="text-sm leading-7 text-[var(--shell-muted)]">{briefing.insightNarrative}</div>
+    </AdminPanel>
+  );
+}
+
+function LayerSummariesPanel({ briefing }: { briefing: AdminCompanyBriefing }) {
+  return (
+    <AdminPanel title="Layer summaries">
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
+          <div className="text-lg font-semibold text-[var(--shell-ink)]">Person-level layer</div>
+          <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.individualLayer.summary}</p>
+        </div>
+        <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
+          <div className="text-lg font-semibold text-[var(--shell-ink)]">Firm layer</div>
+          <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.firmLayer.summary}</p>
+        </div>
+        <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
+          <div className="text-lg font-semibold text-[var(--shell-ink)]">Product layer</div>
+          <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.productLayer.summary}</p>
+        </div>
+        <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
+          <div className="text-lg font-semibold text-[var(--shell-ink)]">Ecosystem layer</div>
+          <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.ecosystemLayer.summary}</p>
+        </div>
+      </div>
+    </AdminPanel>
+  );
+}
+
+function NextActionsPanel({ briefing }: { briefing: AdminCompanyBriefing }) {
+  return (
+    <AdminPanel title="30 / 60 / 90 next actions">
+      <div className="grid gap-4 md:grid-cols-3">
+        {briefing.nextActions.map((item) => (
+          <div
+            key={item.window}
+            className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5"
+          >
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+              {item.window}
+            </div>
+            <div className="mt-3 text-lg font-semibold text-[var(--shell-ink)]">{item.title}</div>
+            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{item.detail}</p>
+            <p className="mt-3 text-xs leading-5 text-[var(--shell-muted)]">{item.evidence}</p>
+          </div>
+        ))}
+      </div>
+    </AdminPanel>
+  );
+}
+
 export function CompanyBriefingView({
   briefing,
   printMode = false,
@@ -439,30 +495,9 @@ export function CompanyBriefingView({
         />
       </section>
 
-      <AdminPanel title="Insight narrative">
-        <div className="text-sm leading-7 text-[var(--shell-muted)]">{briefing.insightNarrative}</div>
-      </AdminPanel>
+      <InsightNarrativePanel briefing={briefing} />
 
-      <AdminPanel title="Layer summaries">
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
-            <div className="text-lg font-semibold text-[var(--shell-ink)]">Person-level layer</div>
-            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.individualLayer.summary}</p>
-          </div>
-          <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
-            <div className="text-lg font-semibold text-[var(--shell-ink)]">Firm layer</div>
-            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.firmLayer.summary}</p>
-          </div>
-          <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
-            <div className="text-lg font-semibold text-[var(--shell-ink)]">Product layer</div>
-            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.productLayer.summary}</p>
-          </div>
-          <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
-            <div className="text-lg font-semibold text-[var(--shell-ink)]">Ecosystem layer</div>
-            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.ecosystemLayer.summary}</p>
-          </div>
-        </div>
-      </AdminPanel>
+      <LayerSummariesPanel briefing={briefing} />
 
       <ModuleHeatmap modules={briefing.firmLayer.moduleHeatmap} />
       <ProductStackSummary
@@ -491,23 +526,7 @@ export function CompanyBriefingView({
         <RiskOpportunityPanel title="Opportunities" items={briefing.opportunities} />
       </section>
 
-      <AdminPanel title="30 / 60 / 90 next actions">
-        <div className="grid gap-4 md:grid-cols-3">
-          {briefing.nextActions.map((item) => (
-            <div
-              key={item.window}
-              className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5"
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-                {item.window}
-              </div>
-              <div className="mt-3 text-lg font-semibold text-[var(--shell-ink)]">{item.title}</div>
-              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{item.detail}</p>
-              <p className="mt-3 text-xs leading-5 text-[var(--shell-muted)]">{item.evidence}</p>
-            </div>
-          ))}
-        </div>
-      </AdminPanel>
+      <NextActionsPanel briefing={briefing} />
 
       <ConfidenceEvidencePanel entries={briefing.confidenceAppendix} />
     </div>
@@ -532,7 +551,7 @@ function BriefingDisclosure({
 }) {
   return (
     <details
-      className="rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-5"
+      className="pat-card p-5"
       data-testid="briefing-disclosure"
       data-key={testKey}
       {...(open ? { open: true } : {})}
@@ -616,53 +635,16 @@ export function PortalBriefingView({
         />
       </section>
 
-      <AdminPanel title="Insight narrative">
-        <div className="text-sm leading-7 text-[var(--shell-muted)]">{briefing.insightNarrative}</div>
-      </AdminPanel>
+      <InsightNarrativePanel briefing={briefing} />
 
-      <AdminPanel title="Layer summaries">
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
-            <div className="text-lg font-semibold text-[var(--shell-ink)]">Person-level layer</div>
-            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.individualLayer.summary}</p>
-          </div>
-          <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
-            <div className="text-lg font-semibold text-[var(--shell-ink)]">Firm layer</div>
-            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.firmLayer.summary}</p>
-          </div>
-          <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
-            <div className="text-lg font-semibold text-[var(--shell-ink)]">Product layer</div>
-            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.productLayer.summary}</p>
-          </div>
-          <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
-            <div className="text-lg font-semibold text-[var(--shell-ink)]">Ecosystem layer</div>
-            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.ecosystemLayer.summary}</p>
-          </div>
-        </div>
-      </AdminPanel>
+      <LayerSummariesPanel briefing={briefing} />
 
       <section className="grid gap-6 xl:grid-cols-2">
         <RiskOpportunityPanel title="Risks" items={briefing.risks} />
         <RiskOpportunityPanel title="Opportunities" items={briefing.opportunities} />
       </section>
 
-      <AdminPanel title="30 / 60 / 90 next actions">
-        <div className="grid gap-4 md:grid-cols-3">
-          {briefing.nextActions.map((item) => (
-            <div
-              key={item.window}
-              className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5"
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
-                {item.window}
-              </div>
-              <div className="mt-3 text-lg font-semibold text-[var(--shell-ink)]">{item.title}</div>
-              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{item.detail}</p>
-              <p className="mt-3 text-xs leading-5 text-[var(--shell-muted)]">{item.evidence}</p>
-            </div>
-          ))}
-        </div>
-      </AdminPanel>
+      <NextActionsPanel briefing={briefing} />
 
       <ModuleHeatmap modules={briefing.firmLayer.moduleHeatmap} />
       <ProductStackSummary
