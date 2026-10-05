@@ -89,6 +89,14 @@ export function quarterCutoff(now: Date): Date {
   return new Date(Date.UTC(now.getUTCFullYear(), endMonth + 1, 0, 23, 59, 59, 999));
 }
 
+/**
+ * hotfix-demo-1 (R59, G4): the next quarter cutoff as a date label (YYYY-MM-DD, UTC),
+ * computed from `now` — the engagement cards' goal due date, never a literal.
+ */
+export function nextQuarterCutoffLabel(now: Date = new Date()): string {
+  return quarterCutoff(now).toISOString().slice(0, 10);
+}
+
 function statusFor(
   lastCensusMs: number | null,
   nextDueMs: number | null,

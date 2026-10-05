@@ -10,6 +10,8 @@ import type {
   BriefingRiskOpportunity,
 } from "@/lib/adminBriefingEngine";
 import { filterBriefingOpenEndedResponses } from "@/lib/adminBriefingEngine";
+import FollowUpEvidencePanel from "@/app/components/assessment/FollowUpEvidencePanel";
+import type { FirmFollowUpEvidenceModule } from "@/lib/assessment/followUpEvidence";
 
 function formatPercent(value: number | null) {
   return value === null ? "--" : `${Math.round(value)}%`;
@@ -139,13 +141,26 @@ function ProductOpenEndedResponsesPanel({
   );
 }
 
+/**
+ * hotfix-demo-1 (R59, change 7): the Enterprise and Guide briefing pages read
+ * "Firm score" / "Completed firm modules"; the admin briefing (production baseline)
+ * keeps its wording.
+ */
+const EXECUTIVE_LABELS = {
+  admin: { firmScore: "Canonical firm score", firmModulesDetail: "Completed canonical firm alignment modules in the current briefing." },
+  portal: { firmScore: "Firm score", firmModulesDetail: "Completed firm modules in the current briefing." },
+} as const;
+
 export function ExecutiveSummaryCard({
   briefing,
   printHref,
+  voice = "admin",
 }: {
   briefing: AdminCompanyBriefing;
   printHref?: string | null;
+  voice?: keyof typeof EXECUTIVE_LABELS;
 }) {
+  const labels = EXECUTIVE_LABELS[voice];
   return (
     <section className="grid gap-4 xl:grid-cols-[1.4fr_0.6fr]">
       <div className="pat-card p-8">
@@ -158,7 +173,7 @@ export function ExecutiveSummaryCard({
         </p>
         <div className="mt-6 flex flex-wrap gap-3 text-sm text-[var(--shell-muted)]">
           <span>
-            Canonical firm score:{" "}
+            {labels.firmScore}:{" "}
             <strong className="font-semibold text-[var(--shell-ink)]">
               {formatPercent(briefing.executiveSummary.canonicalFirmScore)}
             </strong>
@@ -185,7 +200,7 @@ export function ExecutiveSummaryCard({
         <AdminMetricCard
           label="Firm modules"
           value={`${briefing.firmLayer.completedModuleCount}/5`}
-          detail="Completed canonical firm alignment modules in the current briefing."
+          detail={labels.firmModulesDetail}
         />
         <AdminMetricCard
           label="Reviewed products"
@@ -495,6 +510,220 @@ export function CompanyBriefingView({
       </AdminPanel>
 
       <ConfidenceEvidencePanel entries={briefing.confidenceAppendix} />
+    </div>
+  );
+}
+
+/**
+ * hotfix-demo-1 (R59, change 7): a closed-by-default disclosure. `open` is set only
+ * when the viewer has already interacted with what is inside (a search or a filter
+ * carried in the URL), so the first render of a briefing is always closed.
+ */
+function BriefingDisclosure({
+  title,
+  testKey,
+  open = false,
+  children,
+}: {
+  title: string;
+  testKey: string;
+  open?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <details
+      className="rounded-[26px] border border-[var(--shell-border)] bg-[var(--shell-panel)] p-5"
+      data-testid="briefing-disclosure"
+      data-key={testKey}
+      {...(open ? { open: true } : {})}
+    >
+      <summary className="cursor-pointer text-xl font-semibold tracking-tight text-[var(--shell-ink)]">{title}</summary>
+      <div className="mt-5">{children}</div>
+    </details>
+  );
+}
+
+/** The answered firm follow-ups behind a "Firm follow-up answers (N)" title. */
+export function countFirmFollowUpAnswers(modules: readonly FirmFollowUpEvidenceModule[]): number {
+  return modules
+    .filter((module) => module.submissionId)
+    .reduce((sum, module) => sum + module.items.filter((item) => item.kind !== "none").length, 0);
+}
+
+/**
+ * hotfix-demo-1 (R59, change 7): the Enterprise and Guide briefing pages. Composes
+ * the same pieces as CompanyBriefingView (which the admin briefing keeps unchanged)
+ * in the demo order — Executive summary; Risks; Opportunities; 30 / 60 / 90 next
+ * actions; Module heatmap; Product stack summary; then three closed disclosures:
+ * the vendor follow-up answers (the existing search inside), the firm follow-up
+ * answers (with a module filter), the confidence and evidence appendix. The count
+ * tiles and the layer tiles stay where they were, under the executive summary.
+ * The Person-level tile and the Individual appendix row hide while the individual
+ * surface is disabled (lib/pilotSurfaces.ts).
+ */
+export function PortalBriefingView({
+  briefing,
+  searchQuery,
+  basePath,
+  followUpModules,
+  moduleFilter,
+  individualSurfacesEnabled,
+}: {
+  briefing: AdminCompanyBriefing;
+  searchQuery?: string;
+  basePath: string;
+  /** The firm's module follow-ups (null while PAT_ENABLE_FOLLOWUP_MC is off: no disclosure). */
+  followUpModules: FirmFollowUpEvidenceModule[] | null;
+  /** ?module=<key>: the firm follow-up disclosure shows that module only, and opens. */
+  moduleFilter?: string;
+  individualSurfacesEnabled: boolean;
+}) {
+  const vendorAnswers = briefing.productLayer.openEndedResponses;
+  const answeredModules = followUpModules?.filter((module) => module.submissionId) ?? [];
+  const activeModuleFilter = moduleFilter && answeredModules.some((module) => module.moduleKey === moduleFilter) ? moduleFilter : null;
+  const visibleFollowUpModules = activeModuleFilter ? answeredModules.filter((module) => module.moduleKey === activeModuleFilter) : answeredModules;
+  const appendixEntries = individualSurfacesEnabled
+    ? briefing.confidenceAppendix
+    : briefing.confidenceAppendix.filter((entry) => entry.layer !== "Individual");
+  const searchActive = Boolean(searchQuery?.trim());
+
+  return (
+    <div className="space-y-8" data-testid="portal-briefing-view">
+      <ExecutiveSummaryCard briefing={briefing} printHref={null} voice="portal" />
+
+      <section className={`grid gap-4 md:grid-cols-2 ${individualSurfacesEnabled ? "xl:grid-cols-4" : "xl:grid-cols-3"}`}>
+        {individualSurfacesEnabled ? (
+          <AdminMetricCard
+            label="Person-level"
+            value={formatPercent(briefing.individualLayer.averageScore)}
+            detail={`${briefing.individualLayer.peopleAssessed}/${briefing.individualLayer.totalUsers} users assessed`}
+          />
+        ) : null}
+        <AdminMetricCard
+          label="Firm"
+          value={formatPercent(briefing.firmLayer.averageScore)}
+          detail={`${briefing.firmLayer.completedModuleCount} completed firm modules`}
+        />
+        <AdminMetricCard
+          label="Products"
+          value={formatPercent(briefing.productLayer.averageFirmReviewScore)}
+          detail={`${briefing.productLayer.reviewedProductCount} reviewed products`}
+        />
+        <AdminMetricCard
+          label="Ecosystem"
+          value={briefing.ecosystemLayer.confidenceLabel}
+          detail={briefing.ecosystemLayer.confidenceSummary}
+        />
+      </section>
+
+      <AdminPanel title="Insight narrative">
+        <div className="text-sm leading-7 text-[var(--shell-muted)]">{briefing.insightNarrative}</div>
+      </AdminPanel>
+
+      <AdminPanel title="Layer summaries">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
+            <div className="text-lg font-semibold text-[var(--shell-ink)]">Person-level layer</div>
+            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.individualLayer.summary}</p>
+          </div>
+          <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
+            <div className="text-lg font-semibold text-[var(--shell-ink)]">Firm layer</div>
+            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.firmLayer.summary}</p>
+          </div>
+          <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
+            <div className="text-lg font-semibold text-[var(--shell-ink)]">Product layer</div>
+            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.productLayer.summary}</p>
+          </div>
+          <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
+            <div className="text-lg font-semibold text-[var(--shell-ink)]">Ecosystem layer</div>
+            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.ecosystemLayer.summary}</p>
+          </div>
+        </div>
+      </AdminPanel>
+
+      <section className="grid gap-6 xl:grid-cols-2">
+        <RiskOpportunityPanel title="Risks" items={briefing.risks} />
+        <RiskOpportunityPanel title="Opportunities" items={briefing.opportunities} />
+      </section>
+
+      <AdminPanel title="30 / 60 / 90 next actions">
+        <div className="grid gap-4 md:grid-cols-3">
+          {briefing.nextActions.map((item) => (
+            <div
+              key={item.window}
+              className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5"
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--shell-muted)]">
+                {item.window}
+              </div>
+              <div className="mt-3 text-lg font-semibold text-[var(--shell-ink)]">{item.title}</div>
+              <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{item.detail}</p>
+              <p className="mt-3 text-xs leading-5 text-[var(--shell-muted)]">{item.evidence}</p>
+            </div>
+          ))}
+        </div>
+      </AdminPanel>
+
+      <ModuleHeatmap modules={briefing.firmLayer.moduleHeatmap} />
+      <ProductStackSummary
+        companyId={briefing.company.id}
+        productBasePath={basePath}
+        products={briefing.productLayer.products}
+      />
+
+      <BriefingDisclosure title={`Vendor follow-up answers (${vendorAnswers.length})`} testKey="vendor-follow-ups" open={searchActive}>
+        <ProductOpenEndedResponsesPanel
+          title="Latest vendor open-ended product responses"
+          description="These cards come directly from the latest completed vendor product assessment for each reviewed product in the current firm stack."
+          responses={vendorAnswers}
+          searchAction={basePath}
+          searchQuery={searchQuery}
+          emptyState={
+            searchActive
+              ? "No latest vendor open-ended responses match the current search."
+              : "No latest vendor open-ended product responses are available for the reviewed product stack yet."
+          }
+          showProductLinks
+          truncateAnswers
+        />
+      </BriefingDisclosure>
+
+      {followUpModules ? (
+        <BriefingDisclosure
+          title={`Firm follow-up answers (${countFirmFollowUpAnswers(followUpModules)})`}
+          testKey="firm-follow-ups"
+          open={activeModuleFilter !== null}
+        >
+          {answeredModules.length > 1 ? (
+            <nav aria-label="Filter follow-up answers by module" className="mb-5 flex flex-wrap gap-2" data-testid="firm-follow-up-module-filter">
+              <Link
+                href={basePath}
+                className="rounded-full border border-[var(--shell-border)] px-3 py-1.5 text-xs font-semibold text-[var(--shell-ink)]"
+                data-active={activeModuleFilter === null ? "1" : "0"}
+                aria-current={activeModuleFilter === null ? "true" : undefined}
+              >
+                All modules
+              </Link>
+              {answeredModules.map((module) => (
+                <Link
+                  key={module.moduleKey}
+                  href={`${basePath}?module=${encodeURIComponent(module.moduleKey)}`}
+                  className="rounded-full border border-[var(--shell-border)] px-3 py-1.5 text-xs font-semibold text-[var(--shell-ink)]"
+                  data-active={activeModuleFilter === module.moduleKey ? "1" : "0"}
+                  aria-current={activeModuleFilter === module.moduleKey ? "true" : undefined}
+                >
+                  {module.title}
+                </Link>
+              ))}
+            </nav>
+          ) : null}
+          <FollowUpEvidencePanel modules={visibleFollowUpModules} />
+        </BriefingDisclosure>
+      ) : null}
+
+      <BriefingDisclosure title="Confidence and evidence appendix" testKey="confidence-appendix">
+        <ConfidenceEvidencePanel entries={appendixEntries} />
+      </BriefingDisclosure>
     </div>
   );
 }

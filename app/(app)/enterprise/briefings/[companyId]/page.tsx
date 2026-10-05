@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminPageIntro } from "@/app/components/admin/AdminShell";
-import { CompanyBriefingView } from "@/app/components/admin/briefings/BriefingBoard";
+import { PortalBriefingView } from "@/app/components/admin/briefings/BriefingBoard";
 import { getAdminCompanyBriefing } from "@/lib/adminBriefingEngine";
+import { getFirmBriefingInEcosystem } from "@/lib/ecosystem";
+import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import { requireEnterpriseCompanyAccess } from "@/lib/enterpriseAccess";
-import FollowUpEvidencePanel from "@/app/components/assessment/FollowUpEvidencePanel";
 import { getFirmFollowUpEvidence } from "@/lib/assessment/followUpEvidence";
 import { isFollowUpMcEnabled } from "@/lib/followUpMc";
 
@@ -15,16 +16,25 @@ export default async function EnterpriseCompanyBriefingPage({
   searchParams,
 }: {
   params: Promise<{ companyId: string }>;
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; module?: string }>;
 }) {
   const { companyId } = await params;
-  const { q } = await searchParams;
+  const { q, module: moduleFilter } = await searchParams;
   const enterpriseAccess = await requireEnterpriseCompanyAccess(companyId);
   if (!enterpriseAccess) {
     notFound();
   }
 
-  const briefing = await getAdminCompanyBriefing(companyId);
+  // R59 (hotfix-demo-1 change 8): the briefing is read through the ecosystem's own
+  // context and preload — the readers the ecosystem page uses — so the ecosystem
+  // layer counts the ecosystem's assessed firms. A firm outside every owned
+  // ecosystem keeps the unscoped read.
+  const ecosystemScope = enterpriseAccess.ecosystems.find(
+    (scope) => scope.vendorCompanyId && scope.firmCompanies.some((firm) => firm.id === companyId)
+  );
+  const briefing = ecosystemScope?.vendorCompanyId
+    ? await getFirmBriefingInEcosystem({ companyId, vendorCompanyId: ecosystemScope.vendorCompanyId })
+    : await getAdminCompanyBriefing(companyId);
   if (!briefing) {
     notFound();
   }
@@ -37,7 +47,7 @@ export default async function EnterpriseCompanyBriefingPage({
       <AdminPageIntro
         eyebrow="Enterprise briefing"
         title={`${briefing.company.name} briefing`}
-        description="This enterprise view reuses the same live PAT current-state briefing engine as C2Core. It does not add benchmark, forecast, or executive narrative outside the available evidence."
+        description="Built from this firm's current PAT evidence. No benchmark or forecast is added here."
       />
 
       <div className="flex flex-wrap gap-3 print:hidden">
@@ -46,13 +56,14 @@ export default async function EnterpriseCompanyBriefingPage({
         </Link>
       </div>
 
-      <CompanyBriefingView
+      <PortalBriefingView
         briefing={briefing}
         searchQuery={q}
         basePath={`/enterprise/briefings/${briefing.company.id}`}
-        printHref={null}
+        followUpModules={followUpMcEnabled && followUpEvidence ? followUpEvidence : null}
+        moduleFilter={moduleFilter}
+        individualSurfacesEnabled={isIndividualSurfacesEnabled()}
       />
-      {followUpMcEnabled && followUpEvidence ? <FollowUpEvidencePanel modules={followUpEvidence} /> : null}
     </div>
   );
 }

@@ -109,8 +109,13 @@ describe("source pins — every consumer mount is flag-gated; option copy lives 
     for (const source of [firmPage, briefingPage, adminBriefingPage]) {
       expect(source).toContain('from "@/lib/followUpMc"');
       expect(source).toMatch(/isFollowUpMcEnabled\(\)/);
+    }
+    for (const source of [firmPage, adminBriefingPage]) {
       expect(source).toMatch(/followUpMcEnabled && [\s\S]{0,80}\? \(?[\s\S]{0,120}<FollowUpEvidencePanel/);
     }
+    // hotfix-demo-1 (R59): the consultant briefing hands the modules to PortalBriefingView,
+    // which folds the panel into the closed "Firm follow-up answers (N)" disclosure; null flag-off.
+    expect(briefingPage).toContain("followUpModules={followUpMcEnabled && followUpEvidence ? followUpEvidence : null}");
     // The firm brief adds a "follow-ups" panel option only behind the flag.
     expect(firmPage).toMatch(/\.\.\.\(followUpMcEnabled\s*\?\s*\[\{ key: "follow-ups"/);
   });

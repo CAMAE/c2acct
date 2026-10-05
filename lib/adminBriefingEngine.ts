@@ -273,25 +273,6 @@ function latestDate(dates: Array<Date | null | undefined>) {
     .sort((left, right) => right.getTime() - left.getTime())[0] ?? null;
 }
 
-function extractResponses(answers: unknown) {
-  if (!answers || typeof answers !== "object") {
-    return {};
-  }
-
-  const responses = (answers as { responses?: unknown }).responses;
-  if (!responses || typeof responses !== "object") {
-    return {};
-  }
-
-  return Object.fromEntries(
-    Object.entries(responses).filter(
-      (entry): entry is [string, number] =>
-        typeof entry[0] === "string" &&
-        typeof entry[1] === "number" &&
-        Number.isFinite(entry[1])
-    )
-  );
-}
 
 function getObjectRecord(value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -532,7 +513,25 @@ function getOverallConfidence(input: {
   };
 }
 
-function buildModuleHeatmap(
+/**
+ * hotfix-demo-1 (R59, change 8, WRONG-ROW): firm module submissions store their
+ * answers FLAT — `{ [questionId]: value }` (the firm module submit path; the firm
+ * insight engine behind the ecosystem page reads them that way) — while vendor
+ * product submissions wrap them in `responses`. The heatmap used to read only the
+ * wrapper, so every section showed "0/5 scored answers" while module scores existed.
+ */
+export function readFirmModuleAnswers(answers: unknown): Record<string, NormalizedAnswer> {
+  if (!answers || typeof answers !== "object" || Array.isArray(answers)) {
+    return {};
+  }
+  const record = answers as Record<string, unknown>;
+  const wrapped = record.responses;
+  const source =
+    wrapped && typeof wrapped === "object" && !Array.isArray(wrapped) ? (wrapped as Record<string, unknown>) : record;
+  return source as Record<string, NormalizedAnswer>;
+}
+
+export function buildModuleHeatmap(
   modules: ModuleRecord[],
   submissions: ModuleSubmissionRecord[]
 ): BriefingModuleHeatmapItem[] {
@@ -545,10 +544,7 @@ function buildModuleHeatmap(
 
   return modules.map((module) => {
     const latestSubmission = latestSubmissionByModuleId.get(module.id) ?? null;
-    const answers =
-      latestSubmission?.answers && typeof latestSubmission.answers === "object"
-        ? (extractResponses(latestSubmission.answers) as Record<string, NormalizedAnswer>)
-        : {};
+    const answers = readFirmModuleAnswers(latestSubmission?.answers);
     const sectionScores = new Map<
       string,
       { title: string; order: number; values: number[]; questionCount: number }
@@ -1389,7 +1385,19 @@ function groupByCompany<T extends { companyId: string | null }>(rows: T[], firmI
  * registry module shape, firm finals (both shapes), managed users, insight
  * reports, the vendor alignment bundle. Handed in on the AdminBriefingContext.
  */
-export async function buildFirmBriefingPreload(firmIds: readonly string[]) {
+export async function buildFirmBriefingPreload(
+  firmIds: readonly string[],
+  options?: {
+    /**
+     * hotfix-demo-1 (R59, change 8, WRONG-ROW): scope the vendor alignment bundle
+     * (the briefing's ecosystem layer, "N assessed firms") to this vendor's
+     * ecosystem firms — the same firm set the ecosystem page reads through
+     * getVendorScopedFirms. Unscoped, the bundle pools REAL+PILOT firms only, so a
+     * demo ecosystem of 18 firms read "0 assessed firms". Omit for the admin path.
+     */
+    vendorCompanyId?: string | null;
+  }
+) {
   const ids = [...firmIds];
   const [companies, firmModules, firmSubmissions, managedUsersByFirmId, insightReportsByFirmId, vendorAlignmentBundle, catalogSubmissions] =
     await Promise.all([
@@ -1398,7 +1406,7 @@ export async function buildFirmBriefingPreload(firmIds: readonly string[]) {
       loadBriefingFirmSubmissions(ids),
       getFirmManagedUserRecordsForFirms(ids),
       getFirmInsightReportsForFirms(ids),
-      getVendorAlignmentInsightBundle(),
+      getVendorAlignmentInsightBundle(options?.vendorCompanyId ? { vendorCompanyId: options.vendorCompanyId } : undefined),
       loadCatalogFirmSubmissions(ids),
     ]);
   return {

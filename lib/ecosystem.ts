@@ -635,6 +635,27 @@ export async function getEcosystemDetailForVendorCompany(input: {
   return buildEcosystemDetail(input);
 }
 
+/**
+ * hotfix-demo-1 (R59, change 8, WRONG-ROW): one firm's briefing read through the
+ * SAME context and preload the ecosystem page builds for the whole firm set
+ * (buildEcosystemDetail above): the vendor-scoped product maps and the vendor
+ * alignment bundle scoped to the ecosystem's firms. The standalone briefing pages
+ * used the unscoped getAdminCompanyBriefing and read "0 assessed firms".
+ */
+export async function getFirmBriefingInEcosystem(input: {
+  companyId: string;
+  vendorCompanyId: string;
+}): Promise<AdminCompanyBriefing | null> {
+  const briefingContext = await buildAdminBriefingContext(input.vendorCompanyId);
+  const firmIds = [input.companyId];
+  const [briefingProductsByFirmId, firmPreload] = await Promise.all([
+    getBriefingProductsForFirms(firmIds, briefingContext),
+    buildFirmBriefingPreload(firmIds, { vendorCompanyId: input.vendorCompanyId }),
+  ]);
+  const context: AdminBriefingContext = { ...briefingContext, briefingProductsByFirmId, firmPreload };
+  return getAdminCompanyBriefing(input.companyId, context);
+}
+
 async function buildEcosystemDetail({
   ecosystemId,
   ecosystemName,
@@ -670,7 +691,7 @@ async function buildEcosystemDetail({
     // R49: the per-firm rows of every briefing loader, read once for the set.
     const [briefingProductsByFirmId, firmPreload] = await Promise.all([
       getBriefingProductsForFirms(firmIds, briefingContext),
-      buildFirmBriefingPreload(firmIds),
+      buildFirmBriefingPreload(firmIds, { vendorCompanyId }),
     ]);
     const context: AdminBriefingContext = {
       ...briefingContext,

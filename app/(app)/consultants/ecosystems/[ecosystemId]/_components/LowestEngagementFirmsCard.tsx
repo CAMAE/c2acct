@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { nextQuarterCutoffLabel } from "@/lib/consultantFreshness";
 import type { EcosystemDetailData, EcosystemDetailFirmRow } from "@/lib/ecosystem";
 
 /**
@@ -6,7 +7,8 @@ import type { EcosystemDetailData, EcosystemDetailFirmRow } from "@/lib/ecosyste
  *
  * Surfaces the bottom-quartile firms by module completion %. Each row
  * shows the firm name, current completion %, and a suggested goal line
- * formatted as "Get {Firm} from X% to 80% by 2026-06-01".
+ * formatted as "Get {Firm} from X% to 100% by <next quarter cutoff>" (R59 G4:
+ * the date is computed from today, never a literal).
  *
  * Persistence deferred (AUDIT-WS6.5-N-001): goal text is read-only in
  * WS6.5 scope. Adding a writable goal field requires either a new
@@ -21,7 +23,6 @@ import type { EcosystemDetailData, EcosystemDetailFirmRow } from "@/lib/ecosyste
 // filter already constrains the card to firms below 100% completion, so a
 // 100% target is always strictly higher than current.
 const GOAL_TARGET_PCT = 100;
-const GOAL_DUE_DATE = "2026-06-01";
 const MIN_CARD_ROWS = 2;
 
 function bottomQuartileFirms(
@@ -49,7 +50,7 @@ function formatCompletion(pct: number | null): string {
   return `${Math.round(pct)}%`;
 }
 
-function suggestedGoal(row: EcosystemDetailFirmRow): ReactNode {
+function suggestedGoal(row: EcosystemDetailFirmRow, goalDueDate: string): ReactNode {
   const currentPct = row.moduleCompletionPercent === null ? 0 : Math.round(row.moduleCompletionPercent);
   return (
     <>
@@ -57,19 +58,23 @@ function suggestedGoal(row: EcosystemDetailFirmRow): ReactNode {
       <strong className="font-semibold text-[var(--shell-ink)]">{currentPct}%</strong>
       {" "}to{" "}
       <strong className="font-semibold text-[var(--shell-ink)]">{GOAL_TARGET_PCT}%</strong>
-      {" "}by {GOAL_DUE_DATE}
+      {" "}by {goalDueDate}
     </>
   );
 }
 
 export default function LowestEngagementFirmsCard({
   data,
+  now,
 }: {
   data: EcosystemDetailData;
+  /** R59 G4: the clock; defaults to the render time. Tests pass a fixed date. */
+  now?: Date;
 }) {
   if (data.firmGrid.length === 0) {
     return null;
   }
+  const goalDueDate = nextQuarterCutoffLabel(now ?? new Date());
   const targetFirms = bottomQuartileFirms(data.firmGrid);
   if (targetFirms.length === 0) {
     // WS9-EMERGENCY: hide the card when every firm is at the ceiling.
@@ -85,7 +90,7 @@ export default function LowestEngagementFirmsCard({
         <div>
           <div className="pat-label">Engagement task list</div>
           <h2 className="mt-2 text-xl font-semibold tracking-tight text-[var(--shell-ink)]">
-            Firms below median engagement
+            The lowest-engaged quartile of the ecosystem, ranked by module completion.
           </h2>
         </div>
         <div className="text-xs text-[var(--shell-muted)]">
@@ -93,7 +98,7 @@ export default function LowestEngagementFirmsCard({
         </div>
       </div>
       <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-        The lowest-engaged quartile of the ecosystem. Each row carries a suggested goal you can carry into a follow-up — closing the gap to the <strong className="font-semibold text-[var(--shell-ink)]">{GOAL_TARGET_PCT}%</strong> completion line by {GOAL_DUE_DATE}.
+        Each row carries a suggested goal you can carry into a follow-up — closing the gap to the <strong className="font-semibold text-[var(--shell-ink)]">{GOAL_TARGET_PCT}%</strong> completion line by {goalDueDate}.
       </p>
       <ol
         className="mt-4 divide-y divide-[var(--shell-border)]"
@@ -124,14 +129,11 @@ export default function LowestEngagementFirmsCard({
               className="rounded-md border border-dashed border-[var(--shell-border)] bg-[var(--shell-panel-soft)]/40 px-3 py-2 text-sm leading-6 text-[var(--shell-ink)]"
               data-testid="lowest-engagement-goal"
             >
-              {suggestedGoal(row)}
+              {suggestedGoal(row, goalDueDate)}
             </div>
           </li>
         ))}
       </ol>
-      <div className="mt-3 text-[11px] text-[var(--shell-muted)]">
-        Goal text is suggested; persistence comes in a follow-up session.
-      </div>
     </section>
   );
 }
