@@ -20,7 +20,7 @@ function sanitizeSource(target: string) {
 }
 
 function sanitizeView(target: string) {
-  return target === "vendor" || target === "firm" || target === "individual" || target === "admin" || target === "consultant"
+  return target === "vendor" || target === "firm" || target === "individual" || target === "admin" || target === "consultant" || target === "enterprise"
     ? target
     : "vendor";
 }

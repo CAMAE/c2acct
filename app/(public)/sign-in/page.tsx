@@ -15,8 +15,6 @@ import {
   sanitizeAuthRedirect,
   type CanonicalSignInView,
 } from "@/lib/auth/routes";
-import MeetPatContent from "@/app/components/pat/MeetPatContent";
-import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 import { cardStyleProps, getSignInRegister, type SignInRegister } from "@/app/(public)/sign-in/register";
 import { getPresentLocalAuthCookies, summarizeLocalAuthCookies } from "@/lib/auth/cookies";
 import { getLocalReviewUsersForUi } from "@/lib/auth/localReview";
@@ -24,6 +22,7 @@ import { getAuthRuntimeStatus } from "@/lib/auth/runtime";
 import { isInviteeAccessEnabled } from "@/lib/invitee/access";
 import { submitInviteeCode } from "@/app/(public)/sign-in/invitee/actions";
 import { isConsultantAccessEnabled } from "@/lib/consultantAccess";
+import { isEnterpriseEnabled } from "@/lib/enterprise";
 import {
   getPilotDisabledMessage,
   isIndividualSurfacesEnabled,
@@ -47,7 +46,7 @@ function getSingleParam(value: string | string[] | undefined) {
 }
 
 function isAccessView(value: string | null): value is AccessView {
-  return value === "vendor" || value === "firm" || value === "individual" || value === "admin" || value === "consultant" || value === "invitee" || value === "pat" || value === "help";
+  return value === "vendor" || value === "firm" || value === "individual" || value === "admin" || value === "consultant" || value === "enterprise" || value === "invitee" || value === "pat" || value === "help";
 }
 
 function getViewHref(view: AccessView) {
@@ -140,6 +139,7 @@ function RoleAccessCard({
   signInLabel,
   accessCodeLabel,
   localAuthLabel,
+  provisionedBody,
   githubReady,
   localReviewEnabled,
   localReviewRequested,
@@ -154,10 +154,11 @@ function RoleAccessCard({
   subtitle: string;
   body: string;
   roleRedirect: string;
-  view: "vendor" | "firm" | "individual" | "admin" | "consultant";
+  view: CanonicalSignInView;
   signInLabel: string;
   accessCodeLabel: string;
   localAuthLabel: string;
+  provisionedBody: string;
   githubReady: boolean;
   localReviewEnabled: boolean;
   localReviewRequested: boolean;
@@ -194,11 +195,14 @@ function RoleAccessCard({
           <Link className={r.buttonPrimary} href="/sign-in?view=invitee">
             {accessCodeLabel}
           </Link>
-        ) : (
+        ) : localReviewRequested ? (
+          // R59 (hotfix-demo-1 P1): the local-auth setup link is a local-review aid;
+          // it renders only while PAT_ENABLE_LOCAL_REVIEW_AUTH=1 (ruling in
+          // ops/qa/link-removals.json), never on a deployed host.
           <Link className={r.buttonPrimary} href={hubHref}>
             {localAuthLabel}
           </Link>
-        )}
+        ) : null}
       </div>
 
       {localReviewEnabled && localReviewEmail ? (
@@ -244,9 +248,7 @@ function RoleAccessCard({
 
       <div className={r.provisionedBox}>
         <div className="font-semibold text-[var(--shell-ink)]">Provisioned pilot account</div>
-        <p className="mt-2">
-          Vendor, firm, admin, and {guideWord("consultant")} pilot users sign in here after an operator provisions their account. First-login password updates are enforced when the account is flagged for a temporary or imported credential.
-        </p>
+        <p className="mt-2">{provisionedBody}</p>
         <form className="mt-4 grid gap-3 md:max-w-md" action={signInWithPilotCredentials}>
           <input type="hidden" name="redirectTo" value={roleRedirect} />
           <input type="hidden" name="source" value="sign-in" />
@@ -301,77 +303,51 @@ function RoleAccessCard({
   );
 }
 
-function MeetPatInline({ v7 }: { v7: boolean }) {
-  // 21c: the V7 (flag-on) Meet PAT is the -40% cut in the V7 register; flag-off
-  // renders the default variant — the same markup as before.
-  return <MeetPatContent variant={v7 ? "v7" : "default"} />;
-}
-
-function HelpInline({
+function MeetPatInline({
   messages,
-  callbackTarget,
-  authReady,
-  localReviewReady,
-  localReviewRequested,
-  inviteeAccessEnabled,
-  helpCards,
-  authCookiesPresent,
-  resetPath,
-  resetRedirectTo,
   register: r,
 }: {
   messages: Awaited<ReturnType<typeof getRequestLocaleMessages>>["signIn"];
-  callbackTarget: string;
-  authReady: boolean;
-  localReviewReady: boolean;
-  localReviewRequested: boolean;
-  inviteeAccessEnabled: boolean;
-  helpCards: Awaited<ReturnType<typeof getRequestLocaleMessages>>["signIn"]["helpCards"];
-  authCookiesPresent: string[];
-  resetPath: string;
-  resetRedirectTo: string;
   register: SignInRegister;
 }) {
+  // R59 (hotfix-demo-1 P2): the sign-in Meet PAT tab is one card in the home page
+  // voice. MeetPatContent (the portals' Meet PAT) is untouched.
   return (
-    <section className={r.card} {...cardStyleProps(r)}>
+    <section className={r.card} {...cardStyleProps(r)} data-testid="sign-in-meet-pat">
+      <div className="pat-label">{messages.meetPat}</div>
+      <h2 className={r.cardTitle}>{messages.meetPatTitle}</h2>
+      <p className={r.cardBody}>{messages.meetPatBody}</p>
+    </section>
+  );
+}
+
+const SUPPORT_EMAIL = "support@patalign.com";
+
+function HelpInline({
+  messages,
+  roleTabs,
+  register: r,
+}: {
+  messages: Awaited<ReturnType<typeof getRequestLocaleMessages>>["signIn"];
+  roleTabs: string[];
+  register: SignInRegister;
+}) {
+  // R59 (hotfix-demo-1 P2): three lines — which tab for which role, the support
+  // address, passwords set on first sign-in. The runtime status box left by ruling.
+  return (
+    <section className={r.card} {...cardStyleProps(r)} data-testid="sign-in-help">
       <div className="pat-label">{messages.helpEyebrow}</div>
-      <h2 className={r.cardTitle}>
-        {messages.helpTitle}
-      </h2>
-      <p className={r.cardBody}>
-        {messages.helpBody}
-      </p>
-      <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {helpCards.map((card) => (
-          <article key={card.title} className={r.helpCard} {...cardStyleProps(r)}>
-            <div className={r.helpCardTitle}>{card.title}</div>
-            <p className={r.helpCardBody}>{card.body}</p>
-          </article>
-        ))}
-      </div>
-      <div className={r.helpStatusBox}>
-        <div>
-          {messages.callbackTarget}: <span className="font-semibold text-[var(--shell-ink)]">{callbackTarget}</span>
-        </div>
-        <div className="mt-2">
-          {messages.githubAuth}: <span className="font-semibold text-[var(--shell-ink)]">{authReady ? messages.authAvailable : messages.authNeedsConfig}</span>
-        </div>
-        <div className="mt-2">
-          Local review auth: <span className="font-semibold text-[var(--shell-ink)]">{localReviewReady ? "enabled and write-capable" : localReviewRequested ? "requested but not fully configured" : "disabled"}</span>
-        </div>
-        <div className="mt-2">
-          {inviteeAccessEnabled ? messages.inviteeAccess : "Access-code entry"}: <span className="font-semibold text-[var(--shell-ink)]">{inviteeAccessEnabled ? messages.enabled : messages.disabled}</span>
-        </div>
-        <div className="mt-2">
-          {messages.localAuthCookies}: <span className="font-semibold text-[var(--shell-ink)]">{authCookiesPresent.length > 0 ? authCookiesPresent.join(", ") : "none"}</span>
-        </div>
-        <form action={resetPath} method="post" className="mt-4">
-          <input type="hidden" name="redirectTo" value={resetRedirectTo} />
-          <input type="hidden" name="reason" value="stale_callback" />
-          <button type="submit" className={r.buttonSecondary}>
-            Reset local auth state
-          </button>
-        </form>
+      <h2 className={r.cardTitle}>{messages.helpTitle}</h2>
+      <div className="mt-4 space-y-2">
+        <p className={r.cardBody}>{messages.helpTabsLine.replace("{tabs}", roleTabs.join(", "))}</p>
+        <p className={r.cardBody}>
+          {messages.helpSupportLine}{" "}
+          <a className="pat-link" href={`mailto:${SUPPORT_EMAIL}`}>
+            {SUPPORT_EMAIL}
+          </a>
+          .
+        </p>
+        <p className={r.cardBody}>{messages.helpPasswordLine}</p>
       </div>
     </section>
   );
@@ -386,9 +362,18 @@ export default async function SignInHubPage({
   // sign-in hub picking a wrong-role tab — route it straight to its home portal.
   // The route-level enforceAudience() remains the primary wall.
   const sessionUser = await getSessionUser();
+  const individualSurfacesEnabled = isIndividualSurfacesEnabled();
+  // R59 (hotfix-demo-1 E1): a signed-in account whose only home is /user while the
+  // individual surface is disabled used to loop (/user → /sign-in?pilotDisabled →
+  // /user). It now stays here and reads a message instead.
+  let signedInWithoutSurface = false;
   if (sessionUser) {
     const home = await resolveUserAudienceHome(sessionUser);
-    if (home) redirect(AUDIENCE_HOME_PATH[home]);
+    if (home === "user" && !individualSurfacesEnabled) {
+      signedInWithoutSurface = true;
+    } else if (home) {
+      redirect(AUDIENCE_HOME_PATH[home]);
+    }
   }
 
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
@@ -399,7 +384,6 @@ export default async function SignInHubPage({
   const callbackUrl = getSingleParam(resolvedSearchParams?.callbackUrl);
   const redirectTo = getSingleParam(resolvedSearchParams?.redirectTo);
   const pilotDisabledSurface = getSingleParam(resolvedSearchParams?.pilotDisabled);
-  const individualSurfacesEnabled = isIndividualSurfacesEnabled();
   const inviteeSurfacesEnabled = isInviteeSurfacesEnabled();
   const requestedTarget = sanitizeAuthRedirect(redirectTo ?? callbackUrl);
   const inferredView = inferCanonicalSignInView(requestedTarget);
@@ -407,11 +391,13 @@ export default async function SignInHubPage({
     ? requestedView
     : inferredView ?? "vendor";
   const consultantAccessEnabled = isConsultantAccessEnabled();
+  const enterpriseEnabled = isEnterpriseEnabled();
   const consultantViewDisabled =
     rawRequestedAccessView === "consultant" && !consultantAccessEnabled;
   const requestedSurfaceDisabled =
     (rawRequestedAccessView === "individual" && !individualSurfacesEnabled) ||
-    (rawRequestedAccessView === "invitee" && !inviteeSurfacesEnabled);
+    (rawRequestedAccessView === "invitee" && !inviteeSurfacesEnabled) ||
+    (rawRequestedAccessView === "enterprise" && !enterpriseEnabled);
   const activeView: AccessView =
     consultantViewDisabled || requestedSurfaceDisabled ? "vendor" : rawRequestedAccessView;
   const authError = getSingleParam(resolvedSearchParams?.error);
@@ -433,28 +419,15 @@ export default async function SignInHubPage({
     individual: resolvePostAuthRedirectForView("individual", requestedTarget),
     admin: resolvePostAuthRedirectForView("admin", requestedTarget),
     consultant: resolvePostAuthRedirectForView("consultant", requestedTarget),
+    enterprise: resolvePostAuthRedirectForView("enterprise", requestedTarget),
   };
-  const resetRedirectTo = buildCanonicalSignInPath({
-    callbackUrl,
-    redirectTo,
-    view: activeView,
-  });
-  const visibleHelpCards = messages.signIn.helpCards.filter((card) => {
-    if (!individualSurfacesEnabled && card.title === messages.signIn.individual) {
-      return false;
-    }
-
-    if (!inviteeSurfacesEnabled && card.title === messages.signIn.invitee) {
-      return false;
-    }
-
-    return true;
-  });
   const toggleOptions: { id: AccessView; label: string }[] = [
     { id: "vendor", label: messages.signIn.vendor },
     { id: "firm", label: messages.signIn.firm },
     ...(individualSurfacesEnabled ? [{ id: "individual" as const, label: messages.signIn.individual }] : []),
     ...(consultantAccessEnabled ? [{ id: "consultant" as const, label: guideWord() }] : []),
+    // R59 (hotfix-demo-1 P3): Enterprise between Guide and Admin, flag-on only.
+    ...(enterpriseEnabled ? [{ id: "enterprise" as const, label: messages.signIn.enterprise }] : []),
     // Admin tab is always shown (operators sign in via the provisioned-account
     // form in the admin card; the form renders regardless of local-review state).
     // Previously gated on authRuntime.localReviewEnabled, which is false in
@@ -464,11 +437,13 @@ export default async function SignInHubPage({
     { id: "pat", label: messages.signIn.meetPat },
     { id: "help", label: messages.signIn.help },
   ];
-  const pilotDisabledMessage =
-    getPilotDisabledMessage(pilotDisabledSurface) ??
-    (requestedSurfaceDisabled
-      ? getPilotDisabledMessage(rawRequestedAccessView === "individual" ? "individual" : "invitee")
-      : null);
+  const pilotDisabledMessage = signedInWithoutSurface
+    ? messages.signIn.noSurface
+    : getPilotDisabledMessage(pilotDisabledSurface) ??
+      (requestedSurfaceDisabled && rawRequestedAccessView !== "enterprise"
+        ? getPilotDisabledMessage(rawRequestedAccessView === "individual" ? "individual" : "invitee")
+        : null);
+  const roleTabLabels = toggleOptions.filter((option) => option.id !== "pat" && option.id !== "help").map((option) => option.label);
 
   return (
     <div className={r.page}>
@@ -517,6 +492,7 @@ export default async function SignInHubPage({
           signInLabel={messages.common.continueWithGitHub}
           accessCodeLabel={messages.common.continueWithAccessCode}
           localAuthLabel={messages.common.reviewLocalAuthSetup}
+          provisionedBody={messages.signIn.provisionedBody}
           githubReady={authRuntime.githubAuthEnabled}
           localReviewEnabled={authRuntime.localReviewProviderReady}
           localReviewRequested={authRuntime.localReviewEnabled}
@@ -539,6 +515,7 @@ export default async function SignInHubPage({
           signInLabel={messages.common.continueWithGitHub}
           accessCodeLabel={messages.common.continueWithAccessCode}
           localAuthLabel={messages.common.reviewLocalAuthSetup}
+          provisionedBody={messages.signIn.provisionedBody}
           githubReady={authRuntime.githubAuthEnabled}
           localReviewEnabled={authRuntime.localReviewProviderReady}
           localReviewRequested={authRuntime.localReviewEnabled}
@@ -561,6 +538,7 @@ export default async function SignInHubPage({
           signInLabel={messages.common.continueWithGitHub}
           accessCodeLabel={messages.common.continueWithAccessCode}
           localAuthLabel={messages.common.reviewLocalAuthSetup}
+          provisionedBody={messages.signIn.provisionedBody}
           githubReady={authRuntime.githubAuthEnabled}
           localReviewEnabled={authRuntime.localReviewProviderReady}
           localReviewRequested={authRuntime.localReviewEnabled}
@@ -583,6 +561,7 @@ export default async function SignInHubPage({
           signInLabel={messages.common.continueWithGitHub}
           accessCodeLabel={messages.common.continueWithAccessCode}
           localAuthLabel={messages.common.reviewLocalAuthSetup}
+          provisionedBody={messages.signIn.provisionedBody}
           githubReady={authRuntime.githubAuthEnabled}
           localReviewEnabled={authRuntime.localReviewProviderReady}
           localReviewRequested={authRuntime.localReviewEnabled}
@@ -605,12 +584,36 @@ export default async function SignInHubPage({
           signInLabel={messages.common.continueWithGitHub}
           accessCodeLabel={messages.common.continueWithAccessCode}
           localAuthLabel={messages.common.reviewLocalAuthSetup}
+          provisionedBody={messages.signIn.provisionedBody}
           githubReady={authRuntime.githubAuthEnabled}
           localReviewEnabled={authRuntime.localReviewProviderReady}
           localReviewRequested={authRuntime.localReviewEnabled}
           localReviewEmail={localReviewEmailByKey.get("consultant") ?? null}
           inviteeAccessEnabled={inviteeAccessEnabled}
           hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.consultant, view: "consultant" })}
+          submittedEmail={submittedEmail}
+          diagnosticsVisible={authRuntime.diagnosticsVisible}
+          register={r}
+        />
+      ) : null}
+
+      {enterpriseEnabled && activeView === "enterprise" ? (
+        <RoleAccessCard
+          title={messages.signIn.enterpriseTitle}
+          subtitle={messages.signIn.enterpriseSubtitle}
+          body={messages.signIn.roleBody}
+          roleRedirect={requestedRoleRedirects.enterprise}
+          view="enterprise"
+          signInLabel={messages.common.continueWithGitHub}
+          accessCodeLabel={messages.common.continueWithAccessCode}
+          localAuthLabel={messages.common.reviewLocalAuthSetup}
+          provisionedBody={messages.signIn.provisionedBody}
+          githubReady={authRuntime.githubAuthEnabled}
+          localReviewEnabled={authRuntime.localReviewProviderReady}
+          localReviewRequested={authRuntime.localReviewEnabled}
+          localReviewEmail={null}
+          inviteeAccessEnabled={inviteeAccessEnabled}
+          hubHref={buildCanonicalSignInPath({ callbackUrl: requestedRoleRedirects.enterprise, view: "enterprise" })}
           submittedEmail={submittedEmail}
           diagnosticsVisible={authRuntime.diagnosticsVisible}
           register={r}
@@ -643,23 +646,9 @@ export default async function SignInHubPage({
         </section>
       ) : null}
 
-      {activeView === "pat" ? <MeetPatInline v7={isNewFrontDoorEnabled()} /> : null}
+      {activeView === "pat" ? <MeetPatInline messages={messages.signIn} register={r} /> : null}
 
-      {activeView === "help" ? (
-        <HelpInline
-          messages={messages.signIn}
-          helpCards={visibleHelpCards}
-          callbackTarget={authRuntime.callbackUrl ?? "/sign-in"}
-          authReady={authRuntime.githubAuthEnabled}
-          localReviewReady={authRuntime.localReviewProviderReady}
-          localReviewRequested={authRuntime.localReviewEnabled}
-          inviteeAccessEnabled={inviteeAccessEnabled}
-          authCookiesPresent={authCookiesPresent}
-          resetPath={authRuntime.resetPath}
-          resetRedirectTo={resetRedirectTo}
-          register={r}
-        />
-      ) : null}
+      {activeView === "help" ? <HelpInline messages={messages.signIn} roleTabs={roleTabLabels} register={r} /> : null}
     </div>
   );
 }

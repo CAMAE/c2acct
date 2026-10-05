@@ -226,18 +226,22 @@ type LocaleMessages = {
     individualSubtitle: string;
     inviteeTitle: string;
     inviteeSubtitle: string;
+    enterprise: string;
+    enterpriseTitle: string;
+    enterpriseSubtitle: string;
+    /** hotfix-demo-1 (R59, P1): the provisioned-account sentence on every role panel, in the reader's voice. */
+    provisionedBody: string;
+    /** hotfix-demo-1 (R59, P2): the sign-in Meet PAT tab is one card in the home page voice. */
+    meetPatTitle: string;
+    meetPatBody: string;
     helpEyebrow: string;
     helpTitle: string;
-    helpBody: string;
-    helpCards: Array<{ title: string; body: string }>;
-    callbackTarget: string;
-    githubAuth: string;
-    authAvailable: string;
-    authNeedsConfig: string;
-    inviteeAccess: string;
-    enabled: string;
-    disabled: string;
-    localAuthCookies: string;
+    /** hotfix-demo-1 (R59, P2): the Help tab is three lines; {tabs} is the visible role pill list. */
+    helpTabsLine: string;
+    helpSupportLine: string;
+    helpPasswordLine: string;
+    /** hotfix-demo-1 (R59, E1): a signed-in account with no portal sees this instead of a redirect loop. */
+    noSurface: string;
   };
   meetPat: {
     eyebrow: string;
@@ -443,26 +447,21 @@ const messages: Record<AppLocale, LocaleMessages> = {
       individualSubtitle: "Enter PAT through the individual path",
       inviteeTitle: "INVITEE SIGN-IN",
       inviteeSubtitle: "Enter PAT through the invitee path",
+      enterprise: "Enterprise",
+      enterpriseTitle: "ENTERPRISE SIGN-IN",
+      enterpriseSubtitle: "Enter PAT through the enterprise path",
+      provisionedBody:
+        "Sign in with the account PAT provisioned for you. If this is your first sign-in, PAT will ask you to set a new password.",
+      meetPatTitle: "Meet PAT",
+      meetPatBody:
+        "Firms and software vendors answer the same questions. Firms score their own operations and review the products they use. Vendors score their own products. PAT puts the two side by side and shows where they disagree. Every score is arithmetic on the answers; no model interprets a score.",
       helpEyebrow: "Help",
       helpTitle: "How to use this sign-in page",
-      helpBody:
-        "Each toggle on this page explains a specific entry path. Choose the route that matches your audience, review Meet PAT inline if you need product context first, or use Help to understand what each option is for before continuing.",
-      helpCards: [
-        { title: "Vendor", body: "Use Vendor for product assessment, product insight, and vendor alignment insight review." },
-        { title: "Firm", body: "Use Firm for alignment assessment, product assessment, and firm insight review." },
-        { title: "Individual", body: "Use Individual for the person-level PAT scaffold and profile context." },
-        { title: "Invitee", body: "Use Invitee when you were given a controlled access code for staged or local review." },
-        { title: "Meet PAT", body: "Use Meet PAT when you want the full PAT explainer inline before choosing a sign-in route." },
-        { title: "Help", body: "Use Help when you need guidance about what each sign-in option does." },
-      ],
-      callbackTarget: "Callback target",
-      githubAuth: "GitHub auth",
-      authAvailable: "Available",
-      authNeedsConfig: "Needs local configuration",
-      inviteeAccess: "Invitee access",
-      enabled: "Enabled",
-      disabled: "Disabled",
-      localAuthCookies: "Local auth cookies",
+      helpTabsLine: "Choose the tab for your role: {tabs}.",
+      helpSupportLine: "Need help with your account? Write to",
+      helpPasswordLine: "Passwords are set on your first sign-in. PAT asks you to choose one before your workspace opens.",
+      noSurface:
+        "This account is signed in, but no PAT workspace is assigned to it yet. Write to support@patalign.com to have one assigned.",
     },
     meetPat: {
       eyebrow: "The analytical core of PAT",
@@ -815,26 +814,21 @@ const messages: Record<AppLocale, LocaleMessages> = {
       individualSubtitle: "Entrar a PAT por la ruta individual",
       inviteeTitle: "ACCESO INVITADO",
       inviteeSubtitle: "Entrar a PAT por la ruta de invitado",
+      enterprise: "Empresa",
+      enterpriseTitle: "ACCESO EMPRESA",
+      enterpriseSubtitle: "Entrar a PAT por la ruta de empresa",
+      provisionedBody:
+        "Ingresa con la cuenta que PAT aprovisionó para ti. Si es tu primer acceso, PAT te pedirá establecer una nueva contraseña.",
+      meetPatTitle: "Conoce PAT",
+      meetPatBody:
+        "Las firmas y los proveedores de software responden las mismas preguntas. Las firmas puntúan sus propias operaciones y revisan los productos que usan. Los proveedores puntúan sus propios productos. PAT pone ambos lados frente a frente y muestra dónde discrepan. Cada puntuación es aritmética sobre las respuestas; ningún modelo interpreta una puntuación.",
       helpEyebrow: "Ayuda",
       helpTitle: "Cómo usar esta página de acceso",
-      helpBody:
-        "Cada selector de esta página explica una ruta de entrada específica. Elige la ruta que coincide con tu audiencia, revisa Conoce PAT en línea si primero necesitas contexto del producto, o usa Ayuda para entender para qué sirve cada opción antes de continuar.",
-      helpCards: [
-        { title: "Proveedor", body: "Usa Proveedor para evaluación de producto, insight de producto y revisión de insights de alineación para proveedores." },
-        { title: "Firma", body: "Usa Firma para evaluación de alineación, evaluación de producto y revisión de insights de firma." },
-        { title: "Individual", body: "Usa Individual para la estructura PAT a nivel persona y el contexto de perfil." },
-        { title: "Invitado", body: "Usa Invitado cuando recibiste un código de acceso controlado para una revisión local o en entorno." },
-        { title: "Conoce PAT", body: "Usa Conoce PAT cuando quieras ver el explicador completo de PAT antes de elegir una ruta de acceso." },
-        { title: "Ayuda", body: "Usa Ayuda cuando necesites orientación sobre lo que hace cada opción de acceso." },
-      ],
-      callbackTarget: "Destino de retorno",
-      githubAuth: "Autenticación GitHub",
-      authAvailable: "Disponible",
-      authNeedsConfig: "Necesita configuración local",
-      inviteeAccess: "Acceso de invitado",
-      enabled: "Habilitado",
-      disabled: "Deshabilitado",
-      localAuthCookies: "Cookies locales de autenticación",
+      helpTabsLine: "Elige la pestaña de tu rol: {tabs}.",
+      helpSupportLine: "¿Necesitas ayuda con tu cuenta? Escribe a",
+      helpPasswordLine: "Las contraseñas se establecen en el primer acceso. PAT te pedirá elegir una antes de abrir tu espacio de trabajo.",
+      noSurface:
+        "Esta cuenta ha iniciado sesión, pero aún no tiene un espacio de trabajo PAT asignado. Escribe a support@patalign.com para que te asignen uno.",
     },
     meetPat: {
       eyebrow: "Conoce PAT",
@@ -1188,26 +1182,21 @@ const messages: Record<AppLocale, LocaleMessages> = {
       individualSubtitle: "Entrer dans PAT par le parcours individuel",
       inviteeTitle: "CONNEXION INVITÉ",
       inviteeSubtitle: "Entrer dans PAT par le parcours invité",
+      enterprise: "Entreprise",
+      enterpriseTitle: "CONNEXION ENTREPRISE",
+      enterpriseSubtitle: "Entrer dans PAT par le parcours entreprise",
+      provisionedBody:
+        "Connectez-vous avec le compte que PAT a provisionné pour vous. S’il s’agit de votre première connexion, PAT vous demandera de définir un nouveau mot de passe.",
+      meetPatTitle: "Découvrir PAT",
+      meetPatBody:
+        "Les cabinets et les éditeurs de logiciels répondent aux mêmes questions. Les cabinets notent leurs propres opérations et évaluent les produits qu’ils utilisent. Les éditeurs notent leurs propres produits. PAT met les deux côte à côte et montre où ils divergent. Chaque score est une arithmétique sur les réponses ; aucun modèle n’interprète un score.",
       helpEyebrow: "Aide",
       helpTitle: "Comment utiliser cette page de connexion",
-      helpBody:
-        "Chaque onglet de cette page explique un point d’entrée précis. Choisissez la route adaptée à votre audience, consultez Découvrir PAT en ligne si vous avez d’abord besoin de contexte produit, ou utilisez Aide pour comprendre le rôle de chaque option avant de continuer.",
-      helpCards: [
-        { title: "Vendeur", body: "Utilisez Vendeur pour l’évaluation produit, l’insight produit et la revue des insights d’alignement vendeur." },
-        { title: "Cabinet", body: "Utilisez Cabinet pour l’évaluation d’alignement, l’évaluation produit et la revue des insights cabinet." },
-        { title: "Individuel", body: "Utilisez Individuel pour la structure PAT au niveau personne et le contexte de profil." },
-        { title: "Invité", body: "Utilisez Invité lorsque vous avez reçu un code d’accès contrôlé pour une revue locale ou intermédiaire." },
-        { title: "Découvrir PAT", body: "Utilisez Découvrir PAT lorsque vous souhaitez consulter l’explicatif complet de PAT avant de choisir un parcours de connexion." },
-        { title: "Aide", body: "Utilisez Aide lorsque vous avez besoin d’une explication sur le rôle de chaque option de connexion." },
-      ],
-      callbackTarget: "Cible de retour",
-      githubAuth: "Authentification GitHub",
-      authAvailable: "Disponible",
-      authNeedsConfig: "Configuration locale requise",
-      inviteeAccess: "Accès invité",
-      enabled: "Activé",
-      disabled: "Désactivé",
-      localAuthCookies: "Cookies d’authentification locaux",
+      helpTabsLine: "Choisissez l’onglet de votre rôle : {tabs}.",
+      helpSupportLine: "Besoin d’aide pour votre compte ? Écrivez à",
+      helpPasswordLine: "Les mots de passe sont définis à la première connexion. PAT vous demandera d’en choisir un avant d’ouvrir votre espace de travail.",
+      noSurface:
+        "Ce compte est connecté, mais aucun espace de travail PAT ne lui est encore attribué. Écrivez à support@patalign.com pour en obtenir un.",
     },
     meetPat: {
       eyebrow: "Découvrir PAT",

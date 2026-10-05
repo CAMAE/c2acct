@@ -1,4 +1,4 @@
-export type CanonicalSignInView = "vendor" | "firm" | "individual" | "admin" | "consultant";
+export type CanonicalSignInView = "vendor" | "firm" | "individual" | "admin" | "consultant" | "enterprise";
 
 type CanonicalSignInPathInput = {
   callbackUrl?: string | null;
@@ -62,6 +62,10 @@ export function inferCanonicalSignInView(
     return "consultant";
   }
 
+  if (safeTarget === "/enterprise" || safeTarget.startsWith("/enterprise/")) {
+    return "enterprise";
+  }
+
   return null;
 }
 
@@ -74,7 +78,8 @@ export function buildCanonicalSignInPath(input: CanonicalSignInPathInput) {
     input.view === "firm" ||
     input.view === "individual" ||
     input.view === "admin" ||
-    input.view === "consultant"
+    input.view === "consultant" ||
+    input.view === "enterprise"
       ? input.view
       : inferCanonicalSignInView(safeRedirectTo ?? safeCallbackUrl);
 
@@ -142,6 +147,10 @@ export function resolvePostAuthRedirectForView(
     return "/consultants";
   }
 
+  if (view === "enterprise") {
+    return "/enterprise";
+  }
+
   return "/admin";
 }
 
@@ -150,6 +159,7 @@ export function isPilotVisibleSignInView(
   input: {
     individualSurfacesEnabled: boolean;
     consultantAccessEnabled: boolean;
+    enterpriseEnabled?: boolean;
   }
 ) {
   if (view === "individual") {
@@ -158,6 +168,10 @@ export function isPilotVisibleSignInView(
 
   if (view === "consultant") {
     return input.consultantAccessEnabled;
+  }
+
+  if (view === "enterprise") {
+    return input.enterpriseEnabled === true;
   }
 
   return true;

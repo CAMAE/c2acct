@@ -56,9 +56,10 @@ describe("21c — Meet PAT under the V7 door is cut by at least 40%, by omission
     expect(meetPat).toMatch(/variant = "default" \}: MeetPatContentProps/);
   });
 
-  it("the sign-in hub selects the variant from PAT_ENABLE_NEW_FRONT_DOOR and nothing else", () => {
-    expect(signIn).toContain("<MeetPatInline v7={isNewFrontDoorEnabled()} />");
-    expect(signIn).toMatch(/<MeetPatContent variant=\{v7 \? "v7" : "default"\} \/>/);
+  it("the sign-in hub's Meet PAT tab is one card (hotfix-demo-1 P2); MeetPatContent keeps both variants for the portals", () => {
+    expect(signIn).toContain("<MeetPatInline messages={messages.signIn} register={r} />");
+    expect(signIn).not.toContain("import MeetPatContent");
+    expect(meetPat).toContain('if (variant === "v7") {');
   });
 });
 
@@ -99,9 +100,9 @@ describe("21d — sign-in hub in the V7 register, flag-off byte-identical", () =
     for (const literal of ['"pat-card p-8"', '"pat-button-primary"', '"pat-button-secondary"', "text-3xl", "max-w-3xl text-base"]) {
       expect(signIn, `stray literal ${literal}`).not.toContain(literal);
     }
-    expect((signIn.match(/register=\{r\}/g) || []).length).toBe(7); // 5 role cards + help + selector
+    expect((signIn.match(/register=\{r\}/g) || []).length).toBe(9); // 6 role cards (enterprise, R59) + meet pat + help + selector
     expect((signIn.match(/className=\{r\.buttonPrimary\}/g) || []).length).toBe(6);
-    expect((signIn.match(/className=\{r\.buttonSecondary\}/g) || []).length).toBe(2);
+    expect((signIn.match(/className=\{r\.buttonSecondary\}/g) || []).length).toBe(1); // the help tab's reset form left by ruling (R59 P2)
     // The door shadow is spread, never passed as `style={undefined}`: a present-but-
     // undefined prop serialises as "style":"$undefined" in the RSC flight payload and
     // would break flag-off byte-identity of the stream.
@@ -127,7 +128,7 @@ describe('21d — the "Local review access" box is unreachable outside a local/r
   it("the box renders only behind localReviewEnabled, and every card feeds it localReviewProviderReady", () => {
     expect(signIn).toMatch(/\{localReviewEnabled && localReviewEmail \? \([\s\S]{0,120}Local review access/);
     expect((signIn.match(/Local review access/g) || []).length).toBe(1);
-    expect((signIn.match(/localReviewEnabled=\{authRuntime\.localReviewProviderReady\}/g) || []).length).toBe(5);
+    expect((signIn.match(/localReviewEnabled=\{authRuntime\.localReviewProviderReady\}/g) || []).length).toBe(6); // + enterprise card (R59)
     expect(signIn).not.toMatch(/localReviewEnabled=\{(?!authRuntime\.localReviewProviderReady)/);
   });
 

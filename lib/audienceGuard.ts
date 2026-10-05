@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import type { UserRole } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth/session";
+import { getEnterpriseForUser } from "@/lib/enterprise";
 import {
   AUDIENCE_HOME_PATH,
   audienceHomeFor,
@@ -19,17 +20,20 @@ type AudienceUser = { id: string; role: UserRole; companyId: string | null };
  * unresolved company kind (never misroute).
  */
 export async function resolveUserAudienceHome(user: AudienceUser): Promise<PortalAudienceSegment | null> {
-  const [consultant, company] = await Promise.all([
+  const [consultant, company, enterprise] = await Promise.all([
     prisma.consultantProfile.findUnique({ where: { userId: user.id }, select: { id: true } }),
     user.companyId
       ? prisma.company.findUnique({ where: { id: user.companyId }, select: { type: true } })
       : Promise.resolve(null),
+    // R59 E1: null when PAT_ENABLE_ENTERPRISE is off or there is no membership.
+    user.companyId ? Promise.resolve(null) : getEnterpriseForUser(user.id),
   ]);
   return audienceHomeFor({
     role: user.role,
     companyId: user.companyId,
     companyType: company?.type ?? null,
     isConsultant: Boolean(consultant),
+    isEnterpriseMember: Boolean(enterprise),
   });
 }
 

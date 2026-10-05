@@ -29,9 +29,12 @@ const PROFILES: Record<string, { input: AudienceResolutionInput; home: PortalAud
   "consultant": { input: mk({ isConsultant: true }), home: "consultant" },
   "platform admin": { input: mk({ role: "ADMIN" as UserRole }), home: "admin" },
   "individual": { input: mk({}), home: "user" },
+  // R59 (hotfix-demo-1 E1): a company-less enterprise member (flag on) homes on /enterprise.
+  "enterprise owner": { input: mk({ isEnterpriseMember: true }), home: "enterprise" },
+  "firm owner with an enterprise membership": { input: mk({ role: "OWNER" as UserRole, companyId: "c1", companyType: "FIRM" as CompanyType, isEnterpriseMember: true }), home: "firm" },
 };
 
-const SEGMENTS: PortalAudienceSegment[] = ["firm", "vendor", "user", "consultant", "admin"];
+const SEGMENTS: PortalAudienceSegment[] = ["firm", "vendor", "user", "consultant", "admin", "enterprise"];
 
 describe("13a role wall — every account is confined to its home portal", () => {
   for (const [name, { input, home }] of Object.entries(PROFILES)) {
