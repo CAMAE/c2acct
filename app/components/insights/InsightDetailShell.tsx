@@ -20,8 +20,6 @@ type InsightDetailShellProps = {
   subtitle?: ReactNode;
   /** Chart-led summary rendered between the hero and the prose surface. */
   visualLead?: ReactNode;
-  /** Collapse the prose surface behind a disclosure (used when a visual lead carries the page). */
-  surfaceCollapsed?: boolean;
 };
 
 export default function InsightDetailShell({
@@ -37,7 +35,6 @@ export default function InsightDetailShell({
   muted = false,
   subtitle,
   visualLead,
-  surfaceCollapsed = false,
 }: InsightDetailShellProps) {
   // Elite-stacking guard: on the locked Elite boundary surface (?surface=elite),
   // the Pro visual lead ("Current readout" + real module scores) must NOT render
@@ -110,36 +107,13 @@ export default function InsightDetailShell({
 
       {visibleVisualLead}
 
-      {surfaceCollapsed ? (
-        <details className="group pat-card p-6">
-          <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-4 [&::-webkit-details-marker]:hidden">
-            <span className="pat-label">{surfaceContent.title} · evidence detail</span>
-            <span className="pat-button-secondary gap-2">
-              Full prose readout
-              <svg
-                viewBox="0 0 16 16"
-                className="h-3.5 w-3.5 transition-transform duration-200 group-open:rotate-180"
-                aria-hidden="true"
-              >
-                <path
-                  d="M3.5 6 8 10.5 12.5 6"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-          </summary>
-          {surfaceBody}
-        </details>
-      ) : (
-        <section className="pat-card p-6">
-          <div className="pat-label">{surfaceContent.title}</div>
-          {surfaceBody}
-        </section>
-      )}
+      {/* Current limits and Evidence provenance render inline at the end of every full view.
+          The "Full prose readout" collapse the firm view carried is ruled out (Cam 10/02,
+          membership-enterprise box rider; ops/qa/link-removals.json). */}
+      <section className="pat-card p-6">
+        <div className="pat-label">{surfaceContent.title}</div>
+        {surfaceBody}
+      </section>
 
       {children}
       <OutputDisclaimer variant="note" />

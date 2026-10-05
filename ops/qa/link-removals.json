@@ -296,5 +296,11 @@
     "control": "Open Elite Insights",
     "ledgerLine": "box 3h (Cam 10/01, Leslie F3 / D2): the Elite tab's placeholder block (\"What Elite adds here\", the duplicate Evidence provenance paragraph, the \"Open Elite Insights\" button) is ruled out of every full view; the Elite cards live on the hub's main page.",
     "rulingDate": "2026-10-01"
+  },
+  {
+    "route": "*",
+    "control": "PRO \u00b7 EVIDENCE DETAIL Full prose readout",
+    "ledgerLine": "membership-enterprise box rider (Cam's ruling 10/02, FORGE-BOX-MEMBERSHIP-ENTERPRISE-2026-09-30): the firm insight full view's \"Full prose readout\" collapse (Current limits and Evidence provenance behind a disclosure) is ruled OUT; both render inline at the end of the full view, the same as the vendor full view after 3h. Route *: the button rendered on every /firm/insights/<key> full view with a scored report.",
+    "rulingDate": "2026-10-02"
   }
 ]

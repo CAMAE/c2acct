@@ -186,12 +186,9 @@ export default async function FirmInsightDetailPage({ params }: { params: Promis
   // Block 12a: the full Pro insight body (headline + module completion + colored
   // module/capability evidence bars + "what this means") is a single shared
   // component rendered here AND inline when a face card expands.
-  // The Pro prose block stays collapsed behind "Full prose readout" when the visual lead
-  // already carries the bars (pre-3h behaviour; the control survives on the guard baseline).
-  const scoredModules = report
-    ? report.contributingModules.filter((module) => typeof module.score === "number")
-    : [];
-
+  // membership-enterprise box rider (Cam's ruling 10/02): the "Full prose readout" collapse is
+  // ruled out; Current limits and Evidence provenance render inline at the end of the full
+  // view, the same as the vendor full view after 3h (ops/qa/link-removals.json).
   let visualLead = null;
   if (report) {
     visualLead = <FirmInsightDetailBody report={report} insightKey={key} />;
@@ -226,7 +223,6 @@ export default async function FirmInsightDetailPage({ params }: { params: Promis
       combinedEvidenceNote={isTier2 && !isElite ? "Available with Elite membership." : undefined}
       muted={isTier2}
       visualLead={visualLead}
-      surfaceCollapsed={Boolean(visualLead) && scoredModules.length > 0}
     >
       {isTier2 && !isElite ? (
         // A Pro viewer on a tier-2 key: the honest locked preview (v2 name + blurred chart),
