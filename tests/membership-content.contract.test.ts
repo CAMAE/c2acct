@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { MEMBERSHIP_PLAN, MEMBERSHIP_STATUS } from "@/lib/membership";
 import {
+  ENTERPRISE_TIER,
   buildMembershipCheckoutHref,
   getMembershipCheckoutModel,
   getDefaultMembershipTab,
@@ -185,10 +186,12 @@ describe("membership page contracts", () => {
       currentPlan: MEMBERSHIP_PLAN.FREE,
     });
 
-    // FREE is a rank-0 technical artifact only — it is never a rendered tier.
+    // FREE is a rank-0 technical artifact only — it is never a rendered tier. The vendor page
+    // renders the Enterprise channel-license card third (membership-enterprise box, change 1).
     expect(model.tiers.map((t) => t.plan)).toEqual([
       MEMBERSHIP_PLAN.PRO,
       MEMBERSHIP_PLAN.ELITE,
+      ENTERPRISE_TIER,
     ]);
     expect(model.tiers.some((t) => t.plan === MEMBERSHIP_PLAN.FREE)).toBe(false);
     expect(model.tiers.filter((t) => t.isRecommended).map((t) => t.plan)).toEqual([
@@ -213,7 +216,10 @@ describe("membership page contracts", () => {
     expect(eliteTier?.ctaLabel).toBe("Upgrade to Elite");
   });
 
-  it("exposes a feature comparison table grouped by category with audience-specific rows", () => {
+  // membership-enterprise box (2026-09-30), change 2: the vendor and firm tables are the flat
+  // "What each membership includes" rows (no category headers); the vendor table carries an
+  // Enterprise column. The row list itself is pinned in tests/membership-enterprise.contract.test.ts.
+  it("exposes a flat feature comparison table with audience-specific rows", () => {
     const vendorModel = getMembershipPageModel({
       audience: "vendor",
       currentPlan: MEMBERSHIP_PLAN.FREE,
@@ -223,12 +229,13 @@ describe("membership page contracts", () => {
       currentPlan: MEMBERSHIP_PLAN.FREE,
     });
 
-    expect(vendorModel.comparisonTable.length).toBeGreaterThan(0);
-    expect(vendorModel.comparisonTable.length).toBeLessThanOrEqual(12);
-    expect(vendorModel.comparisonTable.some((r) => r.feature.toLowerCase().includes("product slots"))).toBe(true);
-    expect(firmModel.comparisonTable.some((r) => r.feature.toLowerCase().includes("vendor reviews"))).toBe(true);
-    const categories = new Set(vendorModel.comparisonTable.map((r) => r.category));
-    expect(categories.has("Core signal")).toBe(true);
-    expect(categories.has("Support")).toBe(true);
+    expect(vendorModel.comparisonTable.length).toBe(10);
+    expect(firmModel.comparisonTable.length).toBe(6);
+    expect(vendorModel.comparisonTable.every((r) => r.category === undefined)).toBe(true);
+    expect(firmModel.comparisonTable.every((r) => r.category === undefined)).toBe(true);
+    expect(vendorModel.comparisonTable.every((r) => r.enterpriseValue !== undefined)).toBe(true);
+    expect(firmModel.comparisonTable.every((r) => r.enterpriseValue === undefined)).toBe(true);
+    expect(vendorModel.comparisonTable.some((r) => r.feature === "Channel view")).toBe(true);
+    expect(firmModel.comparisonTable.some((r) => r.feature === "Peer benchmark")).toBe(true);
   });
 });

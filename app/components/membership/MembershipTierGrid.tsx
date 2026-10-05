@@ -10,7 +10,8 @@ type MembershipTierGridProps = {
 export default function MembershipTierGrid({ model }: MembershipTierGridProps) {
   return (
     <section
-      className="grid gap-4 md:grid-cols-2"
+      // Three columns when Enterprise joins the vendor grid (membership-enterprise box); firm keeps two.
+      className={model.tiers.length >= 3 ? "grid gap-4 md:grid-cols-2 xl:grid-cols-3" : "grid gap-4 md:grid-cols-2"}
       data-testid="membership-tier-grid"
       aria-label="Membership tier comparison"
     >
@@ -26,6 +27,7 @@ export default function MembershipTierGrid({ model }: MembershipTierGridProps) {
             data-plan={tier.plan}
             data-current={tier.isCurrent ? "1" : "0"}
             data-recommended={tier.isRecommended ? "1" : "0"}
+            data-content-only={tier.contentOnly ? "1" : "0"}
             aria-label={ariaLabel}
             aria-current={ariaCurrent}
             className={`pat-card relative flex flex-col p-8 ${
@@ -44,14 +46,27 @@ export default function MembershipTierGrid({ model }: MembershipTierGridProps) {
                 <span aria-hidden="true">✓ </span>Your current plan
               </div>
             ) : (
-              <div className="pat-label">{tier.label}</div>
+              <div className="pat-label">{tier.title ?? tier.label}</div>
             )}
-            <div className="mt-4 flex items-baseline gap-2">
-              <div className="pat-stat-number text-5xl">{tier.priceDisplay}</div>
+            <div className="mt-4 flex flex-wrap items-baseline gap-2">
+              {/* The Enterprise price line is words, not a number: it takes the heading size, not the stat size. */}
+              <div className={tier.contentOnly ? "text-3xl font-semibold tracking-tight text-[var(--shell-ink)]" : "pat-stat-number text-5xl"}>
+                {tier.priceDisplay}
+              </div>
               <div className="text-sm text-[var(--shell-muted)]">{tier.cadence}</div>
             </div>
             <p className="mt-3 text-base leading-7 text-[var(--shell-muted)]">{tier.tagline}</p>
-            {tier.ctaHref ? (
+            {tier.contentOnly && tier.ctaHref ? (
+              // Content-only card (Enterprise): a text link to a conversation, never a checkout route.
+              <a
+                href={tier.ctaHref}
+                data-testid="membership-tier-contact-link"
+                className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-[var(--brand-c2-blue)] underline-offset-4 hover:underline"
+              >
+                {tier.ctaLabel}
+                <span aria-hidden="true">→</span>
+              </a>
+            ) : tier.ctaHref ? (
               <Link
                 href={tier.ctaHref}
                 className={`mt-6 inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-semibold transition-colors ${

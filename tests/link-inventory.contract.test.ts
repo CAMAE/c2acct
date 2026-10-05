@@ -93,6 +93,9 @@ const RENAMES: Array<[RegExp, string]> = [
   // "methodology"); same href, same mount points, every flag set.
   [/^Methodology$/, "methodology"],
   [/^Nudge queue$/, "Nudges"],
+  // membership-enterprise box (Cam 9/30, change 2): the membership comparison table is titled
+  // "What each membership includes"; same <details> control, same mount, every flag set.
+  [/^FEATURE COMPARISON What each membership includes Click to collapse$/, "FEATURE COMPARISON Compare what each tier includes Click to collapse"],
   // Box 2b (Cam 9/14 "all as recommended"): the admin membership plan select lost its FREE
   // option by ruling (6d090155, AUDIT-OMNIBUS-A-001: FREE is unassignable forward) — same
   // control, shorter option list. Vendor alignment insight card wording (A6).

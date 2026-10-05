@@ -1,6 +1,24 @@
 import type { MembershipPlan, MembershipStatus } from "@prisma/client";
+import { getLocaleMessages } from "@/lib/locale";
 import { MEMBERSHIP_PLAN, toDbMembershipPlan, type ResolvedMembershipPlan } from "@/lib/membership";
 import type { MembershipAudience } from "@/lib/membershipContext";
+
+/**
+ * membership-enterprise box (2026-09-30): the English source for the Enterprise card and the
+ * comparison table lives in lib/locale.ts (en/es/fr), so the rendered strings and the locale
+ * file cannot drift. The membership pages render English today; the es/fr bundles are the
+ * translations for the same keys.
+ */
+export const MEMBERSHIP_COPY = getLocaleMessages("en").membership;
+
+/**
+ * Enterprise is the channel license: a content-only tier card on the vendor membership page.
+ * It is NOT a MembershipPlan (the enum is closed: FREE / PRO / ELITE), has no checkout route
+ * and records no intent — its CTA is a mailto text link.
+ */
+export const ENTERPRISE_TIER = "ENTERPRISE" as const;
+export type MembershipTierKey = MembershipPlan | typeof ENTERPRISE_TIER;
+export const ENTERPRISE_CONTACT_HREF = "mailto:cam@patalignhq.com?subject=PAT%20Enterprise";
 
 export type MembershipTabKey = typeof MEMBERSHIP_PLAN.PRO | typeof MEMBERSHIP_PLAN.ELITE | "HELP";
 export type MembershipPaymentMethodKey = "card" | "bank" | "paypal" | "stripe" | "square";
@@ -43,8 +61,12 @@ type MembershipAudienceContent = {
 };
 
 export type MembershipTierCardData = {
-  plan: MembershipPlan;
+  plan: MembershipTierKey;
   label: string;
+  /** Content-only card title (Enterprise); purchasable plans carry null and render the label. */
+  title: string | null;
+  /** True for the Enterprise channel-license card: no checkout, no intent record, mailto CTA. */
+  contentOnly: boolean;
   priceDisplay: string;
   cadence: string;
   tagline: string;
@@ -58,11 +80,15 @@ export type MembershipTierCardData = {
 export type MembershipComparisonValue = string | boolean;
 
 export type MembershipComparisonRow = {
-  category: string;
+  /** Optional group header; the vendor and firm tables are flat lists (membership-enterprise box). */
+  category?: string;
   feature: string;
-  freeValue: MembershipComparisonValue;
+  /** Legacy, never rendered (FREE is not a column); kept for the individual rows only. */
+  freeValue?: MembershipComparisonValue;
   proValue: MembershipComparisonValue;
   eliteValue: MembershipComparisonValue;
+  /** Vendor table only: the Enterprise column. */
+  enterpriseValue?: MembershipComparisonValue;
 };
 
 export type MembershipPageModel = {
@@ -180,29 +206,41 @@ function normalizeMembershipTabKey(
   return getDefaultMembershipTab(currentPlan);
 }
 
+// membership-enterprise box (2026-09-30), change 2: "What each membership includes". Every
+// phrase names a surface that exists in the app today (workspace card copy, veil copy, the
+// benchmark artifact, the Elite insight cards); a check is included, a dash is not. Nothing
+// is "coming soon". Row labels and cell phrases are the en locale bundle (lib/locale.ts).
+const VENDOR_ROWS = MEMBERSHIP_COPY.rows.vendor;
+const FIRM_ROWS = MEMBERSHIP_COPY.rows.firm;
+const CELL = MEMBERSHIP_COPY.cells;
+
 const VENDOR_COMPARISON_ROWS: MembershipComparisonRow[] = [
-  { category: "Core signal", feature: "Vendor self-assessment", freeValue: true, proValue: true, eliteValue: true },
-  { category: "Core signal", feature: "Capability scoring", freeValue: "Baseline", proValue: "Full", eliteValue: "Full" },
-  { category: "Core signal", feature: "Hot-divergence alerts", freeValue: false, proValue: true, eliteValue: true },
-  { category: "Network access", feature: "Product slots", freeValue: "1", proValue: "5", eliteValue: "Unlimited" },
-  { category: "Network access", feature: "Firm review aggregation", freeValue: false, proValue: true, eliteValue: "Priority queue" },
-  { category: "Briefings", feature: "Brief depth", freeValue: "Public", proValue: "Full", eliteValue: "Custom schedule" },
-  { category: "Briefings", feature: "Action roadmap", freeValue: false, proValue: true, eliteValue: true },
-  { category: "Support", feature: "Email support", freeValue: true, proValue: true, eliteValue: true },
-  { category: "Support", feature: "Dedicated success manager", freeValue: false, proValue: false, eliteValue: true },
+  { feature: VENDOR_ROWS.productAssessment, proValue: true, eliteValue: true, enterpriseValue: true },
+  { feature: VENDOR_ROWS.firmReviews, proValue: true, eliteValue: true, enterpriseValue: true },
+  { feature: VENDOR_ROWS.alignmentInsight, proValue: true, eliteValue: true, enterpriseValue: true },
+  // Product Fit Card: Pro sees the real surface behind the lock veil (LockedSurfaceVeil).
+  { feature: VENDOR_ROWS.productFit, proValue: CELL.lockedPreview, eliteValue: true, enterpriseValue: true },
+  // Elite insight cards (category position, demand signals): Pro sees the locked preview.
+  { feature: VENDOR_ROWS.benchmarkDemand, proValue: CELL.lockedPreview, eliteValue: true, enterpriseValue: true },
+  // R7: "BattleCard" reads "Product Fit Card" everywhere; the per-firm brief sits behind the veil for Pro.
+  { feature: VENDOR_ROWS.productFitCardBrief, proValue: CELL.lockedPreview, eliteValue: true, enterpriseValue: true },
+  { feature: VENDOR_ROWS.productsCovered, proValue: CELL.declaredProducts, eliteValue: CELL.declaredProducts, enterpriseValue: CELL.allProductLines },
+  { feature: VENDOR_ROWS.channelView, proValue: false, eliteValue: false, enterpriseValue: true },
+  { feature: VENDOR_ROWS.guideBriefing, proValue: false, eliteValue: false, enterpriseValue: true },
+  // Elite reveals the Secret Firm names; the evidence never leaves your own ecosystem.
+  { feature: VENDOR_ROWS.firmEvidence, proValue: false, eliteValue: CELL.yourEcosystemOnly, enterpriseValue: CELL.yourEcosystemOnly },
 ];
 
 const FIRM_COMPARISON_ROWS: MembershipComparisonRow[] = [
-  { category: "Core signal", feature: "Firm self-assessment", freeValue: true, proValue: true, eliteValue: true },
-  { category: "Core signal", feature: "Capability scoring", freeValue: "Baseline", proValue: "Full", eliteValue: "Full" },
-  { category: "Core signal", feature: "Hot-divergence detection", freeValue: false, proValue: true, eliteValue: true },
-  { category: "Network access", feature: "Vendor reviews", freeValue: "1", proValue: "10", eliteValue: "Unlimited" },
-  { category: "Network access", feature: "Consultant collaboration", freeValue: false, proValue: false, eliteValue: true },
-  { category: "Briefings", feature: "Brief depth", freeValue: "Basic", proValue: "Full", eliteValue: "Audit-grade history" },
-  { category: "Briefings", feature: "Six-quarter roadmap", freeValue: false, proValue: true, eliteValue: true },
-  { category: "Briefings", feature: "Custom assessment templates", freeValue: false, proValue: false, eliteValue: true },
-  { category: "Support", feature: "Email support", freeValue: true, proValue: true, eliteValue: true },
-  { category: "Support", feature: "Dedicated success manager", freeValue: false, proValue: false, eliteValue: true },
+  { feature: FIRM_ROWS.alignmentAssessment, proValue: true, eliteValue: true },
+  { feature: FIRM_ROWS.insightsHub, proValue: true, eliteValue: true },
+  { feature: FIRM_ROWS.productAssessments, proValue: true, eliteValue: true },
+  // R24 name. R1: Pro plays the board with candidate product names hidden; Elite reveals them.
+  { feature: FIRM_ROWS.sandbox, proValue: CELL.candidateNamesHidden, eliteValue: true },
+  // /firm/benchmark: Pro reads the cohort bands; the exact rank is the Elite wall inside the artifact.
+  { feature: FIRM_ROWS.peerBenchmark, proValue: CELL.cohortBands, eliteValue: CELL.exactPosition },
+  // Elite insight cards (peer position, gap plan, trajectory): Pro sees the locked preview.
+  { feature: FIRM_ROWS.eliteInsights, proValue: CELL.lockedPreview, eliteValue: true },
 ];
 
 const INDIVIDUAL_COMPARISON_ROWS: MembershipComparisonRow[] = [
@@ -820,6 +858,38 @@ const MEMBERSHIP_TIER_ORDER: readonly MembershipPlan[] = [
   MEMBERSHIP_PLAN.ELITE,
 ];
 
+// membership-enterprise box (2026-09-30), change 1: the vendor page renders Enterprise third.
+// Firm (and individual) keep the two-tier order.
+const VENDOR_MEMBERSHIP_TIER_ORDER: readonly MembershipTierKey[] = [...MEMBERSHIP_TIER_ORDER, ENTERPRISE_TIER];
+
+export function getMembershipTierOrder(audience: MembershipAudience): readonly MembershipTierKey[] {
+  return audience === "vendor" ? VENDOR_MEMBERSHIP_TIER_ORDER : MEMBERSHIP_TIER_ORDER;
+}
+
+/** Enterprise license: no number anywhere, no checkout. */
+export const ENTERPRISE_PRICE_DISPLAY = {
+  priceDisplay: MEMBERSHIP_COPY.enterprise.priceDisplay,
+  cadence: MEMBERSHIP_COPY.enterprise.cadence,
+} as const;
+
+function buildEnterpriseTierCard(): MembershipTierCardData {
+  const copy = MEMBERSHIP_COPY.enterprise;
+  return {
+    plan: ENTERPRISE_TIER,
+    label: copy.label,
+    title: copy.title,
+    contentOnly: true,
+    priceDisplay: ENTERPRISE_PRICE_DISPLAY.priceDisplay,
+    cadence: ENTERPRISE_PRICE_DISPLAY.cadence,
+    tagline: copy.summary,
+    features: copy.bullets,
+    ctaLabel: copy.cta,
+    ctaHref: ENTERPRISE_CONTACT_HREF,
+    isCurrent: false,
+    isRecommended: false,
+  };
+}
+
 /**
  * Depth box 5 (2026-09-09, APPROVED flag-off): the agreed annual prices from the
  * pricing memo, copy only — Stripe prices are a separate box on Cam's GO.
@@ -872,6 +942,8 @@ function buildMembershipTierCard(
   return {
     plan,
     label: formatMembershipValue(plan),
+    title: null,
+    contentOnly: false,
     priceDisplay: price.priceDisplay,
     cadence: price.cadence,
     tagline: seed.tagline,
@@ -888,8 +960,10 @@ function buildMembershipTiers(
   currentPlan: MembershipPlan,
   content: MembershipAudienceContent
 ): MembershipTierCardData[] {
-  return MEMBERSHIP_TIER_ORDER.map((plan) =>
-    buildMembershipTierCard(audience, plan, currentPlan, content)
+  return getMembershipTierOrder(audience).map((plan) =>
+    plan === ENTERPRISE_TIER
+      ? buildEnterpriseTierCard()
+      : buildMembershipTierCard(audience, plan, currentPlan, content)
   );
 }
 

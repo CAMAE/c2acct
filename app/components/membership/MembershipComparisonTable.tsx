@@ -2,19 +2,23 @@
 
 import { Fragment } from "react";
 import { MEMBERSHIP_PLAN } from "@/lib/membership";
-import type {
-  MembershipComparisonRow,
-  MembershipComparisonValue,
-  MembershipPageModel,
+import {
+  ENTERPRISE_TIER,
+  MEMBERSHIP_COPY,
+  type MembershipComparisonRow,
+  type MembershipComparisonValue,
+  type MembershipPageModel,
+  type MembershipTierKey,
 } from "@/lib/membershipContent";
-import type { MembershipPlan } from "@prisma/client";
 
 type MembershipComparisonTableProps = {
   model: MembershipPageModel;
 };
 
-// Value cells follow the rendered tiers (PRO, ELITE). FREE is never a column.
-function valueForPlan(row: MembershipComparisonRow, plan: MembershipPlan): MembershipComparisonValue {
+// Value cells follow the rendered tiers (PRO, ELITE, and ENTERPRISE on the vendor page).
+// FREE is never a column. A row without an Enterprise value reads as not included there.
+function valueForPlan(row: MembershipComparisonRow, plan: MembershipTierKey): MembershipComparisonValue {
+  if (plan === ENTERPRISE_TIER) return row.enterpriseValue ?? false;
   return plan === MEMBERSHIP_PLAN.ELITE ? row.eliteValue : row.proValue;
 }
 
@@ -37,12 +41,15 @@ function renderCell(value: MembershipComparisonValue) {
 }
 
 export default function MembershipComparisonTable({ model }: MembershipComparisonTableProps) {
-  const grouped: Array<{ category: string; rows: typeof model.comparisonTable }> = [];
-  let currentCategory: string | null = null;
+  // Rows with a category render under a group header; the vendor and firm tables are flat
+  // (membership-enterprise box), so a run of uncategorized rows renders with no header row.
+  const grouped: Array<{ category: string | null; rows: typeof model.comparisonTable }> = [];
+  let currentCategory: string | null | undefined = undefined;
   for (const row of model.comparisonTable) {
-    if (row.category !== currentCategory) {
-      grouped.push({ category: row.category, rows: [] });
-      currentCategory = row.category;
+    const category = row.category ?? null;
+    if (category !== currentCategory) {
+      grouped.push({ category, rows: [] });
+      currentCategory = category;
     }
     grouped[grouped.length - 1].rows.push(row);
   }
@@ -54,7 +61,7 @@ export default function MembershipComparisonTable({ model }: MembershipCompariso
           <div>
             <div className="pat-label">Feature comparison</div>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">
-              Compare what each tier includes
+              {MEMBERSHIP_COPY.comparisonTitle}
             </h2>
           </div>
           <span aria-hidden="true" className="text-sm text-[var(--shell-muted)]">
@@ -87,19 +94,21 @@ export default function MembershipComparisonTable({ model }: MembershipCompariso
           </thead>
           <tbody>
             {grouped.map((group) => (
-              <Fragment key={`cat-${group.category}`}>
-                <tr className="bg-[var(--shell-panel-soft)]">
-                  <th
-                    scope="colgroup"
-                    colSpan={model.tiers.length + 1}
-                    className="pat-label py-3 pl-2 text-left text-[var(--shell-ink)]"
-                  >
-                    {group.category}
-                  </th>
-                </tr>
+              <Fragment key={`cat-${group.category ?? "flat"}`}>
+                {group.category ? (
+                  <tr className="bg-[var(--shell-panel-soft)]">
+                    <th
+                      scope="colgroup"
+                      colSpan={model.tiers.length + 1}
+                      className="pat-label py-3 pl-2 text-left text-[var(--shell-ink)]"
+                    >
+                      {group.category}
+                    </th>
+                  </tr>
+                ) : null}
                 {group.rows.map((row) => (
                   <tr
-                    key={`${group.category}-${row.feature}`}
+                    key={`${group.category ?? "flat"}-${row.feature}`}
                     className="border-b border-[var(--shell-border)]"
                   >
                     <th

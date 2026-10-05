@@ -127,6 +127,52 @@ type LocaleMessages = {
     shortAnswer: string;
     otherAria: string;
   };
+  /** membership-enterprise box (2026-09-30): the Enterprise channel-license card and the "What each membership includes" comparison table. */
+  membership: {
+    comparisonTitle: string;
+    enterprise: {
+      label: string;
+      title: string;
+      summary: string;
+      bullets: string[];
+      priceDisplay: string;
+      cadence: string;
+      cta: string;
+    };
+    cells: {
+      lockedPreview: string;
+      declaredProducts: string;
+      allProductLines: string;
+      yourEcosystemOnly: string;
+      candidateNamesHidden: string;
+      cohortBands: string;
+      exactPosition: string;
+    };
+    rows: {
+      vendor: Record<
+        | "productAssessment"
+        | "firmReviews"
+        | "alignmentInsight"
+        | "productFit"
+        | "benchmarkDemand"
+        | "productFitCardBrief"
+        | "productsCovered"
+        | "channelView"
+        | "guideBriefing"
+        | "firmEvidence",
+        string
+      >;
+      firm: Record<
+        | "alignmentAssessment"
+        | "insightsHub"
+        | "productAssessments"
+        | "sandbox"
+        | "peerBenchmark"
+        | "eliteInsights",
+        string
+      >;
+    };
+  };
   common: {
     scoped: string;
     queued: string;
@@ -289,6 +335,56 @@ const messages: Record<AppLocale, LocaleMessages> = {
       awaiting: "Awaiting response",
       shortAnswer: "Short answer",
       otherAria: "Other, short answer",
+    },
+    membership: {
+      comparisonTitle: "What each membership includes",
+      enterprise: {
+        label: "Enterprise",
+        title: "Enterprise. The channel license.",
+        summary:
+          "Every product line at Elite depth, the aggregate view of your whole channel, and a Guide's quarterly briefing. Licensed per channel. Accounting is the first channel.",
+        bullets: [
+          "All of your products, each at Elite depth, under one license.",
+          "Channel view: category averages, distributions, and module-level positions computed above the evidence thresholds; no firm is ever exposed.",
+          "Firm-level evidence for your own ecosystem only; no other vendor sees your firms.",
+          "A quarterly briefing per ecosystem, delivered by an independent Guide.",
+          "Additional channels added under the same agreement as their banks are published.",
+        ],
+        priceDisplay: "Enterprise license",
+        cadence: "by agreement",
+        cta: "Talk to us about Enterprise",
+      },
+      cells: {
+        lockedPreview: "Locked preview",
+        declaredProducts: "Declared products",
+        allProductLines: "All product lines",
+        yourEcosystemOnly: "Your ecosystem only",
+        candidateNamesHidden: "Candidate product names hidden",
+        cohortBands: "Cohort bands",
+        exactPosition: "Your exact position",
+      },
+      rows: {
+        vendor: {
+          productAssessment: "Product assessment (own scoring)",
+          firmReviews: "Firm product reviews on file",
+          alignmentInsight: "Alignment insight (self-reported vs firm-reviewed, divergence by module)",
+          productFit: "Product fit (firms in your ecosystem ranked by fit)",
+          benchmarkDemand: "Benchmark position and demand signals",
+          productFitCardBrief: "Product Fit Card brief (one ranked firm at a time)",
+          productsCovered: "Products covered",
+          channelView: "Channel view",
+          guideBriefing: "Quarterly Guide briefing",
+          firmEvidence: "Firm-level evidence",
+        },
+        firm: {
+          alignmentAssessment: "Alignment assessment, five modules",
+          insightsHub: "Insights hub and drill-down",
+          productAssessments: "Product assessments the firm reviews",
+          sandbox: "Tech Stack Sandbox",
+          peerBenchmark: "Peer benchmark",
+          eliteInsights: "Elite insights (peer position, gap plan, trajectory)",
+        },
+      },
     },
     common: {
       scoped: "Scoped",
@@ -612,6 +708,56 @@ const messages: Record<AppLocale, LocaleMessages> = {
       shortAnswer: "Respuesta breve",
       otherAria: "Otro, respuesta breve",
     },
+    membership: {
+      comparisonTitle: "Qué incluye cada membresía",
+      enterprise: {
+        label: "Enterprise",
+        title: "Enterprise. La licencia de canal.",
+        summary:
+          "Todas las líneas de producto con la profundidad de Elite, la vista agregada de todo su canal y un informe trimestral de un Guía. Licencia por canal. Contabilidad es el primer canal.",
+        bullets: [
+          "Todos sus productos, cada uno con la profundidad de Elite, bajo una sola licencia.",
+          "Vista de canal: promedios por categoría, distribuciones y posiciones por módulo calculadas por encima de los umbrales de evidencia; ninguna firma queda expuesta.",
+          "Evidencia a nivel de firma solo para su propio ecosistema; ningún otro proveedor ve sus firmas.",
+          "Un informe trimestral por ecosistema, entregado por un Guía independiente.",
+          "Canales adicionales se añaden bajo el mismo acuerdo a medida que se publican sus bancos.",
+        ],
+        priceDisplay: "Licencia Enterprise",
+        cadence: "según acuerdo",
+        cta: "Hable con nosotros sobre Enterprise",
+      },
+      cells: {
+        lockedPreview: "Vista previa bloqueada",
+        declaredProducts: "Productos declarados",
+        allProductLines: "Todas las líneas de producto",
+        yourEcosystemOnly: "Solo su ecosistema",
+        candidateNamesHidden: "Nombres de productos candidatos ocultos",
+        cohortBands: "Bandas de la cohorte",
+        exactPosition: "Su posición exacta",
+      },
+      rows: {
+        vendor: {
+          productAssessment: "Evaluación de producto (puntuación propia)",
+          firmReviews: "Revisiones de producto de firmas registradas",
+          alignmentInsight: "Insight de alineación (autoinforme frente a revisión de firmas, divergencia por módulo)",
+          productFit: "Ajuste de producto (firmas de su ecosistema ordenadas por ajuste)",
+          benchmarkDemand: "Posición de referencia y señales de demanda",
+          productFitCardBrief: "Resumen de la Product Fit Card (una firma clasificada a la vez)",
+          productsCovered: "Productos cubiertos",
+          channelView: "Vista de canal",
+          guideBriefing: "Informe trimestral del Guía",
+          firmEvidence: "Evidencia a nivel de firma",
+        },
+        firm: {
+          alignmentAssessment: "Evaluación de alineación, cinco módulos",
+          insightsHub: "Centro de insights y análisis detallado",
+          productAssessments: "Evaluaciones de producto que revisa la firma",
+          sandbox: "Tech Stack Sandbox",
+          peerBenchmark: "Referencia entre pares",
+          eliteInsights: "Insights Elite (posición entre pares, plan de brechas, trayectoria)",
+        },
+      },
+    },
     common: {
       scoped: "Acotado",
       queued: "En cola",
@@ -934,6 +1080,56 @@ const messages: Record<AppLocale, LocaleMessages> = {
       awaiting: "En attente de réponse",
       shortAnswer: "Réponse courte",
       otherAria: "Autre, réponse courte",
+    },
+    membership: {
+      comparisonTitle: "Ce que comprend chaque adhésion",
+      enterprise: {
+        label: "Enterprise",
+        title: "Enterprise. La licence de canal.",
+        summary:
+          "Toutes les lignes de produits à la profondeur Elite, la vue agrégée de l'ensemble de votre canal et un briefing trimestriel d'un Guide. Licence par canal. La comptabilité est le premier canal.",
+        bullets: [
+          "Tous vos produits, chacun à la profondeur Elite, sous une seule licence.",
+          "Vue de canal : moyennes par catégorie, distributions et positions par module calculées au-dessus des seuils de preuve ; aucun cabinet n'est jamais exposé.",
+          "Preuves au niveau du cabinet pour votre propre écosystème uniquement ; aucun autre fournisseur ne voit vos cabinets.",
+          "Un briefing trimestriel par écosystème, livré par un Guide indépendant.",
+          "Des canaux supplémentaires ajoutés dans le cadre du même accord à mesure que leurs banques sont publiées.",
+        ],
+        priceDisplay: "Licence Enterprise",
+        cadence: "selon accord",
+        cta: "Parlez-nous d'Enterprise",
+      },
+      cells: {
+        lockedPreview: "Aperçu verrouillé",
+        declaredProducts: "Produits déclarés",
+        allProductLines: "Toutes les lignes de produits",
+        yourEcosystemOnly: "Votre écosystème uniquement",
+        candidateNamesHidden: "Noms des produits candidats masqués",
+        cohortBands: "Bandes de la cohorte",
+        exactPosition: "Votre position exacte",
+      },
+      rows: {
+        vendor: {
+          productAssessment: "Évaluation de produit (notation propre)",
+          firmReviews: "Avis de cabinets sur les produits enregistrés",
+          alignmentInsight: "Insight d'alignement (auto-déclaré vs évalué par les cabinets, divergence par module)",
+          productFit: "Adéquation produit (cabinets de votre écosystème classés par adéquation)",
+          benchmarkDemand: "Position de référence et signaux de demande",
+          productFitCardBrief: "Brief de la Product Fit Card (un cabinet classé à la fois)",
+          productsCovered: "Produits couverts",
+          channelView: "Vue de canal",
+          guideBriefing: "Briefing trimestriel du Guide",
+          firmEvidence: "Preuves au niveau du cabinet",
+        },
+        firm: {
+          alignmentAssessment: "Évaluation d'alignement, cinq modules",
+          insightsHub: "Hub d'insights et exploration détaillée",
+          productAssessments: "Évaluations de produits que le cabinet examine",
+          sandbox: "Tech Stack Sandbox",
+          peerBenchmark: "Référence entre pairs",
+          eliteInsights: "Insights Elite (position entre pairs, plan des écarts, trajectoire)",
+        },
+      },
     },
     common: {
       scoped: "Cadré",
