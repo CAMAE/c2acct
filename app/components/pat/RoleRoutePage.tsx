@@ -37,7 +37,7 @@ export default function RoleRoutePage({
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link className="pat-button-primary" href={signedIn ? `/${role}` : config.signInHref}>
-            {signedIn ? `Refresh ${config.label.toLowerCase()} route` : config.signInLabel}
+            {signedIn ? `Refresh ${config.label.toLowerCase()} page` : config.signInLabel}
           </Link>
           <Link className="pat-button-secondary" href={`/${role}`}>
             Open {config.label} workspace
@@ -61,7 +61,7 @@ export default function RoleRoutePage({
           </div>
           {audienceMismatch ? (
             <div className="mt-4 rounded-[18px] border border-amber-200 bg-amber-50/90 p-4 text-sm leading-6 text-amber-900">
-              Your current signed-in PAT context does not match this route’s target audience. This page is still useful for reviewing information architecture, but the downstream live surfaces will continue to enforce the real authenticated context.
+              Your current signed-in PAT context does not match this page’s target audience. This page is still useful for reviewing information architecture, but the downstream live surfaces will continue to enforce the real authenticated context.
             </div>
           ) : null}
         </section>
@@ -69,7 +69,7 @@ export default function RoleRoutePage({
         <section className="pat-card p-6">
           <div className="pat-label">Entry note</div>
           <p className="mt-4 max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">
-            This route is part of the PAT information architecture. It stays lightweight and routes into the existing login, survey, results, insights, and profile plumbing instead of introducing a second flow.
+            This page is part of the PAT information architecture. It stays lightweight and leads into the existing login, survey, results, insights, and profile pages instead of introducing a second flow.
           </p>
         </section>
       )}
@@ -78,7 +78,7 @@ export default function RoleRoutePage({
         <div>
           <h2 className="text-2xl font-semibold text-[var(--shell-ink)]">Click-through structure</h2>
           <p className="mt-1 text-sm text-[var(--shell-muted)]">
-            These cards route into the current PAT system where it already exists, and mark future integrations as placeholders where it does not.
+            These cards lead into the current PAT system where it already exists, and mark future integrations as not yet open where it does not.
           </p>
         </div>
         <div className="grid gap-5 md:grid-cols-2">

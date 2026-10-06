@@ -30,7 +30,7 @@ export default async function FirmProductAssessmentDetailPage({
         audience="firm"
         surfaceLabel="Firm product assessment"
         title="Firm product assessment requires Pro membership"
-        body="This firm product review runtime is part of the current Pro firm tier. PAT keeps the route visible so the upgrade path stays explicit, but it does not open the assessment body until Pro is active."
+        body="This firm product review is part of the current Pro firm tier. This page stays visible so the upgrade path stays explicit, but it does not open the assessment body until Pro is active."
         displayName={entitlement.membership.displayName}
         currentPlan={entitlement.membership.plan}
         currentStatus={entitlement.membership.status}
@@ -40,7 +40,7 @@ export default async function FirmProductAssessmentDetailPage({
         workspaceHref="/firm/product-assessments"
         workspaceLabel="Back to firm product assessments"
         availableNow="The baseline firm state still keeps workspace entry and membership routing available."
-        upgradeNote="This runtime sits inside the current product-review loop that feeds PAT product evidence, so it stays behind the current Pro tier."
+        upgradeNote="This flow sits inside the current product-review loop that feeds PAT product evidence, so it stays behind the current Pro tier."
       />
     );
   }

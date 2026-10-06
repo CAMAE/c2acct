@@ -35,7 +35,7 @@ export default async function SurveyModulePage({
           audience="firm"
           surfaceLabel="Firm alignment module"
           title="Firm alignment modules require Pro membership"
-          body="This firm assessment runtime is part of the live Pro firm tier. PAT keeps the route visible so the upgrade path stays explicit, but it does not open the module body until Pro is active."
+          body="This firm assessment is part of the live Pro firm tier. This page stays visible so the upgrade path stays explicit, but it does not open the module body until Pro is active."
           displayName={entitlement.membership.displayName}
           currentPlan={entitlement.membership.plan}
           currentStatus={entitlement.membership.status}
@@ -45,7 +45,7 @@ export default async function SurveyModulePage({
           workspaceHref="/firm/alignment-assessment"
           workspaceLabel="Back to firm alignment assessment"
           availableNow="The baseline firm state still keeps workspace entry and membership routing available."
-          upgradeNote="The firm alignment module runtime feeds the live firm insight layer, so PAT treats it as a Pro surface rather than a baseline workspace page."
+          upgradeNote="The firm alignment module feeds the live firm insight layer, so PAT treats it as a Pro surface rather than a baseline workspace page."
         />
       );
     }
@@ -59,7 +59,7 @@ export default async function SurveyModulePage({
           audience="individual"
           surfaceLabel="Individual alignment module"
           title="Individual alignment assessment requires Pro membership"
-          body="This person-level assessment runtime is part of the live Pro individual tier. PAT keeps the route visible so the upgrade path stays explicit, but it does not open the module body until Pro is active."
+          body="This person-level assessment is part of the live Pro individual tier. This page stays visible so the upgrade path stays explicit, but it does not open the module body until Pro is active."
           displayName={entitlement.membership.displayName}
           currentPlan={entitlement.membership.plan}
           currentStatus={entitlement.membership.status}
@@ -69,7 +69,7 @@ export default async function SurveyModulePage({
           workspaceHref="/user/alignment-assessment"
           workspaceLabel="Back to individual alignment assessment"
           availableNow="The baseline individual state still keeps workspace entry and membership routing available."
-          upgradeNote="The current user assessment runtime is the live Pro intake path for person-level PAT state, so it does not open from the baseline state."
+          upgradeNote="The current user assessment is the live Pro intake path for person-level PAT state, so it does not open from the baseline state."
         />
       );
     }

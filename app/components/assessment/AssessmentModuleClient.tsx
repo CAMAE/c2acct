@@ -188,7 +188,7 @@ function renderQuestionInput(
   if (question.status === "unsupported") {
     return (
       <div className="pat-banner pat-banner-danger">
-        This question type is configured without the metadata the PAT runtime requires yet.
+        This question type is configured without the metadata PAT requires yet.
       </div>
     );
   }
@@ -373,7 +373,7 @@ function renderQuestionInput(
 
   return (
     <div className="pat-banner pat-banner-danger">
-      This question type is not enabled in the current PAT runtime.
+      This question type is not enabled in PAT today.
     </div>
   );
 }
@@ -929,7 +929,7 @@ export default function AssessmentModuleClient({ moduleKey, surveyExits = false 
       {data.stagedFeatures.branching || data.stagedFeatures.roleVariants ? (
         <div className="pat-banner pat-banner-info">
           {data.stagedFeatures.branching
-            ? "Branching metadata is present and reserved for phase 2 runtime control. "
+            ? "Branching metadata is present and reserved for a later release. "
             : ""}
           {data.stagedFeatures.roleVariants
             ? "Role-variant metadata is present and reserved for phase 2 module resolution."

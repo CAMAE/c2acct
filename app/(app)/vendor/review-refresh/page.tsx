@@ -76,7 +76,7 @@ export default async function VendorReviewRefreshPage() {
         audience="vendor"
         surfaceLabel="Review refresh"
         title="Review refresh requires Pro membership"
-        body="Review refresh shows how current the firm reviews of your products are. PAT keeps the route visible so the upgrade path is clear, but the review-freshness view opens once Pro is active."
+        body="Review refresh shows how current the firm reviews of your products are. This page stays visible so the upgrade path is clear, but the review-freshness view opens once Pro is active."
         displayName={entitlement.membership.displayName}
         currentPlan={entitlement.membership.plan}
         currentStatus={entitlement.membership.status}

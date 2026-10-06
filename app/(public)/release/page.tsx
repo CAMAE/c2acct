@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "PAT Release Transparency | Patalign",
-  description: "Current PAT release fingerprint, build identity, and runtime proof fields.",
+  description: "Current PAT release fingerprint, build identity, and build proof fields.",
 };
 
 export default function ReleaseTransparencyPage() {
@@ -67,7 +67,7 @@ export default function ReleaseTransparencyPage() {
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <div className="pat-label">Runtime fingerprint</div>
+            <div className="pat-label">Build fingerprint</div>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--shell-ink)]">
               Release {fingerprint.releaseId}
             </h2>

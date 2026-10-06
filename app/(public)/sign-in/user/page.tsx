@@ -4,7 +4,7 @@ import { getPilotDisabledSignInPath, isIndividualSurfacesEnabled } from "@/lib/p
 
 export const metadata = {
   title: "User Sign In | Patalign",
-  description: "User entry route for PAT.",
+  description: "User entry page for PAT.",
 };
 
 export default function UserSignInPage() {

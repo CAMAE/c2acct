@@ -43,7 +43,7 @@ export default async function VendorProductAssessmentDetailPage({
         audience="vendor"
         surfaceLabel="Vendor product assessment"
         title="Vendor product assessment requires Pro membership"
-        body="This product-level assessment runtime is part of the current Pro vendor tier. PAT keeps the page visible so the upgrade path stays explicit, but it does not open the assessment body until Pro is active."
+        body="This product-level assessment is part of the current Pro vendor tier. This page stays visible so the upgrade path stays explicit, but it does not open the assessment body until Pro is active."
         displayName={entitlement.membership.displayName}
         currentPlan={entitlement.membership.plan}
         currentStatus={entitlement.membership.status}
@@ -52,7 +52,7 @@ export default async function VendorProductAssessmentDetailPage({
         upgradeHref={entitlement.upgradeHref}
         workspaceHref="/vendor/product-assessment"
         workspaceLabel="Back to vendor product assessments"
-        availableNow="The baseline vendor state still keeps the portal, help, and membership routes available without opening the assessment runtime."
+        availableNow="The baseline vendor state still keeps the portal, help, and membership pages available without opening the assessment."
         upgradeNote="This assessment body feeds the current product-intelligence layer, so PAT treats it as a Pro surface rather than a baseline portal page."
       />
     );

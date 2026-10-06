@@ -23,7 +23,7 @@ export function getPilotDisabledMessage(surface: string | null | undefined) {
   }
 
   if (surface === "invitee") {
-    return "Invitee access is shelved for the current vendor/firm pilot. Use the canonical sign-in hub instead.";
+    return "Invitee access is shelved for the current vendor/firm pilot. Use the sign-in page instead.";
   }
 
   return null;

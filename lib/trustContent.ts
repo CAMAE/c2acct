@@ -79,7 +79,7 @@ export const TRUST_RELEASE_FIELDS = [
   {
     key: "commitSha",
     label: "Commit SHA",
-    description: "Full source commit for the runtime fingerprint.",
+    description: "Full source commit for the build fingerprint.",
   },
   {
     key: "buildId",
@@ -93,23 +93,23 @@ export const TRUST_RELEASE_FIELDS = [
   },
   {
     key: "canonicalRootName",
-    label: "Canonical root",
+    label: "Source root",
     description: "Repository root name only; the full local filesystem path is not exposed.",
   },
   {
     key: "startCommand",
     label: "Start command",
-    description: "Runtime start command expected by the launch validators.",
+    description: "Start command expected by the launch validators.",
   },
   {
     key: "authMode",
     label: "Auth mode",
-    description: "Configured authentication mode for the current runtime.",
+    description: "Configured authentication mode for the current build.",
   },
   {
     key: "buildSourceType",
     label: "Build source",
-    description: "Build/runtime source type used by release validation.",
+    description: "Build source type used by release validation.",
   },
   {
     key: "releaseFingerprintSeed",
@@ -165,7 +165,7 @@ export const TRUST_SURFACES = {
       {
         title: "Data PAT uses",
         body:
-          "PAT uses account, organization, role, membership, assessment, product, and insight state to route users and generate the product experience.",
+          "PAT uses account, organization, role, membership, assessment, product, and insight state to direct users and generate the product experience.",
         bullets: [
           "Account data can include name, email, role, authentication provider identifiers, and session metadata.",
           "Organization data can include vendor, firm, product, membership, and assessment relationships.",
@@ -239,12 +239,12 @@ export const TRUST_SURFACES = {
       {
         title: "Sensitive operations",
         body:
-          "Billing and account-sensitive operations are protected by route-level guards, rate-limit checks, and elevated confirmation where supported by the current runtime. Session payloads are kept to the fields needed for routing and authorization.",
+          "Billing and account-sensitive operations are protected by page-level guards, rate-limit checks, and elevated confirmation where supported by the current build. Session payloads are kept to the fields needed for routing and authorization.",
       },
       {
-        title: "Release and runtime proof",
+        title: "Release and build proof",
         body:
-          "We verify that every release matches its source before it serves, and the full technical proof — branch, commit, build identity, and runtime checks — is published on the release page at /release.",
+          "We verify that every release matches its source before it serves, and the full technical proof — branch, commit, build identity, and build checks — is published on the release page at /release.",
       },
       {
         title: "Billing data boundary",
@@ -297,7 +297,7 @@ export const TRUST_SURFACES = {
       {
         title: "Billing support",
         body:
-          "For billing issues, include the plan path and whether the page showed provider checkout or scaffold/no-live-charge mode. Do not send card numbers or raw payment credentials through support messages.",
+          "For billing issues, include the plan path and whether the page showed provider checkout or no-charge mode. Do not send card numbers or raw payment credentials through support messages.",
       },
     ],
   },
@@ -318,9 +318,9 @@ export const TRUST_SURFACES = {
           "When billing is configured, checkout and customer portal sessions are created through the payment provider. Entitlements derive from reconciled provider subscription state, not client-supplied plan parameters.",
       },
       {
-        title: "Scaffold mode",
+        title: "No-charge mode",
         body:
-          "When billing is disabled or required environment variables are missing, PAT must say that payment is scaffold-only and no live charge will be created.",
+          "When billing is disabled or required environment variables are missing, PAT must say that payment is no-charge only and no live charge will be created.",
       },
       {
         title: "Subscription states",
@@ -426,14 +426,14 @@ export const TRUST_SURFACES = {
     eyebrow: "Release transparency",
     title: "Current PAT release and build transparency.",
     summary:
-      "This page shows the public runtime fingerprint for the currently served PAT build and explains which release fields are validated together.",
-    statusLabel: "Runtime proof",
+      "This page shows the public build fingerprint for the currently served PAT build and explains which release fields are validated together.",
+    statusLabel: "Build proof",
     lastUpdated: TRUST_SURFACE_LAST_UPDATED,
     sections: [
       {
         title: "Single release identity",
         body:
-          "PAT release proof compares the same branch, commit, build ID, build timestamp, canonical root, start command, auth mode, and git dirty state across build state, health payloads, runtime fingerprint, and launch validators.",
+          "PAT release proof compares the same branch, commit, build ID, build timestamp, root, start command, auth mode, and git dirty state across build state, health payloads, build fingerprint, and launch validators.",
       },
       {
         title: "Public-live status",

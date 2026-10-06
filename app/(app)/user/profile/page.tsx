@@ -68,7 +68,7 @@ export default async function UserProfilePage() {
       <section className="pat-card p-8">
         <div className="pat-label">Individual profile</div>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
-          Clean profile scaffold for the next PAT phase
+          Your profile, ready for the next PAT phase
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           This page stays intentionally clean, but it now supports editable person-level PAT contact and profile settings without inventing a second account system.

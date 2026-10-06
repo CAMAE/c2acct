@@ -54,7 +54,7 @@ export const vendorHelpCards = [
   {
     title: "Product Assessment",
     what: "A per-product PAT assessment driven by declared feature coverage.",
-    where: "Routes to the product list, then into a product-specific assessment page.",
+    where: "Opens the product list, then into a product-specific assessment page.",
     why: "Each product needs its own self-signal and cannot be buried under one generic vendor score.",
     how: "Choose a product, declare features, complete the scaled question bank, and submit.",
     href: "/vendor/product-assessment",
@@ -62,7 +62,7 @@ export const vendorHelpCards = [
   {
     title: "Product Insight",
     what: "A product intelligence catalog with one standalone intelligence page per product.",
-    where: "Routes to the product insight catalog and then into a selected product intelligence page.",
+    where: "Opens the product insight catalog and then into a selected product intelligence page.",
     why: "Vendors need product-specific intelligence, not only broad vendor-level commentary.",
     how: "Open a product, review vendor self-signal, then see current Pro membership and locked Elite membership framing.",
     href: "/vendor/product-insight",
@@ -70,7 +70,7 @@ export const vendorHelpCards = [
   {
     title: "Alignment Insight",
     what: "Vendor-facing alignment insights tied to the current firm alignment layer.",
-    where: "Routes to the vendor alignment insight catalog and then into detail pages.",
+    where: "Opens the vendor alignment insight catalog and then into detail pages.",
     why: "This connects vendor decision support back to actual firm assessment signal.",
     how: "Open the insight group, then inspect each detail page for what, why, and how to use it.",
     href: "/vendor/alignment-insights",
@@ -83,7 +83,7 @@ export const vendorHelpCardsFlagOn = [
   {
     title: "Product Fit Card",
     what: "The firms in your ecosystem ranked by fit, with the alignment gap each of your product strengths closes.",
-    where: "Routes to the Product Fit Card, one ranked firm at a time, with a brief behind each.",
+    where: "Opens the Product Fit Card, one ranked firm at a time, with a brief behind each.",
     why: "It shows where your product lands first, on firm-reviewed evidence rather than a pitch.",
     how: "Open a firm, read why it fits and where it struggles; Elite reveals the Secret Firm names.",
     href: "/vendor/battlecard",
@@ -91,7 +91,7 @@ export const vendorHelpCardsFlagOn = [
   {
     title: "Review refresh",
     what: "How current the firm reviews of your products are, and which are entering their refresh window.",
-    where: "Routes to the review refresh list, one row per product with its freshness.",
+    where: "Opens the review refresh list, one row per product with its freshness.",
     why: "Stale reviews weaken your firm-reviewed signal; the window tells you when to ask.",
     how: "Open the list, find the products entering their window, and request a refresh from the firms that reviewed them.",
     href: "/vendor/review-refresh",
@@ -227,7 +227,7 @@ export function VendorHelpInlineContent({
         </h2>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           {scopedCard
-            ? `This scoped help view stays inside the existing vendor help route and focuses on the per-product PAT assessment flow${productName ? ` for ${productName}` : ""}: the first-page feature declaration, the 10-question pacing, and what PAT expects before submission.`
+            ? `This scoped help view stays inside the existing vendor help pages and focuses on the per-product PAT assessment flow${productName ? ` for ${productName}` : ""}: the first-page feature declaration, the 10-question pacing, and what PAT expects before submission.`
             : "This help view explains each active vendor workspace surface in plain product language: what it is, where it goes, why it matters, and how to use it."}
         </p>
       </section>
@@ -259,7 +259,7 @@ export function VendorHelpInlineContent({
           <div>
             <h3 className="text-2xl font-semibold text-[var(--shell-ink)]">Other vendor help</h3>
             <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
-              These vendor help surfaces stay available if you need the adjacent PAT routes after finishing the product assessment.
+              These vendor help surfaces stay available if you need the adjacent PAT pages after finishing the product assessment.
             </p>
           </div>
           <section className="grid gap-5 md:grid-cols-2">

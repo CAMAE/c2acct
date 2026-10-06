@@ -61,7 +61,7 @@ export default async function VendorAlignmentInsightsPage({
         audience="vendor"
         surfaceLabel="Vendor alignment insights"
         title="Vendor alignment insights require Pro membership"
-        body="Vendor alignment insights are part of the current Pro vendor tier. PAT keeps the route visible so the membership path is explicit, but the insight catalog opens only after Pro is active."
+        body="Vendor alignment insights are part of the current Pro vendor tier. This page stays visible so the membership path is explicit, but the insight catalog opens only after Pro is active."
         displayName={entitlement.membership.displayName}
         currentPlan={entitlement.membership.plan}
         currentStatus={entitlement.membership.status}

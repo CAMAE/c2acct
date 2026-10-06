@@ -5,7 +5,7 @@ import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 
 export const metadata = {
   title: "Vendor Sign In | Patalign",
-  description: "Vendor entry route for PAT.",
+  description: "Vendor entry page for PAT.",
 };
 
 export default function VendorSignInPage() {

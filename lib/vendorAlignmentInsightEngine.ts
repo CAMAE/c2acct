@@ -410,7 +410,7 @@ function getConfidenceBand(sampleSize: number) {
       band,
       label: "No signal",
       summary:
-        "No completed firm PAT submissions are available yet, so this remains a placeholder for future current-state signal.",
+        "No completed firm PAT submissions are available yet, so this is an empty reading until there is future current-state signal.",
     };
   }
   if (band === "sample_thin") {

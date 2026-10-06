@@ -475,7 +475,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         },
         {
           title: "Why it matters",
-          body: "The model is useful because it keeps assessment, capability, and insight layers connected instead of scattering them across disconnected routes and generic summaries.",
+          body: "The model is useful because it keeps assessment, capability, and insight layers connected instead of scattering them across disconnected pages and generic summaries.",
         },
         {
           title: "How PAT grows",
@@ -502,7 +502,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         body:
           "Unlock a more connected vendor experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.",
         compatibilityMode:
-          "Vendor taxonomy/profile tables are not fully available in the local database yet. The route architecture is already in place, but vendor data persistence depends on the current Prisma schema being applied.",
+          "Vendor taxonomy/profile tables are not fully available in the local database yet. The page architecture is already in place, but vendor data saving depends on the current Prisma schema being applied.",
         currentVendorContext: "Current vendor context",
         account: "Account",
         vendorCompany: "Vendor company",
@@ -514,7 +514,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         body:
           "Unlock a more connected individual experience with streamlined access to assessments, operational tools, and the insights needed to move work forward with confidence.",
         individualProfile: "Individual profile",
-        profileTitle: "Clean profile scaffold for the next PAT phase",
+        profileTitle: "Your profile, ready for the next PAT phase",
         profileBody:
           "This page stays intentionally clean, but it now supports editable person-level PAT contact and profile settings without inventing a second account system.",
         profileSettings: "Profile settings",
@@ -530,7 +530,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         fallback: "Fallback path",
         unavailable: "Unavailable",
         audienceMismatch:
-          "Your current signed-in PAT context is not bound to the individual audience. These routes are still reviewable now, but deeper person-native behavior will remain gated until the dedicated individual flow is built.",
+          "Your current signed-in PAT context is not bound to the individual audience. These pages are still reviewable now, but deeper person-native behavior will remain gated until the dedicated individual flow is built.",
         companyContext: "Company context",
         assessmentCount: "Assessment count",
         latestScore: "Latest score",
@@ -572,11 +572,11 @@ const messages: Record<AppLocale, LocaleMessages> = {
           },
           "individual-product-assessment": {
             title: "Product Assessment",
-            description: "Open the individual product-review route scaffold tied to future person-native product signal.",
+            description: "Open the individual product-review page tied to future person-native product signal.",
           },
           "individual-insights": {
             title: "Insights",
-            description: "Review the individual-facing insight route structure and Pro membership / Elite membership PAT framing.",
+            description: "Review the individual-facing insight page structure and Pro membership / Elite membership PAT framing.",
           },
         },
       },
@@ -657,7 +657,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         backToVendorHome: "Back to vendor home",
         openProductAssessment: "Open product assessment",
         noProducts:
-          "No vendor products are available yet. Add products from the product assessment route to start building product intelligence.",
+          "No vendor products are available yet. Add products from the product assessment page to start building product intelligence.",
         vendorSelfReportedSignal: "Vendor Self-Reported Signal",
         firmReviewedSignal: "Firm-Reviewed Signal",
         combinedPatReadout: "Combined Current PAT Readout",
@@ -1210,7 +1210,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         },
         {
           title: "Pourquoi cela compte",
-          body: "Le modèle est utile parce qu’il relie les couches d’évaluation, de capacité et d’insight au lieu de les disperser entre des routes déconnectées et des résumés génériques.",
+          body: "Le modèle est utile parce qu’il relie les couches d’évaluation, de capacité et d’insight au lieu de les disperser entre des pages déconnectées et des résumés génériques.",
         },
         {
           title: "Comment PAT progresse",
@@ -1237,7 +1237,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         body:
           "Débloquez une expérience vendeur plus connectée avec un accès fluide aux évaluations, aux outils opérationnels et aux insights nécessaires pour faire avancer le travail avec confiance.",
         compatibilityMode:
-          "Les tables de taxonomie/profil vendeur ne sont pas encore entièrement disponibles dans la base locale. L’architecture des routes est déjà en place, mais la persistance des données vendeur dépend du schéma Prisma actuellement appliqué.",
+          "Les tables de taxonomie/profil vendeur ne sont pas encore entièrement disponibles dans la base locale. L’architecture des pages est déjà en place, mais la persistance des données vendeur dépend du schéma Prisma actuellement appliqué.",
         currentVendorContext: "Contexte vendeur actuel",
         account: "Compte",
         vendorCompany: "Société vendeuse",
@@ -1265,7 +1265,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         fallback: "Mode de secours",
         unavailable: "Indisponible",
         audienceMismatch:
-          "Votre contexte PAT actuellement connecté n’est pas rattaché à l’audience individuelle. Ces routes restent consultables, mais le comportement natif à la personne restera limité tant que le flux individuel dédié ne sera pas construit.",
+          "Votre contexte PAT actuellement connecté n’est pas rattaché à l’audience individuelle. Ces pages restent consultables, mais le comportement natif à la personne restera limité tant que le flux individuel dédié ne sera pas construit.",
         companyContext: "Contexte société",
         assessmentCount: "Nombre d’évaluations",
         latestScore: "Dernier score",
@@ -1307,11 +1307,11 @@ const messages: Record<AppLocale, LocaleMessages> = {
           },
           "individual-product-assessment": {
             title: "Évaluation produit",
-            description: "Ouvrez la structure de route de revue produit individuelle liée au futur signal produit natif à la personne.",
+            description: "Ouvrez la structure de page de revue produit individuelle liée au futur signal produit natif à la personne.",
           },
           "individual-insights": {
             title: "Insights",
-            description: "Consultez la structure des routes d’insight individuelles et le cadrage PAT Pro / Elite.",
+            description: "Consultez la structure des pages d’insight individuelles et le cadrage PAT Pro / Elite.",
           },
         },
       },
@@ -1393,7 +1393,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
         backToVendorHome: "Retour à l’accueil vendeur",
         openProductAssessment: "Ouvrir l’évaluation produit",
         noProducts:
-          "Aucun produit vendeur n’est encore disponible. Ajoutez des produits depuis la route d’évaluation produit pour commencer à construire l’intelligence produit.",
+          "Aucun produit vendeur n’est encore disponible. Ajoutez des produits depuis la page d’évaluation produit pour commencer à construire l’intelligence produit.",
         vendorSelfReportedSignal: "Signal auto-déclaré vendeur",
         firmReviewedSignal: "Signal revu par les cabinets",
         combinedPatReadout: "Lecture PAT actuelle combinée",

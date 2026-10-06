@@ -85,7 +85,7 @@ export default function MembershipCheckoutShell({
           <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
             {providerBacked
               ? "PAT creates a Stripe-hosted checkout session. Payment details are collected by Stripe after redirect, not by this PAT form."
-              : "Complete the non-sensitive billing fields below. PAT uses them as future-ready scaffold inputs only; submitting this form records checkout intent rather than processing a payment."}
+              : "Complete the non-sensitive billing fields below. These are billing details PAT keeps on file; no charge today. Submitting this form records checkout intent rather than processing a payment."}
           </p>
 
           {providerBacked ? (

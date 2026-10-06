@@ -176,7 +176,7 @@ export default function AlignmentBoardClient({
     liftedIds.filter((id) => id !== activeSlot).map((id) => swaps[id]).filter((v): v is string => Boolean(v))
   );
 
-  // Elite Insights v2 (V2 demand signal): log each unique staged swap once.
+  // Elite Insights v2 (V2 demand signal): log each unique candidate swap once.
   const loggedSwaps = useRef<Set<string>>(new Set());
   const stagedKey = stagedEntries.map((e) => `${e.candidate.productId}::${e.outId}`).sort().join(",");
   useEffect(() => {
@@ -246,10 +246,10 @@ export default function AlignmentBoardClient({
     if (!swapStaged) return null;
     const grades = stagedEntries.map((e) => e.candidate.evidenceBasis);
     if (grades.some((g) => g === "vendor_reported")) {
-      return "A staged candidate's projected axes use vendor self-reported evidence — no firm review of it yet.";
+      return "A candidate not yet firm-reviewed: its projected axes use vendor self-reported evidence — no firm review of it yet.";
     }
     if (grades.some((g) => g === "none")) {
-      return "A staged candidate has no per-dimension evidence yet; that slot's projection reflects only lifting your current piece.";
+      return "A candidate not yet firm-reviewed has no per-dimension evidence yet; that slot's projection reflects only lifting your current piece.";
     }
     return null;
     // eslint-disable-next-line react-hooks/exhaustive-deps

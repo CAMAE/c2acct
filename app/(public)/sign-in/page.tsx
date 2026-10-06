@@ -55,7 +55,7 @@ function getViewHref(view: AccessView) {
 
 function describeAuthError(error: string | null, cookieState: ReturnType<typeof summarizeLocalAuthCookies>) {
   if (error === "local_review_disabled") {
-    return "Local review sign-in is disabled in this runtime. It requires PAT_ENABLE_LOCAL_REVIEW_AUTH=1 and loopback-only local origins before seeded PAT review identities can be used.";
+    return "Local review sign-in is disabled on this server. It requires PAT_ENABLE_LOCAL_REVIEW_AUTH=1 and loopback-only local origins before seeded PAT review identities can be used.";
   }
 
   if (error === "local_review_secret_missing") {
@@ -97,7 +97,7 @@ function describeAuthError(error: string | null, cookieState: ReturnType<typeof 
   }
 
   if (error === "Configuration") {
-    return "Auth configuration is incomplete for this runtime. Review the local PAT auth env contract before retrying.";
+    return "Auth configuration is incomplete for this server. Review the local PAT auth env contract before retrying.";
   }
 
   return null;
@@ -292,10 +292,10 @@ function RoleAccessCard({
         <div className={r.diagnosticsBox}>
           <div className="font-semibold">Local review mode is requested but not ready.</div>
           <div className="mt-2">
-            This runtime is not showing a local role-entry form because PAT_LOCAL_REVIEW_PASSWORD or AUTH_SECRET is missing or unstable.
+            This server is not showing a local role-entry form because PAT_LOCAL_REVIEW_PASSWORD or AUTH_SECRET is missing or unstable.
           </div>
           <div className="mt-2">
-            Until that is fixed, this route only supports the working GitHub or access-code path shown above.
+            Until that is fixed, this page only supports the working GitHub or access-code path shown above.
           </div>
         </div>
       ) : null}

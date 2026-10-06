@@ -197,7 +197,7 @@ export function FirmHelpInlineContent({
         </h2>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           {scopedCard
-            ? `This scoped help view stays inside the existing firm help route and focuses on the current firm product review flow${productName ? ` for ${productName}` : ""}: feature-scoped questions only, truthful current-state scoring, and the connection back to vendor product insight.`
+            ? `This scoped help view stays inside the existing firm help pages and focuses on the current firm product review flow${productName ? ` for ${productName}` : ""}: feature-scoped questions only, truthful current-state scoring, and the connection back to vendor product insight.`
             : "This help view maps the active firm PAT surfaces so leaders can understand what each one does and when to use it."}
         </p>
       </section>

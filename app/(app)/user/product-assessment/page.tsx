@@ -33,15 +33,15 @@ export default async function UserProductAssessmentPage() {
       detail: sessionUser
         ? userPatContext?.subjectMembershipReady
           ? "The signed-in individual account is attached to a person subject, so person-native PAT storage is available."
-          : "PAT can still render the route, but local subject-backed person storage is not fully connected in this environment."
-        : "Sign in with an individual account to verify the PAT subject link for this route.",
+          : "PAT can still render the page, but local subject-backed person storage is not fully connected in this environment."
+        : "Sign in with an individual account to verify the PAT subject link for this page.",
     },
     {
-      title: "Individual product runtime",
+      title: "Individual product flow",
       status: "Not available",
       available: false,
       detail:
-        "There is no current individual product module, submit route, or persisted INDIVIDUAL product-assessment plan in the current runtime.",
+        "There is no current individual product module, submit path, or persisted INDIVIDUAL product-assessment plan in the current build.",
     },
     {
       title: "Individual product insight consumer",
@@ -64,7 +64,7 @@ export default async function UserProductAssessmentPage() {
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           PAT already has person subjects and the shared product model, but it does not yet have a truthful individual
-          product-assessment runtime. This route now shows exactly what already exists and what still blocks a real
+          product-assessment. This page now shows exactly what already exists and what still blocks a real
           person-level product review flow.
         </p>
       </section>
@@ -76,7 +76,7 @@ export default async function UserProductAssessmentPage() {
             {availableCheckCount}/{readinessChecks.length}
           </div>
           <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-            This route shows the current product-assessment picture. PAT is intentionally not collecting person-level product scores until the missing runtime pieces exist.
+            This page shows the current product-assessment picture. PAT is intentionally not collecting person-level product scores until the missing pieces exist.
           </div>
           <div className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
             Auth state: <span className="font-semibold text-[var(--shell-ink)]">{sessionUser ? "Signed in" : "Signed out"}</span>
@@ -105,7 +105,7 @@ export default async function UserProductAssessmentPage() {
             Individual product-assessment help
           </div>
           <div className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-            Open the scoped help view for what PAT already has, what is still missing, and why this route is staged
+            Open the scoped help view for what PAT already has, what is still missing, and why this page is not yet open
             instead of pretending a working person-level product-review flow already exists.
           </div>
         </Link>
@@ -115,7 +115,7 @@ export default async function UserProductAssessmentPage() {
         <div>
           <h2 className="text-2xl font-semibold text-[var(--shell-ink)]">Current truth</h2>
           <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
-            These checks separate the shared foundation from the runtime pieces PAT still needs before individual
+            These checks separate the shared foundation from the pieces PAT still needs before individual
             product review can open truthfully.
           </p>
         </div>
@@ -143,18 +143,18 @@ export default async function UserProductAssessmentPage() {
       <section className="pat-card p-6">
         <div className="pat-label">Why PAT is holding this back</div>
         <div className="mt-4 grid gap-3 text-sm leading-6 text-[var(--shell-muted)]">
-          <div>There is no current individual product submit route yet, so PAT cannot persist person-level product review honestly.</div>
+          <div>There is no current individual product submit path yet, so PAT cannot persist person-level product review honestly.</div>
           <div>There is no truthful product-selection contract tying an individual to reviewable products inside the current workspace.</div>
           <div>No individual product insight or unlock path consumes person-level product submissions yet.</div>
-          <div>The route should stay on the shared PAT product model when enabled, not branch into a parallel individual-only product system.</div>
+          <div>The page should stay on the shared PAT product model when enabled, not branch into a parallel individual-only product system.</div>
         </div>
       </section>
 
       <section className="pat-card p-6">
         <div className="pat-label">What you can do now</div>
         <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-          The person-native path today is the individual alignment assessment. That route uses the existing PAT
-          survey runtime and feeds the current individual insight surface without inventing product behavior that is not
+          The person-native path today is the individual alignment assessment. That page uses the existing PAT
+          assessment engine and feeds the current individual insight surface without inventing product behavior that is not
           built yet.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">

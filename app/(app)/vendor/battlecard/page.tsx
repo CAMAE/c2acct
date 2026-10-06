@@ -119,7 +119,7 @@ export default async function VendorBattleCardPage({
           audience="vendor"
           surfaceLabel="Product Fit Card"
           title="The Product Fit Card is an Elite feature"
-          body="The Product Fit Card ranks the firms in your ecosystem by fit and shows where your products close their gaps. PAT keeps this route visible so the upgrade path stays explicit, but the ranked cards open only with Elite membership."
+          body="The Product Fit Card ranks the firms in your ecosystem by fit and shows where your products close their gaps. This page stays visible so the upgrade path stays explicit, but the ranked cards open only with Elite membership."
           displayName={entitlement.membership.displayName}
           currentPlan={entitlement.membership.plan}
           currentStatus={entitlement.membership.status}
@@ -149,7 +149,7 @@ export default async function VendorBattleCardPage({
           audience="vendor"
           surfaceLabel="Product Fit Card"
           title="The Product Fit Card needs Pro membership"
-          body="The Product Fit Card is part of the paid vendor tiers. PAT keeps this route visible so the membership path stays explicit; the ranked cards open once Pro is active, and Elite reveals the firm names."
+          body="The Product Fit Card is part of the paid vendor tiers. This page stays visible so the membership path stays explicit; the ranked cards open once Pro is active, and Elite reveals the firm names."
           displayName={proEntitlement.membership.displayName}
           currentPlan={proEntitlement.membership.plan}
           currentStatus={proEntitlement.membership.status}

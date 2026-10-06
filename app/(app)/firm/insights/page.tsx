@@ -66,7 +66,7 @@ export default async function FirmInsightsPage({
         audience="firm"
         surfaceLabel="Firm alignment insights"
         title="Firm alignment insights require Pro membership"
-        body="Firm alignment insights are part of the current Pro firm tier. PAT keeps this route visible so the membership path stays explicit, but the insight catalog opens only after Pro is active."
+        body="Firm alignment insights are part of the current Pro firm tier. This page stays visible so the membership path stays explicit, but the insight catalog opens only after Pro is active."
         displayName={entitlement.membership.displayName}
         currentPlan={entitlement.membership.plan}
         currentStatus={entitlement.membership.status}

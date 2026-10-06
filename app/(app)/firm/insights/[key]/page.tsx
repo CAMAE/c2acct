@@ -127,7 +127,7 @@ export default async function FirmInsightDetailPage({ params }: { params: Promis
         audience="firm"
         surfaceLabel="Firm alignment insight"
         title="Firm alignment insight view requires Pro membership"
-        body="This insight view is part of the current Pro firm tier. PAT keeps the route visible so the upgrade path stays explicit, but it does not open the grounded readout until Pro is active."
+        body="This insight view is part of the current Pro firm tier. This page stays visible so the upgrade path stays explicit, but it does not open the grounded readout until Pro is active."
         displayName={entitlement.membership.displayName}
         currentPlan={entitlement.membership.plan}
         currentStatus={entitlement.membership.status}
@@ -201,7 +201,7 @@ export default async function FirmInsightDetailPage({ params }: { params: Promis
   const combinedEvidenceText = report
     ? unlocked
       ? "Current evidence combines current module results, supporting capability signal, and stored question patterns behind this insight."
-      : "Current evidence stays grounded in the current module, capability, and question-pattern signal already visible in this route."
+      : "Current evidence stays grounded in the current module, capability, and question-pattern signal already visible in this page."
     : isElite
       ? "Your Elite Insights for this view are live, grounded in your firm-reviewed evidence."
       : "This deeper Elite layer becomes available with Elite membership, grounded in your firm-reviewed evidence.";

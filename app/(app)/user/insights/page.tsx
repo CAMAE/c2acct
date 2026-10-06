@@ -31,7 +31,7 @@ export default async function UserInsightsPage({
         audience="individual"
         surfaceLabel="Individual insights"
         title="Individual insights require Pro membership"
-        body="The current individual insight route is part of the current Pro individual tier. PAT keeps the route visible so the membership path stays explicit, but the insight surface opens only after Pro is active."
+        body="The current individual insight page is part of the current Pro individual tier. This page stays visible so the membership path stays explicit, but the insight surface opens only after Pro is active."
         displayName={entitlement.membership.displayName}
         currentPlan={entitlement.membership.plan}
         currentStatus={entitlement.membership.status}
@@ -41,7 +41,7 @@ export default async function UserInsightsPage({
         workspaceHref="/user"
         workspaceLabel="Open individual workspace"
         availableNow="The baseline individual state still keeps workspace entry, help, profile continuity, and membership routing available."
-        upgradeNote="This route is the current Pro packaging layer around person-level PAT state, so PAT does not open it from the baseline state."
+        upgradeNote="This page is the current Pro packaging layer around person-level PAT state, so PAT does not open it from the baseline state."
       />
     );
   }

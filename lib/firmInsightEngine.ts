@@ -748,7 +748,7 @@ export function buildFirmLockedInsightDetailSurfaceCards(input: {
     {
       key: "pro",
       title: "Pro",
-      summary: "No Pro readout is exposed for this locked Elite route.",
+      summary: "No Pro readout is exposed for this locked Elite page.",
       href: `${baseHref}?surface=pro`,
       interactive: true,
     },
@@ -837,7 +837,7 @@ function buildFirmInsightEvidenceProvenanceItem(report: FirmInsightReport) {
 function buildLockedEliteBoundaryItem() {
   return {
     title: "Locked Elite boundary",
-    body: "Elite benchmark, projection, recommendation, and comparative content is not live in this route. PAT keeps the locked surface visible for navigation only and does not expose unavailable findings.",
+    body: "Elite benchmark, projection, recommendation, and comparative content is not live in this page. PAT keeps the locked surface visible for navigation only and does not expose unavailable findings.",
   };
 }
 
@@ -930,7 +930,7 @@ export function buildFirmLockedInsightDetailSurfaceContent(input: {
         items: [
           {
             title: "What it is",
-            body: input.what ?? "A locked Elite route PAT keeps visible so the future intelligence boundary is explicit.",
+            body: input.what ?? "A locked Elite page PAT keeps visible so the future intelligence boundary is explicit.",
           },
           {
             title: "Why it matters",
@@ -938,7 +938,7 @@ export function buildFirmLockedInsightDetailSurfaceContent(input: {
           },
           {
             title: "How to use it",
-            body: input.how ?? "Use the Pro firm insight routes after completing modules; treat this Elite route as locked.",
+            body: input.how ?? "Use the Pro firm insight pages after completing modules; treat this Elite page as locked.",
           },
           lockedBoundary,
           evidenceStatus,
@@ -949,11 +949,11 @@ export function buildFirmLockedInsightDetailSurfaceContent(input: {
       return {
         key: "pro",
         title: "Pro",
-        intro: "This locked Elite route does not expose a Pro readout.",
+        intro: "This locked Elite page does not expose a Pro readout.",
         items: [
           {
             title: "Current PAT picture",
-            body: "Complete more modules: no grounded Pro firm insight is available from this locked Elite route.",
+            body: "Complete more modules: no grounded Pro firm insight is available from this locked Elite page.",
           },
           lockedBoundary,
           evidenceStatus,

@@ -36,9 +36,9 @@ function roadmapActionTitle(
     return `${nearTerm} moves ${vendorName} can make in the next two quarters to close its top capability gaps.`;
   }
   if (nearTerm > 0) {
-    return `${nearTerm} near-term move${nearTerm === 1 ? "" : "s"} for ${vendorName} across Q1–Q2, with deeper work scheduled into Q3.`;
+    return `${nearTerm} near-term move${nearTerm === 1 ? "" : "s"} for ${vendorName} in the next 60 days, with deeper work scheduled for days 61 to 90.`;
   }
-  return `${total} commitment${total === 1 ? "" : "s"} queued for ${vendorName} across Q3 once the near-term board clears.`;
+  return `${total} commitment${total === 1 ? "" : "s"} queued for ${vendorName} for days 61 to 90 once the near-term board clears.`;
 }
 
 function RoadmapItem({
@@ -157,30 +157,30 @@ export default function ActionRoadmap({ data }: { data: VendorBriefData }) {
 
       <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
         <Quarter
-          label="Q1 · near-term (≤30 days)"
+          label="Now · the next 30 days"
           items={q1}
           totalFirms={data.firmCount}
-          fallbackText="No Q1 commitments surfaced."
+          fallbackText="No commitments surfaced for the next 30 days."
         />
         <Quarter
-          label="Q2 · next quarter (≤60 days)"
+          label="Next · days 31 to 60"
           items={q2}
           totalFirms={data.firmCount}
-          fallbackText="No Q2 commitments surfaced."
+          fallbackText="No commitments surfaced for days 31 to 60."
         />
         <Quarter
-          label="Q3 · long-range (≤90 days)"
+          label="Later · days 61 to 90"
           items={q3}
           totalFirms={data.firmCount}
-          fallbackText="No Q3 commitments surfaced."
+          fallbackText="No commitments surfaced for days 61 to 90."
         />
-        <div className="pt-6" data-testid="roadmap-panel" data-window-title="Q4 · post-pilot">
-          <div className="pat-label text-[11px]">Q4 · post-pilot</div>
+        <div className="pt-6" data-testid="roadmap-panel" data-window-title="After the pilot">
+          <div className="pat-label text-[11px]">After the pilot</div>
           <div className="mt-3 text-sm font-medium text-[var(--shell-ink)]">
             Unlocks after the June 1 pilot cohort completes round-one capability responses.
           </div>
           <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-            Q4 actions surface from cross-firm pattern recognition that requires more submissions than today&apos;s sample carries.
+            Post-pilot actions surface from cross-firm pattern recognition that requires more submissions than today&apos;s sample carries.
           </p>
         </div>
       </div>

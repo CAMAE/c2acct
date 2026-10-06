@@ -183,7 +183,7 @@ export default async function VendorProductAssessmentPage({
         audience="vendor"
         surfaceLabel="Vendor product assessment"
         title="Vendor product assessment requires Pro membership"
-        body="PAT keeps this route visible so the upgrade path stays explicit. Per-product assessment is part of the current Pro vendor tier because it feeds the current product-intelligence surface and the feature-scoped product runtime."
+        body="This page stays visible so the upgrade path stays explicit. Per-product assessment is part of the current Pro vendor tier because it feeds the current product-intelligence surface and the feature-scoped product flow."
         displayName={entitlement.membership.displayName}
         currentPlan={entitlement.membership.plan}
         currentStatus={entitlement.membership.status}
@@ -193,7 +193,7 @@ export default async function VendorProductAssessmentPage({
         workspaceHref="/vendor"
         workspaceLabel="Open vendor workspace"
         availableNow="The baseline vendor state still keeps portal entry, help, profile continuity, and membership routing available."
-        upgradeNote="The assessment runtime belongs to the current product-intelligence layer, so PAT does not open it from the baseline state because the intended product model treats core vendor assessments and insights as Pro surfaces."
+        upgradeNote="The assessment belongs to the current product-intelligence layer, so PAT does not open it from the baseline state because the intended product model treats core vendor assessments and insights as Pro surfaces."
       />
     );
   }
@@ -340,7 +340,7 @@ export default async function VendorProductAssessmentPage({
 
       {!signedIntoVendor ? (
         <section className="pat-card p-6 text-sm leading-6 text-[var(--shell-muted)]">
-          Sign in with a vendor-linked account to create products and persist product assessments. The route structure is already in place, but product-scoped writes remain protected.
+          Sign in with a vendor-linked account to create products and persist product assessments. The page structure is already in place, but product-scoped writes remain protected.
         </section>
       ) : activeMode === "completed" ? (
         <section className="space-y-4">

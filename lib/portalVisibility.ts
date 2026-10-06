@@ -125,7 +125,7 @@ const SURFACES: SurfaceDefinition[] = [
   {
     id: "assessment",
     title: "Assessment",
-    description: "Open the canonical role-specific PAT assessment route.",
+    description: "Open the role-specific PAT assessment page.",
     hrefByAudience: {
       firm: getCanonicalPatHref("firm", "assessment"),
       vendor: getCanonicalPatHref("vendor", "assessment"),
@@ -139,7 +139,7 @@ const SURFACES: SurfaceDefinition[] = [
   {
     id: "results",
     title: "Assessment Interpretation",
-    description: "Open the canonical role-specific PAT interpretation route.",
+    description: "Open the role-specific PAT interpretation page.",
     hrefByAudience: {
       firm: getCanonicalPatHref("firm", "results"),
       vendor: getCanonicalPatHref("vendor", "results"),
@@ -153,7 +153,7 @@ const SURFACES: SurfaceDefinition[] = [
   {
     id: "outputs",
     title: "Insights",
-    description: "Open the canonical role-specific insight route.",
+    description: "Open the role-specific insight page.",
     hrefByAudience: {
       firm: getCanonicalPatHref("firm", "insights"),
       vendor: getCanonicalPatHref("vendor", "insights"),
@@ -167,7 +167,7 @@ const SURFACES: SurfaceDefinition[] = [
   {
     id: "profiles",
     title: "Profile And Admin",
-    description: "Open the canonical role-specific profile or admin surface.",
+    description: "Open the role-specific profile or admin surface.",
     hrefByAudience: {
       firm: getCanonicalPatHref("firm", "profile"),
       vendor: getCanonicalPatHref("vendor", "profile"),
@@ -341,7 +341,7 @@ export async function resolvePortalExperience(
   const compatibilityNotes =
     assessmentContext?.compatibilityMode === "legacy-fallback"
       ? [
-          "Local DB compatibility mode is active. PAT is using the legacy company-backed path because subject-layer tables or columns are missing locally.",
+          "Local DB compatibility mode is active. PAT is using the earlier company-backed path because subject-layer tables or columns are missing locally.",
           "Apply local Prisma migrations to enable subject-aware routing: `npm run prisma:migrate:deploy`.",
         ]
       : [];

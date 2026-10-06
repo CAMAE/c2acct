@@ -90,13 +90,13 @@ export const patRoleConfigs: Record<PatRouteRole, RoleConfig> = {
       makeCard(
         "vendor-platform",
         "Vendor portal",
-        "Open the vendor PAT portal as the canonical workspace.",
+        "Open the vendor PAT portal as your workspace.",
         "/vendor"
       ),
       makeCard(
         "vendor-assessment",
         "Vendor product assessment",
-        "Use the vendor product assessment flow instead of the shared survey compatibility route.",
+        "Use the vendor product assessment flow instead of the shared shared survey page.",
         "/vendor/product-assessment"
       ),
       makeCard(
@@ -131,13 +131,13 @@ export const patRoleConfigs: Record<PatRouteRole, RoleConfig> = {
       makeCard(
         "firm-platform",
         "Firm portal",
-        "Open the firm PAT portal as the canonical workspace.",
+        "Open the firm PAT portal as your workspace.",
         "/firm"
       ),
       makeCard(
         "firm-assessment",
         "Firm alignment assessment",
-        "Launch the five-module firm assessment instead of the shared survey compatibility route.",
+        "Launch the five-module firm assessment instead of the shared shared survey page.",
         "/firm/alignment-assessment"
       ),
       makeCard(
@@ -159,7 +159,7 @@ export const patRoleConfigs: Record<PatRouteRole, RoleConfig> = {
     label: "User",
     title: "User PAT home",
     description:
-      "Review the personal PAT scaffold through user portal surfaces rather than the retired generic shells.",
+      "Review your personal PAT workspace through the user portal pages rather than the retired generic shells.",
     signInHref: "/sign-in/user",
     signInLabel: "Sign in as user",
     cards: [
@@ -172,13 +172,13 @@ export const patRoleConfigs: Record<PatRouteRole, RoleConfig> = {
       makeCard(
         "user-platform",
         "User portal",
-        "Open the user PAT portal as the canonical workspace.",
+        "Open the user PAT portal as your workspace.",
         "/user"
       ),
       makeCard(
         "user-assessment",
         "User alignment assessment",
-        "Use the user alignment assessment route instead of the shared survey compatibility route.",
+        "Use the user alignment assessment page instead of the shared shared survey page.",
         "/user/alignment-assessment"
       ),
       makeCard(

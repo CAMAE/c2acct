@@ -6,7 +6,7 @@ import { guideWord } from "@/lib/roleWords";
 export function generateMetadata() {
   return {
     title: `${guideWord()} Sign In | Patalign`,
-    description: `${guideWord()} entry route for PAT.`,
+    description: `${guideWord()} entry page for PAT.`,
   };
 }
 

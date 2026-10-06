@@ -56,7 +56,7 @@ export function getPatRollout() {
     betaOnlyBoundaries: [
       "Assessment, badges, insights, and results still require a company-backed subject.",
       "Capability scores, FMI snapshots, and benchmarks still write against company-rooted tables.",
-      "Company selection is still bridged through legacy company cookies for runtime stability.",
+      "Company selection is still bridged through the earlier company cookies for stability.",
       "User.companyId remains a compatibility fallback when SubjectMembership is absent.",
     ],
     phase1LiveNow: [
@@ -69,12 +69,12 @@ export function getPatRollout() {
       "adding new role portals without explicit feature gates",
       "writing subject-native capability scores before a dual-read bridge exists",
       "removing User.companyId or aae_companyId compatibility before all readers are migrated",
-      "adding non-company assessment flows to current submit/results routes",
+      "adding non-company assessment flows to current submit/results pages",
     ],
     compatibilityBridges: [
       `dual-read company selection cookie (${PAT_COOKIE_KEYS.companySelection} + ${PAT_COOKIE_KEYS.legacyCompanySelection})`,
       "User.companyId fallback when no SubjectMembership exists",
-      "company-rooted badges, capability scores, FMI, and benchmark tables remain canonical",
+      "company-rooted badges, capability scores, FMI, and benchmark tables stay the source of record",
     ],
   };
 }
@@ -114,23 +114,23 @@ export function getPortalSurfaceRolloutReason(surfaceId: PortalSurfaceId) {
     case "ecosystem-map":
       return rollout.featureFlags.ecosystemMap
         ? null
-        : "Staged off until PAT has governed ecosystem visibility beyond the beta shell.";
+        : "Off until PAT has governed ecosystem visibility beyond the beta shell.";
     case "talent-readiness":
       return rollout.featureFlags.talentPortal || rollout.featureFlags.hrPortal
         ? null
-        : "Staged off until talent and HR identity rules exist beyond company-backed assessment.";
+        : "Off until talent and HR identity rules exist beyond company-backed assessment.";
     case "higher-ed-bridge":
       return rollout.featureFlags.higherEdPortal || rollout.featureFlags.associationPortal
         ? null
-        : "Staged off until education and association cohorts have real benchmark and membership data.";
+        : "Off until education and association cohorts have real benchmark and membership data.";
     case "market-intelligence":
       return rollout.featureFlags.mediaPortal || rollout.featureFlags.associationPortal
         ? null
-        : "Staged off until PAT can expose market views without leaking operator-only context.";
+        : "Off until PAT can expose market views without leaking operator-only context.";
     case "member-briefing":
       return rollout.featureFlags.memberBriefing
         ? null
-        : "Staged off until individual/member workflows stop depending on company-backed assessment.";
+        : "Off until individual/member workflows stop depending on company-backed assessment.";
     default:
       return null;
   }

@@ -36,7 +36,7 @@ const STATUS_SECTIONS: Array<{
   {
     status: "not-started",
     title: "Not Started",
-    empty: "All canonical firm modules have been started or completed.",
+    empty: "All firm modules have been started or completed.",
   },
   {
     status: "completed",
@@ -107,7 +107,7 @@ export default async function FirmAlignmentAssessmentPage() {
         audience="firm"
         surfaceLabel="Firm alignment assessment"
         title="Firm alignment assessment requires Pro membership"
-        body="The modular firm alignment assessment is part of the current Pro firm tier. PAT keeps the route visible so the upgrade path is explicit, but the assessment modules open only after Pro is active."
+        body="The modular firm alignment assessment is part of the current Pro firm tier. This page stays visible so the upgrade path is explicit, but the assessment modules open only after Pro is active."
         displayName={entitlement.membership.displayName}
         currentPlan={entitlement.membership.plan}
         currentStatus={entitlement.membership.status}
@@ -206,7 +206,7 @@ export default async function FirmAlignmentAssessmentPage() {
           </div>
           <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
             {progress.nextModule
-              ? "Resume the in-progress module first, or start this module to keep the five-part assessment moving."
+              ? "Resume the in-progress module first, or start this module to keep the five-module assessment moving."
               : "All modules are complete. Open firm insights to review what the evidence unlocks next."}
           </p>
         </Link>
@@ -246,8 +246,8 @@ export default async function FirmAlignmentAssessmentPage() {
         <p className="mt-4 max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">
           PAT separates firm alignment into operating model, automation and AI readiness, data flow,
           governance, and strategy so reviewers can see which operating condition is creating the
-          strongest support or the most pressure. This overview is not a legacy single survey; each
-          module is submitted independently and then contributes to the firm insight unlock chain.
+          strongest support or the most pressure. This overview is not a single survey; each
+          module is submitted independently and then contributes to the firm insight unlock path.
         </p>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">
           Start with an in-progress module when one exists. If nothing is in progress, choose the

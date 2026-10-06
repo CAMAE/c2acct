@@ -91,7 +91,7 @@ export default async function VendorProductInsightPage() {
         audience="vendor"
         surfaceLabel="Product intelligence"
         title="Vendor product intelligence requires Pro membership"
-        body="Vendor product intelligence is part of the current Pro vendor tier. PAT keeps this route visible so the upgrade path is clear, but the product-intelligence catalog only opens once Pro is active."
+        body="Vendor product intelligence is part of the current Pro vendor tier. This page stays visible so the upgrade path is clear, but the product-intelligence catalog only opens once Pro is active."
         displayName={entitlement.membership.displayName}
         currentPlan={entitlement.membership.plan}
         currentStatus={entitlement.membership.status}

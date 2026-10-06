@@ -2,7 +2,7 @@ import { IndividualHelpInlineContent } from "@/app/components/individual/Individ
 
 export const metadata = {
   title: "Individual Help | Patalign",
-  description: "Individual PAT help and route explainer.",
+  description: "Individual PAT help and page explainer.",
 };
 
 type SearchParams = {

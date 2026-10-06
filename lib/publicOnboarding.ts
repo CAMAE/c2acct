@@ -156,7 +156,7 @@ function buildAudienceConfigs(): Record<PublicOnboardingAudience, AudienceBaseCo
         "Build a personal operating profile so PAT can translate preferences, maturity, and workflow needs into individual alignment support.",
       valueTitle: "First PAT value: personal operating signal",
       valueBody:
-        "Start with the individual alignment assessment. PAT keeps recommendations staged until your answers create enough signal.",
+        "Start with the individual alignment assessment. PAT holds recommendations until your answers create enough signal.",
       firstAssessmentLabel: "Sign in and start individual alignment assessment",
       emptyStateTitle: "Individual insights stay pending until personal evidence exists.",
       emptyStateBody:
@@ -272,8 +272,8 @@ function getBillingLabels(input: {
 
   return {
     mode: "scaffold" as const,
-    stateLabel: "Scaffold only",
-    truthLabel: "No live charge will be created. Billing is staged until Stripe keys and a plan price are configured.",
+    stateLabel: "No charge today",
+    truthLabel: "No live charge will be created. Billing opens once Stripe keys and a plan price are configured.",
     disabledReason: billingMode.reason,
   };
 }

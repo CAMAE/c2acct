@@ -119,7 +119,7 @@ export default async function VendorAlignmentInsightDetailPage({ params }: { par
         audience="vendor"
         surfaceLabel="Vendor alignment insight"
         title="Vendor alignment insight view requires Pro membership"
-        body="This insight view is part of the current Pro vendor tier. PAT keeps the route visible so the upgrade path stays explicit, but the grounded readout opens only after Pro is active."
+        body="This insight view is part of the current Pro vendor tier. This page stays visible so the upgrade path stays explicit, but the grounded readout opens only after Pro is active."
         displayName={entitlement.membership.displayName}
         currentPlan={entitlement.membership.plan}
         currentStatus={entitlement.membership.status}
@@ -166,7 +166,7 @@ export default async function VendorAlignmentInsightDetailPage({ params }: { par
   const visualLead = report.locked ? null : <VendorAlignmentInsightDetailBody report={report} />;
 
   const combinedEvidenceText = report.locked
-    ? "Current evidence stays grounded in the current firm PAT signal already visible in this route, while the deeper Elite layer remains unavailable."
+    ? "Current evidence stays grounded in the current firm PAT signal already visible in this page, while the deeper Elite layer remains unavailable."
     : "Current evidence combines the current firm PAT signal, aligned module patterns, and supporting capability evidence behind this vendor alignment view.";
 
   return (

@@ -96,7 +96,7 @@ export default async function FirmAlignmentBoardPage({
           audience="firm"
           surfaceLabel={boardLabel()}
           title={`The ${boardLabel()} is an Elite feature`}
-          body={`The ${boardLabel()} lays your current stack out as pieces you can swap to see projected firm alignment recompute in front of you. PAT keeps this route visible so the upgrade path stays explicit, but the board opens only with Elite membership.`}
+          body={`The ${boardLabel()} lays your current stack out as pieces you can swap to see projected firm alignment recompute in front of you. This page stays visible so the upgrade path stays explicit, but the board opens only with Elite membership.`}
           displayName={entitlement.membership.displayName}
           currentPlan={entitlement.membership.plan}
           currentStatus={entitlement.membership.status}
@@ -128,7 +128,7 @@ export default async function FirmAlignmentBoardPage({
           audience="firm"
           surfaceLabel={boardLabel()}
           title={`The ${boardLabel()} needs Pro membership`}
-          body={`The ${boardLabel()} is part of the paid firm tiers. PAT keeps this route visible so the membership path stays explicit; the board opens once Pro is active, and Elite reveals the candidate product names.`}
+          body={`The ${boardLabel()} is part of the paid firm tiers. This page stays visible so the membership path stays explicit; the board opens once Pro is active, and Elite reveals the candidate product names.`}
           displayName={proEntitlement.membership.displayName}
           currentPlan={proEntitlement.membership.plan}
           currentStatus={proEntitlement.membership.status}

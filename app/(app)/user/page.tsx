@@ -27,7 +27,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Individual | Patalign",
-  description: "Individual PAT homepage scaffold and route entry.",
+  description: "Individual PAT home page.",
 };
 
 type SearchParams = {

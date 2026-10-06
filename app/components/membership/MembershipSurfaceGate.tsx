@@ -95,7 +95,7 @@ export default function MembershipSurfaceGate({
             Open membership or stage the Pro path
           </h2>
           <p className="mt-4 text-sm leading-6 text-[var(--shell-muted)]">
-            PAT keeps the route visible so the upgrade path is explicit. Basic portal entry stays available, but this assessment or insight surface opens only after the required membership tier is active.
+            This page stays visible so the upgrade path is explicit. Basic portal entry stays available, but this assessment or insight surface opens only after the required membership tier is active.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link className="pat-button-primary" href={membershipHref}>

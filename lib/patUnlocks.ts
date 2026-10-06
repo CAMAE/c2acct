@@ -40,7 +40,7 @@ export type InsightCard = {
 export const TOP_INSIGHT_CARDS: InsightCard[] = [
   {
     title: "Firm insight workspace",
-    desc: "Canonical firm PAT insight portal.",
+    desc: "Firm PAT insight portal.",
     requiredBadgeId: TIER1_ALIGNMENT_BADGE_ID,
   },
   {

@@ -38,12 +38,12 @@ export default function RoleSignInPage({ role }: RoleSignInPageProps) {
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           {authRuntime.githubAuthEnabled || authRuntime.localReviewProviderReady
-            ? `This role entry route stays thin on purpose. It uses the existing login and callback-safe auth flow, then returns the user to the ${config.label.toLowerCase()} homepage route so the rest of the PAT structure can stay consistent.`
+            ? `This role entry page stays thin on purpose. It uses the existing login and callback-safe auth flow, then returns the user to the ${config.label.toLowerCase()} homepage page so the rest of the PAT structure can stay consistent.`
             : !authRuntime.diagnosticsVisible
               ? `Sign in with your provisioned pilot account below to enter the ${config.label.toLowerCase()} workspace.`
               : inviteeAccessEnabled
-                ? `Local GitHub auth is not ready right now, so this role route keeps the PAT surface usable by sending invitees through the controlled access-code path instead of a broken sign-in dead-end.`
-                : `This role route stays explicit when local auth is unavailable. Review the local PAT auth setup first, then continue into the existing protected login flow once GitHub is configured.`}
+                ? `Local GitHub auth is not ready right now, so this role page keeps the PAT surface usable by sending invitees through the controlled access-code path instead of a broken sign-in dead-end.`
+                : `This role page stays explicit when local auth is unavailable. Review the local PAT auth setup first, then continue into the existing protected login flow once GitHub is configured.`}
         </p>
         {authRuntime.localReviewProviderReady ? (
           <div className="mt-5 rounded-[18px] border border-sky-200 bg-sky-50 px-4 py-4 text-sm leading-6 text-sky-950">
@@ -132,13 +132,10 @@ export default function RoleSignInPage({ role }: RoleSignInPageProps) {
       {authRuntime.diagnosticsVisible ? (
         <section className="grid gap-4 md:grid-cols-3">
           <div className="pat-soft-panel p-5 text-sm leading-6 text-[var(--shell-muted)]">
-            Entry route: <span className="font-semibold text-[var(--shell-ink)]">/sign-in/{role}</span>
+            Entry page: <span className="font-semibold text-[var(--shell-ink)]">/sign-in/{role}</span>
           </div>
           <div className="pat-soft-panel p-5 text-sm leading-6 text-[var(--shell-muted)]">
             Callback target: <span className="font-semibold text-[var(--shell-ink)]">/{role}</span>
-          </div>
-          <div className="pat-soft-panel p-5 text-sm leading-6 text-[var(--shell-muted)]">
-            Auth plumbing: <span className="font-semibold text-[var(--shell-ink)]">{authRuntime.localReviewProviderReady ? "role-specific local review or GitHub from /sign-in" : "canonical /sign-in hub"}</span>
           </div>
         </section>
       ) : null}
@@ -146,7 +143,7 @@ export default function RoleSignInPage({ role }: RoleSignInPageProps) {
       {!authRuntime.ready && authRuntime.diagnosticsVisible ? (
         <section className="pat-card p-6">
           <div className="rounded-[18px] border border-amber-200 bg-amber-50/90 p-4 text-sm leading-6 text-amber-900">
-            <div className="font-semibold">Local GitHub auth is not ready for this PAT route.</div>
+            <div className="font-semibold">Local GitHub auth is not ready for this PAT page.</div>
             <div className="mt-2">Missing env: {authRuntime.missing.join(", ")}</div>
             <div className="mt-2">Expected callback: {authRuntime.callbackUrl ?? "Set AUTH_URL or NEXTAUTH_URL first"}</div>
             {authRuntime.githubUnavailableReason ? (
@@ -154,7 +151,7 @@ export default function RoleSignInPage({ role }: RoleSignInPageProps) {
             ) : null}
             {authRuntime.localReviewEnabled ? (
               <div className="mt-2">
-                Local review mode is requested, but the runtime is still missing the password or stable auth secret required to create a real session.
+                Local review mode is requested, but the server is still missing the password or stable auth secret required to create a real session.
               </div>
             ) : null}
             {inviteeAccessEnabled ? (

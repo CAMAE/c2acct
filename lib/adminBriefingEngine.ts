@@ -1650,7 +1650,7 @@ export async function getAdminCompanyBriefing(
         canonicalScore: averageFirmScore,
         caveats: [
           "Executive confidence reflects evidence coverage, not a blended score.",
-          "Canonical PAT score remains the raw firm module score average shown separately here.",
+          "The PAT score remains the raw firm module score average shown separately here.",
         ],
       },
       {
@@ -1670,7 +1670,7 @@ export async function getAdminCompanyBriefing(
         latestUpdatedAt: latestDate(moduleHeatmap.map((module) => module.latestSubmittedAt)),
         canonicalScore: averageFirmScore,
         caveats: [
-          "Firm canonical score is the raw module score from PAT submissions.",
+          "The firm score is the raw module score from PAT submissions.",
           "Signal integrity remains separate in the module heatmap.",
         ],
       },
@@ -1685,7 +1685,7 @@ export async function getAdminCompanyBriefing(
         latestUpdatedAt: latestDate(products.map((product) => product.latestUpdatedAt)),
         canonicalScore: averageProductScore,
         caveats: [
-          "Combined product interpretation does not replace the canonical firm review score.",
+          "Combined product interpretation does not replace the firm-reviewed score.",
           "Vendor self-report and firm-reviewed product signal stay explicitly separate.",
         ],
       },
@@ -1793,8 +1793,8 @@ export async function getAdminProductBriefing(
         latestUpdatedAt: product.latestUpdatedAt,
         canonicalScore: product.canonicalFirmReviewScore,
         caveats: [
-          "Canonical firm review score stays separate from confidence.",
-          "Vendor self-report is displayed as supporting evidence, not as the canonical firm score.",
+          "The firm-reviewed score stays separate from confidence.",
+          "Vendor self-report is displayed as supporting evidence, not as the firm score.",
         ],
       },
     ],

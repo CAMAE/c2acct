@@ -410,7 +410,7 @@ const vendorProductInsights = [
     lockedState: {
       summary: "Live with Elite membership.",
       what: "A restricted Elite insight reserved for future product benchmark comparisons.",
-      why: "Benchmark claims require broader market evidence than the current PAT runtime has.",
+      why: "Benchmark claims require broader market evidence than PAT has today.",
       how: "Live with Elite membership.",
       basis: "Product benchmark evidence is not available in the current PAT product.",
       disclaimer: "Live with Elite membership",
@@ -432,7 +432,7 @@ const vendorProductInsights = [
     lockedState: {
       summary: "Live with Elite membership.",
       what: "A restricted Elite insight reserved for future demand projection.",
-      why: "Projection claims require more durable evidence than the current PAT runtime has.",
+      why: "Projection claims require more durable evidence than PAT has today.",
       how: "Live with Elite membership.",
       basis: "Product projection evidence is not available in the current PAT product.",
       disclaimer: "Live with Elite membership",
@@ -454,7 +454,7 @@ const vendorProductInsights = [
     lockedState: {
       summary: "Live with Elite membership.",
       what: "A restricted Elite insight reserved for future expansion simulation.",
-      why: "Scenario claims require broader evidence than the current PAT runtime has.",
+      why: "Scenario claims require broader evidence than PAT has today.",
       how: "Live with Elite membership.",
       basis: "Product simulation evidence is not available in the current PAT product.",
       disclaimer: "Live with Elite membership",

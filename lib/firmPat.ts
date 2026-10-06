@@ -1297,7 +1297,7 @@ function buildFirmAssessmentProgress(
         draftAnsweredCount: 0,
         status: "not-started",
         statusLabel: "Not Started",
-        statusDescription: "This canonical firm module is not available in the local survey catalog yet.",
+        statusDescription: "This firm module is not available in the local survey catalog yet.",
         latestScore: null,
         latestSubmittedAt: null,
         draftUpdatedAt: null,
@@ -1693,7 +1693,7 @@ export const FIRM_HELP_CARDS = [
     title: "Alignment Insights",
     what: "Firm-facing Pro and Elite PAT alignment insights.",
     why: "This turns alignment assessment and product signal into usable current-state decision support.",
-    how: "Open firm alignment insight cards, review grounded Pro detail, and inspect staged Elite cards without overstating what is live.",
+    how: "Open firm alignment insight cards, review grounded Pro detail, and inspect the Elite cards without overstating what is live.",
     href: "/firm/insights",
   },
   {
@@ -1705,7 +1705,7 @@ export const FIRM_HELP_CARDS = [
   },
   {
     title: "Help",
-    what: "A simple firm explainer for each card and route.",
+    what: "A simple firm explainer for each card and page.",
     why: "It reduces onboarding friction and keeps PAT usage professional and clear.",
     how: "Use it as the firm-side map to each PAT surface.",
     href: "/firm/help",

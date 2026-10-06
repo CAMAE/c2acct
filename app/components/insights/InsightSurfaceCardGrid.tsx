@@ -126,8 +126,8 @@ export default function InsightSurfaceCardGrid({
         );
 
         // Block 12a — inline expansion into the COMPLETE insight body (the same
-        // components the detail route renders). Supersedes the Block 11d text-only
-        // readout. Falls back to the legacy text readout when no full node exists.
+        // components the detail page renders). Supersedes the Block 11d text-only
+        // readout. Falls back to the earlier text readout when no full node exists.
         const inlineBody: ReactNode = card.expandedNode
           ? card.expandedNode
           : card.expandedContent

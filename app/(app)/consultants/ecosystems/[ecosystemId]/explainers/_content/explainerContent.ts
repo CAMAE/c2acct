@@ -63,9 +63,9 @@ export const EXPLAINER_CONTENT: Record<MetricKey, ExplainerContent> = {
     title: "Average alignment score",
     unitLabel: "0–100",
     headline:
-      "How aligned the firms in this ecosystem are with the vendor's stated operating model — averaged across every firm with a canonical score on file.",
+      "How aligned the firms in this ecosystem are with the vendor's stated operating model — averaged across every firm with a score on file.",
     whatItMeasures:
-      "The mean firm-side canonical alignment score across all firms in this ecosystem. Each firm contributes one score; firms with no submitted modules contribute null and are excluded from the average. 100 means every firm perfectly mirrors the vendor's stated stack; 0 means no firm has aligned at all.",
+      "The mean firm-side alignment score across all firms in this ecosystem. Each firm contributes one score; firms with no submitted modules contribute null and are excluded from the average. 100 means every firm perfectly mirrors the vendor's stated stack; 0 means no firm has aligned at all.",
     howComputed:
       "Mean of canonicalFirmScore across the BriefingCatalogItem set for this ecosystem, rounded to the nearest integer. Computed in lib/ecosystem.ts:avgFirmAlignmentScore. Null when no firm in the ecosystem has a score on file.",
     bands: [
@@ -74,7 +74,7 @@ export const EXPLAINER_CONTENT: Record<MetricKey, ExplainerContent> = {
       { range: "< 50", label: "Low alignment", note: "Firms are operating off a different model than the vendor claims." },
     ],
     whereToDrill:
-      "Open the Firm briefings table on the ecosystem detail page for the per-firm canonical score. Click any firm name for its full alignment brief (operating-alignment panel).",
+      "Open the Firm briefings table on the ecosystem detail page for the per-firm score. Click any firm name for its full alignment brief (operating-alignment panel).",
     valueFrom: (ecosystem) =>
       ecosystem.avgFirmAlignmentScore === null ? "—" : `${ecosystem.avgFirmAlignmentScore}%`,
   },
@@ -100,7 +100,7 @@ export const EXPLAINER_CONTENT: Record<MetricKey, ExplainerContent> = {
     headline:
       "How much of the PAT module catalog the firms in this ecosystem have actually completed. The remainder is the work-in-flight.",
     whatItMeasures:
-      "Average percentage of the 5 canonical firm-alignment modules completed across firms in the ecosystem. A firm is at 100% once it has submitted final responses to all 5 modules; drafts (scoreVersion=0) don't count toward completion.",
+      "Average percentage of the 5 firm modules completed across firms in the ecosystem. A firm is at 100% once it has submitted final responses to all 5 modules; drafts (scoreVersion=0) don't count toward completion.",
     howComputed:
       "Mean of summarizeFirmAlignmentProgress(modules).completionPercent across all firms in the ecosystem, rounded. Source: lib/ecosystem.ts:avgModuleCompletion. Null when no firms have any submissions.",
     whereToDrill:
@@ -159,7 +159,7 @@ export const EXPLAINER_CONTENT: Record<MetricKey, ExplainerContent> = {
     howComputed:
       "For each firm's AdminCompanyBriefing, count nextActions[].window === \"30 days\"; sum across firms. Source: lib/ecosystem.ts:countThirtyDayActions.",
     whereToDrill:
-      "The firm-side 6-quarter roadmap panel (firm-brief, roadmap panel) shows each firm's full 6-quarter action sequence. The 30-day cohort is Q1 of each firm's roadmap.",
+      "The firm-side 6-quarter roadmap panel (firm-brief, roadmap panel) shows each firm's full 6-quarter action sequence. The 30-day cohort is the first window of each firm's roadmap.",
     valueFrom: (ecosystem) => String(ecosystem.thirtyDayActionCount),
     perFirmDrilldown: {
       columnLabel: "30-day actions",

@@ -336,7 +336,7 @@ function getConfidenceBand(input: {
       band: "no_signal" as const,
       label: "No signal",
       summary:
-        "Neither vendor self-reported signal nor firm-reviewed signal is available yet, so this remains an ungrounded placeholder.",
+        "Neither vendor self-reported signal nor firm-reviewed signal is available yet, so this is an empty reading.",
     };
   }
   // Vendor-only or a single firm review is always early-signal sample_thin —

@@ -1,5 +1,6 @@
 import type { MembershipPlan, MembershipStatus } from "@prisma/client";
 import { getLocaleMessages } from "@/lib/locale";
+import { guideWord } from "@/lib/roleWords";
 import { MEMBERSHIP_PLAN, toDbMembershipPlan, type ResolvedMembershipPlan } from "@/lib/membership";
 import type { MembershipAudience } from "@/lib/membershipContext";
 
@@ -262,7 +263,7 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
     plans: {
       FREE: {
         title: "Free keeps the vendor PAT baseline visible",
-        summary: "Free is the operating floor for keeping your current vendor PAT profile and route access coherent.",
+        summary: "Free is the operating floor for keeping your current vendor PAT profile and page access coherent.",
         what:
           "It keeps your vendor portal, profile state, and current PAT orientation in one place without asking buyers to trust a heavier commercial promise yet.",
         why:
@@ -274,7 +275,7 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
         title: "Pro packages vendor alignment into a stronger commercial surface",
         summary: "Pro is for vendors who need more than a passive profile and want explainable PAT signal available in the live portal.",
         what:
-          "Pro is the live vendor operating tier for product assessment, product intelligence, and vendor alignment insight routes grounded in current PAT evidence.",
+          "Pro is the live vendor operating tier for product assessment, product intelligence, and vendor alignment insight pages grounded in current PAT evidence.",
         why:
           "That helps a vendor turn assessment signal into usable sales and product-readiness framing instead of leaving insights implicit.",
         ctaTitle: "Upgrade into Pro",
@@ -360,9 +361,9 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
       },
       PRO: {
         title: "Pro turns the live firm alignment insight layer into a clearer operating surface",
-        summary: "Pro is the current firm membership tier for firms that want the live alignment insight route packaged more explicitly for leadership use.",
+        summary: "Pro is the current firm membership tier for firms that want the live alignment insight page packaged more explicitly for leadership use.",
         what:
-          "Pro is the current firm operating tier for alignment assessment, firm alignment insights, and firm product review routes backed by the live PAT evidence model.",
+          "Pro is the current firm operating tier for alignment assessment, firm alignment insights, and firm product review pages backed by the live PAT evidence model.",
         why:
           "That matters when leadership needs clearer interpretation of readiness, change posture, automation capacity, and governance signal from the existing PAT evidence.",
         ctaTitle: "Upgrade into Pro",
@@ -421,7 +422,7 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
         tagline: "Govern vendor alignment continuously",
         features: [
           "Unlimited vendor reviews",
-          "Consultant collaboration",
+          `${guideWord()} collaboration`,
           "Custom assessment templates",
           "Audit-grade history",
           "Dedicated success manager",
@@ -450,7 +451,7 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
         title: "Pro gives the individual a stronger personal PAT layer",
         summary: "Pro is for individuals who want more explicit interpretation and a more meaningful readout from PAT.",
         what:
-          "Pro is the live individual operating tier for the person-level alignment assessment and the current individual insight route PAT can support from real subject-backed state.",
+          "Pro is the live individual operating tier for the person-level alignment assessment and the current individual insight page PAT can support from real subject-backed state.",
         why:
           "That helps the individual turn PAT from a one-time assessment into a steadier operating aid.",
         ctaTitle: "Upgrade into Pro",
@@ -610,11 +611,11 @@ export function getRequestedCheckoutPlan(rawPlan: string | undefined, currentPla
 function getMembershipScopeNote(audience: MembershipAudience, plan: MembershipPlan) {
   if (audience === "vendor") {
     if (plan === MEMBERSHIP_PLAN.FREE) {
-      return "The baseline vendor state keeps sign-in, workspace entry, profile continuity, and membership plumbing coherent. It does not open the core vendor assessment and insight surfaces.";
+      return "The baseline vendor state keeps sign-in, workspace entry, profile continuity, and membership state coherent. It does not open the core vendor assessment and insight surfaces.";
     }
 
     if (plan === MEMBERSHIP_PLAN.PRO) {
-      return "Pro is the current minimum tier for the core vendor assessment and insight routes. It stays grounded in current PAT signal rather than benchmark or projection claims.";
+      return "Pro is the current minimum tier for the core vendor assessment and insight pages. It stays grounded in current PAT signal rather than benchmark or projection claims.";
     }
 
     return "Elite is the live top vendor tier — benchmark position, demand signals, and scenario/projection packaging, all backed by firm-reviewed evidence. Elite members see it in full; Pro accounts see a locked preview.";
@@ -622,22 +623,22 @@ function getMembershipScopeNote(audience: MembershipAudience, plan: MembershipPl
 
   if (audience === "firm") {
     if (plan === MEMBERSHIP_PLAN.FREE) {
-      return "The baseline firm state keeps sign-in, workspace entry, and membership state coherent without opening the core firm assessment and insight routes.";
+      return "The baseline firm state keeps sign-in, workspace entry, and membership state coherent without opening the core firm assessment and insight pages.";
     }
 
     if (plan === MEMBERSHIP_PLAN.PRO) {
-      return "Current firm Pro scope covers the core firm assessment and insight routes PAT can support now. It is not a separate paid contract for admin, advisory, or broader firm product intelligence behavior.";
+      return "Current firm Pro scope covers the core firm assessment and insight pages PAT can support now. It is not a separate paid contract for admin, advisory, or broader firm product intelligence behavior.";
     }
 
     return "Firm Elite is the live higher-order insight layer — peer position, gap plan, and trajectory anchored to your alignment evidence. Elite members see it in full; Pro accounts see a locked preview. It does not add a separate firm product suite.";
   }
 
   if (plan === MEMBERSHIP_PLAN.FREE) {
-    return "The baseline individual state keeps sign-in, workspace entry, profile continuity, and the person-subject path available without opening the core assessment and insight routes.";
+    return "The baseline individual state keeps sign-in, workspace entry, profile continuity, and the person-subject path available without opening the core assessment and insight pages.";
   }
 
   if (plan === MEMBERSHIP_PLAN.PRO) {
-    return "Current individual Pro scope is the minimum tier for the live individual assessment and insight routes PAT can support from person-level alignment state now.";
+    return "Current individual Pro scope is the minimum tier for the live individual assessment and insight pages PAT can support from person-level alignment state now.";
   }
 
   return "Individual Elite is the live top personal tier — the deepest subject-backed intelligence PAT offers, explanation-first. Elite members see it in full; Pro accounts see a locked preview.";
@@ -646,14 +647,14 @@ function getMembershipScopeNote(audience: MembershipAudience, plan: MembershipPl
 function getMembershipLiveNowNote(audience: MembershipAudience, plan: MembershipPlan) {
   if (audience === "vendor") {
     if (plan === MEMBERSHIP_PLAN.FREE) {
-      return "The baseline vendor workspace, profile state, help routes, and membership plumbing are already live and route-backed.";
+      return "The baseline vendor workspace, profile state, help pages, and membership state are already live and page-backed.";
     }
 
     if (plan === MEMBERSHIP_PLAN.PRO) {
       return "The live vendor Pro framing appears today across vendor product intelligence and vendor alignment insight surfaces.";
     }
 
-    return "Elite vendor surfaces are live for Elite members today; Pro accounts see a locked preview of the same cards and detail routes.";
+    return "Elite vendor surfaces are live for Elite members today; Pro accounts see a locked preview of the same cards and detail pages.";
   }
 
   if (audience === "firm") {
@@ -669,7 +670,7 @@ function getMembershipLiveNowNote(audience: MembershipAudience, plan: Membership
   }
 
   if (plan === MEMBERSHIP_PLAN.FREE) {
-    return "The individual baseline is the workspace, profile continuity, help path, and subject-aware membership plumbing already present in PAT.";
+    return "The individual baseline is the workspace, profile continuity, help path, and subject-aware membership state already present in PAT.";
   }
 
   if (plan === MEMBERSHIP_PLAN.PRO) {
@@ -758,10 +759,10 @@ function getMembershipPaymentMethodPanel(
 ) {
   if (method === "bank") {
     return {
-      title: "Billing-contact scaffold",
+      title: "Billing contact, no charge today",
       summary: "Collect non-sensitive billing contact details PAT can use before a real bank-debit integration exists.",
       detail:
-        "This panel is a non-live scaffold only. PAT records checkout intent, but it does not debit an account or connect to a banking processor yet.",
+        "This panel is a record of your billing contact only. PAT records checkout intent, but it does not debit an account or connect to a banking processor yet.",
       fields: [
         "Billing contact name",
         "Accounts payable email",
@@ -776,7 +777,7 @@ function getMembershipPaymentMethodPanel(
       title: "PayPal integration path",
       summary: "Show the future PayPal collection shape without pretending a live PayPal session already exists.",
       detail:
-        "PAT does not open a PayPal session here today. Use this panel only as a future-integration preview while the scaffold membership row remains the real output.",
+        "PAT does not open a PayPal session here today. Use this panel only as a future-integration preview while the membership record remains the real output.",
       fields: [
         "PayPal account email",
         "Preferred billing contact",
@@ -814,7 +815,7 @@ function getMembershipPaymentMethodPanel(
   }
 
   return {
-    title: "Credit/Debit billing scaffold",
+    title: "Card details on file, no charge today",
     summary: "No card processor, tokenization step, card number, or live charge is accepted on this page.",
     detail:
       audience === "individual"
@@ -1067,14 +1068,14 @@ export function getMembershipCheckoutModel(input: {
     summary: {
       tierLabel: formatMembershipValue(selectedPlan),
       currentState: `${formatMembershipValue(currentPlan)} / ${getMembershipStatusSummary(input.currentStatus)}`,
-      paymentStateLabel: providerBacked ? "Stripe configured" : "Scaffold only",
+      paymentStateLabel: providerBacked ? "Stripe configured" : "No charge today",
       processingNote: providerBacked
         ? "Submitting continues to Stripe-hosted checkout. Entitlements remain pending until signed provider webhook proof reconciles an active or trialing subscription."
         : `No live payment processor is active for this plan${input.billingDisabledReason ? ` (${input.billingDisabledReason})` : ""}. Submitting records checkout intent only.`,
     },
     billing: {
       mode: billingMode,
-      providerLabel: providerBacked ? "Stripe" : "PAT scaffold",
+      providerLabel: providerBacked ? "Stripe" : "PAT (no charge today)",
       disabledReason: input.billingDisabledReason ?? null,
       truthLabel: providerBacked
         ? "Stripe will collect payment details; PAT does not store card numbers."
@@ -1109,7 +1110,7 @@ export function getMembershipCheckoutModel(input: {
       label: "Open Stripe customer portal",
       note: providerBacked
         ? "Available after a Stripe customer exists for this subject."
-        : "Customer portal is disabled while billing runs in scaffold mode.",
+        : "Customer portal is disabled while billing runs in no-charge mode.",
     },
     submitLabel: providerBacked
       ? "Continue to Stripe checkout"
