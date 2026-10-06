@@ -320,5 +320,11 @@
     "control": "Individual / Invitee",
     "ledgerLine": "pattern box A (Cam 10/06, FORGE-BOX-PATTERN-A-READERS-GATES-2026-10-06, R-T): the sign-in hub shows a role tab only while its surface flag is on (lib/pilotSurfaces.ts; Individual and Invitee are off for the pilot, Guide follows PAT_ENABLE_CONSULTANT_ACCESS, Enterprise follows PAT_ENABLE_ENTERPRISE); a tab never leads to a disabled surface. The production crawl ran with the two surfaces off, so the two pills were never baseline controls; the ruling records the rule.",
     "rulingDate": "2026-10-06"
+  },
+  {
+    "route": "*",
+    "control": "Live with Elite membership",
+    "ledgerLine": "pattern box B2 (Cam 10/06, FORGE-BOX-PATTERN-B-WORDS-2026-10-06, V6): a Pro locked Elite card says \"Live with Elite membership\" once (the overlay) and its button reads \"Upgrade to Elite\", linking to the membership path; the same door under the button's new name. Route *: the locked preview renders on /firm/benchmark, the Elite hub panels and the tier-2 key pages for Pro accounts.",
+    "rulingDate": "2026-10-06"
   }
 ]
