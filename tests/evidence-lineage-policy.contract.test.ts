@@ -16,6 +16,8 @@ vi.mock("@/lib/prisma", () => ({
     company: { findMany: vi.fn(), findUnique: vi.fn() },
     // 16a: getVendorBattleCardData reads each firm's alignment freshness.
     firmMaturitySnapshot: { findFirst: vi.fn(async () => null) },
+    // R60 G2: freshness now reads the newest FINAL module submission.
+    surveySubmission: { findMany: vi.fn(async () => []) },
   },
 }));
 vi.mock("@/lib/adminBriefingEngine", () => ({
