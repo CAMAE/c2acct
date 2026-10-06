@@ -88,6 +88,11 @@ const RENAMES: Array<[RegExp, string]> = [
   [/^Guide review$/, "Consultant review"],
   [/ · Guide$/, " · Consultant"],
   [/^PAT for guides and ecosystem owners/, "PAT for consultants and ecosystem owners"],
+  // pattern box B (Cam 10/06, R-U / R-P): the Guide briefing back link reads "Back to the Guide
+  // overview" (flag-off "Back to the Consultant overview"), and the trust page's release card
+  // description says "build fingerprint" (runtime is a retired word). Same doors, same hrefs.
+  [/^Back to the (?:Guide|Consultant) overview$/, "Back to consultant overview"],
+  [/\bbuild fingerprint\b/, "runtime fingerprint"],
   [/^BattleCard\b/, "Product Fit Card"],
   // Box 3f item K (Cam 9/28): the in-product disclaimer link reads "Methodology" (was
   // "methodology"); same href, same mount points, every flag set.
