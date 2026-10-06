@@ -18,6 +18,7 @@ import { execFileSync } from "node:child_process";
 import { writeFileSync, existsSync, readFileSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, join } from "node:path";
+import { writeContentDates } from "./content-dates.mjs";
 
 const ROOT = process.cwd();
 const OUT = join(ROOT, "lib", "release", "baked-fingerprint.json");
@@ -74,3 +75,6 @@ writeFileSync(
   ) + "\n"
 );
 console.log(`[bake-release] wrote ${OUT} — commit=${commitSha.slice(0, 7)} buildId=${buildId} source=${buildSourceType} ts=${buildTimestamp}`);
+
+// pattern box A (R60, R-R): the content "Updated" dates ride along with the bake.
+writeContentDates(ROOT);

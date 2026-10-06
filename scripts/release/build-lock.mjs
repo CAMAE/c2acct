@@ -62,6 +62,8 @@ log(`acquired (pid ${process.pid})`);
 let code = 1;
 try {
   const steps = [
+    // pattern box A (R60, R-R): refresh lib/generated/contentDates.json from git before the build.
+    ["node", ["scripts/release/content-dates.mjs"]],
     ["pnpm", ["exec", "next", "build", "--webpack"]],
     ["node", ["scripts/release/prepare-standalone-runtime.mjs"]],
   ];

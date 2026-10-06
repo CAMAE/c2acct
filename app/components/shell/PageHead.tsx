@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { isIsoDate, updatedMonthYear } from "@/lib/contentDates";
 import type { ReactNode } from "react";
 import { PatBrandMark } from "@/app/components/brand/BrandMarks";
 import { guideWord } from "@/lib/roleWords";
@@ -46,7 +47,10 @@ export function portalEyebrow(audience: "firm" | "vendor" | "consultant" | "indi
 }
 
 /** "April 28, 2026" -> "April 2026" (the quiet updated line names the month only). */
-export function monthYear(date: string): string {
+export function monthYear(date: string, now: Date = new Date()): string {
+  // pattern box A (R60, R-R): computed ISO dates (lib/contentDates) format through the
+  // clamped helper; a dated changelog entry ("July 10, 2026") keeps its own month and year.
+  if (isIsoDate(date)) return updatedMonthYear(date, now);
   const match = date.match(/^([A-Za-z]+)\s+\d{1,2},\s*(\d{4})$/);
   return match ? `${match[1]} ${match[2]}` : date;
 }

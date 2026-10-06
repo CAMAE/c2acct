@@ -1,4 +1,5 @@
 import type { PublicReleaseFingerprintView } from "@/lib/release/fingerprint";
+import { contentDateIso } from "@/lib/contentDates";
 import { guideWord } from "@/lib/roleWords";
 
 export type TrustSurfaceKey =
@@ -38,7 +39,8 @@ export type TrustReleaseField = {
   description: string;
 };
 
-export const TRUST_SURFACE_LAST_UPDATED = "April 28, 2026";
+// pattern box A (R60, R-R, P6): the last commit touching this file, from git at build.
+export const TRUST_SURFACE_LAST_UPDATED = contentDateIso("lib/trustContent.ts");
 
 export const TRUST_SURFACE_ORDER = [
   "privacy",
@@ -345,7 +347,7 @@ export const TRUST_SURFACES = {
     summary:
       "The stated, versioned methodology behind every alignment score, divergence reading, and peer benchmark: equal-weight averaging, sample floors, confidence bands, minimum-n benchmark suppression, and the integrity walls that keep demo data and vendor self-report out of peer aggregates.",
     statusLabel: "Versioned · public",
-    lastUpdated: "July 10, 2026",
+    lastUpdated: contentDateIso("lib/methodology.ts"),
     sections: [
       {
         title: "Not professional advice",
