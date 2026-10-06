@@ -42,7 +42,7 @@ const COHORT_ROWS = [
 const YOU_TONE: Record<string, string> = { up: "#16a34a", mid: "#d97e22", dn: "#c4442e" };
 
 // Locked verbatim — one plain-language value sentence per pillar, under the radar.
-const PILLAR_SENTENCES: { pillar: string; rest: string }[] = [
+const PILLAR_SENTENCES: { pillar: FirmPillar; rest: string }[] = [
   { pillar: "Strategy", rest: "whether your technology plans point where your practice is actually heading." },
   { pillar: "Operations", rest: "the daily workflow discipline that separates smooth closes from late nights." },
   { pillar: "Automation", rest: "where software genuinely saves hours, and where it only promises to." },
