@@ -973,7 +973,8 @@ export function buildVendorGapMap(products: GapMapProductInput[]): VendorGapMap 
       return {
         key: dim.key,
         tone,
-        display: delta === null ? String(Math.round(firm)) : `${delta >= 0 ? "+" : ""}${delta}`,
+        // pattern box B2 (R61, V11): the shortfall in words, never a bare plus — delta is vendor minus firms.
+        display: delta === null ? String(Math.round(firm)) : delta > 0 ? `firms ${delta} lower` : delta < 0 ? `firms ${-delta} higher` : "match",
         title: `${dim.title}: firms ${Math.round(firm)}${typeof vendor === "number" ? ` vs your ${Math.round(vendor)}` : ""}`,
         firmScore: firm,
         vendorScore: typeof vendor === "number" ? vendor : null,

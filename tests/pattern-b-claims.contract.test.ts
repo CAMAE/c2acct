@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import LockedElitePreview, { LOCKED_ELITE_BUTTON, LOCKED_ELITE_LINE } from "@/app/components/insights/LockedElitePreview";
 import { CAPABILITY_ROWS, capabilitiesFor, capabilityBullets, type CapabilityAudience } from "@/lib/capabilities";
+import { buildVendorGapMap } from "@/lib/eliteInsightsV2";
 import { quartileWord } from "@/lib/lexicon";
 import { NO_MEMBERSHIP } from "@/lib/membership";
 import { getMembershipPageModel } from "@/lib/membershipContent";
@@ -123,6 +124,15 @@ describe("Elite page words", () => {
     expect(card).not.toContain("`firms +${");
     expect(card).not.toContain("`firms −${");
     expect(card).toMatch(/delta > 0 \? "text-\[var\(--brand-orange\)\]" : "text-\[var\(--shell-positive\)\]"/);
+    // the matrix cells (built in the engine) say the same words
+    const map = buildVendorGapMap([
+      { productId: "p1", productName: "Ledger", firmAssessmentCount: 5, firmDimensions: [{ key: "w", title: "Workflow", score: 41 }, { key: "s", title: "Support", score: 80 }], vendorDimensions: [{ key: "w", title: "Workflow", score: 80 }, { key: "s", title: "Support", score: 78 }] },
+    ]);
+    const cells = map.rows[0].cells;
+    expect(cells.find((cell) => cell.key === "w")?.display).toBe("firms 39 lower");
+    expect(cells.find((cell) => cell.key === "s")?.display).toBe("firms 2 higher");
+    expect(cells.find((cell) => cell.key === "w")?.tone).toBe("dispute");
+    for (const cell of cells) expect(cell.display).not.toMatch(/^[+−-]\d+$/);
   });
 
   it("the three vendor Elite pages carry the insight name, in the live and the locked view", () => {
