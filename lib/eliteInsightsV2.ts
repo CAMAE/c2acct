@@ -20,7 +20,8 @@ import {
   type BenchmarkReading,
 } from "@/lib/benchmarks";
 import type { FirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
-import { readFreshness, type FreshnessReading } from "@/lib/freshness";
+import type { FreshnessReading } from "@/lib/freshness";
+import { getFirmFreshness, type FirmFreshnessSource } from "@/lib/firmFreshness";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { MIN_CONTRIBUTORS } from "@/lib/benchmarkSuppression";
 import type { PercentileRow } from "@/app/components/charts/PercentileBand";
@@ -343,6 +344,33 @@ export async function buildFirmGapPlan(engine: FirmReportsClient, companyId: str
   };
 }
 
+/**
+ * pattern box A (R60, R-O, audit F6): the gap plan's lead row — the ONE number the
+ * hub card and the Gap Plan page both show. With gaps: the largest deficit
+ * (points under its own bar). Without gaps: the thinnest margin (points over its
+ * own bar), the first row of the page's watch list. Null when nothing is scored.
+ */
+export type GapPlanLead = {
+  key: string;
+  title: string;
+  points: number;
+  threshold: number;
+  kind: "under" | "over";
+};
+
+export function gapPlanLead(plan: FirmGapPlan): GapPlanLead | null {
+  if (!plan.available) return null;
+  const item = plan.gaps[0] ?? plan.watchList[0] ?? null;
+  if (!item) return null;
+  const under = item.gap > 0;
+  return { key: item.key, title: item.title, points: Math.abs(item.gap), threshold: item.threshold, kind: under ? "under" : "over" };
+}
+
+/** The page's row meta ("9 pts under 65%" / "+9 pts over 65%"), one formatter for card and page. */
+export function gapPlanRowMeta(item: Pick<GapItem, "gap" | "threshold">): string {
+  return item.gap > 0 ? `${item.gap} pts under ${item.threshold}%` : `+${-item.gap} pts over ${item.threshold}%`;
+}
+
 // ── F3 · Trajectory ──────────────────────────────────────────────────────────
 
 export type FirmTrajectory = {
@@ -374,15 +402,13 @@ type TrajectoryClient = Pick<PrismaClient, "firmMaturitySnapshot" | "firmMaturit
  * Honest age only — no decay math, no staleness penalty on the numbers.
  */
 export async function getFirmEvidenceFreshness(
-  client: TrajectoryClient,
-  companyId: string
+  client: FirmFreshnessSource,
+  companyId: string,
+  now: Date = new Date()
 ): Promise<FreshnessReading | null> {
-  const newest = await client.firmMaturitySnapshot.findFirst({
-    where: { companyId },
-    orderBy: { computedAt: "desc" },
-    select: { computedAt: true },
-  });
-  return readFreshness(newest?.computedAt ?? null);
+  // pattern box A (R60, G2): the ONE firm-freshness reader (newest FINAL module
+  // submission), shared with the Guide freshness panel.
+  return getFirmFreshness(client, companyId, now);
 }
 
 export async function buildFirmTrajectory(
@@ -1015,20 +1041,17 @@ export function firmEliteHubMetrics(input: {
         }
       : null;
 
-  // Gap-to-Top-Quartile: hero = points; biggest lever becomes an amber chip.
-  const recommendationFace: EliteHubFace | null =
-    peer.available && peer.bestAction
-      ? {
-          hero: `${Math.round(peer.bestAction.deficit)} pts`,
-          chip: { label: `biggest lever: ${peer.bestAction.moduleLabel}`, tone: "amber" },
-          sub: "to top quartile",
-        }
-      : gapPlan.available && gapPlan.totalCount > 0
-        ? {
-            hero: `${gapPlan.clearedCount} of ${gapPlan.totalCount}`,
-            sub: "capabilities at their bar",
-          }
-        : null;
+  // Gap Plan (R60 F6): the card reads the SAME lead row the Gap Plan page shows
+  // and says what it is — a capability's margin to its own bar, never the peer
+  // top-quartile deficit (that number belongs to Peer Position).
+  const lead = gapPlanLead(gapPlan);
+  const recommendationFace: EliteHubFace | null = lead
+    ? {
+        hero: `${lead.title}: ${lead.points} pts ${lead.kind} its bar`,
+        chip: lead.kind === "under" ? { label: "biggest gap", tone: "amber" } : { label: "thinnest margin", tone: "positive" },
+        sub: `${gapPlan.clearedCount} of ${gapPlan.totalCount} capabilities at their bar`,
+      }
+    : null;
 
   return {
     firm_tier2_projection: projectionFace,
@@ -1053,7 +1076,7 @@ export function vendorEliteHubMetrics(input: {
     categoryFace = {
       hero: `${topBand} of ${published.length}`,
       micro: { kind: "band-dots", total: published.length, filled: topBand },
-      sub: "products in top band",
+      sub: "categories in top band",
     };
   }
 

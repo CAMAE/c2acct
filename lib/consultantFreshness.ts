@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
-import { readFreshness, type FreshnessReading, type FreshnessState } from "@/lib/freshness";
+import type { FreshnessReading, FreshnessState } from "@/lib/freshness";
+import { getFirmFreshnessForFirms, type FirmFreshnessClient } from "@/lib/firmFreshness";
 import {
   resolveCadence,
   nextCensusDueMs,
@@ -11,8 +12,11 @@ import type { ConsultantAccessState } from "@/lib/consultantAccess";
 /**
  * 16e — the consultant freshness board reader (P2-1). For every firm a consultant
  * advises (deduped across their ecosystems), resolve evidence freshness via the
- * ONE canonical reader ([[freshness]] readFreshness) and the next re-assessment
- * due date via the ONE cadence reader ([[cadence]] resolveCadence + nextCensusDueMs).
+ * ONE firm reader ([[firmFreshness]] getFirmFreshnessForFirms: newest FINAL module
+ * submission, classified by [[freshness]]; pattern box A, R60 G2 — the board used
+ * to read firmMaturitySnapshot.computedAt and disagreed with the ecosystem page)
+ * and the next re-assessment due date via the ONE cadence reader ([[cadence]]
+ * resolveCadence + nextCensusDueMs).
  * No per-surface re-implementation — anti-A3 pinned by a contract test.
  *
  * Governance rails hold: freshness is a LABEL (never alters a score); the board
@@ -56,14 +60,7 @@ export type ConsultantFreshnessBoard = {
 };
 
 /** Minimal client surface, so the contract test can inject a fake. */
-export type FreshnessBoardClient = {
-  firmMaturitySnapshot: {
-    groupBy: (args: {
-      by: ["companyId"];
-      where: { companyId: { in: string[] } };
-      _max: { computedAt: true };
-    }) => Promise<Array<{ companyId: string; _max: { computedAt: Date | null } }>>;
-  };
+export type FreshnessBoardClient = FirmFreshnessClient & {
   cadenceConfig: {
     findMany: (args: {
       where: { companyId: { in: string[] } };
@@ -148,12 +145,8 @@ export async function getConsultantFreshnessBoard(
     return { cutoffIso: cutoff.toISOString(), cutoffLabel: cutoff.toLocaleDateString("en-US", MONTH_LABEL_OPTS), firms: [], summary: emptySummary };
   }
 
-  const [snaps, configs] = await Promise.all([
-    client.firmMaturitySnapshot.groupBy({
-      by: ["companyId"],
-      where: { companyId: { in: firmOrder } },
-      _max: { computedAt: true },
-    }),
+  const [readings, configs] = await Promise.all([
+    getFirmFreshnessForFirms(client, firmOrder, now),
     client.cadenceConfig.findMany({
       where: { companyId: { in: firmOrder } },
       select: {
@@ -168,7 +161,7 @@ export async function getConsultantFreshnessBoard(
   ]);
 
   const lastCensusById = new Map<string, Date | null>();
-  for (const s of snaps) lastCensusById.set(s.companyId, s._max.computedAt ?? null);
+  for (const [companyId, reading] of readings) lastCensusById.set(companyId, reading.newest);
   const configById = new Map<string, RawCadenceConfig>();
   for (const c of configs) {
     const { companyId, ...raw } = c;
@@ -186,7 +179,7 @@ export async function getConsultantFreshnessBoard(
       companyId,
       companyName: nameById.get(companyId) ?? companyId,
       ecosystems: [...(contextsById.get(companyId) ?? [])],
-      freshness: readFreshness(lastCensus, now),
+      freshness: readings.get(companyId)?.freshness ?? null,
       lastCensusIso: lastCensus ? lastCensus.toISOString() : null,
       nextCensusDueIso: nextDue ? nextDue.toISOString() : null,
       nextCensusDueLabel: nextDue ? nextDue.toLocaleDateString("en-US", MONTH_LABEL_OPTS) : null,

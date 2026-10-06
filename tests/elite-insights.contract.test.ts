@@ -148,9 +148,8 @@ describe("Block 12c — Elite hub face metrics (own headline number per card)", 
     expect(metrics.firm_tier2_projection?.chip).toEqual({ label: "+17 projected", tone: "positive", arrow: "up" });
     expect(metrics.firm_tier2_benchmark?.hero).toBe("72nd percentile");
     expect(metrics.firm_tier2_benchmark?.micro).toEqual({ kind: "percentile-band", percentile: 72 });
-    expect(metrics.firm_tier2_recommendation?.hero).toBe("9 pts");
-    expect(metrics.firm_tier2_recommendation?.chip?.tone).toBe("amber");
-    expect(metrics.firm_tier2_recommendation?.sub).toBe("to top quartile");
+    // R60 F6: the gap card reads the gap plan's lead row (none in this fixture), never the peer deficit.
+    expect(metrics.firm_tier2_recommendation).toBeNull();
   });
 
   it("vendor hub metrics: category top-band, demand net motion, gap-map confirmed vs lower", () => {

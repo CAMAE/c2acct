@@ -1,7 +1,7 @@
 import RankedBars from "@/app/components/charts/RankedBars";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
 import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
-import type { FirmGapPlan, GapItem } from "@/lib/eliteInsightsV2";
+import { gapPlanRowMeta, type FirmGapPlan, type GapItem } from "@/lib/eliteInsightsV2";
 
 function gapEvidenceRows(data: FirmGapPlan) {
   return [
@@ -50,7 +50,7 @@ export default function FirmGapPlanCard({ data }: { data: FirmGapPlan }) {
                   key: g.key,
                   label: g.title,
                   value: g.score,
-                  meta: `+${-g.gap} pts over ${g.threshold}%`,
+                  meta: gapPlanRowMeta(g),
                 }))}
                 {...barLineFor(data.watchList)}
                 colorByBand
@@ -95,7 +95,7 @@ export default function FirmGapPlanCard({ data }: { data: FirmGapPlan }) {
               key: g.key,
               label: g.title,
               value: g.score,
-              meta: `${g.gap} pts under ${g.threshold}%`,
+              meta: gapPlanRowMeta(g),
             }))}
             {...barLineFor(data.gaps)}
             colorByBand

@@ -6,6 +6,7 @@ import { createNotification, recordNudge } from "@/lib/notifications/store";
 import {
   authorizeCompanyNudge,
   buildNudgeMessage,
+  readFirmModuleProgressForNudge,
   getCompanyRecipientUserIds,
   nudgeFromLabel,
   NUDGE_KIND,
@@ -52,7 +53,9 @@ export async function createNudgeDraft(input: {
     return { ok: true, draftId: existing.id, created: false };
   }
 
-  const message = buildNudgeMessage(input.audience, nudgeFromLabel(authority));
+  // R60 G3: firm nudges read the hub's module progress; a complete firm gets the refresh copy.
+  const progress = input.audience === "firm" ? await readFirmModuleProgressForNudge(input.companyId) : null;
+  const message = buildNudgeMessage(input.audience, nudgeFromLabel(authority), progress);
   const draft = await prisma.nudgeDraft.create({
     data: {
       actorUserId: input.actor.id,

@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import type { SessionUser } from "@/lib/auth/session";
 import { isAdminRole } from "@/lib/authz";
 import { getConsultantAccessStateForUser } from "@/lib/consultantAccess";
+import { getFirmAssessmentProgress, summarizeFirmAlignmentProgress } from "@/lib/firmPat";
 import { guideWord } from "@/lib/roleWords";
 
 /**
@@ -57,21 +58,53 @@ export async function getCompanyRecipientUserIds(companyId: string): Promise<str
   return users.map((u) => u.id);
 }
 
+/**
+ * pattern box A (R60, R-O, audit G3): the firm's module progress, read from the
+ * hub's reader (lib/firmPat getFirmAssessmentProgress), so a firm at 5 of 5 never
+ * receives a "finish your modules" nudge. Null when progress cannot be read.
+ */
+export type NudgeModuleProgress = { completedModules: number; totalModules: number };
+
+export async function readFirmModuleProgressForNudge(companyId: string): Promise<NudgeModuleProgress | null> {
+  try {
+    const summary = summarizeFirmAlignmentProgress(await getFirmAssessmentProgress(companyId));
+    return { completedModules: summary.completedModules, totalModules: summary.totalModules };
+  } catch {
+    return null;
+  }
+}
+
 export function buildNudgeMessage(
   audience: NudgeAudience,
-  fromLabel: string
+  fromLabel: string,
+  progress: NudgeModuleProgress | null = null
 ): { title: string; body: string; ctaLabel: string; ctaHref: string } {
+  const title = `A friendly reminder from your Patalign ${guideWord("consultant")}`;
   if (audience === "vendor") {
     return {
-      title: `A friendly reminder from your Patalign ${guideWord("consultant")}`,
+      title,
       body: `${fromLabel} sent a nudge: when you have a moment, please finish your product self-assessment so your alignment stays current.`,
       ctaLabel: "Open your product assessment",
       ctaHref: "/vendor/product-assessment",
     };
   }
+  const complete = progress !== null && progress.totalModules > 0 && progress.completedModules >= progress.totalModules;
+  if (complete) {
+    // R60 G3: a complete firm gets the refresh nudge, never a completion nudge.
+    return {
+      title,
+      body: `${fromLabel} sent a nudge: all ${progress.totalModules} of your alignment modules are in. When you have a moment, please refresh your alignment assessment so your briefing and benchmark position stay current.`,
+      ctaLabel: "Refresh your alignment assessment",
+      ctaHref: "/firm/alignment-assessment",
+    };
+  }
+  const remaining = progress ? progress.totalModules - progress.completedModules : null;
   return {
-    title: `A friendly reminder from your Patalign ${guideWord("consultant")}`,
-    body: `${fromLabel} sent a nudge: when you have a moment, please finish your alignment assessment modules so your briefing stays current.`,
+    title,
+    body:
+      remaining !== null && remaining > 0
+        ? `${fromLabel} sent a nudge: ${remaining} of your ${progress!.totalModules} alignment modules ${remaining === 1 ? "is" : "are"} still open. When you have a moment, please finish your alignment assessment modules so your briefing stays current.`
+        : `${fromLabel} sent a nudge: when you have a moment, please finish your alignment assessment modules so your briefing stays current.`,
     ctaLabel: "Open your alignment assessment",
     ctaHref: "/firm/alignment-assessment",
   };

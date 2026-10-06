@@ -26,12 +26,16 @@ function makeClient(
   configs: Record<string, Partial<{ censusIntervalMonths: number }>> = {}
 ): FreshnessBoardClient {
   return {
-    firmMaturitySnapshot: {
-      groupBy: async ({ where }) =>
-        where.companyId.in.map((companyId) => ({
-          companyId,
-          _max: { computedAt: snaps[companyId] ?? null },
-        })),
+    // pattern box A (R60 G2): the board reads the ONE firm-freshness reader — the
+    // newest FINAL module submission per firm — so the fake serves submissions.
+    surveySubmission: {
+      findMany: async ({ where }) => {
+        const ids = ((where as { companyId: { in: string[] } }).companyId.in);
+        return ids
+          .filter((companyId) => snaps[companyId])
+          .map((companyId) => ({ companyId, createdAt: snaps[companyId] as Date }))
+          .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      },
     },
     cadenceConfig: {
       findMany: async ({ where }) =>
@@ -159,6 +163,8 @@ describe("anti-A3 — board reads the canonical freshness + cadence libs", () =>
   it("lib/consultantFreshness.ts imports both shared readers, no local re-derivation", () => {
     const text = readFileSync(path.join(ROOT, "lib/consultantFreshness.ts"), "utf8");
     expect(text).toMatch(/from "@\/lib\/freshness"/);
+    expect(text).toMatch(/from "@\/lib\/firmFreshness"/); // R60 G2: the one firm reader
+    expect(text).not.toMatch(/firmMaturitySnapshot\.(groupBy|findFirst|findMany)/);
     expect(text).toMatch(/from "@\/lib\/cadence"/);
     // No hardcoded freshness day thresholds re-implemented here.
     expect(text).not.toMatch(/\b365\b/);
