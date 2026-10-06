@@ -63,8 +63,8 @@ describe("B3 — every trust surface is re-laid flag-on and unchanged flag-off",
 
   it("/support: contact block first with the address the product already configures; no local-review wording", () => {
     const source = read(PAGES.support);
-    expect(source).toContain('const SUPPORT_EMAIL = "support@patalign.com";');
-    expect(read("app/components/pat/PatTopBar.tsx")).toContain("support@patalign.com"); // the pre-existing configured address
+    expect(source).toContain('const SUPPORT_EMAIL = "cam@patalignhq.com";');
+    expect(read("app/components/pat/PatTopBar.tsx")).toContain("cam@patalignhq.com"); // the pre-existing configured address
     expect(source).toMatch(/lead=\{\s*<section[\s\S]*?data-testid="support-contact"/);
     const copy = JSON.stringify(getTrustSurface("support"));
     expect(copy.toLowerCase()).not.toContain("local review");

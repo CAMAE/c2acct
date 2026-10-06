@@ -138,7 +138,7 @@ export const TRUST_SURFACES = {
       {
         title: "Current stage",
         body:
-          "PAT runs on verified releases — every release is checked against its source — with provider-backed billing and role-specific access.",
+          "PAT runs on verified releases — every release is checked against its source — with role-specific access.",
       },
       {
         title: "No unsupported claims",

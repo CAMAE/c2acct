@@ -1,4 +1,5 @@
 import PercentileBandRow from "@/app/components/charts/PercentileBandRow";
+import { quartileWord } from "@/lib/lexicon";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
 import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
 import type { VendorCategoryPosition } from "@/lib/eliteInsightsV2";
@@ -29,7 +30,7 @@ export default function VendorCategoryPositionCard({
               </span>
             ) : (
               <span className="rounded-full bg-[rgba(6,54,116,0.06)] px-2.5 py-1 text-xs font-semibold text-[var(--shell-ink)]">
-                {ordinal(cat.rankFromTop)} of {cat.n} · Q{cat.quartile}
+                {ordinal(cat.rankFromTop)} of {cat.n} · {quartileWord(cat.quartile as 1 | 2 | 3 | 4)}
               </span>
             )}
           </div>

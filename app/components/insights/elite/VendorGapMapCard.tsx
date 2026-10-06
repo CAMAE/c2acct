@@ -176,7 +176,7 @@ export default function VendorGapMapCard({ data }: { data: VendorGapMap }) {
                               <span
                                 className={`text-xs font-semibold tabular-nums ${delta > 0 ? "text-[var(--brand-orange)]" : "text-[var(--shell-positive)]"}`}
                               >
-                                {delta > 0 ? `firms −${delta}` : delta < 0 ? `firms +${-delta}` : "match"}
+                                {delta > 0 ? `firms ${delta} lower` : delta < 0 ? `firms ${-delta} higher` : "match"}
                               </span>
                             )}
                           </div>

@@ -60,12 +60,16 @@ function ChartSilhouette({ shape }: { shape: "bars" | "line" | "distribution" })
   );
 }
 
+/** pattern box B2 (R61, V6): the card says "Live with Elite membership" once; the button says what it does. */
+export const LOCKED_ELITE_LINE = "Live with Elite membership";
+export const LOCKED_ELITE_BUTTON = "Upgrade to Elite";
+
 export default function LockedElitePreview({
   title,
   description,
   shape = "bars",
   upgradeHref,
-  ctaLabel = "Live with Elite membership",
+  ctaLabel = LOCKED_ELITE_LINE,
 }: LockedElitePreviewProps) {
   return (
     <section className="pat-card p-6" data-testid="locked-elite-preview">
@@ -77,7 +81,7 @@ export default function LockedElitePreview({
       </div>
       <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">{description}</p>
       <p className="mt-1 text-xs leading-5 text-[var(--shell-muted)]">
-        Built on firm-reviewed evidence, not self-report — Elite membership brings it live.
+        Built on firm-reviewed evidence, not self-report.
       </p>
 
       <div className="relative mt-4 overflow-hidden rounded-[14px] border border-[var(--shell-border)] bg-[var(--shell-panel)]">
@@ -96,7 +100,7 @@ export default function LockedElitePreview({
         href={upgradeHref}
         className="pat-button-primary mt-4 inline-flex items-center justify-center px-4 py-2 text-sm font-semibold"
       >
-        {ctaLabel}
+        {LOCKED_ELITE_BUTTON}
       </Link>
     </section>
   );

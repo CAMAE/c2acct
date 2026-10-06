@@ -125,7 +125,7 @@ describe("P1 and P2 — sign-in copy in the reader's voice", () => {
       expect(m.helpTabsLine).toContain("{tabs}");
       expect(m.helpSupportLine.length).toBeGreaterThan(0);
       expect(m.helpPasswordLine.length).toBeGreaterThan(0);
-      expect(m.noSurface).toContain("support@patalign.com");
+      expect(m.noSurface).toContain("cam@patalignhq.com"); // pattern box B2 (P7): the monitored address
     }
   });
 

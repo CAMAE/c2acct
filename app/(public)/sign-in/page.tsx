@@ -321,7 +321,7 @@ function MeetPatInline({
   );
 }
 
-const SUPPORT_EMAIL = "support@patalign.com";
+const SUPPORT_EMAIL = "cam@patalignhq.com";
 
 function HelpInline({
   messages,

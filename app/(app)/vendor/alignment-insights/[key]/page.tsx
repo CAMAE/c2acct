@@ -172,8 +172,8 @@ export default async function VendorAlignmentInsightDetailPage({ params }: { par
   return (
     <InsightDetailShell
       audience="vendor"
-      eyebrow="Vendor alignment insight"
-      title={report.title}
+      eyebrow={report.locked && VENDOR_ELITE_V2_META[report.key as keyof typeof VENDOR_ELITE_V2_META] ? `Vendor Elite · ${VENDOR_ELITE_V2_META[report.key as keyof typeof VENDOR_ELITE_V2_META].title}` : "Vendor alignment insight"}
+      title={(report.locked && VENDOR_ELITE_V2_META[report.key as keyof typeof VENDOR_ELITE_V2_META]?.title) || report.title}
       summary={report.locked ? (content?.lockedState?.summary ?? report.currentStateSummary) : report.currentStateSummary}
       surfaceContent={surfaceContent}
       combinedEvidenceText={combinedEvidenceText}

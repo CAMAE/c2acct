@@ -1,6 +1,6 @@
 import type { MembershipPlan, MembershipStatus } from "@prisma/client";
 import { getLocaleMessages } from "@/lib/locale";
-import { guideWord } from "@/lib/roleWords";
+import { capabilitiesFor, capabilityBullets, type CapabilityAudience } from "@/lib/capabilities";
 import { MEMBERSHIP_PLAN, toDbMembershipPlan, type ResolvedMembershipPlan } from "@/lib/membership";
 import type { MembershipAudience } from "@/lib/membershipContext";
 
@@ -207,52 +207,26 @@ function normalizeMembershipTabKey(
   return getDefaultMembershipTab(currentPlan);
 }
 
-// membership-enterprise box (2026-09-30), change 2: "What each membership includes". Every
-// phrase names a surface that exists in the app today (workspace card copy, veil copy, the
-// benchmark artifact, the Elite insight cards); a check is included, a dash is not. Nothing
-// is "coming soon". Row labels and cell phrases are the en locale bundle (lib/locale.ts).
-const VENDOR_ROWS = MEMBERSHIP_COPY.rows.vendor;
-const FIRM_ROWS = MEMBERSHIP_COPY.rows.firm;
-const CELL = MEMBERSHIP_COPY.cells;
+// pattern box B2 (R61, R-Q): the comparison rows and the tier bullets both come from
+// lib/capabilities.ts — one row per surface, with its route — so the two surfaces can
+// never promise different things. Row labels and cell phrases stay in the locale bundle.
+function comparisonRowsFor(audience: CapabilityAudience): MembershipComparisonRow[] {
+  return capabilitiesFor(audience).map((row) => ({
+    ...(row.category ? { category: row.category } : {}),
+    feature: row.label,
+    ...(row.tiers.free !== undefined ? { freeValue: row.tiers.free } : {}),
+    proValue: row.tiers.pro,
+    eliteValue: row.tiers.elite,
+    ...(row.tiers.enterprise !== undefined ? { enterpriseValue: row.tiers.enterprise } : {}),
+  }));
+}
+const VENDOR_COMPARISON_ROWS: MembershipComparisonRow[] = comparisonRowsFor("vendor");
+const FIRM_COMPARISON_ROWS: MembershipComparisonRow[] = comparisonRowsFor("firm");
+const INDIVIDUAL_COMPARISON_ROWS: MembershipComparisonRow[] = comparisonRowsFor("individual");
 
-const VENDOR_COMPARISON_ROWS: MembershipComparisonRow[] = [
-  { feature: VENDOR_ROWS.productAssessment, proValue: true, eliteValue: true, enterpriseValue: true },
-  { feature: VENDOR_ROWS.firmReviews, proValue: true, eliteValue: true, enterpriseValue: true },
-  { feature: VENDOR_ROWS.alignmentInsight, proValue: true, eliteValue: true, enterpriseValue: true },
-  // Product Fit Card: Pro sees the real surface behind the lock veil (LockedSurfaceVeil).
-  { feature: VENDOR_ROWS.productFit, proValue: CELL.lockedPreview, eliteValue: true, enterpriseValue: true },
-  // Elite insight cards (category position, demand signals): Pro sees the locked preview.
-  { feature: VENDOR_ROWS.benchmarkDemand, proValue: CELL.lockedPreview, eliteValue: true, enterpriseValue: true },
-  // R7: "BattleCard" reads "Product Fit Card" everywhere; the per-firm brief sits behind the veil for Pro.
-  { feature: VENDOR_ROWS.productFitCardBrief, proValue: CELL.lockedPreview, eliteValue: true, enterpriseValue: true },
-  { feature: VENDOR_ROWS.productsCovered, proValue: CELL.declaredProducts, eliteValue: CELL.declaredProducts, enterpriseValue: CELL.allProductLines },
-  { feature: VENDOR_ROWS.channelView, proValue: false, eliteValue: false, enterpriseValue: true },
-  { feature: VENDOR_ROWS.guideBriefing, proValue: false, eliteValue: false, enterpriseValue: true },
-  // Elite reveals the Secret Firm names; the evidence never leaves your own ecosystem.
-  { feature: VENDOR_ROWS.firmEvidence, proValue: false, eliteValue: CELL.yourEcosystemOnly, enterpriseValue: CELL.yourEcosystemOnly },
-];
-
-const FIRM_COMPARISON_ROWS: MembershipComparisonRow[] = [
-  { feature: FIRM_ROWS.alignmentAssessment, proValue: true, eliteValue: true },
-  { feature: FIRM_ROWS.insightsHub, proValue: true, eliteValue: true },
-  { feature: FIRM_ROWS.productAssessments, proValue: true, eliteValue: true },
-  // R24 name. R1: Pro plays the board with candidate product names hidden; Elite reveals them.
-  { feature: FIRM_ROWS.sandbox, proValue: CELL.candidateNamesHidden, eliteValue: true },
-  // /firm/benchmark: Pro reads the cohort bands; the exact rank is the Elite wall inside the artifact.
-  { feature: FIRM_ROWS.peerBenchmark, proValue: CELL.cohortBands, eliteValue: CELL.exactPosition },
-  // Elite insight cards (peer position, gap plan, trajectory): Pro sees the locked preview.
-  { feature: FIRM_ROWS.eliteInsights, proValue: CELL.lockedPreview, eliteValue: true },
-];
-
-const INDIVIDUAL_COMPARISON_ROWS: MembershipComparisonRow[] = [
-  { category: "Core signal", feature: "Personal alignment assessment", freeValue: true, proValue: true, eliteValue: true },
-  { category: "Core signal", feature: "Insight depth", freeValue: "Basic", proValue: "Full Pro Insights", eliteValue: "Priority queue" },
-  { category: "Briefings", feature: "Recommendation engine", freeValue: false, proValue: true, eliteValue: true },
-  { category: "Briefings", feature: "Quarterly progress tracking", freeValue: false, proValue: true, eliteValue: true },
-  { category: "Briefings", feature: "Personal scorecard archive", freeValue: false, proValue: false, eliteValue: true },
-  { category: "Support", feature: "Email support", freeValue: true, proValue: true, eliteValue: true },
-  { category: "Support", feature: "Coaching session credits", freeValue: false, proValue: false, eliteValue: true },
-];
+const FREE_TAGLINE = { vendor: "Get on the map", firm: "Map your operating stack", individual: "See where you stand" } as const;
+const PRO_TAGLINE = { vendor: "Run alignment cycles with your firms", firm: "Make procurement decisions with evidence", individual: "Operate with clarity" } as const;
+const ELITE_TAGLINE = { vendor: "Operate alignment at scale", firm: "Govern vendor alignment continuously", individual: "Compound your edge" } as const;
 
 const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceContent> = {
   vendor: {
@@ -311,35 +285,9 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
       ],
     },
     tierSeed: {
-      FREE: {
-        tagline: "Get on the map",
-        features: [
-          "Vendor self-assessment",
-          "1 product slot",
-          "Public catalog presence",
-          "Email support",
-        ],
-      },
-      PRO: {
-        tagline: "Run alignment cycles with your firms",
-        features: [
-          "Full vendor brief access",
-          "5 product slots",
-          "Firm review aggregation",
-          "Hot-divergence alerts",
-          "Action roadmap",
-        ],
-      },
-      ELITE: {
-        tagline: "Operate alignment at scale",
-        features: [
-          "Unlimited products",
-          "Multi-ecosystem participation",
-          "Priority firm reviews",
-          "Custom briefing schedule",
-          "Dedicated success manager",
-        ],
-      },
+      FREE: { tagline: FREE_TAGLINE.vendor, features: capabilityBullets("vendor", "free") },
+      PRO: { tagline: PRO_TAGLINE.vendor, features: capabilityBullets("vendor", "pro") },
+      ELITE: { tagline: ELITE_TAGLINE.vendor, features: capabilityBullets("vendor", "elite") },
     },
     comparisonRows: VENDOR_COMPARISON_ROWS,
   },
@@ -399,35 +347,9 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
       ],
     },
     tierSeed: {
-      FREE: {
-        tagline: "Map your operating stack",
-        features: [
-          "Firm alignment assessment",
-          "Review up to 1 vendor",
-          "Basic firm brief",
-          "Email support",
-        ],
-      },
-      PRO: {
-        tagline: "Make procurement decisions with evidence",
-        features: [
-          "Review up to 10 vendors",
-          "Full firm brief",
-          "Six-quarter roadmap",
-          "Per-firm coverage matrix",
-          "Module deep-dives",
-        ],
-      },
-      ELITE: {
-        tagline: "Govern vendor alignment continuously",
-        features: [
-          "Unlimited vendor reviews",
-          `${guideWord()} collaboration`,
-          "Custom assessment templates",
-          "Audit-grade history",
-          "Dedicated success manager",
-        ],
-      },
+      FREE: { tagline: FREE_TAGLINE.firm, features: capabilityBullets("firm", "free") },
+      PRO: { tagline: PRO_TAGLINE.firm, features: capabilityBullets("firm", "pro") },
+      ELITE: { tagline: ELITE_TAGLINE.firm, features: capabilityBullets("firm", "elite") },
     },
     comparisonRows: FIRM_COMPARISON_ROWS,
   },
@@ -487,30 +409,9 @@ const MEMBERSHIP_PAGE_CONTENT: Record<MembershipAudience, MembershipAudienceCont
       ],
     },
     tierSeed: {
-      FREE: {
-        tagline: "See where you stand",
-        features: [
-          "Personal alignment assessment",
-          "Basic insights",
-          "Email support",
-        ],
-      },
-      PRO: {
-        tagline: "Operate with clarity",
-        features: [
-          "Full Pro Insights catalog",
-          "Custom recommendation engine",
-          "Quarterly progress tracking",
-        ],
-      },
-      ELITE: {
-        tagline: "Compound your edge",
-        features: [
-          "Coaching session credits",
-          "Priority insight queue",
-          "Personal scorecard archive",
-        ],
-      },
+      FREE: { tagline: FREE_TAGLINE.individual, features: capabilityBullets("individual", "free") },
+      PRO: { tagline: PRO_TAGLINE.individual, features: capabilityBullets("individual", "pro") },
+      ELITE: { tagline: ELITE_TAGLINE.individual, features: capabilityBullets("individual", "elite") },
     },
     comparisonRows: INDIVIDUAL_COMPARISON_ROWS,
   },

@@ -461,7 +461,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
       helpSupportLine: "Need help with your account? Write to",
       helpPasswordLine: "Passwords are set on your first sign-in. PAT asks you to choose one before your workspace opens.",
       noSurface:
-        "This account is signed in, but no PAT workspace is assigned to it yet. Write to support@patalign.com to have one assigned.",
+        "This account is signed in, but no PAT workspace is assigned to it yet. Write to cam@patalignhq.com to have one assigned.",
     },
     meetPat: {
       eyebrow: "The analytical core of PAT",
@@ -828,7 +828,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
       helpSupportLine: "¿Necesitas ayuda con tu cuenta? Escribe a",
       helpPasswordLine: "Las contraseñas se establecen en el primer acceso. PAT te pedirá elegir una antes de abrir tu espacio de trabajo.",
       noSurface:
-        "Esta cuenta ha iniciado sesión, pero aún no tiene un espacio de trabajo PAT asignado. Escribe a support@patalign.com para que te asignen uno.",
+        "Esta cuenta ha iniciado sesión, pero aún no tiene un espacio de trabajo PAT asignado. Escribe a cam@patalignhq.com para que te asignen uno.",
     },
     meetPat: {
       eyebrow: "Conoce PAT",
@@ -1196,7 +1196,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
       helpSupportLine: "Besoin d’aide pour votre compte ? Écrivez à",
       helpPasswordLine: "Les mots de passe sont définis à la première connexion. PAT vous demandera d’en choisir un avant d’ouvrir votre espace de travail.",
       noSurface:
-        "Ce compte est connecté, mais aucun espace de travail PAT ne lui est encore attribué. Écrivez à support@patalign.com pour en obtenir un.",
+        "Ce compte est connecté, mais aucun espace de travail PAT ne lui est encore attribué. Écrivez à cam@patalignhq.com pour en obtenir un.",
     },
     meetPat: {
       eyebrow: "Découvrir PAT",

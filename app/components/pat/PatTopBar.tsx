@@ -228,8 +228,8 @@ export default function PatTopBar() {
       {error ? (
         <div className="text-sm text-[var(--shell-negative,#b00020)]">
           {error} You can always reach a human at{" "}
-          <a className="pat-link" href="mailto:support@patalign.com">
-            support@patalign.com
+          <a className="pat-link" href="mailto:cam@patalignhq.com">
+            cam@patalignhq.com
           </a>
           .
         </div>

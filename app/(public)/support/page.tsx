@@ -4,7 +4,7 @@ import TrustSurfaceV7 from "@/app/components/trust/TrustSurfaceV7";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 
 /** The one support address the product already configures (PatTopBar's help panel). */
-const SUPPORT_EMAIL = "support@patalign.com";
+const SUPPORT_EMAIL = "cam@patalignhq.com";
 
 
 export const metadata = {
