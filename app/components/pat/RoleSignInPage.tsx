@@ -49,7 +49,7 @@ export default function RoleSignInPage({ role }: RoleSignInPageProps) {
           <div className="mt-5 rounded-[18px] border border-sky-200 bg-sky-50 px-4 py-4 text-sm leading-6 text-sky-950">
             <div className="font-semibold">Development-only local review auth is enabled.</div>
             <div className="mt-2">
-              This route can create a real loopback-only Auth.js session for deterministic {config.label.toLowerCase()} review without GitHub. It is not available on public production origins.
+              This page can create a real loopback-only Auth.js session for deterministic {config.label.toLowerCase()} review without GitHub. It is not available on public production origins.
             </div>
             {localReviewUser ? (
               <>
@@ -89,7 +89,7 @@ export default function RoleSignInPage({ role }: RoleSignInPageProps) {
         <div className="mt-6 rounded-[18px] border border-[var(--shell-border)] bg-white/80 p-5 text-sm leading-6 text-[var(--shell-muted)]">
           <div className="font-semibold text-[var(--shell-ink)]">Provisioned pilot account</div>
           <p className="mt-2">
-            Use the operator-created username and temporary password for the {config.label.toLowerCase()} pilot path. If the account requires first-login rotation, PAT will send you to the password update screen before protected routes open.
+            Use the operator-created username and temporary password for the {config.label.toLowerCase()} pilot path. If the account requires first-login rotation, PAT will send you to the password update screen before the protected pages open.
           </p>
           <form className="mt-4 grid gap-3 md:max-w-md" action={signInWithPilotCredentials}>
             <input type="hidden" name="redirectTo" value={roleRedirect} />

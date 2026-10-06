@@ -469,7 +469,7 @@ export default async function SignInHubPage({
         ) : null}
         {consultantViewDisabled ? (
           <div className="mt-5 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-6 text-amber-900">
-            {guideWord()} access is disabled in this runtime until the company-scoped {guideWord("consultant")} plane is explicitly re-enabled for proof. The vendor entry remains the default sign-in path here.
+            {guideWord()} access is disabled on this server until the company-scoped {guideWord("consultant")} plane is explicitly re-enabled for proof. The vendor entry remains the default sign-in path here.
           </div>
         ) : null}
         {pilotDisabledMessage ? (

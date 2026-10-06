@@ -34,7 +34,7 @@ export default async function ConsultantLayout({
             {guideWord()} access required
           </h1>
           <p className="mt-4 text-sm leading-7 text-[var(--shell-muted)]">
-            This page is reserved for PAT user accounts with an explicit {guideWord("consultant")} profile and firm-company briefing assignments. If this is a fresh local checkout, apply the latest Prisma migrations first. Otherwise, ask a PAT operator to add consultant access and assign the allowed firm scope.
+            This page is reserved for PAT user accounts with an explicit {guideWord("consultant")} profile and firm-company briefing assignments. If this is a fresh local checkout, apply the latest database migrations first. Otherwise, ask a PAT operator to add {guideWord("consultant")} access and assign the allowed firm scope.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link className="pat-button-primary" href="/sign-in?view=consultant">

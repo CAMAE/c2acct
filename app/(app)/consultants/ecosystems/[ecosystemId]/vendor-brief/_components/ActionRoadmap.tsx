@@ -195,7 +195,7 @@ export default function ActionRoadmap({ data }: { data: VendorBriefData }) {
         className="mt-10 border-t border-[var(--shell-border)] pt-5 text-xs leading-6 text-[var(--shell-muted)]"
         data-testid="action-roadmap-methodology-footer"
       >
-        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {totalActions} commitment{totalActions === 1 ? "" : "s"} aggregated across Q1–Q3 · signal strength reflects firm-count consensus · scoring methodology: see Section 2 above.
+        Based on responses from {data.firmCount} {firmLabel} in your network · last refreshed {refreshedDate} · {totalActions} commitment{totalActions === 1 ? "" : "s"} aggregated across the three windows · signal strength reflects firm-count consensus · scoring methodology: see Section 2 above.
       </div>
 
     </section>

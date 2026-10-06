@@ -110,7 +110,7 @@ export default function EvaluationMethodology({ data }: { data: VendorBriefData 
         className="mt-10 border-t border-[var(--shell-border)] pt-5 text-xs leading-6 text-[var(--shell-muted)]"
         data-testid="evaluation-methodology-methodology-footer"
       >
-        This methodology applies to all sections in this brief · last revised on the canonical 5.7 audit baseline · based on responses from {data.firmCount} {firmLabel} in your network · feedback: file as a Day-N ticket.
+        This methodology applies to all sections in this brief · last revised on the 5.7 audit baseline · based on responses from {data.firmCount} {firmLabel} in your network · feedback: file as a Day-N ticket.
       </div>
     </section>
   );

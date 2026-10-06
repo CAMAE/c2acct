@@ -169,7 +169,7 @@ export default async function FirmAlignmentAssessmentPage() {
             {progress.completionPercent}%
           </div>
           <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-            {progress.answeredQuestions} of {progress.totalQuestions} module questions are completed across the canonical five-module model.
+            {progress.answeredQuestions} of {progress.totalQuestions} module questions are completed across the five-module model.
           </p>
         </div>
         <div className="pat-soft-panel p-5">

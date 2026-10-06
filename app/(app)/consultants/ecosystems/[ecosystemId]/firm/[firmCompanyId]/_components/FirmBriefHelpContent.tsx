@@ -17,14 +17,14 @@ export default function FirmBriefHelpContent() {
             Section-by-section
           </h3>
           <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-            <span className="font-semibold">Operating alignment</span> — canonical
+            <span className="font-semibold">Operating alignment</span> — the
             firm score plus headline and peer comparison.{" "}
             <span className="font-semibold">Five-module radar</span> — where this
             firm sits vs the peer average across the five firm modules.{" "}
             <span className="font-semibold">Stack fit</span> — product-by-product
             alignment between firm-reviewed scores and vendor self-report.{" "}
             <span className="font-semibold">6-quarter roadmap</span> — forward-
-            looking actions across Q1 through Q6.{" "}
+            looking actions across the next six quarters.{" "}
             <span className="font-semibold">Methodology</span> — data sources and
             sample sizes feeding this brief.
           </p>

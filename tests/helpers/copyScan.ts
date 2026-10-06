@@ -66,11 +66,12 @@ function readerStrings(rel: string, source: string): Array<{ line: number; text:
     out.push({ line, text });
   }
   if (rel.endsWith(".tsx")) {
-    const jsx = />([^<>{}]*[A-Za-z][^<>{}]*)</g;
+    // JSX text, with {expressions} blanked so a sentence that mixes words and values is still scanned
+    const jsx = />((?:[^<>{}]|\{[^{}]*\})*[A-Za-z](?:[^<>{}]|\{[^{}]*\})*)</g;
     while ((match = jsx.exec(source))) {
-      const text = match[1].trim();
+      const text = match[1].replace(/\{[^{}]*\}/g, " ").trim();
       if (!text || !/\s/.test(text)) continue;
-      if (/[;{}=]|\(\)|\)\)/.test(text)) continue; // code caught between tags, not copy
+      if (/[;=]|\(\)|\)\)|=>/.test(text)) continue; // code caught between tags, not copy
       const line = source.slice(0, match.index).split("\n").length;
       out.push({ line, text });
     }
