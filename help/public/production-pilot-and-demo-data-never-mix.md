@@ -47,7 +47,7 @@ For guides and ecosystem owners, who look at alignment structure across a manage
 
 ## Exploring safely: what demo data is for
 
-The strict wall is also what makes exploration comfortable. Because demo and synthetic records can never leak into anything real, a prospective member can look around PAT's surfaces — see how five-pillar results present, how bands frame scores, how comparison views are laid out — without worrying that exploratory clicks are contaminating something. Demo data is a sandbox with a locked gate, and the lock faces both ways: nothing real gets in, nothing fake gets out.
+The strict wall is also what makes exploration comfortable. Because demo and synthetic records can never leak into anything real, a prospective member can look around PAT's surfaces — see how five-module results present, how bands frame scores, how comparison views are laid out — without worrying that exploratory clicks are contaminating something. Demo data is a sandbox with a locked gate, and the lock faces both ways: nothing real gets in, nothing fake gets out.
 
 The same comfort applies to pilots. A participant trialing PAT can engage fully, knowing that trial-stage activity stays in its lane. When an engagement becomes fully live, production data starts fresh as production data — real answers, given as real answers, feeding real results.
 

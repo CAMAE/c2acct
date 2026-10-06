@@ -7,7 +7,7 @@ vertical: global
 words: 3000
 ---
 
-PAT presents assessment results through five named bands — Early, Developing, Building, Established, Leading — and those names, not raw numbers, are what lead every result you see. The bands are a shared vocabulary for where a firm stands in each of the five pillars it is assessed on, ordered from just-getting-started to furthest along. Movement between bands is meaningful precisely because PAT's scoring is deterministic: a band changes only when the underlying answers change, which is to say, when something in the firm has actually changed.
+PAT presents assessment results through five named bands — Early, Developing, Building, Established, Leading — and those names, not raw numbers, are what lead every result you see. The bands are a shared vocabulary for where a firm stands in each of the five modules it is assessed on, ordered from just-getting-started to furthest along. Movement between bands is meaningful precisely because PAT's scoring is deterministic: a band changes only when the underlying answers change, which is to say, when something in the firm has actually changed.
 
 ## Why results lead with words instead of numbers
 
@@ -25,11 +25,11 @@ Early is the starting stretch — an area where the practices PAT asks about are
 
 Notice what the vocabulary refuses to do. There is no "failing," no "poor," no letter grades. Early is not an insult; it is a location. Every firm's operations started somewhere, and an honest instrument needs a way to say "this area is at the beginning" without saying "this firm should be embarrassed." The band names are deliberately the language of a path — the same language you would use about anything a firm builds over time.
 
-## One vocabulary across five pillars
+## One vocabulary across five modules
 
-A firm's PAT assessment produces a result in each of five pillars — Operations, Automation, Integration, Governance, and Strategy — and the same five bands describe all of them. That shared vocabulary is what makes a firm's results readable as a profile rather than five disconnected verdicts.
+A firm's PAT assessment produces a result in each of five modules — Operations, Automation, Integration, Governance, and Strategy — and the same five bands describe all of them. That shared vocabulary is what makes a firm's results readable as a profile rather than five disconnected verdicts.
 
-It means a firm can say something compact and genuinely informative about itself: Established in Operations, Building in Governance, Early in Automation. Each word is doing the same kind of work in each pillar, so the profile reads as a shape — here is where we are settled, here is where we are mid-journey, here is where we have barely begun. The comparability is not an accident of presentation; PAT's assessment is designed so the five pillar scores can stand next to each other, and the bands are the top layer of that design. One lexicon, five domains, one legible picture of a firm.
+It means a firm can say something compact and genuinely informative about itself: Established in Operations, Building in Governance, Early in Automation. Each word is doing the same kind of work in each module, so the profile reads as a shape — here is where we are settled, here is where we are mid-journey, here is where we have barely begun. The comparability is not an accident of presentation; PAT's assessment is designed so the five module scores can stand next to each other, and the bands are the top layer of that design. One lexicon, five domains, one legible picture of a firm.
 
 Very few firms sit in the same band everywhere, and the profile is usually more interesting than any single result in it. An uneven shape is not a flaw in the firm — it is the finding.
 
@@ -65,7 +65,7 @@ This article stays at the level of what movement means. The fuller treatment of 
 
 Bands do not wait for a grand unveiling at the end of a hundred questions. PAT's assessment is a paged flow with autosave: a firm can stop and resume without losing its place, progress is tracked per module, and the five modules can be completed in any order over time. Results update as modules complete — so a firm that finishes its Integration module has an Integration reading, in band form, without the other four modules being done first.
 
-This matters for how a firm experiences the vocabulary. The bands begin doing their orienting work early, module by module, rather than arriving all at once. And because the assessment tolerates interruption by design, the pace belongs to the firm: a practice can complete a module when it has attention for one, watch that pillar's band appear, and return for the next module when the time is right. The profile assembles itself as the firm works, one pillar's placement at a time.
+This matters for how a firm experiences the vocabulary. The bands begin doing their orienting work early, module by module, rather than arriving all at once. And because the assessment tolerates interruption by design, the pace belongs to the firm: a practice can complete a module when it has attention for one, watch that module's band appear, and return for the next module when the time is right. The profile assembles itself as the firm works, one module's placement at a time.
 
 ## The rhythm around reading again
 
@@ -83,13 +83,13 @@ The bands are also not judgments delivered by an algorithm with opinions. They a
 
 If any single design decision belongs to this article, it is the ordering rule itself: bands lead, numbers support. It is easy to mistake for a cosmetic choice; it is actually a position about honesty in measurement.
 
-A single-point score invites false precision. Present a firm with a 64 and a 67 in two pillars and the three-point gap will read as a finding — a reason to celebrate one area over the other — when the instrument may not support any such conclusion. The precision of the arithmetic is real; the precision of the meaning is not. A structured assessment can honestly say "this area is mid-journey and that one is settled." It cannot honestly rank two mid-journey areas by a few points of texture, and a presentation that leads with raw numbers quietly claims it can. Bands communicate what the measurement can honestly support: five named stages, each carrying an interpretation on its face, with the number available underneath for anyone who wants the grain. And the payoff compounds over time, because movement between bands — not wiggle between nearby numbers — is the reading that matters. A vocabulary sized to the instrument's honest resolution makes real movement unmistakable and noise invisible.
+A single-point score invites false precision. Present a firm with a 64 and a 67 in two modules and the three-point gap will read as a finding — a reason to celebrate one area over the other — when the instrument may not support any such conclusion. The precision of the arithmetic is real; the precision of the meaning is not. A structured assessment can honestly say "this area is mid-journey and that one is settled." It cannot honestly rank two mid-journey areas by a few points of texture, and a presentation that leads with raw numbers quietly claims it can. Bands communicate what the measurement can honestly support: five named stages, each carrying an interpretation on its face, with the number available underneath for anyone who wants the grain. And the payoff compounds over time, because movement between bands — not wiggle between nearby numbers — is the reading that matters. A vocabulary sized to the instrument's honest resolution makes real movement unmistakable and noise invisible.
 
 The second decision completes the first: PAT treats every result as a point-in-time reading, never a permanent label. Operations change, so a permanent label would be false; re-assessment on a working rhythm is the honest design. The two choices are one thought in two halves — bands give results a vocabulary of stages, and the point-in-time rule guarantees that stages are things a firm passes through rather than names it gets stuck with. A lexicon of stages read on a rhythm: that is the whole presentation philosophy of PAT's results.
 
 ## A closer look: one scenario, start to finish
 
-Consider an invented firm meeting the bands for the first time. It starts its assessment with the Integration module — the modules can be completed in any order — works through the pages over two sittings with autosave holding its place, and finishes. An Integration reading appears at once, led by its band, with the score underneath in support. One pillar of the profile exists; nothing waited on the other four.
+Consider an invented firm meeting the bands for the first time. It starts its assessment with the Integration module — the modules can be completed in any order — works through the pages over two sittings with autosave holding its place, and finishes. An Integration reading appears at once, led by its band, with the score underneath in support. One module of the profile exists; nothing waited on the other four.
 
 Over the following weeks the firm completes the rest as attention allows, and the profile assembles a placement at a time. Suppose it settles as: Established in Operations, Building in Integration, Developing in Governance and Strategy, Early in Automation. Nobody at the firm is surprised by any single word, but the shape is new information — nobody had ever seen the settled areas and the barely-begun ones stated in one comparable vocabulary before. The uneven profile is not a flaw; it is the finding, and it tells the firm's leadership where attention should go.
 
@@ -101,7 +101,7 @@ The firm spends two quarters working on automation, then re-assesses on its usua
 
 "Band placements are decided, or adjusted, by an AI." No model sits anywhere in PAT's scoring path. A band is the top layer of deterministic arithmetic on a firm's own answers — the same answers always produce the same score and therefore the same band.
 
-"Early means the firm is bad at what it does." A band describes one pillar area of one firm's operations at one reading — never the firm as a whole. A practice can serve clients superbly and still be Early in Automation; that is exactly the kind of honest placement the vocabulary exists to state without insult.
+"Early means the firm is bad at what it does." A band describes one module area of one firm's operations at one reading — never the firm as a whole. A practice can serve clients superbly and still be Early in Automation; that is exactly the kind of honest placement the vocabulary exists to state without insult.
 
 "A three-point score change is a finding the band failed to capture." The reverse is closer to the truth. Small numeric movement within a band is texture the instrument cannot honestly interpret; the band holds still on purpose. When movement crosses into a new band, something real changed.
 
@@ -109,7 +109,7 @@ The firm spends two quarters working on automation, then re-assesses on its usua
 
 ## Questions this article answers
 
-What are PAT's five bands? Early, Developing, Building, Established, Leading — in that order, from just-getting-started to furthest along, used identically across all five pillars.
+What are PAT's five bands? Early, Developing, Building, Established, Leading — in that order, from just-getting-started to furthest along, used identically across all five modules.
 
 Why do results lead with band names instead of scores? Because a raw number invites false precision and carries no meaning on its face, while a band arrives with an interpretation attached. The 0–100 score remains underneath in a supporting role.
 
@@ -119,10 +119,10 @@ Can a band move down? Yes, and that is information too: something that used to b
 
 Is a band a permanent label? No. Every band is a reading at a point in time, and firms re-assess as operations change. "Early in Automation" is where that area stood at the last reading, nothing more.
 
-Do all five pillars use the same bands? Yes. One lexicon spans Operations, Automation, Integration, Governance, and Strategy, which is what lets five results read as a single profile.
+Do all five modules use the same bands? Yes. One lexicon spans Operations, Automation, Integration, Governance, and Strategy, which is what lets five results read as a single profile.
 
-When do bands appear during an assessment? As each module completes. Results update module by module, so a firm sees its first pillar's band without waiting on the other four.
+When do bands appear during an assessment? As each module completes. Results update module by module, so a firm sees its first module's band without waiting on the other four.
 
 Is Early a failing grade? No. The vocabulary deliberately contains no failing. Early says an area is at the beginning of the path — a location every firm's operations once occupied in every area.
 
-If the bands are the language of PAT's results, the natural next reads are how PAT scoring works — where these results come from — and the brief tour of the five pillars the bands describe.
+If the bands are the language of PAT's results, the natural next reads are how PAT scoring works — where these results come from — and the brief tour of the five modules the bands describe.

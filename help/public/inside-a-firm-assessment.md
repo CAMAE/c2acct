@@ -7,11 +7,11 @@ vertical: global
 words: 2942
 ---
 
-A PAT firm assessment is five modules of twenty questions each — one hundred questions in total — answered on a consistent numeric scale, at your own pace, one area of your practice at a time. The same twenty questions appear in every module, and that repetition is deliberate: identical wording is what makes the five resulting scores comparable. At the end, you see a score from 0 to 100 for each of PAT's five pillars, presented first as a band rather than a raw number.
+A PAT firm assessment is five modules of twenty questions each — one hundred questions in total — answered on a consistent numeric scale, at your own pace, one area of your practice at a time. The same twenty questions appear in every module, and that repetition is deliberate: identical wording is what makes the five resulting scores comparable. At the end, you see a score from 0 to 100 for each of PAT's five modules, presented first as a band rather than a raw number.
 
 ## Five modules, five areas of your practice
 
-The assessment walks through five modules, each examining a different domain of how your firm operates, and each feeding one of PAT's five pillars. Operating Model & Workflow Discipline feeds the Operations pillar. Automation & AI Readiness feeds Automation. Integration & Data Flow Maturity feeds Integration. Governance, Controls & Vendor Risk feeds Governance. Strategy, Change Readiness & Market Alignment feeds Strategy.
+The assessment walks through five modules, each examining a different domain of how your firm operates, and each feeding one of PAT's five modules. Operating Model & Workflow Discipline feeds the Operations module. Automation & AI Readiness feeds Automation. Integration & Data Flow Maturity feeds Integration. Governance, Controls & Vendor Risk feeds Governance. Strategy, Change Readiness & Market Alignment feeds Strategy.
 
 Together the five modules cover the ground a firm leader would want covered: how work actually gets done day to day, how ready the practice is to automate, how well its systems and records connect, how it governs itself and its vendor relationships, and how deliberately it faces its market. No single module tries to capture the whole firm; each takes one domain seriously, and the five together assemble the full picture.
 
@@ -19,13 +19,13 @@ Together the five modules cover the ground a firm leader would want covered: how
 
 Every module asks the same twenty questions, in identical wording, and this is by design rather than economy. When a question refers to "this area," the module you are inside supplies the meaning: in the integration module, "this area" is your integration practice; in the governance module, the very same words point at governance. The question holds still while the context moves.
 
-The payoff is comparability. Because each pillar's score is built from answers to identically worded questions, the five scores can be read against one another honestly. A firm that scores higher on Operations than on Automation is seeing a real difference in its own maturity, not an artifact of one module's questions being phrased more generously than another's. If each module had its own bespoke question set, a gap between two pillar scores could always be argued away as a difference in the questions. With a shared question set, the gap means what it appears to mean.
+The payoff is comparability. Because each module's score is built from answers to identically worded questions, the five scores can be read against one another honestly. A firm that scores higher on Operations than on Automation is seeing a real difference in its own maturity, not an artifact of one module's questions being phrased more generously than another's. If each module had its own bespoke question set, a gap between two module scores could always be argued away as a difference in the questions. With a shared question set, the gap means what it appears to mean.
 
 Answering the same questions five times can feel repetitive in the moment. That feeling is the cost of the design, and it is worth paying: the repetition is precisely what lets the five numbers at the end stand side by side.
 
 ## How a module is organized inside
 
-Each of the five modules is organized into sections, so its twenty scored questions arrive as a structured walk through that module's domain rather than an undifferentiated list. The sections give the module shape: you move through the territory of a pillar in coherent steps, which makes it easier to hold the right part of your practice in mind as you answer.
+Each of the five modules is organized into sections, so its twenty scored questions arrive as a structured walk through that module's domain rather than an undifferentiated list. The sections give the module shape: you move through the territory of a module in coherent steps, which makes it easier to hold the right part of your practice in mind as you answer.
 
 Alongside the twenty scored questions, each module carries a small set of open-ended questions. These are qualitative and carry zero score weight — their job is to capture context in the firm's own words. The numeric scale records where you place your firm; the open-ended responses record how you would describe the same territory yourself, in language no scale could supply. A firm might place itself mid-scale on questions in the integration module and then, in an open-ended response, explain the specific handoff between systems that drives that placement. The score arithmetic never touches that explanation, but the explanation is part of the assessment's value: it preserves the reasoning behind the numbers, in the voice of the people who gave them.
 
@@ -47,13 +47,13 @@ It is worth treating the hundred questions as an occasion rather than a chore. F
 
 The assessment is a paged flow with autosave, which means it bends to the shape of a working week rather than demanding one. You can stop in the middle of a module — mid-page, even — and resume later without losing anything. Progress is tracked per module, so at any moment you can see how far along each of the five modules stands, which are complete, and where you left off.
 
-The five modules can also be completed in any order, over whatever span of time suits the firm. There is no prescribed sequence: a managing partner might start with Governance because a vendor review has made it top of mind, while the operations lead takes up Operating Model & Workflow Discipline the following week. Because the same twenty questions appear in every module, no ordering advantages or disadvantages any pillar — each module is self-sufficient, carrying its own context with it.
+The five modules can also be completed in any order, over whatever span of time suits the firm. There is no prescribed sequence: a managing partner might start with Governance because a vendor review has made it top of mind, while the operations lead takes up Operating Model & Workflow Discipline the following week. Because the same twenty questions appear in every module, no ordering advantages or disadvantages any module — each module is self-sufficient, carrying its own context with it.
 
-Results update as modules complete. You do not wait for question one hundred to see anything back; each finished module feeds its pillar, so the picture assembles progressively. A firm two modules in already has two pillar scores, banded and readable, while the remaining three wait for their turn. The practical effect is that the hundred questions become approachable: not one sitting of a hundred, but five sittings of twenty, taken in the order and at the pace the firm chooses.
+Results update as modules complete. You do not wait for question one hundred to see anything back; each finished module feeds its module, so the picture assembles progressively. A firm two modules in already has two module scores, banded and readable, while the remaining three wait for their turn. The practical effect is that the hundred questions become approachable: not one sitting of a hundred, but five sittings of twenty, taken in the order and at the pace the firm chooses.
 
 ## What you see at the end
 
-When the assessment is complete, you see five pillar scores — Operations, Automation, Integration, Governance, Strategy — each on a 0-to-100 scale. Bands lead the presentation: each score arrives labeled as Early, Developing, Building, Established, or Leading, with the raw number in a supporting role. The band tells you at a glance what neighborhood a pillar is in; the number gives it precision.
+When the assessment is complete, you see five module scores — Operations, Automation, Integration, Governance, Strategy — each on a 0-to-100 scale. Bands lead the presentation: each score arrives labeled as Early, Developing, Building, Established, or Leading, with the raw number in a supporting role. The band tells you at a glance what neighborhood a module is in; the number gives it precision.
 
 Because all five scores were produced from identically worded questions on the same scale, they are genuinely comparable, and the shape they make together is often the most useful thing in the result. A firm might find itself Established in Operations but Developing in Integration — a pattern that says something specific about where attention would matter most, in a way no single overall grade could.
 
@@ -75,7 +75,7 @@ For a firm sitting the assessment, this governance is mostly invisible, and that
 
 ## What the assessment is not
 
-It is not an exam, and there is no passing mark. The five bands are a maturity vocabulary, not grades to be gamed, and a firm landing in Early or Developing on a pillar has learned something valuable, not failed something. It is not a survey of opinion, either: the questions are structured and consistently scaled precisely so the results can function as measurement rather than mood. And it is not a judgment rendered by an algorithm about your firm — the arithmetic simply adds up what you told it, and what you told it remains the substance of the result.
+It is not an exam, and there is no passing mark. The five bands are a maturity vocabulary, not grades to be gamed, and a firm landing in Early or Developing on a module has learned something valuable, not failed something. It is not a survey of opinion, either: the questions are structured and consistently scaled precisely so the results can function as measurement rather than mood. And it is not a judgment rendered by an algorithm about your firm — the arithmetic simply adds up what you told it, and what you told it remains the substance of the result.
 
 ## Why PAT works this way
 
@@ -91,11 +91,11 @@ Consider an invented firm — call it Bryant & Soto, a practice starting its fir
 
 That same week, the operations lead takes up Operating Model & Workflow Discipline. Both people notice the same twenty questions appearing in their respective modules, worded identically, with "this area" meaning governance in one sitting and day-to-day workflow in the other. In the integration module a fortnight later, the partner places the firm mid-scale on several questions and then uses an open-ended response to describe the specific handoff between two systems that drives those placements — knowing the explanation carries zero score weight but will travel with the result as context.
 
-Results assemble as modules complete: two pillars banded and readable while three still wait. When the fifth module closes, the full shape appears — say, Established in Operations, Building in Governance, Developing in Integration — with bands leading and the 0-to-100 numbers in support, and no integrity flag, because the response patterns gave the quality checks nothing to note. The pattern points attention at Integration. Two quarters later, after the firm has connected the systems that used to trade spreadsheets, Bryant & Soto re-assesses and reads the movement in the same vocabulary: Integration now Building. No single reading could have said what those two readings say together — that the work done in between registered in the measurement.
+Results assemble as modules complete: two modules banded and readable while three still wait. When the fifth module closes, the full shape appears — say, Established in Operations, Building in Governance, Developing in Integration — with bands leading and the 0-to-100 numbers in support, and no integrity flag, because the response patterns gave the quality checks nothing to note. The pattern points attention at Integration. Two quarters later, after the firm has connected the systems that used to trade spreadsheets, Bryant & Soto re-assesses and reads the movement in the same vocabulary: Integration now Building. No single reading could have said what those two readings say together — that the work done in between registered in the measurement.
 
 ## Common misconceptions
 
-One misreading is that repeating the same twenty questions across all five modules is padding or economy. The repetition is the instrument: identical wording is what makes the five pillar scores comparable, so a gap between two pillars reflects the firm, not the phrasing.
+One misreading is that repeating the same twenty questions across all five modules is padding or economy. The repetition is the instrument: identical wording is what makes the five module scores comparable, so a gap between two modules reflects the firm, not the phrasing.
 
 A second misconception is that the assessment must be completed in one sitting, or in a fixed order. It is a paged flow with autosave; progress is tracked per module, modules can be completed in any order over time, and results update as each module completes.
 
@@ -109,7 +109,7 @@ A fifth is that an integrity flag accuses a respondent of dishonesty. It does no
 
 **How long is a PAT firm assessment?** Five modules of twenty questions each — one hundred scored questions in total, answered on a consistent numeric scale, plus a small set of open-ended questions per module.
 
-**Why do the same questions appear in every module?** Because identical wording is what makes the five pillar scores comparable; the module supplies the context, so "this area" means that module's domain.
+**Why do the same questions appear in every module?** Because identical wording is what makes the five module scores comparable; the module supplies the context, so "this area" means that module's domain.
 
 **Do open-ended questions affect the score?** No. They carry zero score weight; they capture qualitative context in the firm's own words.
 
@@ -117,7 +117,7 @@ A fifth is that an integrity flag accuses a respondent of dishonesty. It does no
 
 **Do the modules have to be completed in order?** No. Modules can be completed in any order over time, and results update as each one completes.
 
-**What does a firm see when the assessment is done?** Five pillar scores on a 0-to-100 scale — Operations, Automation, Integration, Governance, Strategy — each presented band-first (Early through Leading), with signal-integrity context alongside.
+**What does a firm see when the assessment is done?** Five module scores on a 0-to-100 scale — Operations, Automation, Integration, Governance, Strategy — each presented band-first (Early through Leading), with signal-integrity context alongside.
 
 **Can the assessment be taken again?** Yes. A score is a reading at a point in time, and re-assessing as operations change — typically on a quarterly rhythm — is the intended long-term use, read as band movement.
 

@@ -25,7 +25,7 @@ There is also a benchmarking reason. PAT benchmarks are comparison context, neve
 
 ## How integrity checks work
 
-Integrity checks in PAT are response-pattern quality checks. They examine the pattern of answers a respondent gives across an assessment, looking for signatures that suggest the responses may not reflect considered judgment. Straight-lining — selecting the same point on the scale over and over — is the named example: PAT's assessments ask 100 questions across five modules, 20 per module, answered on a consistent numeric scale, and identical wording repeats across modules on purpose so the five pillar scores are comparable. That structure gives response patterns room to be meaningful; it also makes mechanical answering visible when it happens.
+Integrity checks in PAT are response-pattern quality checks. They examine the pattern of answers a respondent gives across an assessment, looking for signatures that suggest the responses may not reflect considered judgment. Straight-lining — selecting the same point on the scale over and over — is the named example: PAT's assessments ask 100 questions across five modules, 20 per module, answered on a consistent numeric scale, and identical wording repeats across modules on purpose so the five module scores are comparable. That structure gives response patterns room to be meaningful; it also makes mechanical answering visible when it happens.
 
 Three properties of the checks matter for interpretation. First, they run alongside scoring, not inside it. The score a firm sees is produced by deterministic arithmetic on its answers; the integrity reading accompanies that score rather than altering it. Second, the output is informational. An integrity flag tells a reader that a pattern was detected; it does not assert a motive, and PAT is explicit that a flag is information, not an accusation. Third, the checks serve readers of results. Their function is to calibrate how much weight a result can bear — for the firm reading its own scores and for anyone reading results in a permitted context.
 
@@ -41,7 +41,7 @@ This also matches PAT's cadence philosophy. Engagement is paced — quarterly rh
 
 ## Numeric patterns and open-ended context
 
-Each of the five modules covers its pillar through the same 20 scored questions plus a small set of open-ended questions. The open-ended questions are qualitative and carry zero score weight; their role is to give context in the firm's own words. Integrity checks concern the numeric response pattern only, because that is where the arithmetic lives — a mechanical pattern in the scored answers is what could make a number look more certain than it is.
+Each of the five modules covers its module through the same 20 scored questions plus a small set of open-ended questions. The open-ended questions are qualitative and carry zero score weight; their role is to give context in the firm's own words. Integrity checks concern the numeric response pattern only, because that is where the arithmetic lives — a mechanical pattern in the scored answers is what could make a number look more certain than it is.
 
 The two channels are still read side by side. A reader weighing a module's score has more than the number and its integrity reading available: the module's open-ended answers put the firm's own description of that area next to the arithmetic. Where a numeric pattern has drawn a flag, that qualitative context does not repair or replace the score — nothing adjusts a deterministic result — but it gives the reader more of the source to look at before deciding how much weight the result should bear. That is the same evidence discipline PAT applies everywhere: numbers trace to their sources, and here the source includes both what was answered on the scale and what was said in the firm's own words.
 
@@ -77,7 +77,7 @@ What Pat will not do is as important as what it will. Pat assists with understan
 
 An integrity flag is not an accusation. PAT states this directly: a flag is information. It records that a response pattern matched a quality check, and nothing more.
 
-An integrity score is not a performance score. It says nothing about how mature a firm's operations are; that is what the five pillar scores and their bands express. A firm can score in the Leading band with a clean signal or with a flagged one — the two readings are separate channels.
+An integrity score is not a performance score. It says nothing about how mature a firm's operations are; that is what the five module scores and their bands express. A firm can score in the Leading band with a clean signal or with a flagged one — the two readings are separate channels.
 
 An integrity reading is not an adjustment. It does not raise, lower, or reweight the deterministic score it accompanies. PAT's position is that the same answers always produce the same score; integrity information is presented beside the result, not folded into it.
 
@@ -87,7 +87,7 @@ Finally, an integrity check is not an AI judgment of a firm. No AI model sits an
 
 "A strong open-ended answer can offset a flagged numeric pattern." It cannot. Open-ended questions carry zero score weight, and nothing adjusts a deterministic result. Qualitative answers give a reader more of the source to look at when deciding how much weight a result can bear, but the flag describes the numeric response pattern and stays with it.
 
-"Giving similar answers across modules counts against a firm." The same 20 questions repeat in every module on purpose — identical wording is what makes the five pillar scores comparable, with the module supplying the context. Answering the same stems thoughtfully in five different domains is the instrument working as designed, not a suspicious pattern. Straight-lining concerns mechanical uniformity in a response pattern, and even there the flag records the pattern without asserting anything about why it occurred.
+"Giving similar answers across modules counts against a firm." The same 20 questions repeat in every module on purpose — identical wording is what makes the five module scores comparable, with the module supplying the context. Answering the same stems thoughtfully in five different domains is the instrument working as designed, not a suspicious pattern. Straight-lining concerns mechanical uniformity in a response pattern, and even there the flag records the pattern without asserting anything about why it occurred.
 
 "A flag means someone concluded the answers were dishonest." No such conclusion exists anywhere in the system. A flag records that a response pattern matched a quality check — information, not an accusation, in PAT's own words — and it leaves every explanation open, including that the uniform answers were genuine.
 
@@ -115,4 +115,4 @@ Finally, an integrity check is not an AI judgment of a firm. No AI model sits an
 
 ## Related terms
 
-Pillar — the five scoring constructs (Operations, Automation, Integration, Governance, Strategy) whose scores integrity readings accompany. Module — the assessment unit whose 20 questions produce the response patterns the checks examine. Band — the five-level lexicon (Early through Leading) in which scores present. Benchmark Suppression — the separate protection that governs when aggregate cuts may publish. Evidence Lineage — the broader rule that every displayed number traces to its sources; the integrity score is part of knowing what a source can bear.
+Module — the assessment unit whose 20 questions produce the response patterns the checks examine. Band — the five-level lexicon (Early through Leading) in which scores present. Benchmark Suppression — the separate protection that governs when aggregate cuts may publish. Evidence Lineage — the broader rule that every displayed number traces to its sources; the integrity score is part of knowing what a source can bear.

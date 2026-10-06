@@ -17,7 +17,7 @@ It helps to be plain about what the word means here, because "ecosystem" gets us
 
 ## What an ecosystem contains
 
-An ecosystem has two kinds of members. The first is firms: the accounting firms a guide manages. Each of those firms can run its own assessment across PAT's five pillars — Operations, Automation, Integration, Governance, and Strategy — answering the same consistent questions every other firm answers, which is what makes their results comparable in the first place.
+An ecosystem has two kinds of members. The first is firms: the accounting firms a guide manages. Each of those firms can run its own assessment across PAT's five modules — Operations, Automation, Integration, Governance, and Strategy — answering the same consistent questions every other firm answers, which is what makes their results comparable in the first place.
 
 The second is products: the software those firms use in their work. Vendors declare, in structured form, what their products are capable of. Firm assessments then supply the other half of the story — what firms actually experience. The gap between the two is PAT's alignment delta, and it flows both ways: a product can outperform its declaration just as it can underperform it.
 
@@ -77,7 +77,7 @@ The ecosystem construct exists to replace that with something that can bear weig
 
 The ecosystem construct leans on three design decisions that run through the rest of PAT. The first is that role permissions live in the evidence layer, not in the manners of an interface or assistant. Security that depends on an assistant's good behavior fails; permissions that live in the evidence query itself cannot be talked out of. That is why the visibility boundaries inside a managed set are dependable rather than aspirational: an ecosystem gathers parties with different interests into one construct, and can only do that safely because the boundaries between them are structural.
 
-The second is the identical wording of assessment questions across all five pillars. A measurement instrument must stay constant so that only the lens changes; if wording varied per pillar, score differences could be wording artifacts. For an ecosystem this discipline pays twice over: it makes one firm's five pillar results comparable to each other, and many firms' results comparable across a managed set. A portfolio view assembled from differently worded instruments would be a collage; assembled from one constant instrument, it is a picture.
+The second is the identical wording of assessment questions across all five modules. A measurement instrument must stay constant so that only the lens changes; if wording varied per module, score differences could be wording artifacts. For an ecosystem this discipline pays twice over: it makes one firm's five module results comparable to each other, and many firms' results comparable across a managed set. A portfolio view assembled from differently worded instruments would be a collage; assembled from one constant instrument, it is a picture.
 
 The third is evidence lineage. A number whose origin cannot be traced is marketing, and an ecosystem view is exactly where an untraceable number would do the most damage, because a guide acts on what the view shows. Every figure in the alignment picture must be able to answer "where did you come from," and portfolio width changes nothing about that rule.
 

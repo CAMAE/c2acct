@@ -123,4 +123,4 @@ Finally, capability evidence is not AI-generated. Ask Pat can help a signed-in u
 
 ## Related terms
 
-Alignment Delta — the measured gap between a declared capability and firms' assessed experience of it. Pillar — the five scoring constructs into which firm assessment is organized. Module — the assessment unit whose questions supply the firm-side evidence. Evidence Lineage — the rule that every displayed number traces to its sources. Integrity Score — the response-pattern quality signal that accompanies scores. Ecosystem — the guide-managed construct in which cross-firm capability alignment becomes visible.
+Alignment Delta — the measured gap between a declared capability and firms' assessed experience of it. Module — the assessment unit whose questions supply the firm-side evidence. Evidence Lineage — the rule that every displayed number traces to its sources. Integrity Score — the response-pattern quality signal that accompanies scores. Ecosystem — the guide-managed construct in which cross-firm capability alignment becomes visible.

@@ -1,9 +1,11 @@
+import { FIRM_PILLARS } from "@/lib/firmPillars";
 /**
  * Depth box 8 (2026-09-09, flag-on): the right-rail preview on onboarding and
  * account creation — "what you will have in 20 minutes": the alignment radar,
  * blank at the start, filling one axis per completed step.
  */
-const AXES = ["Strategy", "Operations", "Automation", "Integration", "Governance"] as const;
+// pattern box B (R61, F9): the module short labels come from lib/firmPillars, never a local list.
+const AXES = FIRM_PILLARS;
 const CENTER = { x: 120, y: 118 };
 const R = 82;
 

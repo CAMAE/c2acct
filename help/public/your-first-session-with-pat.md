@@ -13,13 +13,13 @@ Your first session with PAT is an orientation, not an exam. Whether you arrive a
 
 A first session with PAT exists to let you find your footing in a structured environment before any serious measurement happens. PAT — Performance Alignment Technology, a Patalign™ product — serves the accounting ecosystem: accounting firms, the software vendors who serve them, and the guides and advisors who manage firm ecosystems. Each of those three roles sees a different side of the platform, so the first thing PAT does for a new member is show you your side of it clearly.
 
-That means your opening hour is spent on orientation rather than obligation. You are looking at how assessments are organized if you are a firm, or how capability declarations are structured if you are a vendor. You are learning the vocabulary — pillars, bands, alignment — that everything else in the platform is built on. The aim is that by the end of a first session you can answer one question confidently: what does PAT measure, and what will my part in that measurement look like?
+That means your opening hour is spent on orientation rather than obligation. You are looking at how assessments are organized if you are a firm, or how capability declarations are structured if you are a vendor. You are learning the vocabulary — modules, bands, alignment — that everything else in the platform is built on. The aim is that by the end of a first session you can answer one question confidently: what does PAT measure, and what will my part in that measurement look like?
 
 One thing worth knowing before you start: PAT is a paid membership platform, with two tiers, Pro and Elite. There is no free tier, and that is a deliberate design decision rather than an omission — the quality of the comparison evidence PAT holds depends on committed participants. So by the time you are having a first session, you are already a member, and the platform treats you as one: what you see is the real structure, not a demonstration shell.
 
 ## Arriving as a firm
 
-For a firm, the center of gravity on day one is the assessment structure. A PAT firm assessment is built from five modules, each corresponding to one of five pillars: Operations, Automation, Integration, Governance, and Strategy. Together the modules hold one hundred questions — twenty per module — answered on a consistent numeric scale, with some open-ended questions alongside that carry no score weight and exist purely to capture qualitative texture.
+For a firm, the center of gravity on day one is the assessment structure. A PAT firm assessment is built from five modules, each corresponding to one of five modules: Operations, Automation, Integration, Governance, and Strategy. Together the modules hold one hundred questions — twenty per module — answered on a consistent numeric scale, with some open-ended questions alongside that carry no score weight and exist purely to capture qualitative texture.
 
 The design choice most new firms notice first is that the same twenty questions repeat in every module. That is on purpose. Identical wording is what makes the five scores comparable with each other: the module supplies the context, so "this area" means workflow discipline in one module and data flow in another, while the question itself stays constant. Once you see why that repetition exists, the assessment stops feeling repetitive and starts feeling like what it is — the same measuring instrument applied five times, so the readings can sit side by side honestly.
 
@@ -43,7 +43,7 @@ How quickly that picture fills in depends on the member firms themselves. Cards 
 
 ## Pacing, autosave, and picking up where you left off
 
-Nothing in a first session — or in the assessment itself — demands a single sitting. The assessment experience is a paged flow with autosave: a firm can stop mid-module and resume later without losing anything, progress is tracked per module, and the five modules can be completed in any order over time. Results update as modules complete, so a firm that has finished two of five modules already has two real pillar readings rather than a blank screen. Each module covers its pillar through the same twenty scored questions plus a small set of open-ended questions — qualitative, zero score weight — that let a firm give context in its own words.
+Nothing in a first session — or in the assessment itself — demands a single sitting. The assessment experience is a paged flow with autosave: a firm can stop mid-module and resume later without losing anything, progress is tracked per module, and the five modules can be completed in any order over time. Results update as modules complete, so a firm that has finished two of five modules already has two real module readings rather than a blank screen. Each module covers its module through the same twenty scored questions plus a small set of open-ended questions — qualitative, zero score weight — that let a firm give context in its own words.
 
 That pacing is not an accident of the interface; it reflects how PAT thinks about measurement over time. Assessments can be re-taken as operations change, because PAT treats a score as a reading at a point in time, not a permanent label. The long-term reading the platform is designed for is band movement: a firm re-assessing across quarters can see whether an area moved — say, from Developing to Building — which matters more than any single snapshot.
 
@@ -61,13 +61,13 @@ And no first session asks you to interpret your results alone against silence. S
 
 Ask Pat is the assistant built into the platform, and a first session is a natural time to meet it. Ask Pat answers questions using PAT's own documented content only, and it is role-scoped: each user sees only content for their role, enforced at the evidence layer. When it lacks documented evidence for an answer, it says so rather than guessing.
 
-Two boundaries define what Ask Pat is for. It assists with understanding — what a pillar covers, what a band means, how declarations work — and it never generates scores. On day one, that makes it a good companion for exactly the orientation work a first session is about: you can ask it what a term means or where something lives, and the answer comes from the platform's documentation rather than from improvisation. If a question falls outside what is documented for your role, Ask Pat will tell you that plainly, which is itself a useful early lesson in how the platform treats evidence. Its answers also cite the documented content they draw from, so even on day one you can see where an answer came from rather than taking it on faith.
+Two boundaries define what Ask Pat is for. It assists with understanding — what a module covers, what a band means, how declarations work — and it never generates scores. On day one, that makes it a good companion for exactly the orientation work a first session is about: you can ask it what a term means or where something lives, and the answer comes from the platform's documentation rather than from improvisation. If a question falls outside what is documented for your role, Ask Pat will tell you that plainly, which is itself a useful early lesson in how the platform treats evidence. Its answers also cite the documented content they draw from, so even on day one you can see where an answer came from rather than taking it on faith.
 
 ## Where the content you meet comes from
 
 The material a new member encounters in PAT — assessment content, learning content — has passed through a governance discipline before it ever reaches a first session. Content must cite authoritative sources to enter the system at all: unsourced content is rejected mechanically at import, before any human judgment is involved. What survives that gate then goes live only after named human review sign-off, and the review itself is recorded — who reviewed it, and when. So the questions a firm reads in its first module, and the documentation Ask Pat draws on, are sourced and reviewed material with a recorded chain behind them.
 
-There is a shorter way to say why the platform feels the way it does: PAT was built inside the profession it serves — by people who run and advise practices — not adapted from a generic survey tool. That origin shows up less as a story the platform tells and more as a set of choices you notice in a first session, from the pillar structure to the insistence that every number trace to its sources.
+There is a shorter way to say why the platform feels the way it does: PAT was built inside the profession it serves — by people who run and advise practices — not adapted from a generic survey tool. That origin shows up less as a story the platform tells and more as a set of choices you notice in a first session, from the module structure to the insistence that every number trace to its sources.
 
 ## Your answers, from the first session onward
 
@@ -77,7 +77,7 @@ That matters on day one because it changes the calculus of answering honestly. A
 
 ## Why PAT works this way
 
-Several design choices a new member meets on day one have reasons behind them. The repeated question wording a firm notices in its first module reflects a measurement principle: an instrument must stay constant so that only the lens changes. If wording varied per pillar, a difference between two pillar scores could be a phrasing artifact — so PAT changes the lens, never the instrument.
+Several design choices a new member meets on day one have reasons behind them. The repeated question wording a firm notices in its first module reflects a measurement principle: an instrument must stay constant so that only the lens changes. If wording varied per module, a difference between two module scores could be a phrasing artifact — so PAT changes the lens, never the instrument.
 
 The absence of a free tier follows a similar logic: comparison context is only as good as the care behind the answers that feed it, and a free tier optimizes for volume over signal — which is why day one begins inside a real membership rather than a trial shell.
 
@@ -87,7 +87,7 @@ The unhurried pacing comes from the platform's view of what a score is: operatio
 
 The firm here is invented for illustration. A partner at Alder & Finch, a small practice newly joined to PAT, signs in on a Tuesday with half an hour to spare. She opens the Operating Model & Workflow Discipline module, reads a few questions, answers eight of the twenty on the numeric scale, and closes the laptop when a client calls. Nothing is lost: the paged flow autosaved her answers, and her progress is tracked where she left it.
 
-She returns Thursday, finishes the remaining twelve scored questions, and adds a few sentences to the open-ended ones, which carry zero score weight and give context in the firm's own words. With one module complete, the firm already has one real pillar reading; results update as modules complete. She opens the Integration & Data Flow Maturity module next — order does not matter — and immediately recognizes the questions. She asks Ask Pat why the wording repeats and gets an answer drawn from PAT's documentation, source cited. By the following week Alder & Finch has two modules complete, three untouched, no scolding reminder, and a clear view of the rest of the journey. That is a first session — stretched into a first week — going exactly as the platform intends.
+She returns Thursday, finishes the remaining twelve scored questions, and adds a few sentences to the open-ended ones, which carry zero score weight and give context in the firm's own words. With one module complete, the firm already has one real module reading; results update as modules complete. She opens the Integration & Data Flow Maturity module next — order does not matter — and immediately recognizes the questions. She asks Ask Pat why the wording repeats and gets an answer drawn from PAT's documentation, source cited. By the following week Alder & Finch has two modules complete, three untouched, no scolding reminder, and a clear view of the rest of the journey. That is a first session — stretched into a first week — going exactly as the platform intends.
 
 ## Common misconceptions
 
@@ -101,7 +101,7 @@ The fourth is expecting Ask Pat to improvise when documentation runs out. It wil
 
 ## Questions this article answers
 
-What is a first session with PAT for? Orientation: learning what your role sees, the vocabulary of pillars, bands, and alignment, and what your part in measurement will be.
+What is a first session with PAT for? Orientation: learning what your role sees, the vocabulary of modules, bands, and alignment, and what your part in measurement will be.
 
 Do I have to finish a module on day one? No. The assessment is a paged flow with autosave, and modules can be completed in any order over time.
 

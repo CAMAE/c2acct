@@ -11,11 +11,11 @@ People considering PAT tend to ask the same questions, and this article answers 
 
 ## What is PAT, and who is it for?
 
-PAT is Performance Alignment Technology, a Patalign™ product built for the accounting ecosystem. It serves three roles. Accounting firms use it to assess their own operations across five pillars. Software vendors who serve those firms use it to declare their products' capabilities and receive evidence of how those capabilities land in practice. Guides and ecosystem owners who manage sets of firms use it to see the alignment picture across the whole group they look after. Each role sees what its role permits, and nothing more. The full front-door answer lives in "What is PAT," and each role has a dedicated article: "PAT for firms," "PAT for vendors," and "PAT for guides and ecosystem owners."
+PAT is Performance Alignment Technology, a Patalign™ product built for the accounting ecosystem. It serves three roles. Accounting firms use it to assess their own operations across five modules. Software vendors who serve those firms use it to declare their products' capabilities and receive evidence of how those capabilities land in practice. Guides and ecosystem owners who manage sets of firms use it to see the alignment picture across the whole group they look after. Each role sees what its role permits, and nothing more. The full front-door answer lives in "What is PAT," and each role has a dedicated article: "PAT for firms," "PAT for vendors," and "PAT for guides and ecosystem owners."
 
 ## What does a firm assessment actually involve?
 
-A firm assessment is five modules of 20 questions each — 100 questions in total — answered on a consistent numeric scale. The five modules map to PAT's five pillars: Operating Model & Workflow Discipline maps to Operations, Automation & AI Readiness to Automation, Integration & Data Flow Maturity to Integration, Governance, Controls & Vendor Risk to Governance, and Strategy, Change Readiness & Market Alignment to Strategy. The same 20 questions repeat in every module on purpose: identical wording is what makes the five scores comparable, while the module supplies the context — "this area" means that module's domain. Open-ended questions carry zero score weight; they are qualitative only. "Inside a firm assessment" walks through the journey, and "The five pillars, briefly" tours what each pillar looks at.
+A firm assessment is five modules of 20 questions each — 100 questions in total — answered on a consistent numeric scale. The five modules map to PAT's five modules: Operating Model & Workflow Discipline maps to Operations, Automation & AI Readiness to Automation, Integration & Data Flow Maturity to Integration, Governance, Controls & Vendor Risk to Governance, and Strategy, Change Readiness & Market Alignment to Strategy. The same 20 questions repeat in every module on purpose: identical wording is what makes the five scores comparable, while the module supplies the context — "this area" means that module's domain. Open-ended questions carry zero score weight; they are qualitative only. "Inside a firm assessment" walks through the journey, and "The five modules, briefly" tours what each module looks at.
 
 ## How is a PAT score calculated — and does AI generate it?
 
@@ -95,7 +95,7 @@ At concept level, yes: additional short modules can open based on a firm's scori
 
 ## Who built PAT?
 
-PAT was built inside the profession it serves — by people who run and advise practices — rather than adapted from a generic survey tool. That origin shows up in the design more than in any origin story: the pillar structure, the insistence that every displayed number trace to its sources, and the treatment of scores as measurements rather than marketing all reflect it. "What is PAT" gives the full front-door picture of what that design produced.
+PAT was built inside the profession it serves — by people who run and advise practices — rather than adapted from a generic survey tool. That origin shows up in the design more than in any origin story: the module structure, the insistence that every displayed number trace to its sources, and the treatment of scores as measurements rather than marketing all reflect it. "What is PAT" gives the full front-door picture of what that design produced.
 
 ## How does PAT pace engagement over time?
 

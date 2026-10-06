@@ -23,7 +23,7 @@ The defined structure serves both sides. For the vendor, it removes the temptati
 
 ## What a firm's assessment verifies
 
-On the firm side, verification is not a separate chore layered on top of the assessment — it is a product of it. Firms in PAT assess their own operations across five pillars, answering structured questions on a consistent numeric scale about how their practice actually runs. Those assessments describe the firm's experienced reality, including its experience of the products in play in its operations.
+On the firm side, verification is not a separate chore layered on top of the assessment — it is a product of it. Firms in PAT assess their own operations across five modules, answering structured questions on a consistent numeric scale about how their practice actually runs. Those assessments describe the firm's experienced reality, including its experience of the products in play in its operations.
 
 That is what gives the verification its character. A firm completing an assessment is not filling out a review form about a vendor; it is describing its own operational world, in its own interest, through consistent structured questions. The evidence that reaches the vendor side is a by-product of firms taking their own self-knowledge seriously, which is precisely why it carries weight. Verification borrowed from honest self-assessment is harder to distort than verification solicited as commentary.
 
@@ -89,7 +89,7 @@ For a guide managing an ecosystem — a set of member firms plus the products in
 
 To carry the earlier sketch through a full arc, give its parties invented names: Fernhill, a practice-software vendor, and Alder & Gray, one of the firms using its product. Fernhill declares its capabilities across the defined function areas, stating particular strength in one — honest placement, area by area, within a shared map.
 
-Alder & Gray, meanwhile, completes its firm assessment for its own reasons: it wants the five-pillar picture of its own operations. In describing that reality, it describes its experience of the products in play, Fernhill's among them — evidence that travels with signal-integrity context, so readers know how much weight it can bear.
+Alder & Gray, meanwhile, completes its firm assessment for its own reasons: it wants the five-module picture of its own operations. In describing that reality, it describes its experience of the products in play, Fernhill's among them — evidence that travels with signal-integrity context, so readers know how much weight it can bear.
 
 When enough firms' assessments accumulate, the alignment picture forms. In the area Fernhill declared as its strength, assessed experience matches the declaration — alignment holds, and Fernhill can point to field-grounded evidence instead of restating its claim more loudly. In a second area, experience falls short; the delta records a located divergence, which Fernhill's product team takes up as a finding rather than a rumor. In a third, the field reports more than was claimed — a modest declaration outperformed by its own product. And a guide whose ecosystem includes Alder & Gray sees the same divergence recurring across several member firms in the same function area: actionable structure, visible without access to any firm's individual responses. Every displayed number in that chain traces back to the declarations and assessments that produced it.
 

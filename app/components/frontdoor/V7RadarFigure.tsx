@@ -6,7 +6,7 @@
 export default function V7RadarFigure() {
   return (
     <>
-              <svg viewBox="0 0 400 330" className="mx-auto block h-auto w-full max-w-[520px]" role="img" aria-label="Five-pillar alignment radar — shape only, no scores">
+              <svg viewBox="0 0 400 330" className="mx-auto block h-auto w-full max-w-[520px]" role="img" aria-label="Five-module alignment radar — shape only, no scores">
                 <defs>
                   <radialGradient id="v7rg" cx="50%" cy="52%" r="60%">
                     <stop offset="0%" stopColor="var(--brand-c2-blue)" stopOpacity=".16" />

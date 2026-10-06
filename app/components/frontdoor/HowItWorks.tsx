@@ -148,7 +148,7 @@ export default async function HowItWorks() {
               </div>
               <div>
                 {index === 0 ? (
-                  <FigureCard label="Alignment radar" chip="Five pillars">
+                  <FigureCard label="Alignment radar" chip="Five modules">
                     <V7RadarFigure />
                   </FigureCard>
                 ) : index === 1 ? (

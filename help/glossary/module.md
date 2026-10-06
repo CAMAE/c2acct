@@ -7,11 +7,11 @@ vertical: global
 words: 2893
 ---
 
-A module is the basic unit of a PAT firm assessment: a set of twenty questions examining one domain of a firm's operations. The core assessment consists of five modules — one hundred questions in total — and each module feeds one of PAT's five pillars. Beyond the core five, short adaptive modules can open based on a firm's scoring pattern, at concept level, to probe, explain, or guide.
+A module is the basic unit of a PAT firm assessment: a set of twenty questions examining one domain of a firm's operations. The core assessment consists of five modules — one hundred questions in total — and each module feeds one of PAT's five modules. Beyond the core five, short adaptive modules can open based on a firm's scoring pattern, at concept level, to probe, explain, or guide.
 
 ## What a module is
 
-A module in PAT is a bounded set of twenty assessment questions addressed to one domain of firm operations. The firm assessment contains five such modules, for one hundred questions in total. Each core module corresponds to a named domain and feeds a named pillar: Operating Model & Workflow Discipline feeds the Operations pillar; Automation & AI Readiness feeds Automation; Integration & Data Flow Maturity feeds Integration; Governance, Controls & Vendor Risk feeds Governance; and Strategy, Change Readiness & Market Alignment feeds Strategy.
+A module in PAT is a bounded set of twenty assessment questions addressed to one domain of firm operations. The firm assessment contains five such modules, for one hundred questions in total. Each core module corresponds to a named domain and feeds a named module: Operating Model & Workflow Discipline feeds the Operations module; Automation & AI Readiness feeds Automation; Integration & Data Flow Maturity feeds Integration; Governance, Controls & Vendor Risk feeds Governance; and Strategy, Change Readiness & Market Alignment feeds Strategy.
 
 A distinctive feature of the module design is that the same twenty questions repeat in every module, on purpose. The wording is identical across all five; what changes is the context the module supplies. When a question refers to "this area," the module's domain defines what that area is. Within Integration & Data Flow Maturity, "this area" means the firm's integration practice; within Governance, Controls & Vendor Risk, the same words mean its governance practice. The module, in other words, is not just a container of questions — it is the frame that gives a shared question its specific meaning.
 
@@ -31,7 +31,7 @@ Beyond the five core modules, PAT includes the concept of adaptive modules: addi
 
 ## Inside a module: sections and the firm's own words
 
-A module has internal shape. Modules contain sections, and each of the five modules covers its pillar through the same twenty scored questions plus a small set of open-ended questions. The two kinds of item do different work. The scored twenty, answered on a consistent numeric scale, are what the deterministic arithmetic consumes; they are the measuring instrument. The open-ended items are qualitative and carry zero score weight — their job is to give context in the firm's own words. Where a numeric answer records how a firm rates an aspect of a domain, an open-ended answer records what the firm would actually say about it: the situation behind the rating, described by the people living it.
+A module has internal shape. Modules contain sections, and each of the five modules covers its module through the same twenty scored questions plus a small set of open-ended questions. The two kinds of item do different work. The scored twenty, answered on a consistent numeric scale, are what the deterministic arithmetic consumes; they are the measuring instrument. The open-ended items are qualitative and carry zero score weight — their job is to give context in the firm's own words. Where a numeric answer records how a firm rates an aspect of a domain, an open-ended answer records what the firm would actually say about it: the situation behind the rating, described by the people living it.
 
 That division of labor is deliberate. Because scoring is deterministic arithmetic over scaled numeric answers, the firm's written words can be candid without consequence — nothing a firm writes can raise or lower a score, so there is no incentive to write for effect. The open-ended items make a module more than a scoring device: the numbers make five domains comparable, and the words keep each domain's picture recognizably the firm's own.
 
@@ -61,13 +61,13 @@ The firm in this example is invented for illustration. Harbor & Vale Accountants
 
 Because the twenty questions are identical from module to module, the partners notice that the questions feel familiar by the third module — which is exactly the design. Their answers about "this area" mean workflow discipline in the first module and integration maturity in the third, and the differences in their answers are differences in the firm, not in the questionnaire.
 
-When scoring completes, Harbor & Vale sees five results, one per pillar, each presented band-first with the 0–100 number in support. Suppose its Integration result lands at 62 while its Governance result lands notably higher. In an open-ended item, a partner had written a paragraph about a recent system-migration headache; that paragraph enriches the qualitative picture in the firm's own words, but it contributed nothing to the 62, because open-ended items carry zero score weight. Based on the firm's scoring pattern, a short diagnostic module could open to probe the integration weakness in more depth, and a strength module could open against the strong governance result to help the firm understand why that area works. If a remediation module later serves guided improvement content, that content will have been reviewed and sourced before Harbor & Vale ever sees it.
+When scoring completes, Harbor & Vale sees five results, one per module, each presented band-first with the 0–100 number in support. Suppose its Integration result lands at 62 while its Governance result lands notably higher. In an open-ended item, a partner had written a paragraph about a recent system-migration headache; that paragraph enriches the qualitative picture in the firm's own words, but it contributed nothing to the 62, because open-ended items carry zero score weight. Based on the firm's scoring pattern, a short diagnostic module could open to probe the integration weakness in more depth, and a strength module could open against the strong governance result to help the firm understand why that area works. If a remediation module later serves guided improvement content, that content will have been reviewed and sourced before Harbor & Vale ever sees it.
 
 The story does not end with the first reading. Over the following quarter the firm reworks its data flows, and when a no-guilt reminder notes that a re-assessment window has arrived — a nudge, not a scolding — the partners retake the Integration & Data Flow Maturity module. The same twenty questions, the same deterministic arithmetic, a changed firm: the new reading lands higher, and the band presentation shows Integration moving from Developing to Building. That movement between two readings of one module is the long-term reading PAT intends — the score of a module treated as a point-in-time measurement, repeated as operations change, with band motion telling the story across quarters.
 
 ## What a module is not
 
-A module is not a pillar. The module is the assessment unit — the twenty questions and the domain context in which they are answered — while the pillar is the scoring construct the module feeds. Related, but not interchangeable.
+A module is not a module. The module is the assessment unit — the twenty questions and the domain context in which they are answered — while the module is the scoring construct the module feeds. Related, but not interchangeable.
 
 A module is not a bespoke questionnaire per topic. The repetition of identical questions across all five modules is not an oversight or a shortcut; it is the mechanism that makes the five results comparable, and treating it as filler misreads the design. A module is also not partially machine-scored: no AI model participates in scoring, so nothing in a module's result reflects a model's judgment. Open-ended items within a module are not scored at all — a thoughtful essay answer and a blank one produce the same score contribution, which is zero.
 
@@ -85,7 +85,7 @@ A third misconception treats open-ended items as filler PAT collects and ignores
 
 A fourth misconception reads a reminder as a compliance signal — evidence that the firm is behind, flagged, or falling short of an obligation. PAT's reminders are informative nudges by design: notice that a re-assessment window has arrived, or that a module sits unfinished. They carry information about timing, never shame mechanics, and there is no compliance clock behind them.
 
-A fifth misconception expects adaptive modules to eventually replace the core five. They do not. Adaptive modules are additional short modules — diagnostic, strength, or remediation — that can open based on a firm's scoring pattern; they extend the core assessment, while the five core modules remain the instrument that produces the five pillar results.
+A fifth misconception expects adaptive modules to eventually replace the core five. They do not. Adaptive modules are additional short modules — diagnostic, strength, or remediation — that can open based on a firm's scoring pattern; they extend the core assessment, while the five core modules remain the instrument that produces the five module results.
 
 ## Questions this article answers
 
@@ -93,7 +93,7 @@ How many questions does a module contain? Twenty. The firm assessment has five m
 
 Why does every module ask the same twenty questions? Identical wording is what makes the five scores comparable; the module supplies the context, so "this area" means that module's domain.
 
-Which pillar does a module feed? Each core module feeds one named pillar — for example, Integration & Data Flow Maturity feeds Integration, and Governance, Controls & Vendor Risk feeds Governance.
+Which module does a module feed? Each core module feeds one named module — for example, Integration & Data Flow Maturity feeds Integration, and Governance, Controls & Vendor Risk feeds Governance.
 
 Do open-ended answers affect a module's score? No. Open-ended questions are qualitative only and carry zero score weight; scoring is deterministic arithmetic over the scaled numeric answers.
 
@@ -107,4 +107,4 @@ Does an AI model score modules? No. No AI model sits anywhere in the scoring pat
 
 ## Related terms
 
-Pillar, the scoring construct each core module feeds, and the place to read about cross-pillar comparability in depth. Band, the five-level lexicon — Early through Leading — in which module-fed results present. Capability, the construct that connects assessment questions to declared product capabilities. Integrity Score, the response-pattern quality signal that accompanies assessment results. Evidence Lineage, the rule that every displayed number, including every module-derived score, traces to its source.
+Module, the scoring construct each core module feeds, and the place to read about cross-module comparability in depth. Band, the five-level lexicon — Early through Leading — in which module-fed results present. Capability, the construct that connects assessment questions to declared product capabilities. Integrity Score, the response-pattern quality signal that accompanies assessment results. Evidence Lineage, the rule that every displayed number, including every module-derived score, traces to its source.

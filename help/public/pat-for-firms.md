@@ -7,7 +7,7 @@ vertical: global
 words: 2951
 ---
 
-For an accounting firm, PAT is a way to see your own operations clearly: a structured five-pillar assessment that produces comparable scores across the areas that matter, presented in plain bands, with honest comparison context alongside. What you get is not advice or a sales pitch — it is a measured picture of where your practice stands, one you can revisit as often as your firm changes.
+For an accounting firm, PAT is a way to see your own operations clearly: a structured five-module assessment that produces comparable scores across the areas that matter, presented in plain bands, with honest comparison context alongside. What you get is not advice or a sales pitch — it is a measured picture of where your practice stands, one you can revisit as often as your firm changes.
 
 ## An operational alignment view of your own firm
 
@@ -15,15 +15,15 @@ Most firms know their operations the way you know a house you live in — intima
 
 The result is an alignment view in two senses. Internally, you see how the different areas of your operations compare with one another on a common scale — where your practice is strongest, and where the readings sit lower. Externally, your assessed experience of the products you use becomes part of a larger evidence picture: PAT measures the gap between what vendors declare their products do and what firms like yours actually experience, and your firm's honest answers are what make that measurement real. You contribute experience; the ecosystem gets evidence.
 
-## Five pillars, one measuring stick
+## Five modules, one measuring stick
 
-A firm assessment covers five pillars of practice operations: Operations, which looks at your operating model and workflow discipline; Automation, covering automation and AI readiness; Integration, covering integration and data flow maturity; Governance, spanning governance, controls, and vendor risk; and Strategy, covering strategy, change readiness, and market alignment.
+A firm assessment covers five modules of practice operations: Operations, which looks at your operating model and workflow discipline; Automation, covering automation and AI readiness; Integration, covering integration and data flow maturity; Governance, spanning governance, controls, and vendor risk; and Strategy, covering strategy, change readiness, and market alignment.
 
-Each pillar is assessed through its own module of twenty questions, one hundred questions in all, and the questions are answered on a consistent numeric scale. The assessment is deliberately built so the five resulting scores can be compared side by side — the same measuring stick applied to five different rooms of the house. That comparability is the point: a firm rarely needs to be told it has weaknesses in the abstract; what it needs is to see which areas sit lower than the others, by how much, and whether that picture shifts over time.
+Each module is assessed through its own module of twenty questions, one hundred questions in all, and the questions are answered on a consistent numeric scale. The assessment is deliberately built so the five resulting scores can be compared side by side — the same measuring stick applied to five different rooms of the house. That comparability is the point: a firm rarely needs to be told it has weaknesses in the abstract; what it needs is to see which areas sit lower than the others, by how much, and whether that picture shifts over time.
 
 ## An assessment that fits the rhythm of a working firm
 
-A five-module, 100-question structured assessment sounds like a commitment, and PAT is deliberate about not letting it become an ordeal. The flow is paged, with autosave: a partner can answer for twenty minutes, stop, and resume later exactly where they left off. Progress is tracked per module, and the five modules can be completed in any order over whatever stretch of time suits the firm — there is no requirement to finish in a sitting, or even in a month. Results update as modules complete, so a firm that has finished three modules already has three readable pillar scores while the remaining two wait their turn. Within each module, questions are organized into sections, which keeps a twenty-question module from feeling like an undifferentiated wall.
+A five-module, 100-question structured assessment sounds like a commitment, and PAT is deliberate about not letting it become an ordeal. The flow is paged, with autosave: a partner can answer for twenty minutes, stop, and resume later exactly where they left off. Progress is tracked per module, and the five modules can be completed in any order over whatever stretch of time suits the firm — there is no requirement to finish in a sitting, or even in a month. Results update as modules complete, so a firm that has finished three modules already has three readable module scores while the remaining two wait their turn. Within each module, questions are organized into sections, which keeps a twenty-question module from feeling like an undifferentiated wall.
 
 The pacing philosophy extends beyond the assessment itself. PAT paces engagement deliberately — quarterly rhythms are the kind of cadence it encourages — and its reminders are consciously no-guilt: informative nudges about where things stand, never shame mechanics. The platform wants a firm to come back because the next reading is useful, not because a red badge made someone feel behind.
 
@@ -33,9 +33,9 @@ Alongside the twenty scored questions, each module carries a small set of open-e
 
 ## Scores you can actually read
 
-Every pillar score is computed by deterministic arithmetic on a 0–100 scale. No AI model sits anywhere in the scoring path, which means the same answers always produce the same score — your result is a calculation, not an interpretation, and it cannot drift between one day and the next.
+Every module score is computed by deterministic arithmetic on a 0–100 scale. No AI model sits anywhere in the scoring path, which means the same answers always produce the same score — your result is a calculation, not an interpretation, and it cannot drift between one day and the next.
 
-What you see first, though, is not a number but a band. PAT presents results through five bands — Early, Developing, Building, Established, Leading — with the raw number in a supporting role. A band tells you where a pillar stands in terms a partner meeting can use without a translator; the number underneath is there when you want the finer grain.
+What you see first, though, is not a number but a band. PAT presents results through five bands — Early, Developing, Building, Established, Leading — with the raw number in a supporting role. A band tells you where a module stands in terms a partner meeting can use without a translator; the number underneath is there when you want the finer grain.
 
 Your scores also travel with signal integrity information: quality checks on response patterns accompany results so you know how much weight a reading can bear. If a module was answered in a way that weakens the signal — rushed, say, with the same response given down the page — the score says so honestly rather than pretending to a confidence it has not earned. An integrity flag is information about the answers, never an accusation about the people who supplied it.
 
@@ -77,7 +77,7 @@ It is worth being clear about what PAT does not do for a firm. It does not hand 
 
 Three design decisions shape the firm experience described above, and each has a reason worth knowing.
 
-The repeated questions are the instrument. A measurement instrument must stay constant so that only the lens changes: because every module asks the same twenty questions in identical wording, a difference between your Integration and Governance scores can only come from your operations, not from how a question happened to be phrased. If wording varied per pillar, score differences could be wording artifacts — an instrument problem masquerading as a finding. PAT changes the lens, never the instrument.
+The repeated questions are the instrument. A measurement instrument must stay constant so that only the lens changes: because every module asks the same twenty questions in identical wording, a difference between your Integration and Governance scores can only come from your operations, not from how a question happened to be phrased. If wording varied per module, score differences could be wording artifacts — an instrument problem masquerading as a finding. PAT changes the lens, never the instrument.
 
 Bands lead because single-point scores invite false precision. A 0–100 number carries an air of exactness that no structured self-assessment can honestly support down to the last digit, so PAT leads with the band — the statement the measurement can genuinely stand behind — and keeps the raw number in a supporting role. The reading that matters most over the long run is movement between bands, which is why the whole presentation is built around them.
 
@@ -109,7 +109,7 @@ The firm's scoring pattern may also open an adaptive module — a short diagnost
 
 **Do the open-ended questions affect our scores?** No — they carry zero score weight. They exist to capture context in your firm's own words while the arithmetic stays driven entirely by the scored questions.
 
-**When do we see results?** As modules complete. A firm that has finished three modules already has three readable pillar scores while the remaining two wait.
+**When do we see results?** As modules complete. A firm that has finished three modules already has three readable module scores while the remaining two wait.
 
 **What are the five bands?** Early, Developing, Building, Established, Leading. The band leads each presentation; the raw 0–100 number supports it.
 

@@ -19,7 +19,7 @@ This is worth stating as a position rather than a footnote, because "AI-generate
 
 The reason is what the scores are for. PAT exists to measure alignment — between a firm's operations and its own picture of them, and between what vendors declare and what firms experience. Measurement of that kind is only useful if the instrument holds still.
 
-Comparability demands it. PAT's five pillar scores are designed to be compared — across pillars within one firm, across firms, and over time. A model in the scoring path would put that at risk: model behavior can shift, and a score that might read the same inputs differently on different days is not a measurement, it is an opinion with a timestamp. Deterministic arithmetic guarantees that every comparison compares like with like.
+Comparability demands it. PAT's five module scores are designed to be compared — across modules within one firm, across firms, and over time. A model in the scoring path would put that at risk: model behavior can shift, and a score that might read the same inputs differently on different days is not a measurement, it is an opinion with a timestamp. Deterministic arithmetic guarantees that every comparison compares like with like.
 
 Accountability demands it too. PAT's evidence philosophy is that displayed numbers trace to their sources — evidence lineage, with no orphan numbers. A deterministic score honors that fully: you can follow the path from any score back to the answers that produced it, and the path explains the number completely. A model-generated score cannot offer that. "The model weighed your responses" is not a lineage; it is a shrug with confidence.
 
@@ -39,7 +39,7 @@ The role scoping works the same transparent way. Each role's Pat retrieves only 
 
 ## Measuring AI readiness without AI-generated measurement
 
-One of PAT's five assessment modules is Automation & AI Readiness, which feeds the Automation pillar. So PAT does take AI seriously — as a subject of measurement. A firm's readiness for automation and AI is one of the five areas the assessment examines.
+One of PAT's five assessment modules is Automation & AI Readiness, which feeds the Automation module. So PAT does take AI seriously — as a subject of measurement. A firm's readiness for automation and AI is one of the five areas the assessment examines.
 
 There is no tension in that. An instrument does not need to be made of the thing it measures. Asking structured questions about a firm's automation and AI readiness, scoring the answers with fixed arithmetic, and presenting the result in a band is exactly the same honest process PAT applies to operations, integration, governance, and strategy. If anything, the pairing makes the position clearer: PAT is interested in AI where it belongs in the picture, and disciplined about keeping it out of the one place it would undermine the picture — the scoring path.
 
@@ -85,7 +85,7 @@ The second is the sourced-content gate. In a profession built on standards, cont
 
 ## A closer look: one scenario, start to finish
 
-Consider an invented firm working through its first PAT assessment. It completes the Governance, Controls & Vendor Risk module, and its Governance pillar score appears — say 58, presented band-first, the numbers purely illustrative. A skeptical partner asks the natural modern question: did an AI look at our answers and decide we are a 58? The answer the platform can give is complete. The twenty scaled Governance answers, combined by fixed arithmetic, produced 58; the band followed from the score by rule; no model participated at any point; and running the same answers through the calculation tomorrow would produce 58 again.
+Consider an invented firm working through its first PAT assessment. It completes the Governance, Controls & Vendor Risk module, and its Governance module score appears — say 58, presented band-first, the numbers purely illustrative. A skeptical partner asks the natural modern question: did an AI look at our answers and decide we are a 58? The answer the platform can give is complete. The twenty scaled Governance answers, combined by fixed arithmetic, produced 58; the band followed from the score by rule; no model participated at any point; and running the same answers through the calculation tomorrow would produce 58 again.
 
 The partner then turns to Ask Pat to understand what the band means. Pat answers from PAT's documented content, citing the material it drew from — and when the partner pushes into a question the documentation does not cover, Pat says so plainly instead of improvising. Notice what did and did not happen: an assistant helped a person understand a score; it had no hand in making one.
 

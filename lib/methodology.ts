@@ -69,7 +69,7 @@ export const METHODOLOGY_SECTIONS: readonly MethodologySection[] = [
     key: "averaging",
     title: "Averaging — equal-weight by design",
     paragraphs: [
-      "Firm and vendor alignment readings average self-normalized 0–100 module scores. The five assessment modules are equal pillars of the framework; each emits one 0–100 score, so within-module question counts are already absorbed. Weighting by question or response count would distort the framework's stated structure, so we do not do it.",
+      "Firm and vendor alignment readings average self-normalized 0–100 module scores. The five assessment modules are equal parts of the framework; each emits one 0–100 score, so within-module question counts are already absorbed. Weighting by question or response count would distort the framework's stated structure, so we do not do it.",
       "Product readings use one-firm-one-vote: each firm's review of a product counts once, so multi-utility reviews cannot dominate the market read.",
     ],
   },

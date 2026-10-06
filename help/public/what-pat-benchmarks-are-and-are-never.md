@@ -11,7 +11,7 @@ A PAT benchmark is comparison context: a way for a firm or a vendor to see their
 
 ## What a benchmark is for
 
-A score on its own answers one question: how did this assessment come out? It cannot answer the question most readers actually bring to it: is that good? A firm that completes PAT's five-pillar assessment and sees its Integration result naturally wants to know whether that result is unusual, typical, or notable — and a number with no surroundings cannot say. Benchmarks exist to supply the surroundings. They place a result in the context of comparable results, so that "here is your score" can become "here is your score, and here is the landscape it sits in."
+A score on its own answers one question: how did this assessment come out? It cannot answer the question most readers actually bring to it: is that good? A firm that completes PAT's five-module assessment and sees its Integration result naturally wants to know whether that result is unusual, typical, or notable — and a number with no surroundings cannot say. Benchmarks exist to supply the surroundings. They place a result in the context of comparable results, so that "here is your score" can become "here is your score, and here is the landscape it sits in."
 
 That is the entire job. A PAT benchmark is context for interpretation, not a verdict, not a grade posted on a wall, and not an instrument for pressuring anyone. The distinction matters because comparison evidence is only honest when the people contributing to it are not being set up for exposure. PAT's benchmarks are built so that contributing to the picture never means becoming a target inside it.
 
@@ -87,7 +87,7 @@ The third is the absence of a free tier. Benchmark quality depends on committed 
 
 ## How benchmark context looks for a firm, a vendor, and a guide
 
-For a firm, benchmark context is a backdrop behind its own results: a way to read a pillar score as a position in a landscape rather than a number floating alone. On Elite, that reading deepens into where the firm sits within a distribution of peers — only when the cohort publishes under the suppression rules.
+For a firm, benchmark context is a backdrop behind its own results: a way to read a module score as a position in a landscape rather than a number floating alone. On Elite, that reading deepens into where the firm sits within a distribution of peers — only when the cohort publishes under the suppression rules.
 
 For a vendor, context arrives through the alignment lens. Firm assessments measure experienced reality against declared capabilities, and the vendor receives structured, evidence-based views of where alignment holds and where it diverges — a comparison against its own declaration, across the firms experiencing the product, never a named list of which firm said what.
 

@@ -1,4 +1,5 @@
 import { isAskPatDoorEntryEnabled } from "@/lib/frontDoor";
+import { type FirmPillar } from "@/lib/firmPillars";
 import V7DoorBand from "@/app/components/frontdoor/V7DoorBand";
 import V7RadarFigure from "@/app/components/frontdoor/V7RadarFigure";
 import PageHead from "@/app/components/shell/PageHead";
@@ -78,7 +79,7 @@ export default function V7FrontDoor() {
               </div>
               <span className="inline-flex items-center gap-2 rounded-full border border-[var(--shell-border)] px-[14px] py-[6px] text-xs font-semibold text-[var(--shell-muted)]">
                 <span className="h-[7px] w-[7px] rounded-full bg-[var(--brand-c2-blue)]" />
-                Five pillars
+                Five modules
               </span>
             </div>
             <div className="px-6 pb-10 pt-8 sm:px-12">

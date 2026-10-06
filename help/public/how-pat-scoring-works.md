@@ -11,15 +11,15 @@ PAT scores are produced by deterministic arithmetic from a firm's answers to a s
 
 ## A structured assessment: five modules, one hundred questions
 
-A PAT firm assessment consists of five modules with twenty questions each — one hundred questions in total. Each module maps to one of PAT's five pillars: Operating Model & Workflow Discipline maps to Operations, Automation & AI Readiness to Automation, Integration & Data Flow Maturity to Integration, Governance, Controls & Vendor Risk to Governance, and Strategy, Change Readiness & Market Alignment to Strategy.
+A PAT firm assessment consists of five modules with twenty questions each — one hundred questions in total. Each module maps to one of PAT's five modules: Operating Model & Workflow Discipline maps to Operations, Automation & AI Readiness to Automation, Integration & Data Flow Maturity to Integration, Governance, Controls & Vendor Risk to Governance, and Strategy, Change Readiness & Market Alignment to Strategy.
 
 Questions are answered on a consistent numeric scale, which is the first design decision that makes scoring possible at all. When every answer lands on the same scale, answers can be combined arithmetically, compared across questions, and rolled up into a module score without any interpretive step in between. The assessment also includes open-ended questions, and these carry zero score weight — they are qualitative only. What you write in an open-ended response enriches the picture, but it never moves a number.
 
 ## Why the same twenty questions repeat in every module
 
-The twenty questions in each module are the same twenty questions, repeated across all five modules — and this is deliberate, not an economy. Identical wording is what makes the five pillar scores comparable. When a firm scores differently on Operations than on Integration, that difference is real, because both scores came from the same questions answered in different contexts. The module supplies the context: "this area" means that module's domain, so the same question does honest work five times over.
+The twenty questions in each module are the same twenty questions, repeated across all five modules — and this is deliberate, not an economy. Identical wording is what makes the five module scores comparable. When a firm scores differently on Operations than on Integration, that difference is real, because both scores came from the same questions answered in different contexts. The module supplies the context: "this area" means that module's domain, so the same question does honest work five times over.
 
-If each module asked different questions, a gap between two pillar scores could always be an artifact of the questions rather than a fact about the firm — one module's questions might simply be harder, or worded more generously. Repeating the questions removes that ambiguity. The instrument stays constant; only the domain under examination changes. It can feel unusual the first time you encounter it, which is exactly why it is worth saying plainly: the repetition is the mechanism of comparability.
+If each module asked different questions, a gap between two module scores could always be an artifact of the questions rather than a fact about the firm — one module's questions might simply be harder, or worded more generously. Repeating the questions removes that ambiguity. The instrument stays constant; only the domain under examination changes. It can feel unusual the first time you encounter it, which is exactly why it is worth saying plainly: the repetition is the mechanism of comparability.
 
 ## From answers to a 0–100 score
 
@@ -37,11 +37,11 @@ The division of labor between the two kinds of question is strict. The twenty sc
 
 ## When scores compute: module by module
 
-A module's score is arithmetic on that module's twenty scaled answers, which means each module can score as soon as its answers are in. Results update as modules complete: a firm that has finished two of the five modules has two real pillar scores, computed by exactly the same arithmetic that will compute the other three. Modules can be completed in any order over time, so the five-pillar picture fills in progressively rather than appearing all at once at the end.
+A module's score is arithmetic on that module's twenty scaled answers, which means each module can score as soon as its answers are in. Results update as modules complete: a firm that has finished two of the five modules has two real module scores, computed by exactly the same arithmetic that will compute the other three. Modules can be completed in any order over time, so the five-module picture fills in progressively rather than appearing all at once at the end.
 
-Nothing about a score changes when the later modules arrive. The Operations score computed after one module is the same Operations score that appears after all five, because it depends only on the Operations answers — deterministic arithmetic has no view of what else has or has not been completed. What completing more modules adds is breadth, not revision: more of the five-pillar picture, each part standing on its own answers.
+Nothing about a score changes when the later modules arrive. The Operations score computed after one module is the same Operations score that appears after all five, because it depends only on the Operations answers — deterministic arithmetic has no view of what else has or has not been completed. What completing more modules adds is breadth, not revision: more of the five-module picture, each part standing on its own answers.
 
-## A worked reading: two pillars, one firm
+## A worked reading: two modules, one firm
 
 An illustration, with invented numbers, shows how the pieces read together. Suppose a firm completes its assessment and scores 74 on Operations and 62 on Integration. Both numbers came from the same twenty questions, answered on the same scale, scored by the same arithmetic — only the module context differed. So the twelve-point difference is a fact about the firm, not an artifact of the instrument: this firm assesses its operating discipline more strongly than its integration maturity, by its own structured answers.
 
@@ -79,15 +79,15 @@ It is worth closing with the boundaries. A PAT score is a structured, repeatable
 
 ## Why PAT works this way
 
-Two commitments in the design deserve stating in their sharpest form, because everything else follows from them. The first: a measurement instrument must stay constant so that only the lens changes. If question wording varied from pillar to pillar, a difference between two pillar scores could always be a wording artifact, and no amount of careful arithmetic downstream could repair that. So PAT changes the lens, never the instrument: the same twenty question stems, the same scale, five domains under examination.
+Two commitments in the design deserve stating in their sharpest form, because everything else follows from them. The first: a measurement instrument must stay constant so that only the lens changes. If question wording varied from module to module, a difference between two module scores could always be a wording artifact, and no amount of careful arithmetic downstream could repair that. So PAT changes the lens, never the instrument: the same twenty question stems, the same scale, five domains under examination.
 
-The second: measurements must be repeatable and auditable. Model behavior can shift over time, and a score that could read the same answers differently on different days is an opinion with a timestamp, not a measurement. Deterministic arithmetic is the only scoring path that lets PAT stand behind every comparison it invites — across pillars, across firms, across quarters — because it is the only path on which nothing but the answers can move the result.
+The second: measurements must be repeatable and auditable. Model behavior can shift over time, and a score that could read the same answers differently on different days is an opinion with a timestamp, not a measurement. Deterministic arithmetic is the only scoring path that lets PAT stand behind every comparison it invites — across modules, across firms, across quarters — because it is the only path on which nothing but the answers can move the result.
 
 The zero weight on open-ended questions completes the pattern. Qualitative context should inform human judgment, not sway arithmetic. A firm's own words are kept — and kept out of the calculation — so scores stay comparable while the account behind them stays human. Three rules, one instinct: protect the meaning of the number by controlling exactly what is allowed to produce it.
 
 ## How this looks for a firm, a vendor, and a guide
 
-For a firm, the scoring design is experienced as a journey that respects its time: a paged flow with autosave, progress tracked per module, modules completed in any order, and real pillar scores appearing as each module finishes rather than after a long wait. For a vendor, the same design is experienced secondhand but critically: the alignment evidence a vendor receives — how firms' assessed experience meets its declarations — rests on firm scores, and that evidence is worth exactly what the scoring discipline behind those scores is worth. For a guide managing an ecosystem, the design is what makes a portfolio readable: every member firm's results come from the same instrument and the same arithmetic, so differences between firms on a comparison view are differences between firms. One scoring system, three reasons to care that it holds still.
+For a firm, the scoring design is experienced as a journey that respects its time: a paged flow with autosave, progress tracked per module, modules completed in any order, and real module scores appearing as each module finishes rather than after a long wait. For a vendor, the same design is experienced secondhand but critically: the alignment evidence a vendor receives — how firms' assessed experience meets its declarations — rests on firm scores, and that evidence is worth exactly what the scoring discipline behind those scores is worth. For a guide managing an ecosystem, the design is what makes a portfolio readable: every member firm's results come from the same instrument and the same arithmetic, so differences between firms on a comparison view are differences between firms. One scoring system, three reasons to care that it holds still.
 
 ## A closer look: one scenario, start to finish
 
@@ -97,7 +97,7 @@ Two quarters later, after overhauling how records move between its practice tool
 
 ## Common misconceptions
 
-*Repeating the same twenty questions across modules is a shortcut.* It is the mechanism of comparability. Identical wording is what guarantees that a difference between two pillar scores reflects the firm rather than the phrasing; varied questions would reintroduce exactly the ambiguity the design removes.
+*Repeating the same twenty questions across modules is a shortcut.* It is the mechanism of comparability. Identical wording is what guarantees that a difference between two module scores reflects the firm rather than the phrasing; varied questions would reintroduce exactly the ambiguity the design removes.
 
 *Writing rich open-ended answers improves a score.* Open-ended questions carry zero score weight, always. Two firms with identical scaled answers score identically regardless of what either wrote. Written responses provide context in the firm's own words; they never touch the arithmetic.
 
@@ -113,14 +113,14 @@ Two quarters later, after overhauling how records move between its practice tool
 
 **How many questions does a firm assessment contain?** One hundred scored questions — five modules of twenty each — plus a small set of open-ended questions that carry no score weight.
 
-**Why does every module use the same twenty questions?** Identical wording keeps the five pillar scores comparable; the module supplies the context, so only the domain changes, never the instrument.
+**Why does every module use the same twenty questions?** Identical wording keeps the five module scores comparable; the module supplies the context, so only the domain changes, never the instrument.
 
 **Do open-ended answers affect the score?** No — they are qualitative only and carry zero score weight, so the score depends entirely on the scaled answers.
 
-**When do scores appear?** Module by module: each pillar score computes as soon as its module's answers are complete, in whatever order the modules are taken.
+**When do scores appear?** Module by module: each module score computes as soon as its module's answers are complete, in whatever order the modules are taken.
 
 **Why do bands lead the presentation instead of raw numbers?** Bands communicate position at the resolution the measurement honestly supports; the raw number stays available in support.
 
 **What happens to a score if the responses show straight-lining?** The score still computes, but a signal-integrity note accompanies it so readers know how much weight the result can bear.
 
-If you want to see what those five scored areas actually cover, the natural next read is the brief tour of the five pillars; if the bands themselves interest you, there is an article walking through the lexicon from Early to Leading.
+If you want to see what those five scored areas actually cover, the natural next read is the brief tour of the five modules; if the bands themselves interest you, there is an article walking through the lexicon from Early to Leading.

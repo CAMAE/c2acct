@@ -29,11 +29,11 @@ Each role sees only what its role permits. Firms and vendors do not see into eac
 
 ## Built inside the profession it serves
 
-PAT was built inside the profession it serves — by people who run and advise accounting practices — not adapted from a generic survey tool and pointed at accounting afterward. That origin is visible in the platform's shape. The three roles mirror how the accounting ecosystem actually organizes itself: firms doing the work, vendors building the software the work runs on, and guides managing the relationships between them. The five pillars are named for the things a practice genuinely has to manage — its operating model, its automation readiness, its integrations, its governance, its strategy — rather than for abstractions imported from somewhere else. And the platform's insistence on evidence over advertising reflects a working reality practitioners know first-hand: in this ecosystem, claims are plentiful and verification is scarce. PAT was built to supply the verification.
+PAT was built inside the profession it serves — by people who run and advise accounting practices — not adapted from a generic survey tool and pointed at accounting afterward. That origin is visible in the platform's shape. The three roles mirror how the accounting ecosystem actually organizes itself: firms doing the work, vendors building the software the work runs on, and guides managing the relationships between them. The five modules are named for the things a practice genuinely has to manage — its operating model, its automation readiness, its integrations, its governance, its strategy — rather than for abstractions imported from somewhere else. And the platform's insistence on evidence over advertising reflects a working reality practitioners know first-hand: in this ecosystem, claims are plentiful and verification is scarce. PAT was built to supply the verification.
 
 ## How a firm assessment works, at a glance
 
-A firm's assessment is organized into five modules, with 100 questions in total — twenty per module. Each module maps to one of PAT's five pillars: Operating Model & Workflow Discipline maps to Operations, Automation & AI Readiness to Automation, Integration & Data Flow Maturity to Integration, Governance, Controls & Vendor Risk to Governance, and Strategy, Change Readiness & Market Alignment to Strategy.
+A firm's assessment is organized into five modules, with 100 questions in total — twenty per module. Each module maps to one of PAT's five modules: Operating Model & Workflow Discipline maps to Operations, Automation & AI Readiness to Automation, Integration & Data Flow Maturity to Integration, Governance, Controls & Vendor Risk to Governance, and Strategy, Change Readiness & Market Alignment to Strategy.
 
 One design choice tends to surprise people at first: the same twenty questions repeat in every module, on purpose. Identical wording is what makes the five scores genuinely comparable — the module supplies the context, so "this area" means operations in one module and governance in another, while the measuring stick never changes. Questions are answered on a consistent numeric scale; open-ended questions are welcome for the texture they add, but they carry zero score weight and remain qualitative only.
 
@@ -115,7 +115,7 @@ Signal-integrity checks accompany the firm-side readings, so everyone knows how 
 
 "Paying for a higher tier buys better scores." No membership tier touches scoring. Scores are deterministic arithmetic on assessment answers, identical for every member; Elite adds deeper interpretive surfaces around the results, such as position within a distribution and trajectory over time. It changes what you can see around your results, never what the results are.
 
-"A strong reading in one area means the firm is Leading overall." PAT produces five pillar scores, each carrying its own band, precisely so that strong and weak areas stay distinct. The five readings are comparable with one another, not blended into a single verdict.
+"A strong reading in one area means the firm is Leading overall." PAT produces five module scores, each carrying its own band, precisely so that strong and weak areas stay distinct. The five readings are comparable with one another, not blended into a single verdict.
 
 "PAT is a tool for firms only." Firms are one of three roles. Vendors participate as declaring parties who receive alignment evidence, and guides and ecosystem owners work from cross-firm views of the ecosystems they manage. The platform is built around the interaction of the three, not around any one of them.
 
@@ -131,7 +131,7 @@ Signal-integrity checks accompany the firm-side readings, so everyone knows how 
 
 **Where do PAT's scores come from?** Deterministic arithmetic on a 0–100 scale. No AI model sits anywhere in the scoring path, and the same answers always produce the same score.
 
-**What are the five pillars?** Operations, Automation, Integration, Governance, and Strategy — each assessed through its own module of twenty questions.
+**What are the five modules?** Operations, Automation, Integration, Governance, and Strategy — each assessed through its own module of twenty questions.
 
 **Does PAT rank firms or vendors?** No. Benchmarks are comparison context with anonymous contributors, published only under suppression rules; there are no league tables anywhere in the product.
 

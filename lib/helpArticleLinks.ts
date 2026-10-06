@@ -9,7 +9,7 @@ export const HELP_ARTICLE_BY_CARD: Record<string, { slug: string; label: string 
   // firm workspace cards
   "Alignment Assessment": { slug: "inside-a-firm-assessment", label: "Inside a firm assessment" },
   "Product Assessments": { slug: "what-vendors-declare-and-firms-verify", label: "What vendors declare and firms verify" },
-  Modules: { slug: "the-five-pillars-briefly", label: "The five pillars, briefly" },
+  Modules: { slug: "the-five-pillars-briefly", label: "The five modules, briefly" },
   Insights: { slug: "how-pat-scoring-works", label: "How PAT scoring works" },
   "Alignment Sandbox": { slug: "the-alignment-delta-introduced", label: "The alignment delta, introduced" },
   "Tech Stack Sandbox": { slug: "the-alignment-delta-introduced", label: "The alignment delta, introduced" },
