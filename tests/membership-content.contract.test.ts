@@ -107,7 +107,7 @@ describe("membership page contracts", () => {
     expect(getRequestedMembershipPaymentMethod(undefined)).toBe("card");
     expect(getRequestedMembershipPaymentMethod("stripe")).toBe("stripe");
     expect(getRequestedMembershipPaymentMethod("unknown")).toBe("card");
-    expect(model.summary.paymentStateLabel).toBe("Scaffold only");
+    expect(model.summary.paymentStateLabel).toBe("No charge today"); // R61: "scaffold" retired
     expect(model.billing.truthLabel).toBe("No live charge will be created.");
     expect(model.paymentMethods).toEqual([
       { key: "card", label: "Credit/Debit", state: "default", statusLabel: "Scaffold" },

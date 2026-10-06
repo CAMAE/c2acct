@@ -191,7 +191,7 @@ describe("user assessment and insight contracts", () => {
 
     expect(alignmentPage).toContain("Complete the assessment to open insights");
     expect(productPage).toContain("does not yet have a truthful individual");
-    expect(productPage).toContain("There is no current individual product submit route yet");
+    expect(productPage).toContain("There is no current individual product submit path yet");
     expect(productPage).toContain("No individual product insight or unlock path consumes person-level product submissions yet");
     expect(productPage).not.toContain("Submit product assessment");
   });

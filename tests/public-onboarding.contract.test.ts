@@ -49,7 +49,7 @@ describe("public onboarding contracts", () => {
     });
 
     expect(model.selectedBilling.mode).toBe("scaffold");
-    expect(model.selectedBilling.stateLabel).toBe("Scaffold only");
+    expect(model.selectedBilling.stateLabel).toBe("No charge today"); // R61
     expect(model.selectedBilling.truthLabel).toMatch(/No live charge will be created/i);
     // FREE is never rendered as a plan card (Block C purge).
     expect(model.planCards.some((plan) => (plan.key as string) === "free")).toBe(false);

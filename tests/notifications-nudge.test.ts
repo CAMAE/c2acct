@@ -11,6 +11,7 @@ import type { SessionUser } from "@/lib/auth/session";
 vi.mock("@/lib/consultantAccess", () => ({ getConsultantAccessStateForUser: vi.fn() }));
 
 import { authorizeCompanyNudge, buildNudgeMessage, nudgeFromLabel } from "@/lib/notifications/nudge";
+import { guideWord } from "@/lib/roleWords";
 import { getConsultantAccessStateForUser } from "@/lib/consultantAccess";
 
 const consultant = vi.mocked(getConsultantAccessStateForUser);
@@ -67,7 +68,7 @@ describe("authorizeCompanyNudge", () => {
 
 describe("nudge message helpers", () => {
   it("nudgeFromLabel is a generic role phrase (never the raw label)", () => {
-    expect(nudgeFromLabel({ kind: "consultant", consultantLabel: "Consultant review" })).toBe("Your consultant");
+    expect(nudgeFromLabel({ kind: "consultant", consultantLabel: "Consultant review" })).toBe(`Your ${guideWord()}`); // R61: the Guide word, never the raw label
     expect(nudgeFromLabel({ kind: "admin" })).toBe("A Patalign operator");
   });
 

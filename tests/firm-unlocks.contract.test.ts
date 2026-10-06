@@ -390,7 +390,7 @@ describe("firm pro unlock rules", () => {
     expect(text).toContain("Completed");
     expect(text).toContain("Overall Progress");
     expect(text).toContain("Why the five modules matter");
-    expect(text).toContain("not a legacy single survey");
+    expect(text).toContain("not a single survey"); // R61: "legacy" retired from customer copy
     expect(text).toContain("summarizeFirmAlignmentProgress");
     expect(text).not.toContain("legacy single-survey semantics");
   });

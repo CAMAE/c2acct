@@ -41,7 +41,7 @@ export default async function UserProductAssessmentPage() {
       status: "Not available",
       available: false,
       detail:
-        "There is no current individual product module, submit path, or persisted INDIVIDUAL product-assessment plan in the current build.",
+        "There is no current individual product module, submit path, or persisted INDIVIDUAL product-assessment plan in PAT today.",
     },
     {
       title: "Individual product insight consumer",

@@ -76,11 +76,12 @@ describe("copy lexicon — no internal roadmap tone on customer surfaces", () =>
     }
   });
 
-  it("keeps the Alignment Board's own 'staged candidate' vocabulary", () => {
+  it("keeps the Alignment Board's own 'candidate not yet firm-reviewed' vocabulary (R61: never 'staged')", () => {
     // Guard against an over-eager future sweep: this is product language for a
     // swap placed on the board, not the banned "not really live" sense.
     const board = readFileSync(path.join(ROOT, "app/components/firm/AlignmentBoardClient.tsx"), "utf8");
-    expect(board).toContain("staged candidate");
+    expect(board).toContain("candidate not yet firm-reviewed");
+    expect(board).not.toContain("staged candidate");
   });
 });
 
