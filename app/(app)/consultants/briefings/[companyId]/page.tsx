@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { guideWord } from "@/lib/roleWords";
 import { notFound } from "next/navigation";
 import { AdminPageIntro } from "@/app/components/admin/AdminShell";
 import { PortalBriefingView } from "@/app/components/admin/briefings/BriefingBoard";
@@ -48,14 +49,14 @@ export default async function ConsultantCompanyBriefingPage({
   return (
     <div className="space-y-8">
       <AdminPageIntro
-        eyebrow="Consultant briefing"
+        eyebrow={`${guideWord()} briefing`}
         title={`${briefing.company.name} briefing`}
         description="Built from this firm's current PAT evidence. No benchmark or forecast is added here."
       />
 
       <div className="flex flex-wrap gap-3 print:hidden">
         <Link className="pat-button-secondary" href="/consultants">
-          Back to consultant overview
+          Back to the {guideWord()} overview
         </Link>
       </div>
 

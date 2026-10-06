@@ -1,3 +1,4 @@
+import { guideWord } from "@/lib/roleWords";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
@@ -50,7 +51,7 @@ export default async function ConsultantFirmAlignmentBoardPage({
         {firm.name}
       </h1>
       <p className="mt-3 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-        You&apos;re viewing this firm&apos;s live board as its consultant. Inspect the stack, radar, and
+        You&apos;re viewing this firm&apos;s live board as its {guideWord()}. Inspect the stack, radar, and
         candidate fit — swaps are disabled here; the firm plays what-if scenarios on its own board.
       </p>
       <Link href={briefHref} className="mt-4 inline-flex text-sm font-semibold text-[var(--brand-c2-blue)] hover:underline">

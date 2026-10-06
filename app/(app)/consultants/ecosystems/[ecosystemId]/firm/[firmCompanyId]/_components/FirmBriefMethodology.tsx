@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { guideWord } from "@/lib/roleWords";
 import type { FirmBriefData } from "@/lib/firmBriefs";
 import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 
@@ -15,7 +16,7 @@ export default function FirmBriefMethodology({ data }: { data: FirmBriefData }) 
     >
       <div className="pat-label">Methodology</div>
       <p className="mt-3 text-sm leading-6 text-[var(--shell-ink)]">
-        This brief is engine-derived. No consultant interpretation has been applied at this stage.
+        This brief is engine-derived. No {guideWord()} interpretation has been applied at this stage.
       </p>
       <dl className="mt-4 space-y-2 text-xs text-[var(--shell-muted)]">
         {isNewFrontDoorEnabled() ? (

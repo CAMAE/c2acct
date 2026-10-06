@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { guideWord } from "@/lib/roleWords";
 import { notFound } from "next/navigation";
 import { AdminPageIntro } from "@/app/components/admin/AdminShell";
 import { ProductBriefingView } from "@/app/components/admin/briefings/BriefingBoard";
@@ -32,7 +33,7 @@ export default async function ConsultantProductBriefingPage({
   return (
     <div className="space-y-8">
       <AdminPageIntro
-        eyebrow="Consultant product briefing"
+        eyebrow={`${guideWord()} product briefing`}
         title={`${briefing.company.name} · ${briefing.product.productName}`}
         description="This product slice stays inside the assigned firm-company scope. All product detail, confidence, and open-ended response cards come directly from the current PAT briefing engine."
       />

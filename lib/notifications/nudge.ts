@@ -79,7 +79,7 @@ export function buildNudgeMessage(
   fromLabel: string,
   progress: NudgeModuleProgress | null = null
 ): { title: string; body: string; ctaLabel: string; ctaHref: string } {
-  const title = `A friendly reminder from your Patalign ${guideWord("consultant")}`;
+  const title = `A friendly reminder from your Patalign ${guideWord()}`;
   if (audience === "vendor") {
     return {
       title,
@@ -116,7 +116,7 @@ export function buildNudgeMessage(
  * nudge…") and never leaks a demo/account label. (16c copy fix.)
  */
 export function nudgeFromLabel(authority: NudgeAuthority): string {
-  return authority.kind === "consultant" ? "Your consultant" : "A Patalign operator";
+  return authority.kind === "consultant" ? `Your ${guideWord()}` : "A Patalign operator";
 }
 
 // NOTE: there is deliberately NO sendCompanyNudge here. Turning a Pat-drafted

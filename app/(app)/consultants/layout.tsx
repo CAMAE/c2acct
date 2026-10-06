@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { guideWord } from "@/lib/roleWords";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { PatLogoLockup } from "@/app/components/brand/BrandMarks";
@@ -28,16 +29,16 @@ export default async function ConsultantLayout({
       <section className="mx-auto max-w-3xl">
         <div className="pat-card p-8">
           <PatLogoLockup mode="hero" tone="light" />
-          <div className="pat-label mt-6">Consultant</div>
+          <div className="pat-label mt-6">{guideWord()}</div>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
-            Consultant access required
+            {guideWord()} access required
           </h1>
           <p className="mt-4 text-sm leading-7 text-[var(--shell-muted)]">
-            This route is reserved for PAT user accounts with explicit consultant profile and firm-company briefing assignments. If this is a fresh local checkout, apply the latest Prisma migrations first. Otherwise, ask a PAT operator to add consultant access and assign the allowed firm scope.
+            This page is reserved for PAT user accounts with an explicit {guideWord("consultant")} profile and firm-company briefing assignments. If this is a fresh local checkout, apply the latest Prisma migrations first. Otherwise, ask a PAT operator to add consultant access and assign the allowed firm scope.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link className="pat-button-primary" href="/sign-in?view=consultant">
-              Sign in as consultant
+              Sign in as a {guideWord("consultant")}
             </Link>
             <Link className="pat-button-secondary" href="/">
               Back to home
