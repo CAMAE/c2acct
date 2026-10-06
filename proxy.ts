@@ -14,7 +14,7 @@ const resolvedAuthSecret = getResolvedAuthSecret();
 
 export default async function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
-  const isProtectedPage = isProtectedPatPagePath(pathname);
+  const isProtectedPage = isProtectedPatPagePath(pathname, req.method);
   const isProtectedApi = isProtectedPatApiPath(pathname);
 
   // Correlation id, minted once per request and attached BEFORE any branch

@@ -74,7 +74,21 @@ export function forbiddenResponse(error = "Forbidden") {
   return NextResponse.json({ ok: false, error }, { status: 403, headers: NO_STORE_HEADERS });
 }
 
-export function isProtectedPatPagePath(pathname: string) {
+/**
+ * pattern box A (R60, change 7; Forge finding 10/05): the two membership pages are
+ * SALES surfaces — they already render the signed-out tier grid — so a signed-out
+ * GET passes the proxy instead of bouncing to sign-in. Exact paths only: checkout
+ * and every other /vendor or /firm route stay protected. There is no enterprise
+ * membership page (app/(app)/enterprise has none), so nothing to allow there.
+ */
+export const SIGNED_OUT_SALES_PAGE_PATHS = ["/vendor/membership", "/firm/membership"] as const;
+
+export function isSignedOutSalesPage(pathname: string, method: string) {
+  return method.toUpperCase() === "GET" && (SIGNED_OUT_SALES_PAGE_PATHS as readonly string[]).includes(pathname);
+}
+
+export function isProtectedPatPagePath(pathname: string, method = "GET") {
+  if (isSignedOutSalesPage(pathname, method)) return false;
   return PROTECTED_PAT_PAGE_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
   );

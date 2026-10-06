@@ -314,5 +314,11 @@
     "control": "Reset local auth state",
     "ledgerLine": "box hotfix-demo-1 (Cam 10/05, FORGE-BOX-HOTFIX-DEMO-1-2026-10-05, audit P1): the sign-in Help tab becomes three lines (which tab for which role, the support address, passwords set on first sign-in); the runtime status box and its \"Reset local auth state\" form leave the tab. The /api/auth/local-reset route itself is untouched.",
     "rulingDate": "2026-10-05"
+  },
+  {
+    "route": "/sign-in",
+    "control": "Individual / Invitee",
+    "ledgerLine": "pattern box A (Cam 10/06, FORGE-BOX-PATTERN-A-READERS-GATES-2026-10-06, R-T): the sign-in hub shows a role tab only while its surface flag is on (lib/pilotSurfaces.ts; Individual and Invitee are off for the pilot, Guide follows PAT_ENABLE_CONSULTANT_ACCESS, Enterprise follows PAT_ENABLE_ENTERPRISE); a tab never leads to a disabled surface. The production crawl ran with the two surfaces off, so the two pills were never baseline controls; the ruling records the rule.",
+    "rulingDate": "2026-10-06"
   }
 ]
