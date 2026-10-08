@@ -48,7 +48,7 @@ export function openEndedTemplateIndex(productKey: string, index: number, count:
   return (base + index * step) % count;
 }
 import { writeCompanyCapabilityScores } from "@/lib/companyCapabilityScoreWrites";
-import { maturityTier } from "@/lib/firmMaturity";
+import { maturityBandFor } from "@/lib/bandLexicon";
 import { canonicalCategoryForProduct } from "@/lib/productCategoryTaxonomy";
 import {
   FIRM_MODULE_DEFINITIONS,
@@ -257,7 +257,7 @@ export function demoDate(offsetHours: number) {
 }
 
 // Canonical maturity bands now live in lib/firmMaturity.ts (B5-5).
-export { maturityTier };
+export { maturityBandFor };
 
 export async function ensureResearchSource(client: DemoSeedClient) {
   return client.researchSource.upsert({
@@ -631,7 +631,7 @@ export async function seedVendorProductAssessment(client: DemoSeedClient, input:
       deterministicAnswer(assessmentTarget, index, input.productIndex),
     ])
   );
-  const score = computeVendorAssessmentMetrics(answers);
+  const score = computeVendorAssessmentMetrics(answers, questions.length);
   const profile = normalizeVendorProductProfileInput({
     productName: product.name,
     productDescription: product.summary,
@@ -831,7 +831,7 @@ export async function ensureFirm(client: DemoSeedClient, firm: DemoFirmInput) {
   });
 
   const scorePct = Math.round((firm.scoreTarget / PRODUCT_ASSESSMENT_SCALE_MAX) * 100);
-  const tier = maturityTier(scorePct);
+  const tier = maturityBandFor(scorePct);
 
   await client.firmMaturityIndex.upsert({
     where: {
@@ -928,7 +928,7 @@ export async function ensureFirm(client: DemoSeedClient, firm: DemoFirmInput) {
       5,
       Math.min(100, Math.round(scorePct - (totalClimb * monthsAgo) / MONTHS_OF_HISTORY + wobble))
     );
-    const historicalTier = maturityTier(historicalScore);
+    const historicalTier = maturityBandFor(historicalScore);
     const computedAt = new Date(Date.now() - monthsAgo * 30 * 24 * 60 * 60 * 1000);
     await client.firmMaturitySnapshot.upsert({
       where: { id: stableId("demo-fmi-snapshot", `${firm.key}:m${monthsAgo}`) },

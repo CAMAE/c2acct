@@ -11,7 +11,13 @@ import {
 } from "@/lib/benchmarks";
 import { computeProductAlignmentIndex } from "@/lib/productMaturity";
 import { buildVendorCategoryPosition } from "@/lib/eliteInsightsV2";
-import { FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat";
+import { FIRM_PRODUCT_MODULE_KEY, buildFirmProductQuestions } from "@/lib/firmPat";
+import { firmInsightConfidenceForModules } from "@/lib/firmInsightEngine";
+import { layerCompleteness } from "@/lib/adminBriefingEngine";
+import { buildVendorProductQuestions, computeVendorAssessmentMetrics } from "@/lib/vendorPat";
+import { maturityBandFor, SCORE_BANDS } from "@/lib/bandLexicon";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import path from "node:path";
 
 /**
  * enforce-core (R62): the code keeps the methodology page. Three pins for the
@@ -220,5 +226,78 @@ describe("ruling 3 — the 25 percent dominance cap on vendor category cohorts",
     const even = products.filter((p) => p.id.endsWith("1"));
     const cohort = vendorCategoryContributorWeights(even, productMeans(reviews)).get("Tax");
     expect(evaluateVendorCategorySuppression(cohort!.weights).suppressed).toBe(false);
+  });
+});
+
+describe("ruling 4 — one confidence table", () => {
+  it("firmInsightEngine reads the shared table with n = scored modules; 5 of 5 is Early signal, as intended (the table says 6 for Grounded)", () => {
+    expect(firmInsightConfidenceForModules(0).label).toBe("No signal");
+    expect(firmInsightConfidenceForModules(1).label).toBe("Early signal");
+    expect(firmInsightConfidenceForModules(5).label).toBe("Early signal");
+    expect(firmInsightConfidenceForModules(5).band).toBe("emerging");
+    expect(firmInsightConfidenceForModules(6).label).toBe("Grounded");
+  });
+
+  it("the briefing's coverage is a completeness flag that never produces a confidence word", () => {
+    const partial = layerCompleteness(2, 5, "The firm layer");
+    expect(partial.complete).toBe(false);
+    expect(partial.summary).not.toMatch(/Early signal|Grounded|No signal|directional/);
+    expect(layerCompleteness(5, 5, "The firm layer").complete).toBe(true);
+    const engine = readFileSync(path.join(process.cwd(), "lib/adminBriefingEngine.ts"), "utf8");
+    expect(engine).not.toContain('"directional"');
+    expect(engine).toContain("confidenceBandForSampleSize");
+    const board = readFileSync(path.join(process.cwd(), "app/components/admin/briefings/BriefingBoard.tsx"), "utf8");
+    expect(board).toContain("{module.confidenceLabel}");
+    expect(board).not.toContain("confidence {formatConfidence(module.confidenceScore)}");
+  });
+});
+
+describe("ruling 5 — the coverage penalty is live", () => {
+  it("a half-answered vendor assessment carries a coverage flag", () => {
+    const utilityKeys = ["erp_gl_core_ledger"];
+    const questions = buildVendorProductQuestions(utilityKeys);
+    expect(questions.length).toBeGreaterThan(0);
+    const half = Object.fromEntries(questions.slice(0, Math.ceil(questions.length / 2)).map((q, i) => [q.id, (i % 5) + 1]));
+    const metrics = computeVendorAssessmentMetrics(half, questions.length);
+    expect(metrics.integrity.flags).toContain("LOW_COVERAGE");
+    expect(metrics.integrity.meta.coverage).toBeLessThan(0.6);
+    expect(metrics.integrity.score).toBeLessThan(1);
+    const full = Object.fromEntries(questions.map((q, i) => [q.id, (i % 5) + 1]));
+    expect(computeVendorAssessmentMetrics(full, questions.length).integrity.flags).not.toContain("LOW_COVERAGE");
+  });
+
+  it("the firm product review runs evaluateSignalIntegrity instead of a hard-coded 1", () => {
+    const source = readFileSync(path.join(process.cwd(), "lib/firmPat.ts"), "utf8");
+    const submit = source.slice(source.indexOf("export async function submitFirmProductAssessment"));
+    expect(submit).toContain("evaluateSignalIntegrity(input.answers");
+    expect(submit).toContain("signalIntegrityScore: integrity.score");
+    expect(submit).not.toContain("signalIntegrityScore: 1,");
+    expect(buildFirmProductQuestions(["erp_gl_core_ledger"]).length).toBeGreaterThan(0);
+  });
+});
+
+describe("ruling 6 — firmMaturity's band table is retired", () => {
+  it("the stored band is the one score-band lexicon", () => {
+    expect(maturityBandFor(30)).toEqual({ tier: "EARLY", bandMin: SCORE_BANDS.early.min, bandMax: SCORE_BANDS.early.max });
+    expect(maturityBandFor(70).tier).toBe("BUILDING");
+    expect(maturityBandFor(95).tier).toBe("LEADING");
+  });
+
+  it("no EMERGING / FOUNDATIONAL / SCALING / ADVANCED band literal survives in lib, app or scripts", () => {
+    const hits: string[] = [];
+    const walk = (dir: string) => {
+      for (const entry of readdirSync(dir)) {
+        const full = path.join(dir, entry);
+        if (statSync(full).isDirectory()) {
+          if (entry === "node_modules" || entry === "generated") continue;
+          walk(full);
+        } else if (/\.(ts|tsx)$/.test(entry)) {
+          const text = readFileSync(full, "utf8");
+          if (/"(EMERGING|FOUNDATIONAL|SCALING|ADVANCED)"/.test(text)) hits.push(path.relative(process.cwd(), full));
+        }
+      }
+    };
+    for (const dir of ["lib", "app", "scripts"]) walk(path.join(process.cwd(), dir));
+    expect(hits).toEqual([]);
   });
 });

@@ -1,3 +1,4 @@
+import { CONFIDENCE_BAND_LABEL, confidenceBandForSampleSize, type ConfidenceBand } from "@/lib/confidenceBands";
 import { Prisma, QuestionInputType } from "@prisma/client";
 import { normalizeQuestionRuntime, type NormalizedAnswer } from "@/lib/assessmentRuntime";
 import { getFirmInsightReports, getFirmInsightReportsForFirms } from "@/lib/firmInsightEngine";
@@ -64,7 +65,8 @@ type ModuleSubmissionRecord = {
   answers: unknown;
 };
 
-type BriefingConfidenceBand = "no_signal" | "directional" | "emerging" | "grounded";
+// enforce-core (R62, ruling 4): the one confidence table (lib/confidenceBands).
+type BriefingConfidenceBand = ConfidenceBand;
 
 export type BriefingCatalogItem = {
   companyId: string;
@@ -89,7 +91,10 @@ export type BriefingModuleHeatmapItem = {
   key: string;
   title: string;
   canonicalScore: number | null;
+  /** Signal integrity (0-1) of the latest submission — recorded, never shown as a confidence percentage. */
   confidenceScore: number | null;
+  /** The confidence label from the one table, n = the module's scored answers (ruling 4). */
+  confidenceLabel: string;
   latestSubmittedAt: Date | null;
   sectionScores: BriefingSectionScore[];
 };
@@ -451,33 +456,42 @@ function normalizeAnswerToPercent(
   return null;
 }
 
-function getConfidenceFromCoverage(sampleSize: number, completeTarget: number, label: string): LayerConfidence {
-  if (sampleSize <= 0) {
+/**
+ * enforce-core (R62, ruling 4): the layer's COMPLETENESS — how much of the
+ * expected evidence is on record. A separate flag; it never produces a
+ * confidence word.
+ */
+export type LayerCompleteness = { complete: boolean; coveredCount: number; expectedCount: number; summary: string };
+
+export function layerCompleteness(sampleSize: number, completeTarget: number, label: string): LayerCompleteness {
+  const expectedCount = Math.max(1, completeTarget);
+  const coveredCount = Math.max(0, sampleSize);
+  if (coveredCount <= 0) {
+    return { complete: false, coveredCount, expectedCount, summary: `${label} has no completed PAT evidence yet.` };
+  }
+  if (coveredCount < expectedCount) {
     return {
-      band: "no_signal",
-      label: "No signal",
-      summary: `${label} has no completed PAT evidence yet.`,
+      complete: false,
+      coveredCount,
+      expectedCount,
+      summary: `${label} covers ${coveredCount} of ${expectedCount} expected data points and is still incomplete.`,
     };
   }
-  if (sampleSize < Math.max(1, Math.ceil(completeTarget / 2))) {
-    return {
-      band: "directional",
-      label: "Early signal",
-      summary: `${label} is based on ${sampleSize} completed data point${sampleSize === 1 ? "" : "s"}, so it remains early evidence.`,
-    };
-  }
-  if (sampleSize < completeTarget) {
-    return {
-      band: "emerging",
-      label: "Early signal",
-      summary: `${label} covers ${sampleSize} of ${completeTarget} expected data points and is useful, but still incomplete.`,
-    };
-  }
+  return { complete: true, coveredCount, expectedCount, summary: `${label} covers the current expected PAT data points.` };
+}
+
+/** The confidence word comes from the ONE table (lib/confidenceBands, 3 / 6) on the layer's sample size. */
+function layerConfidence(sampleSize: number, completeness: LayerCompleteness): LayerConfidence {
+  const band = confidenceBandForSampleSize(sampleSize);
   return {
-    band: "grounded",
-    label: "Grounded",
-    summary: `${label} covers the current expected PAT data points and is grounded for current-state interpretation only.`,
+    band,
+    label: CONFIDENCE_BAND_LABEL[band],
+    summary: `${completeness.summary} Confidence reflects ${sampleSize} data point${sampleSize === 1 ? "" : "s"}, for current-state interpretation only.`,
   };
+}
+
+function getConfidenceFromCoverage(sampleSize: number, completeTarget: number, label: string): LayerConfidence {
+  return layerConfidence(sampleSize, layerCompleteness(sampleSize, completeTarget, label));
 }
 
 function getOverallConfidence(input: {
@@ -486,30 +500,16 @@ function getOverallConfidence(input: {
   peopleAssessed: number;
   productCount: number;
 }) {
-  const signalPoints = [
-    input.completedModules === input.totalModules ? 2 : input.completedModules > 0 ? 1 : 0,
-    input.peopleAssessed >= 3 ? 2 : input.peopleAssessed > 0 ? 1 : 0,
-    input.productCount >= 2 ? 2 : input.productCount > 0 ? 1 : 0,
-  ].reduce((sum, value) => sum + value, 0);
-
-  if (signalPoints <= 1) {
-    return {
-      band: "directional" as const,
-      label: "Early signal",
-      summary: "The briefing is usable for triage, but multiple evidence layers are still thin.",
-    };
-  }
-  if (signalPoints <= 4) {
-    return {
-      band: "emerging" as const,
-      label: "Early signal",
-      summary: "The briefing has meaningful evidence, but at least one layer remains sample-thin or incomplete.",
-    };
-  }
+  // n = every data point the briefing holds across its layers; the table decides.
+  const sampleSize = input.completedModules + input.peopleAssessed + input.productCount;
+  const band = confidenceBandForSampleSize(sampleSize);
+  const layersComplete = input.completedModules === input.totalModules;
   return {
-    band: "grounded" as const,
-    label: "Grounded",
-    summary: "The briefing is grounded across the current PAT layers, while still avoiding unsupported benchmark or projection claims.",
+    band,
+    label: CONFIDENCE_BAND_LABEL[band],
+    summary: layersComplete
+      ? `The briefing holds ${sampleSize} data points across its layers, with every firm module on record. It avoids unsupported benchmark or projection claims.`
+      : `The briefing holds ${sampleSize} data points across its layers; ${input.completedModules} of ${input.totalModules} firm modules are on record, so at least one layer remains incomplete.`,
   };
 }
 
@@ -571,11 +571,13 @@ export function buildModuleHeatmap(
       sectionScores.set(sectionKey, existing);
     }
 
+    const scoredAnswerCount = Array.from(sectionScores.values()).reduce((sum, value) => sum + value.values.length, 0);
     return {
       key: module.key,
       title: module.title,
       canonicalScore: latestSubmission?.score ?? null,
       confidenceScore: latestSubmission?.signalIntegrityScore ?? null,
+      confidenceLabel: CONFIDENCE_BAND_LABEL[confidenceBandForSampleSize(scoredAnswerCount)],
       latestSubmittedAt: latestSubmission?.createdAt ?? null,
       sectionScores: Array.from(sectionScores.entries())
         .map(([key, value]) => ({
@@ -1671,7 +1673,7 @@ export async function getAdminCompanyBriefing(
         canonicalScore: averageFirmScore,
         caveats: [
           "The firm score is the raw module score from PAT submissions.",
-          "Signal integrity remains separate in the module heatmap.",
+          "Signal integrity is recorded on each submission and never shown as a confidence percentage.",
         ],
       },
       {

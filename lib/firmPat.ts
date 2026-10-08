@@ -1,3 +1,4 @@
+import { evaluateSignalIntegrity } from "@/lib/signalIntegrity";
 import { ModuleScope, QuestionInputType, type UserRole } from "@prisma/client";
 import { createHash, randomUUID } from "crypto";
 import prisma from "@/lib/prisma";
@@ -1631,6 +1632,8 @@ export async function submitFirmProductAssessment(input: {
   companyId: string;
   productId: string;
   answers: Record<string, number>;
+  /** The plan's scored count for the vendor's declared features (ruling 5: the coverage penalty runs). */
+  expectedQuestionCount: number;
 }) {
   const moduleRecord = await ensureFirmProductModule();
   const product = await prisma.product.findUnique({
@@ -1647,6 +1650,13 @@ export async function submitFirmProductAssessment(input: {
   const values = Object.values(input.answers);
   const score = computeScore({
     answers: input.answers,
+    scaleMin: PRODUCT_ASSESSMENT_SCALE_MIN,
+    scaleMax: PRODUCT_ASSESSMENT_SCALE_MAX,
+  });
+  // enforce-core (R62, ruling 5): the firm review runs the same integrity
+  // evaluation as every other submission instead of a hard-coded 1.
+  const integrity = evaluateSignalIntegrity(input.answers, {
+    expectedQuestionCount: input.expectedQuestionCount,
     scaleMin: PRODUCT_ASSESSMENT_SCALE_MIN,
     scaleMax: PRODUCT_ASSESSMENT_SCALE_MAX,
   });
@@ -1668,8 +1678,8 @@ export async function submitFirmProductAssessment(input: {
       scaleMax: PRODUCT_ASSESSMENT_SCALE_MAX,
       totalWeight: values.length,
       answeredCount: values.length,
-      signalIntegrityScore: 1,
-      integrityFlags: [],
+      signalIntegrityScore: integrity.score,
+      integrityFlags: integrity.flags,
     },
   });
 }

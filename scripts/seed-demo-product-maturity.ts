@@ -1,6 +1,7 @@
 import { applyRepoEnv } from "@/lib/env/repoEnv";
 import { createHash } from "node:crypto";
-import { maturityTier, MATURITY_SNAPSHOT_VERSION } from "@/lib/firmMaturity";
+import { maturityBandFor } from "@/lib/bandLexicon";
+import { MATURITY_SNAPSHOT_VERSION } from "@/lib/firmMaturity";
 
 /**
  * Demo backfill of ProductMaturitySnapshot history with VARIED trajectories, so
@@ -72,7 +73,7 @@ async function main() {
     });
 
     for (const p of points) {
-      const tier = maturityTier(p.score);
+      const tier = maturityBandFor(p.score);
       const id = sid(productId, p.at.toISOString());
       await prisma.productMaturitySnapshot.upsert({
         where: { id },
@@ -93,7 +94,7 @@ async function main() {
 
     // index (current) + momentum (from the generated series)
     const last = points[points.length - 1]!;
-    const lastTier = maturityTier(last.score);
+    const lastTier = maturityBandFor(last.score);
     await prisma.productMaturityIndex.upsert({
       where: { productId_version: { productId, version: MATURITY_SNAPSHOT_VERSION } },
       create: { id: `pmi-${productId}`, productId, score: last.score, tier: lastTier.tier, bandMin: lastTier.bandMin, bandMax: lastTier.bandMax, version: MATURITY_SNAPSHOT_VERSION },

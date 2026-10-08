@@ -3,7 +3,8 @@ import { DataBoundary, type PrismaClient } from "@prisma/client";
 import { FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { latestFinalPerFirm } from "@/lib/assessmentCore";
-import { MATURITY_SNAPSHOT_VERSION, maturityTier } from "@/lib/firmMaturity";
+import { maturityBandFor } from "@/lib/bandLexicon";
+import { MATURITY_SNAPSHOT_VERSION } from "@/lib/firmMaturity";
 
 /**
  * Product maturity + trajectory writer — the per-product mirror of firmMaturity
@@ -63,7 +64,7 @@ export async function writeProductMaturitySnapshot(
 
   const score = await computeProductAlignmentIndex(client, productId);
   if (score === null) return null;
-  const tier = maturityTier(score);
+  const tier = maturityBandFor(score);
   const computedAt = options?.at ?? new Date();
 
   await client.productMaturityIndex.upsert({

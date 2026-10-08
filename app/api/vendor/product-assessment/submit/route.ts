@@ -140,7 +140,7 @@ export async function POST(request: Request) {
 
   const moduleRecord = await ensureVendorProductModule();
   const subject = await ensureProductSubject(product);
-  const { score, integrity } = computeVendorAssessmentMetrics(answers);
+  const { score, integrity } = computeVendorAssessmentMetrics(answers, questionBank.length);
   const normalizedProfile = normalizeVendorProductProfileInput(profile);
   const assessmentPlan = serializeVendorProductAssessmentPlan(utilityKeys);
   const questionLoad = getVendorProductAssessmentQuestionLoad(

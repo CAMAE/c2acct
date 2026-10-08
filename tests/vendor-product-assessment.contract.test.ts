@@ -626,7 +626,7 @@ describe("vendor product assessment contracts", () => {
     const scoredQuestions = buildVendorProductQuestions(utilityKeys);
     const answers = Object.fromEntries(scoredQuestions.map((question, index) => [question.id, index % 6]));
 
-    const metrics = computeVendorAssessmentMetrics(answers);
+    const metrics = computeVendorAssessmentMetrics(answers, scoredQuestions.length);
 
     expect(metrics.score.scaleMin).toBe(0);
     expect(metrics.score.scaleMax).toBe(5);

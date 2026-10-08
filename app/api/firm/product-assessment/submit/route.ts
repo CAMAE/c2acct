@@ -79,6 +79,7 @@ export async function POST(request: Request) {
     companyId: context.company.id,
     productId,
     answers,
+    expectedQuestionCount: expected.length,
   });
 
   return NextResponse.json({ ok: true, submissionId: submission.id }, { headers: NO_STORE_HEADERS });

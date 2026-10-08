@@ -1,5 +1,6 @@
 import { applyRepoEnv } from "@/lib/env/repoEnv";
-import { maturityTier, MATURITY_SNAPSHOT_VERSION } from "@/lib/firmMaturity";
+import { maturityBandFor } from "@/lib/bandLexicon";
+import { MATURITY_SNAPSHOT_VERSION } from "@/lib/firmMaturity";
 
 /**
  * One-time idempotent backfill of FirmMaturitySnapshot history (B5-5) from real
@@ -57,7 +58,7 @@ async function main() {
 
     if (apply) {
       for (const ev of events) {
-        const tier = maturityTier(ev.score);
+        const tier = maturityBandFor(ev.score);
         const id = stableId(firm.id, ev.at.toISOString());
         await prisma.firmMaturitySnapshot.upsert({
           where: { id },
@@ -76,7 +77,7 @@ async function main() {
       }
       // final index from the last event
       const last = events[events.length - 1];
-      const tier = maturityTier(last.score);
+      const tier = maturityBandFor(last.score);
       await prisma.firmMaturityIndex.upsert({
         where: { companyId_version: { companyId: firm.id, version: MATURITY_SNAPSHOT_VERSION } },
         create: { id: `fmi-${firm.id}`, companyId: firm.id, score: last.score, tier: tier.tier, bandMin: tier.bandMin, bandMax: tier.bandMax, version: MATURITY_SNAPSHOT_VERSION },

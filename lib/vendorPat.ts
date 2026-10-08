@@ -808,7 +808,12 @@ export async function upsertVendorProductSignals(
   });
 }
 
-export function computeVendorAssessmentMetrics(answers: Record<string, number>) {
+/**
+ * enforce-core (R62, ruling 5): the coverage penalty is live. `expectedQuestionCount`
+ * is the PLAN's scored count (declared utilities x questions per utility), never
+ * the answered count — passing the answered count made coverage 1.0 by definition.
+ */
+export function computeVendorAssessmentMetrics(answers: Record<string, number>, expectedQuestionCount: number) {
   const score = computeScore({
     answers,
     scaleMin: PRODUCT_ASSESSMENT_SCALE_MIN,
@@ -816,7 +821,7 @@ export function computeVendorAssessmentMetrics(answers: Record<string, number>) 
   });
 
   const integrity = evaluateSignalIntegrity(answers, {
-    expectedQuestionCount: Object.keys(answers).length,
+    expectedQuestionCount,
     scaleMin: PRODUCT_ASSESSMENT_SCALE_MIN,
     scaleMax: PRODUCT_ASSESSMENT_SCALE_MAX,
   });

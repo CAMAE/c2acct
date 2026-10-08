@@ -46,6 +46,17 @@ export function scoreBandFor(score: number): ScoreBandDef {
   return SCORE_BANDS.early;
 }
 
+/**
+ * enforce-core (R62, ruling 6): the stored maturity band of a 0-100 score. The
+ * FirmMaturity / ProductMaturity rows used to carry a second ladder
+ * (lib/firmMaturity's own table); they now carry this one, as the band key in
+ * upper case with the band's bounds.
+ */
+export function maturityBandFor(score: number): { tier: string; bandMin: number; bandMax: number } {
+  const band = scoreBandFor(score);
+  return { tier: band.key.toUpperCase(), bandMin: band.min, bandMax: band.max };
+}
+
 /** Canonical chip text: "68 · Building". Rounds the score. */
 export function scoreChipLabel(score: number): string {
   return `${Math.round(score)} · ${scoreBandFor(score).label}`;

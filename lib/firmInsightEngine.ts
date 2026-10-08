@@ -1,3 +1,4 @@
+import { CONFIDENCE_BAND_LABEL, confidenceBandForSampleSize } from "@/lib/confidenceBands";
 import prisma from "@/lib/prisma";
 import { FIRM_ELITE_V2_META } from "@/lib/eliteInsightsV2";
 import { normalizeQuestionRuntime, type NormalizedAnswer } from "@/lib/assessmentRuntime";
@@ -149,41 +150,47 @@ export function getRequestedFirmInsightDetailSurface(
   }
 }
 
-function getConfidenceBand(sampleSize: number) {
-  if (sampleSize <= 0) {
+/**
+ * enforce-core (R62, ruling 4): ONE confidence table. The band comes from
+ * lib/confidenceBands (3 / 6) with n = the insight's scored modules; the copy
+ * below is keyed off that band. A firm has at most five modules, so the firm
+ * readout reads "Early signal" at 5 of 5 — the table says six for Grounded,
+ * and that is intended (tests/confidence-bands.contract.test.ts).
+ */
+export function firmInsightConfidenceForModules(sampleSize: number) {
+  const band = confidenceBandForSampleSize(sampleSize);
+  if (band === "no_signal") {
     return {
-      band: "no_signal" as const,
-      label: "No signal",
+      band,
+      label: CONFIDENCE_BAND_LABEL[band],
       summary: "PAT does not yet have enough completed firm evidence to support a grounded readout.",
     };
   }
-  if (sampleSize === 1) {
+  if (band === "sample_thin") {
     return {
-      band: "sample_thin" as const,
-      label: "Early signal",
-      summary: "This readout is based on one completed module submission only and should be treated as early current-state signal.",
+      band,
+      label: CONFIDENCE_BAND_LABEL[band],
+      summary:
+        sampleSize === 1
+          ? "This readout is based on one completed module submission only and should be treated as early current-state signal."
+          : `This readout is based on ${sampleSize} relevant module submissions and remains sample-thin rather than strong confirmation.`,
     };
   }
-  if (sampleSize < 4) {
+  if (band === "emerging") {
     return {
-      band: "sample_thin" as const,
-      label: "Early signal",
-      summary: `This readout is based on ${sampleSize} relevant module submissions and remains sample-thin rather than strong confirmation.`,
-    };
-  }
-  if (sampleSize < 8) {
-    return {
-      band: "emerging" as const,
-      label: "Early signal",
+      band,
+      label: CONFIDENCE_BAND_LABEL[band],
       summary: `This readout is based on ${sampleSize} relevant module submissions and is useful, but still not broad enough to read as strong signal.`,
     };
   }
   return {
-    band: "grounded" as const,
-    label: "Grounded",
+    band,
+    label: CONFIDENCE_BAND_LABEL[band],
     summary: `This readout is based on ${sampleSize} relevant module submissions and is grounded for current-state interpretation only, not benchmarks or forecasts.`,
   };
 }
+
+const getConfidenceBand = firmInsightConfidenceForModules;
 
 const INSIGHT_MODULE_MAP: Record<InsightKey, string[]> = {
   firm_tier1_operating_baseline: FIRM_MODULE_DEFINITIONS.map((module) => module.key),

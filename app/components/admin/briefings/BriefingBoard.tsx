@@ -238,7 +238,7 @@ export function ModuleHeatmap({ modules }: { modules: BriefingModuleHeatmapItem[
               <div>
                 <div className="text-lg font-semibold text-[var(--shell-ink)]">{module.title}</div>
                 <div className="mt-1 text-sm text-[var(--shell-muted)]">
-                  Raw score <strong className="font-semibold text-[var(--shell-ink)]">{formatPercent(module.canonicalScore)}</strong> · confidence {formatConfidence(module.confidenceScore)} · {formatDate(module.latestSubmittedAt)}
+                  Raw score <strong className="font-semibold text-[var(--shell-ink)]">{formatPercent(module.canonicalScore)}</strong> · {module.confidenceLabel} · {formatDate(module.latestSubmittedAt)}
                 </div>
               </div>
             </div>

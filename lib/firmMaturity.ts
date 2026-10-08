@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { DataBoundary, type PrismaClient } from "@prisma/client";
+import { maturityBandFor } from "@/lib/bandLexicon";
 import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 
@@ -13,13 +14,8 @@ import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 
 export const MATURITY_SNAPSHOT_VERSION = 1;
 
-/** Canonical maturity tier bands (single source of truth; the demo seed reuses this). */
-export function maturityTier(scorePct: number): { tier: string; bandMin: number; bandMax: number } {
-  if (scorePct >= 82) return { tier: "ADVANCED", bandMin: 80, bandMax: 100 };
-  if (scorePct >= 65) return { tier: "SCALING", bandMin: 65, bandMax: 79 };
-  if (scorePct >= 45) return { tier: "FOUNDATIONAL", bandMin: 45, bandMax: 64 };
-  return { tier: "EMERGING", bandMin: 0, bandMax: 44 };
-}
+// enforce-core (R62, ruling 6): the band table that lived here is retired; the
+// stored tier is the one score-band lexicon's band (lib/bandLexicon.maturityBandFor).
 
 type MaturityClient = Pick<
   PrismaClient,
@@ -67,7 +63,7 @@ export async function writeFirmMaturitySnapshot(
 
   const score = await computeFirmAlignmentIndex(client, companyId);
   if (score === null) return null;
-  const tier = maturityTier(score);
+  const tier = maturityBandFor(score);
   const computedAt = options?.at ?? new Date();
 
   await client.firmMaturityIndex.upsert({
