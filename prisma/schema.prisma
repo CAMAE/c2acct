@@ -71,6 +71,9 @@ model BenchmarkRun {
   p50             Float?
   p75             Float?
   p90             Float?
+  // enforce-core (R62): the run's cutoff — only FINAL submissions created at or
+  // before it count. Null on rows written before the column existed.
+  cutoff          DateTime?
   computedAt      DateTime        @default(now())
   BenchmarkCohort BenchmarkCohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
 

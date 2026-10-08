@@ -13,6 +13,7 @@ import {
   resolveStoredProductAssessmentScale,
 } from "@/lib/productAssessmentRuntime";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
+import { latestFinalPerFirm } from "@/lib/assessmentCore";
 import { getVendorScopedFirms } from "@/lib/tenancy";
 import {
   DIMENSION_KEY_BY_BASIS,
@@ -660,6 +661,8 @@ export async function getFirmProductFitDimensionsByProduct(
         Subject: { productId: { in: productIds } },
       }),
       select: {
+        companyId: true,
+        createdAt: true,
         answers: true,
         scaleMin: true,
         scaleMax: true,
@@ -668,8 +671,14 @@ export async function getFirmProductFitDimensionsByProduct(
     })
     .catch(() => []);
 
+  // One firm one vote (enforce-core ruling 2): this firm's latest final per product.
+  const votes = latestFinalPerFirm(submissions, {
+    firmId: (submission) => submission.companyId,
+    groupKey: (submission) => submission.Subject?.productId,
+    createdAt: (submission) => submission.createdAt,
+  });
   const responsesByProduct = new Map<string, ProductResponseSet[]>();
-  for (const submission of submissions) {
+  for (const submission of votes) {
     const productId = submission.Subject?.productId;
     if (!productId) continue;
     const storedScale = resolveStoredProductAssessmentScale(submission.scaleMin, submission.scaleMax);
@@ -1553,6 +1562,8 @@ type VendorSubmissionRow = {
 
 type FirmSubmissionRow = {
   id: string;
+  /** The reviewing firm — one firm one vote groups on it (enforce-core ruling 2). */
+  companyId: string | null;
   score: number;
   createdAt: Date;
   answers: unknown;
@@ -1630,6 +1641,7 @@ export async function resolveVendorProductInsightContext(
             orderBy: { createdAt: "desc" },
             select: {
               id: true,
+              companyId: true,
               score: true,
               createdAt: true,
               answers: true,
@@ -1789,6 +1801,7 @@ export async function getVendorProductInsightSnapshot(
             orderBy: { createdAt: "desc" },
             select: {
               id: true,
+              companyId: true,
               score: true,
               createdAt: true,
               answers: true,
@@ -1838,7 +1851,14 @@ export async function getVendorProductInsightSnapshot(
     scaleMin: vendorScale.scaleMin,
     scaleMax: vendorScale.scaleMax,
   };
-  const firmResponseSets = firmSubmissions.map((submission) => {
+  // One firm one vote (enforce-core ruling 2): the latest FINAL per firm is the
+  // firm's vote on this product; earlier finals stay stored as history and do not
+  // enter the average, the response sets or the count.
+  const firmVotes = latestFinalPerFirm(firmSubmissions, {
+    firmId: (submission) => submission.companyId,
+    createdAt: (submission) => submission.createdAt,
+  });
+  const firmResponseSets = firmVotes.map((submission) => {
     const storedScale = resolveStoredProductAssessmentScale(submission.scaleMin, submission.scaleMax);
     return {
       answers: extractResponses(submission.answers),
@@ -1869,9 +1889,9 @@ export async function getVendorProductInsightSnapshot(
       responses: vendorResponses,
     },
     firmReviewed: {
-      assessmentCount: firmSubmissions.length,
-      latestSubmittedAt: firmSubmissions[0]?.createdAt ?? null,
-      averageScore: average(firmSubmissions.map((submission) => submission.score)),
+      assessmentCount: firmVotes.length,
+      latestSubmittedAt: firmVotes[0]?.createdAt ?? null,
+      averageScore: average(firmVotes.map((submission) => submission.score)),
       responseSets: firmResponseSets,
     },
   });

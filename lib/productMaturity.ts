@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { DataBoundary, type PrismaClient } from "@prisma/client";
 import { FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
+import { latestFinalPerFirm } from "@/lib/assessmentCore";
 import { MATURITY_SNAPSHOT_VERSION, maturityTier } from "@/lib/firmMaturity";
 
 /**
@@ -18,7 +19,10 @@ type ProductMaturityClient = Pick<
   "surveySubmission" | "productMaturityIndex" | "productMaturitySnapshot" | "product"
 >;
 
-/** Mean of a product's firm-reviewed strength (0–100), or null when none exist. */
+/**
+ * Mean of a product's firm votes (0–100), or null when none exist. One firm one
+ * vote (enforce-core ruling 2): the latest final per firm counts.
+ */
 export async function computeProductAlignmentIndex(
   client: Pick<PrismaClient, "surveySubmission">,
   productId: string
@@ -28,9 +32,9 @@ export async function computeProductAlignmentIndex(
       SurveyModule: { is: { key: FIRM_PRODUCT_MODULE_KEY } },
       Subject: { is: { productId } },
     }),
-    select: { score: true },
+    select: { companyId: true, score: true, createdAt: true },
   });
-  const scores = reviews
+  const scores = latestFinalPerFirm(reviews, { firmId: (r) => r.companyId, createdAt: (r) => r.createdAt })
     .map((r) => r.score)
     .filter((s): s is number => typeof s === "number");
   if (scores.length === 0) return null;

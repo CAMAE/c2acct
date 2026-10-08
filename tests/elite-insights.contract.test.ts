@@ -94,6 +94,7 @@ describe("V3 Gap Map drill-down — takeaway + action from the selection", () =>
 describe("Block 12b — firm tier-1 hybrid Elite depth (theme-scoped peer position)", () => {
   const peer = (): FirmPeerPosition => ({
     available: true,
+    cutoffLabel: null,
     overall: { percentile: 60, rankFromTop: 40, n: 100, score: 66 },
     bestAction: { moduleLabel: "Automation and AI Readiness", deficit: 12, fromPercentile: 40, toPercentile: 75 },
     rows: [
@@ -126,6 +127,7 @@ describe("Block 12c — Elite hub face metrics (own headline number per card)", 
     const metrics = firmEliteHubMetrics({
       peer: {
         available: true,
+        cutoffLabel: null,
         overall: { percentile: 72, rankFromTop: 30, n: 106, score: 68 },
         bestAction: { moduleLabel: "Automation and AI Readiness", deficit: 9, fromPercentile: 48, toPercentile: 75 },
         rows: [],
@@ -157,10 +159,11 @@ describe("Block 12c — Elite hub face metrics (own headline number per card)", 
       category: {
         available: true,
         categories: [
-          { category: "Tax & Compliance", mean: 70, stdev: 5, p25: 60, p75: 80, score: 82, percentile: 90, rankFromTop: 1, n: 9, quartile: 4, suppressed: false },
-          { category: "Ledger & Close", mean: 65, stdev: 5, p25: 55, p75: 75, score: 62, percentile: 40, rankFromTop: 5, n: 8, quartile: 2, suppressed: false },
+          { category: "Tax & Compliance", mean: 70, stdev: 5, p25: 60, p75: 80, score: 82, percentile: 90, rankFromTop: 1, n: 9, quartile: 4, suppressed: false, suppressionReason: null },
+          { category: "Ledger & Close", mean: 65, stdev: 5, p25: 55, p75: 75, score: 62, percentile: 40, rankFromTop: 5, n: 8, quartile: 2, suppressed: false, suppressionReason: null },
         ],
         topAction: null,
+        cutoffLabel: null,
         emptyReason: null,
       },
       demand: {

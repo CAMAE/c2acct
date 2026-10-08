@@ -8,13 +8,27 @@
  * Boundary-scoped by COHORT: a firm/vendor benchmarks only against its own pool
  * (`firm:real` = PRODUCTION+PILOT, `firm:demo` = DEMO), so demo rows never enter a
  * real distribution and the demo environment still shows a full curve. Suppression
- * (n≥5) is applied by the READING surface, not here — this stores the raw curve.
+ * (n≥5, no contributor above 25%) is applied by the READING surface, not here —
+ * this stores the raw curve.
  *
- * Idempotent (upsert by the schema unique keys). Runs in the demo seed and via
- * scripts/compute-benchmarks.ts; surfaces READ the tables (fast, no recompute).
+ * enforce-core (R62): the run keeps the methodology page.
+ *  - CUTOFF: only FINAL submissions created at or before the run's cutoff count;
+ *    the cutoff is a parameter of the run and is stored on the BenchmarkRun row,
+ *    so every reader can say which cut it shows and never recomputes live.
+ *  - ONE FIRM ONE VOTE: a product's average counts the latest final per
+ *    (firm, product); a firm's module score is its latest final per module.
+ *  - DOMINANCE: the vendor category cohort's contributor weights (firm-reviewed
+ *    products per vendor) are exposed to the reader through
+ *    `vendorCategoryContributorWeights`, which evaluates MAX_CONTRIBUTOR_SHARE.
+ *
+ * Idempotent (upsert by the schema unique keys). Runs via
+ * scripts/compute-benchmarks.ts --cutoff <date>; surfaces READ the tables.
  */
 import { randomUUID } from "node:crypto";
 import { DataBoundary, type PrismaClient, type CompanyType } from "@prisma/client";
+import { latestFinalPerFirm } from "@/lib/assessmentCore";
+import { evaluateBenchmarkSuppression, type BenchmarkSuppression } from "@/lib/benchmarkSuppression";
+import { quarterCutoff } from "@/lib/consultantFreshness";
 import { FIRM_MODULE_DEFINITIONS, FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import {
@@ -39,6 +53,20 @@ const POOLS: Pool[] = [
   { tag: "real", boundaries: [DataBoundary.PRODUCTION, DataBoundary.PILOT] },
   { tag: "demo", boundaries: [DataBoundary.DEMO] },
 ];
+
+/** The pool a viewer of the given boundary reads (the cohort's own boundaries). */
+export function poolBoundariesFor(boundary: DataBoundary): DataBoundary[] {
+  return boundary === DataBoundary.DEMO ? POOLS[1].boundaries : POOLS[0].boundaries;
+}
+
+/**
+ * The cutoff a run uses when none is given: the last instant of the calendar
+ * quarter `now` falls in — the rule the methodology page publishes today (ruling 1
+ * default). The scheduler box adds the one-quarter publication lag.
+ */
+export function defaultBenchmarkCutoff(now: Date = new Date()): Date {
+  return quarterCutoff(now);
+}
 
 /**
  * Which cohort key a viewer of the given boundary reads.
@@ -109,12 +137,12 @@ async function ensureCohort(client: BenchmarkClient, key: string, title: string,
   return created.id;
 }
 
-async function writeRun(client: BenchmarkClient, cohortId: string, metricKey: string, values: number[]) {
+async function writeRun(client: BenchmarkClient, cohortId: string, metricKey: string, values: number[], cutoff: Date) {
   const d = distribution(values);
   await client.benchmarkRun.upsert({
     where: { cohortId_metricKey_version: { cohortId, metricKey, version: BENCHMARK_VERSION } },
-    create: { id: randomUUID(), cohortId, metricKey, version: BENCHMARK_VERSION, ...d },
-    update: { ...d, computedAt: new Date() },
+    create: { id: randomUUID(), cohortId, metricKey, version: BENCHMARK_VERSION, cutoff, ...d },
+    update: { ...d, cutoff, computedAt: new Date() },
   });
 }
 
@@ -154,7 +182,7 @@ async function writeCompany(
 
 // --- firm benchmarks (F1): alignment_index + 5 modules, per pool ---------------
 
-async function computeFirmBenchmarks(client: BenchmarkClient, verticalId?: string): Promise<number> {
+async function computeFirmBenchmarks(client: BenchmarkClient, cutoff: Date, verticalId?: string): Promise<number> {
   const moduleKeys = FIRM_MODULE_DEFINITIONS.map((m) => m.key);
   const scope = verticalFilter({ verticalId });
   const cohortVertical = verticalId ?? DEFAULT_VERTICAL_ID;
@@ -172,12 +200,14 @@ async function computeFirmBenchmarks(client: BenchmarkClient, verticalId?: strin
       where: getSurveyFinalWhere({
         SurveyModule: { key: { in: moduleKeys } },
         Company: { is: { dataBoundary: { in: pool.boundaries } } },
+        createdAt: { lte: cutoff },
         ...scope,
       }),
       orderBy: { createdAt: "desc" },
       select: {
         companyId: true,
         score: true,
+        createdAt: true,
         ...(scope.verticalId === undefined ? {} : { verticalId: true as const }),
         SurveyModule: { select: { key: true } },
       },
@@ -197,21 +227,18 @@ async function computeFirmBenchmarks(client: BenchmarkClient, verticalId?: strin
       );
     }
 
-    // latest score per (firm, module)
-    const latest = new Map<string, number>();
-    for (const s of submissions) {
-      const mk = s.SurveyModule?.key;
-      if (!s.companyId || !mk || typeof s.score !== "number") continue;
-      const key = `${s.companyId}::${mk}`;
-      if (!latest.has(key)) latest.set(key, s.score);
-    }
+    // one firm one vote: latest final per (firm, module)
+    const votes = latestFinalPerFirm(
+      submissions.filter((s) => typeof s.score === "number"),
+      { firmId: (s) => s.companyId, groupKey: (s) => s.SurveyModule?.key, createdAt: (s) => s.createdAt }
+    );
 
     const scoresByMetric = new Map<string, Array<{ companyId: string; score: number }>>();
     const firmModuleScores = new Map<string, number[]>();
-    for (const [key, score] of latest) {
-      const sep = key.lastIndexOf("::");
-      const companyId = key.slice(0, sep);
-      const metric = key.slice(sep + 2);
+    for (const vote of votes) {
+      const companyId = vote.companyId as string;
+      const metric = vote.SurveyModule?.key as string;
+      const score = vote.score as number;
       (scoresByMetric.get(metric) ?? scoresByMetric.set(metric, []).get(metric)!).push({ companyId, score });
       (firmModuleScores.get(companyId) ?? firmModuleScores.set(companyId, []).get(companyId)!).push(score);
     }
@@ -225,7 +252,7 @@ async function computeFirmBenchmarks(client: BenchmarkClient, verticalId?: strin
     for (const [metricKey, rows] of scoresByMetric) {
       if (rows.length === 0) continue;
       const values = rows.map((r) => r.score);
-      await writeRun(client, cohortId, metricKey, values);
+      await writeRun(client, cohortId, metricKey, values, cutoff);
       for (const row of rows) {
         await writeCompany(client, row.companyId, cohortId, metricKey, row.score, values, verticalId);
       }
@@ -237,7 +264,118 @@ async function computeFirmBenchmarks(client: BenchmarkClient, verticalId?: strin
 
 // --- vendor benchmarks (V1): firm-reviewed product strength per category -------
 
-async function computeVendorBenchmarks(client: BenchmarkClient, verticalId?: string): Promise<number> {
+export type FirmProductReviewRow = {
+  /** The reviewing firm. */
+  companyId: string;
+  productId: string;
+  score: number;
+  createdAt: Date;
+};
+
+type ReviewClient = Pick<PrismaClient, "surveySubmission">;
+
+/**
+ * Every FINAL firm product review in the pool at or before the cutoff — the one
+ * query behind the vendor pass and the reader's dominance weights, so both see
+ * the same rows under the same predicate.
+ */
+export async function loadFirmProductReviews(
+  client: ReviewClient,
+  input: { boundaries: DataBoundary[]; cutoff: Date; verticalId?: string; productIds?: string[] }
+): Promise<FirmProductReviewRow[]> {
+  const scope = verticalFilter({ verticalId: input.verticalId });
+  const reviews = await client.surveySubmission.findMany({
+    where: getSurveyFinalWhere({
+      SurveyModule: { key: FIRM_PRODUCT_MODULE_KEY },
+      Subject: input.productIds ? { productId: { in: input.productIds } } : { productId: { not: null } },
+      Company: { is: { dataBoundary: { in: input.boundaries } } },
+      createdAt: { lte: input.cutoff },
+      ...scope,
+    }),
+    select: { companyId: true, score: true, createdAt: true, Subject: { select: { productId: true } } },
+  });
+  const rows: FirmProductReviewRow[] = [];
+  for (const r of reviews) {
+    const productId = r.Subject?.productId;
+    if (!productId || !r.companyId || typeof r.score !== "number") continue;
+    rows.push({ companyId: r.companyId, productId, score: r.score, createdAt: r.createdAt });
+  }
+  return rows;
+}
+
+/**
+ * One firm one vote per product: the latest final per (firm, product) is the
+ * vote; the product's strength is the mean of its votes. Pure.
+ */
+export function productVotes(rows: readonly FirmProductReviewRow[]): Map<string, FirmProductReviewRow[]> {
+  const votes = latestFinalPerFirm(rows, {
+    firmId: (r) => r.companyId,
+    groupKey: (r) => r.productId,
+    createdAt: (r) => r.createdAt,
+  });
+  const byProduct = new Map<string, FirmProductReviewRow[]>();
+  for (const vote of votes) {
+    (byProduct.get(vote.productId) ?? byProduct.set(vote.productId, []).get(vote.productId)!).push(vote);
+  }
+  return byProduct;
+}
+
+export function productMeans(rows: readonly FirmProductReviewRow[]): Map<string, { mean: number; firmCount: number }> {
+  const out = new Map<string, { mean: number; firmCount: number }>();
+  for (const [productId, votes] of productVotes(rows)) {
+    out.set(productId, {
+      mean: votes.reduce((s, v) => s + v.score, 0) / votes.length,
+      firmCount: votes.length,
+    });
+  }
+  return out;
+}
+
+/**
+ * The vendor category cohort's contributors and their weights: each vendor with
+ * at least one firm-reviewed product in the category is a contributor, weighted
+ * by how many of its products carry a vote. MAX_CONTRIBUTOR_SHARE is evaluated
+ * over these weights (ruling 3) — by the compute for its report and by the
+ * Category Position reader, which suppresses a dominated category with the same
+ * label the count rule uses. Pure.
+ */
+export function vendorCategoryContributorWeights(
+  reviewedProducts: ReadonlyArray<{ id: string; companyId: string | null; category: string | null }>,
+  productMeanById: ReadonlyMap<string, { mean: number }>
+): Map<string, { weights: number[]; vendors: Array<{ vendorId: string; score: number; productCount: number }> }> {
+  const byCategory = new Map<string, Map<string, number[]>>(); // category -> vendor -> product means
+  for (const p of reviewedProducts) {
+    if (!p.companyId) continue;
+    const m = productMeanById.get(p.id);
+    if (!m) continue;
+    const category = p.category ?? "uncategorized";
+    const vendors = byCategory.get(category) ?? byCategory.set(category, new Map()).get(category)!;
+    (vendors.get(p.companyId) ?? vendors.set(p.companyId, []).get(p.companyId)!).push(m.mean);
+  }
+  const out = new Map<string, { weights: number[]; vendors: Array<{ vendorId: string; score: number; productCount: number }> }>();
+  for (const [category, vendors] of byCategory) {
+    const rows = Array.from(vendors.entries()).map(([vendorId, means]) => ({
+      vendorId,
+      score: Math.round(means.reduce((s, v) => s + v, 0) / means.length),
+      productCount: means.length,
+    }));
+    out.set(category, { weights: rows.map((r) => r.productCount), vendors: rows });
+  }
+  return out;
+}
+
+export function evaluateVendorCategorySuppression(weights: readonly number[]): BenchmarkSuppression {
+  return evaluateBenchmarkSuppression(weights);
+}
+
+export type VendorCategoryRunReport = { category: string; pool: "real" | "demo"; suppression: BenchmarkSuppression };
+
+async function computeVendorBenchmarks(
+  client: BenchmarkClient,
+  cutoff: Date,
+  verticalId: string | undefined,
+  report: VendorCategoryRunReport[]
+): Promise<number> {
   const scope = verticalFilter({ verticalId });
   const cohortVertical = verticalId ?? DEFAULT_VERTICAL_ID;
   let written = 0;
@@ -251,52 +389,22 @@ async function computeVendorBenchmarks(client: BenchmarkClient, verticalId?: str
     );
 
     // firm-reviewed product submissions in this pool (firms review vendor products)
-    const reviews = await client.surveySubmission.findMany({
-      where: getSurveyFinalWhere({
-        SurveyModule: { key: FIRM_PRODUCT_MODULE_KEY },
-        Subject: { productId: { not: null } },
-        Company: { is: { dataBoundary: { in: pool.boundaries } } },
-        ...scope,
-      }),
-      select: { score: true, Subject: { select: { productId: true } } },
-    });
-    const scoresByProduct = new Map<string, number[]>();
-    for (const r of reviews) {
-      const pid = r.Subject?.productId;
-      if (!pid || typeof r.score !== "number") continue;
-      (scoresByProduct.get(pid) ?? scoresByProduct.set(pid, []).get(pid)!).push(r.score);
-    }
-    if (scoresByProduct.size === 0) continue;
+    const reviews = await loadFirmProductReviews(client, { boundaries: pool.boundaries, cutoff, verticalId });
+    const means = productMeans(reviews);
+    if (means.size === 0) continue;
 
     // map product -> {vendor, category}
     const products = await client.product.findMany({
-      where: { id: { in: [...scoresByProduct.keys()] }, ...scope },
+      where: { id: { in: [...means.keys()] }, ...scope },
       select: { id: true, companyId: true, category: true },
     });
-    // per (vendor, category): mean firm-reviewed strength across the vendor's products
-    const byVendorCategory = new Map<string, number[]>(); // `${vendorId}::${category}` -> product means
-    for (const p of products) {
-      if (!p.companyId) continue;
-      const category = p.category ?? "uncategorized";
-      const scores = scoresByProduct.get(p.id) ?? [];
-      if (scores.length === 0) continue;
-      const productMean = scores.reduce((s, v) => s + v, 0) / scores.length;
-      const key = `${p.companyId}::${category}`;
-      (byVendorCategory.get(key) ?? byVendorCategory.set(key, []).get(key)!).push(productMean);
-    }
-    // per category: distribution across vendors + each vendor's percentile
-    const vendorsByCategory = new Map<string, Array<{ vendorId: string; score: number }>>();
-    for (const [key, means] of byVendorCategory) {
-      const sep = key.lastIndexOf("::");
-      const vendorId = key.slice(0, sep);
-      const category = key.slice(sep + 2);
-      const vendorScore = Math.round(means.reduce((s, v) => s + v, 0) / means.length);
-      (vendorsByCategory.get(category) ?? vendorsByCategory.set(category, []).get(category)!).push({ vendorId, score: vendorScore });
-    }
-    for (const [category, rows] of vendorsByCategory) {
-      const values = rows.map((r) => r.score);
-      await writeRun(client, cohortId, category, values);
-      for (const row of rows) {
+    // per (vendor, category): mean firm-reviewed strength across the vendor's products;
+    // per category: distribution across vendors + each vendor's percentile.
+    for (const [category, cohort] of vendorCategoryContributorWeights(products, means)) {
+      report.push({ category, pool: pool.tag, suppression: evaluateVendorCategorySuppression(cohort.weights) });
+      const values = cohort.vendors.map((r) => r.score);
+      await writeRun(client, cohortId, category, values, cutoff);
+      for (const row of cohort.vendors) {
         await writeCompany(client, row.vendorId, cohortId, category, row.score, values, verticalId);
       }
       written += 1;
@@ -320,15 +428,17 @@ async function computeVendorBenchmarks(client: BenchmarkClient, verticalId?: str
  */
 export async function computeBenchmarks(
   client: BenchmarkClient,
-  options: { verticalId?: string } = {}
-): Promise<{ firmRuns: number; vendorRuns: number }> {
+  options: { verticalId?: string; cutoff?: Date } = {}
+): Promise<{ firmRuns: number; vendorRuns: number; cutoff: Date; vendorCategories: VendorCategoryRunReport[] }> {
   const verticalId = isVerticalPacksEnabled() ? options.verticalId : undefined;
   if (verticalId !== undefined) {
     await assertVerticalPackInstalled(verticalId);
   }
-  const firmRuns = await computeFirmBenchmarks(client, verticalId);
-  const vendorRuns = await computeVendorBenchmarks(client, verticalId);
-  return { firmRuns, vendorRuns };
+  const cutoff = options.cutoff ?? defaultBenchmarkCutoff();
+  const vendorCategories: VendorCategoryRunReport[] = [];
+  const firmRuns = await computeFirmBenchmarks(client, cutoff, verticalId);
+  const vendorRuns = await computeVendorBenchmarks(client, cutoff, verticalId, vendorCategories);
+  return { firmRuns, vendorRuns, cutoff, vendorCategories };
 }
 
 // --- readers (surfaces read these; no recompute at request time) ---------------
@@ -349,6 +459,8 @@ export type BenchmarkReading = {
   percentile: number | null;
   /** Ordinal rank from the top (1 = best), derived from percentile + n. */
   rankFromTop: number | null;
+  /** The run's cutoff: only finals created at or before it count. Null on a run written before enforce-core. */
+  cutoff: Date | null;
 };
 
 type ReaderClient = Pick<PrismaClient, "benchmarkCohort" | "benchmarkRun" | "companyBenchmark">;
@@ -363,7 +475,7 @@ async function readCohort(
   const [runs, company] = await Promise.all([
     client.benchmarkRun.findMany({
       where: { cohortId: cohort.id, version: BENCHMARK_VERSION },
-      select: { metricKey: true, n: true, mean: true, stdev: true, p10: true, p25: true, p50: true, p75: true, p90: true },
+      select: { metricKey: true, n: true, mean: true, stdev: true, p10: true, p25: true, p50: true, p75: true, p90: true, cutoff: true },
     }),
     client.companyBenchmark.findMany({
       where: { companyId, cohortId: cohort.id, version: BENCHMARK_VERSION },
@@ -396,6 +508,7 @@ async function readCohort(
       score: c ? Math.round(c.score) : null,
       percentile,
       rankFromTop,
+      cutoff: run.cutoff ?? null,
     };
   });
 }

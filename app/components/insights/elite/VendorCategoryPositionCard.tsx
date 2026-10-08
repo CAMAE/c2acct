@@ -4,8 +4,7 @@ import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell"
 import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
 import type { VendorCategoryPosition } from "@/lib/eliteInsightsV2";
 import { ordinal } from "@/lib/ordinal";
-
-const MIN_CONTRIBUTORS = 5;
+import { MIN_CONTRIBUTORS, MAX_CONTRIBUTOR_SHARE } from "@/lib/benchmarkSuppression";
 
 export default function VendorCategoryPositionCard({
   data,
@@ -36,8 +35,9 @@ export default function VendorCategoryPositionCard({
           </div>
           {cat.suppressed ? (
             <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
-              Your firm-reviewed strength here is {cat.score}. This category publishes a peer distribution once at least{" "}
-              {MIN_CONTRIBUTORS} vendors have firm-reviewed products in it — {cat.n} so far.
+              {cat.suppressionReason === "contributor_dominance"
+                ? `Your firm-reviewed strength here is ${cat.score}. This category publishes a peer distribution once no single vendor supplies more than ${Math.round(MAX_CONTRIBUTOR_SHARE * 100)} percent of its firm-reviewed products — one vendor does today.`
+                : `Your firm-reviewed strength here is ${cat.score}. This category publishes a peer distribution once at least ${MIN_CONTRIBUTORS} vendors have firm-reviewed products in it — ${cat.n} so far.`}
             </p>
           ) : (
             <div className="mt-4">
@@ -76,6 +76,7 @@ export default function VendorCategoryPositionCard({
         rows={[
           { label: "Cohort", value: "Vendors with firm-reviewed products in each category" },
           { label: "Basis", value: "Your firm-reviewed strength vs. the category peer distribution" },
+          { label: "Cutoff", value: data.cutoffLabel ? `Assessments completed by ${data.cutoffLabel}` : "Not recorded on this run" },
           { label: "Safe harbor", value: `Categories with fewer than ${MIN_CONTRIBUTORS} vendors are suppressed` },
         ]}
         note="Each category's percentile places your firm-reviewed strength against the vendors competing in that category. A category publishes a distribution only once it clears the minimum-n safe harbor — thin fields are labelled 'still forming,' never estimated."

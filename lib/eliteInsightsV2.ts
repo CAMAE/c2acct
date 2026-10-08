@@ -14,16 +14,27 @@ import {
   getFirmPeerReadings,
   getFirmCohortFirmCount,
   getVendorCategoryReadings,
+  loadFirmProductReviews,
+  poolBoundariesFor,
+  productMeans,
+  vendorCategoryContributorWeights,
+  evaluateVendorCategorySuppression,
   ALIGNMENT_INDEX_METRIC,
   percentileRank,
   percentileValue,
   type BenchmarkReading,
 } from "@/lib/benchmarks";
+import { latestFinalPerFirm } from "@/lib/assessmentCore";
 import type { FirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
 import type { FreshnessReading } from "@/lib/freshness";
 import { getFirmFreshness, type FirmFreshnessSource } from "@/lib/firmFreshness";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
-import { MIN_CONTRIBUTORS } from "@/lib/benchmarkSuppression";
+import {
+  MIN_CONTRIBUTORS,
+  evaluateBenchmarkSuppression,
+  evaluateBenchmarkSuppressionByCount,
+  type BenchmarkSuppressionReason,
+} from "@/lib/benchmarkSuppression";
 import type { PercentileRow } from "@/app/components/charts/PercentileBand";
 import { ordinal } from "@/lib/ordinal";
 
@@ -66,8 +77,17 @@ export const VENDOR_ELITE_V2_META: Record<string, EliteCardMeta> = {
   },
 };
 
+// enforce-core (R62, ruling 3): the firm cohort is one firm one vote by
+// construction, so the count rule and the weight rule coincide; both are
+// evaluated through the one suppression function.
 function suppressed(reading: BenchmarkReading): boolean {
-  return reading.n < MIN_CONTRIBUTORS;
+  return evaluateBenchmarkSuppressionByCount(reading.n).suppressed;
+}
+
+/** "Assessments completed by Sep 30, 2026" — which cut a reader shows (ruling 1). */
+export function benchmarkCutoffLabel(cutoff: Date | null): string | null {
+  if (!cutoff) return null;
+  return cutoff.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 }
 
 // ── F1 · Peer Position Report ────────────────────────────────────────────────
@@ -94,6 +114,8 @@ function percentileForValue(
 
 export type FirmPeerPosition = {
   available: boolean;
+  /** The stored run's cutoff as a date label (null while the run predates enforce-core). */
+  cutoffLabel: string | null;
   overall: { percentile: number; rankFromTop: number; n: number; score: number } | null;
   /** Largest single lever: closing the biggest module deficit vs the peer top quartile. */
   bestAction: { moduleLabel: string; deficit: number; fromPercentile: number; toPercentile: number } | null;
@@ -143,6 +165,7 @@ export async function buildFirmPeerPosition(
   if (!overallReading || liveIndex === null) {
     return {
       available: false,
+      cutoffLabel: benchmarkCutoffLabel(overallReading?.cutoff ?? null),
       overall: null,
       bestAction: null,
       rows: [],
@@ -224,6 +247,7 @@ export async function buildFirmPeerPosition(
   const n = cohortN > 0 ? cohortN : overallReading.n;
   return {
     available: true,
+    cutoffLabel: benchmarkCutoffLabel(overallReading.cutoff),
     overall: overallSuppressed
       ? null
       : {
@@ -500,21 +524,54 @@ export type VendorCategoryPosition = {
     n: number;
     quartile: 1 | 2 | 3 | 4;
     suppressed: boolean;
+    /** Why the category is withheld: too few vendors, or one vendor above the 25% cap (ruling 3). */
+    suppressionReason: BenchmarkSuppressionReason | null;
   }>;
   /** Ranked action: the published category with the largest gap to Q1 (p75). */
   topAction: { category: string; gap: number; n: number } | null;
+  /** The stored run's cutoff as a date label (null while the run predates enforce-core). */
+  cutoffLabel: string | null;
   emptyReason: string | null;
 };
 
-function quartileOf(percentile: number): 1 | 2 | 3 | 4 {
+/**
+ * Quartile of a percentile (the number the card shows): 4 = top quartile
+ * (75th percentile and up), 3 = upper middle, 2 = lower middle, 1 = bottom.
+ * lib/lexicon.ts quartileWord reads the same convention.
+ */
+export function quartileOf(percentile: number): 1 | 2 | 3 | 4 {
   if (percentile >= 75) return 4;
   if (percentile >= 50) return 3;
   if (percentile >= 25) return 2;
   return 1;
 }
 
+type CategoryPositionClient = ReaderClient & Pick<PrismaClient, "surveySubmission" | "product">;
+
+/**
+ * The dominance weights for one category reading: firm-reviewed products per
+ * vendor in the cohort's pool at the run's cutoff — the same rows and predicate
+ * the compute used, so the reader's cap decision matches the run it reads.
+ */
+async function categoryContributorWeights(
+  client: CategoryPositionClient,
+  input: { category: string; boundary: DataBoundary; cutoff: Date }
+): Promise<number[]> {
+  const products = await client.product.findMany({
+    where: { category: input.category, companyId: { not: null }, Company: { is: { dataBoundary: { in: poolBoundariesFor(input.boundary) } } } },
+    select: { id: true, companyId: true, category: true },
+  });
+  if (products.length === 0) return [];
+  const reviews = await loadFirmProductReviews(client, {
+    boundaries: poolBoundariesFor(input.boundary),
+    cutoff: input.cutoff,
+    productIds: products.map((p) => p.id),
+  });
+  return vendorCategoryContributorWeights(products, productMeans(reviews)).get(input.category)?.weights ?? [];
+}
+
 export async function buildVendorCategoryPosition(
-  client: ReaderClient,
+  client: CategoryPositionClient,
   companyId: string,
   boundary: DataBoundary
 ): Promise<VendorCategoryPosition> {
@@ -525,28 +582,38 @@ export async function buildVendorCategoryPosition(
       available: false,
       categories: [],
       topAction: null,
+      cutoffLabel: benchmarkCutoffLabel(readings[0]?.cutoff ?? null),
       emptyReason: "Category position opens once firms have reviewed your products enough to place you in a category distribution.",
     };
   }
-  const categories = rated.map((r) => ({
-    category: r.metricKey,
-    mean: r.mean ?? r.score ?? 0,
-    stdev: r.stdev ?? 0,
-    p25: r.p25,
-    p75: r.p75,
-    score: r.score as number,
-    percentile: r.percentile ?? 0,
-    rankFromTop: r.rankFromTop ?? 0,
-    n: r.n,
-    quartile: quartileOf(r.percentile ?? 0) as 1 | 2 | 3 | 4,
-    suppressed: r.n < MIN_CONTRIBUTORS,
-  }));
+  const categories = await Promise.all(
+    rated.map(async (r) => {
+      // ruling 3: the count rule AND the 25% cap, over products per vendor. A run
+      // written before enforce-core has no cutoff; its weights are read as of now.
+      const weights = await categoryContributorWeights(client, { category: r.metricKey, boundary, cutoff: r.cutoff ?? new Date() });
+      const suppression = weights.length > 0 ? evaluateVendorCategorySuppression(weights) : evaluateBenchmarkSuppressionByCount(r.n);
+      return {
+        category: r.metricKey,
+        mean: r.mean ?? r.score ?? 0,
+        stdev: r.stdev ?? 0,
+        p25: r.p25,
+        p75: r.p75,
+        score: r.score as number,
+        percentile: r.percentile ?? 0,
+        rankFromTop: r.rankFromTop ?? 0,
+        n: r.n,
+        quartile: quartileOf(r.percentile ?? 0) as 1 | 2 | 3 | 4,
+        suppressed: suppression.suppressed,
+        suppressionReason: suppression.reason,
+      };
+    })
+  );
   // Ranked action: published category with the largest gap to Q1 (p75).
   const topAction = categories
     .filter((c) => !c.suppressed && typeof c.p75 === "number" && c.score < (c.p75 as number))
     .map((c) => ({ category: c.category, gap: Math.round((c.p75 as number) - c.score), n: c.n }))
     .sort((a, b) => b.gap - a.gap)[0] ?? null;
-  return { available: true, categories, topAction, emptyReason: null };
+  return { available: true, categories, topAction, cutoffLabel: benchmarkCutoffLabel(rated[0]?.cutoff ?? null), emptyReason: null };
 }
 
 // ── Hybrid Elite depth · Product cohort position ─────────────────────────────
@@ -604,34 +671,47 @@ export async function buildProductCohortPosition(
   // Peer products in the same category (across vendors) within the pool boundary.
   const peers = await client.product.findMany({
     where: { category: input.category, companyId: { not: null }, Company: { is: { dataBoundary: { in: input.boundaries } } } },
-    select: { id: true },
+    select: { id: true, companyId: true },
   });
   const peerIds = peers.map((p) => p.id);
   if (!peerIds.includes(input.productId)) peerIds.push(input.productId);
 
-  // Firm-reviewed strength per peer product = mean of its firm product-review scores.
+  // Firm-reviewed strength per peer product = mean of its firm votes (one firm
+  // one vote: the latest final per (firm, product), enforce-core ruling 2).
   const reviews = await client.surveySubmission.findMany({
     where: getSurveyFinalWhere({
       SurveyModule: { is: { key: FIRM_PRODUCT_MODULE_KEY } },
       Subject: { is: { productId: { in: peerIds } } },
     }),
-    select: { score: true, Subject: { select: { productId: true } } },
+    select: { companyId: true, score: true, createdAt: true, Subject: { select: { productId: true } } },
+  });
+  const votes = latestFinalPerFirm(reviews, {
+    firmId: (r) => r.companyId,
+    groupKey: (r) => r.Subject?.productId,
+    createdAt: (r) => r.createdAt,
   });
   const scoresByProduct = new Map<string, number[]>();
-  for (const r of reviews) {
+  for (const r of votes) {
     const pid = r.Subject?.productId;
     if (!pid || typeof r.score !== "number") continue;
     (scoresByProduct.get(pid) ?? scoresByProduct.set(pid, []).get(pid)!).push(r.score);
   }
 
   const productMeans: number[] = [];
+  const productsPerVendor = new Map<string, number>();
+  const vendorByProduct = new Map(peers.map((p) => [p.id, p.companyId]));
   let thisScore: number | null = null;
   for (const [pid, scores] of scoresByProduct) {
     if (scores.length === 0) continue;
     const mean = scores.reduce((s, v) => s + v, 0) / scores.length;
     productMeans.push(mean);
+    const vendorId = vendorByProduct.get(pid) ?? pid;
+    productsPerVendor.set(vendorId, (productsPerVendor.get(vendorId) ?? 0) + 1);
     if (pid === input.productId) thisScore = mean;
   }
+  // ruling 3: the cohort of products is suppressed by count AND by the 25% cap
+  // over products per vendor.
+  const cohortSuppression = evaluateBenchmarkSuppression([...productsPerVendor.values()]);
 
   if (thisScore === null) {
     return empty("Cohort position opens after firms review this product.");
@@ -659,7 +739,7 @@ export async function buildProductCohortPosition(
     rankFromTop: Math.min(n, rankFromTop),
     n,
     quartile: quartileOf(percentile) as 1 | 2 | 3 | 4,
-    suppressed: n < MIN_CONTRIBUTORS,
+    suppressed: cohortSuppression.suppressed,
     gapToTopQuartile,
     emptyReason: null,
   };

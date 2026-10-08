@@ -23,6 +23,7 @@ import {
 import { recordPatDiagnostic } from "@/lib/patDiagnostics";
 import { getScoreBand } from "@/lib/scoreBands";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
+import { latestFinalPerFirm } from "@/lib/assessmentCore";
 import {
   ALIGNMENT_INSIGHT_DEFINITIONS,
 } from "@/lib/vendorPat";
@@ -1185,12 +1186,14 @@ export async function getVendorAlignmentInsightBundle(input?: {
     }),
   ]);
 
+  // One firm one vote (enforce-core ruling 2): the latest final per (firm, module).
   const latestSubmissionByCompanyModule = new Map<string, (typeof submissions)[number]>();
-  for (const submission of submissions) {
-    const compositeKey = `${submission.companyId}:${submission.moduleId}`;
-    if (!latestSubmissionByCompanyModule.has(compositeKey)) {
-      latestSubmissionByCompanyModule.set(compositeKey, submission);
-    }
+  for (const submission of latestFinalPerFirm(submissions, {
+    firmId: (row) => row.companyId,
+    groupKey: (row) => row.moduleId,
+    createdAt: (row) => row.createdAt,
+  })) {
+    latestSubmissionByCompanyModule.set(`${submission.companyId}:${submission.moduleId}`, submission);
   }
 
   const latestCapabilityScoreByCompanyNode = new Map<string, (typeof capabilityScores)[number]>();

@@ -100,7 +100,7 @@ const gap = (key: string, title: string, score: number, threshold: number) => ({
 });
 
 describe("F6 — gap plan: the hub card hero equals the page's first row", () => {
-  const peer = { available: true, overall: { percentile: 72, rankFromTop: 30, n: 106, score: 68 }, bestAction: { moduleLabel: "Automation and AI Readiness", deficit: 9, fromPercentile: 48, toPercentile: 75 }, rows: [], reportCard: [], emptyReason: null };
+  const peer = { available: true, cutoffLabel: null, overall: { percentile: 72, rankFromTop: 30, n: 106, score: 68 }, bestAction: { moduleLabel: "Automation and AI Readiness", deficit: 9, fromPercentile: 48, toPercentile: 75 }, rows: [], reportCard: [], emptyReason: null };
   const trajectory = { available: false, history: [], projection: null, momentum: null, swapMovement: null, provenance: null, emptyReason: "x" };
 
   it("with no gaps the hero is the thinnest margin over its own bar, the page's first watch row", () => {
@@ -133,11 +133,12 @@ describe("V8 — category count", () => {
       category: {
         available: true,
         categories: [
-          { category: "Tax & Compliance", mean: 70, stdev: 5, p25: 60, p75: 80, score: 82, percentile: 90, rankFromTop: 1, n: 9, quartile: 4, suppressed: false },
-          { category: "Ledger & Close", mean: 65, stdev: 5, p25: 55, p75: 75, score: 62, percentile: 40, rankFromTop: 5, n: 8, quartile: 2, suppressed: false },
-          { category: "Payroll", mean: 65, stdev: 5, p25: 55, p75: 75, score: 62, percentile: 40, rankFromTop: 5, n: 2, quartile: 2, suppressed: true },
+          { category: "Tax & Compliance", mean: 70, stdev: 5, p25: 60, p75: 80, score: 82, percentile: 90, rankFromTop: 1, n: 9, quartile: 4, suppressed: false, suppressionReason: null },
+          { category: "Ledger & Close", mean: 65, stdev: 5, p25: 55, p75: 75, score: 62, percentile: 40, rankFromTop: 5, n: 8, quartile: 2, suppressed: false, suppressionReason: null },
+          { category: "Payroll", mean: 65, stdev: 5, p25: 55, p75: 75, score: 62, percentile: 40, rankFromTop: 5, n: 2, quartile: 2, suppressed: true, suppressionReason: "insufficient_contributors" },
         ],
         topAction: null,
+        cutoffLabel: null,
         emptyReason: null,
       },
       demand: { available: false, identityAllowed: true, windowLabel: "", earlySignal: true, totalIn: 0, totalOut: 0, swappedIn: [], swappedOut: [], rankedAction: null, emptyReason: "x" },
