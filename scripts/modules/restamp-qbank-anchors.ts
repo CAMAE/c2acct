@@ -31,6 +31,7 @@ function codeOf(key: string, templateKey: string): string {
 async function main() {
   applyRepoEnv();
   const { default: prisma } = await import("@/lib/prisma");
+  console.log(`database: ${process.env.DATABASE_URL ? new URL(process.env.DATABASE_URL).hostname : "(unset)"}`);
   console.log(`\n================ RESTAMP QBANK ANCHORS — ${APPLY ? "APPLY" : "DRY RUN"} ================`);
   let changed = 0;
   for (const bank of BANKS) {
