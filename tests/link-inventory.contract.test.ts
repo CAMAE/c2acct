@@ -94,6 +94,11 @@ const RENAMES: Array<[RegExp, string]> = [
   [/^Back to the (?:Guide|Consultant) overview$/, "Back to consultant overview"],
   [/\bbuild fingerprint\b/, "runtime fingerprint"],
   [/^BattleCard\b/, "Product Fit Card"],
+  // enforce-core (R62, ruling 4, 2026-10-08): the admin briefing catalog link carries the
+  // firm's confidence word, now from the ONE table (3 / 6) on completed modules — a firm at
+  // 5 of 5 reads "Early signal" where the baseline read "Grounded". Same link, same href.
+  [/^(.* firm modules · # reviewed products · # linked users) EARLY SIGNAL /, "$1 GROUNDED "],
+  [/^(.* firm modules · # reviewed products · # linked users) Early signal /, "$1 Grounded "],
   // Box 3f item K (Cam 9/28): the in-product disclaimer link reads "Methodology" (was
   // "methodology"); same href, same mount points, every flag set.
   [/^Methodology$/, "methodology"],
