@@ -1,5 +1,8 @@
 # SESSION LEDGER — append-only. Newest first.
 
+## 2026-10-08 · enforce-core (the code keeps the methodology page) — in progress, unattended
+- WORK 1: branch feat/enforce-core from 9a7cc64e (feat/pattern-b-words head). R62 filed in ~/work/inbox-from-mythos/REQUIREMENTS.md from the box; this commit is the ledger bank. Read: the box, PAT-RULES.md, spec section 1 (inventory), audit section 6, charter ruling 48.
+
 ## 2026-10-06 · pattern box B, words (B1 then B2 if budget) — in progress, unattended
 - WORK 2 (change 1): lib/lexicon.ts — roleWord (Guide through lib/roleWords guideWord, keeping the R17 flag law so flag-off copy stays the production word), TIER_WORDS, EVIDENCE_WORDS, BENCHMARK_WORDS + quartileWord (top quartile / upper middle / lower middle / bottom quartile), FRESHNESS_WORDS, SCORE_WORDS, PRODUCT_WORDS, ASSESSMENT_WORDS in en/es/fr; modules re-exported from lib/firmPillars (MODULE_SHORT_LABELS, MODULE_LONG_LABELS); RETIRED_WORDS.
 - WORK 3 (change 2): the 124 "consultant" strings of the raw scan were already guideWord() calls or identifiers/routes after R17; the leftovers that read "consultant" plainly are now the Guide word: Guide briefing / product briefing eyebrows and "Back to the Guide overview", the two brief methodology notes ("No Guide interpretation"), the Guide alignment-board banner, the Guide access gate (consultants/layout), the membership bullet "Guide collaboration", the nudge title ("from your Patalign Guide") and sender ("Your Guide"). Routes, identifiers, types and admin pages untouched. The help corpus carried no plain "consultant" outside slugs.
