@@ -25,8 +25,9 @@ function mockClient(opts: {
       findMany: async () => opts.peerIds.map((id) => ({ id })),
     },
     surveySubmission: {
+      // enforce-core (ruling 2): the read carries the reviewing firm and the date; one firm one vote.
       findMany: async () =>
-        opts.reviews.map((r) => ({ score: r.score, Subject: { productId: r.productId } })),
+        opts.reviews.map((r, index) => ({ companyId: `firm-${index}`, score: r.score, createdAt: new Date(2026, 8, 1 + index), Subject: { productId: r.productId } })),
     },
   } as unknown as Parameters<typeof buildProductCohortPosition>[0];
 }
