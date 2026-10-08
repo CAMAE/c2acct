@@ -77,9 +77,12 @@ export default function VendorCategoryPositionCard({
           { label: "Cohort", value: "Vendors with firm-reviewed products in each category" },
           { label: "Basis", value: "Your firm-reviewed strength vs. the category peer distribution" },
           { label: "Cutoff", value: data.cutoffLabel ? `Assessments completed by ${data.cutoffLabel}` : "Not recorded on this run" },
-          { label: "Safe harbor", value: `Categories with fewer than ${MIN_CONTRIBUTORS} vendors are suppressed` },
+          {
+            label: "Evidence floor",
+            value: `At least ${MIN_CONTRIBUTORS} vendors with firm-reviewed products, none above ${Math.round(MAX_CONTRIBUTOR_SHARE * 100)} percent of them`,
+          },
         ]}
-        note="Each category's percentile places your firm-reviewed strength against the vendors competing in that category. A category publishes a distribution only once it clears the minimum-n safe harbor — thin fields are labelled 'still forming,' never estimated."
+        note="Each category's percentile places your firm-reviewed strength against the vendors competing in that category. A category publishes a distribution only once it clears the evidence floor (five contributing firms, no firm above 25 percent, structured consistent with the former 1996 DOJ/FTC safety zone, withdrawn in 2023) — thin fields are labelled 'still forming,' never estimated."
       />
     </>
   );

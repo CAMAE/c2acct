@@ -53,7 +53,7 @@ export const FIRM_ELITE_V2_META: Record<string, EliteCardMeta> = {
     description: "Where your firm ranks against peer firms, module by module — a percentile, not an average.",
   },
   firm_tier2_recommendation: {
-    title: "Gap-to-Top-Quartile Plan",
+    title: "Gap Plan",
     description: "The capabilities holding your alignment index down, ranked by point deficit — fix these first.",
   },
   firm_tier2_projection: {
@@ -269,7 +269,7 @@ export function describePercentile(percentile: number, n: number): string {
   return `${ordinal(percentile)} percentile of ${n} firms`;
 }
 
-// ── F2 · Gap-to-Top-Quartile Plan ────────────────────────────────────────────
+// ── F2 · Gap Plan ────────────────────────────────────────────────────────────
 
 /** 15a: capability key → module KEY; the label resolves from the canonical
  *  MODULE_TITLE map (no hardcoded title drift). */

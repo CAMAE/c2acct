@@ -1,5 +1,5 @@
 import { isAskPatDoorEntryEnabled } from "@/lib/frontDoor";
-import { type FirmPillar } from "@/lib/firmPillars";
+import { FIRM_PILLARS, type FirmPillar } from "@/lib/firmPillars";
 import V7DoorBand from "@/app/components/frontdoor/V7DoorBand";
 import V7RadarFigure from "@/app/components/frontdoor/V7RadarFigure";
 import PageHead from "@/app/components/shell/PageHead";
@@ -32,22 +32,24 @@ import PageHead from "@/app/components/shell/PageHead";
 // p90 = top-decile tick; you = the "you" dot; tone = semantic standing of "you"
 // vs the peer band (up = above / mid = within / dn = below). Pillar names reuse
 // the radar (not new copy).
+// enforce-core (11c): the five short labels are lib/firmPillars' words, in its order.
+const [STRATEGY, OPERATIONS, AUTOMATION, INTEGRATION, GOVERNANCE] = FIRM_PILLARS;
 const COHORT_ROWS = [
-  { pillar: "Strategy", band: [42, 25], p90: 77, you: 60, tone: "mid" },
-  { pillar: "Operations", band: [46, 22], p90: 79, you: 81, tone: "up" },
-  { pillar: "Automation", band: [48, 22], p90: 78, you: 74, tone: "up" },
-  { pillar: "Integration", band: [45, 24], p90: 80, you: 53, tone: "mid" },
-  { pillar: "Governance", band: [50, 20], p90: 82, you: 74, tone: "up" },
+  { pillar: STRATEGY, band: [42, 25], p90: 77, you: 60, tone: "mid" },
+  { pillar: OPERATIONS, band: [46, 22], p90: 79, you: 81, tone: "up" },
+  { pillar: AUTOMATION, band: [48, 22], p90: 78, you: 74, tone: "up" },
+  { pillar: INTEGRATION, band: [45, 24], p90: 80, you: 53, tone: "mid" },
+  { pillar: GOVERNANCE, band: [50, 20], p90: 82, you: 74, tone: "up" },
 ] as const;
 const YOU_TONE: Record<string, string> = { up: "#16a34a", mid: "#d97e22", dn: "#c4442e" };
 
 // Locked verbatim — one plain-language value sentence per pillar, under the radar.
 const PILLAR_SENTENCES: { pillar: FirmPillar; rest: string }[] = [
-  { pillar: "Strategy", rest: "whether your technology plans point where your practice is actually heading." },
-  { pillar: "Operations", rest: "the daily workflow discipline that separates smooth closes from late nights." },
-  { pillar: "Automation", rest: "where software genuinely saves hours, and where it only promises to." },
-  { pillar: "Integration", rest: "whether your systems share data cleanly or make your team re-key it." },
-  { pillar: "Governance", rest: "the controls and vendor oversight your clients assume you already have." },
+  { pillar: STRATEGY, rest: "whether your technology plans point where your practice is actually heading." },
+  { pillar: OPERATIONS, rest: "the daily workflow discipline that separates smooth closes from late nights." },
+  { pillar: AUTOMATION, rest: "where software genuinely saves hours, and where it only promises to." },
+  { pillar: INTEGRATION, rest: "whether your systems share data cleanly or make your team re-key it." },
+  { pillar: GOVERNANCE, rest: "the controls and vendor oversight your clients assume you already have." },
 ];
 
 

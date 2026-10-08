@@ -137,7 +137,7 @@ const firmInsights = [
   },
   {
     key: "firm_tier2_recommendation",
-    title: "Gap-to-Top-Quartile Plan",
+    title: "Gap Plan",
     tier: 2,
     locale: "en-US",
     audience: "firm",
@@ -150,7 +150,7 @@ const firmInsights = [
     confidenceDisclaimerTemplate: "A prioritization of current gaps, not a promise of a specific future score.",
     lockedState: {
       summary: ELITE_PLACEHOLDER_MESSAGE,
-      what: "Gap-to-Top-Quartile Plan is a live Elite surface: your gaps to the top quartile, ranked by point deficit, from firm-reviewed evidence.",
+      what: "Gap Plan is a live Elite surface: your gaps to the top quartile, ranked by point deficit, from firm-reviewed evidence.",
       why: "It is live for Elite members; on Pro you see the current-state readout instead.",
       how: `${ELITE_PLACEHOLDER_CTA}.`,
       basis: "Ranks your module and capability deficits against the top-quartile mark.",

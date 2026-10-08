@@ -1,3 +1,4 @@
+import { FIRM_PILLARS } from "@/lib/firmPillars";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -199,9 +200,9 @@ describe("V7 front door — content (V7FrontDoor)", () => {
   it("the radar is data-free — no fabricated scores/percentages on the front door", () => {
     expect(src).not.toMatch(/>\s*\d+%/);
     expect(src).not.toMatch(/\d+\s*%\s*</);
-    for (const pillar of ["Strategy", "Operations", "Automation", "Integration", "Governance"]) {
-      expect(src).toContain(pillar);
-    }
+    // enforce-core (11c): the five words come from lib/firmPillars, the hub's and the chips' source.
+    expect(src).toContain('import { FIRM_PILLARS, type FirmPillar } from "@/lib/firmPillars"');
+    expect([...FIRM_PILLARS]).toEqual(["Strategy", "Operations", "Automation", "Integration", "Governance"]);
     expect(src).not.toMatch(/<text[^>]*>\s*\d/);
   });
 });

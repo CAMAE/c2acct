@@ -51,7 +51,7 @@ async function renderVendorEliteSurface(
       <EliteCardShell
         eyebrow="Vendor Elite · Category Position"
         title="Category Position"
-        summary="Where your products rank in their category's firm-reviewed distribution — a percentile and rank, not an average. Categories below the minimum-n safe harbor are withheld."
+        summary="Where your products rank in their category's firm-reviewed distribution — a percentile and rank, not an average. Categories below the evidence floor (five contributing firms, no firm above 25 percent, structured consistent with the former 1996 DOJ/FTC safety zone, withdrawn in 2023) are withheld."
       >
         <VendorCategoryPositionCard data={data} chartDesign={isNewFrontDoorEnabled() ? "labelled" : "classic"} />
       </EliteCardShell>

@@ -39,7 +39,7 @@ type Params = {
 
 /**
  * Elite Insights v2 (verdict §4) — render a firm Tier-2 decision product: F1 Peer
- * Position (firm_tier2_benchmark), F2 Gap-to-Top-Quartile (firm_tier2_recommendation),
+ * Position (firm_tier2_benchmark), F2 Gap Plan (firm_tier2_recommendation),
  * F3 Trajectory (firm_tier2_projection). Rank/percentile + charts, not averages.
  */
 async function renderFirmEliteSurface(key: string, companyId: string) {
@@ -69,7 +69,7 @@ async function renderFirmEliteSurface(key: string, companyId: string) {
     return (
       <EliteCardShell
         eyebrow="Firm Elite · Gap Plan"
-        title="Gap-to-Top-Quartile Plan"
+        title="Gap Plan"
         summary="The capabilities holding your alignment index down, ranked by point deficit — a prescription (fix this first), not a description. Grounded in your firm-reviewed evidence."
       >
         <FirmGapPlanCard data={data} />

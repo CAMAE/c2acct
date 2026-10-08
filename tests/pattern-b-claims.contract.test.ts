@@ -108,10 +108,11 @@ describe("public claims", () => {
 
 describe("Elite page words", () => {
   it("quartiles are words, never Q1 to Q4", () => {
-    expect(quartileWord(1)).toBe("top quartile");
-    expect(quartileWord(2)).toBe("upper middle");
-    expect(quartileWord(3)).toBe("lower middle");
-    expect(quartileWord(4)).toBe("bottom quartile");
+    // enforce-core: 4 = top (the quartileOf convention, from the percentile shown)
+    expect(quartileWord(4)).toBe("top quartile");
+    expect(quartileWord(3)).toBe("upper middle");
+    expect(quartileWord(2)).toBe("lower middle");
+    expect(quartileWord(1)).toBe("bottom quartile");
     const card = read("app/components/insights/elite/VendorCategoryPositionCard.tsx");
     expect(card).toContain("quartileWord(cat.quartile");
     expect(card).not.toMatch(/Q\{cat\.quartile\}/);

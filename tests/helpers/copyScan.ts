@@ -20,6 +20,8 @@ const SCAN_FILES = [
   "lib/notifications/nudge.ts", "lib/notifications/staleness/plan.ts", "lib/notifications/staleness/generators.ts",
   "lib/notifications/patPingCopy.ts", "lib/firmBriefs/template-bank.ts", "lib/briefs/executive-summary-templates.ts",
   "lib/vendorProductAssessmentPlan.ts", "lib/gapMapDrilldown.ts",
+  // enforce-core (11a): the briefing board is shared by the Guide and Enterprise briefings; its strings are customer copy.
+  "app/components/admin/briefings/BriefingBoard.tsx",
 ];
 const EXCLUDE = [/\/admin(\/|$)/, /\/dev(\/|$)/, /\/dev-preview(\/|$)/, /\/api(\/|$)/, /\.test\./, /lexicon-data-occurrences\.md$/, /\/_components\/.*Admin/, /app\/components\/agents\//];
 
@@ -35,9 +37,11 @@ export function customerCopyFiles(): string[] {
   const files: string[] = [];
   for (const dir of SCAN_DIRS) walk(path.join(ROOT, dir), files);
   for (const file of SCAN_FILES) files.push(path.join(ROOT, file));
+  const explicit = new Set(SCAN_FILES);
   return files
     .map((file) => path.relative(ROOT, file))
-    .filter((rel) => !EXCLUDE.some((re) => re.test(`/${rel}`)))
+    // EXCLUDE prunes the walked directories; a file named in SCAN_FILES is in the set on purpose.
+    .filter((rel) => explicit.has(rel) || !EXCLUDE.some((re) => re.test(`/${rel}`)))
     .filter((rel, index, all) => all.indexOf(rel) === index)
     .sort();
 }

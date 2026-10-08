@@ -1,3 +1,4 @@
+import { ADMIN_EXECUTIVE_LABELS } from "@/app/components/admin/briefings/adminBriefingVoice";
 import Link from "next/link";
 import { AdminMetricCard, AdminPanel } from "@/app/components/admin/AdminShell";
 import type {
@@ -147,7 +148,7 @@ function ProductOpenEndedResponsesPanel({
  * keeps its wording.
  */
 const EXECUTIVE_LABELS = {
-  admin: { firmScore: "Canonical firm score", firmModulesDetail: "Completed canonical firm alignment modules in the current briefing." },
+  admin: ADMIN_EXECUTIVE_LABELS,
   portal: { firmScore: "Firm score", firmModulesDetail: "Completed firm modules in the current briefing." },
 } as const;
 
@@ -155,10 +156,13 @@ export function ExecutiveSummaryCard({
   briefing,
   printHref,
   voice = "admin",
+  individualSurfacesEnabled = true,
 }: {
   briefing: AdminCompanyBriefing;
   printHref?: string | null;
   voice?: keyof typeof EXECUTIVE_LABELS;
+  /** enforce-core (11b): the "People assessed" count hides while the individual surface is off. */
+  individualSurfacesEnabled?: boolean;
 }) {
   const labels = EXECUTIVE_LABELS[voice];
   return (
@@ -207,11 +211,13 @@ export function ExecutiveSummaryCard({
           value={String(briefing.productLayer.reviewedProductCount)}
           detail="Firm-side product reviews included in the current stack."
         />
-        <AdminMetricCard
-          label="People assessed"
-          value={String(briefing.individualLayer.peopleAssessed)}
-          detail="Linked users with individual PAT submissions."
-        />
+        {individualSurfacesEnabled ? (
+          <AdminMetricCard
+            label="People assessed"
+            value={String(briefing.individualLayer.peopleAssessed)}
+            detail="Linked users with individual PAT submissions."
+          />
+        ) : null}
         {printHref ? (
           <Link href={printHref} className="pat-button-secondary print:hidden text-center">
             Open print view
@@ -226,7 +232,7 @@ export function ModuleHeatmap({ modules }: { modules: BriefingModuleHeatmapItem[
   return (
     <AdminPanel
       title="Module heatmap"
-      description="Canonical firm module scores stay separate from confidence. Section values show evidence clusters inside each module."
+      description="Module scores stay separate from confidence. Section values show evidence clusters inside each module."
     >
       <div className="grid gap-4">
         {modules.map((module) => (
@@ -360,7 +366,7 @@ export function ConfidenceEvidencePanel({
   return (
     <AdminPanel
       title="Confidence and evidence appendix"
-      description="Confidence reflects evidence coverage and freshness. It never replaces the canonical PAT raw score."
+      description="Confidence reflects evidence coverage and freshness. It never replaces the PAT raw score."
     >
       <div className="grid gap-4">
         {entries.map((entry) => (
@@ -403,14 +409,16 @@ function InsightNarrativePanel({ briefing }: { briefing: AdminCompanyBriefing })
   );
 }
 
-function LayerSummariesPanel({ briefing }: { briefing: AdminCompanyBriefing }) {
+function LayerSummariesPanel({ briefing, individualSurfacesEnabled = true }: { briefing: AdminCompanyBriefing; individualSurfacesEnabled?: boolean }) {
   return (
     <AdminPanel title="Layer summaries">
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
-          <div className="text-lg font-semibold text-[var(--shell-ink)]">Person-level layer</div>
-          <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.individualLayer.summary}</p>
-        </div>
+        {individualSurfacesEnabled ? (
+          <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
+            <div className="text-lg font-semibold text-[var(--shell-ink)]">Person-level layer</div>
+            <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.individualLayer.summary}</p>
+          </div>
+        ) : null}
         <div className="rounded-[22px] border border-[var(--shell-border)] bg-white/80 p-5">
           <div className="text-lg font-semibold text-[var(--shell-ink)]">Firm layer</div>
           <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">{briefing.firmLayer.summary}</p>
@@ -604,11 +612,13 @@ export function PortalBriefingView({
   const appendixEntries = individualSurfacesEnabled
     ? briefing.confidenceAppendix
     : briefing.confidenceAppendix.filter((entry) => entry.layer !== "Individual");
+  // enforce-core (11b): the Individual risk row hides with the rest of the person-level layer.
+  const risks = individualSurfacesEnabled ? briefing.risks : briefing.risks.filter((item) => item.layer !== "individual");
   const searchActive = Boolean(searchQuery?.trim());
 
   return (
     <div className="space-y-8" data-testid="portal-briefing-view">
-      <ExecutiveSummaryCard briefing={briefing} printHref={null} voice="portal" />
+      <ExecutiveSummaryCard briefing={briefing} printHref={null} voice="portal" individualSurfacesEnabled={individualSurfacesEnabled} />
 
       <section className={`grid gap-4 md:grid-cols-2 ${individualSurfacesEnabled ? "xl:grid-cols-4" : "xl:grid-cols-3"}`}>
         {individualSurfacesEnabled ? (
@@ -637,10 +647,10 @@ export function PortalBriefingView({
 
       <InsightNarrativePanel briefing={briefing} />
 
-      <LayerSummariesPanel briefing={briefing} />
+      <LayerSummariesPanel briefing={briefing} individualSurfacesEnabled={individualSurfacesEnabled} />
 
       <section className="grid gap-6 xl:grid-cols-2">
-        <RiskOpportunityPanel title="Risks" items={briefing.risks} />
+        <RiskOpportunityPanel title="Risks" items={risks} />
         <RiskOpportunityPanel title="Opportunities" items={briefing.opportunities} />
       </section>
 

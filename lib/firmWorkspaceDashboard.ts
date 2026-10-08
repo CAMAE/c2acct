@@ -1,3 +1,4 @@
+import { pillarForModule } from "@/lib/firmPillars";
 import prisma from "@/lib/prisma";
 import { getFirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
 import { buildFirmProInsightCards, getFirmInsightReports } from "@/lib/firmInsightEngine";
@@ -25,8 +26,10 @@ export type FirmWorkspaceDashboard = {
   lastFullAssessmentAt: Date | null;
 };
 
-function shortLabel(title: string) {
-  return title.split(/[,:]| and /)[0]?.trim() || title;
+// enforce-core (11c): the hub radar reads the same short labels as the insights
+// chips — lib/firmPillars, never a split of the module title ("Operating Model").
+function shortLabel(moduleKey: string, title: string) {
+  return pillarForModule(moduleKey) || title;
 }
 
 export async function getFirmWorkspaceDashboard(companyId: string, companyName: string, userId: string | null): Promise<FirmWorkspaceDashboard> {
@@ -63,7 +66,7 @@ export async function getFirmWorkspaceDashboard(companyId: string, companyName: 
     totalModules: summary.totalModules,
     capabilitiesMet: Array.from(capabilityByKey.values()).filter(Boolean).length,
     capabilitiesTotal: capabilityByKey.size,
-    radarAxes: moduleProgress.map((module) => ({ key: module.key, label: shortLabel(module.title), value: module.latestScore })),
+    radarAxes: moduleProgress.map((module) => ({ key: module.key, label: shortLabel(module.key, module.title), value: module.latestScore })),
     nextStep: nextModule
       ? {
           title: nextModule.title,

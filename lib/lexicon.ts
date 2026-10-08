@@ -51,10 +51,16 @@ export const BENCHMARK_WORDS = {
   fr: { peerBenchmark: "référence entre pairs", cohort: "cohorte", percentile: "percentile", topDecile: "décile supérieur", topQuartile: "quartile supérieur", upperMiddle: "milieu haut", lowerMiddle: "milieu bas", bottomQuartile: "quartile inférieur" },
 } as const;
 
-/** Quartile 1..4 (1 = top) in words, never "Q1" to "Q4" alone. */
+/**
+ * Quartile in words, never "Q1" to "Q4" alone. The quartile follows
+ * lib/eliteInsightsV2.quartileOf, derived from the percentile the card shows:
+ * 4 = top quartile (75th percentile and up), 3 = upper middle, 2 = lower middle,
+ * 1 = bottom quartile. enforce-core (R62, walk V-new): the map used to run the
+ * other way, so "13th of 13" read "top quartile".
+ */
 export function quartileWord(quartile: 1 | 2 | 3 | 4, locale: Locale = "en"): string {
   const words = BENCHMARK_WORDS[locale];
-  return quartile === 1 ? words.topQuartile : quartile === 2 ? words.upperMiddle : quartile === 3 ? words.lowerMiddle : words.bottomQuartile;
+  return quartile === 4 ? words.topQuartile : quartile === 3 ? words.upperMiddle : quartile === 2 ? words.lowerMiddle : words.bottomQuartile;
 }
 
 export const FRESHNESS_WORDS = {

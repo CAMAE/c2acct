@@ -1,8 +1,21 @@
+import { FIRM_PILLARS } from "@/lib/firmPillars";
+
 /**
  * The V7 alignment radar — shape only, no numbers (the home's Fig. 01). Shared
  * by the front door and /pat "How it works" (depth box 2). Solid navy "you"
  * shape over the dashed peer overlay, five pillar labels, legend beneath.
  */
+// enforce-core (11c): the five short labels come from lib/firmPillars, in the
+// radar's clockwise order from the top (Strategy, Operations, Automation,
+// Integration, Governance), so the home radar reads the hub's and the chips' words.
+const LABEL_POSITIONS: Array<{ x: number; y: number }> = [
+  { x: 200, y: 34 },
+  { x: 358, y: 140 },
+  { x: 297, y: 314 },
+  { x: 103, y: 314 },
+  { x: 42, y: 140 },
+];
+
 export default function V7RadarFigure() {
   return (
     <>
@@ -30,11 +43,9 @@ export default function V7RadarFigure() {
                   <circle cx="121" cy="154" r="5" />
                 </g>
                 <g fontSize="14" fill="var(--shell-muted)" fontWeight="700" textAnchor="middle">
-                  <text x="200" y="34">Strategy</text>
-                  <text x="358" y="140">Operations</text>
-                  <text x="297" y="314">Automation</text>
-                  <text x="103" y="314">Integration</text>
-                  <text x="42" y="140">Governance</text>
+                  {FIRM_PILLARS.map((pillar, index) => (
+                    <text key={pillar} x={LABEL_POSITIONS[index]!.x} y={LABEL_POSITIONS[index]!.y}>{pillar}</text>
+                  ))}
                 </g>
               </svg>
               {/* Legend beneath the radar — You (solid navy) vs Peers (dashed). */}

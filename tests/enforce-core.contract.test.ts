@@ -17,7 +17,10 @@ import { layerCompleteness } from "@/lib/adminBriefingEngine";
 import { buildVendorProductQuestions, computeVendorAssessmentMetrics } from "@/lib/vendorPat";
 import { maturityBandFor, SCORE_BANDS } from "@/lib/bandLexicon";
 import { DIVERGENCE_ALIGNED_WITHIN, DIVERGENCE_FLAGGED_AT, divergenceState } from "@/lib/assessmentCore";
-import { METHODOLOGY_SECTIONS } from "@/lib/methodology";
+import { METHODOLOGY_CHANGELOG, METHODOLOGY_SECTIONS, METHODOLOGY_VERSION } from "@/lib/methodology";
+import { quartileOf } from "@/lib/eliteInsightsV2";
+import { quartileWord } from "@/lib/lexicon";
+import { FIRM_PILLARS } from "@/lib/firmPillars";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 
@@ -323,5 +326,109 @@ describe("ruling 21 — one divergence constant pair, matching the methodology p
     const text = METHODOLOGY_SECTIONS.find((s) => s.key === "divergence")?.paragraphs.join(" ") ?? "";
     expect(text).toContain(`within ${DIVERGENCE_ALIGNED_WITHIN} points`);
     expect(text).toContain(`${DIVERGENCE_FLAGGED_AT} points or more`);
+  });
+});
+
+const read = (rel: string) => readFileSync(path.join(process.cwd(), rel), "utf8");
+
+describe("walk V-new — quartile words follow the percentile the card shows", () => {
+  /** The card's percentile for rank r of n with distinct scores: % of the cohort at or below (lib/benchmarks.percentileRank). */
+  const percentileForRank = (rank: number, n: number) => Math.round(((n - rank + 1) / n) * 100);
+  const wordFor = (rank: number, n: number) => quartileWord(quartileOf(percentileForRank(rank, n)));
+
+  it("1 of 13 is top quartile and 13 of 13 is bottom quartile", () => {
+    expect(wordFor(1, 13)).toBe("top quartile");
+    expect(wordFor(13, 13)).toBe("bottom quartile");
+  });
+
+  it("the box's fixtures: 4 of 13 top quartile, 13 of 13 bottom quartile, 6 of 8 lower middle", () => {
+    expect(wordFor(4, 13)).toBe("top quartile"); // 77th percentile
+    expect(wordFor(6, 8)).toBe("lower middle"); // 38th percentile
+  });
+
+  it("7 of 13 sits at the 54th percentile and reads upper middle (the box said lower middle; ruling for Cam, see the report)", () => {
+    expect(percentileForRank(7, 13)).toBe(54);
+    expect(wordFor(7, 13)).toBe("upper middle");
+  });
+
+  it("the Category Position card derives the word from the quartile of the shown percentile", () => {
+    const card = read("app/components/insights/elite/VendorCategoryPositionCard.tsx");
+    expect(card).toContain("quartileWord(cat.quartile");
+    expect(read("lib/eliteInsightsV2.ts")).toContain("quartile: quartileOf(r.percentile ?? 0)");
+  });
+});
+
+describe("ruling 32 (minimum) — methodology 1.4 and the evidence floor", () => {
+  const FLOOR = "the evidence floor (five contributing firms, no firm above 25 percent, structured consistent with the former 1996 DOJ/FTC safety zone, withdrawn in 2023)";
+
+  it("METHODOLOGY_VERSION is 1.4 with the one changelog line", () => {
+    expect(METHODOLOGY_VERSION).toBe("1.4");
+    expect(METHODOLOGY_CHANGELOG[0]?.version).toBe("1.4");
+    expect(METHODOLOGY_CHANGELOG[0]?.summary).toBe(
+      "1.4: cutoff, one firm one vote and the 25 percent cap are enforced in compute; one confidence table; coverage penalty active; divergence aligned under 5 and flagged at 10; anchors per bank; firmMaturity bands retired."
+    );
+  });
+
+  it("safe harbor is gone from the methodology and the Category Position page; the evidence floor phrase is there", () => {
+    const methodology = read("lib/methodology.ts");
+    const page = read("app/(app)/vendor/alignment-insights/[key]/page.tsx");
+    const card = read("app/components/insights/elite/VendorCategoryPositionCard.tsx");
+    for (const [rel, text] of [["lib/methodology.ts", methodology], ["category page", page], ["category card", card]] as const) {
+      expect(text, rel).not.toMatch(/safe[- ]harbor/i);
+    }
+    expect(methodology).toContain(FLOOR);
+    expect(page).toContain(FLOOR);
+    expect(card).toContain(FLOOR);
+    const suppression = METHODOLOGY_SECTIONS.find((s) => s.key === "suppression");
+    expect(suppression?.title).toBe("Benchmark suppression — the evidence floor");
+  });
+});
+
+describe("walk fixes (item 11)", () => {
+  it("11a: the heatmap caption reads 'Module scores stay separate from confidence' and the board is in the copy scan", () => {
+    const board = read("app/components/admin/briefings/BriefingBoard.tsx");
+    expect(board).toContain('description="Module scores stay separate from confidence. Section values show evidence clusters inside each module."');
+    expect(board).not.toContain("Canonical firm module scores stay separate");
+    expect(read("tests/helpers/copyScan.ts")).toContain('"app/components/admin/briefings/BriefingBoard.tsx"');
+  });
+
+  it("11b: the person-level tile, the People assessed count, the person-level summary and the Individual risk row follow the individual flag on the portal briefing", () => {
+    const board = read("app/components/admin/briefings/BriefingBoard.tsx");
+    const portal = board.slice(board.indexOf("export function PortalBriefingView("));
+    expect(portal).toContain("individualSurfacesEnabled ? briefing.risks : briefing.risks.filter((item) => item.layer !== \"individual\")");
+    expect(portal).toContain("<LayerSummariesPanel briefing={briefing} individualSurfacesEnabled={individualSurfacesEnabled} />");
+    expect(portal).toContain('voice="portal" individualSurfacesEnabled={individualSurfacesEnabled}');
+    expect(board).toMatch(/\{individualSurfacesEnabled \? \(\s*<AdminMetricCard\s*label="People assessed"/);
+    expect(board).toMatch(/\{individualSurfacesEnabled \? \(\s*<div[^>]*>\s*<div[^>]*>Person-level layer<\/div>/);
+    // the admin view keeps every piece (default true)
+    expect(board).toContain("individualSurfacesEnabled = true,");
+  });
+
+  it("11c: the hub radar and the home radar read lib/firmPillars' words", () => {
+    expect(read("lib/firmWorkspaceDashboard.ts")).toContain("pillarForModule(moduleKey)");
+    expect(read("lib/firmWorkspaceDashboard.ts")).not.toContain("title.split(");
+    const figure = read("app/components/frontdoor/V7RadarFigure.tsx");
+    expect(figure).toContain('import { FIRM_PILLARS } from "@/lib/firmPillars"');
+    expect(figure).toContain("{FIRM_PILLARS.map((pillar, index) => (");
+    const door = read("app/components/frontdoor/V7FrontDoor.tsx");
+    expect(door).toContain("const [STRATEGY, OPERATIONS, AUTOMATION, INTEGRATION, GOVERNANCE] = FIRM_PILLARS;");
+    expect(FIRM_PILLARS).toEqual(["Strategy", "Operations", "Automation", "Integration", "Governance"]);
+  });
+
+  it("11d: Gap-to-Top-Quartile Plan is Gap Plan everywhere a reader sees it", () => {
+    for (const rel of ["app/(app)/firm/insights/[key]/page.tsx", "lib/insightContent.ts", "lib/eliteInsightsV2.ts"]) {
+      expect(read(rel), rel).not.toContain("Gap-to-Top-Quartile");
+    }
+    expect(read("app/(app)/firm/insights/[key]/page.tsx")).toContain('title="Gap Plan"');
+  });
+
+  it("11e: the Guide and Enterprise ecosystem pages render vendor follow-up picks only behind PAT_ENABLE_VENDOR_FOLLOWUP_MC", () => {
+    for (const rel of ["app/(app)/consultants/ecosystems/[ecosystemId]/page.tsx", "app/(app)/enterprise/ecosystems/[ecosystemId]/page.tsx"]) {
+      const page = read(rel);
+      expect(page, rel).toContain("const vendorFollowUpMcEnabled = isVendorFollowUpMcEnabled();");
+      expect(page, rel).toContain("vendorFollowUpMcEnabled ? await getVendorFollowUpAggregate(");
+      expect(page, rel).toContain("{vendorFollowUpMcEnabled && vendorFollowUpAggregate ? (");
+    }
+    expect(read("lib/vendorFollowUpMc.ts")).toContain('env[PAT_VENDOR_FOLLOWUP_MC_FLAG_ENV] === "1"');
   });
 });

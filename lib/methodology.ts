@@ -14,7 +14,7 @@
 import { DIVERGENCE_ALIGNED_WITHIN, DIVERGENCE_FLAGGED_AT } from "@/lib/assessmentCore";
 import { FRESHNESS_WINDOWS } from "@/lib/freshness";
 
-export const METHODOLOGY_VERSION = "1.3";
+export const METHODOLOGY_VERSION = "1.4";
 export const METHODOLOGY_SOURCE_DOC = "docs/elite-sprint/AGGREGATION-METHODOLOGY.md";
 
 export type MethodologyChangelogEntry = {
@@ -24,6 +24,12 @@ export type MethodologyChangelogEntry = {
 };
 
 export const METHODOLOGY_CHANGELOG: readonly MethodologyChangelogEntry[] = [
+  {
+    version: "1.4",
+    date: "October 8, 2026",
+    summary:
+      "1.4: cutoff, one firm one vote and the 25 percent cap are enforced in compute; one confidence table; coverage penalty active; divergence aligned under 5 and flagged at 10; anchors per bank; firmMaturity bands retired.",
+  },
   {
     version: "1.3",
     date: "July 17, 2026",
@@ -40,7 +46,7 @@ export const METHODOLOGY_CHANGELOG: readonly MethodologyChangelogEntry[] = [
     version: "1.1",
     date: "July 10, 2026",
     summary:
-      "Added benchmark suppression (minimum-n safe harbor: at least 5 contributing firms, no single firm above 25%). Documented the conflict-of-interest wall and the demo/synthetic data wall as companion integrity guards.",
+      "Added benchmark suppression (the evidence floor (five contributing firms, no firm above 25 percent, structured consistent with the former 1996 DOJ/FTC safety zone, withdrawn in 2023): at least 5 contributing firms, no single firm above 25%). Documented the conflict-of-interest wall and the demo/synthetic data wall as companion integrity guards.",
   },
   {
     version: "1.0",
@@ -96,9 +102,9 @@ export const METHODOLOGY_SECTIONS: readonly MethodologySection[] = [
   },
   {
     key: "suppression",
-    title: "Benchmark suppression — a minimum-n safe harbor",
+    title: "Benchmark suppression — the evidence floor",
     paragraphs: [
-      "Confidence bands label thin evidence; suppression removes it. A cross-firm or peer benchmark is not published when either guard fails: fewer than five distinct contributing firms, or a single firm supplying more than 25% of the cut. This is the compensation-survey safe-harbor rule, adopted verbatim.",
+      "Confidence bands label thin evidence; suppression removes it. A cross-firm or peer benchmark is not published when either guard fails: fewer than five distinct contributing firms, or a single firm supplying more than 25% of the cut. This is the evidence floor (five contributing firms, no firm above 25 percent, structured consistent with the former 1996 DOJ/FTC safety zone, withdrawn in 2023).",
       "A suppressed benchmark shows an insufficient-peer-data state — never a number. Equal-weight cuts of five or more firms always clear the dominance guard by construction.",
     ],
   },
