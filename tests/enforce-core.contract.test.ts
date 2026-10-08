@@ -16,6 +16,8 @@ import { firmInsightConfidenceForModules } from "@/lib/firmInsightEngine";
 import { layerCompleteness } from "@/lib/adminBriefingEngine";
 import { buildVendorProductQuestions, computeVendorAssessmentMetrics } from "@/lib/vendorPat";
 import { maturityBandFor, SCORE_BANDS } from "@/lib/bandLexicon";
+import { DIVERGENCE_ALIGNED_WITHIN, DIVERGENCE_FLAGGED_AT, divergenceState } from "@/lib/assessmentCore";
+import { METHODOLOGY_SECTIONS } from "@/lib/methodology";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 
@@ -299,5 +301,27 @@ describe("ruling 6 — firmMaturity's band table is retired", () => {
     };
     for (const dir of ["lib", "app", "scripts"]) walk(path.join(process.cwd(), dir));
     expect(hits).toEqual([]);
+  });
+});
+
+describe("ruling 21 — one divergence constant pair, matching the methodology page", () => {
+  it("gaps 4, 5, 9, 10, 15 read aligned, aligned, watch, flagged, flagged", () => {
+    expect([4, 5, 9, 10, 15].map((gap) => divergenceState(gap))).toEqual(["aligned", "aligned", "watch", "flagged", "flagged"]);
+    expect([-4, -5, -9, -10, -15].map((gap) => divergenceState(gap))).toEqual(["aligned", "aligned", "watch", "flagged", "flagged"]);
+    expect(divergenceState(null)).toBeNull();
+    expect(DIVERGENCE_ALIGNED_WITHIN).toBe(5);
+    expect(DIVERGENCE_FLAGGED_AT).toBe(10);
+  });
+
+  it("the engines import the pair and the methodology text names it", () => {
+    for (const rel of ["lib/vendorProductInsightEngine.ts", "lib/alignmentBoard.ts", "lib/adminBriefingEngine.ts"]) {
+      const source = readFileSync(path.join(process.cwd(), rel), "utf8");
+      expect(source, rel).toContain('from "@/lib/assessmentCore"');
+      expect(source, rel).not.toMatch(/Math\.abs\([^)]*\) >= 15/);
+      expect(source, rel).not.toMatch(/Math\.abs\(points\) < 5/);
+    }
+    const text = METHODOLOGY_SECTIONS.find((s) => s.key === "divergence")?.paragraphs.join(" ") ?? "";
+    expect(text).toContain(`within ${DIVERGENCE_ALIGNED_WITHIN} points`);
+    expect(text).toContain(`${DIVERGENCE_FLAGGED_AT} points or more`);
   });
 });

@@ -61,10 +61,26 @@ export type ParsedQbankItem = {
   sources: QbankSourceRef[];
 };
 
-/** High-discrimination anchor candidates called out in the bank stats line. */
-export const QBANK_ANCHOR_CODES = new Set(["A9", "B8", "C8", "C19", "D6", "D17"]);
-
 export const QBANK_TEMPLATE_KEY = "qbank-gov-v1";
+
+/**
+ * enforce-core (R62, charter ruling 48): anchors are PER BANK. Each bank declares
+ * its own high-discrimination anchors on its "Bank stats" line
+ * ("… anchor-item candidates: A9, B8, C8, C19, D6, D17 …"); the parser reads that
+ * line and flags exactly those codes. The hardcoded Governance set that used to
+ * live here stamped Governance's six onto the Integration bank (whose own six are
+ * A12, B9, C13, C17, D8, D16) — both sets exist in both banks, so an anchor COUNT
+ * check passed while the wrong items were anchors.
+ */
+export const QBANK_ANCHOR_LINE_MARKER = "anchor-item candidates";
+
+export function readDeclaredAnchorCodes(markdown: string): { codes: Set<string>; raw: string | null } {
+  const line = markdown.split(/\r?\n/).find((entry) => entry.includes(QBANK_ANCHOR_LINE_MARKER));
+  if (!line) return { codes: new Set(), raw: null };
+  const after = line.split(`${QBANK_ANCHOR_LINE_MARKER}:`)[1] ?? "";
+  const codes = (after.match(/\b[A-D]\d+\b/g) ?? []).map((code) => code.trim());
+  return { codes: new Set(codes), raw: line.trim() };
+}
 
 const DIFFICULTY_MAP: Record<string, ModuleDifficulty> = {
   E: ModuleDifficulty.EASY,
@@ -138,9 +154,10 @@ export type QbankParseReport = {
 export function parseQbankReport(
   markdown: string,
   keyPrefix: string,
-  anchorCodes: ReadonlySet<string>,
+  anchorCodes: ReadonlySet<string> | null,
   authorities: readonly QbankSourceAuthority[]
 ): QbankParseReport {
+  const anchors = anchorCodes ?? readDeclaredAnchorCodes(markdown).codes;
   const items: ParsedQbankItem[] = [];
   const issues: QbankParseIssue[] = [];
   let blocksSeen = 0;
@@ -154,11 +171,7 @@ export function parseQbankReport(
     blocksSeen += 1;
     const code = ITEM_RE.exec(block)?.[1] ?? null;
     try {
-      const parsed: ParsedQbankItem[] = [];
-      parseItemBlock(block, currentCategory, parsed, keyPrefix, authorities);
-      for (const item of parsed) {
-        items.push({ ...item, isAnchor: anchorCodes.has(item.code) });
-      }
+      parseItemBlock(block, currentCategory, items, keyPrefix, authorities, anchors);
     } catch (error) {
       issues.push({ code, message: error instanceof Error ? error.message : String(error) });
     }
@@ -194,6 +207,8 @@ export function parseQbank(
   authorities: readonly QbankSourceAuthority[]
 ): ParsedQbankItem[] {
   const items: ParsedQbankItem[] = [];
+  // The bank's OWN anchors, from its stats line (never a hardcoded set).
+  const anchorCodes = readDeclaredAnchorCodes(markdown).codes;
   let currentCategory: string | null = null;
 
   // Items span 1-2 physical lines in the doc (a bolded stem line, then the
@@ -202,7 +217,7 @@ export function parseQbank(
   let buffer: string[] = [];
   const flush = () => {
     if (buffer.length === 0) return;
-    parseItemBlock(buffer.join(" "), currentCategory, items, keyPrefix, authorities);
+    parseItemBlock(buffer.join(" "), currentCategory, items, keyPrefix, authorities, anchorCodes);
     buffer = [];
   };
 
@@ -240,7 +255,8 @@ function parseItemBlock(
   currentCategory: string | null,
   items: ParsedQbankItem[],
   keyPrefix: string,
-  authorities: readonly QbankSourceAuthority[]
+  authorities: readonly QbankSourceAuthority[],
+  anchorCodes: ReadonlySet<string>
 ): void {
   const itemMatch = ITEM_RE.exec(block);
   if (!itemMatch) return;
@@ -277,7 +293,7 @@ function parseItemBlock(
       key: `${keyPrefix}-${code.toLowerCase()}`,
       category: currentCategory,
       difficulty,
-      isAnchor: QBANK_ANCHOR_CODES.has(code),
+      isAnchor: anchorCodes.has(code),
       stem,
       choices,
       correctKey,

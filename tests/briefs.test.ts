@@ -69,6 +69,7 @@ function briefingWithProducts(input: {
         vendorSelfReportedScore: null,
         combinedCurrentReadout: "",
         divergenceLabel: "",
+        divergencePoints: null,
         confidenceLabel: "",
         confidenceSummary: "",
         latestUpdatedAt: null,

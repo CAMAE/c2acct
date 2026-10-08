@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { ModuleDifficulty, ModuleSourceLicense } from "@prisma/client";
 import {
-  QBANK_ANCHOR_CODES,
   QBANK_TEMPLATE_KEY,
   classifyQbankSources,
   parseQbank,
+  readDeclaredAnchorCodes,
 } from "@/lib/modules/qbankParser";
 import { loadQbankSourceAuthorities } from "@/lib/modules/qbankSourceAuthorities";
 
@@ -38,7 +38,12 @@ const FIXTURE = `
 ## SECTION D — Information, Communication & Monitoring (18: 5E/9M/4H)
 
 **D6 (M)** A dashboard shows "firm alignment 73" with no source. Its P13 defect: a) ugly font b) the number lacks source, currency, and completeness c) too precise d) too round — **b.** Every metric needs its unit and provenance. *[Green Book 2025, P13]*
+
+### Bank stats: 5 items · anchor-item candidates: A9, C19, D6 (high-discrimination scenarios)
 `;
+
+/** A second bank with the SAME codes and a DIFFERENT declared anchor set (the Integration defect, charter ruling 48). */
+const SECOND_BANK = FIXTURE.replace("anchor-item candidates: A9, C19, D6", "anchor-item candidates: A1, B4");
 
 describe("qbank parser", () => {
   const items = parseQbank(FIXTURE, QBANK_TEMPLATE_KEY, AUTHORITIES);
@@ -75,10 +80,22 @@ describe("qbank parser", () => {
     expect(a1.feedback.startsWith("All other components")).toBe(true);
   });
 
-  it("flags exactly the documented anchor items", () => {
+  it("flags exactly the anchor items the bank's own stats line declares", () => {
     const anchors = items.filter((i) => i.isAnchor).map((i) => i.code);
     expect(anchors).toEqual(["A9", "C19", "D6"]);
-    for (const code of anchors) expect(QBANK_ANCHOR_CODES.has(code)).toBe(true);
+    expect([...readDeclaredAnchorCodes(FIXTURE).codes]).toEqual(["A9", "C19", "D6"]);
+  });
+
+  it("anchors are per bank: a second bank with the same codes flags its own declared set", () => {
+    const second = parseQbank(SECOND_BANK, "qbank-int-v1", AUTHORITIES);
+    expect(second.filter((i) => i.isAnchor).map((i) => i.code)).toEqual(["A1", "B4"]);
+    expect(second.map((i) => i.key)).toContain("qbank-int-v1-a9");
+  });
+
+  it("a bank without an anchor line flags no anchors (the importer refuses it)", () => {
+    const bare = FIXTURE.replace(/### Bank stats.*\n/, "");
+    expect(readDeclaredAnchorCodes(bare).raw).toBeNull();
+    expect(parseQbank(bare, QBANK_TEMPLATE_KEY, AUTHORITIES).filter((i) => i.isAnchor)).toHaveLength(0);
   });
 
   it("attaches at least one source to every item", () => {

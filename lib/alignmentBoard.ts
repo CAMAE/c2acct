@@ -1,3 +1,4 @@
+import { divergenceState } from "@/lib/assessmentCore";
 import prisma from "@/lib/prisma";
 import { getAdminCompanyBriefing } from "@/lib/adminBriefingEngine";
 import {
@@ -156,7 +157,8 @@ function pieceStrength(score: number | null): string {
 
 function pieceGap(score: number | null, divergence: { points: number | null; label: string }): string {
   if (score !== null && score < 60) return "Below the firm's alignment threshold";
-  if (divergence.points !== null && Math.abs(divergence.points) >= 15) {
+  // enforce-core (R62, ruling 21): flagged at the one constant pair in lib/assessmentCore.
+  if (divergenceState(divergence.points) === "flagged") {
     return `Calibration gap: ${divergence.label}`;
   }
   return "No material gap";

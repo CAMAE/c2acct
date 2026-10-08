@@ -8,6 +8,7 @@ import {
   QBANK_TEMPLATE_KEY,
   UNCLASSIFIED_SOURCE_ORG,
   parseQbank,
+  readDeclaredAnchorCodes,
   type ParsedQbankItem,
 } from "@/lib/modules/qbankParser";
 import { loadQbankSourceAuthorities } from "@/lib/modules/qbankSourceAuthorities";
@@ -75,8 +76,16 @@ function summarize(items: ParsedQbankItem[]) {
   return { byDifficulty, byCategory, anchors, sourceRows, unsourced, unclassified };
 }
 
-function validate(items: ParsedQbankItem[], stats: ReturnType<typeof summarize>): string[] {
+function validate(items: ParsedQbankItem[], stats: ReturnType<typeof summarize>, declared: Set<string>): string[] {
   const errors: string[] = [];
+  // enforce-core (charter ruling 48): the flagged anchors must equal the bank's
+  // DECLARED anchors — a count alone passed with the wrong six.
+  const flagged = new Set(items.filter((i) => i.isAnchor).map((i) => i.code));
+  if (declared.size === 0) {
+    errors.push(`no "anchor-item candidates" line found in the bank doc`);
+  } else if (flagged.size !== declared.size || [...declared].some((code) => !flagged.has(code))) {
+    errors.push(`flagged anchors [${[...flagged].join(", ")}] differ from declared [${[...declared].join(", ")}]`);
+  }
   if (items.length !== EXPECTED_TOTAL) {
     errors.push(`expected ${EXPECTED_TOTAL} items, parsed ${items.length}`);
   }
@@ -117,7 +126,8 @@ async function main() {
   const authorities = await loadQbankSourceAuthorities();
   const items = parseQbank(markdown, BANK_TEMPLATE_KEY, authorities);
   const stats = summarize(items);
-  const errors = validate(items, stats);
+  const declared = readDeclaredAnchorCodes(markdown);
+  const errors = validate(items, stats, declared.codes);
 
   console.log(`\n================ IMPORT QBANK v1 — ${APPLY ? "APPLY" : "DRY RUN"} ================`);
   console.log(`Source: ${DOC_PATH}`);

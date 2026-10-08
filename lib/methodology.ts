@@ -11,6 +11,7 @@
  * Locked by tests/methodology-content.contract.test.ts.
  */
 
+import { DIVERGENCE_ALIGNED_WITHIN, DIVERGENCE_FLAGGED_AT } from "@/lib/assessmentCore";
 import { FRESHNESS_WINDOWS } from "@/lib/freshness";
 
 export const METHODOLOGY_VERSION = "1.3";
@@ -78,6 +79,7 @@ export const METHODOLOGY_SECTIONS: readonly MethodologySection[] = [
     title: "Divergence — a sample floor before we assert a gap",
     paragraphs: [
       "When a vendor's self-report differs from the firm-reviewed average, we only call it a divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.",
+      `Above the floor, one threshold pair applies everywhere a gap is labelled: within ${DIVERGENCE_ALIGNED_WITHIN} points the two readings are aligned; a gap of ${DIVERGENCE_FLAGGED_AT} points or more is flagged as a calibration gap; between the two it is watched, not asserted.`,
     ],
   },
   {

@@ -116,3 +116,23 @@ describe("qbank final-exam serving", () => {
     expect(plan.items.some((i) => i.key === "unsourced-1")).toBe(false);
   });
 });
+
+describe("enforce-core (charter ruling 48) — anchors come from each sitting's own bank", () => {
+  function bankWithAnchors(prefix: string, anchorKeys: string[]): ServableBankItem[] {
+    return buildBank().map((item) => ({ ...item, key: `${prefix}-${item.key}`, isAnchor: anchorKeys.includes(`${prefix}-${item.key}`) }));
+  }
+  const GOV_ANCHORS = ["gov-m-0", "gov-m-1", "gov-m-2", "gov-m-3", "gov-h-0", "gov-h-1"];
+  const INT_ANCHORS = ["int-m-10", "int-m-11", "int-m-12", "int-m-13", "int-h-5", "int-h-6"];
+  const GOV = bankWithAnchors("gov", GOV_ANCHORS);
+  const INT = bankWithAnchors("int", INT_ANCHORS);
+
+  it("two banks, two anchor sets: each sitting carries exactly its own bank's six", () => {
+    for (const userId of ["firm-user-1", "firm-user-2", "firm-user-3"]) {
+      const gov = planFinalExam(GOV, userId, APPROVED).items.filter((i) => i.isAnchor).map((i) => i.key).sort();
+      const int = planFinalExam(INT, userId, APPROVED).items.filter((i) => i.isAnchor).map((i) => i.key).sort();
+      expect(gov).toEqual([...GOV_ANCHORS].sort());
+      expect(int).toEqual([...INT_ANCHORS].sort());
+      expect(gov.some((key) => INT_ANCHORS.includes(key))).toBe(false);
+    }
+  });
+});

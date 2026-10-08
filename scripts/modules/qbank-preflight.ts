@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
 import { ModuleDifficulty, ModuleSourceLicense } from "@prisma/client";
-import { parseQbankReport, type ParsedQbankItem } from "@/lib/modules/qbankParser";
+import { parseQbankReport, readDeclaredAnchorCodes, type ParsedQbankItem } from "@/lib/modules/qbankParser";
 import { loadQbankSourceAuthorities } from "@/lib/modules/qbankSourceAuthorities";
 import { DIFFICULTY_MIX } from "@/lib/modules/qbankServing";
 import { PERF_SCALE_FIRM_PREFIX } from "@/lib/demo-seed/perfScale";
@@ -14,8 +14,8 @@ import { PERF_SCALE_FIRM_PREFIX } from "@/lib/demo-seed/perfScale";
  * write path at all: there is no --apply here, and the only Prisma access is an
  * optional read to check for key collisions.
  *
- * Anchor codes are read from each bank's own "Bank stats" line rather than the
- * parser's hardcoded QBANK_ANCHOR_CODES.
+ * Anchor codes are read from each bank's own "Bank stats" line — the parser's
+ * readDeclaredAnchorCodes (enforce-core: the hardcoded set is gone).
  *
  * ---------------------------------------------------------------------------
  * MANDATORY BLOCK C SCOPE (Mythos ruling, 2026-08-25) — recorded here so it
@@ -67,13 +67,7 @@ const BANKS: BankSpec[] = [
 ];
 
 /** Anchor codes the bank itself declares on its stats line. */
-function declaredAnchors(markdown: string): { codes: Set<string>; raw: string | null } {
-  const line = markdown.split(/\r?\n/).find((entry) => entry.includes("anchor-item candidates"));
-  if (!line) return { codes: new Set(), raw: null };
-  const after = line.split("anchor-item candidates:")[1] ?? "";
-  const codes = (after.match(/\b[A-D]\d+\b/g) ?? []).map((code) => code.trim());
-  return { codes: new Set(codes), raw: line.trim() };
-}
+const declaredAnchors = readDeclaredAnchorCodes;
 
 /** Declared difficulty counts from the stats line, e.g. "27 E / 45 M / 18 H". */
 function declaredMix(markdown: string): { easy: number; moderate: number; hard: number } | null {

@@ -17,6 +17,7 @@ function product(p: Partial<BriefingProductSummary> & { productId: string; produ
     vendorSelfReportedScore: null,
     combinedCurrentReadout: "",
     divergenceLabel: "",
+    divergencePoints: null,
     confidenceLabel: "",
     confidenceSummary: "",
     latestUpdatedAt: null,

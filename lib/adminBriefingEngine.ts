@@ -1,3 +1,4 @@
+import { divergenceState } from "@/lib/assessmentCore";
 import { CONFIDENCE_BAND_LABEL, confidenceBandForSampleSize, type ConfidenceBand } from "@/lib/confidenceBands";
 import { Prisma, QuestionInputType } from "@prisma/client";
 import { normalizeQuestionRuntime, type NormalizedAnswer } from "@/lib/assessmentRuntime";
@@ -108,6 +109,8 @@ export type BriefingProductSummary = {
   vendorSelfReportedScore: number | null;
   combinedCurrentReadout: string;
   divergenceLabel: string;
+  /** Signed vendor-minus-firm gap in points (null without shared signal); read through divergenceState. */
+  divergencePoints: number | null;
   confidenceLabel: string;
   confidenceSummary: string;
   latestUpdatedAt: Date | null;
@@ -617,13 +620,18 @@ function buildProductSummaryText(products: BriefingProductSummary[]) {
   const strongestProduct = [...products]
     .filter((product) => product.canonicalFirmReviewScore !== null)
     .sort((left, right) => (right.canonicalFirmReviewScore ?? 0) - (left.canonicalFirmReviewScore ?? 0))[0];
+  // enforce-core (R62, ruling 21): the clearest calibration gap is the widest
+  // FLAGGED gap (>= DIVERGENCE_FLAGGED_AT points), read through the one constant pair.
   const highestDivergence = [...products]
     .filter((product) => product.divergenceLabel !== "Not enough shared signal yet")
     .sort((left, right) => {
-      const leftPenalty = /above|below|aligned/i.test(left.divergenceLabel) ? 1 : 0;
-      const rightPenalty = /above|below|aligned/i.test(right.divergenceLabel) ? 1 : 0;
-      return rightPenalty - leftPenalty;
-    })[0];
+      const rank = (product: BriefingProductSummary) => {
+        const state = divergenceState(product.divergencePoints);
+        return state === "flagged" ? 2 : state === "watch" ? 1 : 0;
+      };
+      return rank(right) - rank(left) || Math.abs(right.divergencePoints ?? 0) - Math.abs(left.divergencePoints ?? 0);
+    })
+    .filter((product) => divergenceState(product.divergencePoints) === "flagged")[0];
 
   return `${products.length} reviewed product${products.length === 1 ? "" : "s"} are in the current PAT stack. ${
     strongestProduct
@@ -1184,6 +1192,7 @@ async function buildBriefingProductItems(
           snapshot?.combinedCurrentPatReadout ??
           "No product-level combined PAT readout is available yet.",
         divergenceLabel: snapshot?.divergence.label ?? "Not enough shared signal yet",
+        divergencePoints: snapshot?.divergence.points ?? null,
         confidenceLabel: snapshot?.confidenceLabel ?? "No live signal",
         confidenceSummary:
           snapshot?.confidenceSummary ?? "Product evidence is not yet populated enough for a grounded readout.",
@@ -1596,6 +1605,7 @@ export async function getAdminCompanyBriefing(
         vendorSelfReportedScore: product.vendorSelfReportedScore,
         combinedCurrentReadout: product.combinedCurrentReadout,
         divergenceLabel: product.divergenceLabel,
+        divergencePoints: product.divergencePoints,
         confidenceLabel: product.confidenceLabel,
         confidenceSummary: product.confidenceSummary,
         latestUpdatedAt: product.latestUpdatedAt,
@@ -1757,6 +1767,7 @@ export async function getAdminProductBriefing(
       vendorSelfReportedScore: product.vendorSelfReportedScore,
       combinedCurrentReadout: product.combinedCurrentReadout,
       divergenceLabel: product.divergenceLabel,
+      divergencePoints: product.divergencePoints,
       confidenceLabel: product.confidenceLabel,
       confidenceSummary: product.confidenceSummary,
       latestUpdatedAt: product.latestUpdatedAt,

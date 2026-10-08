@@ -121,6 +121,7 @@ function briefingWithFirmReviews(
         vendorSelfReportedScore: null,
         combinedCurrentReadout: "",
         divergenceLabel: "",
+        divergencePoints: null,
         confidenceLabel: "",
         confidenceSummary: "",
         latestUpdatedAt: null,

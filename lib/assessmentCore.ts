@@ -39,6 +39,24 @@ export function latestFinalPerFirm<T>(rows: readonly T[], pick: LatestFinalPerFi
   return out;
 }
 
+// ─── Divergence (ruling 21 default): one constant pair, matching /methodology ───
+
+/** A vendor-vs-firm gap of at most this many points reads as aligned. */
+export const DIVERGENCE_ALIGNED_WITHIN = 5;
+/** A gap of this many points or more is flagged as a calibration gap. */
+export const DIVERGENCE_FLAGGED_AT = 10;
+
+export type DivergenceState = "aligned" | "watch" | "flagged";
+
+/** The one reading of a signed gap in points (vendor minus firm); null when no shared signal. */
+export function divergenceState(points: number | null | undefined): DivergenceState | null {
+  if (points === null || points === undefined || !Number.isFinite(points)) return null;
+  const magnitude = Math.abs(points);
+  if (magnitude >= DIVERGENCE_FLAGGED_AT) return "flagged";
+  if (magnitude <= DIVERGENCE_ALIGNED_WITHIN) return "aligned";
+  return "watch";
+}
+
 /** Distinct firms among the rows (the honest assessmentCount after one-vote). */
 export function distinctFirmCount<T>(rows: readonly T[], firmId: (row: T) => string | null | undefined): number {
   return new Set(rows.map(firmId).filter((id): id is string => typeof id === "string" && id.length > 0)).size;

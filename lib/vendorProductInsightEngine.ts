@@ -13,7 +13,7 @@ import {
   resolveStoredProductAssessmentScale,
 } from "@/lib/productAssessmentRuntime";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
-import { latestFinalPerFirm } from "@/lib/assessmentCore";
+import { divergenceState, latestFinalPerFirm } from "@/lib/assessmentCore";
 import { getVendorScopedFirms } from "@/lib/tenancy";
 import {
   DIMENSION_KEY_BY_BASIS,
@@ -298,7 +298,7 @@ function buildConfidenceCaveats(input: {
 
   if (
     input.divergencePoints !== null &&
-    Math.abs(input.divergencePoints) >= 15 &&
+    divergenceState(input.divergencePoints) === "flagged" &&
     input.firmAverageScore !== null &&
     // Divergence sample floor (CLASS 2): don't assert a calibration gap on an
     // anecdote — below the floor the gap is an early signal, not a divergence.
@@ -417,7 +417,8 @@ function summarizeDivergence(
     };
   }
 
-  if (Math.abs(points) < 5) {
+  // enforce-core (R62, ruling 21): the one constant pair in lib/assessmentCore.
+  if (divergenceState(points) === "aligned") {
     return { points, label: "Vendor self-view and firm review are closely aligned", belowFloor: false };
   }
   if (points > 0) {
@@ -962,7 +963,7 @@ export function buildVendorProductGapCallout(
   }
   const magnitude = Math.round(Math.abs(points) * 10) / 10;
   const magnitudeLabel = `${magnitude} pt divergence`;
-  if (Math.abs(points) < 5) {
+  if (divergenceState(points) === "aligned") {
     return { points, label: `${magnitudeLabel} · vendor story and firm reviews closely aligned`, magnitudeLabel };
   }
   if (points > 0) {
@@ -1004,7 +1005,7 @@ export function buildVendorProductPlainLanguage(
     sentences.push(
       `${productName} reads ${Math.round(vendorScore)}% in your self-assessment and ${Math.round(firmScore)}% across ${assessmentNoun} — a ${magnitude}-point divergence.`
     );
-    if (Math.abs(points) < 5) {
+    if (divergenceState(points) === "aligned") {
       sentences.push(
         "Firms are broadly confirming the self-view, which means the current product story is holding up in front of the people using it."
       );
