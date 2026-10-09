@@ -1,3 +1,4 @@
+import { storedCutoffPhrase } from "@/lib/assessmentCore";
 import PercentileBand from "@/app/components/charts/PercentileBand";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
 import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
@@ -54,7 +55,7 @@ export default function FirmPeerPositionCard({
           rows={[
             { label: "Cohort", value: data.overall ? `${data.overall.n} peer firms` : "—" },
             { label: "Window", value: "Each firm's most recent alignment assessment" },
-            { label: "Cutoff", value: data.cutoffLabel ? `Assessments completed by ${data.cutoffLabel}` : "Not recorded on this run" },
+            { label: "Cutoff", value: storedCutoffPhrase(data.cutoffLabel) },
             { label: "Basis", value: "Your alignment index vs. the peer distribution" },
           ]}
           note="Your percentile is where your alignment index falls across the peer cohort, module by module. Module cuts that fall below the minimum-n safe harbor are withheld, not estimated."

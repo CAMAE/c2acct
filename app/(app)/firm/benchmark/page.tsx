@@ -14,6 +14,7 @@ import { resolveCompanyBoundary } from "@/lib/dataBoundary";
 import { getFirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
 import { buildFirmPeerPosition } from "@/lib/eliteInsightsV2";
 import { getBenchmarkArtifactMeta } from "@/lib/benchmarkArtifact";
+import { storedCutoffPhrase } from "@/lib/assessmentCore";
 import { scoreBandFor } from "@/lib/bandLexicon";
 import { ordinal } from "@/lib/ordinal";
 
@@ -57,6 +58,9 @@ export default async function FirmBenchmarkArtifactPage() {
   }
   const eliteEntitlement = await resolveMembershipEntitlement(sessionUser, "firm", MEMBERSHIP_PLAN.ELITE);
 
+  // `meta` is the NEXT cutoff — a forward-looking calendar deadline. The cut this
+  // page SHOWS is the stored BenchmarkRun's cutoff, read through the same
+  // FirmPeerPosition the Elite Peer Position card reads (enforce-core, ruling 1).
   const meta = getBenchmarkArtifactMeta();
   const companyId = sessionUser.companyId!;
   const [boundary, signal] = await Promise.all([
@@ -70,19 +74,23 @@ export default async function FirmBenchmarkArtifactPage() {
       <section className="pat-card relative p-8" data-testid="firm-benchmark-hero">
         <HeroChips audience="firm" />
         <PatLogoLockup mode="hero" tone="light" />
-        <div className="pat-label mt-6">Quarterly benchmark · {meta.quarterLabel}</div>
+        <div className="pat-label mt-6">
+          Quarterly benchmark · {peer.cutoffLabel ? `cut of ${peer.cutoffLabel}` : meta.quarterLabel}
+        </div>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]">
           Where your firm stands this quarter
         </h1>
         <p className="mt-3 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          {meta.cutoffSentence} {meta.daysToCutoff > 0 ? `${meta.daysToCutoff} days remain until the ${meta.quarterLabel} cutoff.` : "This quarter's cutoff has passed."} The cutoff decides what counts in the next cut — it never changes a score already computed.{" "}
+          {storedCutoffPhrase(peer.cutoffLabel)} — that is the cut shown below. {meta.cutoffSentence}{" "}
+          {meta.daysToCutoff > 0 ? `${meta.daysToCutoff} days remain until the ${meta.quarterLabel} cutoff.` : "This quarter's cutoff has passed."} The cutoff decides what counts in the next cut — it never changes a score already computed.{" "}
           <Link href="/methodology#quarterly-cutoff" className="font-semibold text-[var(--brand-c2-blue)] hover:underline">
             See the cutoff rules
           </Link>
           .
         </p>
         <CardChipRow>
-          <CardChip tone="neutral">Cutoff {meta.cutoffLabel}</CardChip>
+          <CardChip tone="neutral">{storedCutoffPhrase(peer.cutoffLabel)}</CardChip>
+          <CardChip tone="muted">Next cutoff {meta.cutoffLabel}</CardChip>
           {meta.daysToCutoff > 0 ? <CardChip tone="amber">{meta.daysToCutoff} days to cutoff</CardChip> : null}
         </CardChipRow>
       </section>
@@ -112,7 +120,14 @@ export default async function FirmBenchmarkArtifactPage() {
               </CardChipRow>
             </div>
             <div className="mt-5">
-              <PercentileBand rows={peer.rows} title={`${meta.quarterLabel} cohort distribution by module`} />
+              <PercentileBand
+                rows={peer.rows}
+                title={
+                  peer.cutoffLabel
+                    ? `Cohort distribution by module, cut of ${peer.cutoffLabel}`
+                    : `${meta.quarterLabel} cohort distribution by module`
+                }
+              />
             </div>
             <p className="mt-4 text-xs leading-5 text-[var(--shell-muted)]">
               Bands show the cohort&apos;s p25–p75 spread with a top-decile tick; your marker is your own score. Peer firms are
@@ -131,7 +146,7 @@ export default async function FirmBenchmarkArtifactPage() {
                 <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
                   Fastest move up: <strong>{peer.bestAction.moduleLabel}</strong> — closing its {peer.bestAction.deficit}-point
                   deficit lifts you from the {ordinal(peer.bestAction.fromPercentile)} toward the{" "}
-                  {ordinal(peer.bestAction.toPercentile)} percentile before the {meta.quarterLabel} cutoff.
+                  {ordinal(peer.bestAction.toPercentile)} percentile before the next cutoff on {meta.cutoffLabel}.
                 </p>
               ) : null}
             </section>

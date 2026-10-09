@@ -39,6 +39,28 @@ export function latestFinalPerFirm<T>(rows: readonly T[], pick: LatestFinalPerFi
   return out;
 }
 
+// ─── The stored benchmark cut (ruling 1: a surface says which cut it shows) ───
+
+/**
+ * The run's cutoff as a date label, "Sep 30, 2026". Null when the run predates
+ * the stored cutoff (BenchmarkRun.cutoff is nullable).
+ */
+export function benchmarkCutoffLabel(cutoff: Date | null | undefined): string | null {
+  if (!cutoff) return null;
+  return cutoff.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+}
+
+/**
+ * The ONE phrase for the cut a surface is SHOWING — the stored run's cutoff,
+ * never a live quarter computation. Every benchmark surface renders this, so the
+ * quarterly benchmark page and the Peer Position card cannot drift apart
+ * (tests/enforce-core.contract.test.ts). The NEXT cutoff (a forward-looking
+ * deadline) is a different sentence and comes from lib/benchmarkArtifact.
+ */
+export function storedCutoffPhrase(cutoffLabel: string | null): string {
+  return cutoffLabel ? `Assessments completed by ${cutoffLabel}` : "Not recorded on this run";
+}
+
 // ─── Divergence (ruling 21 default): one constant pair, matching /methodology ───
 
 /** A vendor-vs-firm gap of at most this many points reads as aligned. */

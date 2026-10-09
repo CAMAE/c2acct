@@ -16,7 +16,9 @@ import { firmInsightConfidenceForModules } from "@/lib/firmInsightEngine";
 import { layerCompleteness } from "@/lib/adminBriefingEngine";
 import { buildVendorProductQuestions, computeVendorAssessmentMetrics } from "@/lib/vendorPat";
 import { maturityBandFor, SCORE_BANDS } from "@/lib/bandLexicon";
-import { DIVERGENCE_ALIGNED_WITHIN, DIVERGENCE_FLAGGED_AT, divergenceState } from "@/lib/assessmentCore";
+import { DIVERGENCE_ALIGNED_WITHIN, DIVERGENCE_FLAGGED_AT, benchmarkCutoffLabel, divergenceState, storedCutoffPhrase } from "@/lib/assessmentCore";
+import { buildFirmPeerPosition } from "@/lib/eliteInsightsV2";
+import type { FirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
 import { METHODOLOGY_CHANGELOG, METHODOLOGY_SECTIONS, METHODOLOGY_VERSION } from "@/lib/methodology";
 import { quartileOf } from "@/lib/eliteInsightsV2";
 import { quartileWord } from "@/lib/lexicon";
@@ -430,5 +432,74 @@ describe("walk fixes (item 11)", () => {
       expect(page, rel).toContain("{vendorFollowUpMcEnabled && vendorFollowUpAggregate ? (");
     }
     expect(read("lib/vendorFollowUpMc.ts")).toContain('env[PAT_VENDOR_FOLLOWUP_MC_FLAG_ENV] === "1"');
+  });
+});
+
+describe("ruling 1 (deploy-night fix) — the quarterly benchmark page and the Peer Position card show ONE cutoff, the stored run's", () => {
+  const ALIGNMENT_INDEX = "alignment_index";
+  const STORED = new Date("2026-09-30T23:59:59.999Z");
+
+  /** A benchmark reader whose single run carries the stored cutoff. */
+  function peerClient(cutoff: Date | null) {
+    return {
+      benchmarkCohort: { findUnique: async () => ({ id: "cohort-1" }) },
+      benchmarkRun: {
+        findMany: async () => [
+          { metricKey: ALIGNMENT_INDEX, n: 12, mean: 66, stdev: 8, p10: 50, p25: 58, p50: 66, p75: 74, p90: 82, cutoff },
+        ],
+      },
+      companyBenchmark: {
+        findMany: async (args: { distinct?: string[] }) =>
+          args.distinct
+            ? Array.from({ length: 12 }, (_, i) => ({ companyId: `firm-${i}` }))
+            : [{ metricKey: ALIGNMENT_INDEX, score: 70, percentile: 60 }],
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+  }
+  const signal: FirmAlignmentSignal = { moduleScores: new Map(), alignmentIndex: 70 };
+
+  it("the firm reader carries the stored run's cutoff, and the one phrase renders it", async () => {
+    const peer = await buildFirmPeerPosition(peerClient(STORED), "firm-0", "DEMO" as never, signal);
+    expect(peer.available).toBe(true);
+    expect(peer.cutoffLabel).toBe("Sep 30, 2026");
+    expect(storedCutoffPhrase(peer.cutoffLabel)).toBe("Assessments completed by Sep 30, 2026");
+  });
+
+  it("a run written before the cutoff column says so instead of inventing a quarter", async () => {
+    const peer = await buildFirmPeerPosition(peerClient(null), "firm-0", "DEMO" as never, signal);
+    expect(peer.cutoffLabel).toBeNull();
+    expect(storedCutoffPhrase(peer.cutoffLabel)).toBe("Not recorded on this run");
+  });
+
+  it("the page and the card render the SAME phrase from the SAME helper, so they cannot drift", () => {
+    const page = read("app/(app)/firm/benchmark/page.tsx");
+    const card = read("app/components/insights/elite/FirmPeerPositionCard.tsx");
+    const vendorCard = read("app/components/insights/elite/VendorCategoryPositionCard.tsx");
+    for (const [rel, source] of [["page", page], ["card", card], ["vendor card", vendorCard]] as const) {
+      expect(source, rel).toContain('from "@/lib/assessmentCore"');
+      expect(source, rel).toContain("storedCutoffPhrase(");
+    }
+    // the page's shown-cut labels read the stored run; the card reads the same field
+    expect(page).toContain("storedCutoffPhrase(peer.cutoffLabel)");
+    expect(card).toContain("storedCutoffPhrase(data.cutoffLabel)");
+    expect(page).toContain("cut of ${peer.cutoffLabel}");
+    // the mislabel this fix removes: the SHOWN cut was named from a live quarter computation
+    expect(page).not.toContain("Cutoff {meta.cutoffLabel}");
+    expect(page).not.toContain("${meta.quarterLabel} cohort distribution by module`} />");
+    // the forward-looking NEXT cutoff still comes from the artifact meta, clearly labelled
+    expect(page).toContain("Next cutoff {meta.cutoffLabel}");
+    expect(page).toContain("meta.cutoffSentence");
+  });
+
+  it("the cut-label helpers are defined exactly once, in the pure module both surfaces import", () => {
+    const core = read("lib/assessmentCore.ts");
+    expect(core).toContain("export function benchmarkCutoffLabel");
+    expect(core).toContain("export function storedCutoffPhrase");
+    expect(benchmarkCutoffLabel(STORED)).toBe("Sep 30, 2026");
+    expect(benchmarkCutoffLabel(null)).toBeNull();
+    for (const rel of ["lib/eliteInsightsV2.ts", "app/(app)/firm/benchmark/page.tsx"]) {
+      expect(read(rel), rel).not.toMatch(/export function benchmarkCutoffLabel|export function storedCutoffPhrase/);
+    }
   });
 });

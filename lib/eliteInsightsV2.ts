@@ -24,7 +24,7 @@ import {
   percentileValue,
   type BenchmarkReading,
 } from "@/lib/benchmarks";
-import { latestFinalPerFirm } from "@/lib/assessmentCore";
+import { benchmarkCutoffLabel, latestFinalPerFirm } from "@/lib/assessmentCore";
 import type { FirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
 import type { FreshnessReading } from "@/lib/freshness";
 import { getFirmFreshness, type FirmFreshnessSource } from "@/lib/firmFreshness";
@@ -84,11 +84,10 @@ function suppressed(reading: BenchmarkReading): boolean {
   return evaluateBenchmarkSuppressionByCount(reading.n).suppressed;
 }
 
-/** "Assessments completed by Sep 30, 2026" — which cut a reader shows (ruling 1). */
-export function benchmarkCutoffLabel(cutoff: Date | null): string | null {
-  if (!cutoff) return null;
-  return cutoff.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
-}
+// The cut-label helpers are pure and live in lib/assessmentCore (one definition,
+// shared by the cards and the quarterly benchmark page); re-exported here for the
+// readers that already import them from this module.
+export { benchmarkCutoffLabel };
 
 // ── F1 · Peer Position Report ────────────────────────────────────────────────
 

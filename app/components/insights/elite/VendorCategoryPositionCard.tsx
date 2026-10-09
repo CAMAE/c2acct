@@ -5,6 +5,7 @@ import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodP
 import type { VendorCategoryPosition } from "@/lib/eliteInsightsV2";
 import { ordinal } from "@/lib/ordinal";
 import { MIN_CONTRIBUTORS, MAX_CONTRIBUTOR_SHARE } from "@/lib/benchmarkSuppression";
+import { storedCutoffPhrase } from "@/lib/assessmentCore";
 
 export default function VendorCategoryPositionCard({
   data,
@@ -76,7 +77,7 @@ export default function VendorCategoryPositionCard({
         rows={[
           { label: "Cohort", value: "Vendors with firm-reviewed products in each category" },
           { label: "Basis", value: "Your firm-reviewed strength vs. the category peer distribution" },
-          { label: "Cutoff", value: data.cutoffLabel ? `Assessments completed by ${data.cutoffLabel}` : "Not recorded on this run" },
+          { label: "Cutoff", value: storedCutoffPhrase(data.cutoffLabel) },
           {
             label: "Evidence floor",
             value: `At least ${MIN_CONTRIBUTORS} vendors with firm-reviewed products, none above ${Math.round(MAX_CONTRIBUTOR_SHARE * 100)} percent of them`,
