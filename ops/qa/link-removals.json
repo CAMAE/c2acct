@@ -326,5 +326,11 @@
     "control": "Live with Elite membership",
     "ledgerLine": "pattern box B2 (Cam 10/06, FORGE-BOX-PATTERN-B-WORDS-2026-10-06, V6): a Pro locked Elite card says \"Live with Elite membership\" once (the overlay) and its button reads \"Upgrade to Elite\", linking to the membership path; the same door under the button's new name. Route *: the locked preview renders on /firm/benchmark, the Elite hub panels and the tier-2 key pages for Pro accounts.",
     "rulingDate": "2026-10-06"
+  },
+  {
+    "route": "*",
+    "control": "Alignment Insight Review Pro membership and Elite membership vendor alignment insight groups tie",
+    "ledgerLine": "scoring-core (Cam 10/11, FORGE-BOX-SCORING-CORE-2026-10-11, item 7c): the vendor workspace Alignment Insight card sentence \"Review Pro membership and Elite membership vendor alignment insight groups tied to firm alignment signal\" becomes \"Pro readouts and Elite insights built from firm alignment signal\" (VendorPortalContent.tsx, lib/locale.ts). Same card, same door (/vendor/alignment-insights) under the new sentence; the crawl keys the control on its first 100 characters, so the rename reads as a loss. Route *: the vendor workspace card renders on every route that carries the vendor shell for vendor-pro and vendor-elite.",
+    "rulingDate": "2026-10-11"
   }
 ]
