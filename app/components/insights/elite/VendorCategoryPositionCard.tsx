@@ -4,7 +4,7 @@ import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell"
 import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
 import type { VendorCategoryPosition } from "@/lib/eliteInsightsV2";
 import { ordinal } from "@/lib/ordinal";
-import { MIN_CONTRIBUTORS, MAX_CONTRIBUTOR_SHARE, storedCutoffPhrase } from "@/lib/assessmentCore";
+import { MIN_CONTRIBUTORS, MAX_CONTRIBUTOR_SHARE, RANK_MIN_N, storedCutoffPhrase } from "@/lib/assessmentCore";
 
 export default function VendorCategoryPositionCard({
   data,
@@ -29,7 +29,12 @@ export default function VendorCategoryPositionCard({
               </span>
             ) : (
               <span className="rounded-full bg-[rgba(6,54,116,0.06)] px-2.5 py-1 text-xs font-semibold text-[var(--shell-ink)]">
-                {ordinal(cat.rankFromTop)} of {cat.n} · {quartileWord(cat.quartile as 1 | 2 | 3 | 4)}
+                {cat.rankShown ? `${ordinal(cat.rankFromTop)} of ${cat.n} · ` : ""}
+                {cat.displayTier === "median"
+                  ? typeof cat.p50 === "number"
+                    ? `${cat.score >= cat.p50 ? "at or above" : "below"} the median of ${cat.n} vendors`
+                    : `${cat.n} vendors`
+                  : quartileWord(cat.quartile as 1 | 2 | 3 | 4)}
               </span>
             )}
           </div>
@@ -44,16 +49,21 @@ export default function VendorCategoryPositionCard({
               <div className="flex flex-wrap items-baseline gap-x-3">
                 <span className="text-3xl font-semibold tabular-nums text-[var(--shell-ink)]">{cat.score}</span>
                 <span className="text-sm text-[var(--shell-muted)]">
-                  firm-reviewed strength · {ordinal(cat.percentile)} percentile of {cat.n} vendors in this category
+                  firm-reviewed strength ·{" "}
+                  {cat.displayTier === "percentile"
+                    ? `${ordinal(cat.percentile)} percentile of ${cat.n} vendors in this category`
+                    : cat.displayTier === "quartiles"
+                      ? `${quartileWord(cat.quartile as 1 | 2 | 3 | 4)} among ${cat.n} vendors in this category; the percentile opens at 30`
+                      : `peer median ${typeof cat.p50 === "number" ? Math.round(cat.p50) : "withheld"} across ${cat.n} vendors; the quartiles open at ${RANK_MIN_N}`}
                 </span>
               </div>
               <div className="mt-3">
                 <PercentileBandRow
                   mean={cat.mean}
-                  p25={cat.p25}
-                  p75={cat.p75}
+                  p25={cat.displayTier === "median" ? null : cat.p25}
+                  p75={cat.displayTier === "median" ? null : cat.p75}
                   marker={cat.score}
-                  percentile={cat.percentile}
+                  percentile={cat.displayTier === "percentile" ? cat.percentile : null}
                   title={`Vendor strength field in ${cat.category}`}
                   design={chartDesign}
                 />

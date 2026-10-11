@@ -95,7 +95,9 @@ describe("Block 12b — firm tier-1 hybrid Elite depth (theme-scoped peer positi
   const peer = (): FirmPeerPosition => ({
     available: true,
     cutoffLabel: null,
-    overall: { percentile: 60, rankFromTop: 40, n: 100, score: 66 },
+    displayTier: "percentile",
+    rankShown: true,
+    overall: { percentile: 60, rankFromTop: 40, n: 100, score: 66, peerMedian: 66 },
     bestAction: { moduleLabel: "Automation and AI Readiness", deficit: 12, fromPercentile: 40, reaches: "top quartile" },
     rows: [
       { key: "m_ops", label: "Operating Model", p25: 55, p50: 65, p75: 75, p90: 85, score: 60, percentile: 45 },
@@ -128,7 +130,9 @@ describe("Block 12c — Elite hub face metrics (own headline number per card)", 
       peer: {
         available: true,
         cutoffLabel: null,
-        overall: { percentile: 72, rankFromTop: 30, n: 106, score: 68 },
+        displayTier: "percentile",
+        rankShown: true,
+        overall: { percentile: 72, rankFromTop: 30, n: 106, score: 68, peerMedian: 65 },
         bestAction: { moduleLabel: "Automation and AI Readiness", deficit: 9, fromPercentile: 48, reaches: "top quartile" },
         rows: [],
         reportCard: [],
@@ -159,8 +163,8 @@ describe("Block 12c — Elite hub face metrics (own headline number per card)", 
       category: {
         available: true,
         categories: [
-          { category: "Tax & Compliance", mean: 70, stdev: 5, p25: 60, p75: 80, score: 82, percentile: 90, rankFromTop: 1, n: 9, quartile: 4, suppressed: false, suppressionReason: null },
-          { category: "Ledger & Close", mean: 65, stdev: 5, p25: 55, p75: 75, score: 62, percentile: 40, rankFromTop: 5, n: 8, quartile: 2, suppressed: false, suppressionReason: null },
+          { category: "Tax & Compliance", mean: 70, stdev: 5, p25: 60, p50: 70, p75: 80, score: 82, percentile: 90, rankFromTop: 1, n: 9, quartile: 4, displayTier: "median", rankShown: false, suppressed: false, suppressionReason: null },
+          { category: "Ledger & Close", mean: 65, stdev: 5, p25: 55, p50: 65, p75: 75, score: 62, percentile: 40, rankFromTop: 5, n: 8, quartile: 2, displayTier: "median", rankShown: false, suppressed: false, suppressionReason: null },
         ],
         topAction: null,
         cutoffLabel: null,

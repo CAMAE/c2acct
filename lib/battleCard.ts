@@ -2,7 +2,7 @@ import { buildAdminBriefingContext, getAdminCompanyBriefing, getBriefingProducts
 import type { BriefingProductSummary, BriefingRiskOpportunity } from "@/lib/adminBriefingEngine";
 import { getVendorProductInsightCatalog } from "@/lib/vendorProductInsightEngine";
 import { getVendorScopedFirms } from "@/lib/tenancy";
-import { confidenceBandForSampleSize } from "@/lib/confidenceBands";
+import { resolveConfidence } from "@/lib/confidenceBands";
 import { getFirmEvidenceFreshness } from "@/lib/eliteInsightsV2";
 import type { FreshnessReading } from "@/lib/freshness";
 import {
@@ -253,8 +253,10 @@ export type VendorBattleCardData = {
   rankedFirms: RankedFirm[];
 };
 
-// CLASS 3: bands come from the ONE shared definition (lib/confidenceBands.ts).
-const bandForSampleSize = confidenceBandForSampleSize;
+// CLASS 3 and scoring-core (R63, ruling 19): the one resolver; the firm's
+// alignment-evidence freshness applies the Stale step.
+const bandForSampleSize = (n: number, freshness: FreshnessReading | null) =>
+  resolveConfidence({ n, freshness: freshness?.state ?? null }).band;
 
 function mean(scores: Array<number | null>): number | null {
   const known = scores.filter((score): score is number => score !== null);
@@ -403,7 +405,7 @@ export async function getVendorBattleCardData(vendorCompanyId: string): Promise<
       firmName: briefing.company.name,
       alignmentDelta,
       firmAlignment,
-      confidence: bandForSampleSize(briefing.firmLayer.completedModuleCount),
+      confidence: bandForSampleSize(briefing.firmLayer.completedModuleCount, alignmentFreshness),
       gapArea,
       gapScore,
       moduleShape,

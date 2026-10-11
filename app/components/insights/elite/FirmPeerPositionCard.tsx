@@ -1,9 +1,11 @@
 import { storedCutoffPhrase } from "@/lib/assessmentCore";
 import PercentileBand from "@/app/components/charts/PercentileBand";
+import MedianRows from "@/app/components/charts/MedianRows";
+import { RANK_MIN_N } from "@/lib/assessmentCore";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
 import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
 import FreshnessNote from "@/app/components/insights/elite/FreshnessNote";
-import { describePercentile, leverPhrase, type FirmPeerPosition } from "@/lib/eliteInsightsV2";
+import { describePercentile, leverPhrase, positionPhrase, rowsForTier, type FirmPeerPosition } from "@/lib/eliteInsightsV2";
 import type { FreshnessReading } from "@/lib/freshness";
 import { ordinal } from "@/lib/ordinal";
 
@@ -33,13 +35,40 @@ export default function FirmPeerPositionCard({
       <section className="pat-card p-6">
         {data.overall ? (
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="text-4xl font-semibold tabular-nums text-[var(--shell-ink)]">
-              {describePercentile(data.overall.percentile, data.overall.n).split(" ")[0]}
-            </span>
-            <span className="text-sm text-[var(--shell-muted)]">
-              percentile · you rank <span className="font-semibold text-[var(--shell-ink)]">{data.overall.rankFromTop}</span> of{" "}
-              {data.overall.n} peer firms (alignment index {data.overall.score})
-            </span>
+            {data.displayTier === "percentile" ? (
+              <>
+                <span className="text-4xl font-semibold tabular-nums text-[var(--shell-ink)]">
+                  {describePercentile(data.overall.percentile, data.overall.n).split(" ")[0]}
+                </span>
+                <span className="text-sm text-[var(--shell-muted)]">
+                  percentile ·{" "}
+                  {data.rankShown ? (
+                    <>
+                      you rank <span className="font-semibold text-[var(--shell-ink)]">{data.overall.rankFromTop}</span> of {data.overall.n} peer firms
+                    </>
+                  ) : (
+                    <>among {data.overall.n} peer firms</>
+                  )}{" "}
+                  (alignment index {data.overall.score})
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-2xl font-semibold text-[var(--shell-ink)]">
+                  {positionPhrase({ tier: data.displayTier, percentile: data.overall.percentile, score: data.overall.score, peerMedian: data.overall.peerMedian })}
+                </span>
+                <span className="text-sm text-[var(--shell-muted)]">
+                  {data.rankShown ? (
+                    <>
+                      you rank <span className="font-semibold text-[var(--shell-ink)]">{data.overall.rankFromTop}</span> of {data.overall.n} peer firms
+                    </>
+                  ) : (
+                    <>among {data.overall.n} peer firms; your exact rank opens at {RANK_MIN_N}</>
+                  )}{" "}
+                  (alignment index {data.overall.score})
+                </span>
+              </>
+            )}
           </div>
         ) : (
           <div className="rounded-[14px] border border-dashed border-[var(--shell-border)] px-4 py-2.5 text-sm text-[var(--shell-muted)]">
@@ -47,8 +76,9 @@ export default function FirmPeerPositionCard({
           </div>
         )}
         <p className="mt-2 text-xs text-[var(--shell-muted)]">
-          Cross-firm aggregate: a percentile, not a ranking of named firms. Cuts below the evidence floor are withheld.
+          Cross-firm aggregate: a position in the cohort, not a ranking of named firms. Cuts below the evidence floor are withheld.
         </p>
+        <p className="mt-2 text-sm text-[var(--shell-ink)]">{storedCutoffPhrase(data.cutoffLabel)}</p>
         <FreshnessNote freshness={freshness} />
         <EvidenceMethodPanel
           rows={[
@@ -64,7 +94,11 @@ export default function FirmPeerPositionCard({
       <section className="pat-card p-6">
         <div className="pat-label">Where you sit in each module</div>
         <div className="mt-4">
-          <PercentileBand rows={data.rows} title="Per-module percentile position vs peer firms" design={chartDesign} />
+          {data.displayTier === "median" ? (
+            <MedianRows rows={data.rows} title="Your score beside the peer median, by module" />
+          ) : (
+            <PercentileBand rows={rowsForTier(data.rows, data.displayTier)} title="Per-module position vs peer firms" design={chartDesign} />
+          )}
         </div>
       </section>
 
@@ -86,9 +120,11 @@ export default function FirmPeerPositionCard({
                   <td className="py-2 pr-3 text-[var(--shell-ink)]">{row.label}</td>
                   <td className="py-2 px-3 tabular-nums text-[var(--shell-ink)]">{row.you ?? "—"}</td>
                   <td className="py-2 px-3 tabular-nums text-[var(--shell-muted)]">
-                    {typeof row.peerLow === "number" && typeof row.peerHigh === "number"
-                      ? `${Math.round(row.peerLow)}–${Math.round(row.peerHigh)}`
-                      : "withheld"}
+                    {data.displayTier === "median"
+                      ? `opens at ${RANK_MIN_N} firms`
+                      : typeof row.peerLow === "number" && typeof row.peerHigh === "number"
+                        ? `${Math.round(row.peerLow)}–${Math.round(row.peerHigh)}`
+                        : "withheld"}
                   </td>
                   <td className="py-2 pl-3">
                     <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${VERDICT_CHIP[row.verdict].cls}`}>

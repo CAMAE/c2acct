@@ -4,7 +4,7 @@ import { FIRM_CAPABILITY_DEFINITIONS } from "@/lib/firmCapabilities";
 import { FIRM_MODULE_DEFINITIONS, FIRM_MODULE_QUESTION_STEMS } from "@/lib/firmPat";
 import { getVendorScopedFirms } from "@/lib/tenancy";
 import { CUSTOMER_FACING_BOUNDARIES } from "@/lib/dataBoundary";
-import { confidenceBandForSampleSize } from "@/lib/confidenceBands";
+import { resolveConfidence } from "@/lib/confidenceBands";
 import {
   evaluateBenchmarkSuppressionByCount,
   type BenchmarkSuppression,
@@ -405,7 +405,10 @@ function describeSampleSignal(sampleSize: number) {
 function getConfidenceBand(sampleSize: number) {
   // CLASS 3: band boundaries come from the ONE shared definition
   // (lib/confidenceBands.ts); the copy below is alignment-engine-specific.
-  const band = confidenceBandForSampleSize(sampleSize);
+  // scoring-core (R63, ruling 19): the one resolver. The vendor aggregate carries
+  // no evidence date (latestUpdatedAt is null on this bundle), so the Stale step
+  // cannot apply here until it does.
+  const band = resolveConfidence({ n: sampleSize, freshness: null }).band;
   if (band === "no_signal") {
     return {
       band,

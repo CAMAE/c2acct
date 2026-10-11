@@ -12,6 +12,7 @@
  * docs/elite-sprint/AGGREGATION-METHODOLOGY.md §3.
  */
 import { evidenceConfidenceLabel } from "@/lib/bandLexicon";
+import type { FreshnessState } from "@/lib/freshness";
 
 export type ConfidenceBand = "no_signal" | "sample_thin" | "emerging" | "grounded";
 
@@ -39,3 +40,36 @@ export const CONFIDENCE_BAND_LABEL: Record<ConfidenceBand, string> = {
   emerging: evidenceConfidenceLabel("emerging"),
   grounded: evidenceConfidenceLabel("grounded"),
 };
+
+// ─── scoring-core (R63, ruling 19): the Stale arm ────────────────────────────
+
+/**
+ * Stale evidence lowers the confidence label one step: Grounded reads Early
+ * signal. Early signal and No signal have no lower step. Fresh and Aging change
+ * nothing. The count never changes; only the label does.
+ */
+export function applyFreshnessToBand(band: ConfidenceBand, freshness: FreshnessState | null | undefined): ConfidenceBand {
+  if (freshness === "stale" && band === "grounded") return "emerging";
+  return band;
+}
+
+export type ConfidenceResolution = {
+  band: ConfidenceBand;
+  label: string;
+  /** True when the Stale step moved the band below what the count alone gives. */
+  loweredByStale: boolean;
+};
+
+/**
+ * THE resolver every engine header calls: the count band from the one table,
+ * then the Stale step. `freshness` is the state of the newest evidence behind
+ * the reading, or null when the surface has no evidence date.
+ */
+export function resolveConfidence(input: { n: number; freshness?: FreshnessState | null }): ConfidenceResolution {
+  const fromCount = confidenceBandForSampleSize(input.n);
+  const band = applyFreshnessToBand(fromCount, input.freshness);
+  return { band, label: CONFIDENCE_BAND_LABEL[band], loweredByStale: band !== fromCount };
+}
+
+/** The one sentence a header appends when the Stale step applied. */
+export const STALE_CONFIDENCE_NOTE = "The newest evidence is stale, so the label sits one step below what the count alone would give.";

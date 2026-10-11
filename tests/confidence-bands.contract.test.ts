@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   CONFIDENCE_SAMPLE_THRESHOLDS,
   confidenceBandForSampleSize,
+  resolveConfidence,
 } from "@/lib/confidenceBands";
 
 /**
@@ -27,5 +28,20 @@ describe("confidenceBandForSampleSize (unified)", () => {
     for (let n = 0; n < CONFIDENCE_SAMPLE_THRESHOLDS.emerging; n += 1) {
       expect(confidenceBandForSampleSize(n)).not.toBe("grounded");
     }
+  });
+});
+
+describe("resolveConfidence — the one resolver every engine header calls (scoring-core, ruling 19)", () => {
+  it("is the count band when evidence is fresh, aging or undated", () => {
+    expect(resolveConfidence({ n: 6 }).label).toBe("Grounded");
+    expect(resolveConfidence({ n: 6, freshness: "fresh" }).band).toBe("grounded");
+    expect(resolveConfidence({ n: 6, freshness: "aging" }).band).toBe("grounded");
+    expect(resolveConfidence({ n: 2, freshness: null }).label).toBe("Early signal");
+    expect(resolveConfidence({ n: 0 }).label).toBe("No signal");
+  });
+
+  it("Stale lowers Grounded one step to Early signal and says so", () => {
+    expect(resolveConfidence({ n: 6, freshness: "stale" })).toEqual({ band: "emerging", label: "Early signal", loweredByStale: true });
+    expect(resolveConfidence({ n: 4, freshness: "stale" }).loweredByStale).toBe(false);
   });
 });

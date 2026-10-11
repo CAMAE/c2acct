@@ -1,4 +1,5 @@
-import { CONFIDENCE_BAND_LABEL, confidenceBandForSampleSize } from "@/lib/confidenceBands";
+import { CONFIDENCE_BAND_LABEL, STALE_CONFIDENCE_NOTE, resolveConfidence } from "@/lib/confidenceBands";
+import { readFreshness, type FreshnessState } from "@/lib/freshness";
 import prisma from "@/lib/prisma";
 import { FIRM_ELITE_V2_META } from "@/lib/eliteInsightsV2";
 import { normalizeQuestionRuntime, type NormalizedAnswer } from "@/lib/assessmentRuntime";
@@ -157,8 +158,11 @@ export function getRequestedFirmInsightDetailSurface(
  * readout reads "Early signal" at 5 of 5 — the table says six for Grounded,
  * and that is intended (tests/confidence-bands.contract.test.ts).
  */
-export function firmInsightConfidenceForModules(sampleSize: number) {
-  const band = confidenceBandForSampleSize(sampleSize);
+export function firmInsightConfidenceForModules(sampleSize: number, freshness: FreshnessState | null = null) {
+  // scoring-core (R63, ruling 19): the one resolver; Stale lowers the label one step.
+  const resolved = resolveConfidence({ n: sampleSize, freshness });
+  const band = resolved.band;
+  const staleNote = resolved.loweredByStale ? ` ${STALE_CONFIDENCE_NOTE}` : "";
   if (band === "no_signal") {
     return {
       band,
@@ -180,7 +184,7 @@ export function firmInsightConfidenceForModules(sampleSize: number) {
     return {
       band,
       label: CONFIDENCE_BAND_LABEL[band],
-      summary: `This readout is based on ${sampleSize} relevant module submissions and is useful, but still not broad enough to read as strong signal.`,
+      summary: `This readout is based on ${sampleSize} relevant module submissions and is useful, but still not broad enough to read as strong signal.${staleNote}`,
     };
   }
   return {
@@ -1218,7 +1222,7 @@ function computeFirmInsightReports(
       .map((module) => module.submittedAt)
       .filter((submittedAt): submittedAt is Date => submittedAt instanceof Date)
       .sort((left, right) => right.getTime() - left.getTime())[0] ?? null;
-    const confidence = getConfidenceBand(scoredModules.length);
+    const confidence = getConfidenceBand(scoredModules.length, readFreshness(latestUpdatedAt)?.state ?? null);
 
     const narrative = buildNarrative({
       title: insight.title,

@@ -11,7 +11,7 @@ import {
   type ProductFitDimensionScore,
 } from "@/lib/productFitDimensions";
 import { poolForViewerBoundary, resolveCompanyBoundary } from "@/lib/dataBoundary";
-import { confidenceBandForSampleSize } from "@/lib/confidenceBands";
+import { resolveConfidence } from "@/lib/confidenceBands";
 import { recomputeProjectedAlignment } from "@/lib/sandboxLanes";
 
 /**
@@ -145,8 +145,9 @@ export const SANDBOX_STACK_LIMIT = 8;
  */
 export { recomputeProjectedAlignment };
 
-// CLASS 3: bands come from the ONE shared definition (lib/confidenceBands.ts).
-const bandForSampleSize = confidenceBandForSampleSize;
+// CLASS 3 and scoring-core (R63): the one resolver. The board carries no evidence
+// date for the product layer, so the Stale step does not apply here yet.
+const bandForSampleSize = (n: number) => resolveConfidence({ n, freshness: null }).band;
 
 function pieceStrength(score: number | null): string {
   if (score === null) return "Not yet reviewed";

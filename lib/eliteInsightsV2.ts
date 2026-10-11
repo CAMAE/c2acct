@@ -24,7 +24,8 @@ import {
   percentileValue,
   type BenchmarkReading,
 } from "@/lib/benchmarks";
-import { MIN_CONTRIBUTORS, benchmarkCutoffLabel, latestFinalPerFirm, rankFromTop } from "@/lib/assessmentCore";
+import { MIN_CONTRIBUTORS, benchmarkCutoffLabel, displayTierFor, latestFinalPerFirm, rankFromTop, rankShownFor, type DisplayTier } from "@/lib/assessmentCore";
+import { quartileWord } from "@/lib/lexicon";
 import type { FirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
 import type { FreshnessReading } from "@/lib/freshness";
 import { getFirmFreshness, type FirmFreshnessSource } from "@/lib/firmFreshness";
@@ -124,7 +125,11 @@ export type FirmPeerPosition = {
   available: boolean;
   /** The stored run's cutoff as a date label (null while the run predates enforce-core). */
   cutoffLabel: string | null;
-  overall: { percentile: number; rankFromTop: number; n: number; score: number } | null;
+  /** scoring-core (R63, ruling 13): what the cohort size allows the surfaces to show. */
+  displayTier: DisplayTier;
+  /** scoring-core (R63, ruling 27): exact rank only at RANK_MIN_N firms. */
+  rankShown: boolean;
+  overall: { percentile: number; rankFromTop: number; n: number; score: number; peerMedian: number | null } | null;
   /** Largest single lever: closing the biggest module deficit vs the peer top quartile, and where that lands on the stored distribution. */
   bestAction: { moduleLabel: string; deficit: number; fromPercentile: number; reaches: LeverDestination | null } | null;
   rows: PercentileRow[];
@@ -163,6 +168,8 @@ export async function buildFirmPeerPosition(
     return {
       available: false,
       cutoffLabel: benchmarkCutoffLabel(overallReading?.cutoff ?? null),
+      displayTier: "none",
+      rankShown: false,
       overall: null,
       bestAction: null,
       rows: [],
@@ -241,6 +248,8 @@ export async function buildFirmPeerPosition(
   return {
     available: true,
     cutoffLabel: benchmarkCutoffLabel(overallReading.cutoff),
+    displayTier: overallSuppressed ? "none" : displayTierFor(n),
+    rankShown: !overallSuppressed && rankShownFor(n),
     overall: overallSuppressed
       ? null
       : {
@@ -248,6 +257,7 @@ export async function buildFirmPeerPosition(
           rankFromTop: rankFromTop(overallPercentile, n),
           n,
           score: liveIndex,
+          peerMedian: overallReading.p50,
         },
     bestAction,
     rows,
@@ -260,6 +270,28 @@ export async function buildFirmPeerPosition(
 
 export function describePercentile(percentile: number, n: number): string {
   return `${ordinal(percentile)} percentile of ${n} firms`;
+}
+
+/**
+ * scoring-core (R63, ruling 13): the rows a surface may draw for a tier. Under
+ * "percentile" the percentile column is withheld; under "median" the quartile
+ * pack and the top-decile line are withheld too, leaving the median and you.
+ */
+export function rowsForTier(rows: PercentileRow[], tier: DisplayTier): PercentileRow[] {
+  if (tier === "percentile") return rows;
+  if (tier === "quartiles") return rows.map((row) => ({ ...row, percentile: null }));
+  return rows.map((row) => ({ ...row, percentile: null, p25: null, p75: null, p90: null }));
+}
+
+/** The one short phrase for a position under a tier: the percentile, the quartile word, or the side of the median. */
+export function positionPhrase(input: { tier: DisplayTier; percentile: number; score: number; peerMedian: number | null }): string {
+  if (input.tier === "percentile") return `${ordinal(input.percentile)} percentile`;
+  if (input.tier === "quartiles") return quartileWord(quartileOf(input.percentile));
+  if (input.tier === "median") {
+    if (typeof input.peerMedian !== "number") return "peer median withheld";
+    return input.score >= input.peerMedian ? `at or above the peer median (${Math.round(input.peerMedian)})` : `below the peer median (${Math.round(input.peerMedian)})`;
+  }
+  return "withheld";
 }
 
 // ── F2 · Gap Plan ────────────────────────────────────────────────────────────
@@ -510,12 +542,17 @@ export type VendorCategoryPosition = {
     mean: number;
     stdev: number;
     p25: number | null;
+    p50: number | null;
     p75: number | null;
     score: number;
     percentile: number;
     rankFromTop: number;
     n: number;
     quartile: 1 | 2 | 3 | 4;
+    /** scoring-core (R63, ruling 13): what this category's n allows the card to show. */
+    displayTier: DisplayTier;
+    /** scoring-core (R63, ruling 27): exact rank only at RANK_MIN_N vendors. */
+    rankShown: boolean;
     suppressed: boolean;
     /** Why the category is withheld: too few vendors, or one vendor above the 25% cap (ruling 3). */
     suppressionReason: BenchmarkSuppressionReason | null;
@@ -590,12 +627,15 @@ export async function buildVendorCategoryPosition(
         mean: r.mean ?? r.score ?? 0,
         stdev: r.stdev ?? 0,
         p25: r.p25,
+        p50: r.p50,
         p75: r.p75,
         score: r.score as number,
         percentile: r.percentile ?? 0,
         rankFromTop: r.rankFromTop ?? 0,
         n: r.n,
         quartile: quartileOf(r.percentile ?? 0) as 1 | 2 | 3 | 4,
+        displayTier: suppression.suppressed ? "none" : displayTierFor(r.n),
+        rankShown: !suppression.suppressed && rankShownFor(r.n),
         suppressed: suppression.suppressed,
         suppressionReason: suppression.reason,
       };
@@ -1109,8 +1149,8 @@ export function firmEliteHubMetrics(input: {
   const benchmarkFace: EliteHubFace | null =
     peer.available && peer.overall
       ? {
-          hero: `${ordinal(peer.overall.percentile)} percentile`,
-          micro: { kind: "percentile-band", percentile: peer.overall.percentile },
+          hero: positionPhrase({ tier: peer.displayTier, percentile: peer.overall.percentile, score: peer.overall.score, peerMedian: peer.overall.peerMedian }),
+          ...(peer.displayTier === "percentile" ? { micro: { kind: "percentile-band" as const, percentile: peer.overall.percentile } } : {}),
           sub: "vs peer firms · module by module",
         }
       : null;

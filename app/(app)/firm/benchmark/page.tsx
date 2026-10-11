@@ -6,13 +6,15 @@ import HeroChips from "@/app/components/pat/HeroChips";
 import MembershipSurfaceGate from "@/app/components/membership/MembershipSurfaceGate";
 import CardChip, { CardChipRow } from "@/app/components/cards/CardChip";
 import PercentileBand from "@/app/components/charts/PercentileBand";
+import MedianRows from "@/app/components/charts/MedianRows";
 import LockedElitePreview from "@/app/components/insights/LockedElitePreview";
 import { getSessionUser } from "@/lib/auth/session";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { isPingsEnabled } from "@/lib/patAssistant/flags";
 import { resolveCompanyBoundary } from "@/lib/dataBoundary";
 import { getFirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
-import { buildFirmPeerPosition, leverPhrase } from "@/lib/eliteInsightsV2";
+import { buildFirmPeerPosition, leverPhrase, positionPhrase, rowsForTier } from "@/lib/eliteInsightsV2";
+import { RANK_MIN_N } from "@/lib/assessmentCore";
 import { getBenchmarkArtifactMeta } from "@/lib/benchmarkArtifact";
 import { storedCutoffPhrase } from "@/lib/assessmentCore";
 import { scoreBandFor } from "@/lib/bandLexicon";
@@ -102,14 +104,20 @@ export default async function FirmBenchmarkArtifactPage() {
         </div>
       ) : (
         <>
-          {/* Pro: bands / counts / percentiles — visible to every member. */}
+          {/* Pro: what the cohort size allows (scoring-core, ruling 13): median at 5, quartiles at 10, percentile at 30. */}
           <section className="pat-card p-6" data-testid="firm-benchmark-standing">
             <div className="pat-label">Your cohort standing</div>
             <div className="mt-3 flex flex-wrap items-end gap-x-6 gap-y-2">
               <div>
                 <div className="text-4xl font-semibold tabular-nums text-[var(--shell-ink)]">
-                  {ordinal(peer.overall.percentile)}
-                  <span className="ml-1 text-lg font-medium text-[var(--shell-muted)]">pct</span>
+                  {peer.displayTier === "percentile" ? (
+                    <>
+                      {ordinal(peer.overall.percentile)}
+                      <span className="ml-1 text-lg font-medium text-[var(--shell-muted)]">pct</span>
+                    </>
+                  ) : (
+                    <span className="text-2xl">{positionPhrase({ tier: peer.displayTier, percentile: peer.overall.percentile, score: peer.overall.score, peerMedian: peer.overall.peerMedian })}</span>
+                  )}
                 </div>
                 <div className="mt-1 text-sm text-[var(--shell-muted)]">
                   alignment index {Math.round(peer.overall.score)} · {scoreBandFor(peer.overall.score).label}
@@ -120,18 +128,26 @@ export default async function FirmBenchmarkArtifactPage() {
               </CardChipRow>
             </div>
             <div className="mt-5">
-              <PercentileBand
-                rows={peer.rows}
-                title={
-                  peer.cutoffLabel
-                    ? `Cohort distribution by module, cut of ${peer.cutoffLabel}`
-                    : `${meta.quarterLabel} cohort distribution by module`
-                }
-              />
+              {peer.displayTier === "median" ? (
+                <MedianRows rows={peer.rows} title="Your score beside the peer median, by module" />
+              ) : (
+                <PercentileBand
+                  rows={rowsForTier(peer.rows, peer.displayTier)}
+                  title={
+                    peer.cutoffLabel
+                      ? `Cohort distribution by module, cut of ${peer.cutoffLabel}`
+                      : `${meta.quarterLabel} cohort distribution by module`
+                  }
+                />
+              )}
             </div>
             <p className="mt-4 text-xs leading-5 text-[var(--shell-muted)]">
-              Bands show the cohort&apos;s p25–p75 spread with a top-decile tick; your marker is your own score. Peer firms are
-              never named — the cohort is anonymized by design.
+              {peer.displayTier === "median"
+                ? "With fewer than 10 firms in the cohort, the benchmark shows the peer median and your band; the quartiles open at 10 and the percentile at 30. "
+                : peer.displayTier === "quartiles"
+                  ? "Bands show the cohort's p25–p75 spread with a top-decile tick; your marker is your own score. The percentile opens at 30 firms in the cohort. "
+                  : "Bands show the cohort's p25–p75 spread with a top-decile tick; your marker is your own score. "}
+              Peer firms are never named; the cohort is anonymized by design.
             </p>
           </section>
 
@@ -140,7 +156,9 @@ export default async function FirmBenchmarkArtifactPage() {
             <section className="pat-card p-6" data-testid="firm-benchmark-elite">
               <div className="pat-label">Elite · your exact position</div>
               <div className="mt-3 text-2xl font-semibold text-[var(--shell-ink)]">
-                #{peer.overall.rankFromTop} of {peer.overall.n} in your cohort
+                {peer.rankShown
+                  ? `#${peer.overall.rankFromTop} of ${peer.overall.n} in your cohort`
+                  : `Your exact rank opens at ${RANK_MIN_N} firms in the cohort (${peer.overall.n} today)`}
               </div>
               {peer.bestAction ? (
                 <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">

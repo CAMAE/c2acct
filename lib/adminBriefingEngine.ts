@@ -1,5 +1,5 @@
 import { divergenceState } from "@/lib/assessmentCore";
-import { CONFIDENCE_BAND_LABEL, confidenceBandForSampleSize, type ConfidenceBand } from "@/lib/confidenceBands";
+import { CONFIDENCE_BAND_LABEL, resolveConfidence, type ConfidenceBand } from "@/lib/confidenceBands";
 import { Prisma, QuestionInputType } from "@prisma/client";
 import { normalizeQuestionRuntime, type NormalizedAnswer } from "@/lib/assessmentRuntime";
 import { getFirmInsightReports, getFirmInsightReportsForFirms } from "@/lib/firmInsightEngine";
@@ -485,7 +485,8 @@ export function layerCompleteness(sampleSize: number, completeTarget: number, la
 
 /** The confidence word comes from the ONE table (lib/confidenceBands, 3 / 6) on the layer's sample size. */
 function layerConfidence(sampleSize: number, completeness: LayerCompleteness): LayerConfidence {
-  const band = confidenceBandForSampleSize(sampleSize);
+  // scoring-core (R63): the one resolver; the briefing layers carry no evidence date, so no Stale step here yet.
+  const band = resolveConfidence({ n: sampleSize, freshness: null }).band;
   return {
     band,
     label: CONFIDENCE_BAND_LABEL[band],
@@ -505,7 +506,7 @@ function getOverallConfidence(input: {
 }) {
   // n = every data point the briefing holds across its layers; the table decides.
   const sampleSize = input.completedModules + input.peopleAssessed + input.productCount;
-  const band = confidenceBandForSampleSize(sampleSize);
+  const band = resolveConfidence({ n: sampleSize, freshness: null }).band;
   const layersComplete = input.completedModules === input.totalModules;
   return {
     band,
@@ -580,7 +581,7 @@ export function buildModuleHeatmap(
       title: module.title,
       canonicalScore: latestSubmission?.score ?? null,
       confidenceScore: latestSubmission?.signalIntegrityScore ?? null,
-      confidenceLabel: CONFIDENCE_BAND_LABEL[confidenceBandForSampleSize(scoredAnswerCount)],
+      confidenceLabel: resolveConfidence({ n: scoredAnswerCount, freshness: null }).label,
       latestSubmittedAt: latestSubmission?.createdAt ?? null,
       sectionScores: Array.from(sectionScores.entries())
         .map(([key, value]) => ({

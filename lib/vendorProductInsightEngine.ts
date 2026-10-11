@@ -20,7 +20,8 @@ import {
   PRODUCT_FIT_DIMENSIONS,
   type ProductFitDimensionScore,
 } from "@/lib/productFitDimensions";
-import { confidenceBandForSampleSize } from "@/lib/confidenceBands";
+import { CONFIDENCE_BAND_LABEL, STALE_CONFIDENCE_NOTE, resolveConfidence } from "@/lib/confidenceBands";
+import { readFreshness, type FreshnessState } from "@/lib/freshness";
 import { scoreBandFor } from "@/lib/bandLexicon";
 import {
   PRODUCT_TIER1_INSIGHTS,
@@ -331,6 +332,8 @@ function describeUtilityScope(utilityKeys: string[], utilityLabels: string[]) {
 function getConfidenceBand(input: {
   vendorScore: number | null;
   firmAssessmentCount: number;
+  /** State of the newest evidence behind the readout (vendor assertion or firm review); null when none. */
+  freshness?: FreshnessState | null;
 }) {
   if (input.vendorScore === null && input.firmAssessmentCount === 0) {
     return {
@@ -350,26 +353,29 @@ function getConfidenceBand(input: {
         "Firm-reviewed signal is absent or very thin, so the combined readout should be treated as early current-state signal rather than strong confirmation.",
     };
   }
-  // CLASS 3: band boundaries (for ≥2 firm reviews) come from the ONE shared
-  // definition; the copy below is product-engine-specific but keyed off the band.
-  const band = confidenceBandForSampleSize(input.firmAssessmentCount);
+  // CLASS 3 and scoring-core (R63, ruling 19): the band (for ≥2 firm reviews)
+  // comes from the ONE resolver, Stale step included; the copy below is
+  // product-engine-specific but keyed off the band and labelled from the table.
+  const resolved = resolveConfidence({ n: input.firmAssessmentCount, freshness: input.freshness ?? null });
+  const band = resolved.band;
+  const staleNote = resolved.loweredByStale ? ` ${STALE_CONFIDENCE_NOTE}` : "";
   if (band === "sample_thin") {
     return {
       band,
-      label: "Early signal",
+      label: CONFIDENCE_BAND_LABEL[band],
       summary: `Firm-reviewed signal is based on ${input.firmAssessmentCount} assessments, so this remains sample-thin rather than broadly confirmed.`,
     };
   }
   if (band === "emerging") {
     return {
       band,
-      label: "Early signal",
-      summary: `Firm-reviewed signal is based on ${input.firmAssessmentCount} assessments and is useful for current-state interpretation, but still sample-thin.`,
+      label: CONFIDENCE_BAND_LABEL[band],
+      summary: `Firm-reviewed signal is based on ${input.firmAssessmentCount} assessments and is useful for current-state interpretation, but still sample-thin.${staleNote}`,
     };
   }
   return {
     band: "grounded" as const,
-    label: "Grounded",
+    label: CONFIDENCE_BAND_LABEL.grounded,
     summary:
       `Firm-reviewed signal is based on ${input.firmAssessmentCount} assessments and is grounded for current-state interpretation only. ` +
       "PAT is not claiming benchmark or forecast support.",
@@ -851,9 +857,14 @@ export function buildVendorProductInsightSnapshot(
     firmAverageScore,
     input.firmReviewed.assessmentCount
   );
+  const newestEvidenceAt =
+    [input.vendorSelfReported.submittedAt, input.firmReviewed.latestSubmittedAt]
+      .filter((value): value is Date => value instanceof Date)
+      .sort((left, right) => right.getTime() - left.getTime())[0] ?? null;
   const confidence = getConfidenceBand({
     vendorScore: input.vendorSelfReported.latestScore,
     firmAssessmentCount: input.firmReviewed.assessmentCount,
+    freshness: readFreshness(newestEvidenceAt)?.state ?? null,
   });
   const confidenceCaveats = buildConfidenceCaveats({
     utilityKeys: input.product.utilityKeys,
@@ -907,10 +918,7 @@ export function buildVendorProductInsightSnapshot(
       dimensionEvidence: firmDimensionEvidence,
     },
     divergence,
-    latestUpdatedAt:
-      [input.vendorSelfReported.submittedAt, input.firmReviewed.latestSubmittedAt]
-        .filter((value): value is Date => value instanceof Date)
-        .sort((left, right) => right.getTime() - left.getTime())[0] ?? null,
+    latestUpdatedAt: newestEvidenceAt,
     confidenceBand: confidence.band,
     confidenceLabel: confidence.label,
     confidenceSummary: confidence.summary,

@@ -252,7 +252,7 @@ describe("ruling 4 — one confidence table", () => {
     expect(layerCompleteness(5, 5, "The firm layer").complete).toBe(true);
     const engine = readFileSync(path.join(process.cwd(), "lib/adminBriefingEngine.ts"), "utf8");
     expect(engine).not.toContain('"directional"');
-    expect(engine).toContain("confidenceBandForSampleSize");
+    expect(engine).toContain("resolveConfidence"); // scoring-core: the one resolver (count table + Stale step)
     const board = readFileSync(path.join(process.cwd(), "app/components/admin/briefings/BriefingBoard.tsx"), "utf8");
     expect(board).toContain("{module.confidenceLabel}");
     expect(board).not.toContain("confidence {formatConfidence(module.confidenceScore)}");
