@@ -7,3 +7,6 @@
 artifacts/
 test-results/
 playwright-report/
+
+# deploy-night-1 2026-10-11: never upload local env files (CLI default only skips .env.local)
+.env*
