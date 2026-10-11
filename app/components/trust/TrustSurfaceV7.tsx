@@ -54,6 +54,28 @@ function SectionBody({ section, mono }: { section: TrustSurfaceSection; mono: bo
   return (
     <>
       <p className="pat-body mt-3 max-w-[44rem] whitespace-pre-line text-[var(--shell-muted)]">{section.body}</p>
+      {section.table ? (
+        <div className="mt-4 max-w-[44rem] overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-xs uppercase tracking-wide text-[var(--shell-muted)]">
+                {section.table.columns.map((column) => (
+                  <th key={column} className="py-2 pr-4 font-medium">{column}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {section.table.rows.map((row) => (
+                <tr key={row.join("|")} className="border-t border-[var(--shell-border)]">
+                  {row.map((cell, index) => (
+                    <td key={`${index}-${cell}`} className="py-2 pr-4 text-[var(--shell-ink)]">{cell}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
       {section.bullets ? (
         <ul className={`mt-4 grid gap-2 ${mono ? "pat-mono" : "pat-body"} text-[var(--shell-muted)]`}>
           {section.bullets.map((bullet) => (

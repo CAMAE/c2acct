@@ -26,6 +26,14 @@ const guardedFiles = [
   "app/components/insights/elite/VendorCategoryPositionCard.tsx",
   "app/components/insights/elite/VendorDemandSignalsCard.tsx",
   "app/components/insights/elite/VendorGapMapCard.tsx",
+  "app/components/insights/elite/FirmThemeEliteDepthCard.tsx",
+  "app/components/charts/PercentileBand.tsx",
+  "app/(app)/firm/insights/[key]/page.tsx",
+  "app/(app)/vendor/alignment-insights/page.tsx",
+  "lib/methodology.ts",
+  "lib/eliteInsightsV2.ts",
+  "lib/benchmarkSuppression.ts",
+  "lib/vendorAlignmentInsightEngine.ts",
   "lib/confidenceBands.ts",
 ];
 
@@ -35,6 +43,10 @@ const bannedPhrases = [
   "Live · Elite",
   'statusLabel: "Live',
   "Below threshold",
+  // scoring-core (R63, ruling 32): the floor is "the evidence floor", never a safe harbor.
+  "safe harbor",
+  "Safe harbor",
+  "safe-harbor",
 ] as const;
 
 /**

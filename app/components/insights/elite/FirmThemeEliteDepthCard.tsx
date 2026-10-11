@@ -20,7 +20,7 @@ export default function FirmThemeEliteDepthCard({
     <EliteCardShell
       eyebrow="Firm Elite · Peer Position on this theme"
       title={`${themeTitle} — where you sit vs peers`}
-      summary="Your firm-reviewed position on this theme's modules against the peer distribution — a percentile band per module, with the single biggest lever to the peer top quartile. Cuts below the minimum-n safe harbor are withheld."
+      summary="Your firm-reviewed position on this theme's modules against the peer distribution: a percentile band per module, with the single biggest lever to the peer top quartile. Cuts below the evidence floor are withheld."
     >
       {data.available ? (
         <>

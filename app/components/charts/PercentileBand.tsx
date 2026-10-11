@@ -19,7 +19,7 @@ export type PercentileRow = {
   score: number | null;
   /** Your percentile rank 0–100. */
   percentile: number | null;
-  /** True when the peer cut is below the minimum-n safe harbor. */
+  /** True when the peer cut is below the evidence floor. */
   suppressed?: boolean;
 };
 

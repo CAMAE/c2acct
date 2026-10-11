@@ -13,10 +13,17 @@ export type TrustSurfaceKey =
   | "patGovernance"
   | "release";
 
+export type TrustSurfaceTable = {
+  columns: readonly string[];
+  rows: readonly (readonly string[])[];
+};
+
 export type TrustSurfaceSection = {
   title: string;
   body: string;
   bullets?: readonly string[];
+  /** scoring-core (R63): a small reference table (the methodology's confidence and freshness tables). */
+  table?: TrustSurfaceTable;
 };
 
 export type TrustSurface = {

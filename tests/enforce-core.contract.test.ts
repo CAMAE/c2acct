@@ -363,10 +363,11 @@ describe("walk V-new — quartile words follow the percentile the card shows", (
 describe("ruling 32 (minimum) — methodology 1.4 and the evidence floor", () => {
   const FLOOR = "the evidence floor (five contributing firms, no firm above 25 percent, structured consistent with the former 1996 DOJ/FTC safety zone, withdrawn in 2023)";
 
-  it("METHODOLOGY_VERSION is 1.4 with the one changelog line", () => {
-    expect(METHODOLOGY_VERSION).toBe("1.4");
-    expect(METHODOLOGY_CHANGELOG[0]?.version).toBe("1.4");
-    expect(METHODOLOGY_CHANGELOG[0]?.summary).toBe(
+  it("the 1.4 changelog line stands; scoring-core moved the version to 1.5 (a score moved: the three-module index floor)", () => {
+    expect(METHODOLOGY_VERSION).toBe("1.5");
+    expect(METHODOLOGY_CHANGELOG[0]?.version).toBe("1.5");
+    expect(METHODOLOGY_CHANGELOG[1]?.version).toBe("1.4");
+    expect(METHODOLOGY_CHANGELOG[1]?.summary).toBe(
       "1.4: cutoff, one firm one vote and the 25 percent cap are enforced in compute; one confidence table; coverage penalty active; divergence aligned under 5 and flagged at 10; anchors per bank; firmMaturity bands retired."
     );
   });
@@ -381,8 +382,8 @@ describe("ruling 32 (minimum) — methodology 1.4 and the evidence floor", () =>
     expect(methodology).toContain(FLOOR);
     expect(page).toContain(FLOOR);
     expect(card).toContain(FLOOR);
-    const suppression = METHODOLOGY_SECTIONS.find((s) => s.key === "suppression");
-    expect(suppression?.title).toBe("Benchmark suppression — the evidence floor");
+    const benchmark = METHODOLOGY_SECTIONS.find((s) => s.key === "benchmark");
+    expect(benchmark?.title).toBe("The peer benchmark");
   });
 });
 

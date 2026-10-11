@@ -210,7 +210,7 @@ export default function VendorGapMapCard({ data }: { data: VendorGapMap }) {
         rows={[
           { label: "Cohort", value: `${data.rows.length} products × ${data.columns.length} product-fit dimensions` },
           { label: "Basis", value: "Firm review scores vs. your self-report, per product × dimension" },
-          { label: "Safe harbor", value: "Cells without enough firm reviews are left unscored" },
+          { label: "Evidence floor", value: "Cells without enough firm reviews are left unscored" },
         ]}
         note="Each cell compares how firms scored a product on a dimension against how you rate yourself. Green means firms confirm your story; orange means they read you lower. Only dimensions with enough firm reviews are scored — thin cells stay blank rather than being estimated."
       />

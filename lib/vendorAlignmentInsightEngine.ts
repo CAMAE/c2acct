@@ -109,10 +109,10 @@ export type VendorAlignmentInsightBundle = {
   confidenceBand: "no_signal" | "sample_thin" | "emerging" | "grounded";
   confidenceLabel: string;
   confidenceSummary: string;
-  // Minimum-n benchmark safe harbor (Governance Phase 2). This is a cross-firm
-  // peer readout for a vendor; when it falls below n≥5 contributing firms (or a
-  // single firm dominates) the peer benchmark is not publishable — the surface
-  // shows an insufficient-peer-data state.
+  // The evidence floor (Governance Phase 2). This is a cross-firm peer readout
+  // for a vendor; when it falls below five contributing firms (or a single firm
+  // dominates) the peer benchmark is not publishable and the surface shows an
+  // insufficient-peer-data state.
   benchmarkSuppression: BenchmarkSuppression;
   reports: VendorAlignmentInsightReport[];
 };

@@ -1,21 +1,44 @@
 /**
- * Public methodology content (Governance Phase 2, A1) — the rendered, versioned
- * form of docs/elite-sprint/AGGREGATION-METHODOLOGY.md, served at /methodology.
+ * Public methodology content (Governance Phase 2, A1), served at /methodology.
  *
- * This is the STATED methodology: the audit rule is "defensible if stated,
- * indefensible if implied otherwise." Copy here must never imply weighting,
- * percentile, or statistical significance beyond what is written. Keep this in
- * sync with the source doc; the version + changelog below are the public record
- * of material changes (A1: material changes announced before effect).
+ * scoring-core (R63, rulings 32 and 33): this page states what the code does,
+ * in the reader's voice, in this order: what a score is; the five modules and
+ * the index; the product assessment and the firm review; the peer benchmark;
+ * confidence; freshness; divergence; knowledge banks; reproducibility; the
+ * version. Every number it names is imported from the module that computes it
+ * (lib/assessmentCore, lib/confidenceBands, lib/freshness), so the page cannot
+ * drift from the code. The version and the changelog are the public record of
+ * material changes (A1: material changes announced before effect).
  *
- * Locked by tests/methodology-content.contract.test.ts.
+ * Locked by tests/methodology-content.contract.test.ts and tests/enforce-core.contract.test.ts.
  */
 
-import { DIVERGENCE_ALIGNED_WITHIN, DIVERGENCE_FLAGGED_AT } from "@/lib/assessmentCore";
+import {
+  ALIGNMENT_INDEX_MIN_MODULES,
+  DISPLAY_TIER_MIN_N,
+  DIVERGENCE_ALIGNED_WITHIN,
+  DIVERGENCE_FLAGGED_AT,
+  MAX_CONTRIBUTOR_SHARE,
+  MIN_CONTRIBUTORS,
+  RANK_MIN_N,
+  SCALE,
+} from "@/lib/assessmentCore";
+import { CONFIDENCE_SAMPLE_THRESHOLDS } from "@/lib/confidenceBands";
+import { FIRM_PILLARS } from "@/lib/firmPillars";
 import { FRESHNESS_WINDOWS } from "@/lib/freshness";
+import type { TrustSurfaceTable } from "@/lib/trustContent";
 
-export const METHODOLOGY_VERSION = "1.4";
+export const METHODOLOGY_VERSION = "1.5";
 export const METHODOLOGY_SOURCE_DOC = "docs/elite-sprint/AGGREGATION-METHODOLOGY.md";
+
+/** The one phrase for the floor, used on every surface that names it. */
+export const EVIDENCE_FLOOR_PHRASE =
+  "the evidence floor (five contributing firms, no firm above 25 percent, structured consistent with the former 1996 DOJ/FTC safety zone, withdrawn in 2023)";
+
+const CAP_PERCENT = Math.round(MAX_CONTRIBUTOR_SHARE * 100);
+const REVIEW_WINDOW_MONTHS = 12;
+const BANK_ITEMS = 90;
+const BANK_SITTING_ITEMS = 30;
 
 export type MethodologyChangelogEntry = {
   version: string;
@@ -24,6 +47,12 @@ export type MethodologyChangelogEntry = {
 };
 
 export const METHODOLOGY_CHANGELOG: readonly MethodologyChangelogEntry[] = [
+  {
+    version: "1.5",
+    date: "October 11, 2026",
+    summary:
+      "1.5: the alignment index needs three final modules (fewer reads Partial); the benchmark shows what the cohort size allows (median at 5, quartiles at 10, percentile at 30, rank at 10); Stale evidence lowers the confidence label one step; Elite percentiles are the stored run's, never a live estimate; one scoring module.",
+  },
   {
     version: "1.4",
     date: "October 8, 2026",
@@ -61,91 +90,114 @@ export type MethodologySection = {
   title: string;
   paragraphs: readonly string[];
   bullets?: readonly string[];
+  table?: TrustSurfaceTable;
+};
+
+/** The confidence table, one place (lib/confidenceBands). The words are the lexicon's. */
+export const CONFIDENCE_TABLE: TrustSurfaceTable = {
+  columns: ["Data points behind the reading", "Label"],
+  rows: [
+    ["0", "No signal"],
+    [`1 to ${CONFIDENCE_SAMPLE_THRESHOLDS.emerging - 1}`, "Early signal"],
+    [`${CONFIDENCE_SAMPLE_THRESHOLDS.emerging} and up`, "Grounded"],
+  ],
+};
+
+/** The freshness table, one place (lib/freshness). */
+export const FRESHNESS_TABLE: TrustSurfaceTable = {
+  columns: ["Age of the newest evidence", "Label", "Effect"],
+  rows: [
+    [`under ${FRESHNESS_WINDOWS.agingAfterDays} days`, "Fresh", "none"],
+    [`${FRESHNESS_WINDOWS.agingAfterDays} to ${FRESHNESS_WINDOWS.staleAfterDays - 1} days`, "Aging", "none"],
+    [`${FRESHNESS_WINDOWS.staleAfterDays} days and older`, "Stale", "the confidence label drops one step"],
+  ],
 };
 
 export const METHODOLOGY_SECTIONS: readonly MethodologySection[] = [
   {
-    key: "scope",
-    title: "What these numbers are — and are not",
+    key: "score",
+    title: "What a score is",
     paragraphs: [
-      "Patalign reports informational readings built from firm and vendor assessments. Figures are presented as plain averages with the sample size shown. Nothing here is a weighted, percentile, or significance-tested statistic, and nothing is professional advice.",
-      "Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, we show an insufficient-data state instead of a number.",
+      `A score is arithmetic on your answers. Every scored item is answered on one scale, ${SCALE.min} to ${SCALE.max}, where ${SCALE.min} means not in place. A module score is the plain average of those answers placed on a 0 to 100 line. It is rounded once, to a whole number, at the moment it is displayed. Nothing is weighted by question count, response count or anything else, and no surface shows or implies decimals.`,
+      "These are informational readings for product and operating decisions. Where evidence is thin the surface says so, and where a peer benchmark cannot be published responsibly you see an insufficient peer data state instead of a number. Nothing here is professional advice, and no figure is a weighted, percentile-adjusted or significance-tested statistic beyond what this page states; there is no claimed statistical basis for any label.",
     ],
   },
   {
-    key: "averaging",
-    title: "Averaging — equal-weight by design",
+    key: "index",
+    title: "The five modules and the alignment index",
     paragraphs: [
-      "Firm and vendor alignment readings average self-normalized 0–100 module scores. The five assessment modules are equal parts of the framework; each emits one 0–100 score, so within-module question counts are already absorbed. Weighting by question or response count would distort the framework's stated structure, so we do not do it.",
-      "Product readings use one-firm-one-vote: each firm's review of a product counts once, so multi-utility reviews cannot dominate the market read.",
+      `The firm assessment has five modules: ${FIRM_PILLARS.join(", ")}. Each produces one 0 to 100 score from its own answers, so the five carry equal weight by construction.`,
+      `The alignment index is the equal-weight mean of the module scores you have completed, rounded once. It needs at least ${ALIGNMENT_INDEX_MIN_MODULES} final modules. With fewer, your surfaces read Partial and show the module scores on their own.`,
     ],
   },
   {
-    key: "divergence",
-    title: "Divergence — a sample floor before we assert a gap",
+    key: "product-and-review",
+    title: "The product assessment and the firm review",
     paragraphs: [
-      "When a vendor's self-report differs from the firm-reviewed average, we only call it a divergence once at least three firm reviews exist. Below that floor the gap is shown as an early signal, explicitly labelled as too thin to read.",
-      `Above the floor, one threshold pair applies everywhere a gap is labelled: within ${DIVERGENCE_ALIGNED_WITHIN} points the two readings are aligned; a gap of ${DIVERGENCE_FLAGGED_AT} points or more is flagged as a calibration gap; between the two it is watched, not asserted.`,
+      "A vendor assesses its own product on the scored questions for the utilities it declares. That reading is the vendor assertion. Firms that use the product review it on the same scored questions, utility by utility. That reading is firm-observed. The two are computed, stored and labelled separately and are never blended into one number, and a vendor's own assertion never enters the firm-observed average it is measured against.",
+      `One firm, one vote: a firm's latest final review of a product is its vote. Earlier finals stay stored and readable as history and do not count. A review counts for ${REVIEW_WINDOW_MONTHS} months; after that it stays readable on the product page and leaves every average.`,
+    ],
+  },
+  {
+    key: "benchmark",
+    title: "The peer benchmark",
+    paragraphs: [
+      "Firms are compared inside a cohort: the same vertical, and the same size band once enough firms allow it. Demo and synthetic rows carry their own boundary and never enter a customer cohort.",
+      `A cohort publishes only above ${EVIDENCE_FLOOR_PHRASE}: at least ${MIN_CONTRIBUTORS} contributing firms, and no single firm supplying more than ${CAP_PERCENT} percent of the cut. Below the floor you see an insufficient peer data state, never a number.`,
+      "Each calendar quarter has a cutoff, the last day of the quarter. Only final assessments completed on or before the cutoff enter that quarter's run. The run is computed from those rows and frozen; every surface reads the stored run, so a later submission lands in the next quarter and never moves a published number. Your percentile is the share of the cohort at or below your score, counted, never estimated.",
+      "What you see depends on how many firms are in the cohort:",
+    ],
+    bullets: [
+      `Under ${DISPLAY_TIER_MIN_N.median} contributing firms: nothing is published.`,
+      `${DISPLAY_TIER_MIN_N.median} to ${DISPLAY_TIER_MIN_N.quartiles - 1}: the cohort median and your band.`,
+      `${DISPLAY_TIER_MIN_N.quartiles} to ${DISPLAY_TIER_MIN_N.percentile - 1}: the quartiles and your band. Your exact rank opens at ${RANK_MIN_N}.`,
+      `${DISPLAY_TIER_MIN_N.percentile} and up: your percentile, with the quartiles and your rank.`,
     ],
   },
   {
     key: "confidence",
-    title: "Confidence bands — UX conventions, not statistics",
+    title: "Confidence labels",
     paragraphs: [
-      "Every surface carries a confidence band that keeps thin evidence visibly qualified. These bands are user-experience conventions with no claimed statistical basis — they never imply a p-value, confidence interval, or significance test.",
+      "Every reading carries a confidence label that says how much evidence stands behind it. The label is about volume only, never quality, and it is a convention for keeping thin evidence visibly qualified. It never implies a p-value, a confidence interval or a significance test. One table applies everywhere; what counts as a data point is stated on each surface (firm reviews of a product, completed modules, reviewed products).",
+      "Stale evidence lowers the label one step: a Grounded reading on stale evidence reads Early signal.",
     ],
-    bullets: [
-      "No signal — no current-state evidence yet",
-      "Early signal — fewer than 6 data points",
-      "Grounded — 6 or more data points",
-    ],
-  },
-  {
-    key: "suppression",
-    title: "Benchmark suppression — the evidence floor",
-    paragraphs: [
-      "Confidence bands label thin evidence; suppression removes it. A cross-firm or peer benchmark is not published when either guard fails: fewer than five distinct contributing firms, or a single firm supplying more than 25% of the cut. This is the evidence floor (five contributing firms, no firm above 25 percent, structured consistent with the former 1996 DOJ/FTC safety zone, withdrawn in 2023).",
-      "A suppressed benchmark shows an insufficient-peer-data state — never a number. Equal-weight cuts of five or more firms always clear the dominance guard by construction.",
-    ],
-  },
-  {
-    key: "integrity",
-    title: "Integrity walls",
-    paragraphs: [
-      "Two companion guards protect every published aggregate. Demo and synthetic data are excluded from every customer-facing pool. And a conflict-of-interest wall ensures a vendor's own self-report never enters the firm-reviewed peer average it is measured against — the two are always kept separate and separately labelled.",
-    ],
-  },
-  {
-    key: "rounding",
-    title: "Rounding — a single authoritative pass",
-    paragraphs: [
-      "The user-facing value is rounded once, to an integer, at display. Internal aggregates may carry one extra decimal of precision as a convenience, but that intermediate step is bounded and can never change a displayed integer or cross a band threshold. Patalign does not present, or imply, sub-integer precision.",
-    ],
+    table: CONFIDENCE_TABLE,
   },
   {
     key: "freshness",
-    title: "Freshness windows — evidence age is labelled, never decayed",
+    title: "Freshness labels",
     paragraphs: [
-      `Every score carries the age of the evidence behind it — the most recent module submission, product assessment, or firm review that fed it. Patalign classifies that age into three published windows: Fresh (under ${FRESHNESS_WINDOWS.agingAfterDays} days), Aging (${FRESHNESS_WINDOWS.agingAfterDays}–${FRESHNESS_WINDOWS.staleAfterDays} days), and Stale (over ${FRESHNESS_WINDOWS.staleAfterDays} days).`,
-      "Age changes the label, never the number. Patalign does not silently decay, discount, or otherwise alter a score because it is old — the figure stays exactly as computed and the freshness state sits beside it so you can weigh its currency yourself. Absence of an evidence date is treated as unknown, not as stale.",
+      "Every score carries the age of the newest evidence behind it: the most recent module submission, product assessment or firm review that fed it. Age changes the label, never the number. The figure stays exactly as computed and the freshness label sits beside it. A missing evidence date reads as unknown, not as stale.",
     ],
-    bullets: [
-      `Fresh — newest evidence under ${FRESHNESS_WINDOWS.agingAfterDays} days old.`,
-      `Aging — newest evidence ${FRESHNESS_WINDOWS.agingAfterDays} to ${FRESHNESS_WINDOWS.staleAfterDays} days old.`,
-      `Stale — newest evidence over ${FRESHNESS_WINDOWS.staleAfterDays} days old.`,
+    table: FRESHNESS_TABLE,
+  },
+  {
+    key: "divergence",
+    title: "Divergence",
+    paragraphs: [
+      "When a vendor's assertion and the firm-observed reading differ, the gap is read item for item, and only once at least three distinct firms have reviewed the product. Below that floor the gap is shown as early signal and labelled too thin to read.",
+      `Above the floor one pair of thresholds applies everywhere a gap is labelled: within ${DIVERGENCE_ALIGNED_WITHIN} points the two readings are aligned; a gap of ${DIVERGENCE_FLAGGED_AT} points or more is flagged as a calibration gap; between the two it is watched, not asserted.`,
     ],
   },
   {
-    key: "quarterly-cutoff",
-    title: "Quarterly benchmark cutoff — a published deadline, not a score change",
+    key: "knowledge-banks",
+    title: "Knowledge banks",
     paragraphs: [
-      "Patalign publishes a quarterly benchmark cut. Each calendar quarter has a cutoff date — the last day of the quarter — and an assessment counts toward that quarter's benchmark only if it was completed on or before that date. This is the same calendar-deadline pattern used by established B2B benchmark reports: a predictable date that tells everyone which evidence is included next.",
-      "The cutoff governs inclusion, not value. It never changes, weights, or decays a score that has already been computed — a figure completed after the cutoff simply lands in the next quarter's cut instead of the current one. Membership tier changes what you see inside the benchmark (bands and percentiles for all members; deeper ranked position for Elite), never whether the cutoff applies to you.",
+      `Each knowledge bank holds ${BANK_ITEMS} items. A sitting serves ${BANK_SITTING_ITEMS} of them, drawn across the bank's difficulty tiers, with the anchor items the bank's charter names served in every sitting. The sitting score is the share answered correctly, shown as a whole-number percent with its band. Sittings are not benchmarked across firms.`,
     ],
-    bullets: [
-      "The cutoff is the last calendar day of each quarter (Mar 31, Jun 30, Sep 30, Dec 31).",
-      "Assessments completed on or before the cutoff count for that quarter; later ones count for the next.",
-      "The cutoff decides what is included in the next cut — it does not alter any score already computed.",
+  },
+  {
+    key: "reproducibility",
+    title: "Reproducibility",
+    paragraphs: [
+      "Every published number can be recomputed from the stored raw rows: the answers and their scale, the final flag and timestamp of each submission, and the cohort each firm belongs to. Nothing is published that cannot be rebuilt from those rows, and the run that produced a benchmark is stored with its cutoff so the same cut can be reproduced later.",
+    ],
+  },
+  {
+    key: "version",
+    title: "The methodology version",
+    paragraphs: [
+      `This is methodology version ${METHODOLOGY_VERSION}. Material changes are announced in the changelog below before they take effect, and the version moves with them so a reading can always be traced to the rules it was computed under.`,
     ],
   },
 ];

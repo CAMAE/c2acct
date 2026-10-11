@@ -57,7 +57,7 @@ async function renderFirmEliteSurface(key: string, companyId: string) {
       <EliteCardShell
         eyebrow="Firm Elite · Peer Position"
         title="Peer Position Report"
-        summary="Where your firm ranks against peer firms, module by module — a percentile position, not an average. Cuts below the minimum-n safe harbor are withheld."
+        summary="Where your firm ranks against peer firms, module by module: a percentile position, not an average. Cuts below the evidence floor are withheld."
       >
         <FirmPeerPositionCard data={data} freshness={freshness} chartDesign={isNewFrontDoorEnabled() ? "labelled" : "classic"} />
       </EliteCardShell>

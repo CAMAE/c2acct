@@ -32,6 +32,7 @@ export default function MethodologyPage() {
           title: section.title,
           body: section.paragraphs.join("\n\n"),
           bullets: section.bullets,
+          table: section.table,
         }))}
       >
         <section id="changelog" className="mt-10 scroll-mt-24" aria-label="Methodology changelog">
@@ -78,6 +79,28 @@ export default function MethodologyPage() {
                 {paragraph}
               </p>
             ))}
+            {section.table ? (
+              <div className="mt-4 overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-xs uppercase tracking-wide text-[var(--shell-muted)]">
+                      {section.table.columns.map((column) => (
+                        <th key={column} className="py-2 pr-4 font-medium">{column}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {section.table.rows.map((row) => (
+                      <tr key={row.join("|")} className="border-t border-[var(--shell-border)]">
+                        {row.map((cell, index) => (
+                          <td key={`${index}-${cell}`} className="py-2 pr-4 text-[var(--shell-ink)]">{cell}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
             {section.bullets ? (
               <ul className="mt-4 space-y-2 text-sm leading-6 text-[var(--shell-muted)]">
                 {section.bullets.map((bullet) => (
