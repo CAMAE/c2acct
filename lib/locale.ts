@@ -562,7 +562,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
           },
           "alignment-insights": {
             title: "Alignment Insight",
-            description: "Review Pro membership and Elite membership vendor alignment insight groups tied to firm alignment signal.",
+            description: "Pro readouts and Elite insights built from firm alignment signal.",
           },
         },
         individual: {

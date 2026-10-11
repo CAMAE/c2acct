@@ -29,7 +29,7 @@ export const vendorWorkspaceCards: PortalSurface[] = [
   {
     id: "alignment-insights",
     title: "Alignment Insight",
-    description: "Review Pro membership and Elite membership vendor alignment insight groups tied to firm alignment signal.",
+    description: "Pro readouts and Elite insights built from firm alignment signal.",
     href: "/vendor/alignment-insights",
     audience: ["vendor"],
     section: "operate",
