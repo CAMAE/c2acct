@@ -329,7 +329,7 @@
   },
   {
     "route": "*",
-    "control": "Alignment Insight Review Pro membership and Elite membership vendor alignment insight groups tie",
+    "control": "Alignment Insight Review Pro membership and Elite membership vendor alignment insight groups tied to",
     "ledgerLine": "scoring-core (Cam 10/11, FORGE-BOX-SCORING-CORE-2026-10-11, item 7c): the vendor workspace Alignment Insight card sentence \"Review Pro membership and Elite membership vendor alignment insight groups tied to firm alignment signal\" becomes \"Pro readouts and Elite insights built from firm alignment signal\" (VendorPortalContent.tsx, lib/locale.ts). Same card, same door (/vendor/alignment-insights) under the new sentence; the crawl keys the control on its first 100 characters, so the rename reads as a loss. Route *: the vendor workspace card renders on every route that carries the vendor shell for vendor-pro and vendor-elite.",
     "rulingDate": "2026-10-11"
   }
