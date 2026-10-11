@@ -3,6 +3,7 @@ import { ProductAssessmentPerspective } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
+import { FINAL_SCORE_VERSION } from "@/lib/assessmentCore";
 import { unauthorizedResponse, forbiddenResponse } from "@/lib/authz";
 import { getSessionUser } from "@/lib/auth/session";
 import {
@@ -294,7 +295,7 @@ export async function POST(request: Request) {
         },
         score: score.rawScorePct,
         weightedAvg: score.rawWeightedAvg,
-        scoreVersion: 1,
+        scoreVersion: FINAL_SCORE_VERSION,
         scaleMin: score.scaleMin,
         scaleMax: score.scaleMax,
         totalWeight: score.totalWeight,

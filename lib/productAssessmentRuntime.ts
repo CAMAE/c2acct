@@ -1,23 +1,15 @@
-export const PRODUCT_ASSESSMENT_SCALE_MIN = 0;
-export const PRODUCT_ASSESSMENT_SCALE_MAX = 5;
-const LEGACY_PRODUCT_ASSESSMENT_SCALE_MIN = 1;
+import { SCALE, resolveStoredScale } from "@/lib/assessmentCore";
+
+// scoring-core (R63): the one scale constant and the one stored-scale resolver
+// live in lib/assessmentCore. These names stay for the existing importers.
+export const PRODUCT_ASSESSMENT_SCALE_MIN: number = SCALE.min;
+export const PRODUCT_ASSESSMENT_SCALE_MAX: number = SCALE.max;
 
 export function resolveStoredProductAssessmentScale(
   scaleMin: number | null | undefined,
   scaleMax: number | null | undefined
 ) {
-  if (Number.isFinite(scaleMin) && Number.isFinite(scaleMax) && Number(scaleMax) > Number(scaleMin)) {
-    return {
-      scaleMin: Number(scaleMin),
-      scaleMax: Number(scaleMax),
-    };
-  }
-
-  // Older malformed product submissions without explicit scale metadata should keep the legacy 1..5 fallback.
-  return {
-    scaleMin: LEGACY_PRODUCT_ASSESSMENT_SCALE_MIN,
-    scaleMax: PRODUCT_ASSESSMENT_SCALE_MAX,
-  };
+  return resolveStoredScale(scaleMin, scaleMax);
 }
 
 export function normalizeAnswerForStoredScale(

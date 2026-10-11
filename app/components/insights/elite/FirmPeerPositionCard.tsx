@@ -3,7 +3,7 @@ import PercentileBand from "@/app/components/charts/PercentileBand";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
 import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
 import FreshnessNote from "@/app/components/insights/elite/FreshnessNote";
-import { describePercentile, type FirmPeerPosition } from "@/lib/eliteInsightsV2";
+import { describePercentile, leverPhrase, type FirmPeerPosition } from "@/lib/eliteInsightsV2";
 import type { FreshnessReading } from "@/lib/freshness";
 import { ordinal } from "@/lib/ordinal";
 
@@ -47,8 +47,7 @@ export default function FirmPeerPositionCard({
           </div>
         )}
         <p className="mt-2 text-xs text-[var(--shell-muted)]">
-          Cross-firm aggregate — a percentile, not a ranking of named firms. Cuts below the minimum-n safe harbor are
-          withheld.
+          Cross-firm aggregate: a percentile, not a ranking of named firms. Cuts below the evidence floor are withheld.
         </p>
         <FreshnessNote freshness={freshness} />
         <EvidenceMethodPanel
@@ -58,7 +57,7 @@ export default function FirmPeerPositionCard({
             { label: "Cutoff", value: storedCutoffPhrase(data.cutoffLabel) },
             { label: "Basis", value: "Your alignment index vs. the peer distribution" },
           ]}
-          note="Your percentile is where your alignment index falls across the peer cohort, module by module. Module cuts that fall below the minimum-n safe harbor are withheld, not estimated."
+          note="Your percentile is where your alignment index falls across the peer cohort, module by module, read from the stored quarterly run. Module cuts below the evidence floor are withheld, not estimated."
         />
       </section>
 
@@ -107,11 +106,9 @@ export default function FirmPeerPositionCard({
         <section className="pat-card p-6">
           <div className="pat-label">Your biggest lever</div>
           <p className="mt-3 text-sm leading-6 text-[var(--shell-ink)]">
-            Closing {data.bestAction.moduleLabel}&rsquo;s {data.bestAction.deficit}-pt gap to the peer top quartile moves
-            you from the{" "}
-            <span className="font-semibold">{ordinal(data.bestAction.fromPercentile)}</span> to about the{" "}
-            <span className="font-semibold text-[var(--shell-positive)]">{ordinal(data.bestAction.toPercentile)}</span>{" "}
-            percentile — an estimate, not a guarantee.
+            Closing {data.bestAction.moduleLabel}&rsquo;s {data.bestAction.deficit}-pt gap to the peer top quartile{" "}
+            <span className="font-semibold text-[var(--shell-positive)]">{leverPhrase(data.bestAction)}</span>, from the{" "}
+            <span className="font-semibold">{ordinal(data.bestAction.fromPercentile)}</span> percentile today. An estimate, not a guarantee.
           </p>
         </section>
       ) : null}

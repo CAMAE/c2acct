@@ -1,4 +1,5 @@
 import { computeScore, summarizeSubmissionScores } from "../lib/scoring";
+import { LEGACY_SCALE_MIN, SCALE } from "../lib/assessmentCore";
 import { resolveUnlockedInsights } from "../lib/insights/evaluateUnlocked";
 import { TIER1_ALIGNMENT_BADGE_ID } from "../lib/patUnlocks";
 
@@ -14,8 +15,8 @@ const score = computeScore({
     q2: 4,
     q3: 3,
   },
-  scaleMin: 1,
-  scaleMax: 5,
+  scaleMin: LEGACY_SCALE_MIN,
+  scaleMax: SCALE.max,
 });
 
 assert(score.rawScorePct === 75, `expected rawScorePct=75, got ${score.rawScorePct}`);

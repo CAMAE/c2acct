@@ -1,6 +1,7 @@
 import { pillarForModule } from "@/lib/firmPillars";
 import prisma from "@/lib/prisma";
 import { getFirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
+import { alignmentIndexLabel, alignmentIndexState } from "@/lib/assessmentCore";
 import { buildFirmProInsightCards, getFirmInsightReports } from "@/lib/firmInsightEngine";
 import { evaluateUnlocked } from "@/lib/insights/evaluateUnlocked";
 import { getFirmAssessmentProgress, summarizeFirmAlignmentProgress, type FirmModuleProgress } from "@/lib/firmPat";
@@ -14,6 +15,8 @@ import { getFirmAssessmentProgress, summarizeFirmAlignmentProgress, type FirmMod
 export type FirmWorkspaceDashboard = {
   companyName: string;
   alignmentIndex: number | null;
+  /** The index as a reader sees it: the number, "Partial (n of 5 modules scored)" or "not scored yet". */
+  alignmentIndexLabel: string;
   modules: FirmModuleProgress[];
   completedModules: number;
   totalModules: number;
@@ -61,6 +64,7 @@ export async function getFirmWorkspaceDashboard(companyId: string, companyName: 
   return {
     companyName,
     alignmentIndex: alignmentSignal.alignmentIndex,
+    alignmentIndexLabel: alignmentIndexLabel(alignmentIndexState(alignmentSignal.moduleScores.values()), summary.totalModules),
     modules: moduleProgress,
     completedModules: summary.completedModules,
     totalModules: summary.totalModules,

@@ -1,19 +1,9 @@
-export type ScoreInput = {
-  answers: Record<string, number> | null | undefined;
-  scaleMin: number;
-  scaleMax: number;
-};
-
-export type ScoreResult = {
-  scaleMin: number;
-  scaleMax: number;
-  score: number;
-  rawScorePct: number;
-  weightedAvg: number | null;
-  rawWeightedAvg: number | null;
-  totalWeight: number;
-  answeredCount: number;
-};
+/**
+ * scoring-core (R63): computeScore lives in lib/assessmentCore, the one scoring
+ * module. This file keeps the submission summary helpers and re-exports the
+ * score function and its types for the nine existing importers.
+ */
+export { computeScore, type ScoreInput, type ScoreResult } from "@/lib/assessmentCore";
 
 export type SubmissionScoreSummary = {
   rawScorePct: number | null;
@@ -43,49 +33,6 @@ export function normalizeSignalIntegrityScore(value: unknown): number {
   }
 
   return numericValue;
-}
-
-export function computeScore(input: ScoreInput): ScoreResult {
-  const { answers, scaleMin, scaleMax } = input;
-
-  const safeAnswers: Record<string, number> =
-    answers && typeof answers === "object" ? (answers as Record<string, number>) : {};
-
-  const values = Object.values(safeAnswers)
-    .map((value) => Number(value))
-    .filter((value) => Number.isFinite(value));
-
-  const answeredCount = values.length;
-  if (answeredCount === 0) {
-    return {
-      score: 0,
-      rawScorePct: 0,
-      weightedAvg: null,
-      rawWeightedAvg: null,
-      totalWeight: 0,
-      answeredCount: 0,
-      scaleMin,
-      scaleMax,
-    };
-  }
-
-  const totalWeight = answeredCount;
-  const sum = values.reduce((left, right) => left + right, 0);
-  const weightedAvg = sum / totalWeight;
-
-  const denominator = scaleMax - scaleMin;
-  const rawScorePct = denominator === 0 ? 0 : Math.round(((weightedAvg - scaleMin) / denominator) * 100);
-
-  return {
-    score: rawScorePct,
-    rawScorePct,
-    weightedAvg,
-    rawWeightedAvg: weightedAvg,
-    totalWeight,
-    answeredCount,
-    scaleMin,
-    scaleMax,
-  };
 }
 
 export function summarizeSubmissionScores(input: {

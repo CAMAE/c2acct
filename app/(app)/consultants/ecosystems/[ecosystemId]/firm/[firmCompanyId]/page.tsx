@@ -24,6 +24,7 @@ import SixQuarterRoadmap from "./_components/SixQuarterRoadmap";
 import StackFitAnalysis from "./_components/StackFitAnalysis";
 import { boardLabel } from "@/lib/sandboxLabel";
 import { guideWord } from "@/lib/roleWords";
+import { alignmentIndexState } from "@/lib/assessmentCore";
 
 export const dynamic = "force-dynamic";
 
@@ -160,18 +161,27 @@ export default async function FirmBriefPage({
               (axis) => typeof axis.firmScore === "number"
             );
             if (!scoredAxes.length) return null;
-            const alignmentIndex = Math.round(
-              scoredAxes.reduce((sum, axis) => sum + (axis.firmScore ?? 0), 0) / scoredAxes.length
-            );
+            // scoring-core (R63): the one index computation; under three scored modules it is Partial.
+            const indexState = alignmentIndexState(scoredAxes.map((axis) => axis.firmScore));
             return (
               <section className="pat-card p-6" data-testid="firm-brief-visual-band">
                 <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-center">
                   <div>
-                    <ScoreLockup
-                      label="Alignment index"
-                      score={alignmentIndex}
-                      context={`Average of ${scoredAxes.length} of ${brief.fiveModuleRadar.length} scored modules for ${brief.firmCompanyName} · use the softest module below as the engagement opening`}
-                    />
+                    {indexState.kind === "index" ? (
+                      <ScoreLockup
+                        label="Alignment index"
+                        score={indexState.index}
+                        context={`Average of ${scoredAxes.length} of ${brief.fiveModuleRadar.length} scored modules for ${brief.firmCompanyName} · use the softest module below as the engagement opening`}
+                      />
+                    ) : (
+                      <div>
+                        <div className="pat-label">Alignment index</div>
+                        <div className="mt-2 text-2xl font-semibold text-[var(--shell-ink)]">Partial</div>
+                        <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
+                          {scoredAxes.length} of {brief.fiveModuleRadar.length} modules scored for {brief.firmCompanyName}. The index opens at three; the module scores below stand on their own.
+                        </p>
+                      </div>
+                    )}
                     <div className="mt-6">
                       <div className="pat-label">Module signal · strongest to softest</div>
                       <div className="mt-3">

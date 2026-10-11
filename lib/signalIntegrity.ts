@@ -1,3 +1,4 @@
+import { SCALE } from "@/lib/assessmentCore";
 export type IntegrityMeta = {
   coverage?: number;
   numericAnswered?: number;
@@ -63,8 +64,9 @@ export function evaluateSignalIntegrity(
   const flags: string[] = [];
   const meta: IntegrityMeta = {};
 
-  const scaleMin = opts?.scaleMin ?? 1;
-  const scaleMax = opts?.scaleMax ?? 5;
+  // scoring-core (R63, ruling 9): callers pass the stored scale; the default is the one SCALE.
+  const scaleMin = opts?.scaleMin ?? SCALE.min;
+  const scaleMax = opts?.scaleMax ?? SCALE.max;
   const keys = Object.keys(answers ?? {});
   const answeredCount = keys.filter((key) => hasAnswerValue(answers[key])).length;
 

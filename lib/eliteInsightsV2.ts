@@ -24,13 +24,12 @@ import {
   percentileValue,
   type BenchmarkReading,
 } from "@/lib/benchmarks";
-import { benchmarkCutoffLabel, latestFinalPerFirm } from "@/lib/assessmentCore";
+import { MIN_CONTRIBUTORS, benchmarkCutoffLabel, latestFinalPerFirm, rankFromTop } from "@/lib/assessmentCore";
 import type { FirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
 import type { FreshnessReading } from "@/lib/freshness";
 import { getFirmFreshness, type FirmFreshnessSource } from "@/lib/firmFreshness";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import {
-  MIN_CONTRIBUTORS,
   evaluateBenchmarkSuppression,
   evaluateBenchmarkSuppressionByCount,
   type BenchmarkSuppressionReason,
@@ -91,24 +90,34 @@ export { benchmarkCutoffLabel };
 
 // ── F1 · Peer Position Report ────────────────────────────────────────────────
 
-/** Inverse percentile: approximate percentile rank of value `v` from p-anchors. */
-function percentileForValue(
-  anchors: Array<{ p: number; v: number }>,
-  v: number
-): number {
-  const pts = anchors.filter((a) => typeof a.v === "number").sort((a, b) => a.v - b.v);
-  if (pts.length === 0) return 0;
-  if (v <= pts[0].v) return pts[0].p;
-  if (v >= pts[pts.length - 1].v) return pts[pts.length - 1].p;
-  for (let i = 1; i < pts.length; i += 1) {
-    if (v <= pts[i].v) {
-      const lo = pts[i - 1];
-      const hi = pts[i];
-      const t = hi.v === lo.v ? 0 : (v - lo.v) / (hi.v - lo.v);
-      return Math.round(lo.p + t * (hi.p - lo.p));
-    }
-  }
-  return pts[pts.length - 1].p;
+// scoring-core (R63, ruling 17): the percentile a reader sees is the STORED one
+// from the run (lib/assessmentCore.percentileRank at compute time), never a live
+// interpolation against the p-anchors. The lever below names the stored
+// distribution's landmarks (median, top quartile, top decile) instead.
+
+/** Where the best single move lands a firm, read off the stored distribution. */
+export type LeverDestination = "top decile" | "top quartile" | "peer median";
+
+/** The destination the moved index reaches on the stored distribution, or null when it stays below the median. */
+export function leverDestination(movedIndex: number, reading: Pick<BenchmarkReading, "p50" | "p75" | "p90">): LeverDestination | null {
+  if (typeof reading.p90 === "number" && movedIndex >= reading.p90) return "top decile";
+  if (typeof reading.p75 === "number" && movedIndex >= reading.p75) return "top quartile";
+  if (typeof reading.p50 === "number" && movedIndex >= reading.p50) return "peer median";
+  return null;
+}
+
+const DESTINATION_PERCENTILE: Record<LeverDestination, number> = { "top decile": 90, "top quartile": 75, "peer median": 50 };
+
+/**
+ * The one lever sentence tail (walk leftover 7b): when the move does not change
+ * where the firm already sits, it "keeps you in the top decile" rather than
+ * "from the 90th to about the 90th".
+ */
+export function leverPhrase(action: { fromPercentile: number; reaches: LeverDestination | null }): string {
+  if (!action.reaches) return "narrows your gap to the peer top quartile";
+  const already = action.fromPercentile >= DESTINATION_PERCENTILE[action.reaches];
+  if (action.reaches === "peer median") return already ? "keeps you above the peer median" : "lifts you above the peer median";
+  return already ? `keeps you in the ${action.reaches}` : `lifts you into the ${action.reaches}`;
 }
 
 export type FirmPeerPosition = {
@@ -116,8 +125,8 @@ export type FirmPeerPosition = {
   /** The stored run's cutoff as a date label (null while the run predates enforce-core). */
   cutoffLabel: string | null;
   overall: { percentile: number; rankFromTop: number; n: number; score: number } | null;
-  /** Largest single lever: closing the biggest module deficit vs the peer top quartile. */
-  bestAction: { moduleLabel: string; deficit: number; fromPercentile: number; toPercentile: number } | null;
+  /** Largest single lever: closing the biggest module deficit vs the peer top quartile, and where that lands on the stored distribution. */
+  bestAction: { moduleLabel: string; deficit: number; fromPercentile: number; reaches: LeverDestination | null } | null;
   rows: PercentileRow[];
   reportCard: Array<{
     key: string;
@@ -132,17 +141,6 @@ export type FirmPeerPosition = {
 
 type ReaderClient = Pick<PrismaClient, "benchmarkCohort" | "benchmarkRun" | "companyBenchmark">;
 
-/** anchors for a benchmark reading's distribution, for percentile recomputation. */
-function distributionAnchors(r: BenchmarkReading): Array<{ p: number; v: number }> {
-  return [
-    { p: 10, v: r.p10 as number },
-    { p: 25, v: r.p25 as number },
-    { p: 50, v: r.p50 as number },
-    { p: 75, v: r.p75 as number },
-    { p: 90, v: r.p90 as number },
-  ].filter((a) => typeof a.v === "number");
-}
-
 export async function buildFirmPeerPosition(
   client: ReaderClient,
   companyId: string,
@@ -152,8 +150,8 @@ export async function buildFirmPeerPosition(
   // Block 12f — number integrity: the DISTRIBUTION (p25..p90, mean) comes from the
   // benchmark, but the firm's OWN "you" scores + alignment index come from the
   // ONE shared live reader (getFirmAlignmentSignal), so the Elite pane reads the
-  // exact same module values as the Pro pane. Percentiles are recomputed from the
-  // live score against the benchmark distribution. Cohort N = distinct firms.
+  // exact same module values as the Pro pane. The percentile is the STORED one
+  // from the run (scoring-core, ruling 17). Cohort N = distinct firms.
   const [readings, cohortN] = await Promise.all([
     getFirmPeerReadings(client, companyId, boundary),
     getFirmCohortFirmCount(client, boundary),
@@ -183,7 +181,6 @@ export async function buildFirmPeerPosition(
 
   const rows: PercentileRow[] = moduleReadings.map((r) => {
     const you = youFor(r.metricKey, r.score);
-    const anchors = distributionAnchors(r);
     return {
       key: r.metricKey,
       label: MODULE_TITLE.get(r.metricKey) ?? r.metricKey,
@@ -192,7 +189,7 @@ export async function buildFirmPeerPosition(
       p75: r.p75,
       p90: r.p90,
       score: you,
-      percentile: you !== null && anchors.length ? percentileForValue(anchors, you) : r.percentile,
+      percentile: r.percentile,
       suppressed: suppressed(r),
     };
   });
@@ -217,12 +214,10 @@ export async function buildFirmPeerPosition(
   });
 
   // Ranked action (B5-2): the module with the largest deficit to the peer top
-  // quartile (p75) is the biggest single lever. Uses the LIVE "you" scores.
+  // quartile (p75) is the biggest single lever. Uses the LIVE "you" scores for the
+  // deficit and the STORED percentile for where the firm sits today.
   let bestAction: FirmPeerPosition["bestAction"] = null;
-  const overallAnchors = distributionAnchors(overallReading);
-  const overallPercentile = overallAnchors.length
-    ? percentileForValue(overallAnchors, liveIndex)
-    : overallReading.percentile ?? 0;
+  const overallPercentile = overallReading.percentile ?? 0;
   if (!overallSuppressed) {
     const candidates = moduleReadings
       .map((r) => ({ r, you: youFor(r.metricKey, r.score) }))
@@ -233,12 +228,11 @@ export async function buildFirmPeerPosition(
     if (candidates.length > 0) {
       const top = candidates[0];
       const newIndex = liveIndex + top.deficit / FIRM_MODULE_DEFINITIONS.length;
-      const toPercentile = Math.max(overallPercentile, percentileForValue(overallAnchors, newIndex));
       bestAction = {
         moduleLabel: MODULE_TITLE.get(top.r.metricKey) ?? top.r.metricKey,
         deficit: top.deficit,
         fromPercentile: overallPercentile,
-        toPercentile,
+        reaches: leverDestination(newIndex, overallReading),
       };
     }
   }
@@ -251,7 +245,7 @@ export async function buildFirmPeerPosition(
       ? null
       : {
           percentile: overallPercentile,
-          rankFromTop: Math.min(n, Math.max(1, n - Math.round((overallPercentile / 100) * n) + 1)),
+          rankFromTop: rankFromTop(overallPercentile, n),
           n,
           score: liveIndex,
         },
@@ -721,8 +715,8 @@ export async function buildProductCohortPosition(
   const mean = sorted.reduce((s, v) => s + v, 0) / n;
   const p25 = percentileValue(sorted, 25);
   const p75 = percentileValue(sorted, 75);
-  const percentile = Math.round(percentileRank(productMeans, thisScore));
-  const rankFromTop = Math.max(1, n - Math.round((percentile / 100) * n) + 1);
+  const percentile = percentileRank(productMeans, thisScore);
+  const rank = rankFromTop(percentile, n);
   const score = Math.round(thisScore);
   const gapToTopQuartile =
     typeof p75 === "number" && score < p75 ? Math.round(p75 - score) : null;
@@ -735,7 +729,7 @@ export async function buildProductCohortPosition(
     p25,
     p75,
     percentile,
-    rankFromTop: Math.min(n, rankFromTop),
+    rankFromTop: rank,
     n,
     quartile: quartileOf(percentile) as 1 | 2 | 3 | 4,
     suppressed: cohortSuppression.suppressed,
@@ -1203,7 +1197,7 @@ export function vendorEliteHubMetrics(input: {
 // data_and_controls, change_alignment) gets a REAL Elite pane for entitled firms
 // — the theme's peer-benchmark position (percentile band per module) + one ranked
 // action — instead of locked-boundary boilerplate. Scopes buildFirmPeerPosition to
-// the insight's own contributing modules. Honest suppression below the safe harbor.
+// the insight's own contributing modules. Honest suppression below the evidence floor.
 
 export type FirmThemeDepth = {
   available: boolean;

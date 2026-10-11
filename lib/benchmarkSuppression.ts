@@ -1,9 +1,9 @@
 /**
  * Benchmark minimum-n suppression (Governance Phase 2, A2/B10).
  *
- * The compensation-survey "safe harbor" rule, adopted verbatim: a cross-firm /
- * peer benchmark cut is NOT PUBLISHED — it is SUPPRESSED, not merely labelled —
- * when either guard fails:
+ * The evidence floor (structured consistent with the former 1996 DOJ/FTC safety
+ * zone, withdrawn in 2023): a cross-firm / peer benchmark cut is NOT PUBLISHED,
+ * it is SUPPRESSED, not merely labelled, when either guard fails:
  *
  *   1. Too few contributors: distinct contributors < MIN_CONTRIBUTORS (5).
  *   2. Single-contributor dominance: any one contributor supplies more than
@@ -18,16 +18,15 @@
  * each distinct contributor supplied to the cut (usually 1 for one-firm-one-vote
  * aggregates; >1 for response-count aggregates where a single firm can answer many
  * questions). Equal-weight cuts with n≥5 always clear the dominance rule
- * (1/5 = 0.20 ≤ 0.25), so the safe harbor holds by construction.
+ * (1/5 = 0.20 ≤ 0.25), so the floor holds by construction.
  *
  * See docs/elite-sprint/AGGREGATION-METHODOLOGY.md §5.
  */
 
-/** Minimum distinct contributors before a benchmark cut may be published. */
-export const MIN_CONTRIBUTORS = 5;
-
-/** No single contributor may exceed this share of a cut's weight. */
-export const MAX_CONTRIBUTOR_SHARE = 0.25;
+// scoring-core (R63): the two floor constants live in lib/assessmentCore, the one
+// scoring module; re-exported here for the existing importers.
+import { MIN_CONTRIBUTORS, MAX_CONTRIBUTOR_SHARE } from "@/lib/assessmentCore";
+export { MIN_CONTRIBUTORS, MAX_CONTRIBUTOR_SHARE };
 
 export type BenchmarkSuppressionReason =
   | "insufficient_contributors"

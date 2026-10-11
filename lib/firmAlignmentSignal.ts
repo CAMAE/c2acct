@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { alignmentIndex } from "@/lib/assessmentCore";
 import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 
@@ -17,16 +18,12 @@ import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 export type FirmAlignmentSignal = {
   /** moduleKey -> latest final submission score (null when the module has no final). */
   moduleScores: Map<string, number | null>;
-  /** Round(mean of the scored modules), or null when none are scored. THE index. */
+  /**
+   * lib/assessmentCore.alignmentIndex over the module scores: the equal-weight
+   * mean, or null under three final modules (ruling 15; the surface says Partial).
+   */
   alignmentIndex: number | null;
 };
-
-/** The one canonical alignment-index computation. Round(mean of scored modules). */
-export function computeFirmAlignmentIndex(moduleScores: Iterable<number | null>): number | null {
-  const scored = [...moduleScores].filter((value): value is number => typeof value === "number");
-  if (scored.length === 0) return null;
-  return Math.round(scored.reduce((sum, value) => sum + value, 0) / scored.length);
-}
 
 export async function getFirmAlignmentSignal(companyId: string): Promise<FirmAlignmentSignal> {
   const moduleKeys = FIRM_MODULE_DEFINITIONS.map((module) => module.key);
@@ -46,5 +43,5 @@ export async function getFirmAlignmentSignal(companyId: string): Promise<FirmAli
   }
   const moduleScores = new Map<string, number | null>();
   for (const key of moduleKeys) moduleScores.set(key, latestByModule.get(key) ?? null);
-  return { moduleScores, alignmentIndex: computeFirmAlignmentIndex(moduleScores.values()) };
+  return { moduleScores, alignmentIndex: alignmentIndex(moduleScores.values()) };
 }

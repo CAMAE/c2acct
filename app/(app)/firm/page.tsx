@@ -390,6 +390,7 @@ export default async function FirmPage({
             completedModules={dashboard.completedModules}
             totalModules={dashboard.totalModules}
             alignmentIndex={dashboard.alignmentIndex}
+            alignmentIndexLabel={dashboard.alignmentIndexLabel}
             sandboxEnabled={isAlignmentBoardEnabled()}
             benchmarkEnabled={isPingsEnabled()}
           />

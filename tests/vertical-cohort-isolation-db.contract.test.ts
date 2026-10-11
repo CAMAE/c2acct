@@ -29,11 +29,12 @@ const DB_TIMEOUT_MS = 120_000;
 
 const NS = "test-w6-isolation";
 const FIXTURE = "test-fixture";
-const MODULE_KEY = FIRM_MODULE_DEFINITIONS[0]!.key;
+// scoring-core (R63, ruling 15): an alignment index needs three final modules, so each fixture firm carries three.
+const MODULE_KEYS = FIRM_MODULE_DEFINITIONS.slice(0, 3).map((module) => module.key);
 
 let prisma: typeof import("@/lib/prisma").default;
 let dbAvailable = false;
-let moduleId: string | null = null;
+let moduleIds: string[] = [];
 
 const savedFlag = process.env[VERTICAL_PACKS_FLAG_ENV];
 
@@ -47,7 +48,7 @@ async function cleanup() {
   await prisma.benchmarkCohort.deleteMany({ where: { key: { contains: FIXTURE } } });
 }
 
-/** One firm with one final submission, in the given vertical. */
+/** One firm with one final submission per fixture module (three, the index floor), in the given vertical. */
 async function seedFirm(suffix: string, verticalId: string, score: number) {
   const companyId = `${NS}-${verticalId}-${suffix}`;
   await prisma.company.create({
@@ -60,16 +61,18 @@ async function seedFirm(suffix: string, verticalId: string, score: number) {
       updatedAt: new Date(),
     },
   });
-  await prisma.surveySubmission.create({
-    data: {
-      id: `${companyId}-submission`,
-      companyId,
-      moduleId: moduleId!,
-      answers: {},
-      score,
-      verticalId,
-    },
-  });
+  for (const [index, moduleId] of moduleIds.entries()) {
+    await prisma.surveySubmission.create({
+      data: {
+        id: `${companyId}-submission-${index}`,
+        companyId,
+        moduleId,
+        answers: {},
+        score,
+        verticalId,
+      },
+    });
+  }
   return companyId;
 }
 
@@ -131,12 +134,12 @@ beforeAll(async () => {
     dbAvailable = false;
     return;
   }
-  const surveyModule = await prisma.surveyModule.findUnique({
-    where: { key: MODULE_KEY },
+  const surveyModules = await prisma.surveyModule.findMany({
+    where: { key: { in: MODULE_KEYS } },
     select: { id: true },
   });
-  moduleId = surveyModule?.id ?? null;
-  if (!moduleId) {
+  moduleIds = surveyModules.map((module) => module.id);
+  if (moduleIds.length < MODULE_KEYS.length) {
     // No seeded firm modules: the fixtures below cannot be built honestly.
     dbAvailable = false;
     return;

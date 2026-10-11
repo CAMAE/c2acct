@@ -1,4 +1,5 @@
 import type { AssessmentQuestionRuntime, NormalizedAnswer } from "@/lib/assessmentRuntime";
+import { SCALE } from "@/lib/assessmentCore";
 
 export const COMPANY_CAPABILITY_SCORE_VERSION = 1;
 
@@ -39,7 +40,8 @@ export function getAssessmentScoreScale(questions: AssessmentQuestionRuntime[]) 
     };
   }
 
-  return { min: 1, max: 5 };
+  // scoring-core (R63, ruling 9): a module without slider metadata is on the one scale.
+  return { min: SCALE.min, max: SCALE.max };
 }
 
 function getQuestionScale(question: AssessmentQuestionRuntime) {

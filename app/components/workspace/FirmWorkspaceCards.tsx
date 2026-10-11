@@ -13,6 +13,8 @@ type FirmWorkspaceCardsProps = {
   completedModules: number;
   totalModules: number;
   alignmentIndex: number | null;
+  /** scoring-core (R63): the one label for the index, including the Partial state under three modules. */
+  alignmentIndexLabel?: string;
   sandboxEnabled: boolean;
   benchmarkEnabled: boolean;
 };
@@ -24,6 +26,7 @@ export default function FirmWorkspaceCards({
   completedModules,
   totalModules,
   alignmentIndex,
+  alignmentIndexLabel,
   sandboxEnabled,
   benchmarkEnabled,
 }: FirmWorkspaceCardsProps) {
@@ -62,7 +65,7 @@ export default function FirmWorkspaceCards({
     {
       key: "firm-insights",
       title: "Alignment Insights",
-      lines: [`Alignment index: ${alignmentIndex === null ? "not scored yet" : alignmentIndex}`],
+      lines: [`Alignment index: ${alignmentIndexLabel ?? (alignmentIndex === null ? "not scored yet" : alignmentIndex)}`],
       sentence: "Open the Pro and Elite insights built from your current firm and product evidence.",
       href: "/firm/insights",
       action: "Open insights",

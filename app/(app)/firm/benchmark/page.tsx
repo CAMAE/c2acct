@@ -12,7 +12,7 @@ import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership"
 import { isPingsEnabled } from "@/lib/patAssistant/flags";
 import { resolveCompanyBoundary } from "@/lib/dataBoundary";
 import { getFirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
-import { buildFirmPeerPosition } from "@/lib/eliteInsightsV2";
+import { buildFirmPeerPosition, leverPhrase } from "@/lib/eliteInsightsV2";
 import { getBenchmarkArtifactMeta } from "@/lib/benchmarkArtifact";
 import { storedCutoffPhrase } from "@/lib/assessmentCore";
 import { scoreBandFor } from "@/lib/bandLexicon";
@@ -144,9 +144,9 @@ export default async function FirmBenchmarkArtifactPage() {
               </div>
               {peer.bestAction ? (
                 <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-                  Fastest move up: <strong>{peer.bestAction.moduleLabel}</strong> — closing its {peer.bestAction.deficit}-point
-                  deficit lifts you from the {ordinal(peer.bestAction.fromPercentile)} toward the{" "}
-                  {ordinal(peer.bestAction.toPercentile)} percentile before the next cutoff on {meta.cutoffLabel}.
+                  Fastest move up: <strong>{peer.bestAction.moduleLabel}</strong>. Closing its {peer.bestAction.deficit}-point
+                  deficit {leverPhrase(peer.bestAction)} before the next cutoff on {meta.cutoffLabel}; you sit at the{" "}
+                  {ordinal(peer.bestAction.fromPercentile)} percentile today.
                 </p>
               ) : null}
             </section>

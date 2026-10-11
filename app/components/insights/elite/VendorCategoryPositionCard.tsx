@@ -4,8 +4,7 @@ import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell"
 import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
 import type { VendorCategoryPosition } from "@/lib/eliteInsightsV2";
 import { ordinal } from "@/lib/ordinal";
-import { MIN_CONTRIBUTORS, MAX_CONTRIBUTOR_SHARE } from "@/lib/benchmarkSuppression";
-import { storedCutoffPhrase } from "@/lib/assessmentCore";
+import { MIN_CONTRIBUTORS, MAX_CONTRIBUTOR_SHARE, storedCutoffPhrase } from "@/lib/assessmentCore";
 
 export default function VendorCategoryPositionCard({
   data,

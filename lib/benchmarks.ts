@@ -26,7 +26,9 @@
  */
 import { randomUUID } from "node:crypto";
 import { DataBoundary, type PrismaClient, type CompanyType } from "@prisma/client";
-import { latestFinalPerFirm } from "@/lib/assessmentCore";
+import { alignmentIndex, latestFinalPerFirm, percentileRank, rankFromTop } from "@/lib/assessmentCore";
+// scoring-core (R63): percentileRank is defined once, in lib/assessmentCore; re-exported for the readers that import it from here.
+export { percentileRank };
 import { evaluateBenchmarkSuppression, type BenchmarkSuppression } from "@/lib/benchmarkSuppression";
 import { quarterCutoff } from "@/lib/consultantFreshness";
 import { FIRM_MODULE_DEFINITIONS, FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat";
@@ -101,13 +103,6 @@ export function percentileValue(sortedAsc: number[], p: number): number | null {
   const hi = Math.ceil(rank);
   if (lo === hi) return sortedAsc[lo];
   return sortedAsc[lo] + (rank - lo) * (sortedAsc[hi] - sortedAsc[lo]);
-}
-
-/** Percentile RANK of x within values: % of the cohort at or below x (0–100). */
-export function percentileRank(values: number[], x: number): number {
-  if (values.length === 0) return 0;
-  const atOrBelow = values.filter((v) => v <= x).length;
-  return Math.round((atOrBelow / values.length) * 100);
 }
 
 function distribution(values: number[]) {
@@ -242,11 +237,11 @@ async function computeFirmBenchmarks(client: BenchmarkClient, cutoff: Date, vert
       (scoresByMetric.get(metric) ?? scoresByMetric.set(metric, []).get(metric)!).push({ companyId, score });
       (firmModuleScores.get(companyId) ?? firmModuleScores.set(companyId, []).get(companyId)!).push(score);
     }
-    // alignment index = mean of a firm's module scores
-    const alignmentRows = Array.from(firmModuleScores.entries()).map(([companyId, arr]) => ({
-      companyId,
-      score: Math.round(arr.reduce((s, v) => s + v, 0) / arr.length),
-    }));
+    // alignment index = the one computation (equal weight; a firm under three
+    // final modules has no index this run and is not in the index cohort).
+    const alignmentRows = Array.from(firmModuleScores.entries())
+      .map(([companyId, arr]) => ({ companyId, score: alignmentIndex(arr) }))
+      .filter((row): row is { companyId: string; score: number } => row.score !== null);
     scoresByMetric.set(ALIGNMENT_INDEX_METRIC, alignmentRows);
 
     for (const [metricKey, rows] of scoresByMetric) {
@@ -493,8 +488,7 @@ async function readCohort(
     .map((run) => {
     const c = companyByMetric.get(run.metricKey);
     const percentile = c ? Math.round(c.percentile) : null;
-    const rankFromTop =
-      c && run.n > 0 ? Math.min(run.n, Math.max(1, run.n - Math.round((percentile ?? 0) / 100 * run.n) + 1)) : null;
+    const rank = c && run.n > 0 ? rankFromTop(percentile ?? 0, run.n) : null;
     return {
       metricKey: run.metricKey,
       n: run.n,
@@ -507,7 +501,7 @@ async function readCohort(
       p90: run.p90,
       score: c ? Math.round(c.score) : null,
       percentile,
-      rankFromTop,
+      rankFromTop: rank,
       cutoff: run.cutoff ?? null,
     };
   });

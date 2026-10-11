@@ -6,7 +6,7 @@ import {
   buildFirmTrajectory,
   firmEliteHubMetrics,
 } from "@/lib/eliteInsightsV2";
-import { computeFirmAlignmentIndex } from "@/lib/firmAlignmentSignal";
+import { alignmentIndex } from "@/lib/assessmentCore";
 import type { FirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
 
 /**
@@ -84,10 +84,11 @@ describe("Elite peer position reads the shared live signal, not stored benchmark
     expect(peer.overall?.n).toBe(3); // distinct companyIds, not 999
   });
 
-  it("recomputes the percentile from the live score against the benchmark distribution", async () => {
+  it("reads the STORED percentile from the run, never a live interpolation (scoring-core, ruling 17)", async () => {
     const peer = await buildFirmPeerPosition(mockBenchmarkClient(), "co", "DEMO" as never, liveSignal);
-    // live OP=81 sits above p90(80) → 90th percentile, not the stored 12
-    expect(peer.rows.find((r) => r.key === OP)?.percentile).toBe(90);
+    // the run placed this firm at the 12th; the live 81 does not move the stored percentile
+    expect(peer.rows.find((r) => r.key === OP)?.percentile).toBe(12);
+    expect(peer.overall?.percentile).toBe(95);
   });
 });
 
@@ -116,10 +117,12 @@ describe("Trajectory 'current' == the alignment index", () => {
 });
 
 describe("one shared alignment-index computation", () => {
-  it("computeFirmAlignmentIndex rounds the mean of scored modules", () => {
-    expect(computeFirmAlignmentIndex([81, 74, 53, 74, 60])).toBe(68);
-    expect(computeFirmAlignmentIndex([81, null, 53])).toBe(67);
-    expect(computeFirmAlignmentIndex([null, null])).toBeNull();
+  it("alignmentIndex rounds the equal-weight mean of scored modules; under three it is null", () => {
+    expect(alignmentIndex([81, 74, 53, 74, 60])).toBe(68);
+    // scoring-core (ruling 15): under three final modules there is no index, the surface says Partial
+    expect(alignmentIndex([81, null, 53])).toBeNull();
+    expect(alignmentIndex([81, 74, 53])).toBe(69);
+    expect(alignmentIndex([null, null])).toBeNull();
   });
 });
 

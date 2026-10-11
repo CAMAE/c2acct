@@ -27,6 +27,7 @@ import {
 import { buildProductAssessmentPlan } from "@/lib/vendorProductQuestionBank";
 import { insightContent } from "@/lib/insightContent";
 import { sandboxLabel } from "@/lib/sandboxLabel";
+import { FINAL_SCORE_VERSION } from "@/lib/assessmentCore";
 
 export const FIRM_MODULE_DEFINITIONS = [
   {
@@ -1673,7 +1674,7 @@ export async function submitFirmProductAssessment(input: {
       },
       score: score.rawScorePct,
       weightedAvg: score.rawWeightedAvg,
-      scoreVersion: 1,
+      scoreVersion: FINAL_SCORE_VERSION,
       scaleMin: PRODUCT_ASSESSMENT_SCALE_MIN,
       scaleMax: PRODUCT_ASSESSMENT_SCALE_MAX,
       totalWeight: values.length,

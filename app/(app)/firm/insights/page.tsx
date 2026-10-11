@@ -128,7 +128,7 @@ export default async function FirmInsightsPage({
 
   // Block 12f: the visible Alignment index reads the ONE shared signal, so it
   // equals the Trajectory face-card "current" and the what-this-means prose.
-  const alignmentIndex = alignmentSignal.alignmentIndex;
+  const firmIndex = alignmentSignal.alignmentIndex;
   const radarAxes = moduleProgress.map((module) => ({
     key: module.key,
     label: module.title,
@@ -168,8 +168,9 @@ export default async function FirmInsightsPage({
           <div className="grid gap-8 sm:grid-cols-3">
             <ScoreLockup
               label="Alignment index"
-              score={alignmentIndex}
-              context="Average of your five module scores"
+              score={firmIndex}
+              displayValue={firmIndex === null && completedModules > 0 ? "Partial" : undefined}
+              context={firmIndex === null && completedModules > 0 ? `${completedModules} of ${moduleProgress.length} modules scored; the index opens at three` : "Average of your five module scores"}
             />
             <ScoreLockup
               label="Modules complete"

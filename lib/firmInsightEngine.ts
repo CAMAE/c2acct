@@ -24,7 +24,7 @@ import {
   pillarForModule,
 } from "@/lib/firmPat";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
-import { computeFirmAlignmentIndex } from "@/lib/firmAlignmentSignal";
+import { alignmentIndex } from "@/lib/assessmentCore";
 
 type InsightKey = (typeof FIRM_TIER1_INSIGHT_DEFINITIONS)[number]["key"];
 
@@ -1080,7 +1080,7 @@ function computeFirmInsightReports(
   // Block 12f: the firm-wide alignment index from the SAME latest-final-submission
   // scores getFirmAlignmentSignal reads (identical computation), attached to every
   // report so what-this-means prose reads the index, not a per-theme average.
-  const firmAlignmentIndex = computeFirmAlignmentIndex(
+  const firmAlignmentIndex = alignmentIndex(
     [...latestSubmissionByModuleId.values()].map((submission) => submission.score)
   );
 

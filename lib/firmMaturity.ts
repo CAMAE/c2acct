@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { DataBoundary, type PrismaClient } from "@prisma/client";
+import { alignmentIndex } from "@/lib/assessmentCore";
 import { maturityBandFor } from "@/lib/bandLexicon";
 import { FIRM_MODULE_DEFINITIONS } from "@/lib/firmPat";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
@@ -22,7 +23,11 @@ type MaturityClient = Pick<
   "surveySubmission" | "firmMaturityIndex" | "firmMaturitySnapshot" | "company"
 >;
 
-/** Mean of a firm's latest final module scores (0–100), or null when none exist. */
+/**
+ * The firm's alignment index from its latest final module scores, through the
+ * one computation (lib/assessmentCore.alignmentIndex: equal weight, null under
+ * three final modules). Null means no snapshot is written.
+ */
 export async function computeFirmAlignmentIndex(
   client: Pick<PrismaClient, "surveySubmission">,
   companyId: string
@@ -40,9 +45,7 @@ export async function computeFirmAlignmentIndex(
     if (typeof s.score !== "number") continue;
     if (!latestByModule.has(s.moduleId)) latestByModule.set(s.moduleId, s.score);
   }
-  if (latestByModule.size === 0) return null;
-  const scores = [...latestByModule.values()];
-  return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+  return alignmentIndex(latestByModule.values());
 }
 
 /**

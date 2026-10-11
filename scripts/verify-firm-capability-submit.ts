@@ -10,6 +10,7 @@ import {
 } from "@/lib/capabilityScoring";
 import { writeCompanyCapabilityScores } from "@/lib/companyCapabilityScoreWrites";
 import { computeScore } from "@/lib/scoring";
+import { FINAL_SCORE_VERSION, SCALE } from "@/lib/assessmentCore";
 import { runWithPrisma } from "./_shared/prismaScript";
 
 const moduleKey = process.env.MODULE_KEY || "firm_alignment_operating_model_v1";
@@ -33,7 +34,7 @@ function getQuestionScale(meta: Prisma.JsonValue | null | undefined) {
     return { min: slider.min, max: slider.max };
   }
 
-  return { min: 1, max: 5 };
+  return { min: SCALE.min, max: SCALE.max };
 }
 
 function computeRawScorePercent(
@@ -137,7 +138,7 @@ async function main() {
         answers,
         score: score.rawScorePct,
         weightedAvg: score.rawWeightedAvg,
-        scoreVersion: 1,
+        scoreVersion: FINAL_SCORE_VERSION,
         scaleMin: score.scaleMin,
         scaleMax: score.scaleMax,
         totalWeight: score.totalWeight,

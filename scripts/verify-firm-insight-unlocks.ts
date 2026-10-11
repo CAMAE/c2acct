@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { CompanyType, QuestionInputType } from "@prisma/client";
 import { normalizeQuestionRuntime, type NormalizedAnswer } from "@/lib/assessmentRuntime";
 import { computeScore } from "@/lib/scoring";
+import { FINAL_SCORE_VERSION } from "@/lib/assessmentCore";
 import {
   COMPANY_CAPABILITY_SCORE_VERSION,
   computeCapabilityScores,
@@ -113,7 +114,7 @@ async function main() {
           answers,
           score: score.rawScorePct,
           weightedAvg: score.rawWeightedAvg,
-          scoreVersion: 1,
+          scoreVersion: FINAL_SCORE_VERSION,
           scaleMin: score.scaleMin,
           scaleMax: score.scaleMax,
           totalWeight: score.totalWeight,
