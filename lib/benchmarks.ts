@@ -50,6 +50,19 @@ type BenchmarkClient = Pick<
   "benchmarkCohort" | "benchmarkRun" | "companyBenchmark" | "companyBenchmarkCohort" | "surveySubmission" | "product"
 >;
 
+/**
+ * scoring-core (R63): a company that left a (cohort, metric) between runs (a firm
+ * under the three-module index floor, a vendor with no firm-reviewed product in
+ * a category) must not keep last run's row, or the distinct-company count the
+ * readers show (getFirmCohortFirmCount) would still count it. The run is the
+ * truth; rows for companies not in this run's set go.
+ */
+async function removeDepartedCompanies(client: BenchmarkClient, cohortId: string, metricKey: string, companyIds: string[]) {
+  await client.companyBenchmark.deleteMany({
+    where: { cohortId, metricKey, version: BENCHMARK_VERSION, companyId: { notIn: companyIds } },
+  });
+}
+
 type Pool = { tag: "real" | "demo"; boundaries: DataBoundary[] };
 const POOLS: Pool[] = [
   { tag: "real", boundaries: [DataBoundary.PRODUCTION, DataBoundary.PILOT] },
@@ -251,6 +264,7 @@ async function computeFirmBenchmarks(client: BenchmarkClient, cutoff: Date, vert
       for (const row of rows) {
         await writeCompany(client, row.companyId, cohortId, metricKey, row.score, values, verticalId);
       }
+      await removeDepartedCompanies(client, cohortId, metricKey, rows.map((r) => r.companyId));
       written += 1;
     }
   }

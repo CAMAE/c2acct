@@ -115,7 +115,7 @@ const DESTINATION_PERCENTILE: Record<LeverDestination, number> = { "top decile":
  * "from the 90th to about the 90th".
  */
 export function leverPhrase(action: { fromPercentile: number; reaches: LeverDestination | null }): string {
-  if (!action.reaches) return "narrows your gap to the peer top quartile";
+  if (!action.reaches) return "moves you up without yet reaching the peer median";
   const already = action.fromPercentile >= DESTINATION_PERCENTILE[action.reaches];
   if (action.reaches === "peer median") return already ? "keeps you above the peer median" : "lifts you above the peer median";
   return already ? `keeps you in the ${action.reaches}` : `lifts you into the ${action.reaches}`;

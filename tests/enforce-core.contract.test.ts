@@ -53,6 +53,7 @@ function fakeClient(rows: Row[], products: Array<{ id: string; companyId: string
   const runs: Array<{ metricKey: string; cohortKey: string; n: number; cutoff: Date }> = [];
   const cohorts = new Map<string, string>();
   const companyRows: Array<{ companyId: string; metricKey: string; score: number }> = [];
+  const removals: Array<{ metricKey: string; keep: string[] }> = [];
   const client = {
     benchmarkCohort: {
       findUnique: async ({ where }: { where: { key: string } }) => (cohorts.has(where.key) ? { id: cohorts.get(where.key) } : null),
@@ -70,6 +71,11 @@ function fakeClient(rows: Row[], products: Array<{ id: string; companyId: string
     companyBenchmark: {
       upsert: async ({ create }: { create: { companyId: string; metricKey: string; score: number } }) => {
         companyRows.push({ companyId: create.companyId, metricKey: create.metricKey, score: create.score });
+      },
+      // scoring-core (R63): the run removes the rows of companies that left the (cohort, metric).
+      deleteMany: async ({ where }: { where: { metricKey: string; companyId: { notIn: string[] } } }) => {
+        removals.push({ metricKey: where.metricKey, keep: [...where.companyId.notIn].sort() });
+        return { count: 0 };
       },
     },
     companyBenchmarkCohort: { upsert: async () => undefined },
@@ -98,8 +104,26 @@ function fakeClient(rows: Row[], products: Array<{ id: string; companyId: string
     },
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return { client: client as any, runs, companyRows };
+  return { client: client as any, runs, companyRows, removals };
 }
+
+describe("scoring-core (R63, ruling 15) — the index needs three final modules and departed companies leave the cohort", () => {
+  it("a firm with two final modules has module rows but no alignment_index row; the run keeps only the firms it scored", async () => {
+    const modules = ["firm_alignment_strategy_v1", "firm_alignment_operating_model_v1", "firm_alignment_governance_v1"];
+    const rows: Row[] = [
+      ...modules.map((moduleKey, i) => ({ id: `a-${i}`, companyId: "firm-a", moduleKey, productId: null, score: 60 + i * 10, scoreVersion: 1, createdAt: day("2026-09-01T00:00:00Z"), boundary: DataBoundary.PRODUCTION })),
+      ...modules.slice(0, 2).map((moduleKey, i) => ({ id: `b-${i}`, companyId: "firm-b", moduleKey, productId: null, score: 80, scoreVersion: 1, createdAt: day("2026-09-02T00:00:00Z"), boundary: DataBoundary.PRODUCTION })),
+    ];
+    const { client, companyRows, removals } = fakeClient(rows, []);
+    await computeBenchmarks(client, { cutoff: CUTOFF });
+    const index = companyRows.filter((r) => r.metricKey === "alignment_index");
+    expect(index.map((r) => r.companyId)).toEqual(["firm-a"]);
+    expect(index[0]?.score).toBe(70); // (60 + 70 + 80) / 3, equal weight, rounded once
+    expect(companyRows.filter((r) => r.companyId === "firm-b").map((r) => r.metricKey).sort()).toEqual(modules.slice(0, 2).sort());
+    const indexRemoval = removals.find((r) => r.metricKey === "alignment_index");
+    expect(indexRemoval?.keep).toEqual(["firm-a"]); // firm-b's old index row, if any, goes
+  });
+});
 
 describe("ruling 1 — the quarter cutoff is enforced in compute and stored on the run", () => {
   it("a final dated one day after the cutoff is excluded; the run carries the cutoff", async () => {

@@ -143,7 +143,7 @@ export default function FirmPeerPositionCard({
           <div className="pat-label">Your biggest lever</div>
           <p className="mt-3 text-sm leading-6 text-[var(--shell-ink)]">
             Closing {data.bestAction.moduleLabel}&rsquo;s {data.bestAction.deficit}-pt gap to the peer top quartile{" "}
-            <span className="font-semibold text-[var(--shell-positive)]">{leverPhrase(data.bestAction)}</span>, from the{" "}
+            <span className="font-semibold text-[var(--shell-positive)]">{leverPhrase(data.bestAction)}</span>. You sit at the{" "}
             <span className="font-semibold">{ordinal(data.bestAction.fromPercentile)}</span> percentile today. An estimate, not a guarantee.
           </p>
         </section>

@@ -111,6 +111,6 @@ describe("the lever names where the move lands (walk leftover 7b)", () => {
     expect(leverPhrase({ fromPercentile: 48, reaches: "top quartile" })).toBe("lifts you into the top quartile");
     expect(leverPhrase({ fromPercentile: 40, reaches: "peer median" })).toBe("lifts you above the peer median");
     expect(leverPhrase({ fromPercentile: 55, reaches: "peer median" })).toBe("keeps you above the peer median");
-    expect(leverPhrase({ fromPercentile: 20, reaches: null })).toBe("narrows your gap to the peer top quartile");
+    expect(leverPhrase({ fromPercentile: 20, reaches: null })).toBe("moves you up without yet reaching the peer median");
   });
 });
