@@ -34,6 +34,9 @@ import { writeProductMaturitySnapshot } from "@/lib/productMaturity";
 import { FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat";
 import { SURVEY_FINAL_SCORE_VERSION, getSurveyDraftWhere } from "@/lib/surveyDrafts";
 import { decorateFollowUpMcQuestions } from "@/lib/assessment/followUpMcRuntime";
+import { resolveVerticalContextForCompany } from "@/lib/verticals/companyBoundary";
+import { applyVerticalFirmModulePrompts } from "@/lib/verticals/firmModules";
+import { verticalStamp } from "@/lib/verticals/scope";
 import { buildAssessmentItemResponseRows } from "@/lib/assessment/itemResponses";
 import { consumeDurableRateLimit, rateLimitJsonResponse } from "@/lib/security/rateLimit";
 
@@ -177,7 +180,12 @@ export async function POST(req: Request) {
 
     // MC redesign box: flag-on, the firm follow-ups validate as selections (same
     // decoration the module GET applies); flag-off this is the identity.
-    const questions = decorateFollowUpMcQuestions(questionRecords.map(normalizeQuestionRuntime), moduleKey);
+    const vertical = await resolveVerticalContextForCompany(effectiveCompanyId);
+    const questions = decorateFollowUpMcQuestions(
+      applyVerticalFirmModulePrompts(questionRecords.map(normalizeQuestionRuntime), moduleKey, vertical.firmModules),
+      moduleKey,
+      { verticalId: vertical.verticalId }
+    );
     const allowedQuestionIds = new Set(questions.map((q) => q.id));
     const submittedQuestionIds = Object.keys(rawAnswers);
 
@@ -350,6 +358,7 @@ export async function POST(req: Request) {
             moduleId: surveyModule.id,
             version: surveyModule.version ?? 1,
             answers,
+            ...verticalStamp({ verticalId: vertical.verticalId }),
             // `score` remains the persisted raw normalized percent for threshold semantics.
             score: scoring.rawScorePct,
             weightedAvg: scoring.rawWeightedAvg,
@@ -385,6 +394,7 @@ export async function POST(req: Request) {
               moduleId: surveyModule.id,
               version: surveyModule.version ?? 1,
               answers,
+              ...verticalStamp({ verticalId: vertical.verticalId }),
               score: scoring.rawScorePct,
               weightedAvg: scoring.rawWeightedAvg,
               scoreVersion: SURVEY_FINAL_SCORE_VERSION,

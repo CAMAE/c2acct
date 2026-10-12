@@ -25,9 +25,13 @@ import {
   ensureProductSubject,
 } from "@/lib/vendorPat";
 import { buildProductAssessmentPlan } from "@/lib/vendorProductQuestionBank";
+import type { ProductUtilityRegistryBundle } from "@/lib/verticals/questionBankRegistry";
 import { insightContent } from "@/lib/insightContent";
 import { sandboxLabel } from "@/lib/sandboxLabel";
 import { FINAL_SCORE_VERSION } from "@/lib/assessmentCore";
+import { accountingFirmModules, resolveFirmModules } from "@/lib/verticals/firmModules";
+import { verticalStamp } from "@/lib/verticals/scope";
+import { resolveVerticalForCompany } from "@/lib/verticals/session";
 
 export const FIRM_MODULE_DEFINITIONS = [
   {
@@ -115,7 +119,12 @@ type FirmOpenEndedPromptDefinition = {
   placeholder: string;
 };
 
-const FIRM_MODULE_OPEN_ENDED_PROMPTS: Record<
+/**
+ * legal-load (R64): exported so lib/verticals/firmModules.ts can serve these as
+ * accounting's in-code truth (flag off, and flag on for an accounting tenant). The
+ * values do not move: a copy change is a copy change, not a seam.
+ */
+export const FIRM_MODULE_OPEN_ENDED_PROMPTS: Record<
   (typeof FIRM_MODULE_DEFINITIONS)[number]["sectionKey"],
   readonly FirmOpenEndedPromptDefinition[]
 > = {
@@ -1146,12 +1155,16 @@ export async function ensureFirmProductModule() {
   });
 }
 
-export function buildFirmProductQuestions(selectedUtilityKeys: string[]): VendorAssessmentQuestion[] {
+export function buildFirmProductQuestions(
+  selectedUtilityKeys: string[],
+  registry?: ProductUtilityRegistryBundle
+): VendorAssessmentQuestion[] {
   return buildProductAssessmentPlan({
     perspective: "firm",
     selectedUtilityKeys,
     includeProductGeneral: false,
     includeOpenEnded: false,
+    ...(registry ? { registry } : {}),
   }).modules.flatMap((module) => module.questions) as VendorAssessmentQuestion[];
 }
 
@@ -1205,7 +1218,19 @@ export async function getFirmAssessmentProgress(companyId: string) {
     }),
   ]);
 
-  return buildFirmAssessmentProgress(modules, submissions, drafts);
+  // legal-load (R64, section 12 item 1): the module rows are shared by every tenant
+  // and carry accounting's description; a tenant in another vertical reads its
+  // pack's words for the same modules. Flag off the resolver returns the accounting
+  // constant with no read, and the rows pass through untouched.
+  const firmModules = resolveFirmModules({ verticalId: await resolveVerticalForCompany(companyId) });
+  const progress = buildFirmAssessmentProgress(modules, submissions, drafts);
+  if (firmModules === accountingFirmModules()) return progress;
+  return progress.map((entry) => {
+    const definition = FIRM_MODULE_DEFINITIONS.find((candidate) => candidate.key === entry.key);
+    if (!definition) return entry;
+    const content = firmModules[definition.sectionKey];
+    return { ...entry, description: content.description, summary: content.summary };
+  });
 }
 
 type FirmProgressRows = Awaited<ReturnType<typeof loadFirmAssessmentProgressRows>>;
@@ -1662,12 +1687,16 @@ export async function submitFirmProductAssessment(input: {
     scaleMax: PRODUCT_ASSESSMENT_SCALE_MAX,
   });
 
+  // legal-load (R64, 1d): stamp the firm's vertical on the review row (flag off: no column named, no read).
+  const reviewVertical = await resolveVerticalForCompany(input.companyId);
+
   return prisma.surveySubmission.create({
     data: {
       id: randomUUID(),
       companyId: input.companyId,
       subjectId: subject.id,
       moduleId: moduleRecord.id,
+      ...verticalStamp({ verticalId: reviewVertical }),
       version: 1,
       answers: {
         responses: input.answers,

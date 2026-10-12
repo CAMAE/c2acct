@@ -52,6 +52,23 @@ export interface VerticalPack {
   compliance: VerticalPackCompliance;
   reference_signals?: string;
   eval_set?: string;
+  /** legal-load (R64): firm module words per sectionKey; absent for accounting (in-code truth). */
+  firmModules?: Record<string, VerticalPackFirmModuleContent>;
+  /** legal-load (R64, delta 4): the pack's size bands, a cohort dimension (schema only in this box). */
+  sizeBands?: VerticalPackSizeBand[];
   /** Absolute directory of the pack, for resolving the relative paths above. */
   dir: string;
+}
+
+export interface VerticalPackFirmModuleContent {
+  description: string;
+  summary: string;
+  openEnded: Array<{ prompt: string; placeholder: string }>;
+}
+
+export interface VerticalPackSizeBand {
+  key: string;
+  label: string;
+  min: number;
+  max: number | null;
 }

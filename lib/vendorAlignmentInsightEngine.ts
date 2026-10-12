@@ -1,4 +1,6 @@
 import prisma from "@/lib/prisma";
+import { verticalFilter } from "@/lib/verticals/scope";
+import { resolveVerticalForCompany } from "@/lib/verticals/session";
 import { normalizeQuestionRuntime, type NormalizedAnswer } from "@/lib/assessmentRuntime";
 import { FIRM_CAPABILITY_DEFINITIONS } from "@/lib/firmCapabilities";
 import { FIRM_MODULE_DEFINITIONS, FIRM_MODULE_QUESTION_STEMS } from "@/lib/firmPat";
@@ -1119,9 +1121,11 @@ export async function getVendorAlignmentInsightBundle(input?: {
   // Data-integrity wall (CLASS 1): scoped path is already boundary-filtered by
   // getVendorScopedFirms; the unscoped (admin/global) path pools REAL+PILOT only
   // so demo firms never inflate a cross-firm module/capability average.
+  // legal-load (R64, 1c): a vendor's firm pool is its own vertical (flag off: no predicate added).
+  const vendorVertical = vendorCompanyId ? await resolveVerticalForCompany(vendorCompanyId) : null;
   const firmCompanyFilter = scopedFirmIds
-    ? { type: "FIRM" as const, id: { in: scopedFirmIds } }
-    : { type: "FIRM" as const, dataBoundary: { in: [...CUSTOMER_FACING_BOUNDARIES] } };
+    ? { type: "FIRM" as const, id: { in: scopedFirmIds }, ...verticalFilter({ verticalId: vendorVertical }) }
+    : { type: "FIRM" as const, dataBoundary: { in: [...CUSTOMER_FACING_BOUNDARIES] }, ...verticalFilter({ verticalId: vendorVertical }) };
 
   const [modules, submissions, capabilityNodes, capabilityScores] = await Promise.all([
     prisma.surveyModule.findMany({

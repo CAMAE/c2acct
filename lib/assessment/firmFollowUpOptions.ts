@@ -569,8 +569,27 @@ const QUESTION_BY_KEY: ReadonlyMap<string, FollowUpQuestion> = new Map(
   FIRM_FOLLOWUP_MC_QUESTIONS.map((question) => [question.questionKey, question])
 );
 
-export function getFirmFollowUpQuestion(questionKey: string): FollowUpQuestion | null {
-  return QUESTION_BY_KEY.get(questionKey) ?? null;
+/**
+ * legal-load (R64, delta 2): option sets are PER VERTICAL. Accounting's sets are
+ * the ones above, unchanged; another vertical registers its own list under its
+ * pack id (lib/assessment/firmFollowUpOptionsByVertical.ts). Lookups without a
+ * vertical, or for accounting, read the accounting map exactly as before.
+ */
+const REGISTRIES_BY_VERTICAL = new Map<string, ReadonlyMap<string, FollowUpQuestion>>([["accounting", QUESTION_BY_KEY]]);
+const QUESTIONS_BY_VERTICAL = new Map<string, readonly FollowUpQuestion[]>([["accounting", FIRM_FOLLOWUP_MC_QUESTIONS]]);
+
+export function registerFirmFollowUpRegistry(verticalId: string, questions: readonly FollowUpQuestion[]): void {
+  QUESTIONS_BY_VERTICAL.set(verticalId, questions);
+  REGISTRIES_BY_VERTICAL.set(verticalId, new Map(questions.map((question) => [question.questionKey, question])));
+}
+
+export function getFirmFollowUpQuestions(verticalId?: string | null): readonly FollowUpQuestion[] {
+  return QUESTIONS_BY_VERTICAL.get(verticalId ?? "accounting") ?? FIRM_FOLLOWUP_MC_QUESTIONS;
+}
+
+export function getFirmFollowUpQuestion(questionKey: string, verticalId?: string | null): FollowUpQuestion | null {
+  const registry = REGISTRIES_BY_VERTICAL.get(verticalId ?? "accounting") ?? QUESTION_BY_KEY;
+  return registry.get(questionKey) ?? null;
 }
 
 /** A stored/submitted selection: option keys in pick order plus the "Other" text. */

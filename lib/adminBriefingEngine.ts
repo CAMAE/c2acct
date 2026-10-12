@@ -9,6 +9,7 @@ import {
 } from "@/lib/firmPat";
 import prisma from "@/lib/prisma";
 import { CUSTOMER_FACING_BOUNDARIES } from "@/lib/dataBoundary";
+import { verticalFilter } from "@/lib/verticals/scope";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { getFirmManagedUserRecords, getFirmManagedUserRecordsForFirms, type FirmManagedUserRecord } from "@/lib/userPat";
 import { getVendorAlignmentInsightBundle } from "@/lib/vendorAlignmentInsightEngine";
@@ -1224,11 +1225,14 @@ async function buildBriefingProductItems(
 export async function getAdminBriefingCatalog(input?: {
   companyIds?: string[];
   context?: AdminBriefingContext;
+  /** legal-load (R64, 1c): the channel's vertical for the unscoped (all firms) path; flag off adds no predicate. */
+  verticalId?: string | null;
 }): Promise<BriefingCatalogItem[]> {
   const context = input?.context;
   const companies = await prisma.company.findMany({
     where: {
       type: "FIRM",
+      ...(input?.companyIds?.length ? {} : verticalFilter({ verticalId: input?.verticalId ?? null })),
       // Data-integrity wall (CLASS 1): an EXPLICIT id list is trusted (callers
       // pass boundary-scoped ids from getVendorScopedFirms, or a single firm's
       // own id). The UNSCOPED path (no ids = "all firms") pools REAL+PILOT only

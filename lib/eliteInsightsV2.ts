@@ -37,6 +37,7 @@ import {
 } from "@/lib/benchmarkSuppression";
 import type { PercentileRow } from "@/app/components/charts/PercentileBand";
 import { percentileOrdinal } from "@/lib/ordinal";
+import { resolveVerticalForCompany } from "@/lib/verticals/session";
 
 const MODULE_TITLE = new Map<string, string>(FIRM_MODULE_DEFINITIONS.map((m) => [m.key, m.title]));
 
@@ -150,16 +151,19 @@ export async function buildFirmPeerPosition(
   client: ReaderClient,
   companyId: string,
   boundary: DataBoundary,
-  liveSignal: FirmAlignmentSignal
+  liveSignal: FirmAlignmentSignal,
+  /** legal-load (R64, 1c): the viewing firm's vertical; resolved from Company.verticalId when omitted (flag off: accounting, no read). */
+  verticalId?: string
 ): Promise<FirmPeerPosition> {
+  const vertical = verticalId ?? (await resolveVerticalForCompany(companyId));
   // Block 12f — number integrity: the DISTRIBUTION (p25..p90, mean) comes from the
   // benchmark, but the firm's OWN "you" scores + alignment index come from the
   // ONE shared live reader (getFirmAlignmentSignal), so the Elite pane reads the
   // exact same module values as the Pro pane. The percentile is the STORED one
   // from the run (scoring-core, ruling 17). Cohort N = distinct firms.
   const [readings, cohortN] = await Promise.all([
-    getFirmPeerReadings(client, companyId, boundary),
-    getFirmCohortFirmCount(client, boundary),
+    getFirmPeerReadings(client, companyId, boundary, vertical),
+    getFirmCohortFirmCount(client, boundary, vertical),
   ]);
   const overallReading = readings.find((r) => r.metricKey === ALIGNMENT_INDEX_METRIC);
   const liveIndex = liveSignal.alignmentIndex;
@@ -603,9 +607,12 @@ async function categoryContributorWeights(
 export async function buildVendorCategoryPosition(
   client: CategoryPositionClient,
   companyId: string,
-  boundary: DataBoundary
+  boundary: DataBoundary,
+  /** legal-load (R64, 1c): the vendor's vertical; resolved from Company.verticalId when omitted (flag off: accounting, no read). */
+  verticalId?: string
 ): Promise<VendorCategoryPosition> {
-  const readings = await getVendorCategoryReadings(client, companyId, boundary);
+  const vertical = verticalId ?? (await resolveVerticalForCompany(companyId));
+  const readings = await getVendorCategoryReadings(client, companyId, boundary, vertical);
   const rated = readings.filter((r) => typeof r.score === "number");
   if (rated.length === 0) {
     return {

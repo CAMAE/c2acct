@@ -8,6 +8,7 @@ import {
 } from "@/lib/productAssessmentRuntime";
 import { getVendorCompanyContext } from "@/lib/vendorPat";
 import { buildFirmProductQuestions, submitFirmProductAssessment } from "@/lib/firmPat";
+import { requireRegistry, resolveVerticalContextForCompany } from "@/lib/verticals/companyBoundary";
 
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
@@ -54,7 +55,11 @@ export async function POST(request: Request) {
     );
   }
 
-  const expected = buildFirmProductQuestions(product.utilityKeys);
+  // legal-load (R64, 1f): the firm's bank decides the expected question ids (flag off: accounting, no read).
+  const expected = buildFirmProductQuestions(
+    product.utilityKeys,
+    requireRegistry(await resolveVerticalContextForCompany(context.company.id))
+  );
   const answerKeys = Object.keys(answers);
   if (expected.length === 0) {
     return NextResponse.json(

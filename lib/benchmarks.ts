@@ -521,9 +521,18 @@ async function readCohort(
   });
 }
 
-/** F1 reader: the firm's alignment-index + per-module benchmark readings. */
-export function getFirmPeerReadings(client: ReaderClient, companyId: string, boundary: DataBoundary) {
-  return readCohort(client, firmCohortKeyForBoundary(boundary), companyId);
+/**
+ * F1 reader: the firm's alignment-index + per-module benchmark readings.
+ * legal-load (R64, 1c): the viewing company's vertical picks the cohort row;
+ * omitted it is accounting, whose key is today's literal key.
+ */
+export function getFirmPeerReadings(
+  client: ReaderClient,
+  companyId: string,
+  boundary: DataBoundary,
+  verticalId: string = DEFAULT_VERTICAL_ID
+) {
+  return readCohort(client, firmCohortKeyForBoundary(boundary, verticalId), companyId);
 }
 
 /**
@@ -531,9 +540,13 @@ export function getFirmPeerReadings(client: ReaderClient, companyId: string, bou
  * (Block 12f) — the honest N to display, not BenchmarkRun.n (which can drift from
  * the distinct-company count after reseeds / stale rows).
  */
-export async function getFirmCohortFirmCount(client: ReaderClient, boundary: DataBoundary): Promise<number> {
+export async function getFirmCohortFirmCount(
+  client: ReaderClient,
+  boundary: DataBoundary,
+  verticalId: string = DEFAULT_VERTICAL_ID
+): Promise<number> {
   const cohort = await client.benchmarkCohort.findUnique({
-    where: { key: firmCohortKeyForBoundary(boundary) },
+    where: { key: firmCohortKeyForBoundary(boundary, verticalId) },
     select: { id: true },
   });
   if (!cohort) return 0;
@@ -545,7 +558,12 @@ export async function getFirmCohortFirmCount(client: ReaderClient, boundary: Dat
   return rows.length;
 }
 
-/** V1 reader: the vendor's per-category benchmark readings. */
-export function getVendorCategoryReadings(client: ReaderClient, companyId: string, boundary: DataBoundary) {
-  return readCohort(client, vendorCohortKeyForBoundary(boundary), companyId);
+/** V1 reader: the vendor's per-category benchmark readings, under the vendor's vertical (1c). */
+export function getVendorCategoryReadings(
+  client: ReaderClient,
+  companyId: string,
+  boundary: DataBoundary,
+  verticalId: string = DEFAULT_VERTICAL_ID
+) {
+  return readCohort(client, vendorCohortKeyForBoundary(boundary, verticalId), companyId);
 }

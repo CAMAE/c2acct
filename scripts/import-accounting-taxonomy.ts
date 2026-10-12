@@ -15,11 +15,17 @@ async function main() {
     ? artifactArg.slice("--artifact=".length)
     : path.join(process.cwd(), "data/research/accounting-software-taxonomy-v1.json");
 
+  // legal-load (R64, 1g): --vertical=<id> names the vertical outright; otherwise the
+  // artifact's own verticalId; otherwise the column default (accounting).
+  const verticalArg = args.find((arg) => arg.startsWith("--vertical="));
+  const verticalId = verticalArg ? verticalArg.slice("--vertical=".length) : null;
+
   const artifact = await loadAccountingTaxonomyArtifact(artifactPath);
   const summary = await importAccountingTaxonomy({
     prisma,
     artifact,
     apply,
+    verticalId,
   });
 
   console.log(JSON.stringify(summary, null, 2));

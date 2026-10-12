@@ -23,6 +23,9 @@ import {
   type VendorProductInsightSnapshot,
 } from "@/lib/vendorProductInsightEngine";
 import { PRODUCT_UTILITY_REGISTRY } from "@/lib/productUtilityRegistry";
+import { resolveVerticalContextForCompany } from "@/lib/verticals/companyBoundary";
+import { DEFAULT_VERTICAL_ID } from "@/lib/verticals/context";
+import { getTaxonomyForVertical } from "@/lib/verticals/taxonomy";
 
 /**
  * Phase-3 Day-12 ecosystem aggregation layer.
@@ -472,16 +475,65 @@ const REGISTRY_UTILITY_BUCKET_KEYS: Record<string, string[]> = Object.fromEntrie
   PRODUCT_UTILITY_REGISTRY.map((utility) => [utility.key, utility.taxonomyBucketKeys])
 );
 
+/**
+ * legal-load (R64, 1e): the function-bucket vocabulary a coverage map draws —
+ * the bucket labels and the utility-to-bucket bridge — resolves PER VERTICAL.
+ * Accounting's vocabulary is the two constants above, unchanged, and is what
+ * every caller gets flag off (and flag on for an accounting tenant). Another
+ * vertical's labels come from its TaxonomyBucket rows (kind FUNCTION, stamped
+ * with its verticalId) and its bridge from its registered product-utility bank.
+ */
+export type FunctionBucketVocabulary = Readonly<{
+  labels: Readonly<Record<string, string>>;
+  bridge: Readonly<Record<string, readonly string[]>>;
+}>;
+
+export const ACCOUNTING_FUNCTION_BUCKET_VOCABULARY: FunctionBucketVocabulary = Object.freeze({
+  labels: FUNCTION_BUCKET_LABELS,
+  bridge: REGISTRY_UTILITY_BUCKET_KEYS,
+});
+
+/** Short label for a coverage cell: the taxonomy title, trimmed to the 14-character cell. */
+export function shortFunctionBucketLabel(title: string): string {
+  const clean = title.replace(/\s*\(.*\)\s*$/, "").trim();
+  return clean.length <= 14 ? clean : `${clean.slice(0, 13).trimEnd()}…`;
+}
+
+export function functionBucketVocabularyFromPack(input: {
+  buckets: ReadonlyArray<{ key: string; title: string; kind: string }>;
+  utilities: ReadonlyArray<{ key: string; taxonomyBucketKeys: readonly string[] }>;
+}): FunctionBucketVocabulary {
+  const labels: Record<string, string> = {};
+  for (const bucket of input.buckets) {
+    if (bucket.kind !== "FUNCTION") continue;
+    labels[bucket.key] = shortFunctionBucketLabel(bucket.title);
+  }
+  const bridge: Record<string, readonly string[]> = Object.fromEntries(
+    input.utilities.map((utility) => [utility.key, utility.taxonomyBucketKeys])
+  );
+  return Object.freeze({ labels: Object.freeze(labels), bridge: Object.freeze(bridge) });
+}
+
+export async function resolveFunctionBucketVocabularyForCompany(companyId: string | null | undefined): Promise<FunctionBucketVocabulary> {
+  const vertical = await resolveVerticalContextForCompany(companyId);
+  if (vertical.verticalId === DEFAULT_VERTICAL_ID) {
+    return ACCOUNTING_FUNCTION_BUCKET_VOCABULARY;
+  }
+  const buckets = await getTaxonomyForVertical(vertical.verticalId);
+  return functionBucketVocabularyFromPack({ buckets, utilities: vertical.registry?.utilities ?? [] });
+}
+
 export function vendorCoverageMapForVendor(
-  vendorCatalog: VendorProductInsightSnapshot[]
+  vendorCatalog: VendorProductInsightSnapshot[],
+  vocabulary: FunctionBucketVocabulary = ACCOUNTING_FUNCTION_BUCKET_VOCABULARY
 ): EcosystemDetailCoverageCell[] {
   const productCountByBucket = new Map<string, number>();
   for (const snapshot of vendorCatalog) {
     const bucketsTouchedByProduct = new Set<string>();
     for (const utilityKey of snapshot.product.utilityKeys) {
-      const bucketKeys = REGISTRY_UTILITY_BUCKET_KEYS[utilityKey] ?? [];
+      const bucketKeys = vocabulary.bridge[utilityKey] ?? [];
       for (const bucketKey of bucketKeys) {
-        if (!FUNCTION_BUCKET_LABELS[bucketKey]) continue;
+        if (!vocabulary.labels[bucketKey]) continue;
         bucketsTouchedByProduct.add(bucketKey);
       }
     }
@@ -492,11 +544,11 @@ export function vendorCoverageMapForVendor(
       );
     }
   }
-  return FUNCTION_BUCKET_KEYS.map((bucketKey) => {
+  return Object.keys(vocabulary.labels).map((bucketKey) => {
     const productCount = productCountByBucket.get(bucketKey) ?? 0;
     return {
       bucketKey,
-      bucketLabel: FUNCTION_BUCKET_LABELS[bucketKey],
+      bucketLabel: vocabulary.labels[bucketKey],
       covered: productCount > 0,
       productCount,
     };
@@ -509,7 +561,8 @@ export function vendorCoverageMapForVendor(
  * order (vendorCatalog is already alphabetized in the engine).
  */
 export function vendorAtAGlanceForVendor(
-  vendorCatalog: VendorProductInsightSnapshot[]
+  vendorCatalog: VendorProductInsightSnapshot[],
+  vocabulary: FunctionBucketVocabulary = ACCOUNTING_FUNCTION_BUCKET_VOCABULARY
 ): EcosystemDetailVendorAtAGlance {
   const productCount = vendorCatalog.length;
   const scored = vendorCatalog
@@ -529,7 +582,7 @@ export function vendorAtAGlanceForVendor(
     weakestProduct = { id: last.id, name: last.name, score: last.score };
   }
 
-  const coverage = vendorCoverageMapForVendor(vendorCatalog);
+  const coverage = vendorCoverageMapForVendor(vendorCatalog, vocabulary);
   const functionBucketsCovered = coverage.filter((cell) => cell.covered).length;
 
   return {
@@ -537,7 +590,7 @@ export function vendorAtAGlanceForVendor(
     strongestProduct,
     weakestProduct,
     functionBucketsCovered,
-    functionBucketsTotal: FUNCTION_BUCKET_KEYS.length,
+    functionBucketsTotal: coverage.length,
   };
 }
 
@@ -797,6 +850,8 @@ async function buildEcosystemDetail({
   // vendor's product responses (or filter chips) can leak to the consultant.
   const vendorProductIds = new Set(vendorCatalog.map((snapshot) => snapshot.product.id));
   const openEnded = openEndedResponsesForEcosystem(briefings, undefined, vendorProductIds);
+  // legal-load (R64, 1e): the coverage map speaks the vendor's vertical (flag off: the accounting constants, no read).
+  const vocabulary = await resolveFunctionBucketVocabularyForCompany(vendorCompanyId);
 
   return {
     ecosystemId: ecosystemId,
@@ -811,8 +866,8 @@ async function buildEcosystemDetail({
     moduleCompletionRate: avgModuleCompletion(progresses.map((entry) => entry.summary)),
     activeDivergenceCount: countHotDivergences(briefings),
     thirtyDayActionCount: countThirtyDayActions(briefings),
-    vendorAtAGlance: vendorAtAGlanceForVendor(vendorCatalog),
-    vendorCoverageMap: vendorCoverageMapForVendor(vendorCatalog),
+    vendorAtAGlance: vendorAtAGlanceForVendor(vendorCatalog, vocabulary),
+    vendorCoverageMap: vendorCoverageMapForVendor(vendorCatalog, vocabulary),
     firmGrid,
     openEndedResponses: openEnded.responses,
     vendorProductIds: [...vendorProductIds],

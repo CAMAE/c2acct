@@ -12,6 +12,8 @@ import {
   type ParsedQbankItem,
 } from "@/lib/modules/qbankParser";
 import { loadQbankSourceAuthorities } from "@/lib/modules/qbankSourceAuthorities";
+import { resolveCurrentVertical } from "@/lib/verticals/context";
+import { verticalStamp } from "@/lib/verticals/scope";
 
 /**
  * Import PAT Question Bank v1 (Sprint 4 M2, 2026-07-08).
@@ -52,6 +54,17 @@ const BANK_MODULE_TYPE = ((): ModuleType => {
 const BANK_CATEGORY = process.env.PAT_QBANK_CATEGORY?.trim() || "Governance & Controls";
 const BANK_TARGET_PATTERN = process.env.PAT_QBANK_TARGET_PATTERN?.trim() || "baseline-governance-diagnostic";
 const BANK_TITLE = process.env.PAT_QBANK_TITLE?.trim() || "Governance, Controls & Vendor Risk — Diagnostic v1";
+
+/**
+ * legal-load (R64, 1b): PAT_QBANK_ANCHORS (comma-separated codes) names the served
+ * anchors outright; absent, the bank's "anchor-item candidates" header line rules.
+ * Either way the flagged set must equal the declared set.
+ */
+const ENV_ANCHORS = ((): Set<string> | null => {
+  const raw = process.env.PAT_QBANK_ANCHORS?.trim();
+  if (!raw) return null;
+  return new Set(raw.split(",").map((code) => code.trim()).filter((code) => /^[A-D]\d+$/.test(code)));
+})();
 
 const EXPECTED_TOTAL = 90;
 const EXPECTED_MIX = { EASY: 27, MODERATE: 45, HARD: 18 };
@@ -124,14 +137,18 @@ async function main() {
   // that is the accounting pack — the same five authorities the parser used to
   // hardcode, in the same order.
   const authorities = await loadQbankSourceAuthorities();
-  const items = parseQbank(markdown, BANK_TEMPLATE_KEY, authorities);
+  const items = parseQbank(markdown, BANK_TEMPLATE_KEY, authorities, ENV_ANCHORS);
   const stats = summarize(items);
-  const declared = readDeclaredAnchorCodes(markdown);
+  const declared = ENV_ANCHORS ? { codes: ENV_ANCHORS, raw: `PAT_QBANK_ANCHORS=${[...ENV_ANCHORS].join(",")}` } : readDeclaredAnchorCodes(markdown);
   const errors = validate(items, stats, declared.codes);
+  // legal-load (R64, 1b): every row carries the resolved vertical (flag off: no column named,
+  // the database default stamps accounting exactly as before).
+  const verticalId = resolveCurrentVertical();
+  const stamp = verticalStamp({ verticalId });
 
   console.log(`\n================ IMPORT QBANK v1 — ${APPLY ? "APPLY" : "DRY RUN"} ================`);
   console.log(`Source: ${DOC_PATH}`);
-  console.log(`Template: ${BANK_TEMPLATE_KEY} (reviewStatus DRAFT — nothing serves until CPA-approved)\n`);
+  console.log(`Template: ${BANK_TEMPLATE_KEY} (reviewStatus DRAFT — nothing serves until approved) · vertical ${verticalId}${stamp.verticalId ? " (stamped)" : " (default column)"}\n`);
   console.log(`Items parsed: ${items.length}`);
   console.log(`  Difficulty: E ${stats.byDifficulty.EASY} / M ${stats.byDifficulty.MODERATE} / H ${stats.byDifficulty.HARD}`);
   for (const [category, count] of Object.entries(stats.byCategory)) {
@@ -166,6 +183,7 @@ async function main() {
       moduleType: BANK_MODULE_TYPE,
       title: BANK_TITLE,
       reviewStatus: ModuleReviewStatus.DRAFT,
+      ...stamp,
       updatedAt: new Date(),
     },
     create: {
@@ -174,6 +192,7 @@ async function main() {
       targetPattern: BANK_TARGET_PATTERN,
       moduleType: BANK_MODULE_TYPE,
       title: BANK_TITLE,
+      ...stamp,
       objectives: {
         note: "Measurable objectives pending CPA-founder authoring pass; bank items map to their blueprint components A–D.",
       },
@@ -199,11 +218,13 @@ async function main() {
         correctKey: item.correctKey,
         feedback: { rationale: item.feedback, source: item.sourceRaw },
         order: index,
+        ...stamp,
         updatedAt: new Date(),
       },
       create: {
         key: item.key,
         templateId: template.id,
+        ...stamp,
         category: item.category,
         itemKind: "FINAL",
         difficulty: item.difficulty,
@@ -229,13 +250,14 @@ async function main() {
         sourceUrl: null,
         licenseType: source.licenseType,
         accessedAt: ACCESSED_AT,
+        ...stamp,
       })),
     });
     sourceCount += item.sources.length;
   }
 
   console.log(`\nImport complete: template + ${itemCount} items + ${sourceCount} source rows (all DRAFT).`);
-  console.log(`Nothing serves until a CPA-certified reviewer flips reviewStatus to APPROVED.`);
+  console.log(`Nothing serves until the approve line flips reviewStatus to APPROVED (scripts/modules/approve-qbank.ts).`);
 }
 
 main()

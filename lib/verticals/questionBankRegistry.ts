@@ -92,10 +92,18 @@ export type FrozenRegistryKey = { verticalId: string; versionId: string };
  * reason `FROZEN_VERTICAL_IDS` is: a rename here is a data migration over
  * question ids and `verticalId` columns, never a config edit.
  */
+export const LEGAL_PRODUCT_UTILITY_REGISTRY_VERSION = "2026-10-product-utility-v1";
+
 export const FROZEN_REGISTRY_KEYS: readonly FrozenRegistryKey[] = Object.freeze([
   Object.freeze({
     verticalId: DEFAULT_VERTICAL_ID,
     versionId: PRODUCT_UTILITY_REGISTRY_VERSION,
+  }),
+  // legal-load (R64, section 12 item 8; audit addendum ruling): the legal bank's pair,
+  // version half unqualified, frozen from the first stored legal question id.
+  Object.freeze({
+    verticalId: "legal",
+    versionId: LEGAL_PRODUCT_UTILITY_REGISTRY_VERSION,
   }),
 ]);
 

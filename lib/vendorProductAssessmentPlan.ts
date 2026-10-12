@@ -2,6 +2,7 @@ import type {
   ProductProfileFieldKey,
   ProductQuestionBasisKey,
 } from "@/lib/productUtilityRegistry";
+import type { ProductUtilityRegistryBundle } from "@/lib/verticals/questionBankRegistry";
 import {
   buildProductAssessmentPlan,
   type ProductAssessmentPlan,
@@ -397,8 +398,8 @@ function buildPromptGroundingContext(input: {
   };
 }
 
-function insufficientEvidencePrompt(questionKey: string, context: PromptGroundingContext) {
-  switch (questionKey) {
+function insufficientEvidencePrompt(question: { key: string; prompt: string }, context: PromptGroundingContext) {
+  switch (question.key) {
     case "strongest_workflow":
       return `PAT has insufficient scored evidence to identify a strongest workflow yet. For ${context.productContext} and selected features (${context.featureLabels}), what concrete evidence should PAT inspect first before naming a strength?`;
     case "weakest_workflow":
@@ -420,7 +421,9 @@ function insufficientEvidencePrompt(questionKey: string, context: PromptGroundin
     case "recommended_next_action":
       return `PAT has insufficient scored evidence to recommend continue, reposition, narrow scope, or gather evidence. What is the single most useful evidence-gathering step for ${context.productContext} next?`;
     default:
-      return `PAT has insufficient scored evidence for this follow-up. What evidence should PAT collect next for ${context.productContext}?`;
+      // legal-load (R64, section 12 item 14; register row 32): a prompt the ten accounting
+      // keys do not cover is the registry's own prompt, not a generic sentence.
+      return question.prompt;
   }
 }
 
@@ -454,12 +457,15 @@ export function buildVendorAdaptiveOpenEndedQuestions(input: {
   selectedUtilityKeys: string[];
   profile?: Partial<Record<keyof VendorProductProfileInput, string | null | undefined>>;
   answers?: Record<string, number>;
+  /** legal-load (R64, 1f): the tenant's bank, from the request boundary; absent reads the process-level resolution. */
+  registry?: ProductUtilityRegistryBundle;
 }) {
   const basePlan = buildProductAssessmentPlan({
     perspective: "vendor",
     selectedUtilityKeys: input.selectedUtilityKeys,
     includeProductGeneral: true,
     includeOpenEnded: true,
+    ...(input.registry ? { registry: input.registry } : {}),
   });
   const baseOpenEndedQuestions =
     basePlan.modules.find((module) => module.kind === "open-ended")?.questions ?? [];
@@ -502,7 +508,7 @@ export function buildVendorAdaptiveOpenEndedQuestions(input: {
   return baseOpenEndedQuestions.map((question) => {
     let prompt = hasScoredEvidence
       ? question.prompt
-      : insufficientEvidencePrompt(question.key, groundingContext);
+      : insufficientEvidencePrompt(question, groundingContext);
 
     switch (question.key) {
       case "strongest_workflow":
@@ -592,13 +598,15 @@ export function serializeVendorAdaptiveOpenEndedQuestionSnapshot(input: {
 
 export function buildVendorProductAssessmentPlan(
   selectedUtilityKeys: string[],
-  evidence?: VendorProductAssessmentEvidenceInput
+  evidence?: VendorProductAssessmentEvidenceInput,
+  registry?: ProductUtilityRegistryBundle
 ) {
   const plan = buildProductAssessmentPlan({
     perspective: "vendor",
     selectedUtilityKeys,
     includeProductGeneral: true,
     includeOpenEnded: true,
+    ...(registry ? { registry } : {}),
   });
   const adaptiveOpenEndedQuestions =
     selectedUtilityKeys.length > 0
@@ -606,6 +614,7 @@ export function buildVendorProductAssessmentPlan(
           selectedUtilityKeys,
           profile: evidence?.profile,
           answers: evidence?.answers,
+          registry,
         })
       : plan.modules.find((module) => module.kind === "open-ended")?.questions ?? [];
 
@@ -705,12 +714,14 @@ export function serializeProductAssessmentPlan(input: {
   selectedUtilityKeys: string[];
   includeProductGeneral?: boolean;
   includeOpenEnded?: boolean;
+  registry?: ProductUtilityRegistryBundle;
 }) {
   const plan = buildProductAssessmentPlan({
     perspective: input.perspective,
     selectedUtilityKeys: input.selectedUtilityKeys,
     includeProductGeneral: input.includeProductGeneral,
     includeOpenEnded: input.includeOpenEnded,
+    ...(input.registry ? { registry: input.registry } : {}),
   });
 
   return {
@@ -756,17 +767,18 @@ export function serializeProductAssessmentPlan(input: {
   };
 }
 
-export function serializeVendorProductAssessmentPlan(selectedUtilityKeys: string[]) {
+export function serializeVendorProductAssessmentPlan(selectedUtilityKeys: string[], registry?: ProductUtilityRegistryBundle) {
   return serializeProductAssessmentPlan({
     perspective: "vendor",
     selectedUtilityKeys,
     includeProductGeneral: true,
     includeOpenEnded: true,
+    registry,
   });
 }
 
-export function getVendorProductProfileQuestions() {
-  const plan = buildVendorProductAssessmentPlan([]);
+export function getVendorProductProfileQuestions(registry?: ProductUtilityRegistryBundle) {
+  const plan = buildVendorProductAssessmentPlan([], undefined, registry);
   return plan.modules.find((module) => module.kind === "general")?.questions ?? [];
 }
 

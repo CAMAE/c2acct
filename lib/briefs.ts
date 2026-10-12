@@ -18,7 +18,10 @@ import {
   aggregateFirmConfidence,
   avgFirmAlignmentScore,
   countHotDivergences,
+  ACCOUNTING_FUNCTION_BUCKET_VOCABULARY,
+  resolveFunctionBucketVocabularyForCompany,
   vendorCoverageMapForVendor,
+  type FunctionBucketVocabulary,
 } from "@/lib/ecosystem";
 import prisma from "@/lib/prisma";
 import { assertEcosystemPair, getVendorScopedFirms } from "@/lib/tenancy";
@@ -338,7 +341,8 @@ export function generateExecutiveSummary(
   briefings: AdminCompanyBriefing[],
   vendorCatalog: VendorProductInsightSnapshot[],
   catalog: BriefingCatalogItem[],
-  ecosystemName: string
+  ecosystemName: string,
+  vocabulary: FunctionBucketVocabulary = ACCOUNTING_FUNCTION_BUCKET_VOCABULARY
 ): VendorBriefExecutiveSummary {
   const avgFirmScore = avgFirmAlignmentScore(catalog);
   const vendorScores = vendorCatalog
@@ -350,7 +354,7 @@ export function generateExecutiveSummary(
       : null;
   const hotDivergences = countHotDivergences(briefings);
   const confidence = aggregateFirmConfidence(catalog);
-  const coverage = vendorCoverageMapForVendor(vendorCatalog);
+  const coverage = vendorCoverageMapForVendor(vendorCatalog, vocabulary);
   const bucketsCovered = coverage.filter((cell) => cell.covered).length;
 
   const headlineSlots = {
@@ -494,7 +498,7 @@ export async function getVendorBriefForConsultant(
     })
   );
 
-  const [catalog, briefings, vendorCatalog] = await Promise.all([
+  const [catalog, briefings, vendorCatalog, vocabulary] = await Promise.all([
     firmIds.length > 0
       ? getAdminBriefingCatalog({ companyIds: firmIds })
       : Promise.resolve<BriefingCatalogItem[]>([]),
@@ -503,6 +507,8 @@ export async function getVendorBriefForConsultant(
         results.filter((briefing): briefing is AdminCompanyBriefing => briefing !== null)
     ),
     getVendorProductInsightCatalog(vendorCompanyId) as Promise<VendorProductInsightSnapshot[]>,
+    // legal-load (R64, 1e): the coverage line speaks the vendor's vertical (flag off: accounting constants, no read).
+    resolveFunctionBucketVocabularyForCompany(vendorCompanyId),
   ]);
 
   const firmsAxis = catalog.map((item) => ({
@@ -514,7 +520,8 @@ export async function getVendorBriefForConsultant(
     briefings,
     vendorCatalog,
     catalog,
-    ecosystem.name
+    ecosystem.name,
+    vocabulary
   );
   const selfVsMarketDelta = buildSelfVsMarketDelta(vendorCatalog);
   const perFirmHeatmap = buildPerFirmHeatmap(firmsAxis, vendorCatalog, briefings);

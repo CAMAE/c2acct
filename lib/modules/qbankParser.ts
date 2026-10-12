@@ -204,11 +204,13 @@ export function parseQbankReport(
 export function parseQbank(
   markdown: string,
   keyPrefix: string,
-  authorities: readonly QbankSourceAuthority[]
+  authorities: readonly QbankSourceAuthority[],
+  /** legal-load (R64, 1b): an operator-named set (PAT_QBANK_ANCHORS) overrides the bank's header line. */
+  anchorCodes: ReadonlySet<string> | null = null
 ): ParsedQbankItem[] {
   const items: ParsedQbankItem[] = [];
-  // The bank's OWN anchors, from its stats line (never a hardcoded set).
-  const anchorCodes = readDeclaredAnchorCodes(markdown).codes;
+  // The bank's OWN anchors, from its stats line (never a hardcoded set), unless the operator named them.
+  const anchors = anchorCodes ?? readDeclaredAnchorCodes(markdown).codes;
   let currentCategory: string | null = null;
 
   // Items span 1-2 physical lines in the doc (a bolded stem line, then the
@@ -217,7 +219,7 @@ export function parseQbank(
   let buffer: string[] = [];
   const flush = () => {
     if (buffer.length === 0) return;
-    parseItemBlock(buffer.join(" "), currentCategory, items, keyPrefix, authorities, anchorCodes);
+    parseItemBlock(buffer.join(" "), currentCategory, items, keyPrefix, authorities, anchors);
     buffer = [];
   };
 

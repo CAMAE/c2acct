@@ -14,6 +14,9 @@ import {
   serializeVendorProductAssessmentPlan,
 } from "@/lib/vendorProductAssessmentPlan";
 import { buildProductAssessmentPlan, getProductUtilityCatalog } from "@/lib/vendorProductQuestionBank";
+import type { ProductUtilityRegistryBundle } from "@/lib/verticals/questionBankRegistry";
+import { verticalStamp } from "@/lib/verticals/scope";
+import { resolveVerticalForCompany } from "@/lib/verticals/session";
 import {
   PRODUCT_ASSESSMENT_SCALE_MAX,
   PRODUCT_ASSESSMENT_SCALE_MIN,
@@ -165,11 +168,17 @@ export const ALIGNMENT_INSIGHT_DEFINITIONS: VendorInsightDetail[] = insightConte
   how: item.how,
 }));
 
-function normalizeSubmittedUtilityKeys(input: unknown) {
+/**
+ * legal-load (R64, 1f): the catalog a submission is checked against is the
+ * tenant's bank when one is passed from the request boundary; absent, the
+ * process-level catalog, which flag off is the in-code accounting bundle.
+ */
+export function normalizeSubmittedUtilityKeys(input: unknown, registry?: ProductUtilityRegistryBundle) {
   if (!Array.isArray(input)) {
     return [];
   }
 
+  const catalog = registry ? getProductUtilityCatalog(registry) : VENDOR_UTILITY_CATALOG;
   const seen = new Set<string>();
 
   return input
@@ -181,7 +190,7 @@ function normalizeSubmittedUtilityKeys(input: unknown) {
         return false;
       }
       seen.add(entry);
-      return VENDOR_UTILITY_CATALOG.some((utility) => utility.key === entry);
+      return catalog.some((utility) => utility.key === entry);
     });
 }
 
@@ -241,9 +250,10 @@ function buildIncompleteVendorAssessmentStatus(input: {
   };
 }
 
-export function getVendorUtilityLabels(selectedUtilityKeys: string[]) {
+export function getVendorUtilityLabels(selectedUtilityKeys: string[], registry?: ProductUtilityRegistryBundle) {
+  const catalog = registry ? getProductUtilityCatalog(registry) : VENDOR_UTILITY_CATALOG;
   return selectedUtilityKeys
-    .map((utilityKey) => VENDOR_UTILITY_CATALOG.find((utility) => utility.key === utilityKey))
+    .map((utilityKey) => catalog.find((utility) => utility.key === utilityKey))
     .filter((utility): utility is UtilityDefinition => Boolean(utility))
     .map((utility) => utility.label);
 }
@@ -297,12 +307,13 @@ export type VendorCompanyContext = {
   compatibilityMode: boolean;
 };
 
-export function buildVendorProductQuestions(selectedUtilityKeys: string[]) {
+export function buildVendorProductQuestions(selectedUtilityKeys: string[], registry?: ProductUtilityRegistryBundle) {
   return buildProductAssessmentPlan({
     perspective: "vendor",
     selectedUtilityKeys,
     includeProductGeneral: false,
     includeOpenEnded: false,
+    ...(registry ? { registry } : {}),
   }).modules.flatMap((module) => module.questions) as VendorAssessmentQuestion[];
 }
 
@@ -372,7 +383,10 @@ export function getRequestedVendorProductAssessmentOverviewMode(
 
 export function deriveVendorProductAssessmentCompletionStatus(input: {
   latestSubmission?: VendorProductAssessmentSubmissionRecord | null;
+  /** legal-load (R64, 1f): the vendor's bank; absent reads the process-level resolution (flag off: accounting). */
+  registry?: ProductUtilityRegistryBundle;
 }): VendorProductAssessmentCompletionStatus {
+  const registry = input.registry;
   const latestSubmission = input.latestSubmission ?? null;
   if (!latestSubmission) {
     return buildIncompleteVendorAssessmentStatus({});
@@ -390,7 +404,7 @@ export function deriveVendorProductAssessmentCompletionStatus(input: {
     });
   }
 
-  const utilityKeys = normalizeSubmittedUtilityKeys(payload.utilitySelection);
+  const utilityKeys = normalizeSubmittedUtilityKeys(payload.utilitySelection, registry);
   if (utilityKeys.length === 0) {
     return buildIncompleteVendorAssessmentStatus({
       latestSubmission,
@@ -398,9 +412,9 @@ export function deriveVendorProductAssessmentCompletionStatus(input: {
     });
   }
 
-  const expectedScoredQuestions = buildVendorProductQuestions(utilityKeys);
+  const expectedScoredQuestions = buildVendorProductQuestions(utilityKeys, registry);
   const expectedScoredQuestionIds = new Set(expectedScoredQuestions.map((question) => question.id));
-  const expectedPlan = serializeVendorProductAssessmentPlan(utilityKeys);
+  const expectedPlan = serializeVendorProductAssessmentPlan(utilityKeys, registry);
   const expectedOpenEndedQuestionIds = new Set(expectedPlan.openEndedQuestionIds);
   const responsePayload = getNumberRecord(payload.responses);
   const openEndedPayload = getStringRecord(payload.openEndedResponses);
@@ -448,9 +462,11 @@ export function deriveVendorProductAssessmentCompletionStatus(input: {
 export function deriveVendorProductOverviewStatus(input: {
   latestSubmission?: VendorProductAssessmentSubmissionRecord | null;
   signalUtilityKeys: string[];
+  registry?: ProductUtilityRegistryBundle;
 }): VendorProductOverviewStatus {
   const completionStatus = deriveVendorProductAssessmentCompletionStatus({
     latestSubmission: input.latestSubmission,
+    registry: input.registry,
   });
 
   if (completionStatus.completed || completionStatus.latestSubmissionId) {
@@ -461,6 +477,7 @@ export function deriveVendorProductOverviewStatus(input: {
       selectedUtilityKeys: utilityKeys,
       includeProductGeneral: true,
       includeOpenEnded: true,
+      ...(input.registry ? { registry: input.registry } : {}),
     }).modules.reduce((sum, module) => sum + module.questions.length, 0);
 
     return {
@@ -703,10 +720,14 @@ export async function getVendorCompanyContext(companyId: string | null | undefin
 }
 
 export async function ensureVendorProfileForCompany(company: { id: string; name: string }) {
+  // legal-load (R64, 1d): the profile carries the vendor's vertical (flag off: no column named,
+  // no read; the database default stamps accounting exactly as before).
+  const stamp = verticalStamp({ verticalId: await resolveVerticalForCompany(company.id) });
   return prisma.vendorProfile.upsert({
     where: { companyId: company.id },
     update: {
       displayName: company.name,
+      ...stamp,
       updatedAt: new Date(),
     },
     create: {
@@ -714,6 +735,7 @@ export async function ensureVendorProfileForCompany(company: { id: string; name:
       key: `vendor:${company.id}`,
       displayName: company.name,
       companyId: company.id,
+      ...stamp,
       updatedAt: new Date(),
     },
   });
@@ -745,9 +767,11 @@ export async function upsertVendorProductSignals(
   tx: ProductSignalWriteClient,
   productId: string,
   utilityKeys: string[],
-  latestScore: number
+  latestScore: number,
+  registry?: ProductUtilityRegistryBundle
 ) {
-  const selectedUtilityKeys = normalizeSubmittedUtilityKeys(utilityKeys);
+  const selectedUtilityKeys = normalizeSubmittedUtilityKeys(utilityKeys, registry);
+  const catalog = registry ? getProductUtilityCatalog(registry) : VENDOR_UTILITY_CATALOG;
   const selectedSignalKeys = selectedUtilityKeys.map(productSignalKeyForUtility);
 
   await tx.productSignal.deleteMany({
@@ -759,7 +783,7 @@ export async function upsertVendorProductSignals(
   });
 
   for (const utilityKey of selectedUtilityKeys) {
-    const utility = VENDOR_UTILITY_CATALOG.find((entry) => entry.key === utilityKey);
+    const utility = catalog.find((entry) => entry.key === utilityKey);
     await tx.productSignal.upsert({
       where: {
         productId_signalKey: {

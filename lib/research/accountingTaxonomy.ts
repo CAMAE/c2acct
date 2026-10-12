@@ -14,6 +14,11 @@ import {
 
 export type AccountingTaxonomyArtifact = {
   version: number;
+  /**
+   * legal-load (R64, 1g): the vertical every bucket is stamped with. Absent (the
+   * accounting artifact) the column keeps its database default, exactly as before.
+   */
+  verticalId?: string;
   source: {
     key: string;
     title: string;
@@ -88,6 +93,8 @@ export type ImportAccountingTaxonomyOptions = {
   artifact: AccountingTaxonomyArtifact;
   apply?: boolean;
   logger?: Pick<Console, "log" | "warn">;
+  /** legal-load (R64, 1g): overrides the artifact's verticalId (an operator naming the vertical outright). */
+  verticalId?: string | null;
 };
 
 export async function loadAccountingTaxonomyArtifact(
@@ -98,14 +105,15 @@ export async function loadAccountingTaxonomyArtifact(
   return JSON.parse(raw) as AccountingTaxonomyArtifact;
 }
 
-export async function importAccountingTaxonomy({
-  prisma,
-  artifact,
-  apply = false,
-  logger = console,
-}: ImportAccountingTaxonomyOptions) {
+export async function importAccountingTaxonomy(options: ImportAccountingTaxonomyOptions) {
+  const { prisma, artifact, apply = false, logger = console } = options;
+  const verticalId = options.verticalId?.trim() || artifact.verticalId?.trim() || null;
+  // A bucket row names its vertical explicitly whenever the artifact or the operator does;
+  // the accounting artifact names none and the column default stamps "accounting" as before.
+  const stamp = verticalId ? { verticalId } : {};
   const summary = {
     sourceKey: artifact.source.key,
+    verticalId: verticalId ?? "accounting (column default)",
     taxonomyBuckets: artifact.taxonomyBuckets.length,
     bucketCapabilityMappings: artifact.bucketCapabilityMappings.length,
     vendors: artifact.vendors.length,
@@ -157,6 +165,7 @@ export async function importAccountingTaxonomy({
         description: bucket.description ?? null,
         kind: TaxonomyBucketKind[bucket.kind],
         active: true,
+        ...stamp,
       },
       create: {
         id: randomUUID(),
@@ -164,6 +173,7 @@ export async function importAccountingTaxonomy({
         title: bucket.title,
         description: bucket.description ?? null,
         kind: TaxonomyBucketKind[bucket.kind],
+        ...stamp,
       },
     });
   }

@@ -11,6 +11,7 @@ import {
 import { getVendorUtilityLabels } from "@/lib/vendorPat";
 import type { FirmProductCatalogItem } from "@/lib/firmPat";
 import { buildFirmProductQuestions } from "@/lib/firmPat";
+import type { ProductUtilityRegistryBundle } from "@/lib/verticals/questionBankRegistry";
 
 /**
  * Firm-side product assessment on ONE page (V3 box 4.1, 2026-09-09 — Leslie's
@@ -25,6 +26,8 @@ import { buildFirmProductQuestions } from "@/lib/firmPat";
 
 type Props = {
   product: FirmProductCatalogItem;
+  /** legal-load (R64, 1f): the firm's product-utility bank, resolved by the server page; absent, the in-code accounting bundle. */
+  registry?: ProductUtilityRegistryBundle;
 };
 
 type FirmProductQuestion = ReturnType<typeof buildFirmProductQuestions>[number];
@@ -59,9 +62,9 @@ function groupQuestionsBySection(questions: ReturnType<typeof buildFirmProductQu
   return Array.from(groups.values());
 }
 
-export default function FirmProductAssessmentClient({ product }: Props) {
+export default function FirmProductAssessmentClient({ product, registry }: Props) {
   const router = useRouter();
-  const questions = useMemo(() => buildFirmProductQuestions(product.utilityKeys), [product.utilityKeys]);
+  const questions = useMemo(() => buildFirmProductQuestions(product.utilityKeys, registry), [product.utilityKeys, registry]);
   const groups = useMemo(() => groupQuestionsBySection(questions), [questions]);
   const questionNumberById = useMemo(
     () => new Map(questions.map((question, index) => [question.id, index + 1])),
@@ -190,7 +193,7 @@ export default function FirmProductAssessmentClient({ product }: Props) {
       <section className="pat-card p-6">
         <div className="pat-label">Declared features</div>
         <div className="mt-4 flex flex-wrap gap-2">
-          {getVendorUtilityLabels(product.utilityKeys).map((featureLabel) => (
+          {getVendorUtilityLabels(product.utilityKeys, registry).map((featureLabel) => (
             <span
               key={featureLabel}
               className="rounded-full border border-[var(--shell-border)] bg-white px-3 py-1.5 text-sm font-medium text-[var(--shell-ink)]"

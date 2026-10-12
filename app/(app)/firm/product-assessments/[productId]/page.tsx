@@ -7,6 +7,7 @@ import FirmProductAssessmentClient from "@/app/components/firm/FirmProductAssess
 import { getSessionUser } from "@/lib/auth/session";
 import { MEMBERSHIP_PLAN, resolveMembershipEntitlement } from "@/lib/membership";
 import { getFirmProductCatalog } from "@/lib/firmPat";
+import { requireRegistry, resolveVerticalContextForCompany } from "@/lib/verticals/companyBoundary";
 
 export const dynamic = "force-dynamic";
 
@@ -92,7 +93,7 @@ export default async function FirmProductAssessmentDetailPage({
         </p>
       </section>
 
-      <FirmProductAssessmentClient product={product} />
+      <FirmProductAssessmentClient product={product} registry={requireRegistry(await resolveVerticalContextForCompany(sessionUser.companyId))} />
     </div>
   );
 }

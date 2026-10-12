@@ -32,6 +32,8 @@ import {
   upsertVendorProductSignals,
 } from "@/lib/vendorPat";
 
+import { requireRegistry, resolveVerticalContextForCompany } from "@/lib/verticals/companyBoundary";
+
 const NO_STORE_HEADERS = { "Cache-Control": "no-store" };
 
 const SubmitVendorAssessmentSchema = z.object({
@@ -113,7 +115,16 @@ export async function POST(request: Request) {
     );
   }
 
-  const questionBank = buildVendorProductQuestions(utilityKeys);
+  // legal-load (R64, 1f): the vendor's bank decides which utility keys and question ids
+  // are valid (flag off: the in-code accounting bundle, no read).
+  const registry = requireRegistry(await resolveVerticalContextForCompany(company.id));
+  if (utilityKeys.length > registry.utilities.length) {
+    return NextResponse.json(
+      { ok: false, error: "Invalid utility selection" },
+      { status: 400, headers: NO_STORE_HEADERS }
+    );
+  }
+  const questionBank = buildVendorProductQuestions(utilityKeys, registry);
   const requiredQuestionIds = new Set(questionBank.map((question) => question.id));
   const submittedQuestionIds = Object.keys(answers);
 
@@ -305,7 +316,7 @@ export async function POST(request: Request) {
       },
     });
 
-    await upsertVendorProductSignals(tx, product.id, utilityKeys, score.rawScorePct);
+    await upsertVendorProductSignals(tx, product.id, utilityKeys, score.rawScorePct, registry);
     return createdSubmission;
   });
 

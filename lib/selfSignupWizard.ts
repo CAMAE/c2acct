@@ -14,7 +14,7 @@
  * off it returns the accounting literals without loading a pack. The copy is
  * still built server-side and handed to the wizard as props.
  */
-import { lexicon } from "@/lib/verticals/lexicon";
+import { ACCOUNTING_LEXICON, lexicon, resolveLexicon } from "@/lib/verticals/lexicon";
 
 export const SELF_SIGNUP_ROLES = ["vendor", "firm", "individual"] as const;
 export type SelfSignupRole = (typeof SELF_SIGNUP_ROLES)[number];
@@ -214,8 +214,22 @@ const ORGANIZATION_QUESTIONS: Record<SelfSignupRole, SelfSignupOrganizationQuest
   },
 };
 
+/**
+ * legal-load (R64, section 12 item 14): the example company name is an accounting
+ * literal. Flag off (and for an accounting tenant) it is the literal that shipped;
+ * for another vertical the placeholder is neutral rather than a pack noun, because
+ * an example firm name is not a word the lexicon owns.
+ */
+const NEUTRAL_NAME_PLACEHOLDER: Record<SelfSignupRole, string> = {
+  vendor: "e.g. your company name",
+  firm: "e.g. your firm name",
+  individual: "Company or firm name",
+};
+
 export function getSelfSignupOrganizationQuestion(role: SelfSignupRole) {
-  return ORGANIZATION_QUESTIONS[role];
+  const question = ORGANIZATION_QUESTIONS[role];
+  if (resolveLexicon() === ACCOUNTING_LEXICON) return question;
+  return { ...question, namePlaceholder: NEUTRAL_NAME_PLACEHOLDER[role] };
 }
 
 export type SelfSignupGoalQuestion = {

@@ -15,10 +15,11 @@ import {
 } from "@/lib/vendorProductAssessmentPlan";
 import {
   VENDOR_PRODUCT_MODULE_KEY,
-  VENDOR_UTILITY_CATALOG,
   extractUtilityKeysFromSignals,
   getVendorCompanyContext,
 } from "@/lib/vendorPat";
+import { getProductUtilityCatalog } from "@/lib/vendorProductQuestionBank";
+import { requireRegistry, resolveVerticalContextForCompany } from "@/lib/verticals/companyBoundary";
 
 export const dynamic = "force-dynamic";
 
@@ -172,7 +173,11 @@ export default async function VendorProductAssessmentDetailPage({
     });
 
   const followUpMessages = (await getRequestLocaleMessages()).vendorFollowUp;
-  const persistedPlanSnapshot = serializeVendorProductAssessmentPlan(initialUtilityKeys);
+  // legal-load (R64, 1f): the tenant's bank, resolved once here and handed down as values
+  // (flag off: the in-code accounting bundle, no read).
+  const vertical = await resolveVerticalContextForCompany(vendorContext.company.id);
+  const registry = requireRegistry(vertical);
+  const persistedPlanSnapshot = serializeVendorProductAssessmentPlan(initialUtilityKeys, registry);
   await prisma.productAssessmentPlan.upsert({
     where: {
       productId_perspective: {
@@ -216,7 +221,8 @@ export default async function VendorProductAssessmentDetailPage({
       productName={resolvedProductName}
       productWebsite={productRecord?.website ?? product.website}
       latestScore={latestSubmission?.score ?? null}
-      utilityCatalog={VENDOR_UTILITY_CATALOG}
+      utilityCatalog={getProductUtilityCatalog(registry)}
+      registry={registry}
       initialUtilityKeys={initialUtilityKeys}
       initialAnswers={initialAnswers}
       initialOpenEndedAnswers={initialOpenEndedAnswers}

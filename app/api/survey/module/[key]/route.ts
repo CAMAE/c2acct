@@ -10,6 +10,8 @@ import {
 } from "@/lib/subjectContext";
 import { getSurveyDraftWhere, getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { USER_ALIGNMENT_MODULE_KEY, ensureUserAlignmentSystem } from "@/lib/userPat";
+import { resolveVerticalContextForCompany } from "@/lib/verticals/companyBoundary";
+import { applyVerticalFirmModulePrompts } from "@/lib/verticals/firmModules";
 
 export async function GET(
   _req: Request,
@@ -90,19 +92,24 @@ export async function GET(
     });
 
     const builtPayload = buildAssessmentModulePayload(mod, questions, sections);
+    const sessionUser = await getSessionUser();
+    const assessmentContext = sessionUser ? await resolveAssessmentSubjectContext(sessionUser) : null;
+    // legal-load (R64): the tenant's vertical decides which words the five firm
+    // follow-ups carry. Flag off the boundary returns the accounting constant with
+    // no read, applyVerticalFirmModulePrompts returns the same array, and the
+    // payload below is the object built above, byte-identical.
+    const vertical = await resolveVerticalContextForCompany(assessmentContext?.companyId ?? sessionUser?.companyId);
+    const verticalQuestions = applyVerticalFirmModulePrompts(builtPayload.questions, mod.key, vertical.firmModules);
     // MC redesign box: behind PAT_ENABLE_FOLLOWUP_MC the five firm follow-ups carry
-    // their option sets. Flag-off, decorate returns the same array and the payload
-    // object below is the one built above, byte-identical.
-    const decoratedQuestions = decorateFollowUpMcQuestions(builtPayload.questions, mod.key);
+    // their option sets, from the tenant's vertical's registry (delta 2).
+    const decoratedQuestions = decorateFollowUpMcQuestions(verticalQuestions, mod.key, { verticalId: vertical.verticalId });
     const payload =
       decoratedQuestions === builtPayload.questions ? builtPayload : { ...builtPayload, questions: decoratedQuestions };
-    const sessionUser = await getSessionUser();
 
-    if (!sessionUser) {
+    if (!sessionUser || !assessmentContext) {
       return NextResponse.json(payload);
     }
 
-    const assessmentContext = await resolveAssessmentSubjectContext(sessionUser);
     if (!requiresCompanyBackedAssessment(assessmentContext)) {
       return NextResponse.json(payload);
     }

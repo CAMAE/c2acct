@@ -14,6 +14,7 @@ import { loadVerticalPack } from "@/lib/verticals/loader";
 import {
   ACCOUNTING_PRODUCT_UTILITY_REGISTRY,
   FROZEN_REGISTRY_KEYS,
+  LEGAL_PRODUCT_UTILITY_REGISTRY_VERSION,
   clearProductUtilityRegistries,
   getProductUtilityRegistry,
   registerProductUtilityRegistry,
@@ -155,14 +156,19 @@ describe("the key is a pair, never a joined string", () => {
 });
 
 describe("the freeze rule covers BOTH halves of the pair", () => {
-  it("freezes the accounting bank's (verticalId, versionId)", () => {
-    expect(FROZEN_REGISTRY_KEYS).toHaveLength(1);
+  it("freezes the accounting bank's (verticalId, versionId) and, from legal-load, the legal bank's", () => {
+    expect(FROZEN_REGISTRY_KEYS).toHaveLength(2);
     expect(FROZEN_REGISTRY_KEYS[0]).toEqual({
       verticalId: DEFAULT_VERTICAL_ID,
       versionId: PRODUCT_UTILITY_REGISTRY_VERSION,
     });
+    // legal-load (R64, section 12 item 8): the version half is unqualified (audit addendum ruling).
+    expect(FROZEN_REGISTRY_KEYS[1]).toEqual({ verticalId: "legal", versionId: LEGAL_PRODUCT_UTILITY_REGISTRY_VERSION });
+    expect(LEGAL_PRODUCT_UTILITY_REGISTRY_VERSION).toBe("2026-10-product-utility-v1");
+    expect(LEGAL_PRODUCT_UTILITY_REGISTRY_VERSION.includes("/")).toBe(false);
+    expect(LEGAL_PRODUCT_UTILITY_REGISTRY_VERSION.includes("legal")).toBe(false);
     expect(Object.isFrozen(FROZEN_REGISTRY_KEYS)).toBe(true);
-    expect(Object.isFrozen(FROZEN_REGISTRY_KEYS[0])).toBe(true);
+    for (const frozen of FROZEN_REGISTRY_KEYS) expect(Object.isFrozen(frozen)).toBe(true);
   });
 
   it("holds the frozen version against the ids stored questions actually carry", () => {
@@ -173,7 +179,7 @@ describe("the freeze rule covers BOTH halves of the pair", () => {
       selectedUtilityKeys: [PRODUCT_UTILITY_REGISTRY[0].key],
       registry: ACCOUNTING_PRODUCT_UTILITY_REGISTRY,
     });
-    for (const frozen of FROZEN_REGISTRY_KEYS) {
+    for (const frozen of FROZEN_REGISTRY_KEYS.filter((entry) => entry.verticalId === DEFAULT_VERTICAL_ID)) {
       expect(plan.version).toBe(frozen.versionId);
       for (const planModule of plan.modules) {
         for (const question of planModule.questions) {

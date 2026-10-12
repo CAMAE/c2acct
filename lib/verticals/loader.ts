@@ -22,6 +22,48 @@ const sourceAuthoritySchema = z.object({
   license: z.enum(SOURCE_AUTHORITY_LICENSES),
 });
 
+/**
+ * legal-load (R64, section 12 item 1): the firm-side module content a pack may
+ * supply — the meaning of "this area" per module and the five open-ended prompts
+ * with their placeholders. Structure stays in code (five modules, twenty shared
+ * stems, five follow-ups); a pack supplies words. Absent, the in-code accounting
+ * values serve (lib/verticals/firmModules.ts), byte-identical flag off.
+ */
+const firmModuleOpenEndedSchema = z.object({
+  prompt: z.string().min(1),
+  placeholder: z.string().min(1),
+});
+const firmModuleContentSchema = z.object({
+  description: z.string().min(1),
+  summary: z.string().min(1),
+  openEnded: z.array(firmModuleOpenEndedSchema).length(5),
+});
+export const FIRM_MODULE_SECTION_KEYS = ["operating-model", "automation-ai", "data-flow", "governance", "strategy"] as const;
+const firmModulesSchema = z.object({
+  "operating-model": firmModuleContentSchema,
+  "automation-ai": firmModuleContentSchema,
+  "data-flow": firmModuleContentSchema,
+  governance: firmModuleContentSchema,
+  strategy: firmModuleContentSchema,
+});
+
+/**
+ * legal-load (R64, delta 4): size bands a pack declares for its firms. Schema
+ * only in this box: the band a firm belongs to is a cohort DIMENSION the readers
+ * accept (lib/verticals/sizeBands.ts), published by vertical alone until a band
+ * has MIN_CONTRIBUTORS firms (the roll-up rule). No Prisma column is added.
+ */
+const sizeBandSchema = z.object({
+  /** Stable key, e.g. "solo-small". */
+  key: z.string().min(1),
+  /** Reader-facing label, e.g. "solo and small (1 to 5 attorneys)". */
+  label: z.string().min(1),
+  /** Inclusive lower bound on the pack's size unit (attorneys for legal). */
+  min: z.number().int().nonnegative(),
+  /** Inclusive upper bound; null for the open top band. */
+  max: z.number().int().positive().nullable(),
+});
+
 const packSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -60,7 +102,13 @@ const packSchema = z.object({
   }),
   reference_signals: z.string().optional(),
   eval_set: z.string().optional(),
+  firmModules: firmModulesSchema.optional(),
+  sizeBands: z.array(sizeBandSchema).min(1).optional(),
 });
+
+export type VerticalPackFirmModuleContent = z.infer<typeof firmModuleContentSchema>;
+export type VerticalPackFirmModules = z.infer<typeof firmModulesSchema>;
+export type VerticalPackSizeBand = z.infer<typeof sizeBandSchema>;
 
 export type VerticalPackManifest = z.infer<typeof packSchema>;
 

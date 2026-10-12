@@ -14,6 +14,9 @@ import {
   type NormalizedAnswer,
 } from "@/lib/assessmentRuntime";
 import { decorateFollowUpMcQuestions } from "@/lib/assessment/followUpMcRuntime";
+import { resolveVerticalContextForCompany } from "@/lib/verticals/companyBoundary";
+import { applyVerticalFirmModulePrompts } from "@/lib/verticals/firmModules";
+import { verticalStamp } from "@/lib/verticals/scope";
 import {
   SURVEY_DRAFT_SCORE_VERSION,
   buildSurveyDraftIntegrityFlags,
@@ -94,7 +97,12 @@ export async function POST(req: Request) {
 
   // MC redesign box: flag-on, the firm follow-ups validate as selections (same
   // decoration the module GET applies); flag-off this is the identity.
-  const questions = decorateFollowUpMcQuestions(questionRecords.map(normalizeQuestionRuntime), moduleKey);
+  const vertical = await resolveVerticalContextForCompany(assessmentContext.companyId);
+  const questions = decorateFollowUpMcQuestions(
+    applyVerticalFirmModulePrompts(questionRecords.map(normalizeQuestionRuntime), moduleKey, vertical.firmModules),
+    moduleKey,
+    { verticalId: vertical.verticalId }
+  );
   const allowedQuestionIds = new Set(questions.map((question) => question.id));
   const answerIds = Object.keys(rawAnswers);
   const unknownAnswerIds = answerIds.filter((questionId) => !allowedQuestionIds.has(questionId));
@@ -140,6 +148,7 @@ export async function POST(req: Request) {
 
   const draftData = {
     companyId: assessmentContext.companyId,
+    ...verticalStamp({ verticalId: vertical.verticalId }),
     subjectId: assessmentContext.subjectId,
     moduleId: surveyModule.id,
     version: surveyModule.version ?? 1,

@@ -1,4 +1,6 @@
 import prisma from "@/lib/prisma";
+import { requireRegistry, resolveVerticalContextForCompany } from "@/lib/verticals/companyBoundary";
+import type { ProductUtilityRegistryBundle } from "@/lib/verticals/questionBankRegistry";
 import { FIRM_PRODUCT_MODULE_KEY, buildFirmProductQuestions } from "@/lib/firmPat";
 import {
   ELITE_PLACEHOLDER_CTA,
@@ -141,6 +143,8 @@ export type VendorProductInsightSnapshot = {
 };
 
 export type VendorProductInsightSnapshotInput = {
+  /** legal-load (R64, 1f): the vendor's bank; absent reads the process-level resolution (flag off: accounting). */
+  registry?: ProductUtilityRegistryBundle;
   product: {
     id: string;
     name: string;
@@ -474,13 +478,14 @@ function buildVendorSectionEvidence(
     scaleMin: number;
     scaleMax: number;
   },
-  basisSectionKeys?: string[]
+  basisSectionKeys?: string[],
+  registry?: ProductUtilityRegistryBundle
 ) {
   if (utilityKeys.length === 0) {
     return [];
   }
 
-  const questionBank = buildVendorProductQuestions(utilityKeys);
+  const questionBank = buildVendorProductQuestions(utilityKeys, registry);
   const grouped = new Map<
     string,
     { title: string; scores: number[]; questionIds: string[] }
@@ -532,9 +537,10 @@ function buildFirmUtilityEvidence(
     answers: Record<string, number>;
     scaleMin: number;
     scaleMax: number;
-  }>
+  }>,
+  registry?: ProductUtilityRegistryBundle
 ) {
-  const questionBank = buildFirmProductQuestions(utilityKeys);
+  const questionBank = buildFirmProductQuestions(utilityKeys, registry);
   const scoresByUtility = new Map<string, { label: string; scores: number[] }>();
 
   for (const question of questionBank) {
@@ -591,12 +597,13 @@ type ProductResponseSet = {
 export function buildProductFitDimensions(
   utilityKeys: string[],
   responseSets: ProductResponseSet[],
-  perspective: "firm" | "vendor"
+  perspective: "firm" | "vendor",
+  registry?: ProductUtilityRegistryBundle
 ): ProductFitDimensionScore[] {
   const questions =
     perspective === "firm"
-      ? buildFirmProductQuestions(utilityKeys)
-      : buildVendorProductQuestions(utilityKeys);
+      ? buildFirmProductQuestions(utilityKeys, registry)
+      : buildVendorProductQuestions(utilityKeys, registry);
 
   const scoresByDimension = new Map<string, number[]>(
     PRODUCT_FIT_DIMENSIONS.map((dimension) => [dimension.key, [] as number[]])
@@ -825,24 +832,30 @@ function buildInsightRecord(input: {
 export function buildVendorProductInsightSnapshot(
   input: VendorProductInsightSnapshotInput
 ): VendorProductInsightSnapshot {
-  const utilityLabels = getVendorUtilityLabels(input.product.utilityKeys);
+  const registry = input.registry;
+  const utilityLabels = getVendorUtilityLabels(input.product.utilityKeys, registry);
   const vendorSectionEvidence = buildVendorSectionEvidence(
     input.product.utilityKeys,
-    input.vendorSelfReported.responses
+    input.vendorSelfReported.responses,
+    undefined,
+    registry
   );
   const firmUtilityEvidence = buildFirmUtilityEvidence(
     input.product.utilityKeys,
-    input.firmReviewed.responseSets
+    input.firmReviewed.responseSets,
+    registry
   );
   const firmDimensionEvidence = buildProductFitDimensions(
     input.product.utilityKeys,
     input.firmReviewed.responseSets,
-    "firm"
+    "firm",
+    registry
   );
   const vendorDimensionEvidence = buildProductFitDimensions(
     input.product.utilityKeys,
     [input.vendorSelfReported.responses],
-    "vendor"
+    "vendor",
+    registry
   );
   const firmAverageScore =
     typeof input.firmReviewed.averageScore === "number"
@@ -1529,6 +1542,8 @@ export type VendorProductInsightContext = {
   vendorModuleId: string | null;
   firmModuleId: string | null;
   scopedFirmIds: string[];
+  /** legal-load (R64, 1f): the vendor's product-utility bank, resolved once at the boundary (flag off: the in-code accounting bundle). */
+  registry: ProductUtilityRegistryBundle;
   /**
    * Submissions pre-fetched for a whole product set and grouped by productId.
    *
@@ -1590,7 +1605,7 @@ export async function resolveVendorProductInsightContext(
    */
   preloadedVendorContext?: VendorCompanyContext
 ): Promise<VendorProductInsightContext> {
-  const [vendorModule, firmModule, scopedFirmIds, vendorContext] = await Promise.all([
+  const [vendorModule, firmModule, scopedFirmIds, vendorContext, vertical] = await Promise.all([
     prisma.surveyModule
       .findUnique({ where: { key: VENDOR_PRODUCT_MODULE_KEY }, select: { id: true } })
       .catch(() => null),
@@ -1599,12 +1614,14 @@ export async function resolveVendorProductInsightContext(
       .catch(() => null),
     getVendorScopedFirms(companyId),
     preloadedVendorContext ?? getVendorCompanyContext(companyId),
+    resolveVerticalContextForCompany(companyId),
   ]);
 
   const context: VendorProductInsightContext = {
     vendorModuleId: vendorModule?.id ?? null,
     firmModuleId: firmModule?.id ?? null,
     scopedFirmIds,
+    registry: requireRegistry(vertical),
     vendorContext,
   };
 
@@ -1823,6 +1840,7 @@ export async function getVendorProductInsightSnapshot(
       ]);
 
   const vendorAssessmentStatus = deriveVendorProductAssessmentCompletionStatus({
+    registry: insightContext.registry,
     latestSubmission: latestVendorSubmission
       ? {
           id: latestVendorSubmission.id,
@@ -1876,6 +1894,7 @@ export async function getVendorProductInsightSnapshot(
     };
   });
   return buildVendorProductInsightSnapshot({
+    registry: insightContext.registry,
     product: {
       id: product.id,
       name: product.name,

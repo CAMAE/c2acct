@@ -28,11 +28,27 @@ export function isFirmAlignmentModuleKey(moduleKey: string): boolean {
   return moduleKey.startsWith("firm_alignment_");
 }
 
+function isDecorateOptions(value: NodeJS.ProcessEnv | FollowUpMcDecorateOptions): value is FollowUpMcDecorateOptions {
+  // process.env never carries these two keys; an options object may carry either.
+  return typeof value === "object" && value !== null && ("verticalId" in value || ("env" in value && typeof (value as FollowUpMcDecorateOptions).env === "object"));
+}
+
+export type FollowUpMcDecorateOptions = {
+  env?: NodeJS.ProcessEnv;
+  /**
+   * legal-load (R64, delta 2): the tenant's vertical picks the option-set registry.
+   * Omitted (or accounting) reads the accounting sets, byte-identical to before the
+   * seam; the value comes from the request boundary, never from inside this module.
+   */
+  verticalId?: string;
+};
+
 export function decorateFollowUpMcQuestions<T extends AssessmentQuestionRuntime>(
   questions: T[],
   moduleKey: string,
-  env: NodeJS.ProcessEnv = process.env
+  options: NodeJS.ProcessEnv | FollowUpMcDecorateOptions = process.env
 ): T[] {
+  const { env = process.env, verticalId } = isDecorateOptions(options) ? options : { env: options };
   if (!isFollowUpMcEnabled(env) || !isFirmAlignmentModuleKey(moduleKey)) {
     return questions;
   }
@@ -40,7 +56,7 @@ export function decorateFollowUpMcQuestions<T extends AssessmentQuestionRuntime>
     if (question.inputType !== QuestionInputType.TEXT) {
       return question;
     }
-    const followUp = getFirmFollowUpQuestion(question.key);
+    const followUp = getFirmFollowUpQuestion(question.key, verticalId);
     if (!followUp || followUp.moduleKey !== moduleKey) {
       return question;
     }

@@ -11,6 +11,8 @@ import {
   type ProductFitDimensionScore,
 } from "@/lib/productFitDimensions";
 import { poolForViewerBoundary, resolveCompanyBoundary } from "@/lib/dataBoundary";
+import { verticalFilter } from "@/lib/verticals/scope";
+import { resolveVerticalForCompany } from "@/lib/verticals/session";
 import { resolveConfidence } from "@/lib/confidenceBands";
 import { recomputeProjectedAlignment } from "@/lib/sandboxLanes";
 
@@ -221,8 +223,13 @@ export async function getAlignmentBoardData(firmCompanyId: string): Promise<Alig
   // Data-integrity wall (CLASS 1): scope vendors to the viewing firm's boundary
   // pool — a real firm's board never draws demo vendor products.
   const boundaryPool = poolForViewerBoundary(await resolveCompanyBoundary(firmCompanyId));
+  // legal-load (R64, 1c): the rail draws the viewing firm's vertical only (flag off: no predicate added).
   const vendors = await prisma.company.findMany({
-    where: { type: "VENDOR", dataBoundary: { in: boundaryPool } },
+    where: {
+      type: "VENDOR",
+      dataBoundary: { in: boundaryPool },
+      ...verticalFilter({ verticalId: await resolveVerticalForCompany(firmCompanyId) }),
+    },
     select: { id: true, name: true },
   });
   const catalogs = await Promise.all(

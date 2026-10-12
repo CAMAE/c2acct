@@ -19,6 +19,7 @@ import {
   type VendorProductProfileInput,
 } from "@/lib/vendorProductAssessmentPlan";
 import type { ProductAssessmentQuestion } from "@/lib/vendorProductQuestionBank";
+import type { ProductUtilityRegistryBundle } from "@/lib/verticals/questionBankRegistry";
 import FollowUpMcOptionRows from "@/app/components/assessment/FollowUpMcOptionRows";
 import {
   decodeVendorFollowUpAnswer,
@@ -38,6 +39,8 @@ type Props = {
   productWebsite: string | null;
   latestScore: number | null;
   utilityCatalog: UtilityDefinition[];
+  /** legal-load (R64, 1f): the tenant's product-utility bank, resolved by the server page; absent, the in-code accounting bundle. */
+  registry?: ProductUtilityRegistryBundle;
   initialUtilityKeys: string[];
   initialAnswers: Record<string, number>;
   initialOpenEndedAnswers: Record<string, string>;
@@ -103,6 +106,7 @@ export default function VendorProductAssessmentClient({
   productWebsite,
   latestScore,
   utilityCatalog,
+  registry,
   initialUtilityKeys,
   initialAnswers,
   initialOpenEndedAnswers,
@@ -127,11 +131,15 @@ export default function VendorProductAssessmentClient({
 
   const assessmentPlan = useMemo(
     () =>
-      buildVendorProductAssessmentPlan(selectedUtilityKeys, {
-        profile,
-        answers,
-      }),
-    [answers, profile, selectedUtilityKeys]
+      buildVendorProductAssessmentPlan(
+        selectedUtilityKeys,
+        {
+          profile,
+          answers,
+        },
+        registry
+      ),
+    [answers, profile, registry, selectedUtilityKeys]
   );
   const pagePlan = useMemo(
     () => buildVendorProductAssessmentPagePlan({ assessmentPlan }),
