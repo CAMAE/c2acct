@@ -49,14 +49,18 @@ describe("getVendorRefreshBoard", () => {
       { id: "pA", name: "Product A" },
       { id: "pB", name: "Product B" },
     ]);
+    // vendor-hub-reader box (2026-10-12): the board reads lib/vendorFirmReviewVotes, one
+    // firm one vote per product, so every counting row is a distinct firm; firm1's older
+    // second review of Product A is history and must not count.
     db.surveySubmission.findMany.mockResolvedValue([
-      // Product A: 1 fresh, 1 refresh-window, 1 expired
-      { createdAt: ago(10), Subject: { productId: "pA" } },
-      { createdAt: ago(320), Subject: { productId: "pA" } },
-      { createdAt: ago(400), Subject: { productId: "pA" } },
-      // Product B: 2 fresh
-      { createdAt: ago(5), Subject: { productId: "pB" } },
-      { createdAt: ago(20), Subject: { productId: "pB" } },
+      // Product A: 1 fresh, 1 refresh-window, 1 expired (three firms)
+      { companyId: "firm1", createdAt: ago(10), Subject: { productId: "pA" } },
+      { companyId: "firm2", createdAt: ago(320), Subject: { productId: "pA" } },
+      { companyId: "firm3", createdAt: ago(400), Subject: { productId: "pA" } },
+      { companyId: "firm1", createdAt: ago(200), Subject: { productId: "pA" } }, // firm1's earlier final: not a vote
+      // Product B: 2 fresh (two firms)
+      { companyId: "firm1", createdAt: ago(5), Subject: { productId: "pB" } },
+      { companyId: "firm2", createdAt: ago(20), Subject: { productId: "pB" } },
     ]);
 
     const board = await getVendorRefreshBoard("vendor1", NOW);

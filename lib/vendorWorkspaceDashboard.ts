@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma";
 import { quarterCutoff } from "@/lib/consultantFreshness";
 import { getVendorCompanyContext } from "@/lib/vendorPat";
 import { buildVendorProductGapCallout, getVendorProductInsightCatalog, type VendorProductInsightSnapshot } from "@/lib/vendorProductInsightEngine";
+import { getVendorFirmReviewVotes } from "@/lib/vendorFirmReviewVotes";
+import { recordPatDiagnostic } from "@/lib/patDiagnostics";
 
 /**
  * Depth box 1 (2026-09-09): the vendor workspace home is the vendor's
@@ -14,7 +16,10 @@ export type VendorWorkspaceDashboard = {
   companyName: string;
   productsDeclared: number;
   productsFinal: number;
+  /** vendor-hub-reader box (2026-10-12, R60): the one-vote count from lib/vendorFirmReviewVotes, the same number the Review refresh board shows. */
   firmReviewsOnFile: number;
+  /** vendor-hub-reader box: the product catalog failed to build; the message, never an empty catalog read as "no reviews". */
+  catalogError: string | null;
   largestDivergence: { productId: string; productName: string; points: number; label: string } | null;
   nextBriefing: { dateLabel: string; firmsReviewing: number };
   latestReadout: { productId: string; productName: string; firmReviews: number; selfReported: number | null; firmReviewed: number | null; href: string } | null;
@@ -37,10 +42,25 @@ export type VendorWorkspaceDashboard = {
 };
 
 export async function getVendorWorkspaceDashboard(companyId: string, userId: string | null, now = new Date()): Promise<VendorWorkspaceDashboard> {
-  const [context, catalog, user] = await Promise.all([
+  let catalogError: string | null = null;
+  const [context, catalog, user, reviewVotes] = await Promise.all([
     getVendorCompanyContext(companyId),
-    getVendorProductInsightCatalog(companyId).catch(() => [] as VendorProductInsightSnapshot[]),
+    // vendor-hub-reader box (2026-10-12): a failed catalog is logged and surfaced, not
+    // read as an empty one (which the page showed as "0 firm reviews on file").
+    getVendorProductInsightCatalog(companyId).catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error);
+      catalogError = message;
+      recordPatDiagnostic({
+        area: "vendor_product",
+        level: "error",
+        status: "error",
+        summary: "Vendor product insight catalog failed to build for the workspace dashboard.",
+        details: { companyId, message: message.slice(0, 300) },
+      });
+      return [] as VendorProductInsightSnapshot[];
+    }),
     userId ? prisma.user.findUnique({ where: { id: userId }, select: { lastLoginAt: true } }) : Promise.resolve(null),
+    getVendorFirmReviewVotes(companyId),
   ]);
   const byProduct = new Map(catalog.map((snapshot) => [snapshot.product.id, snapshot]));
   const products = context.products.map((product) => {
@@ -87,7 +107,8 @@ export async function getVendorWorkspaceDashboard(companyId: string, userId: str
     companyName: context.company?.name ?? "Vendor",
     productsDeclared: context.products.length,
     productsFinal: products.filter((product) => product.final).length,
-    firmReviewsOnFile: catalog.reduce((sum, snapshot) => sum + snapshot.firmReviewed.assessmentCount, 0),
+    firmReviewsOnFile: reviewVotes.total,
+    catalogError,
     largestDivergence: divergences[0] ?? null,
     nextBriefing: {
       dateLabel: cutoff.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }),

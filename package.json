@@ -35,7 +35,7 @@
     "test": "pnpm test:unit",
     "test:unit": "vitest run",
     "test:one-core": "vitest run tests/one-core.contract.test.ts",
-    "test:two-readers": "vitest run tests/pattern-a-readers.contract.test.ts tests/hotfix-demo-1-two-readers.contract.test.ts tests/hotfix-demo-1-assessment-list.contract.test.ts",
+    "test:two-readers": "vitest run tests/pattern-a-readers.contract.test.ts tests/hotfix-demo-1-two-readers.contract.test.ts tests/hotfix-demo-1-assessment-list.contract.test.ts tests/vendor-hub-reader.contract.test.ts",
     "test:clock": "vitest run tests/pattern-a-clock.contract.test.ts tests/hotfix-demo-1-briefing.contract.test.ts",
     "test:role-landing": "vitest run tests/pattern-a-gates.contract.test.ts tests/audience-role-wall.contract.test.ts tests/hotfix-demo-1-signin.contract.test.ts",
     "guard:doors": "bash scripts/qa/guard-doors.sh",

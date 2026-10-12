@@ -215,11 +215,18 @@ export default async function VendorPage({
   );
   // Box 3f items A and F (2026-09-28, flag-on): the shared page head and the pill row
   // collapsed to one contextual link (Meet PAT on the workspace; Workspace from any panel).
+  // vendor-hub-reader box (2026-10-12): a catalog that failed to build is said, not shown as zero.
+  const catalogErrorLine = dashboard?.catalogError ? (
+    <span className="block text-sm text-[var(--shell-muted)]" data-testid="workspace-catalog-error">
+      Product evidence is unavailable right now ({dashboard.catalogError}); the firm reviews on file are still counted.
+    </span>
+  ) : null;
   const dateline = dashboard ? (
     <span data-testid="workspace-dateline">
       <span className="font-semibold text-[var(--shell-ink)]">{dashboard.companyName}</span> · {todayLabel} ·{" "}
       <span className="pat-mono text-[var(--shell-ink)]">{dashboard.firmReviewsOnFile}</span> firm review
       {dashboard.firmReviewsOnFile === 1 ? "" : "s"} on file
+      {catalogErrorLine}
     </span>
   ) : null;
   const pageHead = (
@@ -274,6 +281,7 @@ export default async function VendorPage({
             <span className="font-semibold text-[var(--shell-ink)]">{dashboard.companyName}</span> · {todayLabel} ·{" "}
             <span className="pat-mono text-[var(--shell-ink)]">{dashboard.firmReviewsOnFile}</span> firm review
             {dashboard.firmReviewsOnFile === 1 ? "" : "s"} on file
+            {catalogErrorLine}
           </p>
         ) : (
           <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">

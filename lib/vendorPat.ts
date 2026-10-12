@@ -8,13 +8,13 @@ import {
 } from "@/lib/prisma-compat";
 import { computeScore } from "@/lib/scoring";
 import { evaluateSignalIntegrity } from "@/lib/signalIntegrity";
-import { PRODUCT_UTILITY_SCORED_QUESTION_COUNT } from "@/lib/productUtilityRegistry";
+import { PRODUCT_UTILITY_REGISTRY_VERSION, PRODUCT_UTILITY_SCORED_QUESTION_COUNT } from "@/lib/productUtilityRegistry";
 import {
   normalizeVendorProductProfileInput,
   serializeVendorProductAssessmentPlan,
 } from "@/lib/vendorProductAssessmentPlan";
 import { buildProductAssessmentPlan, getProductUtilityCatalog } from "@/lib/vendorProductQuestionBank";
-import { ACCOUNTING_PRODUCT_UTILITY_REGISTRY, type ProductUtilityRegistryBundle } from "@/lib/verticals/questionBankRegistry";
+import { ACCOUNTING_PRODUCT_UTILITY_REGISTRY, getProductUtilityRegistry, type ProductUtilityRegistryBundle } from "@/lib/verticals/questionBankRegistry";
 import { verticalStamp } from "@/lib/verticals/scope";
 import { resolveVerticalForCompanyWith } from "@/lib/verticals/companyVertical";
 import {
@@ -411,7 +411,29 @@ export function deriveVendorProductAssessmentCompletionStatus(input: {
     });
   }
 
-  const utilityKeys = normalizeSubmittedUtilityKeys(payload.utilitySelection, registry);
+  // vendor-hub-reader box (2026-10-12): a final is judged against the bank it was
+  // submitted under, never against whatever bank this build carries. Question ids
+  // are prefixed with the bank version (`<version>__<utility>__<subcategory>__<facet>`),
+  // so re-validating a `2026-03-product-utility-v2` final against the v3 bank read
+  // every id as unknown and every pre-bump final as incomplete; the vendor hub then
+  // showed 0 finals and 0 reviews for Meridian on production after deploy night 1.
+  // Order: the submission's own version when that bank is registered; the bank in
+  // hand when the versions agree; otherwise the submission's own stored plan.
+  const submittedVersion = typeof payload.registryVersion === "string" && payload.registryVersion.trim().length > 0 ? payload.registryVersion.trim() : null;
+  const currentVersion = registry?.versionId ?? PRODUCT_UTILITY_REGISTRY_VERSION;
+  const submittedBank =
+    submittedVersion && submittedVersion !== currentVersion
+      ? getProductUtilityRegistry(registry?.verticalId ?? ACCOUNTING_PRODUCT_UTILITY_REGISTRY.verticalId, submittedVersion)
+      : null;
+  const validationBank = submittedBank ?? registry;
+  const validateByStoredPlan = submittedVersion !== null && submittedVersion !== currentVersion && submittedBank === null;
+
+  const storedSelection = Array.isArray(payload.utilitySelection)
+    ? (payload.utilitySelection as unknown[]).filter((entry): entry is string => typeof entry === "string").map((entry) => entry.trim()).filter((entry) => entry.length > 0)
+    : [];
+  const normalizedKeys = normalizeSubmittedUtilityKeys(payload.utilitySelection, validationBank);
+  // A retired utility key still names what the vendor assessed; the stored selection stands when the bank no longer lists it.
+  const utilityKeys = normalizedKeys.length > 0 ? normalizedKeys : validateByStoredPlan ? [...new Set(storedSelection)] : [];
   if (utilityKeys.length === 0) {
     return buildIncompleteVendorAssessmentStatus({
       latestSubmission,
@@ -419,10 +441,6 @@ export function deriveVendorProductAssessmentCompletionStatus(input: {
     });
   }
 
-  const expectedScoredQuestions = buildVendorProductQuestions(utilityKeys, registry);
-  const expectedScoredQuestionIds = new Set(expectedScoredQuestions.map((question) => question.id));
-  const expectedPlan = serializeVendorProductAssessmentPlan(utilityKeys, registry);
-  const expectedOpenEndedQuestionIds = new Set(expectedPlan.openEndedQuestionIds);
   const responsePayload = getNumberRecord(payload.responses);
   const openEndedPayload = getStringRecord(payload.openEndedResponses);
   const normalizedProfile = normalizeVendorProductProfileInput(
@@ -433,22 +451,46 @@ export function deriveVendorProductAssessmentCompletionStatus(input: {
   const profileComplete = Object.values(normalizedProfile).every((value) => value.length > 0);
   const responseEntries = responsePayload ? Object.entries(responsePayload) : [];
   const openEndedEntries = openEndedPayload ? Object.entries(openEndedPayload) : [];
-  const scoredResponsesComplete =
-    responseEntries.length === expectedScoredQuestions.length &&
-    latestSubmission.answeredCount === expectedScoredQuestions.length &&
-    responseEntries.every(([questionId]) => expectedScoredQuestionIds.has(questionId));
-  const openEndedResponsesComplete =
-    openEndedEntries.length === expectedPlan.openEndedQuestionIds.length &&
-    openEndedEntries.every(
-      ([questionId, value]) => expectedOpenEndedQuestionIds.has(questionId) && value.trim().length > 0
-    );
+
+  let scoredQuestionCount: number;
+  let openEndedQuestionCount: number;
+  let scoredResponsesComplete: boolean;
+  let openEndedResponsesComplete: boolean;
+  if (validateByStoredPlan) {
+    // The bank is gone from this build: the submit route validated the plan at the
+    // time and stamped scoreVersion FINAL; the stored plan is the only honest reference.
+    const prefix = `${submittedVersion}__`;
+    scoredQuestionCount = responseEntries.length;
+    openEndedQuestionCount = openEndedEntries.length;
+    scoredResponsesComplete =
+      responseEntries.length > 0 &&
+      latestSubmission.answeredCount === responseEntries.length &&
+      responseEntries.every(([questionId]) => questionId.startsWith(prefix));
+    openEndedResponsesComplete = openEndedEntries.every(([, value]) => value.trim().length > 0);
+  } else {
+    const expectedScoredQuestions = buildVendorProductQuestions(utilityKeys, validationBank);
+    const expectedScoredQuestionIds = new Set(expectedScoredQuestions.map((question) => question.id));
+    const expectedPlan = serializeVendorProductAssessmentPlan(utilityKeys, validationBank);
+    const expectedOpenEndedQuestionIds = new Set(expectedPlan.openEndedQuestionIds);
+    scoredQuestionCount = expectedScoredQuestions.length;
+    openEndedQuestionCount = expectedPlan.openEndedQuestionIds.length;
+    scoredResponsesComplete =
+      responseEntries.length === expectedScoredQuestions.length &&
+      latestSubmission.answeredCount === expectedScoredQuestions.length &&
+      responseEntries.every(([questionId]) => expectedScoredQuestionIds.has(questionId));
+    openEndedResponsesComplete =
+      openEndedEntries.length === expectedPlan.openEndedQuestionIds.length &&
+      openEndedEntries.every(
+        ([questionId, value]) => expectedOpenEndedQuestionIds.has(questionId) && value.trim().length > 0
+      );
+  }
 
   if (!profileComplete || !scoredResponsesComplete || !openEndedResponsesComplete) {
     return buildIncompleteVendorAssessmentStatus({
       latestSubmission,
       utilityKeys,
-      scoredQuestionCount: expectedScoredQuestions.length,
-      openEndedQuestionCount: expectedPlan.openEndedQuestionIds.length,
+      scoredQuestionCount,
+      openEndedQuestionCount,
       statusLabel: "Vendor assessment incomplete",
     });
   }
@@ -459,10 +501,12 @@ export function deriveVendorProductAssessmentCompletionStatus(input: {
     latestScore: latestSubmission.score ?? null,
     latestSubmittedAt: latestSubmission.createdAt,
     utilityKeys,
-    scoredQuestionCount: expectedScoredQuestions.length,
-    openEndedQuestionCount: expectedPlan.openEndedQuestionIds.length,
+    scoredQuestionCount,
+    openEndedQuestionCount,
     statusLabel: "Firm review available",
-    reason: "Firm review is available because the vendor completed the full product assessment.",
+    reason: validateByStoredPlan
+      ? `Firm review is available because the vendor completed the full product assessment under bank version ${submittedVersion}, which this build judges by the stored plan.`
+      : "Firm review is available because the vendor completed the full product assessment.",
   };
 }
 

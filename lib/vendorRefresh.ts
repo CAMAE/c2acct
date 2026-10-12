@@ -1,7 +1,4 @@
-import prisma from "@/lib/prisma";
-import { FIRM_PRODUCT_MODULE_KEY } from "@/lib/firmPat";
-import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
-import { getVendorScopedFirms } from "@/lib/tenancy";
+import { getVendorFirmReviewVotes } from "@/lib/vendorFirmReviewVotes";
 import { readFreshness, FRESHNESS_WINDOWS, type FreshnessReading } from "@/lib/freshness";
 import { ENTERING_EXPIRY_DAYS } from "@/lib/notifications/staleness/generators";
 import { quarterCutoff } from "@/lib/consultantFreshness";
@@ -71,40 +68,16 @@ export async function getVendorRefreshBoard(
     cutoffLabel: cutoff.toLocaleDateString("en-US", MONTH_LABEL_OPTS),
   };
 
-  const [products, firmModule] = await Promise.all([
-    prisma.product.findMany({
-      where: { companyId: vendorCompanyId, active: true },
-      select: { id: true, name: true },
-      orderBy: { name: "asc" },
-    }),
-    prisma.surveyModule.findUnique({ where: { key: FIRM_PRODUCT_MODULE_KEY }, select: { id: true } }),
-  ]);
-
-  if (products.length === 0 || !firmModule) {
+  // vendor-hub-reader box (2026-10-12, R60): one reader for "firm reviews on file" —
+  // the latest FINAL per (firm, product) from the vendor's scoped firms, shared with
+  // the vendor hub (lib/vendorFirmReviewVotes). Before the box this board counted
+  // every final submission (97 for Meridian) while the hub showed 0.
+  const votes = await getVendorFirmReviewVotes(vendorCompanyId);
+  if (votes.products.length === 0) {
     return { ...base, rows: [], summary: empty };
   }
-
-  const productIds = products.map((p) => p.id);
-  const scopedFirmIds = await getVendorScopedFirms(vendorCompanyId);
-
-  const reviews = await prisma.surveySubmission.findMany({
-    where: getSurveyFinalWhere({
-      moduleId: firmModule.id,
-      Subject: { productId: { in: productIds } },
-      Company: { type: "FIRM", id: { in: scopedFirmIds } },
-    }),
-    orderBy: { createdAt: "desc" },
-    select: { createdAt: true, Subject: { select: { productId: true } } },
-  });
-
-  const byProduct = new Map<string, Date[]>();
-  for (const r of reviews) {
-    const pid = r.Subject?.productId;
-    if (!pid) continue;
-    const arr = byProduct.get(pid) ?? [];
-    arr.push(r.createdAt);
-    byProduct.set(pid, arr);
-  }
+  const products = votes.products.map((product) => ({ id: product.productId, name: product.productName }));
+  const byProduct = new Map<string, Date[]>(votes.products.map((product) => [product.productId, product.voteDates]));
 
   const rows: VendorProductRefreshRow[] = products.map((p) => {
     const dates = byProduct.get(p.id) ?? [];
