@@ -18,7 +18,7 @@ import { RANK_MIN_N } from "@/lib/assessmentCore";
 import { getBenchmarkArtifactMeta } from "@/lib/benchmarkArtifact";
 import { storedCutoffPhrase } from "@/lib/assessmentCore";
 import { scoreBandFor } from "@/lib/bandLexicon";
-import { ordinal } from "@/lib/ordinal";
+import { percentileOrdinal } from "@/lib/ordinal";
 
 export const dynamic = "force-dynamic";
 
@@ -112,7 +112,7 @@ export default async function FirmBenchmarkArtifactPage() {
                 <div className="text-4xl font-semibold tabular-nums text-[var(--shell-ink)]">
                   {peer.displayTier === "percentile" ? (
                     <>
-                      {ordinal(peer.overall.percentile)}
+                      {percentileOrdinal(peer.overall.percentile)}
                       <span className="ml-1 text-lg font-medium text-[var(--shell-muted)]">pct</span>
                     </>
                   ) : (
@@ -164,7 +164,7 @@ export default async function FirmBenchmarkArtifactPage() {
                 <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
                   Fastest move up: <strong>{peer.bestAction.moduleLabel}</strong>. Closing its {peer.bestAction.deficit}-point
                   deficit {leverPhrase(peer.bestAction)} before the next cutoff on {meta.cutoffLabel}; you sit at the{" "}
-                  {ordinal(peer.bestAction.fromPercentile)} percentile today.
+                  {percentileOrdinal(peer.bestAction.fromPercentile)} percentile today.
                 </p>
               ) : null}
             </section>

@@ -13,6 +13,7 @@ const ROOT = process.cwd();
 const ALLOWED = new Set(["lib/assessmentCore.ts", "lib/bandLexicon.ts", "lib/confidenceBands.ts"]);
 const NAMES = [
   "computeScore", "alignmentIndex", "alignmentIndexState", "percentileRank", "rankFromTop", "bandFor", "scoreBandFor",
+  "displayPercentile",
   "displayTierFor", "rankShownFor", "resolveStoredScale", "latestFinalPerFirm", "divergenceState",
   "confidenceBandForSampleSize", "SCALE", "LEGACY_SCALE_MIN", "MIN_CONTRIBUTORS", "MAX_CONTRIBUTOR_SHARE",
   "DIVERGENCE_ALIGNED_WITHIN", "DIVERGENCE_FLAGGED_AT", "DRAFT_SCORE_VERSION", "FINAL_SCORE_VERSION", "RANK_MIN_N",

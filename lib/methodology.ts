@@ -11,6 +11,10 @@
  * material changes (A1: material changes announced before effect).
  *
  * Locked by tests/methodology-content.contract.test.ts and tests/enforce-core.contract.test.ts.
+ *
+ * legal-load (R64, delta 7a, Cam 10/11): the 1.1 changelog entry keeps its original
+ * wording, marked "(wording since retired)", because a changelog is a record of what
+ * was published; the live sections never say it.
  */
 
 import {
@@ -18,8 +22,6 @@ import {
   DISPLAY_TIER_MIN_N,
   DIVERGENCE_ALIGNED_WITHIN,
   DIVERGENCE_FLAGGED_AT,
-  MAX_CONTRIBUTOR_SHARE,
-  MIN_CONTRIBUTORS,
   RANK_MIN_N,
   SCALE,
 } from "@/lib/assessmentCore";
@@ -35,7 +37,6 @@ export const METHODOLOGY_SOURCE_DOC = "docs/elite-sprint/AGGREGATION-METHODOLOGY
 export const EVIDENCE_FLOOR_PHRASE =
   "the evidence floor (five contributing firms, no firm above 25 percent, structured consistent with the former 1996 DOJ/FTC safety zone, withdrawn in 2023)";
 
-const CAP_PERCENT = Math.round(MAX_CONTRIBUTOR_SHARE * 100);
 const REVIEW_WINDOW_MONTHS = 12;
 const BANK_ITEMS = 90;
 const BANK_SITTING_ITEMS = 30;
@@ -75,7 +76,7 @@ export const METHODOLOGY_CHANGELOG: readonly MethodologyChangelogEntry[] = [
     version: "1.1",
     date: "July 10, 2026",
     summary:
-      "Added benchmark suppression (the evidence floor (five contributing firms, no firm above 25 percent, structured consistent with the former 1996 DOJ/FTC safety zone, withdrawn in 2023): at least 5 contributing firms, no single firm above 25%). Documented the conflict-of-interest wall and the demo/synthetic data wall as companion integrity guards.",
+      "Added benchmark suppression (minimum-n safe harbor: at least 5 contributing firms, no single firm above 25%) (wording since retired). Documented the conflict-of-interest wall and the demo/synthetic data wall as companion integrity guards.",
   },
   {
     version: "1.0",
@@ -143,7 +144,7 @@ export const METHODOLOGY_SECTIONS: readonly MethodologySection[] = [
     title: "The peer benchmark",
     paragraphs: [
       "Firms are compared inside a cohort: the same vertical, and the same size band once enough firms allow it. Demo and synthetic rows carry their own boundary and never enter a customer cohort.",
-      `A cohort publishes only above ${EVIDENCE_FLOOR_PHRASE}: at least ${MIN_CONTRIBUTORS} contributing firms, and no single firm supplying more than ${CAP_PERCENT} percent of the cut. Below the floor you see an insufficient peer data state, never a number.`,
+      `A cohort publishes only above ${EVIDENCE_FLOOR_PHRASE}. Below the floor you see an insufficient peer data state, never a number.`,
       "Each calendar quarter has a cutoff, the last day of the quarter. Only final assessments completed on or before the cutoff enter that quarter's run. The run is computed from those rows and frozen; every surface reads the stored run, so a later submission lands in the next quarter and never moves a published number. Your percentile is the share of the cohort at or below your score, counted, never estimated.",
       "What you see depends on how many firms are in the cohort:",
     ],

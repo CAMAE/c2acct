@@ -3,7 +3,7 @@ import { quartileWord } from "@/lib/lexicon";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
 import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
 import type { VendorCategoryPosition } from "@/lib/eliteInsightsV2";
-import { ordinal } from "@/lib/ordinal";
+import { ordinal, percentileOrdinal } from "@/lib/ordinal";
 import { MIN_CONTRIBUTORS, MAX_CONTRIBUTOR_SHARE, RANK_MIN_N, storedCutoffPhrase } from "@/lib/assessmentCore";
 
 export default function VendorCategoryPositionCard({
@@ -51,7 +51,7 @@ export default function VendorCategoryPositionCard({
                 <span className="text-sm text-[var(--shell-muted)]">
                   firm-reviewed strength ·{" "}
                   {cat.displayTier === "percentile"
-                    ? `${ordinal(cat.percentile)} percentile of ${cat.n} vendors in this category`
+                    ? `${percentileOrdinal(cat.percentile)} percentile of ${cat.n} vendors in this category`
                     : cat.displayTier === "quartiles"
                       ? `${quartileWord(cat.quartile as 1 | 2 | 3 | 4)} among ${cat.n} vendors in this category; the percentile opens at 30`
                       : `peer median ${typeof cat.p50 === "number" ? Math.round(cat.p50) : "withheld"} across ${cat.n} vendors; the quartiles open at ${RANK_MIN_N}`}

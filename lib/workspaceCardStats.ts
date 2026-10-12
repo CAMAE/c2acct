@@ -6,7 +6,7 @@ import { buildFirmPeerPosition } from "@/lib/eliteInsightsV2";
 import { getFirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
 import { getFirmProductCatalog } from "@/lib/firmPat";
 import type { FirmWorkspaceDashboard } from "@/lib/firmWorkspaceDashboard";
-import { ordinal } from "@/lib/ordinal";
+import { percentileOrdinal } from "@/lib/ordinal";
 import { isPingsEnabled } from "@/lib/patAssistant/flags";
 import { getVendorRefreshBoard } from "@/lib/vendorRefresh";
 import type { VendorWorkspaceDashboard } from "@/lib/vendorWorkspaceDashboard";
@@ -66,7 +66,7 @@ export async function getFirmWorkspaceCardStats(companyId: string, dashboard: Fi
     const days = `${meta.daysToCutoff} day${meta.daysToCutoff === 1 ? "" : "s"} to cutoff`;
     stats["firm-benchmark"] =
       peer?.overall
-        ? { value: ordinal(peer.overall.percentile), unit: "percentile", context: days, days: meta.daysToCutoff }
+        ? { value: percentileOrdinal(peer.overall.percentile), unit: "percentile", context: days, days: meta.daysToCutoff }
         : { value: "—", unit: "percentile", context: days, days: meta.daysToCutoff };
   }
   return stats;

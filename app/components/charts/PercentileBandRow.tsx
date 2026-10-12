@@ -10,6 +10,7 @@
  * "you" marker; adds the top-quartile target zone specific to Category Position.
  */
 
+import { displayPercentile } from "@/lib/assessmentCore";
 import { getScoreBand } from "@/lib/scoreBands";
 
 const W = 340;
@@ -148,7 +149,7 @@ export default function PercentileBandRow({
               fill="var(--shell-ink)"
             >
               you {Math.round(marker as number)}
-              {typeof percentile === "number" ? ` · p${Math.round(percentile)}` : ""}
+              {typeof percentile === "number" ? ` · p${displayPercentile(percentile)}` : ""}
             </text>
           </>
         ) : null}

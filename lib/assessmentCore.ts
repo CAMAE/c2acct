@@ -157,6 +157,17 @@ export function rankFromTop(percentile: number, n: number): number {
 /** Exact rank is shown only at this many contributors or more (ruling 27, recommendation adopted by the box). */
 export const RANK_MIN_N = 10;
 
+/**
+ * legal-load (R64, delta 7a): a displayed percentile never reads 100. The stored
+ * percentile is count-based (the share of the cohort at or below you), so the top
+ * firm computes 100 and reads as if nobody stands with it; every surface prints at
+ * most the 99th. Display only: stored percentiles, ranks and tiers are untouched.
+ */
+export const DISPLAY_PERCENTILE_MAX = 99;
+export function displayPercentile(percentile: number): number {
+  return Math.max(0, Math.min(DISPLAY_PERCENTILE_MAX, Math.round(percentile)));
+}
+
 export type DisplayTier = "none" | "median" | "quartiles" | "percentile";
 
 /** The cohort sizes at which each display opens (ruling 13). */

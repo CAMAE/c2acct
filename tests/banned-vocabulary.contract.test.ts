@@ -100,7 +100,13 @@ describe("copy lexicon — no internal roadmap tone on customer surfaces", () =>
 describe("banned vocabulary — board + Elite v2 surfaces", () => {
   it("no guarded surface uses the rejected status/confidence vocabulary", () => {
     for (const relativePath of guardedFiles) {
-      const text = readFileSync(path.join(ROOT, relativePath), "utf8");
+      // legal-load (R64, delta 7a): the methodology changelog keeps the 1.1 entry's original
+      // wording, marked "(wording since retired)". A changelog line is a record of what was
+      // published, not live copy; every other line is scanned.
+      const text = readFileSync(path.join(ROOT, relativePath), "utf8")
+        .split("\n")
+        .filter((line) => !line.includes("(wording since retired)"))
+        .join("\n");
       for (const phrase of bannedPhrases) {
         expect(text, `${relativePath} should not contain "${phrase}"`).not.toContain(phrase);
       }

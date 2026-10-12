@@ -36,7 +36,7 @@ import {
   type BenchmarkSuppressionReason,
 } from "@/lib/benchmarkSuppression";
 import type { PercentileRow } from "@/app/components/charts/PercentileBand";
-import { ordinal } from "@/lib/ordinal";
+import { percentileOrdinal } from "@/lib/ordinal";
 
 const MODULE_TITLE = new Map<string, string>(FIRM_MODULE_DEFINITIONS.map((m) => [m.key, m.title]));
 
@@ -269,7 +269,7 @@ export async function buildFirmPeerPosition(
 }
 
 export function describePercentile(percentile: number, n: number): string {
-  return `${ordinal(percentile)} percentile of ${n} firms`;
+  return `${percentileOrdinal(percentile)} percentile of ${n} firms`;
 }
 
 /**
@@ -285,7 +285,7 @@ export function rowsForTier(rows: PercentileRow[], tier: DisplayTier): Percentil
 
 /** The one short phrase for a position under a tier: the percentile, the quartile word, or the side of the median. */
 export function positionPhrase(input: { tier: DisplayTier; percentile: number; score: number; peerMedian: number | null }): string {
-  if (input.tier === "percentile") return `${ordinal(input.percentile)} percentile`;
+  if (input.tier === "percentile") return `${percentileOrdinal(input.percentile)} percentile`;
   if (input.tier === "quartiles") return quartileWord(quartileOf(input.percentile));
   if (input.tier === "median") {
     if (typeof input.peerMedian !== "number") return "peer median withheld";

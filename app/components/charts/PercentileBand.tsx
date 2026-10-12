@@ -1,4 +1,4 @@
-import { ordinal } from "@/lib/ordinal";
+import { percentileOrdinal } from "@/lib/ordinal";
 import { getScoreBand } from "@/lib/scoreBands";
 
 /**
@@ -91,7 +91,7 @@ function LabelledRow({ row, showAxis }: { row: PercentileRow; showAxis: boolean 
           <circle cx={markerX} cy={TRACK_Y + TRACK_H / 2} r={5} fill="var(--brand-c2-blue)" stroke="white" strokeWidth={2} />
           <text x={clampLabel(markerX)} y={TRACK_Y - 9} textAnchor="middle" fontSize={7} fontWeight={600} fill="var(--shell-ink)">
             you {Math.round(row.score as number)}
-            {typeof row.percentile === "number" ? ` · ${ordinal(row.percentile)} pct` : ""}
+            {typeof row.percentile === "number" ? ` · ${percentileOrdinal(row.percentile)} pct` : ""}
           </text>
         </>
       ) : null}
@@ -127,7 +127,7 @@ function LabelledBand({ rows, title }: { rows: PercentileRow[]; title: string })
               <span className="text-xs text-[var(--shell-muted)]">—</span>
             ) : (
               <span className="rounded-full bg-[rgba(6,54,116,0.06)] px-2.5 py-1 text-xs font-semibold tabular-nums text-[var(--shell-ink)]">
-                {ordinal(row.percentile)} pct
+                {percentileOrdinal(row.percentile)} pct
               </span>
             )}
           </div>
@@ -214,7 +214,7 @@ export default function PercentileBand({
                 <span className="text-xs text-[var(--shell-muted)]">—</span>
               ) : (
                 <span className="rounded-full bg-[rgba(6,54,116,0.06)] px-2.5 py-1 text-xs font-semibold tabular-nums text-[var(--shell-ink)]">
-                  {ordinal(row.percentile)} pct
+                  {percentileOrdinal(row.percentile)} pct
                 </span>
               )}
             </div>

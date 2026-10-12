@@ -9,3 +9,10 @@ export function ordinal(n: number): string {
   const v = n % 100;
   return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
 }
+
+import { displayPercentile } from "@/lib/assessmentCore";
+
+/** A percentile as an ordinal for display, capped at the 99th (legal-load, delta 7a). */
+export function percentileOrdinal(percentile: number): string {
+  return ordinal(displayPercentile(percentile));
+}

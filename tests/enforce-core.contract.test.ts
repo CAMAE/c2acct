@@ -400,8 +400,17 @@ describe("ruling 32 (minimum) — methodology 1.4 and the evidence floor", () =>
     const methodology = read("lib/methodology.ts");
     const page = read("app/(app)/vendor/alignment-insights/[key]/page.tsx");
     const card = read("app/components/insights/elite/VendorCategoryPositionCard.tsx");
-    for (const [rel, text] of [["lib/methodology.ts", methodology], ["category page", page], ["category card", card]] as const) {
+    // legal-load (R64, delta 7a): the 1.1 changelog entry keeps its original wording, marked
+    // "(wording since retired)"; that one line is a record, not copy, and is the only hit allowed.
+    const methodologyLive = methodology.split("\n").filter((line) => !line.includes("(wording since retired)")).join("\n");
+    for (const [rel, text] of [["lib/methodology.ts", methodologyLive], ["category page", page], ["category card", card]] as const) {
       expect(text, rel).not.toMatch(/safe[- ]harbor/i);
+    }
+    const retired = METHODOLOGY_CHANGELOG.find((entry) => entry.version === "1.1");
+    expect(retired?.summary).toContain("minimum-n safe harbor");
+    expect(retired?.summary).toContain("(wording since retired)");
+    for (const entry of METHODOLOGY_CHANGELOG.filter((e) => e.version !== "1.1")) {
+      expect(entry.summary, entry.version).not.toMatch(/safe[- ]harbor/i);
     }
     expect(methodology).toContain(FLOOR);
     expect(page).toContain(FLOOR);

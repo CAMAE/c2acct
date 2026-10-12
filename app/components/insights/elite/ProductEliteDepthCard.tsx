@@ -1,7 +1,7 @@
 import PercentileBandRow from "@/app/components/charts/PercentileBandRow";
 import TrajectoryChart from "@/app/components/charts/TrajectoryChart";
 import type { ProductCohortPosition, ProductTrajectory } from "@/lib/eliteInsightsV2";
-import { ordinal } from "@/lib/ordinal";
+import { ordinal, percentileOrdinal } from "@/lib/ordinal";
 
 /**
  * Hybrid Elite depth (live for entitled Elite vendors): where a product sits in
@@ -45,7 +45,7 @@ export default function ProductEliteDepthCard({
             <div className="flex flex-wrap items-baseline gap-x-3">
               <span className="text-3xl font-semibold tabular-nums text-[var(--shell-ink)]">{cohort.score}</span>
               <span className="text-sm text-[var(--shell-muted)]">
-                firm-reviewed strength · {ordinal(cohort.percentile)} percentile of {cohort.n} products in this category
+                firm-reviewed strength · {percentileOrdinal(cohort.percentile)} percentile of {cohort.n} products in this category
               </span>
             </div>
             <div className="mt-3">

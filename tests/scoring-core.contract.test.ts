@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { percentileOrdinal } from "@/lib/ordinal";
 import {
   ALIGNMENT_INDEX_MIN_MODULES,
   DISPLAY_TIER_MIN_N,
@@ -10,10 +11,12 @@ import {
   percentileRank,
   rankFromTop,
   rankShownFor,
+  DISPLAY_PERCENTILE_MAX,
+  displayPercentile,
 } from "@/lib/assessmentCore";
 import { applyFreshnessToBand, resolveConfidence } from "@/lib/confidenceBands";
 import { readFreshness } from "@/lib/freshness";
-import { leverDestination, leverPhrase, positionPhrase, rowsForTier } from "@/lib/eliteInsightsV2";
+import { describePercentile, leverDestination, leverPhrase, positionPhrase, rowsForTier } from "@/lib/eliteInsightsV2";
 
 /**
  * scoring-core (R63): the one scoring module's rules as the methodology page
@@ -56,6 +59,24 @@ describe("display tiers by n (ruling 13) and the rank gate (ruling 27)", () => {
     expect(positionPhrase({ tier: "quartiles", percentile: 80, score: 68, peerMedian: 65 })).toBe("top quartile");
     expect(positionPhrase({ tier: "median", percentile: 72, score: 68, peerMedian: 65 })).toBe("at or above the peer median (65)");
     expect(positionPhrase({ tier: "median", percentile: 30, score: 50, peerMedian: 65 })).toBe("below the peer median (65)");
+  });
+});
+
+describe("a displayed percentile is capped at the 99th (legal-load, delta 7a)", () => {
+  it("displayPercentile rounds once and never reads 100; stored values are untouched", () => {
+    expect(displayPercentile(100)).toBe(99);
+    expect(displayPercentile(99.6)).toBe(99);
+    expect(displayPercentile(87.4)).toBe(87);
+    expect(displayPercentile(0)).toBe(0);
+    expect(displayPercentile(-3)).toBe(0);
+    expect(DISPLAY_PERCENTILE_MAX).toBe(99);
+    expect(percentileRank([10, 20, 30], 30)).toBe(100);
+  });
+  it("every percentile surface reads through the one capped ordinal", () => {
+    expect(percentileOrdinal(100)).toBe("99th");
+    expect(percentileOrdinal(23.4)).toBe("23rd");
+    expect(describePercentile(100, 142)).toBe("99th percentile of 142 firms");
+    expect(positionPhrase({ tier: "percentile", percentile: 100, score: 90, peerMedian: 60 })).toBe("99th percentile");
   });
 });
 

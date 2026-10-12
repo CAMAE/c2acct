@@ -4,7 +4,7 @@ import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell"
 import FreshnessNote from "@/app/components/insights/elite/FreshnessNote";
 import type { FirmTrajectory } from "@/lib/eliteInsightsV2";
 import type { FreshnessReading } from "@/lib/freshness";
-import { ordinal } from "@/lib/ordinal";
+import { percentileOrdinal } from "@/lib/ordinal";
 import { sandboxLabel } from "@/lib/sandboxLabel";
 
 function trendDir(t: string): TrendDirection {
@@ -112,9 +112,9 @@ export default function FirmTrajectoryCard({
           <div className="pat-label">Best available move (Sandbox)</div>
           <p className="mt-3 text-sm leading-6 text-[var(--shell-ink)]">
             Your best available swap in the {sandboxLabel()} moves you from the{" "}
-            <span className="font-semibold">{ordinal(data.swapMovement.fromPercentile)} percentile</span> to the{" "}
+            <span className="font-semibold">{percentileOrdinal(data.swapMovement.fromPercentile)} percentile</span> to the{" "}
             <span className="font-semibold text-[var(--shell-positive)]">
-              {ordinal(data.swapMovement.toPercentile)} percentile
+              {percentileOrdinal(data.swapMovement.toPercentile)} percentile
             </span>{" "}
             among peer firms — a projection, not a guaranteed outcome.
           </p>

@@ -7,7 +7,7 @@ import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodP
 import FreshnessNote from "@/app/components/insights/elite/FreshnessNote";
 import { describePercentile, leverPhrase, positionPhrase, rowsForTier, type FirmPeerPosition } from "@/lib/eliteInsightsV2";
 import type { FreshnessReading } from "@/lib/freshness";
-import { ordinal } from "@/lib/ordinal";
+import { percentileOrdinal } from "@/lib/ordinal";
 
 const VERDICT_CHIP: Record<FirmPeerPosition["reportCard"][number]["verdict"], { label: string; cls: string }> = {
   ahead: { label: "ahead of peers", cls: "bg-[rgba(22,163,74,0.1)] text-[var(--shell-positive)]" },
@@ -144,7 +144,7 @@ export default function FirmPeerPositionCard({
           <p className="mt-3 text-sm leading-6 text-[var(--shell-ink)]">
             Closing {data.bestAction.moduleLabel}&rsquo;s {data.bestAction.deficit}-pt gap to the peer top quartile{" "}
             <span className="font-semibold text-[var(--shell-positive)]">{leverPhrase(data.bestAction)}</span>. You sit at the{" "}
-            <span className="font-semibold">{ordinal(data.bestAction.fromPercentile)}</span> percentile today. An estimate, not a guarantee.
+            <span className="font-semibold">{percentileOrdinal(data.bestAction.fromPercentile)}</span> percentile today. An estimate, not a guarantee.
           </p>
         </section>
       ) : null}
