@@ -41,6 +41,7 @@ import {
 import { DEFAULT_VERTICAL_ID } from "@/lib/verticals/context";
 import { isVerticalPacksEnabled } from "@/lib/verticals/flag";
 import { verticalFilter, verticalStamp } from "@/lib/verticals/scope";
+import { benchmarkCohortKeyWithBand } from "@/lib/verticals/sizeBands";
 
 export const ALIGNMENT_INDEX_METRIC = "alignment_index";
 export const BENCHMARK_VERSION = 1;
@@ -94,9 +95,11 @@ export function defaultBenchmarkCutoff(now: Date = new Date()): Date {
  */
 export function firmCohortKeyForBoundary(
   boundary: DataBoundary,
-  verticalId: string = DEFAULT_VERTICAL_ID
+  verticalId: string = DEFAULT_VERTICAL_ID,
+  /** legal-load (R64, delta 4): a size band as a cohort dimension; omitted, the key is unchanged. */
+  sizeBand: string | null = null
 ): string {
-  return benchmarkCohortKey(`firm:${boundary === DataBoundary.DEMO ? "demo" : "real"}`, verticalId);
+  return benchmarkCohortKeyWithBand(`firm:${boundary === DataBoundary.DEMO ? "demo" : "real"}`, verticalId, sizeBand);
 }
 export function vendorCohortKeyForBoundary(
   boundary: DataBoundary,
@@ -530,9 +533,11 @@ export function getFirmPeerReadings(
   client: ReaderClient,
   companyId: string,
   boundary: DataBoundary,
-  verticalId: string = DEFAULT_VERTICAL_ID
+  verticalId: string = DEFAULT_VERTICAL_ID,
+  /** legal-load (R64, delta 4): read a band's cohort row; the caller applies rollUpSizeBand first. */
+  sizeBand: string | null = null
 ) {
-  return readCohort(client, firmCohortKeyForBoundary(boundary, verticalId), companyId);
+  return readCohort(client, firmCohortKeyForBoundary(boundary, verticalId, sizeBand), companyId);
 }
 
 /**
@@ -543,10 +548,11 @@ export function getFirmPeerReadings(
 export async function getFirmCohortFirmCount(
   client: ReaderClient,
   boundary: DataBoundary,
-  verticalId: string = DEFAULT_VERTICAL_ID
+  verticalId: string = DEFAULT_VERTICAL_ID,
+  sizeBand: string | null = null
 ): Promise<number> {
   const cohort = await client.benchmarkCohort.findUnique({
-    where: { key: firmCohortKeyForBoundary(boundary, verticalId) },
+    where: { key: firmCohortKeyForBoundary(boundary, verticalId, sizeBand) },
     select: { id: true },
   });
   if (!cohort) return 0;
