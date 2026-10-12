@@ -250,7 +250,7 @@ async function main() {
         sourceUrl: null,
         licenseType: source.licenseType,
         accessedAt: ACCESSED_AT,
-        ...stamp,
+        // ModuleSource carries no verticalId column; a source row inherits its item's vertical.
       })),
     });
     sourceCount += item.sources.length;

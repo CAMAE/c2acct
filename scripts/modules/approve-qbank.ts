@@ -16,6 +16,8 @@ import { applyRepoEnv } from "@/lib/env/repoEnv";
  *
  *   Dry run:  pnpm tsx scripts/modules/approve-qbank.ts --cpa "<name>" --clarity "<name>"
  *   Apply:    pnpm tsx scripts/modules/approve-qbank.ts --cpa "<name>" --clarity "<name>" --apply
+ *
+ * legal-load (R64, delta 3): see the note mode below (--note, scoped by --vertical or --template).
  */
 
 function argValue(flag: string): string | null {
@@ -23,24 +25,47 @@ function argValue(flag: string): string | null {
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : null;
 }
 
+/**
+ * legal-load (R64, delta 3; Cam's 2026-10-06 ruling): the two-signature gate is
+ * superseded for a channel whose banks Cam approved after a domain read. The
+ * approve line records an APPROVAL NOTE on the template (objectives.approval) and
+ * flips DRAFT → APPROVED; no signature fields are written. Scope the line to one
+ * vertical (--vertical legal) or one template (--template <key>) so an accounting
+ * DRAFT is never swept up by a legal approval.
+ *
+ *   Dry run:  node --import tsx scripts/modules/approve-qbank.ts --vertical legal --note "approved by Cam after domain read, 2026-10-06, attorney review"
+ *   Apply:    … --apply
+ */
 async function main() {
   applyRepoEnv();
   const apply = process.argv.includes("--apply");
   const cpaReviewedBy = argValue("--cpa");
   const clarityReviewedBy = argValue("--clarity");
+  const note = argValue("--note");
+  const vertical = argValue("--vertical");
+  const templateKey = argValue("--template");
 
-  if (!cpaReviewedBy || !clarityReviewedBy) {
+  if (!note && (!cpaReviewedBy || !clarityReviewedBy)) {
     console.error(
-      "Both signatories are required: --cpa \"<CPA reviewer>\" --clarity \"<clarity reviewer>\". " +
-        "A two-signature approval must never record a placeholder."
+      "Either an approval note (--note \"<who approved, when, on what read>\", scoped with --vertical or --template) " +
+        "or both signatories (--cpa \"<CPA reviewer>\" --clarity \"<clarity reviewer>\") are required. " +
+        "An approval must never record a placeholder."
     );
+    process.exit(1);
+  }
+  if (note && !vertical && !templateKey) {
+    console.error("An approval note needs a scope: --vertical <id> or --template <key>.");
     process.exit(1);
   }
 
   const { default: prisma } = await import("@/lib/prisma");
   const drafts = await prisma.moduleTemplate.findMany({
-    where: { reviewStatus: "DRAFT" },
-    select: { id: true, moduleType: true, _count: { select: { ModuleItem: true } } },
+    where: {
+      reviewStatus: "DRAFT",
+      ...(vertical ? { verticalId: vertical } : {}),
+      ...(templateKey ? { key: templateKey } : {}),
+    },
+    select: { id: true, key: true, verticalId: true, moduleType: true, objectives: true, _count: { select: { ModuleItem: true } } },
   });
 
   if (drafts.length === 0) {
@@ -51,15 +76,19 @@ async function main() {
     process.exit(0);
   }
 
-  console.log(`QBANK approval (${apply ? "APPLY" : "DRY RUN"}):`);
+  console.log(`QBANK approval (${apply ? "APPLY" : "DRY RUN"})${vertical ? ` · vertical ${vertical}` : ""}${templateKey ? ` · template ${templateKey}` : ""}:`);
   for (const d of drafts) {
-    console.log(`  ${d.id} · ${d.moduleType} · ${d._count.ModuleItem} items · DRAFT → APPROVED`);
+    console.log(`  ${d.key} · ${d.verticalId} · ${d.moduleType} · ${d._count.ModuleItem} items · DRAFT → APPROVED`);
   }
-  console.log(`  CPA reviewer: ${cpaReviewedBy}`);
-  console.log(`  Clarity reviewer: ${clarityReviewedBy}`);
+  if (note) {
+    console.log(`  Approval note: ${note}`);
+  } else {
+    console.log(`  CPA reviewer: ${cpaReviewedBy}`);
+    console.log(`  Clarity reviewer: ${clarityReviewedBy}`);
+  }
 
   if (!apply) {
-    console.log("\nDry run only. Re-run with --apply to write the two-signature approval.");
+    console.log(`\nDry run only. Re-run with --apply to write the ${note ? "approval note" : "two-signature approval"}.`);
     process.exit(0);
   }
 
@@ -68,17 +97,25 @@ async function main() {
     drafts.map((d) =>
       prisma.moduleTemplate.update({
         where: { id: d.id },
-        data: {
-          reviewStatus: "APPROVED",
-          cpaReviewedBy,
-          cpaReviewedAt: now,
-          clarityReviewedBy,
-          clarityReviewedAt: now,
-        },
+        data: note
+          ? {
+              reviewStatus: "APPROVED",
+              objectives: {
+                ...(d.objectives && typeof d.objectives === "object" && !Array.isArray(d.objectives) ? (d.objectives as Record<string, unknown>) : {}),
+                approval: { note, approvedAt: now.toISOString(), gate: "domain-read" },
+              },
+            }
+          : {
+              reviewStatus: "APPROVED",
+              cpaReviewedBy,
+              cpaReviewedAt: now,
+              clarityReviewedBy,
+              clarityReviewedAt: now,
+            },
       })
     )
   );
-  console.log(`\nApproved ${result.length} ModuleTemplate(s) with the two-signature record.`);
+  console.log(`\nApproved ${result.length} ModuleTemplate(s) with the ${note ? "approval note" : "two-signature record"}.`);
 }
 
 main()

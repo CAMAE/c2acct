@@ -14,7 +14,7 @@ import {
   serializeVendorProductAssessmentPlan,
 } from "@/lib/vendorProductAssessmentPlan";
 import { buildProductAssessmentPlan, getProductUtilityCatalog } from "@/lib/vendorProductQuestionBank";
-import type { ProductUtilityRegistryBundle } from "@/lib/verticals/questionBankRegistry";
+import { ACCOUNTING_PRODUCT_UTILITY_REGISTRY, type ProductUtilityRegistryBundle } from "@/lib/verticals/questionBankRegistry";
 import { verticalStamp } from "@/lib/verticals/scope";
 import { resolveVerticalForCompany } from "@/lib/verticals/session";
 import {
@@ -44,7 +44,14 @@ export type VendorInsightDetail = {
   tier?: 1 | 2;
 };
 
-export const VENDOR_UTILITY_CATALOG: UtilityDefinition[] = getProductUtilityCatalog();
+/**
+ * The process-level catalog is the in-code ACCOUNTING catalog, named explicitly
+ * (legal-load, R64, 1f). Flag off that is what `getProductUtilityCatalog()` returned
+ * anyway; flag on, the per-request paths pass the tenant's bank. Resolving here at
+ * module load would make any process with the flag on and a non-accounting default
+ * vertical (the import shell) throw before it ran a line.
+ */
+export const VENDOR_UTILITY_CATALOG: UtilityDefinition[] = getProductUtilityCatalog(ACCOUNTING_PRODUCT_UTILITY_REGISTRY);
 export const VENDOR_PRODUCT_UTILITY_SELECTION_LIMIT = VENDOR_UTILITY_CATALOG.length;
 
 export type VendorAssessmentQuestion = {
