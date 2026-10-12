@@ -27,6 +27,8 @@
  *
  * Nothing in this module reads the flag. Options live here, never in JSX.
  */
+import { LEGAL_FIRM_FOLLOWUP_MC_QUESTIONS } from "@/lib/assessment/legalFirmFollowUpOptions";
+
 export const FIRM_FOLLOWUP_MC_VERSION = 1;
 export const FIRM_FOLLOWUP_OTHER_MAX_LENGTH = 280;
 
@@ -575,8 +577,14 @@ const QUESTION_BY_KEY: ReadonlyMap<string, FollowUpQuestion> = new Map(
  * pack id (lib/assessment/firmFollowUpOptionsByVertical.ts). Lookups without a
  * vertical, or for accounting, read the accounting map exactly as before.
  */
-const REGISTRIES_BY_VERTICAL = new Map<string, ReadonlyMap<string, FollowUpQuestion>>([["accounting", QUESTION_BY_KEY]]);
-const QUESTIONS_BY_VERTICAL = new Map<string, readonly FollowUpQuestion[]>([["accounting", FIRM_FOLLOWUP_MC_QUESTIONS]]);
+const REGISTRIES_BY_VERTICAL = new Map<string, ReadonlyMap<string, FollowUpQuestion>>([
+  ["accounting", QUESTION_BY_KEY],
+  ["legal", new Map(LEGAL_FIRM_FOLLOWUP_MC_QUESTIONS.map((question) => [question.questionKey, question]))],
+]);
+const QUESTIONS_BY_VERTICAL = new Map<string, readonly FollowUpQuestion[]>([
+  ["accounting", FIRM_FOLLOWUP_MC_QUESTIONS],
+  ["legal", LEGAL_FIRM_FOLLOWUP_MC_QUESTIONS],
+]);
 
 export function registerFirmFollowUpRegistry(verticalId: string, questions: readonly FollowUpQuestion[]): void {
   QUESTIONS_BY_VERTICAL.set(verticalId, questions);

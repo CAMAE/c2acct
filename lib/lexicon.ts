@@ -93,5 +93,35 @@ export type { FirmPillar };
 export const MODULE_SHORT_LABELS = FIRM_PILLARS;
 export const MODULE_LONG_LABELS = Object.keys(PILLAR_BY_MODULE_TITLE) as readonly string[];
 
+/**
+ * legal-load (R64, delta 8): the reader words a channel's firms use for the things the
+ * shared structure names. Accounting's are the words the surfaces print today; legal's
+ * are the firm pack's nouns. A surface that needs a channel noun reads it here by the
+ * tenant's vertical, never from a per-vertical copy of the sentence. "Guide" is not a
+ * channel word and stays with lib/roleWords (R17 flag law).
+ */
+export const VERTICAL_READER_WORDS = {
+  accounting: {
+    en: { engagement: "engagement", engagementLetter: "engagement letter", workItem: "return", deadlineSystem: "due-date tracking", clientFunds: "client funds", conflicts: "independence check", responsiblePerson: "engagement partner", team: "service line" },
+    es: { engagement: "encargo", engagementLetter: "carta de encargo", workItem: "declaración", deadlineSystem: "seguimiento de plazos", clientFunds: "fondos del cliente", conflicts: "verificación de independencia", responsiblePerson: "socio del encargo", team: "línea de servicio" },
+    fr: { engagement: "mission", engagementLetter: "lettre de mission", workItem: "déclaration", deadlineSystem: "suivi des échéances", clientFunds: "fonds du client", conflicts: "vérification d’indépendance", responsiblePerson: "associé responsable", team: "ligne de service" },
+  },
+  legal: {
+    en: { engagement: "matter", engagementLetter: "engagement letter", workItem: "matter", deadlineSystem: "docketing", clientFunds: "trust account", conflicts: "conflicts", responsiblePerson: "responsible attorney", team: "practice group" },
+    es: { engagement: "asunto", engagementLetter: "carta de encargo", workItem: "asunto", deadlineSystem: "control de plazos procesales", clientFunds: "cuenta fiduciaria", conflicts: "conflictos", responsiblePerson: "abogado responsable", team: "grupo de práctica" },
+    fr: { engagement: "dossier", engagementLetter: "lettre de mission", workItem: "dossier", deadlineSystem: "suivi des échéances judiciaires", clientFunds: "compte fiduciaire", conflicts: "conflits", responsiblePerson: "avocat responsable", team: "groupe de pratique" },
+  },
+} as const;
+
+export type VerticalReaderWordKey = keyof (typeof VERTICAL_READER_WORDS)["legal"]["en"];
+type VerticalReaderWordTable = Readonly<Record<Locale, Readonly<Record<VerticalReaderWordKey, string>>>>;
+
+/** One channel noun for a reader, by the tenant's vertical; an unknown vertical reads accounting's word. */
+export function verticalReaderWord(verticalId: string, key: VerticalReaderWordKey, locale: Locale = "en"): string {
+  const tables: Readonly<Record<string, VerticalReaderWordTable>> = VERTICAL_READER_WORDS;
+  const table = tables[verticalId] ?? VERTICAL_READER_WORDS.accounting;
+  return table[locale][key];
+}
+
 /** The words the lexicon retires from customer copy (the retired-names guard reads this list). */
 export const RETIRED_WORDS = ["consultant", "peer-validated", "pillar", "five part", "canonical", "blended", "Free", "Basic"] as const;

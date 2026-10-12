@@ -22,6 +22,10 @@ const SCAN_FILES = [
   "lib/vendorProductAssessmentPlan.ts", "lib/gapMapDrilldown.ts",
   // enforce-core (11a): the briefing board is shared by the Guide and Enterprise briefings; its strings are customer copy.
   "app/components/admin/briefings/BriefingBoard.tsx",
+  // legal-load (R64, delta 8): the legal channel's firm module words and option sets are customer copy;
+  // the reader-words and retired-names guards run over them as they run over accounting's.
+  "lib/verticals/packs/legalFirmModules.ts",
+  "lib/assessment/legalFirmFollowUpOptions.ts",
 ];
 const EXCLUDE = [/\/admin(\/|$)/, /\/dev(\/|$)/, /\/dev-preview(\/|$)/, /\/api(\/|$)/, /\.test\./, /lexicon-data-occurrences\.md$/, /\/_components\/.*Admin/, /app\/components\/agents\//];
 
