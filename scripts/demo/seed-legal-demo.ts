@@ -2,7 +2,7 @@ import { appendFileSync, existsSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { PrismaClient } from "@prisma/client";
-import { alignmentIndex } from "@/lib/assessmentCore";
+import { FINAL_SCORE_VERSION, alignmentIndex } from "@/lib/assessmentCore";
 import { classifyCompanyBoundaries } from "@/lib/dataBoundaryBackfill";
 import {
   LEGAL_DEMO_PREFIX,
@@ -227,7 +227,7 @@ async function main() {
         counts.firmModuleSubmissions += 1;
       }
       const finals = await prisma.surveySubmission.findMany({
-        where: { companyId: seededFirm.company.id, scoreVersion: 1, moduleId: { in: alignmentModules.map((module) => module.id) } },
+        where: { companyId: seededFirm.company.id, scoreVersion: FINAL_SCORE_VERSION, moduleId: { in: alignmentModules.map((module) => module.id) } },
         select: { score: true },
       });
       for (const final of finals) moduleScores.push(final.score);
