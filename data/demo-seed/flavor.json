@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "comment": "Accounting demo seed words moved out of lib/demo-seed/combinator.ts (legal-load, R64; section 12 item 13). Every value is the literal the combinator carried; planEcosystems() output stays byte-identical.",
+  "verticalId": "accounting",
+  "industry": "Public accounting",
+  "sizeBands": {
+    "small": "<25 employees",
+    "mid": "25-100 employees",
+    "large": "100+ employees"
+  },
+  "firmIntegrationNeeds": {
+    "high-performing": [
+      "client portal",
+      "QuickBooks Online",
+      "secure document exchange",
+      "automation orchestration"
+    ],
+    "tech-forward": [
+      "client portal",
+      "QuickBooks Online",
+      "secure document exchange",
+      "automation orchestration"
+    ],
+    "compliance-heavy": [
+      "audit trail export",
+      "regulatory filing",
+      "evidence retention",
+      "client portal"
+    ],
+    "struggling": [
+      "QuickBooks Online",
+      "spreadsheet import"
+    ],
+    "sample-thin": [
+      "QuickBooks Online",
+      "spreadsheet import"
+    ],
+    "mid-tier": [
+      "QuickBooks Online",
+      "client portal",
+      "document management"
+    ]
+  },
+  "firmRiskFlags": {
+    "struggling": [
+      "staff churn slows process adoption",
+      "key-person risk on tax season prep"
+    ],
+    "sample-thin": [
+      "evidence still accumulating across modules"
+    ],
+    "compliance-heavy": [
+      "regulator-driven roadmap dominates capacity planning"
+    ],
+    "tech-forward": [
+      "automation tooling outpacing process documentation"
+    ],
+    "high-performing": [
+      "growth straining cross-team communication"
+    ],
+    "mid-tier": [
+      "growth straining cross-team communication"
+    ]
+  },
+  "phraseBanks": {
+    "duration": [
+      "18 months",
+      "two years",
+      "the past three years",
+      "since the 2024 tax season",
+      "roughly a year"
+    ],
+    "feature_area": [
+      "monthly close",
+      "client onboarding",
+      "tax workflow",
+      "audit prep",
+      "engagement letter generation",
+      "billing reconciliation",
+      "document collection"
+    ],
+    "sentiment_modifier": [
+      "consistently solid",
+      "uneven",
+      "noticeably improved",
+      "still maturing",
+      "best-in-class",
+      "adequate"
+    ],
+    "specific_callout": [
+      "Our partners use it directly without staff translation.",
+      "Onboarding new clients went from a week to two days.",
+      "We've stopped getting end-of-month surprises.",
+      "Year-over-year revenue per partner is up materially."
+    ],
+    "primary_use": [
+      "tax",
+      "audit",
+      "CAS",
+      "advisory",
+      "client management",
+      "monthly close",
+      "compliance reporting"
+    ],
+    "gap_area": [
+      "complex multi-entity scenarios",
+      "non-US tax compliance",
+      "international subsidiary consolidations",
+      "specialty industry verticals",
+      "legacy ERP integrations"
+    ],
+    "adjacent_system": [
+      "QuickBooks Online",
+      "NetSuite",
+      "Xero",
+      "DocuSign",
+      "Bill.com",
+      "our internal billing tool"
+    ],
+    "promised_capability": [
+      "AI-assisted reconciliation",
+      "no-code workflow builder",
+      "advanced reporting",
+      "embedded e-signature",
+      "client-side mobile app"
+    ],
+    "capability_gap": [
+      "deeper analytics",
+      "configurable approval flows",
+      "audit-trail granularity",
+      "API-first integration",
+      "multi-entity consolidation"
+    ],
+    "growth_target": [
+      "150 clients next year",
+      "two new partner additions",
+      "double the CAS book",
+      "a second regional office"
+    ]
+  },
+  "vendorTargetUseContext": "Recurring monthly engagements + ad-hoc client work"
+}

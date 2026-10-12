@@ -1,0 +1,227 @@
+id: legal
+name: Legal
+version: 1
+description: Law firm + vendor alignment pack (V1 legal Vertical Pack). Shape copies verticals/accounting/pack.yaml; validated against the zod packSchema in lib/verticals/loader.ts (legal-load, R64).
+
+# Display-layer lexicon (class d): the six keys LEXICON_KEYS in lib/verticals/lexicon.ts
+# requires. A pack supplies words, never sentences. Values from the legal firm pack,
+# section 2 (framing-and-data.md).
+lexicon:
+  ecosystem: "legal ecosystem"
+  firm: "law firm"
+  firmArticle: "a"
+  firmPlural: "law firms"
+  firmMarket: "law-firm market"
+  vendorAudience: "software for law firms"
+
+# Taxonomy (descriptive layer): the 40 legal buckets in legal-software-taxonomy-v1.json
+# land in the TaxonomyBucket table and are read back filtered by verticalId.
+# Audit note: the taxonomy importer (scripts/import-accounting-taxonomy.ts) does not
+# stamp verticalId today; until it does, this filter returns zero legal rows.
+taxonomy:
+  source: db
+  filter:
+    verticalId: legal
+
+# Question bank (class b). ORDER IS SIGNIFICANT: a citation matching several
+# authorities produces one ModuleSource row per match, in this order. PUBLIC_DOMAIN
+# federal sources first, then CITED. Every needle is a case-insensitive substring;
+# the bare needle "FRE" is not used because it sits inside "frequency".
+questionBank:
+  # Identity of the bank is the PAIR (verticalId, versionId). The version half inside
+  # the file is "2026-10-product-utility-v1"; the audit (s07(g)) asks the engineer
+  # whether a vertical noun in the version half is allowed before the first import.
+  utilityRegistry: registry/product-utility-v1.json
+  sourceAuthorities:
+    # Federal Rules of Civil Procedure and Evidence are works of the US Judiciary and Congress; public domain, may be paraphrased or quoted with attribution.
+    - org: Federal Rules (US Courts)
+      match: ["FRCP", "Fed. R. Civ. P.", "Fed. R. Evid.", "FRE 502", "FRE 901", "FRE 902"]
+      license: PUBLIC_DOMAIN
+    # NIST publications (CSF 2.0, SP 800-53, SP 800-63B, SP 800-171) are US federal government works; public domain.
+    - org: NIST
+      match: ["NIST", "SP 800-", "CSF 2.0"]
+      license: PUBLIC_DOMAIN
+    # GAO Green Book is a US federal government work; public domain.
+    - org: GAO
+      match: ["Green Book", "GAO"]
+      license: PUBLIC_DOMAIN
+    # FTC regulations and guidance (16 CFR Part 314, small business guides) are US federal government works; public domain. Used as a benchmark, not an obligation, for law firms.
+    - org: FTC
+      match: ["FTC", "Safeguards Rule", "16 CFR 314"]
+      license: PUBLIC_DOMAIN
+    # ESIGN is a federal statute in the US Code; public domain.
+    - org: US Code (ESIGN)
+      match: ["ESIGN", "15 U.S.C. 7001"]
+      license: PUBLIC_DOMAIN
+    # HHS regulations (HIPAA Security Rule, 45 CFR Part 164) are US federal government works; public domain. Reached only when a firm is a business associate.
+    - org: HHS (HIPAA)
+      match: ["HIPAA", "45 CFR 164"]
+      license: PUBLIC_DOMAIN
+    # CISA Cyber Essentials is a US federal government work; public domain.
+    - org: CISA
+      match: ["CISA", "Cyber Essentials"]
+      license: PUBLIC_DOMAIN
+    # ABA Model Rules, comments, formal opinions and TechReport articles are copyrighted by the American Bar Association; cite and paraphrase, never reproduce.
+    - org: ABA
+      match: ["ABA", "Model Rule", "Formal Op"]
+      license: CITED
+    # State rules of professional conduct, state bar opinions and state bar guidance are copyrighted or controlled by each state body; cite with the state name and mark state-specific; never present as universal.
+    - org: State bars (state-specific)
+      match: ["state-specific", "Minnesota", "Minn. R. Prof. Conduct", "California", "Cal. Rules of Prof. Conduct", "CTAPP", "Florida", "Fla. Bar", "New York", "22 NYCRR", "North Carolina", "N.C. 2024 FEO", "D.C. Bar", "Pennsylvania", "Texas"]
+      license: CITED
+    # The Sedona Conference publications are copyrighted; cite and paraphrase only.
+    - org: Sedona
+      match: ["Sedona"]
+      license: CITED
+    # ILTA Technology Survey is copyrighted industry research; cite summary figures, never reproduce tables.
+    - org: ILTA
+      match: ["ILTA"]
+      license: CITED
+    # Clio Legal Trends reports are copyrighted industry research; cite summary figures only; Clio data describe Clio's own user population.
+    - org: Clio
+      match: ["Clio", "Legal Trends"]
+      license: CITED
+    # Thomson Reuters Institute and Georgetown reports are copyrighted; cite figures with page references, never reproduce.
+    - org: Thomson Reuters
+      match: ["Thomson Reuters", "State of the US Legal Market", "Georgetown"]
+      license: CITED
+    # Uniform Law Commission acts (UETA) are copyrighted by the ULC; cite and paraphrase.
+    - org: Uniform Law Commission
+      match: ["UETA", "Uniform Law Commission"]
+      license: CITED
+    # COSO frameworks are copyrighted; cite and paraphrase; prefer the public-domain Green Book where the principle is shared.
+    - org: COSO
+      match: ["COSO"]
+      license: CITED
+    # Altman Weil Law Firms in Transition survey is copyrighted industry research; last edition 2020; cite summary figures only.
+    - org: Altman Weil
+      match: ["Altman Weil", "Law Firms in Transition"]
+      license: CITED
+    # NCSL state breach notification summary is copyrighted; cite only.
+    - org: NCSL
+      match: ["NCSL"]
+      license: CITED
+
+# PLACEHOLDERS: these are the accounting template paths, reused until legal templates
+# exist. The loader stores them as strings and does not open them at load time.
+workflows:
+  - templates/vendor-review.yaml
+  - templates/firm-alignment-assessment.yaml
+
+# PLACEHOLDER: accounting prompt path, reused until a legal prompt exists.
+agent_prompts:
+  vendor-review-assistant: prompts/vendor-review.md
+
+compliance:
+  audit_retention_days: 365
+  data_residency: us-east
+
+# Path string only; no code reads the baselines file today (loader.ts line 61; AUDIT-COMMON fact 12).
+reference_signals: signals/legal-baselines.json
+eval_set: evals/legal/
+
+
+# Firm module words (legal-load, R64; audit section 12 item 1). Structure stays in
+# code (five modules, twenty shared stems, five follow-ups); this block supplies the
+# meaning of "this area" per module and the five open-ended prompts with their
+# placeholders. The prompts are the stems in PATALIGN-LEGAL-FOLLOWUP-MC-OPTIONS-
+# 2026-10-11 (the option sets carry the examples the pack's longer prompts listed).
+# lib/verticals/packs/legalFirmModules.ts mirrors this block in code; the contract
+# test pins the two to each other.
+firmModules:
+  operating-model:
+    description: "How matters move from intake to closing: conflicts check, matter opening, work assignment, docketing, draft review, time capture and billing, file closing and return."
+    summary: "Intake, conflicts and engagement; matter execution; time, billing and closing."
+    openEnded:
+      - prompt: "Where does a matter most often stall between intake and closing, and which practice group feels it most?"
+        placeholder: "Name the step where matters wait, and the group that feels it."
+      - prompt: "Which step in the life of a matter has no named owner today, and what breakdown has that caused?"
+        placeholder: "Name the step, who assumes who owns it, and what has broken."
+      - prompt: "What matter-level metric or review would most improve operating discipline in the next 90 days?"
+        placeholder: "Pick the one measure or review you would start first."
+      - prompt: "When a matter passes from intake staff to the responsible attorney, or from a drafting attorney to a reviewing partner, where does the work most often get redone, and why?"
+        placeholder: "Describe the handoff and what gets redone."
+      - prompt: "What tool or operating support would help workflow discipline without disrupting how matters currently move?"
+        placeholder: "Name the support and what it should stop interrupting."
+  automation-ai:
+    description: "The work a firm can hand to software or to a generative AI tool and still meet its duties: intake questionnaires, engagement letters, document assembly, billing runs, e-signature, discovery review, research, summarization and first drafts."
+    summary: "Document and workflow automation; generative AI in legal work; policy, training and vendor terms."
+    openEnded:
+      - prompt: "Which firm process is most ready for automation or AI support today, and what still blocks a safe rollout?"
+        placeholder: "Name the process and the one thing still blocking a safe rollout."
+      - prompt: "Where would generative AI add the most value in your matters, and what verification and confidentiality guardrails would need to be in place first?"
+        placeholder: "Name the use and the verification or confidentiality guardrail it needs first."
+      - prompt: "What matter data, template library or system prerequisite is still missing before automation could run repeatably across matters rather than one attorney at a time?"
+        placeholder: "Name the data, template or system prerequisite still missing."
+      - prompt: "Which attorney, staff or partner-level barrier is most likely to slow adoption of automation here?"
+        placeholder: "Describe the barrier and how it shows up today."
+      - prompt: "What evidence would the partners or management committee need to see before expanding AI use beyond a pilot?"
+        placeholder: "Describe the evidence the partners would need to see."
+  data-flow:
+    description: "How matter, client, financial and document data move between the systems a firm runs: intake and conflicts database, matter management, document management, time and billing, trust accounting, e-signature, client portal, e-discovery, court e-filing, email and office suite."
+    summary: "Matter master data and system of record; financial data flow; document, evidence and client-facing flow."
+    openEnded:
+      - prompt: "Which handoff between systems creates the biggest delay or data error today?"
+        placeholder: "Name the two systems and the delay or error the handoff creates."
+      - prompt: "Where do you stop trusting the numbers most often today?"
+        placeholder: "Name the number and why you stop trusting it."
+      - prompt: "Which integration dependency is most likely to break reporting or a deadline if it fails?"
+        placeholder: "Name the dependency and the report or deadline it would break."
+      - prompt: "What visibility gap most limits operational control right now?"
+        placeholder: "Describe what leaders cannot see clearly enough today."
+      - prompt: "What one change would most improve continuity of matter data across the firm's tools, offices or practice groups?"
+        placeholder: "Pick the one change with the highest payoff for matter data continuity."
+  governance:
+    description: "The controls a firm relies on to protect client money, client information and its license to practice: trust accounting, conflicts, calendaring, supervision of lawyers and staff, information security, incident response and vendor oversight."
+    summary: "Trust accounting and financial controls; information security, confidentiality and incident response; supervision, conflicts and vendor oversight."
+    openEnded:
+      - prompt: "Which approval or review step slows work most while returning the least risk reduction?"
+        placeholder: "Describe the step, why it feels heavy and what it protects today."
+      - prompt: "Which control or vendor evidence is hardest to obtain or keep current?"
+        placeholder: "Name the evidence and what makes it hard to obtain or keep current."
+      - prompt: "Which trust accounting, conflicts, or supervision control most often depends on one person remembering to do it, and what happens when that person is out?"
+        placeholder: "Name the control, the person it depends on and what happens when they are out."
+      - prompt: "Which failure scenario concerns firm leadership most right now?"
+        placeholder: "Describe the scenario and why it matters to leadership."
+      - prompt: "What would most increase the partners' trust in a new vendor or tool that touches client files or trust funds?"
+        placeholder: "Describe the evidence, term or safeguard that would matter most."
+  strategy:
+    description: "How the firm decides where it is going and whether its people will move: pricing and fee model, practice mix, growth, technology budget, training, and the response to what clients ask for."
+    summary: "Strategic direction and pricing model; change management, training and adoption; client and market alignment."
+    openEnded:
+      - prompt: "Which strategic priority is hardest to turn into day-to-day matter work, and why?"
+        placeholder: "Name the priority and where it breaks down in matter work."
+      - prompt: "Where do change efforts lose traction most often in this firm?"
+        placeholder: "Name the point in the change cycle where momentum drops."
+      - prompt: "What client or market pressure is forcing the biggest reprioritization right now?"
+        placeholder: "Describe the pressure and how it is changing decisions now."
+      - prompt: "What risk is most likely to cause the firm's current technology or change plan to miss expectations?"
+        placeholder: "Name the risk with the highest near-term consequence."
+      - prompt: "What signal would tell you the firm is ready for deeper PAT insight use, broader change or faster execution?"
+        placeholder: "Describe the concrete signal you would look for."
+
+# Size bands (legal-load, R64, delta 4; unified build prompt diff 3). The pack's
+# own size language. A band is a cohort DIMENSION the readers accept; a cut is
+# published by vertical alone until a band has five firms (the roll-up rule in
+# lib/verticals/sizeBands.ts). Schema only in this box: no Prisma column.
+sizeBands:
+  - key: solo-small
+    label: "solo and small (1 to 5 attorneys)"
+    min: 1
+    max: 5
+  - key: small
+    label: "small firm (6 to 20 attorneys)"
+    min: 6
+    max: 20
+  - key: midsize
+    label: "midsize (21 to 100 attorneys)"
+    min: 21
+    max: 100
+  - key: large-regional
+    label: "large regional (101 to 500 attorneys)"
+    min: 101
+    max: 500
+  - key: large
+    label: "large (500+ attorneys)"
+    min: 501
+    max: null

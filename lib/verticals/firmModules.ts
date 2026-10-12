@@ -3,6 +3,7 @@ import type { AssessmentQuestionRuntime } from "@/lib/assessmentRuntime";
 import { FIRM_MODULE_DEFINITIONS, FIRM_MODULE_OPEN_ENDED_PROMPTS } from "@/lib/firmPat";
 import { DEFAULT_VERTICAL_ID, resolveCurrentVertical, type ResolveVerticalOptions } from "./context";
 import { isVerticalPacksEnabled } from "./flag";
+import { LEGAL_FIRM_MODULES } from "./packs/legalFirmModules";
 
 /**
  * Firm module words per vertical (legal-load, R64; audit section 12 item 1).
@@ -159,6 +160,9 @@ export function registerFirmModuleMirror(verticalId: string, build: () => FirmMo
   let built: FirmModulesContent | null = null;
   PACK_FIRM_MODULE_MIRRORS.set(verticalId, () => (built ??= assertCompleteFirmModules(verticalId, build())));
 }
+
+// The legal pack's mirror (legal-load, R64). Pinned to verticals/legal/pack.yaml by test.
+registerFirmModuleMirror("legal", () => LEGAL_FIRM_MODULES);
 
 export function resolveFirmModuleContent(
   sectionKey: FirmModuleSectionKey,

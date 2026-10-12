@@ -70,15 +70,17 @@ export const LEGAL_PRODUCT_CATEGORIES = [
 
 export type LegalProductCategory = (typeof LEGAL_PRODUCT_CATEGORIES)[number];
 
+// Two legal function buckets share an accounting key and carry a -legal suffix in the
+// legal taxonomy artifact (TaxonomyBucket.key is unique across verticals).
 const LEGAL_BUCKET_TO_CATEGORY: Record<string, LegalProductCategory> = {
   "function-practice-matter-management": "Matters & Practice Management",
   "function-legal-project-management": "Security, Integration & Projects",
   "function-time-billing": "Billing, Payments & Trust",
   "function-trust-accounting": "Billing, Payments & Trust",
-  "function-payments": "Billing, Payments & Trust",
+  "function-payments-legal": "Billing, Payments & Trust",
   "function-intake-crm": "Intake, Clients & Portal",
   "function-client-portal": "Intake, Clients & Portal",
-  "function-document-management": "Documents & Knowledge",
+  "function-document-management-legal": "Documents & Knowledge",
   "function-document-automation": "Documents & Knowledge",
   "function-knowledge-management": "Documents & Knowledge",
   "function-contract-lifecycle": "Documents & Knowledge",

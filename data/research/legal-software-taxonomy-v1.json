@@ -1,0 +1,455 @@
+{
+  "version": 1,
+  "verticalId": "legal",
+  "source": {
+    "key": "legal-software-taxonomy-v1",
+    "title": "Legal software taxonomy v1 (US law firms)",
+    "sourceType": "MANUAL_TAXONOMY",
+    "status": "SEEDED",
+    "artifactPath": "data/research/legal-software-taxonomy-v1.json",
+    "notes": "Seeded from KEYS.md for the PAT legal channel. 24 FUNCTION buckets, 8 WORKFLOW_STAGE buckets, 4 COMPLIANCE_DOMAIN buckets, 4 DELIVERY_MODEL buckets. Descriptions summarize capabilities described on vendor-published product and pricing pages recorded in the six research notes retrieved 2026-09-29. vendors, products and vendorSignals are empty on purpose, matching the accounting substrate, until the vendor catalog writer's grounded entries are loaded. legal-load (R64, 2026-10-11): seven keys shared with the accounting artifact (delivery-cloud, delivery-hybrid, delivery-managed, function-document-management, function-payments, workflow-deliver, workflow-review) carry a -legal suffix, because TaxonomyBucket.key is unique across verticals and the importer upserts by key; without the suffix a legal import would restamp accounting's rows."
+  },
+  "patProductUtilityRegistry": {
+    "key": "product-utility-registry-legal-v1",
+    "version": "2026-10-product-utility-v1",
+    "artifactPath": "verticals/legal/registry/product-utility-v1.json",
+    "notes": "20 utility families, 80 subcategories, 400 questions. Each family maps to one or more FUNCTION buckets plus workflow stages and, where relevant, a COMPLIANCE_DOMAIN bucket. function-esignature has no family of its own; it is carried as a subcategory of document_automation_assembly.",
+    "utilityFamilyKeys": [
+      "practice_matter_management",
+      "time_capture_billing_collections",
+      "trust_accounting_iolta",
+      "payments_client_billing_connectivity",
+      "client_intake_crm",
+      "client_portal_communication",
+      "document_management_records",
+      "document_automation_assembly",
+      "knowledge_management_search",
+      "contract_lifecycle_management",
+      "legal_research",
+      "legal_analytics_litigation_data",
+      "generative_ai_legal_assistance",
+      "ediscovery_review_litigation_support",
+      "legal_hold_information_governance",
+      "court_efiling_docketing_deadlines",
+      "conflicts_checking_ethical_walls",
+      "legal_project_management_pricing",
+      "integration_interoperability_data_sync",
+      "identity_security_access_control"
+    ]
+  },
+  "taxonomyBuckets": [
+    {
+      "key": "function-practice-matter-management",
+      "title": "Practice and Matter Management",
+      "kind": "FUNCTION",
+      "description": "Matter records, contacts, tasks, calendars, notes and the case workflow that ties time, documents and billing to a matter."
+    },
+    {
+      "key": "function-time-billing",
+      "title": "Time and Billing",
+      "kind": "FUNCTION",
+      "description": "Time capture, rate tables, prebills, invoice generation, e-billing submission and collections follow-up."
+    },
+    {
+      "key": "function-trust-accounting",
+      "title": "Trust Accounting (IOLTA)",
+      "kind": "FUNCTION",
+      "description": "Client trust ledgers, trust receipts and disbursements, trust-to-operating transfers and three-way reconciliation of bank, book and client ledger balances."
+    },
+    {
+      "key": "function-payments-legal",
+      "title": "Payments",
+      "kind": "FUNCTION",
+      "description": "Card, ACH and eCheck acceptance for legal invoices and retainers, payment plans, surcharging and posting of payments to operating and trust accounts."
+    },
+    {
+      "key": "function-intake-crm",
+      "title": "Client Intake and CRM",
+      "kind": "FUNCTION",
+      "description": "Lead capture, intake forms and questionnaires, pipeline tracking, engagement letters and marketing automation ahead of matter opening."
+    },
+    {
+      "key": "function-client-portal",
+      "title": "Secure Client Portals and Communication",
+      "kind": "FUNCTION",
+      "description": "Client-facing portals for document sharing, secure messaging, invoice viewing, payment and case status updates."
+    },
+    {
+      "key": "function-document-management-legal",
+      "title": "Document Management",
+      "kind": "FUNCTION",
+      "description": "Matter-centric storage of documents and email with versioning, profiling, search, check-out and access control."
+    },
+    {
+      "key": "function-document-automation",
+      "title": "Document Automation and Assembly",
+      "kind": "FUNCTION",
+      "description": "Template-driven generation of legal documents and court forms from matter data, questionnaires and clause libraries."
+    },
+    {
+      "key": "function-knowledge-management",
+      "title": "Knowledge Management and Enterprise Search",
+      "kind": "FUNCTION",
+      "description": "Search and curation of precedents, prior work product and firm expertise across the DMS, email and other repositories."
+    },
+    {
+      "key": "function-contract-lifecycle",
+      "title": "Contract Lifecycle Management",
+      "kind": "FUNCTION",
+      "description": "Contract request, drafting, negotiation, approval, execution, repository storage, data extraction and obligation tracking."
+    },
+    {
+      "key": "function-legal-research",
+      "title": "Legal Research",
+      "kind": "FUNCTION",
+      "description": "Primary law, secondary sources and citator services with search, alerts and AI-assisted research features."
+    },
+    {
+      "key": "function-legal-analytics",
+      "title": "Legal Analytics",
+      "kind": "FUNCTION",
+      "description": "Docket-derived analytics on judges, courts, parties, counsel, motion outcomes and timing."
+    },
+    {
+      "key": "function-generative-ai",
+      "title": "Generative AI Legal Assistants",
+      "kind": "FUNCTION",
+      "description": "Large language model assistants for drafting, summarization, document review and question answering grounded in legal content and firm documents."
+    },
+    {
+      "key": "function-ediscovery",
+      "title": "E-Discovery and Review",
+      "kind": "FUNCTION",
+      "description": "Processing, early case assessment, search, technology-assisted review, redaction and production of electronically stored information."
+    },
+    {
+      "key": "function-litigation-support",
+      "title": "Litigation Support and Case Analysis",
+      "kind": "FUNCTION",
+      "description": "Fact chronologies, transcript and deposition management, exhibit organization and trial presentation."
+    },
+    {
+      "key": "function-legal-hold",
+      "title": "Legal Hold",
+      "kind": "FUNCTION",
+      "description": "Hold notice issuance, custodian acknowledgement tracking, preservation-in-place connectors and release workflows."
+    },
+    {
+      "key": "function-efiling-docketing",
+      "title": "Court E-Filing and Docketing",
+      "kind": "FUNCTION",
+      "description": "Electronic filing and service through court-approved providers, docket retrieval and docket entry into firm systems."
+    },
+    {
+      "key": "function-calendaring-deadlines",
+      "title": "Rules-Based Calendaring and Deadlines",
+      "kind": "FUNCTION",
+      "description": "Court-rules-driven deadline calculation, calendar sync and change tracking for litigation dates."
+    },
+    {
+      "key": "function-conflicts",
+      "title": "Conflicts Checking and Ethical Walls",
+      "kind": "FUNCTION",
+      "description": "Searching parties and related entities against firm records at intake and enforcing confidentiality screens across firm systems."
+    },
+    {
+      "key": "function-records-governance",
+      "title": "Records and Information Governance",
+      "kind": "FUNCTION",
+      "description": "Retention schedules, disposition, physical and electronic records tracking and file return at matter close."
+    },
+    {
+      "key": "function-legal-project-management",
+      "title": "Legal Project Management and Pricing",
+      "kind": "FUNCTION",
+      "description": "Matter budgets, phase and task plans, alternative fee modeling and budget-to-actual tracking."
+    },
+    {
+      "key": "function-esignature",
+      "title": "E-Signature",
+      "kind": "FUNCTION",
+      "description": "Electronic signature capture on engagement letters, settlement documents and client forms with audit trail."
+    },
+    {
+      "key": "function-integration-platform",
+      "title": "Integration Platforms",
+      "kind": "FUNCTION",
+      "description": "APIs, app directories, iPaaS connectors and sync tooling that move data between legal and general business systems."
+    },
+    {
+      "key": "function-identity-security",
+      "title": "Identity and Security",
+      "kind": "FUNCTION",
+      "description": "Single sign-on, multi-factor authentication, directory integration, encryption, audit logging and security certifications for legal software."
+    },
+    {
+      "key": "workflow-intake",
+      "title": "Intake",
+      "kind": "WORKFLOW_STAGE",
+      "description": "Lead capture, conflict screening and matter opening."
+    },
+    {
+      "key": "workflow-engage",
+      "title": "Engage",
+      "kind": "WORKFLOW_STAGE",
+      "description": "Engagement terms, budgets and client onboarding to portals and payment channels."
+    },
+    {
+      "key": "workflow-work",
+      "title": "Work",
+      "kind": "WORKFLOW_STAGE",
+      "description": "Legal work product: research, drafting, review, filings and case analysis."
+    },
+    {
+      "key": "workflow-review-legal",
+      "title": "Review",
+      "kind": "WORKFLOW_STAGE",
+      "description": "Quality review, approvals and supervisory checks on work product and contracts."
+    },
+    {
+      "key": "workflow-deliver-legal",
+      "title": "Deliver",
+      "kind": "WORKFLOW_STAGE",
+      "description": "Delivery to clients and courts: filing, service, signature and client communication."
+    },
+    {
+      "key": "workflow-bill",
+      "title": "Bill",
+      "kind": "WORKFLOW_STAGE",
+      "description": "Time capture, invoicing, trust handling, payments and collections."
+    },
+    {
+      "key": "workflow-close",
+      "title": "Close",
+      "kind": "WORKFLOW_STAGE",
+      "description": "Matter closing, final trust disbursement and closing letters."
+    },
+    {
+      "key": "workflow-retain",
+      "title": "Retain",
+      "kind": "WORKFLOW_STAGE",
+      "description": "Records retention, legal hold, disposition and file return."
+    },
+    {
+      "key": "compliance-trust-accounting",
+      "title": "Trust Accounting Compliance",
+      "kind": "COMPLIANCE_DOMAIN",
+      "description": "Handling of client funds under state trust account rules, including reconciliation and record keeping."
+    },
+    {
+      "key": "compliance-confidentiality",
+      "title": "Confidentiality and Data Security",
+      "kind": "COMPLIANCE_DOMAIN",
+      "description": "Protection of client confidential and privileged information, access controls and ethical screens."
+    },
+    {
+      "key": "compliance-ediscovery",
+      "title": "E-Discovery and Preservation",
+      "kind": "COMPLIANCE_DOMAIN",
+      "description": "Preservation, collection and production duties for electronically stored information."
+    },
+    {
+      "key": "compliance-records",
+      "title": "Records Retention and File Return",
+      "kind": "COMPLIANCE_DOMAIN",
+      "description": "Retention of client files and records and their return or disposition after representation ends."
+    },
+    {
+      "key": "delivery-cloud-legal",
+      "title": "Cloud",
+      "kind": "DELIVERY_MODEL",
+      "description": "Vendor-hosted multi-tenant or single-tenant software delivered as a service."
+    },
+    {
+      "key": "delivery-on-premise",
+      "title": "On-premise",
+      "kind": "DELIVERY_MODEL",
+      "description": "Software installed and operated on firm-controlled servers."
+    },
+    {
+      "key": "delivery-hybrid-legal",
+      "title": "Hybrid",
+      "kind": "DELIVERY_MODEL",
+      "description": "Desktop or on-premise components paired with a vendor cloud back end."
+    },
+    {
+      "key": "delivery-managed-legal",
+      "title": "Managed",
+      "kind": "DELIVERY_MODEL",
+      "description": "Software operated for the firm by a service provider or hosting partner."
+    }
+  ],
+  "bucketCapabilityMappings": [
+    {
+      "bucketKey": "function-practice-matter-management",
+      "capabilityKey": "practice_matter_management",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Practice and Matter Management; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-time-billing",
+      "capabilityKey": "time_billing",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Time and Billing; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-trust-accounting",
+      "capabilityKey": "trust_accounting",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Trust Accounting (IOLTA); confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-payments-legal",
+      "capabilityKey": "payments",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Payments; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-intake-crm",
+      "capabilityKey": "intake_crm",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Client Intake and CRM; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-client-portal",
+      "capabilityKey": "client_portal",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Secure Client Portals and Communication; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-document-management-legal",
+      "capabilityKey": "document_management",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Document Management; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-document-automation",
+      "capabilityKey": "document_automation",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Document Automation and Assembly; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-knowledge-management",
+      "capabilityKey": "knowledge_management",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Knowledge Management and Enterprise Search; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-contract-lifecycle",
+      "capabilityKey": "contract_lifecycle",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Contract Lifecycle Management; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-legal-research",
+      "capabilityKey": "legal_research",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Legal Research; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-legal-analytics",
+      "capabilityKey": "legal_analytics",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Legal Analytics; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-generative-ai",
+      "capabilityKey": "generative_ai",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Generative AI Legal Assistants; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-ediscovery",
+      "capabilityKey": "ediscovery",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for E-Discovery and Review; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-litigation-support",
+      "capabilityKey": "litigation_support",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Litigation Support and Case Analysis; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-legal-hold",
+      "capabilityKey": "legal_hold",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Legal Hold; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-efiling-docketing",
+      "capabilityKey": "efiling_docketing",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Court E-Filing and Docketing; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-calendaring-deadlines",
+      "capabilityKey": "calendaring_deadlines",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Rules-Based Calendaring and Deadlines; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-conflicts",
+      "capabilityKey": "conflicts",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Conflicts Checking and Ethical Walls; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-records-governance",
+      "capabilityKey": "records_governance",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Records and Information Governance; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-legal-project-management",
+      "capabilityKey": "legal_project_management",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Legal Project Management and Pricing; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-esignature",
+      "capabilityKey": "esignature",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for E-Signature; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-integration-platform",
+      "capabilityKey": "integration_platform",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Integration Platforms; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    },
+    {
+      "bucketKey": "function-identity-security",
+      "capabilityKey": "identity_security",
+      "coverage": "CORE",
+      "confidence": "LOW",
+      "notes": "Seeded mapping for Identity and Security; confidence LOW until firm-reviewed products exist in this bucket. Source: KEYS.md and the six legal research notes dated 2026-09-29 (vendor-published feature pages; ASSUMED size fit)."
+    }
+  ],
+  "vendors": [],
+  "products": [],
+  "vendorSignals": []
+}

@@ -1,0 +1,219 @@
+{
+ "schemaVersion": 1,
+ "comment": "FICTIONAL demo seed for the legal channel. Every vendor and product name here is invented and does not correspond to any real company. Same shape as data/demo-seed/vendor-catalog.json.",
+ "vendors": [
+  {
+   "id": "demo-legal-vendor-marrowfield",
+   "name": "Marrowfield Legal Systems",
+   "tagline": "Finance, docketing and records for firms above one hundred lawyers.",
+   "archetype": "large-incumbent",
+   "products": [
+    {
+     "id": "demo-legal-product-marrowfield-ledger",
+     "name": "Marrowfield Ledger",
+     "utilityKeys": [
+      "time_capture_billing_collections",
+      "trust_accounting_iolta"
+     ],
+     "selfReportedScoreSeed": 84,
+     "narrativeTone": "confident"
+    },
+    {
+     "id": "demo-legal-product-marrowfield-docket",
+     "name": "Marrowfield Docket",
+     "utilityKeys": [
+      "court_efiling_docketing_deadlines"
+     ],
+     "selfReportedScoreSeed": 79,
+     "narrativeTone": "confident"
+    },
+    {
+     "id": "demo-legal-product-marrowfield-vault",
+     "name": "Marrowfield Vault",
+     "utilityKeys": [
+      "document_management_records",
+      "legal_hold_information_governance"
+     ],
+     "selfReportedScoreSeed": 81,
+     "narrativeTone": "measured"
+    },
+    {
+     "id": "demo-legal-product-marrowfield-gate",
+     "name": "Marrowfield Gate",
+     "utilityKeys": [
+      "conflicts_checking_ethical_walls",
+      "identity_security_access_control"
+     ],
+     "selfReportedScoreSeed": 76,
+     "narrativeTone": "measured"
+    }
+   ]
+  },
+  {
+   "id": "demo-legal-vendor-copperline",
+   "name": "Copperline Practice Cloud",
+   "tagline": "One subscription for matters, billing, intake and payments.",
+   "archetype": "modern-fast-mover",
+   "products": [
+    {
+     "id": "demo-legal-product-copperline-matters",
+     "name": "Copperline Matters",
+     "utilityKeys": [
+      "practice_matter_management",
+      "time_capture_billing_collections"
+     ],
+     "selfReportedScoreSeed": 80,
+     "narrativeTone": "confident"
+    },
+    {
+     "id": "demo-legal-product-copperline-intake",
+     "name": "Copperline Intake",
+     "utilityKeys": [
+      "client_intake_crm",
+      "client_portal_communication"
+     ],
+     "selfReportedScoreSeed": 74,
+     "narrativeTone": "measured"
+    },
+    {
+     "id": "demo-legal-product-copperline-pay",
+     "name": "Copperline Pay",
+     "utilityKeys": [
+      "payments_client_billing_connectivity",
+      "trust_accounting_iolta"
+     ],
+     "selfReportedScoreSeed": 71,
+     "narrativeTone": "candid"
+    },
+    {
+     "id": "demo-legal-product-copperline-connect",
+     "name": "Copperline Connect",
+     "utilityKeys": [
+      "integration_interoperability_data_sync"
+     ],
+     "selfReportedScoreSeed": 66,
+     "narrativeTone": "candid"
+    }
+   ]
+  },
+  {
+   "id": "demo-legal-vendor-ledgerwick",
+   "name": "Ledgerwick Trust Software",
+   "tagline": "Three-way reconciliation and IOLTA reporting only.",
+   "archetype": "niche-depth",
+   "products": [
+    {
+     "id": "demo-legal-product-ledgerwick-reconcile",
+     "name": "Ledgerwick Reconcile",
+     "utilityKeys": [
+      "trust_accounting_iolta"
+     ],
+     "selfReportedScoreSeed": 88,
+     "narrativeTone": "confident"
+    },
+    {
+     "id": "demo-legal-product-ledgerwick-sync",
+     "name": "Ledgerwick Sync",
+     "utilityKeys": [
+      "integration_interoperability_data_sync",
+      "payments_client_billing_connectivity"
+     ],
+     "selfReportedScoreSeed": 62,
+     "narrativeTone": "candid"
+    }
+   ]
+  },
+  {
+   "id": "demo-legal-vendor-quillstone",
+   "name": "Quillstone AI",
+   "tagline": "Drafting, research and review assistants trained on firm precedent.",
+   "archetype": "modern-fast-mover",
+   "products": [
+    {
+     "id": "demo-legal-product-quillstone-draft",
+     "name": "Quillstone Draft",
+     "utilityKeys": [
+      "generative_ai_legal_assistance",
+      "document_automation_assembly"
+     ],
+     "selfReportedScoreSeed": 83,
+     "narrativeTone": "confident"
+    },
+    {
+     "id": "demo-legal-product-quillstone-research",
+     "name": "Quillstone Research",
+     "utilityKeys": [
+      "generative_ai_legal_assistance",
+      "legal_research"
+     ],
+     "selfReportedScoreSeed": 77,
+     "narrativeTone": "measured"
+    },
+    {
+     "id": "demo-legal-product-quillstone-review",
+     "name": "Quillstone Review",
+     "utilityKeys": [
+      "ediscovery_review_litigation_support",
+      "contract_lifecycle_management"
+     ],
+     "selfReportedScoreSeed": 69,
+     "narrativeTone": "candid"
+    },
+    {
+     "id": "demo-legal-product-quillstone-precedent",
+     "name": "Quillstone Precedent",
+     "utilityKeys": [
+      "knowledge_management_search"
+     ],
+     "selfReportedScoreSeed": 72,
+     "narrativeTone": "measured"
+    },
+    {
+     "id": "demo-legal-product-quillstone-signals",
+     "name": "Quillstone Signals",
+     "utilityKeys": [
+      "legal_analytics_litigation_data"
+     ],
+     "selfReportedScoreSeed": 58,
+     "narrativeTone": "candid"
+    }
+   ]
+  },
+  {
+   "id": "demo-legal-vendor-northfork",
+   "name": "Northfork Docket Works",
+   "tagline": "State court rules, e-filing and deadline calendars for the Upper Midwest.",
+   "archetype": "mid-market-specialist",
+   "products": [
+    {
+     "id": "demo-legal-product-northfork-rules",
+     "name": "Northfork Rules",
+     "utilityKeys": [
+      "court_efiling_docketing_deadlines"
+     ],
+     "selfReportedScoreSeed": 75,
+     "narrativeTone": "measured"
+    },
+    {
+     "id": "demo-legal-product-northfork-file",
+     "name": "Northfork File",
+     "utilityKeys": [
+      "court_efiling_docketing_deadlines",
+      "client_portal_communication"
+     ],
+     "selfReportedScoreSeed": 68,
+     "narrativeTone": "candid"
+    },
+    {
+     "id": "demo-legal-product-northfork-budget",
+     "name": "Northfork Budget",
+     "utilityKeys": [
+      "legal_project_management_pricing"
+     ],
+     "selfReportedScoreSeed": 55,
+     "narrativeTone": "candid"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,286 @@
+{
+  "schemaVersion": 1,
+  "comment": "Legal channel demo firm roster (legal-load, R64; audit register row 10). FICTIONAL law firm names; no real firm is represented. size is a key from verticals/legal/pack.yaml sizeBands; archetype is one of the six FirmArchetypeKey values the reader accepts (data/demo-seed/legal/firm-archetypes.json).",
+  "firms": [
+    {
+      "name": "Hartwell & Dunne",
+      "size": "solo-small",
+      "archetype": "struggling",
+      "regionalFlavor": "midwest",
+      "userCountSeed": 3
+    },
+    {
+      "name": "Okafor Injury Law",
+      "size": "solo-small",
+      "archetype": "tech-forward",
+      "regionalFlavor": "southeast",
+      "userCountSeed": 4
+    },
+    {
+      "name": "Brennan Vale LLP",
+      "size": "small",
+      "archetype": "mid-tier",
+      "regionalFlavor": "northeast",
+      "userCountSeed": 9
+    },
+    {
+      "name": "Marrow Street Law",
+      "size": "small",
+      "archetype": "tech-forward",
+      "regionalFlavor": "west",
+      "userCountSeed": 8
+    },
+    {
+      "name": "Vesterholm Legal Aid",
+      "size": "small",
+      "archetype": "sample-thin",
+      "regionalFlavor": "midwest",
+      "userCountSeed": 6
+    },
+    {
+      "name": "Tallis Reed",
+      "size": "midsize",
+      "archetype": "mid-tier",
+      "regionalFlavor": "southeast",
+      "userCountSeed": 14
+    },
+    {
+      "name": "Quennell Litigation Group",
+      "size": "midsize",
+      "archetype": "compliance-heavy",
+      "regionalFlavor": "northeast",
+      "userCountSeed": 12
+    },
+    {
+      "name": "Ashgrove Partners",
+      "size": "large-regional",
+      "archetype": "high-performing",
+      "regionalFlavor": "national",
+      "userCountSeed": 18
+    },
+    {
+      "name": "Corvid Lane Defense",
+      "size": "large-regional",
+      "archetype": "compliance-heavy",
+      "regionalFlavor": "midwest",
+      "userCountSeed": 16
+    },
+    {
+      "name": "Halden Marsh",
+      "size": "large",
+      "archetype": "high-performing",
+      "regionalFlavor": "national",
+      "userCountSeed": 22
+    },
+    {
+      "name": "Serrano Whitlock",
+      "size": "large",
+      "archetype": "compliance-heavy",
+      "regionalFlavor": "national",
+      "userCountSeed": 20
+    },
+    {
+      "name": "Pruitt Family Law",
+      "size": "solo-small",
+      "archetype": "mid-tier",
+      "regionalFlavor": "southeast",
+      "userCountSeed": 3
+    },
+    {
+      "name": "Lindqvist Estate Counsel",
+      "size": "solo-small",
+      "archetype": "struggling",
+      "regionalFlavor": "midwest",
+      "userCountSeed": 2
+    },
+    {
+      "name": "Baymont Immigration",
+      "size": "solo-small",
+      "archetype": "mid-tier",
+      "regionalFlavor": "west",
+      "userCountSeed": 4
+    },
+    {
+      "name": "Thorne & Castellano",
+      "size": "small",
+      "archetype": "high-performing",
+      "regionalFlavor": "northeast",
+      "userCountSeed": 10
+    },
+    {
+      "name": "Rivermark Employment Law",
+      "size": "small",
+      "archetype": "mid-tier",
+      "regionalFlavor": "west",
+      "userCountSeed": 7
+    },
+    {
+      "name": "Delacroix Real Estate Law",
+      "size": "small",
+      "archetype": "struggling",
+      "regionalFlavor": "southeast",
+      "userCountSeed": 6
+    },
+    {
+      "name": "Northgate Criminal Defense",
+      "size": "small",
+      "archetype": "mid-tier",
+      "regionalFlavor": "midwest",
+      "userCountSeed": 8
+    },
+    {
+      "name": "Ellery Shaw Business Law",
+      "size": "midsize",
+      "archetype": "high-performing",
+      "regionalFlavor": "west",
+      "userCountSeed": 15
+    },
+    {
+      "name": "Camden Peake",
+      "size": "midsize",
+      "archetype": "mid-tier",
+      "regionalFlavor": "northeast",
+      "userCountSeed": 13
+    },
+    {
+      "name": "Whitfield Harbor",
+      "size": "midsize",
+      "archetype": "tech-forward",
+      "regionalFlavor": "southeast",
+      "userCountSeed": 14
+    },
+    {
+      "name": "Granholm Insurance Defense",
+      "size": "midsize",
+      "archetype": "compliance-heavy",
+      "regionalFlavor": "midwest",
+      "userCountSeed": 12
+    },
+    {
+      "name": "Sable & Orrin",
+      "size": "midsize",
+      "archetype": "mid-tier",
+      "regionalFlavor": "national",
+      "userCountSeed": 11
+    },
+    {
+      "name": "Kestrel Rowe",
+      "size": "large-regional",
+      "archetype": "mid-tier",
+      "regionalFlavor": "west",
+      "userCountSeed": 17
+    },
+    {
+      "name": "Bellweather Healthcare Law",
+      "size": "large-regional",
+      "archetype": "compliance-heavy",
+      "regionalFlavor": "southeast",
+      "userCountSeed": 19
+    },
+    {
+      "name": "Fairbanks Lowell",
+      "size": "large-regional",
+      "archetype": "high-performing",
+      "regionalFlavor": "northeast",
+      "userCountSeed": 18
+    },
+    {
+      "name": "Ironwood Energy Counsel",
+      "size": "large-regional",
+      "archetype": "mid-tier",
+      "regionalFlavor": "midwest",
+      "userCountSeed": 16
+    },
+    {
+      "name": "Monarch & Tate",
+      "size": "large",
+      "archetype": "high-performing",
+      "regionalFlavor": "national",
+      "userCountSeed": 24
+    },
+    {
+      "name": "Drummond Chase",
+      "size": "large",
+      "archetype": "mid-tier",
+      "regionalFlavor": "national",
+      "userCountSeed": 21
+    },
+    {
+      "name": "Pellerin Global",
+      "size": "large",
+      "archetype": "tech-forward",
+      "regionalFlavor": "national",
+      "userCountSeed": 23
+    },
+    {
+      "name": "Ashby Clinic for Veterans",
+      "size": "small",
+      "archetype": "sample-thin",
+      "regionalFlavor": "west",
+      "userCountSeed": 5
+    },
+    {
+      "name": "Greer & Holloway",
+      "size": "solo-small",
+      "archetype": "mid-tier",
+      "regionalFlavor": "northeast",
+      "userCountSeed": 3
+    },
+    {
+      "name": "Vantage Patent Group",
+      "size": "small",
+      "archetype": "high-performing",
+      "regionalFlavor": "west",
+      "userCountSeed": 9
+    },
+    {
+      "name": "Caldwell Municipal Law",
+      "size": "midsize",
+      "archetype": "mid-tier",
+      "regionalFlavor": "southeast",
+      "userCountSeed": 12
+    },
+    {
+      "name": "Oriel Tax Controversy",
+      "size": "small",
+      "archetype": "high-performing",
+      "regionalFlavor": "northeast",
+      "userCountSeed": 7
+    },
+    {
+      "name": "Redfern Collective",
+      "size": "solo-small",
+      "archetype": "struggling",
+      "regionalFlavor": "west",
+      "userCountSeed": 3
+    },
+    {
+      "name": "Stanmore Appellate",
+      "size": "small",
+      "archetype": "mid-tier",
+      "regionalFlavor": "midwest",
+      "userCountSeed": 6
+    },
+    {
+      "name": "Harrowgate Trusts",
+      "size": "midsize",
+      "archetype": "high-performing",
+      "regionalFlavor": "northeast",
+      "userCountSeed": 13
+    },
+    {
+      "name": "Linden Pike Litigation",
+      "size": "midsize",
+      "archetype": "mid-tier",
+      "regionalFlavor": "west",
+      "userCountSeed": 14
+    },
+    {
+      "name": "Westerly Bankruptcy Law",
+      "size": "small",
+      "archetype": "mid-tier",
+      "regionalFlavor": "southeast",
+      "userCountSeed": 7
+    }
+  ]
+}

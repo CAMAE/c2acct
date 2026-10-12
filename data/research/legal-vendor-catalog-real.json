@@ -1,0 +1,4710 @@
+{
+ "schemaVersion": 1,
+ "verticalId": "legal",
+ "comment": "Real vendors. Facts as of 2026-09-29 with sources. Not demo data. Loads into data/research/legal-software-taxonomy-v1.json vendors[] and products[] once the engineer confirms the shape. Every text field carries V (VERIFIED) or R (REPORTED) labels from the research notes; size bands are ASSUMED unless sizeFitBasis says vendor-stated.",
+ "vendors": [
+  {
+   "id": "legal-vendor-clio",
+   "legalName": "Themis Solutions Inc. (Clio)",
+   "name": "Clio",
+   "parent": "none (independent)",
+   "ownership": "Private, venture backed; US$500M Series G at US$5B valuation led by NEA announced 2025-11-10, same day it completed the US$1B vLex acquisition (V, Clio press release)",
+   "headquarters": "Vancouver, British Columbia (V, Clio Lawyaw release; R, GeekWire)",
+   "founded": "2008 (V, Clio Series F release)",
+   "sources": [
+    "https://www.clio.com/about/press/clio-completes-landmark-1b-vlex-acquisition-series-g-5b-valuation/",
+    "https://www.clio.com/about/press/series-f/",
+    "https://www.clio.com/about/press/lawyawacquisition/"
+   ]
+  },
+  {
+   "id": "legal-vendor-affinipay",
+   "legalName": "AffiniPay (MyCase operated by 8am, LLC, an AffiniPay company)",
+   "name": "AffiniPay",
+   "parent": "Genstar Capital (majority) and TA Associates",
+   "ownership": "Genstar Capital made a significant investment 2024-07-17; Apax funds exited; TA Associates retained a stake; terms not disclosed (V, PR Newswire); about US$3B valuation (R, PYMNTS)",
+   "headquarters": "Austin, Texas (V, LawPay newsroom)",
+   "founded": "MyCase founded 2010 (R, ABA Journal); AffiniPay founding year not in notes",
+   "sources": [
+    "https://www.prnewswire.com/news-releases/genstar-capital--ta-partner-with-affinipay-management-to-drive-next-chapter-of-growth-302198829.html",
+    "https://www.lawpay.com/about/news/mycase-acquisition/",
+    "https://www.abajournal.com/web/article/lawpays-parent-company-acquires-mycase-legal-tech"
+   ]
+  },
+  {
+   "id": "legal-vendor-paradigm",
+   "legalName": "Paradigm (formerly ASG LegalTech)",
+   "name": "Paradigm",
+   "parent": "Francisco Partners",
+   "ownership": "Francisco Partners acquisition announced 2021-10-13; about US$400M per Reuters, terms not disclosed by the company (R, LawSites; V, Francisco Partners investment page); prior owner Alpine Investors (R, LawSites)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.lawnext.com/2021/10/paradigm-parent-to-three-practice-management-platforms-acquired-by-francisco-partners.html",
+    "https://www.franciscopartners.com/investments/paradigm"
+   ]
+  },
+  {
+   "id": "legal-vendor-smokeball",
+   "legalName": "Smokeball, Inc.",
+   "name": "Smokeball",
+   "parent": "Christian Beck group (Australian Technology Innovators)",
+   "ownership": "Private; Christian Beck majority owner (R, LawSites scorecard 2024-09-17); US$30M raised Oct 2021 from private and employee investors (R, Startup Daily)",
+   "headquarters": "Sydney and Chicago (R, Startup Daily)",
+   "founded": "2010 (R, LawSites); 2011 (R, Built In Chicago)",
+   "sources": [
+    "https://www.lawnext.com/2024/09/the-shrinking-ownership-of-law-practice-management-technology-part-2-of-4-a-scorecard-of-who-owns-what.html",
+    "https://www.startupdaily.net/topic/funding/lawtech-firm-smokeball-raises-30-million-buys-sydney-startup-familyproperty/"
+   ]
+  },
+  {
+   "id": "legal-vendor-profitsolv",
+   "legalName": "ProfitSolv (brands CosmoLex, Rocket Matter, Tabs3 via Software Technology, LLC, TimeSolv, LexCharge, Law Ruler)",
+   "name": "ProfitSolv",
+   "parent": "Lightyear Capital and FTV Capital",
+   "ownership": "Formed by Lightyear Capital Sept 2020 (V, TimeSolv hosted release); FTV Capital and Lightyear co-led an undisclosed strategic investment 2025-06-24 (V, Business Wire)",
+   "headquarters": "not in notes",
+   "founded": "2020 (V, TimeSolv hosted release)",
+   "sources": [
+    "https://www.timesolv.com/lightyear-capital-announces-the-formation-of-profitsolv/",
+    "https://www.businesswire.com/news/home/20250624918143/en/ProfitSolv-Secures-Strategic-Investment-Co-led-by-FTV-Capital-and-Existing-Investor-Lightyear-Capital",
+    "https://www.lawnext.com/2025/06/profitsolv-parent-to-multiple-law-practice-management-platforms-secures-substantial-strategic-investment.html"
+   ]
+  },
+  {
+   "id": "legal-vendor-actionstep",
+   "legalName": "Actionstep",
+   "name": "Actionstep",
+   "parent": "Serent Capital",
+   "ownership": "Serent Capital investment Sept 2020; acquired Soluno from AffiniPay 2023-09-25 (V, Actionstep news)",
+   "headquarters": "US office Denver, Colorado (V, Actionstep pricing page)",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.actionstep.com/news/actionstep-acquires-soluno/",
+    "https://www.actionstep.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-vendor-filevine",
+   "legalName": "Filevine",
+   "name": "Filevine",
+   "parent": "none (independent)",
+   "ownership": "Private, venture backed; US$400M all-equity across two rounds announced 2025-09-23, led by Insight Partners, Accel and Halo Fund; valuation not disclosed (V, Filevine newsroom and PR Newswire)",
+   "headquarters": "Salt Lake City, Utah (V, Filevine newsroom)",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.filevine.com/news/filevine-raises-400m-with-insight-accel-and-halo-fund-to-scale-legal-intelligence/",
+    "https://www.prnewswire.com/news-releases/filevine-raises-400m-with-insight-accel-and-halo-fund-to-scale-legal-intelligence-302563939.html"
+   ]
+  },
+  {
+   "id": "legal-vendor-litify",
+   "legalName": "Litify",
+   "name": "Litify",
+   "parent": "Bessemer Venture Partners (majority)",
+   "ownership": "Bessemer Venture Partners acquired a majority stake, announced 2023-02-09 (R, BusinessWire; R, LawSites)",
+   "headquarters": "New York, NY and New Orleans, LA (V, Litify about page)",
+   "founded": "2016 (V, Litify about page)",
+   "sources": [
+    "https://www.litify.com/about-us",
+    "https://www.businesswire.com/news/home/20230209005162/en/Bessemer-Venture-Partners-Acquires-Majority-Stake-in-Litify-as-Legal-Tech-Company-Achieves-Profitability"
+   ]
+  },
+  {
+   "id": "legal-vendor-caret",
+   "legalName": "CARET (formerly AbacusNext)",
+   "name": "CARET",
+   "parent": "Thomas H. Lee Partners",
+   "ownership": "Thomas H. Lee Partners acquired AbacusNext March 2021; acquired Zola Suite July 2021; rebranded CARET Feb 2023; sold HotDocs to Mitratech June 2024 (R, LawSites scorecard)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.lawnext.com/2024/09/the-shrinking-ownership-of-law-practice-management-technology-part-2-of-4-a-scorecard-of-who-owns-what.html",
+    "https://www.caretlegal.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-vendor-centerbase",
+   "legalName": "Centerbase",
+   "name": "Centerbase",
+   "parent": "not in notes",
+   "ownership": "Ownership not verified in notes",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.centerbase.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-vendor-lawmatics",
+   "legalName": "Lawmatics",
+   "name": "Lawmatics",
+   "parent": "not in notes",
+   "ownership": "Ownership not verified in notes",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.lawmatics.com/pricing"
+   ]
+  },
+  {
+   "id": "legal-vendor-confido",
+   "legalName": "Confido Legal (formerly Gravity Legal)",
+   "name": "Confido Legal",
+   "parent": "none (independent)",
+   "ownership": "Private; US$9M raised in total, about US$7M round closed Nov 2025 led by Aquiline Capital Partners, announced 2026-02-26 (R, LawSites; V, Aquiline release); renamed from Gravity Legal Dec 2023 (V, Confido Legal)",
+   "headquarters": "Launched as a division of Seattle-based Gravity Payments; spun out 2023 (R, LawSites)",
+   "founded": "2019 (R, LawSites)",
+   "sources": [
+    "https://www.lawnext.com/2026/02/exclusive-confido-legal-raises-9-million-to-expand-embedded-payments-and-disbursements-for-law-firms.html",
+    "https://aquiline.com/news/confido-raises-9-million-to-scale-embedded-financial-infrastructure-for-law-firms-and-legaltech-platforms/",
+    "https://confidolegal.com/financiallylegal/gravity-legal-becomes-confido-legal"
+   ]
+  },
+  {
+   "id": "legal-vendor-assembly",
+   "legalName": "Assembly Software",
+   "name": "Assembly Software",
+   "parent": "not in notes",
+   "ownership": "Owner not identified in notes; newsroom references investor Ridge and the TrialWorks and Neos merger (R, Assembly newsroom)",
+   "headquarters": "not in notes",
+   "founded": "Formed 2019; lineage to 1985 (V, Assembly about page)",
+   "sources": [
+    "https://assemblysoftware.com/about-assembly",
+    "https://assemblysoftware.com/learning-center/newsroom/ridge-announces-merger-of-trialworks-and-neos"
+   ]
+  },
+  {
+   "id": "legal-vendor-leap",
+   "legalName": "LEAP Legal Software",
+   "name": "LEAP",
+   "parent": "Christian Beck group",
+   "ownership": "Privately held; founder Christian Beck (R, Wikipedia; R, LawSites scorecard)",
+   "headquarters": "Sydney, Australia (R, Wikipedia)",
+   "founded": "1992 (R, Wikipedia)",
+   "sources": [
+    "https://en.wikipedia.org/wiki/LEAP_Legal_Software",
+    "https://www.lawnext.com/2024/09/the-shrinking-ownership-of-law-practice-management-technology-part-2-of-4-a-scorecard-of-who-owns-what.html"
+   ]
+  },
+  {
+   "id": "legal-vendor-lawcus",
+   "legalName": "Lawcus",
+   "name": "Lawcus",
+   "parent": "not in notes",
+   "ownership": "Ownership not found in notes",
+   "headquarters": "San Diego, California (V, Lawcus pricing page)",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.lawcus.com/pricing"
+   ]
+  },
+  {
+   "id": "legal-vendor-aderant",
+   "legalName": "Aderant",
+   "name": "Aderant",
+   "parent": "Roper Technologies, Inc. (Nasdaq: ROP)",
+   "ownership": "Business unit of Roper Technologies since October 2015, acquired from Madison Dearborn Partners (V, Aderant about page and newsroom); US$675M price (R, Legal IT Insider headline)",
+   "headquarters": "Atlanta, Georgia (V, Aderant about page)",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.aderant.com/about-aderant/",
+    "https://www.aderant.com/news-pr/roper-technologies-to-acquire-legal-software-company-aderant/",
+    "https://www.legaltechnology.com/latest-news/aderant-finds-a-new-home-with-roper-technologies-no-more-vcs-video/"
+   ]
+  },
+  {
+   "id": "legal-vendor-elite",
+   "legalName": "Elite",
+   "name": "Elite",
+   "parent": "Francisco Partners",
+   "ownership": "Francisco Partners agreed 2025-08-05 to acquire Elite from TPG, terms not disclosed (V, Business Wire); TPG had carved Elite out of Thomson Reuters in 2023 at about US$500M valuation (R, LawSites)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.businesswire.com/news/home/20250805611181/en/Francisco-Partners-to-Acquire-Legal-Tech-Solutions-Provider-Elite-From-TPG",
+    "https://www.lawnext.com/2025/08/breaking-elite-a-financial-management-platform-for-larger-firms-has-been-acquired-by-francisco-partners.html"
+   ]
+  },
+  {
+   "id": "legal-vendor-intapp",
+   "legalName": "Intapp, Inc.",
+   "name": "Intapp",
+   "parent": "public (Nasdaq: INTA)",
+   "ownership": "Public company, Nasdaq: INTA; FY2026 revenue US$577.8M, release dated 2026-08-04 (V, Intapp investor release); IPO 2021-06-30 (R, stockanalysis.com)",
+   "headquarters": "Palo Alto, California (V, Intapp newsroom)",
+   "founded": "2000 (R, stockanalysis.com)",
+   "sources": [
+    "https://investors.intapp.com/investor-news/news-details/2026/Intapp-announces-fourth-quarter-and-fiscal-year-2026-financial-results/",
+    "https://www.intapp.com/news/intapp-acquires-billstream/",
+    "https://stockanalysis.com/stocks/inta/company/"
+   ]
+  },
+  {
+   "id": "legal-vendor-surepoint",
+   "legalName": "SurePoint Technologies",
+   "name": "SurePoint",
+   "parent": "Aquiline Capital Partners",
+   "ownership": "Aquiline Capital Partners acquired 2021 (V, SurePoint about page); acquired Coyote Analytics 2022-06-01 (V, SurePoint news)",
+   "headquarters": "Austin, Texas (V, SurePoint about page)",
+   "founded": "1982 as Rippe & Kingston; rebranded SurePoint 2020 (V, SurePoint about page)",
+   "sources": [
+    "https://surepoint.com/about-us/",
+    "https://surepoint.com/resources/news/news-surepoint-acquires-coyote-analytics/"
+   ]
+  },
+  {
+   "id": "legal-vendor-bighand",
+   "legalName": "BigHand",
+   "name": "BigHand",
+   "parent": "Levine Leichtman Capital Partners",
+   "ownership": "LLCP acquired BigHand from Bridgepoint Development Capital and LDC, announced 2020-08-28 (V, PR Newswire; V, BigHand news); acquired Digitory Legal 2022-08-22 (V, LawSites)",
+   "headquarters": "London (V, PR Newswire)",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.prnewswire.com/news-releases/levine-leichtman-capital-partners-to-acquire-bighand-in-partnership-with-management-301120144.html",
+    "https://www.bighand.com/en-us/resources/news/bighand-partner-with-levine-leichtman-capital-partners-for-next-phase-of-growth/",
+    "https://www.lawnext.com/2022/08/bighand-acquires-digitory-legal.html"
+   ]
+  },
+  {
+   "id": "legal-vendor-imanage",
+   "legalName": "iManage LLC",
+   "name": "iManage",
+   "parent": "management controlled; Bain Capital Tech Opportunities minority",
+   "ownership": "Management controlled; Bain Capital Tech Opportunities minority stake 2023-04-11 (V, Bain Capital release); management buyout from HP July 2015 (R, Legal IT Insider)",
+   "headquarters": "Chicago, Illinois (R, Legal IT Insider)",
+   "founded": "Roots 1995 (NetWrite) and 1998 (iManage) (R, Legal IT Insider)",
+   "sources": [
+    "https://www.baincapital.com/news/imanage-announces-strategic-growth-investment-bain-capital-tech-opportunities",
+    "https://legaltechnology.com/the-boys-are-back-in-town-as-team-imanage-complete-management-buyout-from-hp/"
+   ]
+  },
+  {
+   "id": "legal-vendor-netdocuments",
+   "legalName": "NetDocuments Software, Inc.",
+   "name": "NetDocuments",
+   "parent": "Warburg Pincus (with Cove Hill Partners)",
+   "ownership": "Warburg Pincus acquired Clearlake's interest 2021-05-25; Cove Hill retained its stake; about US$1.4B valuation reported and not confirmed by the CEO (R, Legal IT Insider; R, Wikipedia); acquired Worldox Oct 2022 (V) and eDOCS from OpenText for US$163M cash, closed 2026-01-09 (V, BusinessWire)",
+   "headquarters": "Lehi, Utah (V, NetDocuments company page)",
+   "founded": "1999 (R, Wikipedia)",
+   "sources": [
+    "https://www.netdocuments.com/company/",
+    "https://legaltechnology.com/2021/05/25/warburg-pincus-acquires-netdocuments-from-clearlake/",
+    "https://www.netdocuments.com/company-news/netdocuments-acquires-worldox/",
+    "https://www.businesswire.com/news/home/20260109033140/en/NetDocuments-Completes-Acquisition-of-eDOCS"
+   ]
+  },
+  {
+   "id": "legal-vendor-epona",
+   "legalName": "Epona BV",
+   "name": "Epona",
+   "parent": "Main Capital Partners (majority)",
+   "ownership": "Main Capital Partners majority stake 2023-12-20; management retained minority (V, Main release); merged with JustiSolutions AS 2025 (V, Epona about page)",
+   "headquarters": "Netherlands; US operations stated (V, Epona about page)",
+   "founded": "2004 (V, Epona about page)",
+   "sources": [
+    "https://main.nl/press-release/main-acquires-epona/",
+    "https://epona.com/about/"
+   ]
+  },
+  {
+   "id": "legal-vendor-uptime",
+   "legalName": "Uptime Legal Systems",
+   "name": "Uptime Legal Systems",
+   "parent": "not in notes",
+   "ownership": "Ownership not found in notes",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://lexworkplace.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-vendor-mitratech",
+   "legalName": "Mitratech Holdings, Inc.",
+   "name": "Mitratech",
+   "parent": "Ontario Teachers' Pension Plan (majority); Hg minority",
+   "ownership": "OTPP majority stake 2021-03-24; Hg retained minority; TA Associates exited (V, PR Newswire); acquired HotDocs, announced 2024-06-10 (V, Mitratech release); Reuters reported Feb 2025 OTPP exploring US$4B plus sale (R)",
+   "headquarters": "Austin, Texas (V, PR Newswire)",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.prnewswire.com/news-releases/mitratech-announces-strategic-investment-from-ontario-teachers-301254261.html",
+    "https://mitratech.com/resource-hub/pressreleases/strategic-acquisition-of-hotdocs/",
+    "https://mitratech.com/products/hotdocs/"
+   ]
+  },
+  {
+   "id": "legal-vendor-thomsonreuters",
+   "legalName": "Thomson Reuters Corporation",
+   "name": "Thomson Reuters",
+   "parent": "public (NYSE/TSX: TRI)",
+   "ownership": "Public company; FY2025 revenues US$7,476M, Legal Professionals segment US$2,868M, release dated 2026-02-05 (V, PR Newswire); completed Casetext acquisition Aug 2023, US$650M (V, TR release; R, TechCrunch)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.prnewswire.com/news-releases/thomson-reuters-reports-fourth-quarter-and-full-year-2025-results-302680103.html",
+    "https://www.thomsonreuters.com/en/press-releases/2023/august/thomson-reuters-completes-acquisition-of-casetext-inc",
+    "https://legal.thomsonreuters.com/en/products/contract-express"
+   ]
+  },
+  {
+   "id": "legal-vendor-litera",
+   "legalName": "Litera Corp.",
+   "name": "Litera",
+   "parent": "Hg (majority); Insight Partners minority",
+   "ownership": "Hg acquired Litera Microsystems from K1 announced 2019-05-07 (R, LawSites); further Hg majority investment 2021-11-05 (V, Hg release); Insight Partners minority via Kira deal 2021-08-10 (V, BusinessWire); acquired FileTrail 2024-07-29 (V, Litera newslink)",
+   "headquarters": "Chicago, Illinois (V, Litera FileTrail release)",
+   "founded": "Over 25 years in legal tech per vendor (V, Litera FileTrail release)",
+   "sources": [
+    "https://www.hgcapital.com/insights/litera-secures-further-investment-from-hg",
+    "https://www.businesswire.com/news/home/20210810005645/en/Litera-Agrees-to-Acquire-Leading-Machine-Learning-Contract-Analysis-Company-Kira-Systems",
+    "https://www.litera.com/newslinks/litera-amplifies-governance-risk-and-compliance-offerings-acquisition-filetrail",
+    "https://trust.litera.com/"
+   ]
+  },
+  {
+   "id": "legal-vendor-relativity",
+   "legalName": "Relativity",
+   "name": "Relativity",
+   "parent": "Silver Lake (strategic investor); ICONIQ Growth",
+   "ownership": "Silver Lake strategic growth investment announced 2021-03-18; ICONIQ Growth remained an investor (V, PR Newswire); US$3.6B valuation (R, LawSites); acquired Gavel, announced 2026-06-12 (V, PR Newswire)",
+   "headquarters": "Chicago, Illinois (V, Relativity company page)",
+   "founded": "Not verified in notes",
+   "sources": [
+    "https://www.relativity.com/company/",
+    "https://www.prnewswire.com/news-releases/relativity-announces-strategic-investment-from-silver-lake-301250508.html",
+    "https://www.prnewswire.com/news-releases/relativity-acquires-gavel-to-extend-its-ai-platform-for-legal-data-intelligence-into-microsoft-word-302799189.html"
+   ]
+  },
+  {
+   "id": "legal-vendor-gavel",
+   "legalName": "Gavel, Inc. (a Relativity company)",
+   "name": "Gavel",
+   "parent": "Relativity",
+   "ownership": "Acquired by Relativity, announced 2026-06-12, terms not disclosed (V, PR Newswire; R, LawSites); formerly Documate and HelpSelf Legal (R, LawSites)",
+   "headquarters": "Los Angeles, California (R, LawSites)",
+   "founded": "2017 as HelpSelf Legal (R, LawSites)",
+   "sources": [
+    "https://www.gavel.io/pricing",
+    "https://www.prnewswire.com/news-releases/relativity-acquires-gavel-to-extend-its-ai-platform-for-legal-data-intelligence-into-microsoft-word-302799189.html",
+    "https://www.lawnext.com/2026/06/relativity-acquires-document-automation-company-gavel-extending-its-legal-data-platform-into-word.html"
+   ]
+  },
+  {
+   "id": "legal-vendor-xpressdox",
+   "legalName": "XpressDox",
+   "name": "XpressDox",
+   "parent": "not in notes",
+   "ownership": "Ownership not found in notes",
+   "headquarters": "London (V, XpressDox pricing page)",
+   "founded": "not in notes",
+   "sources": [
+    "https://xpressdox.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-vendor-lexisnexis",
+   "legalName": "LexisNexis, a division of RELX Inc.",
+   "name": "LexisNexis",
+   "parent": "RELX (LSE: REL, NYSE: RELX)",
+   "ownership": "Division of RELX, public; RELX FY2025 Legal segment revenue GBP 1,806M (V, SEC EDGAR exhibit); completed Henchman acquisition 2024-07-22 (V, LexisNexis newsroom)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.sec.gov/Archives/edgar/data/929869/000092986926000008/relx-20260201xex99d1.htm",
+    "https://www.lexisnexis.com/community/pressroom/b/news/posts/lexisnexis-completes-acquisition-of-henchman",
+    "https://www.lexisnexis.com/en-us/products/courtlink.page"
+   ]
+  },
+  {
+   "id": "legal-vendor-ironclad",
+   "legalName": "Ironclad, Inc.",
+   "name": "Ironclad",
+   "parent": "none (independent)",
+   "ownership": "Private, venture backed; Series E US$150M at US$3.2B valuation led by Franklin Templeton, 2022-01-18 (R, Forbes)",
+   "headquarters": "San Francisco, California (R, Forbes)",
+   "founded": "2014 (R, Forbes)",
+   "sources": [
+    "https://www.forbes.com/sites/kenrickcai/2022/01/18/ironclad-series-e-3-billion-valuation/",
+    "https://ironcladapp.com/security/"
+   ]
+  },
+  {
+   "id": "legal-vendor-agiloft",
+   "legalName": "Agiloft, Inc.",
+   "name": "Agiloft",
+   "parent": "FTV Capital (growth equity)",
+   "ownership": "US$45M growth equity from FTV Capital, 2020-08-17; control not stated (V, FTV Capital release)",
+   "headquarters": "Redwood City, California (V, FTV Capital release)",
+   "founded": "1991 (V, FTV Capital release)",
+   "sources": [
+    "https://ftvcapital.com/2020/agiloft-secures-45-million-growth-equity-investment-from-ftv-capital/",
+    "https://www.agiloft.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-vendor-docusign",
+   "legalName": "Docusign, Inc.",
+   "name": "Docusign",
+   "parent": "public (Nasdaq: DOCU)",
+   "ownership": "Public company, Nasdaq: DOCU (R, general knowledge in notes); completed SpringCM acquisition 2018 (R, Docusign investor release), US$220M (R, GeekWire); agreed to acquire Lexion for US$165M 2024-05-06 (R, GeekWire)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://ecom.docusign.com/plans-and-pricing/esignature",
+    "https://www.docusign.com/products/clm",
+    "https://www.docusign.com/trust/compliance/certifications",
+    "https://www.geekwire.com/2024/docusign-to-acquire-lexion-for-165m-in-exit-for-seattle-based-ai-contract-management-company/"
+   ]
+  },
+  {
+   "id": "legal-vendor-conga",
+   "legalName": "Conga Corporation",
+   "name": "Conga",
+   "parent": "Thoma Bravo (lead investor); Insight Partners",
+   "ownership": "Apttus and Conga combined, announced 2020-05-07; Thoma Bravo lead strategic investor, Insight Partners material stake (V, Thoma Bravo release); US$715M deal value (R, Wikipedia)",
+   "headquarters": "Broomfield, Colorado (R, Wikipedia)",
+   "founded": "2006 (R, Wikipedia)",
+   "sources": [
+    "https://www.thomabravo.com/press-releases/apttus-and-conga-combine-to-become-leader-in-digitally-transforming-commercial-operations",
+    "https://en.wikipedia.org/wiki/Conga_Corporation"
+   ]
+  },
+  {
+   "id": "legal-vendor-icertis",
+   "legalName": "Icertis, Inc.",
+   "name": "Icertis",
+   "parent": "none (independent, venture funded)",
+   "ownership": "Privately owned, venture funded; SoftBank and SAP minority stakes; US$5B valuation Nov 2021 (R, Wikipedia); Bloomberg reported 2026-02-11 a potential sale process at about US$5B (R, headline only)",
+   "headquarters": "Bellevue, Washington (R, Wikipedia)",
+   "founded": "2009 (R, Wikipedia)",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Icertis",
+    "https://www.bloomberg.com/news/articles/2026-02-11/softbank-backed-icertis-said-to-work-with-goldman-on-potential-5-billion-sale"
+   ]
+  },
+  {
+   "id": "legal-vendor-linksquares",
+   "legalName": "LinkSquares, Inc.",
+   "name": "LinkSquares",
+   "parent": "none (independent)",
+   "ownership": "Private, venture backed; Series C US$100M led by G Squared 2022-04-01; US$161.5M total; US$800M valuation (V, BusinessWire)",
+   "headquarters": "Boston, Massachusetts (V, BusinessWire)",
+   "founded": "2015 (V, BusinessWire)",
+   "sources": [
+    "https://www.businesswire.com/news/home/20220401005521/en/LinkSquares-Secures-%24100-Million-in-Series-C-Funding-Led-by-G-Squared",
+    "https://www.linksquares.com/pricing"
+   ]
+  },
+  {
+   "id": "legal-vendor-workday",
+   "legalName": "Workday, Inc.",
+   "name": "Workday",
+   "parent": "public (Nasdaq: WDAY)",
+   "ownership": "Public company; signed to acquire Evisort 2024-09-17 (V, Workday newsroom); completed 2024-10-08 for about US$310M (R, MarketScreener); relaunched as Workday CLM and Contract Intelligence 2025-03-27 (V, Workday newsroom)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://newsroom.workday.com/2024-09-17-Workday-Signs-Definitive-Agreement-to-Acquire-Evisort",
+    "https://newsroom.workday.com/2025-03-27-Evisort-AI-Powered-Contract-Intelligence-Now-Available-Through-Workday",
+    "https://www.marketscreener.com/quote/stock/WORKDAY-INC-37866670/news/Workday-Inc-completed-the-acquisition-of-Evisort-Inc-for-approximately-310-million-48331527/"
+   ]
+  },
+  {
+   "id": "legal-vendor-juro",
+   "legalName": "Juro Online Limited",
+   "name": "Juro",
+   "parent": "none (independent)",
+   "ownership": "Private, venture backed; Series B US$23M Jan 2022 led by Eight Roads; about US$31.5M total (R, Wikipedia)",
+   "headquarters": "London (R, Wikipedia)",
+   "founded": "2015 (R, Wikipedia)",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Juro_(company)",
+    "https://juro.com/pricing"
+   ]
+  },
+  {
+   "id": "legal-vendor-leah",
+   "legalName": "Leah (formerly ContractPodAi)",
+   "name": "Leah",
+   "parent": "none (independent)",
+   "ownership": "Private, venture backed; Series C US$115M led by SoftBank Vision Fund 2, 2021-09-30 (V, Leah press archive); rebranded from ContractPodAi 2026-01-05 (V, BusinessWire)",
+   "headquarters": "London (V, Leah press archive)",
+   "founded": "not in notes",
+   "sources": [
+    "https://leahai.com/press-releases/contractpodai-115m-funding-softbank-vision-fund-2",
+    "https://www.businesswire.com/news/home/20260105660790/en/ContractPodAi-Becomes-Leah-Signaling-a-Broader-AI-Vision"
+   ]
+  },
+  {
+   "id": "legal-vendor-trellis",
+   "legalName": "Trellis",
+   "name": "Trellis",
+   "parent": "not in notes",
+   "ownership": "Series B US$15M Sept 2023 (R, Law360 Pulse title); HQ and cap table not retrievable in notes",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://trellis.law/",
+    "https://www.law360.com/pulse/articles/1716381"
+   ]
+  },
+  {
+   "id": "legal-vendor-decisis",
+   "legalName": "Decisis",
+   "name": "Decisis",
+   "parent": "not in notes",
+   "ownership": "Parent company not retrievable in notes; distributed as a bar association member benefit (R, association pages)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.ncaj.com/membership/member-dues-benefits/decisis-legal-research",
+    "https://www.cobar.org/Decisis-Legal-Research"
+   ]
+  },
+  {
+   "id": "legal-vendor-predicta",
+   "legalName": "Pre/Dicta",
+   "name": "Pre/Dicta",
+   "parent": "not in notes",
+   "ownership": "Acquired Gavelytics, announced 2023-01-11, price not disclosed (V, LawSites); funding not found",
+   "headquarters": "not in notes",
+   "founded": "Launched mid-2022 (V, LawSites)",
+   "sources": [
+    "https://www.lawnext.com/2023/01/shuttered-legal-analytics-company-gavelytics-is-acquired-by-recently-launched-analytics-company-pre-dicta.html"
+   ]
+  },
+  {
+   "id": "legal-vendor-harvey",
+   "legalName": "Counsel AI Corporation (Harvey)",
+   "name": "Harvey",
+   "parent": "none (independent)",
+   "ownership": "Private, venture backed; US$550M at US$15.5B valuation led by Diffusion and Lightspeed, 2026-09-09 (V, Harvey blog; V, TechCrunch); prior US$200M at US$11B March 2026 (R, CNBC)",
+   "headquarters": "San Francisco, California (R, Wikipedia)",
+   "founded": "2022 (R, Wikipedia)",
+   "sources": [
+    "https://www.harvey.ai/blog/harvey-raises-dollar550m-at-a-dollar155b-valuation-to-help-legal-teams-own-their-intelligence",
+    "https://techcrunch.com/2026/09/09/harvey-hits-15-5b-valuation-months-after-reaching-11b/",
+    "https://www.harvey.ai/security"
+   ]
+  },
+  {
+   "id": "legal-vendor-legora",
+   "legalName": "Legora (formerly Leya)",
+   "name": "Legora",
+   "parent": "none (independent)",
+   "ownership": "Private, venture backed; Series D US$550M at US$5.55B led by Accel, 2026-03-10; US$816M total (V, Crunchbase News; Legora newsroom title); Bloomberg reported talks at about US$8.5B 2026-09-22 (R, headline only)",
+   "headquarters": "Stockholm (V, Crunchbase News)",
+   "founded": "2023 (V, Crunchbase News)",
+   "sources": [
+    "https://news.crunchbase.com/venture/unicorn-legal-tech-ai-startup-legora-triples-valuation/",
+    "https://legora.com/newsroom/legora-raises-550-million-series-d-to-fuel-us-growth"
+   ]
+  },
+  {
+   "id": "legal-vendor-spellbook",
+   "legalName": "Spellbook",
+   "name": "Spellbook",
+   "parent": "none (independent)",
+   "ownership": "Private; US$50M Series B Oct 2025 at US$350M post-money; US$40M debt financing from RBCx 2026-03-04 (V, BusinessWire)",
+   "headquarters": "Toronto (V, BusinessWire)",
+   "founded": "Launched first product 2022 (V, BusinessWire)",
+   "sources": [
+    "https://www.businesswire.com/news/home/20260304571140/en/Spellbook-Secures-$40M-USD-Debt-Financing-from-RBCx-to-Support-Strategic-Acquisitions-in-Consolidating-Legal-AI-Market",
+    "https://spellbook.com/pricing"
+   ]
+  },
+  {
+   "id": "legal-vendor-paxton",
+   "legalName": "Paxton AI",
+   "name": "Paxton AI",
+   "parent": "not in notes",
+   "ownership": "Ownership not found in notes",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.paxton.ai/pricing"
+   ]
+  },
+  {
+   "id": "legal-vendor-draftwise",
+   "legalName": "DraftWise",
+   "name": "DraftWise",
+   "parent": "none (independent)",
+   "ownership": "Private, venture backed; US$20M Series A led by Index Ventures 2024-03-14 (V, DraftWise blog)",
+   "headquarters": "New York (V, DraftWise blog)",
+   "founded": "2020 (V, DraftWise blog)",
+   "sources": [
+    "https://www.draftwise.com/blog/draftwise-announces-20-million-series-a"
+   ]
+  },
+  {
+   "id": "legal-vendor-eve",
+   "legalName": "Eve",
+   "name": "Eve",
+   "parent": "none (independent)",
+   "ownership": "Private, venture backed; US$103M Series B at US$1B plus valuation led by Spark Capital, 2025-09-30 (V, PR Newswire)",
+   "headquarters": "San Francisco, California (V, PR Newswire)",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.prnewswire.com/news-releases/eve-raises-103-million-at-1-billion-valuation-to-help-plaintiff-firms-deliver-justice-through-ai-transformation-302570807.html"
+   ]
+  },
+  {
+   "id": "legal-vendor-evenup",
+   "legalName": "EvenUp",
+   "name": "EvenUp",
+   "parent": "none (independent)",
+   "ownership": "Private, venture backed; US$150M Series E at US$2B plus valuation led by Bessemer, 2025-10-07; US$385M total (V, EvenUp blog)",
+   "headquarters": "San Francisco, California (V, EvenUp blog)",
+   "founded": "2019 (V, EvenUp blog)",
+   "sources": [
+    "https://www.evenuplaw.com/blog/evenup-2b-valuation/"
+   ]
+  },
+  {
+   "id": "legal-vendor-supio",
+   "legalName": "Supio",
+   "name": "Supio",
+   "parent": "none (independent)",
+   "ownership": "Private, venture backed; US$60M Series B led by Sapphire Ventures 2025-04-30; US$91M total (V, Supio press)",
+   "headquarters": "Seattle, Washington (V, Supio press)",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.supio.com/press/supio-announces-60m-series-b-to-accelerate-adoption-of-legal-ai-in-plaintiff-law"
+   ]
+  },
+  {
+   "id": "legal-vendor-everlaw",
+   "legalName": "Everlaw, Inc.",
+   "name": "Everlaw",
+   "parent": "none (independent)",
+   "ownership": "Private, venture backed; US$202M Series D led by TPG Growth, 2021-11-02, valuation over US$2B (V, PR Newswire); no later round found in notes",
+   "headquarters": "Oakland, California (V, Everlaw about page)",
+   "founded": "Not verified in notes",
+   "sources": [
+    "https://www.everlaw.com/about/",
+    "https://www.prnewswire.com/news-releases/everlaw-announces-202m-series-d-to-fuel-ediscovery-transformation-301413393.html",
+    "https://support.everlaw.com/hc/en-us/articles/205660765-Billing-and-Pricing-FAQ"
+   ]
+  },
+  {
+   "id": "legal-vendor-csdisco",
+   "legalName": "CS Disco, Inc.",
+   "name": "DISCO",
+   "parent": "public (NYSE: LAW)",
+   "ownership": "Public company, NYSE: LAW; FY2025 revenue US$156.8M, GAAP net loss US$44.4M, release 2026-02-25 (V, SEC EDGAR exhibit)",
+   "headquarters": "Austin, Texas (V, 10-K FY2024)",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.sec.gov/Archives/edgar/data/1625641/000162564126000043/q4fy2025earningsrelease.htm",
+    "https://d18rn0p25nwr6d.cloudfront.net/CIK-0001625641/abef8a15-468f-43c2-8ce8-1ea14114797c.html"
+   ]
+  },
+  {
+   "id": "legal-vendor-reveal",
+   "legalName": "Reveal Data Corporation",
+   "name": "Reveal",
+   "parent": "K1 Investment Management",
+   "ownership": "US$250M investment from K1 Investment Management Jan 2021 (V, Reveal about page); acquired Logikcull and IPRO 2023-08-29 in transactions valued over US$1B (V, Business Wire); acquired Onna 2024-05-07 (V, Reveal news)",
+   "headquarters": "Chicago, Illinois (V, Reveal about page)",
+   "founded": "2009 (V, Reveal about page)",
+   "sources": [
+    "https://www.revealdata.com/about-us",
+    "https://www.businesswire.com/news/home/20230829922415/en/Reveal-Acquires-Logikcull-and-IPRO",
+    "https://www.revealdata.com/news/reveal-acquires-onna",
+    "https://www.logikcull.com/pricing"
+   ]
+  },
+  {
+   "id": "legal-vendor-nuix",
+   "legalName": "Nuix Limited",
+   "name": "Nuix",
+   "parent": "public (ASX: NXL)",
+   "ownership": "Public company, ASX: NXL; half-year to 2025-12-31 statutory revenue AUD 121.18M (V, Nuix half-year report); FY26 revenue AUD 263.2M (R, TradingView)",
+   "headquarters": "Sydney, Australia (V, Nuix half-year report)",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.nuix.com/sites/default/files/2026-02/Annual%20Financial%20Report.pdf",
+    "https://www.tradingview.com/news/smallcaps:5294bbd8e094b:0-nuix-posts-18-8-fy26-revenue-growth-as-neo-platform-scale-accelerates/"
+   ]
+  },
+  {
+   "id": "legal-vendor-exterro",
+   "legalName": "Exterro, Inc.",
+   "name": "Exterro",
+   "parent": "Leeds Equity Partners (majority); Vista Equity Partners minority",
+   "ownership": "Leeds Equity Partners majority since June 2018, recapitalization 2022; Vista Equity Partners minority after the Zapproved deal announced 2023-01-19 (V, PR Newswire; V, Leeds Equity release)",
+   "headquarters": "Portland, Oregon (V, PR Newswire); Beaverton, Oregon (V, Leeds Equity release)",
+   "founded": "2004 (V, Leeds Equity release)",
+   "sources": [
+    "https://www.prnewswire.com/news-releases/legal-grc-platform-exterro-a-leeds-equity-portfolio-company-announces-acquisition-of-e-discovery-provider-zapproved-301725300.html",
+    "https://www.leedsequity.com/news/articles/leeds-equity-to-partner-with-exterro",
+    "https://www.exterro.com/about"
+   ]
+  },
+  {
+   "id": "legal-vendor-opentext",
+   "legalName": "Open Text Corporation",
+   "name": "OpenText",
+   "parent": "public (Nasdaq/TSX: OTEX)",
+   "ownership": "Public company (R, not on fetched page); sold eDOCS to NetDocuments for US$163M cash, closed 2026-01-09 (V, BusinessWire)",
+   "headquarters": "Waterloo, Ontario (R, notes gap)",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.opentext.com/products/axcelerate",
+    "https://opentext.com/solutions/legal-content-and-knowledge-management",
+    "https://www.businesswire.com/news/home/20260109033140/en/NetDocuments-Completes-Acquisition-of-eDOCS"
+   ]
+  },
+  {
+   "id": "legal-vendor-casepoint",
+   "legalName": "Casepoint (Casepoint + OPEXUS)",
+   "name": "Casepoint",
+   "parent": "Thoma Bravo (majority)",
+   "ownership": "Thoma Bravo acquired a majority stake and merged Casepoint with OPEXUS, announced 2025-01-27 (R, Legal IT Insider)",
+   "headquarters": "Washington, D.C. for the combined company (R, Legal IT Insider)",
+   "founded": "2008 (V, Casepoint about page)",
+   "sources": [
+    "https://www.casepoint.com/about-us/",
+    "https://legaltechnology.com/private-equity-firm-thoma-bravo-acquires-and-merges-casepoint-and-opexus/"
+   ]
+  },
+  {
+   "id": "legal-vendor-nextpoint",
+   "legalName": "Nextpoint, Inc.",
+   "name": "Nextpoint",
+   "parent": "not in notes",
+   "ownership": "Ownership not verified in notes",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.nextpoint.com/ediscovery-pricing"
+   ]
+  },
+  {
+   "id": "legal-vendor-litsoftware",
+   "legalName": "LIT SOFTWARE, LLC",
+   "name": "LIT SOFTWARE",
+   "parent": "none (independent)",
+   "ownership": "Private; no disclosed funding found in notes (V, LIT SUITE pricing page for address)",
+   "headquarters": "Coral Gables, Florida (V, LIT SUITE pricing page)",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.litsoftware.com/pricing"
+   ]
+  },
+  {
+   "id": "legal-vendor-opus2",
+   "legalName": "Opus 2 International",
+   "name": "Opus 2",
+   "parent": "Astorg Mid-Cap (majority); Five Arrows co-investor",
+   "ownership": "Astorg Mid-Cap majority stake 2021 with Five Arrows Principal Investments alongside the founder (R, Astorg portfolio page)",
+   "headquarters": "London (R, Astorg portfolio page)",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.astorg.com/investments/opus-2"
+   ]
+  },
+  {
+   "id": "legal-vendor-hanzo",
+   "legalName": "Hanzo",
+   "name": "Hanzo",
+   "parent": "not in notes",
+   "ownership": "Ownership not disclosed on site (V, Hanzo about page)",
+   "headquarters": "Portland, Oregon; London office (V, Hanzo about page)",
+   "founded": "not in notes",
+   "sources": [
+    "https://hanzo.co/about/"
+   ]
+  },
+  {
+   "id": "legal-vendor-tyler",
+   "legalName": "Tyler Technologies, Inc.",
+   "name": "Tyler Technologies",
+   "parent": "public (NYSE: TYL)",
+   "ownership": "Public company (R, not verified in notes)",
+   "headquarters": "Plano, Texas (R, not verified in notes)",
+   "founded": "not in notes",
+   "sources": [
+    "https://odysseyfileandservecloud.zendesk.com/hc/en-us/articles/360054652611-What-Are-the-E-Filing-Fees-for-My-State",
+    "https://www.tylertech.com/products/enterprise-justice/efile-serve"
+   ]
+  },
+  {
+   "id": "legal-vendor-infotrack",
+   "legalName": "InfoTrack US (ATI Global)",
+   "name": "InfoTrack",
+   "parent": "Australian Technology Innovators (Christian Beck group)",
+   "ownership": "Operates under ATI Global, chairman Stephen Wood (V, InfoTrack about page); Christian Beck's ATI owns most group entities (R, LawSites scorecard); acquired One Legal 2020-03-03 (V, One Legal news)",
+   "headquarters": "New York (V, One Legal news release)",
+   "founded": "Established more than 20 years ago as InfoTrack Australia (V, InfoTrack about page)",
+   "sources": [
+    "https://www.infotrack.com/about",
+    "https://www.onelegal.com/company-news/infotrack-makes-waves-california-acquisition-one-legal/"
+   ]
+  },
+  {
+   "id": "legal-vendor-fsx",
+   "legalName": "File & ServeXpress, LLC",
+   "name": "File & ServeXpress",
+   "parent": "Northlane Capital Partners",
+   "ownership": "Acquired by Northlane Capital Partners, announced 2026-03-03; owned by Strait Lane Capital Partners 2016 to 2026 (V, FSX release; R, Lincoln International)",
+   "headquarters": "Dallas, Texas (V, FSX release)",
+   "founded": "Formed 2012; traces to 1991 LexisNexis File & Serve (V, FSX release)",
+   "sources": [
+    "https://www.fileandservexpress.com/file-servexpress-acquisition-by-northlane-capital-partners/"
+   ]
+  },
+  {
+   "id": "legal-vendor-pacerpro",
+   "legalName": "PacerPro",
+   "name": "PacerPro",
+   "parent": "not in notes",
+   "ownership": "Ownership not found in notes",
+   "headquarters": "not in notes",
+   "founded": "Eleven years of operation per vendor site (V, PacerPro)",
+   "sources": [
+    "https://pacerpro.com/"
+   ]
+  },
+  {
+   "id": "legal-vendor-lawtoolbox",
+   "legalName": "LawToolBox",
+   "name": "LawToolBox",
+   "parent": "InfoTrack (majority)",
+   "ownership": "InfoTrack took a majority stake Aug 2020 (R, LawSites scorecard)",
+   "headquarters": "Englewood, Colorado (V, LawToolBox pricing page)",
+   "founded": "not in notes",
+   "sources": [
+    "https://lawtoolbox.com/pricing/",
+    "https://www.lawnext.com/2024/09/the-shrinking-ownership-of-law-practice-management-technology-part-2-of-4-a-scorecard-of-who-owns-what.html"
+   ]
+  },
+  {
+   "id": "legal-vendor-adobe",
+   "legalName": "Adobe Inc.",
+   "name": "Adobe",
+   "parent": "public (Nasdaq: ADBE)",
+   "ownership": "Public company (R, general knowledge in notes)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.adobe.com/acrobat/business/pricing.html",
+    "https://business.adobe.com/products/acrobat-business/sign-solutions.html"
+   ]
+  },
+  {
+   "id": "legal-vendor-dropbox",
+   "legalName": "Dropbox, Inc.",
+   "name": "Dropbox",
+   "parent": "public (Nasdaq: DBX)",
+   "ownership": "Public company (R, general knowledge in notes); Dropbox Sign formerly HelloSign (V, Dropbox Sign pricing page)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://sign.dropbox.com/products/dropbox-sign/pricing"
+   ]
+  },
+  {
+   "id": "legal-vendor-pandadoc",
+   "legalName": "PandaDoc Inc.",
+   "name": "PandaDoc",
+   "parent": "not in notes",
+   "ownership": "Ownership not found in notes",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.pandadoc.com/pricing/",
+    "https://www.pandadoc.com/security/"
+   ]
+  },
+  {
+   "id": "legal-vendor-zapier",
+   "legalName": "Zapier",
+   "name": "Zapier",
+   "parent": "not in notes",
+   "ownership": "Not fetched in notes; background only (R)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.clio.com/features/integrations/",
+    "https://www.mycase.com/integrations/"
+   ]
+  },
+  {
+   "id": "legal-vendor-microsoft",
+   "legalName": "Microsoft Corporation",
+   "name": "Microsoft",
+   "parent": "public (Nasdaq: MSFT)",
+   "ownership": "Public company (R, general knowledge in notes)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://bmtcorp.com/wp-content/uploads/2026/01/2025_ILTA_Executive_Summary_FINAL.pdf"
+   ]
+  },
+  {
+   "id": "legal-vendor-cisco",
+   "legalName": "Cisco Systems, Inc. (Duo)",
+   "name": "Cisco",
+   "parent": "public",
+   "ownership": "Duo acquired by Cisco 2018 for US$2.35B (R, background in notes)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://bmtcorp.com/wp-content/uploads/2026/01/2025_ILTA_Executive_Summary_FINAL.pdf"
+   ]
+  },
+  {
+   "id": "legal-vendor-crowdstrike",
+   "legalName": "CrowdStrike Holdings, Inc.",
+   "name": "CrowdStrike",
+   "parent": "public (Nasdaq: CRWD)",
+   "ownership": "Public company (R, background in notes)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://bmtcorp.com/wp-content/uploads/2026/01/2025_ILTA_Executive_Summary_FINAL.pdf"
+   ]
+  },
+  {
+   "id": "legal-vendor-arcticwolf",
+   "legalName": "Arctic Wolf Networks",
+   "name": "Arctic Wolf",
+   "parent": "not in notes",
+   "ownership": "Acquired Cylance from BlackBerry for US$160M plus stock, announced 2024-12-16 (R, TechCrunch title)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://techcrunch.com/2024/12/16/blackberry-sells-cylance-for-160m-a-fraction-of-the-1-4b-it-paid-in-2018/"
+   ]
+  },
+  {
+   "id": "legal-vendor-proofpoint",
+   "legalName": "Proofpoint, Inc.",
+   "name": "Proofpoint",
+   "parent": "Thoma Bravo",
+   "ownership": "Thoma Bravo acquired Proofpoint for US$12.3B, announced 2021-04-26 (R, CNBC; R, Thoma Bravo release title)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://www.cnbc.com/2021/04/26/thoma-bravo-purchase-of-proofpoint-marks-top-private-equity-cloud-deal.html"
+   ]
+  },
+  {
+   "id": "legal-vendor-mimecast",
+   "legalName": "Mimecast",
+   "name": "Mimecast",
+   "parent": "Permira",
+   "ownership": "Permira agreed to take Mimecast private in a US$5.8B all-cash deal, announced 2021-12-07 (R, TechCrunch title)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://techcrunch.com/2021/12/07/permira-plans-to-take-e-mail-security-firm-mimecast-private-in-a-5-8b-all-cash-deal"
+   ]
+  },
+  {
+   "id": "legal-vendor-knowbe4",
+   "legalName": "KnowBe4",
+   "name": "KnowBe4",
+   "parent": "Vista Equity Partners",
+   "ownership": "Vista Equity Partners take-private 2023, about US$4.6B (R, background in notes)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://bmtcorp.com/wp-content/uploads/2026/01/2025_ILTA_Executive_Summary_FINAL.pdf"
+   ]
+  },
+  {
+   "id": "legal-vendor-onepassword",
+   "legalName": "1Password",
+   "name": "1Password",
+   "parent": "not in notes",
+   "ownership": "Private; US$620M Series C Jan 2022 (R, background in notes)",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://bmtcorp.com/wp-content/uploads/2026/01/2025_ILTA_Executive_Summary_FINAL.pdf"
+   ]
+  },
+  {
+   "id": "legal-vendor-delinea",
+   "legalName": "Delinea",
+   "name": "Delinea",
+   "parent": "not in notes",
+   "ownership": "Ownership not in notes",
+   "headquarters": "not in notes",
+   "founded": "not in notes",
+   "sources": [
+    "https://bmtcorp.com/wp-content/uploads/2026/01/2025_ILTA_Executive_Summary_FINAL.pdf"
+   ]
+  }
+ ],
+ "products": [
+  {
+   "id": "legal-product-clio-manage",
+   "vendorId": "legal-vendor-clio",
+   "name": "Clio Manage",
+   "taxonomyBucketKeys": [
+    "function-practice-matter-management",
+    "function-trust-accounting",
+    "function-document-management",
+    "function-calendaring-deadlines",
+    "function-conflicts",
+    "function-esignature"
+   ],
+   "utilityKeys": [
+    "conflicts_checking_ethical_walls",
+    "court_efiling_docketing_deadlines",
+    "document_automation_assembly",
+    "document_management_records",
+    "practice_matter_management",
+    "trust_accounting_iolta"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per user per month, four tiers (Starter, Core, Signature, Elite)",
+   "publishedPrice": "Starting at US$49 per user per month (Starter); Core, Signature and Elite behind a quote flow (V, clio.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (vendor Series F release cites mid-sized firms; pricing page has no size statement)",
+   "integrationsNote": "300 plus integrations stated; App Directory page 1 features InfoTrack, CallRail, Steno, Case Status, Legl, AltFee, OurFamilyWizard, Scorpion (V, https://www.clio.com/app-directory/)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-trust-accounting": "All four plans list trust account management and trust and operating reconciliation plus a free accountant license; three-way reconciliation not named on the page (V)",
+    "function-document-management": "Document storage and management in all plans (V)",
+    "function-calendaring-deadlines": "Court calendaring rules: none in Starter, 3 per firm in Core, 10 per firm in Signature and Elite (V)",
+    "function-conflicts": "Conflict check in Core and above, not Starter (V)",
+    "function-esignature": "E-signature included: Starter 3 signatures, Core 15, Signature and Elite unlimited (V); no ESIGN or UETA statement on the security page (V)"
+   },
+   "sources": [
+    "https://www.clio.com/pricing/",
+    "https://www.clio.com/app-directory/",
+    "https://www.clio.com/security/"
+   ]
+  },
+  {
+   "id": "legal-product-mycase",
+   "vendorId": "legal-vendor-affinipay",
+   "name": "MyCase",
+   "taxonomyBucketKeys": [
+    "function-practice-matter-management",
+    "function-trust-accounting",
+    "function-intake-crm",
+    "function-client-portal",
+    "function-calendaring-deadlines",
+    "function-conflicts"
+   ],
+   "utilityKeys": [
+    "client_intake_crm",
+    "client_portal_communication",
+    "conflicts_checking_ethical_walls",
+    "court_efiling_docketing_deadlines",
+    "practice_matter_management",
+    "trust_accounting_iolta"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per user per month, three tiers, monthly or annual",
+   "publishedPrice": "Basic US$60 monthly or US$50 annual; Pro US$120 or US$100; Advanced US$150 or US$130, per user per month (V, mycase.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (priced on active firm users; no size statement on the page)",
+   "integrationsNote": "61 integrations listed, including QuickBooks, LawPay, Gmail, Outlook, Google Calendar, Dropbox, NetDocuments, Zapier, Lawmatics, InfoTrack, LawToolBox, Claude via MyCase MCP (V, https://www.mycase.com/integrations/)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-trust-accounting": "All plans include Trust Ledger and Reconciliation and Trust by Case; three-way reconciliation only through the MyCase Accounting add-on at US$39 per user per month (V)",
+    "function-intake-crm": "Basic has no intake; Pro and Advanced include Client Intake Forms and Legal CRM (V)",
+    "function-client-portal": "Unlimited client portal users; pricing based on active firm users (V)",
+    "function-calendaring-deadlines": "Court-rules calendaring in Advanced only, subscription required (V)",
+    "function-conflicts": "Conflict check search across cases, contacts and documents in all plans (V)"
+   },
+   "sources": [
+    "https://www.mycase.com/pricing/",
+    "https://www.mycase.com/integrations/"
+   ]
+  },
+  {
+   "id": "legal-product-mycase-accounting",
+   "vendorId": "legal-vendor-affinipay",
+   "name": "MyCase Accounting (add-on)",
+   "taxonomyBucketKeys": [
+    "function-trust-accounting"
+   ],
+   "utilityKeys": [
+    "trust_accounting_iolta"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per user per month add-on",
+   "publishedPrice": "US$39 per user per month; provides three-way trust reconciliation (V, mycase.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Sold inside MyCase; MyCase lists QuickBooks and LawPay integrations (V, https://www.mycase.com/integrations/)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.mycase.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-practicepanther",
+   "vendorId": "legal-vendor-paradigm",
+   "name": "PracticePanther",
+   "taxonomyBucketKeys": [
+    "function-practice-matter-management",
+    "function-trust-accounting",
+    "function-intake-crm"
+   ],
+   "utilityKeys": [
+    "client_intake_crm",
+    "practice_matter_management",
+    "trust_accounting_iolta"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per user per month, four tiers, monthly or annual",
+   "publishedPrice": "Solo US$59 monthly or US$49 annual; Essential US$79 or US$69; Business US$99 or US$89; Business Pro US$124 or US$114 (V, practicepanther.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (vendor states solo practitioners to larger firms with multiple attorneys)",
+   "integrationsNote": "Native ePayments with PantherPayments on all plans (V, pricing page); integration directory not fetched in notes",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-trust-accounting": "Only Business Pro includes Trust Accounting, an Enhanced Reconciliation Process described as completing three-way trust reconciliations, and Operating Accounting (V)",
+    "function-intake-crm": "Intake forms on Business and above (V)"
+   },
+   "sources": [
+    "https://www.practicepanther.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-bill4time",
+   "vendorId": "legal-vendor-paradigm",
+   "name": "Bill4Time",
+   "taxonomyBucketKeys": [
+    "function-time-billing",
+    "function-trust-accounting"
+   ],
+   "utilityKeys": [
+    "time_capture_billing_collections",
+    "trust_accounting_iolta"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per user per month, four plans",
+   "publishedPrice": "Time & Billing US$49 monthly or US$39 annual; Time & Billing Enterprise US$79 or US$69; Legal Pro US$69 or US$59; Legal Enterprise US$99 or US$89 (V, bill4time.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Payment processing on all plans (V, pricing page); directory not fetched in notes",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-trust-accounting": "Trust accounting only in Legal Pro and Legal Enterprise; three-way reconciliation not mentioned (V)"
+   },
+   "sources": [
+    "https://www.bill4time.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-pantherpayments",
+   "vendorId": "legal-vendor-paradigm",
+   "name": "PantherPayments (formerly Headnote)",
+   "taxonomyBucketKeys": [
+    "function-payments"
+   ],
+   "utilityKeys": [
+    "payments_client_billing_connectivity"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "embedded payments inside PracticePanther",
+   "publishedPrice": "not published (rates not on pricing page) (V, practicepanther.com/pricing)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Native to PracticePanther on all plans (V, pricing page); Headnote acquired by ASG LegalTech Sept 2020 (R, LawSites)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.practicepanther.com/pricing/",
+    "https://www.lawnext.com/2024/09/the-shrinking-ownership-of-law-practice-management-technology-part-2-of-4-a-scorecard-of-who-owns-what.html"
+   ]
+  },
+  {
+   "id": "legal-product-smokeball",
+   "vendorId": "legal-vendor-smokeball",
+   "name": "Smokeball",
+   "taxonomyBucketKeys": [
+    "function-practice-matter-management",
+    "function-document-automation"
+   ],
+   "utilityKeys": [
+    "document_automation_assembly",
+    "practice_matter_management"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "per user, four plans (Bill, Boost, Grow, Prosper+), depends on users, plan and term",
+   "publishedPrice": "not published on vendor page (V, smokeball.com/pricing, retrieved 2026-09-29); LawNext Directory listed Start US$29, Grow from US$99, Prosper from US$149 per user per month, last updated 2023-11-30 (R)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (vendor FAQ: Grow designed for firms with three or more staff members)",
+   "integrationsNote": "Listed as InfoTrack integration partner (V, https://www.infotrack.com/about); own directory not fetched",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-document-automation": "Advanced document automation and automated forms and templates at Grow and above (V)"
+   },
+   "sources": [
+    "https://www.smokeball.com/pricing",
+    "https://directory.lawnext.com/products/smokeball/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-cosmolex",
+   "vendorId": "legal-vendor-profitsolv",
+   "name": "CosmoLex",
+   "taxonomyBucketKeys": [
+    "function-practice-matter-management",
+    "function-trust-accounting"
+   ],
+   "utilityKeys": [
+    "practice_matter_management",
+    "trust_accounting_iolta"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "tailored quote with add-ons (CosmoLex Pay, CRM, Websites)",
+   "publishedPrice": "not published (V, cosmolex.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not on pricing page; directory not fetched in notes",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-trust-accounting": "Built-in general ledger accounting and trust per category description; three-way language not visible on pricing page (V)"
+   },
+   "sources": [
+    "https://www.cosmolex.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-rocket-matter",
+   "vendorId": "legal-vendor-profitsolv",
+   "name": "Rocket Matter",
+   "taxonomyBucketKeys": [
+    "function-practice-matter-management",
+    "function-trust-accounting",
+    "function-intake-crm"
+   ],
+   "utilityKeys": [
+    "client_intake_crm",
+    "practice_matter_management",
+    "trust_accounting_iolta"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per user per month, annual billing, four tiers",
+   "publishedPrice": "Essentials US$59; Pro US$95; Premier US$115; Elite US$145 per user per month, annual billing (V, rocketmatter.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (page size labels Solo, Small, Mid/Large)",
+   "integrationsNote": "Automatic bank data feed; Rocket Matter Pay included (V, pricing page)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-trust-accounting": "All tiers list Trust Accounting and Reconcile Operating, Trust, and Credit Card Accounts; Elite adds Matter-Based Trust Accounts and Auto Trust Transfer (V)",
+    "function-intake-crm": "Core CRM add-on US$39 per user per month; Enterprise CRM US$147 per month up to 3 users (V)"
+   },
+   "sources": [
+    "https://www.rocketmatter.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-rocket-matter-pay",
+   "vendorId": "legal-vendor-profitsolv",
+   "name": "Rocket Matter Pay",
+   "taxonomyBucketKeys": [
+    "function-payments"
+   ],
+   "utilityKeys": [
+    "payments_client_billing_connectivity"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "embedded payments, transaction fees",
+   "publishedPrice": "Included with Rocket Matter plans; cards, eCheck and ACH, US only, surcharging; rates not published (V, rocketmatter.com/pricing)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Native to Rocket Matter (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.rocketmatter.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-tabs3",
+   "vendorId": "legal-vendor-profitsolv",
+   "name": "Tabs3 Billing and Financials (with PracticeMaster)",
+   "taxonomyBucketKeys": [
+    "function-time-billing",
+    "function-trust-accounting",
+    "function-practice-matter-management",
+    "function-conflicts"
+   ],
+   "utilityKeys": [
+    "conflicts_checking_ethical_walls",
+    "practice_matter_management",
+    "time_capture_billing_collections",
+    "trust_accounting_iolta"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "per user per month subscription, cloud or on-site",
+   "publishedPrice": "Tabs3 Cloud US$89 per user monthly, PracticeMaster add-on US$35; OnSite US$69 per user monthly, PracticeMaster US$32; volume discounts (V, tabs3.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Tabs3Pay on the Cloud tier (V, pricing page); listed as NetDocuments and Clio ecosystem partner via ProfitSolv logo (V, NetDocuments partner page)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-trust-accounting": "Manage trust accounts listed under Financials; three-way reconciliation not named on pricing page (V)",
+    "function-conflicts": "Named the most popular conflict checking product in the 2023 ABA Practice Management TechReport (R, survey)"
+   },
+   "sources": [
+    "https://www.tabs3.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-tabs3pay",
+   "vendorId": "legal-vendor-profitsolv",
+   "name": "Tabs3Pay",
+   "taxonomyBucketKeys": [
+    "function-payments"
+   ],
+   "utilityKeys": [
+    "payments_client_billing_connectivity"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "embedded payments",
+   "publishedPrice": "not published (V, tabs3.com/pricing)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Native to Tabs3 Cloud tier (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.tabs3.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-tabs3-legal-crm",
+   "vendorId": "legal-vendor-profitsolv",
+   "name": "Tabs3 Legal CRM",
+   "taxonomyBucketKeys": [
+    "function-intake-crm"
+   ],
+   "utilityKeys": [
+    "client_intake_crm"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "flat monthly fee, annual billing",
+   "publishedPrice": "US$147 per month billed annually, up to 3 users (V, tabs3.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Sold with Tabs3 (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.tabs3.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-timesolv",
+   "vendorId": "legal-vendor-profitsolv",
+   "name": "TimeSolv",
+   "taxonomyBucketKeys": [
+    "function-time-billing"
+   ],
+   "utilityKeys": [
+    "time_capture_billing_collections"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per user, two plans (Pro, Legal), volume pricing",
+   "publishedPrice": "not published on pricing page as fetched; 10 day free trial (V, timesolv.com/pricing, retrieved 2026-09-29); trust accounting only in Legal plan (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Integrated processor add-on with next-day funding (V, pricing page)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.timesolv.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-actionstep",
+   "vendorId": "legal-vendor-actionstep",
+   "name": "Actionstep (with Soluno legal accounting)",
+   "taxonomyBucketKeys": [
+    "function-practice-matter-management",
+    "function-trust-accounting",
+    "function-intake-crm"
+   ],
+   "utilityKeys": [
+    "client_intake_crm",
+    "practice_matter_management",
+    "trust_accounting_iolta"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per user plus implementation fees, quote",
+   "publishedPrice": "not published (V, actionstep.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "vendor-stated",
+   "sizeFitNote": "vendor-stated (page states midsize law firms)",
+   "integrationsNote": "Listed on iManage Technology Partners page 1 (V, https://imanage.com/technology-partners/)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-trust-accounting": "Trust Accounting and Client Accounting in the practice management plan; Soluno (North America) lists Banking Transactions and Reconciliation; three-way not named (V)",
+    "function-intake-crm": "Client Intake and Form Management, Client Relationship Management, plus Capture add-on (V)"
+   },
+   "sources": [
+    "https://www.actionstep.com/pricing/",
+    "https://www.actionstep.com/news/actionstep-acquires-soluno/"
+   ]
+  },
+  {
+   "id": "legal-product-filevine",
+   "vendorId": "legal-vendor-filevine",
+   "name": "Filevine (with Lead Docket, Vinesign)",
+   "taxonomyBucketKeys": [
+    "function-practice-matter-management",
+    "function-intake-crm",
+    "function-esignature"
+   ],
+   "utilityKeys": [
+    "client_intake_crm",
+    "document_automation_assembly",
+    "practice_matter_management"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, Filevine newsroom; pricing page not fetched in notes)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (nearly 6,000 customers stated; plaintiff and insurance defense focus)",
+   "integrationsNote": "Listed as InfoTrack integration partner (V, https://www.infotrack.com/about); Confido Legal not listed; directory not fetched",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-intake-crm": "Lead Docket intake module named in notes (V, Filevine newsroom)",
+    "function-esignature": "Vinesign eSignature module named in notes (V, Filevine newsroom); no separate pricing or legality page fetched"
+   },
+   "sources": [
+    "https://www.filevine.com/news/filevine-raises-400m-with-insight-accel-and-halo-fund-to-scale-legal-intelligence/",
+    "https://www.infotrack.com/about"
+   ]
+  },
+  {
+   "id": "legal-product-litify",
+   "vendorId": "legal-vendor-litify",
+   "name": "Litify",
+   "taxonomyBucketKeys": [
+    "function-practice-matter-management",
+    "function-intake-crm",
+    "function-time-billing"
+   ],
+   "utilityKeys": [
+    "client_intake_crm",
+    "practice_matter_management",
+    "time_capture_billing_collections"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based; built on Salesforce platform",
+   "publishedPrice": "not published (V, litify.com/about-us)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (serves personal injury, insurance defense, immigration and corporate legal)",
+   "integrationsNote": "Built on Salesforce; Confido Legal lists Litify as an integration (R, LawSites)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-time-billing": "Timekeeping and eBilling named as features (V)"
+   },
+   "sources": [
+    "https://www.litify.com/about-us"
+   ]
+  },
+  {
+   "id": "legal-product-caret-legal",
+   "vendorId": "legal-vendor-caret",
+   "name": "CARET Legal (formerly Zola Suite)",
+   "taxonomyBucketKeys": [
+    "function-practice-matter-management",
+    "function-client-portal",
+    "function-payments"
+   ],
+   "utilityKeys": [
+    "client_portal_communication",
+    "payments_client_billing_connectivity",
+    "practice_matter_management"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per user per month, annual, three tiers",
+   "publishedPrice": "Enterprise US$79; Enterprise Plus US$99; Enterprise Insights US$119 per user per month, annual (V, caretlegal.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (footer segments 1 to 30 employees and 30 plus employees; page says small and mid-sized firms)",
+   "integrationsNote": "Integrated Payments on all plans (V, pricing page); directory not fetched",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-client-portal": "Portal named in the product category description drawn from the pricing page (V)",
+    "function-payments": "Integrated Payments on all plans; rates not published (V)"
+   },
+   "sources": [
+    "https://www.caretlegal.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-centerbase",
+   "vendorId": "legal-vendor-centerbase",
+   "name": "Centerbase",
+   "taxonomyBucketKeys": [
+    "function-practice-matter-management",
+    "function-client-portal",
+    "function-payments"
+   ],
+   "utilityKeys": [
+    "client_portal_communication",
+    "payments_client_billing_connectivity",
+    "practice_matter_management"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "user-based pricing, quote",
+   "publishedPrice": "not published (V, centerbase.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "vendor-stated",
+   "sizeFitNote": "vendor-stated (page states built for midsize law firms)",
+   "integrationsNote": "Centerbase Payments powered by Stripe (V, pricing page)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-client-portal": "Client portal named in category description from pricing page (V)",
+    "function-payments": "Centerbase Payments powered by Stripe has no monthly or annual platform fees, transaction fee only (V)"
+   },
+   "sources": [
+    "https://www.centerbase.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-neos",
+   "vendorId": "legal-vendor-assembly",
+   "name": "Neos",
+   "taxonomyBucketKeys": [
+    "function-practice-matter-management"
+   ],
+   "utilityKeys": [
+    "practice_matter_management"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, assemblysoftware.com/about-assembly)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (vendor states 1,450 plus personal injury firms, 15,000 plus attorneys and staff)",
+   "integrationsNote": "Listed as InfoTrack integration partner (V, https://www.infotrack.com/about)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://assemblysoftware.com/about-assembly",
+    "https://www.infotrack.com/about"
+   ]
+  },
+  {
+   "id": "legal-product-leap",
+   "vendorId": "legal-vendor-leap",
+   "name": "LEAP",
+   "taxonomyBucketKeys": [
+    "function-practice-matter-management"
+   ],
+   "utilityKeys": [
+    "practice_matter_management"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "per user, quote",
+   "publishedPrice": "not published (not fetched in notes) (R)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Listed as InfoTrack integration partner (V, https://www.infotrack.com/about)",
+   "evidenceClass": "news",
+   "bucketNotes": {},
+   "sources": [
+    "https://en.wikipedia.org/wiki/LEAP_Legal_Software",
+    "https://www.infotrack.com/about"
+   ]
+  },
+  {
+   "id": "legal-product-lawcus",
+   "vendorId": "legal-vendor-lawcus",
+   "name": "Lawcus",
+   "taxonomyBucketKeys": [
+    "function-practice-matter-management"
+   ],
+   "utilityKeys": [
+    "practice_matter_management"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per user per month, annual or monthly, four tiers",
+   "publishedPrice": "Essential US$39 annual or US$49 monthly; Growth US$59 or US$69; Elite US$79 or US$89; Enterprise custom (V, lawcus.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Confido Legal lists Lawcus as an integration (R, LawSites)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.lawcus.com/pricing"
+   ]
+  },
+  {
+   "id": "legal-product-lawmatics",
+   "vendorId": "legal-vendor-lawmatics",
+   "name": "Lawmatics",
+   "taxonomyBucketKeys": [
+    "function-intake-crm"
+   ],
+   "utilityKeys": [
+    "client_intake_crm"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "three plans (Essential, Premium, Enterprise), tailor-made pricing, user minimums",
+   "publishedPrice": "not published; Essential 500 contacts and 3 user minimum; Premium 10,000 contacts, 3 user minimum; Enterprise 5 user minimum (V, lawmatics.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Listed as MyCase integration (V, https://www.mycase.com/integrations/); Confido Legal lists Lawmatics (R, LawSites)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.lawmatics.com/pricing",
+    "https://www.mycase.com/integrations/"
+   ]
+  },
+  {
+   "id": "legal-product-clio-grow",
+   "vendorId": "legal-vendor-clio",
+   "name": "Clio Grow",
+   "taxonomyBucketKeys": [
+    "function-intake-crm"
+   ],
+   "utilityKeys": [
+    "client_intake_crm"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "included in Elite; add-on for Core and Signature; not on Starter",
+   "publishedPrice": "not published as a separate figure (V, clio.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Part of Clio; App Directory 300 plus (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.clio.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-clio-payments",
+   "vendorId": "legal-vendor-clio",
+   "name": "Clio Payments",
+   "taxonomyBucketKeys": [
+    "function-payments"
+   ],
+   "utilityKeys": [
+    "payments_client_billing_connectivity"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "embedded payments, transaction fees",
+   "publishedPrice": "eCheck 1%, ACH 1%, credit and debit 2.95% (Amex 3.75%), Affirm 4.95%; available on all Clio plans; text-to-pay in Core and above (V, clio.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Native to Clio Manage (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.clio.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-lawpay",
+   "vendorId": "legal-vendor-affinipay",
+   "name": "LawPay",
+   "taxonomyBucketKeys": [
+    "function-payments"
+   ],
+   "utilityKeys": [
+    "payments_client_billing_connectivity"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "transaction fees plus monthly subscription (amount not on page)",
+   "publishedPrice": "Visa, MC, Discover 2.99% plus US$0.30; Amex 3.90% plus US$0.30; ACH and eCheck 1%; legal fee financing 5.95%; pass-through allocation fee US$7.99 per month; foreign cards plus 1.75% (V, lawpay.com/pricing, retrieved 2026-09-29); page lists Trust account protection and IOLTA compliance (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (111 bar endorsements incl. all 50 state bars and the ABA as of June 2022, V)",
+   "integrationsNote": "Integrated with MyCase on all plans (V, MyCase pricing); listed on MyCase integrations (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.lawpay.com/pricing/",
+    "https://www.lawpay.com/about/news/mycase-acquisition/"
+   ]
+  },
+  {
+   "id": "legal-product-confido-legal",
+   "vendorId": "legal-vendor-confido",
+   "name": "Confido Legal",
+   "taxonomyBucketKeys": [
+    "function-payments"
+   ],
+   "utilityKeys": [
+    "payments_client_billing_connectivity"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "embedded payments and disbursements for law firms and legaltech platforms",
+   "publishedPrice": "not published (R, LawSites 2026-02-26)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Integrates with Clio Manage, Lawmatics, Lawcus, SmartAdvocate, Prima.Law, Litify, QuickBooks Online, NetSuite (R, LawSites)",
+   "evidenceClass": "news",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.lawnext.com/2026/02/exclusive-confido-legal-raises-9-million-to-expand-embedded-payments-and-disbursements-for-law-firms.html",
+    "https://aquiline.com/news/confido-raises-9-million-to-scale-embedded-financial-infrastructure-for-law-firms-and-legaltech-platforms/"
+   ]
+  },
+  {
+   "id": "legal-product-aderant-expert-sierra",
+   "vendorId": "legal-vendor-aderant",
+   "name": "Aderant Expert Sierra (and Expert)",
+   "taxonomyBucketKeys": [
+    "function-time-billing",
+    "function-conflicts"
+   ],
+   "utilityKeys": [
+    "conflicts_checking_ethical_walls",
+    "time_capture_billing_collections"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, aderant.com; no pricing page)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (vendor size statement not captured in notes)",
+   "integrationsNote": "Listed on iManage Technology Partners and NetDocuments partner pages (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-conflicts": "Conflicts functionality not itemized on the about page; placement rests on the notes' product-set inference (R)"
+   },
+   "sources": [
+    "https://www.aderant.com/about-aderant/",
+    "https://www.aderant.com/news-pr/roper-technologies-to-acquire-legal-software-company-aderant/"
+   ]
+  },
+  {
+   "id": "legal-product-elite-3e",
+   "vendorId": "legal-vendor-elite",
+   "name": "Elite 3E (and ProLaw)",
+   "taxonomyBucketKeys": [
+    "function-time-billing",
+    "function-conflicts"
+   ],
+   "utilityKeys": [
+    "conflicts_checking_ethical_walls",
+    "time_capture_billing_collections"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (R, notes; no pricing page)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (vendor states about 2,000 firms incl. 75% of Am Law 100; ProLaw mapped to midsize)",
+   "integrationsNote": "Directory not fetched in notes",
+   "evidenceClass": "news",
+   "bucketNotes": {
+    "function-conflicts": "Conflicts within 3E and ProLaw per notes; module description not verified (R)"
+   },
+   "sources": [
+    "https://www.businesswire.com/news/home/20250805611181/en/Francisco-Partners-to-Acquire-Legal-Tech-Solutions-Provider-Elite-From-TPG",
+    "https://www.lawnext.com/2025/08/breaking-elite-a-financial-management-platform-for-larger-firms-has-been-acquired-by-francisco-partners.html"
+   ]
+  },
+  {
+   "id": "legal-product-intapp-time-billstream",
+   "vendorId": "legal-vendor-intapp",
+   "name": "Intapp Time and Intapp Billstream",
+   "taxonomyBucketKeys": [
+    "function-time-billing"
+   ],
+   "utilityKeys": [
+    "time_capture_billing_collections"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, Intapp newsroom)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (client metrics use US$50K and US$100K ARR thresholds)",
+   "integrationsNote": "Listed on NetDocuments and iManage partner pages (V); Billstream acquired from Wilson Allen 2022-06-13 (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.intapp.com/news/intapp-acquires-billstream/"
+   ]
+  },
+  {
+   "id": "legal-product-surepoint-lms",
+   "vendorId": "legal-vendor-surepoint",
+   "name": "SurePoint Practice Pro and Finance (incl. Coyote Analytics)",
+   "taxonomyBucketKeys": [
+    "function-time-billing",
+    "function-intake-crm",
+    "function-payments"
+   ],
+   "utilityKeys": [
+    "client_intake_crm",
+    "payments_client_billing_connectivity",
+    "time_capture_billing_collections"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, surepoint.com/about-us)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (vendor states mid-sized law firms; 25 to 400 lawyers per LawSites 2022)",
+   "integrationsNote": "SurePoint Payment Services and SurePoint CRM named (V, about page)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-intake-crm": "SurePoint CRM (ContactEase lineage) named on about page (V)",
+    "function-payments": "SurePoint Payment Services named on about page (V)"
+   },
+   "sources": [
+    "https://surepoint.com/about-us/",
+    "https://www.lawnext.com/2022/06/two-practice-management-companies-combine-as-surepoint-technologies-acquires-coyote-analytics.html"
+   ]
+  },
+  {
+   "id": "legal-product-intapp-intake",
+   "vendorId": "legal-vendor-intapp",
+   "name": "Intapp Intake",
+   "taxonomyBucketKeys": [
+    "function-intake-crm"
+   ],
+   "utilityKeys": [
+    "client_intake_crm"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, Intapp newsroom)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Intapp listed on NetDocuments partner page (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.intapp.com/news/intapp-acquires-billstream/",
+    "https://www.netdocuments.com/partners/partner-app-integrations/"
+   ]
+  },
+  {
+   "id": "legal-product-imanage-work",
+   "vendorId": "legal-vendor-imanage",
+   "name": "iManage Work 10 / iManage Cloud",
+   "taxonomyBucketKeys": [
+    "function-document-management"
+   ],
+   "utilityKeys": [
+    "document_management_records"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, imanage.com, no pricing page)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (Insight+ page names global, midsize and small law firms; Bain release cites 2,500 plus law firms)",
+   "integrationsNote": "Over 200 Technology Partners stated; page 1 names Actionstep, ActiveNav, Aderant, Advanced, BigHand, BA Insight, Alexi, Arctic Wolf (V, https://imanage.com/technology-partners/)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://imanage.com/imanage-products/the-imanage-platform/security/",
+    "https://imanage.com/technology-partners/",
+    "https://www.baincapital.com/news/imanage-announces-strategic-growth-investment-bain-capital-tech-opportunities"
+   ]
+  },
+  {
+   "id": "legal-product-netdocuments",
+   "vendorId": "legal-vendor-netdocuments",
+   "name": "NetDocuments",
+   "taxonomyBucketKeys": [
+    "function-document-management",
+    "function-records-governance",
+    "function-integration-platform"
+   ],
+   "utilityKeys": [
+    "document_management_records",
+    "integration_interoperability_data_sync",
+    "legal_hold_information_governance"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published; /pricing returns 404 (V, attempted fetch 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (vendor says firms of all sizes; Worldox deal positioned for small and mid-sized firms per LawSites)",
+   "integrationsNote": "150 plus integrations stated; featured Microsoft 365 and Copilot, Docusign eSignature; logos include Aderant, Advanced, BundleDocs, FileTrail, Intapp, Kofax, LeanLaw, LexisNexis, Litera, LUPL, Mitratech, Onit, ProfitSolv, Thomson Reuters, Upland (V, https://www.netdocuments.com/partners/partner-app-integrations/)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-records-governance": "Ethical walls, DLP, customer-managed keys, zero trust and analytics on the security and governance page; no separately named records product (V)",
+    "function-integration-platform": "Partner App Integrations directory, 150 plus integrations (V)"
+   },
+   "sources": [
+    "https://www.netdocuments.com/company/",
+    "https://www.netdocuments.com/partners/partner-app-integrations/",
+    "https://www.netdocuments.com/solutions/security-data-governance/"
+   ]
+  },
+  {
+   "id": "legal-product-worldox",
+   "vendorId": "legal-vendor-netdocuments",
+   "name": "Worldox",
+   "taxonomyBucketKeys": [
+    "function-document-management"
+   ],
+   "utilityKeys": [
+    "document_management_records"
+   ],
+   "deployment": "delivery-on-premise",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, worldox.com)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (LawSites framed the deal around small and mid-sized firms)",
+   "integrationsNote": "worldox.com states Worldox is a NetDocuments company and on-premises customers may continue (V, https://www.worldox.com/)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.worldox.com/",
+    "https://www.netdocuments.com/company-news/netdocuments-acquires-worldox/"
+   ]
+  },
+  {
+   "id": "legal-product-edocs",
+   "vendorId": "legal-vendor-netdocuments",
+   "name": "eDOCS (formerly OpenText eDOCS)",
+   "taxonomyBucketKeys": [
+    "function-document-management"
+   ],
+   "utilityKeys": [
+    "document_management_records"
+   ],
+   "deployment": "delivery-on-premise",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, BusinessWire completion release 2026-01-09)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "NetDocuments states continued support for on-premises eDOCS with no end of life planned and migration tools (V, BusinessWire)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.businesswire.com/news/home/20260109033140/en/NetDocuments-Completes-Acquisition-of-eDOCS",
+    "https://www.law360.com/pulse/articles/2395655/netdocuments-buys-opentext-legal-doc-software-for-163m"
+   ]
+  },
+  {
+   "id": "legal-product-epona-dms",
+   "vendorId": "legal-vendor-epona",
+   "name": "Epona365 DMS / DMSforLegal",
+   "taxonomyBucketKeys": [
+    "function-document-management"
+   ],
+   "utilityKeys": [
+    "document_management_records"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (no pricing page found in notes) (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (about 300 law firms and 120 legal departments at Dec 2023, V)",
+   "integrationsNote": "Built on Microsoft 365 and SharePoint (R, Microsoft Marketplace); DocuSign partner solution listed (R, DocuSign partner directory)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://epona.com/about/",
+    "https://main.nl/press-release/main-acquires-epona/"
+   ]
+  },
+  {
+   "id": "legal-product-lexworkplace",
+   "vendorId": "legal-vendor-uptime",
+   "name": "LexWorkplace",
+   "taxonomyBucketKeys": [
+    "function-document-management"
+   ],
+   "utilityKeys": [
+    "document_management_records"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "flat monthly fee with 3 users included, per-user and storage add-ons",
+   "publishedPrice": "Core US$395 per month USD (3 users, 1,000 GB; extra users US$50 per month; US$40 per 100 GB); Advanced US$595 per month (3 users, 2,000 GB; extra users US$60); Starter free for Uptime Manage or Cloud users (V, lexworkplace.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (page language runs from New Firm (Startups) to Large Firms)",
+   "integrationsNote": "Not on pricing page",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://lexworkplace.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-hotdocs",
+   "vendorId": "legal-vendor-mitratech",
+   "name": "HotDocs",
+   "taxonomyBucketKeys": [
+    "function-document-automation"
+   ],
+   "utilityKeys": [
+    "document_automation_assembly"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, mitratech.com/products/hotdocs)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (vendor states 1M plus end users across legal, insurance and enterprise; industry agnostic)",
+   "integrationsNote": "Open API; no named integrations on product page (V); listed on NetDocuments partner page as Mitratech (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://mitratech.com/products/hotdocs/",
+    "https://mitratech.com/resource-hub/pressreleases/strategic-acquisition-of-hotdocs/"
+   ]
+  },
+  {
+   "id": "legal-product-contract-express",
+   "vendorId": "legal-vendor-thomsonreuters",
+   "name": "Contract Express",
+   "taxonomyBucketKeys": [
+    "function-document-automation"
+   ],
+   "utilityKeys": [
+    "document_automation_assembly"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based (demo or contact)",
+   "publishedPrice": "not published (V, legal.thomsonreuters.com/en/products/contract-express); deployment not stated on page (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (page targets law firms, in-house counsel, government)",
+   "integrationsNote": "Microsoft Word, Excel, iSheets (V, product page)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://legal.thomsonreuters.com/en/products/contract-express",
+    "https://en.wikipedia.org/wiki/ContractExpress"
+   ]
+  },
+  {
+   "id": "legal-product-litera-draft",
+   "vendorId": "legal-vendor-litera",
+   "name": "Litera Draft (Create, Precedent, Compare, Lito)",
+   "taxonomyBucketKeys": [
+    "function-document-automation",
+    "function-knowledge-management"
+   ],
+   "utilityKeys": [
+    "document_automation_assembly",
+    "knowledge_management_search"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, litera.com/products/litera-desktop)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Runs across Microsoft 365, Google Workspace, iManage, NetDocuments, SharePoint, browser, mobile and desktop (V, Litera Draft page)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-knowledge-management": "Litera Precedent language library and search and the Lito AI agent sit inside Litera Draft (V)"
+   },
+   "sources": [
+    "https://www.litera.com/products/litera-desktop",
+    "https://trust.litera.com/"
+   ]
+  },
+  {
+   "id": "legal-product-gavel",
+   "vendorId": "legal-vendor-gavel",
+   "name": "Gavel",
+   "taxonomyBucketKeys": [
+    "function-document-automation"
+   ],
+   "utilityKeys": [
+    "document_automation_assembly"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "flat monthly tiers, annual only for Scale",
+   "publishedPrice": "Lite US$83 per month; Standard US$165; Pro US$290; Scale US$417 per month (annual only, per seat, API) (V, gavel.io/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "large regional (101 to 500)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (site navigation lists Solo Practices, SMB Law Firms, Large Law Firms)",
+   "integrationsNote": "API on Scale tier (V); gradual integration into RelativityOne stated (R, LawSites)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.gavel.io/pricing",
+    "https://www.lawnext.com/2026/06/relativity-acquires-document-automation-company-gavel-extending-its-legal-data-platform-into-word.html"
+   ]
+  },
+  {
+   "id": "legal-product-clio-draft",
+   "vendorId": "legal-vendor-clio",
+   "name": "Clio Draft (formerly Lawyaw)",
+   "taxonomyBucketKeys": [
+    "function-document-automation"
+   ],
+   "utilityKeys": [
+    "document_automation_assembly"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "add-on, sales quote",
+   "publishedPrice": "not published; page says contact your sales representative (V, clio.com/pricing)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Part of Clio (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.clio.com/pricing/",
+    "https://www.clio.com/about/press/lawyawacquisition/"
+   ]
+  },
+  {
+   "id": "legal-product-mycase-document-automation",
+   "vendorId": "legal-vendor-affinipay",
+   "name": "MyCase Document Automation (formerly Woodpecker)",
+   "taxonomyBucketKeys": [
+    "function-document-automation"
+   ],
+   "utilityKeys": [
+    "document_automation_assembly"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "included in MyCase Advanced tier",
+   "publishedPrice": "Included in Advanced (US$150 monthly or US$130 annual per user); Woodpecker no longer standalone (V, mycase.com/woodpecker and pricing)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (Woodpecker built for solo and small firms per LawSites)",
+   "integrationsNote": "Inside MyCase (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.mycase.com/woodpecker/",
+    "https://www.mycase.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-xpressdox",
+   "vendorId": "legal-vendor-xpressdox",
+   "name": "XpressDox",
+   "taxonomyBucketKeys": [
+    "function-document-automation"
+   ],
+   "utilityKeys": [
+    "document_automation_assembly"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "per user per month or per year, three plans",
+   "publishedPrice": "Essential US$59 per user per month or US$590 per year; Professional US$79 or US$790; Enterprise custom; cloud or on-premise hosting on all plans; support US$180 per hour (V, xpressdox.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "XpressDox Desktop for Microsoft Word included (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://xpressdox.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-imanage-insight-plus",
+   "vendorId": "legal-vendor-imanage",
+   "name": "iManage Insight+",
+   "taxonomyBucketKeys": [
+    "function-knowledge-management"
+   ],
+   "utilityKeys": [
+    "knowledge_management_search"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based (Book a demo)",
+   "publishedPrice": "not published; available exclusively in iManage Cloud (V, imanage.com Insight+ page)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (page names global, midsize and small law firms)",
+   "integrationsNote": "Integrates with iManage Work; Technology Partners program 200 plus (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://imanage.com/imanage-products/knowledge-search-management/insightplus/"
+   ]
+  },
+  {
+   "id": "legal-product-nd-patternbuilder-max",
+   "vendorId": "legal-vendor-netdocuments",
+   "name": "NetDocuments PatternBuilder MAX (ndMAX)",
+   "taxonomyBucketKeys": [
+    "function-knowledge-management",
+    "function-document-automation"
+   ],
+   "utilityKeys": [
+    "document_automation_assembly",
+    "knowledge_management_search"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, NetDocuments)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Native to NetDocuments (V); piloted by 58% of firms in ILTA 2026 survey (R, survey via LawSites)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.netdocuments.com/company-news/netdocuments-acquires-worldox/",
+    "https://www.lawnext.com/2026/09/which-ai-product-is-most-popular-among-law-firms-findings-of-iltas-tech-survey-may-surprise-you.html"
+   ]
+  },
+  {
+   "id": "legal-product-lexis-search-advantage",
+   "vendorId": "legal-vendor-lexisnexis",
+   "name": "Lexis Search Advantage",
+   "taxonomyBucketKeys": [
+    "function-knowledge-management"
+   ],
+   "utilityKeys": [
+    "knowledge_management_search"
+   ],
+   "deployment": "delivery-on-premise",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, lexisnexis.com Search Advantage page); behind-the-firewall security stated (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Integrates with firm DMS and SQL databases; Litigation and Transactional variants (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.lexisnexis.com/en-us/products/search-advantage.page"
+   ]
+  },
+  {
+   "id": "legal-product-aderant-handshake",
+   "vendorId": "legal-vendor-aderant",
+   "name": "Aderant Handshake",
+   "taxonomyBucketKeys": [
+    "function-knowledge-management"
+   ],
+   "utilityKeys": [
+    "knowledge_management_search"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, aderant.com/handshake-2); current page is a corporate landing page without product detail (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Portals, KM and Universal Search per 2017 acquisition release (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.aderant.com/news-pr/aderant-moves-knowledge-management-acquisition-handshake-software/",
+    "https://www.aderant.com/handshake-2/"
+   ]
+  },
+  {
+   "id": "legal-product-ironclad",
+   "vendorId": "legal-vendor-ironclad",
+   "name": "Ironclad",
+   "taxonomyBucketKeys": [
+    "function-contract-lifecycle"
+   ],
+   "utilityKeys": [
+    "contract_lifecycle_management"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (no pricing page read in notes) (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (CLM is mainly a corporate legal purchase per notes)",
+   "integrationsNote": "Security page: SOC 1 and SOC 2 Type II, ISO 27001/27017/27018; US-hosted Google Cloud (V, ironcladapp.com/security)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://ironcladapp.com/security/",
+    "https://www.forbes.com/sites/kenrickcai/2022/01/18/ironclad-series-e-3-billion-valuation/"
+   ]
+  },
+  {
+   "id": "legal-product-agiloft",
+   "vendorId": "legal-vendor-agiloft",
+   "name": "Agiloft CLM",
+   "taxonomyBucketKeys": [
+    "function-contract-lifecycle"
+   ],
+   "utilityKeys": [
+    "contract_lifecycle_management"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "three plans (essential, advanced, premium), quote",
+   "publishedPrice": "not published (V, agiloft.com/pricing, retrieved 2026-09-29); deployment not stated on page (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not on pricing page",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.agiloft.com/pricing/"
+   ]
+  },
+  {
+   "id": "legal-product-docusign-clm",
+   "vendorId": "legal-vendor-docusign",
+   "name": "Docusign CLM",
+   "taxonomyBucketKeys": [
+    "function-contract-lifecycle"
+   ],
+   "utilityKeys": [
+    "contract_lifecycle_management"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based (Contact Sales)",
+   "publishedPrice": "not published (V, docusign.com/products/clm)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Salesforce, SAP Ariba, Coupa, Slack named; 1000 plus pre-built integrations in App Center (V, CLM page)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.docusign.com/products/clm"
+   ]
+  },
+  {
+   "id": "legal-product-conga-clm",
+   "vendorId": "legal-vendor-conga",
+   "name": "Conga CLM",
+   "taxonomyBucketKeys": [
+    "function-contract-lifecycle"
+   ],
+   "utilityKeys": [
+    "contract_lifecycle_management"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (pricing page not fetched in notes) (R)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not fetched in notes",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.thomabravo.com/press-releases/apttus-and-conga-combine-to-become-leader-in-digitally-transforming-commercial-operations"
+   ]
+  },
+  {
+   "id": "legal-product-icertis",
+   "vendorId": "legal-vendor-icertis",
+   "name": "Icertis Contract Intelligence",
+   "taxonomyBucketKeys": [
+    "function-contract-lifecycle"
+   ],
+   "utilityKeys": [
+    "contract_lifecycle_management"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (pricing page not fetched in notes) (R)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not fetched in notes",
+   "evidenceClass": "news",
+   "bucketNotes": {},
+   "sources": [
+    "https://en.wikipedia.org/wiki/Icertis"
+   ]
+  },
+  {
+   "id": "legal-product-linksquares",
+   "vendorId": "legal-vendor-linksquares",
+   "name": "LinkSquares",
+   "taxonomyBucketKeys": [
+    "function-contract-lifecycle"
+   ],
+   "utilityKeys": [
+    "contract_lifecycle_management"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published; page states CLM pricing is not one-size-fits-all (V, linksquares.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not on pricing page",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.linksquares.com/pricing"
+   ]
+  },
+  {
+   "id": "legal-product-workday-clm",
+   "vendorId": "legal-vendor-workday",
+   "name": "Workday CLM and Workday Contract Intelligence (formerly Evisort)",
+   "taxonomyBucketKeys": [
+    "function-contract-lifecycle"
+   ],
+   "utilityKeys": [
+    "contract_lifecycle_management"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "available to Workday HCM and Financial Management customers",
+   "publishedPrice": "not published (V, Workday newsroom 2025-03-27)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Workday HCM and Financial Management (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://newsroom.workday.com/2025-03-27-Evisort-AI-Powered-Contract-Intelligence-Now-Available-Through-Workday"
+   ]
+  },
+  {
+   "id": "legal-product-juro",
+   "vendorId": "legal-vendor-juro",
+   "name": "Juro",
+   "taxonomyBucketKeys": [
+    "function-contract-lifecycle"
+   ],
+   "utilityKeys": [
+    "contract_lifecycle_management"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "custom quote by contract volume, unlimited users",
+   "publishedPrice": "not published; quote by contract volume (under 20 to 1,000 plus per month), contract types, AI features and integrations; USD, GBP, EUR (V, juro.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Priced partly on integrations selected (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://juro.com/pricing"
+   ]
+  },
+  {
+   "id": "legal-product-leah",
+   "vendorId": "legal-vendor-leah",
+   "name": "Leah (formerly ContractPodAi)",
+   "taxonomyBucketKeys": [
+    "function-contract-lifecycle",
+    "function-generative-ai"
+   ],
+   "utilityKeys": [
+    "contract_lifecycle_management",
+    "generative_ai_legal_assistance"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (R, notes gap)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not fetched in notes",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.businesswire.com/news/home/20260105660790/en/ContractPodAi-Becomes-Leah-Signaling-a-Broader-AI-Vision",
+    "https://leahai.com/press-releases/contractpodai-115m-funding-softbank-vision-fund-2"
+   ]
+  },
+  {
+   "id": "legal-product-litera-kira",
+   "vendorId": "legal-vendor-litera",
+   "name": "Litera Kira",
+   "taxonomyBucketKeys": [
+    "function-contract-lifecycle"
+   ],
+   "utilityKeys": [
+    "contract_lifecycle_management"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based; Lito included for Kira customers at no additional charge",
+   "publishedPrice": "not published (V, litera.com/products/kira)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (contract review for deal work)",
+   "integrationsNote": "Microsoft 365, Litera Transact, HighQ, Intralinks; 1,400 plus pre-built smart fields (V, Kira page)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.litera.com/products/kira"
+   ]
+  },
+  {
+   "id": "legal-product-docusign-esignature",
+   "vendorId": "legal-vendor-docusign",
+   "name": "Docusign eSignature",
+   "taxonomyBucketKeys": [
+    "function-esignature"
+   ],
+   "utilityKeys": [
+    "document_automation_assembly"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per user per month, annual billed monthly, three published tiers plus Enhanced Plans",
+   "publishedPrice": "Personal US$11 per month; Standard US$30 per user per month; Business Pro US$45 per user per month; annual, billed monthly (V, ecom.docusign.com/plans-and-pricing/esignature, retrieved 2026-09-29); ESIGN and UETA statement published (V, legality page)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (Personal for individuals and sole proprietors; Standard for small to medium teams, vendor wording)",
+   "integrationsNote": "NetDocuments features a Docusign eSignature integration (V, NetDocuments partner page); Epona listed in DocuSign partner directory (R)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://ecom.docusign.com/plans-and-pricing/esignature",
+    "https://www.docusign.com/products/electronic-signature/legality",
+    "https://www.docusign.com/trust/compliance/certifications"
+   ]
+  },
+  {
+   "id": "legal-product-acrobat-sign",
+   "vendorId": "legal-vendor-adobe",
+   "name": "Adobe Acrobat (Standard and Pro for Teams) and Acrobat Sign Solutions",
+   "taxonomyBucketKeys": [
+    "function-esignature"
+   ],
+   "utilityKeys": [
+    "document_automation_assembly"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per license per month, annual billed monthly; Sign Solutions contact sales",
+   "publishedPrice": "Acrobat Standard for Teams US$16.99 and Pro for Teams US$23.99 per license per month include e-signature; Acrobat Sign Solutions contact sales only (V, adobe.com pricing pages, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Sign Solutions compliance list on vendor page (V); no ESIGN or UETA statement on the pages read (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.adobe.com/acrobat/business/pricing.html",
+    "https://business.adobe.com/products/acrobat-business/sign-solutions.html"
+   ]
+  },
+  {
+   "id": "legal-product-dropbox-sign",
+   "vendorId": "legal-vendor-dropbox",
+   "name": "Dropbox Sign",
+   "taxonomyBucketKeys": [
+    "function-esignature"
+   ],
+   "utilityKeys": [
+    "document_automation_assembly"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per month or per user per month, monthly or annual",
+   "publishedPrice": "Essentials US$15 per month monthly or US$10.05 annual; Standard US$25 per user per month monthly or US$17.50 annual; Premium custom (V, sign.dropbox.com pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (Standard for small teams; 5 plus users contact us, vendor wording)",
+   "integrationsNote": "Not on pricing page",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://sign.dropbox.com/products/dropbox-sign/pricing"
+   ]
+  },
+  {
+   "id": "legal-product-pandadoc",
+   "vendorId": "legal-vendor-pandadoc",
+   "name": "PandaDoc",
+   "taxonomyBucketKeys": [
+    "function-esignature"
+   ],
+   "utilityKeys": [
+    "document_automation_assembly"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per seat per month, free tier, enterprise per seat or per document",
+   "publishedPrice": "Free US$0; Starter US$19 per seat per month; Business US$49 per seat per month; Enterprise quote (V, pandadoc.com/pricing, retrieved 2026-09-29); ESIGN and UETA four conditions stated (V, security page)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not on pricing page",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.pandadoc.com/pricing/",
+    "https://www.pandadoc.com/security/"
+   ]
+  },
+  {
+   "id": "legal-product-imanage-records-manager",
+   "vendorId": "legal-vendor-imanage",
+   "name": "iManage Records Manager (and Disposition Manager)",
+   "taxonomyBucketKeys": [
+    "function-records-governance"
+   ],
+   "utilityKeys": [
+    "legal_hold_information_governance"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "add-on service to iManage Cloud subscription",
+   "publishedPrice": "not published (V, imanage.com Records Manager page)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Integrates with iManage Work, Security Policy Manager and Windows file shares (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://imanage.com/imanage-products/security-governance/records-manager/"
+   ]
+  },
+  {
+   "id": "legal-product-litera-cam",
+   "vendorId": "legal-vendor-litera",
+   "name": "Litera CAM (formerly Prosperoware)",
+   "taxonomyBucketKeys": [
+    "function-records-governance"
+   ],
+   "utilityKeys": [
+    "legal_hold_information_governance"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, litera.com/products/cam)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Applies structure, metadata and access controls across collaboration systems; page does not list integrations (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.litera.com/products/cam",
+    "https://www.businesswire.com/news/home/20220118005413/en/Litera-to-Acquire-Prosperoware-to-Empower-Team-Collaboration-Across-Systems"
+   ]
+  },
+  {
+   "id": "legal-product-litera-filetrail",
+   "vendorId": "legal-vendor-litera",
+   "name": "Litera FileTrail",
+   "taxonomyBucketKeys": [
+    "function-records-governance"
+   ],
+   "utilityKeys": [
+    "legal_hold_information_governance"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, Litera FileTrail release 2024-07-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "FileTrail listed as a NetDocuments integration partner (V, NetDocuments partner page)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.litera.com/newslinks/litera-amplifies-governance-risk-and-compliance-offerings-acquisition-filetrail",
+    "https://www.netdocuments.com/partners/partner-app-integrations/"
+   ]
+  },
+  {
+   "id": "legal-product-exterro-data-governance",
+   "vendorId": "legal-vendor-exterro",
+   "name": "Exterro Data Governance (Data Retention, RoPA Manager, DSR Manager)",
+   "taxonomyBucketKeys": [
+    "function-records-governance"
+   ],
+   "utilityKeys": [
+    "legal_hold_information_governance"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, exterro.com/about)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (vendor states 50% of Fortune 100; corporate legal focus)",
+   "integrationsNote": "Cloud and SaaS connectors named (V, about page)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.exterro.com/about"
+   ]
+  },
+  {
+   "id": "legal-product-westlaw-cocounsel",
+   "vendorId": "legal-vendor-thomsonreuters",
+   "name": "Westlaw Precision and CoCounsel",
+   "taxonomyBucketKeys": [
+    "function-legal-research",
+    "function-generative-ai",
+    "function-legal-analytics"
+   ],
+   "utilityKeys": [
+    "generative_ai_legal_assistance",
+    "legal_analytics_litigation_data",
+    "legal_research"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quoted enterprise agreements",
+   "publishedPrice": "not published; CoCounsel pricing URL returned 404 on 2026-09-29 (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (sold across all bands on quoted agreements per notes)",
+   "integrationsNote": "PacerPro lists WestKM integration (V, pacerpro.com); Noetica acquired 2026-02-10 to integrate into CoCounsel (V, TR release)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-generative-ai": "CoCounsel named among GenAI vendors in ILTA 2025 executive summary (R, survey); CoCounsel in use at 44% of firms in ILTA 2026 (R, survey via notes)",
+    "function-legal-analytics": "Westlaw Litigation Analytics product page not fetched in notes; pricing not published (R)"
+   },
+   "sources": [
+    "https://www.thomsonreuters.com/en/press-releases/2023/august/thomson-reuters-completes-acquisition-of-casetext-inc",
+    "https://www.thomsonreuters.com/en/press-releases/2026/february/thomson-reuters-acquires-noetica-inc-the-ai-native-platform-for-corporate-transaction-intelligence",
+    "https://bmtcorp.com/wp-content/uploads/2026/01/2025_ILTA_Executive_Summary_FINAL.pdf"
+   ]
+  },
+  {
+   "id": "legal-product-lexis-plus-protege",
+   "vendorId": "legal-vendor-lexisnexis",
+   "name": "Lexis+ with Protégé (Lexis+ AI)",
+   "taxonomyBucketKeys": [
+    "function-legal-research",
+    "function-generative-ai"
+   ],
+   "utilityKeys": [
+    "generative_ai_legal_assistance",
+    "legal_research"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "varies by organization size, capabilities and content scope",
+   "publishedPrice": "not published; page states pricing varies by organization size, capabilities and content access (V, lexisnexis.com Lexis+ AI page, retrieved 2026-09-29); customer data not used to train public models; Vault results retained 90 days (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "PacerPro lists Lexis integration (V); Henchman integrated into Lexis+ AI and Lexis Create (V, LexisNexis newsroom)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-generative-ai": "Lexis+ AI in use at 26% of firms in ILTA 2026 (R, survey via notes)"
+   },
+   "sources": [
+    "https://www.lexisnexis.com/en-us/products/lexis-plus-ai.page",
+    "https://www.lexisnexis.com/community/pressroom/b/news/posts/lexisnexis-completes-acquisition-of-henchman"
+   ]
+  },
+  {
+   "id": "legal-product-vlex-fastcase",
+   "vendorId": "legal-vendor-clio",
+   "name": "vLex and Fastcase (Clio)",
+   "taxonomyBucketKeys": [
+    "function-legal-research"
+   ],
+   "utilityKeys": [
+    "legal_research"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote; bar association benefit distribution for Fastcase",
+   "publishedPrice": "not published; vlex.com/pricing returned 403 and fastcase.com/pricing 404 on 2026-09-29 (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (Fastcase bar-benefit distribution)",
+   "integrationsNote": "Fastcase listed on Clio integrations page (V, clio.com/features/integrations)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.clio.com/about/press/clio-completes-landmark-1b-vlex-acquisition-series-g-5b-valuation/",
+    "https://www.clio.com/features/integrations/"
+   ]
+  },
+  {
+   "id": "legal-product-docket-alarm",
+   "vendorId": "legal-vendor-clio",
+   "name": "Docket Alarm (Clio Docket in Clio Work)",
+   "taxonomyBucketKeys": [
+    "function-legal-research",
+    "function-legal-analytics",
+    "function-efiling-docketing"
+   ],
+   "utilityKeys": [
+    "court_efiling_docketing_deadlines",
+    "legal_analytics_litigation_data",
+    "legal_research"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "free, pay-as-you-go, flat fee per user, enterprise",
+   "publishedPrice": "Free US$0 (5 actions per week); Pay-As-You-Go US$39.99 per month plus US$4 per document, US$3 per day case alerts, US$3 per case update; Flat-Fee US$99 per user per month; Enterprise quote, minimum 5 users (V, docketalarm.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Part of Clio; folded into Clio Docket inside Clio Work 2026-08-18 with over 1 billion filings (R, LawSites)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-legal-analytics": "PTAB and TTAB analytics in the Flat-Fee plan (V)",
+    "function-efiling-docketing": "Docket monitoring and alerts; purchased documents shared firm-wide at no extra charge in Clio Docket (R, LawSites)"
+   },
+   "sources": [
+    "https://www.docketalarm.com/pricing",
+    "https://www.lawnext.com/2026/08/clio-docket-is-now-in-clio-work-combining-an-ai-workspace-with-access-to-more-than-1-billion-court-filings.html"
+   ]
+  },
+  {
+   "id": "legal-product-trellis",
+   "vendorId": "legal-vendor-trellis",
+   "name": "Trellis",
+   "taxonomyBucketKeys": [
+    "function-legal-research",
+    "function-legal-analytics"
+   ],
+   "utilityKeys": [
+    "legal_analytics_litigation_data",
+    "legal_research"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote",
+   "publishedPrice": "not published; trellis.law/pricing returned 403 on 2026-09-29 (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not retrievable in notes",
+   "evidenceClass": "news",
+   "bucketNotes": {},
+   "sources": [
+    "https://trellis.law/",
+    "https://www.law360.com/pulse/articles/1716381"
+   ]
+  },
+  {
+   "id": "legal-product-decisis",
+   "vendorId": "legal-vendor-decisis",
+   "name": "Decisis",
+   "taxonomyBucketKeys": [
+    "function-legal-research"
+   ],
+   "utilityKeys": [
+    "legal_research"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "bar association member benefit",
+   "publishedPrice": "not published; decisis.com/purchase blocked by robots (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (bar member benefit distribution)",
+   "integrationsNote": "Not in notes",
+   "evidenceClass": "news",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.ncaj.com/membership/member-dues-benefits/decisis-legal-research",
+    "https://www.ohiobar.org/membership/Practice-Resources/legal-research/Decisis/"
+   ]
+  },
+  {
+   "id": "legal-product-lex-machina",
+   "vendorId": "legal-vendor-lexisnexis",
+   "name": "Lex Machina",
+   "taxonomyBucketKeys": [
+    "function-legal-analytics"
+   ],
+   "utilityKeys": [
+    "legal_analytics_litigation_data"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "add-on or bundle inside enterprise research agreements",
+   "publishedPrice": "not published (R, notes; product page not fetched)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Inside LexisNexis (R)",
+   "evidenceClass": "news",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.lexisnexis.com/en-us/products/courtlink.page"
+   ]
+  },
+  {
+   "id": "legal-product-predicta",
+   "vendorId": "legal-vendor-predicta",
+   "name": "Pre/Dicta",
+   "taxonomyBucketKeys": [
+    "function-legal-analytics"
+   ],
+   "utilityKeys": [
+    "legal_analytics_litigation_data"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote",
+   "publishedPrice": "not published (V, LawSites 2023-01-11; pricing not found)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (federal motion-to-dismiss prediction; scope inference)",
+   "integrationsNote": "Not in notes",
+   "evidenceClass": "news",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.lawnext.com/2023/01/shuttered-legal-analytics-company-gavelytics-is-acquired-by-recently-launched-analytics-company-pre-dicta.html"
+   ]
+  },
+  {
+   "id": "legal-product-harvey",
+   "vendorId": "legal-vendor-harvey",
+   "name": "Harvey",
+   "taxonomyBucketKeys": [
+    "function-generative-ai"
+   ],
+   "utilityKeys": [
+    "generative_ai_legal_assistance"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, harvey.ai/security, retrieved 2026-09-29); inputs, outputs and uploads not used to train models; in-region data residency EU or Switzerland, US, Australia; SOC 2 Type II, ISO 27001, 27701, 42001 (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (vendor states 80% of Am Law 100 use Harvey, V Harvey blog)",
+   "integrationsNote": "Intapp Walls names Harvey integration (V, intapp.com/walls); PacerPro lists Harvey (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.harvey.ai/security",
+    "https://www.harvey.ai/blog/harvey-raises-dollar550m-at-a-dollar155b-valuation-to-help-legal-teams-own-their-intelligence"
+   ]
+  },
+  {
+   "id": "legal-product-legora",
+   "vendorId": "legal-vendor-legora",
+   "name": "Legora",
+   "taxonomyBucketKeys": [
+    "function-generative-ai"
+   ],
+   "utilityKeys": [
+    "generative_ai_legal_assistance"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (R, notes)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (customer base large firms per notes; 800 plus customers in 50 markets, V)",
+   "integrationsNote": "Not fetched in notes",
+   "evidenceClass": "news",
+   "bucketNotes": {},
+   "sources": [
+    "https://news.crunchbase.com/venture/unicorn-legal-tech-ai-startup-legora-triples-valuation/",
+    "https://legora.com/newsroom/legora-raises-550-million-series-d-to-fuel-us-growth"
+   ]
+  },
+  {
+   "id": "legal-product-spellbook",
+   "vendorId": "legal-vendor-spellbook",
+   "name": "Spellbook",
+   "taxonomyBucketKeys": [
+    "function-generative-ai"
+   ],
+   "utilityKeys": [
+    "generative_ai_legal_assistance"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per team member on license, contact sales, 7-day trial",
+   "publishedPrice": "not published (V, spellbook.com/pricing, retrieved 2026-09-29); SOC 2 Type II; zero data retention agreements (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (nearly 4,000 firms and legal teams in 80 plus countries, V)",
+   "integrationsNote": "Not on pricing page",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://spellbook.com/pricing",
+    "https://www.businesswire.com/news/home/20260304571140/en/Spellbook-Secures-$40M-USD-Debt-Financing-from-RBCx-to-Support-Strategic-Acquisitions-in-Consolidating-Legal-AI-Market"
+   ]
+  },
+  {
+   "id": "legal-product-paxton",
+   "vendorId": "legal-vendor-paxton",
+   "name": "Paxton AI",
+   "taxonomyBucketKeys": [
+    "function-generative-ai",
+    "function-legal-research"
+   ],
+   "utilityKeys": [
+    "generative_ai_legal_assistance",
+    "legal_research"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per user per month or per year; enterprise custom",
+   "publishedPrice": "Individual US$499 per user per month or US$2,999 per user per year; Enterprise custom (V, paxton.ai/pricing, retrieved 2026-09-29); SOC 2, ISO 27001, HIPAA stated (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (Individual plan)",
+   "integrationsNote": "Not on pricing page",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.paxton.ai/pricing"
+   ]
+  },
+  {
+   "id": "legal-product-draftwise",
+   "vendorId": "legal-vendor-draftwise",
+   "name": "DraftWise",
+   "taxonomyBucketKeys": [
+    "function-generative-ai"
+   ],
+   "utilityKeys": [
+    "generative_ai_legal_assistance"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, DraftWise blog)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (named customers Orrick, Gunderson Dettmer, Katten, Womble Bond Dickinson, Mishcon de Reya, V)",
+   "integrationsNote": "Not in notes",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.draftwise.com/blog/draftwise-announces-20-million-series-a"
+   ]
+  },
+  {
+   "id": "legal-product-eve",
+   "vendorId": "legal-vendor-eve",
+   "name": "Eve",
+   "taxonomyBucketKeys": [
+    "function-generative-ai"
+   ],
+   "utilityKeys": [
+    "generative_ai_legal_assistance"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, PR Newswire)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (450 plus plaintiff law firms, V)",
+   "integrationsNote": "Not in notes",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.prnewswire.com/news-releases/eve-raises-103-million-at-1-billion-valuation-to-help-plaintiff-firms-deliver-justice-through-ai-transformation-302570807.html"
+   ]
+  },
+  {
+   "id": "legal-product-evenup",
+   "vendorId": "legal-vendor-evenup",
+   "name": "EvenUp",
+   "taxonomyBucketKeys": [
+    "function-generative-ai"
+   ],
+   "utilityKeys": [
+    "generative_ai_legal_assistance"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, EvenUp blog)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (2,000 plus firms incl. 20% of top 100 US personal injury firms, V)",
+   "integrationsNote": "Not in notes",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.evenuplaw.com/blog/evenup-2b-valuation/"
+   ]
+  },
+  {
+   "id": "legal-product-supio",
+   "vendorId": "legal-vendor-supio",
+   "name": "Supio",
+   "taxonomyBucketKeys": [
+    "function-generative-ai"
+   ],
+   "utilityKeys": [
+    "generative_ai_legal_assistance"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, Supio press)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (personal injury and mass tort firms, V)",
+   "integrationsNote": "Not in notes",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.supio.com/press/supio-announces-60m-series-b-to-accelerate-adoption-of-legal-ai-in-plaintiff-law"
+   ]
+  },
+  {
+   "id": "legal-product-relativity-air",
+   "vendorId": "legal-vendor-relativity",
+   "name": "RelativityOne (Relativity aiR) and Relativity Server",
+   "taxonomyBucketKeys": [
+    "function-ediscovery",
+    "function-legal-hold"
+   ],
+   "utilityKeys": [
+    "ediscovery_review_litigation_support",
+    "legal_hold_information_governance"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, relativity.com/company, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (vendor stated 2021: 198 of Am Law 200 use Relativity, 168 use RelativityOne, V)",
+   "integrationsNote": "MCP integration and Gavel named on company page (V); CaseMap+ AI Send to CaseMap integration (V, LexisNexis)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-legal-hold": "Relativity Legal Hold product page not fetched; module assumed (R)"
+   },
+   "sources": [
+    "https://www.relativity.com/company/",
+    "https://www.prnewswire.com/news-releases/relativity-announces-strategic-investment-from-silver-lake-301250508.html"
+   ]
+  },
+  {
+   "id": "legal-product-everlaw",
+   "vendorId": "legal-vendor-everlaw",
+   "name": "Everlaw Platform (incl. Legal Holds, StoryBuilder, AI Suite)",
+   "taxonomyBucketKeys": [
+    "function-ediscovery",
+    "function-legal-hold",
+    "function-litigation-support"
+   ],
+   "utilityKeys": [
+    "ediscovery_review_litigation_support",
+    "legal_hold_information_governance"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "priced on data hosted, unlimited users, processing and productions; pay-as-you-go or annual; add-on services US$140 per hour",
+   "publishedPrice": "not published per-GB figure; add-on services US$140 per hour (V, Everlaw Billing and Pricing FAQ, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (vendor states 93 of the Am Law 200, all 50 state attorneys general, V)",
+   "integrationsNote": "Not on pages read",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-legal-hold": "Legal Holds listed as a platform use case, unlimited users (V)",
+    "function-litigation-support": "StoryBuilder included in data-hosted pricing (V)"
+   },
+   "sources": [
+    "https://www.everlaw.com/about/",
+    "https://support.everlaw.com/hc/en-us/articles/205660765-Billing-and-Pricing-FAQ"
+   ]
+  },
+  {
+   "id": "legal-product-disco",
+   "vendorId": "legal-vendor-csdisco",
+   "name": "DISCO Ediscovery (with Case Builder, Cecilia)",
+   "taxonomyBucketKeys": [
+    "function-ediscovery",
+    "function-litigation-support"
+   ],
+   "utilityKeys": [
+    "ediscovery_review_litigation_support"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (R, notes; pricing page not fetched)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not captured in notes",
+   "evidenceClass": "filing",
+   "bucketNotes": {
+    "function-litigation-support": "Case Builder named in FY2024 10-K (V, filing)"
+   },
+   "sources": [
+    "https://d18rn0p25nwr6d.cloudfront.net/CIK-0001625641/abef8a15-468f-43c2-8ce8-1ea14114797c.html",
+    "https://www.sec.gov/Archives/edgar/data/1625641/000162564126000043/q4fy2025earningsrelease.htm"
+   ]
+  },
+  {
+   "id": "legal-product-reveal",
+   "vendorId": "legal-vendor-reveal",
+   "name": "Reveal (incl. Reveal Hold, Onna, Trial Director)",
+   "taxonomyBucketKeys": [
+    "function-ediscovery",
+    "function-legal-hold",
+    "function-litigation-support"
+   ],
+   "utilityKeys": [
+    "ediscovery_review_litigation_support",
+    "legal_hold_information_governance"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, revealdata.com/about-us)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (4,000 plus customers, 50 plus countries, V)",
+   "integrationsNote": "Onna no-code connectors for Slack, Teams, Zendesk (V, Reveal news)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-legal-hold": "Reveal Hold and Onna listed as products (V)",
+    "function-litigation-support": "Trial Director listed after the 2023 IPRO acquisition; desktop deployment not verified (V product list; R deployment)"
+   },
+   "sources": [
+    "https://www.revealdata.com/about-us",
+    "https://www.revealdata.com/news/reveal-acquires-onna"
+   ]
+  },
+  {
+   "id": "legal-product-logikcull",
+   "vendorId": "legal-vendor-reveal",
+   "name": "Logikcull",
+   "taxonomyBucketKeys": [
+    "function-ediscovery",
+    "function-legal-hold"
+   ],
+   "utilityKeys": [
+    "ediscovery_review_litigation_support",
+    "legal_hold_information_governance"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "pay-as-you-go per GB monthly with 10 GB minimum, unlimited users; annual subscription; Corporate Suite annual",
+   "publishedPrice": "not published dollar amounts; model published (V, logikcull.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (unlimited users, 10 GB minimum model)",
+   "integrationsNote": "Slack filtering; collection from 31 plus sources in Corporate Suite (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-legal-hold": "Corporate Suite bundles unlimited legal holds, quote only (V)"
+   },
+   "sources": [
+    "https://www.logikcull.com/pricing"
+   ]
+  },
+  {
+   "id": "legal-product-nuix",
+   "vendorId": "legal-vendor-nuix",
+   "name": "Nuix Neo, Nuix Discover, Workstation",
+   "taxonomyBucketKeys": [
+    "function-ediscovery"
+   ],
+   "utilityKeys": [
+    "ediscovery_review_litigation_support"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (R, notes)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (large firms, service providers, government per notes)",
+   "integrationsNote": "Not fetched in notes",
+   "evidenceClass": "filing",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.nuix.com/sites/default/files/2026-02/Annual%20Financial%20Report.pdf"
+   ]
+  },
+  {
+   "id": "legal-product-exterro-ediscovery",
+   "vendorId": "legal-vendor-exterro",
+   "name": "Exterro eDiscovery (Legal Hold and Preservation, Review, FTK)",
+   "taxonomyBucketKeys": [
+    "function-ediscovery",
+    "function-legal-hold"
+   ],
+   "utilityKeys": [
+    "ediscovery_review_litigation_support",
+    "legal_hold_information_governance"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, exterro.com/about)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (corporate legal and government primarily)",
+   "integrationsNote": "Cloud and SaaS connectors; on-premises editions referenced (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-legal-hold": "Vendor claims 800k legal holds issued; Zapproved acquired 2023-01-19 (V)"
+   },
+   "sources": [
+    "https://www.exterro.com/about",
+    "https://www.prnewswire.com/news-releases/legal-grc-platform-exterro-a-leeds-equity-portfolio-company-announces-acquisition-of-e-discovery-provider-zapproved-301725300.html"
+   ]
+  },
+  {
+   "id": "legal-product-opentext-ediscovery",
+   "vendorId": "legal-vendor-opentext",
+   "name": "OpenText eDiscovery (formerly Axcelerate)",
+   "taxonomyBucketKeys": [
+    "function-ediscovery"
+   ],
+   "utilityKeys": [
+    "ediscovery_review_litigation_support"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, opentext.com/products/axcelerate); deployment options public cloud, private cloud, managed service, hybrid (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not on page",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.opentext.com/products/axcelerate"
+   ]
+  },
+  {
+   "id": "legal-product-casepoint",
+   "vendorId": "legal-vendor-casepoint",
+   "name": "Casepoint",
+   "taxonomyBucketKeys": [
+    "function-ediscovery"
+   ],
+   "utilityKeys": [
+    "ediscovery_review_litigation_support"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, casepoint.com/about-us); FedRAMP High, DoD IL5 and IL6 (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (government and corporate focus)",
+   "integrationsNote": "Not on page",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.casepoint.com/about-us/"
+   ]
+  },
+  {
+   "id": "legal-product-nextpoint",
+   "vendorId": "legal-vendor-nextpoint",
+   "name": "Nextpoint",
+   "taxonomyBucketKeys": [
+    "function-ediscovery",
+    "function-litigation-support"
+   ],
+   "utilityKeys": [
+    "ediscovery_review_litigation_support"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "flat per-user, unlimited data, three tiers (Essential, Advanced, Apex), monthly with annual discounts",
+   "publishedPrice": "not published dollar amounts; model published (V, nextpoint.com/ediscovery-pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (Essential perfect for small teams through Apex customized enterprise plan, vendor wording)",
+   "integrationsNote": "Free production sharing (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-litigation-support": "Deposition and transcript management, case chronology and timeline builders in all tiers (V)"
+   },
+   "sources": [
+    "https://www.nextpoint.com/ediscovery-pricing"
+   ]
+  },
+  {
+   "id": "legal-product-lit-suite",
+   "vendorId": "legal-vendor-litsoftware",
+   "name": "LIT SUITE (TrialPad, TranscriptPad, DocReviewPad, TimelinePad, ExhibitsPad)",
+   "taxonomyBucketKeys": [
+    "function-litigation-support"
+   ],
+   "utilityKeys": [
+    "ediscovery_review_litigation_support"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per month billed annually via App Store; team pricing custom",
+   "publishedPrice": "Solo Litigator US$50 per month billed annually (US$600 per year); Litigation Teams custom (V, litsoftware.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (plan names Solo Litigator and Litigation Teams)",
+   "integrationsNote": "iPad, Mac, iPhone apps (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.litsoftware.com/pricing"
+   ]
+  },
+  {
+   "id": "legal-product-casemap-plus-ai",
+   "vendorId": "legal-vendor-lexisnexis",
+   "name": "LexisNexis CaseMap+ AI",
+   "taxonomyBucketKeys": [
+    "function-litigation-support"
+   ],
+   "utilityKeys": [
+    "ediscovery_review_litigation_support"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote (contact)",
+   "publishedPrice": "not published (V, lexisnexis.com/casemap)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "iManage and RelativityOne (Send to CaseMap), Sanction, Lexis+ with Protégé (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.lexisnexis.com/en-us/products/casemap.page"
+   ]
+  },
+  {
+   "id": "legal-product-opus2",
+   "vendorId": "legal-vendor-opus2",
+   "name": "Opus 2 case preparation and hearings",
+   "taxonomyBucketKeys": [
+    "function-litigation-support"
+   ],
+   "utilityKeys": [
+    "ediscovery_review_litigation_support"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (R, Astorg)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (88% of the AmLaw 50 stated, R)",
+   "integrationsNote": "Not in notes",
+   "evidenceClass": "news",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.astorg.com/investments/opus-2"
+   ]
+  },
+  {
+   "id": "legal-product-hanzo",
+   "vendorId": "legal-vendor-hanzo",
+   "name": "Hanzo (Chronicle, Illuminate, Spotlight AI)",
+   "taxonomyBucketKeys": [
+    "function-legal-hold"
+   ],
+   "utilityKeys": [
+    "legal_hold_information_governance"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, hanzo.co/about)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (in-house legal, compliance, government targets)",
+   "integrationsNote": "Data Connectors product named (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://hanzo.co/about/"
+   ]
+  },
+  {
+   "id": "legal-product-tyler-efile-serve",
+   "vendorId": "legal-vendor-tyler",
+   "name": "Odyssey eFile & Serve",
+   "taxonomyBucketKeys": [
+    "function-efiling-docketing"
+   ],
+   "utilityKeys": [
+    "court_efiling_docketing_deadlines"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "court-set per-envelope and per-case fees plus 2.50% to 3.50% convenience fees",
+   "publishedPrice": "California US$3.50 to US$5.00 per envelope by county; Idaho US$5.00 civil; Nevada Clark District US$3.50; Massachusetts US$22.00 one-time per new case; Vermont US$14.00 per party per case; Georgia US$25.00 per party; excludes court costs (V, Odyssey help article updated 2026-08-06, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (court-mandated EFSP)",
+   "integrationsNote": "Not in notes",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://odysseyfileandservecloud.zendesk.com/hc/en-us/articles/360054652611-What-Are-the-E-Filing-Fees-for-My-State"
+   ]
+  },
+  {
+   "id": "legal-product-infotrack",
+   "vendorId": "legal-vendor-infotrack",
+   "name": "InfoTrack (incl. One Legal)",
+   "taxonomyBucketKeys": [
+    "function-efiling-docketing"
+   ],
+   "utilityKeys": [
+    "court_efiling_docketing_deadlines"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per transaction; pricing page not fetched",
+   "publishedPrice": "not published in notes (pricing page not fetched) (V, infotrack.com/about)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (12,000 active firms at One Legal per 2020 release)",
+   "integrationsNote": "Integration partners listed: Clio, Filevine, Easysoft, iManage, LawToolBox, LEAP, MyCase, Neos, NetDocuments, Smokeball, Time Matters (V, https://www.infotrack.com/about)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.infotrack.com/about",
+    "https://www.onelegal.com/company-news/infotrack-makes-waves-california-acquisition-one-legal/"
+   ]
+  },
+  {
+   "id": "legal-product-fsx",
+   "vendorId": "legal-vendor-fsx",
+   "name": "File & ServeXpress (eFiling, eService, eBinder)",
+   "taxonomyBucketKeys": [
+    "function-efiling-docketing"
+   ],
+   "utilityKeys": [
+    "court_efiling_docketing_deadlines"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote",
+   "publishedPrice": "not published (V, FSX release)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (vendor states 200,000 plus registered users representing the top 100 litigation firms)",
+   "integrationsNote": "1,900 courts (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.fileandservexpress.com/file-servexpress-acquisition-by-northlane-capital-partners/"
+   ]
+  },
+  {
+   "id": "legal-product-pacerpro",
+   "vendorId": "legal-vendor-pacerpro",
+   "name": "PacerPro (Manifold, Court Monitoring, Case Digest)",
+   "taxonomyBucketKeys": [
+    "function-efiling-docketing"
+   ],
+   "utilityKeys": [
+    "court_efiling_docketing_deadlines"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote",
+   "publishedPrice": "not published (V, pacerpro.com, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (vendor states 8 of 10 of the top US firms)",
+   "integrationsNote": "iManage, NetDocuments, WestKM, Lexis, Harvey (V, pacerpro.com)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://pacerpro.com/"
+   ]
+  },
+  {
+   "id": "legal-product-courtlink",
+   "vendorId": "legal-vendor-lexisnexis",
+   "name": "CourtLink",
+   "taxonomyBucketKeys": [
+    "function-efiling-docketing"
+   ],
+   "utilityKeys": [
+    "court_efiling_docketing_deadlines"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "contact for pricing",
+   "publishedPrice": "not published (V, lexisnexis.com/courtlink); 322 million plus dockets and documents; about 100,000 new dockets weekly (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Lexis Snapshot AI complaint summaries (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.lexisnexis.com/en-us/products/courtlink.page"
+   ]
+  },
+  {
+   "id": "legal-product-aderant-milana",
+   "vendorId": "legal-vendor-aderant",
+   "name": "Aderant Milana and CompuLaw",
+   "taxonomyBucketKeys": [
+    "function-calendaring-deadlines",
+    "function-efiling-docketing"
+   ],
+   "utilityKeys": [
+    "court_efiling_docketing_deadlines"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, aderant.com/about-aderant)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (historical sales to large regional and AmLaw firms per notes)",
+   "integrationsNote": "iManage, NetDocuments, Microsoft Word (Forms Workflow), court ECF feeds via Docket Direct (R, LawSites 2022-10)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {
+    "function-efiling-docketing": "Docket Direct ECF feeds into Milana (R, LawSites)"
+   },
+   "sources": [
+    "https://www.aderant.com/about-aderant/",
+    "https://www.lawnext.com/2022/10/aderant-unveils-cloud-docketing-product-that-combines-compulaw-with-american-legalnet.html"
+   ]
+  },
+  {
+   "id": "legal-product-lawtoolbox",
+   "vendorId": "legal-vendor-lawtoolbox",
+   "name": "LawToolBox",
+   "taxonomyBucketKeys": [
+    "function-calendaring-deadlines"
+   ],
+   "utilityKeys": [
+    "court_efiling_docketing_deadlines"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "per user per month by user-count tier, annual or monthly, one-year minimum",
+   "publishedPrice": "Annual: US$35 per user per month (2 to 9 users), US$33 (10 to 19), US$23 (20 to 79), US$19 (80 plus); monthly: US$42, US$40, US$30, US$22; US$4 per user for integrations; license required for every M365 mailbox (V, lawtoolbox.com/pricing, retrieved 2026-09-29)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (tiers span 2 to 80 plus users)",
+   "integrationsNote": "NetDocuments, iManage, ECFX, InfoTrack at US$4 per user; matter management inside Microsoft 365 (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://lawtoolbox.com/pricing/",
+    "https://www.lawnext.com/2024/09/the-shrinking-ownership-of-law-practice-management-technology-part-2-of-4-a-scorecard-of-who-owns-what.html"
+   ]
+  },
+  {
+   "id": "legal-product-intapp-conflicts-walls",
+   "vendorId": "legal-vendor-intapp",
+   "name": "Intapp Conflicts and Intapp Walls",
+   "taxonomyBucketKeys": [
+    "function-conflicts"
+   ],
+   "utilityKeys": [
+    "conflicts_checking_ethical_walls"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, intapp.com/walls); Walls runs on Azure with multi-region redundancy (V)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (vendor cites over 70 Am Law 100 firms as Walls clients, V)",
+   "integrationsNote": "Walls names Harvey, Microsoft Copilot, Intapp Celeste (V, intapp.com/walls)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.intapp.com/walls/",
+    "https://investors.intapp.com/investor-news/news-details/2026/Intapp-announces-fourth-quarter-and-fiscal-year-2026-financial-results/"
+   ]
+  },
+  {
+   "id": "legal-product-bighand-financial",
+   "vendorId": "legal-vendor-bighand",
+   "name": "BigHand Financial Productivity (incl. Digitory Legal, Iridium)",
+   "taxonomyBucketKeys": [
+    "function-legal-project-management"
+   ],
+   "utilityKeys": [
+    "legal_project_management_pricing"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, BigHand news)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (3,500 plus clients, 600,000 users, V)",
+   "integrationsNote": "Not in notes",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.bighand.com/en-us/resources/news/bighand-partner-with-levine-leichtman-capital-partners-for-next-phase-of-growth/",
+    "https://www.lawnext.com/2022/08/bighand-acquires-digitory-legal.html"
+   ]
+  },
+  {
+   "id": "legal-product-litera-clocktimizer",
+   "vendorId": "legal-vendor-litera",
+   "name": "Litera Clocktimizer",
+   "taxonomyBucketKeys": [
+    "function-legal-project-management"
+   ],
+   "utilityKeys": [
+    "legal_project_management_pricing"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (R, notes)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not in notes",
+   "evidenceClass": "news",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.artificiallawyer.com/2021/04/14/right-people-right-data-right-time-litera-buys-clocktimizer/",
+    "https://www.litera.com/newslinks/litera-signs-agreement-to-acquire-clocktimizer"
+   ]
+  },
+  {
+   "id": "legal-product-intapp-pricing",
+   "vendorId": "legal-vendor-intapp",
+   "name": "Intapp Pricing",
+   "taxonomyBucketKeys": [
+    "function-legal-project-management"
+   ],
+   "utilityKeys": [
+    "legal_project_management_pricing"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (R, notes; product page not fetched)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not fetched in notes",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.businesswire.com/news/home/20260505926307/en/Intapp-announces-third-quarter-fiscal-year-2026-financial-results"
+   ]
+  },
+  {
+   "id": "legal-product-aderant-vpd",
+   "vendorId": "legal-vendor-aderant",
+   "name": "Aderant Virtual Pricing Director",
+   "taxonomyBucketKeys": [
+    "function-legal-project-management"
+   ],
+   "utilityKeys": [
+    "legal_project_management_pricing"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (V, Aderant release 2025-10-28)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not in release",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.aderant.com/news-pr/aderant-acquires-virtual-pricing-director/"
+   ]
+  },
+  {
+   "id": "legal-product-clio-app-directory",
+   "vendorId": "legal-vendor-clio",
+   "name": "Clio App Directory and Clio API",
+   "taxonomyBucketKeys": [
+    "function-integration-platform"
+   ],
+   "utilityKeys": [
+    "integration_interoperability_data_sync"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "included with Clio subscription",
+   "publishedPrice": "Included; over 250 apps on integrations page, 300 plus integrations in 2025-11-10 release (V, both dated)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Google Calendar, Gmail, Outlook, OneDrive, Dropbox, Box, Google Drive, NetDocuments, Zoom, Dialpad, QuickBooks Online, Xero, Zapier, Fastcase, Ruby Receptionists named (V, clio.com/features/integrations); three NetDocuments integrations listed (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.clio.com/features/integrations/",
+    "https://www.clio.com/app-directory/"
+   ]
+  },
+  {
+   "id": "legal-product-imanage-technology-partners",
+   "vendorId": "legal-vendor-imanage",
+   "name": "iManage Technology Partners program and Work API",
+   "taxonomyBucketKeys": [
+    "function-integration-platform"
+   ],
+   "utilityKeys": [
+    "integration_interoperability_data_sync"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "partner program",
+   "publishedPrice": "not published (V, imanage.com/technology-partners)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Over 200 Technology Partners in categories administrative tools, case management, e-discovery, e-signature, workflow, security (V)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://imanage.com/technology-partners/"
+   ]
+  },
+  {
+   "id": "legal-product-zapier",
+   "vendorId": "legal-vendor-zapier",
+   "name": "Zapier",
+   "taxonomyBucketKeys": [
+    "function-integration-platform"
+   ],
+   "utilityKeys": [
+    "integration_interoperability_data_sync"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "self-serve subscription (not fetched in notes)",
+   "publishedPrice": "not published in notes (pricing page not fetched; background says self-serve pricing exists) (R)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Listed as an integration on Clio and MyCase pages (V, clio.com/features/integrations; mycase.com/integrations)",
+   "evidenceClass": "vendor-published",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.clio.com/features/integrations/",
+    "https://www.mycase.com/integrations/"
+   ]
+  },
+  {
+   "id": "legal-product-power-automate",
+   "vendorId": "legal-vendor-microsoft",
+   "name": "Microsoft Power Automate (Microsoft 365)",
+   "taxonomyBucketKeys": [
+    "function-integration-platform"
+   ],
+   "utilityKeys": [
+    "integration_interoperability_data_sync"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "Microsoft 365 licensing (not fetched in notes)",
+   "publishedPrice": "not published in notes (R)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (Microsoft 365 Copilot deployed or explored at 76% of firms in ILTA 2026, R survey)",
+   "integrationsNote": "Not fetched",
+   "evidenceClass": "survey",
+   "bucketNotes": {},
+   "sources": [
+    "https://bmtcorp.com/wp-content/uploads/2026/01/2025_ILTA_Executive_Summary_FINAL.pdf",
+    "https://www.lawnext.com/2026/09/which-ai-product-is-most-popular-among-law-firms-findings-of-iltas-tech-survey-may-surprise-you.html"
+   ]
+  },
+  {
+   "id": "legal-product-entra-id",
+   "vendorId": "legal-vendor-microsoft",
+   "name": "Microsoft Entra ID (Azure MFA)",
+   "taxonomyBucketKeys": [
+    "function-identity-security"
+   ],
+   "utilityKeys": [
+    "identity_security_access_control"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "Microsoft 365 licensing (not fetched)",
+   "publishedPrice": "not published in notes (R); Azure MFA used by 47% of firms in ILTA 2025 (V, survey)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (ILTA respondents skew to large firms)",
+   "integrationsNote": "Not fetched",
+   "evidenceClass": "survey",
+   "bucketNotes": {},
+   "sources": [
+    "https://bmtcorp.com/wp-content/uploads/2026/01/2025_ILTA_Executive_Summary_FINAL.pdf"
+   ]
+  },
+  {
+   "id": "legal-product-cisco-duo",
+   "vendorId": "legal-vendor-cisco",
+   "name": "Cisco Duo",
+   "taxonomyBucketKeys": [
+    "function-identity-security"
+   ],
+   "utilityKeys": [
+    "identity_security_access_control"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "not fetched in notes",
+   "publishedPrice": "not published in notes (R); Duo MFA 42% of firms in ILTA 2025, down 4 points (V, survey)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not fetched",
+   "evidenceClass": "survey",
+   "bucketNotes": {},
+   "sources": [
+    "https://bmtcorp.com/wp-content/uploads/2026/01/2025_ILTA_Executive_Summary_FINAL.pdf"
+   ]
+  },
+  {
+   "id": "legal-product-crowdstrike-falcon",
+   "vendorId": "legal-vendor-crowdstrike",
+   "name": "CrowdStrike Falcon (EDR, SOC)",
+   "taxonomyBucketKeys": [
+    "function-identity-security"
+   ],
+   "utilityKeys": [
+    "identity_security_access_control"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "not fetched in notes",
+   "publishedPrice": "not published in notes (R); EDR 35% of firms (+4 points) and SOC vendor 13% (+10 points) in ILTA 2025 (V, survey)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not fetched",
+   "evidenceClass": "survey",
+   "bucketNotes": {},
+   "sources": [
+    "https://bmtcorp.com/wp-content/uploads/2026/01/2025_ILTA_Executive_Summary_FINAL.pdf"
+   ]
+  },
+  {
+   "id": "legal-product-arctic-wolf",
+   "vendorId": "legal-vendor-arcticwolf",
+   "name": "Arctic Wolf MDR",
+   "taxonomyBucketKeys": [
+    "function-identity-security"
+   ],
+   "utilityKeys": [
+    "identity_security_access_control"
+   ],
+   "deployment": "delivery-managed",
+   "pricingModel": "not fetched in notes",
+   "publishedPrice": "not published in notes (R)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Listed on iManage Technology Partners page 1 (V)",
+   "evidenceClass": "news",
+   "bucketNotes": {},
+   "sources": [
+    "https://imanage.com/technology-partners/",
+    "https://techcrunch.com/2024/12/16/blackberry-sells-cylance-for-160m-a-fraction-of-the-1-4b-it-paid-in-2018/"
+   ]
+  },
+  {
+   "id": "legal-product-proofpoint",
+   "vendorId": "legal-vendor-proofpoint",
+   "name": "Proofpoint email security",
+   "taxonomyBucketKeys": [
+    "function-identity-security"
+   ],
+   "utilityKeys": [
+    "identity_security_access_control"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "not fetched in notes",
+   "publishedPrice": "not published in notes (R)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not fetched",
+   "evidenceClass": "news",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.cnbc.com/2021/04/26/thoma-bravo-purchase-of-proofpoint-marks-top-private-equity-cloud-deal.html"
+   ]
+  },
+  {
+   "id": "legal-product-mimecast",
+   "vendorId": "legal-vendor-mimecast",
+   "name": "Mimecast email security",
+   "taxonomyBucketKeys": [
+    "function-identity-security"
+   ],
+   "utilityKeys": [
+    "identity_security_access_control"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "not fetched in notes",
+   "publishedPrice": "not published in notes (R)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not fetched",
+   "evidenceClass": "news",
+   "bucketNotes": {},
+   "sources": [
+    "https://techcrunch.com/2021/12/07/permira-plans-to-take-e-mail-security-firm-mimecast-private-in-a-5-8b-all-cash-deal"
+   ]
+  },
+  {
+   "id": "legal-product-knowbe4",
+   "vendorId": "legal-vendor-knowbe4",
+   "name": "KnowBe4 security awareness training",
+   "taxonomyBucketKeys": [
+    "function-identity-security"
+   ],
+   "utilityKeys": [
+    "identity_security_access_control"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "not fetched in notes",
+   "publishedPrice": "not published in notes (R)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)",
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not fetched",
+   "evidenceClass": "news",
+   "bucketNotes": {},
+   "sources": [
+    "https://bmtcorp.com/wp-content/uploads/2026/01/2025_ILTA_Executive_Summary_FINAL.pdf"
+   ]
+  },
+  {
+   "id": "legal-product-onepassword",
+   "vendorId": "legal-vendor-onepassword",
+   "name": "1Password",
+   "taxonomyBucketKeys": [
+    "function-identity-security"
+   ],
+   "utilityKeys": [
+    "identity_security_access_control"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "not fetched in notes",
+   "publishedPrice": "not published in notes (R); 62% of firms distribute a password manager, small firms favor 1Password and LastPass (V, ILTA 2025 survey)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "solo and small (1 to 5 attorneys)",
+    "small firm (6 to 20)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (ILTA: small firms favor 1Password)",
+   "integrationsNote": "Not fetched",
+   "evidenceClass": "survey",
+   "bucketNotes": {},
+   "sources": [
+    "https://bmtcorp.com/wp-content/uploads/2026/01/2025_ILTA_Executive_Summary_FINAL.pdf"
+   ]
+  },
+  {
+   "id": "legal-product-delinea",
+   "vendorId": "legal-vendor-delinea",
+   "name": "Delinea",
+   "taxonomyBucketKeys": [
+    "function-identity-security"
+   ],
+   "utilityKeys": [
+    "identity_security_access_control"
+   ],
+   "deployment": "delivery-cloud",
+   "pricingModel": "not fetched in notes",
+   "publishedPrice": "not published in notes (R); mid and large firms favor Delinea for password management (V, ILTA 2025 survey)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "midsize (21 to 100)",
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED (ILTA wording mid/large)",
+   "integrationsNote": "Not fetched",
+   "evidenceClass": "survey",
+   "bucketNotes": {},
+   "sources": [
+    "https://bmtcorp.com/wp-content/uploads/2026/01/2025_ILTA_Executive_Summary_FINAL.pdf"
+   ]
+  },
+  {
+   "id": "legal-product-litera-metadact",
+   "vendorId": "legal-vendor-litera",
+   "name": "Litera Metadact",
+   "taxonomyBucketKeys": [
+    "function-identity-security"
+   ],
+   "utilityKeys": [
+    "identity_security_access_control"
+   ],
+   "deployment": "delivery-hybrid",
+   "pricingModel": "quote based",
+   "publishedPrice": "not published (R, notes; product page not fetched)",
+   "priceAsOf": "2026-09-29",
+   "sizeFit": [
+    "large regional (101 to 500)",
+    "AmLaw 200 and global (500+)"
+   ],
+   "sizeFitBasis": "ASSUMED",
+   "sizeFitNote": "ASSUMED",
+   "integrationsNote": "Not fetched",
+   "evidenceClass": "news",
+   "bucketNotes": {},
+   "sources": [
+    "https://www.artificiallawyer.com/2022/01/18/litera-makes-it-15-deals-with-prosperoware-purchase/",
+    "https://trust.litera.com/"
+   ]
+  }
+ ]
+}

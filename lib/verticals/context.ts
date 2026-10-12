@@ -28,7 +28,11 @@ export const DEFAULT_VERTICAL_ID = "accounting";
  *
  * Enforced by `tests/vertical-resolver.contract.test.ts`.
  */
-export const FROZEN_VERTICAL_IDS: readonly string[] = Object.freeze([DEFAULT_VERTICAL_ID]);
+export const FROZEN_VERTICAL_IDS: readonly string[] = Object.freeze([
+  DEFAULT_VERTICAL_ID,
+  // legal-load (R64, 2026-10-11): the legal channel's banks, taxonomy and demo rows reference this id.
+  "legal",
+]);
 
 /**
  * The VERTICAL-NEUTRAL sentinel, for content that describes PAT itself rather

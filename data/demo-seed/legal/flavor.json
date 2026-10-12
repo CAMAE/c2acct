@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "comment": "Legal demo seed words (legal-load, R64; section 12 item 13, delta 6). FICTIONAL; no vendor names in any phrase (register row DOORS). Size band keys follow verticals/legal/pack.yaml.",
+  "verticalId": "legal",
+  "industry": "Law practice",
+  "sizeBands": {
+    "solo-small": "1 to 5 attorneys",
+    "small": "6 to 20 attorneys",
+    "midsize": "21 to 100 attorneys",
+    "large-regional": "101 to 500 attorneys",
+    "large": "500+ attorneys"
+  },
+  "firmIntegrationNeeds": {
+    "high-performing": [
+      "client portal",
+      "e-billing compliance",
+      "docket sync to attorney calendars",
+      "matter data warehouse"
+    ],
+    "tech-forward": [
+      "structured intake forms",
+      "document assembly",
+      "e-signature on engagement letters",
+      "practice management to accounting"
+    ],
+    "compliance-heavy": [
+      "three-way trust reconciliation",
+      "conflicts database feed",
+      "access reviews at departure",
+      "audit log retention"
+    ],
+    "struggling": [
+      "one matter number across systems",
+      "spreadsheet trust ledger replacement"
+    ],
+    "sample-thin": [
+      "practice management to accounting",
+      "client portal"
+    ],
+    "mid-tier": [
+      "practice management to accounting",
+      "document management every office files into",
+      "docket to calendar"
+    ]
+  },
+  "firmRiskFlags": {
+    "struggling": [
+      "deadlines live in one attorney's calendar",
+      "trust reconciliation runs late"
+    ],
+    "sample-thin": [
+      "evidence still accumulating across modules"
+    ],
+    "compliance-heavy": [
+      "client security questionnaires consume partner time"
+    ],
+    "tech-forward": [
+      "AI pilots outrun the written policy"
+    ],
+    "high-performing": [
+      "practice groups bought their own tools over a decade"
+    ],
+    "mid-tier": [
+      "conflicts clearance is a bottleneck at intake"
+    ]
+  },
+  "phraseBanks": {
+    "duration": [
+      "18 months",
+      "two years",
+      "the past three years",
+      "since the last fiscal year",
+      "roughly a year"
+    ],
+    "feature_area": [
+      "matter intake",
+      "conflicts clearance",
+      "docketing",
+      "prebill review",
+      "trust reconciliation",
+      "document assembly",
+      "discovery review"
+    ],
+    "sentiment_modifier": [
+      "consistently solid",
+      "uneven",
+      "noticeably improved",
+      "still maturing",
+      "best-in-class",
+      "adequate"
+    ],
+    "specific_callout": [
+      "Our partners use it directly without staff translation.",
+      "Opening a matter went from two days to one afternoon.",
+      "We stopped finding deadlines in one person's inbox.",
+      "Lockup is down a full month across the litigation group."
+    ],
+    "primary_use": [
+      "litigation",
+      "transactional work",
+      "intake and conflicts",
+      "trust accounting",
+      "docketing",
+      "client communication",
+      "discovery"
+    ],
+    "gap_area": [
+      "multi-office matter handoffs",
+      "outside counsel guideline variations",
+      "cross-border data rules",
+      "e-billing rejections",
+      "legacy document management migrations"
+    ],
+    "adjacent_system": [
+      "our practice management system",
+      "our document management system",
+      "our e-billing portal",
+      "our court e-filing accounts",
+      "our trust accounting ledger",
+      "our internal intake form"
+    ],
+    "promised_capability": [
+      "AI-assisted drafting",
+      "rules-based deadline calculation",
+      "matter budgeting",
+      "embedded e-signature",
+      "a client portal"
+    ],
+    "capability_gap": [
+      "deeper matter analytics",
+      "configurable approval flows",
+      "privilege log granularity",
+      "API-first integration",
+      "multi-office conflicts search"
+    ],
+    "growth_target": [
+      "two lateral partners next year",
+      "a second office",
+      "a new practice group",
+      "flat-fee offerings across the firm"
+    ]
+  },
+  "vendorTargetUseContext": "Active matters across practice groups plus intake and trust work"
+}

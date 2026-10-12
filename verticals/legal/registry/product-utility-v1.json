@@ -1,0 +1,3030 @@
+{
+ "verticalId": "legal",
+ "versionId": "2026-10-product-utility-v1",
+ "utilities": [
+  {
+   "key": "practice_matter_management",
+   "label": "Practice and matter management",
+   "description": "Matter records, contacts, tasks, calendars and notes that tie a firm's time, documents and billing to each matter.",
+   "taxonomyBucketKeys": [
+    "function-practice-matter-management",
+    "workflow-intake",
+    "workflow-work",
+    "workflow-close"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_practice_billing_trust_intake.md: Clio, MyCase, PracticePanther, Smokeball, Rocket Matter, Actionstep, Centerbase, Filevine and Litify pricing and product pages retrieved 2026-09-29 (all vendor-published).",
+    "Category adoption context from surveys_adoption_spend.md: Clio 2025 mid-sized companion reports practice management software use at 38 percent of mid-sized firms and 71 percent of smaller firms (VERIFIED, vendor survey)."
+   ],
+   "subcategories": [
+    {
+     "key": "matter_setup_and_case_workflow",
+     "label": "Matter setup and case workflow",
+     "description": "Opening matters, assigning tasks and tracking case progress from intake through close.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support matter setup and case workflow in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when matter setup and case workflow is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for matter setup and case workflow?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt matter setup and case workflow in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in matter setup and case workflow?"
+      }
+     ]
+    },
+    {
+     "key": "matter_email_calendar_and_document_sync",
+     "label": "Matter email, calendar and document sync",
+     "description": "Keeping Outlook or Gmail, calendars and document stores aligned with the matter record.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect matter email, calendar and document sync to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep matter email, calendar and document sync current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for matter email, calendar and document sync?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around matter email, calendar and document sync?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when matter email, calendar and document sync relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "matter_permissions_and_activity_audit",
+     "label": "Matter permissions and activity audit trail",
+     "description": "Restricting who can see a matter and recording who changed what and when.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for matter permissions and activity audit trail?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for matter permissions and activity audit trail without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for matter permissions and activity audit trail?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with matter permissions and activity audit trail?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in matter permissions and activity audit trail?"
+      }
+     ]
+    },
+    {
+     "key": "practice_management_migration_and_staff_rollout",
+     "label": "Practice management migration and staff rollout",
+     "description": "Moving from a prior system and getting attorneys and staff to work inside the product.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in practice management migration and staff rollout with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make practice management migration and staff rollout stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for practice management migration and staff rollout?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in practice management migration and staff rollout?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does practice management migration and staff rollout align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "time_capture_billing_collections",
+   "label": "Time capture, billing and collections",
+   "description": "Recording billable time, preparing prebills, issuing invoices in the client's required format and following up on receivables.",
+   "taxonomyBucketKeys": [
+    "function-time-billing",
+    "workflow-bill"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_practice_billing_trust_intake.md: Bill4Time, TimeSolv, Tabs3, Clio and Rocket Matter pricing pages (published tiers and payment features) and Aderant iTimekeep, BillBlast and Intapp Billstream product references, retrieved 2026-09-29.",
+    "Benchmark context from surveys_adoption_spend.md: Clio Legal Trends Report 2025 utilization 38 percent, realization 88 percent, collection 93 percent (VERIFIED, vendor survey)."
+   ],
+   "subcategories": [
+    {
+     "key": "time_entry_and_prebill_review",
+     "label": "Time entry and prebill review",
+     "description": "Capturing time as work happens, editing entries and approving prebills before invoices go out.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support time entry and prebill review in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when time entry and prebill review is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for time entry and prebill review?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt time entry and prebill review in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in time entry and prebill review?"
+      }
+     ]
+    },
+    {
+     "key": "ebilling_submission_and_accounting_system_sync",
+     "label": "E-billing submission and accounting system sync",
+     "description": "Submitting invoices to client e-billing systems and keeping billing data aligned with the general ledger.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect e-billing submission and accounting system sync to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep e-billing submission and accounting system sync current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for e-billing submission and accounting system sync?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around e-billing submission and accounting system sync?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when e-billing submission and accounting system sync relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "billing_rate_writeoff_and_approval_controls",
+     "label": "Billing rate, write-off and approval controls",
+     "description": "Enforcing rate tables, discount limits and partner approval before invoices are finalized.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for billing rate, write-off and approval controls?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for billing rate, write-off and approval controls without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for billing rate, write-off and approval controls?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with billing rate, write-off and approval controls?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in billing rate, write-off and approval controls?"
+      }
+     ]
+    },
+    {
+     "key": "timekeeper_adoption_and_collections_follow_up_rollout",
+     "label": "Timekeeper adoption and collections follow-up rollout",
+     "description": "Getting timekeepers to record time daily and staff to run a repeatable collections routine.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in timekeeper adoption and collections follow-up rollout with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make timekeeper adoption and collections follow-up rollout stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for timekeeper adoption and collections follow-up rollout?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in timekeeper adoption and collections follow-up rollout?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does timekeeper adoption and collections follow-up rollout align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "trust_accounting_iolta",
+   "label": "Trust accounting and IOLTA",
+   "description": "Handling client funds in trust with per-client ledgers, disbursement checks and reconciliation of bank, book and client ledger balances.",
+   "taxonomyBucketKeys": [
+    "function-trust-accounting",
+    "compliance-trust-accounting",
+    "workflow-bill",
+    "workflow-close"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_practice_billing_trust_intake.md: PracticePanther Business Pro (three-way trust reconciliation), MyCase Accounting add-on (three-way reconciliation), Rocket Matter (reconcile operating, trust and card accounts, bank data feed), Clio (trust and operating reconciliation) and LawPay (trust account protection and IOLTA compliance) pages retrieved 2026-09-29.",
+    "Vendors state trust features on pricing pages; none of the pages fetched cites a specific state rule, so the registry asks for attestations rather than assuming them."
+   ],
+   "subcategories": [
+    {
+     "key": "client_ledger_and_disbursement_handling",
+     "label": "Client ledger and disbursement handling",
+     "description": "Recording trust receipts and disbursements per client and blocking disbursements that exceed a client balance.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support client ledger and disbursement handling in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when client ledger and disbursement handling is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for client ledger and disbursement handling?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt client ledger and disbursement handling in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in client ledger and disbursement handling?"
+      }
+     ]
+    },
+    {
+     "key": "trust_bank_feed_and_accounting_system_alignment",
+     "label": "Bank feed and accounting system alignment",
+     "description": "Importing trust bank activity and keeping the trust ledger aligned with the firm's accounting system.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect bank feed and accounting system alignment to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep bank feed and accounting system alignment current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for bank feed and accounting system alignment?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around bank feed and accounting system alignment?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when bank feed and accounting system alignment relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "three_way_reconciliation_and_audit_trail",
+     "label": "Three-way reconciliation and audit trail",
+     "description": "Reconciling bank, book and client ledger totals on a schedule and retaining the record of each correction.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for three-way reconciliation and audit trail?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for three-way reconciliation and audit trail without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for three-way reconciliation and audit trail?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with three-way reconciliation and audit trail?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in three-way reconciliation and audit trail?"
+      }
+     ]
+    },
+    {
+     "key": "trust_workflow_rollout_and_staff_adoption",
+     "label": "Trust workflow rollout and staff adoption",
+     "description": "Moving trust records into the product and getting bookkeeping staff to follow the trust workflow every time.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in trust workflow rollout and staff adoption with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make trust workflow rollout and staff adoption stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for trust workflow rollout and staff adoption?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in trust workflow rollout and staff adoption?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does trust workflow rollout and staff adoption align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "payments_client_billing_connectivity",
+   "label": "Payments and client billing connectivity",
+   "description": "Accepting card, ACH and eCheck payments on legal invoices and retainers and posting them to the right operating or trust account.",
+   "taxonomyBucketKeys": [
+    "function-payments-legal",
+    "workflow-bill"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_practice_billing_trust_intake.md: LawPay pricing (published card and ACH rates, trust account protection), Clio Payments rates on the Clio pricing page, PantherPayments, Rocket Matter Pay, Tabs3Pay, Centerbase Payments and Confido Legal coverage, retrieved 2026-09-29.",
+    "Payment products are bundled into practice management by every major group per the note's inference section; standalone processors compete as embedded processors for third-party platforms."
+   ],
+   "subcategories": [
+    {
+     "key": "online_invoice_payment_and_payment_plans",
+     "label": "Online invoice payment and payment plans",
+     "description": "Letting clients pay invoices and retainers online, by link or text, including scheduled payment plans.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support online invoice payment and payment plans in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when online invoice payment and payment plans is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for online invoice payment and payment plans?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt online invoice payment and payment plans in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in online invoice payment and payment plans?"
+      }
+     ]
+    },
+    {
+     "key": "payment_posting_to_invoices_and_ledgers",
+     "label": "Payment posting to invoices and ledgers",
+     "description": "Applying received payments to the correct invoice, matter and ledger in the billing or accounting system.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect payment posting to invoices and ledgers to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep payment posting to invoices and ledgers current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for payment posting to invoices and ledgers?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around payment posting to invoices and ledgers?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when payment posting to invoices and ledgers relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "trust_and_operating_account_separation_and_fee_handling",
+     "label": "Trust and operating account separation and fee handling",
+     "description": "Routing retainers to trust and earned fees to operating while keeping processing fees out of trust balances.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for trust and operating account separation and fee handling?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for trust and operating account separation and fee handling without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for trust and operating account separation and fee handling?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with trust and operating account separation and fee handling?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in trust and operating account separation and fee handling?"
+      }
+     ]
+    },
+    {
+     "key": "client_payment_option_rollout_and_staff_enablement",
+     "label": "Client payment option rollout and staff enablement",
+     "description": "Turning on payment channels, updating invoice templates and training staff to offer them.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in client payment option rollout and staff enablement with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make client payment option rollout and staff enablement stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for client payment option rollout and staff enablement?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in client payment option rollout and staff enablement?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does client payment option rollout and staff enablement align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "client_intake_crm",
+   "label": "Client intake and CRM",
+   "description": "Capturing leads, running intake questionnaires and pipelines, and converting accepted prospects into matters.",
+   "taxonomyBucketKeys": [
+    "function-intake-crm",
+    "workflow-intake",
+    "workflow-engage"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_practice_billing_trust_intake.md: Clio Grow, MyCase Client Intake Forms and Legal CRM, Lawmatics plans, Rocket Matter and Tabs3 Legal CRM add-ons, Actionstep Capture, Filevine Lead Docket and Litify intake references, retrieved 2026-09-29.",
+    "Survey context from surveys_adoption_spend.md: ABA 2024 Solo and Small Firm TechReport CRM use 31 to 39 percent (VERIFIED); Clio 2024 secret shopper study on intake response rates (VERIFIED, vendor survey)."
+   ],
+   "subcategories": [
+    {
+     "key": "lead_capture_and_intake_forms",
+     "label": "Lead capture and intake forms",
+     "description": "Collecting prospect details from web forms, calls and referrals and moving them through intake stages.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support lead capture and intake forms in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when lead capture and intake forms is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for lead capture and intake forms?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt lead capture and intake forms in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in lead capture and intake forms?"
+      }
+     ]
+    },
+    {
+     "key": "intake_to_matter_and_marketing_data_handoff",
+     "label": "Intake to matter and marketing data handoff",
+     "description": "Passing accepted intake data into the matter record and syncing contacts with marketing and email tools.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect intake to matter and marketing data handoff to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep intake to matter and marketing data handoff current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for intake to matter and marketing data handoff?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around intake to matter and marketing data handoff?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when intake to matter and marketing data handoff relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "intake_screening_and_engagement_letter_controls",
+     "label": "Intake screening and engagement letter controls",
+     "description": "Requiring conflict screening, fee agreement approval and signed engagement terms before a matter opens.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for intake screening and engagement letter controls?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for intake screening and engagement letter controls without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for intake screening and engagement letter controls?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with intake screening and engagement letter controls?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in intake screening and engagement letter controls?"
+      }
+     ]
+    },
+    {
+     "key": "intake_pipeline_rollout_and_intake_team_adoption",
+     "label": "Intake pipeline rollout and intake team adoption",
+     "description": "Standing up the pipeline stages, templates and automations and getting intake staff to use them consistently.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in intake pipeline rollout and intake team adoption with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make intake pipeline rollout and intake team adoption stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for intake pipeline rollout and intake team adoption?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in intake pipeline rollout and intake team adoption?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does intake pipeline rollout and intake team adoption align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "client_portal_communication",
+   "label": "Client portal and secure communication",
+   "description": "Client-facing portals and messaging for sharing documents, invoices and case status without email attachments.",
+   "taxonomyBucketKeys": [
+    "function-client-portal",
+    "workflow-engage",
+    "workflow-deliver-legal"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_practice_billing_trust_intake.md: MyCase (unlimited client portal users), Clio, CARET Legal, Centerbase and Smokeball portal and text-to-pay features on pricing pages retrieved 2026-09-29.",
+    "E-signature is placed under document_automation_assembly, not here, because the vendor pages read tie signature volume to drafting tiers (Clio Draft, Clio plan signature counts) rather than to the portal."
+   ],
+   "subcategories": [
+    {
+     "key": "secure_document_sharing_and_client_messaging",
+     "label": "Secure document sharing and client messaging",
+     "description": "Sharing files, messages and status updates with clients through an authenticated portal or app.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support secure document sharing and client messaging in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when secure document sharing and client messaging is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for secure document sharing and client messaging?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt secure document sharing and client messaging in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in secure document sharing and client messaging?"
+      }
+     ]
+    },
+    {
+     "key": "portal_sync_with_matter_records_and_invoices",
+     "label": "Portal sync with matter records and invoices",
+     "description": "Keeping what the client sees aligned with the matter record, calendar and billing system.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect portal sync with matter records and invoices to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep portal sync with matter records and invoices current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for portal sync with matter records and invoices?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around portal sync with matter records and invoices?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when portal sync with matter records and invoices relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "portal_access_controls_and_communication_log",
+     "label": "Portal access controls and communication log",
+     "description": "Controlling which contacts see which matters and retaining a record of what was shared and when.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for portal access controls and communication log?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for portal access controls and communication log without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for portal access controls and communication log?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with portal access controls and communication log?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in portal access controls and communication log?"
+      }
+     ]
+    },
+    {
+     "key": "client_onboarding_to_the_portal_and_staff_adoption",
+     "label": "Client onboarding to the portal and staff adoption",
+     "description": "Inviting clients, setting expectations and getting staff to route communication through the portal.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in client onboarding to the portal and staff adoption with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make client onboarding to the portal and staff adoption stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for client onboarding to the portal and staff adoption?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in client onboarding to the portal and staff adoption?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does client onboarding to the portal and staff adoption align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "document_management_records",
+   "label": "Document management and matter files",
+   "description": "Matter-centric storage of documents and email with versioning, search, profiling and access control across the firm.",
+   "taxonomyBucketKeys": [
+    "function-document-management-legal",
+    "workflow-work",
+    "workflow-retain"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_documents_contracts_esign.md: iManage Work and iManage Cloud security page, NetDocuments security and governance and partner integration pages, Worldox and eDOCS status pages, Epona, LexWorkplace pricing and Clio document features, retrieved 2026-09-29.",
+    "Survey context from surveys_adoption_spend.md: ILTA 2025 executive summary reports 76 percent of responding firms on a cloud DMS (VERIFIED)."
+   ],
+   "subcategories": [
+    {
+     "key": "matter_centric_filing_and_email_management",
+     "label": "Matter-centric filing and email management",
+     "description": "Filing documents and email to the matter workspace with profiling, versioning and search.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support matter-centric filing and email management in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when matter-centric filing and email management is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for matter-centric filing and email management?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt matter-centric filing and email management in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in matter-centric filing and email management?"
+      }
+     ]
+    },
+    {
+     "key": "office_practice_system_and_legacy_dms_connectivity",
+     "label": "Office, practice system and legacy DMS connectivity",
+     "description": "Connecting the DMS to Microsoft 365, practice or financial systems and migrating from a prior DMS.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect office, practice system and legacy dms connectivity to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep office, practice system and legacy dms connectivity current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for office, practice system and legacy dms connectivity?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around office, practice system and legacy dms connectivity?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when office, practice system and legacy dms connectivity relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "document_security_versioning_and_access_audit",
+     "label": "Document security, versioning and access audit",
+     "description": "Enforcing need-to-know access, ethical walls and version history with a reviewable audit log.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for document security, versioning and access audit?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for document security, versioning and access audit without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for document security, versioning and access audit?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with document security, versioning and access audit?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in document security, versioning and access audit?"
+      }
+     ]
+    },
+    {
+     "key": "dms_migration_rollout_and_user_adoption",
+     "label": "DMS migration rollout and user adoption",
+     "description": "Migrating content, training users and getting attorneys to file into the DMS rather than local drives.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in dms migration rollout and user adoption with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make dms migration rollout and user adoption stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for dms migration rollout and user adoption?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in dms migration rollout and user adoption?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does dms migration rollout and user adoption align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "document_automation_assembly",
+   "label": "Document automation and assembly",
+   "description": "Generating legal documents and court forms from templates, questionnaires and matter data, and getting them signed.",
+   "taxonomyBucketKeys": [
+    "function-document-automation",
+    "function-esignature",
+    "workflow-work"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_documents_contracts_esign.md: HotDocs (Mitratech), Contract Express (Thomson Reuters), Litera Draft and Create, Gavel pricing, Clio Draft, Smokeball automation tiers, MyCase Document Automation and XpressDox pricing, plus Docusign, Adobe Acrobat Sign, Dropbox Sign and PandaDoc e-signature pricing and legality pages, retrieved 2026-09-29.",
+    "The e-signature bucket (function-esignature) is carried by this family as subcategory 2; the writer chose this family over client_portal_communication because signature counts appear on drafting-oriented tiers in the pages read."
+   ],
+   "subcategories": [
+    {
+     "key": "template_authoring_and_document_assembly",
+     "label": "Template authoring and document assembly",
+     "description": "Building templates with variables and logic and generating finished documents from matter or questionnaire data.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support template authoring and document assembly in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when template authoring and document assembly is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for template authoring and document assembly?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt template authoring and document assembly in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in template authoring and document assembly?"
+      }
+     ]
+    },
+    {
+     "key": "esignature_and_document_system_connectivity",
+     "label": "E-signature and document system connectivity",
+     "description": "Sending generated documents for electronic signature and returning signed copies to the DMS or matter file.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect e-signature and document system connectivity to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep e-signature and document system connectivity current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for e-signature and document system connectivity?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around e-signature and document system connectivity?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when e-signature and document system connectivity relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "template_governance_and_clause_approval",
+     "label": "Template governance and clause approval",
+     "description": "Controlling who can change firm templates and approved clauses and tracking each template version.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for template governance and clause approval?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for template governance and clause approval without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for template governance and clause approval?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with template governance and clause approval?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in template governance and clause approval?"
+      }
+     ]
+    },
+    {
+     "key": "template_library_rollout_and_drafter_adoption",
+     "label": "Template library rollout and drafter adoption",
+     "description": "Converting the firm's forms into templates and getting drafters to start from them.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in template library rollout and drafter adoption with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make template library rollout and drafter adoption stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for template library rollout and drafter adoption?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in template library rollout and drafter adoption?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does template library rollout and drafter adoption align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "knowledge_management_search",
+   "label": "Knowledge management and enterprise search",
+   "description": "Finding and curating precedents, prior work product and firm expertise across the DMS, email and other repositories.",
+   "taxonomyBucketKeys": [
+    "function-knowledge-management",
+    "workflow-work"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_documents_contracts_esign.md: iManage Insight+ (cloud only, Ask Knowledge, curation workflows), NetDocuments PatternBuilder MAX and ndMAX, Litera Precedent and Lito, Lexis Search Advantage (behind-the-firewall, DMS and SQL integration) and Aderant Handshake pages, retrieved 2026-09-29.",
+    "ILTA 2026 pilot rates for iManage AI Enrichment (91 percent) and NetDocuments ndMAX (58 percent) are REPORTED via LawSites in surveys_adoption_spend.md."
+   ],
+   "subcategories": [
+    {
+     "key": "precedent_search_and_work_product_retrieval",
+     "label": "Precedent search and work product retrieval",
+     "description": "Searching prior documents, clauses and matters by content, metadata and matter context.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support precedent search and work product retrieval in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when precedent search and work product retrieval is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for precedent search and work product retrieval?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt precedent search and work product retrieval in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in precedent search and work product retrieval?"
+      }
+     ]
+    },
+    {
+     "key": "content_indexing_across_dms_email_and_firm_systems",
+     "label": "Content indexing across DMS, email and firm systems",
+     "description": "Indexing the DMS, email, intranet and practice systems so results span the firm's repositories.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect content indexing across dms, email and firm systems to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep content indexing across dms, email and firm systems current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for content indexing across dms, email and firm systems?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around content indexing across dms, email and firm systems?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when content indexing across dms, email and firm systems relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "knowledge_curation_and_permission_aware_results",
+     "label": "Knowledge curation and permission-aware results",
+     "description": "Marking approved precedents, enforcing ethical walls in results and tracking who curated what.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for knowledge curation and permission-aware results?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for knowledge curation and permission-aware results without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for knowledge curation and permission-aware results?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with knowledge curation and permission-aware results?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in knowledge curation and permission-aware results?"
+      }
+     ]
+    },
+    {
+     "key": "knowledge_program_rollout_and_lawyer_adoption",
+     "label": "Knowledge program rollout and lawyer adoption",
+     "description": "Standing up curation roles and getting lawyers to search the firm's knowledge before drafting from scratch.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in knowledge program rollout and lawyer adoption with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make knowledge program rollout and lawyer adoption stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for knowledge program rollout and lawyer adoption?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in knowledge program rollout and lawyer adoption?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does knowledge program rollout and lawyer adoption align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "contract_lifecycle_management",
+   "label": "Contract lifecycle management",
+   "description": "Contract request, drafting, negotiation, approval, execution, repository storage and obligation tracking, used by firms for their own agreements and when advising clients who run these systems.",
+   "taxonomyBucketKeys": [
+    "function-contract-lifecycle",
+    "workflow-work",
+    "workflow-review-legal",
+    "workflow-deliver-legal"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_documents_contracts_esign.md: Ironclad security page, Agiloft pricing page (plan names, quote only), Docusign CLM (Salesforce, SAP Ariba, Coupa, Slack integrations), LinkSquares and Juro pricing pages, Workday CLM release, Conga, Icertis, Leah and SpotDraft releases, plus Litera Kira review pages, retrieved 2026-09-29.",
+    "The note's inference is that CLM is primarily a corporate legal purchase; the family is kept because PROMPT2-SPEC.md lists it as a required taxonomy bucket."
+   ],
+   "subcategories": [
+    {
+     "key": "contract_request_drafting_and_negotiation_workflow",
+     "label": "Contract request, drafting and negotiation workflow",
+     "description": "Intake of contract requests, template-based drafting, redlining and counterparty negotiation.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support contract request, drafting and negotiation workflow in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when contract request, drafting and negotiation workflow is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for contract request, drafting and negotiation workflow?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt contract request, drafting and negotiation workflow in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in contract request, drafting and negotiation workflow?"
+      }
+     ]
+    },
+    {
+     "key": "contract_repository_data_extraction_and_system_integration",
+     "label": "Contract repository, data extraction and system integration",
+     "description": "Storing executed contracts, extracting key terms and syncing with CRM, procurement or ERP systems.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect contract repository, data extraction and system integration to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep contract repository, data extraction and system integration current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for contract repository, data extraction and system integration?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around contract repository, data extraction and system integration?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when contract repository, data extraction and system integration relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "approval_routing_and_obligation_tracking",
+     "label": "Approval routing and obligation tracking",
+     "description": "Routing contracts through required approvals and tracking renewal dates and obligations after signature.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for approval routing and obligation tracking?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for approval routing and obligation tracking without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for approval routing and obligation tracking?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with approval routing and obligation tracking?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in approval routing and obligation tracking?"
+      }
+     ]
+    },
+    {
+     "key": "playbook_rollout_and_business_user_adoption",
+     "label": "Playbook rollout and business user adoption",
+     "description": "Encoding negotiation playbooks and getting requesters and reviewers to work inside the system.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in playbook rollout and business user adoption with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make playbook rollout and business user adoption stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for playbook rollout and business user adoption?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in playbook rollout and business user adoption?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does playbook rollout and business user adoption align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "legal_research",
+   "label": "Legal research",
+   "description": "Primary law, secondary sources and citators with search, alerts and AI-assisted research features.",
+   "taxonomyBucketKeys": [
+    "function-legal-research",
+    "workflow-work"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_research_ai_analytics_security.md: Lexis+ with Prot\u00e9g\u00e9 product page (pricing varies, customer data not used to train public models, 90-day Vault retention), Docket Alarm pricing (part of Clio), Clio and vLex press releases, Decisis bar-benefit listings and Paxton pricing, retrieved 2026-09-29; Westlaw, CoCounsel and Bloomberg Law pricing pages were not retrievable.",
+    "Survey context from surveys_adoption_spend.md: ABA 2024 fee-based research tools solos 45 percent, large firms 78 percent (VERIFIED)."
+   ],
+   "subcategories": [
+    {
+     "key": "case_law_statute_and_secondary_source_research",
+     "label": "Case law, statute and secondary source research",
+     "description": "Searching primary law and treatises, reading with citator flags and saving research to a matter.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support case law, statute and secondary source research in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when case law, statute and secondary source research is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for case law, statute and secondary source research?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt case law, statute and secondary source research in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in case law, statute and secondary source research?"
+      }
+     ]
+    },
+    {
+     "key": "research_integration_with_drafting_and_matter_files",
+     "label": "Research integration with drafting and matter files",
+     "description": "Pulling research into Word, the DMS and the matter record and syncing alerts to matter teams.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect research integration with drafting and matter files to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep research integration with drafting and matter files current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for research integration with drafting and matter files?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around research integration with drafting and matter files?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when research integration with drafting and matter files relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "citation_verification_and_authority_currency",
+     "label": "Citation verification and authority currency",
+     "description": "Confirming that cited authority is current, correctly quoted and traceable to the source.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for citation verification and authority currency?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for citation verification and authority currency without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for citation verification and authority currency?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with citation verification and authority currency?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in citation verification and authority currency?"
+      }
+     ]
+    },
+    {
+     "key": "research_platform_rollout_and_attorney_adoption",
+     "label": "Research platform rollout and attorney adoption",
+     "description": "Provisioning seats, migrating saved research and getting attorneys to change platforms.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in research platform rollout and attorney adoption with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make research platform rollout and attorney adoption stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for research platform rollout and attorney adoption?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in research platform rollout and attorney adoption?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does research platform rollout and attorney adoption align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "legal_analytics_litigation_data",
+   "label": "Legal analytics and litigation data",
+   "description": "Docket-derived analytics on judges, courts, parties, counsel, motion outcomes and case timing.",
+   "taxonomyBucketKeys": [
+    "function-legal-analytics",
+    "workflow-work",
+    "workflow-review-legal"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_research_ai_analytics_security.md: Docket Alarm Flat-Fee plan (PTAB and TTAB analytics), Pre/Dicta and Gavelytics coverage, Trellis state trial court analytics, plus vendors_ediscovery_docketing_conflicts.md: CourtLink (322 million dockets, alerts) and PacerPro pages, retrieved 2026-09-29.",
+    "Survey context from surveys_adoption_spend.md: ABA 2024 AI users report legal analytics research 35 percent, understanding judges 17 percent, predicting outcomes 13 percent (REPORTED via LawSites)."
+   ],
+   "subcategories": [
+    {
+     "key": "judge_court_and_opposing_counsel_analytics",
+     "label": "Judge, court and opposing counsel analytics",
+     "description": "Viewing outcome, timing and behavior statistics for judges, courts, parties and counsel.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support judge, court and opposing counsel analytics in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when judge, court and opposing counsel analytics is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for judge, court and opposing counsel analytics?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt judge, court and opposing counsel analytics in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in judge, court and opposing counsel analytics?"
+      }
+     ]
+    },
+    {
+     "key": "docket_data_feeds_and_matter_record_linkage",
+     "label": "Docket data feeds and matter record linkage",
+     "description": "Ingesting PACER and state docket feeds and linking tracked cases to firm matters and alerts.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect docket data feeds and matter record linkage to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep docket data feeds and matter record linkage current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for docket data feeds and matter record linkage?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around docket data feeds and matter record linkage?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when docket data feeds and matter record linkage relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "data_coverage_provenance_and_outcome_definitions",
+     "label": "Data coverage, provenance and outcome definitions",
+     "description": "Showing which courts and years are covered, where each figure comes from and how outcomes are coded.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for data coverage, provenance and outcome definitions?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for data coverage, provenance and outcome definitions without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for data coverage, provenance and outcome definitions?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with data coverage, provenance and outcome definitions?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in data coverage, provenance and outcome definitions?"
+      }
+     ]
+    },
+    {
+     "key": "analytics_rollout_in_litigation_and_pricing_teams",
+     "label": "Analytics rollout in litigation and pricing teams",
+     "description": "Training litigators and pricing staff to use analytics in strategy memos and fee proposals.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in analytics rollout in litigation and pricing teams with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make analytics rollout in litigation and pricing teams stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for analytics rollout in litigation and pricing teams?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in analytics rollout in litigation and pricing teams?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does analytics rollout in litigation and pricing teams align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "generative_ai_legal_assistance",
+   "label": "Generative AI legal assistance",
+   "description": "Large language model assistants for drafting, summarization, document review and question answering over legal content and firm documents.",
+   "taxonomyBucketKeys": [
+    "function-generative-ai",
+    "workflow-work",
+    "workflow-review-legal"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_research_ai_analytics_security.md: Harvey security page (no training on customer inputs, in-region residency, SOC 2 Type II, ISO 27001, 27701, 42001), Lexis+ with Prot\u00e9g\u00e9 data statements, Spellbook pricing page (zero data retention agreements, SOC 2 Type II), Paxton pricing, Legora, EvenUp, Eve, Supio, DraftWise and Alexi releases, retrieved 2026-09-29.",
+    "Survey context from surveys_adoption_spend.md: ILTA 2026 named product use (Copilot 76 percent, CoCounsel 44 percent, Claude 44 percent, Harvey 43 percent, Lexis+ AI 26 percent) REPORTED via LawSites; ABA 2024 accuracy concern 75 percent REPORTED via LawSites."
+   ],
+   "subcategories": [
+    {
+     "key": "ai_drafting_summarization_and_document_review_assistance",
+     "label": "AI drafting, summarization and document review assistance",
+     "description": "Using the assistant to draft, summarize, compare and review documents inside daily legal work.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support ai drafting, summarization and document review assistance in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when ai drafting, summarization and document review assistance is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for ai drafting, summarization and document review assistance?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt ai drafting, summarization and document review assistance in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in ai drafting, summarization and document review assistance?"
+      }
+     ]
+    },
+    {
+     "key": "ai_grounding_in_firm_documents_and_connected_systems",
+     "label": "AI grounding in firm documents and connected systems",
+     "description": "Connecting the assistant to the DMS, research content and matter data so answers cite firm sources.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect ai grounding in firm documents and connected systems to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep ai grounding in firm documents and connected systems current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for ai grounding in firm documents and connected systems?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around ai grounding in firm documents and connected systems?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when ai grounding in firm documents and connected systems relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "output_verification_citations_and_client_data_handling",
+     "label": "Output verification, citations and client data handling",
+     "description": "Verifying citations and outputs, logging usage and controlling how client data is retained or used for training.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for output verification, citations and client data handling?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for output verification, citations and client data handling without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for output verification, citations and client data handling?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with output verification, citations and client data handling?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in output verification, citations and client data handling?"
+      }
+     ]
+    },
+    {
+     "key": "ai_use_policy_rollout_and_lawyer_training",
+     "label": "AI use policy rollout and lawyer training",
+     "description": "Publishing the firm's AI use policy, training lawyers and moving pilots into approved daily use.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in ai use policy rollout and lawyer training with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make ai use policy rollout and lawyer training stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for ai use policy rollout and lawyer training?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in ai use policy rollout and lawyer training?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does ai use policy rollout and lawyer training align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "ediscovery_review_litigation_support",
+   "label": "E-discovery, review and litigation support",
+   "description": "Processing, searching, reviewing and producing electronically stored information, plus chronologies, transcripts and trial presentation.",
+   "taxonomyBucketKeys": [
+    "function-ediscovery",
+    "function-litigation-support",
+    "compliance-ediscovery",
+    "workflow-work",
+    "workflow-review-legal"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_ediscovery_docketing_conflicts.md: Relativity company page (RelativityOne now Relativity aiR), Everlaw about and pricing FAQ (data-hosted pricing, StoryBuilder, Legal Holds), DISCO 10-K product list, Reveal and Logikcull pricing pages, Nextpoint pricing (chronology and transcript tools), CaseMap+ AI, LIT SUITE pricing and Opus 2 coverage, retrieved 2026-09-29.",
+    "Survey context from surveys_adoption_spend.md: ABA 2024 litigation support software solos 27 percent, 2 to 9 firms 38 percent, 100+ firms 73 percent (VERIFIED); ILTA 2025 62 percent moving e-discovery to cloud within 12 months (REPORTED)."
+   ],
+   "subcategories": [
+    {
+     "key": "processing_search_and_document_review",
+     "label": "Processing, search and document review",
+     "description": "Ingesting collected data, culling, searching, coding and applying technology-assisted review.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support processing, search and document review in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when processing, search and document review is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for processing, search and document review?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt processing, search and document review in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in processing, search and document review?"
+      }
+     ]
+    },
+    {
+     "key": "collection_connectors_and_production_exchange",
+     "label": "Collection connectors and production exchange",
+     "description": "Collecting from email, chat and cloud sources and exchanging productions and load files with other parties.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect collection connectors and production exchange to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep collection connectors and production exchange current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for collection connectors and production exchange?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around collection connectors and production exchange?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when collection connectors and production exchange relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "review_quality_privilege_protection_and_chain_of_custody",
+     "label": "Review quality, privilege protection and chain of custody",
+     "description": "Sampling review decisions, protecting privileged material from production and documenting custody of data.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for review quality, privilege protection and chain of custody?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for review quality, privilege protection and chain of custody without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for review quality, privilege protection and chain of custody?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with review quality, privilege protection and chain of custody?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in review quality, privilege protection and chain of custody?"
+      }
+     ]
+    },
+    {
+     "key": "review_team_onboarding_and_case_analysis_rollout",
+     "label": "Review team onboarding and case analysis rollout",
+     "description": "Bringing contract reviewers and case teams onto the platform and into chronology and trial tools.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in review team onboarding and case analysis rollout with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make review team onboarding and case analysis rollout stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for review team onboarding and case analysis rollout?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in review team onboarding and case analysis rollout?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does review team onboarding and case analysis rollout align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "legal_hold_information_governance",
+   "label": "Legal hold and information governance",
+   "description": "Issuing and tracking legal holds, preserving data in place, and applying retention and disposition schedules to firm and client records.",
+   "taxonomyBucketKeys": [
+    "function-legal-hold",
+    "function-records-governance",
+    "compliance-records",
+    "compliance-ediscovery",
+    "workflow-retain"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_ediscovery_docketing_conflicts.md: Exterro Legal Hold and Preservation (800k holds stated), Everlaw Legal Holds, Reveal Hold and Onna connectors, Logikcull Corporate Suite and Hanzo pages; and vendors_documents_contracts_esign.md: iManage Records Manager (retention, archiving, disposition; add-on to iManage Cloud), Litera CAM and FileTrail, NetDocuments governance features, retrieved 2026-09-29.",
+    "Both notes infer that legal hold buyers are primarily corporate legal departments; the family is retained for firms hosting client holds and running their own records programs."
+   ],
+   "subcategories": [
+    {
+     "key": "hold_notices_and_custodian_acknowledgement_tracking",
+     "label": "Hold notices and custodian acknowledgement tracking",
+     "description": "Issuing hold notices, tracking acknowledgements and reminders, and releasing holds when matters end.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support hold notices and custodian acknowledgement tracking in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when hold notices and custodian acknowledgement tracking is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for hold notices and custodian acknowledgement tracking?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt hold notices and custodian acknowledgement tracking in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in hold notices and custodian acknowledgement tracking?"
+      }
+     ]
+    },
+    {
+     "key": "preservation_connectors_and_records_inventory_sync",
+     "label": "Preservation connectors and records inventory sync",
+     "description": "Preserving data in place through connectors to email, chat and file systems and syncing the records inventory.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect preservation connectors and records inventory sync to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep preservation connectors and records inventory sync current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for preservation connectors and records inventory sync?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around preservation connectors and records inventory sync?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when preservation connectors and records inventory sync relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "retention_schedules_disposition_and_defensibility_evidence",
+     "label": "Retention schedules, disposition and defensibility evidence",
+     "description": "Applying retention rules, approving disposition and keeping the record that shows the schedule was followed.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for retention schedules, disposition and defensibility evidence?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for retention schedules, disposition and defensibility evidence without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for retention schedules, disposition and defensibility evidence?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with retention schedules, disposition and defensibility evidence?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in retention schedules, disposition and defensibility evidence?"
+      }
+     ]
+    },
+    {
+     "key": "governance_program_rollout_and_records_staff_adoption",
+     "label": "Governance program rollout and records staff adoption",
+     "description": "Loading schedules and legacy inventories and getting records and IT staff to run the program in the tool.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in governance program rollout and records staff adoption with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make governance program rollout and records staff adoption stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for governance program rollout and records staff adoption?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in governance program rollout and records staff adoption?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does governance program rollout and records staff adoption align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "court_efiling_docketing_deadlines",
+   "label": "Court e-filing, docketing and deadlines",
+   "description": "Filing and serving through court-approved providers, pulling docket activity into firm systems and calculating rules-based deadlines.",
+   "taxonomyBucketKeys": [
+    "function-efiling-docketing",
+    "function-calendaring-deadlines",
+    "workflow-work",
+    "workflow-deliver-legal"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_ediscovery_docketing_conflicts.md: PACER fee schedule, Tyler Odyssey eFile and Serve fee article, InfoTrack about page (integration partner list), File and ServeXpress release, PacerPro, CourtLink, Clio Docket coverage, Aderant Milana and CompuLaw coverage, LawToolBox pricing (rules calculator, M365, integration fees) and Clio and MyCase court-rules tiers, retrieved 2026-09-29.",
+    "Court e-filing fees are court-set pass-throughs per the note; the registry treats coverage of courts as a general module field rather than a scored question."
+   ],
+   "subcategories": [
+    {
+     "key": "efiling_service_and_docket_entry",
+     "label": "E-filing, service and docket entry",
+     "description": "Preparing and submitting filings, serving parties and recording the docket entry against the matter.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support e-filing, service and docket entry in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when e-filing, service and docket entry is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for e-filing, service and docket entry?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt e-filing, service and docket entry in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in e-filing, service and docket entry?"
+      }
+     ]
+    },
+    {
+     "key": "court_docket_feeds_and_firm_calendar_sync",
+     "label": "Court docket feeds and firm calendar sync",
+     "description": "Receiving court notices and docket updates and pushing dates to Outlook, Google or the practice system.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect court docket feeds and firm calendar sync to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep court docket feeds and firm calendar sync current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for court docket feeds and firm calendar sync?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around court docket feeds and firm calendar sync?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when court docket feeds and firm calendar sync relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "rules_based_deadline_calculation_and_change_audit",
+     "label": "Rules-based deadline calculation and change audit",
+     "description": "Computing deadlines from court rules and trigger events and logging every recalculation and manual override.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for rules-based deadline calculation and change audit?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for rules-based deadline calculation and change audit without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for rules-based deadline calculation and change audit?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with rules-based deadline calculation and change audit?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in rules-based deadline calculation and change audit?"
+      }
+     ]
+    },
+    {
+     "key": "docketing_rollout_and_attorney_calendar_adoption",
+     "label": "Docketing rollout and attorney calendar adoption",
+     "description": "Loading rule sets and jurisdictions and getting attorneys to rely on the docket calendar.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in docketing rollout and attorney calendar adoption with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make docketing rollout and attorney calendar adoption stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for docketing rollout and attorney calendar adoption?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in docketing rollout and attorney calendar adoption?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does docketing rollout and attorney calendar adoption align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "conflicts_checking_ethical_walls",
+   "label": "Conflicts checking and ethical walls",
+   "description": "Searching parties and related entities against firm records at intake and enforcing confidentiality screens across firm systems.",
+   "taxonomyBucketKeys": [
+    "function-conflicts",
+    "compliance-confidentiality",
+    "workflow-intake"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_ediscovery_docketing_conflicts.md: Intapp Conflicts and Intapp Walls (centralized confidentiality policy enforcement, Azure cloud, Harvey and Copilot integrations), Clio Conflict Check (Core and above), MyCase conflict check (all tiers), Elite 3E and Aderant Expert references; and vendors_documents_contracts_esign.md: NetDocuments ethical walls, Litera CAM ethical walls across systems, retrieved 2026-09-29.",
+    "Survey context from vendors_practice_billing_trust_intake.md: ABA 2023 Practice Management TechReport conflict checking use 63 percent overall, 89 percent at 50 to 99 lawyer firms, Tabs3 named most popular (REPORTED, survey older than 24 months)."
+   ],
+   "subcategories": [
+    {
+     "key": "conflict_search_and_clearance_workflow",
+     "label": "Conflict search and clearance workflow",
+     "description": "Searching names, aliases and related parties and recording the clearance decision before a matter opens.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support conflict search and clearance workflow in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when conflict search and clearance workflow is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for conflict search and clearance workflow?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt conflict search and clearance workflow in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in conflict search and clearance workflow?"
+      }
+     ]
+    },
+    {
+     "key": "party_data_corporate_tree_and_matter_system_integration",
+     "label": "Party data, corporate tree and matter system integration",
+     "description": "Enriching party records with corporate family data and syncing conflicts results with intake and matter systems.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect party data, corporate tree and matter system integration to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep party data, corporate tree and matter system integration current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for party data, corporate tree and matter system integration?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around party data, corporate tree and matter system integration?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when party data, corporate tree and matter system integration relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "ethical_wall_enforcement_and_conflict_decision_audit",
+     "label": "Ethical wall enforcement and conflict decision audit",
+     "description": "Applying screens across DMS, email and billing systems and retaining who cleared each conflict and why.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for ethical wall enforcement and conflict decision audit?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for ethical wall enforcement and conflict decision audit without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for ethical wall enforcement and conflict decision audit?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with ethical wall enforcement and conflict decision audit?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in ethical wall enforcement and conflict decision audit?"
+      }
+     ]
+    },
+    {
+     "key": "conflicts_process_rollout_and_intake_staff_adoption",
+     "label": "Conflicts process rollout and intake staff adoption",
+     "description": "Loading historical parties, defining search standards and getting intake staff to run every check in the tool.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in conflicts process rollout and intake staff adoption with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make conflicts process rollout and intake staff adoption stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for conflicts process rollout and intake staff adoption?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in conflicts process rollout and intake staff adoption?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does conflicts process rollout and intake staff adoption align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "legal_project_management_pricing",
+   "label": "Legal project management and pricing",
+   "description": "Matter budgets, phase and task plans, alternative fee modeling and budget-to-actual tracking during the matter.",
+   "taxonomyBucketKeys": [
+    "function-legal-project-management",
+    "workflow-engage",
+    "workflow-work",
+    "workflow-bill"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_research_ai_analytics_security.md and vendors_practice_billing_trust_intake.md: BigHand Financial Productivity (business intelligence, matter pricing, budgeting), Digitory Legal, Litera Clocktimizer and Prosperoware coverage, Intapp Pricing references and Aderant Virtual Pricing Director naming in the Roper release, retrieved 2026-09-29.",
+    "Market context from surveys_adoption_spend.md: TR and Georgetown 2026 State of the US Legal Market reports 90 percent of legal dollars still billed hourly (VERIFIED); Clio 2025 mid-sized companion reports 64 percent of mid-sized firms offering flat fees (VERIFIED, vendor survey)."
+   ],
+   "subcategories": [
+    {
+     "key": "matter_budgeting_and_phase_task_tracking",
+     "label": "Matter budgeting and phase task tracking",
+     "description": "Building phase and task budgets for a matter and tracking work against them as it happens.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support matter budgeting and phase task tracking in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when matter budgeting and phase task tracking is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for matter budgeting and phase task tracking?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt matter budgeting and phase task tracking in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in matter budgeting and phase task tracking?"
+      }
+     ]
+    },
+    {
+     "key": "budget_and_actuals_data_from_time_and_billing_systems",
+     "label": "Budget and actuals data from time and billing systems",
+     "description": "Pulling time, rates and invoices from the financial system so budget-to-actual is current.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect budget and actuals data from time and billing systems to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep budget and actuals data from time and billing systems current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for budget and actuals data from time and billing systems?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around budget and actuals data from time and billing systems?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when budget and actuals data from time and billing systems relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "budget_alerts_rate_approvals_and_pricing_governance",
+     "label": "Budget alerts, rate approvals and pricing governance",
+     "description": "Alerting on budget thresholds and requiring approvals for rate exceptions and alternative fee arrangements.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for budget alerts, rate approvals and pricing governance?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for budget alerts, rate approvals and pricing governance without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for budget alerts, rate approvals and pricing governance?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with budget alerts, rate approvals and pricing governance?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in budget alerts, rate approvals and pricing governance?"
+      }
+     ]
+    },
+    {
+     "key": "pricing_and_project_management_rollout_with_partners",
+     "label": "Pricing and project management rollout with partners",
+     "description": "Getting partners and matter teams to plan, price and track matters in the tool instead of spreadsheets.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in pricing and project management rollout with partners with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make pricing and project management rollout with partners stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for pricing and project management rollout with partners?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in pricing and project management rollout with partners?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does pricing and project management rollout with partners align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "integration_interoperability_data_sync",
+   "label": "Integration, interoperability and data sync",
+   "description": "APIs, app directories, iPaaS connectors and sync tooling that move matter, contact, document and billing data between legal and general business systems.",
+   "taxonomyBucketKeys": [
+    "function-integration-platform",
+    "workflow-intake",
+    "workflow-engage",
+    "workflow-work",
+    "workflow-review-legal",
+    "workflow-deliver-legal",
+    "workflow-bill",
+    "workflow-close",
+    "workflow-retain"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_research_ai_analytics_security.md: Clio integrations page (over 250 apps) and Clio press release (300+ integrations, November 10, 2025), Clio App Directory NetDocuments entries; vendors_practice_billing_trust_intake.md: MyCase integrations (61 listed, includes Zapier and a Claude MCP); vendors_documents_contracts_esign.md: iManage Technology Partners (over 200) and NetDocuments partner apps (150+), retrieved 2026-09-29.",
+    "Horizontal iPaaS vendors (Zapier, Make, Power Automate, Workato, Boomi) were not fetched in the notes; their fit is inferred and labeled as such in section 7."
+   ],
+   "subcategories": [
+    {
+     "key": "prebuilt_connectors_and_app_directory_coverage",
+     "label": "Prebuilt connectors and app directory coverage",
+     "description": "Using vendor-built connectors for the accounting, email, calendar, storage and payment tools the firm already runs.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support prebuilt connectors and app directory coverage in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when prebuilt connectors and app directory coverage is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for prebuilt connectors and app directory coverage?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt prebuilt connectors and app directory coverage in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in prebuilt connectors and app directory coverage?"
+      }
+     ]
+    },
+    {
+     "key": "api_access_webhooks_and_data_mapping",
+     "label": "API access, webhooks and data mapping",
+     "description": "Reading and writing matter, contact, time and document data through documented APIs with field mappings the firm controls.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect api access, webhooks and data mapping to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep api access, webhooks and data mapping current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for api access, webhooks and data mapping?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around api access, webhooks and data mapping?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when api access, webhooks and data mapping relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "sync_monitoring_error_handling_and_access_scopes",
+     "label": "Sync monitoring, error handling and access scopes",
+     "description": "Seeing failed syncs, retrying safely and limiting each connected app to the data it needs.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for sync monitoring, error handling and access scopes?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for sync monitoring, error handling and access scopes without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for sync monitoring, error handling and access scopes?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with sync monitoring, error handling and access scopes?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in sync monitoring, error handling and access scopes?"
+      }
+     ]
+    },
+    {
+     "key": "integration_rollout_and_administrator_enablement",
+     "label": "Integration rollout and administrator enablement",
+     "description": "Standing up integrations in sequence and equipping a firm administrator to maintain them.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in integration rollout and administrator enablement with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make integration rollout and administrator enablement stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for integration rollout and administrator enablement?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in integration rollout and administrator enablement?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does integration rollout and administrator enablement align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "identity_security_access_control",
+   "label": "Identity, security and access control",
+   "description": "Single sign-on, multi-factor authentication, directory integration, encryption, audit logging and published security attestations for legal software.",
+   "taxonomyBucketKeys": [
+    "function-identity-security",
+    "compliance-confidentiality",
+    "workflow-work",
+    "workflow-retain"
+   ],
+   "sourceNotes": [
+    "Reflects vendors_documents_contracts_esign.md and vendors_research_ai_analytics_security.md: iManage security page (ISO 27001, 27017, 27018, 27701, 22301, SOC 2 Type II, CSA STAR), NetDocuments security page (ISO 27001 family, SOC 2 Type 2, FedRAMP, customer-managed keys), Clio security page (SOC 2 Type II, SOC 1 Type II, AWS multi-region), Litera Trust Center, Docusign certifications, Harvey security page, retrieved 2026-09-29.",
+    "Survey context from surveys_adoption_spend.md: ILTA 2025 executive summary reports Azure MFA 47 percent, Duo 42 percent, laptop encryption 91 percent, password manager distribution 62 percent (VERIFIED); ABA 2024 two-factor authentication among solos 54.7 percent (VERIFIED)."
+   ],
+   "subcategories": [
+    {
+     "key": "single_sign_on_mfa_and_user_provisioning",
+     "label": "Single sign-on, MFA and user provisioning",
+     "description": "Signing in through the firm's identity provider with MFA and adding or removing users as staff change.",
+     "questions": [
+      {
+       "key": "day_to_day_fit",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does this product support single sign-on, mfa and user provisioning in day-to-day use?"
+      },
+      {
+       "key": "exception_handling",
+       "basisKey": "operational-dependence",
+       "prompt": "How well does this product hold up when single sign-on, mfa and user provisioning is non-standard, urgent, or full of exceptions?"
+      },
+      {
+       "key": "status_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product show status, ownership, and next actions for single sign-on, mfa and user provisioning?"
+      },
+      {
+       "key": "frontline_adoption",
+       "basisKey": "adoption-ease",
+       "prompt": "How easy is it for real users to adopt single sign-on, mfa and user provisioning in this product without supplemental training or guided support?"
+      },
+      {
+       "key": "practical_outcome",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product improve speed, accuracy, or consistency in single sign-on, mfa and user provisioning?"
+      }
+     ]
+    },
+    {
+     "key": "directory_integration_and_role_sync",
+     "label": "Directory integration and role sync",
+     "description": "Syncing users, groups and roles from Entra ID, Okta or another directory into the product's permissions.",
+     "questions": [
+      {
+       "key": "stack_fit",
+       "basisKey": "integration-readiness",
+       "prompt": "How well does this product connect directory integration and role sync to the surrounding systems and data it depends on?"
+      },
+      {
+       "key": "admin_control",
+       "basisKey": "configuration-depth",
+       "prompt": "How manageable is the configuration and administrative work required to keep directory integration and role sync current and in sync?"
+      },
+      {
+       "key": "implementation_burden",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is the implementation or migration burden for directory integration and role sync?"
+      },
+      {
+       "key": "data_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly can teams see sync status, exceptions, and downstream impact around directory integration and role sync?"
+      },
+      {
+       "key": "runtime_reliability",
+       "basisKey": "support-trust",
+       "prompt": "How confident are you in this product's reliability when directory integration and role sync relies on integrations, mappings, or data movement?"
+      }
+     ]
+    },
+    {
+     "key": "security_certifications_encryption_and_audit_logging",
+     "label": "Security certifications, encryption and audit logging",
+     "description": "Published third-party attestations, encryption at rest and in transit, and exportable logs of access and admin actions.",
+     "questions": [
+      {
+       "key": "control_confidence",
+       "basisKey": "support-trust",
+       "prompt": "How much confidence does this product create around control, traceability, and reliability for security certifications, encryption and audit logging?"
+      },
+      {
+       "key": "policy_flexibility",
+       "basisKey": "configuration-depth",
+       "prompt": "How well can this product adapt rules, approvals, or policy settings for security certifications, encryption and audit logging without becoming fragile?"
+      },
+      {
+       "key": "evidence_visibility",
+       "basisKey": "reporting-visibility",
+       "prompt": "How clearly does this product surface evidence, exceptions, and review history for security certifications, encryption and audit logging?"
+      },
+      {
+       "key": "criticality_pressure",
+       "basisKey": "operational-dependence",
+       "prompt": "How ready does this product feel for the real-world pressure that comes with security certifications, encryption and audit logging?"
+      },
+      {
+       "key": "assurance_value",
+       "basisKey": "value-clarity",
+       "prompt": "How clearly could this product reduce risk or raise operating assurance in security certifications, encryption and audit logging?"
+      }
+     ]
+    },
+    {
+     "key": "security_control_rollout_and_user_enablement",
+     "label": "Security control rollout and user enablement",
+     "description": "Turning on SSO, MFA and session policies without locking users out and training staff on the new sign-in.",
+     "questions": [
+      {
+       "key": "onboarding_speed",
+       "basisKey": "training-onboarding",
+       "prompt": "How quickly could new teams become productive in security control rollout and user enablement with this product?"
+      },
+      {
+       "key": "change_load",
+       "basisKey": "adoption-ease",
+       "prompt": "How manageable is the change burden required to make security control rollout and user enablement stick in practice?"
+      },
+      {
+       "key": "rollout_effort",
+       "basisKey": "implementation-friction",
+       "prompt": "How manageable is rollout, process redesign, or enablement effort for security control rollout and user enablement?"
+      },
+      {
+       "key": "near_term_payoff",
+       "basisKey": "value-clarity",
+       "prompt": "How likely is this product to produce practical near-term gains in security control rollout and user enablement?"
+      },
+      {
+       "key": "workflow_alignment",
+       "basisKey": "workflow-fit",
+       "prompt": "How well does security control rollout and user enablement align to the way real teams already work, review, and hand off work?"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "generalModule": {
+  "key": "product_general_v1",
+  "title": "Product general",
+  "description": "Stable product profile questions that should be captured before utility-specific scoring begins.",
+  "questions": [
+   {
+    "key": "product_name",
+    "fieldKey": "productName",
+    "prompt": "What is the product name?"
+   },
+   {
+    "key": "product_description",
+    "fieldKey": "productDescription",
+    "prompt": "Describe the product in one grounded operating paragraph: what it helps a team do, in what workflow, and with what practical boundary."
+   },
+   {
+    "key": "logo_reference",
+    "fieldKey": "logoReference",
+    "prompt": "What logo URL or placeholder asset reference should PAT use for this product?"
+   },
+   {
+    "key": "positioning",
+    "fieldKey": "positioning",
+    "prompt": "When a buyer asks what this product actually helps them improve, how should PAT position it in plain operating terms?"
+   },
+   {
+    "key": "target_customer",
+    "fieldKey": "targetCustomer",
+    "prompt": "Who is the primary target customer, buyer, or operator for this product today?"
+   },
+   {
+    "key": "target_use_context",
+    "fieldKey": "targetUseContext",
+    "prompt": "What real use context, workflow pressure, or operating situation is this product meant to handle?"
+   },
+   {
+    "key": "implementation_style",
+    "fieldKey": "implementationStyle",
+    "prompt": "How is this product typically implemented, configured, or rolled out in practice?"
+   },
+   {
+    "key": "operating_model_fit",
+    "fieldKey": "operatingModelFit",
+    "prompt": "What kind of operating model, team maturity, or process discipline does this product fit best right now?"
+   },
+   {
+    "key": "primary_buyer",
+    "fieldKey": "primaryBuyer",
+    "prompt": "Who usually owns the buying, approval, or rollout decision for this product?"
+   },
+   {
+    "key": "integration_posture",
+    "fieldKey": "integrationPosture",
+    "prompt": "How should PAT describe this product's integration posture: native system depth, connector dependence, data handoff burden, or interoperability limits?"
+   }
+  ]
+ },
+ "openEndedModule": {
+  "key": "product_open_ended_v1",
+  "title": "Product open-ended",
+  "description": "Final text questions for nuance, risk, and context that should not be collapsed into a score.",
+  "questions": [
+   {
+    "key": "strongest_workflow",
+    "prompt": "In which workflow or operating situation does this product currently look strongest, and what evidence supports that read?"
+   },
+   {
+    "key": "weakest_workflow",
+    "prompt": "In which workflow or operating situation does this product currently look weakest, and what evidence gap or operating limit drives that read?"
+   },
+   {
+    "key": "implementation_risk",
+    "prompt": "What is the most material implementation or rollout risk for this product right now?"
+   },
+   {
+    "key": "change_management_risk",
+    "prompt": "What user, operator, or buyer-side change-management risk is most likely to slow adoption?"
+   },
+   {
+    "key": "integration_gap",
+    "prompt": "What integration, data, or interoperability gap matters most before PAT should treat this product as stronger than early evidence?"
+   },
+   {
+    "key": "control_concern",
+    "prompt": "What control, approval, auditability, or governance concern deserves explicit follow-up?"
+   },
+   {
+    "key": "best_fit_customer",
+    "prompt": "Based on current evidence, what firm size (FTEs) and firm type appear to be the best-fit customer or operator for this product today?"
+   },
+   {
+    "key": "poor_fit_customer",
+    "prompt": "Based on current evidence, what firm size (FTEs) and firm type appear to be the worst-fit customer or operator for this product today, and why?"
+   },
+   {
+    "key": "evidence_needed_next",
+    "prompt": "What additional evidence would most improve confidence, calibration, or operator usefulness in this product next?"
+   },
+   {
+    "key": "recommended_next_action",
+    "prompt": "What is the single most sensible next action after this review: gather evidence, narrow scope, reposition, or continue?"
+   },
+   {
+    "key": "privilege_confidentiality_concern",
+    "prompt": "What privilege, confidentiality, or client data residency concern deserves explicit follow-up for this product, and what document or setting would resolve it?"
+   },
+   {
+    "key": "ai_output_verification",
+    "prompt": "Where this product generates or summarizes legal content, how do users verify citations and outputs before reliance, and what evidence shows that verification actually happens?"
+   },
+   {
+    "key": "data_return_on_termination",
+    "prompt": "At termination, in what formats and within what period are client files, matter data, and trust records returned or exported, and what evidence supports that?"
+   },
+   {
+    "key": "court_efiling_coverage",
+    "prompt": "Which state and federal courts does this product file to, serve through, or pull dockets from, and through which court-approved provider or feed?"
+   },
+   {
+    "key": "trust_accounting_attestation",
+    "prompt": "What trust accounting and three-way reconciliation support does the vendor attest to, and under which state trust account rules has that support been reviewed?"
+   },
+   {
+    "key": "privilege_data_handling",
+    "prompt": "How is client confidential and privileged data segregated, where does it reside, how long is it retained, and is any of it used to train or tune a model?"
+   },
+   {
+    "key": "bar_and_practice_coverage",
+    "prompt": "Which practice areas does this product serve, and which bar association, court, or court-rules integrations or endorsements does the vendor publish?"
+   }
+  ]
+ }
+}

@@ -1,0 +1,246 @@
+{
+  "schemaVersion": 1,
+  "comment": "Legal channel demo firm archetypes (V1 scaffold). Six profiles keyed to the closed FirmArchetypeKey union in lib/demo-seed/combinator.ts (high-performing, mid-tier, struggling, compliance-heavy, tech-forward, sample-thin). Each profile carries the moduleScoreRanges and tone of the legal size-band archetype it was merged from: high-performing from amlaw-global-transactional-halden-marsh, mid-tier from midsize-regional-full-service-tallis-reed, struggling from solo-small-generalist-hartwell, compliance-heavy from amlaw-global-litigation-heavy-serrano-whitlock, tech-forward from small-firm-transactional-cloud-native-marrow, sample-thin from small-firm-public-interest-clinic-vesterholm. The eleven size-band profiles remain in the narrative table below. Every range, rate and profile is an ASSUMED design value to be recalibrated when a real legal cohort exists. Pillar keys and score bands are shared with the accounting channel; no real firm is represented.",
+  "archetypes": [
+    {
+      "archetype": "high-performing",
+      "moduleScoreRanges": {
+        "operating-model": [
+          68,
+          82
+        ],
+        "automation-ai": [
+          62,
+          76
+        ],
+        "data-flow": [
+          58,
+          72
+        ],
+        "governance": [
+          74,
+          88
+        ],
+        "strategy": [
+          66,
+          80
+        ]
+      },
+      "completionRate": 0.95,
+      "moduleAnswerProfile": {
+        "default": {
+          "skewToHigh": 0.68,
+          "consistencyVariance": 0.11
+        },
+        "governance": {
+          "skewToHigh": 0.78,
+          "consistencyVariance": 0.09
+        },
+        "data-flow": {
+          "skewToHigh": 0.55,
+          "consistencyVariance": 0.14
+        }
+      },
+      "productReviewCoverage": 0.85,
+      "openEndedTone": "positive-with-specifics"
+    },
+    {
+      "archetype": "mid-tier",
+      "moduleScoreRanges": {
+        "operating-model": [
+          54,
+          68
+        ],
+        "automation-ai": [
+          44,
+          58
+        ],
+        "data-flow": [
+          46,
+          60
+        ],
+        "governance": [
+          54,
+          68
+        ],
+        "strategy": [
+          50,
+          64
+        ]
+      },
+      "completionRate": 0.85,
+      "moduleAnswerProfile": {
+        "default": {
+          "skewToHigh": 0.52,
+          "consistencyVariance": 0.14
+        },
+        "data-flow": {
+          "skewToHigh": 0.42,
+          "consistencyVariance": 0.17
+        }
+      },
+      "productReviewCoverage": 0.7,
+      "openEndedTone": "balanced"
+    },
+    {
+      "archetype": "struggling",
+      "moduleScoreRanges": {
+        "operating-model": [
+          38,
+          52
+        ],
+        "automation-ai": [
+          28,
+          42
+        ],
+        "data-flow": [
+          34,
+          48
+        ],
+        "governance": [
+          26,
+          40
+        ],
+        "strategy": [
+          34,
+          48
+        ]
+      },
+      "completionRate": 0.65,
+      "moduleAnswerProfile": {
+        "default": {
+          "skewToHigh": 0.35,
+          "consistencyVariance": 0.18
+        },
+        "governance": {
+          "skewToHigh": 0.28,
+          "consistencyVariance": 0.2
+        }
+      },
+      "productReviewCoverage": 0.4,
+      "openEndedTone": "frustrated"
+    },
+    {
+      "archetype": "compliance-heavy",
+      "moduleScoreRanges": {
+        "operating-model": [
+          64,
+          78
+        ],
+        "automation-ai": [
+          58,
+          72
+        ],
+        "data-flow": [
+          62,
+          76
+        ],
+        "governance": [
+          72,
+          86
+        ],
+        "strategy": [
+          56,
+          70
+        ]
+      },
+      "completionRate": 0.93,
+      "moduleAnswerProfile": {
+        "default": {
+          "skewToHigh": 0.64,
+          "consistencyVariance": 0.12
+        },
+        "governance": {
+          "skewToHigh": 0.75,
+          "consistencyVariance": 0.1
+        },
+        "strategy": {
+          "skewToHigh": 0.5,
+          "consistencyVariance": 0.15
+        }
+      },
+      "productReviewCoverage": 0.85,
+      "openEndedTone": "balanced"
+    },
+    {
+      "archetype": "tech-forward",
+      "moduleScoreRanges": {
+        "operating-model": [
+          56,
+          70
+        ],
+        "automation-ai": [
+          54,
+          68
+        ],
+        "data-flow": [
+          52,
+          66
+        ],
+        "governance": [
+          42,
+          56
+        ],
+        "strategy": [
+          56,
+          70
+        ]
+      },
+      "completionRate": 0.9,
+      "moduleAnswerProfile": {
+        "default": {
+          "skewToHigh": 0.62,
+          "consistencyVariance": 0.12
+        },
+        "governance": {
+          "skewToHigh": 0.45,
+          "consistencyVariance": 0.16
+        }
+      },
+      "productReviewCoverage": 0.75,
+      "openEndedTone": "positive-with-specifics"
+    },
+    {
+      "archetype": "sample-thin",
+      "moduleScoreRanges": {
+        "operating-model": [
+          44,
+          58
+        ],
+        "automation-ai": [
+          30,
+          44
+        ],
+        "data-flow": [
+          36,
+          50
+        ],
+        "governance": [
+          46,
+          60
+        ],
+        "strategy": [
+          38,
+          52
+        ]
+      },
+      "completionRate": 0.7,
+      "moduleAnswerProfile": {
+        "default": {
+          "skewToHigh": 0.42,
+          "consistencyVariance": 0.16
+        },
+        "automation-ai": {
+          "skewToHigh": 0.3,
+          "consistencyVariance": 0.2
+        },
+        "governance": {
+          "skewToHigh": 0.5,
+          "consistencyVariance": 0.14
+        }
+      },
+      "productReviewCoverage": 0.45,
+      "openEndedTone": "constructive"
+    }
+  ]
+}
