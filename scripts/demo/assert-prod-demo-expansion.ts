@@ -110,6 +110,10 @@ async function main() {
   if (demoIdNotDemo === 0) ok("all demo-* ids are DEMO boundary"); else fail(`${demoIdNotDemo} demo-* id(s) not DEMO`);
   if (expandLeak === 0) ok("no demo-expand-* leaked into PILOT/PRODUCTION"); else fail(`${expandLeak} demo-expand-* row(s) in PILOT/PRODUCTION`);
 
+  // 2026-10-12 (Cam): seen before scripts/seed-demo-swaps.ts runs its deleteMany on the DEMO boundary.
+  const demoSwapEvents = await prisma.sandboxSwapEvent.count({ where: { boundary: "DEMO" } });
+  console.log(`\nSW — SandboxSwapEvent rows with boundary DEMO: ${demoSwapEvents}`);
+
   // ---- D5: demo ELITE memberships resolve ELITE + ACTIVE -----------------
   const eliteOnDemo = await prisma.membershipSubscription.findMany({
     where: { plan: "ELITE", Subject: { Company: { dataBoundary: "DEMO", deletedAt: null } } },

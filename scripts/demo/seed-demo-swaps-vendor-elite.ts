@@ -2,10 +2,15 @@ import { randomUUID } from "node:crypto";
 import prisma from "@/lib/prisma";
 
 /**
- * Demo swap events for the two Elite vendor accounts (data only, preview).
+ * Demo swap events for the Elite demo vendor (data only; preview and production).
  * Modelled on scripts/seed-demo-swaps.ts, but ADDITIVE: nothing is deleted.
  *
- * For every product of the vendor companies behind the two vendor-elite accounts,
+ * Vendor resolution (2026-10-12, Cam's instruction): the VENDOR company whose id
+ * contains "meridian", the same preferId rule scripts/demo/prod-review-accounts.ts
+ * applies, so the script no longer depends on which login is attached to it.
+ * `--email <address>` overrides that: the user's companyId is the vendor instead.
+ *
+ * For every product of the resolved vendor company,
  * DEMO-boundary SandboxSwapEvent rows dated within the last 90 days, from firms in
  * that vendor's own ecosystem only: 14 to 22 swap-ins and 6 to 11 swap-outs per
  * vendor, spread across at least four categories and three products, with one
@@ -14,10 +19,14 @@ import prisma from "@/lib/prisma";
  * (lib/eliteInsightsV2 buildVendorDemandSignals) keys swap-ins on vendorInId and
  * swap-outs on productOutId, both within 90 days.
  *
- *   DATABASE_URL=... node --import tsx scripts/demo/seed-demo-swaps-vendor-elite.ts [--apply]
+ *   DATABASE_URL=... node --import tsx scripts/demo/seed-demo-swaps-vendor-elite.ts [--apply] [--email <address>]
  */
 const APPLY = process.argv.includes("--apply");
-const EMAILS = ["cameron+vendor-elite@garrettandgarrett.info", "lesliegarrettphd+vendor-elite@gmail.com"];
+const PREFER_ID = "meridian";
+const EMAIL_OVERRIDE = (() => {
+  const index = process.argv.indexOf("--email");
+  return index >= 0 ? process.argv[index + 1]?.trim() || null : null;
+})();
 const DAY = 24 * 60 * 60 * 1000;
 const IN_TARGETS = [18, 20];
 const OUT_TARGETS = [8, 9];
@@ -29,11 +38,29 @@ function offsetDays(seq: number, salt: number): number {
   return 2 + ((seq * 7 + salt * 3) % 84); // 2..85 days back, always inside the 90-day window
 }
 
+/** The vendor company: `--email` resolves a user's companyId; otherwise the VENDOR whose id contains PREFER_ID. */
+async function resolveVendorCompanyIds(): Promise<string[]> {
+  if (EMAIL_OVERRIDE) {
+    const user = await prisma.user.findUnique({ where: { email: EMAIL_OVERRIDE }, select: { email: true, companyId: true } });
+    console.log(`account ${EMAIL_OVERRIDE} -> ${user ? `company ${user.companyId ?? "(none)"}` : "(no such user)"}`);
+    return user?.companyId ? [user.companyId] : [];
+  }
+  const vendors = await prisma.company.findMany({
+    where: { type: "VENDOR", id: { contains: PREFER_ID }, deletedAt: null },
+    select: { id: true, name: true },
+    orderBy: { id: "asc" },
+  });
+  for (const vendor of vendors) console.log(`vendor by id "${PREFER_ID}": ${vendor.name} (${vendor.id})`);
+  return vendors.map((vendor) => vendor.id);
+}
+
 async function main() {
   console.log(`\n================ DEMO SWAPS, VENDOR ELITE — ${APPLY ? "APPLY" : "DRY RUN"} ================`);
-  const users = await prisma.user.findMany({ where: { email: { in: EMAILS } }, select: { email: true, companyId: true } });
-  for (const user of users) console.log(`account ${user.email} -> company ${user.companyId ?? "(none)"}`);
-  const companyIds = [...new Set(users.map((user) => user.companyId).filter((id): id is string => Boolean(id)))];
+  const companyIds = await resolveVendorCompanyIds();
+  if (companyIds.length === 0) {
+    console.log(EMAIL_OVERRIDE ? `no user ${EMAIL_OVERRIDE} with a company; nothing to seed` : `no VENDOR company with id containing "${PREFER_ID}"; nothing to seed`);
+    return;
+  }
   const now = Date.now();
   let totalCreated = 0;
 
