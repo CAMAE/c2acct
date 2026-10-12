@@ -44,6 +44,8 @@ export function buildAssessmentItemResponseRows(input: {
   questions: readonly ItemResponseQuestion[];
   answers: Record<string, NormalizedAnswer | unknown>;
   newId?: () => string;
+  /** legal-load (R64, delta 2): the company's vertical picks the option-set registry; omitted reads accounting's. */
+  verticalId?: string | null;
 }): { rows: AssessmentItemResponseRow[]; skippedQuestionKeys: string[] } {
   const newId = input.newId ?? randomUUID;
   const rows: AssessmentItemResponseRow[] = [];
@@ -77,7 +79,7 @@ export function buildAssessmentItemResponseRows(input: {
       continue;
     }
 
-    const followUp = getFirmFollowUpQuestion(question.key);
+    const followUp = getFirmFollowUpQuestion(question.key, input.verticalId);
     if (followUp && isFollowUpMcAnswer(answer)) {
       const otherKey = followUp.options.find((option) => option.kind === "other")?.key ?? null;
       for (const optionKey of answer.optionKeys) {

@@ -600,6 +600,7 @@ export async function POST(req: Request) {
     // diagnostic, never a thrown error.
     if (CANONICAL_FIRM_MODULE_KEYS.has(moduleKey)) {
       const { rows } = buildAssessmentItemResponseRows({
+        verticalId: vertical.verticalId,
         submissionId: submission.id,
         companyId: effectiveCompanyId,
         moduleKey,

@@ -49,7 +49,10 @@ export function openEndedTemplateIndex(productKey: string, index: number, count:
 }
 import { writeCompanyCapabilityScores } from "@/lib/companyCapabilityScoreWrites";
 import { maturityBandFor } from "@/lib/bandLexicon";
-import { canonicalCategoryForProduct } from "@/lib/productCategoryTaxonomy";
+import { canonicalCategoryForProduct, type ProductCategoryVertical } from "@/lib/productCategoryTaxonomy";
+import { buildAssessmentItemResponseRows } from "@/lib/assessment/itemResponses";
+import { getFirmFollowUpQuestions, type FollowUpQuestion } from "@/lib/assessment/firmFollowUpOptions";
+import type { ProductUtilityRegistryBundle } from "@/lib/verticals/questionBankRegistry";
 import {
   FIRM_MODULE_DEFINITIONS,
   ensureFirmAlignmentSystem,
@@ -87,6 +90,71 @@ import {
 } from "@/lib/assessmentRuntime";
 
 type DemoSeedClient = PrismaClient;
+
+/**
+ * legal-load (R64; section 12 items 11 and 13, delta 6): the channel a demo set
+ * belongs to. Absent, every helper writes exactly what it wrote before (accounting
+ * rows under the column default, questions from the in-code bank). Present, every
+ * Company, Product, VendorProfile and SurveySubmission row carries the vertical,
+ * the question builders read the channel's bank, canonical categories resolve
+ * through the channel's map, and a firm's five follow-ups are written as option
+ * picks from the channel's registry rather than the seeded sentence.
+ */
+export type DemoSeedChannel = {
+  verticalId: string;
+  registry: ProductUtilityRegistryBundle;
+  categoryVertical: ProductCategoryVertical;
+};
+
+function channelStamp(channel: DemoSeedChannel | undefined): { verticalId?: string } {
+  return channel ? { verticalId: channel.verticalId } : {};
+}
+
+/**
+ * R-S "no identical answers": deterministicAnswer folds its seed through `mod 9`,
+ * so two channel firms with one archetype target collapse onto one answer vector.
+ * A channel submission adds a per-question nudge of -1, 0 or +1 from a stable hash
+ * of (firm, module or product, question), so no two firms answer alike while the
+ * module score stays within the archetype's range. Accounting (no channel) is untouched.
+ */
+function channelJitter(channel: DemoSeedChannel | undefined, ...parts: Array<string | number>): number {
+  if (!channel) return 0;
+  let hash = 2166136261;
+  for (const part of parts) {
+    for (const ch of String(part)) {
+      hash ^= ch.charCodeAt(0);
+      hash = Math.imul(hash, 16777619);
+    }
+  }
+  const bucket = (hash >>> 0) % 5;
+  return bucket === 0 ? -1 : bucket === 4 ? 1 : 0;
+}
+
+/** Legal "Other" write-ins, in the firm pack's voice; no vendor name, no accounting noun. */
+const CHANNEL_OTHER_TEXTS = [
+  "Partner review of outgoing letters backs up every month end.",
+  "The docket and the intake system do not share a matter number.",
+  "No one owns the approved template library.",
+  "Associates learn the trust procedure by asking the bookkeeper.",
+];
+
+/**
+ * delta 6: one plausible pick per follow-up question, spread across the options so
+ * no option reads 100 percent: SINGLE picks choice[(firmIndex + index) mod 6]; MULTI
+ * adds the next; every seventh (firm, question) pair picks "Not a significant issue
+ * here"; every eleventh picks "Other" with a short write-in.
+ */
+export function demoFirmFollowUpPick(question: FollowUpQuestion, firmIndex: number, pairIndex: number): FollowUpMcAnswer {
+  const choices = question.options.filter((option) => option.kind === "choice");
+  const none = question.options.find((option) => option.kind === "not_significant");
+  const other = question.options.find((option) => option.kind === "other");
+  if (none && pairIndex % 7 === 6) return { optionKeys: [none.key], otherText: null };
+  if (other && pairIndex % 11 === 10) return { optionKeys: [other.key], otherText: CHANNEL_OTHER_TEXTS[pairIndex % CHANNEL_OTHER_TEXTS.length] };
+  const first = choices[(firmIndex + question.index) % choices.length];
+  if (question.selectionMode === "SINGLE") return { optionKeys: [first.key], otherText: null };
+  const second = choices[(firmIndex + question.index + 1) % choices.length];
+  return { optionKeys: second.key === first.key ? [first.key] : [first.key, second.key], otherText: null };
+}
 
 export type CompanyRecord = {
   id: string;
@@ -290,7 +358,9 @@ export async function ensureCompany(client: DemoSeedClient, input: {
   key: string;
   name: string;
   type: CompanyType;
+  channel?: DemoSeedChannel;
 }) {
+  const stamp = channelStamp(input.channel);
   // The company id is derived from the stable `key`, so resolve by id FIRST.
   // This keeps re-seeding idempotent when a demo company's NAME changes (e.g.
   // Block 11 N1 region-suffix rename): the existing row is updated in place
@@ -310,6 +380,7 @@ export async function ensureCompany(client: DemoSeedClient, input: {
       data: {
         name: input.name,
         type: input.type,
+        ...stamp,
         updatedAt: new Date(),
       },
       select: { id: true, name: true, type: true },
@@ -321,6 +392,7 @@ export async function ensureCompany(client: DemoSeedClient, input: {
       id,
       name: input.name,
       type: input.type,
+      ...stamp,
       updatedAt: new Date(),
     },
     select: { id: true, name: true, type: true },
@@ -383,6 +455,7 @@ export async function ensureMembership(client: DemoSeedClient, input: {
 }
 
 export async function ensureVendor(client: DemoSeedClient, input: {
+  channel?: DemoSeedChannel;
   vendor: DemoVendorInput;
   vendorIndex: number;
   sourceId: string;
@@ -391,6 +464,7 @@ export async function ensureVendor(client: DemoSeedClient, input: {
     key: input.vendor.key,
     name: input.vendor.displayName,
     type: CompanyType.VENDOR,
+    channel: input.channel,
   });
   const subject = await ensureCompanySubject(client, company);
   await ensureMembership(client, {
@@ -408,6 +482,7 @@ export async function ensureVendor(client: DemoSeedClient, input: {
       status: getDemoVendorStatus(input.vendorIndex),
       researchStatus: ResearchSourceStatus.IMPORTED,
       notes: `${input.vendor.industryFocus}. Size: ${input.vendor.sizeBand}. Maturity: ${input.vendor.maturityLevel}.`,
+      ...channelStamp(input.channel),
       updatedAt: new Date(),
     },
     create: {
@@ -420,6 +495,7 @@ export async function ensureVendor(client: DemoSeedClient, input: {
       status: getDemoVendorStatus(input.vendorIndex),
       researchStatus: ResearchSourceStatus.IMPORTED,
       notes: `${input.vendor.industryFocus}. Size: ${input.vendor.sizeBand}. Maturity: ${input.vendor.maturityLevel}.`,
+      ...channelStamp(input.channel),
       updatedAt: new Date(),
     },
     select: { id: true },
@@ -467,6 +543,7 @@ export async function ensureVendor(client: DemoSeedClient, input: {
 }
 
 export async function ensureProduct(client: DemoSeedClient, input: {
+  channel?: DemoSeedChannel;
   vendor: DemoVendorInput;
   vendorCompanyId: string;
   vendorProfileId: string;
@@ -483,11 +560,13 @@ export async function ensureProduct(client: DemoSeedClient, input: {
       vendorId: input.vendorProfileId,
       name: input.product.name,
       // B10a: canonicalize category at the single write point (base + expansion).
-      category: canonicalCategoryForProduct(input.product.utilityKeys),
+      // legal-load: another channel resolves through its own map.
+      category: canonicalCategoryForProduct(input.product.utilityKeys, input.channel?.categoryVertical),
       website,
       summary: input.product.summary,
       deploymentModel: input.product.deploymentModel,
       active: true,
+      ...channelStamp(input.channel),
       updatedAt: new Date(),
     },
     create: {
@@ -496,7 +575,8 @@ export async function ensureProduct(client: DemoSeedClient, input: {
       vendorId: input.vendorProfileId,
       name: input.product.name,
       slug,
-      category: canonicalCategoryForProduct(input.product.utilityKeys),
+      category: canonicalCategoryForProduct(input.product.utilityKeys, input.channel?.categoryVertical),
+      ...channelStamp(input.channel),
       website,
       summary: input.product.summary,
       deploymentModel: input.product.deploymentModel,
@@ -569,10 +649,12 @@ async function upsertProductAssessmentPlan(client: DemoSeedClient, input: {
   productId: string;
   perspective: ProductAssessmentPerspective;
   utilityKeys: string[];
+  registry?: ProductUtilityRegistryBundle;
 }) {
   const plan = serializeProductAssessmentPlan({
     perspective: input.perspective === ProductAssessmentPerspective.FIRM ? "firm" : "vendor",
     selectedUtilityKeys: input.utilityKeys,
+    registry: input.registry,
   });
 
   return client.productAssessmentPlan.upsert({
@@ -619,12 +701,14 @@ export async function seedVendorProductAssessment(client: DemoSeedClient, input:
   moduleId: string;
   moduleVersion: number;
   productIndex: number;
+  channel?: DemoSeedChannel;
 }) {
   const product = input.product.input;
+  const registry = input.channel?.registry;
   const variancePattern = productVariancePattern(input.productIndex);
   const assessmentTarget = vendorSelfAssessmentTarget(product, input.productIndex, input.product.vendor.key);
   const subject = await ensureProductSubject({ id: input.product.id, name: product.name });
-  const questions = buildVendorProductQuestions(product.utilityKeys);
+  const questions = buildVendorProductQuestions(product.utilityKeys, registry);
   const answers = Object.fromEntries(
     questions.map((question, index) => [
       question.id,
@@ -638,22 +722,25 @@ export async function seedVendorProductAssessment(client: DemoSeedClient, input:
     logoReference: `demo://${product.key}/logo`,
     ...product.profile,
   });
-  const vendorPlan = serializeVendorProductAssessmentPlan(product.utilityKeys);
+  const vendorPlan = serializeVendorProductAssessmentPlan(product.utilityKeys, registry);
   const persistedPlan = await upsertProductAssessmentPlan(client, {
     productId: input.product.id,
     perspective: ProductAssessmentPerspective.VENDOR,
     utilityKeys: product.utilityKeys,
+    registry,
   });
   await upsertProductAssessmentPlan(client, {
     productId: input.product.id,
     perspective: ProductAssessmentPerspective.FIRM,
     utilityKeys: product.utilityKeys,
+    registry,
   });
 
   const openEndedPlan = serializeVendorAdaptiveOpenEndedQuestionSnapshot({
     selectedUtilityKeys: product.utilityKeys,
     profile,
     answers,
+    registry,
   });
   // WS3-D (manual-review item 29): rotation array grown from 12 → 25 variants
   // so the "Recent firm responses" surface shows more visible diversity at
@@ -746,6 +833,7 @@ export async function seedVendorProductAssessment(client: DemoSeedClient, input:
     signalIntegrityScore: score.integrity.score,
     integrityFlags: score.integrity.flags,
     createdAt,
+    ...channelStamp(input.channel),
   };
 
   await client.surveySubmission.upsert({
@@ -757,7 +845,7 @@ export async function seedVendorProductAssessment(client: DemoSeedClient, input:
     },
   });
 
-  await upsertVendorProductSignals(client, input.product.id, product.utilityKeys, score.score.rawScorePct);
+  await upsertVendorProductSignals(client, input.product.id, product.utilityKeys, score.score.rawScorePct, registry);
 
   // vendor-followup-mc box (change 7): the picks as AssessmentItemResponse rows, the same
   // builder the submit route uses; idempotent (the submission's rows are replaced); missing
@@ -818,11 +906,12 @@ export function demoVendorFollowUpPick(questionKey: string, productIndex: number
   return { optionKeys: [choices[first].key], otherText: null };
 }
 
-export async function ensureFirm(client: DemoSeedClient, firm: DemoFirmInput) {
+export async function ensureFirm(client: DemoSeedClient, firm: DemoFirmInput, channel?: DemoSeedChannel) {
   const company = await ensureCompany(client, {
     key: firm.key,
     name: firm.displayName,
     type: CompanyType.FIRM,
+    channel,
   });
   const subject = await ensureCompanySubject(client, company);
   await ensureMembership(client, {
@@ -970,16 +1059,30 @@ export async function seedFirmAlignmentSubmission(client: DemoSeedClient, input:
   };
   moduleIndex: number;
   firmIndex: number;
+  channel?: DemoSeedChannel;
 }) {
   const answers: Record<string, NormalizedAnswer> = {};
+  // delta 6: a channel firm's follow-ups are option picks from the channel's registry,
+  // spread across the options, never the seeded sentence.
+  const channelFollowUps = input.channel ? getFirmFollowUpQuestions(input.channel.verticalId) : null;
+  let pairIndex = input.firmIndex * 5 + input.moduleIndex;
   for (const [questionIndex, question] of input.module.questions.entries()) {
     if (question.inputType === QuestionInputType.SLIDER) {
-      answers[question.id] = deterministicAnswer(
-        firmModuleAssessmentTarget(input.firm, input.firmIndex, input.moduleIndex),
-        questionIndex,
-        input.firmIndex + input.moduleIndex,
-        0.34
+      answers[question.id] = clampScore(
+        deterministicAnswer(
+          firmModuleAssessmentTarget(input.firm, input.firmIndex, input.moduleIndex),
+          questionIndex,
+          input.firmIndex + input.moduleIndex,
+          0.34
+        ) + channelJitter(input.channel, input.firm.key, input.module.key, questionIndex)
       );
+      continue;
+    }
+
+    const followUp = channelFollowUps?.find((entry) => entry.questionKey === question.key && entry.moduleKey === input.module.key);
+    if (followUp) {
+      answers[question.id] = demoFirmFollowUpPick(followUp, input.firmIndex, pairIndex) as unknown as NormalizedAnswer;
+      pairIndex += 1;
       continue;
     }
 
@@ -1022,6 +1125,7 @@ export async function seedFirmAlignmentSubmission(client: DemoSeedClient, input:
     signalIntegrityScore: integrity.score,
     integrityFlags: integrity.flags,
     createdAt: demoDate(96 + input.firmIndex * 6 + input.moduleIndex),
+    ...channelStamp(input.channel),
   };
 
   await client.surveySubmission.upsert({
@@ -1032,6 +1136,23 @@ export async function seedFirmAlignmentSubmission(client: DemoSeedClient, input:
       ...submissionData,
     },
   });
+
+  if (input.channel) {
+    // The option picks are dual-written to AssessmentItemResponse through the shared
+    // row builder the submit route uses, under the channel's registry (idempotent:
+    // the submission's rows are replaced wholesale).
+    const { rows } = buildAssessmentItemResponseRows({
+      submissionId,
+      companyId: input.companyId,
+      moduleKey: input.module.key,
+      moduleVersion: input.module.version,
+      questions: input.module.questions,
+      answers,
+      verticalId: input.channel.verticalId,
+    });
+    await client.assessmentItemResponse.deleteMany({ where: { submissionId } });
+    if (rows.length > 0) await client.assessmentItemResponse.createMany({ data: rows });
+  }
 
   await writeCompanyCapabilityScores(client, {
     companyId: input.companyId,
@@ -1152,19 +1273,22 @@ export async function seedFirmProductAssessment(client: DemoSeedClient, input: {
   moduleId: string;
   moduleVersion: number;
   relationshipIndex: number;
+  channel?: DemoSeedChannel;
 }) {
   const variancePattern = productVariancePattern(input.product.productIndex);
   const reviewTarget = firmProductReviewTarget(input);
   const subject = await ensureProductSubject({ id: input.product.id, name: input.product.input.name });
-  const questions = buildFirmProductQuestions(input.product.input.utilityKeys);
+  const questions = buildFirmProductQuestions(input.product.input.utilityKeys, input.channel?.registry);
   const answers = Object.fromEntries(
     questions.map((question, index) => [
       question.id,
-      deterministicAnswer(
-        reviewTarget,
-        index,
-        input.relationshipIndex,
-        0.36
+      clampScore(
+        deterministicAnswer(
+          reviewTarget,
+          index,
+          input.relationshipIndex,
+          0.36
+        ) + channelJitter(input.channel, input.firm.key, input.product.input.key, index)
       ),
     ])
   );
@@ -1205,6 +1329,7 @@ export async function seedFirmProductAssessment(client: DemoSeedClient, input: {
     signalIntegrityScore: integrity.score,
     integrityFlags: integrity.flags,
     createdAt: demoDate(240 + input.relationshipIndex),
+    ...channelStamp(input.channel),
   };
 
   await client.surveySubmission.upsert({

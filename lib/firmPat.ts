@@ -31,7 +31,7 @@ import { sandboxLabel } from "@/lib/sandboxLabel";
 import { FINAL_SCORE_VERSION } from "@/lib/assessmentCore";
 import { accountingFirmModules, resolveFirmModules } from "@/lib/verticals/firmModules";
 import { verticalStamp } from "@/lib/verticals/scope";
-import { resolveVerticalForCompany } from "@/lib/verticals/session";
+import { resolveVerticalForCompanyWith } from "@/lib/verticals/companyVertical";
 
 export const FIRM_MODULE_DEFINITIONS = [
   {
@@ -1222,7 +1222,7 @@ export async function getFirmAssessmentProgress(companyId: string) {
   // and carry accounting's description; a tenant in another vertical reads its
   // pack's words for the same modules. Flag off the resolver returns the accounting
   // constant with no read, and the rows pass through untouched.
-  const firmModules = resolveFirmModules({ verticalId: await resolveVerticalForCompany(companyId) });
+  const firmModules = resolveFirmModules({ verticalId: await resolveVerticalForCompanyWith(prisma, companyId) });
   const progress = buildFirmAssessmentProgress(modules, submissions, drafts);
   if (firmModules === accountingFirmModules()) return progress;
   return progress.map((entry) => {
@@ -1688,7 +1688,7 @@ export async function submitFirmProductAssessment(input: {
   });
 
   // legal-load (R64, 1d): stamp the firm's vertical on the review row (flag off: no column named, no read).
-  const reviewVertical = await resolveVerticalForCompany(input.companyId);
+  const reviewVertical = await resolveVerticalForCompanyWith(prisma, input.companyId);
 
   return prisma.surveySubmission.create({
     data: {

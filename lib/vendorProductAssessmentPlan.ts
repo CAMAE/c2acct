@@ -584,6 +584,7 @@ export function serializeVendorAdaptiveOpenEndedQuestionSnapshot(input: {
   selectedUtilityKeys: string[];
   profile?: Partial<Record<keyof VendorProductProfileInput, string | null | undefined>>;
   answers?: Record<string, number>;
+  registry?: ProductUtilityRegistryBundle;
 }): VendorAdaptiveOpenEndedQuestionSnapshot[] {
   return buildVendorAdaptiveOpenEndedQuestions(input).map((question) => ({
     id: question.id,

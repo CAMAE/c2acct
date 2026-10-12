@@ -16,7 +16,7 @@ import {
 import { buildProductAssessmentPlan, getProductUtilityCatalog } from "@/lib/vendorProductQuestionBank";
 import { ACCOUNTING_PRODUCT_UTILITY_REGISTRY, type ProductUtilityRegistryBundle } from "@/lib/verticals/questionBankRegistry";
 import { verticalStamp } from "@/lib/verticals/scope";
-import { resolveVerticalForCompany } from "@/lib/verticals/session";
+import { resolveVerticalForCompanyWith } from "@/lib/verticals/companyVertical";
 import {
   PRODUCT_ASSESSMENT_SCALE_MAX,
   PRODUCT_ASSESSMENT_SCALE_MIN,
@@ -729,7 +729,7 @@ export async function getVendorCompanyContext(companyId: string | null | undefin
 export async function ensureVendorProfileForCompany(company: { id: string; name: string }) {
   // legal-load (R64, 1d): the profile carries the vendor's vertical (flag off: no column named,
   // no read; the database default stamps accounting exactly as before).
-  const stamp = verticalStamp({ verticalId: await resolveVerticalForCompany(company.id) });
+  const stamp = verticalStamp({ verticalId: await resolveVerticalForCompanyWith(prisma, company.id) });
   return prisma.vendorProfile.upsert({
     where: { companyId: company.id },
     update: {

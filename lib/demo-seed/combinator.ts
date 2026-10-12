@@ -2,7 +2,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 import { MembershipPlan, MembershipStatus, ProductDeploymentModel } from "@prisma/client";
-import { canonicalCategoryForProduct } from "@/lib/productCategoryTaxonomy";
+import { canonicalCategoryForProduct, type ProductCategoryVertical } from "@/lib/productCategoryTaxonomy";
+import { loadDemoSeedFlavor, type DemoSeedFlavor } from "@/lib/demo-seed/flavor";
 
 import type {
   DemoFirmInput,
@@ -46,7 +47,8 @@ export type VendorBankEntry = {
 
 export type FirmRosterEntry = {
   name: string;
-  size: "small" | "mid" | "large";
+  /** A size key the channel's flavor maps to a band line (accounting: small | mid | large; legal: the pack's band keys). */
+  size: string;
   archetype: FirmArchetypeKey;
   regionalFlavor: "northeast" | "southeast" | "midwest" | "west" | "national";
   userCountSeed: number;
@@ -198,11 +200,15 @@ const ELITE_ACTIVE: DemoMembershipInput = {
   status: MembershipStatus.ACTIVE,
 };
 
-const SIZE_TO_BAND: Record<FirmRosterEntry["size"], string> = {
-  small: "<25 employees",
-  mid: "25-100 employees",
-  large: "100+ employees",
-};
+/**
+ * legal-load (R64; section 12 item 13): the channel's demo words come from data
+ * (lib/demo-seed/flavor.ts). Accounting's flavor file carries the literals this
+ * module used to hold, so the accounting planners stay byte-identical (pinned by
+ * tests/legal-load-demo-seed.contract.test.ts).
+ */
+function accountingFlavor(): DemoSeedFlavor {
+  return loadDemoSeedFlavor("accounting");
+}
 
 const ARCHETYPE_TO_MATURITY: Record<FirmArchetypeKey, string> = {
   "high-performing": "Scaled",
@@ -259,36 +265,22 @@ function vendorRiskFlags(vendor: VendorBankEntry): string[] {
   return ["narrow product line limits expansion", "category depth hard for non-specialists to evaluate"];
 }
 
-function firmIntegrationNeeds(firm: FirmRosterEntry): string[] {
-  const arch = firm.archetype;
-  if (arch === "high-performing" || arch === "tech-forward") {
-    return ["client portal", "QuickBooks Online", "secure document exchange", "automation orchestration"];
-  }
-  if (arch === "compliance-heavy") {
-    return ["audit trail export", "regulatory filing", "evidence retention", "client portal"];
-  }
-  if (arch === "struggling" || arch === "sample-thin") {
-    return ["QuickBooks Online", "spreadsheet import"];
-  }
-  return ["QuickBooks Online", "client portal", "document management"];
+function firmIntegrationNeeds(firm: FirmRosterEntry, flavor: DemoSeedFlavor): string[] {
+  const needs = flavor.firmIntegrationNeeds[firm.archetype] ?? flavor.firmIntegrationNeeds["mid-tier"];
+  if (!needs) throw new Error(`demo seed flavor ${flavor.verticalId} names no integration needs for archetype "${firm.archetype}"`);
+  return [...needs];
 }
 
-function firmRiskFlags(firm: FirmRosterEntry, archetypeProfile: FirmArchetypeProfile): string[] {
-  void archetypeProfile;
-  const arch = firm.archetype;
-  if (arch === "struggling") {
-    return ["staff churn slows process adoption", "key-person risk on tax season prep"];
-  }
-  if (arch === "sample-thin") {
-    return ["evidence still accumulating across modules"];
-  }
-  if (arch === "compliance-heavy") {
-    return ["regulator-driven roadmap dominates capacity planning"];
-  }
-  if (arch === "tech-forward") {
-    return ["automation tooling outpacing process documentation"];
-  }
-  return ["growth straining cross-team communication"];
+function firmRiskFlags(firm: FirmRosterEntry, flavor: DemoSeedFlavor): string[] {
+  const flags = flavor.firmRiskFlags[firm.archetype] ?? flavor.firmRiskFlags["mid-tier"];
+  if (!flags) throw new Error(`demo seed flavor ${flavor.verticalId} names no risk flags for archetype "${firm.archetype}"`);
+  return [...flags];
+}
+
+function firmSizeBand(firm: FirmRosterEntry, flavor: DemoSeedFlavor): string {
+  const band = flavor.sizeBands[firm.size];
+  if (!band) throw new Error(`demo seed flavor ${flavor.verticalId} maps no size band for roster size "${firm.size}"`);
+  return band;
 }
 
 function firmMembership(firm: FirmRosterEntry): DemoMembershipInput {
@@ -314,15 +306,28 @@ function averageOfRanges(ranges: Record<string, [number, number]>): number {
   return Math.round(values.reduce((acc, [low, high]) => acc + (low + high) / 2, 0) / values.length);
 }
 
-export function buildVendorPlan(vendor: VendorBankEntry): DemoBenchmarkVendorPlan {
+export type DemoChannelOptions = {
+  /** The channel's demo words; accounting's by default (the literals this module used to carry). */
+  flavor?: DemoSeedFlavor;
+  /** The vertical and bank that resolve a product's canonical category; accounting's map by default. */
+  categoryVertical?: ProductCategoryVertical;
+  /** Replaces the `demo-bench-` id prefix when deriving slugs for another channel's catalog. */
+  idPrefix?: string;
+};
+
+export function buildVendorPlan(vendor: VendorBankEntry, options: DemoChannelOptions = {}): DemoBenchmarkVendorPlan {
+  const flavor = options.flavor ?? accountingFlavor();
+  const vendorSlug = (id: string) => id.replace(options.idPrefix ? new RegExp(`^${options.idPrefix}vendor-`) : /^demo-bench-vendor-/, "");
+  const productSlug = (id: string) => id.replace(options.idPrefix ? new RegExp(`^${options.idPrefix}product-`) : /^demo-bench-product-/, "");
   const productInputs: DemoProductInput[] = vendor.products.map((product) => ({
     key: product.id,
     name: product.name,
     // Block 10a: category is one of the 7 shared canonical categories (not the
     // raw utility label) so every vendor's products land in the same set and
-    // each category clears the >=5-vendor benchmark floor.
-    category: canonicalCategoryForProduct(product.utilityKeys),
-    websitePath: `/products/${product.id.replace(/^demo-bench-product-/, "")}`,
+    // each category clears the >=5-vendor benchmark floor. legal-load: another
+    // channel resolves through its own category map (lib/productCategoryTaxonomy).
+    category: canonicalCategoryForProduct(product.utilityKeys, options.categoryVertical),
+    websitePath: `/products/${productSlug(product.id)}`,
     summary: `${product.name} is ${vendor.name}'s ${utilityKeyToLabel(
       product.utilityKeys[0] ?? "function-practice-management"
     ).toLowerCase()} module.`,
@@ -332,7 +337,7 @@ export function buildVendorPlan(vendor: VendorBankEntry): DemoBenchmarkVendorPla
     profile: {
       positioning: `${product.name} for ${utilityKeyToLabel(product.utilityKeys[0] ?? "function-practice-management").toLowerCase()}-led practices`,
       targetCustomer: VENDOR_ARCHETYPE_TO_SIZE_BAND[vendor.archetype],
-      targetUseContext: "Recurring monthly engagements + ad-hoc client work",
+      targetUseContext: flavor.vendorTargetUseContext,
       implementationStyle: vendor.archetype === "modern-fast-mover" ? "Self-serve with optional onboarding" : "Guided onboarding with CS partner",
       operatingModelFit: vendor.archetype === "niche-depth" ? "Specialist depth" : "Multi-team coverage",
       primaryBuyer: vendor.archetype === "large-incumbent" ? "Operations partner" : "Managing partner",
@@ -344,7 +349,7 @@ export function buildVendorPlan(vendor: VendorBankEntry): DemoBenchmarkVendorPla
   const demoVendorInput: DemoVendorInput = {
     key: vendor.id,
     displayName: vendor.name,
-    website: `https://${vendor.id.replace(/^demo-bench-vendor-/, "")}.demo.pat.local`,
+    website: `https://${vendorSlug(vendor.id)}.demo.pat.local`,
     industryFocus: vendor.tagline,
     sizeBand: VENDOR_ARCHETYPE_TO_SIZE_BAND[vendor.archetype],
     maturityLevel: VENDOR_ARCHETYPE_TO_MATURITY[vendor.archetype],
@@ -372,8 +377,11 @@ export function buildFirmPlan(input: {
    * never collide with — or be mistaken for — the canonical demo cohort.
    */
   firmKeyPrefix?: string;
+  /** legal-load: the channel's demo words; accounting's by default. */
+  flavor?: DemoSeedFlavor;
 }): DemoBenchmarkFirmPlan {
   const { firm, archetypeProfile, vendorPlan, templates, rng } = input;
+  const flavor = input.flavor ?? accountingFlavor();
 
   // Per-module score target, drawn from the archetype's per-module range.
   const moduleScoreTargets: Record<string, number> = {};
@@ -411,11 +419,11 @@ export function buildFirmPlan(input: {
   const demoFirmInput: DemoFirmInput = {
     key: firmKey,
     displayName: firm.name,
-    industry: "Public accounting",
-    sizeBand: SIZE_TO_BAND[firm.size],
+    industry: flavor.industry,
+    sizeBand: firmSizeBand(firm, flavor),
     maturityLevel: ARCHETYPE_TO_MATURITY[firm.archetype],
-    integrationNeeds: firmIntegrationNeeds(firm),
-    riskFlags: firmRiskFlags(firm, archetypeProfile),
+    integrationNeeds: firmIntegrationNeeds(firm, flavor),
+    riskFlags: firmRiskFlags(firm, flavor),
     scoreTarget: scoreTargetFromPercent(avgScorePct),
     membership: firmMembership(firm),
   };
@@ -432,6 +440,7 @@ export function buildFirmPlan(input: {
       product,
       templates,
       rng,
+      phraseBanks: flavor.phraseBanks,
     });
   }
 
@@ -458,76 +467,8 @@ function slugifyFirmName(name: string): string {
 
 // ---------- Open-ended quote renderer ----------
 
-const PHRASE_BANKS: Record<string, string[]> = {
-  duration: ["18 months", "two years", "the past three years", "since the 2024 tax season", "roughly a year"],
-  feature_area: [
-    "monthly close",
-    "client onboarding",
-    "tax workflow",
-    "audit prep",
-    "engagement letter generation",
-    "billing reconciliation",
-    "document collection",
-  ],
-  sentiment_modifier: [
-    "consistently solid",
-    "uneven",
-    "noticeably improved",
-    "still maturing",
-    "best-in-class",
-    "adequate",
-  ],
-  specific_callout: [
-    "Our partners use it directly without staff translation.",
-    "Onboarding new clients went from a week to two days.",
-    "We've stopped getting end-of-month surprises.",
-    "Year-over-year revenue per partner is up materially.",
-  ],
-  primary_use: [
-    "tax",
-    "audit",
-    "CAS",
-    "advisory",
-    "client management",
-    "monthly close",
-    "compliance reporting",
-  ],
-  gap_area: [
-    "complex multi-entity scenarios",
-    "non-US tax compliance",
-    "international subsidiary consolidations",
-    "specialty industry verticals",
-    "legacy ERP integrations",
-  ],
-  adjacent_system: [
-    "QuickBooks Online",
-    "NetSuite",
-    "Xero",
-    "DocuSign",
-    "Bill.com",
-    "our internal billing tool",
-  ],
-  promised_capability: [
-    "AI-assisted reconciliation",
-    "no-code workflow builder",
-    "advanced reporting",
-    "embedded e-signature",
-    "client-side mobile app",
-  ],
-  capability_gap: [
-    "deeper analytics",
-    "configurable approval flows",
-    "audit-trail granularity",
-    "API-first integration",
-    "multi-entity consolidation",
-  ],
-  growth_target: [
-    "150 clients next year",
-    "two new partner additions",
-    "double the CAS book",
-    "a second regional office",
-  ],
-};
+// The phrase banks the quote templates interpolate live in the channel's flavor file
+// (data/demo-seed/flavor.json for accounting, the literals this block used to hold).
 
 function pickFromBank(rng: () => number, bank: string[]): string {
   const idx = Math.floor(rng() * bank.length);
@@ -541,6 +482,7 @@ function renderOpenEndedQuote(input: {
   product: VendorBankProduct;
   templates: OpenEndedTemplate[];
   rng: () => number;
+  phraseBanks: Record<string, string[]>;
 }): string {
   const { archetypeProfile, vendor, product, templates, rng } = input;
   const candidates = templates.filter((template) => {
@@ -557,7 +499,7 @@ function renderOpenEndedQuote(input: {
     vendor: vendor.name,
     product: product.name,
   };
-  for (const [slot, bank] of Object.entries(PHRASE_BANKS)) {
+  for (const [slot, bank] of Object.entries(input.phraseBanks)) {
     context[slot] = pickFromBank(rng, bank);
   }
 

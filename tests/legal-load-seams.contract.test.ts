@@ -163,14 +163,15 @@ describe("1c — benchmark readers and pools take the viewing company's vertical
 
   it("the readers and the Elite builders accept the vertical and pass it to the key builder (source pin)", () => {
     const benchmarks = read("lib/benchmarks.ts");
-    expect(benchmarks).toMatch(/getFirmPeerReadings\([\s\S]*verticalId: string = DEFAULT_VERTICAL_ID[\s\S]*firmCohortKeyForBoundary\(boundary, verticalId\)/);
-    expect(benchmarks).toMatch(/getFirmCohortFirmCount\([\s\S]*firmCohortKeyForBoundary\(boundary, verticalId\)/);
+    // WORK 6 (delta 4) added the band as the third argument; omitted it is null and the key is unchanged.
+    expect(benchmarks).toMatch(/getFirmPeerReadings\([\s\S]*verticalId: string = DEFAULT_VERTICAL_ID[\s\S]*firmCohortKeyForBoundary\(boundary, verticalId, sizeBand\)/);
+    expect(benchmarks).toMatch(/getFirmCohortFirmCount\([\s\S]*firmCohortKeyForBoundary\(boundary, verticalId, sizeBand\)/);
     expect(benchmarks).toMatch(/getVendorCategoryReadings\([\s\S]*vendorCohortKeyForBoundary\(boundary, verticalId\)/);
     const elite = read("lib/eliteInsightsV2.ts");
     expect(elite).toContain("getFirmPeerReadings(client, companyId, boundary, vertical)");
     expect(elite).toContain("getFirmCohortFirmCount(client, boundary, vertical)");
     expect(elite).toContain("getVendorCategoryReadings(client, companyId, boundary, vertical)");
-    expect(elite).toMatch(/const vertical = verticalId \?\? \(await resolveVerticalForCompany\(companyId\)\);/);
+    expect(elite).toMatch(/const vertical = verticalId \?\? \(await resolveVerticalForCompanyWith\(client as unknown as CompanyVerticalReader, companyId\)\);/);
   });
 
   it("the three pools filter by vertical through verticalFilter, which is {} flag off (source pin)", () => {
@@ -189,7 +190,13 @@ describe("1d — the write paths stamp the tenant's vertical; flag off they name
     expect(read("app/api/survey/draft/route.ts")).toContain("...verticalStamp({ verticalId: vertical.verticalId })");
     expect(read("lib/firmPat.ts")).toContain("...verticalStamp({ verticalId: reviewVertical })");
     const vendorPat = read("lib/vendorPat.ts");
-    expect(vendorPat).toContain("const stamp = verticalStamp({ verticalId: await resolveVerticalForCompany(company.id) });");
+    expect(vendorPat).toContain("const stamp = verticalStamp({ verticalId: await resolveVerticalForCompanyWith(prisma, company.id) });");
+    // the client-reachable modules never import the session helper or the pack boundary
+    // (webpack follows their auth and filesystem imports into the client bundle)
+    for (const rel of ["lib/firmPat.ts", "lib/vendorPat.ts", "lib/eliteInsightsV2.ts", "lib/vendorProductAssessmentPlan.ts", "lib/vendorProductQuestionBank.ts"]) {
+      expect(read(rel), rel).not.toContain('from "@/lib/verticals/session"');
+      expect(read(rel), rel).not.toContain('from "@/lib/verticals/companyBoundary"');
+    }
     expect(vendorPat.match(/\.\.\.stamp,/g)?.length).toBeGreaterThanOrEqual(2);
     expect(verticalStamp({ env: FLAG_OFF, verticalId: FIXTURE })).toEqual({});
   });

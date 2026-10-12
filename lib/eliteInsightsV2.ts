@@ -37,7 +37,7 @@ import {
 } from "@/lib/benchmarkSuppression";
 import type { PercentileRow } from "@/app/components/charts/PercentileBand";
 import { percentileOrdinal } from "@/lib/ordinal";
-import { resolveVerticalForCompany } from "@/lib/verticals/session";
+import { resolveVerticalForCompanyWith, type CompanyVerticalReader } from "@/lib/verticals/companyVertical";
 
 const MODULE_TITLE = new Map<string, string>(FIRM_MODULE_DEFINITIONS.map((m) => [m.key, m.title]));
 
@@ -155,7 +155,7 @@ export async function buildFirmPeerPosition(
   /** legal-load (R64, 1c): the viewing firm's vertical; resolved from Company.verticalId when omitted (flag off: accounting, no read). */
   verticalId?: string
 ): Promise<FirmPeerPosition> {
-  const vertical = verticalId ?? (await resolveVerticalForCompany(companyId));
+  const vertical = verticalId ?? (await resolveVerticalForCompanyWith(client as unknown as CompanyVerticalReader, companyId));
   // Block 12f — number integrity: the DISTRIBUTION (p25..p90, mean) comes from the
   // benchmark, but the firm's OWN "you" scores + alignment index come from the
   // ONE shared live reader (getFirmAlignmentSignal), so the Elite pane reads the
@@ -611,7 +611,7 @@ export async function buildVendorCategoryPosition(
   /** legal-load (R64, 1c): the vendor's vertical; resolved from Company.verticalId when omitted (flag off: accounting, no read). */
   verticalId?: string
 ): Promise<VendorCategoryPosition> {
-  const vertical = verticalId ?? (await resolveVerticalForCompany(companyId));
+  const vertical = verticalId ?? (await resolveVerticalForCompanyWith(client as unknown as CompanyVerticalReader, companyId));
   const readings = await getVendorCategoryReadings(client, companyId, boundary, vertical);
   const rated = readings.filter((r) => typeof r.score === "number");
   if (rated.length === 0) {
