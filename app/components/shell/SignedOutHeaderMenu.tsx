@@ -3,6 +3,7 @@ import HeaderControlsMenu from "@/app/components/shell/HeaderControlsMenu";
 import { isConsultantAccessEnabled } from "@/lib/consultantAccess";
 import { isIndividualSurfacesEnabled } from "@/lib/pilotSurfaces";
 import { getRequestLocaleMessages } from "@/lib/requestLocale";
+import { guideWord } from "@/lib/roleWords";
 import type { HeaderNavLabelKey } from "@/lib/locale";
 
 /**
@@ -33,7 +34,7 @@ export default async function SignedOutHeaderMenu() {
   ];
   const translatedNavItems: HeaderNavItem[] = [
     ...navItems.map((item) => ({ href: item.href, label: messages.nav[item.key] })),
-    ...(isConsultantAccessEnabled() ? [{ href: "/consultants", label: "Consultant" }] : []),
+    ...(isConsultantAccessEnabled() ? [{ href: "/consultants", label: guideWord() }] : []),
     { href: "/trust", label: "Trust" },
   ];
   return (
