@@ -1453,3 +1453,5 @@ on sign-off; optional-polish perf idle-only; other-modules flat after screenshot
 multiple-choice on Leslie's option sets; deploy night on Cam's date.
 NOT-CLOSED: all queue items; AGENT_APPROVAL_HMAC_SECRET not yet in preflight specs; ledger
 tail-append vs newest-first header (successor's call). Cam clears.
+
+2026-10-13 box-c-1 (Forge): branch feat/box-c from origin/feature/engagement-v1 69e8bf1c (production). R65 filed in REQUIREMENTS.md. Nine items, one commit each, proof in budget mode, guard on both flag sets, report FORGE-REPORT-BOX-C.md. Nothing pushed; Cam types push.
