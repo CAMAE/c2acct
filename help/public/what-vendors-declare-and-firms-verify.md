@@ -53,7 +53,7 @@ The same discipline extends to what the numbers are built from. PAT keeps produc
 
 ## What each side sees
 
-The two-sided model is also role-scoped: each participant sees what its role permits, and no more. Firms see the assessment picture of their own operations. Vendors receive alignment evidence about their own products, how declared capability compares with the assessed experience of firms, rather than a window into any individual firm's internals. Guides and ecosystem owners, the third role in PAT's world, see the alignment picture across the set of firms they manage.
+The two-sided model is also role-scoped: each participant sees what its role permits, and no more. Firms see the assessment picture of their own operations. Vendors receive alignment evidence about their own products, how declared capability compares with the assessed experience of firms, rather than a window into any individual firm's internals. Guides and ecosystem owners, the third role in PAT's world: see the alignment picture across the set of firms they manage.
 
 Within benchmark comparisons, contributors are anonymous, so participating in the verification side of the model does not mean exposing your firm to the vendors whose products you use. The model needs firms' experience in aggregate; it does not need, and does not provide, a way to trace that experience back to a named contributor in a benchmark.
 

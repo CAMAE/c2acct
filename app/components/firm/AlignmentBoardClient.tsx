@@ -367,7 +367,7 @@ export default function AlignmentBoardClient({
       <section className="pat-card p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="pat-label">
-            {readOnly ? "The firm's stack, click a piece to inspect it" : "Your stack, click a piece to lift it out"}
+            {readOnly ? "The firm's stack: click a piece to inspect it" : "Your stack: click a piece to lift it out"}
           </div>
           {data.totalStackCount > data.stack.length ? (
             <span className="text-xs text-[var(--shell-muted)]">
@@ -542,7 +542,7 @@ export default function AlignmentBoardClient({
 
         {data.candidates.length === 0 ? (
           <p className="mt-4 text-sm text-[var(--shell-muted)]">
-            No firm-reviewed candidates yet, see the not-yet-reviewed set below.
+            No firm-reviewed candidates yet: see the not-yet-reviewed set below.
           </p>
         ) : activePiece ? (
           // Utility lanes for the active slot: "Fits this slot" (shares ≥1

@@ -44,7 +44,7 @@ describe("F14 read-only copy — no firm-second-person swap instructions leak", 
 
   it("gates the swap instructions on readOnly (consultant view drops/reframes them)", () => {
     // Consultant-framed stack label instead of "Your stack — … lift it out".
-    expect(boardSrc).toContain("The firm's stack — click a piece to inspect it");
+    expect(boardSrc).toContain("The firm's stack: click a piece to inspect it");
     // The firm-second-person swap intro is behind readOnly (dropped for consultants).
     expect(boardSrc).toMatch(/readOnly[\s\S]{0,120}Lift a piece from your stack/);
     // The candidate-rail "lift a stack piece first" instruction is readOnly-gated.

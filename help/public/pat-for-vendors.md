@@ -63,7 +63,7 @@ PAT's stewardship applies to vendors as it does to every tenant: your records be
 
 ## What you see, and what you don't
 
-PAT is built on role boundaries, and vendors sit inside them like everyone else. As a vendor you see your own declarations and the alignment evidence that answers them; you do not see into individual firms' private assessment detail, and firms within benchmarks remain anonymous to you. Firms, for their part, see what their own role permits, not your vendor-side surfaces. Those walls are what make honest participation safe on both sides: firms can answer candidly because candor is not exposure, and the candor is exactly what gives the evidence you receive its weight.
+PAT is built on role boundaries, and vendors sit inside them like everyone else. As a vendor you see your own declarations and the alignment evidence that answers them; you do not see into individual firms' private assessment detail, and firms within benchmarks remain anonymous to you. Firms, for their part: see what their own role permits, not your vendor-side surfaces. Those walls are what make honest participation safe on both sides: firms can answer candidly because candor is not exposure, and the candor is exactly what gives the evidence you receive its weight.
 
 Signed-in vendor users also have Ask Pat, an assistant that answers questions from PAT's own documented content, scoped at the evidence layer to what a vendor role can see. Pat is there to help you understand your evidence, what a term means, how to read a surface, and when it lacks documented evidence for an answer it says so plainly. It never generates scores; nothing conversational ever touches the arithmetic.
 

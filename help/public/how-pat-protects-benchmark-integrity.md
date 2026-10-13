@@ -85,7 +85,7 @@ Contributors to PAT benchmarks are anonymous, and that anonymity is designed to 
 
 PAT's stewardship position is that tenants' records belong to them. When a tenant leaves, their records are removed, and the removal is receipted rather than merely promised. What remains afterward are only the anonymous benchmark aggregates that had already passed the suppression tests, and those stay aggregate: individual contributions are not reconstructable from them.
 
-For anyone weighing whether to contribute assessment answers. That closes the loop the suppression rules open. The contributor floor and the dominance cap keep anonymity meaningful while you participate; removal of records with a receipt, and aggregates that cannot be unwound into individual contributions, keep it meaningful if you go. Contributing to a benchmark is not a permanent exposure. It is participation in group figures that never point back at you.
+For anyone weighing whether to contribute assessment answers. That closes the loop the suppression rules open. The contributor floor and the dominance cap keep anonymity meaningful while you participate; removal of records with a receipt, and aggregates that cannot be unwound into individual contributions: keep it meaningful if you go. Contributing to a benchmark is not a permanent exposure. It is participation in group figures that never point back at you.
 
 ## Reading a published benchmark with confidence
 

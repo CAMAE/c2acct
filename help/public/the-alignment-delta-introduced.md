@@ -65,7 +65,7 @@ One product, two deltas, two directions, and every number in the picture traceab
 
 ## Quality signals travel with the measurement
 
-A measurement is only as strong as the responses behind it, and PAT is explicit about that. Response-pattern quality checks, straight-lining detection is one example, run alongside assessment scoring, and the resulting signal-integrity information accompanies the scores it describes, so a reader knows how much weight a given result can bear.
+A measurement is only as strong as the responses behind it, and PAT is explicit about that. Response-pattern quality checks, straight-lining detection is one example: run alongside assessment scoring, and the resulting signal-integrity information accompanies the scores it describes, so a reader knows how much weight a given result can bear.
 
 An integrity flag is information, not an accusation. It does not declare that anyone answered dishonestly; it notes that a response pattern deserves a lighter grip when reading the numbers built on it.
 

@@ -60,7 +60,7 @@ export default async function CreateAccountPage() {
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--shell-muted)]">
             You&apos;re signed in as <span className="font-semibold text-[var(--shell-ink)]">{sessionUser.email}</span>.
-            Creating an account starts a brand-new organization with its own owner, sign out first,
+            Creating an account starts a brand-new organization with its own owner: sign out first,
             or continue to the workspace you already have.
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-3">

@@ -47,7 +47,7 @@ describe("buildBattleCardAnatomy", () => {
   it("respects the N>=2 sample floor — a single-review product is never asserted", () => {
     const products = [product({ productId: "p1", productName: "Solo", canonicalFirmReviewScore: 92, firmReviewCount: 1 })];
     const a = buildBattleCardAnatomy({ ...base, products, risks: NO_RISKS });
-    expect(a.whyItFits).toEqual(["No high-band products yet — fit is emerging at the mid-band."]);
+    expect(a.whyItFits).toEqual(["No high-band products yet, fit is emerging at the mid-band."]);
     expect(a.discoveryQuestions[0]).toMatch(/Complete a product review/);
   });
 

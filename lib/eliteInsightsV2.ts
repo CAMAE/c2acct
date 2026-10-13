@@ -55,7 +55,7 @@ export const FIRM_ELITE_V2_META: Record<string, EliteCardMeta> = {
   },
   firm_tier2_recommendation: {
     title: "Gap Plan",
-    description: "The capabilities holding your alignment index down, ranked by point deficit, fix these first.",
+    description: "The capabilities holding your alignment index down, ranked by point deficit: fix these first.",
   },
   firm_tier2_projection: {
     title: "Trajectory",

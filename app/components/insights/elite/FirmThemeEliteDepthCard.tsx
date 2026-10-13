@@ -41,7 +41,7 @@ export default function FirmThemeEliteDepthCard({
               </p>
             ) : (
               <p className="mt-3 text-sm leading-6 text-[var(--shell-ink)]">
-                Every module on this theme already sits at or above the peer top quartile, hold the lead and defend
+                Every module on this theme already sits at or above the peer top quartile: hold the lead and defend
                 it in your next review cycle.
               </p>
             )}

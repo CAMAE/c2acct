@@ -87,7 +87,7 @@ A band is not an AI output, and it is not a judgment call. No model participates
 
 **"An unchanged band means nothing happened."** The raw number underneath a steady band can record real movement that has not yet reached a boundary. A band holding while its number climbs is not stagnation; it is the presentation working at its designed resolution while the supporting detail tracks the quieter progress.
 
-**"Leading means the work is finished."** Leading is the highest name in a lexicon of stages, read from a point-in-time measurement. It describes where assessed answers currently land, not a terminal credential, a later assessment produces a fresh reading, and holding the stage is something a firm's operations do, not something the platform confers once and forever.
+**"Leading means the work is finished."** Leading is the highest name in a lexicon of stages: read from a point-in-time measurement. It describes where assessed answers currently land, not a terminal credential, a later assessment produces a fresh reading, and holding the stage is something a firm's operations do, not something the platform confers once and forever.
 
 **"A downward band crossing means the earlier reading was wrong."** Both readings were honest at their moments. PAT treats every score as a reading at a point in time, so a lower band on a later assessment records that the firm's assessed answers changed, an area shifted, and attention is being pointed at it, not that the previous measurement erred.
 

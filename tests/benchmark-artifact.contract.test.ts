@@ -24,7 +24,7 @@ describe("quarter + cutoff mechanics", () => {
     expect(meta.quarterLabel).toBe("Q3 2026");
     expect(meta.cutoffIso).toBe("2026-09-30T23:59:59.999Z");
     expect(meta.cutoffLabel).toBe("Sep 30, 2026");
-    expect(meta.cutoffSentence).toMatch(/completed by Sep 30, 2026 count for the Q3 2026 benchmark/);
+    expect(meta.cutoffSentence).toMatch(/Interim · closes Sep 30, 2026 for the Q3 2026 benchmark\./);
     expect(meta.daysToCutoff).toBeGreaterThan(0);
   });
 

@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { sampleRecentResponses, type EcosystemDetailData } from "@/lib/ecosystem";
+import type { EcosystemDetailData } from "@/lib/ecosystem";
+import { sampleRecentResponses } from "@/lib/recentResponsesSample";
 
 const DEFAULT_VISIBLE_COUNT = 10;
 const ALL_PRODUCTS_VALUE = "all";

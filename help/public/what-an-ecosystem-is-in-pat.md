@@ -11,7 +11,7 @@ An ecosystem in PAT is a guide-managed construct: a defined set of member accoun
 
 ## Where the ecosystem sits among PAT's three roles
 
-PAT serves the accounting ecosystem through three roles, and each role sees the platform differently. Firms assess their own operations. Vendors declare what their products can do and receive alignment evidence in return. Guides and ecosystem owners, the people who manage a set of firms and the tools those firms rely on, see the alignment picture across the firms they manage. The ecosystem construct belongs to that third role. A firm participates in PAT to understand itself; a vendor participates to understand how its product is experienced; a guide participates to understand a portfolio, and the ecosystem is the unit that portfolio takes.
+PAT serves the accounting ecosystem through three roles, and each role sees the platform differently. Firms assess their own operations. Vendors declare what their products can do and receive alignment evidence in return. Guides and ecosystem owners, the people who manage a set of firms and the tools those firms rely on: see the alignment picture across the firms they manage. The ecosystem construct belongs to that third role. A firm participates in PAT to understand itself; a vendor participates to understand how its product is experienced; a guide participates to understand a portfolio, and the ecosystem is the unit that portfolio takes.
 
 It helps to be plain about what the word means here, because "ecosystem" gets used loosely elsewhere. In PAT it is not a metaphor. It is a specific, managed thing: this set of firms, these products in play among them, and the alignment structure that emerges when you can see both at once.
 
@@ -27,7 +27,7 @@ An ecosystem brings these two kinds of members into one frame. On their own, a f
 
 The reason to gather firms into an ecosystem is the view it makes possible. A guide looking across their managed set can see cross-firm alignment structure, how the products in play are landing across the firms that use them, seen through the same consistent assessment rather than through anecdote.
 
-This matters because a single firm's experience of a product is one reading, and one reading is hard to interpret. Is a rough experience a product problem, an implementation problem, or something particular to that firm? Seen across an ecosystem, patterns become legible in a way they cannot be firm by firm. That legibility rests on PAT's evidence philosophy: evidence, not advertising. Vendors make structured declarations; firm assessments verify them; and displayed numbers trace back to their sources. The ecosystem view inherits all of that. It is not a collection of opinions about tools. It is the same verified alignment evidence, read at portfolio width.
+This matters because a single firm's experience of a product is one reading, and one reading is hard to interpret. Is a rough experience a product problem, an implementation problem, or something particular to that firm? Seen across an ecosystem, patterns become legible in a way they cannot be firm by firm. That legibility rests on PAT's evidence philosophy: evidence, not advertising. Vendors make structured declarations; firm assessments verify them; and displayed numbers trace back to their sources. The ecosystem view inherits all of that. It is not a collection of opinions about tools. It is the same verified alignment evidence: read at portfolio width.
 
 ## Who sees what, and who does not
 

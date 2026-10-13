@@ -46,7 +46,7 @@ export default function FirmGapPlanCard({ data }: { data: FirmGapPlan }) {
           {data.watchList.length ? (
             <div className="mt-4">
               <RankedBars
-                title="Capabilities closest to the threshold, watch these"
+                title="Capabilities closest to the threshold: watch these"
                 items={data.watchList.map((g) => ({
                   key: g.key,
                   label: g.title,

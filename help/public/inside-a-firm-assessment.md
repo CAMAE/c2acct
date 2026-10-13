@@ -119,7 +119,7 @@ A fifth is that an integrity flag accuses a respondent of dishonesty. It does no
 
 **What does a firm see when the assessment is done?** Five module scores on a 0-to-100 scale, Operations, Automation, Integration, Governance, Strategy, each presented band-first (Early through Leading), with signal-integrity context alongside.
 
-**Can the assessment be taken again?** Yes. A score is a reading at a point in time, and re-assessing as operations change, typically on a quarterly rhythm, is the intended long-term use, read as band movement.
+**Can the assessment be taken again?** Yes. A score is a reading at a point in time, and re-assessing as operations change, typically on a quarterly rhythm, is the intended long-term use: read as band movement.
 
 **Where do the assessment's questions come from?** Through a governed pipeline: content must cite authoritative sources or it is rejected mechanically at import, and it goes live only after a named human reviewer signs off, with the review recorded.
 

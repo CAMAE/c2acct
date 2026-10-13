@@ -85,7 +85,7 @@ export function buildBattleCardAnatomy(input: {
     if (riskFlags.length >= 3) break;
     if (bandForFirmScore(p.canonicalFirmReviewScore as number) === "low") {
       riskFlags.push(
-        `${p.productName}: firms rate it ${Math.round(p.canonicalFirmReviewScore as number)}, below the mid-band, expect scrutiny here.`
+        `${p.productName}: firms rate it ${Math.round(p.canonicalFirmReviewScore as number)}, below the mid-band: expect scrutiny here.`
       );
     }
   }

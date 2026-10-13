@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { sampleRecentResponses } from "@/lib/ecosystem";
+import { sampleRecentResponses } from "@/lib/recentResponsesSample";
 
 /** box-c (R65, item 7): recent responses sampled across firms and products; the picks panel explains differing firm counts. */
 const ROOT = path.resolve(__dirname, "..");

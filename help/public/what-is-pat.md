@@ -21,9 +21,9 @@ PAT serves the accounting ecosystem through three distinct roles, each seeing th
 
 Firms use PAT to assess their own operations. A firm works through a structured assessment covering five areas of its practice and receives scores that describe where its operations stand, not as a verdict, but as a comparable, repeatable reading it can revisit as things change.
 
-Vendors, the software companies serving accounting firms, use PAT to declare what their products are built to do and to receive alignment evidence in return: a measured picture of how firms actually experience those products. That evidence flows both ways. A product can outperform its own declaration just as easily as it can underperform it, and both findings are useful.
+Vendors, the software companies serving accounting firms: use PAT to declare what their products are built to do and to receive alignment evidence in return: a measured picture of how firms actually experience those products. That evidence flows both ways. A product can outperform its own declaration just as easily as it can underperform it, and both findings are useful.
 
-Guides and ecosystem owners, the advisors who manage a set of firms and the tools those firms run on, use PAT to see the alignment picture across their whole portfolio. Where a firm sees its own operations and a vendor sees its own products, a guide sees the structure that connects them: a managed set of member firms, the products in play, and how well the pieces fit together.
+Guides and ecosystem owners, the advisors who manage a set of firms and the tools those firms run on: use PAT to see the alignment picture across their whole portfolio. Where a firm sees its own operations and a vendor sees its own products, a guide sees the structure that connects them: a managed set of member firms, the products in play, and how well the pieces fit together.
 
 Each role sees only what its role permits. Firms and vendors do not see into each other's private detail; guides see cross-firm structure for the ecosystems they manage. Those boundaries are part of the design, not an afterthought.
 

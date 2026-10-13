@@ -142,7 +142,7 @@ const firmInsights = [
     locale: "en-US",
     audience: "firm",
     domain: "firm",
-    summary: "The capabilities holding your alignment index down, ranked by point deficit, fix these first.",
+    summary: "The capabilities holding your alignment index down, ranked by point deficit: fix these first.",
     what: "A ranked plan of the modules and capabilities furthest below the top-quartile mark, ordered by the points they would recover.",
     why: "Ranking by point deficit turns a scorecard into a sequence you can act on.",
     how: "Live with Elite membership.",
