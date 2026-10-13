@@ -1870,6 +1870,11 @@ model ModuleTemplate {
   title             String
   // Measurable learning objectives (>= 75% must be measured by the assessment).
   objectives        Json?
+  // anchor-pool (R66, item 2): the bank header's tagged anchor pool, an array of
+  // { code, driver, tier } cells (driver D1..D6 or R, tier E/M/H). NULL for a
+  // bank imported from the untagged six-code header: its six isAnchor items
+  // serve as before, so this column changes nothing until a header carries tags.
+  anchorPool        Json?
   reviewStatus      ModuleReviewStatus @default(DRAFT)
   // Two-signature publish gate (methodology redline, locked 2026-07-08):
   // CPA-certified founder signs content accuracy; clarity reviewer (Leslie)

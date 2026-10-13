@@ -279,3 +279,125 @@ export function divergenceState(points: number | null | undefined): DivergenceSt
   if (magnitude <= DIVERGENCE_ALIGNED_WITHIN) return "aligned";
   return "watch";
 }
+
+// ─── Anchor pool (anchor-pool, R66; charter rulings 45, 49, 50) ──────────────
+
+/** The six charter value drivers, in grid order. */
+export const ANCHOR_DRIVERS = ["D1", "D2", "D3", "D4", "D5", "D6"] as const;
+export type AnchorDriver = (typeof ANCHOR_DRIVERS)[number];
+/** The reserve slot: not a driver cell; one code per tier at most, served only to fill an empty driver. */
+export const ANCHOR_RESERVE = "R" as const;
+export type AnchorSlot = AnchorDriver | typeof ANCHOR_RESERVE;
+export const ANCHOR_TIERS = ["E", "M", "H"] as const;
+export type AnchorTier = (typeof ANCHOR_TIERS)[number];
+
+/** One cell of a bank's anchor pool. `driver` is null on the untagged six-code header form; `tier` is null until the item's own tier is known. */
+export type AnchorPoolCell = { code: string; driver: AnchorSlot | null; tier: AnchorTier | null };
+
+/** Six served per sitting, one per driver (ruling 50), at this tier mix (ruling 49). */
+export const SERVED_ANCHOR_COUNT = 6;
+export const SERVED_ANCHOR_TIER_MIX: Readonly<Record<AnchorTier, number>> = { E: 2, M: 3, H: 1 };
+
+export type ServedAnchors = {
+  /** The cells this sitting serves: driver order, then reserve, then any second code for a driver. */
+  served: AnchorPoolCell[];
+  /** False when the header was the untagged six-code form: the served set is the pool, exactly as before the pool existed. */
+  tagged: boolean;
+  /** Drivers no served code covers (every driver when untagged). */
+  uncoveredDrivers: AnchorDriver[];
+  tierCount: Record<AnchorTier, number>;
+  /** Per tier, how many short of SERVED_ANCHOR_TIER_MIX the served set is; zero when the mix is met. */
+  shortfall: Record<AnchorTier, number>;
+};
+
+/** The seed a sitting draws its anchors from: the firm and the sitting's ordinal for that bank, so a resume repeats and a retake may differ. */
+export function sittingSeedFor(firmId: string, sittingNumber: number): string {
+  return `${firmId}#${sittingNumber}`;
+}
+
+// FNV-1a, as lib/moduleOrderRotation and lib/modules/qbankServing hash; no Date, no Math.random.
+function anchorHash(input: string): number {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return hash >>> 0;
+}
+
+function anchorTierCount(cells: readonly AnchorPoolCell[]): Record<AnchorTier, number> {
+  const count: Record<AnchorTier, number> = { E: 0, M: 0, H: 0 };
+  for (const cell of cells) if (cell.tier) count[cell.tier] += 1;
+  return count;
+}
+
+function anchorMixDistance(count: Record<AnchorTier, number>): number {
+  return ANCHOR_TIERS.reduce((sum, tier) => sum + Math.abs(count[tier] - SERVED_ANCHOR_TIER_MIX[tier]), 0);
+}
+
+function finishServedAnchors(served: AnchorPoolCell[], tagged: boolean): ServedAnchors {
+  const tierCount = anchorTierCount(served);
+  const shortfall: Record<AnchorTier, number> = { E: 0, M: 0, H: 0 };
+  for (const tier of ANCHOR_TIERS) shortfall[tier] = Math.max(0, SERVED_ANCHOR_TIER_MIX[tier] - tierCount[tier]);
+  const covered = new Set(served.map((cell) => cell.driver));
+  const uncoveredDrivers = ANCHOR_DRIVERS.filter((driver) => !covered.has(driver));
+  return { served, tagged, uncoveredDrivers, tierCount, shortfall };
+}
+
+/**
+ * The anchors a sitting serves, drawn from the bank's pool by the charter rule
+ * (R66, item 3): one code per driver, 2 Easy, 3 Moderate, 1 Hard, deterministic
+ * from the sitting seed. A driver with one code in the pool serves it at any
+ * tier. When the pool cannot meet the mix, the closest mix serves and the
+ * shortfall is recorded. When a driver has no code, the reserve fills the slot,
+ * then any unused pool code, up to six. The untagged six-code form serves its
+ * six as it always did, in pool order, byte-identical.
+ */
+export function servedAnchorsFor(bank: { pool: readonly AnchorPoolCell[] }, sittingSeed: string): ServedAnchors {
+  const pool = bank.pool;
+  const tagged = pool.length > 0 && pool.every((cell) => cell.driver !== null);
+  if (!tagged) return finishServedAnchors([...pool], false);
+
+  // One candidate list per covered driver, in driver order. Every combination
+  // (at most three per driver, so at most 729) is completed to six and scored
+  // against the mix as a whole, so a reserve or a second code can rescue a tier.
+  const lists = ANCHOR_DRIVERS.map((driver) => pool.filter((cell) => cell.driver === driver)).filter((list) => list.length > 0);
+  let combos: AnchorPoolCell[][] = [[]];
+  for (const list of lists) combos = combos.flatMap((prefix) => list.map((cell) => [...prefix, cell]));
+
+  // Fill an empty driver slot: the reserve first, then any unused pool code;
+  // the tier the set is shortest on wins, ties by the seed.
+  const complete = (chosen: readonly AnchorPoolCell[]): AnchorPoolCell[] => {
+    const served = [...chosen];
+    const used = new Set(served.map((cell) => cell.code));
+    for (const candidates of [pool.filter((cell) => cell.driver === ANCHOR_RESERVE), pool.filter((cell) => cell.driver !== ANCHOR_RESERVE)]) {
+      while (served.length < SERVED_ANCHOR_COUNT) {
+        const rest = candidates.filter((cell) => !used.has(cell.code));
+        if (rest.length === 0) break;
+        const count = anchorTierCount(served);
+        const need = (cell: AnchorPoolCell) => (cell.tier ? SERVED_ANCHOR_TIER_MIX[cell.tier] - count[cell.tier] : Number.NEGATIVE_INFINITY);
+        const top = Math.max(...rest.map(need));
+        const tied = rest.filter((cell) => need(cell) === top);
+        const pick = tied[anchorHash(`${sittingSeed}:${served.length}`) % tied.length]!;
+        served.push(pick);
+        used.add(pick.code);
+      }
+    }
+    return served;
+  };
+
+  let best: AnchorPoolCell[][] = [];
+  let bestDistance = Number.POSITIVE_INFINITY;
+  for (const combo of combos) {
+    const full = complete(combo);
+    const distance = anchorMixDistance(anchorTierCount(full));
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      best = [full];
+    } else if (distance === bestDistance) {
+      best.push(full);
+    }
+  }
+  const served = best[anchorHash(sittingSeed) % best.length] ?? [];
+  return finishServedAnchors(served, true);
+}

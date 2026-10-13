@@ -18,6 +18,8 @@ const NAMES = [
   "confidenceBandForSampleSize", "SCALE", "LEGACY_SCALE_MIN", "MIN_CONTRIBUTORS", "MAX_CONTRIBUTOR_SHARE",
   "DIVERGENCE_ALIGNED_WITHIN", "DIVERGENCE_FLAGGED_AT", "DRAFT_SCORE_VERSION", "FINAL_SCORE_VERSION", "RANK_MIN_N",
   "ALIGNMENT_INDEX_MIN_MODULES", "DISPLAY_TIER_MIN_N", "SCORE_BANDS",
+  // anchor-pool (R66, item 3): the served-six rule has one home.
+  "servedAnchorsFor", "sittingSeedFor", "SERVED_ANCHOR_COUNT", "SERVED_ANCHOR_TIER_MIX",
 ];
 const DEFINITION = new RegExp(`\\b(?:function|const|let|var|class)\\s+(${NAMES.join("|")})\\b`);
 /** Inline copies of the arithmetic the core owns, as they were written before the box. */

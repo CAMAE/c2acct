@@ -1,14 +1,16 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-import { ModuleReviewStatus, ModuleType } from "@prisma/client";
+import { ModuleReviewStatus, ModuleType, Prisma } from "@prisma/client";
 
 import { applyRepoEnv } from "@/lib/env/repoEnv";
 import {
   QBANK_TEMPLATE_KEY,
+  TIER_LETTER,
   UNCLASSIFIED_SOURCE_ORG,
   parseQbank,
   readDeclaredAnchorCodes,
+  type DeclaredAnchors,
   type ParsedQbankItem,
 } from "@/lib/modules/qbankParser";
 import { loadQbankSourceAuthorities } from "@/lib/modules/qbankSourceAuthorities";
@@ -89,8 +91,13 @@ function summarize(items: ParsedQbankItem[]) {
   return { byDifficulty, byCategory, anchors, sourceRows, unsourced, unclassified };
 }
 
-function validate(items: ParsedQbankItem[], stats: ReturnType<typeof summarize>, declared: Set<string>): string[] {
+function validate(items: ParsedQbankItem[], stats: ReturnType<typeof summarize>, declaredAnchors: DeclaredAnchors): string[] {
   const errors: string[] = [];
+  const declared = declaredAnchors.codes;
+  // anchor-pool (R66, item 2): a malformed pool line (mixed forms, a code twice,
+  // two codes in one cell, an unknown tag) refuses the import; the untagged form
+  // only warns (printed by main).
+  errors.push(...declaredAnchors.errors);
   // enforce-core (charter ruling 48): the flagged anchors must equal the bank's
   // DECLARED anchors — a count alone passed with the wrong six.
   const flagged = new Set(items.filter((i) => i.isAnchor).map((i) => i.code));
@@ -98,6 +105,15 @@ function validate(items: ParsedQbankItem[], stats: ReturnType<typeof summarize>,
     errors.push(`no "anchor-item candidates" line found in the bank doc`);
   } else if (flagged.size !== declared.size || [...declared].some((code) => !flagged.has(code))) {
     errors.push(`flagged anchors [${[...flagged].join(", ")}] differ from declared [${[...declared].join(", ")}]`);
+  }
+  // A tagged cell's tier must be the item's own tier: the cell is a claim about the item.
+  if (declaredAnchors.tagged) {
+    const byCode = new Map(items.map((item) => [item.code, item]));
+    for (const cell of declaredAnchors.pool) {
+      const item = byCode.get(cell.code);
+      if (!item) errors.push(`anchor ${cell.code} (${cell.driver}:${cell.tier}) is not an item in this bank`);
+      else if (TIER_LETTER[item.difficulty] !== cell.tier) errors.push(`anchor ${cell.code} is tagged ${cell.driver}:${cell.tier} but the item is tier ${TIER_LETTER[item.difficulty]}`);
+    }
   }
   if (items.length !== EXPECTED_TOTAL) {
     errors.push(`expected ${EXPECTED_TOTAL} items, parsed ${items.length}`);
@@ -139,8 +155,17 @@ async function main() {
   const authorities = await loadQbankSourceAuthorities();
   const items = parseQbank(markdown, BANK_TEMPLATE_KEY, authorities, ENV_ANCHORS);
   const stats = summarize(items);
-  const declared = ENV_ANCHORS ? { codes: ENV_ANCHORS, raw: `PAT_QBANK_ANCHORS=${[...ENV_ANCHORS].join(",")}` } : readDeclaredAnchorCodes(markdown);
-  const errors = validate(items, stats, declared.codes);
+  const declared: DeclaredAnchors = ENV_ANCHORS
+    ? {
+        codes: ENV_ANCHORS,
+        raw: `PAT_QBANK_ANCHORS=${[...ENV_ANCHORS].join(",")}`,
+        pool: [...ENV_ANCHORS].map((code) => ({ code, driver: null, tier: null })),
+        tagged: false,
+        warnings: ["anchors named by PAT_QBANK_ANCHORS: served as that set, driver unknown"],
+        errors: [],
+      }
+    : readDeclaredAnchorCodes(markdown);
+  const errors = validate(items, stats, declared);
   // legal-load (R64, 1b): every row carries the resolved vertical (flag off: no column named,
   // the database default stamps accounting exactly as before).
   const verticalId = resolveCurrentVertical();
@@ -155,6 +180,13 @@ async function main() {
     console.log(`  Category "${category}": ${count}`);
   }
   console.log(`  Anchor items: ${stats.anchors} (${items.filter((i) => i.isAnchor).map((i) => i.code).join(", ")})`);
+  // anchor-pool (R66, item 2): the header pool, stored on the template when tagged.
+  console.log(
+    declared.tagged
+      ? `  Anchor pool: ${declared.pool.length} tagged cells (${declared.pool.map((cell) => `${cell.code}:${cell.driver}:${cell.tier}`).join(", ")})`
+      : `  Anchor pool: untagged (served set as named; template.anchorPool stays NULL)`
+  );
+  for (const warning of declared.warnings) console.warn(`  WARNING: ${warning}`);
   console.log(`  Source rows: ${stats.sourceRows} (every item >= 1)`);
 
   if (errors.length > 0) {
@@ -175,6 +207,9 @@ async function main() {
   prismaClient = prisma;
 
   console.log("\nAPPLYING…");
+  // anchor-pool (R66, item 2): the tagged pool is stored on the template; the
+  // untagged form stores NULL, so a bank imported before the pool is unchanged.
+  const anchorPool = declared.tagged ? (declared.pool as Prisma.InputJsonValue) : Prisma.DbNull;
   const template = await prisma.moduleTemplate.upsert({
     where: { key: BANK_TEMPLATE_KEY },
     update: {
@@ -183,6 +218,7 @@ async function main() {
       moduleType: BANK_MODULE_TYPE,
       title: BANK_TITLE,
       reviewStatus: ModuleReviewStatus.DRAFT,
+      anchorPool,
       ...stamp,
       updatedAt: new Date(),
     },
@@ -192,6 +228,7 @@ async function main() {
       targetPattern: BANK_TARGET_PATTERN,
       moduleType: BANK_MODULE_TYPE,
       title: BANK_TITLE,
+      anchorPool,
       ...stamp,
       objectives: {
         note: "Measurable objectives pending CPA-founder authoring pass; bank items map to their blueprint components A–D.",

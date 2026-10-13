@@ -4,6 +4,8 @@ import { getSessionUser } from "@/lib/auth/session";
 import { scoreBandFor } from "@/lib/bandLexicon";
 import { canServeTemplate } from "@/lib/modules/serving";
 import { planFinalExam, type ServableBankItem } from "@/lib/modules/qbankServing";
+import { servedAnchorsFor, sittingSeedFor } from "@/lib/assessmentCore";
+import { codeOfItemKey, readStoredAnchorPool } from "@/lib/modules/anchorPool";
 import { isAdaptiveModulesEnabled, resolveUnlocks } from "@/lib/modules/unlock";
 import { DEFAULT_VERTICAL_ID } from "@/lib/verticals/context";
 import { isVerticalPacksEnabled } from "@/lib/verticals/flag";
@@ -262,7 +264,7 @@ export async function startOrResumeSitting(input: {
 
   const template = await prisma.moduleTemplate.findUniqueOrThrow({
     where: { id: input.templateId },
-    select: { id: true, reviewStatus: true },
+    select: { id: true, key: true, reviewStatus: true, anchorPool: true },
   });
 
   const bank = await prisma.moduleItem.findMany({
@@ -279,13 +281,29 @@ export async function startOrResumeSitting(input: {
   });
 
   const idByKey = new Map(bank.map((item) => [item.key, item.id]));
-  const servable: ServableBankItem[] = bank.map((item) => ({
+  let servable: ServableBankItem[] = bank.map((item) => ({
     key: item.key,
     difficulty: item.difficulty,
     isAnchor: item.isAnchor,
     discriminationSeed: item.discriminationSeed,
     sources: item.ModuleSource,
   }));
+
+  // anchor-pool (R66, item 3): a bank whose header carried a tagged pool serves
+  // the six the charter rule picks for THIS firm and THIS sitting (the firm's
+  // ordinal sitting on the bank); the rest of the pool is ordinary this time.
+  // A bank imported from the untagged header stores no pool and serves its
+  // isAnchor six exactly as before: no extra query, the same draw.
+  const anchorPool = readStoredAnchorPool(template.anchorPool);
+  if (anchorPool) {
+    const priorSittings = await prisma.moduleSitting.count({
+      where: { companyId: input.companyId, templateId: input.templateId, ...scope },
+    });
+    const servedCodes = new Set(
+      servedAnchorsFor({ pool: anchorPool }, sittingSeedFor(input.companyId, priorSittings + 1)).served.map((cell) => cell.code)
+    );
+    servable = servable.map((item) => ({ ...item, isAnchor: servedCodes.has(codeOfItemKey(item.key, template.key)) }));
+  }
 
   // The deterministic serving engine owns the draw — this route never invents
   // its own selection.
