@@ -16,6 +16,8 @@ import {
 } from "@/lib/productAssessmentRuntime";
 import { getSurveyFinalWhere } from "@/lib/surveyDrafts";
 import { divergenceState, latestFinalPerFirm } from "@/lib/assessmentCore";
+import { PRODUCT_UTILITY_REGISTRY_VERSION } from "@/lib/productUtilityRegistry";
+import { getProductUtilityRegistry } from "@/lib/verticals/questionBankRegistry";
 import { getVendorScopedFirms } from "@/lib/tenancy";
 import {
   DIMENSION_KEY_BY_BASIS,
@@ -471,6 +473,122 @@ function describeCombinedReadout(input: {
   }. ${input.divergenceLabel}.`;
 }
 
+// ─── box-c (R65, item 1): answers stored under another bank version ──────────
+//
+// A question id is `<bankVersion>__<utilityKey>__<subcategoryKey>__<questionKey>`.
+// Production's Meridian and Bridgepath finals (and the firm reviews of them) were
+// submitted under 2026-03-product-utility-v2; this build carries v3, whose ids
+// differ, so every reader keyed on question ids found nothing: the product readout
+// printed "No vendor-side section evidence is available yet" and the Gap Map
+// confirmed 0 dimensions on 97 reviews. The fix is in the reader: an answer whose
+// bank version differs from the bank in hand is mapped through the SECTION it was
+// answered in (utility + subcategory) and through its question key's basis (the
+// registry four-pattern: one basis per question key, identical in every
+// subcategory), never through the question id. When that version's bank is
+// registered, its own questions are used; otherwise the id's segments are. A v2
+// section with no v3 counterpart is shown under its own name with the version
+// noted. No re-scoring, no re-dating, no writes.
+
+type VersionedAnswerQuestion = {
+  id: string;
+  version: string;
+  basisKey: string | null;
+  section: { key: string; title: string };
+};
+
+type SectionLike = { key: string; title: string; subcategoryKey?: string; utilityKey?: string; basisKey?: string };
+
+function humanizeKey(key: string): string {
+  const words = key.replace(/[_-]+/g, " ").trim();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+function parseVersionedAnswerIds(answers: Record<string, unknown>, currentVersion: string) {
+  const out: Array<{ id: string; version: string; utilityKey: string; subcategoryKey: string; questionKey: string }> = [];
+  for (const id of Object.keys(answers)) {
+    const parts = id.split("__");
+    if (parts.length !== 4) continue;
+    const [version, utilityKey, subcategoryKey, questionKey] = parts as [string, string, string, string];
+    if (!version || version === currentVersion) continue;
+    out.push({ id, version, utilityKey, subcategoryKey, questionKey });
+  }
+  return out;
+}
+
+/**
+ * The questions behind answers stored under a bank version other than the one in
+ * hand, each carrying the section and basis to read it under. Empty when every
+ * answer is from the current bank.
+ */
+export function resolveVersionedAnswerQuestions(
+  answers: Record<string, unknown>,
+  utilityKeys: string[],
+  perspective: "firm" | "vendor",
+  registry?: ProductUtilityRegistryBundle
+): VersionedAnswerQuestion[] {
+  const currentVersion = registry?.versionId ?? PRODUCT_UTILITY_REGISTRY_VERSION;
+  const parsed = parseVersionedAnswerIds(answers, currentVersion);
+  if (parsed.length === 0) return [];
+
+  const buildQuestions = (keys: string[], bank?: ProductUtilityRegistryBundle) =>
+    (perspective === "firm" ? buildFirmProductQuestions(keys, bank) : buildVendorProductQuestions(keys, bank)) as Array<{
+      id: string;
+      section: SectionLike;
+    }>;
+
+  // The bank in hand: section index by utility + subcategory, and the question-key → basis pattern.
+  const currentQuestions = buildQuestions(utilityKeys, registry);
+  const currentSectionByPair = new Map<string, { key: string; title: string }>();
+  const basisByQuestionKey = new Map<string, string>();
+  for (const question of currentQuestions) {
+    const parts = question.id.split("__");
+    if (parts.length === 4) {
+      currentSectionByPair.set(`${parts[1]}/${parts[2]}`, { key: question.section.key, title: question.section.title });
+      if (question.section.basisKey && !basisByQuestionKey.has(parts[3]!)) basisByQuestionKey.set(parts[3]!, question.section.basisKey);
+    }
+  }
+
+  const out: VersionedAnswerQuestion[] = [];
+  const byVersion = new Map<string, typeof parsed>();
+  for (const entry of parsed) byVersion.set(entry.version, [...(byVersion.get(entry.version) ?? []), entry]);
+
+  for (const [version, entries] of byVersion) {
+    const verticalId = registry?.verticalId ?? "accounting";
+    const registeredBank = getProductUtilityRegistry(verticalId, version);
+    if (registeredBank) {
+      // That version's own bank: exact questions, sections mapped to the current bank where the pair still exists.
+      const wanted = new Set(entries.map((entry) => entry.id));
+      const keys = [...new Set([...utilityKeys, ...entries.map((entry) => entry.utilityKey)])];
+      for (const question of buildQuestions(keys, registeredBank)) {
+        if (!wanted.has(question.id)) continue;
+        const parts = question.id.split("__");
+        const current = currentSectionByPair.get(`${parts[1]}/${parts[2]}`);
+        out.push({
+          id: question.id,
+          version,
+          basisKey: question.section.basisKey ?? null,
+          section: current ?? { key: `${version}__${question.section.key}`, title: `${question.section.title} (bank ${version})` },
+        });
+      }
+      continue;
+    }
+    // No bank for that version in this build: read the id's own segments.
+    for (const entry of entries) {
+      const current = currentSectionByPair.get(`${entry.utilityKey}/${entry.subcategoryKey}`);
+      out.push({
+        id: entry.id,
+        version,
+        basisKey: basisByQuestionKey.get(entry.questionKey) ?? null,
+        section: current ?? {
+          key: `${version}__${entry.utilityKey}-${entry.subcategoryKey}`,
+          title: `${humanizeKey(entry.subcategoryKey)} (bank ${version})`,
+        },
+      });
+    }
+  }
+  return out;
+}
+
 function buildVendorSectionEvidence(
   utilityKeys: string[],
   vendorResponses: {
@@ -518,6 +636,21 @@ function buildVendorSectionEvidence(
       scores: [],
       questionIds: [],
     };
+    existing.scores.push(normalizedScore);
+    existing.questionIds.push(question.id);
+    grouped.set(question.section.key, existing);
+  }
+
+  // box-c (R65, item 1): answers from another bank version, read through their section.
+  const consumed = new Set(questionBank.map((question) => question.id));
+  for (const question of resolveVersionedAnswerQuestions(vendorResponses.answers, utilityKeys, "vendor", registry)) {
+    if (consumed.has(question.id)) continue;
+    if (basisSectionKeys && basisSectionKeys.length > 0 && (!question.basisKey || !basisSectionKeys.includes(question.basisKey))) continue;
+    const rawAnswer = vendorResponses.answers[question.id];
+    if (typeof rawAnswer !== "number") continue;
+    const normalizedScore = normalizeStoredAnswer(rawAnswer, vendorResponses.scaleMin, vendorResponses.scaleMax);
+    if (normalizedScore === null) continue;
+    const existing = grouped.get(question.section.key) ?? { title: question.section.title, scores: [], questionIds: [] };
     existing.scores.push(normalizedScore);
     existing.questionIds.push(question.id);
     grouped.set(question.section.key, existing);
@@ -624,6 +757,23 @@ export function buildProductFitDimensions(
         responseSet.scaleMin,
         responseSet.scaleMax
       );
+      if (normalizedScore === null) continue;
+      bucket.push(normalizedScore);
+    }
+  }
+
+  // box-c (R65, item 1): answers from another bank version, read through their basis.
+  const consumed = new Set(questions.map((question) => question.id));
+  for (const responseSet of responseSets) {
+    for (const question of resolveVersionedAnswerQuestions(responseSet.answers, utilityKeys, perspective, registry)) {
+      if (consumed.has(question.id) || !question.basisKey) continue;
+      const dimensionKey = DIMENSION_KEY_BY_BASIS[question.basisKey];
+      if (!dimensionKey) continue;
+      const bucket = scoresByDimension.get(dimensionKey);
+      if (!bucket) continue;
+      const rawAnswer = responseSet.answers[question.id];
+      if (typeof rawAnswer !== "number") continue;
+      const normalizedScore = normalizeStoredAnswer(rawAnswer, responseSet.scaleMin, responseSet.scaleMax);
       if (normalizedScore === null) continue;
       bucket.push(normalizedScore);
     }
