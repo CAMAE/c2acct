@@ -91,7 +91,7 @@ The firm's scoring pattern may also open an adaptive module, a short diagnostic 
 
 ## Common misconceptions
 
-"The assessment has to be finished in one sitting." It does not. The flow is paged with autosave, progress is tracked per module, and the five modules can be completed in any order over whatever stretch of time suits the firm, with results updating as each module completes.
+"The assessment has to be finished in one sitting." It does not. The flow is paged with autosave. Progress is tracked per module, and the five modules can be completed in any order over whatever stretch of time suits the firm, with results updating as each module completes.
 
 "An integrity flag means our people are accused of dishonesty." An integrity flag is information about how much weight a reading can bear, never an accusation. It tells you the response pattern weakened the signal, and a careful retake resolves the question.
 

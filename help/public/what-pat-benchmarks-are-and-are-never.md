@@ -33,7 +33,7 @@ It is worth saying plainly what this means for a prospect weighing participation
 
 ## When a benchmark refuses to show
 
-Sometimes a benchmark cut simply does not appear, it shows as suppressed instead. This is PAT declining to publish a comparison that could not bear weight. A benchmark only publishes when its cohort has at least five contributors and no single contributor supplies more than a quarter of the answers. Below that floor, or above that concentration, a "benchmark" would really be a thin sample, potentially guessable, potentially dominated by one participant's results, and in either case not the trustworthy backdrop it claims to be.
+Sometimes a benchmark cut simply does not appear. It shows as suppressed instead. This is PAT declining to publish a comparison that could not bear weight. A benchmark only publishes when its cohort has at least five contributors and no single contributor supplies more than a quarter of the answers. Below that floor, or above that concentration, a "benchmark" would really be a thin sample, potentially guessable, potentially dominated by one participant's results, and in either case not the trustworthy backdrop it claims to be.
 
 Suppression is therefore a form of honesty, and also a form of protection. A tiny comparison group is where anonymity gets weakest and where one contributor's numbers loom largest; refusing to publish those cuts protects both the reader from a misleading picture and the contributors from an exposing one. Seeing "suppressed" means the safeguard worked, not that something went wrong. The reasoning behind these thresholds, why small groups mislead and why dominance caps exist, is a subject in its own right, covered in PAT's article on benchmark integrity.
 

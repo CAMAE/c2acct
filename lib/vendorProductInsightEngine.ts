@@ -1217,7 +1217,7 @@ export function buildVendorProductPlainLanguage(
   );
   sentences.push(
     assessmentCount > 0
-      ? `Each additional firm review either confirms the story or shows exactly where it needs recalibrating, ${assessmentNoun} currently stand behind the firm-reviewed signal.`
+      ? `Each additional firm review either confirms the story or shows exactly where it needs recalibrating. ${assessmentNoun} currently stand behind the firm-reviewed signal.`
       : "The fastest way to firm this picture up is getting the product in front of firm reviewers, because that is the only source of buyer-side signal PAT will count."
   );
 

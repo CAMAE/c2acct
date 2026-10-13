@@ -27,7 +27,7 @@ Bands are the five-level vocabulary PAT scores speak in: Early, Developing, Buil
 
 ## Do I have to finish an assessment in one sitting?
 
-No. The assessment experience is a paged flow with autosave: you can stop and resume, progress is tracked per module, and the five modules can be completed in any order over time, with results updating as each module completes. Assessments can also be re-taken as operations change, because PAT treats a score as a reading at a point in time rather than a permanent label, and its reminders are deliberately no-guilt nudges, never shame mechanics. "Inside a firm assessment" describes the experience end to end.
+No. The assessment experience is a paged flow with autosave: you can stop and resume. Progress is tracked per module, and the five modules can be completed in any order over time, with results updating as each module completes. Assessments can also be re-taken as operations change, because PAT treats a score as a reading at a point in time rather than a permanent label, and its reminders are deliberately no-guilt nudges, never shame mechanics. "Inside a firm assessment" describes the experience end to end.
 
 ## What is the alignment delta?
 

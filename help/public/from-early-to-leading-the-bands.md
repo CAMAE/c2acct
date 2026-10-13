@@ -63,7 +63,7 @@ This article stays at the level of what movement means. The fuller treatment of 
 
 ## How bands arrive while an assessment is underway
 
-Bands do not wait for a grand unveiling at the end of a hundred questions. PAT's assessment is a paged flow with autosave: a firm can stop and resume without losing its place, progress is tracked per module, and the five modules can be completed in any order over time. Results update as modules complete, so a firm that finishes its Integration module has an Integration reading, in band form, without the other four modules being done first.
+Bands do not wait for a grand unveiling at the end of a hundred questions. PAT's assessment is a paged flow with autosave: a firm can stop and resume without losing its place. Progress is tracked per module, and the five modules can be completed in any order over time. Results update as modules complete, so a firm that finishes its Integration module has an Integration reading, in band form, without the other four modules being done first.
 
 This matters for how a firm experiences the vocabulary. The bands begin doing their orienting work early, module by module, rather than arriving all at once. And because the assessment tolerates interruption by design, the pace belongs to the firm: a practice can complete a module when it has attention for one, watch that module's band appear, and return for the next module when the time is right. The profile assembles itself as the firm works, one module's placement at a time.
 

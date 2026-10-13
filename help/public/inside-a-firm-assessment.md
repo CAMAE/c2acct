@@ -113,7 +113,7 @@ A fifth is that an integrity flag accuses a respondent of dishonesty. It does no
 
 **Do follow-up questions affect the score?** No. They carry zero score weight; they capture qualitative context in the firm's own words.
 
-**Can I pause an assessment and come back later?** Yes. The flow is paged with autosave, progress is tracked per module, and you can stop mid-page and resume without losing anything.
+**Can I pause an assessment and come back later?** Yes. The flow is paged with autosave. Progress is tracked per module, and you can stop mid-page and resume without losing anything.
 
 **Do the modules have to be completed in order?** No. Modules can be completed in any order over time, and results update as each one completes.
 

@@ -15,7 +15,7 @@ A capability is the smallest unit of declared product function that PAT treats a
 
 This node-level design matters because PAT's core measurement, the alignment delta, is a comparison between what was declared and what firms actually experience. A comparison needs two sides shaped the same way. By expressing product function as discrete capabilities rather than as prose, PAT gives the vendor's side of the comparison a stable, addressable shape. The firm's side comes from assessment: firms answer a consistent set of questions on a consistent numeric scale, and that assessed experience is what a declared capability is verified against.
 
-A capability is therefore best understood as a claim held to a standard. It is visible to the roles that are permitted to see it, it is verifiable through firm assessment, and it carries evidence: no capability-related figure appears anywhere in PAT without a lineage back to its sources.
+A capability is therefore best understood as a claim held to a standard. It is visible to the roles that are permitted to see it. It is verifiable through firm assessment, and it carries evidence: no capability-related figure appears anywhere in PAT without a lineage back to its sources.
 
 ## Why the capability construct exists
 

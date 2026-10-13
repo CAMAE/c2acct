@@ -15,9 +15,29 @@ export const READER_WORD_PATTERNS: readonly RegExp[] = [
   /\u2014/,
 ];
 
+/**
+ * anchor-pool (R66, item 1): a comma splice is a WARNING, not a failure. Box C's em dash
+ * rule turned "clause — clause" into "clause, clause" wherever the dash joined two
+ * independent clauses; the sweep split the known ones. The pattern below is the sweep's
+ * grep (a comma, then a subject pronoun, a count, or "the <noun>", then a verb); it also
+ * matches an introductory phrase ("For a firm, it means"), so a hit is a line to read,
+ * not a defect. Hits print to the console and go in the box report.
+ */
+export const COMMA_SPLICE_PATTERN =
+  /, (?:it|you|we|they|this|that|there|progress|firms|the \w+|\d+ \w+(?: \w+)?) (?:is|are|was|were|has|have|had|can|will|would|do|does|did|stand|stands|show|shows|track|tracks|read|reads|run|runs|need|needs|stay|stays|currently)\b/i;
+
 describe("guard:reader-words — builder vocabulary never reaches a reader", () => {
   it("zero hits across customer copy", () => {
     const hits = scanCustomerCopy(READER_WORD_PATTERNS);
     expect(hits, `\n${formatHits(hits)}\n`).toEqual([]);
+  });
+
+  it("comma splice candidates are listed as a warning (anchor-pool, R66 item 1)", () => {
+    const hits = scanCustomerCopy([COMMA_SPLICE_PATTERN]);
+    if (hits.length > 0) {
+      // process.stderr, not console: vitest keeps a passing test's console quiet.
+      process.stderr.write(`guard:reader-words WARNING: ${hits.length} comma splice candidate(s) to read (not a failure):\n${formatHits(hits)}\n`);
+    }
+    expect(Array.isArray(hits)).toBe(true);
   });
 });

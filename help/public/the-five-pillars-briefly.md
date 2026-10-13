@@ -105,7 +105,7 @@ And bands lead the presentation because a single-point score invites false preci
 
 ## How the modules look for a firm, a vendor, and a guide
 
-For a firm, the modules are lived one module at a time. The assessment runs as a paged flow with autosave, so a firm can stop and resume; modules can be completed in any order over time, progress is tracked per module, and results update as modules complete.
+For a firm, the modules are lived one module at a time. The assessment runs as a paged flow with autosave, so a firm can stop and resume; modules can be completed in any order over time. Progress is tracked per module, and results update as modules complete.
 
 For a vendor, the modules are the vocabulary its alignment evidence is expressed in. Vendors declare product capabilities across defined function areas of practice software, and firms' assessed experience is measured against those declarations, evidence delivered against the same five-module structure every firm is assessed on, usable in honest sales and product conversations.
 
