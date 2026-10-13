@@ -21,9 +21,9 @@ One design decision makes the five scores genuinely comparable rather than five 
 
 Each of PAT's five assessment modules covers its module through the same twenty scored questions, answered on a consistent numeric scale and organized into sections within the module. Those twenty answers are the entire numeric input to the module's score: the arithmetic is deterministic, so the same answers always produce the same 0–100 result, and no AI model sits anywhere in the scoring path.
 
-Alongside the scored questions, every module also carries a small set of open-ended questions. These are qualitative by design and carry zero score weight — nothing written in them moves a number anywhere. Their job is context: they let a firm describe, in its own words, what sits behind the answers it has just given, so each module's picture is not only a band and a score but also the firm's own account of its situation.
+Alongside the scored questions, every module also carries a small set of follow-up questions. These are qualitative by design and carry zero score weight — nothing written in them moves a number anywhere. Their job is context: they let a firm describe, in its own words, what sits behind the answers it has just given, so each module's picture is not only a band and a score but also the firm's own account of its situation.
 
-That separation is deliberate. Because open-ended answers never touch the score, there is no incentive to write toward a result, and the numeric side of every module stays clean and comparable across all five. The words add texture; the twenty scored questions carry all of the weight.
+That separation is deliberate. Because follow-up answers never touch the score, there is no incentive to write toward a result, and the numeric side of every module stays clean and comparable across all five. The words add texture; the twenty scored questions carry all of the weight.
 
 ## Operations: how work actually moves through the firm
 
@@ -99,7 +99,7 @@ The same five-module structure serves everyone in the PAT ecosystem. Firms see t
 
 The identical questions across all five modules exist because a measurement instrument must stay constant so that only the lens changes. If each module phrased its questions differently, a gap between two module scores could be a wording artifact — one module's phrasing landing softer or harder than another's — rather than a real difference in the firm. By holding the twenty questions fixed and letting the module supply the domain, PAT ensures the spread across your five scores is information about your practice, never about the questionnaire. The rule underneath is simple: change the lens, never the instrument.
 
-The open-ended questions carry zero score weight because qualitative context should inform human judgment, not sway arithmetic. The moment written answers could move a number, the numeric side would stop being comparable across firms and modules. Keeping words and weights separate preserves both: scores stay clean and comparable, and the firm's own account stays honest.
+The follow-up questions carry zero score weight because qualitative context should inform human judgment, not sway arithmetic. The moment written answers could move a number, the numeric side would stop being comparable across firms and modules. Keeping words and weights separate preserves both: scores stay clean and comparable, and the firm's own account stays honest.
 
 And bands lead the presentation because a single-point score invites false precision. A 0–100 number looks exact; what the measurement can honestly support is a band, with the raw number behind it. Movement between bands over time is the reading that matters.
 
@@ -129,7 +129,7 @@ At concept level, a pattern like this is also what adaptive modules exist for: a
 
 "Some modules must be harder than others, so a low module just reflects a tougher questionnaire." The identical wording removes that possibility. No module is phrased more harshly than another, so a lower module is telling you about that area of the firm, not the instrument.
 
-"The open-ended questions quietly influence the score." They carry zero score weight by design; the twenty scored questions per module are the entire numeric input.
+"The follow-up questions quietly influence the score." They carry zero score weight by design; the twenty scored questions per module are the entire numeric input.
 
 ## Questions this article answers
 
@@ -137,7 +137,7 @@ At concept level, a pattern like this is also what adaptive modules exist for: a
 
 **Why doesn't PAT produce one overall score?** Because a blended number hides the shape of the firm. Five separate scores show which areas lead and which lag.
 
-**How many questions does each module ask?** Twenty scored questions — the same twenty, in identical wording, in every module — plus a small set of open-ended questions that carry zero score weight.
+**How many questions does each module ask?** Twenty scored questions — the same twenty, in identical wording, in every module — plus a small set of follow-up questions that carry zero score weight.
 
 **Why do all five modules ask identical questions?** So the five scores are genuinely comparable. The module supplies the context; because the instrument never changes, differences between module scores are real differences, not wording artifacts.
 

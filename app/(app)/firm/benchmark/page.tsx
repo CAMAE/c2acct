@@ -83,7 +83,7 @@ export default async function FirmBenchmarkArtifactPage() {
           Where your firm stands this quarter
         </h1>
         <p className="mt-3 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          {storedCutoffPhrase(peer.cutoffLabel)} — that is the cut shown below. {meta.cutoffSentence}{" "}
+          {storedCutoffPhrase(peer.cutoffLabel, peer.cutoffAt)} — that is the cut shown below. {meta.cutoffSentence}{" "}
           {meta.daysToCutoff > 0 ? `${meta.daysToCutoff} days remain until the ${meta.quarterLabel} cutoff.` : "This quarter's cutoff has passed."} The cutoff decides what counts in the next cut — it never changes a score already computed.{" "}
           <Link href="/methodology#quarterly-cutoff" className="font-semibold text-[var(--brand-c2-blue)] hover:underline">
             See the cutoff rules
@@ -91,7 +91,7 @@ export default async function FirmBenchmarkArtifactPage() {
           .
         </p>
         <CardChipRow>
-          <CardChip tone="neutral">{storedCutoffPhrase(peer.cutoffLabel)}</CardChip>
+          <CardChip tone="neutral">{storedCutoffPhrase(peer.cutoffLabel, peer.cutoffAt)}</CardChip>
           <CardChip tone="muted">Next cutoff {meta.cutoffLabel}</CardChip>
           {meta.daysToCutoff > 0 ? <CardChip tone="amber">{meta.daysToCutoff} days to cutoff</CardChip> : null}
         </CardChipRow>

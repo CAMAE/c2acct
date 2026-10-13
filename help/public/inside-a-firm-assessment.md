@@ -27,13 +27,13 @@ Answering the same questions five times can feel repetitive in the moment. That 
 
 Each of the five modules is organized into sections, so its twenty scored questions arrive as a structured walk through that module's domain rather than an undifferentiated list. The sections give the module shape: you move through the territory of a module in coherent steps, which makes it easier to hold the right part of your practice in mind as you answer.
 
-Alongside the twenty scored questions, each module carries a small set of open-ended questions. These are qualitative and carry zero score weight — their job is to capture context in the firm's own words. The numeric scale records where you place your firm; the open-ended responses record how you would describe the same territory yourself, in language no scale could supply. A firm might place itself mid-scale on questions in the integration module and then, in an open-ended response, explain the specific handoff between systems that drives that placement. The score arithmetic never touches that explanation, but the explanation is part of the assessment's value: it preserves the reasoning behind the numbers, in the voice of the people who gave them.
+Alongside the twenty scored questions, each module carries a small set of follow-up questions. These are qualitative and carry zero score weight — their job is to capture context in the firm's own words. The numeric scale records where you place your firm; the follow-up responses record how you would describe the same territory yourself, in language no scale could supply. A firm might place itself mid-scale on questions in the integration module and then, in an follow-up response, explain the specific handoff between systems that drives that placement. The score arithmetic never touches that explanation, but the explanation is part of the assessment's value: it preserves the reasoning behind the numbers, in the voice of the people who gave them.
 
 ## How you answer
 
 Questions are answered on a consistent numeric scale, so responding is a matter of honest placement rather than essay-writing. The scale stays consistent throughout, which means you are never re-learning how to answer as you move between modules — your attention stays on your firm, not on the instrument.
 
-Alongside the scaled questions, the assessment includes open-ended questions. These carry zero score weight. They exist to gather qualitative context — the texture behind your numeric answers — and nothing you write in them moves a score up or down. You can be as candid or as brief in them as you like, knowing they inform understanding rather than arithmetic.
+Alongside the scaled questions, the assessment includes follow-up questions. These carry zero score weight. They exist to gather qualitative context — the texture behind your numeric answers — and nothing you write in them moves a score up or down. You can be as candid or as brief in them as you like, knowing they inform understanding rather than arithmetic.
 
 Because there is no model interpreting your responses into a score — PAT's scoring is deterministic arithmetic, and the same answers always produce the same result — there is also nothing to perform for. The most useful strategy is simply accuracy. An assessment answered aspirationally produces a portrait of the firm you wish you ran; answered honestly, it produces a portrait of the firm you actually run, which is the only portrait worth having.
 
@@ -81,7 +81,7 @@ It is not an exam, and there is no passing mark. The five bands are a maturity v
 
 The design decision underneath the assessment's re-take model is that a score must be honest about its own shelf life. Firm operations change — systems get connected, workflows get rebuilt, governance gets overhauled — so a permanent label would be a false one. PAT therefore treats every score as a reading at a point in time and builds the instrument to be run again on a working rhythm. Re-assessment is not an admission that the first reading failed; it is the design working as intended, because the only honest way to describe a changing thing is to measure it more than once.
 
-The zero score weight on open-ended questions follows a related principle: qualitative context should inform human judgment, not sway arithmetic. If free-text answers could move a score, two firms giving the same scaled answers could land in different places because one wrote more persuasively — and the comparability that the shared question set works so hard to establish would leak away through the text boxes. Keeping the open-ended responses at zero weight preserves both goods at once: the scores stay strictly comparable, and the firm's own words stay in the record, where a human reader can weigh them as context.
+The zero score weight on follow-up questions follows a related principle: qualitative context should inform human judgment, not sway arithmetic. If free-text answers could move a score, two firms giving the same scaled answers could land in different places because one wrote more persuasively — and the comparability that the shared question set works so hard to establish would leak away through the text boxes. Keeping the follow-up responses at zero weight preserves both goods at once: the scores stay strictly comparable, and the firm's own words stay in the record, where a human reader can weigh them as context.
 
 The sourcing gate on assessment content reflects the profession the instrument serves. In a field built on standards, content is only as trustworthy as its sources, so PAT enforces that standard mechanically: unsourced material is rejected at import before any human weighs its merits, and what survives goes live only after a named reviewer signs off, with the review recorded — who, and when. An instrument that asks firms for disciplined answers holds its own questions to the same discipline.
 
@@ -89,7 +89,7 @@ The sourcing gate on assessment content reflects the profession the instrument s
 
 Consider an invented firm — call it Bryant & Soto, a practice starting its first PAT assessment. The managing partner opens with Governance, Controls & Vendor Risk, because a vendor review has put governance top of mind; there is no prescribed order, so starting where attention already lives costs nothing. Midway through the module, a client call interrupts — the paged flow autosaves, and the module waits, mid-page, until the following morning.
 
-That same week, the operations lead takes up Operating Model & Workflow Discipline. Both people notice the same twenty questions appearing in their respective modules, worded identically, with "this area" meaning governance in one sitting and day-to-day workflow in the other. In the integration module a fortnight later, the partner places the firm mid-scale on several questions and then uses an open-ended response to describe the specific handoff between two systems that drives those placements — knowing the explanation carries zero score weight but will travel with the result as context.
+That same week, the operations lead takes up Operating Model & Workflow Discipline. Both people notice the same twenty questions appearing in their respective modules, worded identically, with "this area" meaning governance in one sitting and day-to-day workflow in the other. In the integration module a fortnight later, the partner places the firm mid-scale on several questions and then uses an follow-up response to describe the specific handoff between two systems that drives those placements — knowing the explanation carries zero score weight but will travel with the result as context.
 
 Results assemble as modules complete: two modules banded and readable while three still wait. When the fifth module closes, the full shape appears — say, Established in Operations, Building in Governance, Developing in Integration — with bands leading and the 0-to-100 numbers in support, and no integrity flag, because the response patterns gave the quality checks nothing to note. The pattern points attention at Integration. Two quarters later, after the firm has connected the systems that used to trade spreadsheets, Bryant & Soto re-assesses and reads the movement in the same vocabulary: Integration now Building. No single reading could have said what those two readings say together — that the work done in between registered in the measurement.
 
@@ -99,7 +99,7 @@ One misreading is that repeating the same twenty questions across all five modul
 
 A second misconception is that the assessment must be completed in one sitting, or in a fixed order. It is a paged flow with autosave; progress is tracked per module, modules can be completed in any order over time, and results update as each module completes.
 
-A third is that writing more in the open-ended questions can lift a score. Open-ended responses carry zero score weight, always. They preserve context in the firm's own words; the arithmetic never touches them.
+A third is that writing more in the follow-up questions can lift a score. Follow-up responses carry zero score weight, always. They preserve context in the firm's own words; the arithmetic never touches them.
 
 A fourth is that a completed assessment grades the firm permanently. PAT treats every score as a reading at a point in time, and the assessment is built to be re-taken as operations change — band movement across readings is the intended long-term use.
 
@@ -107,11 +107,11 @@ A fifth is that an integrity flag accuses a respondent of dishonesty. It does no
 
 ## Questions this article answers
 
-**How long is a PAT firm assessment?** Five modules of twenty questions each — one hundred scored questions in total, answered on a consistent numeric scale, plus a small set of open-ended questions per module.
+**How long is a PAT firm assessment?** Five modules of twenty questions each — one hundred scored questions in total, answered on a consistent numeric scale, plus a small set of follow-up questions per module.
 
 **Why do the same questions appear in every module?** Because identical wording is what makes the five module scores comparable; the module supplies the context, so "this area" means that module's domain.
 
-**Do open-ended questions affect the score?** No. They carry zero score weight; they capture qualitative context in the firm's own words.
+**Do follow-up questions affect the score?** No. They carry zero score weight; they capture qualitative context in the firm's own words.
 
 **Can I pause an assessment and come back later?** Yes. The flow is paged with autosave, progress is tracked per module, and you can stop mid-page and resume without losing anything.
 

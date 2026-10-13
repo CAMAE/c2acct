@@ -252,8 +252,14 @@ export function benchmarkCutoffLabel(cutoff: Date | null | undefined): string | 
  * (tests/enforce-core.contract.test.ts). The NEXT cutoff (a forward-looking
  * deadline) is a different sentence and comes from lib/benchmarkArtifact.
  */
-export function storedCutoffPhrase(cutoffLabel: string | null): string {
-  return cutoffLabel ? `Assessments completed by ${cutoffLabel}` : "Not recorded on this run";
+export function storedCutoffPhrase(cutoffLabel: string | null, cutoffAt?: string | Date | null, now: Date = new Date()): string {
+  if (!cutoffLabel) return "Not recorded on this run";
+  // box-c (R65, item 4): a cut that has not closed yet is interim, and says so.
+  if (cutoffAt) {
+    const at = cutoffAt instanceof Date ? cutoffAt : new Date(cutoffAt);
+    if (!Number.isNaN(at.getTime()) && at.getTime() > now.getTime()) return `Interim · closes ${cutoffLabel}`;
+  }
+  return `Assessments completed by ${cutoffLabel}`;
 }
 
 // ─── Divergence (ruling 21 default): one constant pair, matching /methodology ───

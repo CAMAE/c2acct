@@ -35,6 +35,9 @@ const guardedFiles = [
   "lib/benchmarkSuppression.ts",
   "lib/vendorAlignmentInsightEngine.ts",
   "lib/confidenceBands.ts",
+  "app/(app)/firm/alignment-assessment/page.tsx",
+  "help/public/the-five-pillars-briefly.md",
+  "help/public/inside-a-firm-assessment.md",
 ];
 
 /** Rejected phrases as they would appear in rendered copy or status labels. */
@@ -47,6 +50,9 @@ const bannedPhrases = [
   "safe harbor",
   "Safe harbor",
   "safe-harbor",
+  // box-c (R65, item 5): with FOLLOWUP_MC on, firm follow-ups are option sets, and there is no "unlock system".
+  "five open-ended follow-up prompts",
+  "insight unlock system",
 ] as const;
 
 /**

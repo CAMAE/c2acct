@@ -1,3 +1,4 @@
+import { storedCutoffPhrase } from "@/lib/assessmentCore";
 import { quarterCutoff } from "@/lib/consultantFreshness";
 
 /**
@@ -53,7 +54,8 @@ export function getBenchmarkArtifactMeta(now: Date = new Date()): BenchmarkArtif
     quarterLabel,
     cutoffIso: cutoff.toISOString(),
     cutoffLabel,
-    cutoffSentence: `Assessments completed by ${cutoffLabel} count for the ${quarterLabel} benchmark.`,
+    // box-c (R65, item 4): the next cut is still open, so it reads as interim from the one helper, never as a completed cut.
+    cutoffSentence: `${storedCutoffPhrase(cutoffLabel, cutoff, now)} for the ${quarterLabel} benchmark.`,
     daysToCutoff,
   };
 }

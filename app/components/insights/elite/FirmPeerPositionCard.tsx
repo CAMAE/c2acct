@@ -78,13 +78,13 @@ export default function FirmPeerPositionCard({
         <p className="mt-2 text-xs text-[var(--shell-muted)]">
           Cross-firm aggregate: a position in the cohort, not a ranking of named firms. Cuts below the evidence floor are withheld.
         </p>
-        <p className="mt-2 text-sm text-[var(--shell-ink)]">{storedCutoffPhrase(data.cutoffLabel)}</p>
+        <p className="mt-2 text-sm text-[var(--shell-ink)]">{storedCutoffPhrase(data.cutoffLabel, data.cutoffAt)}</p>
         <FreshnessNote freshness={freshness} />
         <EvidenceMethodPanel
           rows={[
             { label: "Cohort", value: data.overall ? `${data.overall.n} peer firms` : "—" },
             { label: "Window", value: "Each firm's most recent alignment assessment" },
-            { label: "Cutoff", value: storedCutoffPhrase(data.cutoffLabel) },
+            { label: "Cutoff", value: storedCutoffPhrase(data.cutoffLabel, data.cutoffAt) },
             { label: "Basis", value: "Your alignment index vs. the peer distribution" },
           ]}
           note="Your percentile is where your alignment index falls across the peer cohort, module by module, read from the stored quarterly run. Module cuts below the evidence floor are withheld, not estimated."

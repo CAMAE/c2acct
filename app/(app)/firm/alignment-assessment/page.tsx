@@ -152,7 +152,7 @@ export default async function FirmAlignmentAssessmentPage() {
           className="mt-4 text-4xl font-semibold tracking-tight text-[var(--shell-ink)]"
         />
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-          This is the modular PAT firm alignment assessment. Each module carries 20 scored questions on a 0 to 5 current-state scale plus five open-ended follow-up prompts, progress is tracked independently, and submissions flow directly into the existing results and insight unlock system. Complete the alignment assessment to unlock insights that help improve firm productivity.
+          This is the modular PAT firm alignment assessment. Each module carries 20 scored questions on a 0 to 5 current-state scale plus five follow-up questions per module, progress is tracked independently, and submissions flow directly into the existing results and insight tiers. Complete the alignment assessment to unlock insights that help improve firm productivity.
         </p>
         {rotationDebug ? (
           <p className="mt-4 rounded-lg border border-dashed border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-3 font-mono text-xs text-[var(--shell-muted)]">

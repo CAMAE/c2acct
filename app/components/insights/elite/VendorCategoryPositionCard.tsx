@@ -86,7 +86,7 @@ export default function VendorCategoryPositionCard({
         rows={[
           { label: "Cohort", value: "Vendors with firm-reviewed products in each category" },
           { label: "Basis", value: "Your firm-reviewed strength vs. the category peer distribution" },
-          { label: "Cutoff", value: storedCutoffPhrase(data.cutoffLabel) },
+          { label: "Cutoff", value: storedCutoffPhrase(data.cutoffLabel, data.cutoffAt) },
           {
             label: "Evidence floor",
             value: `At least ${MIN_CONTRIBUTORS} vendors with firm-reviewed products, none above ${Math.round(MAX_CONTRIBUTOR_SHARE * 100)} percent of them`,

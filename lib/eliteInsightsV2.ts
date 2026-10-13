@@ -126,6 +126,8 @@ export type FirmPeerPosition = {
   available: boolean;
   /** The stored run's cutoff as a date label (null while the run predates enforce-core). */
   cutoffLabel: string | null;
+  /** box-c (R65, item 4): the same cutoff as an ISO instant, so a surface can say "Interim" while it is still open. */
+  cutoffAt: string | null;
   /** scoring-core (R63, ruling 13): what the cohort size allows the surfaces to show. */
   displayTier: DisplayTier;
   /** scoring-core (R63, ruling 27): exact rank only at RANK_MIN_N firms. */
@@ -172,6 +174,7 @@ export async function buildFirmPeerPosition(
     return {
       available: false,
       cutoffLabel: benchmarkCutoffLabel(overallReading?.cutoff ?? null),
+      cutoffAt: overallReading?.cutoff?.toISOString() ?? null,
       displayTier: "none",
       rankShown: false,
       overall: null,
@@ -252,6 +255,7 @@ export async function buildFirmPeerPosition(
   return {
     available: true,
     cutoffLabel: benchmarkCutoffLabel(overallReading.cutoff),
+    cutoffAt: overallReading.cutoff?.toISOString() ?? null,
     displayTier: overallSuppressed ? "none" : displayTierFor(n),
     rankShown: !overallSuppressed && rankShownFor(n),
     overall: overallSuppressed
@@ -565,6 +569,8 @@ export type VendorCategoryPosition = {
   topAction: { category: string; gap: number; n: number } | null;
   /** The stored run's cutoff as a date label (null while the run predates enforce-core). */
   cutoffLabel: string | null;
+  /** box-c (R65, item 4): the same cutoff as an ISO instant, so a surface can say "Interim" while it is still open. */
+  cutoffAt: string | null;
   emptyReason: string | null;
 };
 
@@ -620,6 +626,7 @@ export async function buildVendorCategoryPosition(
       categories: [],
       topAction: null,
       cutoffLabel: benchmarkCutoffLabel(readings[0]?.cutoff ?? null),
+      cutoffAt: readings[0]?.cutoff?.toISOString() ?? null,
       emptyReason: "Category position opens once firms have reviewed your products enough to place you in a category distribution.",
     };
   }
@@ -653,7 +660,7 @@ export async function buildVendorCategoryPosition(
     .filter((c) => !c.suppressed && typeof c.p75 === "number" && c.score < (c.p75 as number))
     .map((c) => ({ category: c.category, gap: Math.round((c.p75 as number) - c.score), n: c.n }))
     .sort((a, b) => b.gap - a.gap)[0] ?? null;
-  return { available: true, categories, topAction, cutoffLabel: benchmarkCutoffLabel(rated[0]?.cutoff ?? null), emptyReason: null };
+  return { available: true, categories, topAction, cutoffLabel: benchmarkCutoffLabel(rated[0]?.cutoff ?? null), cutoffAt: rated[0]?.cutoff?.toISOString() ?? null, emptyReason: null };
 }
 
 // ── Hybrid Elite depth · Product cohort position ─────────────────────────────

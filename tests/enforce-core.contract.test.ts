@@ -497,13 +497,13 @@ describe("ruling 1 (deploy-night fix) — the quarterly benchmark page and the P
     const peer = await buildFirmPeerPosition(peerClient(STORED), "firm-0", "DEMO" as never, signal);
     expect(peer.available).toBe(true);
     expect(peer.cutoffLabel).toBe("Sep 30, 2026");
-    expect(storedCutoffPhrase(peer.cutoffLabel)).toBe("Assessments completed by Sep 30, 2026");
+    expect(storedCutoffPhrase(peer.cutoffLabel, peer.cutoffAt)).toBe("Assessments completed by Sep 30, 2026");
   });
 
   it("a run written before the cutoff column says so instead of inventing a quarter", async () => {
     const peer = await buildFirmPeerPosition(peerClient(null), "firm-0", "DEMO" as never, signal);
     expect(peer.cutoffLabel).toBeNull();
-    expect(storedCutoffPhrase(peer.cutoffLabel)).toBe("Not recorded on this run");
+    expect(storedCutoffPhrase(peer.cutoffLabel, peer.cutoffAt)).toBe("Not recorded on this run");
   });
 
   it("the page and the card render the SAME phrase from the SAME helper, so they cannot drift", () => {
@@ -515,8 +515,8 @@ describe("ruling 1 (deploy-night fix) — the quarterly benchmark page and the P
       expect(source, rel).toContain("storedCutoffPhrase(");
     }
     // the page's shown-cut labels read the stored run; the card reads the same field
-    expect(page).toContain("storedCutoffPhrase(peer.cutoffLabel)");
-    expect(card).toContain("storedCutoffPhrase(data.cutoffLabel)");
+    expect(page).toContain("storedCutoffPhrase(peer.cutoffLabel, peer.cutoffAt)");
+    expect(card).toContain("storedCutoffPhrase(data.cutoffLabel, data.cutoffAt)");
     expect(page).toContain("cut of ${peer.cutoffLabel}");
     // the mislabel this fix removes: the SHOWN cut was named from a live quarter computation
     expect(page).not.toContain("Cutoff {meta.cutoffLabel}");
