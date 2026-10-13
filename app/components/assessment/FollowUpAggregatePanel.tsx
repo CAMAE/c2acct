@@ -34,6 +34,12 @@ export default function FollowUpAggregatePanel({
         {firmsWithSelections} of {firmCount} {unit.plural} have option-based follow-ups. n counts named options only;
         &ldquo;Not a significant issue here&rdquo; and &ldquo;Other&rdquo; are excluded and shown separately.
       </p>
+      {unit.plural === "firms" ? (
+        // box-c (R65, item 7b): a module at 10 firms next to modules at 18 is completion, not a defect; say so.
+        <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--shell-muted)]" data-testid="followup-picks-count-note">
+          Firm counts differ by module where a firm has not completed that module.
+        </p>
+      ) : null}
       {withSignal.length === 0 ? (
         <p className="mt-5 text-sm leading-6 text-[var(--shell-muted)]">No option-based follow-ups in this ecosystem yet.</p>
       ) : (
@@ -55,6 +61,9 @@ export default function FollowUpAggregatePanel({
               </div>
               <div className="min-w-0 text-sm">
                 <div className="font-semibold text-[var(--shell-ink)]">{row.topOption?.label}</div>
+                {row.topOption?.consequence ? (
+                  <div className="text-sm leading-6 text-[var(--shell-muted)]">{row.topOption.consequence}</div>
+                ) : null}
                 <div className="mt-1 text-[var(--shell-muted)]">
                   n = <span className="pat-stat-number text-[var(--shell-ink)]">{row.topOption?.count}</span> · {row.firmsAnswered}{" "}
                   {row.firmsAnswered === 1 ? unit.singular : unit.plural} · {row.includedPicks} picks · {row.excludedPicks} excluded

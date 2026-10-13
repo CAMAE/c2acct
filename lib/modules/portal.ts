@@ -327,7 +327,8 @@ export interface SittingView {
     id: string;
     index: number;
     stem: string;
-    choices: Array<{ key: string; label: string }>;
+    /** box-c (R65, item 9): `consequence` is present only when the stored choice carries a clause; the page renders it under the label. */
+    choices: Array<{ key: string; label: string; consequence?: string }>;
   } | null;
 }
 
@@ -410,9 +411,10 @@ export async function loadSittingView(
         // Choices carry NO correctness marker — the answer key never leaves the
         // server (grading happens in recordItemResponse).
         choices: Array.isArray(item.choices)
-          ? (item.choices as Array<{ key: string; label: string }>).map((choice) => ({
+          ? (item.choices as Array<{ key: string; label: string; consequence?: unknown }>).map((choice) => ({
               key: String(choice.key),
               label: String(choice.label),
+              ...(typeof choice.consequence === "string" && choice.consequence.trim().length > 0 ? { consequence: choice.consequence.trim() } : {}),
             }))
           : [],
       };

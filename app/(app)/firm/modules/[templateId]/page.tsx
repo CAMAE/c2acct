@@ -148,6 +148,9 @@ export default async function FirmModuleSittingPage({
                     {choice.key}
                   </span>
                   <span className="ml-3 text-sm leading-6 text-[var(--shell-ink)]">{choice.label}</span>
+                  {choice.consequence ? (
+                    <span className="mt-1 block pl-9 text-sm leading-6 text-[var(--shell-muted)]">{choice.consequence}</span>
+                  ) : null}
                 </button>
               ))}
             </div>

@@ -230,7 +230,8 @@ export type FollowUpAggregateRow = {
   pillar: string;
   index: number;
   stem: string;
-  topOption: { key: string; label: string; count: number } | null;
+  /** box-c (R65, item 9): the option's consequence clause, rendered under the label; null where the set has none. */
+  topOption: { key: string; label: string; consequence: string | null; count: number } | null;
   includedPicks: number;
   excludedPicks: number;
   firmsAnswered: number;
@@ -249,7 +250,7 @@ export function summarizeFollowUpAggregate(
       for (const option of question.options) {
         const count = bucket.counts[option.key] ?? 0;
         if (count > 0 && (!topOption || count > topOption.count)) {
-          topOption = { key: option.key, label: option.label, count };
+          topOption = { key: option.key, label: option.label, consequence: option.consequence ?? null, count };
         }
       }
     }
@@ -373,7 +374,7 @@ export function summarizeVendorFollowUpAggregate(
       for (const option of question.options) {
         const count = bucket.counts[option.key] ?? 0;
         if (count > 0 && (!topOption || count > topOption.count)) {
-          topOption = { key: option.key, label: option.label, count };
+          topOption = { key: option.key, label: option.label, consequence: option.consequence ?? null, count };
         }
       }
     }
