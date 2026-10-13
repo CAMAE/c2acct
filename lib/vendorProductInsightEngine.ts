@@ -425,7 +425,7 @@ function summarizeDivergence(
       points,
       label: `Early signal · ${firmAssessmentCount} firm review${
         firmAssessmentCount === 1 ? "" : "s"
-      } — too few to read divergence`,
+      }: too few to read divergence`,
       belowFloor: true,
     };
   }
@@ -1175,7 +1175,7 @@ export function buildVendorProductPlainLanguage(
     const points = snapshot.divergence.points ?? round1(vendorScore - firmScore);
     const magnitude = Math.round(Math.abs(points) * 10) / 10;
     sentences.push(
-      `${productName} reads ${Math.round(vendorScore)}% in your self-assessment and ${Math.round(firmScore)}% across ${assessmentNoun} — ${articleFor(magnitude)} ${magnitude}-point divergence.`
+      `${productName} reads ${Math.round(vendorScore)}% in your self-assessment and ${Math.round(firmScore)}% across ${assessmentNoun}, ${articleFor(magnitude)} ${magnitude}-point divergence.`
     );
     if (divergenceState(points) === "aligned") {
       sentences.push(
@@ -1187,7 +1187,7 @@ export function buildVendorProductPlainLanguage(
       );
     } else {
       sentences.push(
-        "Firms are currently reading the product higher than the vendor story — reviewers are confirming more operational value than the self-assessment claims."
+        "Firms are currently reading the product higher than the vendor story, reviewers are confirming more operational value than the self-assessment claims."
       );
     }
   } else if (vendorScore !== null) {
@@ -1217,7 +1217,7 @@ export function buildVendorProductPlainLanguage(
   );
   sentences.push(
     assessmentCount > 0
-      ? `Each additional firm review either confirms the story or shows exactly where it needs recalibrating — ${assessmentNoun} currently stand behind the firm-reviewed signal.`
+      ? `Each additional firm review either confirms the story or shows exactly where it needs recalibrating, ${assessmentNoun} currently stand behind the firm-reviewed signal.`
       : "The fastest way to firm this picture up is getting the product in front of firm reviewers, because that is the only source of buyer-side signal PAT will count."
   );
 
@@ -1277,7 +1277,7 @@ function buildVendorProductCardFace(
       return {
         metric: { value: formatPoints(gap), caption: `self-report vs firm-reviewed gap` },
         statusLabel: band.label,
-        summary: `Firms rate this product ${Math.round(firmScore)} · ${band.label}; the vendor self-reports ${Math.round(vendorScore)} — ${articleFor(gap)} ${gap}-point gap with self-report ${dir} firm-reviewed evidence.`,
+        summary: `Firms rate this product ${Math.round(firmScore)} · ${band.label}; the vendor self-reports ${Math.round(vendorScore)}, ${articleFor(gap)} ${gap}-point gap with self-report ${dir} firm-reviewed evidence.`,
         supportingText: null,
       };
     }
@@ -1432,7 +1432,7 @@ export function buildVendorProductInsightDetailSurfaceCards(input: {
     surfaces.push({
       key: "elite",
       title: "Elite",
-      summary: "A blurred preview of the Elite product-intelligence layers — available with Elite membership.",
+      summary: "A blurred preview of the Elite product-intelligence layers, available with Elite membership.",
       href: `${baseHref}?surface=elite`,
       interactive: true,
     });
@@ -1565,7 +1565,7 @@ export function buildVendorProductInsightDetailSurfaceContent(input: {
           items: [
             {
               title: "Grounding",
-              body: "Cohort position is computed from the firm-reviewed strength of every peer product in this category — the same evidence base as your alignment benchmarks, at the product grain.",
+              body: "Cohort position is computed from the firm-reviewed strength of every peer product in this category, the same evidence base as your alignment benchmarks, at the product grain.",
             },
           ],
         } satisfies VendorProductInsightDetailSurfaceContent;
@@ -1576,19 +1576,19 @@ export function buildVendorProductInsightDetailSurfaceContent(input: {
         key: "elite",
         title: "Elite",
         intro:
-          "Elite product intelligence adds a cohort position, a ranked action, and a trend for this product — each grounded in firm-reviewed evidence. Available with Elite membership.",
+          "Elite product intelligence adds a cohort position, a ranked action, and a trend for this product, each grounded in firm-reviewed evidence. Available with Elite membership.",
         items: [
           {
             title: "Market comparison view",
-            body: "Where this product's firm-reviewed strength sits against the peer field in its category — a percentile position, not a ranking of named competitors.",
+            body: "Where this product's firm-reviewed strength sits against the peer field in its category, a percentile position, not a ranking of named competitors.",
           },
           {
             title: "Forward demand projection",
-            body: "The demand signal for this product's capability area across the firm base — a projection, not a guarantee.",
+            body: "The demand signal for this product's capability area across the firm base, a projection, not a guarantee.",
           },
           {
             title: "Locked Elite boundary",
-            body: "This is a preview only — no live Elite data is shown here. PAT does not expose benchmark, projection, or market-wide figures until you hold Elite membership.",
+            body: "This is a preview only, no live Elite data is shown here. PAT does not expose benchmark, projection, or market-wide figures until you hold Elite membership.",
           },
         ],
       } satisfies VendorProductInsightDetailSurfaceContent;

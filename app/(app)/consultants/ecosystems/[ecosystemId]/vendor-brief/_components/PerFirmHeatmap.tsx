@@ -98,7 +98,7 @@ export default function PerFirmHeatmap({ data }: { data: VendorBriefData }) {
                         score: null,
                         band: "unreviewed" as const,
                       };
-                      const scoreLabel = cell.score === null ? "—" : String(cell.score);
+                      const scoreLabel = cell.score === null ? "n/a" : String(cell.score);
                       const titleText =
                         cell.score === null
                           ? `${firm.name} · ${product.name} · Awaiting capability response`

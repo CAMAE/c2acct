@@ -19,7 +19,7 @@ const LABEL_POSITIONS: Array<{ x: number; y: number }> = [
 export default function V7RadarFigure() {
   return (
     <>
-              <svg viewBox="0 0 400 330" className="mx-auto block h-auto w-full max-w-[520px]" role="img" aria-label="Five-module alignment radar — shape only, no scores">
+              <svg viewBox="0 0 400 330" className="mx-auto block h-auto w-full max-w-[520px]" role="img" aria-label="Five-module alignment radar: shape only, no scores">
                 <defs>
                   <radialGradient id="v7rg" cx="50%" cy="52%" r="60%">
                     <stop offset="0%" stopColor="var(--brand-c2-blue)" stopOpacity=".16" />
@@ -32,7 +32,7 @@ export default function V7RadarFigure() {
                   <polygon points="200,138 244,169 227,218 173,218 156,169" opacity=".6" />
                   <path d="M200,178 L200,58 M200,178 L322,146 M200,178 L275,282 M200,178 L125,282 M200,178 L78,146" />
                 </g>
-                {/* Peer overlay — dashed, under the solid navy "you" shape. */}
+                {/* Peer overlay: dashed, under the solid navy "you" shape. */}
                 <polygon points="200,96 286,152 249,236 153,244 116,152" fill="none" stroke="#8ba1bd" strokeWidth="2" strokeDasharray="6 5" strokeLinejoin="round" />
                 <polygon points="200,82 298,154 247,246 151,262 121,154" fill="url(#v7rg)" stroke="var(--brand-c2-blue)" strokeWidth="2.5" strokeLinejoin="round" />
                 <g fill="var(--brand-c2-blue)" stroke="#fff" strokeWidth="1.5">
@@ -48,7 +48,7 @@ export default function V7RadarFigure() {
                   ))}
                 </g>
               </svg>
-              {/* Legend beneath the radar — You (solid navy) vs Peers (dashed). */}
+              {/* Legend beneath the radar. You (solid navy) vs Peers (dashed). */}
               <div className="mt-6 flex items-center justify-center gap-[26px] text-[14.5px] text-[var(--shell-muted)]">
                 <span className="flex items-center gap-2"><span className="inline-block h-[11px] w-[11px] rounded-full bg-[var(--brand-c2-blue)]" /> You</span>
                 <span className="flex items-center gap-2"><span className="inline-block w-[26px] border-t-2 border-dashed border-[#8ba1bd]" /> Peers</span>

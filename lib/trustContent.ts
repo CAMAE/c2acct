@@ -138,14 +138,14 @@ export const TRUST_SURFACES = {
     eyebrow: "Trust",
     title: "How PAT earns trust.",
     summary:
-      "Privacy, terms, security, support, billing, and release transparency for PAT — each linked below.",
+      "Privacy, terms, security, support, billing, and release transparency for PAT, each linked below.",
     statusLabel: "Trust",
     lastUpdated: TRUST_SURFACE_LAST_UPDATED,
     sections: [
       {
         title: "Current stage",
         body:
-          "PAT runs on verified releases — every release is checked against its source — with role-specific access.",
+          "PAT runs on verified releases, every release is checked against its source, with role-specific access.",
       },
       {
         title: "No unsupported claims",
@@ -251,7 +251,7 @@ export const TRUST_SURFACES = {
       {
         title: "Release and build proof",
         body:
-          "We verify that every release matches its source before it serves, and the full technical proof — branch, commit, build identity, and build checks — is published on the release page at /release.",
+          "We verify that every release matches its source before it serves, and the full technical proof, branch, commit, build identity, and build checks, is published on the release page at /release.",
       },
       {
         title: "Billing data boundary",
@@ -263,16 +263,16 @@ export const TRUST_SURFACES = {
         body:
           "PAT relies on a small set of infrastructure and service providers to operate. We inherit each provider's own infrastructure controls; PAT does not claim its own external certification.",
         bullets: [
-          "Vercel — application hosting and edge/serverless compute.",
-          "Neon — managed PostgreSQL database (pooled, with connection management).",
-          "Stripe — payment processing and provider-hosted checkout when billing is configured.",
-          "Anthropic — large-language-model provider powering optional AI-assisted features (no customer data is used to train third-party models).",
+          "Vercel: application hosting and edge/serverless compute.",
+          "Neon: managed PostgreSQL database (pooled, with connection management).",
+          "Stripe: payment processing and provider-hosted checkout when billing is configured.",
+          "Anthropic: large-language-model provider powering optional AI-assisted features (no customer data is used to train third-party models).",
         ],
       },
       {
         title: "Data practices and methodology",
         body:
-          "Data is transmitted over encrypted connections. Retention is configured per data class with a soft-delete window before hard purge, and tested tenant export and deletion paths exist for contractual data-subject requests. How PAT computes its scores and benchmarks — including the integrity walls that keep demo data and vendor self-report out of peer aggregates — is published on the versioned methodology page at /methodology.",
+          "Data is transmitted over encrypted connections. Retention is configured per data class with a soft-delete window before hard purge, and tested tenant export and deletion paths exist for contractual data-subject requests. How PAT computes its scores and benchmarks, including the integrity walls that keep demo data and vendor self-report out of peer aggregates, is published on the versioned methodology page at /methodology.",
       },
       {
         title: "Entity",
@@ -315,7 +315,7 @@ export const TRUST_SURFACES = {
     eyebrow: "Billing policy",
     title: "PAT billing policy.",
     summary:
-      "How PAT billing behaves when a payment provider is configured — and how the UI stays honest when it isn't.",
+      "How PAT billing behaves when a payment provider is configured, and how the UI stays honest when it isn't.",
     statusLabel: "Policy draft",
     lastUpdated: TRUST_SURFACE_LAST_UPDATED,
     sections: [
@@ -359,12 +359,12 @@ export const TRUST_SURFACES = {
       {
         title: "Not professional advice",
         body:
-          "Figures are plain averages with the sample size shown — never weighted, percentile, or significance-tested statistics, and never professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, an insufficient-data state is shown instead of a number.",
+          "Figures are plain averages with the sample size shown, never weighted, percentile, or significance-tested statistics, and never professional advice. Where evidence is thin, the surface says so; where a peer benchmark cannot be published responsibly, an insufficient-data state is shown instead of a number.",
       },
       {
         title: "Versioned and changelogged",
         body:
-          "Material changes to the methodology are versioned with a public changelog. The full detail — averaging, divergence floor, confidence bands, suppression, integrity walls, and rounding — is rendered below and mirrors the source aggregation-methodology document.",
+          "Material changes to the methodology are versioned with a public changelog. The full detail: averaging, divergence floor, confidence bands, suppression, integrity walls, and rounding, is rendered below and mirrors the source aggregation-methodology document.",
       },
     ],
   },
@@ -375,7 +375,7 @@ export const TRUST_SURFACES = {
     eyebrow: "AI governance",
     title: "How Pat is governed.",
     summary:
-      "Pat is Patalign's AI assistant. It helps with questions, reminders, and reports. Here is exactly how we keep it in bounds — these are system controls, not policies.",
+      "Pat is Patalign's AI assistant. It helps with questions, reminders, and reports. Here is exactly how we keep it in bounds. These are system controls, not policies.",
     statusLabel: "System controls",
     lastUpdated: TRUST_SURFACE_LAST_UPDATED,
     sections: [
@@ -387,7 +387,7 @@ export const TRUST_SURFACES = {
       {
         title: "Everything is logged.",
         body:
-          "Every Pat action is recorded in an audit log — what ran, what it read, what it produced, and who approved it.",
+          "Every Pat action is recorded in an audit log, what ran, what it read, what it produced, and who approved it.",
       },
       {
         title: "Spending is capped.",
@@ -412,7 +412,7 @@ export const TRUST_SURFACES = {
       {
         title: "Versions are pinned and tested.",
         body:
-          "Pat runs on specific, tested AI model versions. Upgrades happen only after our regression checks pass — never silently.",
+          "Pat runs on specific, tested AI model versions. Upgrades happen only after our regression checks pass, never silently.",
       },
       {
         title: "When something goes wrong, there's a procedure.",

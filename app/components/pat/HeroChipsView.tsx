@@ -36,7 +36,7 @@ export function HeroChipsView({
       className="absolute right-6 top-6 z-10 flex flex-wrap items-center justify-end gap-2 sm:right-8 sm:top-8"
       data-testid="hero-chips"
     >
-      {/* 14a — workspace back chip (first) */}
+      {/* 14a: workspace back chip (first) */}
       <Link
         href={HERO_WORKSPACE_HOME[audience]}
         className="inline-flex items-center gap-1 rounded-full border border-[var(--shell-border)] bg-[var(--shell-panel)] px-3 py-1 text-xs font-medium text-[var(--shell-muted)] transition-colors hover:text-[var(--shell-ink)]"
@@ -45,7 +45,7 @@ export function HeroChipsView({
         <span aria-hidden="true">←</span> Workspace
       </Link>
 
-      {/* 14b — tier flag (status; PRO/ELITE only) */}
+      {/* 14b: tier flag (status; PRO/ELITE only) */}
       {isPro || isElite ? (
         <span
           className="inline-flex items-center gap-1.5 rounded-full border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] px-3 py-1 text-xs font-semibold text-[var(--shell-ink)]"
@@ -61,7 +61,7 @@ export function HeroChipsView({
         </span>
       ) : null}
 
-      {/* 14c — upgrade CTA (Pro only, never Elite) */}
+      {/* 14c: upgrade CTA (Pro only, never Elite) */}
       {isPro && upgradeHref ? (
         <Link
           href={upgradeHref}

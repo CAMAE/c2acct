@@ -63,7 +63,7 @@ export default function EmphasisToggle(props: {
         setActive(previous);
         setStatus(
           result.reason === "not-found"
-            ? "Unable to save — refresh the page."
+            ? "Unable to save: refresh the page."
             : "Emphasis rejected. Refresh the page."
         );
       }

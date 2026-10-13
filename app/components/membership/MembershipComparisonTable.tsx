@@ -33,7 +33,7 @@ function renderCell(value: MembershipComparisonValue) {
   if (value === false) {
     return (
       <span aria-label="Not included" className="text-[var(--shell-muted)]">
-        —
+,
       </span>
     );
   }

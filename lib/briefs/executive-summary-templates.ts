@@ -84,7 +84,7 @@ export const BODY_PATTERNS: ExecutiveSummaryBodyPattern[] = [
     render: ({ groundedCount, firmCount }) => {
       if (firmCount === 0) return null;
       if (groundedCount * 2 < firmCount) return null;
-      return `${groundedCount} of ${firmCount} firm${firmCount === 1 ? "" : "s"} are Grounded — the underlying scores carry full evidentiary depth.`;
+      return `${groundedCount} of ${firmCount} firm${firmCount === 1 ? "" : "s"} are Grounded: the underlying scores carry full evidentiary depth.`;
     },
   },
   {
@@ -93,7 +93,7 @@ export const BODY_PATTERNS: ExecutiveSummaryBodyPattern[] = [
       if (firmCount === 0) return null;
       const lowConfidence = sampleThinCount + earlySignalCount + noSignalCount;
       if (lowConfidence * 2 <= firmCount) return null;
-      return `${lowConfidence} of ${firmCount} firm${firmCount === 1 ? "" : "s"} are on sample-thin, early, or no-signal status — read the numbers in this brief as early evidence until more submissions land.`;
+      return `${lowConfidence} of ${firmCount} firm${firmCount === 1 ? "" : "s"} are on sample-thin, early, or no-signal status, read the numbers in this brief as early evidence until more submissions land.`;
     },
   },
   {
@@ -108,7 +108,7 @@ export const BODY_PATTERNS: ExecutiveSummaryBodyPattern[] = [
     key: "coverage-complete",
     render: ({ bucketsCovered, bucketsTotal }) => {
       if (bucketsCovered < bucketsTotal) return null;
-      return `Vendor catalog covers all ${bucketsTotal} function buckets in this ecosystem — there are no gaps to source against.`;
+      return `Vendor catalog covers all ${bucketsTotal} function buckets in this ecosystem. There are no gaps to source against.`;
     },
   },
 ];
@@ -188,7 +188,7 @@ export const VENDOR_BRIEF_VARIANT_BANK: Record<string, readonly VendorBriefVaria
       tone: "pointed",
       render: ({ ecosystemName, firmCount, avgFirmScore, avgVendorSelfReport }) => {
         if (avgFirmScore === null || avgVendorSelfReport === null) {
-          return `${ecosystemName} — ${firmCount} firm${firmCount === 1 ? "" : "s"} on the board.`;
+          return `${ecosystemName}: ${firmCount} firm${firmCount === 1 ? "" : "s"} on the board.`;
         }
         const gap = avgVendorSelfReport - avgFirmScore;
         const direction = gap > 0 ? "below" : gap < 0 ? "above" : "level with";
@@ -203,7 +203,7 @@ export const VENDOR_BRIEF_VARIANT_BANK: Record<string, readonly VendorBriefVaria
       render: ({ productCount, hotDivergences }) => {
         if (productCount === 0) return "No vendor products with completed self-assessment yet.";
         if (hotDivergences === 0) {
-          return `${productCount} product${productCount === 1 ? "" : "s"} — vendor self-report and firm reviews track within a 10-point band across the catalog.`;
+          return `${productCount} product${productCount === 1 ? "" : "s"}: vendor self-report and firm reviews track within a 10-point band across the catalog.`;
         }
         return `${productCount} product${productCount === 1 ? "" : "s"} sorted by absolute delta; ${hotDivergences} flagged as hot divergence.`;
       },
@@ -212,11 +212,11 @@ export const VENDOR_BRIEF_VARIANT_BANK: Record<string, readonly VendorBriefVaria
       id: "v1-narrative",
       tone: "narrative",
       render: ({ productCount, hotDivergences }) => {
-        if (productCount === 0) return "Vendor catalog has no completed self-assessments yet — the delta lens unlocks once those land.";
+        if (productCount === 0) return "Vendor catalog has no completed self-assessments yet, the delta lens unlocks once those land.";
         if (hotDivergences === 0) {
-          return `Across ${productCount} product${productCount === 1 ? "" : "s"}, vendor and firm scores stay within a 10-point band — the gaps below are conversation-grade, not crisis-grade.`;
+          return `Across ${productCount} product${productCount === 1 ? "" : "s"}, vendor and firm scores stay within a 10-point band, the gaps below are conversation-grade, not crisis-grade.`;
         }
-        return `Of ${productCount} product${productCount === 1 ? "" : "s"} reviewed, ${hotDivergences} carr${hotDivergences === 1 ? "ies" : "y"} a hot-divergence flag — that's where the boardroom conversation should land first.`;
+        return `Of ${productCount} product${productCount === 1 ? "" : "s"} reviewed, ${hotDivergences} carr${hotDivergences === 1 ? "ies" : "y"} a hot-divergence flag, that's where the boardroom conversation should land first.`;
       },
     },
   ],
@@ -233,7 +233,7 @@ export const VENDOR_BRIEF_VARIANT_BANK: Record<string, readonly VendorBriefVaria
       id: "v1-pointed",
       tone: "pointed",
       render: ({ roadmapItemCount }) => {
-        if (roadmapItemCount === 0) return "Briefings produced no next actions this quarter — nothing to commit to.";
+        if (roadmapItemCount === 0) return "Briefings produced no next actions this quarter, nothing to commit to.";
         return `${roadmapItemCount} action${roadmapItemCount === 1 ? "" : "s"} surfaced. Pick the top bullet; treat the rest as supporting context.`;
       },
     },

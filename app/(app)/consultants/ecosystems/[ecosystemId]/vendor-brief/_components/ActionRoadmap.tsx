@@ -29,7 +29,7 @@ function roadmapActionTitle(
   q2Count: number
 ): string {
   if (total === 0) {
-    return `No commitments surfaced from current briefings — actions populate once firms complete capability responses.`;
+    return `No commitments surfaced from current briefings, actions populate once firms complete capability responses.`;
   }
   const nearTerm = q1Count + q2Count;
   if (nearTerm >= 3) {
@@ -51,7 +51,7 @@ function RoadmapItem({
   const firmFraction =
     totalFirms > 0
       ? `${item.affectedFirmIds.length} of ${totalFirms} firm${totalFirms === 1 ? "" : "s"}`
-      : "—";
+      : "n/a";
   return (
     <div data-testid="roadmap-item" data-signal-strength={item.signalStrength} className="py-4">
       <div className="text-base font-semibold leading-snug text-[var(--shell-ink)]">

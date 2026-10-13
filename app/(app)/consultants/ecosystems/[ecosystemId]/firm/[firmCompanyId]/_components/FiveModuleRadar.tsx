@@ -133,7 +133,7 @@ export default function FiveModuleRadar({ data }: { data: FirmBriefData }) {
             );
           })}
 
-          {/* Ecosystem average — dashed line, muted */}
+          {/* Ecosystem average: dashed line, muted */}
           <path
             d={ecosystemPath}
             fill="none"
@@ -142,7 +142,7 @@ export default function FiveModuleRadar({ data }: { data: FirmBriefData }) {
             strokeDasharray="4 4"
           />
 
-          {/* Firm shape — solid, brand accent fill at low opacity */}
+          {/* Firm shape: solid, brand accent fill at low opacity */}
           <path
             d={firmPath}
             fill="var(--brand-c2-blue)"
@@ -175,7 +175,7 @@ export default function FiveModuleRadar({ data }: { data: FirmBriefData }) {
             );
           })}
 
-          {/* Axis labels — outside the outermost ring */}
+          {/* Axis labels: outside the outermost ring */}
           {axes.map((axis, idx) => {
             const { x, y } = pointAtRadius(idx, axisCount, 1.18);
             const anchor =

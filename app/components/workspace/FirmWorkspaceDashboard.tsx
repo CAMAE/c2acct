@@ -20,7 +20,7 @@ export default function FirmWorkspaceDashboard({ view }: { view: Data }) {
           <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
             <div>
               <p className="text-base leading-7 text-[var(--shell-muted)]">
-                No module is on record yet. Your alignment index, capabilities and radar appear as the five modules come in — start with
+                No module is on record yet. Your alignment index, capabilities and radar appear as the five modules come in, start with
                 the first one below; each takes about four minutes.
               </p>
               <ol className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -35,7 +35,7 @@ export default function FirmWorkspaceDashboard({ view }: { view: Data }) {
                 ))}
               </ol>
             </div>
-            <RadarChart axes={view.radarAxes} title="Five-module maturity profile — no module scored yet" className="opacity-60" />
+            <RadarChart axes={view.radarAxes} title="Five-module maturity profile: no module scored yet" className="opacity-60" />
           </div>
         ) : (
           <div className="mt-5 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-center">
@@ -50,7 +50,7 @@ export default function FirmWorkspaceDashboard({ view }: { view: Data }) {
               <ScoreLockup
                 label="Capabilities met"
                 score={null}
-                displayValue={view.capabilitiesTotal ? `${view.capabilitiesMet}/${view.capabilitiesTotal}` : "—"}
+                displayValue={view.capabilitiesTotal ? `${view.capabilitiesMet}/${view.capabilitiesTotal}` : "n/a"}
                 context="Distinct capabilities at or above their unlock threshold"
               />
             </div>

@@ -209,7 +209,7 @@ export default function VendorProductPositioningRadar({
             );
           })}
 
-          {/* Vendor polygon (orange) — drawn first so the firm polygon
+          {/* Vendor polygon (orange): drawn first so the firm polygon
               overlays on top. */}
           <path
             d={vendorPath}

@@ -181,7 +181,7 @@ export default async function FirmInsightsPage({
             <ScoreLockup
               label="Capabilities met"
               score={null}
-              displayValue={capabilitiesTotal ? `${capabilitiesMet}/${capabilitiesTotal}` : "—"}
+              displayValue={capabilitiesTotal ? `${capabilitiesMet}/${capabilitiesTotal}` : "n/a"}
               context="Distinct capabilities at or above the 60% unlock threshold"
             />
           </div>

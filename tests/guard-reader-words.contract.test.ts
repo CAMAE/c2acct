@@ -11,6 +11,8 @@ export const READER_WORD_PATTERNS: readonly RegExp[] = [
   /\broute(?:s)?\b/i, /\bC2Core\b/, /\bdemo-seeded\b/i,
   // scoring-core (R63, walk leftover 7d): "insight groups" is builder vocabulary.
   /\binsight groups\b/i,
+  // box-c (R65, item 6): the em dash never appears in rendered copy; a period, a comma or a colon by sense.
+  /\u2014/,
 ];
 
 describe("guard:reader-words — builder vocabulary never reaches a reader", () => {

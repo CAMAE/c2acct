@@ -146,7 +146,7 @@ export default function FirmGrid({ data }: { data: EcosystemDetailData }) {
                 </span>{" "}
                 reviews · {formatRelative(row.latestActivityAt)}
               </div>
-              {/* 15e/16a — read-only last-full-assessment date + freshness chip */}
+              {/* 15e/16a: read-only last-full-assessment date + freshness chip */}
               <div className="mt-1 flex flex-wrap items-center gap-2 pl-6 text-xs leading-5 text-[var(--shell-muted)]">
                 {freshness ? (
                   <>

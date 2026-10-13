@@ -18,7 +18,7 @@ function bigNumberLabel(row: VendorBriefDeltaRow): string {
   if (row.deltaDirection === "neutral") return "Matched";
   if (row.deltaDirection === "vendor-higher") return "Vendor higher";
   if (row.deltaDirection === "firm-higher") return "Firms higher";
-  return "—";
+  return "n/a";
 }
 
 const AWAITING_REVIEW_HELPER =
@@ -70,7 +70,7 @@ function firmBarTone(row: VendorBriefDeltaRow): PairedBarTone {
 
 function actionTitleFromDelta(rows: VendorBriefDeltaRow[], vendorName: string): string {
   if (rows.length === 0) {
-    return `${vendorName} has no completed product self-assessments yet — the delta lens unlocks once those land.`;
+    return `${vendorName} has no completed product self-assessments yet, the delta lens unlocks once those land.`;
   }
   const top = rows[0];
   const hotCount = rows.filter((r) => r.isHotDivergence).length;
@@ -141,11 +141,11 @@ export default function SelfVsMarketDelta({ data }: { data: VendorBriefData }) {
                     {row.productName}
                   </div>
                   <div className="mt-1 text-xs text-[var(--shell-muted)]">
-                    <span className="pat-stat-number">{row.firmReviewCount}</span> firm review{row.firmReviewCount === 1 ? "" : "s"} · vendor self-report <span className="pat-stat-number">{row.vendorSelfReported === null ? "—" : row.vendorSelfReported}</span> · firm avg <span className="pat-stat-number">{row.firmReviewedAverage === null ? "—" : row.firmReviewedAverage}</span>
+                    <span className="pat-stat-number">{row.firmReviewCount}</span> firm review{row.firmReviewCount === 1 ? "" : "s"} · vendor self-report <span className="pat-stat-number">{row.vendorSelfReported === null ? "n/a" : row.vendorSelfReported}</span> · firm avg <span className="pat-stat-number">{row.firmReviewedAverage === null ? "n/a" : row.firmReviewedAverage}</span>
                   </div>
                 </div>
                 {/* WS4 Block B (manual-review item 22): replace the giant 6xl
-                    delta number with paired bars — vendor self-report stacked
+                    delta number with paired bars, vendor self-report stacked
                     over firm-reviewed average, proportional to a 0-100 scale,
                     tinted green/red/neutral per the row's delta direction. The
                     numeric delta stays as a smaller right-aligned label. */}
@@ -154,7 +154,7 @@ export default function SelfVsMarketDelta({ data }: { data: VendorBriefData }) {
                     <div className="flex items-baseline justify-between text-[11px] text-[var(--shell-muted)]">
                       <span>Vendor</span>
                       <span className="pat-stat-number">
-                        {row.vendorSelfReported === null ? "—" : row.vendorSelfReported}
+                        {row.vendorSelfReported === null ? "n/a" : row.vendorSelfReported}
                       </span>
                     </div>
                     <div className="mt-1 h-2.5 w-full overflow-hidden rounded-full bg-[var(--shell-panel-soft)]">
@@ -170,7 +170,7 @@ export default function SelfVsMarketDelta({ data }: { data: VendorBriefData }) {
                     <div className="flex items-baseline justify-between text-[11px] text-[var(--shell-muted)]">
                       <span>Firm</span>
                       <span className="pat-stat-number">
-                        {row.firmReviewedAverage === null ? "—" : row.firmReviewedAverage}
+                        {row.firmReviewedAverage === null ? "n/a" : row.firmReviewedAverage}
                       </span>
                     </div>
                     <div className="mt-1 h-2.5 w-full overflow-hidden rounded-full bg-[var(--shell-panel-soft)]">

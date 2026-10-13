@@ -46,10 +46,10 @@ export default function PatConsentPanel({ initialOptedIn }: { initialOptedIn: bo
 
   return (
     <section className="pat-card px-7 py-7 sm:px-8">
-      <div className="pat-label">Meet Pat — optional AI assistant</div>
+      <div className="pat-label">Meet Pat: optional AI assistant</div>
       <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
         Pat is Patalign&rsquo;s AI guide. Turn Pat on and you can ask questions about using the
-        platform — and, on Elite, about your own scores and alignment data — in plain language, any
+        platform, and, on Elite, about your own scores and alignment data, in plain language, any
         time.
       </p>
       <p className="mt-3 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
@@ -68,7 +68,7 @@ export default function PatConsentPanel({ initialOptedIn }: { initialOptedIn: bo
         <Link className="pat-link" href="/trust/pat">
           Learn how Pat is governed
         </Link>{" "}
-        — human approval, audit logging, spend caps, a named stop-authority, and AI disclosure.
+, human approval, audit logging, spend caps, a named stop-authority, and AI disclosure.
       </p>
       <label className="mt-5 flex max-w-3xl items-start gap-3 text-base leading-7 text-[var(--shell-ink)]">
         <input

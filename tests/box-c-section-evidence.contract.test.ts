@@ -10,7 +10,6 @@ import { accountingCompanyContext } from "@/lib/verticals/companyBoundary";
  * counterpart reads under its own name with the version noted.
  */
 const registry = accountingCompanyContext().registry!;
-const V3 = registry.versionId;
 const V2 = "2026-03-product-utility-v2";
 const UTILITIES = ["client_collaboration_portal_requests", "payroll_workforce_support"];
 

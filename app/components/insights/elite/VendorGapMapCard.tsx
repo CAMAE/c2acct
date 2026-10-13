@@ -27,7 +27,7 @@ function ScoreBar({ label, value, tone }: { label: string; value: number | null;
         <div className={`h-full rounded-full ${barColor}`} style={{ width: `${pct}%` }} />
       </div>
       <span className="w-8 shrink-0 text-right text-xs font-semibold tabular-nums text-[var(--shell-ink)]">
-        {value === null ? "—" : Math.round(value)}
+        {value === null ? "n/a" : Math.round(value)}
       </span>
     </div>
   );
@@ -88,10 +88,10 @@ export default function VendorGapMapCard({ data }: { data: VendorGapMap }) {
 
   return (
     <section className="pat-card p-6">
-      <div className="pat-label">Where firms confirm — or dispute — your story</div>
+      <div className="pat-label">Where firms confirm, or dispute, your story</div>
       <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
         Per product-fit dimension: the number is how firm reviews land relative to your self-report. Green means firms
-        confirm your story; orange means firms read you lower than you rate yourself — that is where the story needs work.
+        confirm your story; orange means firms read you lower than you rate yourself. That is where the story needs work.
         Only dimensions with enough firm reviews are scored.
       </p>
       <div className="mt-4">
@@ -212,7 +212,7 @@ export default function VendorGapMapCard({ data }: { data: VendorGapMap }) {
           { label: "Basis", value: "Firm review scores vs. your self-report, per product × dimension" },
           { label: "Evidence floor", value: "Cells without enough firm reviews are left unscored" },
         ]}
-        note="Each cell compares how firms scored a product on a dimension against how you rate yourself. Green means firms confirm your story; orange means they read you lower. Only dimensions with enough firm reviews are scored — thin cells stay blank rather than being estimated."
+        note="Each cell compares how firms scored a product on a dimension against how you rate yourself. Green means firms confirm your story; orange means they read you lower. Only dimensions with enough firm reviews are scored, thin cells stay blank rather than being estimated."
       />
     </section>
   );

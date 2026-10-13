@@ -58,7 +58,7 @@ export function composePatPingCopy(input: ComposePatPingInput): PatPingCopy {
     const who = input.companyName?.trim() ? input.companyName.trim() : `a ${input.audience} you manage`;
     return {
       title: "Pat flagged an account worth a nudge",
-      body: `Hi, it's Pat — ${who} is at ${pct(input.completionPercent)}% on their ${assessment} and hasn't responded to recent reminders. Worth a personal nudge?`,
+      body: `Hi, it's Pat: ${who} is at ${pct(input.completionPercent)}% on their ${assessment} and hasn't responded to recent reminders. Worth a personal nudge?`,
       ctaLabel: null,
       ctaHref: null,
     };
@@ -67,7 +67,7 @@ export function composePatPingCopy(input: ComposePatPingInput): PatPingCopy {
   const cta = assessmentCta(input.audience);
   const body =
     input.reason === "deadline"
-      ? `Hi, it's Pat — you're at ${pct(input.completionPercent)}% on your ${assessment}, and your quarter close is coming up. When you have a moment, let's finish it so your data is complete.`
-      : `Hi, it's Pat — you're at ${pct(input.completionPercent)}% on your ${assessment}. It's been a little while; when you have a moment, let's pick it back up so your briefing stays current.`;
+      ? `Hi, it's Pat: you're at ${pct(input.completionPercent)}% on your ${assessment}, and your quarter close is coming up. When you have a moment, let's finish it so your data is complete.`
+      : `Hi, it's Pat: you're at ${pct(input.completionPercent)}% on your ${assessment}. It's been a little while; when you have a moment, let's pick it back up so your briefing stays current.`;
   return { title: "A note from Pat", body, ctaLabel: cta.ctaLabel, ctaHref: cta.ctaHref };
 }

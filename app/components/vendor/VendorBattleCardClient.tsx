@@ -102,7 +102,7 @@ export default function VendorBattleCardClient({
             </div>
             <p className="mt-4 max-w-xl text-sm leading-6 text-[var(--shell-muted)]">
               <strong className="text-[var(--shell-ink)]">Alignment delta</strong> is how much your
-              product strengths sit above a firm&rsquo;s current alignment — the headroom you could
+              product strengths sit above a firm&rsquo;s current alignment, the headroom you could
               lift. Firms with the most headroom rank first; deltas stay estimates while a
               firm&rsquo;s sample is thin.
             </p>
@@ -113,7 +113,7 @@ export default function VendorBattleCardClient({
         </div>
       </section>
 
-      {/* 14f — Prospect Intelligence explainer: where the firm list comes from and how it grows. */}
+      {/* 14f: Prospect Intelligence explainer: where the firm list comes from and how it grows. */}
       <div>
         <div className="pat-label">Prospect Intelligence</div>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--shell-muted)]">
@@ -130,7 +130,7 @@ export default function VendorBattleCardClient({
         </div>
       ) : (
         <>
-          {/* Fit-tier filter — Strong / Good / Weak; click active to clear to all */}
+          {/* Fit-tier filter: Strong / Good / Weak; click active to clear to all */}
           <div className="flex flex-wrap items-center gap-3">
             <PatModeToggle
               activeKey={tierFilter}
@@ -179,7 +179,7 @@ export default function VendorBattleCardClient({
                         <span>
                           {firm.gapArea} · {CONFIDENCE_LABEL[firm.confidence]}
                         </span>
-                        {/* 16a — the firm's alignment evidence age, one shared chip */}
+                        {/* 16a: the firm's alignment evidence age, one shared chip */}
                         <FreshnessChip reading={firm.alignmentFreshness} showAge={false} />
                       </div>
                       <div className="mt-3.5">
@@ -202,7 +202,7 @@ export default function VendorBattleCardClient({
                     </button>
                     {/* Inline expansion (same law as insights): the clicked card grows
                         to a full-width own-row and renders the consultant brief in
-                        place — never a detached panel at the page bottom. */}
+                        place: never a detached panel at the page bottom. */}
                     {expanded && briefMode === "inline" ? (
                       <div className="mt-4 border-t border-[var(--shell-border)] pt-4" data-testid="battlecard-detail">
                         <BattleCardDetailBody
@@ -213,7 +213,7 @@ export default function VendorBattleCardClient({
                         />
                       </div>
                     ) : null}
-                    {/* R37: flag-on the brief opens beside the grid — no card grows, no row
+                    {/* R37: flag-on the brief opens beside the grid, no card grows, no row
                         moves; Previous/Next step through the visible firms in rank order. */}
                     {briefMode === "drawer" ? (
                       <ReadoutDrawer
@@ -293,7 +293,7 @@ function BattleCardDetailBody({
         </div>
         <div className="mt-1.5 text-xs text-[var(--shell-muted)]">
           Their alignment {detail.firmAlignment !== null ? `${detail.firmAlignment}%` : "not yet measured (thin)"} · your product
-          strength {data.vendorStrength !== null ? `${data.vendorStrength}%` : "—"} across{" "}
+          strength {data.vendorStrength !== null ? `${data.vendorStrength}%` : "n/a"} across{" "}
           {data.firmReviewedProductCount || data.selfReportedOnlyProductCount} product
           {(data.firmReviewedProductCount || data.selfReportedOnlyProductCount) === 1 ? "" : "s"}
         </div>
@@ -364,7 +364,7 @@ function BattleCardDetailBody({
               ))}
             </ol>
           </div>
-          {/* BattleCard v2 anatomy — Elite expansion layer only (the collapsed
+          {/* BattleCard v2 anatomy, Elite expansion layer only (the collapsed
               face stays a one-line summary; Pro sees the upsell below). */}
           <BattleCardAnatomySection anatomy={detail.anatomy} />
         </>
@@ -412,10 +412,10 @@ function ModuleGapRow({ gap }: { gap: SalesModuleGap }) {
     <tr className="border-t border-[var(--shell-border)]">
       <td className="py-2 pr-2 text-[var(--shell-ink)]">{gap.title}</td>
       <td className="py-2 text-right tabular-nums text-[var(--shell-ink)]">
-        {gap.score !== null ? `${gap.score}%` : "—"}
+        {gap.score !== null ? `${gap.score}%` : "n/a"}
       </td>
       <td className="py-2 text-right tabular-nums font-semibold" style={{ color: headroomColor }}>
-        {gap.headroom !== null ? formatDelta(gap.headroom) : "—"}
+        {gap.headroom !== null ? formatDelta(gap.headroom) : "n/a"}
       </td>
       <td className="py-2 text-right tabular-nums text-[var(--shell-muted)]">
         {gap.answeredCount > 0 ? (
@@ -423,7 +423,7 @@ function ModuleGapRow({ gap }: { gap: SalesModuleGap }) {
         ) : gap.score !== null ? (
           <span title="Module scored; per-question answers not individually recorded">scored</span>
         ) : (
-          "—"
+          "n/a"
         )}
       </td>
     </tr>
@@ -450,7 +450,7 @@ function EvidenceProvenance({
     return (
       <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--brand-orange)]">
         <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--brand-orange)]" />
-        Vendor self-reported — no firm reviews yet; not firm-verified.
+        Vendor self-reported: no firm reviews yet; not firm-verified.
       </span>
     );
   }

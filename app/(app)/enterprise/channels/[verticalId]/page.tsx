@@ -64,7 +64,7 @@ export default async function EnterpriseChannelPage({ params }: { params: Promis
                   <td className="pat-mono px-3 py-2 text-right text-[var(--shell-muted)]">{row.rank}</td>
                   <td className="px-3 py-2 font-medium text-[var(--shell-ink)]">{row.productName}</td>
                   <td className="px-3 py-2 text-[var(--shell-muted)]">{row.vendorName}</td>
-                  <td className="pat-mono px-3 py-2 text-right text-[var(--shell-ink)]">{row.score === null ? "—" : Math.round(row.score)}</td>
+                  <td className="pat-mono px-3 py-2 text-right text-[var(--shell-ink)]">{row.score === null ? "n/a" : Math.round(row.score)}</td>
                   <td className="pat-mono px-3 py-2 text-right text-[var(--shell-ink)]">{row.n}</td>
                   <td className="px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--brand-c2-blue)]">{row.owned ? "yours" : ""}</td>
                 </tr>
@@ -73,7 +73,7 @@ export default async function EnterpriseChannelPage({ params }: { params: Promis
           </table>
         </div>
         <p className="mt-4 text-xs leading-5 text-[var(--shell-muted)]">
-          Scores are firm-reviewed averages; n is the number of firm reviews. Competitor products show their vendor only — never the firms that reviewed them.
+          Scores are firm-reviewed averages; n is the number of firm reviews. Competitor products show their vendor only, never the firms that reviewed them.
         </p>
       </section>
     </div>

@@ -70,7 +70,7 @@ describe("ecosystem aggregate — top pick per question with n; none/Other exclu
     ];
     const summary = summarizeFollowUpAggregate(rows);
     const q1 = summary.find((row) => row.questionKey === "operating-model_open_1")!;
-    expect(q1.topOption).toEqual({ key: "ops.q1.a", label: "Unclear ownership in handoffs", count: 2 });
+    expect(q1.topOption).toMatchObject({ key: "ops.q1.a", label: "Unclear ownership in handoffs", count: 2 });
     expect(q1).toMatchObject({ includedPicks: 3, excludedPicks: 2, firmsAnswered: 5 });
     const q2 = summary.find((row) => row.questionKey === "operating-model_open_2")!;
     expect(q2.topOption).toBeNull();

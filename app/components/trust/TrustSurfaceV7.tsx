@@ -143,7 +143,7 @@ export default function TrustSurfaceV7({
   return (
     <>
       {/* A3 (box 2b, Cam 9/14 "all as recommended"): production's "Trust center" link on
-          every trust surface — the page head's one contextual link. */}
+          every trust surface: the page head's one contextual link. */}
       <PageHead
         eyebrow={eyebrow ?? surface.eyebrow}
         title={title ?? surface.title}

@@ -19,7 +19,7 @@ export default function FirmThemeEliteDepthCard({
   return (
     <EliteCardShell
       eyebrow="Firm Elite · Peer Position on this theme"
-      title={`${themeTitle} — where you sit vs peers`}
+      title={`${themeTitle}: where you sit vs peers`}
       summary="Your firm-reviewed position on this theme's modules against the peer distribution: a percentile band per module, with the single biggest lever to the peer top quartile. Cuts below the evidence floor are withheld."
     >
       {data.available ? (
@@ -36,12 +36,12 @@ export default function FirmThemeEliteDepthCard({
               <p className="mt-3 text-sm leading-6 text-[var(--shell-ink)]">
                 Close <span className="font-semibold">{data.rankedAction.moduleLabel}</span>&rsquo;s{" "}
                 <span className="font-semibold">{data.rankedAction.deficit}-pt</span> gap to the peer top quartile
-                first — it is the largest single move available on this theme. An estimate from stored
+                first: it is the largest single move available on this theme. An estimate from stored
                 peer evidence, not a guarantee.
               </p>
             ) : (
               <p className="mt-3 text-sm leading-6 text-[var(--shell-ink)]">
-                Every module on this theme already sits at or above the peer top quartile — hold the lead and defend
+                Every module on this theme already sits at or above the peer top quartile, hold the lead and defend
                 it in your next review cycle.
               </p>
             )}

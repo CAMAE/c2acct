@@ -16,10 +16,10 @@ const CHAPTERS = [
     number: "01",
     title: "The Alignment Radar",
     lines: [
-      "Every firm answers the same five modules — strategy, operations, automation, integration, governance — and each one scores 0 to 100.",
+      "Every firm answers the same five modules, strategy, operations, automation, integration, governance, and each one scores 0 to 100.",
       "The radar is those five scores drawn as one shape, over the dashed outline of the firm's peers.",
     ],
-    provenance: "Fig. 01 — the home radar; shape only, no live numbers.",
+    provenance: "Fig. 01: the home radar; shape only, no live numbers.",
   },
   {
     number: "02",
@@ -28,7 +28,7 @@ const CHAPTERS = [
       "A vendor declares what its product does and scores it; the firms that use it score the same features from experience.",
       "Both bars sit side by side, so a claim and the field's reading of it are never separated.",
     ],
-    provenance: "Fig. 02 — vendor self-report vs firm-reviewed, invented values for illustration.",
+    provenance: "Fig. 02: vendor self-report vs firm-reviewed, invented values for illustration.",
   },
   {
     number: "03",
@@ -37,13 +37,13 @@ const CHAPTERS = [
       "The delta is the distance between the two bars: self-report minus the firm-reviewed average, in points.",
       "PAT calls a gap a divergence only once at least three firm reviews exist; ten points or more is hot and worth a conversation.",
     ],
-    provenance: "Fig. 03 — one hot divergence (19 pt) and one within range (7 pt), invented values.",
+    provenance: "Fig. 03: one hot divergence (19 pt) and one within range (7 pt), invented values.",
   },
   {
     number: "04",
     title: "What each side gets",
     lines: [
-      "Firms get their own radar, an alignment index and the readouts that follow from it — comparison context, never a ranking.",
+      "Firms get their own radar, an alignment index and the readouts that follow from it, comparison context, never a ranking.",
       "Vendors get the firm-reviewed evidence for each product, product by product, and where the divergence sits.",
     ],
     provenance: "The same two doors as the home page.",
@@ -168,9 +168,9 @@ export default async function HowItWorks() {
           ))}
         </div>
       </section>
-      {/* Box 2b (R-A, production is the floor): the doors production's Meet PAT page carried —
+      {/* Box 2b (R-A, production is the floor): the doors production's Meet PAT page carried,
           the Pat consent panel (signed-in, assistant flag; it carries the governance / privacy /
-          terms links) and the two actions — composed under the chapters, exactly as
+          terms links) and the two actions, composed under the chapters, exactly as
           MeetPatContent mounts them. */}
       <div className="pat-container space-y-6 px-6 pb-16">
         <PatConsentPanelMount />

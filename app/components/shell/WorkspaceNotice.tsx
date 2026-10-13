@@ -4,8 +4,8 @@
  * accepted values; anything else renders nothing.
  */
 const NOTICES: Record<string, string> = {
-  "user-insight": "User insight is not built yet — you were brought back to your workspace.",
-  "engagement-score": "Engagement scoring is not part of PAT yet — you were brought back to your workspace.",
+  "user-insight": "User insight is not built yet. You were brought back to your workspace.",
+  "engagement-score": "Engagement scoring is not part of PAT yet. You were brought back to your workspace.",
 };
 
 export default function WorkspaceNotice({ notice }: { notice: string | undefined }) {

@@ -141,7 +141,7 @@ describe("vendor product plain language", () => {
     );
 
     expect(plain?.summary).toContain(
-      "LedgerFlow reads 85% in your self-assessment and 75% across 3 firm reviews — a 9.5-point divergence."
+      "LedgerFlow reads 85% in your self-assessment and 75% across 3 firm reviews, a 9.5-point divergence."
     );
     expect(plain?.summary).toContain("Firms are currently reading the product lower than the vendor story");
     expect(plain?.summary).toContain("Measurable value is your softest self-reported section at 72%");
@@ -190,7 +190,7 @@ describe("vendor alignment plain language", () => {
   it("interprets the aggregated firm signal from the vendor point of view", () => {
     const plain = buildVendorAlignmentPlainLanguage(alignmentReportFixture());
 
-    expect(plain?.summary).toContain("Firms in your current evidence base average 68 — Building");
+    expect(plain?.summary).toContain("Firms in your current evidence base average 68, Building,");
     expect(plain?.summary).toContain(
       "The strongest firm-side signal is Operating Model and Workflow Discipline; the softest is Integration and Data Flow Maturity at 58%."
     );

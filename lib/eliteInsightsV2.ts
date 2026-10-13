@@ -51,11 +51,11 @@ export type EliteCardMeta = { title: string; description: string };
 export const FIRM_ELITE_V2_META: Record<string, EliteCardMeta> = {
   firm_tier2_benchmark: {
     title: "Peer Position Report",
-    description: "Where your firm ranks against peer firms, module by module — a percentile, not an average.",
+    description: "Where your firm ranks against peer firms, module by module, a percentile, not an average.",
   },
   firm_tier2_recommendation: {
     title: "Gap Plan",
-    description: "The capabilities holding your alignment index down, ranked by point deficit — fix these first.",
+    description: "The capabilities holding your alignment index down, ranked by point deficit, fix these first.",
   },
   firm_tier2_projection: {
     title: "Trajectory",
@@ -70,7 +70,7 @@ export const VENDOR_ELITE_V2_META: Record<string, EliteCardMeta> = {
   },
   "forward-projection": {
     title: "Demand Signals",
-    description: "How firms move your products in and out of their simulated stacks — pipeline and churn risk.",
+    description: "How firms move your products in and out of their simulated stacks, pipeline and churn risk.",
   },
   "scenario-simulation": {
     title: "Alignment Gap Map",
@@ -271,7 +271,7 @@ export async function buildFirmPeerPosition(
     rows,
     reportCard,
     emptyReason: overallSuppressed
-      ? `Insufficient peer data — the benchmark needs at least ${MIN_CONTRIBUTORS} contributing firms (currently ${n}).`
+      ? `Insufficient peer data: the benchmark needs at least ${MIN_CONTRIBUTORS} contributing firms (currently ${n}).`
       : null,
   };
 }
@@ -375,8 +375,8 @@ export async function buildFirmGapPlan(engine: FirmReportsClient, companyId: str
       gap,
       moduleLabel,
       narrative: belowBar
-        ? `You are ${gap} point${gap === 1 ? "" : "s"} under the ${c.threshold}% bar on ${c.title.toLowerCase()}. The fastest lever is ${moduleLabel} — close that and this deficit moves first.`
-        : `You clear the ${c.threshold}% bar on ${c.title.toLowerCase()} by ${-gap} point${-gap === 1 ? "" : "s"} — the thinnest margin. Watch ${moduleLabel} so it does not slip.`,
+        ? `You are ${gap} point${gap === 1 ? "" : "s"} under the ${c.threshold}% bar on ${c.title.toLowerCase()}. The fastest lever is ${moduleLabel}: close that and this deficit moves first.`
+        : `You clear the ${c.threshold}% bar on ${c.title.toLowerCase()} by ${-gap} point${-gap === 1 ? "" : "s"}: the thinnest margin. Watch ${moduleLabel} so it does not slip.`,
     };
   };
   const gaps = scored
@@ -397,7 +397,7 @@ export async function buildFirmGapPlan(engine: FirmReportsClient, companyId: str
     watchList,
     clearedCount: scored.filter((c) => c.meetsThreshold).length,
     totalCount: scored.length,
-    emptyReason: gaps.length === 0 ? "Every measured capability clears its threshold — here are the ones sitting closest to the bar." : null,
+    emptyReason: gaps.length === 0 ? "Every measured capability clears its threshold. Here are the ones sitting closest to the bar." : null,
   };
 }
 
@@ -827,7 +827,7 @@ export async function buildProductTrajectory(
       projection: null,
       momentum: null,
       emptyReason:
-        "A product trajectory needs repeat firm reviews over time. PAT holds this back until there is real time-series evidence rather than showing a fabricated line — it opens as review history builds.",
+        "A product trajectory needs repeat firm reviews over time. PAT holds this back until there is real time-series evidence rather than showing a fabricated line. It opens as review history builds.",
     };
   }
 
@@ -1011,12 +1011,12 @@ export async function buildVendorDemandSignals(
   if (swappedOut.length > 0) {
     const top = swappedOut[0];
     rankedAction = `Your sharpest churn signal is ${top.category}${
-      top.topProduct ? ` — ${top.topProduct}` : ""
+      top.topProduct ? `, ${top.topProduct}` : ""
     } left ${top.count} simulated stack${top.count === 1 ? "" : "s"} this window. Open the Alignment Gap Map for it and fix the dimensions firms read lowest.`;
   } else if (swappedIn.length > 0) {
     const top = swappedIn[0];
     rankedAction = `Your hottest pipeline is ${top.category}${
-      top.topProduct ? ` — ${top.topProduct}` : ""
+      top.topProduct ? `, ${top.topProduct}` : ""
     } led ${top.count} swap-in${top.count === 1 ? "" : "s"}. Put it first in outreach while the signal is warm.`;
   }
 

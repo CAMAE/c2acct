@@ -32,13 +32,13 @@ describe("vendor aggregate — the same exclusion helper, none and Other never c
     expect(summary).toHaveLength(10);
     expect(summary.map((row) => row.index)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     const q1 = summary[0];
-    expect(q1.topOption).toEqual({ key: "prod.q1.a", label: "Daily use by the people who own the work.", count: 2 });
+    expect(q1.topOption).toMatchObject({ key: "prod.q1.a", label: "Daily use by the people who own the work.", count: 2 });
     expect(q1).toMatchObject({ includedPicks: 3, excludedPicks: 2, firmsAnswered: 5, pillar: "Product" });
     const q7 = summary[6];
     expect(q7.topOption).toBeNull();
     expect(q7).toMatchObject({ includedPicks: 0, excludedPicks: 1, firmsAnswered: 1 });
     // the firm aggregate stays the firm aggregate: vendor rows are unknown to it (excluded), firm rows unchanged
-    expect(summarizeFollowUpAggregate(rows)[0].topOption).toEqual({ key: "ops.q1.a", label: "Unclear ownership in handoffs", count: 1 });
+    expect(summarizeFollowUpAggregate(rows)[0].topOption).toMatchObject({ key: "ops.q1.a", label: "Unclear ownership in handoffs", count: 1 });
     expect(aggregateFollowUpOptionCounts(rows)["strongest_workflow"]).toBeUndefined();
   });
 

@@ -38,7 +38,7 @@ export default async function FirmModulesPage() {
           />
           <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
             Modules open as your alignment pattern develops. Each one is built for the pattern it
-            was unlocked by — work through them as they arrive.
+            was unlocked by: work through them as they arrive.
           </p>
         </section>
 

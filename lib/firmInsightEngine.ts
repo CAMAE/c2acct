@@ -394,7 +394,7 @@ export type FirmInsightHeadline = {
 
 const EMPTY_FIRM_HEADLINE: FirmInsightHeadline = {
   score: null,
-  displayValue: "—",
+  displayValue: "n/a",
   showBand: false,
   caption: "Evidence in progress",
 };
@@ -474,7 +474,7 @@ export function buildFirmInsightCardMetric(
   report: FirmInsightReport
 ): FirmInsightOverviewCardMetric | undefined {
   const headline = readFirmInsightHeadline(key, report);
-  if (headline.displayValue === "—") {
+  if (headline.displayValue === "n/a") {
     return undefined;
   }
   return {
@@ -557,27 +557,27 @@ const BAND_STACK_CLAUSE: Record<ReturnType<typeof getScoreBand>["key"], string> 
 const MODULE_STACK_THEME: Record<string, { friction: string; benefit: string }> = {
   firm_alignment_data_flow_v1: {
     friction:
-      "integration work becomes the friction point when new tools enter your stack — connections take longer to stand up and data needs manual reconciliation",
+      "integration work becomes the friction point when new tools enter your stack, connections take longer to stand up and data needs manual reconciliation",
     benefit: "each new tool inherits cleaner data flows and clearer ownership",
   },
   firm_alignment_operating_model_v1: {
     friction:
-      "unclear workflow ownership becomes the friction point when new tools enter your stack — rollouts stall where handoffs and review steps are undefined",
+      "unclear workflow ownership becomes the friction point when new tools enter your stack, rollouts stall where handoffs and review steps are undefined",
     benefit: "each new tool lands on defined workflows instead of creating new exceptions",
   },
   firm_alignment_automation_ai_v1: {
     friction:
-      "automation oversight becomes the friction point when new tools enter your stack — automated steps multiply faster than the checks around them",
+      "automation oversight becomes the friction point when new tools enter your stack, automated steps multiply faster than the checks around them",
     benefit: "each new automation arrives with oversight already in place",
   },
   firm_alignment_governance_v1: {
     friction:
-      "vendor and control discipline becomes the friction point when new tools enter your stack — evaluations run long and exceptions accumulate without clear owners",
+      "vendor and control discipline becomes the friction point when new tools enter your stack, evaluations run long and exceptions accumulate without clear owners",
     benefit: "each new vendor passes through a consistent evaluation and control path",
   },
   firm_alignment_strategy_v1: {
     friction:
-      "change absorption becomes the friction point when new tools enter your stack — adoption competes with shifting priorities and rollouts lose momentum",
+      "change absorption becomes the friction point when new tools enter your stack, adoption competes with shifting priorities and rollouts lose momentum",
     benefit: "each new rollout starts with clearer priorities and more absorbed capacity",
   },
 };
@@ -605,7 +605,7 @@ export function buildFirmInsightPlainLanguage(report: FirmInsightReport): FirmIn
   ).length;
   const remaining = report.contributingModules.length - scoredCount;
 
-  const sentences = [`Your firm scores ${indexScore} — ${band.label}.`];
+  const sentences = [`Your firm scores ${indexScore}: ${band.label}.`];
   if (strongest && weakest && typeof weakest.score === "number") {
     if (strongest.key === weakest.key) {
       sentences.push(`All current evidence comes from ${strongest.title}.`);
@@ -621,7 +621,7 @@ export function buildFirmInsightPlainLanguage(report: FirmInsightReport): FirmIn
 
   if (weakest && typeof weakest.score === "number") {
     const theme = MODULE_STACK_THEME[weakest.key] ?? {
-      friction: `${weakest.title} becomes the friction point when new tools enter your stack — rollouts take longer and need more manual support`,
+      friction: `${weakest.title} becomes the friction point when new tools enter your stack, rollouts take longer and need more manual support`,
       benefit: "each new tool starts from a stronger operating base",
     };
     sentences.push(

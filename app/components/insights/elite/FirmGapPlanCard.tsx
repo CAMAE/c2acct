@@ -13,7 +13,7 @@ function gapEvidenceRows(data: FirmGapPlan) {
 }
 
 const GAP_EVIDENCE_NOTE =
-  "Each capability carries its own bar (60–65% by design). A capability is flagged only when your score falls under its own bar; gaps are ranked by point deficit, largest first. Self-assessment against your module readings — not a cross-firm comparison.";
+  "Each capability carries its own bar (60–65% by design). A capability is flagged only when your score falls under its own bar; gaps are ranked by point deficit, largest first. Self-assessment against your module readings, not a cross-firm comparison.";
 
 /**
  * Block 10d (threshold math): the capability bars are per-capability (60% or
@@ -26,7 +26,7 @@ function barLineFor(items: GapItem[]): { threshold?: number; thresholdLabel?: st
   if (distinct.length === 1) {
     return { threshold: distinct[0], thresholdLabel: `${distinct[0]}% bar` };
   }
-  return {}; // mixed bars — no single line; per-row meta shows each bar
+  return {}; // mixed bars: no single line; per-row meta shows each bar
 }
 
 export default function FirmGapPlanCard({ data }: { data: FirmGapPlan }) {
@@ -46,7 +46,7 @@ export default function FirmGapPlanCard({ data }: { data: FirmGapPlan }) {
           {data.watchList.length ? (
             <div className="mt-4">
               <RankedBars
-                title="Capabilities closest to the threshold — watch these"
+                title="Capabilities closest to the threshold, watch these"
                 items={data.watchList.map((g) => ({
                   key: g.key,
                   label: g.title,
@@ -86,7 +86,7 @@ export default function FirmGapPlanCard({ data }: { data: FirmGapPlan }) {
           <span className="text-3xl font-semibold tabular-nums text-[var(--shell-ink)]">{data.gaps.length}</span>
           <span className="text-sm text-[var(--shell-muted)]">
             capabilit{data.gaps.length === 1 ? "y" : "ies"} below their capability bar · {data.clearedCount} of{" "}
-            {data.totalCount} already cleared. Fix in this order — largest point deficit first.
+            {data.totalCount} already cleared. Fix in this order, largest point deficit first.
           </span>
         </div>
         <div className="mt-4">

@@ -76,7 +76,7 @@ export function buildBattleCardAnatomy(input: {
     .slice(0, 3)
     .map(
       (p) =>
-        `${p.productName}: firms rate it ${Math.round(p.canonicalFirmReviewScore as number)} — a proven strength to lead with.`
+        `${p.productName}: firms rate it ${Math.round(p.canonicalFirmReviewScore as number)}: a proven strength to lead with.`
     );
 
   // 2. Risk flags — low-band reviews, then calibration gaps, then stale evidence.
@@ -85,7 +85,7 @@ export function buildBattleCardAnatomy(input: {
     if (riskFlags.length >= 3) break;
     if (bandForFirmScore(p.canonicalFirmReviewScore as number) === "low") {
       riskFlags.push(
-        `${p.productName}: firms rate it ${Math.round(p.canonicalFirmReviewScore as number)}, below the mid-band — expect scrutiny here.`
+        `${p.productName}: firms rate it ${Math.round(p.canonicalFirmReviewScore as number)}, below the mid-band, expect scrutiny here.`
       );
     }
   }
@@ -94,13 +94,13 @@ export function buildBattleCardAnatomy(input: {
     if (magnitudeForDelta(c.delta) !== "small" && c.vendorScore !== null && c.delta !== null) {
       const dir = c.delta > 0 ? "above" : "below";
       riskFlags.push(
-        `${c.productName}: your self-report (${Math.round(c.vendorScore)}) sits ${formatPoints(Math.round(c.delta))} ${dir} the firm review (${Math.round(c.firmScore)}) — a calibration gap to close.`
+        `${c.productName}: your self-report (${Math.round(c.vendorScore)}) sits ${formatPoints(Math.round(c.delta))} ${dir} the firm review (${Math.round(c.firmScore)}): a calibration gap to close.`
       );
     }
   }
   if (riskFlags.length < 3 && freshness && freshness.state !== "fresh") {
     riskFlags.push(
-      `This firm's alignment evidence is ${freshness.state} (${freshness.ageLabel}) — refresh it before leaning on this card.`
+      `This firm's alignment evidence is ${freshness.state} (${freshness.ageLabel}): refresh it before leaning on this card.`
     );
   }
 
@@ -122,7 +122,7 @@ export function buildBattleCardAnatomy(input: {
       c.vendorScore !== null
     ) {
       objectionPrep.push(
-        `Firms score ${c.productName} at ${Math.round(c.firmScore)} against your ${Math.round(c.vendorScore)} self-report — pre-empt this gap before it becomes their objection.`
+        `Firms score ${c.productName} at ${Math.round(c.firmScore)} against your ${Math.round(c.vendorScore)} self-report: pre-empt this gap before it becomes their objection.`
       );
     }
   }
@@ -133,7 +133,7 @@ export function buildBattleCardAnatomy(input: {
   const clean = (arr: string[]) => arr.map(sweepVendorSurfaceCopy);
 
   return {
-    whyItFits: clean(whyItFits.length ? whyItFits : ["No high-band products yet — fit is emerging at the mid-band."]),
+    whyItFits: clean(whyItFits.length ? whyItFits : ["No high-band products yet, fit is emerging at the mid-band."]),
     riskFlags: clean(
       riskFlags.length ? riskFlags : ["No low-band products or calibration gaps on file for this firm yet."]
     ),
@@ -392,8 +392,8 @@ export async function getVendorBattleCardData(vendorCompanyId: string): Promise<
     if (nextActions.length === 0) {
       nextActions.push(
         gapScore !== null
-          ? `Weakest area is ${gapArea} at ${gapScore}% — a completed assessment sharpens this card.`
-          : "Assessment is still in progress — a completed assessment sharpens this card."
+          ? `Weakest area is ${gapArea} at ${gapScore}%: a completed assessment sharpens this card.`
+          : "Assessment is still in progress, a completed assessment sharpens this card."
       );
     } else {
       nextActions.push("Attach product evidence to these modules before the outreach so the pitch is grounded, not generic.");

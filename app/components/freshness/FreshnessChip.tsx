@@ -32,7 +32,7 @@ export default function FreshnessChip({
     <span
       className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium"
       style={{ borderColor: tone, color: tone }}
-      title={`${FRESHNESS_STATE_LABEL[value.state]} — newest evidence ${FRESHNESS_STATE_WINDOW_LABEL[value.state]} old (${value.asOfLabel})`}
+      title={`${FRESHNESS_STATE_LABEL[value.state]}: newest evidence ${FRESHNESS_STATE_WINDOW_LABEL[value.state]} old (${value.asOfLabel})`}
     >
       <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full" style={{ background: tone }} />
       {FRESHNESS_STATE_LABEL[value.state]}

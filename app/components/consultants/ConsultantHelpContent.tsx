@@ -49,10 +49,10 @@ export default function ConsultantHelpContent() {
           </h3>
           <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
             <span className="font-semibold text-[var(--brand-orange)]">Orange</span>{" "}
-            means the vendor self-reported above the firm-reviewed average — the
+            means the vendor self-reported above the firm-reviewed average, the
             vendor is over-claiming.{" "}
             <span className="font-semibold text-[var(--shell-positive)]">Green</span> means firms
-            rate the vendor higher than the vendor&apos;s self-report — the vendor
+            rate the vendor higher than the vendor&apos;s self-report, the vendor
             is under-claiming. Neutral ink means no signal yet.
           </p>
           {isNewFrontDoorEnabled() ? <HelpArticleLink cardTitle="Reading the deltas" /> : null}
@@ -63,9 +63,9 @@ export default function ConsultantHelpContent() {
             Need more?
           </h3>
           <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-            Reach out to your PAT operator. Anything that looks like a bug — stale
+            Reach out to your PAT operator. Anything that looks like a bug, stale
             data, a delta you can&apos;t explain, a firm that should be in scope
-            but isn&apos;t — is worth flagging directly.
+            but isn&apos;t: is worth flagging directly.
           </p>
           {isNewFrontDoorEnabled() ? <HelpArticleLink cardTitle="Need more?" /> : null}
         </div>

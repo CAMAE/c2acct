@@ -17,20 +17,20 @@ export default function VendorBriefHelpContent() {
             Section-by-section
           </h3>
           <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-            <span className="font-semibold">Executive summary</span> — headline + body
+            <span className="font-semibold">Executive summary</span>: headline + body
             bullets framing the alignment story.{" "}
-            <span className="font-semibold">Evaluation methodology</span> — how scores
+            <span className="font-semibold">Evaluation methodology</span>: how scores
             are computed, the 10-pt hot-divergence threshold, confidence bands.{" "}
-            <span className="font-semibold">Positioning visual</span> — opens with a
+            <span className="font-semibold">Positioning visual</span>: opens with a
             capability radar (orange polygon is what the vendor says about themselves,
             blue polygon is what firms say; where orange extends past blue, the vendor
             is over-claiming), followed by the per-product paired bars for the
             granular drill-down.{" "}
-            <span className="font-semibold">Strengths / cautions</span> — per-firm
+            <span className="font-semibold">Strengths / cautions</span>: per-firm
             Product Fit Cards.{" "}
-            <span className="font-semibold">Product comparison</span> — the
+            <span className="font-semibold">Product comparison</span>: the
             full scoreboard plus the per-firm coverage heatmap.{" "}
-            <span className="font-semibold">Action roadmap</span> — vendor-actionable
+            <span className="font-semibold">Action roadmap</span>: vendor-actionable
             next steps grounded in the divergence data above. Each row names a
             specific product or capability gap and pairs it with a concrete next
             step (Schedule, Refresh, Stage). Use this as the talking-point list
@@ -44,10 +44,10 @@ export default function VendorBriefHelpContent() {
           </h3>
           <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
             <span className="font-semibold text-[var(--brand-orange)]">Orange</span>{" "}
-            means the vendor self-reported above the firm-reviewed average — the
+            means the vendor self-reported above the firm-reviewed average, the
             vendor is over-claiming.{" "}
             <span className="font-semibold text-[var(--shell-positive)]">Green</span> means firms
-            rate the vendor higher than the vendor&apos;s self-report — the vendor
+            rate the vendor higher than the vendor&apos;s self-report, the vendor
             is under-claiming. Neutral ink means no signal yet.
           </p>
         </div>
@@ -60,7 +60,7 @@ export default function VendorBriefHelpContent() {
             A row is flagged hot when the gap between vendor self-report and
             firm-reviewed average is at least 10 points in either direction.
             Hot divergences are the highest-signal places to start a conversation
-            — they usually point at a specific feature, a specific implementation
+, they usually point at a specific feature, a specific implementation
             gap, or a specific firm cohort.
           </p>
         </div>

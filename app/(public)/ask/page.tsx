@@ -34,7 +34,7 @@ export default async function PublicAskPage() {
           Ask Pat
         </h1>
         <p className="pat-dark-copy-soft mt-2 max-w-2xl text-sm">
-          Pat answers from Patalign&apos;s public library — what the platform is, how alignment is
+          Pat answers from Patalign&apos;s public library, what the platform is, how alignment is
           measured, and what the numbers mean. When it doesn&apos;t have an answer it says so and
           points you to sign in, rather than guessing.
         </p>

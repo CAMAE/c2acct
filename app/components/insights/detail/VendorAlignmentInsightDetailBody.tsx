@@ -27,7 +27,7 @@ export default function VendorAlignmentInsightDetailBody({
     .sort((left, right) => (right.averageScore ?? 0) - (left.averageScore ?? 0));
   const plainLanguage = buildVendorAlignmentPlainLanguage(report);
 
-  if (report.locked || headline.displayValue === "—" || scoredModules.length === 0) {
+  if (report.locked || headline.displayValue === "n/a" || scoredModules.length === 0) {
     // No chart-grade evidence yet — keep the readout honest with the current-state
     // summary rather than an empty pane.
     return (

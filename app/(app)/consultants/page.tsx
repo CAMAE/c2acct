@@ -203,7 +203,7 @@ export default async function ConsultantOverviewPage({
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">
               Pat drafts each reminder from a firm&apos;s freshness. Review the wording, edit if you like, then approve to
-              send it on your behalf — or dismiss it. Nothing reaches a firm until you approve it.
+              send it on your behalf, or dismiss it. Nothing reaches a firm until you approve it.
             </p>
           </div>
           <NudgeQueue initialDrafts={nudgeDrafts} />

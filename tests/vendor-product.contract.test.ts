@@ -67,7 +67,7 @@ describe("vendor product combined signal behavior", () => {
     // 2 firm reviews (< floor) PAT reports it as an early signal, not a divergence.
     expect(snapshot.divergence.points).toBe(50);
     expect(snapshot.divergence.belowFloor).toBe(true);
-    expect(snapshot.divergence.label).toMatch(/Early signal · 2 firm reviews — too few to read divergence/);
+    expect(snapshot.divergence.label).toMatch(/Early signal · 2 firm reviews: too few to read divergence/);
     expect(snapshot.combinedCurrentPatReadout).toMatch(
       /vendor self-reported signal at 84% with firm-reviewed signal at 34% across 2 assessments/i
     );

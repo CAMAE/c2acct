@@ -150,12 +150,12 @@ export default function AlignmentRadar({
               className="inline-block h-2.5 w-2.5 rounded-full border-[1.5px]"
               style={{ borderColor: CURRENT_COLOR, background: "var(--shell-surface, #fff)" }}
             />
-            <span className="text-[var(--shell-muted)]">Thin evidence (·) — held, not projected</span>
+            <span className="text-[var(--shell-muted)]">Thin evidence (·): held, not projected</span>
           </div>
         ) : null}
         <p className="mt-3 max-w-[20rem] text-xs leading-5 text-[var(--shell-muted)]">
           Each axis is the mean of your stack&rsquo;s stored per-section review evidence. The projected
-          shape re-means with the swap — an estimate, drawn from real answers, not a firm-verified
+          shape re-means with the swap, an estimate, drawn from real answers, not a firm-verified
           forecast. These are product-fit dimensions, not the firm alignment modules.
         </p>
         {evidenceNote ? (

@@ -41,8 +41,8 @@ export default function VendorCategoryPositionCard({
           {cat.suppressed ? (
             <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
               {cat.suppressionReason === "contributor_dominance"
-                ? `Your firm-reviewed strength here is ${cat.score}. This category publishes a peer distribution once no single vendor supplies more than ${Math.round(MAX_CONTRIBUTOR_SHARE * 100)} percent of its firm-reviewed products — one vendor does today.`
-                : `Your firm-reviewed strength here is ${cat.score}. This category publishes a peer distribution once at least ${MIN_CONTRIBUTORS} vendors have firm-reviewed products in it — ${cat.n} so far.`}
+                ? `Your firm-reviewed strength here is ${cat.score}. This category publishes a peer distribution once no single vendor supplies more than ${Math.round(MAX_CONTRIBUTOR_SHARE * 100)} percent of its firm-reviewed products, one vendor does today.`
+                : `Your firm-reviewed strength here is ${cat.score}. This category publishes a peer distribution once at least ${MIN_CONTRIBUTORS} vendors have firm-reviewed products in it, ${cat.n} so far.`}
             </p>
           ) : (
             <div className="mt-4">
@@ -77,7 +77,7 @@ export default function VendorCategoryPositionCard({
           <div className="pat-label">Where to push first</div>
           <p className="mt-3 text-sm leading-6 text-[var(--shell-ink)]">
             {data.topAction.category}: <span className="font-semibold">+{formatPoints(data.topAction.gap)}</span> to reach the top
-            quartile of {data.topAction.n} vendors — your biggest single lever in this category set. An estimate,
+            quartile of {data.topAction.n} vendors: your biggest single lever in this category set. An estimate,
             not a guarantee.
           </p>
         </section>
@@ -92,7 +92,7 @@ export default function VendorCategoryPositionCard({
             value: `At least ${MIN_CONTRIBUTORS} vendors with firm-reviewed products, none above ${Math.round(MAX_CONTRIBUTOR_SHARE * 100)} percent of them`,
           },
         ]}
-        note="Each category's percentile places your firm-reviewed strength against the vendors competing in that category. A category publishes a distribution only once it clears the evidence floor (five contributing firms, no firm above 25 percent, structured consistent with the former 1996 DOJ/FTC safety zone, withdrawn in 2023) — thin fields are labelled 'still forming,' never estimated."
+        note="Each category's percentile places your firm-reviewed strength against the vendors competing in that category. A category publishes a distribution only once it clears the evidence floor (five contributing firms, no firm above 25 percent, structured consistent with the former 1996 DOJ/FTC safety zone, withdrawn in 2023), thin fields are labelled 'still forming,' never estimated."
       />
     </>
   );

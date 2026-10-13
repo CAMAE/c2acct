@@ -46,7 +46,7 @@ function bottomQuartileFirms(
 }
 
 function formatCompletion(pct: number | null): string {
-  if (pct === null) return "—";
+  if (pct === null) return "n/a";
   return `${Math.round(pct)}%`;
 }
 
@@ -98,7 +98,7 @@ export default function LowestEngagementFirmsCard({
         </div>
       </div>
       <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-        Each row carries a suggested goal you can carry into a follow-up — closing the gap to the <strong className="font-semibold text-[var(--shell-ink)]">{GOAL_TARGET_PCT}%</strong> completion line by {goalDueDate}.
+        Each row carries a suggested goal you can carry into a follow-up, closing the gap to the <strong className="font-semibold text-[var(--shell-ink)]">{GOAL_TARGET_PCT}%</strong> completion line by {goalDueDate}.
       </p>
       <ol
         className="mt-4 divide-y divide-[var(--shell-border)]"

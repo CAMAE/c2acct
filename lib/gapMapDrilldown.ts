@@ -53,12 +53,12 @@ export function buildGapMapDrilldownInsight(pairs: GapMapDrilldownPair[]): GapMa
   const gap = Math.round(widest.vendor - widest.firm);
   if (gap > 0) {
     return {
-      takeaway: `Firms read ${widest.productLabel}'s ${widest.dimLabel} ${gap} point${gap === 1 ? "" : "s"} below your self-report — the widest gap in your selection.`,
+      takeaway: `Firms read ${widest.productLabel}'s ${widest.dimLabel} ${gap} point${gap === 1 ? "" : "s"} below your self-report, the widest gap in your selection.`,
       action: `Fix the ${widest.dimLabel} story for ${widest.productLabel} first: add proof points or reset the claim so firms and your self-report converge.`,
     };
   }
   return {
-    takeaway: `Across this selection, firms confirm your story — no dimension reads materially below your self-report.`,
-    action: `Lead with ${widest.productLabel}'s ${widest.dimLabel} in outreach — firms back your rating there.`,
+    takeaway: `Across this selection, firms confirm your story, no dimension reads materially below your self-report.`,
+    action: `Lead with ${widest.productLabel}'s ${widest.dimLabel} in outreach: firms back your rating there.`,
   };
 }

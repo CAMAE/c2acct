@@ -63,7 +63,7 @@ export const EXPLAINER_CONTENT: Record<MetricKey, ExplainerContent> = {
     title: "Average alignment score",
     unitLabel: "0–100",
     headline:
-      "How aligned the firms in this ecosystem are with the vendor's stated operating model — averaged across every firm with a score on file.",
+      "How aligned the firms in this ecosystem are with the vendor's stated operating model, averaged across every firm with a score on file.",
     whatItMeasures:
       "The mean firm-side alignment score across all firms in this ecosystem. Each firm contributes one score; firms with no submitted modules contribute null and are excluded from the average. 100 means every firm perfectly mirrors the vendor's stated stack; 0 means no firm has aligned at all.",
     howComputed:
@@ -76,14 +76,14 @@ export const EXPLAINER_CONTENT: Record<MetricKey, ExplainerContent> = {
     whereToDrill:
       "Open the Firm briefings table on the ecosystem detail page for the per-firm score. Click any firm name for its full alignment brief (operating-alignment panel).",
     valueFrom: (ecosystem) =>
-      ecosystem.avgFirmAlignmentScore === null ? "—" : `${ecosystem.avgFirmAlignmentScore}%`,
+      ecosystem.avgFirmAlignmentScore === null ? "n/a" : `${ecosystem.avgFirmAlignmentScore}%`,
   },
 
   coverage: {
     title: "Coverage",
     unitLabel: "products · firm reviews",
     headline:
-      "How wide and deep the firms in this ecosystem are looking at the vendor — product count is what's in scope, firm-review count is how much of it firms have engaged.",
+      "How wide and deep the firms in this ecosystem are looking at the vendor, product count is what's in scope, firm-review count is how much of it firms have engaged.",
     whatItMeasures:
       "Two numbers in one tile: (1) the count of products in the vendor's catalog visible to firms in this ecosystem; (2) the total firm-side product reviews on file, summed across all firms × all products. A high product count with low review count means firms haven't engaged the catalog yet.",
     howComputed:
@@ -106,14 +106,14 @@ export const EXPLAINER_CONTENT: Record<MetricKey, ExplainerContent> = {
     whereToDrill:
       "The Firm briefings table's Modules column shows per-firm completion percentages. On the firm side, /firm/alignment-assessment surfaces the same data with module-level draft state and resume links.",
     valueFrom: (ecosystem) =>
-      ecosystem.moduleCompletionRate === null ? "—" : `${ecosystem.moduleCompletionRate}%`,
+      ecosystem.moduleCompletionRate === null ? "n/a" : `${ecosystem.moduleCompletionRate}%`,
     perFirmDrilldown: {
       columnLabel: "% complete",
       rowsFrom: (ecosystem) =>
         ecosystem.firmGrid.map((row) => ({
           firmCompanyId: row.firmCompanyId,
           firmCompanyName: row.firmCompanyName,
-          value: row.moduleCompletionPercent === null ? "—" : `${row.moduleCompletionPercent}%`,
+          value: row.moduleCompletionPercent === null ? "n/a" : `${row.moduleCompletionPercent}%`,
           sortKey: row.moduleCompletionPercent ?? -1,
         })),
     },
@@ -125,7 +125,7 @@ export const EXPLAINER_CONTENT: Record<MetricKey, ExplainerContent> = {
     headline:
       "How many vendor-vs-firm capability gaps exceed the 10-point conversation threshold across products in this ecosystem.",
     whatItMeasures:
-      "Assessment-identified capability gaps where the vendor's stated capabilities and the firm's experienced capabilities are not in alignment — surfaced here when the gap exceeds 10 points.",
+      "Assessment-identified capability gaps where the vendor's stated capabilities and the firm's experienced capabilities are not in alignment, surfaced here when the gap exceeds 10 points.",
     howComputed:
       "Filter AdminCompanyBriefing.productLayer.products for |canonicalFirmReviewScore − vendorSelfReportedScore| ≥ HOT_DIVERGENCE_THRESHOLD (10). Sum across all firm briefings. Source: lib/ecosystem.ts:countHotDivergences.",
     bands: [
@@ -153,7 +153,7 @@ export const EXPLAINER_CONTENT: Record<MetricKey, ExplainerContent> = {
     title: "30-day priority actions",
     unitLabel: "actions",
     headline:
-      "How many near-term actions PAT has surfaced across firms in this ecosystem — the 30-day cohort from each firm's deterministic action roadmap.",
+      "How many near-term actions PAT has surfaced across firms in this ecosystem, the 30-day cohort from each firm's deterministic action roadmap.",
     whatItMeasures:
       "As invited firms complete their modular assessments in PAT Pro, PAT generates a detailed list of near-term priority actions for consideration.",
     howComputed:

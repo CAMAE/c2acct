@@ -64,7 +64,7 @@ export default function VendorProductInsightDetailBody({
                   score={vendorScore ?? firmScore}
                   context={
                     vendorScore !== null
-                      ? "No firm-reviewed signal yet — the divergence view opens once the first firm review lands."
+                      ? "No firm-reviewed signal yet, the divergence view opens once the first firm review lands."
                       : "No vendor self-reported signal yet, so the divergence view cannot open."
                   }
                 />

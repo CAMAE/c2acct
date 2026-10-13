@@ -64,7 +64,7 @@ export const METHODOLOGY_CHANGELOG: readonly MethodologyChangelogEntry[] = [
     version: "1.3",
     date: "July 17, 2026",
     summary:
-      "Published the quarterly benchmark cutoff mechanics: each calendar quarter has a cutoff date, and only assessments completed on or before it count toward that quarter's benchmark cut. The cutoff is a calendar deadline for what is included next — it never alters a score already computed.",
+      "Published the quarterly benchmark cutoff mechanics: each calendar quarter has a cutoff date, and only assessments completed on or before it count toward that quarter's benchmark cut. The cutoff is a calendar deadline for what is included next, it never alters a score already computed.",
   },
   {
     version: "1.2",

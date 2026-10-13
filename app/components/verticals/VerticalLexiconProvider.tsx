@@ -55,7 +55,7 @@ export function useLexicon(): (key: LexiconKey) => string {
   if (!value) {
     throw new Error(
       "useLexicon() was called outside <VerticalLexiconProvider>. Resolve the lexicon " +
-        "server-side with resolveLexiconForRequest() and pass it down — a client component " +
+        "server-side with resolveLexiconForRequest() and pass it down, a client component " +
         "cannot resolve a vertical (no tenant, no pack, and a build-time process.env read)."
     );
   }

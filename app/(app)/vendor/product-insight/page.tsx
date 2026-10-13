@@ -61,7 +61,7 @@ function ProductInsightCard({ snapshot }: { snapshot: VendorProductInsightSnapsh
               <span className="text-xs text-[var(--shell-muted)]">self-reported signal</span>
             </div>
             <p className="mt-2 text-xs leading-5 text-[var(--shell-muted)]">
-              No firm-reviewed signal yet — the divergence view opens with the first firm review.
+              No firm-reviewed signal yet, the divergence view opens with the first firm review.
             </p>
           </div>
         ) : (

@@ -28,16 +28,16 @@ describe("formatDelta", () => {
 
   it("honors the sign option and empty fallback", () => {
     expect(formatDelta(12.5, { sign: false })).toBe("12.5");
-    expect(formatDelta(null)).toBe("—");
-    expect(formatDelta(undefined)).toBe("—");
-    expect(formatDelta(Number.NaN)).toBe("—");
+    expect(formatDelta(null)).toBe("n/a");
+    expect(formatDelta(undefined)).toBe("n/a");
+    expect(formatDelta(Number.NaN)).toBe("n/a");
     expect(formatDelta(null, { empty: "n/a" })).toBe("n/a");
   });
 
   it("formatScoreValue is the unsigned variant", () => {
     expect(formatScoreValue(66)).toBe("66");
     expect(formatScoreValue(72.499999)).toBe("72.5");
-    expect(formatScoreValue(null)).toBe("—");
+    expect(formatScoreValue(null)).toBe("n/a");
   });
 
   it("NEVER emits more than one decimal place across nasty inputs", () => {

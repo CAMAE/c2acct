@@ -46,13 +46,13 @@ function ProductRow({ row }: { row: VendorProductRefreshRow }) {
           </CardChipRow>
           <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
             {needsRefresh
-              ? "Reviews past month 10 are nearing the 12-month benchmark window. PAT invites the reviewing firm to a short delta refresh — no action needed from you."
+              ? "Reviews past month 10 are nearing the 12-month benchmark window. PAT invites the reviewing firm to a short delta refresh, no action needed from you."
               : "These reviews are current for this cycle."}
           </p>
         </>
       ) : (
         <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-          No firm has reviewed this product yet — its benchmark evidence opens with the first review.
+          No firm has reviewed this product yet, its benchmark evidence opens with the first review.
         </p>
       )}
     </div>
@@ -113,7 +113,7 @@ export default async function VendorReviewRefreshPage() {
         <p className="mt-3 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           A firm review counts toward your benchmarks for 12 months, with visible decay. At month 10 PAT invites the
           reviewing firm to a short &ldquo;what changed?&rdquo; delta refresh that resets the clock. Freshness is a label on the
-          review date — it never changes a score. The quarter cutoff for the next benchmark is <strong>{cutoffLabel}</strong>.
+          review date: it never changes a score. The quarter cutoff for the next benchmark is <strong>{cutoffLabel}</strong>.
         </p>
         <CardChipRow>
           {summary.refreshWindow > 0 ? <CardChip tone="amber">{summary.refreshWindow} in refresh window</CardChip> : null}

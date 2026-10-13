@@ -64,7 +64,7 @@ export default function ReorderHandle(props: {
         setOrder(previous);
         setStatus(
           result.reason === "not-found"
-            ? "Unable to save — refresh the page."
+            ? "Unable to save: refresh the page."
             : "Reorder rejected. Refresh the page."
         );
       }

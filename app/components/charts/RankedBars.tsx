@@ -43,7 +43,7 @@ export default function RankedBars({
               </span>
               <span className="text-sm tabular-nums text-[var(--shell-ink)]">
                 <span className="pat-stat-number">
-                  {typeof item.value === "number" ? Math.round(item.value) : "—"}
+                  {typeof item.value === "number" ? Math.round(item.value) : "n/a"}
                 </span>
                 {typeof item.value === "number" ? valueSuffix : ""}
                 {item.meta ? <span className="ml-1.5 text-xs text-[var(--shell-muted)]">{item.meta}</span> : null}

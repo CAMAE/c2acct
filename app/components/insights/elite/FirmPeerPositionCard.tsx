@@ -82,7 +82,7 @@ export default function FirmPeerPositionCard({
         <FreshnessNote freshness={freshness} />
         <EvidenceMethodPanel
           rows={[
-            { label: "Cohort", value: data.overall ? `${data.overall.n} peer firms` : "—" },
+            { label: "Cohort", value: data.overall ? `${data.overall.n} peer firms` : "n/a" },
             { label: "Window", value: "Each firm's most recent alignment assessment" },
             { label: "Cutoff", value: storedCutoffPhrase(data.cutoffLabel, data.cutoffAt) },
             { label: "Basis", value: "Your alignment index vs. the peer distribution" },
@@ -118,7 +118,7 @@ export default function FirmPeerPositionCard({
               {data.reportCard.map((row) => (
                 <tr key={row.key} className="border-t border-[var(--shell-border)]">
                   <td className="py-2 pr-3 text-[var(--shell-ink)]">{row.label}</td>
-                  <td className="py-2 px-3 tabular-nums text-[var(--shell-ink)]">{row.you ?? "—"}</td>
+                  <td className="py-2 px-3 tabular-nums text-[var(--shell-ink)]">{row.you ?? "n/a"}</td>
                   <td className="py-2 px-3 tabular-nums text-[var(--shell-muted)]">
                     {data.displayTier === "median"
                       ? `opens at ${RANK_MIN_N} firms`

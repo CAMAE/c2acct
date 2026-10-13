@@ -77,7 +77,7 @@ export default function FirmTrajectoryCard({
         ) : null}
       </section>
 
-      {/* Block 12d: provenance — what the trend and projection are built from. */}
+      {/* Block 12d: provenance: what the trend and projection are built from. */}
       {data.provenance ? (
         <section className="pat-card p-6">
           <div className="pat-label">How this projection is built</div>
@@ -85,7 +85,7 @@ export default function FirmTrajectoryCard({
             <div>
               <dt className="inline font-semibold">Evidence: </dt>
               <dd className="inline text-[var(--shell-muted)]">
-                your alignment index recomputed each time you submit a module — {data.provenance.snapshotCount}{" "}
+                your alignment index recomputed each time you submit a module, {data.provenance.snapshotCount}{" "}
                 submission snapshots from {data.provenance.firstLabel} to {data.provenance.lastLabel}. This is your PAT
                 assessment history over time, not {sandboxLabel()} swap activity.
               </dd>
@@ -116,7 +116,7 @@ export default function FirmTrajectoryCard({
             <span className="font-semibold text-[var(--shell-positive)]">
               {percentileOrdinal(data.swapMovement.toPercentile)} percentile
             </span>{" "}
-            among peer firms — a projection, not a guaranteed outcome.
+            among peer firms: a projection, not a guaranteed outcome.
           </p>
         </section>
       ) : null}
@@ -127,7 +127,7 @@ export default function FirmTrajectoryCard({
           <p className="mt-3 text-sm leading-6 text-[var(--shell-ink)]">
             To bend the trajectory up fastest, close{" "}
             <span className="font-semibold">{rankedAction.moduleLabel}</span>&rsquo;s{" "}
-            <span className="font-semibold">{rankedAction.deficit}-pt</span> gap to the peer top quartile — it is the
+            <span className="font-semibold">{rankedAction.deficit}-pt</span> gap to the peer top quartile. It is the
             biggest single lever on your alignment index right now.
           </p>
         </section>

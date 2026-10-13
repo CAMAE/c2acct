@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Product Fit Card | Patalign",
-  description: "Elite vendor Product Fit Card — the firms in your ecosystem, ranked by fit.",
+  description: "Elite vendor Product Fit Card, the firms in your ecosystem, ranked by fit.",
 };
 
 type SearchParams = { vendor?: string };
@@ -43,7 +43,7 @@ function EmptyBattleCard({ audience }: { audience: HeroAudience }) {
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           The Product Fit Card ranks the firms in your ecosystem by how well your product strengths close
-          their current gaps — one claim, one evidence line, one next action per firm. No reviewed
+          their current gaps: one claim, one evidence line, one next action per firm. No reviewed
           firms in your ecosystem yet; ranked cards appear as firms complete their alignment
           assessments.
         </p>

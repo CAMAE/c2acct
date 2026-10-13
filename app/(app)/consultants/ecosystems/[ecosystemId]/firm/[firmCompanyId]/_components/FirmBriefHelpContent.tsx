@@ -17,15 +17,15 @@ export default function FirmBriefHelpContent() {
             Section-by-section
           </h3>
           <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-            <span className="font-semibold">Operating alignment</span> — the
+            <span className="font-semibold">Operating alignment</span>: the
             firm score plus headline and peer comparison.{" "}
-            <span className="font-semibold">Five-module radar</span> — where this
+            <span className="font-semibold">Five-module radar</span>: where this
             firm sits vs the peer average across the five firm modules.{" "}
-            <span className="font-semibold">Stack fit</span> — product-by-product
+            <span className="font-semibold">Stack fit</span>: product-by-product
             alignment between firm-reviewed scores and vendor self-report.{" "}
-            <span className="font-semibold">6-quarter roadmap</span> — forward-
+            <span className="font-semibold">6-quarter roadmap</span>: forward-
             looking actions across the next six quarters.{" "}
-            <span className="font-semibold">Methodology</span> — data sources and
+            <span className="font-semibold">Methodology</span>: data sources and
             sample sizes feeding this brief.
           </p>
         </div>
@@ -38,9 +38,9 @@ export default function FirmBriefHelpContent() {
             On the firm brief, the delta on the radar is{" "}
             <span className="font-semibold">firm score minus peer average</span>.{" "}
             <span className="font-semibold text-[var(--shell-positive)]">Green</span> means this
-            firm is above peers — doing well in that module.{" "}
+            firm is above peers, doing well in that module.{" "}
             <span className="font-semibold text-[var(--brand-orange)]">Orange</span>{" "}
-            means this firm is below peers — areas to improve. Matched ink means
+            means this firm is below peers, areas to improve. Matched ink means
             this firm tracks the network average for that module.
           </p>
         </div>
@@ -54,10 +54,10 @@ export default function FirmBriefHelpContent() {
             <span className="font-semibold">vendor self-report minus this
             firm&apos;s review</span>.{" "}
             <span className="font-semibold text-[var(--brand-orange)]">Orange</span>{" "}
-            means the vendor self-reported above what this firm experiences —
+            means the vendor self-reported above what this firm experiences,
             the vendor over-claims for this firm.{" "}
             <span className="font-semibold text-[var(--shell-positive)]">Green</span> means this
-            firm rates the vendor above the vendor&apos;s own self-report — the
+            firm rates the vendor above the vendor&apos;s own self-report, the
             vendor is under-claiming for this firm.
           </p>
         </div>

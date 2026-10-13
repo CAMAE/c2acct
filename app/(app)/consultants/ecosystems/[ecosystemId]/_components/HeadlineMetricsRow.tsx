@@ -4,11 +4,11 @@ import type { EcosystemDetailData } from "@/lib/ecosystem";
 import type { MetricKey } from "../explainers/_content/explainerContent";
 
 function formatScore(value: number | null): string {
-  return value === null ? "—" : `${value}%`;
+  return value === null ? "n/a" : `${value}%`;
 }
 
 function formatPercent(value: number | null): string {
-  return value === null ? "—" : `${value}%`;
+  return value === null ? "n/a" : `${value}%`;
 }
 
 function MetricTileLink({

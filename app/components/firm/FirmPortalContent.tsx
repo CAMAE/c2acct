@@ -54,7 +54,7 @@ export const firmWorkspaceCards: PortalSurface[] = [
     // unless PAT_ENABLE_ALIGNMENT_BOARD is on. Cam's naming: "Alignment Sandbox".
     id: "firm-alignment-sandbox",
     title: sandboxLabel(),
-    description: "Play with your product stack as interactive pieces — swap candidates in and watch your projected firm alignment recompute live.",
+    description: "Play with your product stack as interactive pieces, swap candidates in and watch your projected firm alignment recompute live.",
     href: "/firm/alignment-board",
     audience: ["firm"],
     section: "operate",

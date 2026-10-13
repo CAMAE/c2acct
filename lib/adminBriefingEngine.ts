@@ -685,7 +685,7 @@ export function buildBriefingActionPlan(input: {
         ? "Schedule firm-side evidence outreach"
         : `Refresh self-report on ${input.weakestModuleTitle ?? "the weakest capability area"}`,
       detail: input.missingUserCoverage
-        ? "Reach out to firm contacts to capture additional operating evidence. The current alignment readout is thin on firm-side signal — broader firm responses are what take the brief from early evidence to grounded across products and capabilities."
+        ? "Reach out to firm contacts to capture additional operating evidence. The current alignment readout is thin on firm-side signal, broader firm responses are what take the brief from early evidence to grounded across products and capabilities."
         : `Firms are rating your product below your stated position on ${input.weakestModuleTitle ?? "the weakest capability"}. Calibrate the self-report before the next operating review so the public claim set tracks firm experience, not the vendor's internal benchmark.`,
       evidence: input.missingUserCoverage
         ? "Firm-side sample size is currently thin."
@@ -697,7 +697,7 @@ export function buildBriefingActionPlan(input: {
         ? `Stage a product review on ${input.weakestProductTitle}`
         : "Open a firm-side product review channel",
       detail: input.weakestProductTitle
-        ? `Bring ${input.weakestProductTitle} into the next quarterly operating review with the firms reviewing it now. Current firm-side feedback shows it is the weakest signal in your stack — vendor-side prep here pays back across the rest of the network because adjacent firms will see the calibration land.`
+        ? `Bring ${input.weakestProductTitle} into the next quarterly operating review with the firms reviewing it now. Current firm-side feedback shows it is the weakest signal in your stack, vendor-side prep here pays back across the rest of the network because adjacent firms will see the calibration land.`
         : "Open a firm-side product review channel for at least one product in your catalog. The vendor brief currently operates on vendor self-report alone for product-level signal; firm-reviewed product data is what makes the alignment readout decision-grade for renewals and roadmap conversations.",
       evidence: input.weakestProductTitle
         ? `${input.weakestProductTitle} is the weakest current product signal in the stack.`
@@ -707,7 +707,7 @@ export function buildBriefingActionPlan(input: {
       window: "90 days",
       title: "Refresh public positioning after remediation lands",
       detail: input.ecosystemCaveat
-        ? "Once the next round of firm responses arrives, restate your public position on the products and capabilities that have shifted. Today's ecosystem evidence is early rather than grounded — re-anchor messaging, technical claims, and case-study language after the next cohort lands so the public claim set matches the new firm consensus."
+        ? "Once the next round of firm responses arrives, restate your public position on the products and capabilities that have shifted. Today's ecosystem evidence is early rather than grounded, re-anchor messaging, technical claims, and case-study language after the next cohort lands so the public claim set matches the new firm consensus."
         : "Bring the cleaner post-remediation evidence to your messaging and product-marketing teams. Update product positioning, capability claims, and case-study language so the external story matches the firm consensus the network now reflects.",
       evidence: input.ecosystemCaveat ?? "The current evidence set is strong enough for a post-remediation re-read.",
     },

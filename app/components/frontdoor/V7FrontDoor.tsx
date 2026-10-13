@@ -61,13 +61,13 @@ export default function V7FrontDoor() {
 
   return (
     <>
-      {/* HERO — box 3f item A: the shared page head (the descriptor sits under the
+      {/* HERO: box 3f item A: the shared page head (the descriptor sits under the
           wordmark in V7PublicShell; the hero is H1 + subline). */}
       <PageHead variant="hero" title="Product selection, without the sales pitch." subline="Real assessments. Arithmetic scoring. Evidence both sides can trust." />
 
       <V7DoorBand askPatEntry={askPatEntry} />
 
-      {/* PANELS — data-free shape only: alignment radar, then cohort standing. */}
+      {/* PANELS: data-free shape only: alignment radar, then cohort standing. */}
       <section className="px-9 pb-[88px] pt-6">
         <div className="mx-auto max-w-[1120px]">
           {/* RADAR CARD */}
@@ -90,7 +90,7 @@ export default function V7FrontDoor() {
                 Five modules. One score per module. Your position against firms like yours, with the n shown.
               </p>
               {/* H5 / H7: radar on the left, the module key as the legend on the right on
-                  desktop; stacked on mobile. Five per-pillar value sentences — plain
+                  desktop; stacked on mobile. Five per-pillar value sentences, plain
                   language, locked verbatim. */}
               <div className="mt-6 grid items-center gap-8 md:grid-cols-[1.2fr_1fr]">
                 <div>
@@ -99,7 +99,7 @@ export default function V7FrontDoor() {
                 <div className="border-t pt-5 md:border-l md:border-t-0 md:pl-8 md:pt-0" style={{ borderColor: borderLt }} data-testid="v7-radar-legend">
                   {PILLAR_SENTENCES.map((s, i) => (
                     <p key={s.pillar} className={`pat-meta text-[var(--shell-muted)] ${i === 0 ? "" : "mt-3"}`}>
-                      <b className="text-[var(--shell-ink)]">{s.pillar}</b> — {s.rest}
+                      <b className="text-[var(--shell-ink)]">{s.pillar}</b>: {s.rest}
                     </p>
                   ))}
                 </div>
@@ -107,7 +107,7 @@ export default function V7FrontDoor() {
             </div>
           </div>
 
-          {/* COHORT STANDING CARD — shape only, illustrative peer positions, no
+          {/* COHORT STANDING CARD, shape only, illustrative peer positions, no
               numbers. "You" dots are semantic (up/mid/dn vs the peer band). */}
           <div className="mt-7 overflow-hidden rounded-[28px] border border-[var(--shell-border)] bg-white" style={{ boxShadow: shadow }}>
             <div className="flex items-center justify-between px-[34px] py-[22px]" style={{ borderBottom: `1px solid ${borderLt}` }}>
@@ -136,7 +136,7 @@ export default function V7FrontDoor() {
                     <span className="absolute inset-x-0 top-[6px] h-[2px] rounded-[1px] bg-[#eef2f7]" />
                     <span className="absolute top-[3px] h-[8px] rounded bg-[#dbe4ee]" style={{ left: `${row.band[0]}%`, width: `${row.band[1]}%` }} />
                     <span className="absolute top-[-1px] h-[16px] w-[2px] -translate-x-1/2 rounded-[1px] bg-[var(--brand-c2-blue)]" style={{ left: `${row.p90}%` }} />
-                    {/* semantic "you" dot — ring color by standing vs the band */}
+                    {/* semantic "you" dot: ring color by standing vs the band */}
                     <span className="absolute top-0 h-[14px] w-[14px] -translate-x-1/2 rounded-full border-[3.5px] bg-white" style={{ left: `${row.you}%`, borderColor: YOU_TONE[row.tone] }} />
                   </div>
                 </div>

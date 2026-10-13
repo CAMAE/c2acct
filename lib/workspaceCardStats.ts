@@ -67,7 +67,7 @@ export async function getFirmWorkspaceCardStats(companyId: string, dashboard: Fi
     stats["firm-benchmark"] =
       peer?.overall
         ? { value: percentileOrdinal(peer.overall.percentile), unit: "percentile", context: days, days: meta.daysToCutoff }
-        : { value: "—", unit: "percentile", context: days, days: meta.daysToCutoff };
+        : { value: "n/a", unit: "percentile", context: days, days: meta.daysToCutoff };
   }
   return stats;
 }
@@ -79,7 +79,7 @@ export async function getVendorWorkspaceCardStats(companyId: string, dashboard: 
     "product-insight": { value: String(dashboard.firmReviewsOnFile), unit: dashboard.firmReviewsOnFile === 1 ? "firm review on file" : "firm reviews on file", context: dashboard.latestReadout ? `latest: ${dashboard.latestReadout.productName}` : null },
     "alignment-insights": dashboard.largestDivergence
       ? { value: `${dashboard.largestDivergence.points} pt`, unit: "largest divergence", context: dashboard.largestDivergence.productName }
-      : { value: "—", unit: "largest divergence", context: null },
+      : { value: "n/a", unit: "largest divergence", context: null },
     "vendor-battlecard": { value: String(dashboard.nextBriefing.firmsReviewing), unit: dashboard.nextBriefing.firmsReviewing === 1 ? "firm reviewing" : "firms reviewing", context: `next briefing ${dashboard.nextBriefing.dateLabel}` },
   };
   if (refresh) {

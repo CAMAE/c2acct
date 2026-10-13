@@ -147,7 +147,7 @@ export function planCohortMovement(facts: CohortMovementFact[], nowMs: number): 
       title: n === 1 ? "A peer in your cohort re-assessed" : "Peers in your cohort re-assessed",
       body:
         `${n} ${n === 1 ? "firm" : "firms"} in your benchmark cohort re-assessed this quarter. ` +
-        `Benchmarks are relative, so your position can shift as peers refresh — your own numbers are unchanged.`,
+        `Benchmarks are relative, so your position can shift as peers refresh, your own numbers are unchanged.`,
       ctaLabel: "See your peer position",
       ctaHref: f.audience === "firm" ? "/firm/insights" : "/vendor/alignment-insights",
       sourceType: "Company",

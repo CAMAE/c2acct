@@ -328,7 +328,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
       open_navigation_menu: "Open navigation menu",
       close_navigation_menu: "Close navigation menu",
       copyright: "Copyright 2026 Patalign LLC",
-      pat: "PAT — Performance Alignment Technology · a Patalign\u2122 product",
+      pat: "PAT: Performance Alignment Technology · a Patalign\u2122 product",
     },
     vendorFollowUp: {
       panelEyebrow: "Vendor follow-up picks",
@@ -695,7 +695,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
       open_navigation_menu: "Abrir menú de navegación",
       close_navigation_menu: "Cerrar menú de navegación",
       copyright: "Copyright 2026 Patalign LLC",
-      pat: "PAT — Performance Alignment Technology · a Patalign\u2122 product",
+      pat: "PAT: Performance Alignment Technology · a Patalign\u2122 product",
     },
     vendorFollowUp: {
       panelEyebrow: "Selecciones de seguimiento del proveedor",
@@ -1063,7 +1063,7 @@ const messages: Record<AppLocale, LocaleMessages> = {
       open_navigation_menu: "Ouvrir le menu de navigation",
       close_navigation_menu: "Fermer le menu de navigation",
       copyright: "Copyright 2026 Patalign LLC",
-      pat: "PAT — Performance Alignment Technology · a Patalign\u2122 product",
+      pat: "PAT: Performance Alignment Technology · a Patalign\u2122 product",
     },
     vendorFollowUp: {
       panelEyebrow: "Choix de suivi du fournisseur",

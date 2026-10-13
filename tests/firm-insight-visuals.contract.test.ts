@@ -154,7 +154,7 @@ describe("plain-language insight summary", () => {
     // Block 12f: "Your firm scores X" reads the shared firm-wide alignment index
     // (fixture firmAlignmentIndex=68), NOT the per-theme module average — so the
     // prose can never contradict the index card. 68 is in the Building band (60-74).
-    expect(plain?.summary).toContain("Your firm scores 68 — Building.");
+    expect(plain?.summary).toContain("Your firm scores 68: Building.");
     expect(plain?.summary).toContain(
       "Your strongest area is Operating Model and Workflow Discipline; your biggest opportunity is Integration and Data Flow Maturity at 65%."
     );

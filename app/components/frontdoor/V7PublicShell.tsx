@@ -43,7 +43,7 @@ export default async function V7PublicShell({ children }: { children: ReactNode 
           __html: '[data-testid="v7-public-shell"] .pat-label{font-size:12px}',
         }}
       />
-      {/* NAV — shared V7 public nav + language selector */}
+      {/* NAV: shared V7 public nav + language selector */}
       <nav
         className="sticky top-0 z-10 border-b bg-[rgba(251,252,254,.88)] backdrop-blur-[10px]"
         style={{ borderColor: borderLt }}
@@ -67,8 +67,8 @@ export default async function V7PublicShell({ children }: { children: ReactNode 
                   Sign in
                 </Link>
                 {/* A1 (box 2b, Cam 9/14 "all as recommended"): production's navigation
-                    menu for a signed-out visitor — Home / Meet PAT / Sign in / Vendor /
-                    Firm / [Consultant] / Trust — composed from the same
+                    menu for a signed-out visitor. Home / Meet PAT / Sign in / Vendor /
+                    Firm / [Consultant] / Trust: composed from the same
                     HeaderControlsMenu the signed-in shell uses (no bell, no
                     Membership, no Sign out). */}
                 <SignedOutHeaderMenu />
@@ -79,14 +79,14 @@ export default async function V7PublicShell({ children }: { children: ReactNode 
       </nav>
 
       {/* Box 2b: one <main> landmark around the page, as production's AppShell gives every
-          page (the pat-shell-main element) — the guard keys controls by region, and V7 pages rendered
+          page (the pat-shell-main element): the guard keys controls by region, and V7 pages rendered
           without one filed their content under the shell. */}
       <main className="flex flex-1 flex-col">{children}</main>
 
       {/* PRODUCT FOOTER */}
       <footer className="mt-auto bg-white pb-11 pt-8 text-center" style={{ borderTop: `1px solid ${borderLt}` }}>
         <div className="mx-auto max-w-[1120px] px-9">
-          {/* Depth box 0.2: the same link row the AppShell footer renders —
+          {/* Depth box 0.2: the same link row the AppShell footer renders,
               TRUST_FOOTER_LINKS, nine links, one row (wraps at 390). */}
           <div className="flex flex-wrap justify-center gap-x-[26px] gap-y-2 text-[14px] font-semibold text-[var(--shell-muted)]">
             {TRUST_FOOTER_LINKS.map((link) => (

@@ -76,7 +76,7 @@ export default function FirmWorkspaceCards({
             key: "firm-benchmark",
             title: "Quarterly benchmark",
             lines: [
-              `Your position against peer firms this quarter: ${benchmark && benchmark.value !== "—" ? `${benchmark.value} percentile` : "not ranked yet"}`,
+              `Your position against peer firms this quarter: ${benchmark && benchmark.value !== "n/a" ? `${benchmark.value} percentile` : "not ranked yet"}`,
               ...(benchmark && typeof benchmark.days === "number"
                 ? [`Next cutoff in ${benchmark.days} day${benchmark.days === 1 ? "" : "s"}`]
                 : []),

@@ -34,7 +34,7 @@ export default function FollowUpMcOptionRows({
   onChange,
   otherMaxLength,
   otherPlaceholder = "Short answer",
-  otherAriaLabel = "Other — short answer",
+  otherAriaLabel = "Other: short answer",
 }: FollowUpMcOptionRowsProps) {
   const registryQuestion: FollowUpQuestion = { ...mc, moduleKey: "", moduleSectionKey: "", pillar: "", index: 0, hint: null };
   const current: FollowUpMcAnswer = value ?? { optionKeys: [], otherText: null };

@@ -69,7 +69,7 @@ export default function PercentileBandRow({
               height={TRACK_H}
               fill="rgba(6,54,116,0.18)"
             />
-            {/* top-quartile zone (≥ p75) — the target */}
+            {/* top-quartile zone (≥ p75): the target */}
             <rect
               x={p75x as number}
               y={TRACK_Y}
@@ -78,7 +78,7 @@ export default function PercentileBandRow({
               rx={4}
               fill="rgba(34,163,101,0.16)"
             />
-            {/* p75 divider — the top-quartile bar */}
+            {/* p75 divider: the top-quartile bar */}
             <line
               x1={p75x as number}
               x2={p75x as number}

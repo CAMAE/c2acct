@@ -118,7 +118,7 @@ export default function ReadoutDrawer({
                         </button>
                       </div>
                     </div>
-                    {/* R33: inside the drawer the readout reflows to one column — the
+                    {/* R33: inside the drawer the readout reflows to one column, the
                         bodies' lg:grid-cols-2 collapses and every pill wraps (app/globals.css
                         [data-readout-drawer]); the bodies themselves are untouched, so the
                         inline (flag-off) and full-page renders keep their layout. */}

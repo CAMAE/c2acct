@@ -37,7 +37,7 @@ export default function V7DoorBand({ askPatEntry = false, start = true }: { askP
               >
                 Meet PAT
               </Link>
-              {/* Ask Pat — the door's path to its headline feature. Gated on the same
+              {/* Ask Pat: the door's path to its headline feature. Gated on the same
                   availability check /ask itself uses, so this link is never dead. */}
               {askPatEntry ? (
                 <Link href="/ask"

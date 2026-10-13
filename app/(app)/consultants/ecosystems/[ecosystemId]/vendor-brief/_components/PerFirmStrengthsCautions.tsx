@@ -92,7 +92,7 @@ function actionTitleFromData(
     (card) => card.hotDivergenceRows.length > 0
   ).length;
   if (hotDivergenceFirmCount > 0) {
-    return `Per-firm fit varies — ${hotDivergenceFirmCount} firm${hotDivergenceFirmCount === 1 ? "" : "s"} see${hotDivergenceFirmCount === 1 ? "s" : ""} hot divergences against ${data.vendorCompanyName}'s self-assessment.`;
+    return `Per-firm fit varies: ${hotDivergenceFirmCount} firm${hotDivergenceFirmCount === 1 ? "" : "s"} see${hotDivergenceFirmCount === 1 ? "s" : ""} hot divergences against ${data.vendorCompanyName}'s self-assessment.`;
   }
   return `${data.firmCount} firm${data.firmCount === 1 ? "" : "s"} show consistent ${data.vendorCompanyName} fit patterns across the catalog.`;
 }
@@ -111,7 +111,7 @@ function WhyFitsBlock({
   if (card.highBandCells.length === 0 && card.midBandCells.length === 0) {
     return (
       <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-        No high- or mid-band products on file for this firm yet — fit will emerge as capability scores land.
+        No high- or mid-band products on file for this firm yet, fit will emerge as capability scores land.
       </p>
     );
   }
@@ -137,7 +137,7 @@ function WhyFitsBlock({
                 </span>
                 <span className="text-[var(--shell-muted)]">
                   {" "}
-                  &mdash; mid-band fit (score {cell.score ?? "—"})
+                  &mdash; mid-band fit (score {cell.score ?? "n/a"})
                 </span>
               </span>
             </li>
@@ -163,7 +163,7 @@ function WhyFitsBlock({
             </span>
             <span className="text-[var(--shell-muted)]">
               {" "}
-              &mdash; high-band fit (score {cell.score ?? "—"})
+              &mdash; high-band fit (score {cell.score ?? "n/a"})
             </span>
           </span>
         </li>
@@ -186,7 +186,7 @@ function StrugglesBlock({
     bullets.push({
       key: `low:${cell.productId}`,
       productName: productNames.get(cell.productId) ?? cell.productId,
-      label: `low-band score (${cell.score ?? "—"})`,
+      label: `low-band score (${cell.score ?? "n/a"})`,
     });
   }
   for (const row of card.hotDivergenceRows) {

@@ -75,7 +75,7 @@ export default function ProductEliteDepthCard({
                 {cohort.category}
                 {weakestArea ? (
                   <>
-                    {" "}— your thinnest area today is <span className="font-semibold">{weakestArea}</span>.
+                    {" "}: your thinnest area today is <span className="font-semibold">{weakestArea}</span>.
                   </>
                 ) : (
                   "."
@@ -84,7 +84,7 @@ export default function ProductEliteDepthCard({
               </>
             ) : (
               <>
-                {productName} already sits in the top quartile of {cohort.category}. Hold the lead —
+                {productName} already sits in the top quartile of {cohort.category}. Hold the lead,
                 watch the peer field, which moves as firms review more products.
               </>
             )}
@@ -92,7 +92,7 @@ export default function ProductEliteDepthCard({
         </section>
       ) : null}
 
-      {/* TREND — a real line once >=2 snapshots exist; honest pending until then */}
+      {/* TREND: a real line once >=2 snapshots exist; honest pending until then */}
       {trajectory?.available ? (
         <section className="pat-card p-6">
           <div className="pat-label">Trend</div>
@@ -117,7 +117,7 @@ export default function ProductEliteDepthCard({
           <div className="pat-label">Trend</div>
           <p className="mt-3 text-sm leading-6 text-[var(--shell-muted)]">
             {trajectory?.emptyReason ??
-              "A product trajectory needs repeat firm reviews over time. PAT holds this back until there is real time-series evidence rather than showing a fabricated line — it opens as review history builds for this product."}
+              "A product trajectory needs repeat firm reviews over time. PAT holds this back until there is real time-series evidence rather than showing a fabricated line. It opens as review history builds for this product."}
           </p>
         </section>
       )}

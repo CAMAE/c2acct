@@ -116,7 +116,7 @@ function LabelledBand({ rows, title }: { rows: PercentileRow[]; title: string })
             <div className="text-sm font-medium text-[var(--shell-ink)]">{row.label}</div>
             {row.suppressed ? (
               <div className="mt-1.5 rounded-full border border-dashed border-[var(--shell-border)] px-3 py-1 text-xs text-[var(--shell-muted)]">
-                Insufficient peer data — benchmark withheld
+                Insufficient peer data: benchmark withheld
               </div>
             ) : (
               <LabelledRow row={row} showAxis={index === lastIndex} />
@@ -124,7 +124,7 @@ function LabelledBand({ rows, title }: { rows: PercentileRow[]; title: string })
           </div>
           <div className="pt-0.5 text-right">
             {row.suppressed || typeof row.percentile !== "number" ? (
-              <span className="text-xs text-[var(--shell-muted)]">—</span>
+              <span className="text-xs text-[var(--shell-muted)]">, </span>
             ) : (
               <span className="rounded-full bg-[rgba(6,54,116,0.06)] px-2.5 py-1 text-xs font-semibold tabular-nums text-[var(--shell-ink)]">
                 {percentileOrdinal(row.percentile)} pct
@@ -174,12 +174,12 @@ export default function PercentileBand({
               <div className="flex items-baseline justify-between gap-2">
                 <span className="text-sm font-medium text-[var(--shell-ink)]">{row.label}</span>
                 <span className="text-xs tabular-nums text-[var(--shell-muted)]">
-                  {typeof row.score === "number" ? `you ${Math.round(row.score)}` : "—"}
+                  {typeof row.score === "number" ? `you ${Math.round(row.score)}` : "n/a"}
                 </span>
               </div>
               {row.suppressed ? (
                 <div className="mt-1.5 rounded-full border border-dashed border-[var(--shell-border)] px-3 py-1 text-xs text-[var(--shell-muted)]">
-                  Insufficient peer data — benchmark withheld
+                  Insufficient peer data: benchmark withheld
                 </div>
               ) : (
                 <div className="relative mt-1.5 h-3 w-full rounded-full bg-[rgba(6,54,116,0.06)]">
@@ -211,7 +211,7 @@ export default function PercentileBand({
             </div>
             <div className="text-right">
               {row.suppressed || typeof row.percentile !== "number" ? (
-                <span className="text-xs text-[var(--shell-muted)]">—</span>
+                <span className="text-xs text-[var(--shell-muted)]">, </span>
               ) : (
                 <span className="rounded-full bg-[rgba(6,54,116,0.06)] px-2.5 py-1 text-xs font-semibold tabular-nums text-[var(--shell-ink)]">
                   {percentileOrdinal(row.percentile)} pct

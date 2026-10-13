@@ -52,7 +52,7 @@ export default async function ConsultantFirmAlignmentBoardPage({
       </h1>
       <p className="mt-3 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
         You&apos;re viewing this firm&apos;s live board as its {guideWord()}. Inspect the stack, radar, and
-        candidate fit — swaps are disabled here; the firm plays what-if scenarios on its own board.
+        candidate fit: swaps are disabled here; the firm plays what-if scenarios on its own board.
       </p>
       <Link href={briefHref} className="mt-4 inline-flex text-sm font-semibold text-[var(--brand-c2-blue)] hover:underline">
         ← Back to {firm.name} brief

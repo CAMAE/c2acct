@@ -28,7 +28,7 @@ export default function DraftSavedIndicator({
     state === "saving"
       ? "Saving draft…"
       : state === "error"
-        ? "Draft not saved — will retry"
+        ? "Draft not saved: will retry"
         : time
           ? `Draft saved · ${time}`
           : "Draft saved";

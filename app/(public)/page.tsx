@@ -143,7 +143,7 @@ export default async function Home() {
             Create an account
           </h2>
           <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
-            Pick the role that matches your work — vendor or firm — answer two quick onboarding
+            Pick the role that matches your work, vendor or firm, answer two quick onboarding
             questions, and choose the plan that fits. You will not be charged until card payments are
             switched on.
           </p>

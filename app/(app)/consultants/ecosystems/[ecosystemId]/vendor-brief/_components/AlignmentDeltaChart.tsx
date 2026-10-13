@@ -11,7 +11,7 @@ function clampPct(value: number | null): number {
 }
 
 function formatScoreLabel(value: number | null): string {
-  return value === null ? "—" : String(value);
+  return value === null ? "n/a" : String(value);
 }
 
 export default function AlignmentDeltaChart({

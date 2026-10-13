@@ -70,7 +70,7 @@ async function renderFirmEliteSurface(key: string, companyId: string) {
       <EliteCardShell
         eyebrow="Firm Elite · Gap Plan"
         title="Gap Plan"
-        summary="The capabilities holding your alignment index down, ranked by point deficit — a prescription (fix this first), not a description. Grounded in your firm-reviewed evidence."
+        summary="The capabilities holding your alignment index down, ranked by point deficit, a prescription (fix this first), not a description. Grounded in your firm-reviewed evidence."
       >
         <FirmGapPlanCard data={data} />
       </EliteCardShell>
@@ -104,7 +104,7 @@ async function renderFirmEliteSurface(key: string, companyId: string) {
       <EliteCardShell
         eyebrow="Firm Elite · Trajectory"
         title="Trajectory"
-        summary="Your alignment index over time — built from your module-submission history, not sandbox activity — with momentum, a clearly-labelled projection, and the single biggest lever to bend it up."
+        summary="Your alignment index over time, built from your module-submission history, not sandbox activity, with momentum, a clearly-labelled projection, and the single biggest lever to bend it up."
       >
         <FirmTrajectoryCard data={data} rankedAction={peer.bestAction} freshness={freshness} />
       </EliteCardShell>

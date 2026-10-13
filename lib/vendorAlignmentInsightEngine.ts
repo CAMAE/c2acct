@@ -705,7 +705,7 @@ const VENDOR_BAND_CLAUSE: Record<ReturnType<typeof getScoreBand>["key"], string>
   established:
     "buyers generally have the operating discipline to evaluate structured tooling and put it to work",
   leading:
-    "buyers are operating cleanly enough to evaluate tooling quickly — and to notice gaps in it just as quickly",
+    "buyers are operating cleanly enough to evaluate tooling quickly, and to notice gaps in it just as quickly",
 };
 
 /** Vendor-voiced positioning consequence of the softest firm-side module. */
@@ -738,7 +738,7 @@ export function buildVendorAlignmentPlainLanguage(
   const strongest = report.strongestModules[0];
   const weakest = report.weakestModules[0];
   const sentences = [
-    `Firms in your current evidence base average ${Math.round(report.averageModuleScore)} — ${band.label} — on the modules behind this view.`,
+    `Firms in your current evidence base average ${Math.round(report.averageModuleScore)}, ${band.label}, on the modules behind this view.`,
   ];
 
   if (strongest && weakest && typeof weakest.averageScore === "number") {
@@ -847,7 +847,7 @@ export function readVendorAlignmentInsightHeadline(
       statusLabel: getScoreBand(strong.averageScore).label,
     };
   }
-  return { score: null, displayValue: "—", showBand: false, caption: "Evidence in progress" };
+  return { score: null, displayValue: "n/a", showBand: false, caption: "Evidence in progress" };
 }
 
 /** Face-card metric — derived from the same shared headline reader as the detail hero. */
@@ -855,7 +855,7 @@ function buildVendorAlignmentCardMetric(
   report: VendorAlignmentInsightBundle["reports"][number]
 ): { metric?: { value: string; caption: string }; statusLabel?: string } {
   const headline = readVendorAlignmentInsightHeadline(report);
-  if (headline.displayValue === "—") {
+  if (headline.displayValue === "n/a") {
     return {};
   }
   return {

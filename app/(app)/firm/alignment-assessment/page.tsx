@@ -80,14 +80,14 @@ function FirmModuleCard({ module }: { module: FirmModuleProgress }) {
           </div>
         </div>
       </Link>
-      {/* 16d — delta re-assessment entry for a completed module. */}
+      {/* 16d: delta re-assessment entry for a completed module. */}
       {isCompleted ? (
         <div className="mt-4 border-t border-[var(--shell-border)] pt-3">
           <Link
             href={`${module.href}?mode=delta`}
             className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--brand-c2-blue)] hover:underline"
           >
-            Refresh — what changed? <span aria-hidden="true">→</span>
+            Refresh: what changed? <span aria-hidden="true">→</span>
           </Link>
         </div>
       ) : null}
@@ -190,7 +190,7 @@ export default async function FirmAlignmentAssessmentPage() {
             Drafted modules can be resumed from the saved page and answers.
           </p>
         </div>
-        {/* 14d: the recommendation is a real link — resume the next module, or (when
+        {/* 14d: the recommendation is a real link, resume the next module, or (when
             all modules are done) deep-link into Firm Insights. */}
         <Link
           href={progress.nextModule ? progress.nextModule.href : "/firm/insights"}

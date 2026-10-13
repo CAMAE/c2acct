@@ -26,7 +26,7 @@ export function roundTenths(value: number): number {
 export type FormatDeltaOptions = {
   /** Prefix non-negative values with "+". Default true. */
   sign?: boolean;
-  /** Rendered when the value is null / undefined / NaN. Default "—". */
+  /** Rendered when the value is null / undefined / NaN. Default "n/a" (box-c, R65 item 6: no em dash in rendered copy). */
   empty?: string;
 };
 
@@ -35,7 +35,7 @@ export function formatDelta(
   value: number | null | undefined,
   options: FormatDeltaOptions = {}
 ): string {
-  const { sign = true, empty = "—" } = options;
+  const { sign = true, empty = "n/a" } = options;
   if (value === null || value === undefined || Number.isNaN(value)) {
     return empty;
   }
@@ -49,6 +49,6 @@ export function formatDelta(
 }
 
 /** Tenths-rounded score string without a forced sign (e.g. "66", "72.5"). */
-export function formatScoreValue(value: number | null | undefined, empty = "—"): string {
+export function formatScoreValue(value: number | null | undefined, empty = "n/a"): string {
   return formatDelta(value, { sign: false, empty });
 }

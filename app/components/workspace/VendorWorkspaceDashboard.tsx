@@ -20,7 +20,7 @@ export default function VendorWorkspaceDashboard({ view }: { view: Data }) {
           <div className="mt-5">
             <p className="text-base leading-7 text-[var(--shell-muted)]">
               No product is declared yet. Firm reviews, divergence and the product readout appear once a product has a final vendor
-              assessment — declare the first product below.
+              assessment: declare the first product below.
             </p>
             <ol className="mt-5 grid gap-3 sm:grid-cols-3">
               {[
@@ -45,7 +45,7 @@ export default function VendorWorkspaceDashboard({ view }: { view: Data }) {
             <ScoreLockup
               label="Largest divergence"
               score={null}
-              displayValue={view.largestDivergence ? `${view.largestDivergence.points} pt` : "—"}
+              displayValue={view.largestDivergence ? `${view.largestDivergence.points} pt` : "n/a"}
               context={view.largestDivergence ? `${view.largestDivergence.productName} · ${view.largestDivergence.label}` : "No divergence above the sample floor yet"}
             />
             <ScoreLockup
@@ -67,10 +67,10 @@ export default function VendorWorkspaceDashboard({ view }: { view: Data }) {
               <div className="mt-3 text-xl font-semibold text-[var(--shell-ink)]">{view.latestReadout.productName}</div>
               <div className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm text-[var(--shell-muted)]">
                 <span>
-                  self-reported <span className="pat-mono text-[var(--shell-ink)]">{view.latestReadout.selfReported ?? "—"}</span>
+                  self-reported <span className="pat-mono text-[var(--shell-ink)]">{view.latestReadout.selfReported ?? "n/a"}</span>
                 </span>
                 <span>
-                  firm-reviewed <span className="pat-mono text-[var(--shell-ink)]">{view.latestReadout.firmReviewed === null ? "—" : Math.round(view.latestReadout.firmReviewed)}</span>
+                  firm-reviewed <span className="pat-mono text-[var(--shell-ink)]">{view.latestReadout.firmReviewed === null ? "n/a" : Math.round(view.latestReadout.firmReviewed)}</span>
                 </span>
                 <span>
                   <span className="pat-mono text-[var(--shell-ink)]">{view.latestReadout.firmReviews}</span> firm review{view.latestReadout.firmReviews === 1 ? "" : "s"}
@@ -82,7 +82,7 @@ export default function VendorWorkspaceDashboard({ view }: { view: Data }) {
           <div className="pat-card p-6" data-testid="workspace-products">
             <div className="pat-label">Products</div>
             {/* R19 (box 2, 2026-09-11): each product carries the Product
-                Intelligence pieces — self-reported vs firm-reviewed bars and
+                Intelligence pieces: self-reported vs firm-reviewed bars and
                 the divergence chip (DivergenceBar, CardChip); the name keeps
                 its row (no wrap); the row opens the product's intelligence
                 page; the assessment stays behind "Manage products". */}

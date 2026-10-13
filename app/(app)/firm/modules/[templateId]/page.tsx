@@ -90,7 +90,7 @@ export default async function FirmModuleSittingPage({
             <div>
               <div className="text-sm text-[var(--shell-muted)]">Band</div>
               <div className="text-2xl font-semibold text-[var(--shell-ink)]">
-                {view.scoreBandLabel ?? "—"}
+                {view.scoreBandLabel ?? "n/a"}
               </div>
               <div className="mt-2 text-sm text-[var(--shell-muted)]">
                 {view.scoreRaw ?? 0} of {view.total} correct

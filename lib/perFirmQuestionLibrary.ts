@@ -170,7 +170,7 @@ export const LIBRARY: readonly QuestionTemplate[] = [
     directionRequired: "vendor-higher",
     magnitudeRequired: "medium",
     question: (c) =>
-      `${c.vendorName} self-reports ${c.vendorScore ?? "—"} on ${c.productName}; ${c.firmName} reviews ${c.firmScore} (${fmtDelta(c.delta)}). High-band but divergent — roadmap claim versus current operational reality?`,
+      `${c.vendorName} self-reports ${c.vendorScore ?? "n/a"} on ${c.productName}; ${c.firmName} reviews ${c.firmScore} (${fmtDelta(c.delta)}). High-band but divergent — roadmap claim versus current operational reality?`,
   },
   {
     id: "q-high-vendor-higher-medium-validation",
@@ -187,7 +187,7 @@ export const LIBRARY: readonly QuestionTemplate[] = [
     magnitudeRequired: "large",
     emphasis: "high",
     question: (c) =>
-      `Hot divergence on ${c.productName} at the high band: ${c.vendorName}=${c.vendorScore ?? "—"}, ${c.firmName}=${c.firmScore}. What capability or feature is ${c.vendorName} pricing into the self-score that ${c.firmName} hasn't activated?`,
+      `Hot divergence on ${c.productName} at the high band: ${c.vendorName}=${c.vendorScore ?? "n/a"}, ${c.firmName}=${c.firmScore}. What capability or feature is ${c.vendorName} pricing into the self-score that ${c.firmName} hasn't activated?`,
   },
   {
     id: "q-high-vendor-higher-large-mismatch",
@@ -237,7 +237,7 @@ export const LIBRARY: readonly QuestionTemplate[] = [
     magnitudeRequired: "large",
     emphasis: "high",
     question: (c) =>
-      `${c.firmName}=${c.firmScore} vs ${c.vendorName}=${c.vendorScore ?? "—"} on ${c.productName} (${fmtDelta(c.delta)} firm-higher). What is ${c.firmName} doing that ${c.vendorName} isn't yet selling? Whose roadmap does this belong on?`,
+      `${c.firmName}=${c.firmScore} vs ${c.vendorName}=${c.vendorScore ?? "n/a"} on ${c.productName} (${fmtDelta(c.delta)} firm-higher). What is ${c.firmName} doing that ${c.vendorName} isn't yet selling? Whose roadmap does this belong on?`,
   },
 
   // ---------------- Mid band (50 <= firm score < 75) ----------------
@@ -287,7 +287,7 @@ export const LIBRARY: readonly QuestionTemplate[] = [
     directionRequired: "vendor-higher",
     magnitudeRequired: "medium",
     question: (c) =>
-      `${c.firmName}=${c.firmScore} vs ${c.vendorName}=${c.vendorScore ?? "—"} on ${c.productName} (${fmtDelta(c.delta)}) — is this an adoption-curve gap that closes in 90 days, or a structural mismatch that won't?`,
+      `${c.firmName}=${c.firmScore} vs ${c.vendorName}=${c.vendorScore ?? "n/a"} on ${c.productName} (${fmtDelta(c.delta)}) — is this an adoption-curve gap that closes in 90 days, or a structural mismatch that won't?`,
   },
   {
     id: "q-mid-vendor-higher-medium-validation",
@@ -337,7 +337,7 @@ export const LIBRARY: readonly QuestionTemplate[] = [
     magnitudeRequired: "large",
     emphasis: "high",
     question: (c) =>
-      `Hot firm-higher divergence on ${c.productName} at mid band: ${c.firmName}=${c.firmScore}, ${c.vendorName}=${c.vendorScore ?? "—"}. Is ${c.firmName} doing ${c.vendorName}'s product work for them — and who owns that IP?`,
+      `Hot firm-higher divergence on ${c.productName} at mid band: ${c.firmName}=${c.firmScore}, ${c.vendorName}=${c.vendorScore ?? "n/a"}. Is ${c.firmName} doing ${c.vendorName}'s product work for them — and who owns that IP?`,
   },
 
   // ---------------- Low band (firm score < 50) ----------------
@@ -379,7 +379,7 @@ export const LIBRARY: readonly QuestionTemplate[] = [
     directionRequired: "vendor-higher",
     magnitudeRequired: "medium",
     question: (c) =>
-      `${c.vendorName}=${c.vendorScore ?? "—"} vs ${c.firmName}=${c.firmScore} on ${c.productName} (${fmtDelta(c.delta)}) at low band — what's roadmap and what's reality? Where's the line in ${c.vendorName}'s product?`,
+      `${c.vendorName}=${c.vendorScore ?? "n/a"} vs ${c.firmName}=${c.firmScore} on ${c.productName} (${fmtDelta(c.delta)}) at low band — what's roadmap and what's reality? Where's the line in ${c.vendorName}'s product?`,
   },
   {
     id: "q-low-vendor-higher-medium-missing",
@@ -422,7 +422,7 @@ export const LIBRARY: readonly QuestionTemplate[] = [
     magnitudeRequired: "large",
     emphasis: "high",
     question: (c) =>
-      `Hot firm-higher gap on ${c.productName} at low band (${c.firmName}=${c.firmScore}, ${c.vendorName}=${c.vendorScore ?? "—"}) — both sides are saying the product underperforms, but ${c.firmName}'s read is less harsh. What's the diverging frame?`,
+      `Hot firm-higher gap on ${c.productName} at low band (${c.firmName}=${c.firmScore}, ${c.vendorName}=${c.vendorScore ?? "n/a"}) — both sides are saying the product underperforms, but ${c.firmName}'s read is less harsh. What's the diverging frame?`,
   },
 ];
 

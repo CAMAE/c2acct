@@ -33,7 +33,7 @@ export default function SwapFlowTiles({
       </div>
       {earlySignal ? (
         <p className="mt-2 text-xs leading-5 text-[var(--shell-muted)]">
-          Early signal — swap volume is still low; read direction, not magnitude, until more firms model with your
+          Early signal: swap volume is still low; read direction, not magnitude, until more firms model with your
           products.
         </p>
       ) : null}

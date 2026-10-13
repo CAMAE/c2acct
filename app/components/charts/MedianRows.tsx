@@ -15,8 +15,8 @@ export default function MedianRows({ rows, title }: { rows: PercentileRow[]; tit
             <span className="text-xs text-[var(--shell-muted)]">Insufficient peer data</span>
           ) : (
             <span className="tabular-nums text-[var(--shell-muted)]">
-              you {typeof row.score === "number" ? Math.round(row.score) : "—"} · peer median{" "}
-              {typeof row.p50 === "number" ? Math.round(row.p50) : "—"}
+              you {typeof row.score === "number" ? Math.round(row.score) : "n/a"} · peer median{" "}
+              {typeof row.p50 === "number" ? Math.round(row.p50) : "n/a"}
             </span>
           )}
         </div>

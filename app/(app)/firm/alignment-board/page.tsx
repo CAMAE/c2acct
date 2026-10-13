@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: `${boardLabel()} | Patalign`,
-  description: `Elite firm ${boardLabel()} — the interactive stack-and-swap forecaster.`,
+  description: `Elite firm ${boardLabel()}: the interactive stack-and-swap forecaster.`,
 };
 
 type SearchParams = { firm?: string };
@@ -40,7 +40,7 @@ function EmptyAlignmentBoard() {
         <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--shell-muted)]">
           Your current products render as pieces, each carrying its live alignment score. A
           product-fit radar plots your stack across five evidence-backed dimensions. Swap a piece for
-          a candidate and watch your projected shape recompute — with a confidence band whenever the
+          a candidate and watch your projected shape recompute, with a confidence band whenever the
           sample is thin. The board appears once your firm has completed its alignment assessment and
           has products in its stack.
         </p>

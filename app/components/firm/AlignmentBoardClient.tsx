@@ -246,7 +246,7 @@ export default function AlignmentBoardClient({
     if (!swapStaged) return null;
     const grades = stagedEntries.map((e) => e.candidate.evidenceBasis);
     if (grades.some((g) => g === "vendor_reported")) {
-      return "A candidate not yet firm-reviewed: its projected axes use vendor self-reported evidence — no firm review of it yet.";
+      return "A candidate not yet firm-reviewed: its projected axes use vendor self-reported evidence, no firm review of it yet.";
     }
     if (grades.some((g) => g === "none")) {
       return "A candidate not yet firm-reviewed has no per-dimension evidence yet; that slot's projection reflects only lifting your current piece.";
@@ -342,13 +342,13 @@ export default function AlignmentBoardClient({
               ) : null}
             </div>
             <p className="mt-4 max-w-md text-sm leading-6 text-[var(--shell-muted)]">
-              {/* Read-only (consultant) drops the firm-second-person swap instruction —
+              {/* Read-only (consultant) drops the firm-second-person swap instruction,
                   the header already frames what the firm does on its own board. */}
               {readOnly
                 ? null
                 : "Lift a piece from your stack, then drop in a Secret candidate to see your projected alignment shape move. "}
               {data.confidence === "sample_thin" || data.confidence === "no_signal"
-                ? "Sample is thin, so projections are estimates — PAT won't fake precision."
+                ? "Sample is thin, so projections are estimates, PAT won't fake precision."
                 : "Projections are estimates, drawn from cross-firm benchmarks."}
             </p>
             {liftedIds.length > 0 ? (
@@ -363,11 +363,11 @@ export default function AlignmentBoardClient({
         </div>
       </section>
 
-      {/* Stack — wrapping grid of puzzle pieces */}
+      {/* Stack: wrapping grid of puzzle pieces */}
       <section className="pat-card p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="pat-label">
-            {readOnly ? "The firm's stack — click a piece to inspect it" : "Your stack — click a piece to lift it out"}
+            {readOnly ? "The firm's stack, click a piece to inspect it" : "Your stack, click a piece to lift it out"}
           </div>
           {data.totalStackCount > data.stack.length ? (
             <span className="text-xs text-[var(--shell-muted)]">
@@ -413,7 +413,7 @@ export default function AlignmentBoardClient({
                   dataProductName={piece.productName}
                   title={shown.name}
                   subtitle={shown.from ? `⇄ was ${shown.from}` : shown.vendor}
-                  scoreText={shown.score !== null ? `${formatScoreValue(shown.score)}%` : "—"}
+                  scoreText={shown.score !== null ? `${formatScoreValue(shown.score)}%` : "n/a"}
                 />
               );
             })}
@@ -424,7 +424,7 @@ export default function AlignmentBoardClient({
       {/* Breakdown */}
       {swapStaged ? (
         <section className="pat-card p-6" data-testid="board-breakdown">
-          <div className="pat-label">What changes — top movers</div>
+          <div className="pat-label">What changes: top movers</div>
           <p className="mt-2 text-sm text-[var(--shell-muted)]">
             {stagedEntries.length === 1 ? (
               <>
@@ -441,7 +441,7 @@ export default function AlignmentBoardClient({
             ) : (
               <>
                 Swapping <strong className="text-[var(--shell-ink)]">{stagedEntries.length} pieces</strong> at
-                once. The projected alignment is recomputed from the full resulting stack — only the lifted
+                once. The projected alignment is recomputed from the full resulting stack, only the lifted
                 slots move, the rest hold.
               </>
             )}
@@ -469,7 +469,7 @@ export default function AlignmentBoardClient({
                     />
                   </div>
                   <span className="w-20 shrink-0 text-right text-xs text-[var(--shell-muted)]">
-                    {after !== null ? `${formatScoreValue(after)}%` : "—"}
+                    {after !== null ? `${formatScoreValue(after)}%` : "n/a"}
                     {pieceDelta !== null ? (
                       <span className={pieceDelta >= 0 ? "text-[var(--shell-positive)]" : "text-[var(--brand-orange)]"}>
                         {" "}
@@ -493,7 +493,7 @@ export default function AlignmentBoardClient({
         </section>
       ) : null}
 
-      {/* Ranked candidate rail — FIRM-REVIEWED only (P2-pre) */}
+      {/* Ranked candidate rail. FIRM-REVIEWED only (P2-pre) */}
       <section className="pat-card p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="pat-label">
@@ -502,7 +502,7 @@ export default function AlignmentBoardClient({
           </div>
           {!entitled && data.candidates[0] ? (
             <span className="text-xs text-[var(--shell-muted)]">
-              Your Sandbox Fit #1 piece exists —{" "}
+              Your Sandbox Fit #1 piece exists, {" "}
               <Link className="font-semibold text-[var(--brand-c2-blue)] hover:underline" href={membershipHref}>
                 Reveal with Elite
               </Link>
@@ -510,7 +510,7 @@ export default function AlignmentBoardClient({
           ) : null}
         </div>
 
-        {/* Slot tabs — one per lifted piece (up to 3). Picking a tab targets that
+        {/* Slot tabs: one per lifted piece (up to 3). Picking a tab targets that
             emptied slot; its own candidate lanes render below. */}
         {liftedIds.length > 0 ? (
           <div className="mt-3 flex flex-wrap gap-2" data-testid="board-slot-tabs">
@@ -542,7 +542,7 @@ export default function AlignmentBoardClient({
 
         {data.candidates.length === 0 ? (
           <p className="mt-4 text-sm text-[var(--shell-muted)]">
-            No firm-reviewed candidates yet — see the not-yet-reviewed set below.
+            No firm-reviewed candidates yet, see the not-yet-reviewed set below.
           </p>
         ) : activePiece ? (
           // Utility lanes for the active slot: "Fits this slot" (shares ≥1
@@ -591,7 +591,7 @@ export default function AlignmentBoardClient({
         ) : (
           <>
             <p className="mt-3 text-xs text-[var(--shell-muted)]">
-              Ranked by projected fit — every rank is backed by real firm reviews.
+              Ranked by projected fit, every rank is backed by real firm reviews.
             </p>
             <div className="mt-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
               {data.candidates.map((candidate) => (
@@ -613,7 +613,7 @@ export default function AlignmentBoardClient({
         )}
       </section>
 
-      {/* "Not yet firm-reviewed" section — VENDOR-REPORTED only, floored (P2-pre) */}
+      {/* "Not yet firm-reviewed" section: VENDOR-REPORTED only, floored (P2-pre) */}
       {data.unreviewedCandidates.length > 0 ? (
         <section className="pat-card border-dashed border-[var(--brand-orange)]/40 p-6">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -623,7 +623,7 @@ export default function AlignmentBoardClient({
             </span>
           </div>
           <p className="mt-1 text-xs text-[var(--shell-muted)]">
-            Swappable to explore, but the projection is the vendor&rsquo;s own claim — not firm-verified,
+            Swappable to explore, but the projection is the vendor&rsquo;s own claim, not firm-verified,
             so these carry wider confidence bands and never rank against the fits above.
           </p>
           <div className="mt-4 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
@@ -646,7 +646,7 @@ export default function AlignmentBoardClient({
         </section>
       ) : null}
 
-      {/* Detail — full width beneath candidates */}
+      {/* Detail: full width beneath candidates */}
       {detailPiece ? (
         <DetailCard title={detailPiece.productName} onClose={() => setDetail(null)}>
           <Fact label="Product · vendor" value={`${detailPiece.productName} · ${detailPiece.vendorName}`} />
@@ -684,7 +684,7 @@ export default function AlignmentBoardClient({
             <div className="sm:col-span-2 lg:col-span-3">
               <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--brand-orange)]">
                 <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--brand-orange)]" />
-                Vendor self-reported — no firm reviews yet; needs firm reviews to enter the ranked fits.
+                Vendor self-reported: no firm reviews yet; needs firm reviews to enter the ranked fits.
               </span>
             </div>
           ) : null}
@@ -711,13 +711,13 @@ export default function AlignmentBoardClient({
                     : `#${detailCandidate.fitRank} of ${data.candidates.length}`
                 }
               />
-              <Fact label="Category" value={detailCandidate.category ?? "—"} />
+              <Fact label="Category" value={detailCandidate.category ?? "n/a"} />
               <Fact
                 label="Projected delta"
                 value={
                   detailCandidate.projectedScore !== null && baseline !== null
                     ? formatDelta(detailCandidate.projectedScore - baseline)
-                    : "—"
+                    : "n/a"
                 }
               />
             </>
@@ -878,7 +878,7 @@ function PuzzlePiece({
         />
       </svg>
       {/* Centered text block; padding clears the tab/blank zones on every edge. Box 3f
-          item J (S5): no truncation and no line clamps — the pieces are wide enough
+          item J (S5): no truncation and no line clamps, the pieces are wide enough
           (three per row) for names and deltas to wrap. */}
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 px-[13%] py-[14%] text-center" data-testid="piece-text">
         {typeof rank === "number" ? (

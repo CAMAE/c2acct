@@ -6,7 +6,7 @@ import { isNewFrontDoorEnabled } from "@/lib/frontDoor";
 
 export const metadata = {
   title: "PAT Billing Policy | Patalign",
-  description: "Billing policy for PAT — provider-backed and no-charge billing modes.",
+  description: "Billing policy for PAT, provider-backed and no-charge billing modes.",
 };
 
 export default function BillingPolicyPage() {

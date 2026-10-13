@@ -168,7 +168,7 @@ export default async function VendorPage({
                 <span aria-hidden="true" className="text-lg text-[var(--shell-muted)]">›</span>
               </div>
               <p className="mt-1 text-sm leading-6 text-[var(--shell-muted)]">
-            How current the firm reviews of your products are — and which are entering their refresh window.
+            How current the firm reviews of your products are, and which are entering their refresh window.
               </p>
             </div>
           {cardStats["vendor-review-refresh"] ? (
@@ -194,7 +194,7 @@ export default async function VendorPage({
 
       {isNewFrontDoorEnabled() ? null : pingsCard}
 
-      {/* P3 (Mythos punch list): "Products at a glance" strip removed —
+      {/* P3 (Mythos punch list): "Products at a glance" strip removed,
           product intelligence lives on the product-insight surfaces. */}
 
       <section className="pat-card p-6">

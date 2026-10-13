@@ -157,14 +157,14 @@ export const FIRM_BRIEF_VARIANT_BANK: Record<string, readonly FirmBriefVariantRe
       tone: "pointed",
       render: ({ firmCompanyName, canonicalFirmScore, ecosystemAverageScore, peerFirmCount }) => {
         if (canonicalFirmScore === null || ecosystemAverageScore === null) {
-          return `${firmCompanyName} — alignment score pending.`;
+          return `${firmCompanyName}: alignment score pending.`;
         }
         const gap = canonicalFirmScore - ecosystemAverageScore;
         if (gap === 0) {
-          return `${firmCompanyName} lands at ${canonicalFirmScore} — exactly on the ${peerFirmCount}-firm ecosystem average.`;
+          return `${firmCompanyName} lands at ${canonicalFirmScore}: exactly on the ${peerFirmCount}-firm ecosystem average.`;
         }
         const verb = gap > 0 ? "ahead of" : "behind";
-        return `${firmCompanyName} at ${canonicalFirmScore} — ${Math.abs(gap)} point${Math.abs(gap) === 1 ? "" : "s"} ${verb} the ${peerFirmCount}-firm ecosystem average (${ecosystemAverageScore}).`;
+        return `${firmCompanyName} at ${canonicalFirmScore}: ${Math.abs(gap)} point${Math.abs(gap) === 1 ? "" : "s"} ${verb} the ${peerFirmCount}-firm ecosystem average (${ecosystemAverageScore}).`;
       },
     },
   ],
@@ -181,10 +181,10 @@ export const FIRM_BRIEF_VARIANT_BANK: Record<string, readonly FirmBriefVariantRe
       id: "v1-narrative",
       tone: "narrative",
       render: ({ reviewedProductCount, totalProductCount }) => {
-        if (totalProductCount === 0) return "The stack hasn't been mapped yet — no vendor products in scope.";
+        if (totalProductCount === 0) return "The stack hasn't been mapped yet, no vendor products in scope.";
         const remaining = totalProductCount - reviewedProductCount;
         if (remaining === 0) {
-          return `All ${totalProductCount} stack product${totalProductCount === 1 ? "" : "s"} have a firm review — fit analysis runs against the full inventory.`;
+          return `All ${totalProductCount} stack product${totalProductCount === 1 ? "" : "s"} have a firm review, fit analysis runs against the full inventory.`;
         }
         return `${reviewedProductCount} of ${totalProductCount} stack product${totalProductCount === 1 ? "" : "s"} reviewed; ${remaining} review${remaining === 1 ? "" : "s"} would tighten the fit picture.`;
       },
@@ -203,8 +203,8 @@ export const FIRM_BRIEF_VARIANT_BANK: Record<string, readonly FirmBriefVariantRe
       id: "v1-pointed",
       tone: "pointed",
       render: ({ currentQuarterLabel, trajectoryEnd }) => {
-        if (trajectoryEnd === null) return `${currentQuarterLabel} is the commitment quarter — the next five carry the plan.`;
-        return `${currentQuarterLabel} forward, six quarters of sequenced action — projected end-state ${trajectoryEnd}.`;
+        if (trajectoryEnd === null) return `${currentQuarterLabel} is the commitment quarter, the next five carry the plan.`;
+        return `${currentQuarterLabel} forward, six quarters of sequenced action, projected end-state ${trajectoryEnd}.`;
       },
     },
   ],

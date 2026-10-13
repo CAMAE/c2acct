@@ -28,7 +28,7 @@ export default function ScoreLockup({
   context,
 }: ScoreLockupProps) {
   const band = typeof score === "number" ? getScoreBand(score) : null;
-  const valueText = displayValue ?? (typeof score === "number" ? String(Math.round(score)) : "—");
+  const valueText = displayValue ?? (typeof score === "number" ? String(Math.round(score)) : "n/a");
 
   return (
     <div>

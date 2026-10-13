@@ -808,10 +808,10 @@ export default function AssessmentModuleClient({ moduleKey, surveyExits = false 
           </p>
         )}
 
-        {/* 16d — delta refresh banner: pre-filled from the last submission. */}
+        {/* 16d: delta refresh banner: pre-filled from the last submission. */}
         {isDeltaRefresh && data.priorFinal ? (
           <div className="mt-5 rounded-[16px] border border-[var(--shell-border)] bg-[var(--shell-panel-soft)] p-4">
-            <div className="pat-label">Refreshing — what changed?</div>
+            <div className="pat-label">Refreshing: what changed?</div>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--shell-ink)]">
               Your answers from{" "}
               <span className="font-semibold">
@@ -821,7 +821,7 @@ export default function AssessmentModuleClient({ moduleKey, surveyExits = false 
                   year: "numeric",
                 })}
               </span>{" "}
-              are pre-filled. Change only what moved — on submit, PAT rescores this module and its
+              are pre-filled. Change only what moved, on submit, PAT rescores this module and its
               freshness clock resets to today.
             </p>
           </div>

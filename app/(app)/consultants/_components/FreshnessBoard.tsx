@@ -32,11 +32,11 @@ const STATUS_TONE: Record<ConsultantFirmFreshnessStatus, "neutral" | "positive" 
 function consequenceLine(row: ConsultantFirmFreshnessRow): string {
   switch (row.status) {
     case "never":
-      return "No full census on record yet — a first assessment establishes this firm's benchmark position.";
+      return "No full census on record yet, a first assessment establishes this firm's benchmark position.";
     case "overdue":
       return "Its census window has passed, so its evidence is falling behind the cohort it is measured against.";
     case "due-soon":
-      return "Its census comes due before the cutoff — refreshing keeps its benchmark position comparable.";
+      return "Its census comes due before the cutoff, refreshing keeps its benchmark position comparable.";
     case "on-track":
       return "Its evidence is current for this cycle; no action needed now.";
   }
@@ -76,7 +76,7 @@ function FirmRow({ row }: { row: ConsultantFirmFreshnessRow }) {
       <div className="mt-4">
         <NudgeButtonMount companyId={row.companyId} audience="firm" label="Request refresh" />
         <p className="mt-2 text-xs leading-5 text-[var(--shell-muted)]">
-          Pat drafts it for your review — nothing sends until you approve it in your nudge queue.
+          Pat drafts it for your review, nothing sends until you approve it in your nudge queue.
         </p>
       </div>
     </div>
@@ -106,7 +106,7 @@ export default function FreshnessBoard({ board }: { board: ConsultantFreshnessBo
         <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--shell-ink)]">{headline}</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--shell-muted)]">
           Windows come from each firm&apos;s configured cadence (default: a full census every 12 months). Freshness
-          is a label on the evidence date — it never changes a firm&apos;s score. Send a reminder when it helps; the
+          is a label on the evidence date, it never changes a firm&apos;s score. Send a reminder when it helps; the
           decision to re-assess is the firm&apos;s.
         </p>
         <CardChipRow>

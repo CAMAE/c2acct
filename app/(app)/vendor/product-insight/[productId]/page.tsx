@@ -117,7 +117,7 @@ export default async function VendorProductInsightDetailPage({
           <div className="pat-soft-panel p-5">
             <div className="flex items-center justify-between gap-2">
               <div className="pat-label">{messages.insights.vendorProduct.firmReviewedSignal}</div>
-              {/* 16a — review evidence age (Fresh/Aging/Stale), one shared chip */}
+              {/* 16a: review evidence age (Fresh/Aging/Stale), one shared chip */}
               {snapshot.firmReviewed.assessmentCount > 0 ? (
                 <FreshnessChip from={snapshot.firmReviewed.latestSubmittedAt} showAge={false} />
               ) : null}

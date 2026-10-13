@@ -45,7 +45,7 @@ function ProductUrlIcon({ href }: { href: string }) {
 }
 
 function formatDate(value: Date | null) {
-  return value ? value.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+  return value ? value.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "n/a";
 }
 
 export default function ProductStatusStrip({ rows, caption }: { rows: ProductStatusRow[]; caption: string }) {

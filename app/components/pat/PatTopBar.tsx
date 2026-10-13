@@ -171,7 +171,7 @@ export default function PatTopBar() {
           ...prev,
           {
             role: "pat",
-            text: data.fallback ?? "I don't have that yet — please contact support.",
+            text: data.fallback ?? "I don't have that yet, please contact support.",
             fallback: true,
           },
         ]);
@@ -195,7 +195,7 @@ export default function PatTopBar() {
     <div ref={scrollRef} className="max-h-[24rem] space-y-3 overflow-y-auto px-4 py-3">
       {turns.length === 0 ? (
         <p className="text-sm leading-6 text-[var(--shell-muted)]">
-          Hi, I&apos;m Pat. Ask me how to find your way around — like &ldquo;where do I review a
+          Hi, I&apos;m Pat. Ask me how to find your way around, like &ldquo;where do I review a
           firm&apos;s assessment?&rdquo; I answer from Patalign&apos;s help library.
         </p>
       ) : null}

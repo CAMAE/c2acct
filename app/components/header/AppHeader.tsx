@@ -278,7 +278,7 @@ export default function AppHeader({
                       {navItems.map((item) => {
                         // R3: external links (an off-site href) must leave
                         // the app entirely. A Next <Link> to an absolute URL can be
-                        // intercepted as a client navigation inside a portal — render
+                        // intercepted as a client navigation inside a portal, render
                         // a plain <a> so it hard-navigates in every portal.
                         const isExternal = /^https?:\/\//i.test(item.href);
                         const active =

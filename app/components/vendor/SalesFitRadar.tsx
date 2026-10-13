@@ -100,7 +100,7 @@ export default function SalesFitRadar({
           <span className="text-[var(--shell-ink)]">Your product strength (overall)</span>
         </div>
         <p className="mt-3 max-w-[15rem] text-xs leading-5 text-[var(--shell-muted)]">
-          Modules inside the dashed ring are headroom — the firm sits below your product strength
+          Modules inside the dashed ring are headroom, the firm sits below your product strength
           there. Overall strength is a single real number, not a per-module claim.
         </p>
       </div>

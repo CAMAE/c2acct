@@ -84,7 +84,7 @@ export default async function EnterprisePortalPage() {
                     <td className="px-3 py-2 font-medium text-[var(--shell-ink)]">{row.productName}</td>
                     <td className="px-3 py-2 text-[var(--shell-muted)]">{row.vendorCompanyName}</td>
                     <td className="px-3 py-2 text-[var(--shell-muted)]">{row.verticalId}</td>
-                    <td className="pat-mono px-3 py-2 text-right text-[var(--shell-ink)]">{row.score === null ? "—" : Math.round(row.score)}</td>
+                    <td className="pat-mono px-3 py-2 text-right text-[var(--shell-ink)]">{row.score === null ? "n/a" : Math.round(row.score)}</td>
                     <td className="pat-mono px-3 py-2 text-right text-[var(--shell-ink)]">{row.n}</td>
                     <td className="pat-mono px-3 py-2 text-right text-[var(--shell-muted)]">
                       {row.freshnessDays === null ? "no reviews" : row.freshnessDays === 0 ? "today" : `${row.freshnessDays} d ago`}

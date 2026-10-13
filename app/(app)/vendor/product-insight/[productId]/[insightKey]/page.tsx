@@ -158,7 +158,7 @@ export default async function VendorProductInsightSlicePage({
           <div className="pat-label">Elite Insights</div>
           <LockedElitePreview
             title="Elite product intelligence"
-            description="Cohort position, ranked action, and trend for this product — live with Elite membership."
+            description="Cohort position, ranked action, and trend for this product, live with Elite membership."
             shape="distribution"
             upgradeHref={eliteEntitlement.upgradeHref}
           />

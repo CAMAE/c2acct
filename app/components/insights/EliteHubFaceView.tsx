@@ -125,7 +125,7 @@ export default function EliteHubFaceView({ face }: { face: EliteHubFace }) {
             {face.chip.label}
           </span>
         ) : null}
-        {/* 15b — sparkline lives in the hero row, right-aligned */}
+        {/* 15b: sparkline lives in the hero row, right-aligned */}
         {face.micro?.kind === "sparkline" ? (
           <SparklineMicro points={face.micro.points} projection={face.micro.projection} />
         ) : null}

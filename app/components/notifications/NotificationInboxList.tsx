@@ -62,7 +62,7 @@ export default function NotificationInboxList({ initialItems }: { initialItems: 
   if (items.length === 0) {
     return (
       <p className="rounded-2xl border border-[var(--shell-border)] bg-white px-4 py-6 text-sm leading-6 text-[var(--shell-muted)]">
-        You&apos;re all caught up — no notifications yet.
+        You&apos;re all caught up, no notifications yet.
       </p>
     );
   }

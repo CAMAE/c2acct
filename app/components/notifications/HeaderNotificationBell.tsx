@@ -167,7 +167,7 @@ export default function HeaderNotificationBell({ buttonClassName }: { buttonClas
           <div className="flex-1 space-y-2 overflow-y-auto px-3 py-3">
             {items.length === 0 ? (
               <p className="px-1 text-sm leading-6 text-[var(--shell-muted)]">
-                You&apos;re all caught up — no notifications yet.
+                You&apos;re all caught up, no notifications yet.
               </p>
             ) : (
               items.map((n) => {

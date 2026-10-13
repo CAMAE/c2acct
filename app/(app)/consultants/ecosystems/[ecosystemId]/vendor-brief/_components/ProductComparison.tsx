@@ -8,11 +8,11 @@ function formatGeneratedDate(iso: string): string {
 }
 
 function formatScore(value: number | null): string {
-  return value === null ? "—" : String(value);
+  return value === null ? "n/a" : String(value);
 }
 
 function deltaCellNumber(row: VendorBriefDeltaRow): string {
-  if (row.delta === null) return "—";
+  if (row.delta === null) return "n/a";
   if (row.delta === 0) return "0";
   const sign = row.delta > 0 ? "+" : "−";
   return `${sign}${Math.abs(row.delta)}`;
@@ -32,7 +32,7 @@ function directionLabel(row: VendorBriefDeltaRow): string {
   if (row.deltaDirection === "neutral") return "Matched";
   if (row.deltaDirection === "vendor-higher") return "Vendor leads";
   if (row.deltaDirection === "firm-higher") return "Firms lead";
-  return "—";
+  return "n/a";
 }
 
 function directionColorClass(row: VendorBriefDeltaRow): string {
@@ -51,7 +51,7 @@ function actionTitleFromRows(rows: VendorBriefDeltaRow[], vendorName: string): s
   }
   const scored = rows.filter((r) => r.delta !== null);
   if (scored.length === 0) {
-    return `Product comparison populates as firm responses land — 0 of ${rows.length} product scores in.`;
+    return `Product comparison populates as firm responses land, 0 of ${rows.length} product scores in.`;
   }
   const leads = scored.filter(
     (r) => r.deltaDirection === "vendor-higher" && !r.isHotDivergence
@@ -94,7 +94,7 @@ export default function ProductComparison({ data }: { data: VendorBriefData }) {
       </h2>
 
       <p className="mt-3 text-sm text-[var(--shell-muted)]">
-        Scorecard table — every product at a glance. Use Section 3 for the headline divergences; this section is the full scoreboard.
+        Scorecard table: every product at a glance. Use Section 3 for the headline divergences; this section is the full scoreboard.
       </p>
 
       {rows.length === 0 ? (
@@ -106,7 +106,7 @@ export default function ProductComparison({ data }: { data: VendorBriefData }) {
             Awaiting product responses from {firmsNeeded} more firm{firmsNeeded === 1 ? "" : "s"} to surface firm-reviewed comparisons.
           </div>
           <p className="mt-2 text-sm leading-6 text-[var(--shell-muted)]">
-            The product table populates once {data.vendorCompanyName} publishes a product catalog AND at least one firm-side review lands. Vendor self-report alone is not enough — peer grounding is the whole point of the section.
+            The product table populates once {data.vendorCompanyName} publishes a product catalog AND at least one firm-side review lands. Vendor self-report alone is not enough, peer grounding is the whole point of the section.
           </p>
         </div>
       ) : (

@@ -23,8 +23,8 @@ function formatScore(value: number | null): string {
 }
 
 function deltaLabel(row: FirmBriefStackFitRow): string {
-  if (row.delta === null) return "—";
-  if (row.delta === 0) return "0 — matched";
+  if (row.delta === null) return "n/a";
+  if (row.delta === 0) return "0: matched";
   if (row.delta > 0) return `↓ -${row.delta} firm lower`;
   return `↑ +${Math.abs(row.delta)} firm higher`;
 }
@@ -89,7 +89,7 @@ export default function StackFitAnalysis({ data }: { data: FirmBriefData }) {
                     <div className="text-xs text-[var(--shell-muted)]">{row.vendorName}</div>
                   </td>
                   <td className="py-2 pr-3 text-[var(--shell-muted)]">
-                    {row.utilityLabels.length > 0 ? row.utilityLabels.join(", ") : "—"}
+                    {row.utilityLabels.length > 0 ? row.utilityLabels.join(", ") : "n/a"}
                   </td>
                   <td className="pat-stat-number py-2 pr-3">
                     {formatScore(row.firmReviewedScore)}

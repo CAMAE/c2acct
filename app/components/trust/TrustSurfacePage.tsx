@@ -28,7 +28,7 @@ export default function TrustSurfacePage({ surface, children }: TrustSurfacePage
           {surface.summary}
         </p>
         {/* A3 (box 2b, Cam 9/14): production renders the Trust center link on every
-            trust surface, /trust included — the 6c2360c6 key guard is reversed. */}
+            trust surface, /trust included, the 6c2360c6 key guard is reversed. */}
         <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-[var(--shell-muted)]">
           <Link href="/trust" className="font-semibold text-[var(--shell-ink)] hover:text-[var(--shell-accent)]">
             Trust center

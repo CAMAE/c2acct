@@ -38,7 +38,7 @@ export default async function FirmMembershipPage({
   const { membership } = await resolveCurrentMembership(sessionUser, "firm");
   const checkoutNotice =
     params?.checkout === "pro" || params?.checkout === "elite"
-      ? `Firm ${params.checkout === "pro" ? "Pro" : "Elite"} checkout started — intent recorded, no charge today.`
+      ? `Firm ${params.checkout === "pro" ? "Pro" : "Elite"} checkout started: intent recorded, no charge today.`
       : null;
 
   return (
