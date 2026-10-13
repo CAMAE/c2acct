@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import type { EcosystemDetailData } from "@/lib/ecosystem";
+import { sampleRecentResponses, type EcosystemDetailData } from "@/lib/ecosystem";
 
 const DEFAULT_VISIBLE_COUNT = 10;
 const ALL_PRODUCTS_VALUE = "all";
@@ -38,9 +38,15 @@ export default function OpenEndedPanel({ data }: { data: EcosystemDetailData }) 
     );
   }, [data.openEndedResponses, selectedProduct]);
 
+  // box-c (R65, item 7a): the ten shown are sampled across firms and products (at most
+  // two per firm, three per product when every product is in view), newest first.
   const visibleResponses = showAll
     ? filteredResponses
-    : filteredResponses.slice(0, DEFAULT_VISIBLE_COUNT);
+    : sampleRecentResponses(filteredResponses, {
+        max: DEFAULT_VISIBLE_COUNT,
+        perFirm: 2,
+        perProduct: selectedProduct === ALL_PRODUCTS_VALUE ? 3 : null,
+      });
   const hasResponses = filteredResponses.length > 0;
 
   function selectProduct(next: string) {
