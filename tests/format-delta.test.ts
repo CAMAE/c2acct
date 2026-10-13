@@ -3,22 +3,22 @@ import { formatDelta, formatScoreValue, roundHundredths } from "@/lib/formatDelt
 
 /**
  * Contract (Redlines R2): the shared delta formatter kills float leaks and
- * NEVER renders a number with more than two decimal places.
+ * NEVER renders a number with more than one decimal place (box-c, R65 item 2).
  */
 
 const AT_MOST_TWO_DECIMALS = /^[+-]?\d+(\.\d{1,2})?$/;
 
 describe("formatDelta", () => {
   it("kills the exact leak values from the review", () => {
-    expect(formatDelta(-15.100000000000001)).toBe("-15.10");
-    expect(formatDelta(7.799999999999997)).toBe("+7.80");
+    expect(formatDelta(-15.100000000000001)).toBe("-15.1");
+    expect(formatDelta(7.799999999999997)).toBe("+7.8");
   });
 
-  it("renders whole values without decimals, fractional with exactly two", () => {
+  it("renders whole values without decimals, fractional with exactly one", () => {
     expect(formatDelta(15)).toBe("+15");
     expect(formatDelta(-3)).toBe("-3");
-    expect(formatDelta(7.8)).toBe("+7.80");
-    expect(formatDelta(-15.1)).toBe("-15.10");
+    expect(formatDelta(7.8)).toBe("+7.8");
+    expect(formatDelta(-15.1)).toBe("-15.1");
   });
 
   it("treats exact zero as unsigned", () => {
@@ -27,7 +27,7 @@ describe("formatDelta", () => {
   });
 
   it("honors the sign option and empty fallback", () => {
-    expect(formatDelta(12.5, { sign: false })).toBe("12.50");
+    expect(formatDelta(12.5, { sign: false })).toBe("12.5");
     expect(formatDelta(null)).toBe("—");
     expect(formatDelta(undefined)).toBe("—");
     expect(formatDelta(Number.NaN)).toBe("—");
@@ -36,11 +36,11 @@ describe("formatDelta", () => {
 
   it("formatScoreValue is the unsigned variant", () => {
     expect(formatScoreValue(66)).toBe("66");
-    expect(formatScoreValue(72.499999)).toBe("72.50");
+    expect(formatScoreValue(72.499999)).toBe("72.5");
     expect(formatScoreValue(null)).toBe("—");
   });
 
-  it("NEVER emits more than two decimal places across nasty inputs", () => {
+  it("NEVER emits more than one decimal place across nasty inputs", () => {
     const nasty = [
       -15.100000000000001, 7.799999999999997, 0.1 + 0.2, 1 / 3, -2 / 3,
       100 / 7, 66.006, 66.004, -0.005, 12.345678, 999.999,

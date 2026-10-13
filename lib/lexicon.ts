@@ -124,4 +124,26 @@ export function verticalReaderWord(verticalId: string, key: VerticalReaderWordKe
 }
 
 /** The words the lexicon retires from customer copy (the retired-names guard reads this list). */
+/**
+ * box-c (R65, item 2): the two grammar helpers for a number inside prose.
+ * formatPoints(1) → "1 pt", formatPoints(8) → "8 pts", formatPoints(6.8) → "6.8 pts",
+ * one decimal at most, trailing zero dropped (the hub's "6.8 pt" is the model).
+ */
+export function formatPointsValue(n: number): string {
+  const rounded = Math.round(Math.abs(n) * 10) / 10;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+}
+export function formatPoints(n: number): string {
+  const value = formatPointsValue(n);
+  return `${value} ${value === "1" ? "pt" : "pts"}`;
+}
+/** "a" or "an" for the number as it is read aloud: 8, 11, 18, 80 to 89, 800 to 899 take "an". */
+export function articleFor(n: number | string, capitalize = false): string {
+  const text = String(n).replace(/^[-+−]/, "");
+  const integer = text.split(/[.,]/)[0] ?? "";
+  const an = integer.startsWith("8") || integer === "11" || integer === "18";
+  const article = an ? "an" : "a";
+  return capitalize ? article.charAt(0).toUpperCase() + article.slice(1) : article;
+}
+
 export const RETIRED_WORDS = ["consultant", "peer-validated", "pillar", "five part", "canonical", "blended", "Free", "Basic"] as const;

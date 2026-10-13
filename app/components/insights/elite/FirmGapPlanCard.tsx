@@ -1,3 +1,4 @@
+import { formatPoints } from "@/lib/lexicon";
 import RankedBars from "@/app/components/charts/RankedBars";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
 import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
@@ -114,7 +115,7 @@ export default function FirmGapPlanCard({ data }: { data: FirmGapPlan }) {
                   {i + 1}. {g.title}
                 </span>
                 <span className="rounded-full bg-[rgba(229,109,4,0.1)] px-2.5 py-1 text-xs font-semibold text-[var(--brand-orange)]">
-                  −{g.gap} pts
+                  −{formatPoints(g.gap)}
                 </span>
               </div>
               <p className="mt-1.5 text-sm leading-6 text-[var(--shell-muted)]">{g.narrative}</p>

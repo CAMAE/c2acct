@@ -1,3 +1,4 @@
+import { articleFor, formatPoints } from "@/lib/lexicon";
 import prisma from "@/lib/prisma";
 import { requireRegistry, resolveVerticalContextForCompany } from "@/lib/verticals/companyBoundary";
 import type { ProductUtilityRegistryBundle } from "@/lib/verticals/questionBankRegistry";
@@ -1174,7 +1175,7 @@ export function buildVendorProductPlainLanguage(
     const points = snapshot.divergence.points ?? round1(vendorScore - firmScore);
     const magnitude = Math.round(Math.abs(points) * 10) / 10;
     sentences.push(
-      `${productName} reads ${Math.round(vendorScore)}% in your self-assessment and ${Math.round(firmScore)}% across ${assessmentNoun} — a ${magnitude}-point divergence.`
+      `${productName} reads ${Math.round(vendorScore)}% in your self-assessment and ${Math.round(firmScore)}% across ${assessmentNoun} — ${articleFor(magnitude)} ${magnitude}-point divergence.`
     );
     if (divergenceState(points) === "aligned") {
       sentences.push(
@@ -1274,9 +1275,9 @@ function buildVendorProductCardFace(
       const gap = Math.round(Math.abs((snapshot.divergence.points ?? vendorScore - firmScore)));
       const dir = vendorScore >= firmScore ? "above" : "below";
       return {
-        metric: { value: `${gap} pts`, caption: `self-report vs firm-reviewed gap` },
+        metric: { value: formatPoints(gap), caption: `self-report vs firm-reviewed gap` },
         statusLabel: band.label,
-        summary: `Firms rate this product ${Math.round(firmScore)} · ${band.label}; the vendor self-reports ${Math.round(vendorScore)} — a ${gap}-point gap with self-report ${dir} firm-reviewed evidence.`,
+        summary: `Firms rate this product ${Math.round(firmScore)} · ${band.label}; the vendor self-reports ${Math.round(vendorScore)} — ${articleFor(gap)} ${gap}-point gap with self-report ${dir} firm-reviewed evidence.`,
         supportingText: null,
       };
     }

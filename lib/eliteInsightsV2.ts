@@ -25,7 +25,7 @@ import {
   type BenchmarkReading,
 } from "@/lib/benchmarks";
 import { MIN_CONTRIBUTORS, benchmarkCutoffLabel, displayTierFor, latestFinalPerFirm, rankFromTop, rankShownFor, type DisplayTier } from "@/lib/assessmentCore";
-import { quartileWord } from "@/lib/lexicon";
+import { formatPoints, quartileWord } from "@/lib/lexicon";
 import type { FirmAlignmentSignal } from "@/lib/firmAlignmentSignal";
 import type { FreshnessReading } from "@/lib/freshness";
 import { getFirmFreshness, type FirmFreshnessSource } from "@/lib/firmFreshness";
@@ -421,7 +421,7 @@ export function gapPlanLead(plan: FirmGapPlan): GapPlanLead | null {
 
 /** The page's row meta ("9 pts under 65%" / "+9 pts over 65%"), one formatter for card and page. */
 export function gapPlanRowMeta(item: Pick<GapItem, "gap" | "threshold">): string {
-  return item.gap > 0 ? `${item.gap} pts under ${item.threshold}%` : `+${-item.gap} pts over ${item.threshold}%`;
+  return item.gap > 0 ? `${formatPoints(item.gap)} under ${item.threshold}%` : `+${formatPoints(-item.gap)} over ${item.threshold}%`;
 }
 
 // ── F3 · Trajectory ──────────────────────────────────────────────────────────
@@ -1168,7 +1168,7 @@ export function firmEliteHubMetrics(input: {
   const lead = gapPlanLead(gapPlan);
   const recommendationFace: EliteHubFace | null = lead
     ? {
-        hero: `${lead.title}: ${lead.points} pts ${lead.kind} its bar`,
+        hero: `${lead.title}: ${formatPoints(lead.points)} ${lead.kind} its bar`,
         chip: lead.kind === "under" ? { label: "biggest gap", tone: "amber" } : { label: "thinnest margin", tone: "positive" },
         sub: `${gapPlan.clearedCount} of ${gapPlan.totalCount} capabilities at their bar`,
       }

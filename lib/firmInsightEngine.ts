@@ -1,3 +1,4 @@
+import { articleFor } from "@/lib/lexicon";
 import { CONFIDENCE_BAND_LABEL, STALE_CONFIDENCE_NOTE, resolveConfidence } from "@/lib/confidenceBands";
 import { readFreshness, type FreshnessState } from "@/lib/freshness";
 import prisma from "@/lib/prisma";
@@ -525,7 +526,7 @@ export function buildFirmInsightCardSummary(key: InsightKey, report: FirmInsight
       return `Control posture rests on ${strongest.title} (${strongScore}%), with ${weakest.title} (${weakScore}%) holding the most pressure.`;
     }
     case "firm_tier1_change_alignment":
-      return `A ${strongScore - weakScore}-point spread separates ${strongest.title} (${strongScore}%) from ${weakest.title} (${weakScore}%).`;
+      return `${articleFor(strongScore - weakScore, true)} ${strongScore - weakScore}-point spread separates ${strongest.title} (${strongScore}%) from ${weakest.title} (${weakScore}%).`;
     case "firm_tier1_operating_baseline":
     default: {
       const average = averageContributingModuleScore(report);

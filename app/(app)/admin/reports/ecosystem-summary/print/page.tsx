@@ -1,3 +1,4 @@
+import { formatPoints } from "@/lib/lexicon";
 import ScoreLockup from "@/app/components/charts/ScoreLockup";
 import RankedBars from "@/app/components/charts/RankedBars";
 import ExecutiveNarrative from "@/app/components/admin/reports/ExecutiveNarrative";
@@ -108,7 +109,7 @@ export default async function EcosystemSummaryPrintPage() {
                   <td className="py-2 pr-3 text-[var(--shell-muted)]">{row.vendorName}</td>
                   <td className="pat-stat-number py-2 pr-3 text-right">{row.vendorScore}%</td>
                   <td className="pat-stat-number py-2 pr-3 text-right">{row.firmAverage}%</td>
-                  <td className="pat-stat-number py-2 pr-3 text-right">{row.gap} pts</td>
+                  <td className="pat-stat-number py-2 pr-3 text-right">{formatPoints(row.gap)}</td>
                   <td className="pat-stat-number py-2 text-right">{row.reviewCount}</td>
                 </tr>
               ))}

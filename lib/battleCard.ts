@@ -1,3 +1,4 @@
+import { formatPoints } from "@/lib/lexicon";
 import { buildAdminBriefingContext, getAdminCompanyBriefing, getBriefingProductsForFirms } from "@/lib/adminBriefingEngine";
 import type { BriefingProductSummary, BriefingRiskOpportunity } from "@/lib/adminBriefingEngine";
 import { getVendorProductInsightCatalog } from "@/lib/vendorProductInsightEngine";
@@ -93,7 +94,7 @@ export function buildBattleCardAnatomy(input: {
     if (magnitudeForDelta(c.delta) !== "small" && c.vendorScore !== null && c.delta !== null) {
       const dir = c.delta > 0 ? "above" : "below";
       riskFlags.push(
-        `${c.productName}: your self-report (${Math.round(c.vendorScore)}) sits ${Math.abs(Math.round(c.delta))} pts ${dir} the firm review (${Math.round(c.firmScore)}) — a calibration gap to close.`
+        `${c.productName}: your self-report (${Math.round(c.vendorScore)}) sits ${formatPoints(Math.round(c.delta))} ${dir} the firm review (${Math.round(c.firmScore)}) — a calibration gap to close.`
       );
     }
   }
@@ -384,7 +385,7 @@ export async function getVendorBattleCardData(vendorCompanyId: string): Promise<
       if (nextActions.length >= 2) break;
       if (mod.score !== null && (mod.headroom ?? 0) > 0) {
         nextActions.push(
-          `Lead with ${mod.title}: firm sits at ${mod.score}%, ~${Math.round(mod.headroom ?? 0)} pts of headroom for your product strength.`
+          `Lead with ${mod.title}: firm sits at ${mod.score}%, ~${formatPoints(Math.round(mod.headroom ?? 0))} of headroom for your product strength.`
         );
       }
     }

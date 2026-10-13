@@ -188,7 +188,7 @@ export default function VendorBattleCardClient({
                             {fitTierLabel(firm.alignmentDelta)}
                           </span>
                           <span className="pat-stat-number text-lg" style={{ color: heat }}>
-                            {formatDelta(firm.alignmentDelta)}
+                            {formatDelta(firm.alignmentDelta ?? 0)}
                           </span>
                         </div>
                         <div className="mt-1.5 h-2.5 w-full overflow-hidden rounded-full bg-[rgba(6,54,116,0.08)]">
@@ -285,14 +285,14 @@ function BattleCardDetailBody({
             {fitTierLabel(detail.alignmentDelta)} · headroom over their alignment
           </span>
           <span className="pat-stat-number text-2xl" style={{ color: fitHeatColor(detail.alignmentDelta) }}>
-            {formatDelta(detail.alignmentDelta)}
+            {formatDelta(detail.alignmentDelta ?? 0)}
           </span>
         </div>
         <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-[rgba(6,54,116,0.08)]">
           <div className="h-full rounded-full" style={{ width: `${fitBarPct(detail.alignmentDelta)}%`, background: fitHeatColor(detail.alignmentDelta) }} />
         </div>
         <div className="mt-1.5 text-xs text-[var(--shell-muted)]">
-          Their alignment {detail.firmAlignment !== null ? `${detail.firmAlignment}%` : "— (thin)"} · your product
+          Their alignment {detail.firmAlignment !== null ? `${detail.firmAlignment}%` : "not yet measured (thin)"} · your product
           strength {data.vendorStrength !== null ? `${data.vendorStrength}%` : "—"} across{" "}
           {data.firmReviewedProductCount || data.selfReportedOnlyProductCount} product
           {(data.firmReviewedProductCount || data.selfReportedOnlyProductCount) === 1 ? "" : "s"}
@@ -345,7 +345,7 @@ function BattleCardDetailBody({
       ) : (
         <dl className="mt-5 grid gap-3 sm:grid-cols-2">
           <Fact label="Gap category" value={detail.gapArea} />
-          <Fact label="Alignment delta" value={formatDelta(detail.alignmentDelta)} />
+          <Fact label="Alignment delta" value={formatDelta(detail.alignmentDelta ?? 0)} />
         </dl>
       )}
 

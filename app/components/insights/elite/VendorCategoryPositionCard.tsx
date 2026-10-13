@@ -1,5 +1,5 @@
 import PercentileBandRow from "@/app/components/charts/PercentileBandRow";
-import { quartileWord } from "@/lib/lexicon";
+import { formatPoints, quartileWord } from "@/lib/lexicon";
 import { EliteEmptyState } from "@/app/components/insights/elite/EliteCardShell";
 import EvidenceMethodPanel from "@/app/components/insights/elite/EvidenceMethodPanel";
 import type { VendorCategoryPosition } from "@/lib/eliteInsightsV2";
@@ -76,7 +76,7 @@ export default function VendorCategoryPositionCard({
         <section className="pat-card p-6">
           <div className="pat-label">Where to push first</div>
           <p className="mt-3 text-sm leading-6 text-[var(--shell-ink)]">
-            {data.topAction.category}: <span className="font-semibold">+{data.topAction.gap} pts</span> to reach the top
+            {data.topAction.category}: <span className="font-semibold">+{formatPoints(data.topAction.gap)}</span> to reach the top
             quartile of {data.topAction.n} vendors — your biggest single lever in this category set. An estimate,
             not a guarantee.
           </p>

@@ -1,3 +1,4 @@
+import { formatPoints } from "@/lib/lexicon";
 import PercentileBandRow from "@/app/components/charts/PercentileBandRow";
 import TrajectoryChart from "@/app/components/charts/TrajectoryChart";
 import type { ProductCohortPosition, ProductTrajectory } from "@/lib/eliteInsightsV2";
@@ -69,7 +70,7 @@ export default function ProductEliteDepthCard({
           <p className="mt-3 text-sm leading-6 text-[var(--shell-ink)]">
             {cohort.gapToTopQuartile !== null ? (
               <>
-                <span className="font-semibold">+{cohort.gapToTopQuartile} pts</span> of firm-reviewed
+                <span className="font-semibold">+{formatPoints(cohort.gapToTopQuartile)}</span> of firm-reviewed
                 strength moves {productName} into the top quartile (Q1) of {cohort.n} products in{" "}
                 {cohort.category}
                 {weakestArea ? (
