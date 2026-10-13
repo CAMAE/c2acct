@@ -283,5 +283,5 @@ a) vendor malice b) bad luck c) dashboards are inherently fragile d) no dependen
 a) always build — maximum control b) weigh supply-chain risk (another party processing client data, contract dependence) against internal ITGC capacity (can the firm actually maintain, monitor, and secure custom code?) and document the decision with a named owner — either answer can be right; an undocumented one is wrong c) always buy — vendors are the professionals d) whichever is cheaper this quarter — **b.** *[NIST CSF 2.0 GV.SC; Green Book 2025, P11]*
 
 ---
-### Bank stats: 90 items · 27 E / 45 M / 18 H · every item sourced · answer-key balance: 24 a / 21 b / 22 c / 23 d · anchor-item candidates: A12, B9, C13, C17, D8, D16 (high-discrimination scenarios)
+### Bank stats: 90 items · 27 E / 45 M / 18 H · every item sourced · answer-key balance: 24 a / 21 b / 22 c / 23 d · anchor-item candidates: C13:D1:M, A12:D2:M, B9:D3:M, D8:D5:M, C17:R:M, D16:R:H (charter cells code:driver:tier from the charter re-tag table, C13 toward D1, C17 to the reserve pending its replacement, D16 the reserve; D4 and D6 empty; anchor-pool R66 item 7)
 ### Next: CPA-founder accuracy review → Leslie clarity pass → load into ModuleTemplate schema when Sprint 4 lands. Bank 3 (Workflow & Capacity) queued on the same method.

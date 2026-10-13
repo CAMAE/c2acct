@@ -283,5 +283,5 @@ a) annual everything b) daily: payment/exception queues · weekly: unbilled/WIP 
 a) fix fast and quietly b) impact analysis across dependent processes, coordinated change (P11 change management), re-test of the dependent controls, and closure evidence for all touched paths — shared components need sibling verification, not spot fixes c) email the fix d) defer to year-end — **b.** *[Green Book 2025, P17/P11]*
 
 ---
-### Bank stats: 90 items · 27 E / 45 M / 18 H · every item sourced · anchor-item candidates: A9, B8, C8, C19, D6, D17 (high-discrimination scenarios)
+### Bank stats: 90 items · 27 E / 45 M / 18 H · every item sourced · anchor-item candidates: B8:D1:M, A9:D2:M, D6:D3:M, C8:D4:M, D17:D5:H, C19:R:H (charter cells code:driver:tier from the charter re-tag table, C19 to the reserve so D5 holds one code, the reserve as R; anchor-pool R66 item 7)
 ### Next: CPA-founder accuracy review → Leslie clarity pass → load into ModuleTemplate schema when Sprint 4 lands. Bank 2 (Integration & Data Flow) queued on the same method.
