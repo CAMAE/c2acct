@@ -108,7 +108,7 @@ describe("Trajectory 'current' == the alignment index", () => {
     expect(traj.history.at(-1)?.score).toBe(68); // not 81
     // the hub face metric reads the same current index
     const metrics = firmEliteHubMetrics({
-      peer: { available: false, cutoffLabel: null, displayTier: "none", rankShown: false, overall: null, bestAction: null, rows: [], reportCard: [], emptyReason: null },
+      peer: { available: false, cutoffLabel: null, cutoffAt: null, displayTier: "none", rankShown: false, overall: null, bestAction: null, rows: [], reportCard: [], emptyReason: null },
       gapPlan: { available: false, gaps: [], watchList: [], clearedCount: 0, totalCount: 0, emptyReason: null },
       trajectory: traj,
     });

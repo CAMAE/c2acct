@@ -100,7 +100,7 @@ const gap = (key: string, title: string, score: number, threshold: number) => ({
 });
 
 describe("F6 — gap plan: the hub card hero equals the page's first row", () => {
-  const peer = { available: true, cutoffLabel: null, displayTier: "percentile" as const, rankShown: true, overall: { percentile: 72, rankFromTop: 30, n: 106, score: 68, peerMedian: 65 }, bestAction: { moduleLabel: "Automation and AI Readiness", deficit: 9, fromPercentile: 48, reaches: "top quartile" as const }, rows: [], reportCard: [], emptyReason: null };
+  const peer = { available: true, cutoffLabel: null, cutoffAt: null, displayTier: "percentile" as const, rankShown: true, overall: { percentile: 72, rankFromTop: 30, n: 106, score: 68, peerMedian: 65 }, bestAction: { moduleLabel: "Automation and AI Readiness", deficit: 9, fromPercentile: 48, reaches: "top quartile" as const }, rows: [], reportCard: [], emptyReason: null };
   const trajectory = { available: false, history: [], projection: null, momentum: null, swapMovement: null, provenance: null, emptyReason: "x" };
 
   it("with no gaps the hero is the thinnest margin over its own bar, the page's first watch row", () => {
@@ -139,6 +139,7 @@ describe("V8 — category count", () => {
         ],
         topAction: null,
         cutoffLabel: null,
+        cutoffAt: null,
         emptyReason: null,
       },
       demand: { available: false, identityAllowed: true, windowLabel: "", earlySignal: true, totalIn: 0, totalOut: 0, swappedIn: [], swappedOut: [], rankedAction: null, emptyReason: "x" },

@@ -95,6 +95,7 @@ describe("Block 12b — firm tier-1 hybrid Elite depth (theme-scoped peer positi
   const peer = (): FirmPeerPosition => ({
     available: true,
     cutoffLabel: null,
+    cutoffAt: null,
     displayTier: "percentile",
     rankShown: true,
     overall: { percentile: 60, rankFromTop: 40, n: 100, score: 66, peerMedian: 66 },
@@ -130,6 +131,7 @@ describe("Block 12c — Elite hub face metrics (own headline number per card)", 
       peer: {
         available: true,
         cutoffLabel: null,
+        cutoffAt: null,
         displayTier: "percentile",
         rankShown: true,
         overall: { percentile: 72, rankFromTop: 30, n: 106, score: 68, peerMedian: 65 },
@@ -168,6 +170,7 @@ describe("Block 12c — Elite hub face metrics (own headline number per card)", 
         ],
         topAction: null,
         cutoffLabel: null,
+        cutoffAt: null,
         emptyReason: null,
       },
       demand: {
