@@ -8,7 +8,7 @@ const ROOT = path.resolve(__dirname, "..");
 describe("consequence clauses (box-c item 9)", () => {
   it("the aggregate rows' top option carries the clause, null where the set has none", () => {
     const source = readFileSync(path.join(ROOT, "lib/assessment/followUpEvidence.ts"), "utf8");
-    expect((source.match(/consequence: string \| null; count: number \} \| null;/g) ?? []).length).toBe(2);
+    expect((source.match(/consequence: string \| null; count: number \} \| null;/g) ?? []).length).toBe(1); // one row type, shared by the firm and vendor aggregates
     expect((source.match(/consequence: option\.consequence \?\? null, count \}/g) ?? []).length).toBe(2);
   });
   it("both renderers print the clause as a muted second line, and the sitting view passes it through only when present", () => {
