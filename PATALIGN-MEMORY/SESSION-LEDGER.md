@@ -1455,3 +1455,5 @@ NOT-CLOSED: all queue items; AGENT_APPROVAL_HMAC_SECRET not yet in preflight spe
 tail-append vs newest-first header (successor's call). Cam clears.
 
 2026-10-13 box-c-1 (Forge): branch feat/box-c from origin/feature/engagement-v1 69e8bf1c (production). R65 filed in REQUIREMENTS.md. Nine items, one commit each, proof in budget mode, guard on both flag sets, report FORGE-REPORT-BOX-C.md. Nothing pushed; Cam types push.
+
+2026-10-13 anchor-pool-1 (Forge, box-d-1): branch feat/anchor-pool from origin/feature/engagement-v1 4af1592a (production). R66 filed in REQUIREMENTS.md. Seven items, commits per WORK step, proof in budget mode, guard on both flag sets, report FORGE-REPORT-ANCHOR-POOL.md. Nothing pushed; Cam types push. Rulings: all defaults.
