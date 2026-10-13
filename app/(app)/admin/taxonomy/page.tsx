@@ -1,3 +1,4 @@
+import VerticalBucketOptions from "@/app/components/admin/VerticalBucketOptions";
 import prisma from "@/lib/prisma";
 import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
 import {
@@ -62,11 +63,7 @@ export default async function AdminTaxonomyPage() {
           </select>
           <select name="parentId" defaultValue="__none__" className="pat-select">
             <option value="__none__">No parent</option>
-            {buckets.map((bucket) => (
-              <option key={bucket.id} value={bucket.id}>
-                {bucket.title}
-              </option>
-            ))}
+            <VerticalBucketOptions buckets={buckets} />
           </select>
           <button type="submit" className="pat-button-primary">
             Create
@@ -92,11 +89,7 @@ export default async function AdminTaxonomyPage() {
                 </select>
                 <select name="parentId" defaultValue={bucket.parentId ?? "__none__"} className="pat-select">
                   <option value="__none__">No parent</option>
-                  {buckets.filter((candidate) => candidate.id !== bucket.id).map((candidate) => (
-                    <option key={candidate.id} value={candidate.id}>
-                      {candidate.title}
-                    </option>
-                  ))}
+                  <VerticalBucketOptions buckets={buckets.filter((candidate) => candidate.id !== bucket.id)} />
                 </select>
                 <label className="flex items-center gap-2 rounded-[18px] border border-[var(--shell-border)] px-4 py-3 text-sm text-[var(--shell-muted)]">
                   <input type="checkbox" name="active" defaultChecked={bucket.active} />

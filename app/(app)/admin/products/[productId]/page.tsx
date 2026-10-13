@@ -1,3 +1,4 @@
+import VerticalBucketOptions from "@/app/components/admin/VerticalBucketOptions";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { AdminPageIntro, AdminPanel } from "@/app/components/admin/AdminShell";
@@ -49,7 +50,7 @@ export default async function AdminProductDetailPage({
     prisma.taxonomyBucket.findMany({
       where: { active: true },
       orderBy: { title: "asc" },
-      select: { id: true, title: true },
+      select: { id: true, title: true, verticalId: true },
     }),
     prisma.capabilityNode.findMany({
       where: { active: true },
@@ -113,11 +114,7 @@ export default async function AdminProductDetailPage({
               <option value="" disabled>
                 Select bucket
               </option>
-              {buckets.map((bucket) => (
-                <option key={bucket.id} value={bucket.id}>
-                  {bucket.title}
-                </option>
-              ))}
+              <VerticalBucketOptions buckets={buckets} />
             </select>
             <select name="fit" defaultValue="PRIMARY" className="pat-select">
               {PRODUCT_TAXONOMY_FIT_OPTIONS.map((fit) => (
