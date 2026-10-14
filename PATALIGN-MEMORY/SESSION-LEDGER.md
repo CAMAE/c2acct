@@ -1458,3 +1458,5 @@ tail-append vs newest-first header (successor's call). Cam clears.
 
 2026-10-13 anchor-pool-1 (Forge, box-d-1): branch feat/anchor-pool from origin/feature/engagement-v1 4af1592a (production). R66 filed in REQUIREMENTS.md. Seven items, commits per WORK step, proof in budget mode, guard on both flag sets, report FORGE-REPORT-ANCHOR-POOL.md. Nothing pushed; Cam types push. Rulings: all defaults.
 2026-10-13 anchor-pool-1 (Forge) close: HEAD 34310c04, 7 commits; items 1 to 7 done, item 7 on preview as DRAFT -pool templates (migration applied there); guard preview set = Box C list, production set +8 vendor controls on local data (NOT VERIFIED); report FORGE-REPORT-ANCHOR-POOL.md. Nothing pushed; Cam types push.
+
+2026-10-14 anchor-import-1 (Forge, box-e): branch feat/anchor-import from origin/feature/engagement-v1 92e133de (production). R67 filed in REQUIREMENTS.md. Six items, one commit per bank for item 1, proof in budget mode, guard on both flag sets, report FORGE-REPORT-ANCHOR-IMPORT.md. Nothing pushed; Cam types push. Rulings: all defaults, tags file approved by Cam 2026-10-14.
