@@ -134,7 +134,7 @@ describe("vendor product gap callout", () => {
 });
 
 describe("vendor product plain language", () => {
-  it("explains a vendor-over-firm divergence in 5 sentences from the same payload", () => {
+  it("explains a vendor-over-firm divergence in 6 sentences from the same payload", () => {
     const plain = buildVendorProductPlainLanguage(
       productSnapshotFixture({ vendorScore: 84.5, firmScore: 75, assessmentCount: 3, divergencePoints: 9.5 }),
       null
@@ -147,7 +147,8 @@ describe("vendor product plain language", () => {
     expect(plain?.summary).toContain("Measurable value is your softest self-reported section at 72%");
     expect(plain?.summary).toContain("generally strengthens your product-market evidence");
     expect(plain?.summary).toContain("3 firm reviews currently stand behind the firm-reviewed signal");
-    expect(plain?.summary.split(/(?<=\.)\s+/)).toHaveLength(5);
+    // anchor-pool (R66, item 1): the recalibration sentence and the "stand behind" sentence are two sentences, not a comma splice.
+    expect(plain?.summary.split(/(?<=\.)\s+/)).toHaveLength(6);
     expect(plain?.nextSteps).toEqual([
       "Strengthen the measurable value story before the next round of firm reviews.",
     ]);

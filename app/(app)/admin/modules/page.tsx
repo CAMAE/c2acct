@@ -198,7 +198,7 @@ export default async function AdminModulesPage() {
         ) : (
           <div className="mt-6 grid gap-6">
             {anchorPools.map((bank) => (
-              <div key={bank.key} className="rounded-[20px] border border-[var(--shell-border)] bg-white/80 p-5">
+              <div key={bank.key} className="rounded-2xl border border-[var(--shell-border)] bg-white/80 p-5">
                 <div className="text-sm font-semibold text-[var(--shell-ink)]">{bank.title}</div>
                 <div className="mt-1 text-xs text-[var(--shell-muted)]">
                   {bank.key} · {bank.reviewStatus} · {bank.verticalId} · {bank.itemCount} items · {bank.grid.tagged ? "tagged header" : "untagged header"} ·{" "}
