@@ -1,11 +1,11 @@
-# PAT Question Bank v1 — Integration & Data Flow Maturity (Legal) [IMPORT FORMAT: two em dashes per item are required by lib/modules/qbankParser.ts; the human-readable pack has none]
-### 90 items · September 29, 2026 · DRAFT pending domain-reviewer accuracy review + clarity pass (two-signature gate)
-### Bank stats: 90 items · 27 E / 45 M / 18 H · every item sourced · anchor-item candidates: A1:D1:E, B14:D2:M, B6:D3:M, A23:D4:M, A24:D5:H, B11:D6:H, D18:R:M (charter cells code:driver:tier from PATALIGN-LEGAL-ANCHOR-TAGS-2026-10-11 and its tier gaps, the reserve as R; anchor-pool R66 item 7)
+# PAT Question Bank v1 — Integration & Data Flow Maturity (Legal) [IMPORT FORMAT: one em dash per item, before the key letter, is required by lib/modules/qbankParser.ts; the human-readable pack has none]
+### 98 items · September 29, 2026 · DRAFT pending domain-reviewer accuracy review + clarity pass (two-signature gate)
+### Bank stats: 98 items · 30 E / 46 M / 22 H · every item sourced · anchor-item candidates: A1:D1:E, A6:D1:M, A25:D1:H, A26:D2:E, B14:D2:M, A27:D2:H, C19:D3:E, B6:D3:M, B21:D3:H, A28:D4:E, A23:D4:M, A29:D4:H, D7:D5:E, D21:D5:M, A24:D5:H, A30:D6:E, A3:D6:M, B11:D6:H, D18:R:M (charter cells code:driver:tier, 18 of 18 from PATALIGN-ANCHOR-POOL-TAGS-2026-10-14 approved 2026-10-14; anchor-import R67)
 ### Sources (all public domain / cited): **NIST CSF 2.0** (CSWP 29, February 2024) · **NIST SP 800-53 Rev. 5** (September 2020, release 5.2.0 August 2025) · **NIST SP 800-63B-4** (August 2025) · **NIST SP 800-88** (Guidelines for Media Sanitization; Rev. 2, September 2025) · **NIST SP 800-171 Rev. 3** (May 2024) · GAO **2025 Green Book** (GAO-25-107721) · GAO **Assessing Data Reliability** (GAO-20-283G, December 2019) · **Federal Rules of Civil Procedure** 5, 5.2, 26, 34, 37 (as amended through December 1, 2025) · **Federal Rules of Evidence** 502, 901, 902 · **ESIGN Act** (15 U.S.C. 7001) · **16 CFR Part 314** (FTC Safeguards Rule, benchmark only) · **45 CFR Part 164 Subpart C** (HIPAA Security Rule) · **CISA Cyber Essentials** (2019) · **ABA Model Rules of Professional Conduct** 1.1, 1.4, 1.5, 1.6, 1.7, 1.10, 1.15, 1.16, 1.17, 5.1, 5.3 and Comments (CITED) · **ABA Formal Opinions** 08-451 (2008), 477R (2017), 483 (2018), 498 (2021), 512 (2024) and **ABA Informal Opinion 1384** (CITED) · **The Sedona Principles, Third Edition** (2018) and **Sedona Commentary on Legal Holds, Second Edition** (2019) (CITED) · **UETA** (ULC 1999) (CITED) · state rules and opinions as marked (CITED, state-specific) · **ABA TechReport 2024**, **ILTA Technology Survey 2025**, **Clio Legal Trends 2025** (CITED)
-### Framing note: federal standards and professional-conduct rules applied to how matter, client, time, trust and evidence data moves between a law firm's systems and its vendors; each item cites its source principle and no item states what is lawful. Difficulty mix: 27 E / 45 M / 18 H. Blueprint: A) System Inventory, Matter-Centric Data Architecture & Integration Design 24 · B) Data Quality, Reliability & Reporting 20 · C) Data in Motion and at Rest, Records & Evidence Integrity 26 · D) Change, Interoperability, Vendor Data Exchange & Portability 20.
+### Framing note: federal standards and professional-conduct rules applied to how matter, client, time, trust and evidence data moves between a law firm's systems and its vendors; each item cites its source principle and no item states what is lawful. Difficulty mix: 30 E / 46 M / 22 H. Blueprint: A) System Inventory, Matter-Centric Data Architecture & Integration Design 24 · B) Data Quality, Reliability & Reporting 20 · C) Data in Motion and at Rest, Records & Evidence Integrity 26 · D) Change, Interoperability, Vendor Data Exchange & Portability 20.
 
 ---
-## SECTION A — System Inventory, Matter-Centric Data Architecture & Integration Design (24: 7E/12M/5H)
+## SECTION A — System Inventory, Matter-Centric Data Architecture & Integration Design (30: 10E/12M/8H)
 
 **A1 (E)** A three-attorney firm cannot say which systems hold client information because files sit in email, a shared drive, two cloud services and a billing tool. Under NIST CSF 2.0 the outcome the firm has not yet achieved is:
 a) buying a backup service b) an inventory of assets and the data they hold (Identify, ID.AM) c) retaining outside counsel d) encrypting every device — **b.** The Identify function starts with knowing what assets and data the organization has before safeguards can be chosen. *[NIST CSF 2.0, ID.AM Asset Management]*
@@ -79,8 +79,26 @@ a) Principle 3, establish structure, responsibility and authority b) Principle 8
 **A24 (H)** A midsize firm is replacing its practice management platform. The 2025 Green Book revision added an expectation that management:
 a) hire an outside auditor b) freeze all other projects c) obtain bar approval d) document its assessment of significant changes, treating the migration as a change to be identified, analyzed and responded to — **d.** Principle 9 covers responding to change and the 2025 edition requires documentation of change assessment for significant changes. *[Green Book 2025, Principle 9 and 2025 revision summary]*
 
+**A25 (H)** A 30-lawyer firm is asked by its cyber insurer for a map of its systems and data flows and sends a list of software subscriptions with the cost of each. Under NIST CSF 2.0 Asset Management, the elements the list still has to show before it works as a map are:
+a) each system, the data it holds, the feeds between systems and to vendors, and where client data rests in each b) the renewal date of each subscription c) the number of licensed users on each d) the support phone number for each vendor — **a.** ID.AM asks for inventories of hardware, software, services and data and for maintained representations of network communication and data flows, which a purchasing list does not give. *[NIST CSF 2.0, ID.AM-01 to ID.AM-03, ID.AM-07]*
+
+**A26 (E)** A nightly feed that copies court deadlines from the firm's e-filing mailbox into its calendar stops working. Nobody notices for nine days, until a hearing is nearly missed. The control the firm did not have is:
+a) a longer retention period for email b) monitoring of the feed that raises an alert when a run fails or moves zero records c) a second calendar kept by hand d) a faster internet connection — **b.** Detecting adverse events depends on continuous monitoring of systems and services so a failure surfaces when it happens rather than when its effect does. *[NIST CSF 2.0, DE.CM]*
+
+**A27 (H)** A midsize firm has twelve feeds between its intake, conflicts, document, time and billing systems. Last quarter two feeds failed silently and were found by accident weeks later. The firm can afford one monitoring design. The one that catches a silent failure first is:
+a) a quarterly review of each feed by the IT vendor b) asking staff to report when numbers look wrong c) each run writes a record count and completion status to a log that is checked against the expected count, with an exception raised the same day for any run that fails, is late or moves an unexpected volume d) a yearly audit of all twelve feeds — **c.** Monitoring built into the operation that compares each run to an expected result surfaces a failure at the run, not at the next review or the next complaint. *[Green Book 2025, Principle 16; NIST SP 800-53 Rev. 5, SI-4]*
+
+**A28 (E)** A feed between a firm's intake form and its matter system has been pushing bad client names for two weeks. The IT contractor says the vendor owns the feed, the vendor says the firm's office manager owns it, and the office manager says IT does. The missing element is:
+a) a named owner for each feed who is accountable for its data and has the authority to fix or stop it b) a longer vendor contract c) a bigger server d) a second intake form — **a.** Establishing structure, responsibility and authority means each process has a person accountable for it; a feed with three candidate owners has none. *[Green Book 2025, Principle 3]*
+
+**A29 (H)** A 60-lawyer firm with four offices keeps client, matter, people and financial data across seven systems joined by fifteen feeds. It wants to assign ownership so that any data problem has one person to call. The design that meets that test is:
+a) the IT director owns every system and every feed b) one accountable owner per data domain (client, matter, people, finance) who decides what the data means and who may change it, plus one named owner per feed who is responsible for its running and is told when it fails, with the operator and the vendor recorded separately from the owner c) each partner owns the data in the matters they bill d) the vendor of each system owns that system's data — **b.** Roles, responsibilities and authorities need to be established, communicated and understood; ownership that follows the data and the feed, separated from who operates the technology, is what makes a problem traceable to one accountable person. *[NIST CSF 2.0, GV.RR; Green Book 2025, Principle 3]*
+
+**A30 (E)** A client moves offices. The new address is updated in the firm's billing system but not in the document or conflicts systems, so engagement letters and invoices now go to different places. The design defect is:
+a) staff did not work fast enough b) the client should have written to each department c) the firm needs a fourth system d) there is no single record of truth for client identity that the other systems read from, so the same fact is kept in three places and drifts — **d.** Quality information comes from reliable sources; when three systems each hold their own copy of the same fact, none is reliable until one is designated the source and the others follow it. *[Green Book 2025, Principle 13, attribute 13.03]*
+
 ---
-## SECTION B — Data Quality, Reliability & Reporting (20: 6E/10M/4H)
+## SECTION B — Data Quality, Reliability & Reporting (21: 6E/10M/5H)
 
 **B1 (E)** GAO's data reliability guide judges data on three dimensions. They are:
 a) speed, cost and volume b) format, color and font c) accuracy, completeness and applicability for the intended use d) age, source and owner — **c.** GAO-20-283G defines reliability as accuracy, completeness and applicability for the purpose at hand. *[GAO-20-283G, Assessing Data Reliability (2019)]*
@@ -141,6 +159,9 @@ a) identification of requirements b) external communication c) fraud risk d) pro
 
 **B20 (H)** A firm's management committee wants a single view of risk that combines conflicts exceptions, trust reconciliation breaks and security incidents. COSO ERM's information principles support:
 a) keeping each report separate forever b) leveraging information systems and reporting on risk, culture and performance so the committee sees an integrated picture c) reporting only financial results d) replacing reports with verbal updates — **b.** ERM Principles 18 and 20 cover leveraging information systems and reporting on risk, culture and performance. *[COSO ERM 2017, Principles 18 and 20; CITED]*
+
+**B21 (H)** A firm's monthly reconciliation between the matter list in its document system and the matter list in its billing system is run every month and filed. The same 38 unmatched matters have appeared on the report for seven months. The managing partner asks whether the reconciliation is working. The accurate answer is:
+a) yes, because the report is produced on schedule b) yes, because the number of unmatched matters is not growing c) no, because the reconciliation should be weekly d) no, because a reconciliation is evidence only when its reconciling items are explained and cleared by an owner within a set time, and an aged list that nobody clears shows the control is run but not resolved — **d.** Processing data into quality information includes checks that it is complete and accurate; a reconciliation that identifies breaks and leaves them is not that check, and deficiencies are expected to be remediated on a timely basis. *[Green Book 2025, Principle 13, attribute 13.04; Principle 17]*
 
 ---
 ## SECTION C — Data in Motion and at Rest, Records & Evidence Integrity (26: 8E/13M/5H)
@@ -224,7 +245,7 @@ a) production should be in the form ordinarily maintained or a reasonably usable
 a) recordings to be deleted immediately b) recordings and transcripts of virtual meetings to be stored securely and the platform's third-party access risks understood c) no recording ever d) recordings to be sent to the client only — **b.** The opinion addresses videoconference platforms and secure storage of any recordings or transcripts. *[ABA Formal Op. 498 (2021)]*
 
 ---
-## SECTION D — Change, Interoperability, Vendor Data Exchange & Portability (20: 6E/10M/4H)
+## SECTION D — Change, Interoperability, Vendor Data Exchange & Portability (21: 6E/11M/4H)
 
 **D1 (E)** A client discharges a firm and asks for her file. Model Rule 1.16(d) requires the lawyer to:
 a) hold the file until fees are paid b) send only the pleadings c) surrender papers and property to which the client is entitled and refund any unearned advance fee d) destroy the file — **c.** On termination the lawyer must take steps to protect the client's interests, including surrendering papers and property and refunding unearned fees; some states add file-ownership detail. *[ABA Model Rule 1.16(d); state variants add detail]*
@@ -286,6 +307,9 @@ a) keeping abreast of the benefits and risks associated with relevant technology
 **D20 (H)** A firm gives an offshore data-processing vendor standing access to its matter system with little day-to-day supervision. ABA Formal Opinion 08-451 indicates that:
 a) no client involvement is needed b) client disclosure and informed consent are required where outside providers will access Rule 1.6 information and the arrangement lacks the close supervision of a firm employee c) the vendor becomes the lawyer of record d) only the fee must be disclosed — **b.** The opinion requires due diligence, supervision, and client consent where confidential information is shared without close supervision. *[ABA Formal Op. 08-451 (2008)]*
 
+**D21 (M)** The vendor of a firm's billing system announces that in 90 days it will retire the interface the firm's time-entry feed uses. The sequence the firm should follow is:
+a) wait for the retirement date and fix whatever breaks b) ask the vendor to extend the date and otherwise do nothing c) find every feed that uses the interface from the system map, assess the impact of the change, build and test the replacement against known results in a non-production copy, schedule the cutover with the feed owner, then verify that the first live runs reconcile d) switch billing vendors before the date — **c.** Changes are to be analyzed for impact, tested, approved and tracked before implementation, and a change to a system that could affect internal control is to be identified, analyzed and responded to. *[NIST SP 800-53 Rev. 5, CM-3, CM-4; Green Book 2025, Principle 9]*
+
 ---
 ### Audit provisional candidates (superseded 2026-10-11 by the charter-tagged six in the Bank stats header line): C4, C10, C15, B9, D6, chosen for medium difficulty and public-domain sources; survey-figure items excluded.
 
@@ -324,4 +348,4 @@ a) no client involvement is needed b) client disclosure and informed consent are
 32. Law Firm KPI Benchmarks (2025 Legal Trends data), Clio, 2025, https://www.clio.com/resources/legal-trends/benchmarks/, CITED
 33. 2025 Technology Survey Executive Summary, ILTA, September 2025, https://bmtcorp.com/wp-content/uploads/2026/01/2025_ILTA_Executive_Summary_FINAL.pdf, CITED (context only; no item rests solely on it)
 
-### Counts: total 90; E 27; M 45; H 18; correct-letter spread a/b/c/d = 23/23/22/22
+### Counts: total 98; E 30; M 46; H 22; correct-letter spread a/b/c/d = 25/25/24/24
