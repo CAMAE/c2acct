@@ -68,8 +68,20 @@ const ENV_ANCHORS = ((): Set<string> | null => {
   return new Set(raw.split(",").map((code) => code.trim()).filter((code) => /^[A-D]\d+$/.test(code)));
 })();
 
-const EXPECTED_TOTAL = 90;
-const EXPECTED_MIX = { EASY: 27, MODERATE: 45, HARD: 18 };
+/**
+ * anchor-import (R67): a bank declares its own size on the "Bank stats" line
+ * ("… 97 items · 29 E / 45 M / 23 H …"); the importer validates against that
+ * declaration. A bank without the line keeps the v1 shape, 90 at 27/45/18.
+ */
+const DEFAULT_EXPECTED = { total: 90, mix: { EASY: 27, MODERATE: 45, HARD: 18 } };
+function readDeclaredCounts(markdown: string): { total: number; mix: { EASY: number; MODERATE: number; HARD: number } } {
+  const line = markdown.split(/\r?\n/).find((entry) => entry.includes("Bank stats:"));
+  const match = line ? /(\d+)\s+items\s*·\s*(\d+)\s*E\s*\/\s*(\d+)\s*M\s*\/\s*(\d+)\s*H/.exec(line) : null;
+  if (!match) return DEFAULT_EXPECTED;
+  return { total: Number(match[1]), mix: { EASY: Number(match[2]), MODERATE: Number(match[3]), HARD: Number(match[4]) } };
+}
+let EXPECTED_TOTAL = DEFAULT_EXPECTED.total;
+let EXPECTED_MIX = DEFAULT_EXPECTED.mix;
 
 let prismaClient: { $disconnect(): Promise<void> } | null = null;
 
@@ -153,6 +165,7 @@ async function main() {
   // that is the accounting pack — the same five authorities the parser used to
   // hardcode, in the same order.
   const authorities = await loadQbankSourceAuthorities();
+  ({ total: EXPECTED_TOTAL, mix: EXPECTED_MIX } = readDeclaredCounts(markdown));
   const items = parseQbank(markdown, BANK_TEMPLATE_KEY, authorities, ENV_ANCHORS);
   const stats = summarize(items);
   const declared: DeclaredAnchors = ENV_ANCHORS
