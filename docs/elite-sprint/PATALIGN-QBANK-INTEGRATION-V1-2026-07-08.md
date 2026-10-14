@@ -1,10 +1,10 @@
 # PAT Question Bank v1 — Integration & Data Flow Maturity
-### 90 items · July 8, 2026 · DRAFT pending CPA-founder accuracy review + Leslie clarity pass (two-signature gate)
+### 93 items · July 8, 2026 · DRAFT pending CPA-founder accuracy review + Leslie clarity pass (two-signature gate)
 ### Sources (all public domain / cited): **NIST CSF 2.0** · **NIST SP 800-series** (SP 800-63B authentication, SP 800-88 media sanitization, SP 800-171 where apt) · **IRS Publication 4557** (Safeguarding Taxpayer Data) · **FTC Safeguards Rule** (16 CFR Part 314 — applies to tax preparers as GLBA "financial institutions") · GAO **2025 Green Book** (Principles 11 & 13) · GAO **Assessing Data Reliability** (GAO-20-283G)
-### Framing note: federal standards adapted to CPA-firm operating context; each item cites its source principle. Difficulty mix: 27 E / 45 M / 18 H. Blueprint: A) Data Architecture & Integration Design 25 · B) Data Quality & Reliability 22 · C) Data Security in Motion & at Rest 23 · D) Change, Interoperability & Vendor Data Exchange 20.
+### Framing note: federal standards adapted to CPA-firm operating context; each item cites its source principle. Difficulty mix: 28 E / 46 M / 19 H. Blueprint: A) Data Architecture & Integration Design 25 · B) Data Quality & Reliability 22 · C) Data Security in Motion & at Rest 23 · D) Change, Interoperability & Vendor Data Exchange 20.
 
 ---
-## SECTION A — Data Architecture & Integration Design (25: 7E/13M/5H)
+## SECTION A — Data Architecture & Integration Design (28: 8E/14M/6H)
 
 **A1 (E)** The first step toward controlling how firm systems connect is:
 a) buying an integration platform b) canceling redundant software c) an inventory of systems and a map of how client data flows between them d) hiring an IT consultant — **c.** You cannot control flows you have not identified; asset and data-flow inventories come first. *[NIST CSF 2.0 ID.AM]*
@@ -80,6 +80,15 @@ a) it collapses the reconciliation surface — fewer interfaces to control, moni
 
 **A25 (H)** Trace one return: organizer data → preparation → review → e-file authorization → transmission. Where must the architecture enforce identity attribution and post-approval locking?
 a) at transmission only b) at preparation only c) at every stage transition — each handoff needs an attributable actor, and records must lock once the authorization they support is signed d) nowhere — IRS validation covers it — **c.** A flow is only as attributable as its least-attributed handoff. *[Green Book 2025, P11; NIST CSF 2.0 PR.AA]*
+
+**A26 (E)** A scheduled nightly feed between two firm systems stops running. In a well-run firm, the first sign is:
+a) a client asking why the numbers look off b) a staff member noticing stale data weeks later c) an alert from monitoring on the feed, routed to someone who owns it d) the vendor's next invoice — **c.** A feed nobody watches fails in silence — monitoring turns a silent failure into a same-day one. *[NIST CSF 2.0 DE.CM; Green Book P11]*
+
+**A27 (M)** A feed between the client portal and the tax software errors about twice a month. Each time, the ticket bounces between the IT vendor, the office manager, and whichever preparer noticed, and the fix takes a week. The missing element:
+a) a faster vendor response time b) a named owner for that feed — one role accountable for its health, with the authority to pause it, fix it, or escalate c) a shared inbox for integration errors d) a longer sync window so errors clear on their own — **b.** A control point with no owner is handled by whoever is standing nearest — which is nobody. *[Green Book 2025, P13; NIST CSF 2.0 ID.AM]*
+
+**A28 (H)** A firm runs seven systems joined by twelve feeds. Design the ownership model that holds under load:
+a) the managing partner owns all data and delegates informally as issues arise b) the IT vendor owns every feed, since they built them c) whoever uses a system most owns its data d) a named owner per data domain (client master, books, tax, documents) who rules on what the record of truth is, plus a named owner per feed who owns its monitoring and fixes, with a written escalation path for when a domain owner and a feed owner disagree — **d.** Two ownership layers — domain and feed — because the questions differ: what the data should be, and whether it arrived. *[Green Book 2025, P13; NIST CSF 2.0 ID.AM-3]*
 
 ## SECTION B — Data Quality & Reliability (22: 7E/11M/4H)
 
@@ -283,5 +292,5 @@ a) vendor malice b) bad luck c) dashboards are inherently fragile d) no dependen
 a) always build — maximum control b) weigh supply-chain risk (another party processing client data, contract dependence) against internal ITGC capacity (can the firm actually maintain, monitor, and secure custom code?) and document the decision with a named owner — either answer can be right; an undocumented one is wrong c) always buy — vendors are the professionals d) whichever is cheaper this quarter — **b.** *[NIST CSF 2.0 GV.SC; Green Book 2025, P11]*
 
 ---
-### Bank stats: 90 items · 27 E / 45 M / 18 H · every item sourced · answer-key balance: 24 a / 21 b / 22 c / 23 d · anchor-item candidates: C13:D1:M, A12:D2:M, B9:D3:M, D8:D5:M, C17:R:M, D16:R:H (charter cells code:driver:tier from the charter re-tag table, C13 toward D1, C17 to the reserve pending its replacement, D16 the reserve; D4 and D6 empty; anchor-pool R66 item 7)
+### Bank stats: 93 items · 28 E / 46 M / 19 H · every item sourced · answer-key balance: 24 a / 22 b / 23 c / 24 d · anchor-item candidates: A1:D1:E, A13:D1:M, D19:D1:H, A26:D2:E, A12:D2:M, B19:D2:H, B5:D3:E, B9:D3:M, B21:D3:H, A5:D4:E, A27:D4:M, A28:D4:H, D4:D5:E, D8:D5:M, D17:D5:H, A2:D6:E, A8:D6:M, A21:D6:H, C17:R:M, D16:R:H (charter cells code:driver:tier, 18 of 18 from PATALIGN-ANCHOR-POOL-TAGS-2026-10-14 approved 2026-10-14, R1: A13 for C13 at D1:M; anchor-import R67)
 ### Next: CPA-founder accuracy review → Leslie clarity pass → load into ModuleTemplate schema when Sprint 4 lands. Bank 3 (Workflow & Capacity) queued on the same method.
