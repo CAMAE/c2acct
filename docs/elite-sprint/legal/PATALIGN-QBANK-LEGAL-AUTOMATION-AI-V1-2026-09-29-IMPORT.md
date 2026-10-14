@@ -1,8 +1,8 @@
-# PAT Question Bank v1 — Automation & AI Readiness (Legal) [IMPORT FORMAT: two em dashes per item are required by lib/modules/qbankParser.ts; the human-readable pack has none]
-### 90 items · September 29, 2026 · DRAFT pending domain-reviewer accuracy review + clarity pass (two-signature gate)
-### Bank stats: 90 items · 27 E / 45 M / 18 H · every item sourced · anchor-item candidates: A2:D1:E, B3:D2:E, B20:D3:M, D8:D4:M, D17:D5:H, D11:D6:M, B10:R:M (charter cells code:driver:tier from PATALIGN-LEGAL-ANCHOR-TAGS-2026-10-11 and its tier gaps, the reserve as R; anchor-pool R66 item 7)
+# PAT Question Bank v1 — Automation & AI Readiness (Legal) [IMPORT FORMAT: one em dash per item, before the key letter, is required by lib/modules/qbankParser.ts; the human-readable pack has none]
+### 95 items · September 29, 2026 · DRAFT pending domain-reviewer accuracy review + clarity pass (two-signature gate)
+### Bank stats: 95 items · 31 E / 45 M / 19 H · every item sourced · anchor-item candidates: A2:D1:E, B13:D1:M, B23:D1:H, B3:D2:E, C16:D2:M, D20:D2:H, B27:D3:E, B20:D3:M, C23:D3:H, D21:D4:E, D8:D4:M, A20:D4:H, D22:D5:E, D13:D5:M, D17:D5:H, D23:D6:E, D11:D6:M, C21:D6:H, B10:R:M (charter cells code:driver:tier, 18 of 18 from PATALIGN-ANCHOR-POOL-TAGS-2026-10-14 approved 2026-10-14; anchor-import R67)
 ### Sources (all public domain / cited): **ABA Model Rules of Professional Conduct** (Rules 1.1, 1.4, 1.5, 1.6, 3.3, 5.1, 5.3, 8.4 and Comments, 2012 Ethics 20/20 amendments) · **ABA Formal Opinions 477R (2017), 483 (2018), 498 (2021), 08-451 (2008), 512 (2024)** · **State bar AI guidance** (California 2023, Florida 24-1, North Carolina 2024 FEO 1, D.C. 388; all state-specific) · **NIST AI RMF 1.0** (NIST AI 100-1, January 2023) · **NIST AI 600-1** (Generative AI Profile, July 2024) · **NIST CSF 2.0** (CSWP 29, February 2024) · **NIST SP 800-53 Rev. 5** · **Federal Rules of Civil Procedure 26, 34, 37** and **Federal Rules of Evidence 502, 902** (as amended through December 1, 2025) · **15 U.S.C. 7001 (ESIGN)** · **GAO Green Book 2025** (GAO-25-107721) · **The Sedona Principles, Third Edition (2018)**, **Sedona TAR Case Law Primer, Second Edition (2023)**, **Sedona Commentary on Legal Holds, Second Edition (2019)** · **ILTA Technology Survey 2024 and 2025** (CITED)
-### Framing note: ethics opinions, federal rules and NIST frameworks applied to how a law firm adopts automation and generative AI; each item cites its source rule or principle and never states what is lawful. Difficulty mix: 27 E / 45 M / 18 H. Blueprint: A) Technology Competence and the Duty Framework for Tools 22 · B) Generative AI Use, Disclosure, Verification and Billing 26 · C) Automation in Discovery, Document Review and Drafting 22 · D) Readiness, Data Prerequisites, Guardrails and Rollout 20.
+### Framing note: ethics opinions, federal rules and NIST frameworks applied to how a law firm adopts automation and generative AI; each item cites its source rule or principle and never states what is lawful. Difficulty mix: 31 E / 45 M / 19 H. Blueprint: A) Technology Competence and the Duty Framework for Tools 22 · B) Generative AI Use, Disclosure, Verification and Billing 26 · C) Automation in Discovery, Document Review and Drafting 22 · D) Readiness, Data Prerequisites, Guardrails and Rollout 20.
 
 ---
 ## SECTION A — Technology Competence and the Duty Framework for Tools (22: 7E/11M/4H)
@@ -74,7 +74,7 @@ a) special measures are required for every electronic communication b) special m
 a) an episode that significantly impairs the lawyer's ability to perform the legal services for which the lawyer was hired b) any malware detection c) any event reported to insurance d) only events involving misappropriation of data — **a.** 483's definition has two prongs: compromise of material client confidential information, or significant impairment of the lawyer's ability to perform services. *[ABA Formal Op. 483 (2018)]*
 
 ---
-## SECTION B — Generative AI Use, Disclosure, Verification and Billing (26: 8E/13M/5H)
+## SECTION B — Generative AI Use, Disclosure, Verification and Billing (27: 9E/13M/5H)
 
 **B1 (E)** A managing partner asks whether the ABA wrote new rules for generative AI. ABA Formal Opinion 512 (July 29, 2024):
 a) creates a new Model Rule 1.19 on AI b) suspends Rule 1.6 for AI tools c) applies existing Rules 1.1, 1.4, 1.5, 1.6, 3.1, 3.3, 5.1, 5.3 and 8.4 to generative AI tools d) bans generative AI in court filings — **c.** 512 is an application of existing rules, not a new rule. *[ABA Formal Op. 512 (2024)]*
@@ -154,8 +154,11 @@ a) be reviewed by the Florida Bar before launch b) collect a signed engagement b
 **B26 (H)** After filing, an associate learns a brief contained a citation the AI tool fabricated. Opinion 512, reading Rules 3.3 and 8.4(c), points to the duty to:
 a) wait for the court to notice b) withdraw from the matter c) correct the inaccurate citation and analysis with the tribunal d) disclose the tool's name to opposing counsel only — **c.** 512 ties verification and correction of AI output to candor toward the tribunal and the bar on dishonesty. *[ABA Formal Op. 512 (2024); ABA Model Rules 3.3, 8.4(c)]*
 
+**B27 (E)** A firm uses a generative AI tool to pull key dates from client contracts into a matter summary. A partner asks what would show the tool's output can be trusted. The step that provides that evidence is:
+a) a reviewer compares a sample of the summaries against the source contracts and records the results b) the vendor's statement that the tool is accurate c) a count of how many contracts the tool has processed d) the absence of client complaints so far — **a.** Under the Measure function, output is checked against a known result with defined tests and the results are recorded, which is what turns a check into evidence. *[NIST AI 100-1, AI RMF 1.0, Measure (2023)]*
+
 ---
-## SECTION C — Automation in Discovery, Document Review and Drafting (22: 6E/11M/5H)
+## SECTION C — Automation in Discovery, Document Review and Drafting (23: 6E/11M/6H)
 
 **C1 (E)** A litigation firm automates production of discovery responses from a template. Under FRCP 26(g), the attorney's signature on each response certifies that:
 a) the client has read it b) it is warranted by law, not interposed for an improper purpose, and neither unreasonable nor unduly burdensome given the needs of the case c) all documents have been reviewed by a lawyer d) the response was generated without software — **b.** Rule 26(g)(1) makes the signing lawyer accountable for the reasonableness of the response and the effort behind it. *[Fed. R. Civ. P. 26(g)(1)]*
@@ -223,8 +226,11 @@ a) is stored on a domestic server b) accurately reflects the information in the 
 **C22 (H)** A firm automates legal hold notices. The Sedona Commentary on Legal Holds says a hold notice is most effective when it:
 a) identifies custodians, communicates clearly what to do, obtains acknowledgment, addresses system-level data that no custodian controls, and is followed by periodic reminders b) is sent once to the general counsel only c) is limited to email d) is sent without acknowledgment to avoid creating a record — **a.** Guideline 8 lists those elements; automation should preserve acknowledgment, system-level coverage and reminders. *[Sedona Conference Commentary on Legal Holds, Second Edition (2019), Guideline 8; CITED]*
 
+**C23 (H)** A firm used an automated review tool to decide which of 400,000 documents were responsive and produced the set. The requesting party asks how the firm knows the tool worked. The firm can point to four things. The one that will carry weight as evidence of the tool's performance on this collection is:
+a) the vendor's published accuracy figures for the tool b) the number of documents the tool coded in the time available c) the lead reviewer's recollection that spot checks looked right d) a written validation protocol, a sample drawn from the documents the tool set aside, the measured results, and the decision made on them — **d.** The Primer's cases turn on documented validation and measured results when a process is questioned; a recollection or a vendor figure says nothing about what happened on this collection. *[Sedona Conference TAR Case Law Primer, Second Edition (2023); CITED]*
+
 ---
-## SECTION D — Readiness, Data Prerequisites, Guardrails and Rollout (20: 6E/10M/4H)
+## SECTION D — Readiness, Data Prerequisites, Guardrails and Rollout (23: 9E/10M/4H)
 
 **D1 (E)** A firm's executive committee wants to know which NIST CSF 2.0 function covers establishing, communicating and monitoring cybersecurity strategy and policy. It is:
 a) Protect b) Identify c) Govern d) Recover — **c.** Govern is new in CSF 2.0 and holds the policy, roles, oversight and supply chain categories. *[NIST CSF 2.0, GV (2024)]*
@@ -286,6 +292,15 @@ a) 512's expectation that the firm secure breach notification rights from the ve
 **D20 (H)** A three-attorney firm cannot staff a separate reviewer for every AI-assisted draft. The Green Book's guidance for a control that cannot be fully designed as intended is that management:
 a) abandons the control objective b) designs compensating control activities (for example, reviewer sign-off only on client-facing drafts, with sampling of the rest) and documents how the objective is met c) waits until headcount permits full segregation d) transfers responsibility to the vendor — **b.** The Green Book applies principles with judgment and expects documentation of how objectives are met when full design is not feasible. *[GAO Green Book 2025, application guidance; Principle 12]*
 
+**D21 (E)** A paralegal at a 30-lawyer firm finds a new AI tool and wants to start using it on client files. Under the firm's policy, who should decide whether the tool may be used?
+a) the paralegal, because the tool is free b) a designated lawyer with managerial authority who approves tools and keeps the list of approved tools and any exceptions c) the vendor, through its terms of use d) whichever partner is least busy that week — **b.** Rules 5.1 and 5.3 place policies on permissible use with managerial lawyers, so approval has to sit with a named role that has the authority to say no. *[ABA Formal Op. 512 (2024); ABA Model Rules 5.1, 5.3]*
+
+**D22 (E)** A firm tested its AI drafting tool carefully before adoption. A year later the vendor has changed the underlying model twice and the firm has not looked at the output again. The firm's review of the tool's output should happen:
+a) only at adoption b) only when a client complains c) when the tool or model changes and on a set schedule, with the results recorded d) only when the bar issues new guidance — **c.** Measure calls for ongoing monitoring of a deployed system, and 477R frames security as a process that is updated continually; a model change is the event most likely to change the output. *[NIST AI 100-1, AI RMF 1.0, Measure (2023); ABA Formal Op. 477R (2017)]*
+
+**D23 (E)** An AI tool extracts filing deadlines from court notices. A clerk reads the tool's screen and types each date into the docketing system by hand. Nothing records what the tool produced, what the clerk changed, or who approved the entry. What is missing is:
+a) a direct write from the tool to the docketing system with a log of each entry, any change to it, and who approved it b) a written guarantee of accuracy from the vendor c) a second spreadsheet to track the typed dates d) a monthly reminder to the clerk to be careful — **a.** Audit records that capture what was entered, by whom and when are the control; re-keying through a person leaves no trail, and the spreadsheet is a second side file. *[NIST SP 800-53 Rev. 5, AU-2]*
+
 ---
 ### Audit provisional candidates (superseded 2026-10-11 by the charter-tagged six in the Bank stats header line): C7, C8, C13, D8, D12, chosen for medium difficulty and public-domain sources; survey-figure items excluded.
 
@@ -313,4 +328,4 @@ a) abandons the control objective b) designs compensating control activities (fo
 21. The Sedona Conference Commentary on Legal Holds, Second Edition: The Trigger & The Process. The Sedona Conference. June 2019. https://www.thesedonaconference.org/publication/Commentary_on_Legal_Holds . CITED.
 22. ILTA Technology Survey Executive Summary 2024 and 2025. International Legal Technology Association. 2024; September 2025. https://www.iltanet.org/ . CITED.
 
-### Counts: total 90; E 27; M 45; H 18; correct-letter spread a/b/c/d = 23/23/22/22
+### Counts: total 95; E 31; M 45; H 19; correct-letter spread a/b/c/d = 25/24/23/23
