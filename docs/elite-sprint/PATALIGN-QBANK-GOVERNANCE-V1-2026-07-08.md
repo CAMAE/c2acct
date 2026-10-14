@@ -1,10 +1,10 @@
 # PAT Question Bank v1 — Governance, Controls & Vendor Risk
-### 90 items · July 8, 2026 · DRAFT pending CPA-founder accuracy review + Leslie clarity pass (two-signature gate)
+### 92 items · July 8, 2026 · DRAFT pending CPA-founder accuracy review + Leslie clarity pass (two-signature gate)
 ### Sources (all public domain / cited): GAO **2025 Green Book** (GAO-25-107721, eff. FY2026; 5 components, 17 principles) · GAO **Yellow Book** (GAGAS 2024) · **NIST CSF 2.0** · **IRS Circular 230** (31 CFR Subtitle A, Part 10)
-### Framing note: federal standards adapted to CPA-firm operating context; each item cites its source principle. Difficulty mix: 27 E / 45 M / 18 H. Blueprint: A) Control Environment & Firm Governance 27 · B) Risk Assessment & Vendor Risk 23 · C) Control Activities, Access & IT 22 · D) Information, Communication & Monitoring 18.
+### Framing note: federal standards adapted to CPA-firm operating context; each item cites its source principle. Difficulty mix: 28 E / 46 M / 18 H. Blueprint: A) Control Environment & Firm Governance 27 · B) Risk Assessment & Vendor Risk 23 · C) Control Activities, Access & IT 22 · D) Information, Communication & Monitoring 18.
 
 ---
-## SECTION A — Control Environment & Firm Governance (27: 8E/14M/5H)
+## SECTION A — Control Environment & Firm Governance (27: 8E/13M/6H)
 
 **A1 (E)** The foundation of any internal control system, per the Green Book's first component, is:
 a) monitoring software b) the control environment — the tone and discipline leadership sets c) segregation of duties d) an annual audit — **b.** All other components rest on leadership's demonstrated commitment to integrity. *[Green Book 2025, Component: Control Environment]*
@@ -87,7 +87,7 @@ a) rapid headcount growth + unharmonized policies + retained legacy approval aut
 **A27 (H)** A practitioner with principal authority learns an associate gave willfully misleading written tax advice a year ago. Under Circular 230, the firm exposure turns on:
 a) whether the advice was oral b) whether reasonable compliance procedures existed and whether, upon knowing, prompt corrective action was taken (§10.36(b)) c) the client's size d) e-signature use — **b.** *[Circular 230 §10.36]*
 
-## SECTION B — Risk Assessment & Vendor Risk (23: 7E/12M/4H)
+## SECTION B — Risk Assessment & Vendor Risk (24: 7E/13M/4H)
 
 **B1 (E)** The Green Book's precondition for risk assessment is:
 a) an ERM department b) clearly defined objectives (P6) — you can't assess risk to undefined goals c) insurance d) a heat map — **b.** *[Green Book 2025, Principle 6]*
@@ -158,7 +158,10 @@ a) infosec is IT's problem b) information security risks are management's intern
 **B23 (H)** A firm's risk response to vendor concentration (one platform runs tax, books, and documents) is to "accept." For that acceptance to be defensible under P7, it must include:
 a) nothing — acceptance is acceptance b) documented analysis of impact/likelihood, exit-cost awareness, contingency plan for vendor failure, leadership sign-off, and periodic revisit c) a longer contract d) faith in the vendor's size — **b.** Conscious acceptance is a documented decision with an owner and expiry, not a shrug. *[Green Book 2025, P7/P9]*
 
-## SECTION C — Control Activities, Access & IT (22: 7E/11M/4H)
+**B24 (M)** A firm's vendor inventory is a document one partner updates from memory. At review, three tools billed monthly to the firm card are missing from it and two listed vendors were cancelled a year ago. The defect is:
+a) the partner's memory b) too few columns c) the review came too often d) the inventory is not tied to the systems that already hold the facts — accounts payable for what is paid, the contract file for what is signed — so it cannot stay complete on its own — **d.** A supplier inventory is authoritative only when it reconciles to payment and contract records; kept apart from them it is a side file. *[NIST CSF 2.0 GV.SC; Green Book P13]*
+
+## SECTION C — Control Activities, Access & IT (23: 8E/11M/4H)
 
 **C1 (E)** Control activities (P10) are:
 a) audits b) the policies and procedures that enforce management's directives at process level c) meetings d) values statements — **b.** *[Green Book 2025, Principle 10]*
@@ -226,6 +229,9 @@ a) a fun name b) retrieval-scope enforcement at the data layer (role/tenant filt
 **C22 (H)** A control costs more than the exposure it prevents. Green Book-consistent response:
 a) keep it — controls are sacred b) redesign or replace it — control precision should be proportionate to risk, and management documents the cost-risk judgment c) hide it d) double it — **b.** *[Green Book 2025, P10 design attributes]*
 
+**C23 (E)** A firm tracks who has access to each client-data system on a spreadsheet one administrator keeps. The access list is reliable only when it:
+a) is printed and filed each quarter b) is password-protected c) is generated from the identity directory and the HR roster, so a hire, role change or departure updates it without re-keying d) lists partners first — **c.** An access record kept apart from the systems that grant access drifts from them; the record of truth is the identity directory tied to HR status. *[NIST CSF 2.0 PR.AA; Green Book P11]*
+
 ## SECTION D — Information, Communication & Monitoring (18: 5E/9M/4H)
 
 **D1 (E)** Quality information (P13) must be:
@@ -283,5 +289,5 @@ a) annual everything b) daily: payment/exception queues · weekly: unbilled/WIP 
 a) fix fast and quietly b) impact analysis across dependent processes, coordinated change (P11 change management), re-test of the dependent controls, and closure evidence for all touched paths — shared components need sibling verification, not spot fixes c) email the fix d) defer to year-end — **b.** *[Green Book 2025, P17/P11]*
 
 ---
-### Bank stats: 90 items · 27 E / 45 M / 18 H · every item sourced · anchor-item candidates: B8:D1:M, A9:D2:M, D6:D3:M, C8:D4:M, D17:D5:H, C19:R:H (charter cells code:driver:tier from the charter re-tag table, C19 to the reserve so D5 holds one code, the reserve as R; anchor-pool R66 item 7)
+### Bank stats: 92 items · 28 E / 46 M / 18 H · every item sourced · anchor-item candidates: C7:D1:E, B8:D1:M, B23:D1:H, C4:D2:E, A9:D2:M, A22:D2:H, D1:D3:E, D6:D3:M, D15:D3:H, A5:D4:E, C8:D4:M, A24:D4:H, D4:D5:E, B9:D5:M, D17:D5:H, C23:D6:E, B24:D6:M, D16:D6:H, C19:R:H (charter cells code:driver:tier, 18 of 18 from PATALIGN-ANCHOR-POOL-TAGS-2026-10-14 approved 2026-10-14; anchor-import R67)
 ### Next: CPA-founder accuracy review → Leslie clarity pass → load into ModuleTemplate schema when Sprint 4 lands. Bank 2 (Integration & Data Flow) queued on the same method.
